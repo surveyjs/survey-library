@@ -1,3 +1,4 @@
 src/dxSurvey/node_modules/*
 src/dxSurvey/typings/*
 src/dxSurvey/wwwroot/lib/*
+.vs/*

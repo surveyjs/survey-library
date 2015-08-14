@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Web Client</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+    <script src="/js/dx.scripts.js"></script>
+
+</head>
+<body>
+    <div id="dxsurvey"></div>
+    <script>
+        var survey = new dxSurvey.Survey("survey");
+        survey.pages[0].addNewQuestion("text", "Text Question");
+        survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
+        var page = survey.addNewPage("Second Page");
+        page.addNewQuestion("text", "Text2");
+        page.addNewQuestion("text", "Text3");
+        page.addNewQuestion("text", "Text4");
+        survey.render(document.getElementById("dxsurvey"));
+        survey.onComplete.add(function (s) { alert('Completed!'); document.getElementById("dxsurvey").innerHTML = "Done!"; });
+    </script>
+</body>
+</html>

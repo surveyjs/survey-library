@@ -99,4 +99,32 @@ module dxSurvey.Tests {
         assert.equal(survey.getValue("question"), "myNewtext", "set value from survey");
         assert.equal(question.value, "myNewtext", "set value from survey");
     });
+    QUnit.test("Should set required questions before go on the  next page or finish", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.notEqual(survey, null, "Survey is not  null");
+        survey.pages[0].questions[0].isRequired = true;
+        survey.pages[1].questions[0].isRequired = true;
+
+        assert.equal(survey.pages[0].questions[0].isFilledOut(), false, "The question is not filled out.");
+        assert.equal(survey.pages[0].isFilledOut(), false, "The page is not filled out.");
+        assert.equal(survey.isCurrentPageFilledOut(), false, "The page is not filled out.");
+        assert.equal(survey.nextPage(), false, "Can not go to the next page");
+
+        survey.pages[0].questions[0].value = "Test";
+
+        assert.equal(survey.pages[0].questions[0].isFilledOut(), true, "The question is filled out.");
+        assert.equal(survey.pages[0].isFilledOut(), true, "The page is filled out.");
+        assert.equal(survey.isCurrentPageFilledOut(), true, "The page is filled out.");
+        assert.equal(survey.nextPage(), true, "Can go to the next page");
+    });
+    function twoPageSimplestSurvey() {
+        var survey = new dxSurvey.Survey();
+        var page = survey.pages[0];
+        page.addNewQuestion("text", "question1");
+        page.addNewQuestion("text", "question2");
+        page = survey.addNewPage("Page 2");
+        page.addNewQuestion("text", "question3");
+        page.addNewQuestion("text", "question4");
+        return survey;
+    }
 }

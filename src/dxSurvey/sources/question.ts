@@ -4,6 +4,8 @@ module dxSurvey {
         public data: ISurveyData;
         questionValue: any;
         koValue: any;
+        _isRequired: boolean;
+
         constructor(public name: string) {
             super();
             if (this.isKO) {
@@ -18,6 +20,8 @@ module dxSurvey {
         public getType(): string {
             throw new Error('This method is abstract');
         }
+        get isRequired(): boolean { return this._isRequired; }
+        set isRequired(val: boolean) { this._isRequired = val; }
         get value(): any {
             if (this.data != null) return this.data.getValue(this.name);
             return this.questionValue;
@@ -27,6 +31,12 @@ module dxSurvey {
             if (this.isKO) {
                 this.koValue(newValue);
             }
+        }
+        public isFilledOut(): boolean {
+            if (this.isRequired) {
+                return this.value != null;
+            }
+            return true;
         }
         private setNewValue(newValue: any) {
             if (this.data != null) {

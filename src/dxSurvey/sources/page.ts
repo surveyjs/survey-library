@@ -17,6 +17,11 @@ module dxSurvey {
             this.addQuestion(question);
             return question;
         }
-
+        public isFilledOut(): boolean {
+            for (var i = 0; i < this.questions.length; i++) {
+                if (!this.questions[i].isFilledOut()) return false;
+            }
+            return true;
+        }
     }
 }

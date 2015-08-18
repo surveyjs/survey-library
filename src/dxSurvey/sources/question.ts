@@ -3,19 +3,24 @@
 module dxSurvey {
     export class Question extends Base {
         public data: ISurveyData;
-        questionValue: any;
-        _isRequired: boolean;
+        private questionValue: any;
+        private isRequiredValue: boolean = false;
+        private hasCommentValue: boolean = false;
         errors: Array<SurveyError> = [];
-        koValue: any; koErrors: any;
+        koValue: any; koComment : any; koErrors: any;
 
         constructor(public name: string) {
             super();
             if (this.isKO) {
                 this.koValue = ko.observable(this.value);
+                this.koComment = ko.observable(this.comment);
                 this.koErrors = ko.observableArray(this.errors);
                 var self = this;
                 this.koValue.subscribe(function (newValue) {
                     self.setNewValue(newValue);
+                });
+                this.koComment.subscribe(function (newValue) {
+                    self.setNewComment(newValue);
                 });
 
             }
@@ -23,8 +28,14 @@ module dxSurvey {
         public getType(): string {
             throw new Error('This method is abstract');
         }
-        get isRequired(): boolean { return this._isRequired; }
-        set isRequired(val: boolean) { this._isRequired = val; }
+        public supportComment(): boolean { return false; }
+        get isRequired(): boolean { return this.isRequiredValue; }
+        set isRequired(val: boolean) { this.isRequiredValue = val; }
+        get hasComment(): boolean { return this.hasCommentValue; }
+        set hasComment(val: boolean) {
+            if (!this.supportComment()) return;
+            this.hasCommentValue = val;
+        }
         get value(): any {
             if (this.data != null) return this.data.getValue(this.name);
             return this.questionValue;
@@ -32,7 +43,14 @@ module dxSurvey {
         set value(newValue: any) {
             this.setNewValue(newValue);
             if (this.isKO) {
-                this.koValue(newValue);
+                this.koValue(this.value);
+            }
+        }
+        get comment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
+        set comment(newValue: string) {
+            this.setNewComment(newValue);
+            if (this.isKO) {
+                this.koComment(this.comment);
             }
         }
         isEmpty(): boolean { return this.value == null; }
@@ -56,6 +74,11 @@ module dxSurvey {
                 this.data.setValue(this.name, newValue);
             }
             this.questionValue = newValue;
+        }
+        private setNewComment(newValue: string) {
+            if (this.data != null) {
+                this.data.setComment(this.name, newValue);
+            }
         }
     }
 }

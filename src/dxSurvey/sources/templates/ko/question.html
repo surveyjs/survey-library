@@ -4,4 +4,8 @@
     </div>
     <h4 data-bind="text: (question.isRequired ? '* ' : '') + question.name"></h4>
     <div data-bind="template: { name: 'dxsurvey-question-' + question.getType(), data: question }"></div>
+    <div data-bind="visible: question.hasComment">
+        Other (please describe)
+        <input data-bind="value:question.koComment" />
+    </div>
 </script>

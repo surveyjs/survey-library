@@ -99,6 +99,35 @@ module dxSurvey.Tests {
         assert.equal(survey.getValue("question"), "myNewtext", "set value from survey");
         assert.equal(question.value, "myNewtext", "set value from survey");
     });
+    QUnit.test("Store comments in the survey", function (assert) {
+        var survey = new dxSurvey.Survey();
+        survey.addPage(new dxSurvey.Page("Page 1"));
+        var question = survey.pages[0].addNewQuestion("text", "question");
+        assert.equal(survey.getComment("question"), "", "Comment is empty");
+        assert.equal(question.comment, "", "Comment is empty");
+
+        question.comment = "myComment";
+        assert.equal(survey.getComment("question"), "myComment", "set comment from question");
+        assert.equal(question.comment, "myComment", "set comment from question");
+
+        survey.setComment("question", "myNewComment");
+        assert.equal(survey.getComment("question"), "myNewComment", "set comment from survey");
+        assert.equal(question.comment, "myNewComment", "set comment from survey");
+    });
+    QUnit.test("Only some questions support comment", function (assert) {
+        var questionText = dxSurvey.QuestionFactory.Instance.createQuestion("text", "textQuestion");
+
+        assert.equal(questionText.supportComment(), false, "Text question doesn't support comment.");
+        assert.equal(questionText.hasComment, false, "Text question doesn't support comment.");
+        questionText.hasComment = true;
+        assert.equal(questionText.hasComment, false, "You can't set has comment to the text question.");
+
+        var questionDropDown = dxSurvey.QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        assert.equal(questionDropDown.supportComment(), true, "Drop down question supports comment.");
+        assert.equal(questionDropDown.hasComment, false, "Has comment is false by  default.");
+        questionDropDown.hasComment = true;
+        assert.equal(questionDropDown.hasComment, true, "You can set comment for drop down question.");
+    });
     QUnit.test("Should set required questions before go on the  next page or finish", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.notEqual(survey, null, "Survey is not  null");

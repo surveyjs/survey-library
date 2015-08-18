@@ -9,6 +9,7 @@ module dxSurvey {
         public getType(): string {
             return "dropdown";
         }
+        public supportComment(): boolean { return true; }
     }
     QuestionFactory.Instance.registerQuestion("dropdown", (name) => { return new QuestionDropdown(name); });
 }

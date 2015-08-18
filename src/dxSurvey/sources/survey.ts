@@ -5,6 +5,7 @@ module dxSurvey {
         pages: Array<Page> = new Array<Page>();
         private currentPage: Page = null;
         private valuesHash: HashTable<any> = {};
+        private commentsHash: HashTable<string> = {};
 
         private renderedElement: HTMLElement;
 
@@ -97,6 +98,17 @@ module dxSurvey {
         setValue(name: string, newValue: any) {
             this.valuesHash[name] = newValue;
         }
-
+        getComment(name: string): string {
+            var result = this.commentsHash[name];
+            if (result == null) result = "";
+            return result;
+        }
+        setComment(name: string, newValue: string) {
+            if (newValue == "" || newValue == null) {
+                delete this.commentsHash[name];
+            } else {
+                this.commentsHash[name] = newValue;
+            }
+        }
     }
 }

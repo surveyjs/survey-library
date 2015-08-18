@@ -5,6 +5,8 @@
     export interface ISurveyData {
         getValue(name: string): any;
         setValue(name: string, newValue: any);
+        getComment(name: string): string;
+        setComment(name: string, newValue: string);
     }
     export class Base {
         isKO = typeof ko !== 'undefined';

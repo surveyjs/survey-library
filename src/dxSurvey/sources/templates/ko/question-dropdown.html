@@ -1,3 +1,7 @@
 ﻿<script type="text/html" id="dxsurvey-question-dropdown">
-    <select data-bind="options: question.choices, value: question.koValue, optionsCaption: 'Choose...'" />
+    <select data-bind="options: question.visibleChoices, value: question.koValue, optionsCaption: 'Choose...'" />
+    <div data-bind="visible: question.hasOther">
+        <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+    </div>
+
 </script>

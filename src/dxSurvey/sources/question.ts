@@ -6,6 +6,7 @@ module dxSurvey {
         private questionValue: any;
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
+        private hasOtherValue: boolean = false;
         errors: Array<SurveyError> = [];
         koValue: any; koComment : any; koErrors: any;
 
@@ -29,12 +30,20 @@ module dxSurvey {
             throw new Error('This method is abstract');
         }
         public supportComment(): boolean { return false; }
+        public supportOther(): boolean { return false; }
         get isRequired(): boolean { return this.isRequiredValue; }
         set isRequired(val: boolean) { this.isRequiredValue = val; }
         get hasComment(): boolean { return this.hasCommentValue; }
         set hasComment(val: boolean) {
             if (!this.supportComment()) return;
             this.hasCommentValue = val;
+            if (this.hasComment) this.hasOther = false;
+        }
+        get hasOther(): boolean { return this.hasOtherValue; }
+        set hasOther(val: boolean) {
+            if (!this.supportOther()) return;
+            this.hasOtherValue = val;
+            if (this.hasOther) this.hasComment = false;
         }
         get value(): any {
             if (this.data != null) return this.data.getValue(this.name);

@@ -128,6 +128,36 @@ module dxSurvey.Tests {
         questionDropDown.hasComment = true;
         assert.equal(questionDropDown.hasComment, true, "You can set comment for drop down question.");
     });
+    QUnit.test("Only some questions support other", function (assert) {
+        var questionText = dxSurvey.QuestionFactory.Instance.createQuestion("text", "textQuestion");
+
+        assert.equal(questionText.supportOther(), false, "Text question doesn't support other.");
+        assert.equal(questionText.hasOther, false, "Text question doesn't support other.");
+        questionText.hasOther = true;
+        assert.equal(questionText.hasOther, false, "You can't set has other to the text question.");
+
+        var questionDropDown = dxSurvey.QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        assert.equal(questionDropDown.supportOther(), true, "Drop down question supports other.");
+        assert.equal(questionDropDown.hasOther, false, "Has other is false by  default.");
+        questionDropDown.hasOther = true;
+        assert.equal(questionDropDown.hasOther, true, "You can set other for drop down question.");
+    });
+    QUnit.test("Comment and other could not be set together", function (assert) {
+        var questionDropDown = dxSurvey.QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        assert.equal(questionDropDown.hasComment, false, "Initial comment is turn off.");
+        assert.equal(questionDropDown.hasOther, false, "Initial other is turn off.");
+
+        questionDropDown.hasOther = true;
+        assert.equal(questionDropDown.hasOther, true, "set initially other to true");
+
+        questionDropDown.hasComment = true;
+        assert.equal(questionDropDown.hasComment, true, "After set comment to true");
+        assert.equal(questionDropDown.hasOther, false, "After set comment to true");
+
+        questionDropDown.hasOther = true;
+        assert.equal(questionDropDown.hasComment, false, "After set other to true");
+        assert.equal(questionDropDown.hasOther, true, "After set other to true");
+    });
     QUnit.test("Should set required questions before go on the  next page or finish", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.notEqual(survey, null, "Survey is not  null");

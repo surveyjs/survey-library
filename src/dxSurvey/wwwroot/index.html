@@ -17,7 +17,7 @@
         var ddQuestion = survey.pages[0].addNewQuestion("dropdown", "DropDown Question");
         ddQuestion.choices = ["One", "Two", "Three"];
         ddQuestion.isRequired = true;
-        ddQuestion.hasComment = true;
+        ddQuestion.hasOther = true;
         var page = survey.addNewPage("Second Page");
         page.addNewQuestion("text", "Text2");
         page.addNewQuestion("text", "Text3");

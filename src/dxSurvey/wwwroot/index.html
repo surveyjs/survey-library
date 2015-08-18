@@ -14,6 +14,9 @@
         var survey = new dxSurvey.Survey("survey");
         survey.pages[0].addNewQuestion("text", "Text Question").isRequired = true;
         survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
+        var ddQuestion = survey.pages[0].addNewQuestion("dropdown", "DropDown Question");
+        ddQuestion.choices = ["One", "Two", "Three"];
+        ddQuestion.isRequired = true;
         var page = survey.addNewPage("Second Page");
         page.addNewQuestion("text", "Text2");
         page.addNewQuestion("text", "Text3");

@@ -8,6 +8,9 @@ module dxSurvey {
         public getType(): string {
             return "text";
         }
+        isEmpty(): boolean {
+            return super.isEmpty() || this.value == "";
+        }
     }
     QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionText(name); });
 }

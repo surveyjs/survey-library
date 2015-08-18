@@ -1,15 +1,18 @@
 ﻿/// <reference path="questionfactory.ts" />
+/// <reference path="error.ts" />
 module dxSurvey {
     export class Question extends Base {
         public data: ISurveyData;
         questionValue: any;
-        koValue: any;
         _isRequired: boolean;
+        errors: Array<SurveyError> = [];
+        koValue: any; koErrors: any;
 
         constructor(public name: string) {
             super();
             if (this.isKO) {
                 this.koValue = ko.observable(this.value);
+                this.koErrors = ko.observableArray(this.errors);
                 var self = this;
                 this.koValue.subscribe(function (newValue) {
                     self.setNewValue(newValue);
@@ -32,11 +35,21 @@ module dxSurvey {
                 this.koValue(newValue);
             }
         }
-        public isFilledOut(): boolean {
+        isEmpty(): boolean { return this.value == null; }
+        public hasErrors(): boolean {
+            this.checkForErrors();
+            return this.errors.length > 0;
+        }
+        private checkForErrors() {
+            this.errors = [];
             if (this.isRequired) {
-                return this.value != null;
+                if (this.isEmpty()) {
+                    this.errors.push(new AnswerRequiredError());
+                }
             }
-            return true;
+            if (this.isKO) {
+               this.koErrors(this.errors);
+            }
         }
         private setNewValue(newValue: any) {
             if (this.data != null) {

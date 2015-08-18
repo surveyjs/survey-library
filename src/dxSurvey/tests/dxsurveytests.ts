@@ -105,17 +105,15 @@ module dxSurvey.Tests {
         survey.pages[0].questions[0].isRequired = true;
         survey.pages[1].questions[0].isRequired = true;
 
-        assert.equal(survey.pages[0].questions[0].isFilledOut(), false, "The question is not filled out.");
-        assert.equal(survey.pages[0].isFilledOut(), false, "The page is not filled out.");
-        assert.equal(survey.isCurrentPageFilledOut(), false, "The page is not filled out.");
         assert.equal(survey.nextPage(), false, "Can not go to the next page");
+        assert.equal(survey.pages[0].questions[0].hasErrors(), true, "The question is not filled out.");
+        assert.equal(survey.pages[0].hasErrors(), true, "The page is not filled out.");
 
         survey.pages[0].questions[0].value = "Test";
 
-        assert.equal(survey.pages[0].questions[0].isFilledOut(), true, "The question is filled out.");
-        assert.equal(survey.pages[0].isFilledOut(), true, "The page is filled out.");
-        assert.equal(survey.isCurrentPageFilledOut(), true, "The page is filled out.");
         assert.equal(survey.nextPage(), true, "Can go to the next page");
+        assert.equal(survey.pages[0].questions[0].hasErrors(), false, "The question is filled out.");
+        assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
     });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();

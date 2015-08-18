@@ -35,14 +35,14 @@ module dxSurvey {
         }
         nextPage(): boolean {
             if (this.isLastPage) return false;
-            if (!this.isCurrentPageFilledOut()) return false;
+            if (this.isCurrentPageHasErrors()) return false;
             var index = this.pages.indexOf(this.CurrentPage);
             this.CurrentPage = this.pages[index + 1];
             return true;
         }
-        isCurrentPageFilledOut(): boolean {
-            if (this.CurrentPage == null) return false;
-            return this.CurrentPage.isFilledOut();
+        isCurrentPageHasErrors(): boolean {
+            if (this.CurrentPage == null) return true;
+            return this.CurrentPage.hasErrors();
         }
         prevPage(): boolean {
             if (this.isFirstPage) return false;
@@ -50,7 +50,7 @@ module dxSurvey {
             this.CurrentPage = this.pages[index - 1];
         }
         completeLastPage() : boolean {
-            if (!this.isCurrentPageFilledOut()) return false;
+            if (this.isCurrentPageHasErrors()) return false;
             this.onComplete.fire(this, null);
             return true;
         }

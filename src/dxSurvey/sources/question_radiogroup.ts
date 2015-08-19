@@ -1,13 +1,13 @@
 ﻿// <reference path="question_selectbase.ts" />
 /// <reference path="questionfactory.ts" />
 module dxSurvey {
-    export class QuestionDropdown extends QuestionSelectBase {
+    export class QuestionRadiogroup extends QuestionSelectBase {
         constructor(public name: string) {
             super(name);
         }
         public getType(): string {
-            return "dropdown";
+            return "radiogroup";
         }
     }
-    QuestionFactory.Instance.registerQuestion("dropdown", (name) => { return new QuestionDropdown(name); });
+    QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { return new QuestionRadiogroup(name); });
 }

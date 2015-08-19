@@ -1,6 +1,7 @@
 ﻿/// <reference path="../sources/survey.ts" />
 /// <reference path="../sources/page.ts" />
 /// <reference path="../sources/question.ts" />
+/// <reference path="../sources/question_baseselect.ts" />
 /// <reference path="../sources/questionfactory.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
@@ -173,6 +174,15 @@ module dxSurvey.Tests {
         assert.equal(survey.nextPage(), true, "Can go to the next page");
         assert.equal(survey.pages[0].questions[0].hasErrors(), false, "The question is filled out.");
         assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
+    });
+    QUnit.test("visibleChoices changes on setting others to true/false", function (assert) {
+        var question = new QuestionSelectBase("dropdownQuestion");
+        question.choices = ["One", "Two", "Three"];
+        assert.equal(question.visibleChoices.length, 3, "By default visibleChoices equals to choices");
+        question.hasOther = true;
+        assert.equal(question.visibleChoices.length, 4, "Add one more item for others");
+        question.hasOther = false;
+        assert.equal(question.visibleChoices.length, 3, "Remove the others item");
     });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();

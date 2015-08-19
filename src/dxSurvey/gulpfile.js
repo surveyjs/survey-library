@@ -10,7 +10,6 @@ var gulp = require('gulp'),
 var paths = {
     webroot: "./" + project.webroot + "/",
     ts: ["./sources/*.ts"],
-    tsApp: "./sources/app.ts",
     typings: "./typings/**/*.d.ts",
     tsTests: "./tests/**/*.ts",
     styles: "./sources/*.scss",
@@ -64,25 +63,6 @@ gulp.task('default', function () {
             .pipe(gulp.dest(paths.jsFolder));
     });
 
-    gulp.task("typescript:app", function () {
-        var tsResult = gulp.src([
-              paths.webroot + "/lib/dxsurvey/**/*.d.ts",
-              paths.typings,
-              paths.tsApp])
-           .pipe(sourcemaps.init())
-           .pipe(ts({
-               target: "ES5",
-               noImplicitAny: false
-           }));
-
-        return tsResult.js
-            .pipe(concat('app.js'))
-            .pipe(sourcemaps.write({ sourceRoot: "sources" }))
-            //Source map is a part of generated file
-            .pipe(gulp.dest(paths.jsFolder));
-    })
-
-
     gulp.task("typescript:tests", function () {
         var tsResult = gulp.src([
               paths.webroot + "/lib/dxsurvey/**/*.d.ts",
@@ -102,14 +82,11 @@ gulp.task('default', function () {
             .pipe(gulp.dest(paths.testsFolder));
     });
 
-    gulp.task("typescript", ["typescript:app", "typescript:sources", "typescript:tests"]);
+    gulp.task("typescript", ["typescript:sources", "typescript:tests"]);
 })("TypeScript compilation");
 
 (function () {
     "use strict";
-    gulp.task('add_ts_watch:app', function () {
-        gulp.watch([paths.tsApp], ["typescript:app"]);
-    });
     gulp.task('add_ts_watch:sources', function () {
         gulp.watch([paths.ts], ["typescript:sources"]);
     });

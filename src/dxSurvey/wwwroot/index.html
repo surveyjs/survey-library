@@ -18,6 +18,11 @@
         ddQuestion.choices = ["One", "Two", "Three"];
         ddQuestion.isRequired = true;
         ddQuestion.hasOther = true;
+
+        var rgQuestion = survey.pages[0].addNewQuestion("radiogroup", "Radiogroup Question");
+        rgQuestion.choices = ["One!", "Two!", "Three!"];
+        rgQuestion.hasOther = true;
+
         var page = survey.addNewPage("Second Page");
         page.addNewQuestion("text", "Text2");
         page.addNewQuestion("text", "Text3");

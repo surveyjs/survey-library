@@ -13,7 +13,7 @@ module dxSurvey {
         constructor(public name: string) {
             super();
             if (this.isKO) {
-                this.koValue = ko.observable(this.value);
+                this.koValue = this.createkoValue();
                 this.koComment = ko.observable(this.comment);
                 this.koErrors = ko.observableArray(this.errors);
                 var self = this;
@@ -26,6 +26,7 @@ module dxSurvey {
 
             }
         }
+        protected createkoValue(): any { return ko.observable(this.value); }
         public getType(): string {
             throw new Error('This method is abstract');
         }

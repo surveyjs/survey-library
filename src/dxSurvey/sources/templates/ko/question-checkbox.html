@@ -2,7 +2,7 @@
     <div data-bind="foreach: question.visibleChoices">
         <label>
             <input type="checkbox"
-                   data-bind="attr: {value: $data}, checkedWithInit: $parent.koValue" />
+                   data-bind="value: $data, checked: $parent.koValue" />
             <span data-bind="text: $data"></span>
         </label>
     </div>

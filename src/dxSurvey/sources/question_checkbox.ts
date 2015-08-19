@@ -5,6 +5,11 @@ module dxSurvey {
         constructor(public name: string) {
             super(name);
         }
+        protected createkoValue(): any { return ko.observableArray(this.value); }
+        protected iskoOtherVisible(): boolean {
+            return this.koValue.indexOf(this.otherString) >= 0;
+        }
+
         public getType(): string {
             return "checkbox";
         }

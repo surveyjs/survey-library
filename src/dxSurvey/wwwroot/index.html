@@ -12,6 +12,7 @@
     <div id="dxsurvey"></div>
     <script>
         var survey = new dxSurvey.Survey("survey");
+        survey.setValue("Checkbox Question", "!Two");
         survey.pages[0].addNewQuestion("text", "Text Question").isRequired = true;
         var cbQuestion = survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
         cbQuestion.choices = ["!One", "!Two", "!Three"];
@@ -30,6 +31,7 @@
         page.addNewQuestion("text", "Text2");
         page.addNewQuestion("text", "Text3");
         page.addNewQuestion("text", "Text4");
+
         survey.render(document.getElementById("dxsurvey"));
         survey.onComplete.add(function (s) { alert('Completed!'); document.getElementById("dxsurvey").innerHTML = "Done!"; });
     </script>

@@ -8,8 +8,11 @@ module dxSurvey {
             super(name);
             if (this.isKO) {
                 var self = this;
-                this.koOtherVisible = ko.computed(function () { return self.koValue() == self.otherString; });
+                this.koOtherVisible = ko.computed(function () { return self.iskoOtherVisible(); });
             }
+        }
+        protected iskoOtherVisible(): boolean {
+            return this.koValue() == this.otherString;
         }
         get visibleChoices(): Array<string> {
             if (!this.hasOther) return this.choices;

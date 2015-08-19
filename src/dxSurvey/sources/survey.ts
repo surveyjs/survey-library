@@ -83,8 +83,28 @@ module dxSurvey {
             var self = this;
             this.renderedElement = element;
             if (this.isKO) {
-                $(element).load("/templates/knockout.html", null, function () { self.applyBinding(); });
+                this.loadFile("/templates/knockout.html",
+                    function (html: string) {
+                        element.innerHTML = html;
+                        self.applyBinding();
+                    },
+                    function (errorResult: string) { element.innerHTML = "Knockout template could not be loaded. " + errorResult; }
+                    );
+                //remove dependens on jQuery.
+                //$(element).load("/templates/knockout.html", null, function () { self.applyBinding(); });
             }
+        }
+        private loadFile(fileName: string, funcSuccess: Function, funcError: Function) {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        funcSuccess(xmlhttp.responseText);
+                    } else funcError(xmlhttp.responseText);
+                }
+            }
+            xmlhttp.open("GET", fileName, true);
+            xmlhttp.send();
         }
         private applyBinding() {
             if (!this.isKO || this.renderedElement == null) return;

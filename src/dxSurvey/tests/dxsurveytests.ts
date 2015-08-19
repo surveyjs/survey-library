@@ -2,6 +2,7 @@
 /// <reference path="../sources/page.ts" />
 /// <reference path="../sources/question.ts" />
 /// <reference path="../sources/question_baseselect.ts" />
+/// <reference path="../sources/question_checkbox.ts" />
 /// <reference path="../sources/questionfactory.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
@@ -183,6 +184,17 @@ module dxSurvey.Tests {
         assert.equal(question.visibleChoices.length, 4, "Add one more item for others");
         question.hasOther = false;
         assert.equal(question.visibleChoices.length, 3, "Remove the others item");
+    });
+    QUnit.test("Pre-proccess value for Checkbox", function (assert) {
+        var survey = new dxSurvey.Survey();
+        var page = survey.pages[0];
+        var question = new QuestionCheckbox("checkboxQuestion");
+        question.choices = ["One", "Two", "Three"];
+        page.addQuestion(question);
+
+        survey.setValue("checkboxQuestion", "One");
+        assert.equal(question.value, ["One"], "convert value to array");
+
     });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();

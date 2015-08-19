@@ -13,7 +13,10 @@
     <script>
         var survey = new dxSurvey.Survey("survey");
         survey.pages[0].addNewQuestion("text", "Text Question").isRequired = true;
-        survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
+        var cbQuestion = survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
+        cbQuestion.choices = ["!One", "!Two", "!Three"];
+        cbQuestion.hasOther = true;
+
         var ddQuestion = survey.pages[0].addNewQuestion("dropdown", "DropDown Question");
         ddQuestion.choices = ["One", "Two", "Three"];
         ddQuestion.isRequired = true;

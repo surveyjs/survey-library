@@ -11,7 +11,8 @@ var paths = {
     webroot: "./" + project.webroot + "/",
     ts: ["./sources/*.ts"],
     typings: "./typings/**/*.d.ts",
-    tsTests: "./tests/**/*.ts",
+    tsTests: "./tests/*.ts",
+    tsTests_ko: "./tests/ko/*.ts",
     styles: "./sources/*.scss",
     templates_ko: "./sources/templates/ko/*.html"
 };
@@ -82,7 +83,26 @@ gulp.task('default', function () {
             .pipe(gulp.dest(paths.testsFolder));
     });
 
-    gulp.task("typescript", ["typescript:sources", "typescript:tests"]);
+    gulp.task("typescript:tests_ko", function () {
+        var tsResult = gulp.src([
+              paths.webroot + "/lib/dxsurvey/**/*.d.ts",
+              paths.typings,
+              //"./sources/model/*.ts",
+              paths.tsTests_ko])
+           .pipe(sourcemaps.init())
+           .pipe(ts({
+               target: "ES5",
+               noImplicitAny: false
+           }));
+
+        return tsResult.js
+            .pipe(concat('tests_ko.js'))
+            .pipe(sourcemaps.write({ sourceRoot: "sources" }))
+            //Source map is a part of generated file
+            .pipe(gulp.dest(paths.testsFolder));
+    });
+
+    gulp.task("typescript", ["typescript:sources", "typescript:tests", "typescript:tests_ko"]);
 })("TypeScript compilation");
 
 (function () {

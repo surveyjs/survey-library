@@ -79,6 +79,20 @@ module dxSurvey {
         private addDefaultPage() {
             this.addPage(new Page("Page 1"));
         }
+        private getAllQuestions(): Array<IQuestion> {
+            var result = new Array<IQuestion>();
+            for (var i: number = 0; i < this.pages.length; i++) {
+                this.pages[i].addQuestionsToList(result);
+            }
+            return result;
+        }
+        private notifyQuestionOnValueChanged(name: string, newValue: any) {
+            var questions = this.getAllQuestions();
+            for (var i: number = 0; i < questions.length; i++) {
+                if (questions[i].name != name) continue;
+                questions[i].onSurveyValueChanged(newValue);
+            }
+        }
         public render(element: HTMLElement) {
             var self = this;
             this.renderedElement = element;
@@ -90,8 +104,6 @@ module dxSurvey {
                     },
                     function (errorResult: string) { element.innerHTML = "Knockout template could not be loaded. " + errorResult; }
                     );
-                //remove dependens on jQuery.
-                //$(element).load("/templates/knockout.html", null, function () { self.applyBinding(); });
             }
         }
         private loadFile(fileName: string, funcSuccess: Function, funcError: Function) {
@@ -117,6 +129,7 @@ module dxSurvey {
         }
         setValue(name: string, newValue: any) {
             this.valuesHash[name] = newValue;
+            this.notifyQuestionOnValueChanged(name, newValue);
         }
         getComment(name: string): string {
             var result = this.commentsHash[name];

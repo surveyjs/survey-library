@@ -1,8 +1,8 @@
 ﻿/// <reference path="questionfactory.ts" />
 /// <reference path="error.ts" />
 module dxSurvey {
-    export class Question extends Base {
-        public data: ISurveyData;
+    export class Question extends Base implements IQuestion {
+        protected data: ISurveyData;
         private questionValue: any;
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
@@ -27,6 +27,9 @@ module dxSurvey {
             }
         }
         protected createkoValue(): any { return ko.observable(this.value); }
+        protected setkoValue(newValue: any) {
+            this.koValue(newValue);
+        }
         public getType(): string {
             throw new Error('This method is abstract');
         }
@@ -46,6 +49,10 @@ module dxSurvey {
             this.hasOtherValue = val;
             if (this.hasOther) this.hasComment = false;
         }
+        setData(newValue: ISurveyData) {
+            this.data = newValue;
+            this.onSurveyValueChanged(this.value);
+        }
         get value(): any {
             if (this.data != null) return this.data.getValue(this.name);
             return this.questionValue;
@@ -53,7 +60,7 @@ module dxSurvey {
         set value(newValue: any) {
             this.setNewValue(newValue);
             if (this.isKO) {
-                this.koValue(this.value);
+                this.setkoValue(this.value);
             }
         }
         get comment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
@@ -79,7 +86,9 @@ module dxSurvey {
                this.koErrors(this.errors);
             }
         }
+        private isValueChangedInSurvey = false;
         private setNewValue(newValue: any) {
+            if (this.isValueChangedInSurvey) return;
             if (this.data != null) {
                 this.data.setValue(this.name, newValue);
             }
@@ -89,6 +98,12 @@ module dxSurvey {
             if (this.data != null) {
                 this.data.setComment(this.name, newValue);
             }
+        }
+        //IQuestion
+        onSurveyValueChanged(newValue: any) {
+            this.isValueChangedInSurvey = true;
+            this.value = newValue;
+            this.isValueChangedInSurvey = false;
         }
     }
 }

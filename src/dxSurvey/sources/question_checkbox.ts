@@ -6,6 +6,9 @@ module dxSurvey {
             super(name);
         }
         protected createkoValue(): any { return ko.observableArray(this.value); }
+        protected setkoValue(newValue: any) {
+            this.koValue([].concat(newValue));
+        }
         protected iskoOtherVisible(): boolean {
             return this.koValue.indexOf(this.otherString) >= 0;
         }

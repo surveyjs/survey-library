@@ -79,13 +79,6 @@ module dxSurvey.Tests {
         assert.equal(surveyData.getValue("test1"), 1, "Has value 1");
         assert.equal(surveyData.getValue("test2"), "1", "Has value '1'");
     });
-    QUnit.test("Add link to Survey Data to page and Question", function (assert) {
-        var survey = new dxSurvey.Survey();
-        survey.addPage(new dxSurvey.Page("Page 1"));
-        assert.equal(survey.pages[0].data, survey, "Link to survey data from a page");
-        survey.pages[0].addNewQuestion("text", "question");
-        assert.equal(survey.pages[0].questions[0].data, survey, "Link to survey data from a page");
-    });
     QUnit.test("Store question value in the survey", function (assert) {
         var survey = new dxSurvey.Survey();
         survey.addPage(new dxSurvey.Page("Page 1"));

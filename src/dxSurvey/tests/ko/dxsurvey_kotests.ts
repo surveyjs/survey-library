@@ -1,5 +1,7 @@
 ﻿/// <reference path="../../sources/base.ts" />
+/// <reference path="../../sources/survey.ts" />
 /// <reference path="../../sources/question.ts" />
+/// <reference path="../../sources/page.ts" />
 /// <reference path="../../sources/question_baseselect.ts" />
 /// <reference path="../../sources/question_checkbox.ts" />
 module dxSurvey.koTests {
@@ -35,6 +37,26 @@ module dxSurvey.koTests {
         question.koValue.pop();
         assert.equal(question.koOtherVisible(), false, "Other visible is true after selecting it");
     });
-
-
+    QUnit.test("Update koValue on changing data in Survey or Question.value ", function (assert) {
+        var survey = new Survey();
+        survey.setValue("textQuestion", "initialValue");
+        var page = survey.addNewPage("my page");
+        var question = page.addNewQuestion("text", "textQuestion");
+        assert.equal(question.koValue(), "initialValue", "get initial value");
+        question.value = "setFromValue";
+        assert.equal(question.koValue(), "setFromValue", "set from question value");
+        survey.setValue("textQuestion", "setFromSurvey");
+        assert.equal(question.koValue(), "setFromSurvey", "set from survey");
+    });
+    QUnit.test("Update koValue on changing data in Survey or Question.value for Multiple Answer Question ", function (assert) {
+        var survey = new Survey();
+        survey.setValue("checkboxQuestion", "initialValue");
+        var page = survey.addNewPage("my page");
+        var question = page.addNewQuestion("checkbox", "checkboxQuestion");
+        assert.deepEqual(question.koValue(), ["initialValue"], "get initial value");
+        question.value = "setFromValue";
+        assert.deepEqual(question.koValue(), ["setFromValue"], "set from question value");
+        survey.setValue("checkboxQuestion", "setFromSurvey");
+        assert.deepEqual(question.koValue(), ["setFromSurvey"], "set from survey");
+    });
 }

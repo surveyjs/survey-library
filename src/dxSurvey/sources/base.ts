@@ -8,6 +8,10 @@
         getComment(name: string): string;
         setComment(name: string, newValue: string);
     }
+    export interface IQuestion {
+        name: string;
+        onSurveyValueChanged(newValue: any);
+    }
     export class Base {
         isKO = typeof ko !== 'undefined';
     }

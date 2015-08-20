@@ -3,13 +3,15 @@
 module dxSurvey {
     export class Page {
         questions: Array<Question> = new Array<Question>();
-        public data: ISurveyData;
+        public data: ISurveyData = null;
         
         constructor(public name: string) {
         }
         public addQuestion(question: Question) {
             if (question == null) return;
-            question.data = this.data;
+            if (this.data != null) {
+                question.setData(this.data);
+            }
             this.questions.push(question);
         }
         public addNewQuestion(questionType: string, name: string): Question {
@@ -25,6 +27,11 @@ module dxSurvey {
                 }
             }
             return result;
+        }
+        public addQuestionsToList(list: Array<IQuestion>) {
+            for (var i: number = 0; i < this.questions.length; i++) {
+                list.push(this.questions[i]);
+            }
         }
     }
 }

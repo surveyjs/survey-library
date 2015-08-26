@@ -13,7 +13,6 @@ module dxSurvey {
 
         constructor() {
             super();
-            this.addDefaultPage();
         }
         get PageCount(): number {
             return this.pages.length;
@@ -75,9 +74,6 @@ module dxSurvey {
             var page = new Page(name);
             this.addPage(page);
             return page;
-        }
-        private addDefaultPage() {
-            this.addPage(new Page("Page 1"));
         }
         private getAllQuestions(): Array<IQuestion> {
             var result = new Array<IQuestion>();

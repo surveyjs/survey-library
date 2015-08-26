@@ -7,20 +7,15 @@
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
 
-    QUnit.test("Super stable test", function (assert) {
-        assert.equal(1 + 1, 2, "This should usually pass");
-    });
-    QUnit.test("Has at least one page", function (assert) {
+    QUnit.test("Add two pages", function (assert) {
         var survey = new dxSurvey.Survey();
-        assert.equal(survey.PageCount, 1, "Survery has at least one page");
-    });
-    QUnit.test("Add one more page", function (assert) {
-        var survey = new dxSurvey.Survey();
+        survey.addPage(new Page("Page 1"));
         survey.addPage(new Page("Page 2"));
         assert.equal(survey.PageCount, 2, "Two pages");
     });
     QUnit.test("Current Page", function (assert) {
         var survey = new dxSurvey.Survey();
+        survey.addPage(new Page("Page 1"));
         assert.equal(survey.CurrentPage, survey.pages[0], "the first page is  current");
         survey.CurrentPage = null;
         assert.equal(survey.CurrentPage, survey.pages[0], "can't set curent page to null");
@@ -31,6 +26,7 @@ module dxSurvey.Tests {
     });
     QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
         var survey = new dxSurvey.Survey();
+        survey.addPage(new Page("Page 1"));
         survey.addNewPage("Second page");
         survey.addNewPage("Third page");
         assert.equal(survey.CurrentPage, survey.pages[0], "Current Page is  First");
@@ -180,7 +176,7 @@ module dxSurvey.Tests {
     });
     QUnit.test("Pre-proccess value for Checkbox", function (assert) {
         var survey = new dxSurvey.Survey();
-        var page = survey.pages[0];
+        var page = survey.addNewPage("Page 1");
         var question = new QuestionCheckbox("checkboxQuestion");
         question.choices = ["One", "Two", "Three"];
         page.addQuestion(question);
@@ -191,7 +187,7 @@ module dxSurvey.Tests {
     });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();
-        var page = survey.pages[0];
+        var page = survey.addNewPage("Page 1");
         page.addNewQuestion("text", "question1");
         page.addNewQuestion("text", "question2");
         page = survey.addNewPage("Page 2");

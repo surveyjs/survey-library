@@ -2,9 +2,6 @@
 module dxSurvey.Tests {
     QUnit.module("Base");
 
-    QUnit.test("Super stable test", function (assert) {
-        assert.equal(1 + 1, 2, "This should usually pass");
-    });
     QUnit.test("Event no parameters", function (assert) {
         var event = new dxSurvey.Event<() => any, any>();
         var counter = 0;

@@ -1,5 +1,6 @@
 ﻿/// <reference path="questionfactory.ts" />
 /// <reference path="error.ts" />
+/// <reference path="jsonobject.ts" />
 module dxSurvey {
     export class Question extends Base implements IQuestion {
         protected data: ISurveyData;
@@ -29,9 +30,6 @@ module dxSurvey {
         protected createkoValue(): any { return ko.observable(this.value); }
         protected setkoValue(newValue: any) {
             this.koValue(newValue);
-        }
-        public getType(): string {
-            throw new Error('This method is abstract');
         }
         public supportComment(): boolean { return false; }
         public supportOther(): boolean { return false; }
@@ -106,4 +104,5 @@ module dxSurvey {
             this.isValueChangedInSurvey = false;
         }
     }
+    JsonObject.metaData.addClass("question", ["name", "isRequired", "hasComment", "hasOther"]);
 }

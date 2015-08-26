@@ -1,5 +1,5 @@
 ﻿/// <reference path="../sources/jsonobject.ts" />
-module dxSurvey.Tests {
+module dxSurvey.JsonSerializationTests {
     class Car {
         public name: string;
         public getType(): string { return "car"; }
@@ -42,7 +42,7 @@ module dxSurvey.Tests {
     JsonObject.metaData.addClass("sport", ["maxSpeed"], null, "car");
     JsonObject.metaData.setCreator("sport", function () { return new SportCar(); });
 
-    QUnit.module("JsonObject");
+    QUnit.module("JsonSerializationTests");
 
     QUnit.test("Metadata for non inherited class", function (assert) {
         assert.equal(JsonObject.metaData.getProperties("dealer").length, 9, "Flat properties list");

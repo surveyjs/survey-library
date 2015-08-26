@@ -178,17 +178,18 @@ module dxSurvey {
             return (className) ? JsonObject.metaData.createClass(className) : null;
         }
         private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
-            var arrValue = [];
+            if (!this.isValueArray(obj[key])) {
+                obj[key] = [];
+            }
             for (var i = 0; i < value.length; i++) {
                 var newValue = this.createNewObj(value[i], property);
                 if (newValue) {
+                    obj[key].push(newValue);
                     this.toObject(value[i], newValue);
                 } else {
-                    newValue = value[i];
+                    obj[key].push(value[i]);
                 }
-                arrValue.push(newValue);
             }
-            obj[key] = arrValue;
         }
         private findProperty(properties: Array<JsonObjectProperty>, key: any): JsonObjectProperty {
             if (!properties) return null;

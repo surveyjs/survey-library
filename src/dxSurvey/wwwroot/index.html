@@ -13,8 +13,10 @@
     Show Json:
     <div id="dxsurveyJson"></div>
     <script>
-        var survey = new dxSurvey.Survey("survey");
+        /*
+        var survey = new dxSurvey.Survey();
         survey.setValue("Checkbox Question", "!Two");
+        survey.addNewPage("Page 1");
         survey.pages[0].addNewQuestion("text", "Text Question").isRequired = true;
         var cbQuestion = survey.pages[0].addNewQuestion("checkbox", "Checkbox Question");
         cbQuestion.choices = ["!One", "!Two", "!Three"];
@@ -35,6 +37,31 @@
         page.addNewQuestion("text", "Text4");
 
         survey.render(document.getElementById("dxsurvey"));
+        */
+        var survey = new dxSurvey.Survey(
+            {
+                pages: [
+                    {
+                        name: "Page 1",
+                        questions: [
+                            { type: "text", name: "Text Question", isRequired: true },
+                            { type: "checkbox", name: "Checkbox Question", hasOther: true, choices: ["!One", "!Two", "!Three"] },
+                            { type: "dropdown", name: "DropDown Question", hasOther: true, isRequired: true, choices: ["One", "Two", "Three"] },
+                            { type: "radiogroup", name: "Radiogroup Question", hasOther: true, choices: ["One!", "Two!", "Three!"] }
+                        ]
+                    },
+                    {
+                        name: "Page 2",
+                        questions: [
+                            { type: "text", name: "Text2" },
+                            { type: "text", name: "Text3" },
+                            { type: "text", name: "Text4" }
+                        ]
+                    }
+                ]
+            },
+            document.getElementById("dxsurvey"));
+        survey.setValue("Checkbox Question", "!Two");
         survey.onComplete.add(function (s) { alert('Completed!'); document.getElementById("dxsurvey").innerHTML = "Done!"; });
     </script>
 </body>

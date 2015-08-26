@@ -1,4 +1,5 @@
 ﻿/// <reference path="base.ts" />
+/// <reference path="jsonobject.ts" />
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData {
@@ -11,8 +12,41 @@ module dxSurvey {
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
 
-        constructor() {
+        constructor(jsonObj: any = null, renderedElement: HTMLElement = null) {
             super();
+            var self = this;
+            this.pages.push = function (value) {
+                value.data = self;
+                return Array.prototype.push.call(this, value);
+            };
+            if (jsonObj) {
+                new JsonObject().toObject(jsonObj, this);
+            }
+            if (renderedElement) {
+                this.render(renderedElement);
+            }
+        }
+        public getType(): string { return "survey"; }
+        public get data(): any {
+            var result = [];
+            for (var key in this.valuesHash) {
+                var obj = {};
+                obj[key] = this.valuesHash[key];
+                result.push(obj);
+            }
+            return result;
+        }
+        public set data(data: any) {
+            this.valuesHash = {};
+            if (!data && data.constructor.toString().indexOf("Array") < 0) return;
+            for (var i = 0; i < data.length; i++) {
+                var value = data[i];
+                for (var key in value) {
+                    if (key && value[key]) {
+                        this.valuesHash[key] = value[key];
+                    }
+                }
+            }
         }
         get PageCount(): number {
             return this.pages.length;
@@ -67,7 +101,6 @@ module dxSurvey {
         }
         addPage(page: Page) {
             if (page == null) return;
-            page.data = this;
             this.pages.push(page);
         }
         addNewPage(name: string) {
@@ -140,4 +173,7 @@ module dxSurvey {
             }
         }
     }
+
+    JsonObject.metaData.addClass("survey", ["pages"]);
+    JsonObject.metaData.setPropertyValues("survey", "pages", "page");
 }

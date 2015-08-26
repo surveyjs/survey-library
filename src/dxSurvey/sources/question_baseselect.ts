@@ -1,4 +1,5 @@
 ﻿// <reference path="question.ts" />
+/// <reference path="jsonobject.ts" />
 module dxSurvey {
     export class QuestionSelectBase extends Question {
         otherString: string = "Other (describe)";
@@ -23,4 +24,5 @@ module dxSurvey {
         public supportComment(): boolean { return true; }
         public supportOther(): boolean { return true; }
     }
+    JsonObject.metaData.addClass("selectbase", ["choices"], null, "question");
 }

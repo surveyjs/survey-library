@@ -5,6 +5,8 @@ var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
+    qunit = require("gulp-qunit"), 
+    serve = require("gulp-serve"), 
     project = require("./project.json");
 
 var Server = require("karma").Server;

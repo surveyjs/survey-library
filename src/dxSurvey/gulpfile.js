@@ -7,6 +7,8 @@ var gulp = require('gulp'),
     sass = require('gulp-sass'),
     project = require("./project.json");
 
+var Server = require("karma").Server;
+
 var paths = {
     webroot: "./" + project.webroot + "/",
     ts: ["./sources/*.ts"],
@@ -138,3 +140,14 @@ gulp.task('templates', function () {
       .pipe(concat("knockout.html"))
       .pipe(gulp.dest(paths.webroot + 'templates'));
 });
+gulp.task("test_ci", function (done) { 
+     new Server({ 
+         configFile: __dirname + "/karma.conf.js", 
+         singleRun: true 
+}, done).start(); 
+}); 
+ 
+gulp.task("server", serve({ 
+     root: ["wwwroot"], 
+     port: 30001 
+})); 

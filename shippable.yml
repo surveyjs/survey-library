@@ -1,0 +1,14 @@
+language: node_js
+
+before_install:
+  - cd ./src/dxSurvey/
+  - npm install -g gulp
+  - npm install -g bower
+  - npm install -g bower-installer
+  - npm install -g typescript
+  - bower-installer
+ 
+script:
+  - gulp typescript
+  - gulp templates
+  - gulp test_ci

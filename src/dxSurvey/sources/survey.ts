@@ -47,6 +47,7 @@ module dxSurvey {
                     }
                 }
             }
+            this.notifyAllQuestionsOnValueChanged();
         }
         get PageCount(): number {
             return this.pages.length;
@@ -120,6 +121,12 @@ module dxSurvey {
             for (var i: number = 0; i < questions.length; i++) {
                 if (questions[i].name != name) continue;
                 questions[i].onSurveyValueChanged(newValue);
+            }
+        }
+        private notifyAllQuestionsOnValueChanged() {
+            var questions = this.getAllQuestions();
+            for (var i: number = 0; i < questions.length; i++) {
+                questions[i].onSurveyValueChanged(this.getValue(questions[i].name));
             }
         }
         public render(element: HTMLElement) {

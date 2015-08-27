@@ -59,4 +59,14 @@ module dxSurvey.koTests {
         survey.setValue("checkboxQuestion", "setFromSurvey");
         assert.deepEqual(question.koValue(), ["setFromSurvey"], "set from survey");
     });
+    QUnit.test("Set notification on setting survey data", function (assert) {
+        var survey = new Survey();
+        var page = survey.addNewPage("page1");
+        var question = page.addNewQuestion("text", "q1");
+        question.koValue("value1");
+        survey.data = [{ "q1": "value2" }];
+        assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
+        assert.equal(question.koValue(), "value2", "knockout value is updated.");
+    });
+
 }

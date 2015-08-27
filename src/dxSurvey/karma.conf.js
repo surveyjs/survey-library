@@ -13,7 +13,6 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
           "wwwroot/lib/qunit/qunit.css",
-          "wwwroot/lib/jquery/jquery.js",
           "wwwroot/lib/knockout/knockout.js",
 
           "wwwroot/js/dx.scripts.js",

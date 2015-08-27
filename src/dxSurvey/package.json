@@ -4,6 +4,7 @@
   "private": true,
   "devDependencies": {
     "bower": "1.4.1",
+    "bower-installer": "^1.2.0",
     "tsd": "0.6.3",
     "rimraf": "2.4.2",
     "gulp": "3.9.0",

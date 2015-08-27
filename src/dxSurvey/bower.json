@@ -2,7 +2,6 @@
   "name": "ASP.NET",
   "private": true,
   "dependencies": {
-    "jquery": "^2.1.4",
     "knockout": "^3.3.0"
   },
   "devDependencies": {

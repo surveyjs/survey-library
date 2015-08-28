@@ -3,12 +3,16 @@ module dxSurvey {
 
     export class JsonObjectProperty {
         public className: string = null;
+        public defaultValue: any = null;
         public onGetValue: (obj: any) => any = null;
         public onSetValue: (obj: any, value: any) => any
 
         constructor(public name: string) {
         }
         public get hasToUseGetValue() { return this.onGetValue; }
+        public isDefaultValue(value: any): boolean {
+            return (this.defaultValue) ? (this.defaultValue == value) : !(value);
+        }
         public getValue(obj: any): any {
             if (this.onGetValue) return this.onGetValue(obj);
             return null;
@@ -49,10 +53,11 @@ module dxSurvey {
             if (!metaDataClass) return;
             metaDataClass.creator = creator;
         }
-        public setPropertyValues(name: string, propertyName: string, propertyClassName: string, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any) => any = null) {
+        public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any) => any = null) {
             var property = this.findProperty(name, propertyName);
             if (!property) return;
             property.className = propertyClassName;
+            property.defaultValue = defaultValue;
             property.onGetValue = onGetValue;
             property.onSetValue = onSetValue;
         }
@@ -135,7 +140,7 @@ module dxSurvey {
             } else {
                 value = obj[property.name];
             }
-            if (!value) return;
+            if (property.isDefaultValue(value)) return;
             if (this.isValueArray(value)) {
                 var arrValue = [];
                 for (var i = 0; i < value.length; i++) {
@@ -145,7 +150,7 @@ module dxSurvey {
             } else {
                 value = this.toJsonObjectCore(value, property);
             }
-            if (value) {
+            if (!property.isDefaultValue(value)) {
                 result[property.name] = value;
             }
         }

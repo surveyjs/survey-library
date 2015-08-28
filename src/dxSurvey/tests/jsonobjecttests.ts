@@ -18,7 +18,7 @@ module dxSurvey.JsonSerializationTests {
         public unserializedName: string;
         public cars = new Array<Car>();
         public stringArray: Array<string> = [];
-        public defaultValue: string;
+        public defaultValue: string = "default";
         public car: Car;
         public truck: Truck;
         public trucks = new Array<Truck>();
@@ -27,11 +27,8 @@ module dxSurvey.JsonSerializationTests {
     }
 
     JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
-    JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, function (obj: any): any {
-        if (obj.defaultValue == "default") return null;
-        return obj.defaultValue;
-    });
-    JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, function (obj: any, value: any) {
+    JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
+    JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any) {
         obj.name = value;
     });
     JsonObject.metaData.setPropertyValues("dealer", "truck", "truck");
@@ -67,7 +64,6 @@ module dxSurvey.JsonSerializationTests {
     });
     QUnit.test("Use onGetValue during serialization", function (assert) {
         var dealer = new Dealer();
-        dealer.defaultValue = "default";
         var jsObj = new dxSurvey.JsonObject().toJsonObject(dealer);
         assert.equal(JSON.stringify(jsObj), "{}", "default value of this property is not serialized");
         dealer.defaultValue = "nondefault";

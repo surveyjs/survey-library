@@ -1,0 +1,24 @@
+﻿<script type="text/html" id="dxsurvey-question-matrix">
+    <table>
+        <thead>
+            <tr>
+                <th data-bind="visible: question.rows.length > 0"></th>
+                <!-- ko foreach: question.columns -->
+                <th data-bind="text:$data"></th>
+                <!-- /ko -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ko foreach: question.rows -->
+            <tr>
+                <td data-bind="visible: question.rows.length > 0, text:$data"></td>
+                <!-- ko foreach: question.columns -->
+                <td>
+                    <input type="radio" />
+                </td>
+                <!-- /ko -->
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</script>

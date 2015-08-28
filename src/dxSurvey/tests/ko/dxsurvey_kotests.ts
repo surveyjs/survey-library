@@ -68,5 +68,13 @@ module dxSurvey.koTests {
         assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
         assert.equal(question.koValue(), "value2", "knockout value is updated.");
     });
+    QUnit.test("koVisible property", function (assert) {
+        var survey = new Survey();
+        var page = survey.addNewPage("page1");
+        var question = page.addNewQuestion("text", "q1");
+        assert.equal(question.koVisible(), true, "it is true by default");
+        question.visible = false;
+        assert.equal(question.koVisible(), false, "it is false now");
+    });
 
 }

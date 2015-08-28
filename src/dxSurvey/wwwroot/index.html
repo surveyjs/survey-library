@@ -12,6 +12,7 @@
     <p/>
     Show Json:
     <div id="dxsurveyJson"></div>
+    <input type="button" value="chageVisible" onclick=" survey.pages[0].questions[3].visible = !survey.pages[0].questions[3].visible; " />
     <script>
         /*
         var survey = new dxSurvey.Survey();
@@ -47,7 +48,7 @@
                             { type: "text", name: "Text Question", isRequired: true },
                             { type: "checkbox", name: "Checkbox Question", hasOther: true, choices: ["!One", "!Two", "!Three"] },
                             { type: "dropdown", name: "DropDown Question", hasOther: true, isRequired: true, choices: ["One", "Two", "Three"] },
-                            { type: "radiogroup", name: "Radiogroup Question", hasOther: true, choices: ["One!", "Two!", "Three!"] }
+                            { type: "radiogroup", name: "Radiogroup Question", hasOther: true, visible:false, choices: ["One!", "Two!", "Three!"] }
                         ]
                     },
                     {

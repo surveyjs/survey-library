@@ -8,8 +8,9 @@ module dxSurvey {
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
         private hasOtherValue: boolean = false;
+        private visibleValue: boolean = true;
         errors: Array<SurveyError> = [];
-        koValue: any; koComment : any; koErrors: any;
+        koValue: any; koComment: any; koErrors: any; koVisible: any; dummyObservable: any;
 
         constructor(public name: string) {
             super();
@@ -17,7 +18,9 @@ module dxSurvey {
                 this.koValue = this.createkoValue();
                 this.koComment = ko.observable(this.comment);
                 this.koErrors = ko.observableArray(this.errors);
+                this.dummyObservable = ko.observable(0);
                 var self = this;
+                this.koVisible = ko.computed(function () { self.dummyObservable(); return self.visibleValue; });
                 this.koValue.subscribe(function (newValue) {
                     self.setNewValue(newValue);
                 });
@@ -35,6 +38,13 @@ module dxSurvey {
         public supportOther(): boolean { return false; }
         get isRequired(): boolean { return this.isRequiredValue; }
         set isRequired(val: boolean) { this.isRequiredValue = val; }
+        get visible(): boolean { return this.visibleValue; }
+        set visible(val: boolean) {
+            this.visibleValue = val;
+            if (this.isKO) {
+                this.dummyObservable(this.dummyObservable() + 1);
+            }
+        }
         get hasComment(): boolean { return this.hasCommentValue; }
         set hasComment(val: boolean) {
             if (!this.supportComment()) return;
@@ -104,5 +114,5 @@ module dxSurvey {
             this.isValueChangedInSurvey = false;
         }
     }
-    JsonObject.metaData.addClass("question", ["name", "isRequired", "hasComment", "hasOther"]);
+    JsonObject.metaData.addClass("question", ["name", "isRequired", "hasComment", "hasOther", "visible"]);
 }

@@ -185,6 +185,19 @@ module dxSurvey.Tests {
         assert.equal(question.value, ["One"], "convert value to array");
 
     });
+    QUnit.test("onValueChanged event", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var name = "";
+        var newValue = null;
+        var counter = 0;
+        survey.onValueChanged.add(function (sender: Survey, options: any) {
+            name = options.name; newValue = options.value; counter++;
+        });
+        survey.setValue("question1", "value1");
+        assert.equal(name, "question1", "onValueChanged event, property name is correct");
+        assert.equal(newValue, "value1", "onValueChanged event, property newValue is correct");
+        assert.equal(counter, 1, "onValueChanged event is called one time");
+    });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();
         var page = survey.addNewPage("Page 1");

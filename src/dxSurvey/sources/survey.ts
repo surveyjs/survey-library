@@ -11,6 +11,7 @@ module dxSurvey {
         private renderedElement: HTMLElement;
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
+        public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
 
         constructor(jsonObj: any = null, renderedElement: HTMLElement = null) {
             super();
@@ -122,6 +123,7 @@ module dxSurvey {
                 if (questions[i].name != name) continue;
                 questions[i].onSurveyValueChanged(newValue);
             }
+            this.onValueChanged.fire(this, { 'name': name, 'value': newValue });
         }
         private notifyAllQuestionsOnValueChanged() {
             var questions = this.getAllQuestions();

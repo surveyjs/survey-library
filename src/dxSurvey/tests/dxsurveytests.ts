@@ -3,6 +3,7 @@
 /// <reference path="../sources/question.ts" />
 /// <reference path="../sources/question_baseselect.ts" />
 /// <reference path="../sources/question_checkbox.ts" />
+/// <reference path="../sources/question_matrix.ts" />
 /// <reference path="../sources/questionfactory.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
@@ -183,7 +184,42 @@ module dxSurvey.Tests {
 
         survey.setValue("checkboxQuestion", "One");
         assert.equal(question.value, ["One"], "convert value to array");
-
+    });
+    QUnit.test("Matrix Question: visible rows", function (assert) {
+        var matrix = new QuestionMatrix("q1");
+        assert.equal(matrix.hasRows, false, "There is now rows by default.");
+        assert.equal(matrix.visibleRows.length, 1, "There is always at least one row");
+        assert.equal(matrix.visibleRows[0].name, "", "The default row name is empty");
+        assert.equal(matrix.visibleRows[0].fullName, "q1", "The default row fullName is the question name");
+        matrix.rows.push("row1");
+        matrix.rows.push("row2");
+        assert.equal(matrix.hasRows, true, "There are two rows");
+        assert.equal(matrix.visibleRows.length, 2, "Use the added row");
+        assert.equal(matrix.visibleRows[0].name, "row1", "the row name is 'row1'");
+        assert.equal(matrix.visibleRows[0].fullName, "q1_row1", "The default row fullName is the question name");
+    });
+    QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
+        var matrix = new QuestionMatrix("q1");
+        matrix.columns = ["col1", "col2"];
+        matrix.value = "col1";
+        var rows = matrix.visibleRows;
+        assert.equal(rows[0].value, "col1", "set the row value correctly");
+        rows[0].value = "col2";
+        assert.equal(rows[0].value, "col2", "the row value changed");
+        assert.equal(matrix.value, "col2", "the matrix value changed correctly");
+    });
+    QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
+        var matrix = new QuestionMatrix("q1");
+        matrix.rows = ["row1", "row2"];
+        matrix.columns = ["col1", "col2"];
+        matrix.value = { row1: "col1" };
+        var rows = matrix.visibleRows;
+        assert.equal(rows[0].value, "col1", "set the row value correctly");
+        rows[0].value = "col2";
+        assert.equal(rows[0].value, "col2", "the row value changed");
+        assert.deepEqual(matrix.value, { row1: "col2" }, "the matrix value changed correctly");
+        rows[1].value = "col1";
+        assert.deepEqual(matrix.value, { row1: "col2" ,  row2: "col1" }, "the matrix value changed correctly");
     });
     QUnit.test("onValueChanged event", function (assert) {
         var survey = twoPageSimplestSurvey();

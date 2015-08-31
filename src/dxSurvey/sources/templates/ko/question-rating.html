@@ -14,8 +14,7 @@
                 <td data-bind="text:question.mininumRateDescription"></td>
                 <!-- ko foreach: question.koVisibleRateValues -->
                 <td>
-                    <input type="radio"
-                           data-bind="name: question.name, attr: {value: $data}, checked: question.koValue" />
+                    <input type="radio" data-bind="attr: {name: question.name, value: $data}, checked: question.koValue" />
                 </td>
                 <!-- /ko -->
                 <td data-bind="text:question.maximumRateDescription"></td>

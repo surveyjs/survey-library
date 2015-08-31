@@ -4,6 +4,7 @@
 /// <reference path="../../sources/page.ts" />
 /// <reference path="../../sources/question_baseselect.ts" />
 /// <reference path="../../sources/question_checkbox.ts" />
+/// <reference path="../../sources/question_matrix.ts" />
 module dxSurvey.koTests {
     QUnit.module("koTests");
 
@@ -58,6 +59,17 @@ module dxSurvey.koTests {
         assert.deepEqual(question.koValue(), ["setFromValue"], "set from question value");
         survey.setValue("checkboxQuestion", "setFromSurvey");
         assert.deepEqual(question.koValue(), ["setFromSurvey"], "set from survey");
+    });
+    QUnit.test("Question Matrix: koValue in MatrixValue", function (assert) {
+        var matrix = new QuestionMatrix("q1");
+        matrix.rows = ["row1", "row2"];
+        matrix.columns = ["col1", "col2"];
+        matrix.value = { row1: "col2" };
+        var visibleRows = matrix.visibleRows;
+        assert.equal(visibleRows[0].koValue(), "col2", "set the corerect value");
+        visibleRows[0].koValue("col1");
+        visibleRows[1].koValue("col2");
+        assert.deepEqual(matrix.value, { row1: "col1", row2: "col2" }, "the matrix value changed correctly");
     });
     QUnit.test("Set notification on setting survey data", function (assert) {
         var survey = new Survey();

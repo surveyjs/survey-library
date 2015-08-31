@@ -2,19 +2,19 @@
     <table>
         <thead>
             <tr>
-                <th data-bind="visible: question.rows.length > 0"></th>
+                <th data-bind="visible: question.hasRows"></th>
                 <!-- ko foreach: question.columns -->
                 <th data-bind="text:$data"></th>
                 <!-- /ko -->
             </tr>
         </thead>
         <tbody>
-            <!-- ko foreach: question.rows -->
+            <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
             <tr>
-                <td data-bind="visible: question.rows.length > 0, text:$data"></td>
+                <td data-bind="visible: question.hasRows, text:row.name"></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <input type="radio" />
+                    <input type="radio" data-bind="attr: {name: row.fullName, value: $data}, checked: row.koValue"/>
                 </td>
                 <!-- /ko -->
             </tr>

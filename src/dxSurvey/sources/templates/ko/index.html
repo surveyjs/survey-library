@@ -1,4 +1,4 @@
-﻿<span data-bind="text: PageCount"></span> 
+﻿<h3 data-bind="visible: title.length > 0, text: title"></h3> 
 <div data-bind="template: { name: 'dxsurvey-page', data: CurrentPage }"></div>
 
 <input type="button" value="Previous" data-bind="click: prevPage, visible: !isFirstPage"/>  <input type="button" value="Next" data-bind="click: nextPage, visible: !isLastPage"/>  <input type="button" value="Finish" data-bind="click: completeLastPage, visible: isLastPage" />

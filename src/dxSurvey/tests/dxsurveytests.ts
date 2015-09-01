@@ -195,7 +195,7 @@ module dxSurvey.Tests {
         var matrix = new QuestionMatrix("q1");
         assert.equal(matrix.hasRows, false, "There is now rows by default.");
         assert.equal(matrix.visibleRows.length, 1, "There is always at least one row");
-        assert.equal(matrix.visibleRows[0].name, "", "The default row name is empty");
+        assert.equal(matrix.visibleRows[0].name, null, "The default row name is empty");
         assert.equal(matrix.visibleRows[0].fullName, "q1", "The default row fullName is the question name");
         matrix.rows = ["row1", "row2"];
         assert.equal(matrix.hasRows, true, "There are two rows");

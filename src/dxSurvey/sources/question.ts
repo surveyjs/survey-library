@@ -117,6 +117,8 @@ module dxSurvey {
             this.isValueChangedInSurvey = false;
         }
     }
-    JsonObject.metaData.addClass("question", ["name", "isRequired", "hasComment", "hasOther", "visible"]);
+    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
+    JsonObject.metaData.setPropertyValues("question", "title", null, null,
+        function (obj: any) { return obj.titleValue; });
 }

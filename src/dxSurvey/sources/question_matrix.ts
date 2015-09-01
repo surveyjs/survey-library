@@ -10,7 +10,7 @@ module dxSurvey {
         protected rowValue: any;
         koValue: any;
 
-        constructor(public name: string, public fullName: string, data: IMatrixData, value: any) {
+        constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
             super();
             this.data = data;
             this.rowValue = value;
@@ -54,11 +54,11 @@ module dxSurvey {
             var val = this.value;
             if (!val) val = {};
             for (var i = 0; i < this.rows.length; i++) {
-                var rowName = this.rows[i].value;
-                result.push(new MatrixRow(this.rows[i].text, this.name + '_' + rowName, this, val[rowName])); 
+                if (!this.rows[i].value) continue;
+                result.push(new MatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), this, val[this.rows[i].value])); 
             }
             if (result.length == 0) {
-                result.push(new MatrixRow("", this.name, this, val));
+                result.push(new MatrixRow(null, "", this.name, this, val));
             }
             return result;
         }

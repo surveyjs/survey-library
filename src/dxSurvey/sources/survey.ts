@@ -3,7 +3,8 @@
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData {
-        pages: Array<Page> = new Array<Page>();
+        public title: string;
+        public pages: Array<Page> = new Array<Page>();
         private currentPage: Page = null;
         private valuesHash: HashTable<any> = {};
         private commentsHash: HashTable<string> = {};

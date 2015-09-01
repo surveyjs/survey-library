@@ -11,7 +11,7 @@
         <tbody>
             <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
             <tr>
-                <td data-bind="visible: question.hasRows, text:row.name"></td>
+                <td data-bind="visible: question.hasRows, text:row.text"></td>
                 <!-- ko foreach: question.columns -->
                 <td>
                     <input type="radio" data-bind="attr: {name: row.fullName, value: $data.value}, checked: row.koValue"/>

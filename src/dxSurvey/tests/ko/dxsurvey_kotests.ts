@@ -19,7 +19,7 @@ module dxSurvey.koTests {
     QUnit.test("koOtherVisible for one choice items", function (assert) {
         var question = new QuestionSelectBase("q");
         assert.equal(question.koOtherVisible(), false, "Initially is not visible");
-        question.koValue(question.otherString);
+        question.koValue(question.otherItem.value);
         assert.equal(question.koOtherVisible(), true, "Other visible is true after selecting it");
     });
     QUnit.test("Create koValue as observable array for checkbox", function (assert) {
@@ -33,7 +33,7 @@ module dxSurvey.koTests {
         var question = new QuestionCheckbox("q");
         assert.equal(question.koOtherVisible(), false, "Initially is not visible");
         question.koValue.push("test1");
-        question.koValue.push(question.otherString);
+        question.koValue.push(question.otherItem.value);
         assert.equal(question.koOtherVisible(), true, "Other visible is true after selecting it");
         question.koValue.pop();
         assert.equal(question.koOtherVisible(), false, "Other visible is true after selecting it");

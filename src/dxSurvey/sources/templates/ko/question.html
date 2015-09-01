@@ -3,7 +3,7 @@
         <div style="color:red" data-bind="foreach: koErrors">
             <div data-bind="text:$data.getText()"></div>
         </div>
-        <h4 data-bind="text: (question.isRequired ? '* ' : '') + question.name"></h4>
+        <h4 data-bind="text: (question.isRequired ? '* ' : '') + question.title"></h4>
         <div data-bind="template: { name: 'dxsurvey-question-' + question.getType(), data: question }"></div>
         <div data-bind="visible: question.hasComment">
             Other (please describe)

@@ -197,8 +197,7 @@ module dxSurvey.Tests {
         assert.equal(matrix.visibleRows.length, 1, "There is always at least one row");
         assert.equal(matrix.visibleRows[0].name, "", "The default row name is empty");
         assert.equal(matrix.visibleRows[0].fullName, "q1", "The default row fullName is the question name");
-        matrix.rows.push("row1");
-        matrix.rows.push("row2");
+        matrix.rows = ["row1", "row2"];
         assert.equal(matrix.hasRows, true, "There are two rows");
         assert.equal(matrix.visibleRows.length, 2, "Use the added row");
         assert.equal(matrix.visibleRows[0].name, "row1", "the row name is 'row1'");

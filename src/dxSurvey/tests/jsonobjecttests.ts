@@ -45,7 +45,7 @@ module dxSurvey.JsonSerializationTests {
     JsonObject.metaData.setCreator("sport", function () { return new SportCar(); });
 
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
-    JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", "itemvalue", null,
+    JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
         function (obj: any) { return ItemValue.getData(obj.items);},
         function (obj: any, value: any) { ItemValue.setData(obj.items, value);});
 

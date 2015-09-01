@@ -29,8 +29,8 @@ module dxSurvey {
         }
     }
     export class QuestionMatrix extends Question implements IMatrixData {
-        public columns: string[] = [];
-        public rows: string[] = [];
+        public columnsValue: ItemValue[] = [];
+        public rowsValue: ItemValue[] = [];
         constructor(public name: string) {
             super(name);
         }
@@ -38,15 +38,24 @@ module dxSurvey {
             return "matrix";
         }
         public get hasRows(): boolean {
-            return this.rows.length > 0;
+            return this.rowsValue.length > 0;
         }
+        get columns(): Array<any> { return this.columnsValue; }
+        set columns(newValue: Array<any>) {
+            ItemValue.setData(this.columnsValue, newValue);
+        }
+        get rows(): Array<any> { return this.rowsValue; }
+        set rows(newValue: Array<any>) {
+            ItemValue.setData(this.rowsValue, newValue);
+        }
+
         public get visibleRows(): Array<MatrixRow> {
             var result = new Array<MatrixRow>();
             var val = this.value;
             if (!val) val = {};
             for (var i = 0; i < this.rows.length; i++) {
-                var rowName = this.rows[i];
-                result.push(new MatrixRow(this.rows[i], this.name + '_' + rowName, this, val[rowName])); 
+                var rowName = this.rows[i].value;
+                result.push(new MatrixRow(this.rows[i].text, this.name + '_' + rowName, this, val[rowName])); 
             }
             if (result.length == 0) {
                 result.push(new MatrixRow("", this.name, this, val));
@@ -66,5 +75,11 @@ module dxSurvey {
         }
    }
     JsonObject.metaData.addClass("matrix", ["columns", "rows"], function () { return new QuestionMatrix(""); }, "question");
+    JsonObject.metaData.setPropertyValues("matrix", "columns", null, null,
+        function (obj: any) { return ItemValue.getData(obj.columns); },
+        function (obj: any, value: any) { ItemValue.setData(obj.columns, value); });
+    JsonObject.metaData.setPropertyValues("matrix", "rows", null, null,
+        function (obj: any) { return ItemValue.getData(obj.rows); },
+        function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
     QuestionFactory.Instance.registerQuestion("matrix", (name) => { return new QuestionMatrix(name); });
 }

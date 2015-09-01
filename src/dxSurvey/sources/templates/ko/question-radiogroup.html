@@ -2,8 +2,8 @@
     <div data-bind="foreach: question.visibleChoices">
         <label>
             <input type="radio"
-                   data-bind="name: $parent.name, attr: {value: $data}, checked: $parent.koValue" />
-            <span data-bind="text: $data"></span>
+                   data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
+            <span data-bind="text: $data.text"></span>
         </label> 
     </div>
     <div data-bind="visible: question.hasOther">

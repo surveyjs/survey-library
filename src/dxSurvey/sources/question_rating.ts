@@ -3,8 +3,8 @@
 /// <reference path="jsonobject.ts" />
 module dxSurvey {
     export class QuestionRating extends Question {
-        static defaultRateValues: string[] = ["1", "2", "3", "4", "5"];
-        public rateValues: string[] = [];
+        static defaultRateValues: ItemValue[] = [];
+        private rates: ItemValue[] = [];
         public mininumRateDescription: string = null;
         public maximumRateDescription: string = null;
 
@@ -19,7 +19,11 @@ module dxSurvey {
                 });
             }
         }
-        get visibleRateValues(): string[] {
+        get rateValues(): Array<any> { return this.rates; }
+        set rateValues(newValue: Array<any>) {
+            ItemValue.setData(this.rates, newValue);
+        }
+        get visibleRateValues(): ItemValue[] {
             if (this.rateValues.length > 0) return this.rateValues;
             return QuestionRating.defaultRateValues;
         }
@@ -29,6 +33,11 @@ module dxSurvey {
         public supportComment(): boolean { return true; }
         public supportOther(): boolean { return true; }
     }
+    ItemValue.setData(QuestionRating.defaultRateValues, [1, 2, 3, 4, 5]);
     JsonObject.metaData.addClass("rating", ["rateValues", "mininumRateDescription", "maximumRateDescription"], function () { return new QuestionRating(""); }, "question");
+    JsonObject.metaData.setPropertyValues("rating", "rateValues", null, null,
+        function (obj: any) { return ItemValue.getData(obj.rateValues); },
+        function (obj: any, value: any) { ItemValue.setData(obj.rateValues, value); });
+
     QuestionFactory.Instance.registerQuestion("rating", (name) => { return new QuestionRating(name); });
 }

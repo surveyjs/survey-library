@@ -2,8 +2,8 @@
     <div data-bind="foreach: question.visibleChoices">
         <label>
             <input type="checkbox"
-                   data-bind="value: $data, checked: $parent.koValue" />
-            <span data-bind="text: $data"></span>
+                   data-bind="value: $data.value, checked: question.koValue" />
+            <span data-bind="text: $data.text"></span>
         </label>
     </div>
     <div data-bind="visible: question.hasOther">

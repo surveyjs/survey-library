@@ -4,7 +4,7 @@
             <tr>
                 <th data-bind="visible: question.hasRows"></th>
                 <!-- ko foreach: question.columns -->
-                <th data-bind="text:$data"></th>
+                <th data-bind="text:$data.text"></th>
                 <!-- /ko -->
             </tr>
         </thead>
@@ -14,7 +14,7 @@
                 <td data-bind="visible: question.hasRows, text:row.name"></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <input type="radio" data-bind="attr: {name: row.fullName, value: $data}, checked: row.koValue"/>
+                    <input type="radio" data-bind="attr: {name: row.fullName, value: $data.value}, checked: row.koValue"/>
                 </td>
                 <!-- /ko -->
             </tr>

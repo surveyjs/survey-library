@@ -48,7 +48,11 @@ module dxSurvey.SerializationTests {
         assert.equal(page.questions.length, 2, "Two questions from json");
         assert.equal(page.questions[0].name, "textQuestion", "property name is set");
         assert.equal(page.questions[1].getType(), "checkbox", "it is a live object");
-        assert.deepEqual(checkbox.choices, ["red", "white"], "property choices is set");
+        assert.equal(checkbox.choices.length, 2, "property choices is set correctly: length");
+        assert.equal(checkbox.choices[0].value, "red", "property choices is set correctly: value");
+        assert.equal(checkbox.choices[0].text, "red", "property choices is set correctly: text");
+        assert.equal(checkbox.choices[1].value, "white", "property choices is set correctly: value");
+        assert.equal(checkbox.choices[1].text, "white", "property choices is set correctly: text");
         survey.setValue("textQuestion", "newValue");
         assert.equal(page.questions[0].value, "newValue", "data interface is working");
     });

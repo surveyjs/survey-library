@@ -11,7 +11,7 @@ module dxSurvey {
             this.koValue([].concat(newValue));
         }
         protected iskoOtherVisible(): boolean {
-            return this.koValue.indexOf(this.otherString) >= 0;
+            return this.koValue.indexOf(this.otherItem.value) >= 0;
         }
 
         public getType(): string {

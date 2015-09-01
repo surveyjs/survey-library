@@ -24,8 +24,12 @@
                             { type: "checkbox", name: "Checkbox Question", hasOther: true, choices: ["!One", "!Two", "!Three"] },
                             { type: "dropdown", name: "DropDown Question", hasOther: true, isRequired: true, choices: ["One", "Two", "Three"] },
                             { type: "radiogroup", name: "Radiogroup Question", hasOther: true, visible: false, choices: ["One!", "Two!", "Three!"] },
-                            { type: "rating", name: "Rating Question", mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" },
-                            { type: "matrix", name: "MatrixQuestion", columns: ["column1", "column2", "column3"], rows: ["row1", "row2", "row3", "row4"] }
+                            { type: "rating", name: "qRate", title: "Rate the control", mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" },
+                            {
+                                type: "matrix", name: "MatrixQuestion",
+                                columns: [{ value: 1, text: "column1" }, { value: 2, text: "column2" }, { value: 3, text: "column3" }],
+                                rows: ["row1", "row2", "row3", "row4"]
+                            }
                         ]
                     },
                     {

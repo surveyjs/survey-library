@@ -26,6 +26,11 @@ module dxSurvey.JsonSerializationTests {
         public getType(): string { return "dealer"; }
     }
 
+    class ItemValueListOwner {
+        public items: Array<ItemValue> = new Array<ItemValue>();
+        public getType(): string { return "itemvaluelistowner"; }
+    }
+
     JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
     JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
     JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any) {
@@ -38,6 +43,11 @@ module dxSurvey.JsonSerializationTests {
     JsonObject.metaData.addClass("truck", ["maxWeight"], function () { return new Truck(); }, "car");
     JsonObject.metaData.addClass("sport", ["maxSpeed"], null, "car");
     JsonObject.metaData.setCreator("sport", function () { return new SportCar(); });
+
+    JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
+    JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", "itemvalue", null,
+        function (obj: any) { return ItemValue.getData(obj.items);},
+        function (obj: any, value: any) { ItemValue.setData(obj.items, value);});
 
     QUnit.module("JsonSerializationTests");
 
@@ -155,4 +165,24 @@ module dxSurvey.JsonSerializationTests {
         new dxSurvey.JsonObject().toObject({ "changeNameOnSet": "nameIsChanged" }, dealer);
         assert.equal(dealer.name, "nameIsChanged", "the property name is set");
     });
+    QUnit.test("ItemValueListOwner serialization", function (assert) {
+        var list = new ItemValueListOwner();
+        list.items.push(new ItemValue(7, "Item 1"));
+        list.items.push(new ItemValue(5));
+        list.items.push(new ItemValue("item"));
+
+        var jsObj = new dxSurvey.JsonObject().toJsonObject(list);
+        assert.equal(JSON.stringify(jsObj), "{\"items\":[{\"value\":7,\"text\":\"Item 1\"},5,\"item\"]}", "serialize ItemValueListOwner");
+    });
+    QUnit.test("ItemValueListOwner deserialization", function (assert) {
+        var list = new ItemValueListOwner();
+        new dxSurvey.JsonObject().toObject({ "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "value1|text1"] }, list);
+        assert.equal(list.items.length, 4, "there are 4 items");
+        assert.equal(list.items[1].value, 5, "set correct value property for the second item");
+        assert.equal(list.items[1].text, "5", "set correct text property for the second item");
+        assert.equal(list.items[3].value, "value1", "set correct value property for the fourth item");
+        assert.equal(list.items[3].text, "text1", "set correct text property for the fourth item");
+    });
+
+    
 }

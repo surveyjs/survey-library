@@ -4,6 +4,7 @@
 module dxSurvey {
     export class Question extends Base implements IQuestion {
         protected data: ISurveyData;
+        private titleValue: string = null;
         private questionValue: any;
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
@@ -34,6 +35,8 @@ module dxSurvey {
         protected setkoValue(newValue: any) {
             this.koValue(newValue);
         }
+        public get title() { return (this.titleValue) ? this.titleValue : this.name; }
+        public set title(newValue: string) { this.titleValue = newValue; }
         public supportComment(): boolean { return false; }
         public supportOther(): boolean { return false; }
         get isRequired(): boolean { return this.isRequiredValue; }

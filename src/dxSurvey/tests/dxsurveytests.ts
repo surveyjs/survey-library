@@ -58,7 +58,7 @@ module dxSurvey.Tests {
         assert.equal(inst.createQuestion("question2", "Q2").name, "Q2", "Create second type of question");
         assert.equal(inst.createQuestion("question3", "Q3"), null, "Create unexisting type of question");
     });
-    QUnit.test("Add questioins to page", function (assert) {
+    QUnit.test("Add questions to page", function (assert) {
         var page = new dxSurvey.Page("Page 1");
         page.addNewQuestion("text", "Q1");
         page.addNewQuestion("checkbox", "Q2");
@@ -174,6 +174,12 @@ module dxSurvey.Tests {
         assert.equal(question.visibleChoices.length, 4, "Add one more item for others");
         question.hasOther = false;
         assert.equal(question.visibleChoices.length, 3, "Remove the others item");
+    });
+    QUnit.test("Question Title property", function (assert) {
+        var question = new QuestionText("q1");
+        assert.equal(question.title, "q1", "get the question name by default");
+        question.title = "My title";
+        assert.equal(question.title, "My title", "get the question name by default");
     });
     QUnit.test("Pre-proccess value for Checkbox", function (assert) {
         var survey = new dxSurvey.Survey();

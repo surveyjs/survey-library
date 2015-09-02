@@ -1,4 +1,4 @@
 ﻿<script type="text/html" id="dxsurvey-page">
-    <h3 data-bind="text: name"></h3>
+    <h3 data-bind="visible: name.length > 0, text: name"></h3>
     <div data-bind="template: { name: 'dxsurvey-question', foreach: questions, as: 'question' }"></div>
 </script>

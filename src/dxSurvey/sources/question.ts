@@ -10,8 +10,9 @@ module dxSurvey {
         private hasCommentValue: boolean = false;
         private hasOtherValue: boolean = false;
         private visibleValue: boolean = true;
+        private visibleIndexValue: number = -1;
         errors: Array<SurveyError> = [];
-        koValue: any; koComment: any; koErrors: any; koVisible: any; dummyObservable: any;
+        koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
 
         constructor(public name: string) {
             super();
@@ -22,6 +23,7 @@ module dxSurvey {
                 this.dummyObservable = ko.observable(0);
                 var self = this;
                 this.koVisible = ko.computed(function () { self.dummyObservable(); return self.visibleValue; });
+                this.koNo = ko.computed(function () { self.dummyObservable(); return self.visibleIndexValue + 1; });
                 this.koValue.subscribe(function (newValue) {
                     self.setNewValue(newValue);
                 });
@@ -43,11 +45,16 @@ module dxSurvey {
         set isRequired(val: boolean) { this.isRequiredValue = val; }
         get visible(): boolean { return this.visibleValue; }
         set visible(val: boolean) {
+            if (val == this.visible) return;
             this.visibleValue = val;
             if (this.isKO) {
                 this.dummyObservable(this.dummyObservable() + 1);
             }
+            if (this.data) {
+                this.data.onQuestionVisibilityChanged(this.name, this.visible);
+            }
         }
+        get visibleIndex(): number { return this.visibleIndexValue; }
         get hasComment(): boolean { return this.hasCommentValue; }
         set hasComment(val: boolean) {
             if (!this.supportComment()) return;
@@ -115,6 +122,13 @@ module dxSurvey {
             this.isValueChangedInSurvey = true;
             this.value = newValue;
             this.isValueChangedInSurvey = false;
+        }
+        setVisibleIndex(value: number) {
+            if (this.visibleIndexValue == value) return;
+            this.visibleIndexValue = value;
+            if (this.isKO) {
+                this.dummyObservable(this.dummyObservable() + 1);
+            }
         }
     }
     JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible"]);

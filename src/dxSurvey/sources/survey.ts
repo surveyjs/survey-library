@@ -3,7 +3,7 @@
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData {
-        public title: string;
+        public title: string = "";
         public pages: Array<Page> = new Array<Page>();
         private currentPage: Page = null;
         private valuesHash: HashTable<any> = {};
@@ -13,6 +13,7 @@ module dxSurvey {
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
 
         constructor(jsonObj: any = null, renderedElement: HTMLElement = null) {
             super();
@@ -111,6 +112,13 @@ module dxSurvey {
             this.addPage(page);
             return page;
         }
+        public getQuestionByName(name: string): IQuestion {
+            var questions = this.getAllQuestions();
+            for (var i: number = 0; i < questions.length; i++) {
+                if(questions[i].name == name) return questions[i];
+            }
+            return null;
+        }
         private getAllQuestions(): Array<IQuestion> {
             var result = new Array<IQuestion>();
             for (var i: number = 0; i < this.pages.length; i++) {
@@ -135,6 +143,7 @@ module dxSurvey {
         public render(element: HTMLElement) {
             var self = this;
             this.renderedElement = element;
+            this.onBeforeRender();
             if (this.isKO) {
                 this.loadFile("/templates/knockout.html",
                     function (html: string) {
@@ -144,6 +153,9 @@ module dxSurvey {
                     function (errorResult: string) { element.innerHTML = "Knockout template could not be loaded. " + errorResult; }
                     );
             }
+        }
+        onBeforeRender() {
+            this.updateVisibleIndexes();
         }
         private loadFile(fileName: string, funcSuccess: Function, funcError: Function) {
             var xmlhttp = new XMLHttpRequest();
@@ -161,6 +173,14 @@ module dxSurvey {
             if (!this.isKO || this.renderedElement == null) return;
             ko.cleanNode(this.renderedElement);
             ko.applyBindings(this, this.renderedElement);
+        }
+        private updateVisibleIndexes() {
+            var index = 0;
+            var questions = this.getAllQuestions();
+            for (var i = 0; i < questions.length; i++) {
+                if (!questions[i].visible) continue;
+                questions[i].setVisibleIndex(index++);
+            } 
         }
         //ISurvey data
         getValue(name: string): any {
@@ -182,8 +202,12 @@ module dxSurvey {
                 this.commentsHash[name] = newValue;
             }
         }
+        onQuestionVisibilityChanged(name: string, newValue: boolean) {
+            this.updateVisibleIndexes();
+            this.onVisibleChanged.fire(this, { 'name': name, 'visible': newValue });
+        }
     }
 
-    JsonObject.metaData.addClass("survey", ["pages"]);
+    JsonObject.metaData.addClass("survey", ["title", "pages"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
 }

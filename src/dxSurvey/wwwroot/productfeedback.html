@@ -24,7 +24,7 @@
                                 { value: "better then others", text: "Product is better than other products on the market" }, { value: "easy to use", text: "Product is easy to use" }]
                             },
                             { type: "rating", name: "satisfaction", title: "How satisfied are you with the Product?", mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" },
-                            { type: "rating", name: "recommend friends", title: "How likely are you to recommend [Product] to a friend or co-worker?", mininumRateDescription: "Will not recommend", maximumRateDescription: "I will recommend" },
+                            { type: "rating", name: "recommend friends", visible: false, title: "How likely are you to recommend the Product to a friend or co-worker?", mininumRateDescription: "Will not recommend", maximumRateDescription: "I will recommend" },
                             { type: "text", name: "suggestions", title:"What would make you more satisfied with the Product?", }
                         ]
                     },
@@ -48,6 +48,7 @@
                 ]
             },
             document.getElementById("dxsurvey"));
+        survey.onValueChanged.add(function (s, options) { if (options.name == "satisfaction") survey.getQuestionByName("recommend friends").visible = survey.getValue("satisfaction") > 3; });
         survey.onComplete.add(function (s) { document.getElementById("dxsurvey").innerHTML = "Done!"; document.getElementById("dxsurveyJson").innerHTML = "The results are: \n" + JSON.stringify(survey.data); });
     </script>
 </body>

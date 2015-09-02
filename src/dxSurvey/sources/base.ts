@@ -7,9 +7,12 @@
         setValue(name: string, newValue: any);
         getComment(name: string): string;
         setComment(name: string, newValue: string);
+        onQuestionVisibilityChanged(name: string, newValue: boolean);
     }
     export interface IQuestion {
         name: string;
+        visible: boolean;
+        setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
     }
 

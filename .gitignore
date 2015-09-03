@@ -2,4 +2,5 @@ src/dxSurvey/node_modules/*
 src/dxSurvey/bower_components/*
 src/dxSurvey/typings/*
 src/dxSurvey/wwwroot/lib/*
+src/dxSurvey/wwwroot/tests/*.js
 .vs/*

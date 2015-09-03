@@ -10,5 +10,6 @@ before_install:
  
 script:
   - gulp typescript
+  - gulp sass
   - gulp templates
   - gulp test_ci

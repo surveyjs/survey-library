@@ -9,7 +9,5 @@ before_install:
   - bower-installer
  
 script:
-  - gulp typescript
-  - gulp sass
-  - gulp templates
+  - gulp makedist
   - gulp test_ci

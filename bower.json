@@ -1,0 +1,10 @@
+{
+  "name": "dxSurvey",
+  "private": true,
+  "dependencies": {
+    "knockout": "^3.3.0"
+  },
+  "devDependencies": {
+    "qunit": "^1.18.0"
+  }
+}

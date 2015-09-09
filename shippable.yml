@@ -8,5 +8,6 @@ before_install:
   - bower-installer
  
 script:
+  - gulp copylibs
   - gulp makedist
   - gulp test_ci

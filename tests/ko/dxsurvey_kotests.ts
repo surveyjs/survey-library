@@ -11,6 +11,24 @@ module dxSurvey.koTests {
     QUnit.test("Super stable test", function (assert) {
         assert.equal(1 + 1, 2, "This should usually pass");
     });
+    QUnit.test("Survey.koCurrentPage", function (assert) {
+        var survey = new dxSurvey.Survey();
+        survey.addNewPage("Page 1");
+        survey.addNewPage("Page 2");
+        survey.addNewPage("Page 3");
+        assert.equal(survey.currentPage, survey.pages[0], "the first page is current");
+        assert.equal(survey.koCurrentPage(), survey.currentPage, "ko current page is equal");
+        assert.equal(survey.koIsFirstPage(), true, "is first page");
+        assert.equal(survey.koIsLastPage(), false, "is first page");
+        survey.nextPage();
+        assert.equal(survey.koCurrentPage(), survey.pages[1], "ko current page is equal");
+        assert.equal(survey.koIsFirstPage(), false, "is second page");
+        assert.equal(survey.koIsLastPage(), false, "is second page");
+        survey.nextPage();
+        assert.equal(survey.koCurrentPage(), survey.pages[2], "ko current page is equal");
+        assert.equal(survey.koIsFirstPage(), false, "is last page");
+        assert.equal(survey.koIsLastPage(), true, "is last page");
+    });
     QUnit.test("Set value through observable value", function (assert) {
         var question = new Question("q");
         question.koValue("test");

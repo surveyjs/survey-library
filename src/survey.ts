@@ -5,7 +5,7 @@ module dxSurvey {
     export class Survey extends Base implements ISurveyData {
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
-        private currentPage: Page = null;
+        private currentPageValue: Page = null;
         private valuesHash: HashTable<any> = {};
         private commentsHash: HashTable<string> = {};
 
@@ -15,6 +15,8 @@ module dxSurvey {
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
 
+        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
+
         constructor(jsonObj: any = null, renderedElement: HTMLElement = null) {
             super();
             var self = this;
@@ -22,6 +24,12 @@ module dxSurvey {
                 value.data = self;
                 return Array.prototype.push.call(this, value);
             };
+            if (ko) {
+                this.dummyObservable = ko.observable(0);
+                this.koCurrentPage = ko.computed(function () { self.dummyObservable(); return self.currentPage; });
+                this.koIsFirstPage = ko.computed(function () { self.dummyObservable(); return self.isFirstPage; });
+                this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
+            }
             if (jsonObj) {
                 new JsonObject().toObject(jsonObj, this);
             }
@@ -55,37 +63,43 @@ module dxSurvey {
         get PageCount(): number {
             return this.pages.length;
         }
-        get CurrentPage(): Page {
-            if (this.currentPage != null) {
-                if (this.pages.indexOf(this.currentPage) < 0) {
+        get currentPage(): Page {
+            if (this.currentPageValue != null) {
+                if (this.pages.indexOf(this.currentPageValue) < 0) {
                     this.currentPage = null;
                 }
             }
-            if (this.currentPage == null && this.pages.length > 0) {
+            if (this.currentPageValue == null && this.pages.length > 0) {
                 this.currentPage = this.pages[0];
             }
-            return this.currentPage;
+            return this.currentPageValue;
         }
-        set CurrentPage(value: Page) {
-            if (value == null || this.pages.indexOf(value) < 0) return;
-            this.currentPage = value;
-            this.applyBinding();
+        set currentPage(value: Page) {
+            if (value != null && this.pages.indexOf(value) < 0) return;
+            if (value == this.currentPageValue) return;
+            this.currentPageValue = value;
+            this.updateKoCurrentPage();
+        }
+        private updateKoCurrentPage() {
+            if (this.isKO) {
+                this.dummyObservable(this.dummyObservable() + 1);
+            }
         }
         nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors()) return false;
-            var index = this.pages.indexOf(this.CurrentPage);
-            this.CurrentPage = this.pages[index + 1];
+            var index = this.pages.indexOf(this.currentPage);
+            this.currentPage = this.pages[index + 1];
             return true;
         }
         isCurrentPageHasErrors(): boolean {
-            if (this.CurrentPage == null) return true;
-            return this.CurrentPage.hasErrors();
+            if (this.currentPage == null) return true;
+            return this.currentPage.hasErrors();
         }
         prevPage(): boolean {
             if (this.isFirstPage) return false;
-            var index = this.pages.indexOf(this.CurrentPage);
-            this.CurrentPage = this.pages[index - 1];
+            var index = this.pages.indexOf(this.currentPage);
+            this.currentPage = this.pages[index - 1];
         }
         completeLastPage() : boolean {
             if (this.isCurrentPageHasErrors()) return false;
@@ -93,12 +107,12 @@ module dxSurvey {
             return true;
         }
         get isFirstPage() {
-            if (this.CurrentPage == null) return true;
-            return this.pages.indexOf(this.CurrentPage) == 0;
+            if (this.currentPage == null) return true;
+            return this.pages.indexOf(this.currentPage) == 0;
         }
         get isLastPage() {
-            if (this.CurrentPage == null) return true;
-            return this.pages.indexOf(this.CurrentPage) == this.pages.length - 1;
+            if (this.currentPage == null) return true;
+            return this.pages.indexOf(this.currentPage) == this.pages.length - 1;
         }
         getPage(index: number): Page {
             return this.pages[index];
@@ -145,7 +159,7 @@ module dxSurvey {
             this.renderedElement = element;
             this.onBeforeRender();
             if (this.isKO) {
-                this.loadFile("/templates/dx.survey.ko.html",
+                this.loadFile("templates/dx.survey.ko.html",
                     function (html: string) {
                         element.innerHTML = html;
                         self.applyBinding();
@@ -171,6 +185,7 @@ module dxSurvey {
         }
         private applyBinding() {
             if (!this.isKO || this.renderedElement == null) return;
+            this.updateKoCurrentPage();
             ko.cleanNode(this.renderedElement);
             ko.applyBindings(this, this.renderedElement);
         }

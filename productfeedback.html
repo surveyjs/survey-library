@@ -37,6 +37,11 @@
                             {
                                 type: "radiogroup", name: "price", title: "Do you feel our current price is merited by our product?",
                                 choices: ["correct|Yes, the price is about right", "low|No, the price is too low for your product", "high|No, the price is too high for your product"]
+                            },
+                            {
+                                type: "multipletext", name: "pricelimit", title: "What is the... ",
+                                items: [{ name: "mostamount", title: "Most amount you would every pay for a product like ours" },
+                                    { name: "leastamount", title: "The least amount you would feel comfortable paying" }]
                             }
                         ]
                     },

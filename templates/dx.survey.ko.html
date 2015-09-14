@@ -56,6 +56,14 @@
         </tbody>
     </table>
 </script>
+<script type="text/html" id="dxsurvey-question-multipletext">
+    <!-- ko foreach: { data:  question.items, as: 'item' }-->
+        <div>
+            <span data-bind="text: item.title"></span>
+            <input type="text" data-bind="value: item.koValue" />
+        </div>
+    <!-- /ko -->
+</script>
 <script type="text/html" id="dxsurvey-question-radiogroup">
     <div data-bind="foreach: question.visibleChoices">
         <label>

@@ -4,6 +4,7 @@
 /// <reference path="../src/question.ts" />
 /// <reference path="../src/question_baseselect.ts" />
 /// <reference path="../src/question_text.ts" />
+/// <reference path="../src/question_multipletext.ts" />
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/questionfactory.ts" />
 module dxSurvey.SerializationTests {
@@ -81,5 +82,12 @@ module dxSurvey.SerializationTests {
         assert.equal(survey.getValue("question1"), "value1", "survey data for question 1");
         assert.equal(survey.getValue("question2"), true, "survey data for question 2");
         assert.deepEqual(survey.getValue("question3"), ["red", "white"], "survey data for question 3");
+    });
+    QUnit.test("Serialize mutltiple text question", function (assert) {
+        var mtQuestion = new QuestionMultipleText("q1");
+        mtQuestion.items.push(new MultipleTextItem("item1"));
+        mtQuestion.items.push(new MultipleTextItem("item2", "text2"));
+        var jsObj = new dxSurvey.JsonObject().toJsonObject(mtQuestion);
+        assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });
 }

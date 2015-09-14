@@ -4,6 +4,7 @@
 /// <reference path="../src/question_baseselect.ts" />
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/question_matrix.ts" />
+/// <reference path="../src/question_multipletext.ts" />
 /// <reference path="../src/questionfactory.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey_Questions");
@@ -111,5 +112,20 @@ module dxSurvey.Tests {
         assert.deepEqual(matrix.value, { row1: "col2" }, "the matrix value changed correctly");
         rows[1].value = "col1";
         assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "the matrix value changed correctly");
+    });
+    QUnit.test("Multiple Text Item: text property", function (assert) {
+        var mItem = new MultipleTextItem("text1");
+        assert.equal(mItem.title, "text1", "get value from name");
+        mItem.title = "display1";
+        assert.equal(mItem.title, "display1", "get value from textValue");
+    });
+    QUnit.test("Multiple Text Question: get/set values for two texts", function (assert) {
+        var mText = new QuestionMultipleText("q1");
+        mText.items.push(new MultipleTextItem("text1"));
+        mText.items.push(new MultipleTextItem("text2"));
+        mText.value = { text1: "val1" };
+        assert.equal(mText.items[0].value, "val1", "get the value from the question");
+        mText.items[1].value = "val2";
+        assert.deepEqual(mText.value, { text1: "val1", text2: "val2" }, "set the value from the text item");
     });
 }

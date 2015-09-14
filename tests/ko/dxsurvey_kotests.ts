@@ -5,6 +5,7 @@
 /// <reference path="../../src/question_baseselect.ts" />
 /// <reference path="../../src/question_checkbox.ts" />
 /// <reference path="../../src/question_matrix.ts" />
+/// <reference path="../../src/question_multipletext.ts" />
 module dxSurvey.koTests {
     QUnit.module("koTests");
 
@@ -84,10 +85,20 @@ module dxSurvey.koTests {
         matrix.columns = ["col1", "col2"];
         matrix.value = { row1: "col2" };
         var visibleRows = matrix.visibleRows;
-        assert.equal(visibleRows[0].koValue(), "col2", "set the corerect value");
+        assert.equal(visibleRows[0].koValue(), "col2", "set the correct value");
         visibleRows[0].koValue("col1");
         visibleRows[1].koValue("col2");
         assert.deepEqual(matrix.value, { row1: "col1", row2: "col2" }, "the matrix value changed correctly");
+    });
+    QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {
+        var mQuestion = new QuestionMultipleText("q1");
+        mQuestion.items.push(new MultipleTextItem("i1"));
+        mQuestion.items.push(new MultipleTextItem("i2"));
+        mQuestion.value = { i1: 10 };
+        assert.equal(mQuestion.items[0].koValue(), 10, "set the correct value to item.koValue from question");
+        mQuestion.items[0].koValue(20);
+        assert.equal(mQuestion.items[0].koValue(), 20, "set the correct value to item.koValue from question item");
+        assert.deepEqual(mQuestion.value, { i1: 20 }, "set the correct value to question.Value from question item");
     });
     QUnit.test("Set notification on setting survey data", function (assert) {
         var survey = new Survey();

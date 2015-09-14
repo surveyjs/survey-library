@@ -111,7 +111,9 @@ module dxSurvey {
                 this.data.setValue(this.name, newValue);
             }
             this.questionValue = newValue;
+            this.onValueChanged();
         }
+        protected onValueChanged() { }
         private setNewComment(newValue: string) {
             if (this.data != null) {
                 this.data.setComment(this.name, newValue);

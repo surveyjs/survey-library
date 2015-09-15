@@ -9,9 +9,6 @@
 module dxSurvey.koTests {
     QUnit.module("koTests");
 
-    QUnit.test("Super stable test", function (assert) {
-        assert.equal(1 + 1, 2, "This should usually pass");
-    });
     QUnit.test("Survey.koCurrentPage", function (assert) {
         var survey = new dxSurvey.Survey();
         survey.addNewPage("Page 1");

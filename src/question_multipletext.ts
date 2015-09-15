@@ -7,10 +7,11 @@ module dxSurvey {
         setMultipleTextValue(name: string, value: any);
     }
 
-    export class MultipleTextItem extends Base {
+    export class MultipleTextItem extends Base implements IValidatorOwner {
         private data: IMultipleTextData;
         private titleValue: string;
         koValue: any;
+        validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
         constructor(public name: any = null, title: string = null) {
             super();
@@ -44,6 +45,8 @@ module dxSurvey {
                 this.koValue(newValue);
             }
         }
+        //IValidatorOwner
+        getValidatorTitle(): string { return this.title; }
     }
 
     export class QuestionMultipleText extends Question implements IMultipleTextData {
@@ -72,7 +75,16 @@ module dxSurvey {
                 }
             }
         }
-        //IMultipleTextData
+        protected runValidators(): SurveyError {
+            var error = super.runValidators();
+            if (error != null) return error;
+            for (var i = 0; i < this.items.length; i++) {
+                error = new ValidatorRunner().run(this.items[i]);
+                if (error != null) return error;
+            }
+            return null;
+        }
+       //IMultipleTextData
         getMultipleTextValue(name: string) {
             if (!this.value) return null;
             return this.value[name];
@@ -85,9 +97,9 @@ module dxSurvey {
             this.value[name] = value;
             this.isMultipleItemValueChanging = false;
         }
-
     }
-    JsonObject.metaData.addClass("multipletextitem", ["name", "title"], function () { return new MultipleTextItem(""); });
+    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators"], function () { return new MultipleTextItem(""); });
+    JsonObject.metaData.setPropertyClassShortName("multipletextitem", "validators", "validator");
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 

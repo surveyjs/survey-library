@@ -2,6 +2,15 @@
 module dxSurvey.Tests {
     QUnit.module("Base");
 
+    QUnit.test("Event hasEvents property", function (assert) {
+        var event = new dxSurvey.Event<() => any, any>();
+        assert.equal(event.isEmpty, true, "There is no callbacks at the beginning");
+        var func = () => {  };
+        event.add(func);
+        assert.equal(event.isEmpty, false, "a callbacks is added");
+        event.remove(func);
+        assert.equal(event.isEmpty, true, "a callbacks is removed");
+    });
     QUnit.test("Event no parameters", function (assert) {
         var event = new dxSurvey.Event<() => any, any>();
         var counter = 0;

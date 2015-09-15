@@ -1,8 +1,9 @@
 ﻿/// <reference path="questionfactory.ts" />
 /// <reference path="error.ts" />
+/// <reference path="validator.ts" />
 /// <reference path="jsonobject.ts" />
 module dxSurvey {
-    export class Question extends Base implements IQuestion {
+    export class Question extends Base implements IQuestion, IValidatorOwner {
         protected data: ISurveyData;
         private titleValue: string = null;
         private questionValue: any;
@@ -12,6 +13,7 @@ module dxSurvey {
         private visibleValue: boolean = true;
         private visibleIndexValue: number = -1;
         errors: Array<SurveyError> = [];
+        validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
 
         constructor(public name: string) {
@@ -100,9 +102,24 @@ module dxSurvey {
                     this.errors.push(new AnswerRequiredError());
                 }
             }
+            if (this.errors.length == 0) {
+                var error = this.runValidators();
+                if (error) {
+                    this.errors.push(error);
+                }
+            }
+            if (this.data && this.errors.length == 0) {
+                var error = this.data.validateQuestion(this.name);
+                if (error) {
+                    this.errors.push(error);
+                }
+            }
             if (this.isKO) {
                this.koErrors(this.errors);
             }
+        }
+        protected runValidators(): SurveyError {
+            return new ValidatorRunner().run(this);
         }
         private isValueChangedInSurvey = false;
         private setNewValue(newValue: any) {
@@ -132,9 +149,12 @@ module dxSurvey {
                 this.dummyObservable(this.dummyObservable() + 1);
             }
         }
-    }
-    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible"]);
+        //IValidatorOwner
+        getValidatorTitle(): string { return null; }
+   }
+    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });
+    JsonObject.metaData.setPropertyClassShortName("question", "validators", "validator");
 }

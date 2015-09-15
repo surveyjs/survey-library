@@ -191,6 +191,19 @@ module dxSurvey.Tests {
         survey.getQuestionByName("question1").visible = false;
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 1, "the third question is now visible as second");
     });
+    QUnit.test("onVisibleChanged event", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        survey.onValidateQuestion.add(function (sender, options) {
+            if (options.name == "question1" && options.value > 100) {
+                options.error = "Question 1 should be higher than 100";
+            }
+        });
+        assert.equal(survey.isCurrentPageHasErrors, false, "There is no error if the value is empty");
+        survey.setValue("question1", 1);
+        assert.equal(survey.isCurrentPageHasErrors, false, "the value is less than 100");
+        survey.setValue("question1", 101);
+        assert.equal(survey.isCurrentPageHasErrors, true, "the value is more than 100, no errors");
+    });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();
         var page = survey.addNewPage("Page 1");

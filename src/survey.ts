@@ -3,6 +3,7 @@
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData {
+        public static templateKnockout: string = "templates/dx.survey.ko.html";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
         private currentPageValue: Page = null;
@@ -14,6 +15,7 @@ module dxSurvey {
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
 
         koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
 
@@ -87,12 +89,12 @@ module dxSurvey {
         }
         nextPage(): boolean {
             if (this.isLastPage) return false;
-            if (this.isCurrentPageHasErrors()) return false;
+            if (this.isCurrentPageHasErrors) return false;
             var index = this.pages.indexOf(this.currentPage);
             this.currentPage = this.pages[index + 1];
             return true;
         }
-        isCurrentPageHasErrors(): boolean {
+        get isCurrentPageHasErrors(): boolean {
             if (this.currentPage == null) return true;
             return this.currentPage.hasErrors();
         }
@@ -102,7 +104,7 @@ module dxSurvey {
             this.currentPage = this.pages[index - 1];
         }
         completeLastPage() : boolean {
-            if (this.isCurrentPageHasErrors()) return false;
+            if (this.isCurrentPageHasErrors) return false;
             this.onComplete.fire(this, null);
             return true;
         }
@@ -159,7 +161,7 @@ module dxSurvey {
             this.renderedElement = element;
             this.onBeforeRender();
             if (this.isKO) {
-                this.loadFile("templates/dx.survey.ko.html",
+                this.loadFile(Survey.templateKnockout,
                     function (html: string) {
                         element.innerHTML = html;
                         self.applyBinding();
@@ -220,6 +222,12 @@ module dxSurvey {
         onQuestionVisibilityChanged(name: string, newValue: boolean) {
             this.updateVisibleIndexes();
             this.onVisibleChanged.fire(this, { 'name': name, 'visible': newValue });
+        }
+        validateQuestion(name: string): SurveyError {
+            if (this.onValidateQuestion.isEmpty) return null;
+            var options = { name: name, value: this.getValue(name), error: null };
+            this.onValidateQuestion.fire(this, options);
+            return options.error ? new CustomError(options.error) : null;
         }
     }
 

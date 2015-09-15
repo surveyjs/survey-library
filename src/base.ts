@@ -8,6 +8,7 @@
         getComment(name: string): string;
         setComment(name: string, newValue: string);
         onQuestionVisibilityChanged(name: string, newValue: boolean);
+        validateQuestion(name: string): SurveyError;
     }
     export interface IQuestion {
         name: string;
@@ -79,13 +80,20 @@
             throw new Error('This method is abstract');
         }
     }
+    export class SurveyError {
+        public getText(): string {
+            throw new Error('This method is abstract');
+        }
+    }
 
     export class Event<T extends Function, Options>  {
         private callbacks: Array<T>;
+        public get isEmpty(): boolean { return this.callbacks == null || this.callbacks.length == 0; }
         public fire(sender: any, options: Options) {
             if (this.callbacks == null) return;
             for (var i = 0; i < this.callbacks.length; i ++) {
-                this.callbacks[i](sender, options);
+                var callResult = this.callbacks[i](sender, options);
+
             }
         }
         public add(func: T) {

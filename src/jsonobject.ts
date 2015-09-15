@@ -3,6 +3,7 @@ module dxSurvey {
 
     export class JsonObjectProperty {
         public className: string = null;
+        public classNamePart: string = null;
         public defaultValue: any = null;
         public onGetValue: (obj: any) => any = null;
         public onSetValue: (obj: any, value: any) => any
@@ -22,6 +23,13 @@ module dxSurvey {
             if (this.onSetValue) {
                 this.onSetValue(obj, value);
             }
+        }
+        public getObjType(objType: string) {
+            if (!this.classNamePart) return objType;
+            return objType.replace(this.classNamePart, "");
+        }
+        public getClassName(className: string): string {
+            return (this.classNamePart) ? className + this.classNamePart : className;
         }
     }
     class JsonMetadataClass {
@@ -60,6 +68,11 @@ module dxSurvey {
             property.defaultValue = defaultValue;
             property.onGetValue = onGetValue;
             property.onSetValue = onSetValue;
+        }
+        public setPropertyClassShortName(name: string, propertyName: string, classNamePart: string) {
+            var property = this.findProperty(name, propertyName);
+            if (!property) return;
+            property.classNamePart = classNamePart;
         }
         public getProperties(name: string): Array<JsonObjectProperty> {
             var properties = this.classProperties[name];
@@ -125,7 +138,7 @@ module dxSurvey {
             if (!obj.getType) return obj;
             var result = {};
             if (property != null && (!property.className)) {
-                result[JsonObject.typePropertyName] = obj.getType();
+                result[JsonObject.typePropertyName] = property.getObjType(obj.getType());
             }
             var properties = JsonObject.metaData.getProperties(obj.getType());
             for (var i: number = 0; i < properties.length; i++) {
@@ -180,7 +193,7 @@ module dxSurvey {
                     className = property.className;
                 }
             }
-            return (className) ? JsonObject.metaData.createClass(className) : null;
+            return (className) ? JsonObject.metaData.createClass(property.getClassName(className)) : null;
         }
         private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
             if (!this.isValueArray(obj[key])) {

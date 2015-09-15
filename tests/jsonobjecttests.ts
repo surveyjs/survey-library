@@ -31,6 +31,24 @@ module dxSurvey.JsonSerializationTests {
         public getType(): string { return "itemvaluelistowner"; }
     }
 
+    class LongNameItemBase {
+        public baseSt: string;
+        public getType(): string { return "item_thelongpart"; }
+    }
+    class LongNameItemA extends LongNameItemBase {
+        public A: number;
+        public getType(): string { return "itemA_thelongpart"; }
+    }
+    class LongNameItemB extends LongNameItemBase {
+        public B: number;
+        public getType(): string { return "itemB_thelongpart"; }
+    }
+
+    class LongNamesOwner {
+        public items = new Array<LongNameItemBase>();
+        public getType(): string { return "LongNamesOwner"; }
+    }
+
     JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
     JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
     JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any) {
@@ -47,7 +65,14 @@ module dxSurvey.JsonSerializationTests {
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
     JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
         function (obj: any) { return ItemValue.getData(obj.items);},
-        function (obj: any, value: any) { ItemValue.setData(obj.items, value);});
+        function (obj: any, value: any) { ItemValue.setData(obj.items, value); });
+
+    
+    JsonObject.metaData.addClass("item_thelongpart", ["baseSt"]);
+    JsonObject.metaData.addClass("itemA_thelongpart", ["A"], function () { return new LongNameItemA(); }, "LongNameItemBase");
+    JsonObject.metaData.addClass("itemB_thelongpart", ["B"], function () { return new LongNameItemB(); }, "LongNameItemBase");
+    JsonObject.metaData.addClass("LongNamesOwner", ["items"]);
+    JsonObject.metaData.setPropertyClassShortName("LongNamesOwner", "items", "_thelongpart");
 
     QUnit.module("JsonSerializationTests");
 
@@ -183,6 +208,21 @@ module dxSurvey.JsonSerializationTests {
         assert.equal(list.items[3].value, "value1", "set correct value property for the fourth item");
         assert.equal(list.items[3].text, "text1", "set correct text property for the fourth item");
     });
-
+    QUnit.test("LongNamesOwner serialization", function (assert) {
+        var owner = new LongNamesOwner();
+        var l1 = new LongNameItemA();  l1.A = 5;
+        var l2 = new LongNameItemB(); l2.B = 15;
+        owner.items.push(l1);
+        owner.items.push(l2);
+        var jsObj = new dxSurvey.JsonObject().toJsonObject(owner);
+        assert.equal(JSON.stringify(jsObj), "{\"items\":[{\"type\":\"itemA\",\"A\":5},{\"type\":\"itemB\",\"B\":15}]}", "serialize LongNamesOwner");
+    });
+    QUnit.test("ItemValueListOwner deserialization", function (assert) {
+        var owner = new LongNamesOwner();
+        new dxSurvey.JsonObject().toObject({ items: [{ type: "itemA", A: 5 }, { type: "itemB", B: 15 }] }, owner);
+        assert.equal(owner.items.length, 2, "there are 2 items");
+        assert.equal(owner.items[0].getType(), "itemA_thelongpart", "the first object is live");
+        assert.equal(owner.items[1].getType(), "itemB_thelongpart", "the second object is live");
+    });
     
 }

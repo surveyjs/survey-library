@@ -128,4 +128,30 @@ module dxSurvey.Tests {
         mText.items[1].value = "val2";
         assert.deepEqual(mText.value, { text1: "val1", text2: "val2" }, "set the value from the text item");
     });
+    QUnit.test("Validators for text question", function (assert) {
+        var mText = new QuestionText("");
+        assert.equal(mText.hasErrors(), false, "There is no error by default");
+        mText.validators.push(new NumericValidator(10, 20));
+        mText.value = "ss";
+        assert.equal(mText.hasErrors(), true, "The value should be numeric");
+        mText.value = 25;
+        assert.equal(mText.hasErrors(), true, "The value should be between 10 and 20");
+        mText.value = "15";
+        assert.equal(mText.hasErrors(), false, "The value is fine now.");
+        assert.equal(mText.value, 15, "Convert to numeric");
+    });
+    QUnit.test("Validators for multiple text question", function (assert) {
+        var mText = new QuestionMultipleText("q1");
+        mText.items.push(new MultipleTextItem("t1")); 
+        assert.equal(mText.hasErrors(), false, "There is no error by default");
+        mText.items[0].validators.push(new NumericValidator(10, 20));
+        mText.value = { t1: "ss" };
+        assert.equal(mText.hasErrors(), true, "The value should be numeric");
+        mText.value = { t1: 25 };
+        assert.equal(mText.hasErrors(), true, "The value should be between 10 and 20");
+        assert.equal(mText.errors[0].getText().indexOf("t1") >= 0, true, "Error contains information about item name");
+        mText.value = { t1: 15 };
+        assert.equal(mText.hasErrors(), false, "The value is fine now.");
+        assert.equal(mText.items[0].value, 15, "Convert to numeric");
+    });
 }

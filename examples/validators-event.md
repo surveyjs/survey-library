@@ -4,7 +4,7 @@ title: Example of using onValidateQuestion event
 ---
 <div id="dxsurvey"></div>
 <script>
-    dxSurvey.Survey.templateKnockout = "../../templates/dx.survey.ko.html";
+    dxSurvey.Survey.templateKnockout = "../templates/dx.survey.ko.html";
     var survey = new dxSurvey.Survey(
         {
             pages: [

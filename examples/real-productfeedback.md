@@ -5,7 +5,7 @@ title: Product Feedback survey
 <div id="dxsurvey"></div>
 <p />
 <script>
-    dxSurvey.Survey.templateKnockout = "../../templates/dx.survey.ko.html";
+    dxSurvey.Survey.templateKnockout = "../templates/dx.survey.ko.html";
     var survey = new dxSurvey.Survey(
         {
             title: "Product Feedback Survey",

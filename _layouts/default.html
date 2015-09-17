@@ -9,13 +9,13 @@
         
     </head>
     <body>
-        <div class="header">{% include menu-top.html %}
+        <div class="header nav">{% include menu-top.html %}</div>
             <div class="container">
                 {{ content }}
             </div>
-        <div class="footer">{% include menu-top.html %}</div>
-            
-        
-        <div>(c) dxsurvey.com</div> 
+        <div class="footer">
+            <div class="navbottom">{% include menu-top.html %}</div>
+            <div>(c) dxsurvey.com</div> 
+        </div>
     </body>
 </html>

@@ -1,27 +1,39 @@
-﻿#content-wrapper{
-  display:table;
+body {
+    font-family:
+    Arial;color:#000000;
+    margin:0;
+    background-color:#FFFFFF;
+    height:100%;
 }
-
-#content{
-  display:table-row;
+.header{
+    margin:0;
+    color:#330000;
+    padding:0;
 }
-
-#content>div{
-  display:table-cell
+.container{
+    overflow:auto;
+    margin:0;
+    color:#330000;
+    background-color:#FFFFFF;
+    padding:5px;
 }
-
-/*adding some extras for demo purposes*/
-#content-wrapper{
-  width:100%;
-  height:100%;
-  top:0px;
-  left:0px;
-  position:absolute;
+.leftmenu{
+    float:left;
+    left:0;
+    width:220px;
+    height:100%;
+    color:#000000;
+    padding:0;
 }
-#nav{
-  width:250px;
-
+.content{
+    margin:0 0 0 225px;
+    border:none;
+    color:#000000;
+    height:100%;
 }
-#body{
-
+.footer{
+    margin:0;
+    color:#330000;
+    background-color:#FFFFFF;
+    padding:0;
 }

@@ -1,4 +1,4 @@
-body {
+﻿body {
     margin:0;
     height:100%;
 }
@@ -36,9 +36,6 @@ body {
 .content{
     margin:0 0 0 260px;
     padding-left: 20px;
-    border-style: solid;
-    border-width: 1px;
-    border-color:  #444;
     height:100%;
     min-height: 2000px;
     border-radius: 15px;    

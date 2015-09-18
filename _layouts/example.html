@@ -3,13 +3,34 @@ layout: default
 pathprefix: ../
 mainmenukey: examples
 ---
-
+<script>
+    dxSurvey.Survey.templateKnockout = "../templates/dx.survey.ko.html";
+</script>
 <div>	
     <div class="leftmenu">
         {% include menu-examples.html %}
     </div>		
     <div class="content">
         <h1>{{ page.title }}</h1>	
+        <div id="dxsurvey" style="width:800px"></div>
+        <div id="dxsurvey_oncomplete" style="visibility:hidden">
+            Thank you! You have completed the survey!
+            The survey data: 
+            <div id="dxsurvey_result"></div>
+            <input type="button" onclick="
+                document.getElementById('dxsurvey_oncomplete').style.visibility = 'hidden'; 
+                survey.data = null;
+                survey.render();" 
+                value="Re-run survey"></input>
+        </div>
         {{ content }}   		    		    	
     </div>
 </div>
+<script>
+    survey.onComplete.add(function (s) { 
+        document.getElementById('dxsurvey').innerHTML = ""; 
+        document.getElementById('dxsurvey_result').innerHTML = JSON.stringify(survey.data); 
+        document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
+    });
+    survey.render(document.getElementById('dxsurvey'));
+</script>

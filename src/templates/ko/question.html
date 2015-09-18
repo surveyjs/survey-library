@@ -1,13 +1,15 @@
 ﻿<script type="text/html" id="dxsurvey-question">
-    <div data-bind="visible: question.koVisible">
-        <div style="color:red" data-bind="foreach: koErrors">
-            <div data-bind="text:$data.getText()"></div>
-        </div>
-        <h4 data-bind="text: question.koNo() + '. ' +  (question.isRequired ? '* ' : '') + question.title"></h4>
-        <div data-bind="template: { name: 'dxsurvey-question-' + question.getType(), data: question }"></div>
-        <div data-bind="visible: question.hasComment">
-            Other (please describe)
-            <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': true } }"></div>
+    <div style="dxsv-q" data-bind="visible: question.koVisible">
+        <div data-bind="css: {dxsv_q_erbox : koErrors().length > 0 }">
+            <div style="color:red" data-bind="foreach: koErrors">
+                <div data-bind="text:$data.getText()"></div>
+            </div>
+            <h4 data-bind="text: question.koNo() + '. ' +  (question.isRequired ? '* ' : '') + question.title"></h4>
+            <div data-bind="template: { name: 'dxsurvey-question-' + question.getType(), data: question }"></div>
+            <div data-bind="visible: question.hasComment">
+                Other (please describe)
+                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': true } }"></div>
+            </div>
         </div>
     </div>
 </script>

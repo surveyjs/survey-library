@@ -72,12 +72,12 @@ module dxSurvey.SerializationTests {
         survey.setValue("question2", true);
         survey.setValue("question3", ["red", "white"]);
         var data = survey.data;
-        var expectedData = [{ "question1": "value1" }, { "question2": true }, { "question3": ["red", "white"] }];
+        var expectedData = { "question1": "value1", "question2": true, "question3": ["red", "white"] };
         assert.deepEqual(data, expectedData, "check if get data works correctly");
     });
     QUnit.test("Deserialize survey data", function (assert) {
         var survey = new Survey();
-        var data = [{ "question1": "value1" }, { "question2": true }, { "question3": ["red", "white"] }];
+        var data = { "question1": "value1", "question2": true, "question3": ["red", "white"] };
         survey.data = data;
         assert.equal(survey.getValue("question1"), "value1", "survey data for question 1");
         assert.equal(survey.getValue("question2"), true, "survey data for question 2");

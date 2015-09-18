@@ -41,24 +41,17 @@ module dxSurvey {
         }
         public getType(): string { return "survey"; }
         public get data(): any {
-            var result = [];
+            var result = {};
             for (var key in this.valuesHash) {
-                var obj = {};
-                obj[key] = this.valuesHash[key];
-                result.push(obj);
+                result[key] = this.valuesHash[key];
             }
             return result;
         }
         public set data(data: any) {
             this.valuesHash = {};
-            if (!data && data.constructor.toString().indexOf("Array") < 0) return;
-            for (var i = 0; i < data.length; i++) {
-                var value = data[i];
-                for (var key in value) {
-                    if (key && value[key]) {
-                        this.valuesHash[key] = value[key];
-                    }
-                }
+            if (!data) return;
+            for (var key in data) {
+                this.valuesHash[key] = data[key];
             }
             this.notifyAllQuestionsOnValueChanged();
         }
@@ -156,9 +149,14 @@ module dxSurvey {
                 questions[i].onSurveyValueChanged(this.getValue(questions[i].name));
             }
         }
-        public render(element: HTMLElement) {
+        public render(element: HTMLElement = null) {
             var self = this;
-            this.renderedElement = element;
+            if (element) {
+                this.renderedElement = element;
+            } else {
+                element = this.renderedElement;
+            }
+            if (!element) return;
             this.onBeforeRender();
             if (this.isKO) {
                 this.loadFile(Survey.templateKnockout,

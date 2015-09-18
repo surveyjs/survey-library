@@ -8,6 +8,14 @@
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
 
+    QUnit.test("set data property", function (assert) {
+        var survey = new dxSurvey.Survey();
+        assert.deepEqual(survey.data, {}, "there is no data");
+        survey.data = { strVal: 'item1', intVal: 5 };
+        assert.deepEqual(survey.data, { strVal: 'item1', intVal: 5 }, "set the object");
+        survey.data = null;
+        assert.deepEqual(survey.data, { }, "clear data");
+    });
     QUnit.test("Add two pages", function (assert) {
         var survey = new dxSurvey.Survey();
         survey.addPage(new Page("Page 1"));

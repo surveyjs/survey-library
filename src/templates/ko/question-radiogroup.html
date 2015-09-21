@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="dxsurvey-question-radiogroup">
-    <div data-bind="foreach: question.visibleChoices">
+    <div class="dxsv_q_radiogroup" data-bind="foreach: question.visibleChoices">
         <label>
             <input type="radio"
                    data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />

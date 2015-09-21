@@ -38,6 +38,5 @@ module dxSurvey {
     JsonObject.metaData.setPropertyValues("rating", "rateValues", null, null,
         function (obj: any) { return ItemValue.getData(obj.rateValues); },
         function (obj: any, value: any) { ItemValue.setData(obj.rateValues, value); });
-
     QuestionFactory.Instance.registerQuestion("rating", (name) => { return new QuestionRating(name); });
 }

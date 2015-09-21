@@ -49,9 +49,10 @@ module dxSurvey {
         }
         public set data(data: any) {
             this.valuesHash = {};
-            if (!data) return;
-            for (var key in data) {
-                this.valuesHash[key] = data[key];
+            if (data) {
+                for (var key in data) {
+                    this.valuesHash[key] = data[key];
+                }
             }
             this.notifyAllQuestionsOnValueChanged();
         }

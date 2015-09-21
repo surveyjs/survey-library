@@ -14,6 +14,7 @@ module dxSurvey {
         private visibleIndexValue: number = -1;
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
+        public width: string = "100%";
         koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
 
         constructor(public name: string) {
@@ -152,9 +153,10 @@ module dxSurvey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators"]);
+    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators", "width"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });
+    JsonObject.metaData.setPropertyValues("question", "width", null, "100%");
     JsonObject.metaData.setPropertyClassShortName("question", "validators", "validator");
 }

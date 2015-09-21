@@ -3,7 +3,8 @@
 /// <reference path="jsonobject.ts" />
 module dxSurvey {
     export class QuestionComment extends Question {
-        public rows: number = 3;
+        public rows: number = 4;
+        public cols: number = 50;
         constructor(public name: string) {
             super(name);
         }
@@ -14,7 +15,8 @@ module dxSurvey {
             return super.isEmpty() || this.value == "";
         }
     }
-    JsonObject.metaData.addClass("comment", ["rows"], function () { return new QuestionComment(""); }, "question");
-    JsonObject.metaData.setPropertyValues("comment", "rows", null, 3);
+    JsonObject.metaData.addClass("comment", ["cols", "rows"], function () { return new QuestionComment(""); }, "question");
+    JsonObject.metaData.setPropertyValues("comment", "cols", null, 50);
+    JsonObject.metaData.setPropertyValues("comment", "rows", null, 4);
     QuestionFactory.Instance.registerQuestion("comment", (name) => { return new QuestionComment(name); });
 }

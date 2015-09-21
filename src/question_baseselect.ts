@@ -3,7 +3,7 @@
 module dxSurvey {
     export class QuestionSelectBase extends Question {
         otherItem: ItemValue = new ItemValue("other", "Other (describe)");
-        choicesValues: Array<ItemValue> = new Array<ItemValue>();
+        public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         koOtherVisible: any;
         constructor(name: string) {
             super(name);

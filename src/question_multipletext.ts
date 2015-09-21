@@ -50,6 +50,7 @@ module dxSurvey {
     }
 
     export class QuestionMultipleText extends Question implements IMultipleTextData {
+        public itemSize: number = 25;
         public items: Array<MultipleTextItem> = new Array<MultipleTextItem>();
         constructor(public name: string) {
             super(name);
@@ -103,8 +104,8 @@ module dxSurvey {
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 
-    JsonObject.metaData.addClass("multipletext", ["items"], function () { return new QuestionMultipleText(""); }, "question");
+    JsonObject.metaData.addClass("multipletext", ["items", "itemSize"], function () { return new QuestionMultipleText(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
-
+    JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
     QuestionFactory.Instance.registerQuestion("multipletext", (name) => { return new QuestionMultipleText(name); });
 }

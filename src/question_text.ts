@@ -3,6 +3,7 @@
 /// <reference path="jsonobject.ts" />
 module dxSurvey {
     export class QuestionText extends Question {
+        public size: number = 25;
         constructor(public name: string) {
             super(name);
         }
@@ -13,6 +14,7 @@ module dxSurvey {
             return super.isEmpty() || this.value == "";
         }
     }
-    JsonObject.metaData.addClass("text", [], function () { return new QuestionText(""); }, "question");
+    JsonObject.metaData.addClass("text", ["size"], function () { return new QuestionText(""); }, "question");
+    JsonObject.metaData.setPropertyValues("text", "size", null, 25);
     QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionText(name); });
 }

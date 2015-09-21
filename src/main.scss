@@ -8,3 +8,36 @@
     border-width: 1px;
     border-color:red;
 }
+.dxsv_q_matrix {
+    width: 100%;
+    max-width: 100%;
+    th, td {
+        text-align: center;
+        vertical-align: central;
+    }
+    td:first-child {
+        text-align: left;
+    }
+}
+.dxsv_q_checkbox {
+    width: 100%;
+    max-width: 100%;
+}
+.dxsv_q_radiogroup {
+    width: 100%;
+    max-width: 100%;
+}
+.dxsv_q_rating {
+    width: 100%;
+    max-width: 100%;
+    th, td {
+        text-align: center;
+        vertical-align: central;
+    }
+    td:first-child {
+        text-align: right;
+    }
+    td:last-child {
+        text-align: left;
+    }
+}

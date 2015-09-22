@@ -96,6 +96,8 @@ module dxSurvey.koTests {
         mQuestion.items[0].koValue(20);
         assert.equal(mQuestion.items[0].koValue(), 20, "set the correct value to item.koValue from question item");
         assert.deepEqual(mQuestion.value, { i1: 20 }, "set the correct value to question.Value from question item");
+        mQuestion.value = null;
+        assert.equal(mQuestion.items[0].koValue(), null, "empty the value");
     });
     QUnit.test("Set notification on setting survey data", function (assert) {
         var survey = new Survey();
@@ -105,6 +107,17 @@ module dxSurvey.koTests {
         survey.data = { "q1": "value2" };
         assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
         assert.equal(question.koValue(), "value2", "knockout value is updated.");
+    });
+    QUnit.test("On make survey data empy", function (assert) {
+        var survey = new Survey();
+        var page = survey.addNewPage("page1");
+        var question = new QuestionMultipleText("q1");
+        page.addQuestion(question);
+        question.items.push(new MultipleTextItem("i1"));
+        question.items.push(new MultipleTextItem("i2"));
+        question.value = { i1: 10 };
+        survey.data = null;
+        assert.equal(question.items[0].koValue(), null, "Make the data empty");
     });
     QUnit.test("koVisible property", function (assert) {
         var survey = new Survey();

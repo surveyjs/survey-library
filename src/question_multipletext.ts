@@ -10,6 +10,7 @@ module dxSurvey {
     export class MultipleTextItem extends Base implements IValidatorOwner {
         private data: IMultipleTextData;
         private titleValue: string;
+        private isKOValueUpdating = false;
         koValue: any;
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
@@ -20,7 +21,9 @@ module dxSurvey {
                 this.koValue = ko.observable(this.value);
                 var self = this;
                 this.koValue.subscribe(function (newValue) {
-                    self.value = newValue;
+                    if (!self.isKOValueUpdating) {
+                        self.value = newValue;
+                    }
                 });
             }
         }
@@ -42,7 +45,9 @@ module dxSurvey {
         }
         onValueChanged(newValue: any) {
             if (this.isKO) {
+                this.isKOValueUpdating = true;
                 this.koValue(newValue);
+                this.isKOValueUpdating = false;
             }
         }
         //IValidatorOwner
@@ -66,14 +71,20 @@ module dxSurvey {
         private isMultipleItemValueChanging = false;
         protected onValueChanged() {
             super.onValueChanged();
-            if (!this.isMultipleItemValueChanging) {
-                for (var i = 0; i < this.items.length; i++) {
-                    var itemValue = null;
-                    if (this.value && (this.items[i].name in this.value)) {
-                        itemValue = this.value[this.items[i].name];
-                    }
-                    this.items[i].onValueChanged(itemValue);
+            this.onItemValueChanged();
+        }
+        protected setkoValue(newValue: any) {
+            super.setkoValue(newValue);
+            this.onItemValueChanged();
+        }
+        protected onItemValueChanged() {
+            if (this.isMultipleItemValueChanging) return;
+            for (var i = 0; i < this.items.length; i++) {
+                var itemValue = null;
+                if (this.value && (this.items[i].name in this.value)) {
+                    itemValue = this.value[this.items[i].name];
                 }
+                this.items[i].onValueChanged(itemValue);
             }
         }
         protected runValidators(): SurveyError {

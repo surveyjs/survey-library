@@ -4,6 +4,79 @@ title: Home
 mainmenukey: home
 canonicalUrl: /
 ---
-<div>
-    We should put some text here about the library.
+{% capture survey_setup %}
+var survey = new dxSurvey.Survey({title: "Simple survey example", pages: [{
+                questions: [
+                    { type: "radiogroup", name: "used", title: "Have you been running a survey on your site(s)?", isRequired: true,
+                    choices: ["Yes", "No"]},
+                    { type: "checkbox", name: "solution", title: "What do you use to run survey?", 
+                        visible: false, isRequired: true, hasOther: true,
+                        choices: ["custom|Custom solution", "Survey Monkey", "Survey Gizmo"]},
+                    { type: "comment", name: "description", title: "Please tell us what kind of survey do you need?" }]}]
+}, document.getElementById("surveyContainer"));
+{% endcapture %}
+{% capture survey_event %}
+survey.onValueChanged.add(
+    function (s, options) { 
+        if (options.name == "used") {
+            s.getQuestionByName("solution").visible = options.value == "Yes"; 
+        }
+    });
+{% endcapture %}
+
+{% capture survey_oncomplete %}
+survey.onComplete.add(function (s) {
+    document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);; 
+});
+{% endcapture %}
+
+<h1>
+    dxSurvey: the JavaScript Survey Library.
+</h1>
+dxSurvey gives you the ability to fully control the survey workflow. 
+<ul>
+    <li>Fully customize the Survey to have the same experients as your website</li>
+    <li>Set the ininitial data or change them on the fly</li>
+    <li>Create the content of your survey using JSON or pure JavaScript</li>
+    <li>The full set of JS events will help you fully control the proccess, for example change the question visibility on changing a data</li>
+    <li>Create your own question type in several lines of code</li>
+</ul>
+
+You will need several simple steps to introduce a survey into your web site.
+<ul>
+    <li>Download the library (link to the library)
+    </li>
+    <li>Insert links on js and css files
+        <pre class="brush:js">
+            <link href="{{ page.pathprefix }}css/dx.survey.css" type="text/css" rel="stylesheet" />
+            <script src="{{ page.pathprefix }}js/dx.survey.js"></script>
+        </pre>
+    </li>
+    <li>Add a link to one of the  most famous MVVM library: <a href="http://knockoutjs.com">KnockoutJS</a> or AngularJS
+        <div>
+            for KnockoutJS
+            <pre class="brush:js">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+            </pre>
+        </div>
+    </li>
+    <li>Set up a Survey object and tell it where to render itself
+        <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
+    </li>
+    <li>Handle Survey event(s) if needed
+        <pre class="brush:js">{{ survey_event | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
+    </li>
+    <li>Use onComplete event to get the result of a Survey
+        <pre class="brush:js">{{ survey_oncomplete | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+    </li>
+</ul>
+<div class="surveycontent">
+    <div id="surveyContainer"></div>
 </div>
+<script type="text/javascript">
+/*<![CDATA[*/
+{{ survey_setup }}
+{{ survey_event }}
+{{ survey_oncomplete }}
+/*]]>*/
+</script>

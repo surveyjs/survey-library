@@ -1,4 +1,4 @@
-﻿body {
+body {
     margin:0;
     height:100%;
 }
@@ -47,6 +47,13 @@
     background-color:#FFFFFF;
     padding:0;
 }
+
+.surveycontent{
+    padding: 20px;
+    border-radius: 15px;    
+    background-color: beige;
+}
+
 /* bottom menu */
 .navbottom ul {
   list-style: none;

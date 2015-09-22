@@ -30,7 +30,7 @@ module dxSurvey {
         public hasErrors(): boolean {
             var result = false;
             for (var i = 0; i < this.questions.length; i++) {
-                if (this.questions[i].hasErrors()) {
+                if (this.questions[i].visible && this.questions[i].hasErrors()) {
                     result = true;
                 }
             }

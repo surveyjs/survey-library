@@ -60,6 +60,15 @@ module dxSurvey.Tests {
         assert.equal(items[3].value, "value1", "set correct value property for the fourth item");
         assert.equal(items[3].text, "text1", "set correct text property for the fourth item");
     });
+    QUnit.test("ItemValue.setData() boolean", function (assert) {
+        var items = new Array<ItemValue>();
+        ItemValue.setData(items, [{ value: true, text: "Yes" }, { value: false, text: "No" }]);
+        assert.equal(items.length, 2, "there are 2 items");
+        assert.equal(items[0].value, true, "set correct value property for the first item");
+        assert.equal(items[0].text, "Yes", "set correct text property for the first item");
+        assert.equal(items[1].value, false, "set correct value property for the second item");
+        assert.equal(items[1].text, "No", "set correct text property for the second item");
+    });
     QUnit.test("ItemValue.getData()", function (assert) {
         var items = new Array<ItemValue>();
         items.push(new ItemValue(7, "Item 1"));

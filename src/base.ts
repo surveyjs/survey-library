@@ -24,7 +24,7 @@
             for (var i = 0; i < values.length; i++) {
                 var value = values[i];
                 var item = new ItemValue(null);
-                if (value["value"]) {
+                if (typeof (value.value) !== 'undefined') {
                     item.text = value["text"];
                     item.value = value["value"];
                 } else {

@@ -156,6 +156,14 @@ module dxSurvey.Tests {
         assert.equal(survey.pages[0].questions[0].hasErrors(), false, "The question is filled out.");
         assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
     });
+    QUnit.test("Invisible required questions should not be take into account", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.notEqual(survey, null, "Survey is not  null");
+        survey.pages[0].questions[0].isRequired = true;
+        assert.equal(survey.nextPage(), false, "Can not go to the next page");
+        survey.pages[0].questions[0].visible = false;
+        assert.equal(survey.nextPage(), true, "You can go to the next page now.");
+    });
     QUnit.test("onValueChanged event", function (assert) {
         var survey = twoPageSimplestSurvey();
         var name = "";

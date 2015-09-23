@@ -200,6 +200,7 @@ module dxSurvey {
         }
         //ISurvey data
         getValue(name: string): any {
+            if (!name || name.length == 0) return null;
             return this.valuesHash[name];
         }
         setValue(name: string, newValue: any) {

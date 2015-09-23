@@ -45,6 +45,13 @@ module dxSurvey.koTests {
         assert.deepEqual(question.koValue(), ["test1", "test2"], "koValue is observable array");
         assert.deepEqual(question.value, ["test1", "test2"], "value is set correctly.");
     });
+    QUnit.test("Default value for checkbox", function (assert) {
+        var survey = new Survey();
+        survey.addNewPage("p1");
+        var question = new QuestionCheckbox("q");
+        survey.pages[0].addQuestion(question);
+        assert.deepEqual(question.koValue(), [], "the koValue by default should be empty array");
+    });
     QUnit.test("koOtherVisible for multi choice items", function (assert) {
         var question = new QuestionCheckbox("q");
         assert.equal(question.koOtherVisible(), false, "Initially is not visible");

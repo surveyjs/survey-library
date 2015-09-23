@@ -6,9 +6,15 @@ module dxSurvey {
         constructor(public name: string) {
             super(name);
         }
-        protected createkoValue(): any { return ko.observableArray(this.value); }
+        protected createkoValue(): any {
+            return this.value ? ko.observableArray(this.value) : ko.observableArray();
+        }
         protected setkoValue(newValue: any) {
-            this.koValue([].concat(newValue));
+            if (newValue) {
+                this.koValue([].concat(newValue));
+            } else {
+                this.koValue([]);
+            }
         }
         protected iskoOtherVisible(): boolean {
             return this.koValue.indexOf(this.otherItem.value) >= 0;

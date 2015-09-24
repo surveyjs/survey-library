@@ -5,15 +5,15 @@ mainmenukey: home
 canonicalUrl: /
 ---
 {% capture survey_setup %}
-var survey = new dxSurvey.Survey({title: "Simple survey example", pages: [{
+var survey = new dxSurvey.Survey({title: "Simple survey example",
                 questions: [
                     { type: "radiogroup", name: "used", title: "Have you been running a survey on your site(s)?", isRequired: true,
                     choices: ["Yes", "No"]},
                     { type: "checkbox", name: "solution", title: "What do you use to run survey?", 
                         visible: false, isRequired: true, hasOther: true,
                         choices: ["custom|Custom solution", "Survey Monkey", "Survey Gizmo"]},
-                    { type: "comment", name: "description", title: "Please tell us what kind of survey do you need?" }]}]
-}, document.getElementById("surveyContainer"));
+                    { type: "comment", name: "description", title: "Please tell us what kind of survey do you need?" }]
+}, "surveyContainer", "templates/dx.survey.ko.html");
 {% endcapture %}
 {% capture survey_event %}
 survey.onValueChanged.add(
@@ -35,7 +35,7 @@ survey.onComplete.add(function (s) {
 </h1>
 dxSurvey gives you the ability to fully control the survey workflow. 
 <ul>
-    <li>Fully customize the Survey to have the same experients as your website</li>
+    <li>Customize the Survey to have the same experients as your website</li>
     <li>Set the ininitial data or change them on the fly</li>
     <li>Create the content of your survey using JSON or pure JavaScript</li>
     <li>The full set of JS events will help you fully control the proccess, for example change the question visibility on changing a data</li>
@@ -60,7 +60,7 @@ You will need several simple steps to introduce a survey into your web site.
             </pre>
         </div>
     </li>
-    <li>Set up a Survey object and tell it where to render itself
+    <li>Set up a Survey object. Pass an element (or it's id) where to render and a link to the MVVM template html
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
     </li>
     <li>Handle Survey event(s) if needed

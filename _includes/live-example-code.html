@@ -1,16 +1,21 @@
 <script type="text/javascript">
-/*<![CDATA[*/{{ survey_constructor }}/*]]>*/
-</script>
-
-{% if survey_events %}
-<script type="text/javascript">
-/*<![CDATA[*/{{ survey_events }}/*]]>*/
-</script>
+{% if survey_code %}
+/*<![CDATA[*/{{ survey_code }}/*]]>*/
 {% endif %}
+/*<![CDATA[*/{{ survey_setup }}/*]]>*/
+{% if survey_events %}
+/*<![CDATA[*/{{ survey_events }}/*]]>*/
+{% endif %}
+</script>
 
+
+{% if survey_code %}
+<h2>Source code: Survey code</h2>
+<pre class="brush:js">{{ survey_code | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+{% endif %}
 {% if survey_events %}
 <h2>Source code: Survey events</h2>
 <pre class="brush:js">{{ survey_events | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
 {% endif %}
-<h2>Source code: Survey contructor</h2>
-<pre class="brush:js">{{ survey_constructor | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+<h2>Source code: Survey setup</h2>
+<pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>

@@ -3,9 +3,6 @@ layout: default
 pathprefix: ../
 mainmenukey: examples
 ---
-<script>
-    dxSurvey.Survey.templateKnockout = "../templates/dx.survey.ko.html";
-</script>
 <div>	
     <div class="leftmenu">
         {% include menu-examples.html %}
@@ -32,5 +29,5 @@ mainmenukey: examples
         document.getElementById('dxsurvey_result').innerHTML = JSON.stringify(survey.data); 
         document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
     });
-    survey.render(document.getElementById('dxsurvey'));
+    survey.render("dxsurvey", "../templates/dx.survey.ko.html");
 </script>

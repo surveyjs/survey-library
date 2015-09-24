@@ -1,6 +1,6 @@
 ---
 layout: example
-title: Product Feedback survey
+title: DevExpress Winforms Skins
 ---
 {% capture survey_setup %}
 var survey = new dxSurvey.Survey(

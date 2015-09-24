@@ -24,20 +24,22 @@ module dxSurvey.Tests {
     });
     QUnit.test("Current Page", function (assert) {
         var survey = new dxSurvey.Survey();
-        survey.addPage(new Page("Page 1"));
+        survey.addPage(createPageWithQuestion("Page 1"));
         assert.equal(survey.currentPage, survey.pages[0], "the first page is  current");
         survey.currentPage = null;
         assert.equal(survey.currentPage, survey.pages[0], "can't set curent page to null");
-        survey.currentPage = survey.addNewPage("new Page");
+        var sPage = createPageWithQuestion("new Page");
+        survey.addPage(sPage);
+        survey.currentPage = sPage;
         assert.equal(survey.currentPage, survey.pages[1], "second page is current");
         survey.pages.pop();
         assert.equal(survey.currentPage, survey.pages[0], "the first page is current after removing the current one");
     });
     QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
         var survey = new dxSurvey.Survey();
-        survey.addPage(new Page("Page 1"));
-        survey.addNewPage("Second page");
-        survey.addNewPage("Third page");
+        survey.addPage(createPageWithQuestion("Page 1"));
+        survey.addPage(createPageWithQuestion("Second page"));
+        survey.addPage(createPageWithQuestion("Third page"));
         assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
         assert.equal(survey.isFirstPage, true, "Current Page is  First");
         assert.equal(survey.isLastPage, false, "Current Page is  First");
@@ -60,9 +62,9 @@ module dxSurvey.Tests {
     });
     QUnit.test("Next, Prev, Next", function (assert) {
         var survey = new dxSurvey.Survey();
-        survey.addPage(new Page("Page 1"));
-        survey.addNewPage("Page 2");
-        survey.addNewPage("Page 3");
+        survey.addPage(createPageWithQuestion("Page 1"));
+        survey.addPage(createPageWithQuestion("Page 2"));
+        survey.addPage(createPageWithQuestion("Page 3"));
         assert.equal(survey.currentPage, survey.pages[0], "Initial page is  first");
         survey.nextPage();
         assert.equal(survey.currentPage, survey.pages[1], "After next the current page is  second");
@@ -220,6 +222,38 @@ module dxSurvey.Tests {
         survey.setValue("question1", 101);
         assert.equal(survey.isCurrentPageHasErrors, true, "the value is more than 100, no errors");
     });
+    QUnit.test("Page visibility", function (assert) {
+        var page = new Page("page");
+        assert.equal(page.isVisible, false, "page is invisible if there is no questions in it");
+        page.addNewQuestion("text", "q1");
+        assert.equal(page.isVisible, true, "there is one question");
+        page.visible = false;
+        assert.equal(page.isVisible, false, "we made the page invisible");
+        page.visible = true;
+        assert.equal(page.isVisible, true, "we made the page visible");
+        page.questions[0].visible = false;
+        assert.equal(page.isVisible, false, "there is no visible questions on the page");
+        page.questions[0].visible = true;
+        assert.equal(page.isVisible, true, "we have made the question visible again");
+    });
+    QUnit.test("Survey visiblePages and start using them", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.equal(survey.visiblePages.length, 2, "All pages are visible");
+        assert.equal(survey.currentPage.name, "Page 1", "the first page is current");
+        survey.pages[0].visible = false;
+        assert.equal(survey.visiblePages.length, 1, "The first page becomes invisible");
+        assert.equal(survey.currentPage.name, "Page 2", "the second page is current, because the first is invisible");
+    });
+    QUnit.test("Survey visiblePages, make second and third invisbile and go the last page on next", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        survey.currentPage = survey.pages[0];
+        survey.addNewPage("Page 3").addNewQuestion("text", "p3q1");
+        survey.addNewPage("Page 4").addNewQuestion("text", "p4q1");
+        survey.pages[1].visible = false;
+        survey.pages[2].questions[0].visible = false;
+        survey.nextPage();
+        assert.equal(survey.currentPage.name, "Page 4", "Bypass two invisible pages");
+    });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();
         var page = survey.addNewPage("Page 1");
@@ -229,5 +263,10 @@ module dxSurvey.Tests {
         page.addNewQuestion("text", "question3");
         page.addNewQuestion("text", "question4");
         return survey;
+    }
+    function createPageWithQuestion(name: string) : Page {
+        var page = new Page(name);
+        page.addNewQuestion("text", "q1");
+        return page;
     }
 }

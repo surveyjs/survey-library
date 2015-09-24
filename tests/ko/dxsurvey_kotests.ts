@@ -11,9 +11,9 @@ module dxSurvey.koTests {
 
     QUnit.test("Survey.koCurrentPage", function (assert) {
         var survey = new dxSurvey.Survey();
-        survey.addNewPage("Page 1");
-        survey.addNewPage("Page 2");
-        survey.addNewPage("Page 3");
+        survey.addPage(createPageWithQuestion("Page 1"));
+        survey.addPage(createPageWithQuestion("Page 2"));
+        survey.addPage(createPageWithQuestion("Page 3"));
         assert.equal(survey.currentPage, survey.pages[0], "the first page is current");
         assert.equal(survey.koCurrentPage(), survey.currentPage, "ko current page is equal");
         assert.equal(survey.koIsFirstPage(), true, "is first page");
@@ -134,5 +134,9 @@ module dxSurvey.koTests {
         question.visible = false;
         assert.equal(question.koVisible(), false, "it is false now");
     });
-
+    function createPageWithQuestion(name: string): Page {
+        var page = new Page(name);
+        page.addNewQuestion("text", "q1");
+        return page;
+    }
 }

@@ -8,6 +8,7 @@ module dxSurvey {
     }
     
     export class SurveyValidator extends Base {
+        public text: string = null;
         constructor() {
             super();
         }
@@ -44,16 +45,30 @@ module dxSurvey {
                 return new ValidatorResult(null, new RequreNumericError());
             }
             var result = new ValidatorResult(parseFloat(value));
-            var vName = name ? name : "value";
             if (this.minValue && this.minValue > result.value) {
-                result.error = new CustomError("The '" + vName + "' should be equal or more than " + this.minValue);
+                result.error = new CustomError(this.getErrorText(name));
                 return result;
             }
             if (this.maxValue && this.maxValue < result.value) {
-                result.error = new CustomError("The '" + vName + "' should be equal or less than " + this.maxValue);
+                result.error = new CustomError(this.getErrorText(name));
                 return result;
             }
             return (typeof value === 'number') ? null : result;
+        }
+        protected getErrorText(name: string) {
+            if (this.text) return this.text;
+            var vName = name ? name : "value";
+            var result = "The '" + vName + "' should be ";
+            if (this.minValue) {
+                result += "equal or more than " + this.minValue;
+            }
+            if (this.maxValue) {
+                if (this.minValue) {
+                    result += " and ";
+                }
+                result += " equal or less than " + this.maxValue;
+            }
+            return result;
         }
         private isNumber(value): boolean {
             return !isNaN(parseFloat(value)) && isFinite(value);
@@ -68,13 +83,15 @@ module dxSurvey {
         public validate(value: any, name: string = null): ValidatorResult {
             if (this.minLength <= 0) return;
             if (value.length < this.minLength) {
-                return new ValidatorResult(null, new CustomError("Please enter at least " + this.minLength + " symblos."));
+                var text = this.text ? this.text : "Please enter at least " + this.minLength + " symblos.";
+                return new ValidatorResult(null, new CustomError(text));
             }
             return null;
         }
     }
 
-    JsonObject.metaData.addClass("numericvalidator", ["minValue", "maxValue"], function () { return new NumericValidator(); });
-    JsonObject.metaData.addClass("textvalidator", ["minLength"], function () { return new TextValidator(); });
+    JsonObject.metaData.addClass("surveyvalidator", ["text"]);
+    JsonObject.metaData.addClass("numericvalidator", ["minValue", "maxValue"], function () { return new NumericValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("textvalidator", ["minLength"], function () { return new TextValidator(); }, "surveyvalidator");
  
 }

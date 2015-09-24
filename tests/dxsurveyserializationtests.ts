@@ -66,6 +66,15 @@ module dxSurvey.SerializationTests {
         survey.setValue("textQuestion", "newValue");
         assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
     });
+    QUnit.test("Full survey deserialize with one question bypass pages object", function (assert) {
+        var survey = new Survey();
+        new dxSurvey.JsonObject().toObject(
+            {
+                questions: [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
+            }, survey);
+        survey.setValue("textQuestion", "newValue");
+        assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
+    });
     QUnit.test("Serialize survey data", function (assert) {
         var survey = new Survey();
         survey.setValue("question1", "value1");

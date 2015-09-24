@@ -56,6 +56,17 @@ module dxSurvey {
             }
             this.notifyAllQuestionsOnValueChanged();
         }
+        public get hasComments(): boolean {
+            for (var key in this.commentsHash) return true;
+            return false;
+        }
+        public get comments(): any {
+            var result = {};
+            for (var key in this.commentsHash) {
+                result[key] = this.commentsHash[key];
+            }
+            return result;
+        }
         get visiblePages(): Array<Page> {
             var result = new Array<Page>();
             for (var i = 0; i < this.pages.length; i++) {

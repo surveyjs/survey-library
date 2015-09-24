@@ -5,16 +5,17 @@ module dxSurvey {
         static otherItemText: string = "Other (describe)";
         otherItem: ItemValue = new ItemValue("other", QuestionSelectBase.otherItemText);
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
+        public otherErrorText: string = null;
         koOtherVisible: any;
         constructor(name: string) {
             super(name);
             if (this.isKO) {
                 var self = this;
-                this.koOtherVisible = ko.computed(function () { return self.iskoOtherVisible(); });
+                this.koOtherVisible = ko.computed(function () { self.koValue(); return self.isOtherSelected(); });
             }
         }
-        protected iskoOtherVisible(): boolean {
-            return this.koValue() == this.otherItem.value;
+        protected isOtherSelected(): boolean {
+            return this.value == this.otherItem.value;
         }
         get choices(): Array<any> { return this.choicesValues; }
         set choices(newValue: Array<any>) {
@@ -30,8 +31,17 @@ module dxSurvey {
         }
         public supportComment(): boolean { return true; }
         public supportOther(): boolean { return true; }
+        protected onCheckForErrors(errors: Array<SurveyError>) {
+            super.onCheckForErrors(errors);
+            if (!this.isOtherSelected() || this.comment) return;
+            var text = this.otherErrorText;
+            if (!text) {
+                text = "Please enter the others value.";
+            }
+            errors.push(new CustomError(text));
+        }
     }
-    JsonObject.metaData.addClass("selectbase", ["choices", "otherText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["choices", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });

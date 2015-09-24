@@ -16,8 +16,9 @@ module dxSurvey {
                 this.koValue([]);
             }
         }
-        protected iskoOtherVisible(): boolean {
-            return this.koValue.indexOf(this.otherItem.value) >= 0;
+        protected isOtherSelected(): boolean {
+            if (!this.value) return false;
+            return this.value.indexOf(this.otherItem.value) >= 0;
         }
 
         public getType(): string {

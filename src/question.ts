@@ -98,11 +98,7 @@ module dxSurvey {
         }
         private checkForErrors() {
             this.errors = [];
-            if (this.isRequired) {
-                if (this.isEmpty()) {
-                    this.errors.push(new AnswerRequiredError());
-                }
-            }
+            this.onCheckForErrors(this.errors);
             if (this.errors.length == 0) {
                 var error = this.runValidators();
                 if (error) {
@@ -119,6 +115,14 @@ module dxSurvey {
                this.koErrors(this.errors);
             }
         }
+        protected onCheckForErrors(errors: Array<SurveyError>) {
+            if (this.isRequired) {
+                if (this.isEmpty()) {
+                    this.errors.push(new AnswerRequiredError());
+                }
+            }
+        }
+
         protected runValidators(): SurveyError {
             return new ValidatorRunner().run(this);
         }

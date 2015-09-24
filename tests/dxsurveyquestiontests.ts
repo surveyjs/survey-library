@@ -5,6 +5,7 @@
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/question_matrix.ts" />
 /// <reference path="../src/question_multipletext.ts" />
+/// <reference path="../src/question_radiogroup.ts" />
 /// <reference path="../src/questionfactory.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey_Questions");
@@ -153,5 +154,16 @@ module dxSurvey.Tests {
         mText.value = { t1: 15 };
         assert.equal(mText.hasErrors(), false, "The value is fine now.");
         assert.equal(mText.items[0].value, 15, "Convert to numeric");
+    });
+    QUnit.test("Show errors if others value is selected, but not entered", function (assert) {
+        var radio = new QuestionRadiogroup("q1");
+        new Survey().addNewPage("p1").addQuestion(radio);
+        radio.choices = ["one"];
+        radio.hasOther = true;
+        assert.equal(radio.hasErrors(), false, "There is no error by default");
+        radio.value = radio.otherItem.value;
+        assert.equal(radio.hasErrors(), true, "The other comment should be entered");
+        radio.comment = "Many";
+        assert.equal(radio.hasErrors(), false, "We have entered the comment");
     });
 }

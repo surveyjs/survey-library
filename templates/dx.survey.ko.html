@@ -6,7 +6,7 @@
 <p/>
 <input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()"/>  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()"/>  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
 <script type="text/html" id="dxsurvey-page">
-    <h3 data-bind="visible: name.length > 0, text: name"></h3>
+    <h3 data-bind="visible: title.length > 0, text: title"></h3>
     <!-- ko template: { name: 'dxsurvey-question', foreach: questions, as: 'question' } -->
     <!-- /ko -->
 </script>

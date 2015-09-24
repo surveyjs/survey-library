@@ -12,7 +12,6 @@ mainmenukey: examples
         <div id="dxsurvey"></div>
         <div id="dxsurvey_oncomplete" style="visibility:hidden">
             Thank you! You have completed the survey!
-            The survey data: 
             <div id="dxsurvey_result"></div>
             <input type="button" onclick="
                 document.getElementById('dxsurvey_oncomplete').style.visibility = 'hidden'; 
@@ -26,7 +25,11 @@ mainmenukey: examples
 <script>
     survey.onComplete.add(function (s) { 
         document.getElementById('dxsurvey').innerHTML = ""; 
-        document.getElementById('dxsurvey_result').innerHTML = JSON.stringify(survey.data); 
+        var result = "\nThe results are:\n" + JSON.stringify(survey.data);
+        if (survey.hasComments) {
+            result += "\nComments are:\n" + JSON.stringify(survey.comments);
+        }
+        document.getElementById('dxsurvey_result').innerHTML = result; 
         document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
     });
     survey.render("dxsurvey", "../templates/dx.survey.ko.html");

@@ -1,8 +1,9 @@
-﻿// <reference path="question_baseselect.ts" />
+﻿// <reference path="question.ts" />
+// <reference path="question_baseselect.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module dxSurvey {
-    export class QuestionCheckbox extends QuestionSelectBase {
+    export class QuestionCheckbox extends QuestionCheckboxBase {
         constructor(public name: string) {
             super(name);
         }
@@ -25,6 +26,6 @@ module dxSurvey {
             return "checkbox";
         }
     }
-    JsonObject.metaData.addClass("checkbox", [], function () { return new QuestionCheckbox(""); }, "selectbase");
+    JsonObject.metaData.addClass("checkbox", [], function () { return new QuestionCheckbox(""); }, "checkboxbase");
     QuestionFactory.Instance.registerQuestion("checkbox", (name) => { return new QuestionCheckbox(name); });
 }

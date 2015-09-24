@@ -41,9 +41,18 @@ module dxSurvey {
             errors.push(new CustomError(text));
         }
     }
+    export class QuestionCheckboxBase extends QuestionSelectBase {
+        public colCount: number = 1;
+        constructor(public name: string) {
+            super(name);
+        }
+    }
     JsonObject.metaData.addClass("selectbase", ["choices", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
     JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, QuestionSelectBase.otherItemText);
+
+    JsonObject.metaData.addClass("checkboxbase", ["colCount"], null, "selectbase");
+    JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);
 }

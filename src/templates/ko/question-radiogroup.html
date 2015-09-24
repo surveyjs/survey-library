@@ -1,12 +1,32 @@
 ﻿<script type="text/html" id="dxsurvey-question-radiogroup">
-    <div class="dxsv_q_radiogroup" data-bind="foreach: question.visibleChoices">
-        <label>
-            <input type="radio"
-                   data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
-            <span data-bind="text: $data.text"></span>
-        </label> 
+    <div data-bind="visible:question.colCount == 0">
+        <div class="dxsv_q_radiogroup" data-bind="foreach: question.visibleChoices">
+            <label>
+                <input type="radio"
+                       data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
+                <span data-bind="text: $data.text"></span>
+            </label>
+        </div>
+        <div data-bind="visible: question.hasOther">
+            <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+        </div>
     </div>
-    <div data-bind="visible: question.hasOther">
-        <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+    <div data-bind="visible:question.colCount > 0">
+        <table>
+            <tbody>
+                <!-- ko foreach: question.visibleChoices -->
+                <tr class="dxsv_q_radiogroup">
+                    <td>
+                        <input type="radio" data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
+                    </td>
+                    <td><span data-bind="text: $data.text"></span></td>
+                </tr>
+                <!-- /ko -->
+                <tr data-bind="visible: question.hasOther">
+                    <td></td>
+                    <td><div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </script>

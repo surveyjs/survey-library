@@ -1,11 +1,10 @@
 ---
 layout: example
-title: DevExpress Winforms Skins
+title: DevExpress WinForms Look & Feel Technology
 ---
 {% capture survey_setup %}
         var survey = new dxSurvey.Survey(
             {
-                title: "DevExpress WinForms Look & Feel Technology",
                 pages: [
                     {   title: "Skin/theme choices in your WinForms applications",
                         questions: [

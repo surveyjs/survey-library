@@ -7,7 +7,9 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
     qunit = require("gulp-qunit"), 
-    serve = require("gulp-serve"), 
+    serve = require("gulp-serve"),
+    uglify = require("gulp-uglify"),
+    rename = require("gulp-rename"),
     project = require("./project.json"),
     plugins = require("gulp-load-plugins")({
         pattern: ['gulp-*', 'gulp.*', 'main-bower-files'],
@@ -120,6 +122,16 @@ gulp.task('tsd', function (callback) {
 
         gulp.task("typescript", ["typescript:sources", "typescript:tests", "typescript:tests_ko", "test:copy-index-html"]);
     })("TypeScript compilation");
+
+    gulp.task('compress', function () {
+        "use strict";
+        return gulp.src(paths.dist + 'dx.survey.js')
+            .pipe(uglify())
+             .pipe(rename({
+                 extname: '.min.js'
+             }))
+            .pipe(gulp.dest(paths.dist));
+    });
 
     gulp.task('sass', function () {
         "use strict";    

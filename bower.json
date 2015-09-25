@@ -1,12 +1,20 @@
 {
   "name": "dxSurvey",
-  "private": true,
+  "description": "JavaScript Survey engine",
+  "main": [
+    "dist/dx.survey.min.js",
+    "dist/templates/dx.survey.ko.html",
+    "dist/css/dx.survey.css"
+  ],
   "dependencies": {
     "knockout": "^3.3.0"
   },
   "devDependencies": {
     "qunit": "^1.18.0"
   },
+  "keywords": [ "Survey", "JavaScript", "Library", "MVVM", "SPA" ],
+  "authors": [ "Andrew Telnov <andrewt@devexpress.com>" ],
+  "license": "MIT",
   "install": {
     "path": "bower_components"
   }

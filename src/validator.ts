@@ -12,6 +12,13 @@ module dxSurvey {
         constructor() {
             super();
         }
+        protected getErrorText(name: string) : string {
+            if (this.text) return this.text;
+            return this.getDefaultErrorText(name);
+        }
+        protected getDefaultErrorText(name: string): string {
+            return "";
+        }
         public validate(value: any, name: string = null): ValidatorResult {
             return null;
         }
@@ -55,8 +62,7 @@ module dxSurvey {
             }
             return (typeof value === 'number') ? null : result;
         }
-        protected getErrorText(name: string) {
-            if (this.text) return this.text;
+        protected getDefaultErrorText(name: string) {
             var vName = name ? name : "value";
             var result = "The '" + vName + "' should be ";
             if (this.minValue) {
@@ -83,10 +89,12 @@ module dxSurvey {
         public validate(value: any, name: string = null): ValidatorResult {
             if (this.minLength <= 0) return;
             if (value.length < this.minLength) {
-                var text = this.text ? this.text : "Please enter at least " + this.minLength + " symblos.";
-                return new ValidatorResult(null, new CustomError(text));
+                return new ValidatorResult(null, new CustomError(this.getErrorText(name)));
             }
             return null;
+        }
+        protected getDefaultErrorText(name: string) {
+            return "Please enter at least " + this.minLength + " symblos.";
         }
     }
 

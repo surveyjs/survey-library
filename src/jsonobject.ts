@@ -29,7 +29,7 @@ module dxSurvey {
             return objType.replace(this.classNamePart, "");
         }
         public getClassName(className: string): string {
-            return (this.classNamePart) ? className + this.classNamePart : className;
+            return (this.classNamePart && className.indexOf(this.classNamePart) < 0) ? className + this.classNamePart : className;
         }
     }
     class JsonMetadataClass {

@@ -150,7 +150,7 @@ gulp.task('tsd', function (callback) {
         .pipe(gulp.dest(paths.dist + 'templates'));
     });
 
-    gulp.task("makedist", ["typescript", "templates", "sass"]);
+    gulp.task("makedist", ["typescript", "templates", "sass", "compress"]);
 })("TypeScript compilation");
 
     gulp.task("test_ci", function (done) { 

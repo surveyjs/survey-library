@@ -1,4 +1,6 @@
 ﻿<h3 data-bind="visible: title.length > 0, text: title"></h3> 
 <div data-bind="template: { name: 'dxsurvey-page', data: koCurrentPage }"></div>
 <p/>
-<input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()"/>  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()"/>  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
+<div class="dxsv_nav">
+    <input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()" />  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()" />  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
+</div>

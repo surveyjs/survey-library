@@ -42,9 +42,22 @@ module dxSurvey {
         }
     }
     export class QuestionCheckboxBase extends QuestionSelectBase {
-        public colCount: number = 1;
+        private colCountValue: number = 1;
+        koClass: any;
         constructor(public name: string) {
             super(name);
+            if (this.isKO) {
+                var self = this;
+                this.koClass = ko.computed(function () { self.dummyObservable(); return "dxsv_qcbc" + self.colCount; });
+            }
+        }
+        public get colCount(): number { return this.colCountValue; }
+        public set colCount(value: number) {
+            if (value < 0 || value > 4) return;
+            this.colCountValue = value;
+            if (this.isKO) {
+                this.dummyObservable(this.dummyObservable() + 1);
+            }
         }
     }
     JsonObject.metaData.addClass("selectbase", ["choices", "otherText", "otherErrorText"], null, "question");

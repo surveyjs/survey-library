@@ -5,6 +5,7 @@
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/question_matrix.ts" />
 /// <reference path="../src/questionfactory.ts" />
+/// <reference path="../src/trigger.ts" />
 module dxSurvey.Tests {
     QUnit.module("dxSurvey");
 
@@ -253,6 +254,27 @@ module dxSurvey.Tests {
         survey.pages[2].questions[0].visible = false;
         survey.nextPage();
         assert.equal(survey.currentPage.name, "Page 4", "Bypass two invisible pages");
+    });
+    QUnit.test("Visible trigger test", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var trigger = new SurveyTriggerVisible();
+        survey.triggers.push(trigger);
+        trigger.name = "question1";
+        trigger.value = "Hello";
+        trigger.pages = ["Page 2"];
+        trigger.questions = ["question2"];
+
+        survey.setValue("question1", "H");
+        assert.equal(survey.getQuestionByName("question2").visible, false, "It is invisible now");
+        assert.equal(survey.pages[1].visible, false, "It is invisible now");
+
+        survey.setValue("question1", "Hello");
+        assert.equal(survey.getQuestionByName("question2").visible, true, "trigger makes it visible");
+        assert.equal(survey.pages[1].visible, true, "trigger makes it visible");
+
+        survey.setValue("question2", "He");
+        assert.equal(survey.getQuestionByName("question2").visible, true, "trigger should not be called");
+        assert.equal(survey.pages[1].visible, true, "trigger should not be called");
     });
     function twoPageSimplestSurvey() {
         var survey = new dxSurvey.Survey();

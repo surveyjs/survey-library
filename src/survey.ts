@@ -1,11 +1,13 @@
 ﻿/// <reference path="base.ts" />
+/// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
 
 module dxSurvey {
-    export class Survey extends Base implements ISurveyData {
+    export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
         public static templateKnockout: string = "templates/dx.survey.ko.html";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
+        public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: Page = null;
         private valuesHash: HashTable<any> = {};
         private commentsHash: HashTable<string> = {};
@@ -24,6 +26,10 @@ module dxSurvey {
             var self = this;
             this.pages.push = function (value) {
                 value.data = self;
+                return Array.prototype.push.call(this, value);
+            };
+            this.triggers.push = function (value) {
+                value.setOwner(self);
                 return Array.prototype.push.call(this, value);
             };
             if (ko) {
@@ -52,6 +58,7 @@ module dxSurvey {
             if (data) {
                 for (var key in data) {
                     this.valuesHash[key] = data[key];
+                    this.checkTriggers(key, data[key]);
                 }
             }
             this.notifyAllQuestionsOnValueChanged();
@@ -157,6 +164,32 @@ module dxSurvey {
             }
             return null;
         }
+        public getQuestionsByNames(names: string[]): IQuestion[] {
+            var result = [];
+            if (!names) return result;
+            for (var i: number = 0; i < names.length; i++) {
+                if (!names[i]) continue;
+                var question = this.getQuestionByName(names[i]);
+                if (question) result.push(question);
+            }
+            return result;
+        }
+        public getPageByName(name: string): Page {
+            for (var i: number = 0; i < this.pages.length; i++) {
+                if (this.pages[i].name == name) return this.pages[i];
+            }
+            return null;
+        }
+        public getPagesByNames(names: string[]): Page[]{
+            var result = [];
+            if (!names) return result;
+            for (var i: number = 0; i < names.length; i++) {
+                if (!names[i]) continue;
+                var page = this.getPageByName(names[i]);
+                if (page) result.push(page);
+            }
+            return result;
+        }
         private getAllQuestions(visibleOnly: boolean = false): Array<IQuestion> {
             var result = new Array<IQuestion>();
             for (var i: number = 0; i < this.pages.length; i++) {
@@ -176,6 +209,13 @@ module dxSurvey {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {
                 questions[i].onSurveyValueChanged(this.getValue(questions[i].name));
+            }
+        }
+        private checkTriggers(name: string, newValue: any) {
+            for (var i: number = 0; i < this.triggers.length; i++) {
+                if (this.triggers[i].name == name) {
+                    this.triggers[i].check(newValue);
+                }
             }
         }
         public render(element: any = null, templateUrl: string = null) {
@@ -236,6 +276,7 @@ module dxSurvey {
         setValue(name: string, newValue: any) {
             this.valuesHash[name] = newValue;
             this.notifyQuestionOnValueChanged(name, newValue);
+            this.checkTriggers(name, newValue);
         }
         getComment(name: string): string {
             var result = this.commentsHash[name];
@@ -259,9 +300,16 @@ module dxSurvey {
             this.onValidateQuestion.fire(this, options);
             return options.error ? new CustomError(options.error) : null;
         }
+        //ISurveyTriggerOwner
+        getObjects(pages: string[], questions: string[]): any[]{
+            var result = [];
+            Array.prototype.push.apply(result, this.getPagesByNames(pages));
+            Array.prototype.push.apply(result, this.getQuestionsByNames(questions));
+            return result;
+        }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions"]);
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "trigger"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", "", null,
         function (obj) { return null; },
@@ -269,4 +317,6 @@ module dxSurvey {
             var page = obj.addNewPage("");
             new dxSurvey.JsonObject().toObject({ questions: value }, page);
         });
+    JsonObject.metaData.setPropertyClassShortName("survey", "triggers", "trigger");
+
 }

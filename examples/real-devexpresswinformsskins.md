@@ -5,6 +5,9 @@ title: DevExpress WinForms Look & Feel Technology
 {% capture survey_setup %}
         var survey = new dxSurvey.Survey(
             {
+                triggers: [{ type: "visible", name: "skinNumber", value: "many", questions: ["skinShips", "skinValue", "skinSelected", "skinFavorite", "userImportance"] },
+                        { type: "visible", name: "skinShips", value: "all", questions: ["skinValue"] },
+                        { type: "visible", operator: "notequal", name: "skinShips", value: "all", questions: ["skinSelected"] }],
                 pages: [
                     {   title: "Skin/theme choices in your WinForms applications",
                         questions: [
@@ -45,7 +48,7 @@ title: DevExpress WinForms Look & Feel Technology
                         title: "Skins/Themes You Include in Your Application",
                         questions: [
                             {
-                                type: "checkbox", name: "skinselected", title: "If you ship only a select number of DevExpress skins/themes, please specify the skins/themes you include in your application.",
+                                type: "checkbox", name: "skinSelected", title: "If you ship only a select number of DevExpress skins/themes, please specify the skins/themes you include in your application.",
                                 choices: ["msOffice latest|Skins Emulating the Latest Versions of MS Office and Windows",
                                         "msOffice previous|Skins Emulating Previous Versions of MS Office and Windows",
                                         "macOS|Skins Emulating Mac OS",
@@ -94,22 +97,4 @@ title: DevExpress WinForms Look & Feel Technology
                 ]
             });
 {% endcapture %}
-
-{% capture survey_events %}
-survey.onValueChanged.add(function (s, options) {
-    if (options.name == "skinNumber") {
-        var sMany = options.value == "many";
-        s.getQuestionByName("skinShips").visible = sMany;
-        s.getQuestionByName("skinValue").visible = sMany;
-        s.getQuestionByName("skinselected").visible = sMany;
-        s.getQuestionByName("skinFavorite").visible = sMany
-        s.getQuestionByName("userImportance").visible = sMany;
-    }
-    if (options.name == "skinShips") {
-        var sAll = options.value == "all";
-        s.getQuestionByName("skinValue").visible = sAll;
-        s.getQuestionByName("skinselected").visible = !sAll;
-    }
-});
-{% endcapture %}    
 {% include live-example-code.html %}

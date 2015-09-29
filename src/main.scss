@@ -1,11 +1,11 @@
 ﻿.dxsv {
+    width: 100%;
 }
 .dxsv_q {
     width: 100%;
-    clear: both;
+    clear:none;
 }
 .dxsv_nav {
-    clear: both;
 }
 .dxsv_q_h {
     width: 100%;
@@ -27,11 +27,12 @@
     }
 }
 //checkboxbase container
-.dxsv_qcbc0 { float: left; }
-.dxsv_qcbc1 { clear:both; width:100% }
-.dxsv_qcbc2 { float: left; width:50% }
-.dxsv_qcbc3 { float: left; width:33% }
-.dxsv_qcbc4 { float: left; width:25% }
+.dxsv_qcbc0 { display: inline-block; vertical-align:top}
+.dxsv_qcbc1 { display: inline-block; vertical-align:top; width:100% }
+.dxsv_qcbc2 { display: inline-block; vertical-align:top; width:50% }
+.dxsv_qcbc3 { display: inline-block; vertical-align:top; width:33%; }
+.dxsv_qcbc4 { display: inline-block; vertical-align:top; width:25% }
+
 .dxsv_q_checkbox {
     padding: 10px;
 }

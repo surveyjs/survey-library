@@ -59,6 +59,12 @@ module dxSurvey {
                 this.dummyObservable(this.dummyObservable() + 1);
             }
         }
+        koAfterRender(el, con) {
+            var tEl = el[0];
+            if (tEl.nodeName == "#text") tEl.data = "";
+            tEl = el[el.length - 1];
+            if (tEl.nodeName == "#text") tEl.data = "";
+        }
     }
     JsonObject.metaData.addClass("selectbase", ["choices", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,

@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="dxsurvey-question-checkbox">
-    <!-- ko foreach: { data: question.visibleChoices, as: 'item'}  -->
+    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
     <div data-bind="css: question.koClass">
         <div class="dxsv_q_checkbox">
             <label>

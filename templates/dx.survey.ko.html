@@ -1,10 +1,14 @@
 <script type="text/html" id="dxsurvey-comment">
   <input data-bind="value:$data.question.koComment, visible:$data.visible" />
 </script>
-<h3 data-bind="visible: title.length > 0, text: title"></h3> 
-<div data-bind="template: { name: 'dxsurvey-page', data: koCurrentPage }"></div>
-<p/>
-<input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()"/>  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()"/>  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
+<div class="dxsv">
+    <h3 data-bind="visible: title.length > 0, text: title"></h3>
+    <div data-bind="template: { name: 'dxsurvey-page', data: koCurrentPage }"></div>
+    <p />
+    <div class="dxsv_nav">
+        <input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()" />  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()" />  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
+    </div>
+</div>
 <script type="text/html" id="dxsurvey-page">
     <h3 data-bind="visible: title.length > 0, text: title"></h3>
     <!-- ko template: { name: 'dxsurvey-question', foreach: questions, as: 'question' } -->
@@ -12,37 +16,20 @@
 </script>
 
 <script type="text/html" id="dxsurvey-question-checkbox">
-    <div data-bind="visible:question.colCount == 0">
-        <div class="dxsv_q_checkbox" data-bind="foreach: question.visibleChoices">
+    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+    <div data-bind="css: question.koClass">
+        <div class="dxsv_q_checkbox">
             <label>
                 <input type="checkbox"
-                       data-bind="value: $data.value, checked: question.koValue" />
-                <span data-bind="text: $data.text"></span>
+                       data-bind="value: item.value, checked: question.koValue" />
+                <span data-bind="text: item.text"></span>
             </label>
-        </div>
-        <div data-bind="visible: question.hasOther">
-            <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+            <div data-bind="if:$index() == (question.visibleChoices.length-1), visible: question.hasOther">
+                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+            </div>
         </div>
     </div>
-    <div data-bind="visible:question.colCount > 0">
-        <table>
-            <tbody>
-                <!-- ko foreach: question.visibleChoices -->
-                <tr class="dxsv_q_radiogroup">
-                    <td>
-                        <input type="checkbox"
-                               data-bind="value: $data.value, checked: question.koValue" />
-                    </td>
-                    <td><span data-bind="text: $data.text"></span></td>
-                </tr>
-                <!-- /ko -->
-                <tr data-bind="visible: question.hasOther">
-                    <td></td>
-                    <td><div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- /ko -->
 </script>
 <script type="text/html" id="dxsurvey-question-comment">
     <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows}, value:question.koValue" />
@@ -87,36 +74,20 @@
     </table>
 </script>
 <script type="text/html" id="dxsurvey-question-radiogroup">
-    <div data-bind="visible:question.colCount == 0">
-        <div class="dxsv_q_radiogroup" data-bind="foreach: question.visibleChoices">
+    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+    <div data-bind="css: question.koClass">
+        <div class="dxsv_q_radiogroup">
             <label>
                 <input type="radio"
-                       data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
-                <span data-bind="text: $data.text"></span>
+                       data-bind="name: question.name, attr: {value: item.value}, checked: question.koValue" />
+                <span data-bind="text: item.text"></span>
             </label>
+            <div data-bind="if:$index() == (question.visibleChoices.length-1), visible: question.hasOther">
+                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+            </div>
         </div>
-        <div data-bind="visible: question.hasOther">
-            <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-        </div>
-    </div>
-    <div data-bind="visible:question.colCount > 0">
-        <table>
-            <tbody>
-                <!-- ko foreach: question.visibleChoices -->
-                <tr class="dxsv_q_radiogroup">
-                    <td>
-                        <input type="radio" data-bind="name: question.name, attr: {value: $data.value}, checked: question.koValue" />
-                    </td>
-                    <td><span data-bind="text: $data.text"></span></td>
-                </tr>
-                <!-- /ko -->
-                <tr data-bind="visible: question.hasOther">
-                    <td></td>
-                    <td><div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+     </div>
+    <!-- /ko -->
 </script>
 <script type="text/html" id="dxsurvey-question-rating">
     <table class="dxsv_q_rating">
@@ -150,18 +121,16 @@
 </script>
 
 <script type="text/html" id="dxsurvey-question">
-    <div style="dxsv_q" data-bind="attr: {width: question.width}, visible: question.koVisible">
-        <div data-bind="css: {dxsv_q_erbox : koErrors().length > 0 }">
-            <div style="color:red" data-bind="foreach: koErrors">
-                <div data-bind="text:$data.getText()"></div>
-            </div>
-            <h4 data-bind="text: question.koNo() + '. ' +  (question.isRequired ? '* ' : '') + question.title"></h4>
-            <!-- ko template: { name: 'dxsurvey-question-' + question.getType(), data: question } -->
-            <!-- /ko -->
-            <div data-bind="visible: question.hasComment">
-                Other (please describe)
-                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': true } }"></div>
-            </div>
+    <div class="dxsv_q" data-bind="visible: question.koVisible">
+        <div style="color:red" data-bind="foreach: koErrors">
+            <div data-bind="text:$data.getText()"></div>
+        </div>
+        <h4 class="dxsv_q_h" data-bind="text: question.koNo() + '. ' +  (question.isRequired ? '* ' : '') + question.title"></h4>
+        <!-- ko template: { name: 'dxsurvey-question-' + question.getType(), data: question } -->
+        <!-- /ko -->
+        <div data-bind="visible: question.hasComment">
+            Other (please describe)
+            <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
     </div>
 </script>

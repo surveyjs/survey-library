@@ -309,7 +309,7 @@ module dxSurvey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "trigger"]);
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", "", null,
         function (obj) { return null; },

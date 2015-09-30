@@ -6,7 +6,7 @@ module dxSurvey {
         public classNamePart: string = null;
         public defaultValue: any = null;
         public onGetValue: (obj: any) => any = null;
-        public onSetValue: (obj: any, value: any) => any
+        public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any
 
         constructor(public name: string) {
         }
@@ -19,9 +19,9 @@ module dxSurvey {
             return null;
         }
         public get hasToUseSetValue() { return this.onSetValue; }
-        public setValue(obj: any, value: any) {
+        public setValue(obj: any, value: any, jsonConv: JsonObject) {
             if (this.onSetValue) {
-                this.onSetValue(obj, value);
+                this.onSetValue(obj, value, jsonConv);
             }
         }
         public getObjType(objType: string) {
@@ -61,7 +61,7 @@ module dxSurvey {
             if (!metaDataClass) return;
             metaDataClass.creator = creator;
         }
-        public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any) => any = null) {
+        public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null) {
             var property = this.findProperty(name, propertyName);
             if (!property) return;
             property.className = propertyClassName;
@@ -197,7 +197,7 @@ module dxSurvey {
         }
         protected valueToObj(value: any, obj: any, key: any, property: JsonObjectProperty) {
             if (property != null && property.hasToUseSetValue) {
-                property.setValue(obj, value);
+                property.setValue(obj, value, this);
                 return;
             }
             if (this.isValueArray(value)) {

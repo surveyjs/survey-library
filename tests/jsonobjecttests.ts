@@ -51,7 +51,7 @@ module dxSurvey.JsonSerializationTests {
 
     JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
     JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
-    JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any) {
+    JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any, jsonConv: JsonObject) {
         obj.name = value;
     });
     JsonObject.metaData.setPropertyValues("dealer", "truck", "truck");

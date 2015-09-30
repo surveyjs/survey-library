@@ -40,10 +40,10 @@ module dxSurvey {
                 this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
             }
             if (jsonObj) {
-                var jsonConv = new JsonObject();
-                jsonConv.toObject(jsonObj, this);
-                if (jsonConv.errors.length > 0) {
-                    this.jsonErrors = jsonConv.errors;
+                var jsonConverter = new JsonObject();
+                jsonConverter.toObject(jsonObj, this);
+                if (jsonConverter.errors.length > 0) {
+                    this.jsonErrors = jsonConverter.errors;
                 }
             }
             this.render(renderedElement, templateUrl);
@@ -318,9 +318,9 @@ module dxSurvey {
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", "", null,
         function (obj) { return null; },
-        function (obj, value) {
+        function (obj, value, jsonConverter) {
             var page = obj.addNewPage("");
-            new dxSurvey.JsonObject().toObject({ questions: value }, page);
+            jsonConverter.toObject({ questions: value }, page);
         });
     JsonObject.metaData.setPropertyClassShortName("survey", "triggers", "trigger");
 

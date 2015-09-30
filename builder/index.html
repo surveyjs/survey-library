@@ -11,6 +11,7 @@ canonicalUrl: /builder/
     </div>
     <div>
         <div style="width:50%;display: inline-block; vertical-align:top">
+            <div id="jsonerror" style="width:100%"></div>
             <textarea id="surveyjson" style="width:100%; height:500px">{
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true,
@@ -40,9 +41,29 @@ canonicalUrl: /builder/
 <script type="text/javascript">
 function surveyRun() {
     var text = document.getElementById("surveyjson").value;
+    var oldOnError = window.onerror;
+    window.onerror = function(message, fileURL, lineNumber){
+        document.getElementById('jsonerror').innerHTML = message + ". Line number:" + lineNumber;
+    }    
+    document.getElementById('surveyContainer').innerHTML = ""; 
+    document.getElementById('jsonerror').innerHTML = "";
     eval("var jsonObj = " + text);
+    window.onerror = oldOnError;
+    
     if(jsonObj) {
         var survey = new dxSurvey.Survey(jsonObj);
+        if(survey.jsonErrors) {
+            var errorText = "";
+            for(var i = 0; i < survey.jsonErrors.length; i ++) {
+                var error = survey.jsonErrors[i];
+                if(i > 0) errorText += "</p>";
+                errorText += error.message;
+                if(error.description) {
+                    errorText += " " + error.description;
+                }
+            }
+            document.getElementById('jsonerror').innerHTML = errorText;
+        }
         survey.render("surveyContainer", "../templates/dx.survey.ko.html");
         survey.onComplete.add(function (s) { 
             var result = "\nThe results are:\n" + JSON.stringify(survey.data);

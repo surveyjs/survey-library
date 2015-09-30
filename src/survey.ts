@@ -18,6 +18,7 @@ module dxSurvey {
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public jsonErrors: Array<JsonError> = null;
 
         koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
 
@@ -39,7 +40,11 @@ module dxSurvey {
                 this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
             }
             if (jsonObj) {
-                new JsonObject().toObject(jsonObj, this);
+                var jsonConv = new JsonObject();
+                jsonConv.toObject(jsonObj, this);
+                if (jsonConv.errors.length > 0) {
+                    this.jsonErrors = jsonConv.errors;
+                }
             }
             this.render(renderedElement, templateUrl);
         }

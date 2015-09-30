@@ -224,5 +224,15 @@ module dxSurvey.JsonSerializationTests {
         assert.equal(owner.items[0].getType(), "itemA_thelongpart", "the first object is live");
         assert.equal(owner.items[1].getType(), "itemB_thelongpart", "the second object is live");
     });
+    QUnit.test("Unknown property error on deserialization", function (assert) {
+        var owner = new LongNamesOwner();
+        var jsonObj = new dxSurvey.JsonObject();
+        jsonObj.toObject({ unknown1: 4, items: [{ type: "itemA", A: 5 }, { unknown2: 5, type: "itemB_thelongpart", B: 15 }] }, owner);
+        assert.equal(jsonObj.errors.length, 2, "it should be two errors");
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).propertyName, "unknown1", "the property Name in the first error");
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).className, "LongNamesOwner", "the class Name in the first error");
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).propertyName, "unknown2", "the property Name in the second error");
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).className, "itemB_thelongpart", "the class Name in the second error");
+    });
     
 }

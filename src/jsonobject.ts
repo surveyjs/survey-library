@@ -117,10 +117,32 @@ module dxSurvey {
             }
         }
     }
+    export class JsonError {
+        public description: string;
+        constructor(public type: string, public message: string) {
+        }
+    }
+    export class JsonUnknownPropertyError extends JsonError {
+        constructor(public propertyName: string, public className: string) {
+            super("unknownproperty", "The property '" + propertyName + "' in class '" + className + "' is unknown.");
+            var properties = JsonObject.metaData.getProperties(className);
+            if (properties) {
+                this.description = "The list of available properties are: ";
+                for (var i = 0; i < properties.length; i++) {
+                    if (i > 0) this.description += ", ";
+                    this.description += properties[i].name;
+                }
+                this.description += '.';
+            }
+
+        }
+
+    }
     export class JsonObject {
         private static typePropertyName = "type";
         private static metaDataValue = new JsonMetadata();
         public static get metaData() { return JsonObject.metaDataValue; }
+        public errors = new Array<JsonError>();
         public toJsonObject(obj: any): any {
             return this.toJsonObjectCore(obj, null);
         }
@@ -130,8 +152,14 @@ module dxSurvey {
             if (obj.getType) {
                 properties = JsonObject.metaData.getProperties(obj.getType());
             }
+            if (!properties) return;
             for (var key in jsonObj) {
-                this.valueToObj(jsonObj[key], obj, key, this.findProperty(properties, key));
+                var property = this.findProperty(properties, key);
+                if (!property) {
+                    this.errors.push(new JsonUnknownPropertyError(key.toString(), obj.getType().toString()));
+                    continue;
+                }
+                this.valueToObj(jsonObj[key], obj, key, property);
             }
         }
         protected toJsonObjectCore(obj: any, property: JsonObjectProperty): any {

@@ -10,24 +10,23 @@ canonicalUrl: /builder/
         <input type="button" value="Run" onclick="surveyRun()" />
     </div>
     <div>
-        <div style="width:50%;display: inline-block; vertical-align:top">
+        <div style="width:50%;display: inline-block; vertical-align:top;">
             <div id="jsonerror" style="width:100%"></div>
-            <textarea id="surveyjson" style="width:100%; height:500px">{
-        questions: [
-            { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true,
-            items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
-                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
-            },
-                {  name: "mostamount", title: "The most amount you have ever paid for a computer",
-                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
-                }]
-            },
-            {
-                type: "comment", name: "firstcomputer", title: "Please tell us about your first computer", isRequired: true,
-                validators: [{type:"text", minLength:20}]
-            }
-
-        ]}</textarea>
+            <div id="editor" style="height:600px;width:100%">{
+questions: [
+    { type: "multipletext", name: "pricelimit", isRequired: true, title: "What is the... ",
+        items: [
+            { name: "leastamount", title: "The least amount you have ever paid for a computer",
+                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]},
+            { name: "mostamount", title: "The most amount you have ever paid for a computer",
+                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]}
+        ]
+    },
+    { type: "comment", name: "firstcomputer", isRequired: true, 
+      title: "Please tell us about your first computer", 
+      validators: [{type:"text", minLength:20}]
+    }
+]}</div>
         </div><!--
         --><div style="width:50%;display: inline-block; vertical-align:top">
             <div  style="padding:10px">
@@ -38,9 +37,18 @@ canonicalUrl: /builder/
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js" type="text/javascript" charset="utf-8"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/worker-json.js" type="text/javascript" charset="utf-8"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-json.js" type="text/javascript" charset="utf-8"></script> 
+<script> 
+    editor = ace.edit("editor"); 
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/json"); 
+</script> 
+
 <script type="text/javascript">
 function surveyRun() {
-    var text = document.getElementById("surveyjson").value;
+    var text = editor.getValue();
     var oldOnError = window.onerror;
     window.onerror = function(message, fileURL, lineNumber){
         document.getElementById('jsonerror').innerHTML = message + ". Line number:" + lineNumber;

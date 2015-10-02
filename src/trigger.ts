@@ -77,8 +77,8 @@ module dxSurvey {
         protected onItemFailure(item: any) { item.visible = false; }
     }
 
-    JsonObject.metaData.addClass("trigger", ["operator", "value"]);
-    JsonObject.metaData.addClass("surveytrigger", ["name", "pages", "questions"]);
+    JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
+    JsonObject.metaData.addClass("surveytrigger", ["!name", "pages", "questions"], null, "trigger");
     JsonObject.metaData.addClass("visibletrigger", [], function () { return new SurveyTriggerVisible(); }, "surveytrigger");
 
 }

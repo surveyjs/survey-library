@@ -66,7 +66,7 @@ module dxSurvey {
             if (tEl.nodeName == "#text") tEl.data = "";
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["choices", "otherText", "otherErrorText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["!choices", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });

@@ -56,11 +56,11 @@ module dxSurvey.JsonSerializationTests {
     });
     JsonObject.metaData.setPropertyValues("dealer", "truck", "truck");
     JsonObject.metaData.setPropertyValues("dealer", "trucks", "truck");
+    JsonObject.metaData.setPropertyClassInfo("dealer", "cars", "car");
 
     JsonObject.metaData.addClass("car", ["name"]);
     JsonObject.metaData.addClass("truck", ["maxWeight"], function () { return new Truck(); }, "car");
-    JsonObject.metaData.addClass("sport", ["maxSpeed"], null, "car");
-    JsonObject.metaData.setCreator("sport", function () { return new SportCar(); });
+    JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "car");
 
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
     JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
@@ -72,7 +72,7 @@ module dxSurvey.JsonSerializationTests {
     JsonObject.metaData.addClass("itemA_thelongpart", ["A"], function () { return new LongNameItemA(); }, "LongNameItemBase");
     JsonObject.metaData.addClass("itemB_thelongpart", ["B"], function () { return new LongNameItemB(); }, "LongNameItemBase");
     JsonObject.metaData.addClass("LongNamesOwner", ["items"]);
-    JsonObject.metaData.setPropertyClassShortName("LongNamesOwner", "items", "_thelongpart");
+    JsonObject.metaData.setPropertyClassInfo("LongNamesOwner", "items", "item_thelongpart", "_thelongpart");
 
     QUnit.module("JsonSerializationTests");
 
@@ -233,6 +233,36 @@ module dxSurvey.JsonSerializationTests {
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).className, "LongNamesOwner", "the class Name in the first error");
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).propertyName, "unknown2", "the property Name in the second error");
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).className, "itemB_thelongpart", "the class Name in the second error");
+    });
+    QUnit.test("Deserialize arrays with missing type property", function (assert) {
+        var dealer = new Dealer();
+        var jsonObj = new dxSurvey.JsonObject();
+        jsonObj.toObject({ "cars": [{ "maxSpeed": 320 }, { "type": "truck", "maxWeight": 10000 }] }, dealer);
+        assert.equal(dealer.cars.length, 1, "can only one object deserialized");
+        var truck = <Truck>dealer.cars[0];
+        assert.equal(truck.maxWeight, 10000, "deserialize the second object");
+        assert.equal(truck.getType(), "truck", "deserialize the second object");
+        assert.equal(jsonObj.errors.length, 1, "there should be one error");
+        assert.equal(jsonObj.errors[0].type, "missingtypeproperty", "The missing type property error");
+    });
+    QUnit.test("Deserialize arrays with incorrect type property", function (assert) {
+        var dealer = new Dealer();
+        var jsonObj = new dxSurvey.JsonObject();
+        jsonObj.toObject({ "cars": [{ "type": "unknown",  "maxSpeed": 320 }, { "type": "truck", "maxWeight": 10000 }] }, dealer);
+        assert.equal(dealer.cars.length, 1, "can only one object deserialized");
+        var truck = <Truck>dealer.cars[0];
+        assert.equal(truck.maxWeight, 10000, "deserialize the second object");
+        assert.equal(truck.getType(), "truck", "deserialize the second object");
+        assert.equal(jsonObj.errors.length, 1, "there should be one error");
+        assert.equal(jsonObj.errors[0].type, "incorrecttypeproperty", "The incorrect type property error");
+    });
+    QUnit.test("Deserialization - required property error", function (assert) {
+        var dealer = new Dealer();
+        var jsonObj = new dxSurvey.JsonObject();
+        jsonObj.toObject({ "cars": [{ "type": "sport"}] }, dealer);
+        assert.equal(dealer.cars.length, 1, "One object is deserialized");
+        assert.equal(jsonObj.errors.length, 1, "there should be one error about required property");
+        assert.equal(jsonObj.errors[0].type, "requiredproperty", "The required property error");
     });
     
 }

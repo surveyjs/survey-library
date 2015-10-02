@@ -111,11 +111,11 @@ module dxSurvey {
         }
     }
     JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators"], function () { return new MultipleTextItem(""); });
-    JsonObject.metaData.setPropertyClassShortName("multipletextitem", "validators", "validator");
+    JsonObject.metaData.setPropertyClassInfo("multipletextitem", "validators", "surveyvalidator", "validator");
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 
-    JsonObject.metaData.addClass("multipletext", ["items", "itemSize"], function () { return new QuestionMultipleText(""); }, "question");
+    JsonObject.metaData.addClass("multipletext", ["!items", "itemSize"], function () { return new QuestionMultipleText(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
     JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
     QuestionFactory.Instance.registerQuestion("multipletext", (name) => { return new QuestionMultipleText(name); });

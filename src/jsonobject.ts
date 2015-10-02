@@ -4,6 +4,7 @@ module dxSurvey {
     export class JsonObjectProperty {
         public className: string = null;
         public classNamePart: string = null;
+        public baseClassName: string = null;
         public defaultValue: any = null;
         public onGetValue: (obj: any) => any = null;
         public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any
@@ -33,11 +34,14 @@ module dxSurvey {
         }
     }
     class JsonMetadataClass {
+        static requiredSymbol = '!';
         properties: Array<JsonObjectProperty> = null;
+        requiredProperties: Array<string> = null;
         constructor(public name: string, propertiesNames: Array<string>, public creator: () => any = null, public parentName: string = null) {
             this.properties = new Array<JsonObjectProperty>();
             for (var i = 0; i < propertiesNames.length; i++) {
-                this.properties.push(new JsonObjectProperty(propertiesNames[i]));
+                var propertyName = this.getPropertyName(propertiesNames[i]);
+                this.properties.push(new JsonObjectProperty(propertyName));
             }
         }
         public find(name: string): JsonObjectProperty {
@@ -46,20 +50,24 @@ module dxSurvey {
             }
             return null;
         }
-
+        private getPropertyName(propertyName: string): string {
+            if (propertyName.length == 0 || propertyName[0] != JsonMetadataClass.requiredSymbol) return propertyName;
+            propertyName = propertyName.slice(1);
+            if (!this.requiredProperties) {
+                this.requiredProperties = new Array<string>();
+            }
+            this.requiredProperties.push(propertyName);
+            return propertyName;
+        }
     }
     export class JsonMetadata {
         private classes: HashTable<JsonMetadataClass> = {};
         private classProperties: HashTable<Array<JsonObjectProperty>> = {};
+        private classRequiredProperties: HashTable<Array<string>> = {};
         public addClass(name: string, propertiesNames: Array<string>, creator: () => any = null, parentName: string = null): JsonMetadataClass {
             var metaDataClass = new JsonMetadataClass(name, propertiesNames, creator, parentName);
             this.classes[name] = metaDataClass;
             return metaDataClass;
-        }
-        public setCreator(name: string, creator: () => any) {
-            var metaDataClass = this.classes[name];
-            if (!metaDataClass) return;
-            metaDataClass.creator = creator;
         }
         public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null) {
             var property = this.findProperty(name, propertyName);
@@ -69,9 +77,10 @@ module dxSurvey {
             property.onGetValue = onGetValue;
             property.onSetValue = onSetValue;
         }
-        public setPropertyClassShortName(name: string, propertyName: string, classNamePart: string) {
+        public setPropertyClassInfo(name: string, propertyName: string, baseClassName: string, classNamePart: string = null) {
             var property = this.findProperty(name, propertyName);
             if (!property) return;
+            property.baseClassName = baseClassName;
             property.classNamePart = classNamePart;
         }
         public getProperties(name: string): Array<JsonObjectProperty> {
@@ -84,16 +93,28 @@ module dxSurvey {
             return properties;
         }
         public createClass(name: string): any {
-            var metaDataClass = this.classes[name];
+            var metaDataClass = this.findClass(name);
             if (!metaDataClass) return null;
             return metaDataClass.creator();
         }
+        public getRequiredProperties(name: string): Array<string> {
+            var properties = this.classRequiredProperties[name];
+            if (!properties) {
+                properties = new Array<string>();
+                this.fillRequiredProperties(name, properties);
+                this.classRequiredProperties[name] = properties;
+            }
+            return properties;
+        }
+        private findClass(name: string): JsonMetadataClass {
+            return this.classes[name];
+        }
         private findProperty(name: string, propertyName: string): JsonObjectProperty {
-            var metaDataClass = this.classes[name];
+            var metaDataClass = this.findClass(name);
             return metaDataClass ? metaDataClass.find(propertyName) : null;
         }
         private fillProperties(name: string, list: Array<JsonObjectProperty>) {
-            var metaDataClass = this.classes[name];
+            var metaDataClass = this.findClass(name);
             if (!metaDataClass) return;
             if (metaDataClass.parentName) {
                 this.fillProperties(metaDataClass.parentName, list);
@@ -116,6 +137,16 @@ module dxSurvey {
                 list[index] = property;
             }
         }
+        private fillRequiredProperties(name: string, list: Array<string>) {
+            var metaDataClass = this.findClass(name);
+            if (!metaDataClass) return;
+            if (metaDataClass.requiredProperties) {
+                Array.prototype.push.apply(list, metaDataClass.requiredProperties);
+            }
+            if (metaDataClass.parentName) {
+                this.fillRequiredProperties(metaDataClass.parentName, list);
+            }
+        }
     }
     export class JsonError {
         public description: string;
@@ -134,10 +165,24 @@ module dxSurvey {
                 }
                 this.description += '.';
             }
-
         }
-
     }
+    export class JsonMissingTypeError extends JsonError {
+        constructor(public propertyName: string, public baseClassName: string) {
+            super("missingtypeproperty", "The property type is missing in the object. Please take a look at property: '" + propertyName + "'.");
+        }
+    }
+    export class JsonIncorrectTypeError extends JsonError {
+        constructor(public propertyName: string, public baseClassName: string) {
+            super("incorrecttypeproperty", "The property type is incorrect in the object. Please take a look at property: '" + propertyName + "'.");
+        }
+    }
+    export class JsonRequiredPropertyError extends JsonError {
+        constructor(public propertyName: string, public className: string) {
+            super("requiredproperty", "The property '" + propertyName + "' is required in class '" + className + "'.");
+        }
+    }
+
     export class JsonObject {
         private static typePropertyName = "type";
         private static metaDataValue = new JsonMetadata();
@@ -205,14 +250,17 @@ module dxSurvey {
                 return;
             } 
             var newObj = this.createNewObj(value, property);
-            if (newObj) {
-                this.toObject(value, newObj);
-                value = newObj;
+            if (newObj.newObj) {
+                this.toObject(value, newObj.newObj);
+                value = newObj.newObj;
             } 
-            obj[key] = value;
+            if (!newObj.error) {
+                obj[key] = value;
+            }
         }
         private isValueArray(value: any): boolean { return value.constructor.toString().indexOf("Array") > -1; }
         private createNewObj(value: any, property: JsonObjectProperty): any {
+            var result = { newObj: null, error: null };
             var className = value[JsonObject.typePropertyName];
             if (className) {
                 delete value[JsonObject.typePropertyName];
@@ -221,7 +269,36 @@ module dxSurvey {
                     className = property.className;
                 }
             }
-            return (className) ? JsonObject.metaData.createClass(property.getClassName(className)) : null;
+            className = property.getClassName(className);
+            result.newObj = (className) ? JsonObject.metaData.createClass(className) : null;
+            result.error = this.checkNewObjectOnErrors(result.newObj, value, property, className);
+            return result;
+        }
+        private checkNewObjectOnErrors(newObj: any, value: any, property: JsonObjectProperty, className: string): JsonError {
+            var error = null;
+            if (newObj) {
+                var requiredProperties = JsonObject.metaData.getRequiredProperties(className);
+                if (requiredProperties) {
+                    for (var i = 0; i < requiredProperties.length; i++) {
+                        if (!value[requiredProperties[i]]) {
+                            error = new JsonRequiredPropertyError(requiredProperties[i], className);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                if (property.baseClassName) {
+                    if (!className) {
+                        error = new JsonMissingTypeError(property.name, property.baseClassName);
+                    } else {
+                        error = new JsonIncorrectTypeError(property.name, property.baseClassName);
+                    }
+                }
+            }
+            if (error) {
+                this.errors.push(error);
+            }
+            return error;
         }
         private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
             if (!this.isValueArray(obj[key])) {
@@ -229,11 +306,13 @@ module dxSurvey {
             }
             for (var i = 0; i < value.length; i++) {
                 var newValue = this.createNewObj(value[i], property);
-                if (newValue) {
-                    obj[key].push(newValue);
-                    this.toObject(value[i], newValue);
+                if (newValue.newObj) {
+                    obj[key].push(newValue.newObj);
+                    this.toObject(value[i], newValue.newObj);
                 } else {
-                    obj[key].push(value[i]);
+                    if (!newValue.error) {
+                        obj[key].push(value[i]);
+                    }
                 }
             }
         }

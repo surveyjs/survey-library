@@ -322,6 +322,6 @@ module dxSurvey {
             var page = obj.addNewPage("");
             jsonConverter.toObject({ questions: value }, page);
         });
-    JsonObject.metaData.setPropertyClassShortName("survey", "triggers", "trigger");
-
+    JsonObject.metaData.setPropertyClassInfo("survey", "triggers", "surveytrigger", "trigger");
+    JsonObject.metaData.setPropertyClassInfo("survey", "questions", "question");
 }

@@ -157,10 +157,10 @@ module dxSurvey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", ["name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators", "width"]);
+    JsonObject.metaData.addClass("question", ["!name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators", "width"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });
     JsonObject.metaData.setPropertyValues("question", "width", null, "100%");
-    JsonObject.metaData.setPropertyClassShortName("question", "validators", "validator");
+    JsonObject.metaData.setPropertyClassInfo("question", "validators", "surveyvalidator", "validator");
 }

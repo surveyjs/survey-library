@@ -99,4 +99,15 @@ module dxSurvey.SerializationTests {
         var jsObj = new dxSurvey.JsonObject().toJsonObject(mtQuestion);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });
+    QUnit.test("Deserialize question with missing name", function (assert) {
+        var survey = new Survey();
+        var jsonObj = new dxSurvey.JsonObject();
+        jsonObj.toObject(
+            {
+                questions: [{ "type": "text", "isRequired": "true" }]
+            }, survey);
+        assert.equal(survey.pages[0].questions.length, 1, "one question is deserialize.");
+        assert.equal(jsonObj.errors.length, 1, "one serialization error");
+        assert.equal(jsonObj.errors[0].type, "requiredproperty", "The required property error");
+    });
 }

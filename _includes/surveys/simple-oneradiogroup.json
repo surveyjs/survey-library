@@ -1,0 +1,5 @@
+{
+questions: [
+    { type:"radiogroup", name:"Gender", choices:["Man", "Women"] }
+ ]
+}

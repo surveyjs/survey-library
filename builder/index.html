@@ -6,27 +6,23 @@ pathprefix: ../
 canonicalUrl: /builder/
 ---
 <div>
-    <div>
+    <div style="padding:10px">
         <input type="button" value="Run" onclick="surveyRun()" />
+        Survey Examples: 
+        <select id="examples">
+            <option selected="true" style="display:none;">Select JSON ...</option>
+            <option value="simple-oneradiogroup">One question</option>
+            <option value="validators-standard">Simple validators</option>
+            <option value="real-productfeedback">Product feedback</option>
+        </select>
+        <input type="button" value="Load" onclick="loadExample()"/>
     </div>
     <div>
         <div style="width:50%;display: inline-block; vertical-align:top;">
             <div id="jsonerror" style="width:100%"></div>
             <div id="editor" style="height:600px;width:100%">{
-questions: [
-    { type: "multipletext", name: "pricelimit", isRequired: true, title: "What is the... ",
-        items: [
-            { name: "leastamount", title: "The least amount you have ever paid for a computer",
-                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]},
-            { name: "mostamount", title: "The most amount you have ever paid for a computer",
-                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]}
-        ]
-    },
-    { type: "comment", name: "firstcomputer", isRequired: true, 
-      title: "Please tell us about your first computer", 
-      validators: [{type:"text", minLength:20}]
-    }
-]}</div>
+                
+}</div>
         </div><!--
         --><div style="width:50%;display: inline-block; vertical-align:top">
             <div  style="padding:10px">
@@ -45,6 +41,11 @@ questions: [
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/json"); 
 </script> 
+<div style="width:0;height:0;display:none">
+    <pre id="simple-oneradiogroup">{% include surveys/simple-oneradiogroup.json %}</pre>
+    <pre id="validators-standard">{% include surveys/validators-standard.json %}</pre>
+    <pre id="real-productfeedback">{% include surveys/real-productfeedback.json %}</pre>
+</div>    
 
 <script type="text/javascript">
 function surveyRun() {
@@ -80,6 +81,14 @@ function surveyRun() {
             }
             document.getElementById('surveyContainer').innerHTML = result; 
         });
+    }
+}
+
+function loadExample() {
+    var value = document.getElementById("examples").value;
+    var example = document.getElementById(value);
+    if(example) {
+        editor.setValue(example.innerText);
     }
 }
 </script>

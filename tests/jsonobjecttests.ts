@@ -4,11 +4,17 @@ module dxSurvey.JsonSerializationTests {
         public name: string;
         public getType(): string { return "car"; }
     }
-    class SportCar extends Car {
+    class FastCar extends Car {
+        public getType(): string { return "fast"; }
+    }
+    class BigCar extends Car {
+        public getType(): string { return "big"; }
+    }
+    class SportCar extends FastCar {
         public maxSpeed: number;
         public getType(): string { return "sport"; }
     }
-    class Truck extends Car { 
+    class Truck extends BigCar { 
         public maxWeight: number;
         public getType(): string { return "truck"; }
     }
@@ -58,9 +64,12 @@ module dxSurvey.JsonSerializationTests {
     JsonObject.metaData.setPropertyValues("dealer", "trucks", "truck");
     JsonObject.metaData.setPropertyClassInfo("dealer", "cars", "car");
 
+    JsonObject.metaData.addClass("fast", [], function () { return new FastCar(); }, "car");
+    JsonObject.metaData.addClass("big", [], null, "car");
+
     JsonObject.metaData.addClass("car", ["name"]);
-    JsonObject.metaData.addClass("truck", ["maxWeight"], function () { return new Truck(); }, "car");
-    JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "car");
+    JsonObject.metaData.addClass("truck", ["maxWeight"], function () { return new Truck(); }, "big");
+    JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "fast");
 
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
     JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
@@ -264,5 +273,10 @@ module dxSurvey.JsonSerializationTests {
         assert.equal(jsonObj.errors.length, 1, "there should be one error about required property");
         assert.equal(jsonObj.errors[0].type, "requiredproperty", "The required property error");
     });
-    
+     QUnit.test("Deserialization - required property error", function (assert) {
+        var children = dxSurvey.JsonObject.metaData.getChildrenClasses("car");
+        assert.equal(children.length, 4, "There are 4 children classes");
+        children = dxSurvey.JsonObject.metaData.getChildrenClasses("car", true);
+        assert.equal(children.length, 3, "There are 3 children classes that can be created.");
+    });
 }

@@ -62,11 +62,19 @@ module dxSurvey {
     }
     export class JsonMetadata {
         private classes: HashTable<JsonMetadataClass> = {};
+        private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
         private classProperties: HashTable<Array<JsonObjectProperty>> = {};
         private classRequiredProperties: HashTable<Array<string>> = {};
         public addClass(name: string, propertiesNames: Array<string>, creator: () => any = null, parentName: string = null): JsonMetadataClass {
             var metaDataClass = new JsonMetadataClass(name, propertiesNames, creator, parentName);
             this.classes[name] = metaDataClass;
+            if (parentName) {
+                var children = this.childrenClasses[parentName];
+                if (!children) {
+                    this.childrenClasses[parentName] = [];
+                }
+                this.childrenClasses[parentName].push(metaDataClass);
+            }
             return metaDataClass;
         }
         public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null) {
@@ -97,6 +105,11 @@ module dxSurvey {
             if (!metaDataClass) return null;
             return metaDataClass.creator();
         }
+        public getChildrenClasses(name: string, canBeCreated: boolean = false): Array<JsonMetadataClass> {
+            var result = [];
+            this.fillChildrenClasses(name, canBeCreated, result);
+            return result;
+        }
         public getRequiredProperties(name: string): Array<string> {
             var properties = this.classRequiredProperties[name];
             if (!properties) {
@@ -105,6 +118,16 @@ module dxSurvey {
                 this.classRequiredProperties[name] = properties;
             }
             return properties;
+        }
+        private fillChildrenClasses(name: string, canBeCreated: boolean, result: Array<JsonMetadataClass>) {
+            var children = this.childrenClasses[name];
+            if (!children) return;
+            for (var i = 0; i < children.length; i++) {
+                if (!canBeCreated || children[i].creator) {
+                    result.push(children[i]);
+                }
+                this.fillChildrenClasses(children[i].name, canBeCreated, result);
+            }
         }
         private findClass(name: string): JsonMetadataClass {
             return this.classes[name];
@@ -167,14 +190,26 @@ module dxSurvey {
             }
         }
     }
-    export class JsonMissingTypeError extends JsonError {
-        constructor(public propertyName: string, public baseClassName: string) {
-            super("missingtypeproperty", "The property type is missing in the object. Please take a look at property: '" + propertyName + "'.");
+    export class JsonMissingTypeErrorBase extends JsonError {
+        constructor(public baseClassName: string, public type: string, public message: string) {
+            super(type, message);
+            this.description = "The following types are available: ";
+            var types = JsonObject.metaData.getChildrenClasses(baseClassName, true);
+            for (var i = 0; i < types.length; i++) {
+                if (i > 0) this.description += ", ";
+                this.description += "'" + types[i].name + "'";
+            }
+            this.description += ".";
         }
     }
-    export class JsonIncorrectTypeError extends JsonError {
+    export class JsonMissingTypeError extends JsonMissingTypeErrorBase {
         constructor(public propertyName: string, public baseClassName: string) {
-            super("incorrecttypeproperty", "The property type is incorrect in the object. Please take a look at property: '" + propertyName + "'.");
+            super(baseClassName, "missingtypeproperty", "The property type is missing in the object. Please take a look at property: '" + propertyName + "'.");
+        }
+    }
+    export class JsonIncorrectTypeError extends JsonMissingTypeErrorBase {
+        constructor(public propertyName: string, public baseClassName: string) {
+            super(baseClassName, "incorrecttypeproperty", "The property type is incorrect in the object. Please take a look at property: '" + propertyName + "'.");
         }
     }
     export class JsonRequiredPropertyError extends JsonError {

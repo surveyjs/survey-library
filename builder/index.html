@@ -73,7 +73,7 @@ function surveyRun() {
             }
             document.getElementById('jsonerror').innerHTML = errorText;
         }
-        survey.render("surveyContainer", "../templates/dx.survey.ko.html");
+        survey.render("surveyContainer");
         survey.onComplete.add(function (s) { 
             var result = "\nThe results are:\n" + JSON.stringify(survey.data);
             if (survey.hasComments) {

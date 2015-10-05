@@ -17,7 +17,7 @@ mainmenukey: examples
                 document.getElementById('dxsurvey_oncomplete').style.visibility = 'hidden'; 
                 survey.data = null;
                 survey.currentPage = survey.visiblePages[0];
-                survey.render('dxsurvey', '../templates/dx.survey.ko.html');" 
+                survey.render('dxsurvey');" 
                 value="Re-run survey"></input>
         </div>
         {{ content }}   		    		    	
@@ -33,5 +33,5 @@ mainmenukey: examples
         document.getElementById('dxsurvey_result').innerHTML = result; 
         document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
     });
-    survey.render("dxsurvey", "../templates/dx.survey.ko.html");
+    survey.render("dxsurvey");
 </script>

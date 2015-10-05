@@ -13,7 +13,7 @@ var survey = new dxSurvey.Survey({title: "Simple survey example",
                         visible: false, isRequired: true, hasOther: true,
                         choices: ["custom|Custom solution", "Survey Monkey", "Survey Gizmo"]},
                     { type: "comment", name: "description", title: "Please tell us what kind of survey do you need?" }]
-}, "surveyContainer", "templates/dx.survey.ko.html");
+}, "surveyContainer");
 {% endcapture %}
 {% capture survey_event %}
 survey.onValueChanged.add(
@@ -52,22 +52,23 @@ You will need several simple steps to introduce a survey into your web site.
             <script src="{{ page.pathprefix }}js/dx.survey.js"></script>
         </pre>
     </li>
-    <li>Add a link to one of the  most famous MVVM library: <a href="http://knockoutjs.com">KnockoutJS</a> or AngularJS
-        <div>
-            for KnockoutJS
-            <pre class="brush:js">
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
-            </pre>
-        </div>
+    <li>Add a link to a MVVM library. We currently use: <a href="http://knockoutjs.com">KnockoutJS</a>
+        <pre class="brush:js">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+        </pre>
+        <div>We choose it against AngularJS and others, because it is powerfull from one side and require to add only one small independent js file.</div>
     </li>
-    <li>Set up a Survey object. Pass an element (or it's id) where to render and a link to the MVVM template html
+    <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
-    </li>
-    <li>Handle Survey event(s) if needed
-        <pre class="brush:js">{{ survey_event | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
+        <div>
+         You have to pass to the constructor or render function, a JSON object and html element (or it's name). JSON object should contains the full information to create a Survey on the client. You may use the <a href="{{ page.pathprefix }}builder/">Survey JSON Builder</a> to create a JSON for your Survey.
+        </div>
     </li>
     <li>Use onComplete event to get the result of a Survey
         <pre class="brush:js">{{ survey_oncomplete | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+    </li>
+    <li>Handle Survey event(s) if needed
+        <pre class="brush:js">{{ survey_event | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
     </li>
 </ul>
 <div class="surveycontent">

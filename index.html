@@ -12,7 +12,7 @@ var survey = new dxSurvey.Survey({title: "Simple survey example",
                     { type: "checkbox", name: "solution", title: "What do you use to run survey?", 
                         visible: false, isRequired: true, hasOther: true,
                         choices: ["custom|Custom solution", "Survey Monkey", "Survey Gizmo"]},
-                    { type: "comment", name: "description", title: "Please tell us what kind of survey do you need?" }]
+                    { type: "comment", name: "description", title: "Please tell us, what do you need from a Survey Library?" }]
 }, "surveyContainer");
 {% endcapture %}
 {% capture survey_event %}
@@ -56,7 +56,7 @@ You will need several simple steps to introduce a survey into your web site.
         <pre class="brush:js">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         </pre>
-        <div>We choose it against AngularJS and others, because it is powerfull from one side and require to add only one small independent js file.</div>
+        <div>We choose it against AngularJS and others, because it is powerfull, it does everything we need, and lightweight./div>
     </li>
     <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        

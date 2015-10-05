@@ -61,7 +61,7 @@ You will need several simple steps to introduce a survey into your web site.
     <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
         <div>
-         You have to pass to the constructor or render function, a JSON object and html element (or it's name). JSON object should contains the full information to create a Survey on the client. You may use the <a href="{{ page.pathprefix }}builder/">Survey JSON Builder</a> to create a JSON for your Survey.
+         You have to pass to the constructor or render function, a JSON object and html element (or it's id). JSON object should contains the full information to allow create a Survey on the client. You may use the <a href="{{ page.pathprefix }}builder/">Survey JSON Builder</a> to create a JSON for your Survey.
         </div>
     </li>
     <li>Use onComplete event to get the result of a Survey

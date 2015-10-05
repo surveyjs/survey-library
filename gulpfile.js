@@ -10,6 +10,7 @@ var gulp = require('gulp'),
     serve = require("gulp-serve"),
     uglify = require("gulp-uglify"),
     rename = require("gulp-rename"),
+    html2ts = require("gulp-html-to-ts"),
     project = require("./project.json"),
     plugins = require("gulp-load-plugins")({
         pattern: ['gulp-*', 'gulp.*', 'main-bower-files'],
@@ -146,11 +147,11 @@ gulp.task('tsd', function (callback) {
         "use strict";    
         gulp.src(paths.templates_ko)
           .pipe(concat("dx.survey.ko.html"))
-          .pipe(gulp.dest(paths.webroot + 'templates'))
-        .pipe(gulp.dest(paths.dist + 'templates'));
+          .pipe(html2ts())
+          .pipe(gulp.dest("./src/"));
     });
 
-    gulp.task("makedist", ["typescript", "templates", "sass", "compress"]);
+    gulp.task("makedist", ["templates", "typescript", "sass", "compress"]);
 })("TypeScript compilation");
 
     gulp.task("test_ci", function (done) { 

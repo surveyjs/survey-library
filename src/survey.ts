@@ -1,10 +1,10 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
+/// <reference path="dx.survey.ko.html.ts" />
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
-        public static templateKnockout: string = "templates/dx.survey.ko.html";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
@@ -12,7 +12,6 @@ module dxSurvey {
         private valuesHash: HashTable<any> = {};
         private commentsHash: HashTable<string> = {};
         private renderedElement: HTMLElement;
-        private templateUrlValue: string = null;
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
@@ -22,7 +21,7 @@ module dxSurvey {
 
         koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
 
-        constructor(jsonObj: any = null, renderedElement: any = null, templateUrl: string = null) {
+        constructor(jsonObj: any = null, renderedElement: any = null) {
             super();
             var self = this;
             this.pages.push = function (value) {
@@ -46,11 +45,9 @@ module dxSurvey {
                     this.jsonErrors = jsonConverter.errors;
                 }
             }
-            this.render(renderedElement, templateUrl);
+            this.render(renderedElement);
         }
         public getType(): string { return "survey"; }
-        public get templateUrl() { return this.templateUrlValue ? this.templateUrlValue : Survey.templateKnockout; }
-        public set templateUrl(value: string) { this.templateUrlValue = value; }
         public get data(): any {
             var result = {};
             for (var key in this.valuesHash) {
@@ -223,8 +220,7 @@ module dxSurvey {
                 }
             }
         }
-        public render(element: any = null, templateUrl: string = null) {
-            this.templateUrl = templateUrl;
+        public render(element: any = null) {
             var self = this;
             if (element && typeof element == "string") {
                     element = document.getElementById(element);
@@ -236,29 +232,12 @@ module dxSurvey {
             if (!element) return;
             this.onBeforeRender();
             if (this.isKO) {
-                this.loadFile(this.templateUrl,
-                    function (html: string) {
-                        element.innerHTML = html;
-                        self.applyBinding();
-                    },
-                    function (errorResult: string) { element.innerHTML = "Knockout template could not be loaded. " + errorResult; }
-                    );
+                element.innerHTML = dx.survey.ko.html;
+                self.applyBinding();
             }
         }
         onBeforeRender() {
             this.updateVisibleIndexes();
-        }
-        private loadFile(fileName: string, funcSuccess: Function, funcError: Function) {
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function () {
-                if (xmlhttp.readyState == 4) {
-                    if (xmlhttp.status == 200) {
-                        funcSuccess(xmlhttp.responseText);
-                    } else funcError(xmlhttp.responseText);
-                }
-            }
-            xmlhttp.open("GET", fileName, true);
-            xmlhttp.send();
         }
         private applyBinding() {
             if (!this.isKO || this.renderedElement == null) return;

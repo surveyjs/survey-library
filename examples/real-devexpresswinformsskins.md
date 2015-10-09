@@ -14,7 +14,7 @@ title: DevExpress WinForms Look & Feel Technology
                             {
                                 type: "radiogroup", name: "skinNumber", title: "How many skin/theme choices do you currently offer within your WinForms applications?",
                                 isRequired: true, choices: ["many|More than one"],
-                                hasOtherValue: true, otherText: "One (please specify its name)", otherErrorText: "Please enter a name of the skin/theme you use in your applications."
+                                hasOther: true, otherText: "One (please specify its name)", otherErrorText: "Please enter a name of the skin/theme you use in your applications."
                             }
                         ]
                     },

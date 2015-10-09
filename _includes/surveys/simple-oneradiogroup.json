@@ -1,5 +1,5 @@
 {
 questions: [
-    { type:"radiogroup", name:"Gender", choices:["Man", "Women"] }
+    { type:"radiogroup", name:"Sex", choices:["Male", "Female"], isRequired: true }
  ]
 }

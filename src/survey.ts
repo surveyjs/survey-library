@@ -5,6 +5,7 @@
 
 module dxSurvey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
+        public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
@@ -17,6 +18,8 @@ module dxSurvey {
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onSendResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onGetResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
 
         koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
@@ -235,6 +238,39 @@ module dxSurvey {
                 element.innerHTML = dx.survey.ko.html;
                 self.applyBinding();
             }
+        }
+        public sendResult(postId: string) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', this.serviceUrl);
+            xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            var data: string = JSON.stringify({ postId: postId, surveyResult: JSON.stringify(this.data) });
+            xhr.setRequestHeader('Content-Length', data.length.toString());
+            var self = this;
+            xhr.onload = function () {
+                self.onSendResult.fire(self, { success: xhr.status == 200, response: xhr.response });
+            };
+            xhr.send(data);
+        }
+        public getResult(resultId: string, name: string) {
+            var xhr = new XMLHttpRequest();
+            var data = 'resultId=' + resultId + '&name=' + name;
+            xhr.open('GET', this.serviceUrl + '/GetResult?' + data);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            var self = this;
+            xhr.onload = function () {
+                var result = null;
+                var list = null;
+                if (xhr.status == 200) {
+                    result = JSON.parse(xhr.response);
+                    list = [];
+                    for (var key in result) {
+                        var el = { name: key, value: result[key] };
+                        list.push(el);
+                    }    
+                }
+                self.onGetResult.fire(self, { success: xhr.status == 200, data: result, dataList: list, response: xhr.response });
+            };
+            xhr.send();
         }
         onBeforeRender() {
             this.updateVisibleIndexes();

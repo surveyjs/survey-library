@@ -2,6 +2,7 @@
 layout: default
 title: Home
 mainmenukey: home
+usedxchart: true
 canonicalUrl: /
 ---
 {% capture survey_setup %}
@@ -26,7 +27,19 @@ survey.onValueChanged.add(
 
 {% capture survey_oncomplete %}
 survey.onComplete.add(function (s) {
-    document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);; 
+    document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);
+    s.sendResult('e544a02f-7fff-4ffb-b62d-6a9aa16efd7c');
+});
+survey.onSendResult.add(function(s, options) {
+    if(options.success) {
+        s.getResult('d72c2b05-2449-4838-99b2-c3f0ec76da7a', 'solution');
+    }
+});
+
+survey.onGetResult.add(function(s, options) {
+    if(options.success) {
+        showChart(options.dataList);
+    }
 });
 {% endcapture %}
 
@@ -56,7 +69,7 @@ You will need several simple steps to introduce a survey into your web site.
         <pre class="brush:js">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         </pre>
-        <div>We choose it against AngularJS and others, because it is powerfull, it does everything we need, and lightweight./div>
+        <div>We choose it against AngularJS and others, because it is powerfull, it does everything we need, and lightweight.</div>
     </li>
     <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
@@ -72,12 +85,22 @@ You will need several simple steps to introduce a survey into your web site.
     </li>
 </ul>
 <div class="surveycontent">
-    <div id="surveyContainer"></div>
+    <div id="surveyContainer">
 </div>
+<div id="chartContainer" style="width:300px;height:300px"></div>
 <script type="text/javascript">
 /*<![CDATA[*/
 {{ survey_setup }}
 {{ survey_event }}
 {{ survey_oncomplete }}
 /*]]>*/
+function showChart(chartDataSource) {    
+    $("#chartContainer").dxPieChart({
+        dataSource: chartDataSource,
+        series: {
+            argumentField: 'name',
+            valueField: 'value'
+        }
+    });
+}
 </script>

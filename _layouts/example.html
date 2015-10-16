@@ -24,6 +24,7 @@ mainmenukey: examples
     </div>
 </div>
 <script>
+if(typeof survey !== 'undefined') {
     survey.onComplete.add(function (s) { 
         document.getElementById('dxsurvey').innerHTML = ""; 
         var result = "\nThe results are:\n" + JSON.stringify(survey.data);
@@ -34,4 +35,5 @@ mainmenukey: examples
         document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
     });
     survey.render("dxsurvey");
+}
 </script>

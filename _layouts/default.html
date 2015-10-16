@@ -7,7 +7,10 @@
         <link href="{{ page.pathprefix }}css/dx.survey.css" type="text/css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         <script src="{{ page.pathprefix }}js/dx.survey.js"></script>
-
+        {% if page.usedxchart%}
+        <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="http://cdn3.devexpress.com/jslib/13.1.5/js/dx.chartjs.js"></script>
+        {% endif %}
         <link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeEclipse.css" rel="stylesheet" type="text/css" />
         <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>
         <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shAutoloader.js" type="text/javascript"></script>
@@ -24,6 +27,6 @@
         </div>
     </body>
 <script type="text/javascript">
-     SyntaxHighlighter.all()
+    SyntaxHighlighter.all();
 </script>
 </html>

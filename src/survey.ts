@@ -6,12 +6,12 @@
 module dxSurvey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
         public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
+        public commentPrefix: string = "-Comment";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: Page = null;
         private valuesHash: HashTable<any> = {};
-        private commentsHash: HashTable<string> = {};
         private renderedElement: HTMLElement;
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
@@ -68,14 +68,12 @@ module dxSurvey {
             }
             this.notifyAllQuestionsOnValueChanged();
         }
-        public get hasComments(): boolean {
-            for (var key in this.commentsHash) return true;
-            return false;
-        }
         public get comments(): any {
             var result = {};
-            for (var key in this.commentsHash) {
-                result[key] = this.commentsHash[key];
+            for (var key in this.valuesHash) {
+                if (typeof key.endsWith === 'function' && key.endsWith(this.commentPrefix)) {
+                    result[key] = this.valuesHash[key];
+                }
             }
             return result;
         }
@@ -294,20 +292,25 @@ module dxSurvey {
             return this.valuesHash[name];
         }
         setValue(name: string, newValue: any) {
-            this.valuesHash[name] = newValue;
+            if (newValue == "" || newValue == null) {
+                delete this.valuesHash[name];
+            } else {
+                this.valuesHash[name] = newValue;
+            }
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue);
         }
         getComment(name: string): string {
-            var result = this.commentsHash[name];
+            var result = this.data[name + this.commentPrefix];
             if (result == null) result = "";
             return result;
         }
         setComment(name: string, newValue: string) {
+            name = name + this.commentPrefix;
             if (newValue == "" || newValue == null) {
-                delete this.commentsHash[name];
+                delete this.valuesHash[name];
             } else {
-                this.commentsHash[name] = newValue;
+                this.valuesHash[name] = newValue;
             }
         }
         onQuestionVisibilityChanged(name: string, newValue: boolean) {

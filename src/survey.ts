@@ -6,6 +6,8 @@
 module dxSurvey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
         public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
+        //public serviceUrl: string = "http://localhost:49891/api/Survey";
+        public surveyPostId: string = null;
         public commentPrefix: string = "-Comment";
         public title: string = "";
         public pages: Array<Page> = new Array<Page>();
@@ -42,10 +44,13 @@ module dxSurvey {
                 this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
             }
             if (jsonObj) {
-                var jsonConverter = new JsonObject();
-                jsonConverter.toObject(jsonObj, this);
-                if (jsonConverter.errors.length > 0) {
-                    this.jsonErrors = jsonConverter.errors;
+                if (jsonObj["surveyPostId"]) {
+                    this.surveyPostId = jsonObj["surveyPostId"];
+                }
+                if (jsonObj["surveyId"]) {
+                    this.loadSurveyFromService(jsonObj["surveyId"], renderedElement);
+                } else {
+                    this.setJsonObject(jsonObj);
                 }
             }
             this.render(renderedElement);
@@ -86,6 +91,7 @@ module dxSurvey {
             }
             return result;
         }
+        get isEmpty(): boolean { return this.pages.length == 0; }
         get PageCount(): number {
             return this.pages.length;
         }
@@ -137,6 +143,9 @@ module dxSurvey {
         completeLastPage() : boolean {
             if (this.isCurrentPageHasErrors) return false;
             this.onComplete.fire(this, null);
+            if (this.surveyPostId) {
+                this.sendResult();
+            }
             return true;
         }
         get isFirstPage() {
@@ -230,18 +239,21 @@ module dxSurvey {
                 this.renderedElement = element;
             }
             element = this.renderedElement;
-            if (!element) return;
+            if (!element || this.isEmpty) return;
             this.onBeforeRender();
             if (this.isKO) {
                 element.innerHTML = dx.survey.ko.html;
                 self.applyBinding();
             }
         }
-        public sendResult(postId: string) {
+        public sendResult(postId: string = null) {
+            if (postId) {
+                this.surveyPostId = postId;
+            } 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', this.serviceUrl);
             xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-            var data: string = JSON.stringify({ postId: postId, surveyResult: JSON.stringify(this.data) });
+            var data: string = JSON.stringify({ postId: this.surveyPostId, surveyResult: JSON.stringify(this.data) });
             xhr.setRequestHeader('Content-Length', data.length.toString());
             var self = this;
             xhr.onload = function () {
@@ -270,6 +282,22 @@ module dxSurvey {
             };
             xhr.send();
         }
+        public loadSurveyFromService(surveyId: string, element: any = null) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', this.serviceUrl + '/GetJson?surveyId=' + surveyId);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            var self = this;
+            xhr.onload = function () {
+                if (xhr.status == 200) {
+                    var result = JSON.parse(xhr.response);
+                    if (result) {
+                        self.setJsonObject(result);
+                        self.render(element);
+                    }
+                }
+            };
+            xhr.send();
+        }
         onBeforeRender() {
             this.updateVisibleIndexes();
         }
@@ -285,6 +313,15 @@ module dxSurvey {
             for (var i = 0; i < questions.length; i++) {
                 questions[i].setVisibleIndex(index++);
             } 
+        }
+        private setJsonObject(jsonObj: any) {
+            if (!jsonObj) return;
+            this.jsonErrors = null;
+            var jsonConverter = new JsonObject();
+            jsonConverter.toObject(jsonObj, this);
+            if (jsonConverter.errors.length > 0) {
+                this.jsonErrors = jsonConverter.errors;
+            }
         }
         //ISurvey data
         getValue(name: string): any {

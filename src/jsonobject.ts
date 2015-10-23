@@ -234,6 +234,7 @@ module dxSurvey {
             }
             if (!properties) return;
             for (var key in jsonObj) {
+                if (key == JsonObject.typePropertyName) continue;
                 var property = this.findProperty(properties, key);
                 if (!property) {
                     this.errors.push(new JsonUnknownPropertyError(key.toString(), obj.getType().toString()));
@@ -288,7 +289,7 @@ module dxSurvey {
             if (newObj.newObj) {
                 this.toObject(value, newObj.newObj);
                 value = newObj.newObj;
-            } 
+            }
             if (!newObj.error) {
                 obj[key] = value;
             }
@@ -297,12 +298,8 @@ module dxSurvey {
         private createNewObj(value: any, property: JsonObjectProperty): any {
             var result = { newObj: null, error: null };
             var className = value[JsonObject.typePropertyName];
-            if (className) {
-                delete value[JsonObject.typePropertyName];
-            } else {
-                if (property != null && property.className) {
-                    className = property.className;
-                }
+            if (!className && property != null && property.className) {
+                className = property.className;
             }
             className = property.getClassName(className);
             result.newObj = (className) ? JsonObject.metaData.createClass(className) : null;

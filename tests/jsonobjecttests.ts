@@ -233,6 +233,14 @@ module dxSurvey.JsonSerializationTests {
         assert.equal(owner.items[0].getType(), "itemA_thelongpart", "the first object is live");
         assert.equal(owner.items[1].getType(), "itemB_thelongpart", "the second object is live");
     });
+    QUnit.test("Do not change Json", function (assert) {
+        var json = { items: [{ type: "itemA", A: 5 }, { type: "itemB_thelongpart", B: 15 }] };
+        var jsonText = JSON.stringify(json);
+        var owner = new LongNamesOwner();
+        new dxSurvey.JsonObject().toObject(json, owner);
+        assert.equal(JSON.stringify(json), jsonText, "Json object should be the same after deserialization");
+    });
+
     QUnit.test("Unknown property error on deserialization", function (assert) {
         var owner = new LongNamesOwner();
         var jsonObj = new dxSurvey.JsonObject();

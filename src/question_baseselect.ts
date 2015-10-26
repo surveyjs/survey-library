@@ -6,6 +6,7 @@ module dxSurvey {
         otherItem: ItemValue = new ItemValue("other", QuestionSelectBase.otherItemText);
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public otherErrorText: string = null;
+        choicesOrderValue: string = "none";
         koOtherVisible: any;
         constructor(name: string) {
             super(name);
@@ -21,11 +22,16 @@ module dxSurvey {
         set choices(newValue: Array<any>) {
             ItemValue.setData(this.choicesValues, newValue);
         }
+        get choicesOrder(): string { return this.choicesOrderValue; }
+        set choicesOrder(newValue: string) {
+            if (newValue == this.choicesOrderValue) return;
+            this.choicesOrderValue = newValue;
+        }
         get otherText(): string { return this.otherItem.text; }
         set otherText(value: string) { this.otherItem.text = value; }
         get visibleChoices(): Array<ItemValue> {
-            if (!this.hasOther) return this.choices;
-            var result = this.choices.slice();
+            if (!this.hasOther && this.choicesOrder == "none") return this.choices;
+            var result = this.sortVisibleChoices(this.choices.slice());
             result.push(this.otherItem);
             return result;
         }
@@ -40,7 +46,31 @@ module dxSurvey {
             }
             errors.push(new CustomError(text));
         }
+        sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
+            var order = this.choicesOrder.toLowerCase();
+            if (order == "asc") return this.sortArray(array, 1);
+            if (order == "desc") return this.sortArray(array, -1);
+            if (order == "random") return this.randomizeArray(array);
+            return array;
+        }
+        sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
+            return array.sort(function (a, b) {
+                if (a.text < b.text) return -1 * mult;
+                if (a.text > b.text) return 1 * mult;
+                return 0;
+            });
+        }
+        randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
+            for (var i = array.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = array[i];
+                array[i] = array[j];
+                array[j] = temp;
+            }
+            return array;
+        }
     }
+
     export class QuestionCheckboxBase extends QuestionSelectBase {
         private colCountValue: number = 1;
         koClass: any;
@@ -66,10 +96,11 @@ module dxSurvey {
             if (tEl.nodeName == "#text") tEl.data = "";
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["!choices", "otherText", "otherErrorText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["!choices", "choicesOrder", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
+    JsonObject.metaData.setPropertyValues("selectbase", "choicesOrder", null, "none");
     JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, QuestionSelectBase.otherItemText);
 
     JsonObject.metaData.addClass("checkboxbase", ["colCount"], null, "selectbase");

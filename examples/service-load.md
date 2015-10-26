@@ -1,6 +1,6 @@
 ---
 layout: example
-title: DevExpress WinForms Look & Feel Technology
+title: Load survey json from the dxSurvey Service
 ---
 {% capture survey_setup %}
 var survey = new dxSurvey.Survey(

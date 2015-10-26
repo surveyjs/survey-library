@@ -7,6 +7,7 @@ module dxSurvey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
         public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
         //public serviceUrl: string = "http://localhost:49891/api/Survey";
+        public surveyId: string = null;
         public surveyPostId: string = null;
         public commentPrefix: string = "-Comment";
         public title: string = "";
@@ -44,13 +45,9 @@ module dxSurvey {
                 this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
             }
             if (jsonObj) {
-                if (jsonObj["surveyPostId"]) {
-                    this.surveyPostId = jsonObj["surveyPostId"];
-                }
-                if (jsonObj["surveyId"]) {
-                    this.loadSurveyFromService(jsonObj["surveyId"], renderedElement);
-                } else {
-                    this.setJsonObject(jsonObj);
+                this.setJsonObject(jsonObj);
+                if (this.surveyId) {
+                    this.loadSurveyFromService(this.surveyId, renderedElement);
                 }
             }
             this.render(renderedElement);
@@ -282,9 +279,12 @@ module dxSurvey {
             };
             xhr.send();
         }
-        public loadSurveyFromService(surveyId: string, element: any = null) {
+        public loadSurveyFromService(surveyId: string = null, element: any = null) {
+            if (surveyId) {
+                this.surveyId = surveyId;
+            } 
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', this.serviceUrl + '/GetJson?surveyId=' + surveyId);
+            xhr.open('GET', this.serviceUrl + '/GetJson?surveyId=' + this.surveyId);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             var self = this;
             xhr.onload = function () {
@@ -369,7 +369,7 @@ module dxSurvey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers"]);
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", "", null,
         function (obj) { return null; },

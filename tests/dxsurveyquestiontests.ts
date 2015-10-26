@@ -155,6 +155,21 @@ module dxSurvey.Tests {
         assert.equal(mText.hasErrors(), false, "The value is fine now.");
         assert.equal(mText.items[0].value, 15, "Convert to numeric");
     });
+    QUnit.test("Validators for array value question", function (assert) {
+        var question = new QuestionCheckbox("q1");
+        question.choices = ["item1", "item2", "item3", "item4", "item5"];
+        question.value = ["item1"];
+        assert.equal(question.hasErrors(), false, "There is no error by default");
+        question.validators.push(new AnswerCountValidator(2, 3));
+        question.value = ["item1"];
+        assert.equal(question.hasErrors(), true, "It should be at least two items selected");
+        question.value = ["item1", "item2", "item3"];
+        assert.equal(question.hasErrors(), false, "There is one item in value");
+        question.value = ["item1", "item2", "item3", "item4"];
+        assert.equal(question.hasErrors(), true, "It should be less then 3 items");
+        question.value = ["item1", "item3"];
+        assert.equal(question.hasErrors(), false, "There is two items in value");
+    });
     QUnit.test("Show errors if others value is selected, but not entered", function (assert) {
         var radio = new QuestionRadiogroup("q1");
         new Survey().addNewPage("p1").addQuestion(radio);

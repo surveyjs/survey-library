@@ -237,7 +237,7 @@ module dxSurvey {
                 if (key == JsonObject.typePropertyName) continue;
                 var property = this.findProperty(properties, key);
                 if (!property) {
-                    this.errors.push(new JsonUnknownPropertyError(key.toString(), obj.getType().toString()));
+                    this.errors.push(new JsonUnknownPropertyError(key.toString(), obj.getType()));
                     continue;
                 }
                 this.valueToObj(jsonObj[key], obj, key, property);

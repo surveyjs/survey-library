@@ -42,6 +42,7 @@ module dxSurvey {
             return null;
         }
     }
+
     export class NumericValidator extends SurveyValidator {
         constructor(public minValue: number = null, public maxValue: number = null) {
             super();
@@ -79,8 +80,8 @@ module dxSurvey {
         private isNumber(value): boolean {
             return !isNaN(parseFloat(value)) && isFinite(value);
         }
-
     }
+
     export class TextValidator extends SurveyValidator {
         constructor(public minLength: number = 0) {
             super();
@@ -98,8 +99,31 @@ module dxSurvey {
         }
     }
 
+    export class AnswerCountValidator extends SurveyValidator {
+        constructor(public minCount: number = null, public maxCount: number = null) {
+            super();
+        }
+        public getType(): string { return "answercountvalidator"; }
+        public validate(value: any, name: string = null): ValidatorResult {
+            if (value == null || value.constructor != Array) return null;
+            var count = value.length;
+            if (this.minCount && count < this.minCount) {
+                return new ValidatorResult(null, new CustomError(this.getErrorText("Please select at least " + this.minCount + " variants.")));
+            }
+            if (this.maxCount && count > this.maxCount) {
+                return new ValidatorResult(null, new CustomError(this.getErrorText("Please select not more than " + this.maxCount + " variants.")));
+            }
+            return null;
+        }
+        protected getDefaultErrorText(name: string) {
+            return name;
+        }
+    }
+
+
     JsonObject.metaData.addClass("surveyvalidator", ["text"]);
     JsonObject.metaData.addClass("numericvalidator", ["minValue", "maxValue"], function () { return new NumericValidator(); }, "surveyvalidator");
     JsonObject.metaData.addClass("textvalidator", ["minLength"], function () { return new TextValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("answercountvalidator", ["minCount", "maxCount"], function () { return new AnswerCountValidator(); }, "surveyvalidator");
  
 }

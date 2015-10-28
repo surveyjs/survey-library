@@ -40,6 +40,7 @@ canonicalUrl: /builder/
     editor = ace.edit("editor"); 
     editor.setTheme("ace/theme/monokai");
     editor.session.setMode("ace/mode/json"); 
+    editor.setOption("showPrintMargin", false);
 </script> 
 <div style="width:0;height:0;display:none">
     <pre id="simple-oneradiogroup">{% include surveys/simple-oneradiogroup.json %}</pre>

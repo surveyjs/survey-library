@@ -270,8 +270,8 @@ module dxSurvey {
                 if (xhr.status == 200) {
                     result = JSON.parse(xhr.response);
                     list = [];
-                    for (var key in result) {
-                        var el = { name: key, value: result[key] };
+                    for (var key in result.QuestionResult) {
+                        var el = { name: key, value: result.QuestionResult[key] };
                         list.push(el);
                     }    
                 }

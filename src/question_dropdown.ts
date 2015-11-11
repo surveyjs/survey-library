@@ -1,7 +1,7 @@
 ﻿// <reference path="question_selectbase.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class QuestionDropdown extends QuestionSelectBase {
         constructor(public name: string) {
             super(name);

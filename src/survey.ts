@@ -1,9 +1,9 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
-/// <reference path="dx.survey.ko.html.ts" />
+/// <reference path="template.ko.html.ts" />
 
-module dxSurvey {
+module Survey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
         public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
         //public serviceUrl: string = "http://localhost:49891/api/Survey";
@@ -239,7 +239,7 @@ module dxSurvey {
             if (!element || this.isEmpty) return;
             this.onBeforeRender();
             if (this.isKO) {
-                element.innerHTML = dx.survey.ko.html;
+                element.innerHTML = template.ko.html;
                 self.applyBinding();
             }
         }

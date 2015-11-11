@@ -1,6 +1,6 @@
 ﻿// <reference path="question.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class QuestionSelectBase extends Question {
         static otherItemText: string = "Other (describe)";
         otherItem: ItemValue = new ItemValue("other", QuestionSelectBase.otherItemText);
@@ -78,7 +78,7 @@ module dxSurvey {
             super(name);
             if (this.isKO) {
                 var self = this;
-                this.koClass = ko.computed(function () { self.dummyObservable(); return "dxsv_qcbc" + self.colCount; });
+                this.koClass = ko.computed(function () { self.dummyObservable(); return "sv_qcbc" + self.colCount; });
             }
         }
         public get colCount(): number { return this.colCountValue; }

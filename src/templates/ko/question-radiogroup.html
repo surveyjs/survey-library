@@ -1,14 +1,14 @@
-﻿<script type="text/html" id="dxsurvey-question-radiogroup">
+﻿<script type="text/html" id="survey-question-radiogroup">
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
     <div data-bind="css: question.koClass">
-        <div class="dxsv_q_radiogroup">
+        <div class="sv_q_radiogroup">
             <label>
                 <input type="radio"
                        data-bind="name: question.name, attr: {value: item.value}, checked: question.koValue" />
                 <span data-bind="text: item.text"></span>
             </label>
             <div data-bind="if:$index() == (question.visibleChoices.length-1), visible: question.hasOther">
-                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
             </div>
         </div>
      </div>

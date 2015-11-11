@@ -1,10 +1,9 @@
 {
-  "name": "dxSurvey",
+  "name": "survey.js",
   "description": "JavaScript Survey engine",
   "main": [
-    "dist/dx.survey.min.js",
-    "dist/templates/dx.survey.ko.html",
-    "dist/css/dx.survey.css"
+    "dist/survey.min.js",
+    "dist/css/survey.css"
   ],
   "dependencies": {
     "knockout": "^3.3.0"

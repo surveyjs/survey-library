@@ -61,7 +61,7 @@ gulp.task('tsd', function (callback) {
         "use strict";
         gulp.task("typescript:sources", function () {
             var tsResult = gulp.src([
-                  paths.webroot + "/lib/dxsurvey/**/*.d.ts",
+                  paths.webroot + "/lib/survey/**/*.d.ts",
                   paths.typings
             ].concat(paths.ts))
                .pipe(sourcemaps.init())
@@ -71,7 +71,7 @@ gulp.task('tsd', function (callback) {
                 }));
 
             return tsResult.js
-                .pipe(concat('dx.survey.js'))
+                .pipe(concat('survey.js'))
                 .pipe(sourcemaps.write({ sourceRoot: "src" }))
                 //Source map is a part of generated file
                 .pipe(gulp.dest(paths.dist))
@@ -80,7 +80,7 @@ gulp.task('tsd', function (callback) {
 
         gulp.task("typescript:tests", function () {
             var tsResult = gulp.src([
-                  paths.webroot + "/lib/dxsurvey/**/*.d.ts",
+                  paths.webroot + "/lib/survey/**/*.d.ts",
                   paths.typings,
                   //"./src/model/*.ts",
                   paths.tsTests])
@@ -91,7 +91,7 @@ gulp.task('tsd', function (callback) {
                }));
 
             return tsResult.js
-                .pipe(concat('dx.survey.tests.js'))
+                .pipe(concat('survey.tests.js'))
                 .pipe(sourcemaps.write({ sourceRoot: "src" }))
                 //Source map is a part of generated file
                 .pipe(gulp.dest(paths.testsFolder));
@@ -99,7 +99,7 @@ gulp.task('tsd', function (callback) {
 
         gulp.task("typescript:tests_ko", function () {
             var tsResult = gulp.src([
-                  paths.webroot + "/lib/dxsurvey/**/*.d.ts",
+                  paths.webroot + "/lib/survey/**/*.d.ts",
                   paths.typings,
                   //"./src/model/*.ts",
                   paths.tsTests_ko])
@@ -110,7 +110,7 @@ gulp.task('tsd', function (callback) {
                }));
 
             return tsResult.js
-                .pipe(concat('dx.survey.tests_ko.js'))
+                .pipe(concat('survey.tests_ko.js'))
                 .pipe(sourcemaps.write({ sourceRoot: "src" }))
                 //Source map is a part of generated file
                 .pipe(gulp.dest(paths.testsFolder));
@@ -126,7 +126,7 @@ gulp.task('tsd', function (callback) {
 
     gulp.task('compress', function () {
         "use strict";
-        return gulp.src(paths.dist + 'dx.survey.js')
+        return gulp.src(paths.dist + 'survey.js')
             .pipe(uglify())
              .pipe(rename({
                  extname: '.min.js'
@@ -138,7 +138,7 @@ gulp.task('tsd', function (callback) {
         "use strict";    
         gulp.src(paths.styles)
           .pipe(sass.sync().on('error', sass.logError))
-          .pipe(concat("dx.survey.css"))
+          .pipe(concat("survey.css"))
           .pipe(gulp.dest(paths.webroot + 'css'))
           .pipe(gulp.dest(paths.dist + 'css'));
     });
@@ -146,7 +146,7 @@ gulp.task('tsd', function (callback) {
     gulp.task('templates', function () {
         "use strict";    
         gulp.src(paths.templates_ko)
-          .pipe(concat("dx.survey.ko.html"))
+          .pipe(concat("template.ko.html"))
           .pipe(html2ts())
           .pipe(gulp.dest("./src/"));
     });

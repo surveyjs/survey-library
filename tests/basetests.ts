@@ -1,9 +1,9 @@
 ﻿/// <reference path="../src/base.ts" />
-module dxSurvey.Tests {
+module Survey.Tests {
     QUnit.module("Base");
 
     QUnit.test("Event hasEvents property", function (assert) {
-        var event = new dxSurvey.Event<() => any, any>();
+        var event = new Event<() => any, any>();
         assert.equal(event.isEmpty, true, "There is no callbacks at the beginning");
         var func = () => {  };
         event.add(func);
@@ -12,7 +12,7 @@ module dxSurvey.Tests {
         assert.equal(event.isEmpty, true, "a callbacks is removed");
     });
     QUnit.test("Event no parameters", function (assert) {
-        var event = new dxSurvey.Event<() => any, any>();
+        var event = new Event<() => any, any>();
         var counter = 0;
         var func = () => { counter++; };
         event.add(func);
@@ -23,7 +23,7 @@ module dxSurvey.Tests {
         assert.equal(counter, 1, "function should not be called the second time");
     });
     QUnit.test("Event with parameters", function (assert) {
-        var event = new dxSurvey.Event<(s: number, params) => any, any>();
+        var event = new Event<(s: number, params) => any, any>();
         var counter = 0;
         event.add((s: number, params) => { counter += s; params.allow = true; });
         var options = { allow: false };

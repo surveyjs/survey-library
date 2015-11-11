@@ -6,11 +6,11 @@
 /// <reference path="../../src/question_checkbox.ts" />
 /// <reference path="../../src/question_matrix.ts" />
 /// <reference path="../../src/question_multipletext.ts" />
-module dxSurvey.koTests {
+module Survey.koTests {
     QUnit.module("koTests");
 
     QUnit.test("Survey.koCurrentPage", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Page 2"));
         survey.addPage(createPageWithQuestion("Page 3"));

@@ -2,7 +2,7 @@
 // <reference path="question_baseselect.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class QuestionCheckbox extends QuestionCheckboxBase {
         constructor(public name: string) {
             super(name);

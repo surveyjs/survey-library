@@ -1,6 +1,6 @@
 ﻿/// <reference path="question.ts" />
 /// <reference path="base.ts" />
-module dxSurvey {
+module Survey {
     export class QuestionFactory {
         public static Instance: QuestionFactory = new QuestionFactory();
         private creatorHash: HashTable<(name: string) => Question> = {};

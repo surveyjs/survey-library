@@ -6,11 +6,11 @@
 /// <reference path="../src/question_matrix.ts" />
 /// <reference path="../src/questionfactory.ts" />
 /// <reference path="../src/trigger.ts" />
-module dxSurvey.Tests {
-    QUnit.module("dxSurvey");
+module Survey.Tests {
+    QUnit.module("Survey");
 
     QUnit.test("set data property", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         assert.deepEqual(survey.data, {}, "there is no data");
         survey.data = { strVal: 'item1', intVal: 5 };
         assert.deepEqual(survey.data, { strVal: 'item1', intVal: 5 }, "set the object");
@@ -18,13 +18,13 @@ module dxSurvey.Tests {
         assert.deepEqual(survey.data, { }, "clear data");
     });
     QUnit.test("Add two pages", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         survey.addPage(new Page("Page 1"));
         survey.addPage(new Page("Page 2"));
         assert.equal(survey.PageCount, 2, "Two pages");
     });
     QUnit.test("Current Page", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         survey.addPage(createPageWithQuestion("Page 1"));
         assert.equal(survey.currentPage, survey.pages[0], "the first page is  current");
         survey.currentPage = null;
@@ -37,7 +37,7 @@ module dxSurvey.Tests {
         assert.equal(survey.currentPage, survey.pages[0], "the first page is current after removing the current one");
     });
     QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Second page"));
         survey.addPage(createPageWithQuestion("Third page"));
@@ -62,7 +62,7 @@ module dxSurvey.Tests {
         assert.equal(survey.isLastPage, false, "Current Page is  First");
     });
     QUnit.test("Next, Prev, Next", function (assert) {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Page 2"));
         survey.addPage(createPageWithQuestion("Page 3"));
@@ -75,15 +75,15 @@ module dxSurvey.Tests {
         assert.equal(survey.currentPage, survey.pages[1], "After second next the current page is  second");
     });
     QUnit.test("Question Creator", function (assert) {
-        var inst = dxSurvey.QuestionFactory.Instance;
-        inst.registerQuestion("question1", (name: string) => { return new dxSurvey.Question(name); });
-        inst.registerQuestion("question2", (name: string) => { return new dxSurvey.Question(name); });
+        var inst = QuestionFactory.Instance;
+        inst.registerQuestion("question1", (name: string) => { return new Question(name); });
+        inst.registerQuestion("question2", (name: string) => { return new Question(name); });
         assert.equal(inst.createQuestion("question1", "Q1").name, "Q1", "Create first type of question");
         assert.equal(inst.createQuestion("question2", "Q2").name, "Q2", "Create second type of question");
         assert.equal(inst.createQuestion("question3", "Q3"), null, "Create unexisting type of question");
     });
     QUnit.test("Add questions to page", function (assert) {
-        var page = new dxSurvey.Page("Page 1");
+        var page = new Page("Page 1");
         page.addNewQuestion("text", "Q1");
         page.addNewQuestion("checkbox", "Q2");
         assert.equal(page.questions.length, 2, "Two questions");
@@ -105,7 +105,7 @@ module dxSurvey.Tests {
     });
     QUnit.test("SurveyData interface implementation", function (assert) {
         var surveyData: ISurveyData;
-        surveyData = new dxSurvey.Survey();
+        surveyData = new Survey();
         assert.equal(surveyData.getValue("test1"), null, "No data");
         assert.equal(surveyData.getValue("test2"), null, "No data");
         surveyData.setValue("test1", 1);
@@ -114,8 +114,8 @@ module dxSurvey.Tests {
         assert.equal(surveyData.getValue("test2"), "1", "Has value '1'");
     });
     QUnit.test("Store question value in the survey", function (assert) {
-        var survey = new dxSurvey.Survey();
-        survey.addPage(new dxSurvey.Page("Page 1"));
+        var survey = new Survey();
+        survey.addPage(new Page("Page 1"));
         var question = survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getValue("question"), null, "No value");
         assert.equal(question.value, null, "No value");
@@ -129,8 +129,8 @@ module dxSurvey.Tests {
         assert.equal(question.value, "myNewtext", "set value from survey");
     });
     QUnit.test("Store comments in the survey", function (assert) {
-        var survey = new dxSurvey.Survey();
-        survey.addPage(new dxSurvey.Page("Page 1"));
+        var survey = new Survey();
+        survey.addPage(new Page("Page 1"));
         var question = survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getComment("question"), "", "Comment is empty");
         assert.equal(question.comment, "", "Comment is empty");
@@ -277,7 +277,7 @@ module dxSurvey.Tests {
         assert.equal(survey.pages[1].visible, true, "trigger should not be called");
     });
     function twoPageSimplestSurvey() {
-        var survey = new dxSurvey.Survey();
+        var survey = new Survey();
         var page = survey.addNewPage("Page 1");
         page.addNewQuestion("text", "question1");
         page.addNewQuestion("text", "question2");

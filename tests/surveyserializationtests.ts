@@ -7,19 +7,19 @@
 /// <reference path="../src/question_multipletext.ts" />
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/questionfactory.ts" />
-module dxSurvey.SerializationTests {
-    QUnit.module("dxSurveySerialization");
+module Survey.SerializationTests {
+    QUnit.module("SurveySerialization");
 
     QUnit.test("Serialize two pages", function (assert) {
         var survey = new Survey();
         survey.addNewPage("Page 1");
         survey.addNewPage("Page 2");
-        var jsObj = new dxSurvey.JsonObject().toJsonObject(survey);
+        var jsObj = new JsonObject().toJsonObject(survey);
         assert.equal(JSON.stringify(jsObj), "{\"pages\":[{\"name\":\"Page 1\"},{\"name\":\"Page 2\"}]}", "serialize two pages");
     });
     QUnit.test("Deserialize two pages", function (assert) {
         var survey = new Survey();
-        new dxSurvey.JsonObject().toObject({ "pages": [{ "name": "Page1" }, { "name": "Page2" }] }, survey);
+        new JsonObject().toObject({ "pages": [{ "name": "Page1" }, { "name": "Page2" }] }, survey);
         assert.equal(survey.pages.length, 2, "Two pages from json");
         assert.equal(survey.pages[0].name, "Page1", "property name is set");
         assert.equal(survey.pages[0].data, survey, "data interface is set");
@@ -35,14 +35,14 @@ module dxSurvey.SerializationTests {
         checkBoxQuestion.hasComment = true;
         page.addQuestion(textQuestion);
         page.addQuestion(checkBoxQuestion);
-        var jsObj = new dxSurvey.JsonObject().toJsonObject(page);
+        var jsObj = new JsonObject().toJsonObject(page);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"Page1\",\"questions\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"hasComment\":true,\"choices\":[\"red\",\"white\"]}]}", "serialize two questions");
     });
     QUnit.test("Deserialize two questions", function (assert) {
         var survey = new Survey();
         var page = new Page("Page1");
         survey.addPage(page);
-        new dxSurvey.JsonObject().toObject({
+        new JsonObject().toObject({
             "questions": [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
         }, page);
         var checkbox: any = page.questions[1];
@@ -59,7 +59,7 @@ module dxSurvey.SerializationTests {
     });
     QUnit.test("Full survey deserialize with one question", function (assert) {
         var survey = new Survey();
-        new dxSurvey.JsonObject().toObject(
+        new JsonObject().toObject(
             {pages: [{ "name" : "page1",
                 "questions": [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
             }]}, survey);
@@ -68,7 +68,7 @@ module dxSurvey.SerializationTests {
     });
     QUnit.test("Full survey deserialize with one question bypass pages object", function (assert) {
         var survey = new Survey();
-        new dxSurvey.JsonObject().toObject(
+        new JsonObject().toObject(
             {
                 questions: [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
             }, survey);
@@ -96,12 +96,12 @@ module dxSurvey.SerializationTests {
         var mtQuestion = new QuestionMultipleText("q1");
         mtQuestion.items.push(new MultipleTextItem("item1"));
         mtQuestion.items.push(new MultipleTextItem("item2", "text2"));
-        var jsObj = new dxSurvey.JsonObject().toJsonObject(mtQuestion);
+        var jsObj = new JsonObject().toJsonObject(mtQuestion);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });
     QUnit.test("Deserialize question with missing name", function (assert) {
         var survey = new Survey();
-        var jsonObj = new dxSurvey.JsonObject();
+        var jsonObj = new JsonObject();
         jsonObj.toObject(
             {
                 questions: [{ "type": "text", "isRequired": "true" }]

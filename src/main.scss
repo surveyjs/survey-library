@@ -1,21 +1,21 @@
-﻿.dxsv {
+﻿.sv_main {
     width: 100%;
 }
-.dxsv_q {
+.sv_q {
     width: 100%;
     clear:none;
 }
-.dxsv_nav {
+.sv_nav {
 }
-.dxsv_q_h {
+.sv_q_h {
     width: 100%;
 }
-.dxsv_q_erbox {
+.sv_q_erbox {
     border:solid;
     border-width: 1px;
     border-color:red;
 }
-.dxsv_q_matrix {
+.sv_q_matrix {
     width: 100%;
     max-width: 100%;
     th, td {
@@ -27,19 +27,19 @@
     }
 }
 //checkboxbase container
-.dxsv_qcbc0 { display: inline-block; vertical-align:top}
-.dxsv_qcbc1 { display: inline-block; vertical-align:top; width:100% }
-.dxsv_qcbc2 { display: inline-block; vertical-align:top; width:50% }
-.dxsv_qcbc3 { display: inline-block; vertical-align:top; width:33%; }
-.dxsv_qcbc4 { display: inline-block; vertical-align:top; width:25% }
+.sv_qcbc0 { display: inline-block; vertical-align:top}
+.sv_qcbc1 { display: inline-block; vertical-align:top; width:100% }
+.sv_qcbc2 { display: inline-block; vertical-align:top; width:50% }
+.sv_qcbc3 { display: inline-block; vertical-align:top; width:33%; }
+.sv_qcbc4 { display: inline-block; vertical-align:top; width:25% }
 
-.dxsv_q_checkbox {
+.sv_q_checkbox {
     padding: 10px;
 }
-.dxsv_q_radiogroup {
+.sv_q_radiogroup {
     padding: 10px;
 }
-.dxsv_q_rating {
+.sv_q_rating {
     width: 100%;
     max-width: 100%;
     th, td {

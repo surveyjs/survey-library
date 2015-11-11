@@ -1,5 +1,5 @@
 ﻿/// <reference path="base.ts" />
-module dxSurvey {
+module Survey {
 
     export class JsonObjectProperty {
         public className: string = null;

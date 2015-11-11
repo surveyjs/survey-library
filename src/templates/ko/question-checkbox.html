@@ -1,14 +1,14 @@
-﻿<script type="text/html" id="dxsurvey-question-checkbox">
+﻿<script type="text/html" id="survey-question-checkbox">
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
     <div data-bind="css: question.koClass">
-        <div class="dxsv_q_checkbox">
+        <div class="sv_q_checkbox">
             <label>
                 <input type="checkbox"
                        data-bind="value: item.value, checked: question.koValue" />
                 <span data-bind="text: item.text"></span>
             </label>
             <div data-bind="if:$index() == (question.visibleChoices.length-1), visible: question.hasOther">
-                <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
             </div>
         </div>
     </div>

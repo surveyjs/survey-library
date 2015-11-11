@@ -1,7 +1,7 @@
 ﻿// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     interface IMatrixData {
         onMatrixRowChanged(row: MatrixRow);
     }

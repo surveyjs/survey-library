@@ -1,5 +1,5 @@
 ﻿/// <reference path="base.ts" />
-module dxSurvey {
+module Survey {
     export class AnswerRequiredError extends SurveyError {
         constructor()  {
             super();

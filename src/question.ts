@@ -2,7 +2,7 @@
 /// <reference path="error.ts" />
 /// <reference path="validator.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class Question extends Base implements IQuestion, IValidatorOwner {
         protected data: ISurveyData;
         private titleValue: string = null;

@@ -1,6 +1,6 @@
 ﻿/// <reference path="../src/base.ts" />
 /// <reference path="../src/trigger.ts" />
-module dxSurvey.Tests {
+module Survey.Tests {
     QUnit.module("Triggers");
 
     class TriggerTester extends Trigger {

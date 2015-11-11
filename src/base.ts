@@ -1,4 +1,4 @@
-﻿module dxSurvey {
+﻿module Survey {
     export interface HashTable<T> {
         [key: string]: T;
     }

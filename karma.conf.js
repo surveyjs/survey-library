@@ -15,10 +15,10 @@ module.exports = function (config) {
           "wwwroot/js/qunit.css",
           "wwwroot/js/knockout.js",
 
-          "wwwroot/js/dx.survey.js",
+          "wwwroot/js/survey.js",
 
-          "wwwroot/tests/dx.survey.tests.js",
-          "wwwroot/tests/dx.survey.tests_ko.js"
+          "wwwroot/tests/survey.tests.js",
+          "wwwroot/tests/survey.tests_ko.js"
     ],
 
         // list of files to exclude
@@ -28,7 +28,7 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'wwwroot/js/dx.survey.js': ['coverage']
+            'wwwroot/js/survey.js': ['coverage']
         },
 
         // test results reporter to use

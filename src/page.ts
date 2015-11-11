@@ -1,7 +1,7 @@
 ﻿/// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class Page extends Base {
         questions: Array<Question> = new Array<Question>();
         public data: ISurveyData = null;

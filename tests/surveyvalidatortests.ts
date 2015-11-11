@@ -1,6 +1,6 @@
 ﻿/// <reference path="../src/base.ts" />
 /// <reference path="../src/validator.ts" />
-module dxSurvey.Tests {
+module Survey.Tests {
     QUnit.module("Validators");
 
     QUnit.test("Numeric validator", function (assert) {

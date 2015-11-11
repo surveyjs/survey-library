@@ -1,6 +1,6 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="jsonobject.ts" />
-module dxSurvey {
+module Survey {
     export class Trigger extends Base {
         static operatorsValue: HashTable<Function> = null;
         static get operators() {

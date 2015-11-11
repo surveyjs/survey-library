@@ -1,5 +1,5 @@
-﻿<script type="text/html" id="dxsurvey-question-rating">
-    <table class="dxsv_q_rating">
+﻿<script type="text/html" id="survey-question-rating">
+    <table class="sv_q_rating">
         <thead>
             <tr>
                 <th></th>
@@ -22,6 +22,6 @@
         </tbody>
     </table>
     <div data-bind="visible: question.hasOther">
-        <div data-bind="template: { name: 'dxsurvey-comment', data: {'question': question } }"></div>
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question } }"></div>
     </div>
 </script>

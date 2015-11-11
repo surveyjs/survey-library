@@ -9,15 +9,15 @@ mainmenukey: examples
     </div>		
     <div class="content">
         <h1>{{ page.title }}</h1>	
-        <div id="dxsurvey"></div>
-        <div id="dxsurvey_oncomplete" style="visibility:hidden">
+        <div id="survey"></div>
+        <div id="survey_oncomplete" style="visibility:hidden">
             Thank you! You have completed the survey!
-            <div id="dxsurvey_result"></div>
+            <div id="survey_result"></div>
             <input type="button" onclick="
-                document.getElementById('dxsurvey_oncomplete').style.visibility = 'hidden'; 
+                document.getElementById('survey_oncomplete').style.visibility = 'hidden'; 
                 survey.data = null;
                 survey.currentPage = survey.visiblePages[0];
-                survey.render('dxsurvey');" 
+                survey.render('survey');" 
                 value="Re-run survey"></input>
         </div>
         {{ content }}   		    		    	
@@ -26,14 +26,14 @@ mainmenukey: examples
 <script>
 if(typeof survey !== 'undefined') {
     survey.onComplete.add(function (s) { 
-        document.getElementById('dxsurvey').innerHTML = ""; 
+        document.getElementById('survey').innerHTML = ""; 
         var result = "\nThe results are:\n" + JSON.stringify(survey.data);
         if (survey.hasComments) {
             result += "\nComments are:\n" + JSON.stringify(survey.comments);
         }
-        document.getElementById('dxsurvey_result').innerHTML = result; 
-        document.getElementById('dxsurvey_oncomplete').style.visibility = 'visible';
+        document.getElementById('survey_result').innerHTML = result; 
+        document.getElementById('survey_oncomplete').style.visibility = 'visible';
     });
-    survey.render("dxsurvey");
+    survey.render("survey");
 }
 </script>

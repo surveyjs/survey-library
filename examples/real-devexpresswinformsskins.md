@@ -3,7 +3,7 @@ layout: example
 title: DevExpress WinForms Look & Feel Technology
 ---
 {% capture survey_setup %}
-        var survey = new dxSurvey.Survey(
+        var survey = new Survey.Survey(
             {
                 triggers: [{ type: "visible", name: "skinNumber", value: "many", questions: ["skinShips", "skinValue", "skinSelected", "skinFavorite", "userImportance"] },
                         { type: "visible", name: "skinShips", value: "all", questions: ["skinValue"] },

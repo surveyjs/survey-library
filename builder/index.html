@@ -61,11 +61,11 @@ function surveyRun() {
     window.onerror = oldOnError;
     
     if(jsonObj) {
-        var survey = new dxSurvey.Survey(jsonObj);
-        if(survey.jsonErrors) {
+        var srv = new Survey.Survey(jsonObj);
+        if(srv.jsonErrors) {
             var errorText = "";
-            for(var i = 0; i < survey.jsonErrors.length; i ++) {
-                var error = survey.jsonErrors[i];
+            for(var i = 0; i < srv.jsonErrors.length; i ++) {
+                var error = srv.jsonErrors[i];
                 if(i > 0) errorText += "</p>";
                 errorText += error.message;
                 if(error.description) {
@@ -74,11 +74,11 @@ function surveyRun() {
             }
             document.getElementById('jsonerror').innerHTML = errorText;
         }
-        survey.render("surveyContainer");
-        survey.onComplete.add(function (s) { 
-            var result = "\nThe results are:\n" + JSON.stringify(survey.data);
-            if (survey.hasComments) {
-                result += "\nComments are:\n" + JSON.stringify(survey.comments);
+        srv.render("surveyContainer");
+        srv.onComplete.add(function (s) { 
+            var result = "\nThe results are:\n" + JSON.stringify(srv.data);
+            if (srv.hasComments) {
+                result += "\nComments are:\n" + JSON.stringify(srv.comments);
             }
             document.getElementById('surveyContainer').innerHTML = result; 
         });

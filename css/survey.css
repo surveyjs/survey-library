@@ -1,64 +1,64 @@
-.dxsv {
+.sv_main {
   width: 100%; }
 
-.dxsv_q {
+.sv_q {
   width: 100%;
   clear: none; }
 
-.dxsv_q_h {
+.sv_q_h {
   width: 100%; }
 
-.dxsv_q_erbox {
+.sv_q_erbox {
   border: solid;
   border-width: 1px;
   border-color: red; }
 
-.dxsv_q_matrix {
+.sv_q_matrix {
   width: 100%;
   max-width: 100%; }
-  .dxsv_q_matrix th, .dxsv_q_matrix td {
+  .sv_q_matrix th, .sv_q_matrix td {
     text-align: center;
     vertical-align: central; }
-  .dxsv_q_matrix td:first-child {
+  .sv_q_matrix td:first-child {
     text-align: left; }
 
-.dxsv_qcbc0 {
+.sv_qcbc0 {
   display: inline-block;
   vertical-align: top; }
 
-.dxsv_qcbc1 {
+.sv_qcbc1 {
   display: inline-block;
   vertical-align: top;
   width: 100%; }
 
-.dxsv_qcbc2 {
+.sv_qcbc2 {
   display: inline-block;
   vertical-align: top;
   width: 50%; }
 
-.dxsv_qcbc3 {
+.sv_qcbc3 {
   display: inline-block;
   vertical-align: top;
   width: 33%; }
 
-.dxsv_qcbc4 {
+.sv_qcbc4 {
   display: inline-block;
   vertical-align: top;
   width: 25%; }
 
-.dxsv_q_checkbox {
+.sv_q_checkbox {
   padding: 10px; }
 
-.dxsv_q_radiogroup {
+.sv_q_radiogroup {
   padding: 10px; }
 
-.dxsv_q_rating {
+.sv_q_rating {
   width: 100%;
   max-width: 100%; }
-  .dxsv_q_rating th, .dxsv_q_rating td {
+  .sv_q_rating th, .sv_q_rating td {
     text-align: center;
     vertical-align: central; }
-  .dxsv_q_rating td:first-child {
+  .sv_q_rating td:first-child {
     text-align: right; }
-  .dxsv_q_rating td:last-child {
+  .sv_q_rating td:last-child {
     text-align: left; }

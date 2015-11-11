@@ -6,7 +6,7 @@ usedxchart: true
 canonicalUrl: /
 ---
 {% capture survey_setup %}
-var survey = new dxSurvey.Survey({title: "Simple survey example",
+var survey = new Survey.Survey({title: "Simple survey example",
                 questions: [
                     { type: "radiogroup", name: "used", title: "Have you been running a survey on your site(s)?", isRequired: true,
                     choices: ["Yes", "No"]},
@@ -44,7 +44,7 @@ survey.onGetResult.add(function(s, options) {
 {% endcapture %}
 
 <h1>
-    dxSurvey: the JavaScript Survey Library.
+    survey.js - the JavaScript Survey Library.
 </h1>
 Insert survey into your web site/page.
 <ul>
@@ -57,12 +57,12 @@ Insert survey into your web site/page.
 
 You will need several simple steps to introduce a survey into your web site.
 <ul>
-    <li>Download the <a href="http://github.com/andrewtelnov/dxsurvey">dxSurvey</a> library 
+    <li>Download the <a href="http://github.com/andrewtelnov/surveyjs">survey.js</a> library 
     </li>
     <li>Insert links on js and css files
         <pre class="brush:js">
-            <link href="{{ page.pathprefix }}css/dx.survey.css" type="text/css" rel="stylesheet" />
-            <script src="{{ page.pathprefix }}js/dx.survey.js"></script>
+            <link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" />
+            <script src="{{ page.pathprefix }}js/survey.js"></script>
         </pre>
     </li>
     <li>Add a link to a MVVM library. We currently use: <a href="http://knockoutjs.com">KnockoutJS</a>

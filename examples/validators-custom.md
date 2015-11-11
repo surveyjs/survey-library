@@ -10,7 +10,7 @@ var MyTextValidator = (function (_super) {
     }
     MyTextValidator.prototype.getType = function () { return "mytextvalidator"; };
     MyTextValidator.prototype.validate = function (value, name) {
-        if(value.indexOf("survey") <= 0) {
+        if(value.indexOf("survey") < 0) {
             //report an error
             return new Survey.ValidatorResult(null, new Survey.CustomError(this.getErrorText(name)));
         }

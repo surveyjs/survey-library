@@ -7,6 +7,7 @@ canonicalUrl: /
 ---
 {% capture survey_setup %}
 var survey = new Survey.Survey({title: "Simple survey example",
+                triggers: [{ type: "visible", name: "used", operator: "eq", value: "Yes", questions: ["solution"] }],
                 questions: [
                     { type: "radiogroup", name: "used", title: "Have you been running a survey on your site(s)?", isRequired: true,
                     choices: ["Yes", "No"]},
@@ -15,14 +16,6 @@ var survey = new Survey.Survey({title: "Simple survey example",
                         choices: ["custom|Custom solution", "Survey Monkey", "Survey Gizmo"]},
                     { type: "comment", name: "description", title: "Please tell us, what do you need from a Survey Library?" }]
 }, "surveyContainer");
-{% endcapture %}
-{% capture survey_event %}
-survey.onValueChanged.add(
-    function (s, options) { 
-        if (options.name == "used") {
-            s.getQuestionByName("solution").visible = options.value == "Yes"; 
-        }
-    });
 {% endcapture %}
 
 {% capture survey_oncomplete %}
@@ -77,11 +70,8 @@ You will need several simple steps to introduce a survey into your web site.
          You have to pass to the constructor or render function, a JSON object and html element (or it's id). JSON object should contains the full information to allow create a Survey on the client. You may use the <a href="{{ page.pathprefix }}builder/">Survey JSON Builder</a> to create a JSON for your Survey.
         </div>
     </li>
-    <li>Use onComplete event to get the result of a Survey and send it to a server. In this example, the <a href="www.dxsurvey.com">dxSurvey.com</a> service is used.
+    <li>Use onComplete event to get the result of a Survey and send it to a server. In this example, the <a href="http://dxsurvey.com">dxSurvey.com</a> service is used.
         <pre class="brush:js">{{ survey_oncomplete | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
-    </li>
-    <li>Handle Survey event(s) if needed
-        <pre class="brush:js">{{ survey_event | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
     </li>
 </ul>
 <div class="surveycontent">

@@ -52,7 +52,7 @@ Insert survey into your web site/page.
     <li>Set the ininitial data or change them on the fly</li>
     <li>Create the content of your survey using JSON or pure JavaScript</li>
     <li>The full set of JS events will help you fully control the proccess, for example change the question visibility on changing a data</li>
-    <li>Create your own question type in several lines of code</li>
+    <li>Extend the library by adding new questions, validators and so on.</li>
 </ul>
 
 You will need several simple steps to introduce a survey into your web site.
@@ -62,14 +62,14 @@ You will need several simple steps to introduce a survey into your web site.
     <li>Insert links on js and css files
         <pre class="brush:js">
             <link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" />
-            <script src="{{ page.pathprefix }}js/survey.js"></script>
+            <script src="{{ page.pathprefix }}js/survey.min.js"></script>
         </pre>
     </li>
     <li>Add a link to a MVVM library. We currently use: <a href="http://knockoutjs.com">KnockoutJS</a>
         <pre class="brush:js">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         </pre>
-        <div>We choose it against AngularJS and others, because it is powerfull, it does everything we need, and lightweight.</div>
+        <div>We  choosed it against AngularJS and others, because it does everything we need and it is lightweight.</div>
     </li>
     <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        
@@ -77,7 +77,7 @@ You will need several simple steps to introduce a survey into your web site.
          You have to pass to the constructor or render function, a JSON object and html element (or it's id). JSON object should contains the full information to allow create a Survey on the client. You may use the <a href="{{ page.pathprefix }}builder/">Survey JSON Builder</a> to create a JSON for your Survey.
         </div>
     </li>
-    <li>Use onComplete event to get the result of a Survey
+    <li>Use onComplete event to get the result of a Survey and send it to a server. In this example, the <a href="www.dxsurvey.com">dxSurvey.com</a> service is used.
         <pre class="brush:js">{{ survey_oncomplete | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
     </li>
     <li>Handle Survey event(s) if needed

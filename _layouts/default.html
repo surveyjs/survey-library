@@ -2,11 +2,11 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>dxSurvey : {{ page.title }}</title>
+        <title>survey.js : {{ page.title }}</title>
         <link href="{{ page.pathprefix }}css/main.css" type="text/css" rel="stylesheet" />
         <link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
-        <script src="{{ page.pathprefix }}js/survey.js"></script>
+        <script src="{{ page.pathprefix }}js/survey.min.js"></script>
         {% if page.usedxchart%}
         <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
         <script src="http://cdn3.devexpress.com/jslib/13.1.5/js/dx.chartjs.js"></script>
@@ -23,7 +23,6 @@
             </div>
         <div class="footer">
             <div class="navbottom">{% include menu-top.html %}</div>
-            <div>(c) dxsurvey.com</div> 
         </div>
     </body>
 <script type="text/javascript">

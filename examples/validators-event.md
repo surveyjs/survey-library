@@ -3,7 +3,7 @@ layout: example
 title: Example of using onValidateQuestion event
 ---
 {% capture survey_setup %}
-var survey = new survey.Survey({
+var survey = new Survey.Survey({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",

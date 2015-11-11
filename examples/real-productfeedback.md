@@ -3,7 +3,7 @@ layout: example
 title: Product Feedback survey
 ---
 {% capture survey_setup %}
-var survey = new survey.Survey({% include surveys/real-productfeedback.json %});
+var survey = new Survey.Survey({% include surveys/real-productfeedback.json %});
 
 {% endcapture %}
 

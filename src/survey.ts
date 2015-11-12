@@ -5,7 +5,7 @@
 
 module Survey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
-        public serviceUrl: string = "http://dxsurvey.azurewebsites.net/api/Survey";
+        public serviceUrl: string = "https://dxsurvey.azurewebsites.net/api/Survey";
         //public serviceUrl: string = "http://localhost:49891/api/Survey";
         public surveyId: string = null;
         public surveyPostId: string = null;

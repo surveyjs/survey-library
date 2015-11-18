@@ -1,0 +1,4 @@
+{questions:[    
+    { type: "rating", name: "satisfaction", title: "How satisfied are you with the Product?", 
+        mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" }]
+}

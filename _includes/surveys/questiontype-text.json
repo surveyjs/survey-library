@@ -1,0 +1,4 @@
+ { questions: [
+     { type: "text", name: "email", 
+     title: "Thank you for taking our survey. Your survey is almost complete, please enter your email address in the box below if you wish to participate in our drawing, then press the 'Submit' button."}
+]}

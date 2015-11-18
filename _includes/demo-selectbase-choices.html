@@ -1,0 +1,11 @@
+<H3>There are several ways to set the 'choices' property.</H3>
+<pre class="brush:js">
+// The classic way to set the property. The result values are numbers: 1 and 2
+choices: [{ value: 1, text: "Value 1" }, { value: 2, text: "Value 2" }]
+// The values are: 1 and 'Value 2' and texts are '1' and 'Value 2'
+choices: [{ value: 1 }, { value: "Value 2" }]
+// The values and texts are same
+choices: ["Value 1", "Value 2"]
+// The values are '1' and '2' and texts are 'Value 1' and 'Value 2'
+choices: ["1|Value 1", "2|Value 2"]
+</pre>

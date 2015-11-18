@@ -4,4 +4,4 @@ title: Live examples
 canonicalUrl: /examples/
 ---
 
-Put here some text!
+To see how survey.js works, select examples from the menu on the left.

@@ -32,7 +32,9 @@ module Survey {
         get visibleChoices(): Array<ItemValue> {
             if (!this.hasOther && this.choicesOrder == "none") return this.choices;
             var result = this.sortVisibleChoices(this.choices.slice());
-            result.push(this.otherItem);
+            if (this.hasOther) {
+                result.push(this.otherItem);
+            }
             return result;
         }
         public supportComment(): boolean { return true; }

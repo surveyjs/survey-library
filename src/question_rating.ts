@@ -15,6 +15,7 @@ module Survey {
             if (this.isKO) {
                 var self = this;
                 this.koVisibleRateValues = ko.computed(function () {
+                    self.dummyObservable();
                     return self.visibleRateValues;
                 });
             }
@@ -22,6 +23,9 @@ module Survey {
         get rateValues(): Array<any> { return this.rates; }
         set rateValues(newValue: Array<any>) {
             ItemValue.setData(this.rates, newValue);
+            if (this.isKO) {
+                this.dummyObservable(this.dummyObservable() + 1);
+            }
         }
         get visibleRateValues(): ItemValue[] {
             if (this.rateValues.length > 0) return this.rateValues;

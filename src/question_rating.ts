@@ -34,7 +34,7 @@ module Survey {
         public getType(): string {
             return "rating";
         }
-        public supportComment(): boolean { return true; }
+        public supportComment(): boolean { return true; } 
         public supportOther(): boolean { return true; }
     }
     ItemValue.setData(QuestionRating.defaultRateValues, [1, 2, 3, 4, 5]);

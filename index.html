@@ -51,7 +51,7 @@ Insert survey into your web site/page.
 
 You will need several simple steps to introduce a survey into your web site.
 <ul>
-    <li>Download the <a href="http://github.com/andrewtelnov/surveyjs">survey.js</a> library 
+    <li><a href="{{ page.pathprefix }}downloads/surveyjs.zip">Download</a> survey.js library 
     </li>
     <li>Insert links on js and css files
         <pre class="brush:js">
@@ -63,7 +63,6 @@ You will need several simple steps to introduce a survey into your web site.
         <pre class="brush:js">
             <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         </pre>
-        <div>We  choosed it against AngularJS and others, because it does everything we need and it is lightweight.</div>
     </li>
     <li> Create a survey object.
         <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>        

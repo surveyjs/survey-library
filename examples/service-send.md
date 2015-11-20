@@ -5,8 +5,8 @@ title: Save survey result into the dxSurvey Service
 {% capture survey_setup %}
 var survey = new Survey.Survey(
     { 
-        surveyId: 'b2b56b2c-ad9e-4951-8f0e-c246d6b6a52a',
-        surveyPostId: 'c731a4dc-292e-4cf1-9645-7467bbd9fd6b'
+        surveyId: '5af48e08-a0a5-44a5-83f4-1c90e8e98de1',
+        surveyPostId: '3ce10f8b-2d8a-4ca2-a110-2994b9e697a1'
     });
 {% endcapture %}
 {% include live-example-code.html %}

@@ -1,6 +1,6 @@
 ---
 layout: example
-title: Presentation Demo
+title: Get Survey Result after sending results
 usedxchart: true
 ---
 

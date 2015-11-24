@@ -1,5 +1,5 @@
 ﻿<div class="sv_main">
-    <h3 data-bind="visible: title.length > 0, text: title"></h3>
+    <h2 data-bind="visible: (title.length > 0) && showTitle, text: title"></h2>
     <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
     <p />
     <div class="sv_nav">

@@ -11,6 +11,12 @@ module Survey {
         public surveyPostId: string = null;
         public commentPrefix: string = "-Comment";
         public title: string = "";
+        public showTitle: boolean = true;
+        public showPageTitles: boolean = true;
+        public showPageNumbers: boolean = false;
+        public showQuestionNumbers: string = "on";
+        public requiredText: string = "* ";
+        //public showProgressBar: boolean = false; TODO
         public pages: Array<Page> = new Array<Page>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: Page = null;
@@ -308,11 +314,27 @@ module Survey {
             ko.applyBindings(this, this.renderedElement);
         }
         private updateVisibleIndexes() {
+            this.updatePageVisibleIndexes(this.showPageNumbers);
+            if (this.showQuestionNumbers == "onPage") {
+                var visPages = this.visiblePages;
+                for (var i = 0; i < visPages.length; i++) {
+                    this.updateQuestionVisibleIndexes(visPages[i].questions, true);
+                }
+            } else {
+                this.updateQuestionVisibleIndexes(this.getAllQuestions(false), this.showQuestionNumbers == "on");
+            }
+        }
+        private updatePageVisibleIndexes(showIndex: boolean) {
             var index = 0;
-            var questions = this.getAllQuestions(true);
+            for (var i = 0; i < this.pages.length; i++) {
+                this.pages[i].visibleIndex = showIndex && this.pages[i].visible ? (index++) : -1;
+            }
+        }
+        private updateQuestionVisibleIndexes(questions: IQuestion[], showIndex: boolean) {
+            var index = 0;
             for (var i = 0; i < questions.length; i++) {
-                questions[i].setVisibleIndex(index++);
-            } 
+                questions[i].setVisibleIndex(showIndex && questions[i].visible ? (index++) : -1);
+            }
         }
         private setJsonObject(jsonObj: any) {
             if (!jsonObj) return;
@@ -369,14 +391,19 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId"]);
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId",
+            "showTitle", "showPageTitles", "showPageNumbers", "showQuestionNumbers", "requiredText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
-    JsonObject.metaData.setPropertyValues("survey", "questions", "", null,
+    JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
         function (obj) { return null; },
         function (obj, value, jsonConverter) {
             var page = obj.addNewPage("");
             jsonConverter.toObject({ questions: value }, page);
         });
+    JsonObject.metaData.setPropertyValues("survey", "showTitle", null, true);
+    JsonObject.metaData.setPropertyValues("survey", "showPageTitles", null, true);
+    JsonObject.metaData.setPropertyValues("survey", "showQuestionNumbers", null, "on");
+    JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "* ");
     JsonObject.metaData.setPropertyClassInfo("survey", "triggers", "surveytrigger", "trigger");
     JsonObject.metaData.setPropertyClassInfo("survey", "questions", "question");
 }

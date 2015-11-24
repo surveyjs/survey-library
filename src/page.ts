@@ -7,6 +7,8 @@ module Survey {
         public data: ISurveyData = null;
         public visible: boolean = true;
         public title: string = "";
+        private visibleIndexValue: number = -1;
+        koNo: any;
         
         constructor(public name: string = "") {
             super();
@@ -17,7 +19,18 @@ module Survey {
                 }
                 return Array.prototype.push.call(this, value);
             };
+            if (this.isKO) {
+                this.koNo = ko.observable("");
+            }
         }
+        public get visibleIndex() { return this.visibleIndexValue; }
+        public set visibleIndex(value: number) {
+            if (this.visibleIndex == value) return;
+            this.visibleIndexValue = value;
+            if (this.isKO) {
+                this.koNo(this.visibleIndex > -1 ? this.visibleIndex + 1 + ". " : "");
+            }
+        } 
         public getType(): string { return "page"; }
         public get isVisible(): boolean {
             if (!this.visible) return false;

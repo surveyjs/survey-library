@@ -26,7 +26,7 @@ module Survey {
                 this.dummyObservable = ko.observable(0);
                 var self = this;
                 this.koVisible = ko.computed(function () { self.dummyObservable(); return self.visibleValue; });
-                this.koNo = ko.computed(function () { self.dummyObservable(); return self.visibleIndexValue + 1; });
+                this.koNo = ko.computed(function () { self.dummyObservable(); return self.visibleIndexValue > -1 ? self.visibleIndexValue + 1 + ". " : ""; });
                 this.koValue.subscribe(function (newValue) {
                     self.setNewValue(newValue);
                 });

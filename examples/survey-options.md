@@ -2,6 +2,7 @@
 layout: example
 title: Use properties to set up your survey
 ---
+
 Question Required Text: <input type="text" value="* " onChange="survey.requiredText = this.value; survey.render();"/> default is "* ".
 <pre class="brush:js">survey.requiredText = yourValue; survey.render();</pre>
 Show Question Numbers: <select onChange="survey.showQuestionNumbers = this.value; survey.render();">

@@ -8,7 +8,7 @@ Name: <input type="text" id="name" onChange="survey.setValue('name', this.value)
 <p/>
 Email: <input type="email" id="email" size="30" onChange="survey.setValue('email', this.value)" value="johndoe@nobody.com"/>
 <p/>
-Cars (use comma to separate cars, do not type spaces): <input type="text" id="car" size="50" onChange="survey.setValue('car', this.value.split(','))" value="Ford" />
+Cars (use comma to separate values, do not type spaces): <input type="text" id="car" size="50" onChange="survey.setValue('car', this.value.split(','))" value="Ford" />
 
 <pre class="brush:js">
 //Use getValue to get the value of the question

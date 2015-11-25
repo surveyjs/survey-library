@@ -36,6 +36,7 @@ survey.onPageChanged.add(function (sender, options) {
 </p>
 {% capture survey_setup %}
 var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
+survey.showTitle = false;
 survey.onRendered.add(function (sender) {
     setNavigationVisibility(sender);
 });

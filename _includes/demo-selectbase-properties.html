@@ -20,10 +20,10 @@
     <pre class="brush:js">survey.getQuestionByName('car').choicesOrder = yourvalue; survey.render();</pre>
 </p>
 <p>
-    Show others: <input type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();"></> default is false.
+    Show others: <input type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" /> default is false.
     <pre class="brush:js">survey.getQuestionByName('car').hasOther = yourvalue; survey.render();"</pre>
 </p>
 <p>    
-    Others text: <input type="text" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"></>
+    Others text: <input type="text" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
     <pre class="brush:js">survey.getQuestionByName('car').otherText = yourvalue; survey.render();"</pre>
 </p>

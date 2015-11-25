@@ -220,15 +220,41 @@ module Survey.Tests {
         assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, 0, "onPage:the second question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 0, "onPage:the third question");
     });
-    QUnit.test("Question visibleIndex", function (assert) {
+    QUnit.test("Pages visibleIndex and num", function (assert) {
         var survey = twoPageSimplestSurvey();
+        survey.addNewPage("page 3").addNewQuestion("text", "q4");
         survey.onBeforeRender();
-        assert.equal(survey.pages[0].visibleIndex, -1, "false:the first page");
-        assert.equal(survey.pages[1].visibleIndex, -1, "false:the second page");
+        assert.equal(survey.pages[0].visibleIndex, 0, "start:page 1");
+        assert.equal(survey.pages[1].visibleIndex, 1, "start:page 2");
+        assert.equal(survey.pages[2].visibleIndex, 2, "start:page 3");
+        assert.equal(survey.pages[0].num, -1, "start:page 1, num");
+        assert.equal(survey.pages[1].num, -1, "start:page 2, num");
+        assert.equal(survey.pages[2].num, -1, "start:page 3, num");
+
         survey.showPageNumbers = true;
         survey.onBeforeRender();
-        assert.equal(survey.pages[0].visibleIndex, 0, "true:the first page");
-        assert.equal(survey.pages[1].visibleIndex, 1, "true:the second page");
+        assert.equal(survey.pages[0].num, 1, "showPageNumbers:page 1, num");
+        assert.equal(survey.pages[1].num, 2, "showPageNumbers:page 2, num");
+        assert.equal(survey.pages[2].num, 3, "showPageNumbers:page 3, num");
+
+        survey.pages[0].visible = false;
+        survey.onBeforeRender();
+        assert.equal(survey.pages[0].visibleIndex, -1, "page[0].visible=false:page 1");
+        assert.equal(survey.pages[1].visibleIndex, 0, "page[0].visible=false:page 2");
+        assert.equal(survey.pages[2].visibleIndex, 1, "page[0].visible=false:page 3");
+        assert.equal(survey.pages[0].num, -1, "page[0].visible=false:page 1, num");
+        assert.equal(survey.pages[1].num, 1, "page[0].visible=false:page 2, num");
+        assert.equal(survey.pages[2].num, 2, "page[0].visible=false:page 3, num");
+    });
+    QUnit.test("Pages num", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        survey.onBeforeRender();
+        assert.equal(survey.pages[0].num, -1, "false:the first page");
+        assert.equal(survey.pages[1].num, -1, "false:the second page");
+        survey.showPageNumbers = true;
+        survey.onBeforeRender();
+        assert.equal(survey.pages[0].num, 1, "true:the first page");
+        assert.equal(survey.pages[1].num, 2, "true:the second page");
     });
     QUnit.test("onVisibleChanged event", function (assert) {
         var survey = twoPageSimplestSurvey();

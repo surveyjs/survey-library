@@ -7,7 +7,8 @@ module Survey {
         public data: ISurveyData = null;
         public visible: boolean = true;
         public title: string = "";
-        private visibleIndexValue: number = -1;
+        public visibleIndex: number = -1;
+        private numValue: number = -1;
         koNo: any;
         
         constructor(public name: string = "") {
@@ -23,12 +24,12 @@ module Survey {
                 this.koNo = ko.observable("");
             }
         }
-        public get visibleIndex() { return this.visibleIndexValue; }
-        public set visibleIndex(value: number) {
-            if (this.visibleIndex == value) return;
-            this.visibleIndexValue = value;
+        public get num() { return this.numValue; }
+        public set num(value: number) {
+            if (this.numValue == value) return;
+            this.numValue = value;
             if (this.isKO) {
-                this.koNo(this.visibleIndex > -1 ? this.visibleIndex + 1 + ". " : "");
+                this.koNo(this.numValue > 0 ? this.numValue + ". " : "");
             }
         } 
         public getType(): string { return "page"; }

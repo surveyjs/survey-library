@@ -2,7 +2,7 @@
     <h2 data-bind="visible: (title.length > 0) && showTitle, text: title"></h2>
     <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
     <p />
-    <div class="sv_nav">
-        <input type="button" value="Previous" data-bind="click: prevPage, visible: !koIsFirstPage()" />  <input type="button" value="Next" data-bind="click: nextPage, visible: !koIsLastPage()" />  <input type="button" value="Submit" data-bind="click: completeLastPage, visible: koIsLastPage()" />
+    <div class="sv_nav" data-bind="visible: showNavigationButtons">
+        <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage()" />  <input type="button" value="Next" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage()" />  <input type="button" value="Submit" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage()" />
     </div>
 </div>

@@ -25,31 +25,7 @@ Show Page Numbers: <input type="checkbox" onChange="survey.showPageNumbers = thi
 <pre class="brush:js">survey.showPageNumbers = yourValue; survey.render();</pre>
 </p>
 {% capture survey_setup %}
-var survey = new Survey.Survey({ 
-    title: "Software developer survey.",
-    pages: [
-        { title: "What operating system do you use?",
-            questions: [
-                {type:"checkbox", name:"opSystem", title: "OS", hasOther: true, isRequired: true, 
-                    choices:["Windows", "Linux", "Macintosh OSX"]}
-            ]  
-        },
-        {   title: "What language(s) are you currently using?",
-            questions: [
-            {type:"checkbox", name:"langs",title:"Plese select from the list",
-                 colCount: 4, isRequired: true,
-                choices:["Javascript", "Java", "Python", "CSS", "PHP", "Ruby", "C++", "C", 
-                    "Shell", "C#", "Objective-C", "R", "VimL", "Go", "Perl", "CoffeeScript", 
-                    "TeX", "Swift", "Scala", "Emacs List", "Haskell", "Lua", "Clojure", 
-                    "Matlab", "Arduino", "Makefile", "Groovy", "Puppet", "Rust", "PowerShell"]
-            }
-        ]},        
-        { title: "Please enter your name and e-mail",
-            questions: [ 
-            {type: "text", name: "name", title: "Name:"}, 
-            {type: "text", name: "email", title: "Your e-mail"}]
-        }]
-});
+var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
 {% endcapture %}
 
 {% include live-example-code.html %}

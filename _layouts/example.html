@@ -9,6 +9,9 @@ mainmenukey: examples
     </div>		
     <div class="content">
         <h1>{{ page.title }}</h1>	
+        {% if page.preSurvey %}
+            {% include {{page.preSurvey}} %}
+        {% endif %}
         <div id="survey"></div>
         <div id="survey_oncomplete" style="visibility:hidden">
             Thank you! You have completed the survey!

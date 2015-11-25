@@ -16,7 +16,11 @@ Complete Text: <input type="text" value="Complete" onChange="survey.completeText
 <pre class="brush:js">survey.completeText = yourValue; survey.render();</pre>
 </p>
 <p>
-Use onRedered event to initialized your custom navigation and onPageChanged event to update it on page changed.
+Show Navigation Buttons: <input type="checkbox" checked="true" onChange="survey.showNavigationButtons = this.checked; survey.render();"/> default is true.
+<pre class="brush:js">survey.showNavigationButtons = yourValue; survey.render();</pre>
+</p>
+<p>
+Use onRedered event to initialized your custom navigation and onPageChanged event to update it after the current page is changed.
 <pre class="brush:js">
 survey.onRendered.add(function (sender) {
     var survey = sender;
@@ -29,10 +33,6 @@ survey.onPageChanged.add(function (sender, options) {
     //Your code
 });
 </pre>
-</p>
-<p>
-Show Navigation Buttons: <input type="checkbox" checked="true" onChange="survey.showNavigationButtons = this.checked; survey.render();"/> default is true.
-<pre class="brush:js">survey.showNavigationButtons = yourValue; survey.render();</pre>
 </p>
 {% capture survey_setup %}
 var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});

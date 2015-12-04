@@ -2,13 +2,15 @@
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
 /// <reference path="template.ko.html.ts" />
+/// <reference path="dxSurveyService.ts" />
 
 module Survey {
     export class Survey extends Base implements ISurveyData, ISurveyTriggerOwner {
-        public serviceUrl: string = "https://dxsurvey.azurewebsites.net/api/Survey";
-        //public serviceUrl: string = "http://localhost:49891/api/Survey";
         public surveyId: string = null;
         public surveyPostId: string = null;
+        public clientId: string = null;
+        public sendResultOnPageNext: boolean = false;
+
         public commentPrefix: string = "-Comment";
         public title: string = "";
         public showNavigationButtons: boolean = true;
@@ -136,6 +138,9 @@ module Survey {
         nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors) return false;
+            if (this.sendResultOnPageNext && this.clientId) {
+                this.sendResult(this.surveyPostId, this.clientId, true);
+            }
             var vPages = this.visiblePages;
             var index = vPages.indexOf(this.currentPage);
             this.currentPage = vPages[index + 1];
@@ -258,60 +263,35 @@ module Survey {
             }
             self.onRendered.fire(self, {});
         }
-        public sendResult(postId: string = null) {
+        public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
             if (postId) {
                 this.surveyPostId = postId;
-            } 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', this.serviceUrl);
-            xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-            var data: string = JSON.stringify({ postId: this.surveyPostId, surveyResult: JSON.stringify(this.data) });
-            xhr.setRequestHeader('Content-Length', data.length.toString());
+            }
+            if (clientId) {
+                this.clientId = clientId;
+            }
             var self = this;
-            xhr.onload = function () {
-                self.onSendResult.fire(self, { success: xhr.status == 200, response: xhr.response });
-            };
-            xhr.send(data);
+            new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
+                self.onSendResult.fire(self, { success: success, response: response});
+            }, this.clientId, isPartialCompleted);
         }
         public getResult(resultId: string, name: string) {
-            var xhr = new XMLHttpRequest();
-            var data = 'resultId=' + resultId + '&name=' + name;
-            xhr.open('GET', this.serviceUrl + '/GetResult?' + data);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             var self = this;
-            xhr.onload = function () {
-                var result = null;
-                var list = null;
-                if (xhr.status == 200) {
-                    result = JSON.parse(xhr.response);
-                    list = [];
-                    for (var key in result.QuestionResult) {
-                        var el = { name: key, value: result.QuestionResult[key] };
-                        list.push(el);
-                    }    
-                }
-                self.onGetResult.fire(self, { success: xhr.status == 200, data: result, dataList: list, response: xhr.response });
-            };
-            xhr.send();
+            new dxSurveyService().getResult(resultId, name, function (success: boolean, data: any, dataList: any[], response: any) {
+                self.onGetResult.fire(self, { success: success, data: data, dataList: dataList, response: response });
+            });
         }
         public loadSurveyFromService(surveyId: string = null, element: any = null) {
             if (surveyId) {
                 this.surveyId = surveyId;
-            } 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', this.serviceUrl + '/GetJson?surveyId=' + this.surveyId);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            }
             var self = this;
-            xhr.onload = function () {
-                if (xhr.status == 200) {
-                    var result = JSON.parse(xhr.response);
-                    if (result) {
-                        self.setJsonObject(result);
-                        self.render(element);
-                    }
+            new dxSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
+                if (success && result) {
+                    self.setJsonObject(result);
+                    self.render(element);
                 }
-            };
-            xhr.send();
+            });
         }
         onBeforeRender() {
             this.updateVisibleIndexes();
@@ -401,7 +381,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId",
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId", "sendResultOnPageNext",
         "showNavigationButtons", "showTitle", "showPageTitles", "showPageNumbers", "showQuestionNumbers",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");

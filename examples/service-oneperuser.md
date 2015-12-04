@@ -11,7 +11,7 @@ title: Allow your clients/users run survey only one time.
     <p>
         Send the survey results before moving on the next Page: <input type="checkbox" id="sendResultOnPageNext" /> default is false.
         <p>
-        If you have a long survey, many your users may not finish the survey and enter the data on few pagers on only the first one. If you still want to store this information, set this property to true. The clientId property should bet set correctly, otherwise the data of others users may be ovewritten.
+        If you have a long survey, many your users may not finish the survey and enter the data on few pagers on only the first one. If you still want to save the information from incompleted surveys, set this property to true. The clientId property should bet set correctly, otherwise the data of others users may be ovewritten.
         </p>
         <pre class="brush:js">survey.sendResultOnPageNext = yourvalue;</pre>
     </p>

@@ -2,7 +2,7 @@
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    interface IMultipleTextData {
+    export interface IMultipleTextData {
         getMultipleTextValue(name: string): any;
         setMultipleTextValue(name: string, value: any);
     }

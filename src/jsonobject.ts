@@ -33,7 +33,7 @@ module Survey {
             return (this.classNamePart && className.indexOf(this.classNamePart) < 0) ? className + this.classNamePart : className;
         }
     }
-    class JsonMetadataClass {
+    export class JsonMetadataClass {
         static requiredSymbol = '!';
         properties: Array<JsonObjectProperty> = null;
         requiredProperties: Array<string> = null;

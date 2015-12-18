@@ -3,13 +3,17 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Microsoft.AspNet.Server.IIS": "1.0.0-beta5",
-    "Microsoft.AspNet.Server.WebListener": "1.0.0-beta5",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-beta5"
+    "Microsoft.AspNet.Diagnostics": "1.0.0-rc1-final",
+    "Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final",
+    "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
+    "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.FileProviderExtensions": "1.0.0-rc1-final",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0-rc1-final",
+    "Microsoft.VisualStudio.Web.BrowserLink.Loader": "14.0.0-rc1-final"
   },
 
   "commands": {
-    "web": "Microsoft.AspNet.Hosting --config hosting.ini"
+    "web": "Microsoft.AspNet.Server.Kestrel"
   },
 
   "frameworks": {
@@ -33,6 +37,6 @@
   ],
   "scripts": {
     "postrestore": [ "npm install", "bower install", "node node_modules\\bower-installer\\bower-installer.js" ],
-    "prepare": [  ]
+    "prepare": [ ]
   }
 }

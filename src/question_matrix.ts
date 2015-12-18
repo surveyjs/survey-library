@@ -2,7 +2,7 @@
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    interface IMatrixData {
+    export interface IMatrixData {
         onMatrixRowChanged(row: MatrixRow);
     }
     export class MatrixRow extends Base {

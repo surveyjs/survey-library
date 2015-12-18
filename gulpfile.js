@@ -67,7 +67,8 @@ gulp.task('tsd', function (callback) {
                .pipe(sourcemaps.init())
                .pipe(ts({
                    target: "ES5",
-                   noImplicitAny: false
+                   noImplicitAny: false,
+                   declarationFiles: true
                 }));
 
             return tsResult.js
@@ -76,6 +77,22 @@ gulp.task('tsd', function (callback) {
                 //Source map is a part of generated file
                 .pipe(gulp.dest(paths.dist))
                 .pipe(gulp.dest(paths.jsFolder));
+        });
+        gulp.task("typescript:sources:definition", function () {
+            var tscResult = gulp.src([
+                  paths.webroot + "/lib/survey/**/*.d.ts",
+                  paths.typings
+            ].concat(paths.ts))
+               .pipe(sourcemaps.init())
+               .pipe(ts({
+                   target: "ES5",
+                   noExternalResolve: true,
+                   declaration: true
+               }));
+
+            return tscResult.dts
+                .pipe(concat('survey.d.ts'))
+                .pipe(gulp.dest(paths.dist));
         });
 
         gulp.task("typescript:tests", function () {
@@ -121,7 +138,7 @@ gulp.task('tsd', function (callback) {
             .pipe(gulp.dest(paths.testsFolder));
         });
 
-        gulp.task("typescript", ["typescript:sources", "typescript:tests", "typescript:tests_ko", "test:copy-index-html"]);
+        gulp.task("typescript", ["typescript:sources", "typescript:sources:definition", "typescript:tests", "typescript:tests_ko", "test:copy-index-html"]);
     })("TypeScript compilation");
 
     gulp.task('compress', function () {

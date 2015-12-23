@@ -251,6 +251,21 @@ module Survey.JsonSerializationTests {
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).propertyName, "unknown2", "the property Name in the second error");
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).className, "itemB_thelongpart", "the class Name in the second error");
     });
+    QUnit.test("Having 'at' property for objects with errors", function (assert) {
+        var owner = new LongNamesOwner();
+        var jsonObj = new JsonObject();
+        jsonObj.toObject({ at: 1, unknown1: 4, items: [{ at: 20, type: "itemA", A: 5 }, { at: 30, unknown2: 5, type: "itemB_thelongpart", B: 15 }] }, owner);
+        assert.equal(jsonObj.errors.length, 2, "it should be two errors");
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).at, 1);
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).at, 30);
+    });
+    QUnit.test("Remove 'at' property from objects", function (assert) {
+        var dealer = new Dealer();
+        var jsonObj = new JsonObject();
+        jsonObj.toObject({ at: 1, "cars": [{ at: 10, "maxSpeed": 320 }, { at: 20,"type": "truck", "maxWeight": 10000 }] }, dealer);
+        var truck = <Truck>dealer.cars[0];
+        assert.equal(truck["at"], null, "deserialize the second object");
+    });
     QUnit.test("Deserialize arrays with missing type property", function (assert) {
         var dealer = new Dealer();
         var jsonObj = new JsonObject();

@@ -172,8 +172,12 @@ module Survey {
         }
     }
     export class JsonError {
-        public description: string;
+        public description: string = "";
+        public at: Number = -1;
         constructor(public type: string, public message: string) {
+        }
+        public getFullDescription() : string {
+            return this.message + (this.description ? "\n" + this.description : "");
         }
     }
     export class JsonUnknownPropertyError extends JsonError {
@@ -220,6 +224,7 @@ module Survey {
 
     export class JsonObject {
         private static typePropertyName = "type";
+        private static atPropertyName = "at";
         private static metaDataValue = new JsonMetadata();
         public static get metaData() { return JsonObject.metaDataValue; }
         public errors = new Array<JsonError>();
@@ -234,10 +239,10 @@ module Survey {
             }
             if (!properties) return;
             for (var key in jsonObj) {
-                if (key == JsonObject.typePropertyName) continue;
+                if (key == JsonObject.typePropertyName || key == JsonObject.atPropertyName) continue;
                 var property = this.findProperty(properties, key);
                 if (!property) {
-                    this.errors.push(new JsonUnknownPropertyError(key.toString(), obj.getType()));
+                    this.addNewError(new JsonUnknownPropertyError(key.toString(), obj.getType()), jsonObj); 
                     continue;
                 }
                 this.valueToObj(jsonObj[key], obj, key, property);
@@ -328,9 +333,15 @@ module Survey {
                 }
             }
             if (error) {
-                this.errors.push(error);
+                this.addNewError(error, value); 
             }
             return error;
+        }
+        private addNewError(error: JsonError, jsonObj: any) {
+            if (jsonObj && jsonObj["at"]) {
+                error.at = jsonObj["at"];
+            }
+            this.errors.push(error);
         }
         private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
             if (!this.isValueArray(obj[key])) {

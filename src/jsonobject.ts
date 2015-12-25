@@ -239,7 +239,11 @@ module Survey {
             }
             if (!properties) return;
             for (var key in jsonObj) {
-                if (key == JsonObject.typePropertyName || key == JsonObject.atPropertyName) continue;
+                if (key == JsonObject.typePropertyName) continue;
+                if (key == JsonObject.atPropertyName) {
+                    obj[key] = jsonObj[key];
+                    continue;
+                }
                 var property = this.findProperty(properties, key);
                 if (!property) {
                     this.addNewError(new JsonUnknownPropertyError(key.toString(), obj.getType()), jsonObj); 

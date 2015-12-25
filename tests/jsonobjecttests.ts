@@ -259,12 +259,12 @@ module Survey.JsonSerializationTests {
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).at, 1);
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).at, 30);
     });
-    QUnit.test("Remove 'at' property from objects", function (assert) {
+    QUnit.test("Do not remove 'at' property from objects", function (assert) {
         var dealer = new Dealer();
         var jsonObj = new JsonObject();
         jsonObj.toObject({ at: 1, "cars": [{ at: 10, "maxSpeed": 320 }, { at: 20,"type": "truck", "maxWeight": 10000 }] }, dealer);
         var truck = <Truck>dealer.cars[0];
-        assert.equal(truck["at"], null, "deserialize the second object");
+        assert.equal(truck["at"], 20, "deserialize the second object");
     });
     QUnit.test("Deserialize arrays with missing type property", function (assert) {
         var dealer = new Dealer();

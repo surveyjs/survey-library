@@ -224,7 +224,7 @@ module Survey {
 
     export class JsonObject {
         private static typePropertyName = "type";
-        private static atPropertyName = "at";
+        private static positionPropertyName = "pos";
         private static metaDataValue = new JsonMetadata();
         public static get metaData() { return JsonObject.metaDataValue; }
         public errors = new Array<JsonError>();
@@ -240,7 +240,7 @@ module Survey {
             if (!properties) return;
             for (var key in jsonObj) {
                 if (key == JsonObject.typePropertyName) continue;
-                if (key == JsonObject.atPropertyName) {
+                if (key == JsonObject.positionPropertyName) {
                     obj[key] = jsonObj[key];
                     continue;
                 }
@@ -342,8 +342,8 @@ module Survey {
             return error;
         }
         private addNewError(error: JsonError, jsonObj: any) {
-            if (jsonObj && jsonObj["at"]) {
-                error.at = jsonObj["at"];
+            if (jsonObj && jsonObj[JsonObject.positionPropertyName]) {
+                error.at = jsonObj[JsonObject.positionPropertyName].start;
             }
             this.errors.push(error);
         }

@@ -251,20 +251,20 @@ module Survey.JsonSerializationTests {
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).propertyName, "unknown2", "the property Name in the second error");
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).className, "itemB_thelongpart", "the class Name in the second error");
     });
-    QUnit.test("Having 'at' property for objects with errors", function (assert) {
+    QUnit.test("Having 'pos' property for objects with errors", function (assert) {
         var owner = new LongNamesOwner();
         var jsonObj = new JsonObject();
-        jsonObj.toObject({ at: 1, unknown1: 4, items: [{ at: 20, type: "itemA", A: 5 }, { at: 30, unknown2: 5, type: "itemB_thelongpart", B: 15 }] }, owner);
+        jsonObj.toObject({ pos: { start: 20 }, unknown1: 4, items: [{ pos: { start: 30, end: 50 }, type: "itemA", A: 5 }, { pos: { start: 30, end: 50 }, unknown2: 5, type: "itemB_thelongpart", B: 15 }] }, owner);
         assert.equal(jsonObj.errors.length, 2, "it should be two errors");
-        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).at, 1);
+        assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).at, 20);
         assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).at, 30);
     });
-    QUnit.test("Do not remove 'at' property from objects", function (assert) {
+    QUnit.test("Do not remove 'pos' property from objects", function (assert) {
         var dealer = new Dealer();
         var jsonObj = new JsonObject();
-        jsonObj.toObject({ at: 1, "cars": [{ at: 10, "maxSpeed": 320 }, { at: 20,"type": "truck", "maxWeight": 10000 }] }, dealer);
+        jsonObj.toObject({ pos: { start: 1 }, "cars": [{ pos: { start: 10 }, "maxSpeed": 320 }, { pos: { start: 20 },"type": "truck", "maxWeight": 10000 }] }, dealer);
         var truck = <Truck>dealer.cars[0];
-        assert.equal(truck["at"], 20, "deserialize the second object");
+        assert.equal(truck["pos"].start, 20, "deserialize the second object");
     });
     QUnit.test("Deserialize arrays with missing type property", function (assert) {
         var dealer = new Dealer();

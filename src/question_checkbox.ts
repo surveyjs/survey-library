@@ -27,5 +27,5 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("checkbox", [], function () { return new QuestionCheckbox(""); }, "checkboxbase");
-    QuestionFactory.Instance.registerQuestion("checkbox", (name) => { return new QuestionCheckbox(name); });
+    QuestionFactory.Instance.registerQuestion("checkbox", (name) => { var q = new QuestionCheckbox(name); q.choices = QuestionFactory.DefaultChoices; return q; });
 }

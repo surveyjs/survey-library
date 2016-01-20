@@ -81,5 +81,5 @@ module Survey {
     JsonObject.metaData.setPropertyValues("matrix", "rows", null, null,
         function (obj: any) { return ItemValue.getData(obj.rows); },
         function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
-    QuestionFactory.Instance.registerQuestion("matrix", (name) => { return new QuestionMatrix(name); });
+    QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrix(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
 }

@@ -68,6 +68,11 @@ module Survey {
         public getType(): string {
             return "multipletext";
         }
+        public AddItem(name: string, title: string = null): MultipleTextItem {
+            var item = new MultipleTextItem(name, title);
+            this.items.push(item);
+            return item;
+        }
         private isMultipleItemValueChanging = false;
         protected onValueChanged() {
             super.onValueChanged();
@@ -118,5 +123,5 @@ module Survey {
     JsonObject.metaData.addClass("multipletext", ["!items", "itemSize"], function () { return new QuestionMultipleText(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
     JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
-    QuestionFactory.Instance.registerQuestion("multipletext", (name) => { return new QuestionMultipleText(name); });
+    QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleText(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
 }

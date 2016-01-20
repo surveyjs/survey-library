@@ -11,5 +11,5 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("dropdown", [], function () { return new QuestionDropdown(""); }, "selectbase");
-    QuestionFactory.Instance.registerQuestion("dropdown", (name) => { return new QuestionDropdown(name); });
+    QuestionFactory.Instance.registerQuestion("dropdown", (name) => { var q = new QuestionDropdown(name); q.choices = QuestionFactory.DefaultChoices; return q; });
 }

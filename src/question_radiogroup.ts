@@ -12,5 +12,5 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("radiogroup", [], function () { return new QuestionRadiogroup(""); }, "checkboxbase");
-    QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { return new QuestionRadiogroup(name); });
+    QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { var q = new QuestionRadiogroup(name); q.choices = QuestionFactory.DefaultChoices; return q;});
 }

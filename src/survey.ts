@@ -218,7 +218,7 @@ module Survey {
             }
             return result;
         }
-        private getAllQuestions(visibleOnly: boolean = false): Array<IQuestion> {
+        public getAllQuestions(visibleOnly: boolean = false): Array<IQuestion> {
             var result = new Array<IQuestion>();
             for (var i: number = 0; i < this.pages.length; i++) {
                 this.pages[i].addQuestionsToList(result, visibleOnly);

@@ -82,6 +82,13 @@ module Survey.Tests {
         assert.equal(inst.createQuestion("question2", "Q2").name, "Q2", "Create second type of question");
         assert.equal(inst.createQuestion("question3", "Q3"), null, "Create unexisting type of question");
     });
+    QUnit.test("Question Creator getAllQuestions", function (assert) {
+        var inst = QuestionFactory.Instance;
+        inst.registerQuestion("question3", (name: string) => { return new Question(name); });
+        inst.registerQuestion("question4", (name: string) => { return new Question(name); });
+        var names = inst.getAllTypes();
+        assert.ok(names.indexOf("question3") > -1, "contains a new type");
+    });
     QUnit.test("Add questions to page", function (assert) {
         var page = new Page("Page 1");
         page.addNewQuestion("text", "Q1");

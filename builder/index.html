@@ -5,91 +5,13 @@ mainmenukey: builder
 pathprefix: ../
 canonicalUrl: /builder/
 ---
-<div>
-    <div style="padding:10px">
-        <input type="button" value="Run" onclick="surveyRun()" />
-        Survey Examples: 
-        <select id="examples">
-            <option selected="true" style="display:none;">Select JSON ...</option>
-            <option value="simple-oneradiogroup">One question</option>
-            <option value="validators-standard">Simple validators</option>
-            <option value="real-productfeedback">Product feedback</option>
-        </select>
-        <input type="button" value="Load" onclick="loadExample()"/>
-    </div>
-    <div>
-        <div style="width:50%;display: inline-block; vertical-align:top;">
-            <div id="jsonerror" style="width:100%"></div>
-            <div id="editor" style="height:600px;width:100%">{
-                
-}</div>
-        </div><!--
-        --><div style="width:50%;display: inline-block; vertical-align:top">
-            <div  style="padding:10px">
-                <div id="surveyContainer"></div>
-            </div>
-        </div>
-        
-    </div>
-</div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js" type="text/javascript" charset="utf-8"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/worker-json.js" type="text/javascript" charset="utf-8"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-json.js" type="text/javascript" charset="utf-8"></script> 
-<script> 
-    editor = ace.edit("editor"); 
-    editor.setTheme("ace/theme/monokai");
-    editor.session.setMode("ace/mode/json"); 
-    editor.setOption("showPrintMargin", false);
-</script> 
-<div style="width:0;height:0;display:none">
-    <pre id="simple-oneradiogroup">{% include surveys/simple-oneradiogroup.json %}</pre>
-    <pre id="validators-standard">{% include surveys/validators-standard.json %}</pre>
-    <pre id="real-productfeedback">{% include surveys/real-productfeedback.json %}</pre>
-</div>    
+<link href="{{ page.pathprefix }}css/surveyeditor.css" type="text/css" rel="stylesheet" />
+<script src="{{ page.pathprefix }}js/surveyeditor.js"></script>
 
-<script type="text/javascript">
-function surveyRun() {
-    var text = editor.getValue();
-    var oldOnError = window.onerror;
-    window.onerror = function(message, fileURL, lineNumber){
-        document.getElementById('jsonerror').innerHTML = message + ". Line number:" + lineNumber;
-    }    
-    document.getElementById('surveyContainer').innerHTML = ""; 
-    document.getElementById('jsonerror').innerHTML = "";
-    eval("var jsonObj = " + text);
-    window.onerror = oldOnError;
-    
-    if(jsonObj) {
-        var srv = new Survey.Survey(jsonObj);
-        if(srv.jsonErrors) {
-            var errorText = "";
-            for(var i = 0; i < srv.jsonErrors.length; i ++) {
-                var error = srv.jsonErrors[i];
-                if(i > 0) errorText += "</p>";
-                errorText += error.message;
-                if(error.description) {
-                    errorText += " " + error.description;
-                }
-            }
-            document.getElementById('jsonerror').innerHTML = errorText;
-        }
-        srv.render("surveyContainer");
-        srv.onComplete.add(function (s) { 
-            var result = "\nThe results are:\n" + JSON.stringify(srv.data);
-            if (srv.hasComments) {
-                result += "\nComments are:\n" + JSON.stringify(srv.comments);
-            }
-            document.getElementById('surveyContainer').innerHTML = result; 
-        });
-    }
-}
-
-function loadExample() {
-    var value = document.getElementById("examples").value;
-    var example = document.getElementById(value);
-    if(example) {
-        editor.setValue(example.innerText);
-    }
-}
+<div id="editor"></div>
+<script>
+    var editor = new SurveyEditor.SurveyEditor("editor");
 </script>

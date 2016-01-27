@@ -1,6 +1,6 @@
 ---
 layout: example
-title: One choise - dropdown (type:'dropdown')
+title: One choice - dropdown (type:'dropdown')
 ---
 {% include demo-selectbase-properties.html %}
 {% capture survey_setup %}

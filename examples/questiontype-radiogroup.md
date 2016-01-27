@@ -1,7 +1,7 @@
 ---
 layout: example
 hasColumnCount: true
-title: One choise - radio group (type:'radiogroup')
+title: One choice - radio group (type:'radiogroup')
 ---
 {% include demo-selectbase-properties.html %}
 {% capture survey_setup %}

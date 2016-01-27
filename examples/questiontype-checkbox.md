@@ -1,7 +1,7 @@
 ---
 layout: example
 hasColumnCount: true
-title: One choise - checkbox (type:'checkbox')
+title: One choice - checkbox (type:'checkbox')
 ---
 {% include demo-selectbase-properties.html %}
 {% capture survey_setup %}

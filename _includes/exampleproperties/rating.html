@@ -1,0 +1,31 @@
+<div class="propertyitem">
+    <p>
+        <b>Minimum Rate Description: </b> (default is empty)
+        <input style="width:100%" type="text" value="Not Satisfied" onchange="survey.getQuestionByName('satisfaction').mininumRateDescription = this.value; survey.render();"/>
+        <pre class="brush:js">var q = survey.getQuestionByName('satisfaction');
+q.mininumRateDescription = yourvalue;
+survey.render();"</pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+        <b>Maximum Rate Description: </b> (default is empty)
+        <input style="width:100%" type="text" value="Completely satisfied" onchange="survey.getQuestionByName('satisfaction').maximumRateDescription = this.value; survey.render();"/>.
+        <pre class="brush:js">var q = survey.getQuestionByName('satisfaction');
+q.maximumRateDescription = yourvalue;
+survey.render();"</pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>   
+        <b>Rate values: </b>  (default is empty) 
+        <select style="width:100%" onChange="survey.getQuestionByName('satisfaction').rateValues = JSON.parse(this.value); survey.render();">
+            <option value='[]' selected="true">Empty</option>
+            <option value='[1, 2, 3]'>[1, 2, 3]</option>
+            <option value='[{"value": 1, "text": "Bad"}, {"value": 2, "text": "Average"}, {"value": 1, "text": "Good"}]'>[{value: 1, text: "Bad"}, {value: 2, text: "Average"}, {value: 1, text: "Good"}]</option>
+        </select>
+        <pre class="brush:js">var q = survey.getQuestionByName('satisfaction');
+q.rateValues = yourvalue;
+survey.render();"</pre>
+    </p>
+</div>

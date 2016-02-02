@@ -1,8 +1,8 @@
 ---
 layout: example
+propertiesFile: exampleproperties/selectbase.html
 title: One choice - dropdown (type:'dropdown')
 ---
-{% include demo-selectbase-properties.html %}
 {% capture survey_setup %}
 var survey = new Survey.Survey({% include surveys/questiontype-dropdown.json %});
 {% endcapture %}

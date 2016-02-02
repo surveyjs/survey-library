@@ -2,45 +2,164 @@ body {
     margin:0;
     height:100%;
 }
+
+a, a:link, a:visited
+{
+    text-decoration: none;
+}
+
+.code {
+    padding: 13px;
+}
+.propertyitem {
+    margin-bottom: 60px;
+}
+.precode {    
+    border-radius: 2px;
+    border-color: #eeeeee;
+    border-style: solid;
+    border-width: 1px;
+    font: 300 14px 'Segoe UI';
+}
+
 .header{
     margin:0;
     padding:0;
 }
 .container{
-    overflow:auto;
     margin:0;
-    padding:5px;
 }
 .leftmenu{
-    margin-top: 20px;
     float:left;
     left:0;
-    width:220px;
+    width:290px;
     height:100%;
-    padding:20px;
-    border-radius: 15px 0px 0px 10px;    
-    color:white;
-    background-color: #444;
+    color: #9b9b9b;
+    font: 600 14px 'Segoe UI';
+    background-color: #222222;
+}
+.leftmenucategory {
+    background: #191818;
+    border-bottom-color: #515151;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    width:100%;
+}
+.leftmenucategorytitle {
+    padding: 18px 0 18px 46px;
+}
+
+.leftmenucategorytitleimg {
+    padding: 0;
+    float: right;
+    vertical-align: middle;   
+    margin-right: 32px;
+}
+
+.leftmenuitem {
+    margin: 0;
+    padding: 0;
+    background-color: #222222;
+}
+.leftmenuiteminfo {
+    padding: 13px 20px 13px 47px;
+    font: 600 14px 'Segoe UI';
+}
+.leftmenuimage {
+    margin: 0 0 0 47px;
+    width:243px;
+    border-bottom-color:#515151;
+    border-bottom-width:1px;
+    border-bottom-style:solid;
+}
+.leftmenuitemactive {
+    background-color: #eeeeee;
+    color: #ff702a;
+}
+.leftmenuitemtext {
+    padding: 0;    
+    margin: 0;
+    font-weight: 400;
+    color: #515151;
+}
+.leftmenuitemtextactive {
+    color: #191818;
 }
 .leftmenu h1 {
-    
+    color: #ffffff;
+    font: 600 14px 'Segoe UI';
 }
-.leftmenu a {
-  color: white;
-}
-
-.leftmenu a:hover {
-  background-color: #005f5f;
+.leftmenuitem a {
+    text-decoration: none;
+    color: #9b9b9b;
 }
 
-.content{
-    margin:0 0 0 260px;
-    padding-left: 20px;
-    height:100%;
+.leftmenuitemactive a {
+    color: #ff702a;
+}
+
+.leftmenucategorytitletext  {
+    color: #515151;
+}
+.leftmenucategorytitleactive {
+    color: #ffffff;
+}
+.content {
+    margin-left: 290px;
+    padding-left: 60px;
+    padding-right: 60px;
+    padding-top: 40px;
     min-height: 2000px;
-    border-radius: 15px;    
-    background-color: beige;
+    background: #eeeeee;
 }
+.contentrightmargin {
+    margin-right: 438px;
+}
+
+.contenttitle {
+    color: #ff702a;
+    font: 300 45px 'Segoe UI';
+}
+.contentcontainer {
+    background-color: #ffffff;
+    border-radius: 2px;
+    box-shadow: 0px 0px 5px 0.00px rgba(0, 0, 0, 0.2);
+    padding: 33px;
+}
+
+.codecontainer {
+    margin-bottom: 90px;    
+}
+.codecontainertitle {
+    font: 300 30px 'Segoe UI';
+    padding-top: 7px;
+    padding-bottom: 23px;
+}
+
+.right {
+    float:right;
+    width:438px;
+    color: #9b9b9b;
+    background-color: #f6f6f6;
+    min-height: 2000px;
+    box-shadow: 0px 0px 5px 0.00px rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+}
+
+.rightcontent{
+    color: #9b9b9b;
+    font: 600 14px 'Segoe UI';
+    background-color: #f6f6f6;
+    min-height: 2000px;
+    padding-top: 130px;
+    padding-left: 30px;
+    padding-right: 30px;
+    color: #000000;
+    font: 300 14px 'Segoe UI';
+}
+
+
+
 .footer{
     margin:0;
     color: white;
@@ -49,8 +168,6 @@ body {
 }
 
 .surveycontent{
-    padding: 20px;
-    border-radius: 15px;    
     background-color: beige;
 }
 
@@ -67,43 +184,38 @@ body {
 /* top menu */
 .nav ul {
   list-style: none;
-  background-color: #444;
-  text-align: center;
-  padding: 0;
-  margin: 0;
+  background-color: #da3610;
+  text-align: left;
+  font: 400 14px 'Segoe UI';
+  padding: 0px;
+  margin: 0px;
+  height: 50px;
 }
- 
+
+.nav li {
+    display: inline-block;
+    vertical-align: middle;
+}
+.navbottom li {
+    display: inline-block;
+}
+
 .nav a {
   white-space: nowrap;
   text-decoration: none;
-  color: #fff;
-  display: block;
-  transition: .3s background-color;
+  color: white;
+    vertical-align: middle;
+    display: block;
+    padding: 5px 20px 5px 20px;
+    margin: 10px;
 }
  
 .nav a:hover {
-  background-color: #005f5f;
 }
  
 .nav a.active {
-  background-color: #fff;
-  color: #444;
-  cursor: default;
+    background-color: #b32c0d;
+    font-weight: 600;
+    cursor: default;
 }
- 
-@media screen and (min-width: 600px) {
-  .nav li {
-    width: 170px;
-    border-bottom: none;
-    height: 50px;
-    line-height: 50px;
-    font-size: 1.4em;
-  }
-  .nav li {
-    display: inline-block;
-    margin-right: -4px;
-  }
-  .navbottom li {
-    display: inline-block;
-  }
-}
+

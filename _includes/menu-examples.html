@@ -1,100 +1,94 @@
-<h3>Question Types</h3>
-<ul>
-    <li>
-        <strong><a href="questiontype-radiogroup.html">Radio group</a></strong>
-        <div><small>One choice question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-dropdown.html">Dropdown</a></strong>
-        <div><small>One choice question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-checkbox.html">Checkboxes</a></strong>
-        <div><small>Multiple choices question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-matrix.html">Matrix</a></strong>
-        <div><small>Matrix question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-multipletext.html">Multiple Text</a></strong>
-        <div><small>Multiple text question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-rating.html">Rating</a></strong>
-        <div><small>Rating question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-text.html">Text</a></strong>
-        <div><small>Text question</small></div>
-    </li>
-    <li>
-        <strong><a href="questiontype-comment.html">Comment</a></strong>
-        <div><small>Comment question</small></div>
-    </li>
-</ul>
-<h3>Survey</h3>
-<ul>
-    <li>
-        <strong><a href="survey-data.html">Work with data</a></strong>
-        <div><small>Get/set data from/to survey</small></div>
-    </li>
-    <li>
-        <strong><a href="survey-options.html">Survey Options</a></strong>
-        <div><small>Use properties to set up your survey</small></div>
-    </li>
-    <li>
-        <strong><a href="survey-customnavigation.html">Custom Navigation</a></strong>
-        <div><small>Use your own navigation</small></div>
-    </li>
-</ul>
-<h3>Validation</h3>
-<ul>
-    <li>
-        <strong><a href="validators-standard.html">Standard validators</a></strong>
-        <div><small>Example of using standard validators</small></div>
-    </li>
-    <li>
-        <strong><a href="validators-custom.html">Create custom validators</a></strong>
-        <div><small>Example of creating and using a custom validator</small></div>
-    </li>
-    <li>
-        <strong><a href="validators-event.html">Validate on event</a></strong>
-        <div><small>Example of using OnValidatateQuestion event</small></div>
-    </li>
-</ul>
-<h3>Triggers</h3>
-<ul>
-    <li>
-        <strong><a href="trigger-visible.html">Visible Trigger</a></strong>
-        <div><small>Show/Hide question(s) on survey running</small></div>
-    </li>
-</ul>
-<h3>Using dxService</h3>
-<ul>
-    <li>
-        <strong><a href="service-load.html">Load Survey</a></strong>
-        <div><small>Load survey json from the service</small></div>
-    </li>
-    <li>
-        <strong><a href="service-send.html">Save Survey Result</a></strong>
-        <div><small>Save survey result to the service</small></div>
-    </li>
-    <li>
-        <strong><a href="service-result.html">Get Survey Result</a></strong>
-        <div><small>Get Survey Result after sending results</small></div>
-    </li>
-    <li>
-        <strong><a href="service-oneperuser.html">Run survey one time</a></strong>
-        <div><small>Use your user id to run the survey one time and optionally store result on every page</small></div>
-    </li>
-</ul>
-<h3>Real examples</h3>
-<ul>
-    <li>
-        <strong><a href="real-productfeedback.html">Product Feedback</a></strong>
-        <div><small>Three page survey</small></div>
-        <strong><a href="real-devexpresswinformsskins.html">DevExpress Winforms Skins</a></strong>
-        <div><small>The real survey ran in DevExpress</small></div>
-    </li>
-</ul>
+<div id="examples" data-bind="foreach: categories">
+    <div class="leftmenucategory">
+        <a data-bind="click:onClick" href="#">
+            <div  class="leftmenucategorytitle">
+                <span class="leftmenucategorytitletext" data-bind="text: name, css: {leftmenucategorytitleactive: expanded()}"></span>
+                <span class="leftmenucategorytitleimg">
+                    <img src="/images/category_expand.png" data-bind="visible:expanded()"></img>
+                    <img src="/images/category_collapse.png"  data-bind="visible:!expanded()"></img>
+                </span>
+            </div>
+        </a>
+        <div data-bind="foreach: items, visible:expanded()">
+            <div class="leftmenuitem" data-bind="css: {leftmenuitemactive: selected}">
+                <div class="leftmenuiteminfo">
+                    <a data-bind="attr: {href: url}, text:name"></a>
+                    <div class="leftmenuitemtext" data-bind="text:text, css: {leftmenuitemtextactive: selected}"></div>
+                </div>
+                <div class="leftmenuimage" data-bind="visible: !selected && ($index() != ($parent.items.length - 1))"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var ExampleItem = function(name, text, url) {
+        this.name = name;
+        this.text = text;
+        this.url = url;
+        this.selected = false;
+    };
+    var ExampleCategory = function(name, items) {
+        this.name = name;
+        this.items = items;
+        this.expanded = ko.observable(false);
+        var self = this;
+        this.onClick = function() { self.expanded(!self.expanded());}
+    };
+    var ViewModel = function(){
+        this.categories = [
+            new ExampleCategory("Question Types", [
+                new ExampleItem("Radio group", "One choice question", "questiontype-radiogroup.html"),
+                new ExampleItem("Dropdown", "One choice question", "questiontype-dropdown.html"),
+                new ExampleItem("Checkboxes", "Multiple choices question", "questiontype-checkbox.html"),
+                new ExampleItem("Matrix", "Matrix question", "questiontype-matrix.html"),
+                new ExampleItem("Multiple Text", "Multiple text question", "questiontype-multipletext.html"),
+                new ExampleItem("Rating", "Rating question", "questiontype-rating.html"),
+                new ExampleItem("Text", "Text question", "questiontype-text.html"),
+                new ExampleItem("Comment", "Comment question", "questiontype-comment.html")
+            ]),
+            new ExampleCategory("Survey", [
+                new ExampleItem("Work with data", "Get/set data from/to survey", "survey-data.html"),
+                new ExampleItem("Survey Options", "Use properties to set up your survey", "survey-options.html"),
+                new ExampleItem("Custom Navigation", "Use your own navigation", "survey-customnavigation.html")
+            ]),
+            new ExampleCategory("Validation", [
+                new ExampleItem("Standard validators", "Example of using standard validators", "validators-standard.html"),
+                new ExampleItem("Create custom validators", "Example of creating and using a custom validator", "validators-custom.html"),
+                new ExampleItem("Validate on event", "Example of using OnValidatateQuestion event", "validators-event.html")
+            ]),
+            new ExampleCategory("Triggers", [
+                new ExampleItem("Visible Trigger", "Show/Hide question(s) on survey running", "trigger-visible.html")
+            ]),
+            new ExampleCategory("Using dxService", [
+                new ExampleItem("Load Survey", "Load survey json from the service", "service-load.html"),
+                new ExampleItem("Save Survey Result", "Save survey result to the service", "service-send.html"),
+                new ExampleItem("Get Survey Result", "Get Survey Result after sending results", "service-result.html"),
+                new ExampleItem("Run survey one time", "Use your user id to run the survey one time and optionally store result on every page", "service-oneperuser.html")
+            ]),
+            new ExampleCategory("Real examples", [
+                new ExampleItem("Product Feedback", "Three pages survey", "real-productfeedback.html"),
+                new ExampleItem("DevExpress Winforms Skins", "The real survey ran in DevExpress", "real-devexpresswinformsskins.html")
+            ])
+        ]
+        this.findSelected = function() {
+            var loc = window.location.href;
+            var pos = loc.lastIndexOf('/');
+            loc = loc.substr(pos + 1);
+            for(var i = 0; i < this.categories.length; i ++) {
+                var category = this.categories[i];
+                for(var j = 0; j < category.items.length; j ++) {
+                    var item = category.items[j];
+                    if(loc == item.url) {
+                        item.selected = true;
+                        category.expanded(true);
+                        return;
+                    }
+                }
+            }
+        }
+        this.findSelected();
+    };
+    ko.applyBindings(new ViewModel(), document.getElementById("examples"));
+</script>

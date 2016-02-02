@@ -3,28 +3,36 @@ layout: default
 pathprefix: ../
 mainmenukey: examples
 ---
-<div>	
-    <div class="leftmenu">
-        {% include menu-examples.html %}
-    </div>		
-    <div class="content">
-        <h1>{{ page.title }}</h1>	
-        {% if page.preSurvey %}
-            {% include {{page.preSurvey}} %}
-        {% endif %}
-        <div id="surveyContainer"></div>
-        <div id="survey_oncomplete" style="visibility:hidden">
-            Thank you! You have completed the survey!
-            <div id="survey_result"></div>
-            <input type="button" onclick="
-                document.getElementById('survey_oncomplete').style.visibility = 'hidden'; 
-                survey.data = null;
-                survey.currentPage = survey.visiblePages[0];
-                survey.render('survey');" 
-                value="Re-run survey"></input>
-        </div>
-        {{ content }}   		    		    	
+{% if page.propertiesFile %}
+<div class="right">
+    <div class="rightcontent">
+        {% include {{page.propertiesFile}} %}
     </div>
+</div>		
+{% endif %}
+<div class="leftmenu">
+    {% include menu-examples.html %}
+</div>		
+<div class="content {% if page.propertiesFile %} contentrightmargin {% endif %}">
+    <h1 class="contenttitle">{{ page.title }}</h1>	
+    {% if page.preSurvey %}
+        {% include {{page.preSurvey}} %}
+    {% endif %}
+    <div class="contentcontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
+        <div id="surveyContainer"></div>
+    </div>
+    <div id="survey_oncomplete" style="visibility:hidden">
+        Thank you! You have completed the survey!
+        <div id="survey_result"></div>
+        <input type="button" onclick="
+            document.getElementById('survey_oncomplete').style.visibility = 'hidden'; 
+            survey.data = null;
+            survey.currentPage = survey.visiblePages[0];
+            survey.render('survey');" 
+            value="Re-run survey"></input>
+    </div>
+    {{ content }}
+    
 </div>
 <script>
 function renderSurvey() {

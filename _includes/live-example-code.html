@@ -12,12 +12,20 @@
 
 
 {% if survey_code %}
-<h2>Source code: Survey code</h2>
-<pre class="brush:js">{{ survey_code | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+<div class="contentcontainer codecontainer">
+    <div class="codecontainertitle">Source code: Survey code</div>
+    <pre class="brush:js precode">{{ survey_code | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+</div>    
 {% endif %}
 {% if survey_events %}
-<h2>Source code: Survey events</h2>
-<pre class="brush:js">{{ survey_events | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+<div class="contentcontainer codecontainer">
+    <div class="codecontainertitle">Source code: Survey events</div>
+    <pre class="brush:js precode">{{ survey_events | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+</div>
 {% endif %}
-<h2>Source code: Survey setup</h2>
-<pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+<div class="contentcontainer codecontainer">
+    <div class="codecontainertitle">Source code: Survey setup</div>
+    <div class="precode">
+        <pre class="brush:js">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</pre>
+    </div>
+</div>

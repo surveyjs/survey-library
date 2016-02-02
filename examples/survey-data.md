@@ -1,35 +1,8 @@
 ---
 layout: example
+propertiesFile: exampleproperties/data.html
 title: Work with survey data (properties, methods and events).
 ---
-Text boxes are bind to survey values by using events.
-<p/>
-Name: <input type="text" id="name" onChange="survey.setValue('name', this.value)" value="John Doe"/>
-<p/>
-Email: <input type="email" id="email" size="30" onChange="survey.setValue('email', this.value)" value="johndoe@nobody.com"/>
-<p/>
-Cars (use comma to separate values, do not type spaces): <input type="text" id="car" size="50" onChange="survey.setValue('car', this.value.split(','))" value="Ford" />
-
-<pre class="brush:js">
-//Use getValue to get the value of the question
-survey.getValue('questionName');
-//Use setValue to set the value of the question
-survey.setValue('questionName', newValue);
-//Use data property to get/set survey data as json
-survey.data = {"youquestion1": value1, "youquestionN":valueN};
-//Use onValueChanged event to get a notification on chaning question value.
-survey.onValueChanged.add(function (sender, options) {
-    var mySurvey = sender;
-    var questionName = options.name;
-    var newValue = options.value;
-});
-//Use onComplete to get survey.data to pass it to the server.
-survey.onComplete.add(function (sender) {
-    var mySurvey = sender;
-    var surveyData = sender.data;
-});
-</pre>
-
 {% capture survey_setup %}
 var survey = new Survey.Survey({ questions: [
     {type: "text", name: "name", title: "Your name:"},

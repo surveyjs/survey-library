@@ -1,16 +1,8 @@
 ---
 layout: example
+propertiesFile: exampleproperties/visibletrigger.html
 title: Visible Trigger - Show/Hide question(s) on survey running.
 ---
-<div>
-The trigger is called if the question value 'name' is changed.
-</div>
-<div>
-Currently, only one trigger type is available: "visible". The visible trigger makes the list of 'questions' visibles if the ('question' value 'operator' 'value') returns true. Otherwise the list of 'questions' becomes invisible. 
-</div>
-<div>
-The following 'operator' are available: "empty", "notempty", "equal", "notequal", "greater", "less", "greaterorequal" and "lessorequal". The default value is "equal".
-</div>
 {% capture survey_setup %}
 var survey = new Survey.Survey({
         triggers: [{ type: "visible", name: "type", operator: "equal", value: "Hot hatch", questions: ["Hot hatch"] },

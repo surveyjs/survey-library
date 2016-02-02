@@ -1,9 +1,9 @@
 ---
 layout: example
 hasColumnCount: true
+propertiesFile: exampleproperties/selectbase.html
 title: One choice - checkbox (type:'checkbox')
 ---
-{% include demo-selectbase-properties.html %}
 {% capture survey_setup %}
 var survey = new Survey.Survey({% include surveys/questiontype-checkbox.json %});
 {% endcapture %}

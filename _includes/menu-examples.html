@@ -4,8 +4,8 @@
             <div  class="leftmenucategorytitle">
                 <span class="leftmenucategorytitletext" data-bind="text: name, css: {leftmenucategorytitleactive: expanded()}"></span>
                 <span class="leftmenucategorytitleimg">
-                    <img src="/images/category_expand.png" data-bind="visible:expanded()"></img>
-                    <img src="/images/category_collapse.png"  data-bind="visible:!expanded()"></img>
+                    <img src="{{ page.pathprefix }}images/category_expand.png" data-bind="visible:expanded()"></img>
+                    <img src="{{ page.pathprefix }}images/category_collapse.png"  data-bind="visible:!expanded()"></img>
                 </span>
             </div>
         </a>

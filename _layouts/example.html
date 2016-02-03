@@ -18,14 +18,15 @@ mainmenukey: examples
     {% if page.preSurvey %}
         {% include {{page.preSurvey}} %}
     {% endif %}
-    <div class="contentcontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
-        <div id="surveyContainer"></div>
+    <div id="surveyContainer" class="contentcontainer  codecontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
+        <div id="survey"></div>
     </div>
-    <div id="survey_oncomplete" style="visibility:hidden">
-        Thank you! You have completed the survey!
+    <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
+        <div class="codecontainertitle">Thank you! You have completed the survey!</div>
         <div id="survey_result"></div>
         <input type="button" onclick="
-            document.getElementById('survey_oncomplete').style.visibility = 'hidden'; 
+            document.getElementById('surveyContainer').style.display = '';
+            document.getElementById('survey_oncomplete').style.display = 'none'; 
             survey.data = null;
             survey.currentPage = survey.visiblePages[0];
             survey.render('survey');" 
@@ -38,12 +39,12 @@ mainmenukey: examples
 function renderSurvey() {
     if(typeof survey == 'undefined') return;
     survey.onComplete.add(function (s) { 
-        document.getElementById('surveyContainer').innerHTML = ""; 
+        document.getElementById('surveyContainer').style.display = "none";
         var result = "\nThe results are:\n" + JSON.stringify(survey.data);
         document.getElementById('survey_result').innerHTML = result; 
-        document.getElementById('survey_oncomplete').style.visibility = 'visible';
+        document.getElementById('survey_oncomplete').style.display = '';
     });
-    survey.render("surveyContainer");
+    survey.render("survey");
 }
     
 renderSurvey();

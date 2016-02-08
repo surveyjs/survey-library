@@ -111,7 +111,7 @@ module Survey.Tests {
         assert.equal(survey.getQuestionByName("Q0"), null, "return null");
     });
     QUnit.test("SurveyData interface implementation", function (assert) {
-        var surveyData: ISurveyData;
+        var surveyData: ISurvey;
         surveyData = new Survey();
         assert.equal(surveyData.getValue("test1"), null, "No data");
         assert.equal(surveyData.getValue("test2"), null, "No data");
@@ -328,6 +328,26 @@ module Survey.Tests {
         survey.setValue("question2", "He");
         assert.equal(survey.getQuestionByName("question2").visible, true, "trigger should not be called");
         assert.equal(survey.pages[1].visible, true, "trigger should not be called");
+    });
+    QUnit.test("Designer select a question", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.equal(survey.isDesignMode, false);
+        survey.mode = "designer";
+        assert.equal(survey.isDesignMode, true);
+
+        var question1 = <Question>survey.getAllQuestions()[0];
+        var question2 = <Question>survey.getAllQuestions()[1];
+
+        assert.equal(survey.selectedQuestion, null, "by default a question is not selected");
+        assert.equal(question1.koIsSelected(), false, "the first question is not selected");
+
+        survey.selectedQuestion = question1;
+        assert.equal(survey.selectedQuestion, question1, "the first question is selected");
+        assert.equal(question1.koIsSelected(), true, "the first question is selected");
+        survey.selectedQuestion = question2;
+        assert.equal(survey.selectedQuestion, question2, "the second question is selected");
+        assert.equal(question1.koIsSelected(), false, "the first question is not selected");
+        assert.equal(question2.koIsSelected(), true, "the second question is selected");
     });
     function twoPageSimplestSurvey() {
         var survey = new Survey();

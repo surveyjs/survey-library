@@ -4,7 +4,7 @@
 module Survey {
     export class Page extends Base {
         questions: Array<Question> = new Array<Question>();
-        public data: ISurveyData = null;
+        public data: ISurvey = null;
         public visible: boolean = true;
         public title: string = "";
         public visibleIndex: number = -1;

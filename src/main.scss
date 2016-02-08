@@ -1,6 +1,12 @@
 ﻿.sv_main {
     width: 100%;
 }
+.sv_q_design {
+     pointer-events: none;
+}
+.sv_q_selected {
+    border: solid 1px blue;
+}
 .sv_q {
     width: 100%;
     clear:none;

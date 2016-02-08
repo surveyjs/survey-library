@@ -98,7 +98,7 @@ module Survey {
             if (tEl.nodeName == "#text") tEl.data = "";
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["!choices", "choicesOrder", "otherText", "otherErrorText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["hasComment", "hasOther", "!choices", "choicesOrder", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });

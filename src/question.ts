@@ -4,7 +4,7 @@
 /// <reference path="jsonobject.ts" />
 module Survey {
     export class Question extends Base implements IQuestion, IValidatorOwner {
-        protected data: ISurveyData;
+        protected data: ISurvey;
         private titleValue: string = null;
         private questionValue: any;
         private isRequiredValue: boolean = false;
@@ -16,6 +16,7 @@ module Survey {
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         public width: string = "100%";
         koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
+        koOnClick: any; koIsSelected: any;
 
         constructor(public name: string) {
             super();
@@ -33,7 +34,12 @@ module Survey {
                 this.koComment.subscribe(function (newValue) {
                     self.setNewComment(newValue);
                 });
-
+                var self = this;
+                this.koIsSelected = ko.observable(false);
+                this.koOnClick = function () {
+                    if (self.data == null || !self.data.isDesignMode) return;
+                    self.data.selectedQuestion = this;
+                }
             }
         }
         protected createkoValue(): any { return ko.observable(this.value); }
@@ -70,7 +76,7 @@ module Survey {
             this.hasOtherValue = val;
             if (this.hasOther) this.hasComment = false;
         }
-        setData(newValue: ISurveyData) {
+        setData(newValue: ISurvey) {
             this.data = newValue;
             this.onSurveyValueChanged(this.value);
         }
@@ -95,6 +101,10 @@ module Survey {
         public hasErrors(): boolean {
             this.checkForErrors();
             return this.errors.length > 0;
+        }
+        public onSelectedQuestionChanged() {
+            if (this.data == null) return;
+            this.koIsSelected(this.data.selectedQuestion == this);
         }
         private checkForErrors() {
             this.errors = [];
@@ -157,7 +167,7 @@ module Survey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", ["!name", "title", "isRequired", "hasComment", "hasOther", "visible", "validators", "width"]);
+    JsonObject.metaData.addClass("question", ["!name", "title", "isRequired", "visible", "validators", "width"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });

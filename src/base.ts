@@ -2,13 +2,15 @@
     export interface HashTable<T> {
         [key: string]: T;
     }
-    export interface ISurveyData {
+    export interface ISurvey {
         getValue(name: string): any;
         setValue(name: string, newValue: any);
         getComment(name: string): string;
         setComment(name: string, newValue: string);
         onQuestionVisibilityChanged(name: string, newValue: boolean);
         validateQuestion(name: string): SurveyError;
+        isDesignMode: boolean;
+        selectedQuestion: Question;
     }
     export interface IQuestion {
         name: string;

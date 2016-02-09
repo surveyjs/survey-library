@@ -26,7 +26,8 @@ var paths = {
     tsTests: "./tests/*.ts",
     tsTests_ko: "./tests/ko/*.ts",
     styles: "./src/*.scss",
-    templates_ko: "./src/templates/ko/*.html"
+    templates_ko: "./src/templates/ko/*.html",
+    templates_window_ko: "./src/templates/window.ko/*.html"
 };
 
 paths.jsFolder = paths.webroot + "js/";
@@ -164,6 +165,10 @@ gulp.task('tsd', function (callback) {
         "use strict";    
         gulp.src(paths.templates_ko)
           .pipe(concat("template.ko.html"))
+          .pipe(html2ts())
+          .pipe(gulp.dest("./src/"));
+        gulp.src(paths.templates_window_ko)
+          .pipe(concat("template.window.ko.html"))
           .pipe(html2ts())
           .pipe(gulp.dest("./src/"));
     });

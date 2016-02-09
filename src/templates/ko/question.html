@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-    <div class="sv_q" data-bind="visible: question.koVisible || $root.isDesignMode, click:koOnClick, css: {sv_q_selected : koIsSelected}">
+    <div class="sv_q" data-bind="visible: question.koVisible || $root.isDesignMode, click: $root.isDesignMode ? koOnClick: null, css: {sv_q_selected : koIsSelected}">
         <div data-bind="css: {sv_q_design: $root.isDesignMode}">
             <div style="color:red" data-bind="foreach: koErrors">
                 <div data-bind="text:$data.getText()"></div>

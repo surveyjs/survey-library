@@ -5,6 +5,7 @@
         windowElement: HTMLDivElement;
         isShowingValue: boolean;
         isExpandedValue: boolean;
+        titleValue: string;
         koExpanded: any;
         doExpand: any;
         
@@ -23,6 +24,8 @@
         public get survey(): Survey { return this.surveyValue; }
         public get isShowing(): boolean { return this.isShowingValue; }
         public get isExpanded(): boolean { return this.isExpandedValue; }
+        public get title(): string { return this.titleValue ? this.titleValue : this.survey.title; }
+        public set title(value: string) { this.titleValue = value; }
         public show() {
             this.windowElement.innerHTML = template.window.ko.html;
             if (this.isKO) {

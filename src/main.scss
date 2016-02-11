@@ -2,6 +2,12 @@
     position: fixed;
     bottom: 0;
     right: 10px;
+    background-color: cadetblue;
+}
+.sv_window_title {
+    width: 200px;
+    height: 20px;
+    background-color: cadetblue;
 }
 .sv_main {
     width: 100%;
@@ -10,7 +16,7 @@
      pointer-events: none;
 }
 .sv_q_selected {
-    border: solid 1px blue;
+    background-color: lightblue;
 }
 .sv_q {
     width: 100%;

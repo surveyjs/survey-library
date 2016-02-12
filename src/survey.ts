@@ -221,6 +221,13 @@ module Survey {
             }
             return result;
         }
+        public getPageByQuestion(question: IQuestion): Page {
+            for (var i: number = 0; i < this.pages.length; i++) {
+                var page = this.pages[i];
+                if (page.questions.indexOf(<Question>question) > -1) return page;
+            }
+            return null;
+        }
         public getPageByName(name: string): Page {
             for (var i: number = 0; i < this.pages.length; i++) {
                 if (this.pages[i].name == name) return this.pages[i];

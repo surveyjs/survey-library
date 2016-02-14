@@ -50,6 +50,11 @@ module Survey {
             this.addQuestion(question);
             return question;
         }
+        public removeQuestion(question: Question) {
+            var index = this.questions.indexOf(question);
+            if (index < 0) return;
+            this.questions.splice(index, 1);
+        }
         public hasErrors(): boolean {
             var result = false;
             for (var i = 0; i < this.questions.length; i++) {

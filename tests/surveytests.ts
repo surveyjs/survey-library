@@ -36,6 +36,19 @@ module Survey.Tests {
         survey.pages.pop();
         assert.equal(survey.currentPage, survey.pages[0], "the first page is current after removing the current one");
     });
+    QUnit.test("Remove Page", function (assert) {
+        var survey = new Survey();
+        survey.mode = "designer";
+        survey.addPage(new Page("Page 1"));
+        survey.addPage(new Page("Page 2"));
+        assert.equal(survey.PageCount, 2, "Two pages");
+        assert.equal(survey.currentPage.name, "Page 1", "the first page is  current");
+
+        survey.removePage(survey.pages[0]);
+        assert.equal(survey.PageCount, 1, "One page left");
+        assert.equal(survey.currentPage.name, "Page 2", "the second page is  current");
+    });
+
     QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
         var survey = new Survey();
         survey.addPage(createPageWithQuestion("Page 1"));

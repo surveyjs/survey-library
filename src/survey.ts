@@ -204,6 +204,14 @@ module Survey {
             this.addPage(page);
             return page;
         }
+        removePage(page: Page) {
+            var index = this.pages.indexOf(page);
+            if (index < 0) return;
+            this.pages.splice(index, 1);
+            if (this.currentPageValue == page) {
+                this.currentPage = this.pages.length > 0 ? this.pages[0] : null;
+            }
+        }
         public getQuestionByName(name: string): IQuestion {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {

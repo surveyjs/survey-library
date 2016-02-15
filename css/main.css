@@ -172,17 +172,17 @@ a, a:link, a:visited
 }
 
 /* bottom menu */
-.navbottom ul {
+.snavbottom ul {
   list-style: none;
   text-align: center;
   padding: 0;
   margin: 0;
 }
-.navbottom li {
+.snavbottom li {
 }
 
 /* top menu */
-.nav ul {
+.snav ul {
   list-style: none;
   background-color: #da3610;
   text-align: left;
@@ -192,15 +192,15 @@ a, a:link, a:visited
   height: 50px;
 }
 
-.nav li {
+.snav li {
     display: inline-block;
     vertical-align: middle;
 }
-.navbottom li {
+.snavbottom li {
     display: inline-block;
 }
 
-.nav a {
+.snav a {
   white-space: nowrap;
   text-decoration: none;
   color: white;
@@ -210,10 +210,10 @@ a, a:link, a:visited
     margin: 10px;
 }
  
-.nav a:hover {
+.snav a:hover {
 }
  
-.nav a.active {
+.snav a.active {
     background-color: #b32c0d;
     font-weight: 600;
     cursor: default;

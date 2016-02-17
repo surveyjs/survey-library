@@ -38,7 +38,7 @@ module Survey {
         public supportOther(): boolean { return true; }
     }
     ItemValue.setData(QuestionRating.defaultRateValues, [1, 2, 3, 4, 5]);
-    JsonObject.metaData.addClass("rating", ["hasComment", "rateValues", "mininumRateDescription", "maximumRateDescription"], function () { return new QuestionRating(""); }, "question");
+    JsonObject.metaData.addClass("rating", ["hasComment:boolean", "rateValues:itemvalues", "mininumRateDescription", "maximumRateDescription"], function () { return new QuestionRating(""); }, "question");
     JsonObject.metaData.setPropertyValues("rating", "rateValues", null, null,
         function (obj: any) { return ItemValue.getData(obj.rateValues); },
         function (obj: any, value: any) { ItemValue.setData(obj.rateValues, value); });

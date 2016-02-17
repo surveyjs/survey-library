@@ -72,7 +72,7 @@ module Survey {
             }
         }
     }
-    JsonObject.metaData.addClass("page", ["name", "questions", "visible", "title"], function () { return new Page(); });
+    JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });
     JsonObject.metaData.setPropertyValues("page", "visible", null, true);
     JsonObject.metaData.setPropertyClassInfo("page", "questions", "question");
  }

@@ -115,12 +115,12 @@ module Survey {
             this.isMultipleItemValueChanging = false;
         }
     }
-    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators"], function () { return new MultipleTextItem(""); });
+    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators:validators"], function () { return new MultipleTextItem(""); });
     JsonObject.metaData.setPropertyClassInfo("multipletextitem", "validators", "surveyvalidator", "validator");
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 
-    JsonObject.metaData.addClass("multipletext", ["!items", "itemSize"], function () { return new QuestionMultipleText(""); }, "question");
+    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number"], function () { return new QuestionMultipleText(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
     JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
     QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleText(name); q.AddItem("text1"); q.AddItem("text2"); return q; });

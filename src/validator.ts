@@ -122,8 +122,8 @@ module Survey {
 
 
     JsonObject.metaData.addClass("surveyvalidator", ["text"]);
-    JsonObject.metaData.addClass("numericvalidator", ["minValue", "maxValue"], function () { return new NumericValidator(); }, "surveyvalidator");
-    JsonObject.metaData.addClass("textvalidator", ["minLength"], function () { return new TextValidator(); }, "surveyvalidator");
-    JsonObject.metaData.addClass("answercountvalidator", ["minCount", "maxCount"], function () { return new AnswerCountValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("numericvalidator", ["minValue:number", "maxValue:number"], function () { return new NumericValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("textvalidator", ["minLength:number"], function () { return new TextValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("answercountvalidator", ["minCount:number", "maxCount:number"], function () { return new AnswerCountValidator(); }, "surveyvalidator");
  
 }

@@ -98,13 +98,15 @@ module Survey {
             if (tEl.nodeName == "#text") tEl.data = "";
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["hasComment", "hasOther", "!choices", "choicesOrder", "otherText", "otherErrorText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean", "!choices:itemvalues", "choicesOrder", "otherText", "otherErrorText"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
     JsonObject.metaData.setPropertyValues("selectbase", "choicesOrder", null, "none");
+    JsonObject.metaData.setPropertyChoices("selectbase", "choicesOrder", ["none", "asc", "desc", "random"]);
     JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, QuestionSelectBase.otherItemText);
 
-    JsonObject.metaData.addClass("checkboxbase", ["colCount"], null, "selectbase");
+    JsonObject.metaData.addClass("checkboxbase", ["colCount:number"], null, "selectbase");
     JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);
+    JsonObject.metaData.setPropertyChoices("checkboxbase", "colCount", [0, 1, 2, 4]);
 }

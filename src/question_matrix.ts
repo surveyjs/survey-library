@@ -74,7 +74,7 @@ module Survey {
             }
         }
    }
-    JsonObject.metaData.addClass("matrix", ["columns", "rows"], function () { return new QuestionMatrix(""); }, "question");
+    JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrix(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrix", "columns", null, null,
         function (obj: any) { return ItemValue.getData(obj.columns); },
         function (obj: any, value: any) { ItemValue.setData(obj.columns, value); });

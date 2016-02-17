@@ -15,7 +15,7 @@ module Survey {
             return super.isEmpty() || this.value == "";
         }
     }
-    JsonObject.metaData.addClass("comment", ["cols", "rows"], function () { return new QuestionComment(""); }, "question");
+    JsonObject.metaData.addClass("comment", ["cols:number", "rows:number"], function () { return new QuestionComment(""); }, "question");
     JsonObject.metaData.setPropertyValues("comment", "cols", null, 50);
     JsonObject.metaData.setPropertyValues("comment", "rows", null, 4);
     QuestionFactory.Instance.registerQuestion("comment", (name) => { return new QuestionComment(name); });

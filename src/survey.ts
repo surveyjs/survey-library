@@ -415,8 +415,8 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers", "surveyId", "surveyPostId", "sendResultOnPageNext",
-        "showNavigationButtons", "showTitle", "showPageTitles", "showPageNumbers", "showQuestionNumbers",
+    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "sendResultOnPageNext:boolean",
+        "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
@@ -429,6 +429,7 @@ module Survey {
     JsonObject.metaData.setPropertyValues("survey", "showTitle", null, true);
     JsonObject.metaData.setPropertyValues("survey", "showPageTitles", null, true);
     JsonObject.metaData.setPropertyValues("survey", "showQuestionNumbers", null, "on");
+    JsonObject.metaData.setPropertyChoices("survey", "showQuestionNumbers", ["on", "onPage", "off"]);
     JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "* ");
     JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, "Previous");
     JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, "Next");

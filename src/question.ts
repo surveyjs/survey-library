@@ -167,7 +167,7 @@ module Survey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", ["!name", "title", "isRequired", "visible", "validators", "width"]);
+    JsonObject.metaData.addClass("question", ["!name", "title", "isRequired:boolean", "visible:boolean", "validators:validators", "width"]);
     JsonObject.metaData.setPropertyValues("question", "visible", null, true);
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });

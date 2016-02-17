@@ -2,16 +2,20 @@
 module Survey {
 
     export class JsonObjectProperty {
+        private typeValue: string = null;
         public className: string = null;
         public classNamePart: string = null;
         public baseClassName: string = null;
         public defaultValue: any = null;
+        public choices: Array<any> = null;
         public onGetValue: (obj: any) => any = null;
         public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any
 
         constructor(public name: string) {
         }
-        public get hasToUseGetValue() { return this.onGetValue; }
+        public get type(): string { return this.typeValue ? this.typeValue : "string"; }
+        public set type(value: string) { this.typeValue = value; }
+        public get hasToUseGetValue() { return this.onGetValue; } 
         public isDefaultValue(value: any): boolean {
             return (this.defaultValue) ? (this.defaultValue == value) : !(value);
         }
@@ -35,13 +39,24 @@ module Survey {
     }
     export class JsonMetadataClass {
         static requiredSymbol = '!';
+        static typeSymbol = ':';
         properties: Array<JsonObjectProperty> = null;
         requiredProperties: Array<string> = null;
         constructor(public name: string, propertiesNames: Array<string>, public creator: () => any = null, public parentName: string = null) {
             this.properties = new Array<JsonObjectProperty>();
             for (var i = 0; i < propertiesNames.length; i++) {
                 var propertyName = this.getPropertyName(propertiesNames[i]);
-                this.properties.push(new JsonObjectProperty(propertyName));
+                var propertyType = null;
+                var typeIndex = propertyName.indexOf(JsonMetadataClass.typeSymbol);
+                if (typeIndex > -1) {
+                    propertyType = propertyName.substring(typeIndex + 1);
+                    propertyName = propertyName.substring(0, typeIndex);
+                }
+                var prop = new JsonObjectProperty(propertyName);
+                if (propertyType) {
+                    prop.type = propertyType;
+                }
+                this.properties.push(prop);
             }
         }
         public find(name: string): JsonObjectProperty {
@@ -84,6 +99,11 @@ module Survey {
             property.defaultValue = defaultValue;
             property.onGetValue = onGetValue;
             property.onSetValue = onSetValue;
+        }
+        public setPropertyChoices(name: string, propertyName: string, choices: Array<any>) {
+            var property = this.findProperty(name, propertyName);
+            if (!property) return;
+            property.choices = choices;
         }
         public setPropertyClassInfo(name: string, propertyName: string, baseClassName: string, classNamePart: string = null) {
             var property = this.findProperty(name, propertyName);

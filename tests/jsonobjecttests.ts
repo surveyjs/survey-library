@@ -68,8 +68,9 @@ module Survey.JsonSerializationTests {
     JsonObject.metaData.addClass("big", [], null, "car");
 
     JsonObject.metaData.addClass("car", ["name"]);
-    JsonObject.metaData.addClass("truck", ["maxWeight"], function () { return new Truck(); }, "big");
+    JsonObject.metaData.addClass("truck", ["maxWeight:number"], function () { return new Truck(); }, "big");
     JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "fast");
+    JsonObject.metaData.setPropertyChoices("sport", "maxSpeed", [100, 150, 200, 250]);
 
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
     JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
@@ -302,4 +303,25 @@ module Survey.JsonSerializationTests {
         children = JsonObject.metaData.getChildrenClasses("car", true);
         assert.equal(children.length, 3, "There are 3 children classes that can be created.");
     });
+     QUnit.test("Property Type test", function (assert) {
+         var properties = JsonObject.metaData.getProperties("truck");
+         assert.equal(properties[0].name, "name", "It is a 'name' property");
+         assert.equal(properties[0].type, "string", "Name property is string");
+         assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
+         assert.equal(properties[1].type, "number", "maxWeight property is number");
+     });
+     QUnit.test("Property Choices test", function (assert) {
+         var properties = JsonObject.metaData.getProperties("truck");
+         assert.equal(properties[0].name, "name", "It is a 'name' property");
+         assert.equal(properties[0].type, "string", "Name property is string");
+         assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
+         assert.equal(properties[1].type, "number", "maxWeight property is number");
+     });
+     QUnit.test("Property Choices test", function (assert) {
+         var properties = JsonObject.metaData.getProperties("sport");
+         assert.equal(properties[1].name, "maxSpeed", "It is a 'maxSpeed' property");
+         assert.deepEqual(properties[1].choices, [100, 150, 200, 250], "'maxSpeed' property choices");
+     });
+
+     
 }

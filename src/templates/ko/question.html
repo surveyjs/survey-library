@@ -1,6 +1,14 @@
 ﻿<script type="text/html" id="survey-question">
-    <div class="sv_q" data-bind="visible: question.koVisible() || $root.isDesignMode, click: $root.isDesignMode ? koOnClick: null, css: {sv_q_selected : koIsSelected}">
-        <div data-bind="css: {sv_q_design: $root.isDesignMode}">
+    <div class="sv_q" data-bind="attr : {draggable: $root.isDesignMode}, visible: question.koVisible() || $root.isDesignMode, click: $root.isDesignMode ? koOnClick: null, css: {sv_q_selected : koIsSelected},
+         event:{
+           dragstart:function(el, e){ dragStart(e); return true; },
+           dragenter:function(el, e){ dragOver(e);},
+           dragleave:function(){ dragLeave();},
+           dragover:function(el, e){ dragOver(e);},
+           drop:function(el, e){ dragDrop(e);}
+         }">
+        <div class="sv_dragover" data-bind="visible:koDragging() == 'up'"></div>
+        <div data-bind="css:{sv_q_design: $root.isDesignMode}">
             <div style="color:red" data-bind="foreach: koErrors">
                 <div data-bind="text:$data.getText()"></div>
             </div>
@@ -12,5 +20,6 @@
                 <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
             </div>
         </div>
-   </div>
+        <div class="sv_dragover" data-bind="visible:koDragging() == 'down'"></div>
+    </div>
 </script>

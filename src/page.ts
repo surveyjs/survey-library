@@ -1,6 +1,7 @@
 ﻿/// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
+/// <reference path="dragdrophelper.ts" />
 module Survey {
     export class Page extends Base {
         questions: Array<Question> = new Array<Question>();
@@ -9,11 +10,15 @@ module Survey {
         public title: string = "";
         public visibleIndex: number = -1;
         private numValue: number = -1;
-        koNo: any;
+        koNo: any; koDragging: any;
+        dragEnter: any; dragLeave: any; dragDrop: any;
         
         constructor(public name: string = "") {
             super();
             var self = this;
+            this.dragEnter = function (e) { self.koDragging(true); }
+            this.dragLeave = function (e) { self.koDragging(false); }
+            this.dragDrop = function (e) { self.doDrop(e); }
             this.questions.push = function (value) {
                 if (self.data != null) {
                     value.setData(self.data);
@@ -22,6 +27,7 @@ module Survey {
             };
             if (this.isKO) {
                 this.koNo = ko.observable("");
+                this.koDragging = ko.observable(false);
             }
         }
         public get num() { return this.numValue; }
@@ -41,9 +47,13 @@ module Survey {
             return false;
         }
 
-        public addQuestion(question: Question) {
+        public addQuestion(question: Question, index: number = -1) {
             if (question == null) return;
-            this.questions.push(question);
+            if (index < 0 || index >= this.questions.length) {
+                this.questions.push(question);
+            } else {
+                this.questions.splice(index, 0, question);
+            }
         }
         public addNewQuestion(questionType: string, name: string): Question {
             var question = QuestionFactory.Instance.createQuestion(questionType, name);
@@ -70,6 +80,9 @@ module Survey {
                 if (visibleOnly && !this.questions[i].visible) continue;
                 list.push(this.questions[i]);
             }
+        }
+        private doDrop(e) {
+            new DragDropHelper().doDrop(e, this.data);
         }
     }
     JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });

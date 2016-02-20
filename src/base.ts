@@ -7,7 +7,9 @@
         setValue(name: string, newValue: any);
         getComment(name: string): string;
         setComment(name: string, newValue: string);
-        onQuestionVisibilityChanged(name: string, newValue: boolean);
+        questionVisibilityChanged(question: IQuestion, newValue: boolean);
+        questionAdded(question: IQuestion, index: number);
+        questionRemoved(question: IQuestion);
         validateQuestion(name: string): SurveyError;
         isDesignMode: boolean;
         selectedQuestion: Question;

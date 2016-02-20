@@ -14,15 +14,15 @@ module Survey {
         }
         public startDragNewQuestion(event: DragEvent, questionType: string, questionName: string) {
             this.setData(event, DragDropHelper.dataStart + "questiontype:" + questionType + ",questionname:" + questionName);
-            event.dataTransfer.dropEffect = "copy";
+            //event.dataTransfer.dropEffect = "copy";
         }
         public startDragQuestion(event: DragEvent, questionName: string) {
             this.setData(event, DragDropHelper.dataStart + "questionname:" + questionName);
-            event.dataTransfer.dropEffect = "move";
+            //event.dataTransfer.dropEffect = "move";
         }
         public getDragDropInfo(event: DragEvent): DragDropInfo {
             var info = new DragDropInfo();
-            if (!event || !event.dataTransfer) return info;
+            if (!event) return info;
             var data = this.getData(event);
             if (!data) return info;
             info.isSurveyTarget = data.indexOf(DragDropHelper.dataStart) == 0;
@@ -71,11 +71,15 @@ module Survey {
             return result;
         }
         private setData(event: DragEvent, data: string) {
-            event.dataTransfer.setData("Text", data);
+            if (event.dataTransfer) {
+                event.dataTransfer.setData("Text", data);
+            }
             DragDropHelper.dragData = data;
         }
         private getData(event: DragEvent): string {
-            var data = event.dataTransfer.getData("Text");
+            if (event.dataTransfer) {
+                var data = event.dataTransfer.getData("Text");
+            }
             return data ? data : DragDropHelper.dragData;
         }
         private clearData() {

@@ -54,6 +54,10 @@ module Survey {
             } else {
                 this.questions.splice(index, 0, question);
             }
+            if (this.data != null) {
+                question.setData(this.data);
+                this.data.questionAdded(question, index);
+            }
         }
         public addNewQuestion(questionType: string, name: string): Question {
             var question = QuestionFactory.Instance.createQuestion(questionType, name);
@@ -64,6 +68,7 @@ module Survey {
             var index = this.questions.indexOf(question);
             if (index < 0) return;
             this.questions.splice(index, 1);
+            if (this.data != null) this.data.questionRemoved(question);
         }
         public hasErrors(): boolean {
             var result = false;
@@ -83,6 +88,9 @@ module Survey {
         }
         private doDrop(e) {
             new DragDropHelper().doDrop(e, this.data);
+            if (this.isKO) {
+                this.koDragging(false);
+            }
         }
     }
     JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });

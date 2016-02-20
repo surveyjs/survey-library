@@ -69,7 +69,7 @@ module Survey {
                 this.dummyObservable(this.dummyObservable() + 1);
             }
             if (this.data) {
-                this.data.onQuestionVisibilityChanged(this.name, this.visible);
+                this.data.questionVisibilityChanged(<IQuestion>this, this.visible);
             }
         }
         get visibleIndex(): number { return this.visibleIndexValue; }

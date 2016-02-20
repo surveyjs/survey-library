@@ -45,13 +45,14 @@ module Survey {
         constructor(public name: string, propertiesNames: Array<string>, public creator: () => any = null, public parentName: string = null) {
             this.properties = new Array<JsonObjectProperty>();
             for (var i = 0; i < propertiesNames.length; i++) {
-                var propertyName = this.getPropertyName(propertiesNames[i]);
+                var propertyName = propertiesNames[i];
                 var propertyType = null;
                 var typeIndex = propertyName.indexOf(JsonMetadataClass.typeSymbol);
                 if (typeIndex > -1) {
                     propertyType = propertyName.substring(typeIndex + 1);
                     propertyName = propertyName.substring(0, typeIndex);
                 }
+                var propertyName = this.getPropertyName(propertyName);
                 var prop = new JsonObjectProperty(propertyName);
                 if (propertyType) {
                     prop.type = propertyType;

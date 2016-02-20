@@ -35,6 +35,8 @@ module Survey {
         public onCurrentPageChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onQuestionAdded: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onQuestionRemoved: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onSendResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onGetResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
@@ -414,10 +416,17 @@ module Survey {
                 this.valuesHash[name] = newValue;
             }
         }
-        onQuestionVisibilityChanged(name: string, newValue: boolean) {
+        questionVisibilityChanged(question: IQuestion, newValue: boolean) {
             this.updateVisibleIndexes();
-            this.onVisibleChanged.fire(this, { 'name': name, 'visible': newValue });
+            this.onVisibleChanged.fire(this, { 'question': question, 'name': question.name, 'visible': newValue });
         }
+        questionAdded(question: IQuestion, index: number) {
+            this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index });
+        }
+        questionRemoved(question: IQuestion) {
+            this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
+        }
+
         validateQuestion(name: string): SurveyError {
             if (this.onValidateQuestion.isEmpty) return null;
             var options = { name: name, value: this.getValue(name), error: null };

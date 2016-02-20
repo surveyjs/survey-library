@@ -12,11 +12,21 @@
 .sv_main {
   width: 100%; }
 
+.sv_page_empty {
+  height: 300px;
+  align-content: center;
+  width: 100%; }
+
 .sv_q_design {
   pointer-events: none; }
 
 .sv_q_selected {
   background-color: lightblue; }
+
+.sv_dragover {
+  width: 100%;
+  height: 5px;
+  border: 2px dashed #000; }
 
 .sv_q {
   width: 100%;

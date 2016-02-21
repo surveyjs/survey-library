@@ -2,15 +2,18 @@
     <div data-bind="event:{
            dragenter:function(el, e){ dragEnter(e);},
            dragleave:function(el, e){ dragLeave(e);},
-           dragover:function(el, e){ dragEnter(e);},
+           dragover:function(el, e){ return false;},
            drop:function(el, e){ dragDrop(e);}}
      ">
         <h3 data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + title"></h3>
-        <!-- ko template: { name: 'survey-question', foreach: questions, as: 'question' } -->
+        <!-- ko foreach: { data: questions, as: 'question' } -->
+            <div class="sv_dragover" data-bind="visible:$parent.koDragging() == $index()"></div>
+            <!-- ko template: { name: 'survey-question', data: question } -->
+            <!-- /ko -->
         <!-- /ko -->
         <div data-bind="visible:$root.isDesignMode && questions.length == 0" class="sv_page_empty">
-            <span>Please drop a question here.</span>
-            <div class="sv_dragover" data-bind="visible:koDragging"></div>
+            <span class="sv_page_empty_content">Please drop a question here.</span>
         </div>
+        <div class="sv_dragover" data-bind="visible:koDragging() == questions.length"></div>
     </div>
 </script>

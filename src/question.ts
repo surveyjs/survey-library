@@ -13,13 +13,13 @@ module Survey {
         private hasOtherValue: boolean = false;
         private visibleValue: boolean = true;
         private visibleIndexValue: number = -1;
-        private dragDropHelper: DragDropHelper;
+        private dragDropHelperValue: DragDropHelper;
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         public width: string = "100%";
         koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
-        koOnClick: any; koIsSelected: any; koDragging: any;
-        dragLeave: any; dragDrop: any; dragOver: any; dragStart: any;
+        koOnClick: any; koIsSelected: any; 
+        dragDrop: any; dragOver: any; dragStart: any;
 
         constructor(public name: string) {
             super();
@@ -37,9 +37,6 @@ module Survey {
                 this.koComment.subscribe(function (newValue) {
                     self.setNewComment(newValue);
                 });
-                this.dragDropHelper = new DragDropHelper();
-                this.koDragging = ko.observable();
-                this.dragLeave = function () { self.koDragging(""); }
                 this.dragOver = function (e) { self.doDragOver(e); }
                 this.dragDrop = function (e) { self.doDragDrop(e); }
                 this.dragStart = function (e) { self.startDragging(e); }
@@ -160,17 +157,20 @@ module Survey {
                 this.data.setComment(this.name, newValue);
             }
         }
+        private get dragDropHelper(): DragDropHelper {
+            if (this.dragDropHelperValue == null) {
+                this.dragDropHelperValue = new DragDropHelper(this.data);
+            }
+            return this.dragDropHelperValue;
+        }
         private startDragging(e) {
             this.dragDropHelper.startDragQuestion(e, this.name);
         }
         private doDragOver(e) {
-            var info = this.dragDropHelper.getDragDropInfo(e);
-            if (!info.isSurveyTarget) return;
-            this.koDragging(info.position);
+            this.dragDropHelper.doDragDropOver(e, this);
         }
         private doDragDrop(e) {
-            this.dragDropHelper.doDrop(e, this.data, this);
-            this.koDragging("");
+            this.dragDropHelper.doDrop(e, this);
         }
         //IQuestion
         onSurveyValueChanged(newValue: any) {

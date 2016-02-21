@@ -13,10 +13,16 @@
     width: 100%;
 }
 .sv_page_empty {
-    height: 300px;
-    align-content:center;
+    height: 100px;
     width:100%;
+    display: table;
 }
+.sv_page_empty_content {
+    display: table-cell;
+    vertical-align: middle;
+    text-align:center;
+}
+
 .sv_q_design {
      pointer-events: none;
  }
@@ -24,6 +30,7 @@
     background-color: lightblue;
 }
 .sv_dragover {
+pointer-events: none;
     width:100%;
     height:5px;
     border: 2px dashed #000;

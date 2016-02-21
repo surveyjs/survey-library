@@ -261,24 +261,6 @@ module Survey {
             }
             return result;
         }
-        public moveQuestionTo(targetQuestion: IQuestion, toQuestion: IQuestion = null, before: boolean = false) {
-            if (targetQuestion == null || targetQuestion == toQuestion) return;
-            var page = this.getPageByQuestion(targetQuestion);
-            if (page) {
-                page.removeQuestion(<Question>targetQuestion);
-            }
-            if (!toQuestion) {
-                this.currentPage.addQuestion(<Question>targetQuestion);
-            } else {
-                page = this.getPageByQuestion(toQuestion);
-                var index = page.questions.indexOf(<Question>toQuestion);
-                if (!before) {
-                    index++;
-                }
-                page.addQuestion(<Question>targetQuestion, index)
-            }
-
-        }
         private notifyQuestionOnValueChanged(name: string, newValue: any) {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {

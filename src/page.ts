@@ -12,13 +12,11 @@ module Survey {
         private numValue: number = -1;
         koNo: any; koDragging: any;
         dragEnter: any; dragLeave: any; dragDrop: any;
-        
+        private dragEnterCounter: number = 0;
+
         constructor(public name: string = "") {
             super();
             var self = this;
-            this.dragEnter = function (e) { self.koDragging(true); }
-            this.dragLeave = function (e) { self.koDragging(false); }
-            this.dragDrop = function (e) { self.doDrop(e); }
             this.questions.push = function (value) {
                 if (self.data != null) {
                     value.setData(self.data);
@@ -27,7 +25,11 @@ module Survey {
             };
             if (this.isKO) {
                 this.koNo = ko.observable("");
-                this.koDragging = ko.observable(false);
+                this.koDragging = ko.observable(-1);
+                this.koDragging.subscribe(function (newValue) { if (newValue < 0) self.dragEnterCounter = 0; });
+                this.dragEnter = function (e) { e.preventDefault(); self.dragEnterCounter++; if (self.koDragging() < 0) self.koDragging(self.questions.length); };
+                this.dragLeave = function (e) { self.dragEnterCounter--; if (self.dragEnterCounter === 0) self.koDragging(-1); };
+                this.dragDrop = function (e) { self.doDrop(e); };
             }
         }
         public get num() { return this.numValue; }
@@ -37,7 +39,7 @@ module Survey {
             if (this.isKO) {
                 this.koNo(this.numValue > 0 ? this.numValue + ". " : "");
             }
-        } 
+        }
         public getType(): string { return "page"; }
         public get isVisible(): boolean {
             if (!this.visible) return false;
@@ -87,10 +89,7 @@ module Survey {
             }
         }
         private doDrop(e) {
-            new DragDropHelper().doDrop(e, this.data);
-            if (this.isKO) {
-                this.koDragging(false);
-            }
+            new DragDropHelper(this.data).doDrop(e);
         }
     }
     JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });

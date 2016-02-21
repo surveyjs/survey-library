@@ -108,5 +108,5 @@ module Survey {
 
     JsonObject.metaData.addClass("checkboxbase", ["colCount:number"], null, "selectbase");
     JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);
-    JsonObject.metaData.setPropertyChoices("checkboxbase", "colCount", [0, 1, 2, 4]);
+    JsonObject.metaData.setPropertyChoices("checkboxbase", "colCount", [0, 1, 2, 3, 4]);
 }

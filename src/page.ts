@@ -27,7 +27,7 @@ module Survey {
                 this.koNo = ko.observable("");
                 this.koDragging = ko.observable(-1);
                 this.koDragging.subscribe(function (newValue) { if (newValue < 0) self.dragEnterCounter = 0; });
-                this.dragEnter = function (e) { e.preventDefault(); self.dragEnterCounter++; if (self.koDragging() < 0) self.koDragging(self.questions.length); };
+                this.dragEnter = function (e) { e.preventDefault(); self.dragEnterCounter++; self.doDragEnter(e); };
                 this.dragLeave = function (e) { self.dragEnterCounter--; if (self.dragEnterCounter === 0) self.koDragging(-1); };
                 this.dragDrop = function (e) { self.doDrop(e); };
             }
@@ -90,6 +90,12 @@ module Survey {
         }
         private doDrop(e) {
             new DragDropHelper(this.data).doDrop(e);
+        }
+        private doDragEnter(e) {
+            if (this.koDragging() > 0) return;
+            if (new DragDropHelper(this.data).isSurveyDragging(e)) {
+                this.koDragging(this.questions.length);
+            }
         }
     }
     JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });

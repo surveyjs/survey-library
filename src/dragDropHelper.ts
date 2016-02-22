@@ -17,6 +17,11 @@ module Survey {
         public startDragQuestion(event: DragEvent, questionName: string) {
             this.setData(event, DragDropHelper.dataStart + "questionname:" + questionName);
         }
+        public isSurveyDragging(event: DragEvent): boolean {
+            if (!event) return false;
+            var data = this.getData(event);
+            return data && data.indexOf(DragDropHelper.dataStart) == 0;
+        }
         public doDragDropOver(event: DragEvent, question: Question) {
             if (!question || !this.isSurveyDragging(event) || this.isSamePlace(event, question)) return;
             var index = this.getQuestionIndex(event, question);
@@ -38,7 +43,6 @@ module Survey {
             }
             if (!targetQuestion) return;
             this.moveQuestionTo(targetQuestion, index);
-            this.survey.render();
         }
         private getQuestionIndex(event: DragEvent, question: Question) {
             var page = this.survey.currentPage;
@@ -90,11 +94,6 @@ module Survey {
                 element = <HTMLElement>element.offsetParent;
             }
             return result;
-        }
-        private isSurveyDragging(event: DragEvent): boolean {
-            if (!event) return false;
-            var data = this.getData(event);
-            return data && data.indexOf(DragDropHelper.dataStart) == 0;
         }
         private setData(event: DragEvent, data: string) {
             if (event.dataTransfer) {

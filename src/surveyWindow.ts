@@ -13,6 +13,7 @@
             super();
             var self = this;
             this.surveyValue = new Survey(jsonObj);
+            this.surveyValue.showTitle = false;
             this.survey.onComplete.add((sender: Survey) => { self.onComplete(); });
             this.windowElement = <HTMLDivElement>document.createElement("div");
             if (this.isKO) {

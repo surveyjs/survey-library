@@ -1,0 +1,16 @@
+﻿<div class="panel-heading" data-bind="visible: (title.length > 0) && showTitle">
+    <h3 data-bind="text:title"></h3>
+</div>
+<!-- ko if: koCurrentPage() -->
+<div class="panel-body" data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
+<div class="panel-footer" data-bind="visible: showNavigationButtons && !isDesignMode">
+    <input type="button" class="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage()" />
+    <input type="button" class="button" value="Next" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage()" />
+    <input type="button" class="button" value="Submit" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage()" />
+</div>
+<!-- /ko -->
+<!-- ko if: koCurrentPage() == null -->
+<div class="panel-body">
+    There is no any visible page or visible question in the survey.
+</div>
+<!-- /ko -->

@@ -1,16 +1,14 @@
 ﻿<script type="text/html" id="survey-question-checkbox">
     <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-    <div data-bind="css: question.koClass">
-        <div class="sv_q_checkbox">
-            <label>
+    <div class="sv_qcbc"  data-bind="style:{width: question.koWidth}">
+            <label class="sv_q_checkbox">
                 <input type="checkbox"
                        data-bind="value: item.value, checked: question.koValue" />
                 <span data-bind="text: item.text"></span>
             </label>
-            <div data-bind="if:$index() == (question.visibleChoices.length-1), visible: question.hasOther">
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-            </div>
-        </div>
     </div>
     <!-- /ko -->
+    <div data-bind="if:question.hasOther">
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+    </div>
 </script>

@@ -11,6 +11,7 @@ var gulp = require('gulp'),
     uglify = require("gulp-uglify"),
     rename = require("gulp-rename"),
     html2ts = require("gulp-html-to-ts"),
+    sequence = require("gulp-sequence"),
     project = require("./project.json"),
     plugins = require("gulp-load-plugins")({
         pattern: ['gulp-*', 'gulp.*', 'main-bower-files'],
@@ -27,7 +28,9 @@ var paths = {
     tsTests_ko: "./tests/ko/*.ts",
     styles: "./src/*.scss",
     templates_ko: "./src/templates/ko/*.html",
-    templates_window_ko: "./src/templates/window.ko/*.html"
+    templates_window_ko: "./src/templates/window.ko/*.html",
+    templates_ko_bootstrap: "./src/templates/ko.bootstrap/*.html",
+    templates_window_ko_bootstrap: "./src/templates/window.ko.bootstrap/*.html"
 };
 
 paths.jsFolder = paths.webroot + "js/";
@@ -58,6 +61,17 @@ gulp.task('tsd', function (callback) {
 });
 
 (function () {
+    gulp.task('templates', function () {
+        "use strict";
+        gulp.src(paths.templates_ko)
+          .pipe(concat("template.ko.html"))
+          .pipe(html2ts())
+          .pipe(gulp.dest("./src/"));
+        gulp.src(paths.templates_window_ko)
+          .pipe(concat("template.window.ko.html"))
+          .pipe(html2ts())
+          .pipe(gulp.dest("./src/"));
+    });
     (function () {
         "use strict";
         gulp.task("typescript:sources", function () {
@@ -151,7 +165,6 @@ gulp.task('tsd', function (callback) {
              }))
             .pipe(gulp.dest(paths.dist));
     });
-
     gulp.task('sass', function () {
         "use strict";    
         gulp.src(paths.styles)
@@ -160,28 +173,58 @@ gulp.task('tsd', function (callback) {
           .pipe(gulp.dest(paths.webroot + 'css'))
           .pipe(gulp.dest(paths.dist + 'css'));
     });
+    gulp.task("sass_compress", sequence(["sass", "compress"]));
 
-    gulp.task('templates', function () {
-        "use strict";    
-        gulp.src(paths.templates_ko)
+    gulp.task('templates:bootstrap', function () {
+        "use strict";
+        gulp.src(paths.templates_ko_bootstrap)
           .pipe(concat("template.ko.html"))
           .pipe(html2ts())
           .pipe(gulp.dest("./src/"));
-        gulp.src(paths.templates_window_ko)
+        gulp.src(paths.templates_window_ko_bootstrap)
           .pipe(concat("template.window.ko.html"))
           .pipe(html2ts())
           .pipe(gulp.dest("./src/"));
     });
+    gulp.task("typescript:bootstrap", function () {
+        var tsResult = gulp.src([
+              paths.webroot + "/lib/survey/**/*.d.ts",
+              paths.typings
+        ].concat(paths.ts))
+           .pipe(sourcemaps.init())
+           .pipe(ts({
+               target: "ES5",
+               noImplicitAny: false,
+               declarationFiles: true
+           }));
 
-    gulp.task("makedist", ["templates", "typescript", "sass", "compress"]);
+        return tsResult.js
+            .pipe(concat('survey.bootstrap.js'))
+            .pipe(sourcemaps.write({ sourceRoot: "src" }))
+            //Source map is a part of generated file
+            .pipe(gulp.dest(paths.dist))
+            .pipe(gulp.dest(paths.jsFolder));
+    });
+    gulp.task('compress:bootstrap', function () {
+        "use strict";
+        return gulp.src(paths.dist + 'survey.bootstrap.js')
+            .pipe(uglify())
+             .pipe(rename({
+                 extname: '.min.js'
+             }))
+            .pipe(gulp.dest(paths.dist));
+    });
+
+    gulp.task("makedist", sequence("templates", "typescript", "sass_compress", "templates:bootstrap", "typescript:bootstrap", "compress:bootstrap"));
 })("TypeScript compilation");
 
-    gulp.task("test_ci", function (done) { 
-         new Server({ 
-             configFile: __dirname + "/karma.conf.js", 
-             singleRun: true 
-    }, done).start(); 
-    }); 
+
+gulp.task("test_ci", function (done) { 
+        new Server({ 
+            configFile: __dirname + "/karma.conf.js", 
+            singleRun: true 
+}, done).start(); 
+}); 
  
 gulp.task("server", serve({ 
      root: ["wwwroot"], 

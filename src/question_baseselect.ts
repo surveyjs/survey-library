@@ -75,12 +75,12 @@ module Survey {
 
     export class QuestionCheckboxBase extends QuestionSelectBase {
         private colCountValue: number = 1;
-        koClass: any;
+        koWidth: any;
         constructor(public name: string) {
             super(name);
             if (this.isKO) {
                 var self = this;
-                this.koClass = ko.computed(function () { self.dummyObservable(); return "sv_qcbc" + self.colCount; });
+                this.koWidth = ko.computed(function () { self.dummyObservable(); return self.colCount > 0 ? (100 / self.colCount) + '%' : ""; });
             }
         }
         public get colCount(): number { return this.colCountValue; }

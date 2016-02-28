@@ -1,0 +1,12 @@
+﻿<script type="text/html" id="survey-question-checkbox">
+    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+    <label class="checkbox-inline" style="margin:0" data-bind="style:{width: question.koWidth}">
+        <input type="checkbox"
+               data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
+        <span data-bind="text: item.text"></span>
+    </label>
+    <!-- /ko -->
+    <div data-bind="visible:question.hasOther">
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+    </div>
+</script>

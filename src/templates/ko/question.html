@@ -1,21 +1,14 @@
 ﻿<script type="text/html" id="survey-question">
-    <div class="sv_q" data-bind="attr : {draggable: $root.isDesignMode}, visible: question.koVisible() || $root.isDesignMode, click: $root.isDesignMode ? koOnClick: null, css: {sv_q_selected : koIsSelected},
-         event:{
-           dragstart:function(el, e){ dragStart(e); return true; },
-           dragover:function(el, e){ dragOver(e);},
-           drop:function(el, e){ dragDrop(e);}
-         }">
-        <div data-bind="css:{sv_q_design: $root.isDesignMode}">
-            <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
-                <div data-bind="text:$data.getText()"></div>
-            </div>
-            <div class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.data.requiredText : '') + question.title"></div>
-            <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
-            <!-- /ko -->
-            <div data-bind="visible: question.hasComment">
-                Other (please describe)
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
-            </div>
+    <div class="sv_q" data-bind="visible: question.koVisible()">
+        <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
+            <div data-bind="text:$data.getText()"></div>
+        </div>
+        <div class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.data.requiredText : '') + question.title"></div>
+        <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
+        <!-- /ko -->
+        <div data-bind="visible: question.hasComment">
+            Other (please describe)
+            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
     </div>
 </script>

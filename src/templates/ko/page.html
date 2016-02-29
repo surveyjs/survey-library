@@ -1,19 +1,7 @@
 ﻿<script type="text/html" id="survey-page">
-    <div class="sv_p" data-bind="event:{
-           dragenter:function(el, e){ dragEnter(e);},
-           dragleave:function(el, e){ dragLeave(e);},
-           dragover:function(el, e){ return false;},
-           drop:function(el, e){ dragDrop(e);}}
-     ">
-        <div class="sv_p_title" data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + title"></div>
-        <!-- ko foreach: { data: questions, as: 'question' } -->
-            <div class="sv_dragover" data-bind="visible:$parent.koDragging() == $index()"></div>
-            <!-- ko template: { name: 'survey-question', data: question } -->
-            <!-- /ko -->
+    <div class="sv_p_title" data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + title"></div>
+    <!-- ko foreach: { data: questions, as: 'question' } -->
+        <!-- ko template: { name: 'survey-question', data: question } -->
         <!-- /ko -->
-        <div data-bind="visible:$root.isDesignMode && questions.length == 0" class="sv_page_empty">
-            <span class="sv_page_empty_content">Please drop a question here.</span>
-        </div>
-        <div class="sv_dragover" data-bind="visible:koDragging() == questions.length"></div>
-    </div>
+    <!-- /ko -->
 </script>

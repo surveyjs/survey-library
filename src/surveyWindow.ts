@@ -6,6 +6,7 @@
         isShowingValue: boolean;
         isExpandedValue: boolean;
         titleValue: string;
+        templateValue: string;
         koExpanded: any;
         doExpand: any;
         
@@ -28,7 +29,7 @@
         public get title(): string { return this.titleValue ? this.titleValue : this.survey.title; }
         public set title(value: string) { this.titleValue = value; }
         public show() {
-            this.windowElement.innerHTML = template.window.ko.html;
+            this.windowElement.innerHTML = this.template;
             if (this.isKO) {
                 ko.cleanNode(this.windowElement);
                 ko.applyBindings(this, this.windowElement);
@@ -48,6 +49,8 @@
         public collapse() {
             this.expandcollapse(false);
         }
+        protected get template(): string { return this.templateValue ? this.templateValue : template.window.ko.html; }
+        protected set template(value: string) {  this.templateValue = value; }
         private expandcollapse(value: boolean) {
             this.isExpandedValue = value;
             if (this.isKO) {

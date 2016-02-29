@@ -28,7 +28,6 @@ module Survey {
         private currentPageValue: Page = null;
         private valuesHash: HashTable<any> = {};
         private renderedElement: HTMLElement;
-        private selectedQuestionValue: Question = null;
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
         public onRendered: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
@@ -40,7 +39,6 @@ module Survey {
         public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onSendResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public onGetResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onSelectedQuestionChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
 
         public mode: string = "normal";
@@ -70,6 +68,7 @@ module Survey {
                     this.loadSurveyFromService(this.surveyId, renderedElement);
                 }
             }
+            this.onCreating();
             this.render(renderedElement);
         }
         public getType(): string { return "survey"; }
@@ -138,19 +137,6 @@ module Survey {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': value });
         }
         public get isDesignMode(): boolean { return this.mode == "designer"; }
-        public get selectedQuestion(): Question { return this.selectedQuestionValue; }
-        public set selectedQuestion(value: Question) {
-            if (value == this.selectedQuestion) return;
-            var oldValue = this.selectedQuestion;
-            this.selectedQuestionValue = value;
-            if (oldValue != null) {
-                oldValue.onSelectedQuestionChanged();
-            }
-            if (this.selectedQuestion != null) {
-                this.selectedQuestion.onSelectedQuestionChanged();
-            }
-            this.onSelectedQuestionChanged.fire(this, { 'oldSelectedQuestion': oldValue, 'newSelectedQuestion': value });
-        }
         private updateKoCurrentPage() {
             if (this.isKO) {
                 this.dummyObservable(this.dummyObservable() + 1);
@@ -371,6 +357,7 @@ module Survey {
                 this.jsonErrors = jsonConverter.errors;
             }
         }
+        protected onCreating() { }
         //ISurvey data
         getValue(name: string): any {
             if (!name || name.length == 0) return null;

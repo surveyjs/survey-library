@@ -1,7 +1,7 @@
 ﻿/// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-/// <reference path="dragdrophelper.ts" />
+
 module Survey {
     export class Page extends Base {
         questions: Array<Question> = new Array<Question>();
@@ -10,9 +10,7 @@ module Survey {
         public title: string = "";
         public visibleIndex: number = -1;
         private numValue: number = -1;
-        koNo: any; koDragging: any;
-        dragEnter: any; dragLeave: any; dragDrop: any;
-        private dragEnterCounter: number = 0;
+        koNo: any; 
 
         constructor(public name: string = "") {
             super();
@@ -25,11 +23,7 @@ module Survey {
             };
             if (this.isKO) {
                 this.koNo = ko.observable("");
-                this.koDragging = ko.observable(-1);
-                this.koDragging.subscribe(function (newValue) { if (newValue < 0) self.dragEnterCounter = 0; });
-                this.dragEnter = function (e) { e.preventDefault(); self.dragEnterCounter++; self.doDragEnter(e); };
-                this.dragLeave = function (e) { self.dragEnterCounter--; if (self.dragEnterCounter === 0) self.koDragging(-1); };
-                this.dragDrop = function (e) { self.doDrop(e); };
+                this.onCreating();
             }
         }
         public get num() { return this.numValue; }
@@ -88,15 +82,7 @@ module Survey {
                 list.push(this.questions[i]);
             }
         }
-        private doDrop(e) {
-            new DragDropHelper(this.data).doDrop(e);
-        }
-        private doDragEnter(e) {
-            if (this.koDragging() > 0) return;
-            if (new DragDropHelper(this.data).isSurveyDragging(e)) {
-                this.koDragging(this.questions.length);
-            }
-        }
+        protected onCreating() { }
     }
     JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });
     JsonObject.metaData.setPropertyValues("page", "visible", null, true);

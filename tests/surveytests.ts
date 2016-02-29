@@ -342,6 +342,7 @@ module Survey.Tests {
         assert.equal(survey.getQuestionByName("question2").visible, true, "trigger should not be called");
         assert.equal(survey.pages[1].visible, true, "trigger should not be called");
     });
+    /* move to designer
     QUnit.test("Designer select a question", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.equal(survey.isDesignMode, false);
@@ -362,6 +363,7 @@ module Survey.Tests {
         assert.equal(question1.koIsSelected(), false, "the first question is not selected");
         assert.equal(question2.koIsSelected(), true, "the second question is selected");
     });
+    */
     function twoPageSimplestSurvey() {
         var survey = new Survey();
         var page = survey.addNewPage("Page 1");

@@ -216,6 +216,8 @@ gulp.task('tsd', function (callback) {
     });
 
     gulp.task("makedist", sequence("templates", "typescript", "sass_compress", "templates:bootstrap", "typescript:bootstrap", "compress:bootstrap"));
+    gulp.task("makedist:bootstrap", sequence("templates:bootstrap", "typescript:bootstrap", "compress:bootstrap"));
+    gulp.task("makedistall", sequence("makedist", "makedist:bootstrap"));
 })("TypeScript compilation");
 
 

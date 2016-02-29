@@ -12,7 +12,6 @@
         questionRemoved(question: IQuestion);
         validateQuestion(name: string): SurveyError;
         isDesignMode: boolean;
-        selectedQuestion: Question;
     }
     export interface IQuestion {
         name: string;

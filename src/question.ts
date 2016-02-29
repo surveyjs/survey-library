@@ -2,7 +2,6 @@
 /// <reference path="error.ts" />
 /// <reference path="validator.ts" />
 /// <reference path="jsonobject.ts" />
-/// <reference path="dragdrophelper.ts" />
 module Survey {
     export class Question extends Base implements IQuestion, IValidatorOwner {
         protected data: ISurvey;
@@ -13,13 +12,11 @@ module Survey {
         private hasOtherValue: boolean = false;
         private visibleValue: boolean = true;
         private visibleIndexValue: number = -1;
-        private dragDropHelperValue: DragDropHelper;
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         public width: string = "100%";
         koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
-        koOnClick: any; koIsSelected: any; 
-        dragDrop: any; dragOver: any; dragStart: any;
+        koIsSelected: any; 
 
         constructor(public name: string) {
             super();
@@ -37,15 +34,7 @@ module Survey {
                 this.koComment.subscribe(function (newValue) {
                     self.setNewComment(newValue);
                 });
-                this.dragOver = function (e) { self.doDragOver(e); }
-                this.dragDrop = function (e) { self.doDragDrop(e); }
-                this.dragStart = function (e) { self.startDragging(e); }
-                var self = this;
-                this.koIsSelected = ko.observable(false);
-                this.koOnClick = function () {
-                    if (self.data == null || !self.data.isDesignMode) return;
-                    self.data.selectedQuestion = this;
-                }
+                this.onCreating();
             }
         }
         protected createkoValue(): any { return ko.observable(this.value); }
@@ -108,10 +97,6 @@ module Survey {
             this.checkForErrors();
             return this.errors.length > 0;
         }
-        public onSelectedQuestionChanged() {
-            if (this.data == null) return;
-            this.koIsSelected(this.data.selectedQuestion == this);
-        }
         private checkForErrors() {
             this.errors = [];
             this.onCheckForErrors(this.errors);
@@ -157,21 +142,7 @@ module Survey {
                 this.data.setComment(this.name, newValue);
             }
         }
-        private get dragDropHelper(): DragDropHelper {
-            if (this.dragDropHelperValue == null) {
-                this.dragDropHelperValue = new DragDropHelper(this.data);
-            }
-            return this.dragDropHelperValue;
-        }
-        private startDragging(e) {
-            this.dragDropHelper.startDragQuestion(e, this.name);
-        }
-        private doDragOver(e) {
-            this.dragDropHelper.doDragDropOver(e, this);
-        }
-        private doDragDrop(e) {
-            this.dragDropHelper.doDrop(e, this);
-        }
+        protected onCreating() { }
         //IQuestion
         onSurveyValueChanged(newValue: any) {
             this.isValueChangedInSurvey = true;

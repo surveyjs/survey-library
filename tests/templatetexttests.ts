@@ -18,7 +18,7 @@ module Survey.Tests {
         assert.equal(template.template, '<script type="text/ html" id="survey-question-rating">MyTest</script>', "the template question replaced correctly");
     });
 
-    export class SurveyTemplateTextTest extends SurveyTemplateTextBase {
+    export class SurveyTemplateTextTest extends Survey.SurveyTemplateTextBase {
         constructor(public template: string) { super(); }
         protected get text(): string { return this.template; }
         protected set text(value: string) { this.template = value; }

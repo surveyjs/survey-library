@@ -1,5 +1,10 @@
 ﻿<div class="modal-content" style="position: fixed; bottom: 3px; right: 10px;">
-    <div class="modal-header"><a href="#" data-bind="click:doExpand" style="width:100%"><span data-bind="text:title"></span></a></div>
+    <div class="modal-header panel-title">
+        <a href="#" data-bind="click:doExpand" style="width:100%">
+            <span class="pull-left" style="padding-right:10px" data-bind="text:title"></span>
+            <span class="glyphicon pull-right" aria-hidden="true" data-bind="css:{'glyphicon-chevron-up': koExpanded(), 'glyphicon-chevron-down': !koExpanded()}"></span>
+        </a>
+    </div>
     <div class="modal-body" data-bind="visible:koExpanded">
         <div class="sv_window_content" id="windowSurveyJS"></div>
     </div>

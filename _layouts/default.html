@@ -4,22 +4,25 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>survey.js : {{ page.title }}</title>
         <link href="{{ page.pathprefix }}css/main.css" type="text/css" rel="stylesheet" />
-        <link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" />
         <!--
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
         -->
         <script src="{{ page.pathprefix }}js/knockout.js"></script>
-        <script src="{{ page.pathprefix }}js/survey.js"></script>
-        {% if page.usedxchart%}
+        {% if page.usedxchart or page.usebootstrap %}
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>        
+        {% endif %}
+        {% if page.usedxchart%}
         <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/globalize/0.1.1/globalize.min.js"></script>        
         <script type="text/javascript" src="http://cdn3.devexpress.com/jslib/15.1.5/js/dx.chartjs.js"></script>
         {% endif %}
         {% if page.usebootstrap%}
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-        <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <script src="{{ page.pathprefix }}js/survey.bootstrap.min.js"></script>
+        {% else %}
+        <link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" />
+        <script src="{{ page.pathprefix }}js/survey.min.js"></script>
         {% endif %}
         <link href="http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css" rel="stylesheet" type="text/css" />
         <script src="http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js" type="text/javascript"></script>

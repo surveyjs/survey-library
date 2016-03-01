@@ -6,3 +6,15 @@
   /* Required to make elements draggable in old WebKit */
   -khtml-user-drag: element;
   -webkit-user-drag: element; }
+
+.svd_q_selected {
+  border-width: 3px; }
+
+.svd_q_design {
+  pointer-events: none; }
+
+.svd_dragover {
+  pointer-events: none;
+  width: 100%;
+  height: 5px;
+  border: 2px dashed #000; }

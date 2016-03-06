@@ -6,7 +6,7 @@ Email: <input type="email" id="email" size="30" onChange="survey.setValue('email
 <p/>
 Cars (use comma to separate values, do not type spaces): <input type="text" id="car" size="50" onChange="survey.setValue('car', this.value.split(','))" value="Ford" />
 
-<pre class="brush:js">
+<pre><code class="language-javascript">
 //Use getValue to get the value of the question
 survey.getValue('questionName');
 //Use setValue to set the value of the question
@@ -24,4 +24,4 @@ survey.onComplete.add(function (sender) {
     var mySurvey = sender;
     var surveyData = sender.data;
 });
-</pre>
+</code></pre>

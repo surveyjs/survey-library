@@ -1,7 +1,17 @@
 {% assign current = page.url | downcase | split: '/' %}
-<ul>
-    <li><a rel="home" href="{{ page.pathprefix }}index.html" {% if current[1] == 'index.html' %}class='active'{% endif %}>Home</a></li>
-    <li><a rel="examples" href="{{ page.pathprefix }}examples/"  {% if current[1] == 'examples' %}class='active'{% endif %}>Live examples</a></li>
-    <li><a rel="builder" href="{{ page.pathprefix }}builder/"  {% if current[1] == 'builder' %}class='active'{% endif %}>Builder</a></li>
-    <li><a href="http://github.com/andrewtelnov/surveyjs">Source</a></li>
-</ul>
+<div class="navbar-wrapper">
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+            <a class="btn btn-lg btn-primary" href="{{ page.pathprefix }}index.html">survey.js</a>
+        </div>      
+        <ul class="nav navbar-nav navbar-right">
+            <li {% if current[1] == 'index.html' %}class='active'{% endif %}><a rel="home" href="{{ page.pathprefix }}index.html">Home</a></li>
+            <li {% if current[1] == 'examples' %}class='active'{% endif %}><a rel="examples" href="{{ page.pathprefix }}examples/">Live examples</a></li>
+            <li {% if current[1] == 'builder' %}class='active'{% endif %}><a rel="builder" href="{{ page.pathprefix }}builder/">Visual designer</a></li>
+            <li><a href="http://github.com/andrewtelnov/surveyjs">Source</a></li>
+            <li><a href="{{ page.pathprefix }}downloads/surveyjs.zip">Download</a></li>
+        </ul>
+        </div>
+    </nav>
+</div>

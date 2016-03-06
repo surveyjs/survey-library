@@ -9,9 +9,9 @@
         <option value="3">3</option>
         <option value="4" selected="true">4</option>
     </select>
-    <pre class="brush:js">var q = survey.getQuestionByName('car');
+    <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.colCount = yourValue; 
-survey.render();</pre>
+survey.render();</code></pre>
     </p>
 </div>
 {% endif %}
@@ -24,24 +24,24 @@ survey.render();</pre>
             <option value="desc">desc</option>
             <option value="random">random</option>
         </select>
-        <pre class="brush:js code">var q = survey.getQuestionByName('car');
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.choicesOrder = yourvalue; 
-survey.render();</pre>
+survey.render();</code></pre>
     </p>
 </div>
 <div class="propertyitem">
     <p>
         <input type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" /> <b>Show others: </b> (default is false)
-        <pre class="brush:js">var q = survey.getQuestionByName('car');
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.hasOther = yourvalue; 
-survey.render();"</pre>
+survey.render();</code></pre>
     </p>
 </div>
 <div class="propertyitem">
     <p>
         <b>Others text</b> <input  type="text" style="width:100%" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
-        <pre class="brush:js">var q = survey.getQuestionByName('car');
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.otherText = yourvalue; 
-survey.render();"</pre>
+survey.render();</code></pre>
     </p>
 </div>

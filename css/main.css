@@ -1,221 +1,35 @@
-body {
-    margin:0;
-    height:100%;
+.maincontent {
+    margin-top: 48px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
-
-a, a:link, a:visited
-{
-    text-decoration: none;
+.surveycontent {
+    align-content: center;
+    width:500px;
 }
-
-.code {
-    padding: 13px;
-}
-.propertyitem {
-    margin-bottom: 60px;
-}
-.precode {    
-    border-radius: 2px;
-    border-color: #eeeeee;
-    border-style: solid;
-    border-width: 1px;
-    font: 300 14px 'Segoe UI';
-}
-
-.header{
-    margin:0;
-    padding:0;
-}
-.container{
-    margin:0;
-}
-.leftmenu{
+.examplesidebar {
     float:left;
     left:0;
-    width:290px;
+    background-color: #2f4050;
+    width:220px;
     height:100%;
-    color: #9b9b9b;
-    font: 600 14px 'Segoe UI';
-    background-color: #222222;
 }
-.leftmenucategory {
-    background: #191818;
-    border-bottom-color: #515151;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    width:100%;
+.examplecontent {
+    margin-left: 220px;
 }
-.leftmenucategorytitle {
-    padding: 18px 0 18px 46px;
+.exampleoptions {
+    margin-top: 30px;
 }
-
-.leftmenucategorytitleimg {
-    padding: 0;
-    float: right;
-    vertical-align: middle;   
-    margin-right: 32px;
+span.navy {
+  color: #1ab394;
 }
-
-.leftmenuitem {
-    margin: 0;
-    padding: 0;
-    background-color: #222222;
-}
-.leftmenuiteminfo {
-    padding: 13px 20px 13px 47px;
-    font: 600 14px 'Segoe UI';
-}
-.leftmenuimage {
-    margin: 0 0 0 47px;
-    width:243px;
-    border-bottom-color:#515151;
-    border-bottom-width:1px;
-    border-bottom-style:solid;
-}
-.leftmenuitemactive {
-    background-color: #eeeeee;
-    color: #ff702a;
-}
-.leftmenuitemtext {
-    padding: 0;    
-    margin: 0;
-    font-weight: 400;
-    color: #515151;
-}
-.leftmenuitemtextactive {
-    color: #191818;
-}
-.leftmenu h1 {
-    color: #ffffff;
-    font: 600 14px 'Segoe UI';
-}
-.leftmenuitem a {
-    text-decoration: none;
-    color: #9b9b9b;
-}
-
-.leftmenuitemactive a {
-    color: #ff702a;
-}
-
-.leftmenucategorytitletext  {
-    color: #515151;
-}
-.leftmenucategorytitleactive {
-    color: #ffffff;
-}
-.content {
-    margin-left: 290px;
-    padding-left: 60px;
-    padding-right: 60px;
-    padding-top: 40px;
-    min-height: 2000px;
-    background: #eeeeee;
-}
-.contentrightmargin {
-    margin-right: 438px;
-}
-
-.contenttitle {
-    color: #ff702a;
-    font: 300 45px 'Segoe UI';
-}
-.contentcontainer {
-    background-color: #ffffff;
-    border-radius: 2px;
-    box-shadow: 0px 0px 5px 0.00px rgba(0, 0, 0, 0.2);
-    padding: 33px;
-}
-
-.codecontainer {
-    margin-bottom: 90px;    
-}
-.codecontainertitle {
-    font: 300 30px 'Segoe UI';
-    padding-top: 7px;
-    padding-bottom: 23px;
-}
-
-.right {
-    float:right;
-    width:438px;
-    color: #9b9b9b;
-    background-color: #f6f6f6;
-    min-height: 2000px;
-    box-shadow: 0px 0px 5px 0.00px rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-}
-
-.rightcontent{
-    color: #9b9b9b;
-    font: 600 14px 'Segoe UI';
-    background-color: #f6f6f6;
-    min-height: 2000px;
-    padding-top: 130px;
-    padding-left: 30px;
-    padding-right: 30px;
-    color: #000000;
-    font: 300 14px 'Segoe UI';
-}
-
-
-
-.footer{
-    margin:0;
-    color: white;
-    background-color:#FFFFFF;
-    padding:0;
-}
-
-.surveycontent{
-    background-color: beige;
-}
-
-/* bottom menu */
-.snavbottom ul {
-  list-style: none;
-  text-align: center;
-  padding: 0;
-  margin: 0;
-}
-.snavbottom li {
-}
-
-/* top menu */
-.snav ul {
-  list-style: none;
-  background-color: #da3610;
-  text-align: left;
-  font: 400 14px 'Segoe UI';
-  padding: 0px;
-  margin: 0px;
-  height: 50px;
-}
-
-.snav li {
-    display: inline-block;
-    vertical-align: middle;
-}
-.snavbottom li {
-    display: inline-block;
-}
-
-.snav a {
-  white-space: nowrap;
+a.navy-link {
+  color: #1ab394;
   text-decoration: none;
-  color: white;
-    vertical-align: middle;
-    display: block;
-    padding: 5px 20px 5px 20px;
-    margin: 10px;
 }
- 
-.snav a:hover {
+.navy-line {
+  width: 60px;
+  height: 1px;
+  margin: 60px auto 0;
+  border-bottom: 2px solid #1ab394;
 }
- 
-.snav a.active {
-    background-color: #b32c0d;
-    font-weight: 600;
-    cursor: default;
-}
-

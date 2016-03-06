@@ -3,37 +3,37 @@ layout: default
 pathprefix: ../
 mainmenukey: examples
 ---
-{% if page.propertiesFile %}
-<div class="right">
-    <div class="rightcontent">
-        {% include {{page.propertiesFile}} %}
+{% include menu-examples.html %}
+
+<div class="examplecontent wrapper wrapper-content">
+    <div class="row">
+            <div {% if page.propertiesFile %}class="col-md-8"{%else%}class="col-md-12"{%endif%}>
+                <h3 class="contenttitle">{{ page.title }}</h3>	
+                {% if page.preSurvey %}
+                    {% include {{page.preSurvey}} %}
+                {% endif %}
+                <div id="surveyContainer" class="contentcontainer  codecontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
+                    <div id="survey"></div>
+                </div>
+                <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
+                    <div class="codecontainertitle">Thank you! You have completed the survey!</div>
+                    <div id="survey_result"></div>
+                    <input type="button" onclick="
+                        document.getElementById('surveyContainer').style.display = '';
+                        document.getElementById('survey_oncomplete').style.display = 'none'; 
+                        survey.data = null;
+                        survey.currentPage = survey.visiblePages[0];
+                        survey.render('survey');" 
+                        value="Re-run survey"></input>
+                </div>
+                {{ content }}
+            </div>
+            {% if page.propertiesFile %}
+            <div class="col-md-4 exampleoptions">
+                {% include {{page.propertiesFile}} %}
+            </div>
+            {% endif %}
     </div>
-</div>		
-{% endif %}
-<div class="leftmenu">
-    {% include menu-examples.html %}
-</div>		
-<div class="content {% if page.propertiesFile %} contentrightmargin {% endif %}">
-    <h1 class="contenttitle">{{ page.title }}</h1>	
-    {% if page.preSurvey %}
-        {% include {{page.preSurvey}} %}
-    {% endif %}
-    <div id="surveyContainer" class="contentcontainer  codecontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
-        <div id="survey"></div>
-    </div>
-    <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
-        <div class="codecontainertitle">Thank you! You have completed the survey!</div>
-        <div id="survey_result"></div>
-        <input type="button" onclick="
-            document.getElementById('surveyContainer').style.display = '';
-            document.getElementById('survey_oncomplete').style.display = 'none'; 
-            survey.data = null;
-            survey.currentPage = survey.visiblePages[0];
-            survey.render('survey');" 
-            value="Re-run survey"></input>
-    </div>
-    {{ content }}
-    
 </div>
 <script>
 function renderSurvey() {

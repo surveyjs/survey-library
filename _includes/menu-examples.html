@@ -1,26 +1,23 @@
-<div id="examples" data-bind="foreach: categories">
-    <div class="leftmenucategory">
-        <a data-bind="click:onClick" href="#">
-            <div  class="leftmenucategorytitle">
-                <span class="leftmenucategorytitletext" data-bind="text: name, css: {leftmenucategorytitleactive: expanded()}"></span>
-                <span class="leftmenucategorytitleimg">
-                    <img src="{{ page.pathprefix }}images/category_expand.png" data-bind="visible:expanded()"></img>
-                    <img src="{{ page.pathprefix }}images/category_collapse.png"  data-bind="visible:!expanded()"></img>
-                </span>
-            </div>
-        </a>
-        <div data-bind="foreach: items, visible:expanded()">
-            <div class="leftmenuitem" data-bind="css: {leftmenuitemactive: selected}">
-                <div class="leftmenuiteminfo">
-                    <a data-bind="attr: {href: url}, text:name"></a>
-                    <div class="leftmenuitemtext" data-bind="text:text, css: {leftmenuitemtextactive: selected}"></div>
-                </div>
-                <div class="leftmenuimage" data-bind="visible: !selected && ($index() != ($parent.items.length - 1))"></div>
-            </div>
-        </div>
+<nav class="navbar-default navbar-static-side examplesidebar" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu" data-bind="foreach: categories">
+            <li data-bind="css:{active: selected}">
+                <a data-bind="click:onClick" href="#">
+                        <span data-bind="text: name, css: {leftmenucategorytitleactive: expanded()}"></span>
+                    <span class="glyphicon pull-right" aria-hidden="true" data-bind="css:{'glyphicon-chevron-up': expanded(), 'glyphicon-chevron-down': !expanded()}"></span>
+                </a>
+                <ul class="nav nav-second-level"  data-bind="foreach: items, visible:expanded">
+                    <li data-bind="css: {active: selected}">
+                        <a data-bind="attr: {href: url}">
+                            <span data-bind="text:name"></span>
+                            <div><small data-bind="text:text"></small></div>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </div>
-</div>
-
+</nav>
 
 <script type="text/javascript">
     var ExampleItem = function(name, text, url) {
@@ -32,6 +29,7 @@
     var ExampleCategory = function(name, items) {
         this.name = name;
         this.items = items;
+        this.selected = false;
         this.expanded = ko.observable(false);
         var self = this;
         this.onClick = function() { self.expanded(!self.expanded());}
@@ -49,6 +47,7 @@
                 new ExampleItem("Comment", "Comment question", "questiontype-comment.html")
             ]),
             new ExampleCategory("Survey", [
+                new ExampleItem("Change Rendering", "Change question templates", "survey-customtemplate.html"),
                 new ExampleItem("Work with data", "Get/set data from/to survey", "survey-data.html"),
                 new ExampleItem("Survey Options", "Use properties to set up your survey", "survey-options.html"),
                 new ExampleItem("Custom Navigation", "Use your own navigation", "survey-customnavigation.html")
@@ -82,6 +81,7 @@
                     var item = category.items[j];
                     if(loc == item.url) {
                         item.selected = true;
+                        category.selected = true;
                         category.expanded(true);
                         return;
                     }

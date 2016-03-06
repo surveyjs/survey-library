@@ -45,13 +45,17 @@ canonicalUrl: /
         <h1>Add Survey into your page.</h1>
     </div>
     <div class="row">
-        <div class="col-sm-3">
+        <div class="col-sm-4">
             <h1>Step 1</h1>
-            <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}downloads/surveyjs.zip" target="_blank">Download survey.js library</a>            
+            <h4>Download survey.js library</h4>
+            <div>
+                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}downloads/surveyjs.zip" target="_blank">Download</a>
+            </div>
         </div>
-       <div class="col-sm-9">
+       <div class="col-sm-8">
            <h2>Step 2</h2>
-           Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a>. survey.js uses this MVVM library. The file size is about 50k.
+           <h4>Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a></h4> 
+           <div>survey.js uses this MVVM library. The file size is about 50k.</div>
         <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
         </code></pre>
         </div>
@@ -59,7 +63,7 @@ canonicalUrl: /
     <div class="row">
        <div class="col-sm-12">
            <h2>Step 3</h2>
-           Add link(s) to survey.js
+           <h4>Add link(s) to survey.js</h4>
        </div>
     </div>
     <div class="row">
@@ -79,12 +83,12 @@ canonicalUrl: /
         </div>
     </div>
     <div class="row">
-       <div class="col-sm-2">
-           <h3>Build JSON using</h3>
+       <div class="col-sm-4">
+           <h4>Build JSON using</h4>
            <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/" target="_blank">Visual Designer</a>            
        </div>
-       <div class="col-sm-10">
-           <div>JSON example</div>
+       <div class="col-sm-8">
+           <h4>JSON example</h4>
            <pre><code class="language-js">var surveyJSON = {% include surveys/survey-about.json %}</code></pre>
        </div>
     </div>
@@ -92,7 +96,7 @@ canonicalUrl: /
     <div class="row">
        <div class="col-sm-12">
            <h2>Step 5</h2>
-           <div>Show Survey on the page</div>
+           <h4>Show Survey on the page</h4>
         </div>
     </div>
     <div class="row">
@@ -116,7 +120,7 @@ survey.onComplete.add(sendDataToServer);
     <div class="row">
        <div class="col-sm-12">
            <h2>Step 6</h2>
-           <div>Save survey data on the web server.</div>
+           <h4>Save survey data on the web server.</h4>
         </div>
     </div>
     <div class="row">
@@ -153,10 +157,8 @@ survey.onComplete.add(sendDataToServer);
     <div class="row">
         <div class="col-sm-12">
             <h1>Step 7 (optional)</h1>
-            <div  class="jumbotron">
-                <p>Get the results of your survey using the <a href="http://dxsurvey.com/">dxSurvey Service</a>.</p>
-                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}examples/service-result.html">Show me</a>            
-            </div>
+            <p>Get the results of your survey using the <a href="http://dxsurvey.com/">dxSurvey Service</a>.</p>
+            <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}examples/service-result.html">Show me</a>            
         </div>
     </div>
 </section>

@@ -65,17 +65,14 @@ module Survey {
         }
         protected getDefaultErrorText(name: string) {
             var vName = name ? name : "value";
-            var result = "The '" + vName + "' should be ";
-            if (this.minValue) {
-                result += "equal or more than " + this.minValue;
-            }
-            if (this.maxValue) {
+            if (this.minValue && this.maxValue) {
+                return surveyStrings.numericMinMax["format"](vName, this.minValue, this.maxValue);
+            } else {
                 if (this.minValue) {
-                    result += " and ";
-                }
-                result += " equal or less than " + this.maxValue;
+                    return surveyStrings.numericMin["format"](vName, this.minValue);
+                } 
+                return surveyStrings.numericMax["format"](vName, this.maxValue);
             }
-            return result;
         }
         private isNumber(value): boolean {
             return !isNaN(parseFloat(value)) && isFinite(value);
@@ -95,7 +92,7 @@ module Survey {
             return null;
         }
         protected getDefaultErrorText(name: string) {
-            return "Please enter at least " + this.minLength + " symblos.";
+            return surveyStrings.textMinLength["format"](this.minLength);
         }
     }
 
@@ -108,10 +105,10 @@ module Survey {
             if (value == null || value.constructor != Array) return null;
             var count = value.length;
             if (this.minCount && count < this.minCount) {
-                return new ValidatorResult(null, new CustomError(this.getErrorText("Please select at least " + this.minCount + " variants.")));
+                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyStrings.minSelectError["format"](this.minCount))));
             }
             if (this.maxCount && count > this.maxCount) {
-                return new ValidatorResult(null, new CustomError(this.getErrorText("Please select not more than " + this.maxCount + " variants.")));
+                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyStrings.maxSelectError["format"](this.maxCount))));
             }
             return null;
         }

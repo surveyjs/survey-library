@@ -1,11 +1,12 @@
 ﻿/// <reference path="base.ts" />
+/// <reference path="surveyStrings.ts" />
 module Survey {
     export class AnswerRequiredError extends SurveyError {
         constructor()  {
             super();
         }
         public getText(): string {
-            return "You should answer the question.";
+            return surveyStrings.requiredError;
         }
     }
     export class RequreNumericError extends SurveyError {
@@ -13,7 +14,7 @@ module Survey {
             super();
         }
         public getText(): string {
-            return "The value should be a numeric.";
+            return surveyStrings.numericError;
         }
     }
     export class CustomError extends SurveyError {

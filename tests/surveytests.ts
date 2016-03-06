@@ -342,6 +342,10 @@ module Survey.Tests {
         assert.equal(survey.getQuestionByName("question2").visible, true, "trigger should not be called");
         assert.equal(survey.pages[1].visible, true, "trigger should not be called");
     });
+    QUnit.test("String format", function (assert) {
+        var strResult = surveyStrings.textMinLength["format"](10);
+        assert.equal(strResult, "Please enter at least 10 symblos.", "The format string is working");
+    });
     /* move to designer
     QUnit.test("Designer select a question", function (assert) {
         var survey = twoPageSimplestSurvey();

@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-    <div class="well well-sm" data-bind="visible: question.koVisible()">
+    <div data-bind="visible: question.koVisible()">
         <div class="alert alert-danger" role="alert" data-bind="visible: koErrors().length > 0, foreach: koErrors">
             <div>
                 <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>

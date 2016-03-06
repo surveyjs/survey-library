@@ -1,6 +1,13 @@
-﻿/// <reference path="../src/templatetext.ts" />
+﻿/// <reference path="../src/base.ts" />
+/// <reference path="../src/templatetext.ts" />
 module Survey.Tests {
     QUnit.module("Template Text");
+
+    export class SurveyTemplateTextTest extends SurveyTemplateTextBase {
+        constructor(public template: string) { super(); }
+        protected get text(): string { return this.template; }
+        protected set text(value: string) { this.template = value; }
+    }
 
     QUnit.test("Replace the page", function (assert) {
         var template = new SurveyTemplateTextTest('<script type="text/ html" id="survey-page">Test1</script>');
@@ -17,11 +24,4 @@ module Survey.Tests {
         template.replaceText("MyTest", "question", "rating");
         assert.equal(template.template, '<script type="text/ html" id="survey-question-rating">MyTest</script>', "the template question replaced correctly");
     });
-
-    export class SurveyTemplateTextTest extends Survey.SurveyTemplateTextBase {
-        constructor(public template: string) { super(); }
-        protected get text(): string { return this.template; }
-        protected set text(value: string) { this.template = value; }
-    }
-
 }

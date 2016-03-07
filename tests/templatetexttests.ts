@@ -1,9 +1,9 @@
 ﻿/// <reference path="../src/base.ts" />
 /// <reference path="../src/templatetext.ts" />
-module Survey.Tests {
+module SurveyTests {
     QUnit.module("Template Text");
 
-    export class SurveyTemplateTextTest extends SurveyTemplateTextBase {
+    export class SurveyTemplateTextTest extends Survey.SurveyTemplateTextBase {
         constructor(public template: string) { super(); }
         protected get text(): string { return this.template; }
         protected set text(value: string) { this.template = value; }

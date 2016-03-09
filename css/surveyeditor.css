@@ -7,6 +7,14 @@
   -khtml-user-drag: element;
   -webkit-user-drag: element; }
 
+.svd_table-nowrap {
+  table-layout: fixed; }
+
+.svd_table-nowrap td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+
 .svd_q_selected {
   border-width: 3px; }
 

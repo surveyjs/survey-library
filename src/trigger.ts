@@ -10,6 +10,7 @@ module Survey {
                 notempty: function (value, expectedValue) { return !(!value); },
                 equal: function (value, expectedValue) { return value == expectedValue; },
                 notequal: function (value, expectedValue) { return value != expectedValue; },
+                contains: function (value, expectedValue) { return expectedValue && expectedValue["indexOf"] && expectedValue.indexOf(value) > -1; },
                 greater: function (value, expectedValue) { return value > expectedValue; },
                 less: function (value, expectedValue) { return value < expectedValue; },
                 greaterorequal: function (value, expectedValue) { return value >= expectedValue; },

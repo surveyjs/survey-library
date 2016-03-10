@@ -34,6 +34,15 @@ module Survey.Tests {
         trigger.check(6);
         assert.equal(counterSuccess, 1, "6 == 6");
         assert.equal(counterFalure, 1, "6 == 6");
+        trigger.value = [];
+        trigger.operator = "contains";
+        trigger.check(2);
+        assert.equal(counterSuccess, 1, "2 not in []");
+        assert.equal(counterFalure, 2, "2 not in []");
+        trigger.value = [2, 3];
+        trigger.check(2);
+        assert.equal(counterSuccess, 2, "2 in [2, 3]");
+        assert.equal(counterFalure, 2, "2 not in [2, 3]");
     });
     QUnit.test("Visibility trigger", function (assert) {
         var owner = new SurveyTriggerVisibleOwnerTester();

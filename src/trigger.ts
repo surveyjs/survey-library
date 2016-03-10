@@ -11,6 +11,7 @@ module Survey {
                 equal: function (value, expectedValue) { return value == expectedValue; },
                 notequal: function (value, expectedValue) { return value != expectedValue; },
                 contains: function (value, expectedValue) { return value && value["indexOf"] && value.indexOf(expectedValue) > -1; },
+                notcontains: function (value, expectedValue) { return !value || !value["indexOf"] || value.indexOf(expectedValue) == -1; },
                 greater: function (value, expectedValue) { return value > expectedValue; },
                 less: function (value, expectedValue) { return value < expectedValue; },
                 greaterorequal: function (value, expectedValue) { return value >= expectedValue; },

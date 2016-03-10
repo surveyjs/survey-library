@@ -7,7 +7,7 @@ title: Work with survey data (properties, methods and events).
 var survey = new Survey.Survey({ questions: [
     {type: "text", name: "name", title: "Your name:"},
     {type: "text", name: "email", title: "Your e-mail"},
-    { type: "checkbox", name: "car", title: "What car are you driving?", isRequired: true, colCount: 0,
+    { type: "checkbox", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4,
         choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }
 ]});
 survey.data = {name:"John Doe", email: "johndoe@nobody.com", car:["Ford"]};

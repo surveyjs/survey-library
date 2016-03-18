@@ -286,14 +286,15 @@ module Survey {
             self.onRendered.fire(self, {});
         }
         public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
-            if (postId) {
-                this.surveyPostId = postId;
+            if (!postId && this.surveyPostId) {
+                postId = this.surveyPostId;
             }
+            if (!postId) return;
             if (clientId) {
                 this.clientId = clientId;
             }
             var self = this;
-            new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
+            new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
                 self.onSendResult.fire(self, { success: success, response: response});
             }, this.clientId, isPartialCompleted);
         }

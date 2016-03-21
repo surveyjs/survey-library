@@ -86,10 +86,11 @@ canonicalUrl: /
     <div class="row">
        <div class="col-sm-4">
            <h4>Build JSON using</h4>
-           <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/" target="_blank">Visual Designer</a>            
+           <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/" target="_blank">Visual Designer</a>
+           
        </div>
        <div class="col-sm-8">
-           <h4>JSON example</h4>
+           <h4>JSON example<a href="{{ page.pathprefix }}builder/index.html?surveyid=d5220f76-4802-40cf-ad67-61d7e55608e5" target="_blank"> (Load it in Visual Designer now)</a></h4>
            <pre><code class="language-js">var surveyJSON = {% include surveys/survey-about.json %}</code></pre>
        </div>
     </div>
@@ -167,7 +168,7 @@ survey.onComplete.add(sendDataToServer);
 
 
 <script type="text/javascript">
-    var surveyJSON = {% include surveys/survey-about.json %};
+    var     surveyJSON = {% include surveys/survey-about.json %};
     var survey = new Survey.Survey(surveyJSON, "surveyContainer");
     survey.onComplete.add(function (s) {
         document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);

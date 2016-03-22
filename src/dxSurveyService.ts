@@ -1,7 +1,7 @@
 ﻿module Survey {
     export class dxSurveyService {
-        public static serviceUrl: string = "https://dxsurvey.azurewebsites.net/api/Survey";
-        //public static serviceUrl: string = "http://localhost:49891/api/Survey";
+        public static serviceUrl: string = "https://dxsurveyapi.azurewebsites.net/api/Survey";
+        //public static serviceUrl: string = "http://localhost:50488/api/Survey";
         constructor() {
         }
         public loadSurvey(surveyId: string, onLoad: (success: boolean, result: string, response: any) => void) {

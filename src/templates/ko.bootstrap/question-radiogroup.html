@@ -1,12 +1,14 @@
 ﻿<script type="text/html" id="survey-question-radiogroup">
-    <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-    <label class="radio-inline" style="margin:0" data-bind="style:{width: question.koWidth}">
-        <input type="radio"
-                data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
-        <span data-bind="text: item.text"></span>
-    </label>
-    <!-- /ko -->
-    <div data-bind="visible:question.hasOther">
-        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-    </div>
+    <form class="form-inline">
+        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+        <div class="radio" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
+            <input type="radio"
+                   data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
+            <span data-bind="text: item.text"></span>
+        </div>
+        <!-- /ko -->
+        <div data-bind="visible:question.hasOther">
+            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+        </div>
+    </form>
 </script>

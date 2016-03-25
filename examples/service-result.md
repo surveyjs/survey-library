@@ -5,6 +5,8 @@ usedxchart: true
 ---
 
 <div id="chartContainer" style="width:500px;height:0px"></div>
+<p> The current survey results could be accessible via the direct link. <a href="http://dxsurvey.com/Results/Survey/5af48e08-a0a5-44a5-83f4-1c90e8e98de1" target="_blank">See Survey Results</a></p>            
+
 
 {% capture survey_setup %}
 var survey = new Survey.Survey({

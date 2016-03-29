@@ -1,0 +1,28 @@
+{
+  "name": "survey-knockout-bootstrap",
+  "version": "0.9.2",
+  "description": "JavaScript Survey engine",
+  "keywords": [
+    "Survey",
+    "JavaScript",
+    "Library",
+    "Bootstrap"
+  ],
+  "homepage": "https://surveyjs.org/",
+  "license": "MIT",
+  "files": [
+    "dist/"
+  ],
+  "main": "survey.min.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/andrewtelnov/surveyjs.git"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "knockout": "^3.3.0",
+    "bootstrap": "^3.3.6"
+  }
+}

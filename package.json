@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "name": "ASP.NET",
+  "version": "0.9.0",
+  "name": "surveyjs",
   "private": true,
   "devDependencies": {
     "bower": "1.4.1",

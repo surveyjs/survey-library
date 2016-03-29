@@ -12,7 +12,7 @@
     "qunit": "^1.18.0"
   },
   "keywords": [ "Survey", "JavaScript", "Library", "MVVM", "SPA" ],
-  "authors": [ "Andrew Telnov <andrewt@devexpress.com>" ],
+  "authors": [ "Andrew Telnov <andrew.telnov@gmail.com>" ],
   "license": "MIT",
   "install": {
     "path": "bower_components"

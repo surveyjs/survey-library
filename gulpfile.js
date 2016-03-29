@@ -22,6 +22,8 @@ var Server = require("karma").Server;
 var paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
+    package_ko_dist: "./packages/survey-knockout/dist/",
+    package_ko_bootstrap_dist: "./packages/survey-knockout-bootstrap/dist/",
     ts: ["./src/*.ts"],
     typings: "./typings/**/*.d.ts",
     tsTests: "./tests/*.ts",
@@ -91,6 +93,7 @@ gulp.task('tsd', function (callback) {
                 .pipe(sourcemaps.write({ sourceRoot: "src" }))
                 //Source map is a part of generated file
                 .pipe(gulp.dest(paths.dist))
+                .pipe(gulp.dest(paths.package_ko_dist))
                 .pipe(gulp.dest(paths.jsFolder));
         });
         gulp.task("typescript:sources:definition", function () {
@@ -163,6 +166,7 @@ gulp.task('tsd', function (callback) {
              .pipe(rename({
                  extname: '.min.js'
              }))
+            .pipe(gulp.dest(paths.package_ko_dist))
             .pipe(gulp.dest(paths.dist));
     });
     gulp.task('sass', function () {
@@ -171,6 +175,7 @@ gulp.task('tsd', function (callback) {
           .pipe(sass.sync().on('error', sass.logError))
           .pipe(concat("survey.css"))
           .pipe(gulp.dest(paths.webroot + 'css'))
+            .pipe(gulp.dest(paths.package_ko_dist + 'css'))
           .pipe(gulp.dest(paths.dist + 'css'));
     });
     gulp.task("sass_compress", sequence(["sass", "compress"]));
@@ -203,6 +208,7 @@ gulp.task('tsd', function (callback) {
             .pipe(sourcemaps.write({ sourceRoot: "src" }))
             //Source map is a part of generated file
             .pipe(gulp.dest(paths.dist))
+            .pipe(gulp.dest(paths.package_ko_bootstrap_dist))
             .pipe(gulp.dest(paths.jsFolder));
     });
     gulp.task('compress:bootstrap', function () {
@@ -212,6 +218,7 @@ gulp.task('tsd', function (callback) {
              .pipe(rename({
                  extname: '.min.js'
              }))
+            .pipe(gulp.dest(paths.package_ko_bootstrap_dist))
             .pipe(gulp.dest(paths.dist));
     });
 

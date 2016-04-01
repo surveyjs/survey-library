@@ -1,3 +1,8 @@
+.topmenu > li.active {
+  border-top: 4px solid #19aa8d;
+    border-left: none;
+}
+
 .maincontent {
     margin-top: 48px;
     margin-bottom: 48px;

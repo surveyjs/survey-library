@@ -8,7 +8,7 @@ You may install the library using npm.
 ```
 npm install survey-knockout
 ```
-If you are using bootstrap then go with bootstrap template:
+If you are using bootstrap then go with bootstrap templates:
 ```
 npm install survey-knockout-bootstrap
 ```

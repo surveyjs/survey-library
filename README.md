@@ -4,7 +4,7 @@ JavaScript Survey Library
 
 Explore the [Examples](http://andrewtelnov.github.io/surveyjs/)
 
-You may install the library using npm.
+Install the library using npm.
 ```
 npm install survey-knockout
 ```

@@ -92,7 +92,7 @@ module Survey {
         public get comments(): any {
             var result = {};
             for (var key in this.valuesHash) {
-                if (key.indexOf(this.commentPrefix) > -1) {
+                if (key.indexOf(this.commentPrefix) > 0) {
                     result[key] = this.valuesHash[key];
                 }
             }

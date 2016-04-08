@@ -128,7 +128,7 @@ module Survey {
             return new ValidatorRunner().run(this);
         }
         private isValueChangedInSurvey = false;
-        private setNewValue(newValue: any) {
+        protected setNewValue(newValue: any) {
             if (this.isValueChangedInSurvey) return;
             if (this.data != null) {
                 this.data.setValue(this.name, newValue);
@@ -136,7 +136,7 @@ module Survey {
             this.questionValue = newValue;
             this.onValueChanged();
         }
-        protected onValueChanged() {}
+        protected onValueChanged() { }
         private setNewComment(newValue: string) {
             if (this.data != null) {
                 this.data.setComment(this.name, newValue);

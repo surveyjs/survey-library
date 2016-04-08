@@ -65,12 +65,14 @@ module Survey {
         //IMatrixData
         onMatrixRowChanged(row: MatrixRow) {
             if (!this.hasRows) {
-                this.value = row.value;
+                this.setNewValue(row.value);
             } else {
-                if (!this.value) {
-                    this.value = {};
+                var newValue = this.value;
+                if (!newValue) {
+                    newValue = {};
                 }
-                this.value[row.name] = row.value;
+                newValue[row.name] = row.value;
+                this.setNewValue(newValue);
             }
         }
    }

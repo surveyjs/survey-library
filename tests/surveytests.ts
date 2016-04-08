@@ -199,6 +199,25 @@ module Survey.Tests {
         assert.equal(name, "question1", "onValueChanged event, property name is correct");
         assert.equal(newValue, "value1", "onValueChanged event, property newValue is correct");
         assert.equal(counter, 1, "onValueChanged event is called one time");
+        survey.pages[0].questions[0].value = "val";
+        assert.equal(counter, 2, "onValueChanged event is called one time");
+    });
+    QUnit.test("onValueChanged event is not called on changing matrix value", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var matrixQuestion = new QuestionMatrix("matrix");
+        survey.pages[0].addQuestion(matrixQuestion);
+        matrixQuestion.columns = ["col1", "col2"];
+        matrixQuestion.rows = ["row1", "row2"];
+        var name = "";
+        var newValue = null;
+        var counter = 0;
+        survey.onValueChanged.add(function (sender: Survey, options: any) {
+            name = options.name; newValue = options.value; counter++;
+        });
+        matrixQuestion.visibleRows[0].value = "col2";
+        assert.equal(counter, 1, "onValueChanged event is called one time");
+        assert.equal(name, "matrix", "onValueChanged event, property name is correct");
+        assert.deepEqual(newValue, { "row1": "col2" }, "onValueChanged event, property newValue is correct");
     });
     QUnit.test("onVisibleChanged event", function (assert) {
         var survey = twoPageSimplestSurvey();

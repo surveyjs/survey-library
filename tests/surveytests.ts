@@ -219,6 +219,23 @@ module Survey.Tests {
         assert.equal(name, "matrix", "onValueChanged event, property name is correct");
         assert.deepEqual(newValue, { "row1": "col2" }, "onValueChanged event, property newValue is correct");
     });
+    QUnit.test("onValueChanged event is not called on changing multi text value", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var multiTextQuestion = new QuestionMultipleText("multitext");
+        survey.pages[0].addQuestion(multiTextQuestion);
+        multiTextQuestion.items.push(new MultipleTextItem("item1"));
+        multiTextQuestion.items.push(new MultipleTextItem("item2"));
+        var name = "";
+        var newValue = null;
+        var counter = 0;
+        survey.onValueChanged.add(function (sender: Survey, options: any) {
+            name = options.name; newValue = options.value; counter++;
+        });
+        multiTextQuestion.items[1].value = "text1";
+        assert.equal(counter, 1, "onValueChanged event is called one time");
+        assert.equal(name, "multitext", "onValueChanged event, property name is correct");
+        assert.deepEqual(newValue, { "item2": "text1" }, "onValueChanged event, property newValue is correct");
+    });
     QUnit.test("onVisibleChanged event", function (assert) {
         var survey = twoPageSimplestSurvey();
         var name = "";

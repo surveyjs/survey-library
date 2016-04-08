@@ -108,10 +108,12 @@ module Survey {
         }
         setMultipleTextValue(name: string, value: any) {
             this.isMultipleItemValueChanging = true;
-            if (!this.value) {
-                this.value = {};
+            var newValue = this.value;
+            if (!newValue) {
+                newValue = {};
             }
-            this.value[name] = value;
+            newValue[name] = value;
+            this.setNewValue(newValue);
             this.isMultipleItemValueChanging = false;
         }
     }

@@ -5,7 +5,8 @@ before_install:
   - npm install -g typescript
   - npm install -g qunit
   - npm install -g knockout
- 
+  - dts -install qunit
+  - dts -install knockout
 script:
   - gulp makedist
   - gulp test_ci

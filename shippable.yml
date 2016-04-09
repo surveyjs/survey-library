@@ -3,8 +3,6 @@ language: node_js
 before_install:
   - npm install -g gulp
   - npm install -g typescript
-  - npm install -g qunit
-  - npm install -g knockout
 script:
   - gulp tsd
   - gulp makedist

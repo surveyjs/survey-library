@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     concat = require("gulp-concat"),
     ts = require('gulp-typescript'),
     tsd = require('gulp-tsd'),
+    gnf = require('gulp-npm-files'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
     qunit = require("gulp-qunit"), 
@@ -51,6 +52,15 @@ gulp.task('tsd', function (callback) {
         latest: true,
         config: 'tsd.json'
     }, callback);
+});
+
+gulp.task('copyfiles', function (callback) {
+    gulp.src(gnf(null, 'package.json'), { base: './' })
+        .pipe(rename(function (path) {
+            path.dirname = "";
+            path.basename = path.basename.replace("-latest", "");
+        }))
+        .pipe(gulp.dest(paths.jsFolder));
 });
 
 (function () {

@@ -2,10 +2,9 @@ language: node_js
 
 before_install:
   - npm install -g gulp
-  - npm install -g bower
-  - npm install -g bower-installer
+  - npm install -g qunit
+  - npm install -g knockout
   - npm install -g typescript
-  - bower-installer
  
 script:
   - gulp copylibs

@@ -3,12 +3,11 @@
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
-    "bower": "1.4.1",
-    "bower-installer": "^1.2.0",
-    "main-bower-files": "^2.9.0",
+    "qunit": "^0.9.1",
     "tsd": "^0.6.4",
     "rimraf": "2.4.2",
     "gulp": "3.9.0",
+    "gulp-tsd": "0.0.4",
     "gulp-concat": "2.6.0",
     "gulp-cssmin": "0.1.7",
     "gulp-uglify": "1.2.0",
@@ -28,6 +27,6 @@
     "gulp-serve": "^1.0.0"
   },
   "dependencies": {
-    "gulp-tsd": "0.0.4"
+    "knockout": "^3.4.0"
   }
 }

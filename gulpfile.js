@@ -1,4 +1,3 @@
-/// <binding ProjectOpened='copylibs' />
 /*global require*/
 var gulp = require('gulp'),
     concat = require("gulp-concat"),
@@ -12,10 +11,7 @@ var gulp = require('gulp'),
     rename = require("gulp-rename"),
     html2ts = require("gulp-html-to-ts"),
     sequence = require("gulp-sequence"),
-    project = require("./project.json"),
-    plugins = require("gulp-load-plugins")({
-        pattern: ['gulp-*', 'gulp.*', 'main-bower-files'],
-        replaceString: /\bgulp[\-.]/});
+    project = require("./project.json");
 
 var Server = require("karma").Server;
 
@@ -47,12 +43,6 @@ paths.concatCssDest = paths.webroot + "css/site.min.css";
 gulp.task('default', function () {
     "use strict";
     // place code for your default task here
-});
-
-gulp.task('copylibs', function () {
-    var jsFiles = ['src/js/*'];
-    gulp.src(plugins.mainBowerFiles({includeDev: "true"}).concat(jsFiles))
-        .pipe(gulp.dest(paths.jsFolder));
 });
 
 gulp.task('tsd', function (callback) {

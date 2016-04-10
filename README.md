@@ -16,7 +16,7 @@ npm install survey-knockout-bootstrap
 ```
 Or dowload the latest version as zip file [Download](http://surveyjs.org/downloads/surveyjs.zip)
 
-##Building Knockout from sources
+##Building survey.js from sources
 
 To build library yourself:
 

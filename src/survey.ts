@@ -19,15 +19,15 @@ module Survey {
         public showPageNumbers: boolean = false;
         public showQuestionNumbers: string = "on";
         public requiredText: string = "* ";
-        public pagePrevText: string = "Previous";
-        public pageNextText: string = "Next";
-        public completeText: string = "Complete";
         //public showProgressBar: boolean = false; TODO
         public pages: Array<Page> = new Array<Page>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: Page = null;
         private valuesHash: HashTable<any> = {};
         private renderedElement: HTMLElement;
+        private pagePrevTextValue: string;
+        private pageNextTextValue: string;
+        private completeTextValue: string;
 
         public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
         public onRendered: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
@@ -72,6 +72,12 @@ module Survey {
             this.render(renderedElement);
         }
         public getType(): string { return "survey"; }
+        public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyStrings.pagePrevText; }
+        public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
+        public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : surveyStrings.pageNextText; }
+        public set pageNextText(newValue: string) { this.pageNextTextValue = newValue; }
+        public get completeText() { return (this.completeTextValue) ? this.completeTextValue : surveyStrings.completeText; }
+        public set completeText(newValue: string) { this.completeTextValue = newValue; }
         public get data(): any {
             var result = {};
             for (var key in this.valuesHash) {
@@ -428,9 +434,9 @@ module Survey {
     JsonObject.metaData.setPropertyValues("survey", "showQuestionNumbers", null, "on");
     JsonObject.metaData.setPropertyChoices("survey", "showQuestionNumbers", ["on", "onPage", "off"]);
     JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "* ");
-    JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, "Previous");
-    JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, "Next");
-    JsonObject.metaData.setPropertyValues("survey", "completeText", null, "Complete");
+    JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, null, function (obj: any) { return obj.pagePrevTextValue; });
+    JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, null, function (obj: any) { return obj.pageNextTextValue; });
+    JsonObject.metaData.setPropertyValues("survey", "completeText", null, null, function (obj: any) { return obj.completeTextValue; });
     JsonObject.metaData.setPropertyClassInfo("survey", "triggers", "surveytrigger", "trigger");
     JsonObject.metaData.setPropertyClassInfo("survey", "questions", "question");
 }

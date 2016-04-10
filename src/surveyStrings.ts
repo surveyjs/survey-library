@@ -1,5 +1,8 @@
 ﻿module Survey {
     export var surveyStrings = {
+        pagePrevText: "Previous",
+        pageNextText: "Next",
+        completeText: "Complete",
         otherItemText: "Other (describe)",
         requiredError: "Please answer the question.",
         numericError: "The value should be a numeric.",

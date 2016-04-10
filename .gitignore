@@ -4,6 +4,8 @@ artifacts/*
 bower_components/*
 dist/*
 node_modules/*
+packages/*/node_modules/*
+packages/*/dist/*
 Properties/*
 shippable/*
 typings/*
@@ -14,3 +16,4 @@ wwwroot/*
 *.cs
 project.lock.json
 *.cmd
+.tsdrc

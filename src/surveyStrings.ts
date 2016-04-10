@@ -4,6 +4,7 @@
         pageNextText: "Next",
         completeText: "Complete",
         otherItemText: "Other (describe)",
+        optionsCaption: "Choose...",
         requiredError: "Please answer the question.",
         numericError: "The value should be a numeric.",
         textMinLength: "Please enter at least {0} symblos.",

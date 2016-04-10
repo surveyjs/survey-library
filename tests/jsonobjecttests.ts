@@ -55,6 +55,20 @@ module Survey.JsonSerializationTests {
         public getType(): string { return "LongNamesOwner"; }
     }
 
+    class NonCreatingObject {
+        public A: number;
+        public getType(): string {  return "shouldnotcreate"; }
+    }
+    class CreatingObject extends NonCreatingObject {
+        public B: number;
+        public getType(): string { return "shouldcreate"; }
+    }
+    class CreatingObjectContainer {
+        public obj: NonCreatingObject;
+        public items = new Array<NonCreatingObject>();
+        public getType(): string { return "container"; }
+    }
+
     JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
     JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
     JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any, jsonConv: JsonObject) {
@@ -83,6 +97,12 @@ module Survey.JsonSerializationTests {
     JsonObject.metaData.addClass("itemB_thelongpart", ["B"], function () { return new LongNameItemB(); }, "LongNameItemBase");
     JsonObject.metaData.addClass("LongNamesOwner", ["items"]);
     JsonObject.metaData.setPropertyClassInfo("LongNamesOwner", "items", "item_thelongpart", "_thelongpart");
+
+    JsonObject.metaData.addClass("shouldnotcreate", ["A"], function () { return new NonCreatingObject(); });
+    JsonObject.metaData.addClass("container", ["obj", "items"]);
+    JsonObject.metaData.setPropertyValues("container", "obj", "shouldnotcreate");
+    JsonObject.metaData.setPropertyValues("container", "items", "shouldnotcreate");
+    JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { return new CreatingObject(); });
 
     QUnit.module("JsonSerializationTests");
 
@@ -322,6 +342,13 @@ module Survey.JsonSerializationTests {
          assert.equal(properties[1].name, "maxSpeed", "It is a 'maxSpeed' property");
          assert.deepEqual(properties[1].choices, [100, 150, 200, 250], "'maxSpeed' property choices");
      });
-
+     QUnit.test("Create inherited class instead of origional", function (assert) {
+         var container = new CreatingObjectContainer();
+         var jsonObj = new JsonObject();
+         jsonObj.toObject({ items: [{ "type": "shouldnotcreate", "A": 320 }], obj: { "A": 200 } }, container);
+         assert.equal(container.items.length, 1, "one object is added");
+         assert.equal(container.items[0].getType(), "shouldcreate", "created the right class in array");
+         assert.equal(container.obj.getType(), "shouldcreate", "created the right class in property");
+     });
      
 }

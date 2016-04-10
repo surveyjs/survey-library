@@ -93,6 +93,12 @@ module Survey {
             }
             return metaDataClass;
         }
+        public overrideClassCreatore(name: string, creator: () => any) {
+            var metaDataClass = this.findClass(name);
+            if (metaDataClass) {
+                metaDataClass.creator = creator;
+            }
+        }
         public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null) {
             var property = this.findProperty(name, propertyName);
             if (!property) return;

@@ -20,36 +20,36 @@ Or dowload the latest version as zip file [Download](http://surveyjs.org/downloa
 
 To build library yourself:
 
-1. **Clone the repo from GitHub**
-```
-git clone https://github.com/andrewtelnov/surveyjs.git
-cd surveyjs
-```
-2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ surveyjs from sources.  
-```
-npm install -g gulp
-npm install
-```
-	The first `npm` command sets up the popular [Gulp](http://gulpjs.com/) build tool. 
+ 1. **Clone the repo from GitHub**
+		```
+		git clone https://github.com/andrewtelnov/surveyjs.git
+		cd surveyjs
+		```
+ 2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ surveyjs from sources.  
+		```
+		npm install -g gulp
+		npm install
+		```
+		The first `npm` command sets up the popular [Gulp](http://gulpjs.com/) build tool. 
 
-3. **Create TypeScript definition files**
-```
-gulp tsd
-```
-	Typescript definition files should be located at 'typings' directory.
+ 3. **Create TypeScript definition files**
+		```
+		gulp tsd
+		```
+		Typescript definition files should be located at 'typings' directory.
 
-4. **Build the library**
-```
-gulp makedist
-```
-	After that you should have the library at 'dist' directory.
+ 4. **Build the library**
+		```
+		gulp makedist
+		```
+		After that you should have the library at 'dist' directory.
 
-5. **Run unit tests**
-```
-gulp copyfiles
-gulp test_ci
-```
-	The first command will copy all required files to 'wwwroot' directory and the last command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
+ 5. **Run unit tests**
+		```
+		gulp copyfiles
+		gulp test_ci
+		```
+		The first command will copy all required files to 'wwwroot' directory and the last command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
 
 ##License
 

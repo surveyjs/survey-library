@@ -36,7 +36,8 @@ The first `npm` command sets up the popular [Gulp](http://gulpjs.com/) build too
 ```
 gulp tsd
 ```
-Typescript definition files should be located at 'typings' directory
+Typescript definition files should be located at 'typings' directory.
+
 4. **Build the library**
 ```
 gulp makedist

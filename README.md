@@ -20,11 +20,12 @@ Or dowload the latest version as zip file [Download](http://surveyjs.org/downloa
 
 To build library yourself:
 
- 1. **Clone the repo from GitHub**
+ 1. **Clone the repo from GitHub**  
 	```
 	git clone https://github.com/andrewtelnov/surveyjs.git
 	cd surveyjs
 	```
+
  2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ surveyjs from sources.  
 	```
 	npm install -g gulp

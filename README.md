@@ -1,7 +1,10 @@
 **survey.js** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
 [![Build Status](https://api.shippable.com/projects/55ded2031895ca4474102b6d/badge)](https://app.shippable.com/projects/55ded2031895ca4474102b6d)
-
-Explore the [Examples](http://surveyjs.org), Build survey JSON using [Visual Editor](http://surveyjs.org/builder/)
+##Getting started
+To find our more about the library go
+* to the [surveyjs.org site](http://surveyjs.org) 
+* explore the live [Examples](http://surveyjs.org/examples/) 
+* and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
 
 Install the library using npm.
 ```

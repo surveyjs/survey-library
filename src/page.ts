@@ -3,14 +3,13 @@
 /// <reference path="jsonobject.ts" />
 
 module Survey {
-    export class Page extends Base {
+    export class PageModel extends Base {
         questions: Array<Question> = new Array<Question>();
         public data: ISurvey = null;
         public visible: boolean = true;
         public title: string = "";
         public visibleIndex: number = -1;
         private numValue: number = -1;
-        koNo: any; 
 
         constructor(public name: string = "") {
             super();
@@ -21,18 +20,12 @@ module Survey {
                 }
                 return Array.prototype.push.call(this, value);
             };
-            if (this.isKO) {
-                this.koNo = ko.observable("");
-                this.onCreating();
-            }
         }
         public get num() { return this.numValue; }
         public set num(value: number) {
             if (this.numValue == value) return;
             this.numValue = value;
-            if (this.isKO) {
-                this.koNo(this.numValue > 0 ? this.numValue + ". " : "");
-            }
+            this.onNumChanged(value);
         }
         public getType(): string { return "page"; }
         public get isVisible(): boolean {
@@ -82,9 +75,10 @@ module Survey {
                 list.push(this.questions[i]);
             }
         }
-        protected onCreating() { }
+        protected onNumChanged(value: number) {
+        }
     }
-    JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new Page(); });
+    JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new PageModel(); });
     JsonObject.metaData.setPropertyValues("page", "visible", null, true);
     JsonObject.metaData.setPropertyClassInfo("page", "questions", "question");
  }

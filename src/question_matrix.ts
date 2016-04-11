@@ -28,7 +28,7 @@ module Survey {
             if (this.data) this.data.onMatrixRowChanged(this);
         }
     }
-    export class QuestionMatrix extends Question implements IMatrixData {
+    export class QuestionMatrixModel extends Question implements IMatrixData {
         public columnsValue: ItemValue[] = [];
         public rowsValue: ItemValue[] = [];
         constructor(public name: string) {
@@ -76,12 +76,12 @@ module Survey {
             }
         }
    }
-    JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrix(""); }, "question");
+    JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrixModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrix", "columns", null, null,
         function (obj: any) { return ItemValue.getData(obj.columns); },
         function (obj: any, value: any) { ItemValue.setData(obj.columns, value); });
     JsonObject.metaData.setPropertyValues("matrix", "rows", null, null,
         function (obj: any) { return ItemValue.getData(obj.rows); },
         function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
-    QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrix(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
+    QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrixModel(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
 }

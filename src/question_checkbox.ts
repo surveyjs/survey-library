@@ -3,21 +3,11 @@
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    export class QuestionCheckbox extends QuestionCheckboxBase {
+    export class QuestionCheckboxModel extends QuestionCheckboxBase {
         constructor(public name: string) {
             super(name);
         }
-        protected createkoValue(): any {
-            return this.value ? ko.observableArray(this.value) : ko.observableArray();
-        }
-        protected setkoValue(newValue: any) {
-            if (newValue) {
-                this.koValue([].concat(newValue));
-            } else {
-                this.koValue([]);
-            }
-        }
-        protected isOtherSelected(): boolean {
+        public get isOtherSelected(): boolean {
             if (!this.value) return false;
             return this.value.indexOf(this.otherItem.value) >= 0;
         }
@@ -26,6 +16,6 @@ module Survey {
             return "checkbox";
         }
     }
-    JsonObject.metaData.addClass("checkbox", [], function () { return new QuestionCheckbox(""); }, "checkboxbase");
-    QuestionFactory.Instance.registerQuestion("checkbox", (name) => { var q = new QuestionCheckbox(name); q.choices = QuestionFactory.DefaultChoices; return q; });
+    JsonObject.metaData.addClass("checkbox", [], function () { return new QuestionCheckboxModel(""); }, "checkboxbase");
+    QuestionFactory.Instance.registerQuestion("checkbox", (name) => { var q = new QuestionCheckboxModel(name); q.choices = QuestionFactory.DefaultChoices; return q; });
 }

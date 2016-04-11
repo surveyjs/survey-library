@@ -64,15 +64,15 @@ module Survey.Tests {
         assert.equal(question.visibleChoices.length, 3, "Remove the others item");
     });
     QUnit.test("Question Title property", function (assert) {
-        var question = new QuestionText("q1");
+        var question = new QuestionTextModel("q1");
         assert.equal(question.title, "q1", "get the question name by default");
         question.title = "My title";
         assert.equal(question.title, "My title", "get the question name by default");
     });
     QUnit.test("Pre-proccess value for Checkbox", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");
-        var question = new QuestionCheckbox("checkboxQuestion");
+        var question = new QuestionCheckboxModel("checkboxQuestion");
         question.choices = ["One", "Two", "Three"];
         page.addQuestion(question);
 
@@ -80,7 +80,7 @@ module Survey.Tests {
         assert.equal(question.value, ["One"], "convert value to array");
     });
     QUnit.test("Matrix Question: visible rows", function (assert) {
-        var matrix = new QuestionMatrix("q1");
+        var matrix = new QuestionMatrixModel("q1");
         assert.equal(matrix.hasRows, false, "There is now rows by default.");
         assert.equal(matrix.visibleRows.length, 1, "There is always at least one row");
         assert.equal(matrix.visibleRows[0].name, null, "The default row name is empty");
@@ -92,7 +92,7 @@ module Survey.Tests {
         assert.equal(matrix.visibleRows[0].fullName, "q1_row1", "The default row fullName is the question name");
     });
     QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
-        var matrix = new QuestionMatrix("q1");
+        var matrix = new QuestionMatrixModel("q1");
         matrix.columns = ["col1", "col2"];
         matrix.value = "col1";
         var rows = matrix.visibleRows;
@@ -102,7 +102,7 @@ module Survey.Tests {
         assert.equal(matrix.value, "col2", "the matrix value changed correctly");
     });
     QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
-        var matrix = new QuestionMatrix("q1");
+        var matrix = new QuestionMatrixModel("q1");
         matrix.rows = ["row1", "row2"];
         matrix.columns = ["col1", "col2"];
         matrix.value = { row1: "col1" };
@@ -121,7 +121,7 @@ module Survey.Tests {
         assert.equal(mItem.title, "display1", "get value from textValue");
     });
     QUnit.test("Multiple Text Question: get/set values for two texts", function (assert) {
-        var mText = new QuestionMultipleText("q1");
+        var mText = new QuestionMultipleTextModel("q1");
         mText.items.push(new MultipleTextItem("text1"));
         mText.items.push(new MultipleTextItem("text2"));
         mText.value = { text1: "val1" };
@@ -130,7 +130,7 @@ module Survey.Tests {
         assert.deepEqual(mText.value, { text1: "val1", text2: "val2" }, "set the value from the text item");
     });
     QUnit.test("Validators for text question", function (assert) {
-        var mText = new QuestionText("");
+        var mText = new QuestionTextModel("");
         assert.equal(mText.hasErrors(), false, "There is no error by default");
         mText.validators.push(new NumericValidator(10, 20));
         mText.value = "ss";
@@ -142,7 +142,7 @@ module Survey.Tests {
         assert.equal(mText.value, 15, "Convert to numeric");
     });
     QUnit.test("Validators for multiple text question", function (assert) {
-        var mText = new QuestionMultipleText("q1");
+        var mText = new QuestionMultipleTextModel("q1");
         mText.items.push(new MultipleTextItem("t1")); 
         assert.equal(mText.hasErrors(), false, "There is no error by default");
         mText.items[0].validators.push(new NumericValidator(10, 20));
@@ -156,7 +156,7 @@ module Survey.Tests {
         assert.equal(mText.items[0].value, 15, "Convert to numeric");
     });
     QUnit.test("Validators for array value question", function (assert) {
-        var question = new QuestionCheckbox("q1");
+        var question = new QuestionCheckboxModel("q1");
         question.choices = ["item1", "item2", "item3", "item4", "item5"];
         question.value = ["item1"];
         assert.equal(question.hasErrors(), false, "There is no error by default");
@@ -171,8 +171,8 @@ module Survey.Tests {
         assert.equal(question.hasErrors(), false, "There is two items in value");
     });
     QUnit.test("Show errors if others value is selected, but not entered", function (assert) {
-        var radio = new QuestionRadiogroup("q1");
-        new Survey().addNewPage("p1").addQuestion(radio);
+        var radio = new QuestionRadiogroupModel("q1");
+        new SurveyModel().addNewPage("p1").addQuestion(radio);
         radio.choices = ["one"];
         radio.hasOther = true;
         assert.equal(radio.hasErrors(), false, "There is no error by default");
@@ -190,5 +190,24 @@ module Survey.Tests {
         assert.equal(question.visibleChoices[0].text, "A", "Sorted order is 'asc'");
         question.choicesOrder = "desc";
         assert.equal(question.visibleChoices[0].text, "D", "Sorted order is 'desc'");
+    });
+    QUnit.test("Question callbacks test", function (assert) {
+        var question = new QuestionTextModel("textQuestion");
+        var valueChanged = 0;
+        var commentChanged = 0;
+        var visibleChanged = 0;
+        var visibleIndexChanged = 0;
+        question.valueChangedCallback = function () { valueChanged++ };
+        question.commentChangedCallback = function () { commentChanged++ };
+        question.visibilityChangedCallback = function () { visibleChanged++ };
+        question.visibleIndexChangedCallback = function () { visibleIndexChanged++ };
+        question.value = "test";
+        question.comment = "comment";
+        question.visible = false;
+        question.setVisibleIndex(5);
+        assert.equal(valueChanged, 1, "value changed on time");
+        assert.equal(commentChanged, 1, "comment changed on time");
+        assert.equal(visibleChanged, 1, "visibiblity changed on time");
+        assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
     });
 }

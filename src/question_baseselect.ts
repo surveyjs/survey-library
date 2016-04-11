@@ -7,15 +7,10 @@ module Survey {
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public otherErrorText: string = null;
         choicesOrderValue: string = "none";
-        koOtherVisible: any;
         constructor(name: string) {
             super(name);
-            if (this.isKO) {
-                var self = this;
-                this.koOtherVisible = ko.computed(function () { self.koValue(); return self.isOtherSelected(); });
-            }
         }
-        protected isOtherSelected(): boolean {
+        public get isOtherSelected(): boolean {
             return this.value == this.otherItem.value;
         }
         get choices(): Array<any> { return this.choicesValues; }
@@ -41,7 +36,7 @@ module Survey {
         public supportOther(): boolean { return true; }
         protected onCheckForErrors(errors: Array<SurveyError>) {
             super.onCheckForErrors(errors);
-            if (!this.isOtherSelected() || this.comment) return;
+            if (!this.isOtherSelected || this.comment) return;
             var text = this.otherErrorText;
             if (!text) {
                 text = "Please enter the others value.";
@@ -75,27 +70,15 @@ module Survey {
 
     export class QuestionCheckboxBase extends QuestionSelectBase {
         private colCountValue: number = 1;
-        koWidth: any;
+        colCountChangedCallback: () => void;
         constructor(public name: string) {
             super(name);
-            if (this.isKO) {
-                var self = this;
-                this.koWidth = ko.computed(function () { self.dummyObservable(); return self.colCount > 0 ? (100 / self.colCount) + '%' : ""; });
-            }
         }
         public get colCount(): number { return this.colCountValue; }
         public set colCount(value: number) {
             if (value < 0 || value > 4) return;
             this.colCountValue = value;
-            if (this.isKO) {
-                this.dummyObservable(this.dummyObservable() + 1);
-            }
-        }
-        koAfterRender(el, con) {
-            var tEl = el[0];
-            if (tEl.nodeName == "#text") tEl.data = "";
-            tEl = el[el.length - 1];
-            if (tEl.nodeName == "#text") tEl.data = "";
+            this.fireCallback(this.colCountChangedCallback);
         }
     }
     JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean", "!choices:itemvalues", "choicesOrder", "otherText", "otherErrorText"], null, "question");

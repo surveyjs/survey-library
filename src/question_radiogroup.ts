@@ -3,7 +3,7 @@
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    export class QuestionRadiogroup extends QuestionCheckboxBase {
+    export class QuestionRadiogroupModel extends QuestionCheckboxBase {
         constructor(public name: string) {
             super(name);
         }
@@ -11,6 +11,6 @@ module Survey {
             return "radiogroup";
         }
     }
-    JsonObject.metaData.addClass("radiogroup", [], function () { return new QuestionRadiogroup(""); }, "checkboxbase");
-    QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { var q = new QuestionRadiogroup(name); q.choices = QuestionFactory.DefaultChoices; return q;});
+    JsonObject.metaData.addClass("radiogroup", [], function () { return new QuestionRadiogroupModel(""); }, "checkboxbase");
+    QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { var q = new QuestionRadiogroupModel(name); q.choices = QuestionFactory.DefaultChoices; return q;});
 }

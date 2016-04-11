@@ -21,7 +21,7 @@ var paths = {
     dist: "./dist/",
     package_ko_dist: "./packages/survey-knockout/dist/",
     package_ko_bootstrap_dist: "./packages/survey-knockout-bootstrap/dist/",
-    ts: ["./src/*.ts"],
+    ts: ["./src/**/*.ts"],
     typings: "./typings/**/*.d.ts",
     tsTests: "./tests/*.ts",
     tsTests_ko: "./tests/ko/*.ts",

@@ -1,11 +1,12 @@
 ﻿/// <reference path="base.ts" />
+/// <reference path="page.ts" />
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
 /// <reference path="template.ko.html.ts" />
 /// <reference path="dxSurveyService.ts" />
 
 module Survey {
-    export class Survey extends Base implements ISurvey, ISurveyTriggerOwner {
+    export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         public surveyId: string = null;
         public surveyPostId: string = null;
         public clientId: string = null;
@@ -20,25 +21,25 @@ module Survey {
         public showQuestionNumbers: string = "on";
         public requiredText: string = "* ";
         //public showProgressBar: boolean = false; TODO
-        public pages: Array<Page> = new Array<Page>();
+        public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
-        private currentPageValue: Page = null;
+        private currentPageValue: PageModel = null;
         private valuesHash: HashTable<any> = {};
         private renderedElement: HTMLElement;
         private pagePrevTextValue: string;
         private pageNextTextValue: string;
         private completeTextValue: string;
 
-        public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
-        public onRendered: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
-        public onCurrentPageChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onQuestionAdded: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onQuestionRemoved: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onSendResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onGetResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+        public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+        public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
 
         public mode: string = "normal";
@@ -104,9 +105,9 @@ module Survey {
             }
             return result;
         }
-        get visiblePages(): Array<Page> {
+        get visiblePages(): Array<PageModel> {
             if (this.isDesignMode) return this.pages;
-            var result = new Array<Page>();
+            var result = new Array<PageModel>();
             for (var i = 0; i < this.pages.length; i++) {
                 if (this.pages[i].isVisible) {
                     result.push(this.pages[i]);
@@ -121,7 +122,7 @@ module Survey {
         get visiblePageCount(): number {
             return this.visiblePages.length;
         }
-        get currentPage(): Page {
+        get currentPage(): PageModel {
             var vPages = this.visiblePages;
             if (this.currentPageValue != null) {
                 if (vPages.indexOf(this.currentPageValue) < 0) {
@@ -133,7 +134,7 @@ module Survey {
             }
             return this.currentPageValue;
         }
-        set currentPage(value: Page) {
+        set currentPage(value: PageModel) {
             var vPages = this.visiblePages;
             if (value != null && vPages.indexOf(value) < 0) return;
             if (value == this.currentPageValue) return;
@@ -186,19 +187,19 @@ module Survey {
             var vPages = this.visiblePages;
             return vPages.indexOf(this.currentPage) == vPages.length - 1;
         }
-        getPage(index: number): Page {
+        getPage(index: number): PageModel {
             return this.pages[index];
         }
-        addPage(page: Page) {
+        addPage(page: PageModel) {
             if (page == null) return;
             this.pages.push(page);
         }
         addNewPage(name: string) {
-            var page = new Page(name);
+            var page = this.createNewPage(name);
             this.addPage(page);
             return page;
         }
-        removePage(page: Page) {
+        removePage(page: PageModel) {
             var index = this.pages.indexOf(page);
             if (index < 0) return;
             this.pages.splice(index, 1);
@@ -223,20 +224,20 @@ module Survey {
             }
             return result;
         }
-        public getPageByQuestion(question: IQuestion): Page {
+        public getPageByQuestion(question: IQuestion): PageModel {
             for (var i: number = 0; i < this.pages.length; i++) {
                 var page = this.pages[i];
                 if (page.questions.indexOf(<Question>question) > -1) return page;
             }
             return null;
         }
-        public getPageByName(name: string): Page {
+        public getPageByName(name: string): PageModel {
             for (var i: number = 0; i < this.pages.length; i++) {
                 if (this.pages[i].name == name) return this.pages[i];
             }
             return null;
         }
-        public getPagesByNames(names: string[]): Page[]{
+        public getPagesByNames(names: string[]): PageModel[]{
             var result = [];
             if (!names) return result;
             for (var i: number = 0; i < names.length; i++) {
@@ -253,6 +254,7 @@ module Survey {
             }
             return result;
         }
+        protected createNewPage(name: string) { return new PageModel(name); }
         private notifyQuestionOnValueChanged(name: string, newValue: any) {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {

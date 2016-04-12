@@ -82,7 +82,6 @@
     }
 
     export class Base {
-        isKO = typeof ko !== 'undefined';
         public getType(): string {
             throw new Error('This method is abstract');
         }

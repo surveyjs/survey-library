@@ -1,67 +1,36 @@
 ﻿module Survey {
-    export class SurveyWindow extends Base  {
+    export class SurveyWindowModel extends Base  {
         public static surveyElementName = "windowSurveyJS";
-        surveyValue: Survey;
+        surveyValue: SurveyModel;
         windowElement: HTMLDivElement;
         isShowingValue: boolean;
         isExpandedValue: boolean;
         titleValue: string;
         templateValue: string;
-        koExpanded: any;
-        doExpand: any;
         
         constructor(jsonObj: any) {
             super();
-            var self = this;
-            this.surveyValue = new Survey(jsonObj);
+            this.surveyValue = this.createSurvey(jsonObj);
             this.surveyValue.showTitle = false;
-            this.survey.onComplete.add((sender: Survey) => { self.onComplete(); });
             this.windowElement = <HTMLDivElement>document.createElement("div");
-            if (this.isKO) {
-                this.koExpanded = ko.observable(false);
-                this.doExpand = function () { self.changeExpanded(); }
-            }
         }
         public getType() : string { return "window" }
-        public get survey(): Survey { return this.surveyValue; }
+        public get survey(): SurveyModel { return this.surveyValue; }
         public get isShowing(): boolean { return this.isShowingValue; }
         public get isExpanded(): boolean { return this.isExpandedValue; }
         public get title(): string { return this.titleValue ? this.titleValue : this.survey.title; }
         public set title(value: string) { this.titleValue = value; }
-        public show() {
-            this.windowElement.innerHTML = this.template;
-            if (this.isKO) {
-                ko.cleanNode(this.windowElement);
-                ko.applyBindings(this, this.windowElement);
-            }
-            document.body.appendChild(this.windowElement);
-            this.survey.render(SurveyWindow.surveyElementName);
-            this.isShowingValue = true;
-        }
-        public hide() {
-            document.body.removeChild(this.windowElement);
-            this.windowElement.innerHTML = "";
-            this.isShowingValue = false;
-        }
         public expand() {
             this.expandcollapse(true);
         }
         public collapse() {
             this.expandcollapse(false);
         }
-        protected get template(): string { return this.templateValue ? this.templateValue : template.window.ko.html; }
-        protected set template(value: string) {  this.templateValue = value; }
-        private expandcollapse(value: boolean) {
+        protected createSurvey(jsonObj: any): SurveyModel {
+            return new SurveyModel(jsonObj)
+        }
+        protected expandcollapse(value: boolean) {
             this.isExpandedValue = value;
-            if (this.isKO) {
-                this.koExpanded(this.isExpandedValue);
-            }
-        }
-        private changeExpanded() {
-            this.expandcollapse(!this.isExpanded);
-        }
-        private onComplete() {
-            this.hide();
         }
     }
 }

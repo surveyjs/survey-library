@@ -115,15 +115,15 @@ module Survey.Tests {
         assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "the matrix value changed correctly");
     });
     QUnit.test("Multiple Text Item: text property", function (assert) {
-        var mItem = new MultipleTextItem("text1");
+        var mItem = new MultipleTextItemModel("text1");
         assert.equal(mItem.title, "text1", "get value from name");
         mItem.title = "display1";
         assert.equal(mItem.title, "display1", "get value from textValue");
     });
     QUnit.test("Multiple Text Question: get/set values for two texts", function (assert) {
         var mText = new QuestionMultipleTextModel("q1");
-        mText.items.push(new MultipleTextItem("text1"));
-        mText.items.push(new MultipleTextItem("text2"));
+        mText.items.push(new MultipleTextItemModel("text1"));
+        mText.items.push(new MultipleTextItemModel("text2"));
         mText.value = { text1: "val1" };
         assert.equal(mText.items[0].value, "val1", "get the value from the question");
         mText.items[1].value = "val2";
@@ -143,7 +143,7 @@ module Survey.Tests {
     });
     QUnit.test("Validators for multiple text question", function (assert) {
         var mText = new QuestionMultipleTextModel("q1");
-        mText.items.push(new MultipleTextItem("t1")); 
+        mText.items.push(new MultipleTextItemModel("t1")); 
         assert.equal(mText.hasErrors(), false, "There is no error by default");
         mText.items[0].validators.push(new NumericValidator(10, 20));
         mText.value = { t1: "ss" };

@@ -3,14 +3,14 @@
 /// <reference path="jsonobject.ts" />
 
 module Survey {
-    export class PageModel extends Base {
+    export class PageModel extends Base implements IPage {
         questions: Array<Question> = new Array<Question>();
         public data: ISurvey = null;
-        public visible: boolean = true;
+
         public title: string = "";
         public visibleIndex: number = -1;
         private numValue: number = -1;
-
+        private visibleValue: boolean = true;
         constructor(public name: string = "") {
             super();
             var self = this;
@@ -26,6 +26,14 @@ module Survey {
             if (this.numValue == value) return;
             this.numValue = value;
             this.onNumChanged(value);
+        }
+        public get visible(): boolean { return this.visibleValue; }
+        public set visible(value: boolean) {
+            if (value === this.visible) return;
+            this.visibleValue = value;
+            if (this.data != null) {
+                this.data.pageVisibilityChanged(this, this.visible);
+            }
         }
         public getType(): string { return "page"; }
         public get isVisible(): boolean {

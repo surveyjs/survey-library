@@ -3,24 +3,16 @@
 /// <reference path="jsonobject.ts" />
 module Survey {
     export interface IMatrixData {
-        onMatrixRowChanged(row: MatrixRow);
+        onMatrixRowChanged(row: MatrixRowModel);
     }
-    export class MatrixRow extends Base {
+    export class MatrixRowModel extends Base {
         data: IMatrixData;
         protected rowValue: any;
-        koValue: any;
 
         constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
             super();
             this.data = data;
             this.rowValue = value;
-            if (this.isKO) {
-                this.koValue = ko.observable(this.rowValue);
-                var self = this;
-                this.koValue.subscribe(function (newValue) {
-                    self.value = newValue;
-                });
-            }
         }
         public get value() { return this.rowValue; }
         public set value(newValue: any) {
@@ -49,21 +41,24 @@ module Survey {
             ItemValue.setData(this.rowsValue, newValue);
         }
 
-        public get visibleRows(): Array<MatrixRow> {
-            var result = new Array<MatrixRow>();
+        public get visibleRows(): Array<MatrixRowModel> {
+            var result = new Array<MatrixRowModel>();
             var val = this.value;
             if (!val) val = {};
             for (var i = 0; i < this.rows.length; i++) {
                 if (!this.rows[i].value) continue;
-                result.push(new MatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), this, val[this.rows[i].value])); 
+                result.push(this.createMatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), val[this.rows[i].value])); 
             }
             if (result.length == 0) {
-                result.push(new MatrixRow(null, "", this.name, this, val));
+                result.push(this.createMatrixRow(null, "", this.name, val));
             }
             return result;
         }
+        protected createMatrixRow(name: any, text: string, fullName: string, value: any) {
+            return new MatrixRowModel(name, text, fullName, this, value);
+        }
         //IMatrixData
-        onMatrixRowChanged(row: MatrixRow) {
+        onMatrixRowChanged(row: MatrixRowModel) {
             if (!this.hasRows) {
                 this.setNewValue(row.value);
             } else {

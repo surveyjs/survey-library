@@ -94,8 +94,8 @@ module Survey.SerializationTests {
     });
     QUnit.test("Serialize mutltiple text question", function (assert) {
         var mtQuestion = new QuestionMultipleTextModel("q1");
-        mtQuestion.items.push(new MultipleTextItem("item1"));
-        mtQuestion.items.push(new MultipleTextItem("item2", "text2"));
+        mtQuestion.items.push(new MultipleTextItemModel("item1"));
+        mtQuestion.items.push(new MultipleTextItemModel("item2", "text2"));
         var jsObj = new JsonObject().toJsonObject(mtQuestion);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });

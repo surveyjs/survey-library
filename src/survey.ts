@@ -27,6 +27,7 @@ module Survey {
         private completeTextValue: string;
         private showPageNumbersValue: boolean = false;
         private showQuestionNumbersValue: string = "on";
+        private localeValue: string = "";
 
         public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
         public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -64,6 +65,11 @@ module Survey {
             this.onCreating();
         }
         public getType(): string { return "survey"; }
+        public get locale(): string { return this.localeValue; }
+        public set locale(value: string) {
+            this.localeValue = value;
+            surveyLocalization.currentLocale = value;
+        }
         public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyLocalization.getString("pagePrevText"); }
         public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
         public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : surveyLocalization.getString("pageNextText"); }
@@ -407,7 +413,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "sendResultOnPageNext:boolean",
+    JsonObject.metaData.addClass("survey", ["locale", "title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
@@ -428,4 +434,5 @@ module Survey {
     JsonObject.metaData.setPropertyValues("survey", "completeText", null, null, function (obj: any) { return obj.completeTextValue; });
     JsonObject.metaData.setPropertyClassInfo("survey", "triggers", "surveytrigger", "trigger");
     JsonObject.metaData.setPropertyClassInfo("survey", "questions", "question");
+    JsonObject.metaData.setPropertyChoices("survey", "locale", null, () => { return surveyLocalization.getLocales() });
 }

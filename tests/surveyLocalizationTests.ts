@@ -1,4 +1,5 @@
 ﻿/// <reference path="../src/surveyStrings.ts" />
+/// <reference path="../src/survey.ts" />
 module Survey.LocalizationsTests {
     QUnit.module("LocalizationsTests");
 
@@ -8,6 +9,7 @@ module Survey.LocalizationsTests {
         assert.equal(surveyLocalization.getString("pageNextText"), "Next");
         surveyLocalization.currentLocale = "unknown";
         assert.equal(surveyLocalization.getString("pageNextText"), "Next");
+        surveyLocalization.currentLocale = "";
     });
     QUnit.test("add new localization", function (assert) {
         var newLoc = { pageNextText: "Mynext" };
@@ -16,6 +18,17 @@ module Survey.LocalizationsTests {
         surveyLocalization.currentLocale = "myen";
         assert.equal(surveyLocalization.getString("pageNextText"), "Mynext");
         assert.equal(surveyLocalization.getString("pagePrevText"), "Previous");
+        surveyLocalization.currentLocale = "";
     });
-
+    QUnit.test("set german localization", function (assert) {
+        var locales = surveyLocalization.getLocales();
+        assert.ok(locales.indexOf("en") > -1, "has en");
+        assert.ok(locales.indexOf("de") > -1, "has de");
+    });
+    QUnit.test("set german localization", function (assert) {
+        var survey = new SurveyModel();
+        survey.locale = "de";
+        assert.equal(survey.completeText, "Fertig");
+        surveyLocalization.currentLocale = "";
+    });
 }

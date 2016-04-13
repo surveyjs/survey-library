@@ -3,11 +3,12 @@ module Survey {
 
     export class JsonObjectProperty {
         private typeValue: string = null;
+        private choicesValue: Array<any> = null;
+        private choicesfunc: () => Array<any> = null;
         public className: string = null;
         public classNamePart: string = null;
         public baseClassName: string = null;
         public defaultValue: any = null;
-        public choices: Array<any> = null;
         public onGetValue: (obj: any) => any = null;
         public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any
 
@@ -35,6 +36,15 @@ module Survey {
         }
         public getClassName(className: string): string {
             return (this.classNamePart && className.indexOf(this.classNamePart) < 0) ? className + this.classNamePart : className;
+        }
+        public get choices(): Array<any> {
+            if (this.choicesValue != null) return this.choicesValue;
+            if (this.choicesfunc != null) return this.choicesfunc();
+            return null;
+        }
+        public setChoices(value: Array<any>, valueFunc: () => Array<any>) {
+            this.choicesValue = value;
+            this.choicesfunc = valueFunc;
         }
     }
     export class JsonMetadataClass {
@@ -107,10 +117,10 @@ module Survey {
             property.onGetValue = onGetValue;
             property.onSetValue = onSetValue;
         }
-        public setPropertyChoices(name: string, propertyName: string, choices: Array<any>) {
+        public setPropertyChoices(name: string, propertyName: string, choices: Array<any>, choicesFunc: () => Array<any> = null) {
             var property = this.findProperty(name, propertyName);
             if (!property) return;
-            property.choices = choices;
+            property.setChoices(choices, choicesFunc);
         }
         public setPropertyClassInfo(name: string, propertyName: string, baseClassName: string, classNamePart: string = null) {
             var property = this.findProperty(name, propertyName);

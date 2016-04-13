@@ -3,9 +3,17 @@
         currentLocale: "",
         locales: {},
         getString: function (strName: string) {
-            var loc = surveyLocalization.currentLocale ? surveyLocalization.locales[surveyLocalization.currentLocale] : surveyStrings;
+            var loc = this.currentLocale ? this.locales[this.currentLocale] : surveyStrings;
             if (!loc || !loc[strName]) loc = surveyStrings;
             return loc[strName];
+        },
+        getLocales: function (): Array<string> {
+            var res = [];
+            res.push("");
+            for (var key in this.locales) {
+                res.push(key);
+            }
+            return res;
         }
     };
     export var surveyStrings = {

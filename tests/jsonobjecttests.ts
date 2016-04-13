@@ -85,6 +85,7 @@ module Survey.JsonSerializationTests {
     JsonObject.metaData.addClass("truck", ["maxWeight:number"], function () { return new Truck(); }, "big");
     JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "fast");
     JsonObject.metaData.setPropertyChoices("sport", "maxSpeed", [100, 150, 200, 250]);
+    JsonObject.metaData.setPropertyChoices("truck", "maxWeight", null, () => { return [500, 1500] });
 
     JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
     JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
@@ -341,6 +342,11 @@ module Survey.JsonSerializationTests {
          var properties = JsonObject.metaData.getProperties("sport");
          assert.equal(properties[1].name, "maxSpeed", "It is a 'maxSpeed' property");
          assert.deepEqual(properties[1].choices, [100, 150, 200, 250], "'maxSpeed' property choices");
+     });
+     QUnit.test("Property Choices func test", function (assert) {
+         var properties = JsonObject.metaData.getProperties("truck");
+         assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
+         assert.deepEqual(properties[1].choices, [500, 1500], "'maxWeight' property choices");
      });
      QUnit.test("Create inherited class instead of origional", function (assert) {
          var container = new CreatingObjectContainer();

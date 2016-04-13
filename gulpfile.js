@@ -33,7 +33,7 @@ paths.testsFolder = paths.webroot + "tests/";
 var config_ko_standard = {
     templates: [{ path: "./src/knockout/standard/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/standard/" },
                 { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
-    src: ["./src/*.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packageDistPath: "./packages/survey-knockout/dist/"
@@ -41,7 +41,7 @@ var config_ko_standard = {
 var config_ko_bootstrap = {
     templates: [{ path: "./src/knockout/bootstrap/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
                 { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
-    src: ["./src/*.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
     mainJSfile: "survey.bootstrap.js",
     dtsfile: "survey.d.ts",
     packageDistPath: "./packages/survey-knockout-bootstrap/dist/"

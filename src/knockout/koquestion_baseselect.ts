@@ -23,7 +23,7 @@ module Survey {
             (<QuestionCheckboxBase>this.question).colCountChangedCallback = function () { self.onColCountChanged(); };
         }
         protected onColCountChanged() {
-            this.koWidth = ko.observable(this.colWidth);
+            this.question["koWidth"] = ko.observable(this.colWidth);
         }
         protected get colWidth(): string {
             var colCount = (<QuestionCheckboxBase>this.question).colCount;

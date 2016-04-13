@@ -84,15 +84,19 @@ function buildFromSources(configName) {
            noImplicitAny: false,
            declarationFiles: true
        }));
-    tsResult.js
+    return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))
         .pipe(gulp.dest(paths.jsFolder))
         .pipe(gulp.dest(curConfig.packageDistPath));
+}
 
-    //Build typescript definition
+function buildTypeDefinition(configName) {
+    var curConfig = configs[configName];
+        //Build js file
+        //Build typescript definition
     var tscResult = gulp.src([
           paths.webroot + "/lib/survey/**/*.d.ts",
           paths.typings
@@ -103,21 +107,13 @@ function buildFromSources(configName) {
            noExternalResolve: true,
            declaration: true
        }));
-    tscResult.dts
+    return tscResult.dts
         .pipe(concat(curConfig.dtsfile))
         .pipe(gulp.dest(paths.dist_dts));
 }
 
 function compressMainJS(configName) {
     var curConfig = configs[configName];
-    //Build templates
-    for (var i = 0; i < curConfig.templates.length; i++) {
-        var curTemplate = curConfig.templates[i];
-        gulp.src(curTemplate.path)
-            .pipe(concat(curTemplate.fileName))
-            .pipe(html2ts())
-            .pipe(gulp.dest(curTemplate.dest));
-    }
     //Compress
     gulp.src(paths.dist + curConfig.mainJSfile)
         .pipe(uglify())
@@ -141,7 +137,7 @@ function buildTests(configName) {
                noImplicitAny: false
            }));
 
-    tsResult.js
+    return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
@@ -153,10 +149,11 @@ function buildTests(configName) {
 }
 
 gulp.task("ko_standard_tempates", function () {
-    buildTemplates("ko_standard");
+    return buildTemplates("ko_standard");
 });
 gulp.task("ko_standard_source", function () {
-    buildFromSources("ko_standard");
+    buildTypeDefinition("ko_standard");
+    return buildFromSources("ko_standard");
 });
 gulp.task("ko_standard_compress", function () {
     compressMainJS("ko_standard");
@@ -164,10 +161,11 @@ gulp.task("ko_standard_compress", function () {
 gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_source", "ko_standard_compress"));
 
 gulp.task("ko_bootstrap_tempates", function () {
-    buildTemplates("ko_bootstrap");
+    return buildTemplates("ko_bootstrap");
 });
 gulp.task("ko_bootstrap_source", function () {
-    buildFromSources("ko_bootstrap");
+    buildTypeDefinition("ko_bootstrap");
+    return buildFromSources("ko_bootstrap");
 });
 gulp.task("ko_bootstrap_compress", function () {
     compressMainJS("ko_bootstrap");
@@ -175,7 +173,7 @@ gulp.task("ko_bootstrap_compress", function () {
 gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_source", "ko_bootstrap_compress"));
 
 gulp.task("buildTests_ko", function () {
-    buildTests("ko");
+    return buildTests("ko");
 });
 
 gulp.task('tsd', function (callback) {

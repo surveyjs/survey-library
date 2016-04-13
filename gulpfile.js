@@ -20,27 +20,14 @@ var paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
     dist_dts: "./dist/typings/",
-    package_ko_dist: "./packages/survey-knockout/dist/",
-    package_ko_bootstrap_dist: "./packages/survey-knockout-bootstrap/dist/",
-    ts: ["./src/**/*.ts"],
-    typings: "./typings/**/*.d.ts",
     tsTests: "./tests/*.ts",
-    tsTests_ko: "./tests/ko/*.ts",
+    package_ko_dist: "./packages/survey-knockout/dist/",
+    typings: "./typings/**/*.d.ts",
     styles: "./src/*.scss",
-    templates_ko: "./src/templates/ko/*.html",
-    templates_window_ko: "./src/templates/window.ko/*.html",
-    templates_ko_bootstrap: "./src/templates/ko.bootstrap/*.html",
-    templates_window_ko_bootstrap: "./src/templates/window.ko.bootstrap/*.html"
 };
-
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
-paths.js = paths.jsFolder + "**/*.js";
-paths.minJs = paths.webroot + "js/**/*.min.js";
-paths.css = paths.webroot + "css/**/*.css";
-paths.minCss = paths.webroot + "css/**/*.min.css";
-paths.concatJsDest = paths.webroot + "js/site.min.js";
-paths.concatCssDest = paths.webroot + "css/site.min.css";
+
 
 
 var config_ko_standard = {
@@ -73,7 +60,7 @@ configs["ko_bootstrap"] = config_ko_bootstrap;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
-function buildFromSources(configName) {
+function buildTemplates(configName) {
     var curConfig = configs[configName];
     //Build templates
     for (var i = 0; i < curConfig.templates.length; i++) {
@@ -83,6 +70,9 @@ function buildFromSources(configName) {
             .pipe(html2ts())
             .pipe(gulp.dest(curTemplate.dest));
     }
+}
+function buildFromSources(configName) {
+    var curConfig = configs[configName];
     //Build js file
     var tsResult = gulp.src([
           paths.webroot + "/lib/survey/**/*.d.ts",
@@ -116,7 +106,18 @@ function buildFromSources(configName) {
     tscResult.dts
         .pipe(concat(curConfig.dtsfile))
         .pipe(gulp.dest(paths.dist_dts));
+}
 
+function compressMainJS(configName) {
+    var curConfig = configs[configName];
+    //Build templates
+    for (var i = 0; i < curConfig.templates.length; i++) {
+        var curTemplate = curConfig.templates[i];
+        gulp.src(curTemplate.path)
+            .pipe(concat(curTemplate.fileName))
+            .pipe(html2ts())
+            .pipe(gulp.dest(curTemplate.dest));
+    }
     //Compress
     gulp.src(paths.dist + curConfig.mainJSfile)
         .pipe(uglify())
@@ -131,7 +132,6 @@ function buildTests(configName) {
     var curConfig = testconfigs[configName];
     //Build sources
     var tsResult = gulp.src([
-              //paths.dist_dts + curConfig.dtsfile,
               paths.typings,
               paths.tsTests,
               curConfig.src])
@@ -152,20 +152,30 @@ function buildTests(configName) {
     .pipe(gulp.dest(paths.testsFolder));
 }
 
-gulp.task("build_ko_standard", function () {
+gulp.task("ko_standard_tempates", function () {
+    buildTemplates("ko_standard");
+});
+gulp.task("ko_standard_source", function () {
     buildFromSources("ko_standard");
 });
-gulp.task("build_ko_bootstrap", function () {
+gulp.task("ko_standard_compress", function () {
+    compressMainJS("ko_standard");
+});
+gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_source", "ko_standard_compress"));
+
+gulp.task("ko_bootstrap_tempates", function () {
+    buildTemplates("ko_bootstrap");
+});
+gulp.task("ko_bootstrap_source", function () {
     buildFromSources("ko_bootstrap");
 });
+gulp.task("ko_bootstrap_compress", function () {
+    compressMainJS("ko_bootstrap");
+});
+gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_source", "ko_bootstrap_compress"));
 
 gulp.task("buildTests_ko", function () {
     buildTests("ko");
-});
-
-gulp.task('default', function () {
-    "use strict";
-    // place code for your default task here
 });
 
 gulp.task('tsd', function (callback) {

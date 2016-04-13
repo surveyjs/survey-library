@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../src/base.ts" />
 /// <reference path="../../src/knockout/templatetext.ts" />
-module SurveyTests {
+module SurveykoTests {
     QUnit.module("Template Text");
 
     export class SurveyTemplateTextTest extends Survey.SurveyTemplateTextBase {

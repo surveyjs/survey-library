@@ -15,31 +15,15 @@ module Survey {
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         public width: string = "100%";
-        koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any; dummyObservable: any;
-        koIsSelected: any; 
+        valueChangedCallback: () => void;
+        commentChangedCallback: () => void;
+        errorsChangedCallback: () => void;
+        visibilityChangedCallback: () => void;
+        visibleIndexChangedCallback: () => void;
 
         constructor(public name: string) {
             super();
-            if (this.isKO) {
-                this.koValue = this.createkoValue();
-                this.koComment = ko.observable(this.comment);
-                this.koErrors = ko.observableArray(this.errors);
-                this.dummyObservable = ko.observable(0);
-                var self = this;
-                this.koVisible = ko.computed(function () { self.dummyObservable(); return self.visibleValue; });
-                this.koNo = ko.computed(function () { self.dummyObservable(); return self.visibleIndexValue > -1 ? self.visibleIndexValue + 1 + ". " : ""; });
-                this.koValue.subscribe(function (newValue) {
-                    self.setNewValue(newValue);
-                });
-                this.koComment.subscribe(function (newValue) {
-                    self.setNewComment(newValue);
-                });
-                this.onCreating();
-            }
-        }
-        protected createkoValue(): any { return ko.observable(this.value); }
-        protected setkoValue(newValue: any) {
-            this.koValue(newValue);
+            this.onCreating();
         }
         public get title() { return (this.titleValue) ? this.titleValue : this.name; }
         public set title(newValue: string) { this.titleValue = newValue; }
@@ -51,9 +35,7 @@ module Survey {
         set visible(val: boolean) {
             if (val == this.visible) return;
             this.visibleValue = val;
-            if (this.isKO) {
-                this.dummyObservable(this.dummyObservable() + 1);
-            }
+            this.fireCallback(this.visibilityChangedCallback);
             if (this.data) {
                 this.data.questionVisibilityChanged(<IQuestion>this, this.visible);
             }
@@ -81,16 +63,12 @@ module Survey {
         }
         set value(newValue: any) {
             this.setNewValue(newValue);
-            if (this.isKO) {
-                this.setkoValue(this.value);
-            }
+            this.fireCallback(this.valueChangedCallback);
         }
         get comment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
         set comment(newValue: string) {
             this.setNewComment(newValue);
-            if (this.isKO) {
-                this.koComment(this.comment);
-            }
+            this.fireCallback(this.commentChangedCallback);
         }
         isEmpty(): boolean { return this.value == null; }
         public hasErrors(): boolean {
@@ -98,6 +76,7 @@ module Survey {
             return this.errors.length > 0;
         }
         private checkForErrors() {
+            var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];
             this.onCheckForErrors(this.errors);
             if (this.errors.length == 0) {
@@ -112,8 +91,8 @@ module Survey {
                     this.errors.push(error);
                 }
             }
-            if (this.isKO) {
-               this.koErrors(this.errors);
+            if (errorLength != this.errors.length || errorLength > 0) {
+                this.fireCallback(this.errorsChangedCallback);
             }
         }
         protected onCheckForErrors(errors: Array<SurveyError>) {
@@ -129,8 +108,7 @@ module Survey {
         }
         private isValueChangedInSurvey = false;
         protected setNewValue(newValue: any) {
-            if (this.isValueChangedInSurvey) return;
-            if (this.data != null) {
+            if (!this.isValueChangedInSurvey && this.data != null) {
                 this.data.setValue(this.name, newValue);
             }
             this.questionValue = newValue;
@@ -142,6 +120,9 @@ module Survey {
                 this.data.setComment(this.name, newValue);
             }
         }
+        protected fireCallback(callback: () => void) {
+            if (callback) callback();
+        }
         protected onCreating() { }
         //IQuestion
         onSurveyValueChanged(newValue: any) {
@@ -152,9 +133,7 @@ module Survey {
         setVisibleIndex(value: number) {
             if (this.visibleIndexValue == value) return;
             this.visibleIndexValue = value;
-            if (this.isKO) {
-                this.dummyObservable(this.dummyObservable() + 1);
-            }
+            this.fireCallback(this.visibleIndexChangedCallback);
         }
         //IValidatorOwner
         getValidatorTitle(): string { return null; }

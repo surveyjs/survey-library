@@ -19,9 +19,10 @@ var Server = require("karma").Server;
 var paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
+    dist_dts: "./dist/typings/",
     package_ko_dist: "./packages/survey-knockout/dist/",
     package_ko_bootstrap_dist: "./packages/survey-knockout-bootstrap/dist/",
-    ts: ["./src/*.ts"],
+    ts: ["./src/**/*.ts"],
     typings: "./typings/**/*.d.ts",
     tsTests: "./tests/*.ts",
     tsTests_ko: "./tests/ko/*.ts",
@@ -40,6 +41,127 @@ paths.css = paths.webroot + "css/**/*.css";
 paths.minCss = paths.webroot + "css/**/*.min.css";
 paths.concatJsDest = paths.webroot + "js/site.min.js";
 paths.concatCssDest = paths.webroot + "css/site.min.css";
+
+
+var config_ko_standard = {
+    templates: [{ path: "./src/knockout/standard/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/standard/" },
+                { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
+    src: ["./src/*.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
+    mainJSfile: "survey.js",
+    dtsfile: "survey.d.ts",
+    packageDistPath: "./packages/survey-knockout/dist/"
+}
+var config_ko_bootstrap = {
+    templates: [{ path: "./src/knockout/bootstrap/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
+                { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
+    src: ["./src/*.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
+    mainJSfile: "survey.bootstrap.js",
+    dtsfile: "survey.d.ts",
+    packageDistPath: "./packages/survey-knockout-bootstrap/dist/"
+}
+
+var config_test_ko = {
+    dtsfile: "survey.d.ts",
+    src: "./tests/ko/*.ts",
+    mainJSfile: "survey.tests.ko.js",
+    htmlFile: "./tests/ko/index_tests_ko.html"
+}
+
+var configs = {};
+configs["ko_standard"] = config_ko_standard;
+configs["ko_bootstrap"] = config_ko_bootstrap;
+var testconfigs = {};
+testconfigs["ko"] = config_test_ko;
+
+function buildFromSources(configName) {
+    var curConfig = configs[configName];
+    //Build templates
+    for (var i = 0; i < curConfig.templates.length; i++) {
+        var curTemplate = curConfig.templates[i];
+        gulp.src(curTemplate.path)
+            .pipe(concat(curTemplate.fileName))
+            .pipe(html2ts())
+            .pipe(gulp.dest(curTemplate.dest));
+    }
+    //Build js file
+    var tsResult = gulp.src([
+          paths.webroot + "/lib/survey/**/*.d.ts",
+          paths.typings
+    ].concat(curConfig.src))
+       .pipe(sourcemaps.init())
+       .pipe(ts({
+           target: "ES5",
+           noImplicitAny: false,
+           declarationFiles: true
+       }));
+    tsResult.js
+        .pipe(concat(curConfig.mainJSfile))
+        .pipe(sourcemaps.write({ sourceRoot: "src" }))
+        //Source map is a part of generated file
+        .pipe(gulp.dest(paths.dist))
+        .pipe(gulp.dest(paths.jsFolder))
+        .pipe(gulp.dest(curConfig.packageDistPath));
+
+    //Build typescript definition
+    var tscResult = gulp.src([
+          paths.webroot + "/lib/survey/**/*.d.ts",
+          paths.typings
+    ].concat(curConfig.src))
+       .pipe(sourcemaps.init())
+       .pipe(ts({
+           target: "ES5",
+           noExternalResolve: true,
+           declaration: true
+       }));
+    tscResult.dts
+        .pipe(concat(curConfig.dtsfile))
+        .pipe(gulp.dest(paths.dist_dts));
+
+    //Compress
+    gulp.src(paths.dist + curConfig.mainJSfile)
+        .pipe(uglify())
+            .pipe(rename({
+                extname: '.min.js'
+            }))
+        .pipe(gulp.dest(curConfig.packageDistPath))
+        .pipe(gulp.dest(paths.dist));
+}
+
+function buildTests(configName) {
+    var curConfig = testconfigs[configName];
+    //Build sources
+    var tsResult = gulp.src([
+              //paths.dist_dts + curConfig.dtsfile,
+              paths.typings,
+              paths.tsTests,
+              curConfig.src])
+           .pipe(sourcemaps.init())
+           .pipe(ts({
+               target: "ES5",
+               noImplicitAny: false
+           }));
+
+    tsResult.js
+        .pipe(concat(curConfig.mainJSfile))
+        .pipe(sourcemaps.write({ sourceRoot: "src" }))
+        //Source map is a part of generated file
+        .pipe(gulp.dest(paths.testsFolder));
+    //Copy html file
+    gulp.src(curConfig.htmlFile)
+    // Perform minification tasks, etc here
+    .pipe(gulp.dest(paths.testsFolder));
+}
+
+gulp.task("build_ko_standard", function () {
+    buildFromSources("ko_standard");
+});
+gulp.task("build_ko_bootstrap", function () {
+    buildFromSources("ko_bootstrap");
+});
+
+gulp.task("buildTests_ko", function () {
+    buildTests("ko");
+});
 
 gulp.task('default', function () {
     "use strict";
@@ -63,171 +185,16 @@ gulp.task('copyfiles', function (callback) {
         .pipe(gulp.dest(paths.jsFolder));
 });
 
-(function () {
-    gulp.task('templates', function () {
-        "use strict";
-        gulp.src(paths.templates_ko)
-          .pipe(concat("template.ko.html"))
-          .pipe(html2ts())
-          .pipe(gulp.dest("./src/"));
-        gulp.src(paths.templates_window_ko)
-          .pipe(concat("template.window.ko.html"))
-          .pipe(html2ts())
-          .pipe(gulp.dest("./src/"));
-    });
-    (function () {
-        "use strict";
-        gulp.task("typescript:sources", function () {
-            var tsResult = gulp.src([
-                  paths.webroot + "/lib/survey/**/*.d.ts",
-                  paths.typings
-            ].concat(paths.ts))
-               .pipe(sourcemaps.init())
-               .pipe(ts({
-                   target: "ES5",
-                   noImplicitAny: false,
-                   declarationFiles: true
-                }));
-
-            return tsResult.js
-                .pipe(concat('survey.js'))
-                .pipe(sourcemaps.write({ sourceRoot: "src" }))
-                //Source map is a part of generated file
-                .pipe(gulp.dest(paths.dist))
-                .pipe(gulp.dest(paths.package_ko_dist))
-                .pipe(gulp.dest(paths.jsFolder));
-        });
-        gulp.task("typescript:sources:definition", function () {
-            var tscResult = gulp.src([
-                  paths.webroot + "/lib/survey/**/*.d.ts",
-                  paths.typings
-            ].concat(paths.ts))
-               .pipe(sourcemaps.init())
-               .pipe(ts({
-                   target: "ES5",
-                   noExternalResolve: true,
-                   declaration: true
-               }));
-
-            return tscResult.dts
-                .pipe(concat('survey.d.ts'))
-                .pipe(gulp.dest(paths.dist));
-        });
-
-        gulp.task("typescript:tests", function () {
-            var tsResult = gulp.src([
-                  paths.webroot + "/lib/survey/**/*.d.ts",
-                  paths.typings,
-                  //"./src/model/*.ts",
-                  paths.tsTests])
-               .pipe(sourcemaps.init())
-               .pipe(ts({
-                   target: "ES5",
-                   noImplicitAny: false
-               }));
-
-            return tsResult.js
-                .pipe(concat('survey.tests.js'))
-                .pipe(sourcemaps.write({ sourceRoot: "src" }))
-                //Source map is a part of generated file
-                .pipe(gulp.dest(paths.testsFolder));
-        });
-
-        gulp.task("typescript:tests_ko", function () {
-            var tsResult = gulp.src([
-                  paths.webroot + "/lib/survey/**/*.d.ts",
-                  paths.typings,
-                  //"./src/model/*.ts",
-                  paths.tsTests_ko])
-               .pipe(sourcemaps.init())
-               .pipe(ts({
-                   target: "ES5",
-                   noImplicitAny: false
-               }));
-
-            return tsResult.js
-                .pipe(concat('survey.tests_ko.js'))
-                .pipe(sourcemaps.write({ sourceRoot: "src" }))
-                //Source map is a part of generated file
-                .pipe(gulp.dest(paths.testsFolder));
-        });
-        gulp.task('test:copy-index-html', function () {
-            gulp.src('./tests/index.html')
-            // Perform minification tasks, etc here
-            .pipe(gulp.dest(paths.testsFolder));
-        });
-
-        gulp.task("typescript", ["typescript:sources", "typescript:sources:definition", "typescript:tests", "typescript:tests_ko", "test:copy-index-html"]);
-    })("TypeScript compilation");
-
-    gulp.task('compress', function () {
-        "use strict";
-        return gulp.src(paths.dist + 'survey.js')
-            .pipe(uglify())
-             .pipe(rename({
-                 extname: '.min.js'
-             }))
-            .pipe(gulp.dest(paths.package_ko_dist))
-            .pipe(gulp.dest(paths.dist));
-    });
-    gulp.task('sass', function () {
-        "use strict";    
-        gulp.src(paths.styles)
-          .pipe(sass.sync().on('error', sass.logError))
-          .pipe(concat("survey.css"))
-          .pipe(gulp.dest(paths.webroot + 'css'))
-            .pipe(gulp.dest(paths.package_ko_dist + 'css'))
-          .pipe(gulp.dest(paths.dist + 'css'));
-    });
-    gulp.task("sass_compress", sequence(["sass", "compress"]));
-
-    gulp.task('templates:bootstrap', function () {
-        "use strict";
-        gulp.src(paths.templates_ko_bootstrap)
-          .pipe(concat("template.ko.html"))
-          .pipe(html2ts())
-          .pipe(gulp.dest("./src/"));
-        gulp.src(paths.templates_window_ko_bootstrap)
-          .pipe(concat("template.window.ko.html"))
-          .pipe(html2ts())
-          .pipe(gulp.dest("./src/"));
-    });
-    gulp.task("typescript:bootstrap", function () {
-        var tsResult = gulp.src([
-              paths.webroot + "/lib/survey/**/*.d.ts",
-              paths.typings
-        ].concat(paths.ts))
-           .pipe(sourcemaps.init())
-           .pipe(ts({
-               target: "ES5",
-               noImplicitAny: false,
-               declarationFiles: true
-           }));
-
-        return tsResult.js
-            .pipe(concat('survey.bootstrap.js'))
-            .pipe(sourcemaps.write({ sourceRoot: "src" }))
-            //Source map is a part of generated file
-            .pipe(gulp.dest(paths.dist))
-            .pipe(gulp.dest(paths.package_ko_bootstrap_dist))
-            .pipe(gulp.dest(paths.jsFolder));
-    });
-    gulp.task('compress:bootstrap', function () {
-        "use strict";
-        return gulp.src(paths.dist + 'survey.bootstrap.js')
-            .pipe(uglify())
-             .pipe(rename({
-                 extname: '.min.js'
-             }))
-            .pipe(gulp.dest(paths.package_ko_bootstrap_dist))
-            .pipe(gulp.dest(paths.dist));
-    });
-
-    gulp.task("makedist", sequence("templates", "typescript", "sass_compress", "templates:bootstrap", "typescript:bootstrap", "compress:bootstrap"));
-    gulp.task("makedist:bootstrap", sequence("templates:bootstrap", "typescript:bootstrap", "compress:bootstrap"));
-    gulp.task("makedistall", sequence("makedist", "makedist:bootstrap"));
-})("TypeScript compilation");
-
+gulp.task('sass', function () {
+    "use strict";
+    gulp.src(paths.styles)
+      .pipe(sass.sync().on('error', sass.logError))
+      .pipe(concat("survey.css"))
+      .pipe(gulp.dest(paths.webroot + 'css'))
+        .pipe(gulp.dest(paths.package_ko_dist + 'css'))
+      .pipe(gulp.dest(paths.dist + 'css'));
+});
+gulp.task("makedist", sequence(["sass", "build_ko_standard", "build_ko_bootstrap"], "buildTests_ko"));
 
 gulp.task("test_ci", function (done) { 
         new Server({ 

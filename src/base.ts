@@ -7,6 +7,7 @@
         setValue(name: string, newValue: any);
         getComment(name: string): string;
         setComment(name: string, newValue: string);
+        pageVisibilityChanged(page: IPage, newValue: boolean);
         questionVisibilityChanged(question: IQuestion, newValue: boolean);
         questionAdded(question: IQuestion, index: number);
         questionRemoved(question: IQuestion);
@@ -18,6 +19,9 @@
         visible: boolean;
         setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
+    }
+    export interface IPage {
+        visible: boolean;
     }
 
     export class ItemValue {
@@ -78,7 +82,6 @@
     }
 
     export class Base {
-        isKO = typeof ko !== 'undefined';
         public getType(): string {
             throw new Error('This method is abstract');
         }

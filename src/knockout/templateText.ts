@@ -1,6 +1,4 @@
-﻿/// <reference path="template.ko.html.ts" />
-
-module Survey {
+﻿module Survey {
     export class SurveyTemplateTextBase {
         constructor() {
         }
@@ -25,9 +23,5 @@ module Survey {
         }
         protected get text(): string { return ""; }
         protected set text(value: string) {  }
-    }
-    export class SurveyTemplateText extends SurveyTemplateTextBase {
-        protected get text(): string { return template.ko.html; }
-        protected set text(value: string) { template.ko.html = value; }
     }
 }

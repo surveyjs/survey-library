@@ -3,24 +3,16 @@
 /// <reference path="jsonobject.ts" />
 module Survey {
     export interface IMatrixData {
-        onMatrixRowChanged(row: MatrixRow);
+        onMatrixRowChanged(row: MatrixRowModel);
     }
-    export class MatrixRow extends Base {
+    export class MatrixRowModel extends Base {
         data: IMatrixData;
         protected rowValue: any;
-        koValue: any;
 
         constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
             super();
             this.data = data;
             this.rowValue = value;
-            if (this.isKO) {
-                this.koValue = ko.observable(this.rowValue);
-                var self = this;
-                this.koValue.subscribe(function (newValue) {
-                    self.value = newValue;
-                });
-            }
         }
         public get value() { return this.rowValue; }
         public set value(newValue: any) {
@@ -28,7 +20,7 @@ module Survey {
             if (this.data) this.data.onMatrixRowChanged(this);
         }
     }
-    export class QuestionMatrix extends Question implements IMatrixData {
+    export class QuestionMatrixModel extends Question implements IMatrixData {
         public columnsValue: ItemValue[] = [];
         public rowsValue: ItemValue[] = [];
         constructor(public name: string) {
@@ -49,21 +41,24 @@ module Survey {
             ItemValue.setData(this.rowsValue, newValue);
         }
 
-        public get visibleRows(): Array<MatrixRow> {
-            var result = new Array<MatrixRow>();
+        public get visibleRows(): Array<MatrixRowModel> {
+            var result = new Array<MatrixRowModel>();
             var val = this.value;
             if (!val) val = {};
             for (var i = 0; i < this.rows.length; i++) {
                 if (!this.rows[i].value) continue;
-                result.push(new MatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), this, val[this.rows[i].value])); 
+                result.push(this.createMatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), val[this.rows[i].value])); 
             }
             if (result.length == 0) {
-                result.push(new MatrixRow(null, "", this.name, this, val));
+                result.push(this.createMatrixRow(null, "", this.name, val));
             }
             return result;
         }
+        protected createMatrixRow(name: any, text: string, fullName: string, value: any) {
+            return new MatrixRowModel(name, text, fullName, this, value);
+        }
         //IMatrixData
-        onMatrixRowChanged(row: MatrixRow) {
+        onMatrixRowChanged(row: MatrixRowModel) {
             if (!this.hasRows) {
                 this.setNewValue(row.value);
             } else {
@@ -76,12 +71,12 @@ module Survey {
             }
         }
    }
-    JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrix(""); }, "question");
+    JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrixModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrix", "columns", null, null,
         function (obj: any) { return ItemValue.getData(obj.columns); },
         function (obj: any, value: any) { ItemValue.setData(obj.columns, value); });
     JsonObject.metaData.setPropertyValues("matrix", "rows", null, null,
         function (obj: any) { return ItemValue.getData(obj.rows); },
         function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
-    QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrix(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
+    QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrixModel(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
 }

@@ -11,14 +11,14 @@ module Survey.SerializationTests {
     QUnit.module("SurveySerialization");
 
     QUnit.test("Serialize two pages", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.addNewPage("Page 1");
         survey.addNewPage("Page 2");
         var jsObj = new JsonObject().toJsonObject(survey);
         assert.equal(JSON.stringify(jsObj), "{\"pages\":[{\"name\":\"Page 1\"},{\"name\":\"Page 2\"}]}", "serialize two pages");
     });
     QUnit.test("Deserialize two pages", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         new JsonObject().toObject({ "pages": [{ "name": "Page1" }, { "name": "Page2" }] }, survey);
         assert.equal(survey.pages.length, 2, "Two pages from json");
         assert.equal(survey.pages[0].name, "Page1", "property name is set");
@@ -26,10 +26,10 @@ module Survey.SerializationTests {
         assert.equal(survey.pages[1].getType(), "page", "it is a live object");
     });
     QUnit.test("Serialize two questions", function (assert) {
-        var page = new Page("Page1");
-        var textQuestion = new QuestionText("textQuestion");
+        var page = new PageModel("Page1");
+        var textQuestion = new QuestionTextModel("textQuestion");
         textQuestion.isRequired = true;
-        var checkBoxQuestion = new QuestionCheckbox("checkboxQuestion");
+        var checkBoxQuestion = new QuestionCheckboxModel("checkboxQuestion");
         checkBoxQuestion.choices = ["red", "white"];
         checkBoxQuestion.isRequired = true;
         checkBoxQuestion.hasComment = true;
@@ -39,8 +39,8 @@ module Survey.SerializationTests {
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"Page1\",\"questions\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"hasComment\":true,\"choices\":[\"red\",\"white\"]}]}", "serialize two questions");
     });
     QUnit.test("Deserialize two questions", function (assert) {
-        var survey = new Survey();
-        var page = new Page("Page1");
+        var survey = new SurveyModel();
+        var page = new PageModel("Page1");
         survey.addPage(page);
         new JsonObject().toObject({
             "questions": [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
@@ -58,7 +58,7 @@ module Survey.SerializationTests {
         assert.equal(page.questions[0].value, "newValue", "data interface is working");
     });
     QUnit.test("Full survey deserialize with one question", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         new JsonObject().toObject(
             {pages: [{ "name" : "page1",
                 "questions": [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
@@ -67,7 +67,7 @@ module Survey.SerializationTests {
         assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
     });
     QUnit.test("Full survey deserialize with one question bypass pages object", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         new JsonObject().toObject(
             {
                 questions: [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
@@ -76,7 +76,7 @@ module Survey.SerializationTests {
         assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
     });
     QUnit.test("Serialize survey data", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.setValue("question1", "value1");
         survey.setValue("question2", true);
         survey.setValue("question3", ["red", "white"]);
@@ -85,7 +85,7 @@ module Survey.SerializationTests {
         assert.deepEqual(data, expectedData, "check if get data works correctly");
     });
     QUnit.test("Deserialize survey data", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var data = { "question1": "value1", "question2": true, "question3": ["red", "white"] };
         survey.data = data;
         assert.equal(survey.getValue("question1"), "value1", "survey data for question 1");
@@ -93,14 +93,14 @@ module Survey.SerializationTests {
         assert.deepEqual(survey.getValue("question3"), ["red", "white"], "survey data for question 3");
     });
     QUnit.test("Serialize mutltiple text question", function (assert) {
-        var mtQuestion = new QuestionMultipleText("q1");
-        mtQuestion.items.push(new MultipleTextItem("item1"));
-        mtQuestion.items.push(new MultipleTextItem("item2", "text2"));
+        var mtQuestion = new QuestionMultipleTextModel("q1");
+        mtQuestion.items.push(new MultipleTextItemModel("item1"));
+        mtQuestion.items.push(new MultipleTextItemModel("item2", "text2"));
         var jsObj = new JsonObject().toJsonObject(mtQuestion);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });
     QUnit.test("Deserialize question with missing name", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var jsonObj = new JsonObject();
         jsonObj.toObject(
             {

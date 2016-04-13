@@ -1,11 +1,11 @@
 ﻿/// <reference path="base.ts" />
+/// <reference path="page.ts" />
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
-/// <reference path="template.ko.html.ts" />
 /// <reference path="dxSurveyService.ts" />
 
 module Survey {
-    export class Survey extends Base implements ISurvey, ISurveyTriggerOwner {
+    export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         public surveyId: string = null;
         public surveyPostId: string = null;
         public clientId: string = null;
@@ -16,34 +16,32 @@ module Survey {
         public showNavigationButtons: boolean = true;
         public showTitle: boolean = true;
         public showPageTitles: boolean = true;
-        public showPageNumbers: boolean = false;
-        public showQuestionNumbers: string = "on";
         public requiredText: string = "* ";
         //public showProgressBar: boolean = false; TODO
-        public pages: Array<Page> = new Array<Page>();
+        public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
-        private currentPageValue: Page = null;
+        private currentPageValue: PageModel = null;
         private valuesHash: HashTable<any> = {};
-        private renderedElement: HTMLElement;
         private pagePrevTextValue: string;
         private pageNextTextValue: string;
         private completeTextValue: string;
+        private showPageNumbersValue: boolean = false;
+        private showQuestionNumbersValue: string = "on";
 
-        public onComplete: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
-        public onRendered: Event<(sender: Survey) => any, any> = new Event<(sender: Survey) => any, any>();
-        public onCurrentPageChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onValueChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onVisibleChanged: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onQuestionAdded: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onQuestionRemoved: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onValidateQuestion: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onSendResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
-        public onGetResult: Event<(sender: Survey, options: any) => any, any> = new Event<(sender: Survey, options: any) => any, any>();
+        public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+        public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onPageVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
 
         public mode: string = "normal";
 
-        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
 
         constructor(jsonObj: any = null, renderedElement: any = null) {
             super();
@@ -56,12 +54,7 @@ module Survey {
                 value.setOwner(self);
                 return Array.prototype.push.call(this, value);
             };
-            if (ko) {
-                this.dummyObservable = ko.observable(0);
-                this.koCurrentPage = ko.computed(function () { self.dummyObservable(); return self.currentPage; });
-                this.koIsFirstPage = ko.computed(function () { self.dummyObservable(); return self.isFirstPage; });
-                this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
-            }
+            this.onBeforeCreating();
             if (jsonObj) {
                 this.setJsonObject(jsonObj);
                 if (this.surveyId) {
@@ -69,7 +62,6 @@ module Survey {
                 }
             }
             this.onCreating();
-            this.render(renderedElement);
         }
         public getType(): string { return "survey"; }
         public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyStrings.pagePrevText; }
@@ -78,6 +70,18 @@ module Survey {
         public set pageNextText(newValue: string) { this.pageNextTextValue = newValue; }
         public get completeText() { return (this.completeTextValue) ? this.completeTextValue : surveyStrings.completeText; }
         public set completeText(newValue: string) { this.completeTextValue = newValue; }
+        public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
+        public set showPageNumbers(value: boolean) {
+            if (value === this.showPageNumbers) return;
+            this.showPageNumbersValue = value;
+            this.updateVisibleIndexes();
+        }
+        public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; };
+        public set showQuestionNumbers(value: string) {
+            if (value === this.showQuestionNumbers) return;
+            this.showQuestionNumbersValue = value;
+            this.updateVisibleIndexes();
+        };
         public get data(): any {
             var result = {};
             for (var key in this.valuesHash) {
@@ -104,9 +108,9 @@ module Survey {
             }
             return result;
         }
-        get visiblePages(): Array<Page> {
+        get visiblePages(): Array<PageModel> {
             if (this.isDesignMode) return this.pages;
-            var result = new Array<Page>();
+            var result = new Array<PageModel>();
             for (var i = 0; i < this.pages.length; i++) {
                 if (this.pages[i].isVisible) {
                     result.push(this.pages[i]);
@@ -121,7 +125,7 @@ module Survey {
         get visiblePageCount(): number {
             return this.visiblePages.length;
         }
-        get currentPage(): Page {
+        get currentPage(): PageModel {
             var vPages = this.visiblePages;
             if (this.currentPageValue != null) {
                 if (vPages.indexOf(this.currentPageValue) < 0) {
@@ -133,21 +137,19 @@ module Survey {
             }
             return this.currentPageValue;
         }
-        set currentPage(value: Page) {
+        set currentPage(value: PageModel) {
             var vPages = this.visiblePages;
             if (value != null && vPages.indexOf(value) < 0) return;
             if (value == this.currentPageValue) return;
             var oldValue = this.currentPageValue;
             this.currentPageValue = value;
-            this.updateKoCurrentPage();
-            this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': value });
+            this.currentPageChanged(value, oldValue);
+            
+        }
+        protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
+            this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }
         public get isDesignMode(): boolean { return this.mode == "designer"; }
-        private updateKoCurrentPage() {
-            if (this.isKO) {
-                this.dummyObservable(this.dummyObservable() + 1);
-            }
-        }
         nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors) return false;
@@ -186,25 +188,27 @@ module Survey {
             var vPages = this.visiblePages;
             return vPages.indexOf(this.currentPage) == vPages.length - 1;
         }
-        getPage(index: number): Page {
+        getPage(index: number): PageModel {
             return this.pages[index];
         }
-        addPage(page: Page) {
+        addPage(page: PageModel) {
             if (page == null) return;
             this.pages.push(page);
+            this.updateVisibleIndexes();
         }
         addNewPage(name: string) {
-            var page = new Page(name);
+            var page = this.createNewPage(name);
             this.addPage(page);
             return page;
         }
-        removePage(page: Page) {
+        removePage(page: PageModel) {
             var index = this.pages.indexOf(page);
             if (index < 0) return;
             this.pages.splice(index, 1);
             if (this.currentPageValue == page) {
                 this.currentPage = this.pages.length > 0 ? this.pages[0] : null;
             }
+            this.updateVisibleIndexes();
         }
         public getQuestionByName(name: string): IQuestion {
             var questions = this.getAllQuestions();
@@ -223,20 +227,20 @@ module Survey {
             }
             return result;
         }
-        public getPageByQuestion(question: IQuestion): Page {
+        public getPageByQuestion(question: IQuestion): PageModel {
             for (var i: number = 0; i < this.pages.length; i++) {
                 var page = this.pages[i];
                 if (page.questions.indexOf(<Question>question) > -1) return page;
             }
             return null;
         }
-        public getPageByName(name: string): Page {
+        public getPageByName(name: string): PageModel {
             for (var i: number = 0; i < this.pages.length; i++) {
                 if (this.pages[i].name == name) return this.pages[i];
             }
             return null;
         }
-        public getPagesByNames(names: string[]): Page[]{
+        public getPagesByNames(names: string[]): PageModel[]{
             var result = [];
             if (!names) return result;
             for (var i: number = 0; i < names.length; i++) {
@@ -253,6 +257,7 @@ module Survey {
             }
             return result;
         }
+        protected createNewPage(name: string) { return new PageModel(name); }
         private notifyQuestionOnValueChanged(name: string, newValue: any) {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {
@@ -273,23 +278,6 @@ module Survey {
                     this.triggers[i].check(newValue);
                 }
             }
-        }
-        public render(element: any = null) {
-            var self = this;
-            if (element && typeof element == "string") {
-                    element = document.getElementById(element);
-            }
-            if (element) {
-                this.renderedElement = element;
-            }
-            element = this.renderedElement;
-            if (!element || this.isEmpty) return;
-            this.onBeforeRender();
-            if (this.isKO) {
-                element.innerHTML = template.ko.html;
-                self.applyBinding();
-            }
-            self.onRendered.fire(self, {});
         }
         public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
             if (!postId && this.surveyPostId) {
@@ -318,18 +306,11 @@ module Survey {
             new dxSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
                 if (success && result) {
                     self.setJsonObject(result);
-                    self.render(element);
+                    self.onLoadSurveyFromService(element);
                 }
             });
         }
-        onBeforeRender() {
-            this.updateVisibleIndexes();
-        }
-        private applyBinding() {
-            if (!this.isKO || this.renderedElement == null) return;
-            this.updateKoCurrentPage();
-            ko.cleanNode(this.renderedElement);
-            ko.applyBindings(this, this.renderedElement);
+        protected onLoadSurveyFromService(element: any) {
         }
         private updateVisibleIndexes() {
             this.updatePageVisibleIndexes(this.showPageNumbers);
@@ -363,7 +344,9 @@ module Survey {
             if (jsonConverter.errors.length > 0) {
                 this.jsonErrors = jsonConverter.errors;
             }
+            this.updateVisibleIndexes();
         }
+        protected onBeforeCreating() { }
         protected onCreating() { }
         //ISurvey data
         getValue(name: string): any {
@@ -396,10 +379,16 @@ module Survey {
             this.updateVisibleIndexes();
             this.onVisibleChanged.fire(this, { 'question': question, 'name': question.name, 'visible': newValue });
         }
+        pageVisibilityChanged(page: IPage, newValue: boolean) {
+            this.updateVisibleIndexes();
+            this.onPageVisibleChanged.fire(this, { 'page': page, 'visible': newValue });
+        }
         questionAdded(question: IQuestion, index: number) {
+            this.updateVisibleIndexes();
             this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index });
         }
         questionRemoved(question: IQuestion) {
+            this.updateVisibleIndexes();
             this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
         }
 

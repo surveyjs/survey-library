@@ -7,25 +7,14 @@ module Survey {
         setMultipleTextValue(name: string, value: any);
     }
 
-    export class MultipleTextItem extends Base implements IValidatorOwner {
+    export class MultipleTextItemModel extends Base implements IValidatorOwner {
         private data: IMultipleTextData;
         private titleValue: string;
-        private isKOValueUpdating = false;
-        koValue: any;
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
         constructor(public name: any = null, title: string = null) {
             super();
             this.title = title;
-            if (this.isKO) {
-                this.koValue = ko.observable(this.value);
-                var self = this;
-                this.koValue.subscribe(function (newValue) {
-                    if (!self.isKOValueUpdating) {
-                        self.value = newValue;
-                    }
-                });
-            }
         }
         public getType(): string {
             return "multipletextitem";
@@ -44,19 +33,14 @@ module Survey {
             }
         }
         onValueChanged(newValue: any) {
-            if (this.isKO) {
-                this.isKOValueUpdating = true;
-                this.koValue(newValue);
-                this.isKOValueUpdating = false;
-            }
         }
         //IValidatorOwner
         getValidatorTitle(): string { return this.title; }
     }
 
-    export class QuestionMultipleText extends Question implements IMultipleTextData {
+    export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
         public itemSize: number = 25;
-        public items: Array<MultipleTextItem> = new Array<MultipleTextItem>();
+        public items: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
         constructor(public name: string) {
             super(name);
             var self = this;
@@ -68,8 +52,8 @@ module Survey {
         public getType(): string {
             return "multipletext";
         }
-        public AddItem(name: string, title: string = null): MultipleTextItem {
-            var item = new MultipleTextItem(name, title);
+        public AddItem(name: string, title: string = null): MultipleTextItemModel {
+            var item = this.createTextItem(name, title);
             this.items.push(item);
             return item;
         }
@@ -78,9 +62,8 @@ module Survey {
             super.onValueChanged();
             this.onItemValueChanged();
         }
-        protected setkoValue(newValue: any) {
-            super.setkoValue(newValue);
-            this.onItemValueChanged();
+        protected createTextItem(name: string, title: string): MultipleTextItemModel {
+            return new MultipleTextItemModel(name, title);
         }
         protected onItemValueChanged() {
             if (this.isMultipleItemValueChanging) return;
@@ -117,13 +100,13 @@ module Survey {
             this.isMultipleItemValueChanging = false;
         }
     }
-    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators:validators"], function () { return new MultipleTextItem(""); });
+    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators:validators"], function () { return new MultipleTextItemModel(""); });
     JsonObject.metaData.setPropertyClassInfo("multipletextitem", "validators", "surveyvalidator", "validator");
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 
-    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number"], function () { return new QuestionMultipleText(""); }, "question");
+    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number"], function () { return new QuestionMultipleTextModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
     JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
-    QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleText(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
+    QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleTextModel(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
 }

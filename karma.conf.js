@@ -17,8 +17,7 @@ module.exports = function (config) {
 
           "wwwroot/js/survey.js",
 
-          "wwwroot/tests/survey.tests.js",
-          "wwwroot/tests/survey.tests_ko.js"
+          "wwwroot/tests/survey.tests.ko.js",
     ],
 
         // list of files to exclude

@@ -2,7 +2,7 @@
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    export class QuestionText extends Question {
+    export class QuestionTextModel extends Question {
         public size: number = 25;
         constructor(public name: string) {
             super(name);
@@ -14,7 +14,7 @@ module Survey {
             return super.isEmpty() || this.value == "";
         }
     }
-    JsonObject.metaData.addClass("text", ["size:number"], function () { return new QuestionText(""); }, "question");
+    JsonObject.metaData.addClass("text", ["size:number"], function () { return new QuestionTextModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("text", "size", null, 25);
-    QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionText(name); });
+    QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionTextModel(name); });
 }

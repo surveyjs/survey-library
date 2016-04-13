@@ -10,7 +10,7 @@ module Survey.Tests {
     QUnit.module("Survey");
 
     QUnit.test("set data property", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         assert.deepEqual(survey.data, {}, "there is no data");
         survey.data = { strVal: 'item1', intVal: 5 };
         assert.deepEqual(survey.data, { strVal: 'item1', intVal: 5 }, "set the object");
@@ -18,13 +18,13 @@ module Survey.Tests {
         assert.deepEqual(survey.data, { }, "clear data");
     });
     QUnit.test("Add two pages", function (assert) {
-        var survey = new Survey();
-        survey.addPage(new Page("Page 1"));
-        survey.addPage(new Page("Page 2"));
+        var survey = new SurveyModel();
+        survey.addPage(new PageModel("Page 1"));
+        survey.addPage(new PageModel("Page 2"));
         assert.equal(survey.PageCount, 2, "Two pages");
     });
     QUnit.test("Current Page", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.addPage(createPageWithQuestion("Page 1"));
         assert.equal(survey.currentPage, survey.pages[0], "the first page is  current");
         survey.currentPage = null;
@@ -37,10 +37,10 @@ module Survey.Tests {
         assert.equal(survey.currentPage, survey.pages[0], "the first page is current after removing the current one");
     });
     QUnit.test("Remove Page", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.mode = "designer";
-        survey.addPage(new Page("Page 1"));
-        survey.addPage(new Page("Page 2"));
+        survey.addPage(new PageModel("Page 1"));
+        survey.addPage(new PageModel("Page 2"));
         assert.equal(survey.PageCount, 2, "Two pages");
         assert.equal(survey.currentPage.name, "Page 1", "the first page is  current");
 
@@ -50,7 +50,7 @@ module Survey.Tests {
     });
 
     QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Second page"));
         survey.addPage(createPageWithQuestion("Third page"));
@@ -75,7 +75,7 @@ module Survey.Tests {
         assert.equal(survey.isLastPage, false, "Current Page is  First");
     });
     QUnit.test("Next, Prev, Next", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Page 2"));
         survey.addPage(createPageWithQuestion("Page 3"));
@@ -103,7 +103,7 @@ module Survey.Tests {
         assert.ok(names.indexOf("question3") > -1, "contains a new type");
     });
     QUnit.test("Add questions to page", function (assert) {
-        var page = new Page("Page 1");
+        var page = new PageModel("Page 1");
         page.addNewQuestion("text", "Q1");
         page.addNewQuestion("checkbox", "Q2");
         assert.equal(page.questions.length, 2, "Two questions");
@@ -111,7 +111,7 @@ module Survey.Tests {
         assert.equal(page.questions[1].getType(), "checkbox", "Checkbox question");
     });
     QUnit.test("Survey.getQuestionByName", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");
         page.addNewQuestion("text", "Q1");
         page.addNewQuestion("checkbox", "Q2");
@@ -125,7 +125,7 @@ module Survey.Tests {
     });
     QUnit.test("SurveyData interface implementation", function (assert) {
         var surveyData: ISurvey;
-        surveyData = new Survey();
+        surveyData = new SurveyModel();
         assert.equal(surveyData.getValue("test1"), null, "No data");
         assert.equal(surveyData.getValue("test2"), null, "No data");
         surveyData.setValue("test1", 1);
@@ -134,8 +134,8 @@ module Survey.Tests {
         assert.equal(surveyData.getValue("test2"), "1", "Has value '1'");
     });
     QUnit.test("Store question value in the survey", function (assert) {
-        var survey = new Survey();
-        survey.addPage(new Page("Page 1"));
+        var survey = new SurveyModel();
+        survey.addPage(new PageModel("Page 1"));
         var question = survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getValue("question"), null, "No value");
         assert.equal(question.value, null, "No value");
@@ -149,8 +149,8 @@ module Survey.Tests {
         assert.equal(question.value, "myNewtext", "set value from survey");
     });
     QUnit.test("Store comments in the survey", function (assert) {
-        var survey = new Survey();
-        survey.addPage(new Page("Page 1"));
+        var survey = new SurveyModel();
+        survey.addPage(new PageModel("Page 1"));
         var question = survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getComment("question"), "", "Comment is empty");
         assert.equal(question.comment, "", "Comment is empty");
@@ -192,7 +192,7 @@ module Survey.Tests {
         var name = "";
         var newValue = null;
         var counter = 0;
-        survey.onValueChanged.add(function (sender: Survey, options: any) {
+        survey.onValueChanged.add(function (sender: SurveyModel, options: any) {
             name = options.name; newValue = options.value; counter++;
         });
         survey.setValue("question1", "value1");
@@ -204,14 +204,14 @@ module Survey.Tests {
     });
     QUnit.test("onValueChanged event is not called on changing matrix value", function (assert) {
         var survey = twoPageSimplestSurvey();
-        var matrixQuestion = new QuestionMatrix("matrix");
+        var matrixQuestion = new QuestionMatrixModel("matrix");
         survey.pages[0].addQuestion(matrixQuestion);
         matrixQuestion.columns = ["col1", "col2"];
         matrixQuestion.rows = ["row1", "row2"];
         var name = "";
         var newValue = null;
         var counter = 0;
-        survey.onValueChanged.add(function (sender: Survey, options: any) {
+        survey.onValueChanged.add(function (sender: SurveyModel, options: any) {
             name = options.name; newValue = options.value; counter++;
         });
         matrixQuestion.visibleRows[0].value = "col2";
@@ -221,14 +221,14 @@ module Survey.Tests {
     });
     QUnit.test("onValueChanged event is not called on changing multi text value", function (assert) {
         var survey = twoPageSimplestSurvey();
-        var multiTextQuestion = new QuestionMultipleText("multitext");
+        var multiTextQuestion = new QuestionMultipleTextModel("multitext");
         survey.pages[0].addQuestion(multiTextQuestion);
-        multiTextQuestion.items.push(new MultipleTextItem("item1"));
-        multiTextQuestion.items.push(new MultipleTextItem("item2"));
+        multiTextQuestion.items.push(new MultipleTextItemModel("item1"));
+        multiTextQuestion.items.push(new MultipleTextItemModel("item2"));
         var name = "";
         var newValue = null;
         var counter = 0;
-        survey.onValueChanged.add(function (sender: Survey, options: any) {
+        survey.onValueChanged.add(function (sender: SurveyModel, options: any) {
             name = options.name; newValue = options.value; counter++;
         });
         multiTextQuestion.items[1].value = "text1";
@@ -241,7 +241,7 @@ module Survey.Tests {
         var name = "";
         var visibility = true;
         var counter = 0;
-        survey.onVisibleChanged.add(function (sender: Survey, options: any) {
+        survey.onVisibleChanged.add(function (sender: SurveyModel, options: any) {
             name = options.name; visibility = options.visible; counter++;
         });
         survey.getQuestionByName("question1").visible = false;
@@ -260,18 +260,15 @@ module Survey.Tests {
     });
     QUnit.test("Question visibleIndex", function (assert) {
         var survey = twoPageSimplestSurvey();
-        survey.onBeforeRender();
         assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, 0, "the first question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 2, "the third question");
         survey.getQuestionByName("question1").visible = false;
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 1, "the third question is now visible as second");
         survey.showQuestionNumbers = "off";
-        survey.onBeforeRender();
         assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, -1, "off:the first question");
         assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, -1, "off:the second question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, -1, "off:the third question");
         survey.showQuestionNumbers = "onPage";
-        survey.onBeforeRender();
         assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, -1, "onPage:the first question");
         assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, 0, "onPage:the second question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 0, "onPage:the third question");
@@ -279,7 +276,6 @@ module Survey.Tests {
     QUnit.test("Pages visibleIndex and num", function (assert) {
         var survey = twoPageSimplestSurvey();
         survey.addNewPage("page 3").addNewQuestion("text", "q4");
-        survey.onBeforeRender();
         assert.equal(survey.pages[0].visibleIndex, 0, "start:page 1");
         assert.equal(survey.pages[1].visibleIndex, 1, "start:page 2");
         assert.equal(survey.pages[2].visibleIndex, 2, "start:page 3");
@@ -288,13 +284,11 @@ module Survey.Tests {
         assert.equal(survey.pages[2].num, -1, "start:page 3, num");
 
         survey.showPageNumbers = true;
-        survey.onBeforeRender();
         assert.equal(survey.pages[0].num, 1, "showPageNumbers:page 1, num");
         assert.equal(survey.pages[1].num, 2, "showPageNumbers:page 2, num");
         assert.equal(survey.pages[2].num, 3, "showPageNumbers:page 3, num");
 
         survey.pages[0].visible = false;
-        survey.onBeforeRender();
         assert.equal(survey.pages[0].visibleIndex, -1, "page[0].visible=false:page 1");
         assert.equal(survey.pages[1].visibleIndex, 0, "page[0].visible=false:page 2");
         assert.equal(survey.pages[2].visibleIndex, 1, "page[0].visible=false:page 3");
@@ -304,11 +298,9 @@ module Survey.Tests {
     });
     QUnit.test("Pages num", function (assert) {
         var survey = twoPageSimplestSurvey();
-        survey.onBeforeRender();
         assert.equal(survey.pages[0].num, -1, "false:the first page");
         assert.equal(survey.pages[1].num, -1, "false:the second page");
         survey.showPageNumbers = true;
-        survey.onBeforeRender();
         assert.equal(survey.pages[0].num, 1, "true:the first page");
         assert.equal(survey.pages[1].num, 2, "true:the second page");
     });
@@ -326,7 +318,7 @@ module Survey.Tests {
         assert.equal(survey.isCurrentPageHasErrors, true, "the value is more than 100, no errors");
     });
     QUnit.test("Page visibility", function (assert) {
-        var page = new Page("page");
+        var page = new PageModel("page");
         assert.equal(page.isVisible, false, "page is invisible if there is no questions in it");
         page.addNewQuestion("text", "q1");
         assert.equal(page.isVisible, true, "there is one question");
@@ -382,30 +374,8 @@ module Survey.Tests {
         var strResult = surveyStrings.textMinLength["format"](10);
         assert.equal(strResult, "Please enter at least 10 symblos.", "The format string is working");
     });
-    /* move to designer
-    QUnit.test("Designer select a question", function (assert) {
-        var survey = twoPageSimplestSurvey();
-        assert.equal(survey.isDesignMode, false);
-        survey.mode = "designer";
-        assert.equal(survey.isDesignMode, true);
-
-        var question1 = <Question>survey.getAllQuestions()[0];
-        var question2 = <Question>survey.getAllQuestions()[1];
-
-        assert.equal(survey.selectedQuestion, null, "by default a question is not selected");
-        assert.equal(question1.koIsSelected(), false, "the first question is not selected");
-
-        survey.selectedQuestion = question1;
-        assert.equal(survey.selectedQuestion, question1, "the first question is selected");
-        assert.equal(question1.koIsSelected(), true, "the first question is selected");
-        survey.selectedQuestion = question2;
-        assert.equal(survey.selectedQuestion, question2, "the second question is selected");
-        assert.equal(question1.koIsSelected(), false, "the first question is not selected");
-        assert.equal(question2.koIsSelected(), true, "the second question is selected");
-    });
-    */
     function twoPageSimplestSurvey() {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");
         page.addNewQuestion("text", "question1");
         page.addNewQuestion("text", "question2");
@@ -414,8 +384,8 @@ module Survey.Tests {
         page.addNewQuestion("text", "question4");
         return survey;
     }
-    function createPageWithQuestion(name: string) : Page {
-        var page = new Page(name);
+    function createPageWithQuestion(name: string) : PageModel {
+        var page = new PageModel(name);
         page.addNewQuestion("text", "q1");
         return page;
     }

@@ -1,7 +1,7 @@
 ﻿/// <reference path="../surveywindow.ts" />
 /// <reference path="kosurvey.ts" />
 module Survey {
-    export class SurveyWindow extends SurveyWindowModel {
+    export class SurveyWindowBase extends SurveyWindowModel {
         koExpanded: any;
         doExpand: any;
         constructor(jsonObj: any) {
@@ -12,13 +12,13 @@ module Survey {
             this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); });
         }
         protected createSurvey(jsonObj: any): SurveyModel {
-            return new Survey(jsonObj)
+            return new SurveyBase(jsonObj)
         }
         protected expandcollapse(value: boolean) {
             super.expandcollapse(value);
             this.koExpanded(this.isExpandedValue);
         }
-        protected get template(): string { return this.templateValue ? this.templateValue : template.window.ko.html; }
+        protected get template(): string { return this.templateValue ? this.templateValue : this.getDefaultTemplate(); }
         protected set template(value: string) { this.templateValue = value; }
         public show() {
             this.windowElement.innerHTML = this.template;
@@ -28,6 +28,7 @@ module Survey {
             (<Survey>this.survey).render(SurveyWindow.surveyElementName);
             this.isShowingValue = true;
         }
+        protected getDefaultTemplate(): string { throw new Error("Please override this method"); }
         public hide() {
             document.body.removeChild(this.windowElement);
             this.windowElement.innerHTML = "";

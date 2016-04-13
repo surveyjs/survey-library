@@ -2,7 +2,6 @@
 /// <reference path="page.ts" />
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
-/// <reference path="template.ko.html.ts" />
 /// <reference path="dxSurveyService.ts" />
 
 module Survey {

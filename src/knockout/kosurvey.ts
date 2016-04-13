@@ -1,6 +1,6 @@
 ﻿/// <reference path="../survey.ts" />
 module Survey {
-    export class Survey extends SurveyModel {
+    export class SurveyBase extends SurveyModel {
         private renderedElement: HTMLElement;
         public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
 
@@ -21,11 +21,12 @@ module Survey {
             }
             element = this.renderedElement;
             if (!element || this.isEmpty) return;
-            element.innerHTML = template.ko.html;
+            element.innerHTML = this.getTemplate();
             self.applyBinding();
             self.onRendered.fire(self, {});
         }
         protected createNewPage(name: string) { return new Page(name); }
+        protected getTemplate(): string { throw new Error("Please override this method"); }
         protected onBeforeCreating() {
             var self = this;
             this.dummyObservable = ko.observable(0);

@@ -1,5 +1,5 @@
-﻿/// <reference path="../src/base.ts" />
-/// <reference path="../src/templatetext.ts" />
+﻿/// <reference path="../../src/base.ts" />
+/// <reference path="../../src/knockout/templatetext.ts" />
 module SurveyTests {
     QUnit.module("Template Text");
 

@@ -66,12 +66,12 @@ module Survey {
         protected getDefaultErrorText(name: string) {
             var vName = name ? name : "value";
             if (this.minValue && this.maxValue) {
-                return surveyStrings.numericMinMax["format"](vName, this.minValue, this.maxValue);
+                return surveyLocalization.getString("numericMinMax")["format"](vName, this.minValue, this.maxValue);
             } else {
                 if (this.minValue) {
-                    return surveyStrings.numericMin["format"](vName, this.minValue);
+                    return surveyLocalization.getString("numericMin")["format"](vName, this.minValue);
                 } 
-                return surveyStrings.numericMax["format"](vName, this.maxValue);
+                return surveyLocalization.getString("numericMax")["format"](vName, this.maxValue);
             }
         }
         private isNumber(value): boolean {
@@ -92,7 +92,7 @@ module Survey {
             return null;
         }
         protected getDefaultErrorText(name: string) {
-            return surveyStrings.textMinLength["format"](this.minLength);
+            return surveyLocalization.getString("textMinLength")["format"](this.minLength);
         }
     }
 
@@ -105,10 +105,10 @@ module Survey {
             if (value == null || value.constructor != Array) return null;
             var count = value.length;
             if (this.minCount && count < this.minCount) {
-                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyStrings.minSelectError["format"](this.minCount))));
+                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyLocalization.getString("minSelectError")["format"](this.minCount))));
             }
             if (this.maxCount && count > this.maxCount) {
-                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyStrings.maxSelectError["format"](this.maxCount))));
+                return new ValidatorResult(null, new CustomError(this.getErrorText(surveyLocalization.getString("maxSelectError")["format"](this.maxCount))));
             }
             return null;
         }

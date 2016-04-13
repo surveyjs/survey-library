@@ -6,7 +6,7 @@ module Survey {
             super();
         }
         public getText(): string {
-            return surveyStrings.requiredError;
+            return surveyLocalization.getString("requiredError");
         }
     }
     export class RequreNumericError extends SurveyError {
@@ -14,7 +14,7 @@ module Survey {
             super();
         }
         public getText(): string {
-            return surveyStrings.numericError;
+            return surveyLocalization.getString("numericError");
         }
     }
     export class CustomError extends SurveyError {

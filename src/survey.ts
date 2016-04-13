@@ -64,11 +64,11 @@ module Survey {
             this.onCreating();
         }
         public getType(): string { return "survey"; }
-        public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyStrings.pagePrevText; }
+        public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyLocalization.getString("pagePrevText"); }
         public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
-        public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : surveyStrings.pageNextText; }
+        public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : surveyLocalization.getString("pageNextText"); }
         public set pageNextText(newValue: string) { this.pageNextTextValue = newValue; }
-        public get completeText() { return (this.completeTextValue) ? this.completeTextValue : surveyStrings.completeText; }
+        public get completeText() { return (this.completeTextValue) ? this.completeTextValue : surveyLocalization.getString("completeText"); }
         public set completeText(newValue: string) { this.completeTextValue = newValue; }
         public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
         public set showPageNumbers(value: boolean) {

@@ -3,7 +3,7 @@
 /// <reference path="surveystrings.ts" />
 module Survey {
     export class QuestionSelectBase extends Question {
-        otherItem: ItemValue = new ItemValue("other", surveyStrings.otherItemText);
+        otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public otherErrorText: string = null;
         choicesOrderValue: string = "none";
@@ -87,7 +87,7 @@ module Survey {
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
     JsonObject.metaData.setPropertyValues("selectbase", "choicesOrder", null, "none");
     JsonObject.metaData.setPropertyChoices("selectbase", "choicesOrder", ["none", "asc", "desc", "random"]);
-    JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, surveyStrings.otherItemText);
+    JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, surveyLocalization.getString("otherItemText"));
 
     JsonObject.metaData.addClass("checkboxbase", ["colCount:number"], null, "selectbase");
     JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);

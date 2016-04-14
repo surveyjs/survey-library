@@ -6,7 +6,7 @@ module Survey {
         onMatrixRowChanged(row: MatrixRowModel);
     }
     export class MatrixRowModel extends Base {
-        data: IMatrixData;
+        private data: IMatrixData;
         protected rowValue: any;
 
         constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
@@ -21,8 +21,8 @@ module Survey {
         }
     }
     export class QuestionMatrixModel extends Question implements IMatrixData {
-        public columnsValue: ItemValue[] = [];
-        public rowsValue: ItemValue[] = [];
+        private columnsValue: ItemValue[] = [];
+        private rowsValue: ItemValue[] = [];
         constructor(public name: string) {
             super(name);
         }
@@ -54,7 +54,7 @@ module Survey {
             }
             return result;
         }
-        protected createMatrixRow(name: any, text: string, fullName: string, value: any) {
+        protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
             return new MatrixRowModel(name, text, fullName, this, value);
         }
         //IMatrixData

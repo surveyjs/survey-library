@@ -6,6 +6,7 @@
 /// <reference path="../src/question_matrix.ts" />
 /// <reference path="../src/question_multipletext.ts" />
 /// <reference path="../src/question_radiogroup.ts" />
+/// <reference path="../src/question_matrixdropdown.ts" />
 /// <reference path="../src/questionfactory.ts" />
 module Survey.Tests {
     QUnit.module("Survey_Questions");
@@ -209,5 +210,28 @@ module Survey.Tests {
         assert.equal(commentChanged, 1, "comment changed on time");
         assert.equal(visibleChanged, 1, "visibiblity changed on time");
         assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
+    });
+    QUnit.test("Matrixdropdown cells tests", function (assert) {
+        var question = new QuestionMatrixDropdownModel("textQuestion");
+        question.rows = ["row1", "row2", "row3"];
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        question.choices = [1, 2, 3];
+        question.columns[1].choices = [4, 5];
+        question.value = { 'row2': { 'column1': 2 } }
+        var visibleRows = question.visibleRows;
+        assert.equal(visibleRows.length, 3, "There are three rows");
+        assert.equal(visibleRows[0].cells.length, 2, "There are two cells in each row");
+        assert.equal(visibleRows[2].cells.length, 2, "There are two cells in each row");
+        assert.equal(visibleRows[0].cells[0].choices, question.choices, "get choices from matrix");
+        assert.equal(visibleRows[0].cells[1].choices, question.columns[1].choices, "get choices from column");
+        assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
+        assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
+
+        question.value = null;
+        visibleRows[0].cells[1].value = 4;
+        assert.deepEqual(question.value, { 'row1': { 'column2': 4 } }, "set the cell value correctly");
+        visibleRows[0].cells[1].value = null;
+        assert.deepEqual(question.value, null, "set to null if all cells are null");
     });
 }

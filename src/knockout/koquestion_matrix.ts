@@ -16,7 +16,7 @@ module Survey {
             super(name);
             new QuestionImplementor(this);
         }
-        protected createMatrixRow(name: any, text: string, fullName: string, value: any) {
+        protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
             return new MatrixRow(name, text, fullName, this, value);
         }
     }

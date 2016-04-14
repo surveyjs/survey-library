@@ -1,0 +1,24 @@
+﻿<script type="text/html" id="survey-question-matrixdropdown">
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <!-- ko foreach: question.columns -->
+                <th data-bind="text:$data.text"></th>
+                <!-- /ko -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
+            <tr>
+                <td data-bind="text:row.text"></td>
+                <!-- ko foreach: row.cells -->
+                <td>
+                    <select data-bind="options: $data.choices, optionsText: 'text', optionsValue: 'value', value: $data.koValue, optionsCaption: $data.optionsCaption"></select>
+                </td>
+                <!-- /ko -->
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+</script>

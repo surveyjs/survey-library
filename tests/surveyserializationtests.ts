@@ -55,7 +55,7 @@ module Survey.SerializationTests {
         assert.equal(checkbox.choices[1].value, "white", "property choices is set correctly: value");
         assert.equal(checkbox.choices[1].text, "white", "property choices is set correctly: text");
         survey.setValue("textQuestion", "newValue");
-        assert.equal(page.questions[0].value, "newValue", "data interface is working");
+        assert.equal((<Question>page.questions[0]).value, "newValue", "data interface is working");
     });
     QUnit.test("Full survey deserialize with one question", function (assert) {
         var survey = new SurveyModel();
@@ -64,7 +64,7 @@ module Survey.SerializationTests {
                 "questions": [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
             }]}, survey);
         survey.setValue("textQuestion", "newValue");
-        assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
+        assert.equal((<Question>survey.pages[0].questions[0]).value, "newValue", "data interface is working");
     });
     QUnit.test("Full survey deserialize with one question bypass pages object", function (assert) {
         var survey = new SurveyModel();
@@ -73,7 +73,7 @@ module Survey.SerializationTests {
                 questions: [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
             }, survey);
         survey.setValue("textQuestion", "newValue");
-        assert.equal(survey.pages[0].questions[0].value, "newValue", "data interface is working");
+        assert.equal((<Question>survey.pages[0].questions[0]).value, "newValue", "data interface is working");
     });
     QUnit.test("Serialize survey data", function (assert) {
         var survey = new SurveyModel();

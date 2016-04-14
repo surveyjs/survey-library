@@ -70,7 +70,7 @@ module SurveykoTests {
         var survey = new Survey.Survey();
         survey.setValue("textQuestion", "initialValue");
         var page = survey.addNewPage("my page");
-        var question = page.addNewQuestion("text", "textQuestion");
+        var question = <Survey.Question>page.addNewQuestion("text", "textQuestion");
         assert.equal(question["koValue"](), "initialValue", "get initial value");
         question.value = "setFromValue";
         assert.equal(question["koValue"](), "setFromValue", "set from question value");
@@ -81,7 +81,7 @@ module SurveykoTests {
         var survey = new Survey.Survey();
         survey.setValue("checkboxQuestion", "initialValue");
         var page = survey.addNewPage("my page");
-        var question = page.addNewQuestion("checkbox", "checkboxQuestion");
+        var question = <Survey.Question>page.addNewQuestion("checkbox", "checkboxQuestion");
         assert.deepEqual(question["koValue"](), ["initialValue"], "get initial value");
         question.value = "setFromValue";
         assert.deepEqual(question["koValue"](), ["setFromValue"], "set from question value");

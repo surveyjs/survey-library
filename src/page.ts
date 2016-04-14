@@ -1,10 +1,10 @@
-﻿/// <reference path="question.ts" />
+﻿/// <reference path="questionbase.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
 
 module Survey {
     export class PageModel extends Base implements IPage {
-        questions: Array<Question> = new Array<Question>();
+        questions: Array<QuestionBase> = new Array<QuestionBase>();
         public data: ISurvey = null;
 
         public title: string = "";
@@ -44,7 +44,7 @@ module Survey {
             return false;
         }
 
-        public addQuestion(question: Question, index: number = -1) {
+        public addQuestion(question: QuestionBase, index: number = -1) {
             if (question == null) return;
             if (index < 0 || index >= this.questions.length) {
                 this.questions.push(question);
@@ -56,12 +56,12 @@ module Survey {
                 this.data.questionAdded(question, index);
             }
         }
-        public addNewQuestion(questionType: string, name: string): Question {
+        public addNewQuestion(questionType: string, name: string): QuestionBase {
             var question = QuestionFactory.Instance.createQuestion(questionType, name);
             this.addQuestion(question);
             return question;
         }
-        public removeQuestion(question: Question) {
+        public removeQuestion(question: QuestionBase) {
             var index = this.questions.indexOf(question);
             if (index < 0) return;
             this.questions.splice(index, 1);

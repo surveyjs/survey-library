@@ -136,7 +136,7 @@ module Survey.Tests {
     QUnit.test("Store question value in the survey", function (assert) {
         var survey = new SurveyModel();
         survey.addPage(new PageModel("Page 1"));
-        var question = survey.pages[0].addNewQuestion("text", "question");
+        var question = <Question>survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getValue("question"), null, "No value");
         assert.equal(question.value, null, "No value");
 
@@ -151,7 +151,7 @@ module Survey.Tests {
     QUnit.test("Store comments in the survey", function (assert) {
         var survey = new SurveyModel();
         survey.addPage(new PageModel("Page 1"));
-        var question = survey.pages[0].addNewQuestion("text", "question");
+        var question = <Question>survey.pages[0].addNewQuestion("text", "question");
         assert.equal(survey.getComment("question"), "", "Comment is empty");
         assert.equal(question.comment, "", "Comment is empty");
 
@@ -166,14 +166,14 @@ module Survey.Tests {
     QUnit.test("Should set required questions before go on the  next page or finish", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.notEqual(survey, null, "Survey is not  null");
-        survey.pages[0].questions[0].isRequired = true;
-        survey.pages[1].questions[0].isRequired = true;
+        (<Question>survey.pages[0].questions[0]).isRequired = true;
+        (<Question>survey.pages[1].questions[0]).isRequired = true;
 
         assert.equal(survey.nextPage(), false, "Can not go to the next page");
         assert.equal(survey.pages[0].questions[0].hasErrors(), true, "The question is not filled out.");
         assert.equal(survey.pages[0].hasErrors(), true, "The page is not filled out.");
 
-        survey.pages[0].questions[0].value = "Test";
+        (<Question>survey.pages[0].questions[0]).value = "Test";
 
         assert.equal(survey.nextPage(), true, "Can go to the next page");
         assert.equal(survey.pages[0].questions[0].hasErrors(), false, "The question is filled out.");
@@ -182,7 +182,7 @@ module Survey.Tests {
     QUnit.test("Invisible required questions should not be take into account", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.notEqual(survey, null, "Survey is not  null");
-        survey.pages[0].questions[0].isRequired = true;
+        (<Question>survey.pages[0].questions[0]).isRequired = true;
         assert.equal(survey.nextPage(), false, "Can not go to the next page");
         survey.pages[0].questions[0].visible = false;
         assert.equal(survey.nextPage(), true, "You can go to the next page now.");
@@ -199,7 +199,7 @@ module Survey.Tests {
         assert.equal(name, "question1", "onValueChanged event, property name is correct");
         assert.equal(newValue, "value1", "onValueChanged event, property newValue is correct");
         assert.equal(counter, 1, "onValueChanged event is called one time");
-        survey.pages[0].questions[0].value = "val";
+        (<Question>survey.pages[0].questions[0]).value = "val";
         assert.equal(counter, 2, "onValueChanged event is called one time");
     });
     QUnit.test("onValueChanged event is not called on changing matrix value", function (assert) {

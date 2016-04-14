@@ -236,7 +236,7 @@ module Survey {
         public getPageByQuestion(question: IQuestion): PageModel {
             for (var i: number = 0; i < this.pages.length; i++) {
                 var page = this.pages[i];
-                if (page.questions.indexOf(<Question>question) > -1) return page;
+                if (page.questions.indexOf(<QuestionBase>question) > -1) return page;
             }
             return null;
         }

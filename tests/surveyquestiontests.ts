@@ -11,35 +11,35 @@ module Survey.Tests {
     QUnit.module("Survey_Questions");
 
     QUnit.test("Only some questions support comment", function (assert) {
-        var questionText = QuestionFactory.Instance.createQuestion("text", "textQuestion");
+        var questionText = <Question>QuestionFactory.Instance.createQuestion("text", "textQuestion");
 
         assert.equal(questionText.supportComment(), false, "Text question doesn't support comment.");
         assert.equal(questionText.hasComment, false, "Text question doesn't support comment.");
         questionText.hasComment = true;
         assert.equal(questionText.hasComment, false, "You can't set has comment to the text question.");
 
-        var questionDropDown = QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        var questionDropDown = <Question>QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
         assert.equal(questionDropDown.supportComment(), true, "Drop down question supports comment.");
         assert.equal(questionDropDown.hasComment, false, "Has comment is false by  default.");
         questionDropDown.hasComment = true;
         assert.equal(questionDropDown.hasComment, true, "You can set comment for drop down question.");
     });
     QUnit.test("Only some questions support other", function (assert) {
-        var questionText = QuestionFactory.Instance.createQuestion("text", "textQuestion");
+        var questionText = <Question>QuestionFactory.Instance.createQuestion("text", "textQuestion");
 
         assert.equal(questionText.supportOther(), false, "Text question doesn't support other.");
         assert.equal(questionText.hasOther, false, "Text question doesn't support other.");
         questionText.hasOther = true;
         assert.equal(questionText.hasOther, false, "You can't set has other to the text question.");
 
-        var questionDropDown = QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        var questionDropDown = <Question>QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
         assert.equal(questionDropDown.supportOther(), true, "Drop down question supports other.");
         assert.equal(questionDropDown.hasOther, false, "Has other is false by  default.");
         questionDropDown.hasOther = true;
         assert.equal(questionDropDown.hasOther, true, "You can set other for drop down question.");
     });
     QUnit.test("Comment and other could not be set together", function (assert) {
-        var questionDropDown = QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
+        var questionDropDown = <Question>QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion");
         assert.equal(questionDropDown.hasComment, false, "Initial comment is turn off.");
         assert.equal(questionDropDown.hasOther, false, "Initial other is turn off.");
 

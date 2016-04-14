@@ -1,22 +1,18 @@
 ﻿/// <reference path="../question.ts" />
+/// <reference path="koquestionbase.ts" />
 module Survey {
-    export class QuestionImplementor {
+    export class QuestionImplementor extends QuestionImplementorBase {
         private isUpdating: boolean = false;
-        public question: Question;
-        koValue: any; koComment: any; koErrors: any; koVisible: any; koNo: any;
-        constructor(question: Question) {
-            this.question = question;
+        koValue: any; koComment: any; 
+        constructor(public question: Question) {
+            super(question);
             var self = this;
             question.valueChangedCallback = function () { self.onValueChanged(); };
             question.commentChangedCallback = function () { self.onCommentChanged(); };
-            question.visibilityChangedCallback = function () { self.onVisibilityChanged(); };
-            question.visibleIndexChangedCallback = function () { self.onVisibleIndexChanged(); };
             question.errorsChangedCallback = function () { self.onErrorsChanged(); };
             this.koValue = this.createkoValue();
             this.koComment = ko.observable(this.question.comment);
-            this.koErrors = ko.observableArray(this.question.errors);
-            this.koVisible = ko.observable(this.question.visible);
-            this.koNo = ko.observable(this.getNo());
+            this.koErrors(this.question.errors);
             this.koValue.subscribe(function (newValue) {
                 self.updateValue(newValue);
             });
@@ -25,9 +21,6 @@ module Survey {
             });
             this.question["koValue"] = this.koValue;
             this.question["koComment"] = this.koComment;
-            this.question["koErrors"] = this.koErrors;
-            this.question["koVisible"] = this.koVisible;
-            this.question["koNo"] = this.koNo;
         }
         protected onValueChanged() {
             if (this.isUpdating) return;

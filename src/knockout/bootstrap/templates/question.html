@@ -6,7 +6,9 @@
                 <span data-bind="text:$data.getText()"></span>
             </div>
         </div>
+        <!-- ko if: question.hasTitle -->
         <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.data.requiredText : '') + question.title"></h5>
+        <!-- /ko -->
         <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">

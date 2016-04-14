@@ -3,7 +3,9 @@
         <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
             <div data-bind="text:$data.getText()"></div>
         </div>
+        <!-- ko if: question.hasTitle -->
         <div class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.data.requiredText : '') + question.title"></div>
+        <!-- /ko -->
         <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">

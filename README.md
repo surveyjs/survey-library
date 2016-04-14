@@ -55,3 +55,6 @@ To build library yourself:
 ##License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+
+##Visual Editor
+Visual Editor sources are [here](https://github.com/andrewtelnov/survey.js.editor)

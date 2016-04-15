@@ -1,11 +1,12 @@
 {
   "name": "survey-knockout-bootstrap",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "JavaScript Survey engine",
   "keywords": [
     "Survey",
     "JavaScript",
     "Library",
+    "Knockoutjs",
     "Bootstrap"
   ],
   "homepage": "https://surveyjs.org/",

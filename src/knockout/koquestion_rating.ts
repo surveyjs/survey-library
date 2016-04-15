@@ -1,12 +1,14 @@
 ﻿/// <reference path="../question_rating.ts" />
 module Survey {
     class QuestionRatingImplementor extends QuestionImplementor {
-        koVisibleRateValues: any;
+        koVisibleRateValues: any; koChange: any;
         constructor(question: Question) {
             super(question);
             this.koVisibleRateValues = ko.observableArray((<QuestionRating>this.question).visibleRateValues);
             this.question["koVisibleRateValues"] = this.koVisibleRateValues;
             var self = this;
+            this.koChange = function (val) { self.koValue(val.itemValue); };
+            this.question["koChange"] = this.koChange;
             (<QuestionRating>this.question).rateValuesChangedCallback = function () { self.onRateValuesChanged(); };
         }
         protected onRateValuesChanged() {

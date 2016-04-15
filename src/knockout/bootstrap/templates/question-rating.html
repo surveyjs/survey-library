@@ -3,7 +3,7 @@
         <!-- ko foreach: question.koVisibleRateValues -->
         <label class="btn btn-default" data-bind="css:{active: $data.value == question.koValue()}">
             <input type="radio"
-                    data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, checked: question.koValue" />
+                    data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}" />
             <span data-bind="visible: $index() == 0, text: question.mininumRateDescription"></span>
             <span data-bind="text: $data.text"></span>
             <span data-bind="visible: $index() == (question.koVisibleRateValues().length-1), text: question.maximumRateDescription"></span>

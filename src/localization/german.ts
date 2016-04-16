@@ -4,6 +4,7 @@ module Survey {
         pagePrevText: "Zurück",
         pageNextText: "Weiter",
         completeText: "Fertig",
+        progressText: "Seite {0} von {1}",
         otherItemText: "Andere (beschreiben)",
         optionsCaption: "Wählen...",
         requiredError: "Bitte antworten Sie auf die Frage.",

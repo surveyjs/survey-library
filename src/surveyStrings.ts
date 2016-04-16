@@ -21,6 +21,7 @@
         pageNextText: "Next",
         completeText: "Complete",
         otherItemText: "Other (describe)",
+        progressText: "Page {0} of {1}",
         optionsCaption: "Choose...",
         requiredError: "Please answer the question.",
         numericError: "The value should be a numeric.",

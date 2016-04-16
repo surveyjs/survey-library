@@ -17,7 +17,7 @@ module Survey {
         public showTitle: boolean = true;
         public showPageTitles: boolean = true;
         public requiredText: string = "* ";
-        //public showProgressBar: boolean = false; TODO
+        public showProgressBar: string = "off";
         public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: PageModel = null;
@@ -124,14 +124,14 @@ module Survey {
             }
             return result;
         }
-        get isEmpty(): boolean { return this.pages.length == 0; }
-        get PageCount(): number {
+        public get isEmpty(): boolean { return this.pages.length == 0; }
+        public get PageCount(): number {
             return this.pages.length;
         }
-        get visiblePageCount(): number {
+        public get visiblePageCount(): number {
             return this.visiblePages.length;
         }
-        get currentPage(): PageModel {
+        public get currentPage(): PageModel {
             var vPages = this.visiblePages;
             if (this.currentPageValue != null) {
                 if (vPages.indexOf(this.currentPageValue) < 0) {
@@ -143,7 +143,7 @@ module Survey {
             }
             return this.currentPageValue;
         }
-        set currentPage(value: PageModel) {
+        public set currentPage(value: PageModel) {
             var vPages = this.visiblePages;
             if (value != null && vPages.indexOf(value) < 0) return;
             if (value == this.currentPageValue) return;
@@ -156,7 +156,7 @@ module Survey {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }
         public get isDesignMode(): boolean { return this.mode == "designer"; }
-        nextPage(): boolean {
+        public nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors) return false;
             if (this.sendResultOnPageNext && this.clientId) {
@@ -171,13 +171,13 @@ module Survey {
             if (this.currentPage == null) return true;
             return this.currentPage.hasErrors();
         }
-        prevPage(): boolean {
+        public prevPage(): boolean {
             if (this.isFirstPage) return false;
             var vPages = this.visiblePages;
             var index = vPages.indexOf(this.currentPage);
             this.currentPage = vPages[index - 1];
         }
-        completeLastPage() : boolean {
+        public completeLastPage() : boolean {
             if (this.isCurrentPageHasErrors) return false;
             this.onComplete.fire(this, null);
             if (this.surveyPostId) {
@@ -185,14 +185,20 @@ module Survey {
             }
             return true;
         }
-        get isFirstPage() {
+        public get isFirstPage(): boolean {
             if (this.currentPage == null) return true;
             return this.visiblePages.indexOf(this.currentPage) == 0;
         }
-        get isLastPage() {
+        public get isLastPage(): boolean {
             if (this.currentPage == null) return true;
             var vPages = this.visiblePages;
             return vPages.indexOf(this.currentPage) == vPages.length - 1;
+        }
+        public get progressText(): string {
+            if (this.currentPage == null) return "";
+            var vPages = this.visiblePages;
+            var index = vPages.indexOf(this.currentPage) + 1;
+            return surveyLocalization.getString("progressText")["format"](index, vPages.length);
         }
         getPage(index: number): PageModel {
             return this.pages[index];
@@ -414,7 +420,7 @@ module Survey {
     }
 
     JsonObject.metaData.addClass("survey", ["locale", "title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "sendResultOnPageNext:boolean",
-        "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers",
+        "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
@@ -428,6 +434,8 @@ module Survey {
     JsonObject.metaData.setPropertyValues("survey", "showPageTitles", null, true);
     JsonObject.metaData.setPropertyValues("survey", "showQuestionNumbers", null, "on");
     JsonObject.metaData.setPropertyChoices("survey", "showQuestionNumbers", ["on", "onPage", "off"]);
+    JsonObject.metaData.setPropertyValues("survey", "showProgressBar", null, "off");
+    JsonObject.metaData.setPropertyChoices("survey", "showProgressBar", ["off", "top", "bottom"]);
     JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "* ");
     JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, null, function (obj: any) { return obj.pagePrevTextValue; });
     JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, null, function (obj: any) { return obj.pageNextTextValue; });

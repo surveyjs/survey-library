@@ -50,30 +50,36 @@ module Survey.Tests {
         assert.equal(survey.currentPage.name, "Page 2", "the second page is  current");
     });
 
-    QUnit.test("Next, Prev, IsFirst and IsLast Page", function (assert) {
+    QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (assert) {
         var survey = new SurveyModel();
+        assert.equal(survey.progressText, "", "there is pages");
         survey.addPage(createPageWithQuestion("Page 1"));
         survey.addPage(createPageWithQuestion("Second page"));
         survey.addPage(createPageWithQuestion("Third page"));
         assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
         assert.equal(survey.isFirstPage, true, "Current Page is  First");
         assert.equal(survey.isLastPage, false, "Current Page is  First");
+        assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
         survey.nextPage();
         assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
         assert.equal(survey.isFirstPage, false, "Current Page is  Second");
         assert.equal(survey.isLastPage, false, "Current Page is  Second");
+        assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
         survey.nextPage();
         assert.equal(survey.currentPage, survey.pages[2], "Current Page is  Third");
         assert.equal(survey.isFirstPage, false, "Current Page is  Third");
         assert.equal(survey.isLastPage, true, "Current Page is  Third");
+        assert.equal(survey.progressText, "Page 3 of 3", "Current Page is  First");
         survey.prevPage();
         assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
         assert.equal(survey.isFirstPage, false, "Current Page is  Second");
         assert.equal(survey.isLastPage, false, "Current Page is  Second");
+        assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
         survey.prevPage();
         assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
         assert.equal(survey.isFirstPage, true, "Current Page is  First");
         assert.equal(survey.isLastPage, false, "Current Page is  First");
+        assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
     });
     QUnit.test("Next, Prev, Next", function (assert) {
         var survey = new SurveyModel();

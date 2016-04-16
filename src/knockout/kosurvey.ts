@@ -4,7 +4,8 @@ module Survey {
         private renderedElement: HTMLElement;
         public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
 
-        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; 
+        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any;
+        koProgress: any; koProgressText: any;
 
         constructor(jsonObj: any = null, renderedElement: any = null) {
             super(jsonObj, renderedElement);
@@ -33,6 +34,8 @@ module Survey {
             this.koCurrentPage = ko.computed(function () { self.dummyObservable(); return self.currentPage; });
             this.koIsFirstPage = ko.computed(function () { self.dummyObservable(); return self.isFirstPage; });
             this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
+            this.koProgressText = ko.computed(function () { self.dummyObservable(); return self.progressText; });
+            this.koProgress = ko.computed(function () { self.dummyObservable(); return self.getProgress(); });
         }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.updateKoCurrentPage();
@@ -49,6 +52,11 @@ module Survey {
         }
         private updateKoCurrentPage() {
             this.dummyObservable(this.dummyObservable() + 1);
+        }
+        private getProgress(): number {
+            if (this.currentPage == null) return 0;
+            var index = this.visiblePages.indexOf(this.currentPage) + 1;
+            return Math.ceil((index * 100 / this.visiblePageCount));
         }
     }
 }

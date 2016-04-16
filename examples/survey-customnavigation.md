@@ -17,7 +17,7 @@ survey.onCurrentPageChanged.add(function (sender, options) {
     //Your code
 });
 </pre>
-</p>
+
 {% capture survey_setup %}
 var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;

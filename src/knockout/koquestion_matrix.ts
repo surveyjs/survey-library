@@ -1,14 +1,21 @@
 ﻿/// <reference path="../question_matrix.ts" />
 module Survey {
     export class MatrixRow extends MatrixRowModel {
+        private isValueUpdating = false;
         koValue: any;
         constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
             super(name, text, fullName, data, value);
-            this.koValue = ko.observable(this.rowValue);
+            this.koValue = ko.observable(this.value);
             var self = this;
             this.koValue.subscribe(function (newValue) {
+                if (self.isValueUpdating) true;
                 self.value = newValue;
             });
+        }
+        protected onValueChanged() {
+            this.isValueUpdating = true;
+            this.koValue(this.value);
+            this.isValueUpdating = false;
         }
     }
     export class QuestionMatrix extends QuestionMatrixModel {

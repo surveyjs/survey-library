@@ -18,11 +18,16 @@ module Survey {
         public set value(newValue: any) {
             this.rowValue = newValue;
             if (this.data) this.data.onMatrixRowChanged(this);
+            this.onValueChanged();
+        }
+        protected onValueChanged() {
         }
     }
     export class QuestionMatrixModel extends Question implements IMatrixData {
         private columnsValue: ItemValue[] = [];
         private rowsValue: ItemValue[] = [];
+        private isRowChanging = false;
+        private generatedVisibleRows: Array<MatrixRowModel>;
         constructor(public name: string) {
             super(name);
         }
@@ -52,13 +57,32 @@ module Survey {
             if (result.length == 0) {
                 result.push(this.createMatrixRow(null, "", this.name, val));
             }
+            this.generatedVisibleRows = result;
             return result;
         }
         protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
             return new MatrixRowModel(name, text, fullName, this, value);
         }
+        protected onValueChanged() {
+            if (this.isRowChanging || !(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
+            this.isRowChanging = true;
+            var val = this.value;
+            if (!val) val = {};
+            if (this.rows.length == 0) {
+                this.generatedVisibleRows[0].value = val;
+            } else {
+                for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+                    var row = this.generatedVisibleRows[i];
+                    var rowVal = val[row.name] ? val[row.name] : null;
+                    this.generatedVisibleRows[i].value = rowVal;
+                }
+            }
+            this.isRowChanging = false;
+        }
         //IMatrixData
         onMatrixRowChanged(row: MatrixRowModel) {
+            if (this.isRowChanging) return;
+            this.isRowChanging = true;
             if (!this.hasRows) {
                 this.setNewValue(row.value);
             } else {
@@ -69,14 +93,15 @@ module Survey {
                 newValue[row.name] = row.value;
                 this.setNewValue(newValue);
             }
+            this.isRowChanging = false;
         }
    }
     JsonObject.metaData.addClass("matrix", ["columns:itemvalues", "rows:itemvalues"], function () { return new QuestionMatrixModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrix", "columns", null, null,
         function (obj: any) { return ItemValue.getData(obj.columns); },
-        function (obj: any, value: any) { ItemValue.setData(obj.columns, value); });
+        function (obj: any, value: any) { obj.columns = value; });
     JsonObject.metaData.setPropertyValues("matrix", "rows", null, null,
         function (obj: any) { return ItemValue.getData(obj.rows); },
-        function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
+        function (obj: any, value: any) { obj.rows = value; });
     QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrixModel(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
 }

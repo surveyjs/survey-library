@@ -8,6 +8,7 @@
 /// <reference path="../../src/question_baseselect.ts" />
 /// <reference path="../../src/knockout/koquestion_checkbox.ts" />
 /// <reference path="../../src/knockout/koquestion_matrix.ts" />
+/// <reference path="../../src/knockout/koquestion_matrixdropdown.ts" />
 /// <reference path="../../src/knockout/koquestion_dropdown.ts" />
 /// <reference path="../../src/knockout/koquestion_multipletext.ts" />
 /// <reference path="../../src/knockout/koquestion_text.ts" />
@@ -99,6 +100,26 @@ module SurveykoTests {
         visibleRows[1]["koValue"]("col2");
         assert.deepEqual(matrix.value, { row1: "col1", row2: "col2" }, "the matrix value changed correctly");
     });
+    QUnit.test("Question Matrix: change matrix value after visibleRows generation", function (assert) {
+        var matrix = new Survey.QuestionMatrix("q1");
+        matrix.rows = ["row1", "row2"];
+        matrix.columns = ["col1", "col2"];
+        var visibleRows = matrix.visibleRows;
+        matrix.value = { row1: "col2" };
+        assert.equal(visibleRows[0]["koValue"](), "col2", "set the correct value");
+    });
+    QUnit.test("Question MatrixDropdown: change matrix value after visibleRows generation", function (assert) {
+        var matrix = new Survey.QuestionMatrixDropdown("q1");
+        matrix.rows = ["row1", "row2", "row3"];
+        matrix.columns.push(new Survey.MatrixDropdownColumn("column1"));
+        matrix.columns.push(new Survey.MatrixDropdownColumn("column2"));
+        matrix.choices = [1, 2, 3];
+        matrix.columns[1].choices = [4, 5];
+        var visibleRows = matrix.visibleRows;
+        matrix.value = { 'row2': { 'column1': 2 } }
+        assert.equal(visibleRows[1].cells[0]["koValue"](), 2, "value was set");
+    });
+
     QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {
         var mQuestion = new Survey.QuestionMultipleText("q1");
         mQuestion.items.push(new Survey.MultipleTextItem("i1"));

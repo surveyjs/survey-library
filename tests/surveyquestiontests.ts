@@ -115,6 +115,14 @@ module Survey.Tests {
         rows[1].value = "col1";
         assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "the matrix value changed correctly");
     });
+    QUnit.test("Matrix Question set values after visible row generated", function (assert) {
+        var matrix = new QuestionMatrixModel("q1");
+        matrix.rows = ["row1", "row2"];
+        matrix.columns = ["col1", "col2"];
+        var rows = matrix.visibleRows;
+        matrix.value = { row1: "col1" };
+        assert.equal(rows[0].value, "col1", "set the row value correctly");
+    });
     QUnit.test("Multiple Text Item: text property", function (assert) {
         var mItem = new MultipleTextItemModel("text1");
         assert.equal(mItem.title, "text1", "get value from name");
@@ -233,5 +241,16 @@ module Survey.Tests {
         assert.deepEqual(question.value, { 'row1': { 'column2': 4 } }, "set the cell value correctly");
         visibleRows[0].cells[1].value = null;
         assert.deepEqual(question.value, null, "set to null if all cells are null");
+    });
+    QUnit.test("Matrixdropdown value tests after cells generation", function (assert) {
+        var question = new QuestionMatrixDropdownModel("textQuestion");
+        question.rows = ["row1", "row2", "row3"];
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        question.choices = [1, 2, 3];
+        question.columns[1].choices = [4, 5];
+        var visibleRows = question.visibleRows;
+        question.value = { 'row2': { 'column1': 2 } }
+        assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
     });
 }

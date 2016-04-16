@@ -1,14 +1,21 @@
 ﻿/// <reference path="../question_matrixdropdown.ts" />
 module Survey {
     export class MatrixDropdownCell extends MatrixDropdownCellModel {
+        private isValueUpdating = false;
         koValue: any;
         constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModel, data: IMatrixDropdownData, value: any) {
             super(column, row, data, value);
             this.koValue = ko.observable(this.value);
             var self = this;
             this.koValue.subscribe(function (newValue) {
+                if (self.isValueUpdating) return;
                 self.value = newValue;
             });
+        }
+        protected onValueChanged() {
+            this.isValueUpdating = true;
+            this.koValue(this.value);
+            this.isValueUpdating = false;
         }
     }
     export class MatrixDropdownRow extends MatrixDropdownRowModel {

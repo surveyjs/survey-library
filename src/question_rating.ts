@@ -32,6 +32,6 @@ module Survey {
     JsonObject.metaData.addClass("rating", ["hasComment:boolean", "rateValues:itemvalues", "mininumRateDescription", "maximumRateDescription"], function () { return new QuestionRatingModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("rating", "rateValues", null, null,
         function (obj: any) { return ItemValue.getData(obj.rateValues); },
-        function (obj: any, value: any) { ItemValue.setData(obj.rateValues, value); });
+        function (obj: any, value: any) { obj.rateValues = value; });
     QuestionFactory.Instance.registerQuestion("rating", (name) => { return new QuestionRatingModel(name); });
 }

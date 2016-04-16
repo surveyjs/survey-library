@@ -36,6 +36,9 @@ module Survey {
         public set value(value: any) {
             this.cellValue = value;
             this.data.onCellChanged(this);
+            this.onValueChanged();
+        }
+        protected onValueChanged() {
         }
     }
     export class MatrixDropdownRowModel  {
@@ -49,7 +52,12 @@ module Survey {
             this.buildCells();
         }
         public get value() { return this.rowValue; }
-
+        public set value(value: any) {
+            this.rowValue = value;
+            for (var i = 0; i < this.cells.length; i++) {
+                this.cells[i].value = this.getCellValue(this.cells[i].column);
+            }
+        }
         private buildCells() {
             var columns = this.data.columns;
             for (var i = 0; i < columns.length; i++) {
@@ -70,6 +78,8 @@ module Survey {
         private rowsValue: ItemValue[] = [];
         private choicesValue: ItemValue[] = [];
         private optionsCaptionValue: string;
+        private isRowChanging = false;
+        private generatedVisibleRows: Array<MatrixDropdownRowModel>;
 
         constructor(public name: string) {
             super(name);
@@ -103,11 +113,25 @@ module Survey {
                 if (!this.rows[i].value) continue;
                 result.push(this.createMatrixRow(this.rows[i].value, this.rows[i].text, val[this.rows[i].value]));
             }
+            this.generatedVisibleRows = result;
             return result;
         }
         protected createMatrixRow(name: any, text: string, value: any): MatrixDropdownRowModel {
             return new MatrixDropdownRowModel(name, text, this, value);
         }
+        protected onValueChanged() {
+            if (this.isRowChanging || !(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
+            this.isRowChanging = true;
+            var val = this.value;
+            if (!val) val = {};
+            for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+                var row = this.generatedVisibleRows[i];
+                var rowVal = val[row.name] ? val[row.name] : null;
+                this.generatedVisibleRows[i].value = rowVal;
+            }
+            this.isRowChanging = false;
+        }
+
         //IMatrixDropdownData
         onCellChanged(cell: MatrixDropdownCellModel) {
             var newValue = this.value;
@@ -130,23 +154,25 @@ module Survey {
                     }
                 }
             }
+            this.isRowChanging = true;
             this.setNewValue(newValue);
+            this.isRowChanging = false;
         }
     }
     JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption"], function () { return new MatrixDropdownColumn(""); });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "title", null, null, function (obj: any) { return obj.titleValue; });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
-        function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
+        function (obj: any, value: any) { obj.choices = value; });
 
     JsonObject.metaData.addClass("matrixdropdown", ["columns", "rows:itemvalues", "choices:itemvalues", "optionsCaption"], function () { return new QuestionMatrixDropdownModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrixdropdown", "columns", "matrixdropdowncolumn");
     JsonObject.metaData.setPropertyValues("matrixdropdown", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
-        function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
+        function (obj: any, value: any) { obj.choices = value; });
     JsonObject.metaData.setPropertyValues("matrixdropdown", "rows", null, null,
         function (obj: any) { return ItemValue.getData(obj.rows); },
-        function (obj: any, value: any) { ItemValue.setData(obj.rows, value); });
+        function (obj: any, value: any) { obj.rows = value; });
     JsonObject.metaData.setPropertyValues("matrixdropdown", "optionsCaption", null, null,
         function (obj: any) { return obj.optionsCaptionValue; });
 

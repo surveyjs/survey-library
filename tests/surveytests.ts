@@ -4,6 +4,7 @@
 /// <reference path="../src/question_baseselect.ts" />
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/question_matrix.ts" />
+/// <reference path="../src/question_html.ts" />
 /// <reference path="../src/questionfactory.ts" />
 /// <reference path="../src/trigger.ts" />
 module Survey.Tests {
@@ -272,6 +273,16 @@ module Survey.Tests {
         assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, -1, "onPage:the first question");
         assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, 0, "onPage:the second question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 0, "onPage:the third question");
+    });
+    QUnit.test("Question visibleIndex and no title question", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, 0, "the first question");
+        assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 2, "the third question");
+        var question = new QuestionHtmlModel("html1");
+        survey.pages[0].addQuestion(question, 0);
+        assert.equal((<Question>survey.getQuestionByName("html1")).visibleIndex, -1, "html question");
+        assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, 0, "the first question + html question");
+        assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 2, "the third question + html question");
     });
     QUnit.test("Pages visibleIndex and num", function (assert) {
         var survey = twoPageSimplestSurvey();

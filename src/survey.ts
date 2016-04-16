@@ -339,7 +339,7 @@ module Survey {
         private updateQuestionVisibleIndexes(questions: IQuestion[], showIndex: boolean) {
             var index = 0;
             for (var i = 0; i < questions.length; i++) {
-                questions[i].setVisibleIndex(showIndex && questions[i].visible ? (index++) : -1);
+                questions[i].setVisibleIndex(showIndex && questions[i].visible && questions[i].hasTitle ? (index++) : -1);
             }
         }
         private setJsonObject(jsonObj: any) {

@@ -17,6 +17,7 @@
     export interface IQuestion {
         name: string;
         visible: boolean;
+        hasTitle: boolean;
         setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
     }

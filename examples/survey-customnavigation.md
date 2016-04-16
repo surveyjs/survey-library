@@ -4,13 +4,13 @@ title: Custom navigation
 propertiesFile: exampleproperties/customnavigation.html
 preSurvey: survey-custombuttons.html
 ---
-Use onRedered event to initialized your custom navigation and onPageChanged event to update it after the current page is changed.
+Use onRedered event to initialized your custom navigation and onCurrentPageChanged event to update it after the current page is changed.
 <pre class="brush:js">
 survey.onRendered.add(function (sender) {
     var survey = sender;
     //Your code
 });
-survey.onPageChanged.add(function (sender, options) {
+survey.onCurrentPageChanged.add(function (sender, options) {
     var survey = sender;
     var oldCurrentPage = options.oldCurrentPage;
     var newCurrentPage = options.newCurrentPage;
@@ -24,7 +24,7 @@ survey.showTitle = false;
 survey.onRendered.add(function (sender) {
     setNavigationVisibility(sender);
 });
-survey.onPageChanged.add(function (sender) {
+survey.onCurrentPageChanged.add(function (sender) {
     setNavigationVisibility(sender);
 });
 

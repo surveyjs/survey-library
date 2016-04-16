@@ -12,9 +12,12 @@ var gulp = require('gulp'),
     rename = require("gulp-rename"),
     html2ts = require("gulp-html-to-ts"),
     sequence = require("gulp-sequence"),
+    header = require("gulp-header"),
     project = require("./project.json");
 
 var Server = require("karma").Server;
+
+var libraryVersion = "0.9.3";
 
 var paths = {
     webroot: "./" + project.webroot + "/",
@@ -27,6 +30,12 @@ var paths = {
 };
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
+
+var copyright = ["/*!",
+ "* surveyjs - Survey JavaScript library v<%= version %>",
+ "* (c) Andrew Telnov - http://surveyjs.org/",
+ "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
+ "*/","",""].join("\n");
 
 
 
@@ -86,6 +95,7 @@ function buildFromSources(configName) {
        }));
     return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
+        .pipe(header(copyright, { version: libraryVersion }))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))
@@ -120,6 +130,7 @@ function compressMainJS(configName) {
             .pipe(rename({
                 extname: '.min.js'
             }))
+        .pipe(header(copyright, { version: libraryVersion }))
         .pipe(gulp.dest(curConfig.packageDistPath))
         .pipe(gulp.dest(paths.dist));
 }

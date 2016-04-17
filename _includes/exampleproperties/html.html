@@ -1,0 +1,10 @@
+<div class="propertyitem">
+    <p>
+        <b>html property: </b>
+        <textarea id="htmlText" rows="10" style="width:100%">{% include exampleproperties/htmlproperty.html %}</textarea>
+        <button style="margin-top:10px" onclick="survey.getQuestionByName('info').html = document.getElementById('htmlText').value; survey.render();">Apply</button>
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('info');
+q.html = yourHtml; 
+survey.render();</code></pre>
+    </p>
+</div>

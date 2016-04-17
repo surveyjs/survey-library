@@ -1,0 +1,3 @@
+{ questions: [
+    { type: "html", name: "info", html:"{% include exampleproperties/htmlproperty.html %}" }
+]}

@@ -10,12 +10,12 @@ survey.locale = "de";
 //Example of adding new locale into the library.
 var Survey;
 (function (Survey) {
-    var mycustomerSurveyStrings = {
+    var mycustomSurveyStrings = {
         pagePrevText: "My Page Prev",
         pageNextText: "My Page Next",
         completeText: "OK - Press to Complete",
     };
-    Survey.surveyLocalization.locales["my"] = mycustomerSurveyStrings;
+    Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 })(Survey || (Survey = {}));
 
 {% endcapture %}

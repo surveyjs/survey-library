@@ -21,6 +21,7 @@
     "gulp-html-to-ts": "^0.1.3",
     "gulp-npm-files": "^0.1.3",
     "gulp-header": "^1.7.1",
+    "gulp-json-transform": "^0.3.0",
     "karma": "^0.13.22",
     "karma-qunit": "^0.1.9",
     "karma-phantomjs-launcher": "^1.0.0",

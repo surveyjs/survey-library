@@ -13,6 +13,7 @@ var gulp = require('gulp'),
     html2ts = require("gulp-html-to-ts"),
     sequence = require("gulp-sequence"),
     header = require("gulp-header"),
+    jsonTransform = require('gulp-json-transform'),
     project = require("./project.json");
 
 var Server = require("karma").Server;
@@ -35,25 +36,29 @@ var copyright = ["/*!",
  "* surveyjs - Survey JavaScript library v<%= version %>",
  "* (c) Andrew Telnov - http://surveyjs.org/",
  "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
- "*/","",""].join("\n");
-
-
+ "*/", "", ""].join("\n");
 
 var config_ko_standard = {
+    name: "survey-knockout",
+    keywords: ["Knockout"],
+    dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: "./src/knockout/standard/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/standard/" },
                 { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
-    packageDistPath: "./packages/survey-knockout/dist/"
+    packagePath: "./packages/survey-knockout/"
 }
 var config_ko_bootstrap = {
+    name: "survey-knockout-bootstrap",
+    keywords: ["Knockout", "Bootstrap"],
+    dependencies: { "knockout": "^3.4.0", "bootstrap": "^3.3.6" },
     templates: [{ path: "./src/knockout/bootstrap/templates/*.html", fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
                 { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
     mainJSfile: "survey.bootstrap.js",
     dtsfile: "survey.d.ts",
-    packageDistPath: "./packages/survey-knockout-bootstrap/dist/"
+    packagePath: "./packages/survey-knockout-bootstrap/"
 }
 
 var config_test_ko = {
@@ -100,7 +105,7 @@ function buildFromSources(configName) {
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))
         .pipe(gulp.dest(paths.jsFolder))
-        .pipe(gulp.dest(curConfig.packageDistPath));
+        .pipe(gulp.dest(curConfig.packagetPath + "dist/"));
 }
 
 function buildTypeDefinition(configName) {
@@ -131,7 +136,7 @@ function compressMainJS(configName) {
                 extname: '.min.js'
             }))
         .pipe(header(copyright, { version: libraryVersion }))
-        .pipe(gulp.dest(curConfig.packageDistPath))
+        .pipe(gulp.dest(curConfig.packagePath + "dist/"))
         .pipe(gulp.dest(paths.dist));
 }
 
@@ -159,6 +164,29 @@ function buildTests(configName) {
     .pipe(gulp.dest(paths.testsFolder));
 }
 
+function createPackageJson(configName) {
+    var curConfig = configs[configName];
+    return gulp.src("packagetemplate.json")
+        .pipe(jsonTransform(function (data) {
+            data.name = curConfig.name;
+            data.version = libraryVersion;
+            if (curConfig.keywords) {
+                for (var i = 0; i < curConfig.keywords.length; i++) {
+                    data.keywords.push(curConfig.keywords[i]);
+                }
+            }
+            data.main = curConfig.mainJSfile.replace(".js", ".min.js");
+            if (curConfig.dependencies) {
+                for (var key in curConfig.dependencies) {
+                    data.dependencies[key] = curConfig.dependencies[key];
+                }
+            }
+            return data;
+        }, "  "))
+        .pipe(rename("package.json"))
+        .pipe(gulp.dest(curConfig.packagePath));
+}
+
 gulp.task("ko_standard_tempates", function () {
     return buildTemplates("ko_standard");
 });
@@ -169,7 +197,11 @@ gulp.task("ko_standard_source", function () {
 gulp.task("ko_standard_compress", function () {
     compressMainJS("ko_standard");
 });
-gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_source", "ko_standard_compress"));
+gulp.task("ko_standard_createPackageJson", function () {
+    createPackageJson("ko_standard");
+});
+
+gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_source", "ko_standard_compress", "ko_standard_createPackageJson"));
 
 gulp.task("ko_bootstrap_tempates", function () {
     return buildTemplates("ko_bootstrap");
@@ -181,7 +213,10 @@ gulp.task("ko_bootstrap_source", function () {
 gulp.task("ko_bootstrap_compress", function () {
     compressMainJS("ko_bootstrap");
 });
-gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_source", "ko_bootstrap_compress"));
+gulp.task("ko_bootstrap_createPackageJson", function () {
+    createPackageJson("ko_bootstrap");
+});
+gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_source", "ko_bootstrap_compress", "ko_bootstrap_createPackageJson"));
 
 gulp.task("buildTests_ko", function () {
     return buildTests("ko");

@@ -88,6 +88,7 @@ module Survey {
             return "matrixdropdown";
         }
         public get columns(): Array<MatrixDropdownColumn> { return this.columnsValue; }
+        public set columns(value: Array<MatrixDropdownColumn>) { this.columnsValue = value; }
         public get rows(): Array<any> { return this.rowsValue; }
         public set rows(newValue: Array<any>) {
             ItemValue.setData(this.rowsValue, newValue);
@@ -165,7 +166,7 @@ module Survey {
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { obj.choices = value; });
 
-    JsonObject.metaData.addClass("matrixdropdown", ["columns", "rows:itemvalues", "choices:itemvalues", "optionsCaption"], function () { return new QuestionMatrixDropdownModel(""); }, "question");
+    JsonObject.metaData.addClass("matrixdropdown", ["columns:matrixdropdowncolumns", "rows:itemvalues", "choices:itemvalues", "optionsCaption"], function () { return new QuestionMatrixDropdownModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("matrixdropdown", "columns", "matrixdropdowncolumn");
     JsonObject.metaData.setPropertyValues("matrixdropdown", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },

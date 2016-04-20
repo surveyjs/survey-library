@@ -318,6 +318,7 @@ module Survey {
             new dxSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
                 if (success && result) {
                     self.setJsonObject(result);
+                    self.notifyAllQuestionsOnValueChanged();
                     self.onLoadSurveyFromService(element);
                 }
             });

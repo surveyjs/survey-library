@@ -1,5 +1,5 @@
 /*!
-* surveyjs - Survey JavaScript library v0.9.3
+* surveyjs - Survey JavaScript library v0.9.4
 * (c) Andrew Telnov - http://surveyjs.org/
 * License: MIT (http://www.opensource.org/licenses/mit-license.php)
 */

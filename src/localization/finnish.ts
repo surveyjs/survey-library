@@ -12,9 +12,10 @@ module Survey {
       textMinLength: "Ole hyvä ja syötä vähintään {0} merkkiä.",
       minSelectError: "Ole hyvä ja valitse vähintään {0} vaihtoehtoa.",
       maxSelectError: "Ole hyvä ja valitse enintään {0} vaihtoehtoa.",
-      numericMinMax: "Syötä numero joka on enemmän tai yhtä suuri kuin {1} ja vähemmän tai yhtä suuri kuin {2}",
-      numericMin: "Syötä numero joka on enemmän tai yhtä suuri kuin {1}",
-      numericMax: "Syötä numero joka on vähemmän tai yhtä suuri kuin {1}"
+      numericMinMax: "'{0}' täytyy olla enemmän tai yhtä suuri kuin {1} ja vähemmän tai yhtä suuri kuin {2}",
+      numericMin: "'{0}' täytyy olla enemmän tai yhtä suuri kuin {1}",
+      numericMax: "'{0}' täytyy olla vähemmän tai yhtä suuri kuin {1}"
   }
+
   surveyLocalization.locales["fi"] = finnishSurveyStrings;
 }

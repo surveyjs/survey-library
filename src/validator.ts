@@ -117,10 +117,39 @@ module Survey {
         }
     }
 
+    export class RegexValidator extends SurveyValidator {
+        constructor(public regex: string = null) {
+            super();
+        }
+        public getType(): string { return "regexvalidator"; }
+        public validate(value: any, name: string = null): ValidatorResult {
+            if (!this.regex || !value) return null;
+            var re = new RegExp(this.regex);
+            if (re.test(value)) return null;
+            return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
+        }
+    }
+    export class EmailValidator extends SurveyValidator {
+        private re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        constructor() {
+            super();
+        }
+        public getType(): string { return "emailvalidator"; }
+        public validate(value: any, name: string = null): ValidatorResult {
+            if (!value) return null;
+            if (this.re.test(value)) return null;
+            return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
+        }
+        protected getDefaultErrorText(name: string) {
+             return surveyLocalization.getString("invalidEmail");
+        }
+   }
 
     JsonObject.metaData.addClass("surveyvalidator", ["text"]);
     JsonObject.metaData.addClass("numericvalidator", ["minValue:number", "maxValue:number"], function () { return new NumericValidator(); }, "surveyvalidator");
     JsonObject.metaData.addClass("textvalidator", ["minLength:number"], function () { return new TextValidator(); }, "surveyvalidator");
     JsonObject.metaData.addClass("answercountvalidator", ["minCount:number", "maxCount:number"], function () { return new AnswerCountValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("regexvalidator", ["regex"], function () { return new RegexValidator(); }, "surveyvalidator");
+    JsonObject.metaData.addClass("emailvalidator", [], function () { return new EmailValidator(); }, "surveyvalidator");
  
 }

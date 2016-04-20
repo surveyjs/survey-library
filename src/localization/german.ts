@@ -14,7 +14,8 @@ module Survey {
         maxSelectError: "Bitte wählen Sie nicth mehr als {0} Varianten.",
         numericMinMax: "'{0}' solte gleich oder größer sein als {1} und gleich oder kleiner als {2}",
         numericMin: "'{0}' solte gleich oder größer sein als {1}",
-        numericMax: "'{0}' solte gleich oder kleiner als {1}"
+        numericMax: "'{0}' solte gleich oder kleiner als {1}",
+        invalidEmail: "Bitte geben Sie eine gültige Email-Adresse ein."
     }
     surveyLocalization.locales["de"] = germanSurveyStrings;
 }

@@ -16,4 +16,9 @@ module Survey.Tests {
         assert.equal(validator.validate("15").error, null, "There value is between minValue and maxValue");
         assert.equal(validator.validate(15), null, "everything is fine - return null");
     });
+    QUnit.test("Email validator", function (assert) {
+        var validator = new EmailValidator();
+        assert.equal(validator.validate("my@mail.com"), null, "Could convert the correct e-mail");
+        assert.notEqual(validator.validate("@mail.com").error, null, "Could convert the incorrect correct e-mail");
+    });
 }

@@ -18,7 +18,7 @@ var gulp = require('gulp'),
 
 var Server = require("karma").Server;
 
-var libraryVersion = "0.9.3";
+var libraryVersion = "0.9.4";
 
 var paths = {
     webroot: "./" + project.webroot + "/",
@@ -37,6 +37,12 @@ var copyright = ["/*!",
  "* (c) Andrew Telnov - http://surveyjs.org/",
  "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
  "*/", "", ""].join("\n");
+
+var tdHeader = ["// Type definitions for Survey JavaScript library v<%= version %>",
+"// Project: http://surveyjs.org/",
+"// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+"// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped",
+"",""].join("\n");
 
 var config_ko_standard = {
     name: "survey-knockout",
@@ -105,7 +111,7 @@ function buildFromSources(configName) {
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))
         .pipe(gulp.dest(paths.jsFolder))
-        .pipe(gulp.dest(curConfig.packagetPath + "dist/"));
+        .pipe(gulp.dest(curConfig.packagePath + "dist/"));
 }
 
 function buildTypeDefinition(configName) {
@@ -124,6 +130,7 @@ function buildTypeDefinition(configName) {
        }));
     return tscResult.dts
         .pipe(concat(curConfig.dtsfile))
+        .pipe(header(tdHeader, { version: libraryVersion }))
         .pipe(gulp.dest(paths.dist_dts));
 }
 

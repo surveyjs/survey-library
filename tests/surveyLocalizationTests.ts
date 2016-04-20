@@ -31,4 +31,15 @@ module Survey.LocalizationsTests {
         assert.equal(survey.completeText, "Fertig");
         surveyLocalization.currentLocale = "";
     });
+    QUnit.test("set finnish localization", function (assert) {
+        var locales = surveyLocalization.getLocales();
+        assert.ok(locales.indexOf("en") > -1, "has en");
+        assert.ok(locales.indexOf("fi") > -1, "has fi");
+    });
+    QUnit.test("set finnish localization", function (assert) {
+        var survey = new SurveyModel();
+        survey.locale = "fi";
+        assert.equal(survey.completeText, "Valmis");
+        surveyLocalization.currentLocale = "";
+    });
 }

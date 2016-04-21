@@ -72,9 +72,8 @@
   width: 100%; }
 
 .sv_q_erbox {
-  border: solid;
-  border-width: 1px;
-  border-color: red; }
+  padding: 2px;
+  color: red; }
 
 .sv_q_matrix {
   width: 100%;

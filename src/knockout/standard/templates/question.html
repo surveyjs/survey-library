@@ -1,11 +1,11 @@
 ﻿<script type="text/html" id="survey-question">
     <div class="sv_q" data-bind="visible: question.koVisible()">
-        <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
-            <div data-bind="text:$data.getText()"></div>
-        </div>
         <!-- ko if: question.hasTitle -->
         <div class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.data.requiredText : '') + question.title"></div>
         <!-- /ko -->
+        <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
+            <div data-bind="text:$data.getText()"></div>
+        </div>
         <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">

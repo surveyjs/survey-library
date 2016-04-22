@@ -70,11 +70,12 @@ module Survey {
             this.localeValue = value;
             surveyLocalization.currentLocale = value;
         }
-        public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : surveyLocalization.getString("pagePrevText"); }
+        public getLocString(str: string) { return surveyLocalization.getString(str); }
+        public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : this.getLocString("pagePrevText"); }
         public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
-        public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : surveyLocalization.getString("pageNextText"); }
+        public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : this.getLocString("pageNextText"); }
         public set pageNextText(newValue: string) { this.pageNextTextValue = newValue; }
-        public get completeText() { return (this.completeTextValue) ? this.completeTextValue : surveyLocalization.getString("completeText"); }
+        public get completeText() { return (this.completeTextValue) ? this.completeTextValue : this.getLocString("completeText"); }
         public set completeText(newValue: string) { this.completeTextValue = newValue; }
         public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
         public set showPageNumbers(value: boolean) {
@@ -198,7 +199,7 @@ module Survey {
             if (this.currentPage == null) return "";
             var vPages = this.visiblePages;
             var index = vPages.indexOf(this.currentPage) + 1;
-            return surveyLocalization.getString("progressText")["format"](index, vPages.length);
+            return this.getLocString("progressText")["format"](index, vPages.length);
         }
         getPage(index: number): PageModel {
             return this.pages[index];

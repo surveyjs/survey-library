@@ -63,4 +63,4 @@ MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.op
 
 ##Visual Editor
 
-Visual Editor sources are [here](https://github.com/andrewtelnov/survey.js.editor)
+Visual Editor sources are [here](https://github.com/andrewtelnov/surveyjs.editor)

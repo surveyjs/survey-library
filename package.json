@@ -30,6 +30,8 @@
     "gulp-serve": "^1.2.0"
   },
   "dependencies": {
-    "knockout": "^3.4.0"
+    "knockout": "^3.4.0",
+    "react": "^15.0.1",
+    "react-dom": "^15.0.1"
   }
 }

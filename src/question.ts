@@ -60,6 +60,7 @@ module Survey {
             this.checkForErrors();
             return this.errors.length > 0;
         }
+        public get requiredText(): string { return this.data != null ? this.data.requiredText : ""; }
         private checkForErrors() {
             var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];

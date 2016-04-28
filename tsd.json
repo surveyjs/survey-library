@@ -6,10 +6,43 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "knockout/knockout.d.ts": {
-      "commit": "8d44da84eb10cdcd2f7ea133f289caef817cb2b9"
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
     },
     "qunit/qunit.d.ts": {
-      "commit": "8d44da84eb10cdcd2f7ea133f289caef817cb2b9"
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-global.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-dom.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-css-transition-group.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-create-fragment.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-linked-state-mixin.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-transition-group.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-perf.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-update.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-test-utils.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
+    },
+    "react/react-addons-pure-render-mixin.d.ts": {
+      "commit": "08ed4e9f1869e37e29514d862e0158b40e550232"
     }
   }
 }

@@ -66,6 +66,15 @@ var config_ko_bootstrap = {
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/"
 }
+var config_react_standard = {
+    name: "survey-react",
+    keywords: ["react"],
+    dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
+    mainJSfile: "survey.react.js",
+    dtsfile: "survey-react.d.ts",
+    packagePath: "./packages/survey-react/"
+}
 
 var config_test_ko = {
     dtsfile: "survey.d.ts",
@@ -77,6 +86,7 @@ var config_test_ko = {
 var configs = {};
 configs["ko_standard"] = config_ko_standard;
 configs["ko_bootstrap"] = config_ko_bootstrap;
+configs["react_standard"] = config_react_standard;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -102,7 +112,8 @@ function buildFromSources(configName) {
        .pipe(ts({
            target: "ES5",
            noImplicitAny: false,
-           declarationFiles: true
+           declarationFiles: true,
+           jsx: "react"
        }));
     return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
@@ -126,7 +137,8 @@ function buildTypeDefinition(configName) {
        .pipe(ts({
            target: "ES5",
            noExternalResolve: true,
-           declaration: true
+           declaration: true,
+           jsx: "react"
        }));
     return tscResult.dts
         .pipe(concat(curConfig.dtsfile))
@@ -228,6 +240,19 @@ gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_
 gulp.task("buildTests_ko", function () {
     return buildTests("ko");
 });
+
+gulp.task("react_standard_source", function () {
+    //buildTypeDefinition("react_standard");
+    return buildFromSources("react_standard");
+});
+gulp.task("react_standard_compress", function () {
+    compressMainJS("react_standard");
+});
+gulp.task("react_standard_createPackageJson", function () {
+    createPackageJson("react_standard");
+});
+
+gulp.task("build_react_standard", sequence("react_standard_source", "react_standard_compress", "react_standard_createPackageJson"));
 
 gulp.task('tsd', function (callback) {
     tsd({

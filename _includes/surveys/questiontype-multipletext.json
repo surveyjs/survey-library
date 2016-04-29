@@ -1,6 +1,6 @@
 { 
     questions: [
-      { type: "multipletext", name: "pricelimit", title: "What is the... ", itemSize: 5,
+      { type: "multipletext", name: "pricelimit", title: "What is the... ", colCount: 2,
             items: [{ name: "mostamount", title: "Most amount you would every pay for a product like ours" },
                     { name: "leastamount", title: "The least amount you would feel comfortable paying" }]}
     ]    

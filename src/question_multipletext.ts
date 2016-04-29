@@ -39,23 +39,38 @@ module Survey {
     }
 
     export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
+        private colCountValue: number = 1;
+        colCountChangedCallback: () => void;
         public itemSize: number = 25;
-        public items: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
+        private itemsValues: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
         constructor(public name: string) {
             super(name);
             var self = this;
             this.items.push = function (value) {
                 value.setData(self);
-                return Array.prototype.push.call(this, value);
+                var result = Array.prototype.push.call(this, value);
+                self.fireCallback(self.colCountChangedCallback);
+                return result;
             };
         }
         public getType(): string {
             return "multipletext";
         }
+        public get items(): Array<MultipleTextItemModel> { return this.itemsValues; }
+        public set items(value: Array<MultipleTextItemModel>) {
+            this.itemsValues = value;
+            this.fireCallback(this.colCountChangedCallback);
+        }
         public AddItem(name: string, title: string = null): MultipleTextItemModel {
             var item = this.createTextItem(name, title);
             this.items.push(item);
             return item;
+        }
+        public get colCount(): number { return this.colCountValue; }
+        public set colCount(value: number) {
+            if (value < 1 || value > 4) return;
+            this.colCountValue = value;
+            this.fireCallback(this.colCountChangedCallback);
         }
         private isMultipleItemValueChanging = false;
         protected onValueChanged() {
@@ -105,8 +120,10 @@ module Survey {
     JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
         function (obj: any) { return obj.titleValue; });
 
-    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number"], function () { return new QuestionMultipleTextModel(""); }, "question");
+    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number", "colCount:number"], function () { return new QuestionMultipleTextModel(""); }, "question");
     JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
     JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
+    JsonObject.metaData.setPropertyValues("multipletext", "colCount", null, 1);
+    JsonObject.metaData.setPropertyChoices("multipletext", "colCount", [1, 2, 3, 4]);
     QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleTextModel(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
 }

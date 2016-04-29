@@ -20,10 +20,42 @@ module Survey {
         }
     }
 
+    export class QuestionMultipleTextImplementor extends QuestionImplementor {
+        koRows: any;
+        constructor(question: Question) {
+            super(question);
+            this.koRows = ko.observableArray(this.getRows());
+            this.question["koRows"] = this.koRows;
+            this.onColCountChanged();
+            var self = this;
+            (<QuestionMultipleTextModel>this.question).colCountChangedCallback = function () { self.onColCountChanged(); };
+        }
+        protected onColCountChanged() {
+            this.koRows(this.getRows());
+        }
+        protected getRows(): Array<any> {
+            var colCount = (<QuestionMultipleTextModel>this.question).colCount;
+            var items = (<QuestionMultipleTextModel>this.question).items;
+            var rows = [];
+            var index = 0;
+            for (var i = 0; i < items.length; i++) {
+                if (index == 0) {
+                    rows.push([]);
+                }
+                rows[rows.length - 1].push(items[i]);
+                index++;
+                if (index >= colCount) {
+                    index = 0;
+                }
+            }
+            return rows;
+        }
+    }
+
     export class QuestionMultipleText extends QuestionMultipleTextModel {
         constructor(public name: string) {
             super(name);
-            new QuestionImplementor(this);
+            new QuestionMultipleTextImplementor(this);
         }
         protected createTextItem(name: string, title: string): MultipleTextItemModel {
             return new MultipleTextItem(name, title);

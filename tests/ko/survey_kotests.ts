@@ -132,6 +132,17 @@ module SurveykoTests {
         mQuestion.value = null;
         assert.equal(mQuestion.items[0]["koValue"](), null, "empty the value");
     });
+    QUnit.test("Question MultipleText: koRows", function (assert) {
+        var mQuestion = new Survey.QuestionMultipleText("q1");
+        mQuestion.items.push(new Survey.MultipleTextItem("i1"));
+        mQuestion.items.push(new Survey.MultipleTextItem("i2"));
+        mQuestion.colCount = 2;
+        assert.equal(mQuestion["koRows"]().length, 1, "just one row");
+        assert.equal(mQuestion["koRows"]()[0].length, 2, "two items in one row");
+        mQuestion.colCount = 1;
+        assert.equal(mQuestion["koRows"]().length, 2, "two rows now");
+        assert.equal(mQuestion["koRows"]()[0].length, 1, "just one item in the first row");
+    });
     QUnit.test("Set notification on setting survey data", function (assert) {
         var survey = new Survey.Survey();
         var page = survey.addNewPage("page1");

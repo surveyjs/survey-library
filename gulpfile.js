@@ -174,7 +174,7 @@ function buildTests(configName) {
 
     return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(sourcemaps.write({ sourceRoot: "src" }))
+        .pipe(sourcemaps.write({ sourceRoot: "tests" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.testsFolder));
     //Copy html file

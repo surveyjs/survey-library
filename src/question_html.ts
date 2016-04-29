@@ -15,6 +15,6 @@ module Survey {
             this.htmlValue = value;
         }
     }
-    JsonObject.metaData.addClass("html", ["html"], function () { return new QuestionHtmlModel(""); }, "questionbase");
+    JsonObject.metaData.addClass("html", ["html:html"], function () { return new QuestionHtmlModel(""); }, "questionbase");
     QuestionFactory.Instance.registerQuestion("html", (name) => { return new QuestionHtmlModel(name); });
 }

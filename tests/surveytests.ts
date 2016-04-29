@@ -391,6 +391,14 @@ module Survey.Tests {
         var strResult = surveyLocalization.getString("textMinLength")["format"](10);
         assert.equal(strResult, "Please enter at least 10 symbols.", "The format string is working");
     });
+    QUnit.test("Serialize email validator", function (assert) {
+        var validator = new EmailValidator();
+        var json = new JsonObject().toJsonObject(validator);
+        assert.ok(json, "Convert to Json Successful");
+        var newValidator = {};
+        new JsonObject().toObject(json, newValidator);
+        assert.ok(newValidator, "Convert from Json Successful");
+    });
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");

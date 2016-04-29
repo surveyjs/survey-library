@@ -8,7 +8,7 @@ module Survey {
     }
     
     export class SurveyValidator extends Base {
-        public text: string = null;
+        public text: string = "";
         constructor() {
             super();
         }

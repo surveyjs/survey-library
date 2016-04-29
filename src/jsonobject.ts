@@ -323,6 +323,7 @@ module Survey {
             }
         }
         protected valueToObj(value: any, obj: any, key: any, property: JsonObjectProperty) {
+            if (value == null) return;
             if (property != null && property.hasToUseSetValue) {
                 property.setValue(obj, value, this);
                 return;

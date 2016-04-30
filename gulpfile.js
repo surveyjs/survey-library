@@ -76,6 +76,16 @@ var config_react_standard = {
     packagePath: "./packages/survey-react/"
 }
 
+var config_react_bootstrap = {
+    name: "survey-react-bootstrap",
+    keywords: ["react", "Bootstrap"],
+    dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
+    mainJSfile : "survey.react.bootstrap.js",
+    dtsfile: "survey-react-bootstrap.d.ts",
+    packagePath: "./packages/survey-react-bootstrap/"
+}
+
 var config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
@@ -87,6 +97,7 @@ var configs = {};
 configs["ko_standard"] = config_ko_standard;
 configs["ko_bootstrap"] = config_ko_bootstrap;
 configs["react_standard"] = config_react_standard;
+configs["react_bootstrap"]= config_react_bootstrap;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -251,8 +262,19 @@ gulp.task("react_standard_compress", function () {
 gulp.task("react_standard_createPackageJson", function () {
     createPackageJson("react_standard");
 });
-
 gulp.task("build_react_standard", sequence("react_standard_source", "react_standard_compress", "react_standard_createPackageJson"));
+
+gulp.task("react_bootstrap_source", function () {
+        //buildTypeDefinition("react_bootstrap");
+    return buildFromSources("react_bootstrap");
+});
+gulp.task("react_bootstrap_compress", function () {
+    compressMainJS("react_bootstrap");
+    });
+gulp.task("react_bootstrap_createPackageJson", function () {
+    createPackageJson("react_bootstrap");
+});
+gulp.task("build_react_bootstrap", sequence("react_bootstrap_source", "react_bootstrap_compress", "react_bootstrap_createPackageJson"));
 
 gulp.task('tsd', function (callback) {
     tsd({

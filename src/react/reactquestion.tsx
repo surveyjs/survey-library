@@ -13,6 +13,7 @@ class ReactSurveyQuestion extends React.Component<any, any> {
     private setQuestion(question) {
         this.questionBase = question;
         this.question = question instanceof Survey.Question ? question : null;
+        this.state = { visile: this.questionBase.visible };
     }
     render(): JSX.Element {
         if (!this.questionBase) return null;

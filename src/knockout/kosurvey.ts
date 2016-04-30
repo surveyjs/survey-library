@@ -53,10 +53,5 @@ module Survey {
         private updateKoCurrentPage() {
             this.dummyObservable(this.dummyObservable() + 1);
         }
-        private getProgress(): number {
-            if (this.currentPage == null) return 0;
-            var index = this.visiblePages.indexOf(this.currentPage) + 1;
-            return Math.ceil((index * 100 / this.visiblePageCount));
-        }
     }
 }

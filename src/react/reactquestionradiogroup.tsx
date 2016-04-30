@@ -8,11 +8,12 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         this.question = props.question;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
-    handleOnChange(event) {
-        this.question.value = event.target.value;
-    }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.handleOnChange = this.handleOnChange.bind(this);
+    }
+    handleOnChange(event) {
+        this.question.value = event.target.value;
     }
     render(): JSX.Element {
         if (!this.question) return null;

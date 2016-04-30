@@ -1,5 +1,5 @@
 ﻿<div class="sv_main">
-    <h2 data-bind="visible: (title.length > 0) && showTitle, text: title"></h2>
+    <h3 data-bind="visible: (title.length > 0) && showTitle, text: title"></h3>
     <!-- ko if: koCurrentPage() -->
     <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
     <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>

@@ -156,6 +156,11 @@ module Survey {
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }
+        public getProgress(): number {
+            if (this.currentPage == null) return 0;
+            var index = this.visiblePages.indexOf(this.currentPage) + 1;
+            return Math.ceil((index * 100 / this.visiblePageCount));
+        }
         public get isDesignMode(): boolean { return this.mode == "designer"; }
         public nextPage(): boolean {
             if (this.isLastPage) return false;

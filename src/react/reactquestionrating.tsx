@@ -10,6 +10,7 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
     }
     handleOnChange(event) {
         this.question.value = event.target.value;
+        this.setState({ value: this.question.value });
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
@@ -24,7 +25,7 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
             var item = this.question.visibleRateValues[i];
             headers.push(<th key={keyHeader}>{item.text}</th>);
             values.push(<td key={keyValue}>
-                  <input type="radio" name={this.question.name} value={item.value} checked={this.question.value} onChange={this.handleOnChange} />
+                  <input type="radio" name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
                 </td>);
         }
         var comment = null;

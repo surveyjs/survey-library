@@ -17,7 +17,7 @@ class ReactSurveyBase extends React.Component<any, any> {
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
         var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null; 
         var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null; 
-        var buttons = (currentPage) ? <ReactSurveyNavigation survey = {this.survey} /> : null;
+        var buttons = (currentPage) ? this.renderNavgation() : null;
         if (!currentPage) {
             currentPage = <span>There is no any visible page or visible question in the survey.</span>;
         }
@@ -39,6 +39,9 @@ class ReactSurveyBase extends React.Component<any, any> {
         return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} />;
     }
     protected renderProgress(isTop: boolean): JSX.Element {
+        return null;
+    }
+    protected renderNavgation(): JSX.Element {
         return null;
     }
 

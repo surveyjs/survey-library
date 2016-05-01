@@ -1,6 +1,7 @@
 ﻿/// <reference path="../../../typings/react/react.d.ts" />
 /// <reference path="../../survey.ts" />
 /// <reference path="reactSurveyProgressBootstrap.tsx" />
+/// <reference path="reactSurveyNavigationBootstrap.tsx" />
 
 class ReactSurvey extends ReactSurveyBase {
     constructor(props: any) {
@@ -9,4 +10,8 @@ class ReactSurvey extends ReactSurveyBase {
     protected renderProgress(isTop: Boolean): JSX.Element {
         return <ReactSurveyProgress survey = {this.survey} isTop = {isTop} />;
     }
+    protected renderNavgation(): JSX.Element {
+        return <ReactSurveyNavigation survey = {this.survey}/>;
+    }
+
 }

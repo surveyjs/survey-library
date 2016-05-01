@@ -9,8 +9,8 @@
 </div>
 <div class="panel-footer" data-bind="visible: showNavigationButtons && !isDesignMode">
     <input type="button" class="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage()" />
-    <input type="button" class="button" value="Next" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage()" />
-    <input type="button" class="button" value="Submit" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage()" />
+    <input type="button" class="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage()" />
+    <input type="button" class="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage()" />
 </div>
 <!-- /ko -->
 <!-- ko if: koCurrentPage() == null -->

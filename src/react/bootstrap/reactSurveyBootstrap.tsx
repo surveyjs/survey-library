@@ -13,5 +13,7 @@ class ReactSurvey extends ReactSurveyBase {
     protected renderNavgation(): JSX.Element {
         return <ReactSurveyNavigation survey = {this.survey}/>;
     }
+    protected get titleClassName(): string { return "panel-heading"; }
+    protected get emptySurveyClassName(): string { return "panel-body"; }
 
 }

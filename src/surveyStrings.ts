@@ -22,6 +22,7 @@
         completeText: "Complete",
         otherItemText: "Other (describe)",
         progressText: "Page {0} of {1}",
+        emptySurvey: "There is no any visible page or visible question in the survey.",
         optionsCaption: "Choose...",
         requiredError: "Please answer the question.",
         numericError: "The value should be a numeric.",

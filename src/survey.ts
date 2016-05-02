@@ -71,6 +71,7 @@ module Survey {
             surveyLocalization.currentLocale = value;
         }
         public getLocString(str: string) { return surveyLocalization.getString(str); }
+        public get emptySurveyText(): string { return this.getLocString("emptySurvey"); }
         public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : this.getLocString("pagePrevText"); }
         public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
         public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : this.getLocString("pageNextText"); }

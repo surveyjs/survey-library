@@ -32,8 +32,10 @@ class ReactSurveyBase extends React.Component<any, any> {
         );
     }
     protected get mainClassName(): string { return ""; }
+    protected get titleClassName(): string { return ""; }
+    protected get emptySurveyClassName(): string { return ""; }
     protected renderTitle(): JSX.Element {
-        return <h3>{this.survey.title}</h3>;
+        return <div className={this.titleClassName}><h3>{this.survey.title}</h3></div>;
     }
     protected renderPage(): JSX.Element {
         return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} />;
@@ -43,6 +45,9 @@ class ReactSurveyBase extends React.Component<any, any> {
     }
     protected renderNavgation(): JSX.Element {
         return null;
+    }
+    protected renderEmptySurvey(): JSX.Element {
+        return (<div class={this.emptySurveyClassName}>{this.survey.emptySurveyText}</div>);
     }
 
     private updateSurvey(newProps: any) {

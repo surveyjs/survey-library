@@ -1,9 +1,10 @@
 ﻿/// <reference path="../../typings/react/react.d.ts" />
 /// <reference path="../survey.ts" />
 /// <reference path="reactPage.tsx" />
+/// <reference path="reactQuestion.tsx" />
 /// <reference path="reactSurveyNavigation.tsx" />
 
-class ReactSurveyBase extends React.Component<any, any> {
+class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
     protected survey: Survey.SurveyModel;
     constructor(props: any) {
         super(props);
@@ -17,37 +18,39 @@ class ReactSurveyBase extends React.Component<any, any> {
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
         var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null; 
         var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null; 
-        var buttons = (currentPage) ? this.renderNavgation() : null;
+        var buttons = (currentPage) ? this.renderNavigation() : null;
         if (!currentPage) {
-            currentPage = <span>There is no any visible page or visible question in the survey.</span>;
+            currentPage = this.renderEmptySurvey();
         }
         return (
             <div className={this.mainClassName}>
             {title}
             {topProgress}
-            {currentPage}
+            <div className={this.mainPageClassName}>
+                {currentPage}
+            </div>
             {bottomProgress}
             {buttons}
             </div>
         );
     }
     protected get mainClassName(): string { return ""; }
+    protected get mainPageClassName(): string { return ""; }
     protected get titleClassName(): string { return ""; }
-    protected get emptySurveyClassName(): string { return ""; }
     protected renderTitle(): JSX.Element {
         return <div className={this.titleClassName}><h3>{this.survey.title}</h3></div>;
     }
     protected renderPage(): JSX.Element {
-        return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} />;
+        return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} creator={this} />;
     }
     protected renderProgress(isTop: boolean): JSX.Element {
         return null;
     }
-    protected renderNavgation(): JSX.Element {
+    protected renderNavigation(): JSX.Element {
         return null;
     }
     protected renderEmptySurvey(): JSX.Element {
-        return (<div class={this.emptySurveyClassName}>{this.survey.emptySurveyText}</div>);
+        return (<span>{this.survey.emptySurveyText}</span>);
     }
 
     private updateSurvey(newProps: any) {
@@ -85,5 +88,14 @@ class ReactSurveyBase extends React.Component<any, any> {
     private changeState() {
         this.forceUpdate(); //probably change it later.
     }
+    //IReactSurveyCreator
+    public createQuestion(question: Survey.QuestionBase): JSX.Element {
+        return <ReactSurveyQuestionBase key={question.name} question={question} creator={this} />;
+    }
+    public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
+        var className = "ReactSurveyQuestion" + question.getType();
+        return React.createElement(window[className], { question: question });
+    }
+
 }
 

@@ -2,13 +2,12 @@
     <form class="form-inline">
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
         <div class="checkbox" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
-            <input type="checkbox"
-                   data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
+            <input type="checkbox" data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
             <span data-bind="text: item.text"></span>
+            <div data-bind="visible: question.hasOther && ($index() == question.visibleChoices.length-1)">
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+            </div>
         </div>
         <!-- /ko -->
-        <div data-bind="visible:question.hasOther">
-            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-        </div>
     </form>
 </script>

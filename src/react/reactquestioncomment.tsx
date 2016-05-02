@@ -42,8 +42,6 @@ class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        return (
-            <textarea type="text" value={this.state.value} onChange={this.handleOnChange} />
-        );
+        return (<input type="text" value={this.state.value} onChange={this.handleOnChange} />);
     }
 }

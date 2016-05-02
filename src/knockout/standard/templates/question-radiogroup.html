@@ -5,9 +5,9 @@
             <input type="radio" data-bind="name: question.name, attr: {value: item.value}, checked: question.koValue" />
             <span data-bind="text: item.text"></span>
         </label>
+        <div data-bind="visible: question.hasOther && ($index() == question.visibleChoices.length-1)">
+            <div class="sv_q_other" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+        </div>
     </div>
     <!-- /ko -->
-    <div data-bind="if:question.hasOther">
-        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-    </div>
 </script>

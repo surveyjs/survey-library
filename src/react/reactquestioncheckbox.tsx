@@ -1,8 +1,8 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_checkbox.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
-    private question: Survey.QuestionCheckboxModel;
+class ReactSurveyQuestioncheckboxBase extends React.Component<any, any> {
+    protected question: Survey.QuestionCheckboxModel;
     constructor(props: any) {
         super(props);
         this.question = props.question;
@@ -12,22 +12,28 @@ class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        return (
+            <div>
+            {this.getItems()}
+            </div>
+        );
+    }
+    protected getItems(): Array<any> {
         var items = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(<ReactSurveyQuestioncheckboxItem key={key} question={this.question} item={item} />);
+            items.push(this.renderItem(key, item));
         }
-        return (
-            <div>
-            {items}
-            </div>
-        );
+        return items;
+    }
+    protected renderItem(key: string, item: any): JSX.Element {
+        return <ReactSurveyQuestioncheckboxItemBase key={key} question={this.question} item={item} />;
     }
 }
-class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
-    private question: Survey.QuestionCheckboxModel;
-    private item: Survey.ItemValue;
+class ReactSurveyQuestioncheckboxItemBase extends React.Component<any, any> {
+    protected question: Survey.QuestionCheckboxModel;
+    protected item: Survey.ItemValue;
     constructor(props: any) {
         super(props);
         this.item = props.item;
@@ -43,10 +49,12 @@ class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
         if (!newValue) {
             newValue = [];
         }
+        var index = newValue.indexOf(this.item.value);
         if (event.target.checked) {
-            newValue.push(this.item.value);
+            if (index < 0) {
+                newValue.push(this.item.value);
+            }
         } else {
-            var index = newValue.indexOf(this.item.value);
             if (index > -1) {
                 newValue.splice(index, 1);
             }
@@ -57,20 +65,26 @@ class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.item || !this.question) return null;
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "100%";
-        var divStyle = { width: itemWidth };
+        var marginRight = this.question.colCount == 0 ? "5px" : "0px";
+        var divStyle = { width: itemWidth, marginRight: marginRight };
         var isChecked = this.question.value && this.question.value.indexOf(this.item.value) > -1;
-        var comment = null;
-        if (this.item.value === this.question.otherItem.value && isChecked) {
-            comment = <div><ReactSurveyQuestionCommentItem question={this.question}/></div>
-        }
-        return (
-            <div className="sv_qcbc" style={divStyle}>
-                <label className="sv_q_checkbox">
+        var otherItem = (this.item.value === this.question.otherItem.value && isChecked) ? this.renderOther() : null;
+        return this.renderCheckbox(isChecked, divStyle, otherItem);
+    }
+    protected get mainClassName(): string { return ""; }
+    protected get labelClassName(): string { return ""; }
+    protected get commentClassName(): string { return ""; }
+    protected get textStyle(): any { return null; }
+    protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+        return (<div className={this.mainClassName} style={divStyle}>
+                <label className={this.labelClassName}>
                     <input type="checkbox"  checked={isChecked} onChange={this.handleOnChange} />
-                    <span>{this.item.text}</span>
+                    <span style={this.textStyle}>{this.item.text}</span>
                     </label>
-                {comment}
-            </div>
-        );
+                {otherItem}
+            </div>);
+    }
+    protected renderOther(): JSX.Element {
+        return (<div className={this.commentClassName}><ReactSurveyQuestionCommentItem  question={this.question} /></div>);
     }
 }

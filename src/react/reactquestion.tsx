@@ -1,31 +1,45 @@
 ﻿/// <reference path="../survey.ts" />
+/// <reference path="../question.ts" />
+/// <reference path="../surveyStrings.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestion extends React.Component<any, any> {
+/// <reference path="reactQuestioncomment.tsx" />
+
+module Survey {
+    export interface IReactSurveyCreator {
+        createQuestion(question: QuestionBase): JSX.Element;
+        createQuestionElement(question: QuestionBase): JSX.Element;
+    }
+}
+
+class ReactSurveyQuestionBase extends React.Component<any, any> {
     private questionBase: Survey.QuestionBase;
-    private question: Survey.Question;
+    protected question: Survey.Question;
+    private creator: Survey.IReactSurveyCreator;
     constructor(props: any) {
         super(props);
         this.setQuestion(props.question);
+        this.creator = props.creator;
     }
     componentWillReceiveProps(nextProps: any) {
+        this.creator = nextProps.creator;
         this.setQuestion(nextProps.question);
     }
     private setQuestion(question) {
         this.questionBase = question;
         this.question = question instanceof Survey.Question ? question : null;
-        this.state = { visile: this.questionBase.visible };
+        this.state = { visible: this.questionBase.visible };
     }
     render(): JSX.Element {
-        if (!this.questionBase) return null;
+        if (!this.questionBase || !this.creator) return null;
         this.question["react"] = this; //TODO
         if (!this.questionBase.visible) return null;
-        var title = this.renderTitle();
         var className = "ReactSurveyQuestion" + this.questionBase.getType();
-        var questionRender = React.createElement(window[className], { question: this.questionBase });
-        var comment = this.renderComment();
-        var errors = this.renderErrors();
+        var questionRender = this.creator.createQuestionElement(this.questionBase);
+        var title = this.questionBase.hasTitle ? this.renderTitle() : null;
+        var comment = (this.question && this.question.hasComment) ? this.renderComment() : null;
+        var errors = (this.question && this.question.errors.length > 0) ? this.renderErrors() : null;
         return (
-            <div className="sv_q">
+            <div className={this.mainClassName}>
                 {title}
                 {errors}
                 {questionRender}
@@ -33,34 +47,34 @@ class ReactSurveyQuestion extends React.Component<any, any> {
             </div>
         );
     }
-    renderTitle(): JSX.Element {
-        if(!this.question) return null;
+    protected get mainClassName() { return "" };
+    protected get titleClassName() { return "" };
+    protected get errorClassName() { return "" };
+    protected renderTitle(): JSX.Element {
         var titleText = "";
         if (this.question.visibleIndex > -1) {
-            titleText = (this.question.visibleIndex + 1).toString() + ".";
+            titleText = (this.question.visibleIndex + 1).toString() + ". ";
         }
         if (this.question.isRequired) {
             titleText += this.question.requiredText;
         }
         titleText += this.question.title
-        return(<div className="sv_q_title">{titleText}</div>);
+        return (<h5 className={this.titleClassName}>{titleText}</h5>);
     }
-    renderComment(): JSX.Element {
-        if (!this.question || !this.question.hasComment) return null;
+    protected renderComment(): JSX.Element {
+        var otherText = Survey.surveyLocalization.getString("otherItemText");
         return (<div>
-                <div>Other (please describe) </div>
+                <div>{otherText}</div>
                 <ReactSurveyQuestionCommentItem  question={this.question} />
             </div>);
-        }
-    renderErrors(): JSX.Element {
-        if (!this.question || this.question.errors.length === 0) return null;
+    }
+    protected renderErrors(): JSX.Element {
         var errors = [];
         for (var i = 0; i < this.question.errors.length; i++) {
             var error = this.question.errors[i];
             var key = "error" + i;
             errors.push(<div key={key}>error.getText()</div>);
         }
-        return (<div className="sv_q_erbox">{errors}</div>);
+        return (<div className={this.errorClassName}>{errors}</div>);
     }
 }
-

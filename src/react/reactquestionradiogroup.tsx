@@ -1,8 +1,9 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_radiogroup.ts" />
+// <reference path="../question_baseselect.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
-    private question: Survey.QuestionRadiogroupModel;
+class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
+    protected question: Survey.QuestionRadiogroupModel;
     constructor(props: any) {
         super(props);
         this.question = props.question;
@@ -14,36 +15,39 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
     }
     handleOnChange(event) {
         this.question.value = event.target.value;
+        this.setState({ value: this.question.value });
     }
-    render(): JSX.Element {
-        if (!this.question) return null;
+    protected getItems(): Array<any> {
         var items = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(this.renderItem(item, key));
+            items.push(this.renderItem(key, item));
         }
-        return (
-            <div>
-            {items}
-            </div>
-        );
+        return items;
     }
-    private renderItem(item: Survey.ItemValue, key: string): JSX.Element {
+    protected get mainClassName(): string { return ""; }
+    protected get labelClassName(): string { return ""; }
+    protected get commentClassName(): string { return ""; }
+    protected get textStyle(): any { return null; }
+    private renderItem(key: string, item: Survey.ItemValue): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "100%";
-        var divStyle = { width: itemWidth };
-        var comment = null;
-        if (this.question.value === this.question.otherItem.value) {
-            comment = <div><ReactSurveyQuestionCommentItem question={this.question}/></div>
-        }
-        return (
-            <div key={key} className="sv_qcbc" style={divStyle}>
-                <label className="sv_q_radiogroup">
-                    <input type="radio" name={this.question.name} value={item.value}  checked={this.question.value} onChange={this.handleOnChange} />
-                    <span>{item.text}</span>
+        var marginRight = this.question.colCount == 0 ? "5px" : "0px";
+        var divStyle = { width: itemWidth, marginRight: marginRight };
+        var isChecked = this.question.value == item.value;
+        var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
+        return this.renderRadio(item, isChecked, divStyle, otherItem);
+    }
+    protected renderRadio(item: Survey.ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+        return (<div className={this.mainClassName} style={divStyle}>
+                <label className={this.labelClassName}>
+                    <input type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
+                    <span style={this.textStyle}>{item.text}</span>
                     </label>
-                {comment}
-                </div>
-        );
+                {otherItem}
+            </div>);
+    }
+    protected renderOther(): JSX.Element {
+        return (<div className={this.commentClassName}><ReactSurveyQuestionCommentItem  question={this.question} /></div>);
     }
 }

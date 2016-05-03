@@ -21,6 +21,6 @@ class ReactSurveyQuestioncheckboxItem extends ReactSurveyQuestioncheckboxItemBas
         super(props);
     }
     protected get mainClassName(): string { return "sv_qcbc"; }
-    protected get labelClassName(): string { return "sv_q_checkbox"; }
+    protected get labelClassName(): string { return "sv_q_radiogroup"; }
     protected get commentClassName(): string { return "sv_q_other"; }
 }

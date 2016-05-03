@@ -25,10 +25,7 @@ class ReactSurveyQuestiondropdown extends React.Component<any, any> {
             var option = <option key={key} value={item.value}>{item.text}</option>;
             options.push(option);
         }
-        var comment = null;
-        if (this.question.value === this.question.otherItem.value) {
-            comment = <div><ReactSurveyQuestionCommentItem question={this.question}/></div>
-        }
+        var comment = this.question.value === this.question.otherItem.value ? this.renderOther() : null;
         return (
             <div>
             <select value={this.state.value} onChange={this.handleOnChange}>
@@ -37,5 +34,9 @@ class ReactSurveyQuestiondropdown extends React.Component<any, any> {
             {comment}
             </div>
         );
+    }
+    protected renderOther(): JSX.Element {
+        var style = { marginTop: "3px" };
+        return <div style={style}><ReactSurveyQuestionCommentItem question={this.question}/></div>;
     }
 }

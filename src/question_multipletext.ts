@@ -72,6 +72,23 @@ module Survey {
             this.colCountValue = value;
             this.fireCallback(this.colCountChangedCallback);
         }
+        public getRows(): Array<any> {
+            var colCount = this.colCount;
+            var items = this.items;
+            var rows = [];
+            var index = 0;
+            for (var i = 0; i < items.length; i++) {
+                if (index == 0) {
+                    rows.push([]);
+                }
+                rows[rows.length - 1].push(items[i]);
+                index++;
+                if (index >= colCount) {
+                    index = 0;
+                }
+            }
+            return rows;
+        }
         private isMultipleItemValueChanging = false;
         protected onValueChanged() {
             super.onValueChanged();

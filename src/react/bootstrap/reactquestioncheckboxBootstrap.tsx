@@ -9,7 +9,7 @@ class ReactSurveyQuestioncheckbox extends ReactSurveyQuestioncheckboxBase {
         if (!this.question) return null;
         return (
             <form className={"form-inline"}>
-            {this.getItems() }
+            {this.getItems()}
             </form>);
     }
     protected renderItem(key: string, item: any): JSX.Element {
@@ -21,5 +21,6 @@ class ReactSurveyQuestioncheckboxItem extends ReactSurveyQuestioncheckboxItemBas
         super(props);
     }
     protected get mainClassName(): string { return "checkbox"; }
+    protected get labelClassName(): string { return "checkbox"; }
     protected get textStyle(): any { return { marginLeft: "3px" }; }
 }

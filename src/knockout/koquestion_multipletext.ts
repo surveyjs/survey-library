@@ -24,31 +24,14 @@ module Survey {
         koRows: any;
         constructor(question: Question) {
             super(question);
-            this.koRows = ko.observableArray(this.getRows());
+            this.koRows = ko.observableArray((<QuestionMultipleTextModel>this.question).getRows());
             this.question["koRows"] = this.koRows;
             this.onColCountChanged();
             var self = this;
             (<QuestionMultipleTextModel>this.question).colCountChangedCallback = function () { self.onColCountChanged(); };
         }
         protected onColCountChanged() {
-            this.koRows(this.getRows());
-        }
-        protected getRows(): Array<any> {
-            var colCount = (<QuestionMultipleTextModel>this.question).colCount;
-            var items = (<QuestionMultipleTextModel>this.question).items;
-            var rows = [];
-            var index = 0;
-            for (var i = 0; i < items.length; i++) {
-                if (index == 0) {
-                    rows.push([]);
-                }
-                rows[rows.length - 1].push(items[i]);
-                index++;
-                if (index >= colCount) {
-                    index = 0;
-                }
-            }
-            return rows;
+            this.koRows((<QuestionMultipleTextModel>this.question).getRows());
         }
     }
 

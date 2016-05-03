@@ -2,7 +2,7 @@
 /// <reference path="../question.ts" />
 /// <reference path="../question_comment.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestioncomment extends React.Component<any, any> {
+class ReactSurveyQuestioncommentBase extends React.Component<any, any> {
     private question: Survey.QuestionCommentModel;
     constructor(props: any) {
         super(props);
@@ -20,9 +20,10 @@ class ReactSurveyQuestioncomment extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <textarea type="text" value={this.state.value} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
+            <textarea className={this.mainClassName} type="text" value={this.state.value} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
         );
     }
+    protected get mainClassName() { return ""; }
 }
 
 class ReactSurveyQuestionCommentItem extends React.Component<any, any> {

@@ -1,6 +1,6 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_rating.ts" />
-/// <reference path="../../typings/react/react.d.ts" />
+﻿/// <reference path="../../survey.ts" />
+/// <reference path="../../question_rating.ts" />
+/// <reference path="../../../typings/react/react.d.ts" />
 class ReactSurveyQuestionrating extends React.Component<any, any> {
     private question: Survey.QuestionRatingModel;
     constructor(props: any) {
@@ -28,10 +28,7 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
                   <input type="radio" name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
                 </td>);
         }
-        var comment = null;
-        if (this.question.hasOther) {
-            comment = <div><ReactSurveyQuestionCommentItem question={this.question}/></div>
-        }
+        var comment = this.question.hasOther ? this.renderOther() : null;
         return (
             <div>
                 <table className="sv_q_rating">
@@ -53,5 +50,8 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
                 {comment}
             </div>
         );
+    }
+    protected renderOther(): JSX.Element {
+        return <div><ReactSurveyQuestionCommentItem question={this.question}/></div>;
     }
 }

@@ -10,4 +10,7 @@
         </label>
         <!-- /ko -->
     </div>
+    <div data-bind="visible: question.hasOther">
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question } }"></div>
+    </div>
 </script>

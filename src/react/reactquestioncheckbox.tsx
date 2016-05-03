@@ -10,14 +10,6 @@ class ReactSurveyQuestioncheckboxBase extends React.Component<any, any> {
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
     }
-    render(): JSX.Element {
-        if (!this.question) return null;
-        return (
-            <div>
-            {this.getItems()}
-            </div>
-        );
-    }
     protected getItems(): Array<any> {
         var items = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {

@@ -1,7 +1,7 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_multipletext.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
+class ReactSurveyQuestionmultipletextBase extends React.Component<any, any> {
     private question: Survey.QuestionMultipleTextModel;
     constructor(props: any) {
         super(props);
@@ -12,23 +12,35 @@ class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var tableRows = this.question.getRows();
         var rows = [];
-        for (var i = 0; i < this.question.items.length; i++) {
-            var item = this.question.items[i];
-            var key = "item" + i;
-            rows.push(<ReactSurveyQuestionmultipletextItem key={key} item={item} />);
+        for (var i = 0; i < tableRows.length; i++) {
+            rows.push(this.renderRow("item" + i, tableRows[i]));
         }
         return (
-            <table>
+            <table className={this.mainClassName}>
                 <tbody>
                 {rows}
                 </tbody>
             </table>
         );
     }
+    protected get mainClassName(): string { return ""; }
+    protected renderRow(key: string, items: Array<Survey.MultipleTextItemModel>) {
+        var tds = [];
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            tds.push(<td key={"label" + i}>{item.title}</td>);
+            tds.push(<td key={"value" + i}>{this.renderItem(item)}</td>);
+        }
+        return <tr key={key}>{tds}</tr>;
+    }
+    protected renderItem(item: Survey.MultipleTextItemModel): JSX.Element {
+        return <ReactSurveyQuestionmultipletextItemBase item={item} />;
+    }
 }
 
-class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
+class ReactSurveyQuestionmultipletextItemBase extends React.Component<any, any> {
     private item: Survey.MultipleTextItemModel;
     constructor(props: any) {
         super(props);
@@ -45,12 +57,8 @@ class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.item) return null;
-        return (
-            <tr>
-                <td>{this.item.title}</td>
-                <td><input type="text" value={this.state.value} onChange={this.handleOnChange} /></td>
-            </tr>
-            
-        );
+        var style = { float: "left" };
+        return (<input  className={this.mainClassName} style={style} type="text" value={this.state.value} onChange={this.handleOnChange} />);
     }
+    protected get mainClassName(): string { return ""; }
 }

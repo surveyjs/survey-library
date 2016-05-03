@@ -1,7 +1,7 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_matrix.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionmatrix extends React.Component<any, any> {
+class ReactSurveyQuestionmatrixBase extends React.Component<any, any> {
     private question: Survey.QuestionMatrixModel;
     constructor(props: any) {
         super(props);
@@ -27,7 +27,7 @@ class ReactSurveyQuestionmatrix extends React.Component<any, any> {
             rows.push(<ReactSurveyQuestionmatrixRow key={key} question={this.question} row={row} />);
         }
         return (
-            <table className="sv_q_matrix">
+            <table className={this.mainClassName}>
                 <thead>
                     <tr>
                         {firstTH}
@@ -40,6 +40,7 @@ class ReactSurveyQuestionmatrix extends React.Component<any, any> {
            </table>
         );
     }
+    protected get mainClassName() { return ""; }
 }
 
 class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
@@ -53,6 +54,7 @@ class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
     }
     handleOnChange(event) {
         this.row.value = event.target.value;
+        this.setState({ value: this.row.value });
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
@@ -65,7 +67,8 @@ class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
             var key = "value" + i;
-            var td = <td key={key}><input type="radio" name={this.row.fullName} value={column.value} checked={this.row.value} onChange={this.handleOnChange}/></td>;
+            var isChecked = this.row.value == column.value;
+            var td = <td key={key}><input type="radio" name={this.row.fullName} value={column.value} checked={isChecked} onChange={this.handleOnChange}/></td>;
             tds.push(td);
         }
         return (<tr>{firstTD}{tds}</tr>);

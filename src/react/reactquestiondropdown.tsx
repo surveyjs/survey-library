@@ -29,7 +29,8 @@ class ReactSurveyQuestiondropdown extends React.Component<any, any> {
         return (
             <div>
             <select value={this.state.value} onChange={this.handleOnChange}>
-                {options}
+              <option value="">{this.question.optionsCaption}</option>
+              {options}
             </select>
             {comment}
             </div>

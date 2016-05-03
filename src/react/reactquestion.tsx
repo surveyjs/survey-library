@@ -27,7 +27,14 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
     private setQuestion(question) {
         this.questionBase = question;
         this.question = question instanceof Survey.Question ? question : null;
-        this.state = { visible: this.questionBase.visible };
+        if (this.question) {
+            var self = this;
+            this.question.errorsChangedCallback = function () {
+                self.state.error = self.state.error + 1;
+                self.setState(self.state);
+            }
+        }
+        this.state = { visible: this.questionBase.visible, error: 0 };
     }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;
@@ -71,10 +78,13 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
     protected renderErrors(): JSX.Element {
         var errors = [];
         for (var i = 0; i < this.question.errors.length; i++) {
-            var error = this.question.errors[i];
+            var errorText = this.question.errors[i].getText();
             var key = "error" + i;
-            errors.push(<div key={key}>error.getText()</div>);
+            errors.push(this.renderError(key, errorText));
         }
         return (<div className={this.errorClassName}>{errors}</div>);
+    }
+    protected renderError(key: string, errorText: string): JSX.Element {
+        return <div key={key}>{errorText}</div>;
     }
 }

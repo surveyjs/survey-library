@@ -6,17 +6,11 @@ class ReactSurveyQuestion extends ReactSurveyQuestionBase {
         super(props);
     }
     protected get errorClassName() { return "alert alert-danger" };
-    protected renderErrors(): JSX.Element {
-        var errors = [];
-        for (var i = 0; i < this.question.errors.length; i++) {
-            var error = this.question.errors[i];
-            var key = "error" + i;
-            errors.push(<div  key={key}>
+    protected renderError(key: string, errorText: string): JSX.Element {
+        return <div  key={key}>
                 <span className="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                <span>error.getText()</span>
-                </div>
-            );
-        }
-        return (<div className={this.errorClassName}>{errors}</div>);
+                <span> {errorText}</span>
+            </div>
     }
+
 }

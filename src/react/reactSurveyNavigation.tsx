@@ -33,7 +33,8 @@
         );
     }
     protected renderButton(click: any, text: string): JSX.Element {
-        return <input className={this.buttonClassName} type="button" onClick={click} value={text} />;
+        var style = { marginRight: "5px" };
+        return <input className={this.buttonClassName} style={style} type="button" onClick={click} value={text} />;
     }
     protected get mainClassName() { return ""; }
     protected get buttonClassName() { return ""; }

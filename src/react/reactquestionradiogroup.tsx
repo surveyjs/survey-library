@@ -36,10 +36,10 @@ class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
         var divStyle = { width: itemWidth, marginRight: marginRight };
         var isChecked = this.question.value == item.value;
         var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
-        return this.renderRadio(item, isChecked, divStyle, otherItem);
+        return this.renderRadio(key, item, isChecked, divStyle, otherItem);
     }
-    protected renderRadio(item: Survey.ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
-        return (<div className={this.mainClassName} style={divStyle}>
+    protected renderRadio(key: string, item: Survey.ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+        return (<div key={key} className={this.mainClassName} style={divStyle}>
                 <label className={this.labelClassName}>
                     <input type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
                     <span style={this.textStyle}>{item.text}</span>

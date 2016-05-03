@@ -14,10 +14,16 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         this.updateSurvey(nextProps);
     }
     render(): JSX.Element {
+        return this.renderSurvey();
+    }
+    protected get mainClassName(): string { return ""; }
+    protected get mainPageClassName(): string { return ""; }
+    protected get titleClassName(): string { return ""; }
+    protected renderSurvey(): JSX.Element {
         var title = this.survey.title && this.survey.showTitle ? this.renderTitle() : null;
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
-        var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null; 
-        var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null; 
+        var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
+        var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null;
         var buttons = (currentPage) ? this.renderNavigation() : null;
         if (!currentPage) {
             currentPage = this.renderEmptySurvey();
@@ -28,15 +34,12 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
             {topProgress}
             <div className={this.mainPageClassName}>
                 {currentPage}
-            </div>
+                </div>
             {bottomProgress}
             {buttons}
-            </div>
+                </div>
         );
     }
-    protected get mainClassName(): string { return ""; }
-    protected get mainPageClassName(): string { return ""; }
-    protected get titleClassName(): string { return ""; }
     protected renderTitle(): JSX.Element {
         return <div className={this.titleClassName}><h3>{this.survey.title}</h3></div>;
     }
@@ -53,7 +56,7 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         return (<span>{this.survey.emptySurveyText}</span>);
     }
 
-    private updateSurvey(newProps: any) {
+    protected updateSurvey(newProps: any) {
         if (newProps && newProps.json) {
             this.survey = new Survey.SurveyModel(newProps.json);
         } else {

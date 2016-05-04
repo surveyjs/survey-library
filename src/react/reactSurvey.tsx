@@ -65,11 +65,15 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         if (newProps && newProps.data) {
             this.survey.data = newProps.data;
         }
-        //TODO
-        this.survey.currentPage = this.survey.visiblePages.length > 0 ? this.survey.visiblePages[0] : null;
+        this.state = { pageIndexChange: 0 };
+        this.setSurveyEvents(newProps);
+    }
+    protected setSurveyEvents(newProps: any) {
         var self = this;
         this.survey.onCurrentPageChanged.add((sender, options) => {
-            self.changeState();
+            self.state.pageIndexChange = self.state.pageIndexChange + 1;
+            self.setState(self.state);
+            if (newProps && newProps.onCurrentPageChanged) newProps.onCurrentPageChanged(sender, options);
         });
         this.survey.onVisibleChanged.add((sender, options) => {
             if (options.question && options.question.react) {
@@ -77,19 +81,20 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
                 state.visible = options.question.visible;
                 options.question.react.setState(state);
             }
+            if (newProps && newProps.onCurrentPageChanged) newProps.onCurrentPageChanged(sender, options);
         });
+        if (!newProps) return;
         this.survey.onValueChanged.add((sender, options) => {
-            if (!newProps) return;
-            if (newProps.data) {
-                newProps.data[options.name] = options.value;
-            }
-            if (newProps.onValueChanged) {
-                newProps.onValueChanged(sender, options);
-            }
+            if (newProps.data) newProps.data[options.name] = options.value;
+            if (newProps.onValueChanged) newProps.onValueChanged(sender, options);
         });
-    }
-    private changeState() {
-        this.forceUpdate(); //probably change it later.
+        this.survey.onComplete.add((sender) => { if (newProps.onComplete) newProps.onComplete(sender) });
+        this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options) });
+        this.survey.onQuestionAdded.add((sender, options) => { if (newProps.onQuestionAdded) newProps.onQuestionAdded(sender, options) });
+        this.survey.onQuestionRemoved.add((sender, options) => { if (newProps.onQuestionRemoved) newProps.onQuestionRemoved(sender, options) });
+        this.survey.onValidateQuestion.add((sender, options) => { if (newProps.onValidateQuestion) newProps.onValidateQuestion(sender, options) });
+        this.survey.onSendResult.add((sender, options) => { if (newProps.onSendResult) newProps.onSendResult(sender, options) });
+        this.survey.onGetResult.add((sender, options) => { if (newProps.onGetResult) newProps.onGetResult(sender, options) });
     }
     //IReactSurveyCreator
     public createQuestion(question: Survey.QuestionBase): JSX.Element {

@@ -50,6 +50,9 @@
 .sv_main {
   width: 100%; }
 
+sv_body {
+  margin-bottom: 10px; }
+
 .sv_page_empty {
   height: 100px;
   width: 100%;
@@ -90,6 +93,9 @@
 
 .sv_q_checkbox {
   padding: 10px; }
+
+.sv_q_other {
+  padding-left: 10px; }
 
 .sv_q_radiogroup {
   padding: 10px; }

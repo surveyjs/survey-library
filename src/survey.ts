@@ -37,6 +37,7 @@ module Survey {
         public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
@@ -417,6 +418,11 @@ module Survey {
             var options = { name: name, value: this.getValue(name), error: null };
             this.onValidateQuestion.fire(this, options);
             return options.error ? new CustomError(options.error) : null;
+        }
+        processHtml(html: string): string {
+            var options = { html: html };
+            this.onProcessHtml.fire(this, options);
+            return options.html;
         }
         //ISurveyTriggerOwner
         getObjects(pages: string[], questions: string[]): any[]{

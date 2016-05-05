@@ -13,7 +13,7 @@ class ReactSurveyQuestionhtml extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question || !this.question.html) return null;
-        var htmlValue = { __html: this.question.html }
+        var htmlValue = { __html: this.question.processedHtml }
         return (<div dangerouslySetInnerHTML={htmlValue} /> );
     }
 }

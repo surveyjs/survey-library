@@ -88,13 +88,14 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
             if (newProps.data) newProps.data[options.name] = options.value;
             if (newProps.onValueChanged) newProps.onValueChanged(sender, options);
         });
-        this.survey.onComplete.add((sender) => { if (newProps.onComplete) newProps.onComplete(sender) });
-        this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options) });
-        this.survey.onQuestionAdded.add((sender, options) => { if (newProps.onQuestionAdded) newProps.onQuestionAdded(sender, options) });
-        this.survey.onQuestionRemoved.add((sender, options) => { if (newProps.onQuestionRemoved) newProps.onQuestionRemoved(sender, options) });
-        this.survey.onValidateQuestion.add((sender, options) => { if (newProps.onValidateQuestion) newProps.onValidateQuestion(sender, options) });
-        this.survey.onSendResult.add((sender, options) => { if (newProps.onSendResult) newProps.onSendResult(sender, options) });
-        this.survey.onGetResult.add((sender, options) => { if (newProps.onGetResult) newProps.onGetResult(sender, options) });
+        this.survey.onComplete.add((sender) => { if (newProps.onComplete) newProps.onComplete(sender); });
+        this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
+        this.survey.onQuestionAdded.add((sender, options) => { if (newProps.onQuestionAdded) newProps.onQuestionAdded(sender, options); });
+        this.survey.onQuestionRemoved.add((sender, options) => { if (newProps.onQuestionRemoved) newProps.onQuestionRemoved(sender, options); });
+        this.survey.onValidateQuestion.add((sender, options) => { if (newProps.onValidateQuestion) newProps.onValidateQuestion(sender, options); });
+        this.survey.onSendResult.add((sender, options) => { if (newProps.onSendResult) newProps.onSendResult(sender, options); });
+        this.survey.onGetResult.add((sender, options) => { if (newProps.onGetResult) newProps.onGetResult(sender, options); });
+        this.survey.onProcessHtml.add((sender, options) => { if (newProps.onProcessHtml) newProps.onProcessHtml(sender, options); });
     }
     //IReactSurveyCreator
     public createQuestion(question: Survey.QuestionBase): JSX.Element {

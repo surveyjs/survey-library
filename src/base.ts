@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿    module Survey {
     export interface HashTable<T> {
         [key: string]: T;
     }
@@ -12,6 +12,7 @@
         questionAdded(question: IQuestion, index: number);
         questionRemoved(question: IQuestion);
         validateQuestion(name: string): SurveyError;
+        processHtml(html: string): string;
         isDesignMode: boolean;
         requiredText: string;
     }

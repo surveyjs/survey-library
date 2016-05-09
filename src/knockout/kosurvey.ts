@@ -4,7 +4,7 @@ module Survey {
         private renderedElement: HTMLElement;
         public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
 
-        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any;
+        koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; koState: any;
         koProgress: any; koProgressText: any;
 
         constructor(jsonObj: any = null, renderedElement: any = null) {
@@ -26,6 +26,11 @@ module Survey {
             self.applyBinding();
             self.onRendered.fire(self, {});
         }
+        public completeLastPage(): boolean {
+            var result = super.completeLastPage();
+            this.updateKoCurrentPage();
+            return result;
+        }
         protected createNewPage(name: string) { return new Page(name); }
         protected getTemplate(): string { throw new Error("Please override this method"); }
         protected onBeforeCreating() {
@@ -36,6 +41,7 @@ module Survey {
             this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
             this.koProgressText = ko.computed(function () { self.dummyObservable(); return self.progressText; });
             this.koProgress = ko.computed(function () { self.dummyObservable(); return self.getProgress(); });
+            this.koState = ko.computed(function () { self.dummyObservable(); return self.state; });
         }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.updateKoCurrentPage();

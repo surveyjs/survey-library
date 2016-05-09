@@ -94,6 +94,17 @@ module Survey.Tests {
         survey.nextPage();
         assert.equal(survey.currentPage, survey.pages[1], "After second next the current page is  second");
     });
+    QUnit.test("Survey state", function (assert) {
+        var survey = new SurveyModel();
+        assert.equal(survey.state, "empty", "There is no a visible page");
+        survey.addPage(createPageWithQuestion("Page 1"));
+        survey.addPage(createPageWithQuestion("Page 2"));
+        assert.equal(survey.state, "running", "Survey is in run mode");
+        survey.nextPage();
+        assert.equal(survey.state, "running", "Survey is in run mode");
+        survey.completeLastPage();
+        assert.equal(survey.state, "completed", "Survey is completed");
+    });
     QUnit.test("Question Creator", function (assert) {
         var inst = QuestionFactory.Instance;
         inst.registerQuestion("question1", (name: string) => { return new Question(name); });

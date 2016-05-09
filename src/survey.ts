@@ -9,6 +9,7 @@ module Survey {
         public surveyId: string = null;
         public surveyPostId: string = null;
         public clientId: string = null;
+        public cookieName: string = null;
         public sendResultOnPageNext: boolean = false;
 
         public commentPrefix: string = "-Comment";
@@ -28,6 +29,7 @@ module Survey {
         private showPageNumbersValue: boolean = false;
         private showQuestionNumbersValue: string = "on";
         private localeValue: string = "";
+        private isCompleted: boolean = false;
 
         public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
         public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -155,6 +157,10 @@ module Survey {
             this.currentPageChanged(value, oldValue);
             
         }
+        public get state(): string {
+            if (!this.currentPage) return "empty";
+            return this.isCompleted ? "completed" : "running";
+        }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }
@@ -164,6 +170,19 @@ module Survey {
             return Math.ceil((index * 100 / this.visiblePageCount));
         }
         public get isDesignMode(): boolean { return this.mode == "designer"; }
+        public get hasCookie(): boolean {
+            if (!this.cookieName) return false;
+            var cookies = document.cookie;
+            return cookies && cookies.indexOf(this.cookieName + "=true;") > -1;
+        }
+        public setCookie() {
+            if (!this.cookieName) return;
+            document.cookie = this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
+        }
+        public deleteCookie() {
+            if (!this.cookieName) return;
+            document.cookie = this.cookieName + "=;";
+        }
         public nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors) return false;
@@ -187,6 +206,7 @@ module Survey {
         }
         public completeLastPage() : boolean {
             if (this.isCurrentPageHasErrors) return false;
+            this.isCompleted = true;
             this.onComplete.fire(this, null);
             if (this.surveyPostId) {
                 this.sendResult();
@@ -365,6 +385,8 @@ module Survey {
             if (jsonConverter.errors.length > 0) {
                 this.jsonErrors = jsonConverter.errors;
             }
+            //if (this.cookieName && this.hasCookie()) {
+            //}
             this.updateVisibleIndexes();
         }
         protected onBeforeCreating() { }
@@ -433,7 +455,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["locale", "title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "sendResultOnPageNext:boolean",
+    JsonObject.metaData.addClass("survey", ["locale", "title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");

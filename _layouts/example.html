@@ -16,14 +16,11 @@ mainmenukey: examples
                     <div id="survey"></div>
                 </div>
                 <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
-                    <div class="codecontainertitle">Thank you! You have completed the survey!</div>
                     <div id="survey_result"></div>
-                    <input type="button" onclick="
+                    <input id="btnreRun" type="button" onclick="
                         document.getElementById('surveyContainer').style.display = '';
                         document.getElementById('survey_oncomplete').style.display = 'none'; 
-                        survey.data = null;
-                        survey.currentPage = survey.visiblePages[0];
-                        survey.render('survey');" 
+                        reRunSurvey();"
                         value="Re-run survey"></input>
                 </div>
                 {{ content }}
@@ -36,13 +33,19 @@ mainmenukey: examples
     </div>
 </div>
 <script>
+function reRunSurvey() {
+    survey.clear();
+    survey.render('survey');
+}
 function renderSurvey() {
     if(typeof survey == 'undefined') return;
     survey.onComplete.add(function (s) { 
-        document.getElementById('surveyContainer').style.display = "none";
         var result = "\nThe results are:\n" + JSON.stringify(survey.data);
         document.getElementById('survey_result').innerHTML = result; 
         document.getElementById('survey_oncomplete').style.display = '';
+        {% if page.disablereRun %}
+        document.getElementById('btnreRun').style.display = 'none'; 
+        {% endif %}
     });
     survey.render("survey");
 }

@@ -44,3 +44,11 @@ Show Page Titles: <input type="checkbox" checked="true" onChange="survey.showPag
 survey.render();</code></pre>
     </p>
 </div>
+<div class="propertyitem">
+    <p>
+        <b>Html for completed page:</b> If empty (default value), the built-in html is used.
+        <textarea style="width:100%" rows="4" onChange="survey.completedHtml = this.value; survey.render();"></textarea>
+        <pre><code class="language-javascript">survey.completedHtml = yourvalue;
+survey.render();</code></pre>
+    </p>
+</div>

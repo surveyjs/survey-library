@@ -409,6 +409,8 @@ module Survey.Tests {
         assert.equal(survey.state, "running");
 
         survey.setValue("question1", "Hello");
+        assert.equal(survey.state, "running");
+        survey.nextPage();
         assert.equal(survey.state, "completed");
     });
     QUnit.test("String format", function (assert) {

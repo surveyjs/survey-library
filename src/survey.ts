@@ -106,7 +106,7 @@ module Survey {
             if (data) {
                 for (var key in data) {
                     this.valuesHash[key] = data[key];
-                    this.checkTriggers(key, data[key]);
+                    this.checkTriggers(key, data[key], false);
                 }
             }
             this.notifyAllQuestionsOnValueChanged();
@@ -187,6 +187,7 @@ module Survey {
         public nextPage(): boolean {
             if (this.isLastPage) return false;
             if (this.isCurrentPageHasErrors) return false;
+            this.checkOnPageTriggers();
             if (this.sendResultOnPageNext && this.clientId) {
                 this.sendResult(this.surveyPostId, this.clientId, true);
             }
@@ -326,10 +327,20 @@ module Survey {
                 questions[i].onSurveyValueChanged(this.getValue(questions[i].name));
             }
         }
-        private checkTriggers(name: string, newValue: any) {
+        private checkOnPageTriggers() {
+            var page = this.currentPage;
+            for (var i = 0; i < page.questions.length; i++) {
+                var question = page.questions[i];
+                if (!question.visible || !question.name) continue;
+                var value = this.getValue(question.name);
+                this.checkTriggers(question.name, value, true);
+            }
+        }
+        private checkTriggers(name: string, newValue: any, isOnNextPage: boolean) {
             for (var i: number = 0; i < this.triggers.length; i++) {
-                if (this.triggers[i].name == name) {
-                    this.triggers[i].check(newValue);
+                var trigger = this.triggers[i];
+                if (trigger.name == name && trigger.isOnNextPage == isOnNextPage) {
+                    trigger.check(newValue);
                 }
             }
         }
@@ -418,7 +429,7 @@ module Survey {
                 this.valuesHash[name] = newValue;
             }
             this.notifyQuestionOnValueChanged(name, newValue);
-            this.checkTriggers(name, newValue);
+            this.checkTriggers(name, newValue, false);
         }
         getComment(name: string): string {
             var result = this.data[name + this.commentPrefix];

@@ -49,18 +49,23 @@ module Survey {
 
     export class SurveyTrigger extends Trigger {
         public name: string;
-        public pages: string[] = [];
-        public questions: string[] = [];
-        private owner: ISurveyTriggerOwner = null;
+        protected owner: ISurveyTriggerOwner = null;
         constructor() {
             super();
         }
         public setOwner(owner: ISurveyTriggerOwner) {
             this.owner = owner;
         }
-        protected doCompleteSurvey() {
-            if (this.owner) this.owner.doComplete();
+        public get isOnNextPage() { return false; }
+    }
+
+    export class SurveyTriggerVisible extends SurveyTrigger {
+        public pages: string[] = [];
+        public questions: string[] = [];
+        constructor() {
+            super();
         }
+        public getType(): string { return "visibletrigger"; }
         protected onSuccess() { this.onTrigger(this.onItemSuccess); }
         protected onFailure() { this.onTrigger(this.onItemFailure); }
         private onTrigger(func: Function) {
@@ -70,15 +75,6 @@ module Survey {
                 func(objects[i]);
             }
         }
-        protected onItemSuccess(item: any) { }
-        protected onItemFailure(item: any) { }
-    }
-
-    export class SurveyTriggerVisible extends SurveyTrigger {
-        constructor() {
-            super();
-        }
-        public getType(): string { return "visibletrigger"; }
         protected onItemSuccess(item: any) { item.visible = true; }
         protected onItemFailure(item: any) { item.visible = false; }
     }
@@ -87,11 +83,12 @@ module Survey {
             super();
         }
         public getType(): string { return "completetrigger"; }
-        protected onSuccess() { this.doCompleteSurvey(); }
+        public get isOnNextPage() { return true; }
+        protected onSuccess() { if (this.owner) this.owner.doComplete(); }
     }
 
     JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
-    JsonObject.metaData.addClass("surveytrigger", ["!name", "pages", "questions"], null, "trigger");
-    JsonObject.metaData.addClass("visibletrigger", [], function () { return new SurveyTriggerVisible(); }, "surveytrigger");
+    JsonObject.metaData.addClass("surveytrigger", ["!name"], null, "trigger");
+    JsonObject.metaData.addClass("visibletrigger", ["pages", "questions"], function () { return new SurveyTriggerVisible(); }, "surveytrigger");
     JsonObject.metaData.addClass("completetrigger", [], function () { return new SurveyTriggerComplete(); }, "surveytrigger");
 }

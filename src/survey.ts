@@ -17,6 +17,7 @@ module Survey {
         public showNavigationButtons: boolean = true;
         public showTitle: boolean = true;
         public showPageTitles: boolean = true;
+        public completedHtml: string = "";
         public requiredText: string = "* ";
         public showProgressBar: string = "off";
         public pages: Array<PageModel> = new Array<PageModel>();
@@ -158,8 +159,8 @@ module Survey {
             
         }
         public get state(): string {
-            if (!this.currentPage) return "empty";
-            return this.isCompleted ? "completed" : "running";
+            if (this.isCompleted) return "completed";
+            return (this.currentPage) ? "running" : "empty"
         }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
@@ -173,7 +174,7 @@ module Survey {
         public get hasCookie(): boolean {
             if (!this.cookieName) return false;
             var cookies = document.cookie;
-            return cookies && cookies.indexOf(this.cookieName + "=true;") > -1;
+            return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
         }
         public setCookie() {
             if (!this.cookieName) return;
@@ -206,11 +207,7 @@ module Survey {
         }
         public completeLastPage() : boolean {
             if (this.isCurrentPageHasErrors) return false;
-            this.isCompleted = true;
-            this.onComplete.fire(this, null);
-            if (this.surveyPostId) {
-                this.sendResult();
-            }
+            this.doComplete();
             return true;
         }
         public get isFirstPage(): boolean {
@@ -221,6 +218,23 @@ module Survey {
             if (this.currentPage == null) return true;
             var vPages = this.visiblePages;
             return vPages.indexOf(this.currentPage) == vPages.length - 1;
+        }
+        public doComplete() {
+            this.setCookie();
+            this.setCompleted();
+            this.onComplete.fire(this, null);
+            if (this.surveyPostId) {
+                this.sendResult();
+            }
+        }
+        protected setCompleted() {
+            this.isCompleted = true;
+        }
+        public get processedCompletedHtml(): string {
+            if (this.completedHtml) {
+                return this.processHtml(this.completedHtml);
+            }
+            return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
         }
         public get progressText(): string {
             if (this.currentPage == null) return "";
@@ -385,8 +399,9 @@ module Survey {
             if (jsonConverter.errors.length > 0) {
                 this.jsonErrors = jsonConverter.errors;
             }
-            //if (this.cookieName && this.hasCookie()) {
-            //}
+            if (this.hasCookie) {
+                this.doComplete();
+            }
             this.updateVisibleIndexes();
         }
         protected onBeforeCreating() { }
@@ -455,7 +470,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["locale", "title", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
+    JsonObject.metaData.addClass("survey", ["locale", "title", "completedHtml:html", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
         "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");

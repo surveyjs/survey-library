@@ -14,11 +14,16 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         this.updateSurvey(nextProps);
     }
     render(): JSX.Element {
+        if (this.survey.state == "completed") return this.renderCompleted();
         return this.renderSurvey();
     }
     protected get mainClassName(): string { return ""; }
     protected get mainPageClassName(): string { return ""; }
     protected get titleClassName(): string { return ""; }
+    protected renderCompleted(): JSX.Element {
+        var htmlValue = { __html: this.survey.processedCompletedHtml }
+        return (<div dangerouslySetInnerHTML={htmlValue} />);
+    }
     protected renderSurvey(): JSX.Element {
         var title = this.survey.title && this.survey.showTitle ? this.renderTitle() : null;
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
@@ -65,11 +70,12 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         if (newProps && newProps.data) {
             this.survey.data = newProps.data;
         }
-        this.state = { pageIndexChange: 0 };
+        this.state = { pageIndexChange: 0, isCompleted: false };
         this.setSurveyEvents(newProps);
     }
     protected setSurveyEvents(newProps: any) {
         var self = this;
+        this.survey.onComplete.add((sender) => { self.state.isCompleted = true; self.setState(self.state); });
         this.survey.onCurrentPageChanged.add((sender, options) => {
             self.state.pageIndexChange = self.state.pageIndexChange + 1;
             self.setState(self.state);
@@ -88,14 +94,28 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
             if (newProps.data) newProps.data[options.name] = options.value;
             if (newProps.onValueChanged) newProps.onValueChanged(sender, options);
         });
-        this.survey.onComplete.add((sender) => { if (newProps.onComplete) newProps.onComplete(sender); });
+        if (newProps.onComplete) {
+            this.survey.onComplete.add((sender) => { newProps.onComplete(sender); });
+        }
         this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
-        this.survey.onQuestionAdded.add((sender, options) => { if (newProps.onQuestionAdded) newProps.onQuestionAdded(sender, options); });
-        this.survey.onQuestionRemoved.add((sender, options) => { if (newProps.onQuestionRemoved) newProps.onQuestionRemoved(sender, options); });
-        this.survey.onValidateQuestion.add((sender, options) => { if (newProps.onValidateQuestion) newProps.onValidateQuestion(sender, options); });
-        this.survey.onSendResult.add((sender, options) => { if (newProps.onSendResult) newProps.onSendResult(sender, options); });
-        this.survey.onGetResult.add((sender, options) => { if (newProps.onGetResult) newProps.onGetResult(sender, options); });
-        this.survey.onProcessHtml.add((sender, options) => { if (newProps.onProcessHtml) newProps.onProcessHtml(sender, options); });
+        if (newProps.onQuestionAdded) {
+            this.survey.onQuestionAdded.add((sender, options) => { newProps.onQuestionAdded(sender, options); });
+        }
+        if (newProps.onQuestionRemoved) {
+            this.survey.onQuestionRemoved.add((sender, options) => { newProps.onQuestionRemoved(sender, options); });
+        }
+        if (newProps.onValidateQuestion) {
+            this.survey.onValidateQuestion.add((sender, options) => { newProps.onValidateQuestion(sender, options); });
+        }
+        if (newProps.onSendResult) {
+            this.survey.onSendResult.add((sender, options) => { newProps.onSendResult(sender, options); });
+        }
+        if (newProps.onGetResult) {
+            this.survey.onGetResult.add((sender, options) => { newProps.onGetResult(sender, options); });
+        }
+        if (newProps.onProcessHtml) {
+            this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
+        }
     }
     //IReactSurveyCreator
     public createQuestion(question: Survey.QuestionBase): JSX.Element {

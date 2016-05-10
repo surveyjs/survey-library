@@ -5,6 +5,8 @@ module Survey {
         pageNextText: "Weiter",
         completeText: "Fertig",
         progressText: "Seite {0} von {1}",
+        emptySurvey: "Es gibt keine sichtbare Frage.",
+        completingSurvey: "Vielen Dank für das Ausfüllen des Fragebogens!",
         otherItemText: "Andere (beschreiben)",
         optionsCaption: "Wählen...",
         requiredError: "Bitte antworten Sie auf die Frage.",

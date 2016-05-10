@@ -1,8 +1,8 @@
 ﻿<div class="sv_main">
-    <div data-bind="visible: (title.length > 0) && showTitle">
+    <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed'">
         <h3 data-bind="text: title"></h3>
     </div>
-    <!-- ko if: koCurrentPage() -->
+    <!-- ko if: koState() == "running" -->
     <div class="sv_body">
         <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
         <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
@@ -12,7 +12,10 @@
         <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage()" />  <input type="button" value="Next" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage()" />  <input type="button" value="Submit" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage()" />
     </div>
     <!-- /ko -->
-    <!-- ko if: koCurrentPage() == null -->
+    <!-- ko if: koState() == "completed" -->
+    <div data-bind="html: processedCompletedHtml"></div>
+    <!-- /ko -->
+    <!-- ko if: koState() == "empty" -->
     <div data-bind="text:emptySurveyText"></div>
     <!-- /ko -->
 </div>

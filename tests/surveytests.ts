@@ -398,6 +398,19 @@ module Survey.Tests {
         assert.equal(survey.getQuestionByName("question2").visible, true, "trigger should not be called");
         assert.equal(survey.pages[1].visible, true, "trigger should not be called");
     });
+    QUnit.test("Complete trigger test", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var trigger = new SurveyTriggerComplete();
+        survey.triggers.push(trigger);
+        trigger.name = "question1";
+        trigger.value = "Hello";
+
+        survey.setValue("question1", "H");
+        assert.equal(survey.state, "running");
+
+        survey.setValue("question1", "Hello");
+        assert.equal(survey.state, "completed");
+    });
     QUnit.test("String format", function (assert) {
         var strResult = surveyLocalization.getString("textMinLength")["format"](10);
         assert.equal(strResult, "Please enter at least 10 symbols.", "The format string is working");

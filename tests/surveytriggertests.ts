@@ -13,6 +13,7 @@ module Survey.Tests {
     class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
         public items = [{ name: 'Item1', visible: false }, { name: 'Item2', visible: true }]
         getObjects(pages: string[], questions: string[]): any[] { return this.items; }
+        doComplete() { }
     } 
 
     QUnit.test("Check trigger operations", function (assert) {

@@ -26,10 +26,9 @@ module Survey {
             self.applyBinding();
             self.onRendered.fire(self, {});
         }
-        public completeLastPage(): boolean {
-            var result = super.completeLastPage();
+        protected setCompleted() {
+            super.setCompleted();
             this.updateKoCurrentPage();
-            return result;
         }
         protected createNewPage(name: string) { return new Page(name); }
         protected getTemplate(): string { throw new Error("Please override this method"); }

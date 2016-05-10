@@ -44,6 +44,7 @@ module Survey {
 
     export interface ISurveyTriggerOwner {
         getObjects(pages: string[], questions: string[]): any[];
+        doComplete();
     }
 
     export class SurveyTrigger extends Trigger {
@@ -57,9 +58,12 @@ module Survey {
         public setOwner(owner: ISurveyTriggerOwner) {
             this.owner = owner;
         }
+        protected doCompleteSurvey() {
+            if (this.owner) this.owner.doComplete();
+        }
         protected onSuccess() { this.onTrigger(this.onItemSuccess); }
         protected onFailure() { this.onTrigger(this.onItemFailure); }
-        onTrigger(func: Function) {
+        private onTrigger(func: Function) {
             if (!this.owner) return;
             var objects = this.owner.getObjects(this.pages, this.questions);
             for (var i = 0; i < objects.length; i++) {
@@ -78,8 +82,16 @@ module Survey {
         protected onItemSuccess(item: any) { item.visible = true; }
         protected onItemFailure(item: any) { item.visible = false; }
     }
+    export class SurveyTriggerComplete extends SurveyTrigger {
+        constructor() {
+            super();
+        }
+        public getType(): string { return "completetrigger"; }
+        protected onSuccess() { this.doCompleteSurvey(); }
+    }
 
     JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
     JsonObject.metaData.addClass("surveytrigger", ["!name", "pages", "questions"], null, "trigger");
     JsonObject.metaData.addClass("visibletrigger", [], function () { return new SurveyTriggerVisible(); }, "surveytrigger");
+    JsonObject.metaData.addClass("completetrigger", [], function () { return new SurveyTriggerComplete(); }, "surveytrigger");
 }

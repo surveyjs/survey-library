@@ -162,6 +162,13 @@ module Survey {
             if (this.isCompleted) return "completed";
             return (this.currentPage) ? "running" : "empty"
         }
+        public clear() {
+            this.data = null;
+            this.isCompleted = false;
+            if (this.visiblePageCount > 0) {
+                this.currentPage = this.visiblePages[0];
+            }
+        }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }

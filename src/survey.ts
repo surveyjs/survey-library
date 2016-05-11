@@ -3,6 +3,7 @@
 /// <reference path="trigger.ts" />
 /// <reference path="jsonobject.ts" />
 /// <reference path="dxSurveyService.ts" />
+/// <reference path="textPreProcessor.ts" />
 
 module Survey {
     export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
@@ -24,6 +25,7 @@ module Survey {
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: PageModel = null;
         private valuesHash: HashTable<any> = {};
+        private variablesHash: HashTable<any> = {};
         private pagePrevTextValue: string;
         private pageNextTextValue: string;
         private completeTextValue: string;
@@ -31,6 +33,8 @@ module Survey {
         private showQuestionNumbersValue: string = "on";
         private localeValue: string = "";
         private isCompleted: boolean = false;
+        private processedTextValues: HashTable<any> = {};
+        private textPreProcessor: TextPreProcessor;
 
         public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
         public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -51,6 +55,9 @@ module Survey {
         constructor(jsonObj: any = null, renderedElement: any = null) {
             super();
             var self = this;
+            this.textPreProcessor = new TextPreProcessor();
+            this.textPreProcessor.onHasValue = function (name: string) { return self.processedTextValues[name.toLowerCase()]; };
+            this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
             this.pages.push = function (value) {
                 value.data = self;
                 return Array.prototype.push.call(this, value);
@@ -59,6 +66,7 @@ module Survey {
                 value.setOwner(self);
                 return Array.prototype.push.call(this, value);
             };
+            this.updateProcessedTextValues();
             this.onBeforeCreating();
             if (jsonObj) {
                 this.setJsonObject(jsonObj);
@@ -272,19 +280,22 @@ module Survey {
             }
             this.updateVisibleIndexes();
         }
-        public getQuestionByName(name: string): IQuestion {
+        public getQuestionByName(name: string, caseInsensitive: boolean = false): IQuestion {
             var questions = this.getAllQuestions();
+            if (caseInsensitive) name = name.toLowerCase();
             for (var i: number = 0; i < questions.length; i++) {
-                if(questions[i].name == name) return questions[i];
+                var questionName = questions[i].name;
+                if (caseInsensitive) questionName = questionName.toLowerCase();
+                if(questionName == name) return questions[i];
             }
             return null;
         }
-        public getQuestionsByNames(names: string[]): IQuestion[] {
+        public getQuestionsByNames(names: string[], caseInsensitive: boolean = false): IQuestion[] {
             var result = [];
             if (!names) return result;
             for (var i: number = 0; i < names.length; i++) {
                 if (!names[i]) continue;
-                var question = this.getQuestionByName(names[i]);
+                var question = this.getQuestionByName(names[i], caseInsensitive);
                 if (question) result.push(question);
             }
             return result;
@@ -417,6 +428,7 @@ module Survey {
             if (jsonConverter.errors.length > 0) {
                 this.jsonErrors = jsonConverter.errors;
             }
+            this.updateProcessedTextValues();
             if (this.hasCookie) {
                 this.doComplete();
             }
@@ -424,6 +436,41 @@ module Survey {
         }
         protected onBeforeCreating() { }
         protected onCreating() { }
+        private updateProcessedTextValues() {
+            this.processedTextValues = {};
+            var self = this;
+            this.processedTextValues["pageno"] = function (name) { return self.currentPage != null ? self.visiblePages.indexOf(self.currentPage) + 1 : 0; }
+            this.processedTextValues["pagecount"] = function (name) { return self.visiblePageCount; }
+            var questions = this.getAllQuestions();
+            for (var i = 0; i < questions.length; i++) {
+                this.addQuestionToProcessedTextValues(questions[i]);
+            }
+        }
+        private addQuestionToProcessedTextValues(question: IQuestion) {
+            this.processedTextValues[question.name.toLowerCase()] = "question";
+        }
+        private getProcessedTextValue(name: string): any {
+            var name = name.toLowerCase();
+            var val = this.processedTextValues[name];
+            if (!val) return null;
+            if (val == "question") {
+                var question = this.getQuestionByName(name, true);
+                return question != null ? this.getValue(question.name) : null;
+            }
+            if (val == "variable") {
+                return this.getVariable(name);
+            }
+            return val(name);
+        }
+        public getVariable(name: string): any {
+            if (!name) return null;
+            return this.variablesHash[name];
+        }
+        public setVariable(name: string, newValue: any) {
+            if (!name) return;
+            this.variablesHash[name] = newValue;
+            this.processedTextValues[name.toLowerCase()] = "variable";
+        }
         //ISurvey data
         getValue(name: string): any {
             if (!name || name.length == 0) return null;
@@ -461,6 +508,7 @@ module Survey {
         }
         questionAdded(question: IQuestion, index: number) {
             this.updateVisibleIndexes();
+            this.addQuestionToProcessedTextValues(question);
             this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index });
         }
         questionRemoved(question: IQuestion) {
@@ -477,7 +525,10 @@ module Survey {
         processHtml(html: string): string {
             var options = { html: html };
             this.onProcessHtml.fire(this, options);
-            return options.html;
+            return this.processText(options.html);
+        }
+        processText(text: string): string {
+            return this.textPreProcessor.process(text);
         }
         //ISurveyTriggerOwner
         getObjects(pages: string[], questions: string[]): any[]{

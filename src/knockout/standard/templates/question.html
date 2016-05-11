@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question">
     <div class="sv_q" data-bind="visible: question.koVisible()">
         <!-- ko if: question.hasTitle -->
-        <h5 class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.title"></h5>
+        <h5 class="sv_q_title" data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.processedTitle"></h5>
         <!-- /ko -->
         <div class="sv_q_erbox" data-bind="visible: koErrors().length > 0, foreach: koErrors">
             <div data-bind="text:$data.getText()"></div>

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question">
     <div data-bind="visible: question.koVisible()">
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.title"></h5>
+        <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.processedTitle"></h5>
         <!-- /ko -->
         <div class="alert alert-danger" role="alert" data-bind="visible: koErrors().length > 0, foreach: koErrors">
             <div>

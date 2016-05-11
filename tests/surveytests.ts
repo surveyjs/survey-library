@@ -425,6 +425,16 @@ module Survey.Tests {
         new JsonObject().toObject(json, newValidator);
         assert.ok(newValidator, "Convert from Json Successful");
     });
+    QUnit.test("pre process title", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        survey.pages[0].title = "Page {PageNo} from {PageCount}.";
+        assert.equal(survey.pages[0].processedTitle, "Page 1 from 2.");
+        survey.pages[0].addNewQuestion("text", "email");
+        survey.setValue("email", "andrew.telnov@gmail.com");
+        survey.setVariable("var1", "[it works]")
+        survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}</div>";
+        assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it works]</div>");
+    });
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");

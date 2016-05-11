@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-page">
-    <h4 data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + title"></h4>
+    <h4 data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + processedTitle"></h4>
     <!-- ko foreach: { data: questions, as: 'question' } -->
     <!-- ko template: { name: 'survey-question', data: question } -->
     <!-- /ko -->

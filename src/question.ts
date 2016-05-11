@@ -22,6 +22,7 @@ module Survey {
         public get hasTitle(): boolean { return true; }
         public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
         public set title(newValue: string) { this.titleValue = newValue; }
+        public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
         public supportComment(): boolean { return false; }
         public supportOther(): boolean { return false; }
         public get isRequired(): boolean { return this.isRequiredValue; }

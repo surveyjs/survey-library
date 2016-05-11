@@ -33,7 +33,7 @@ class ReactSurveyPage extends React.Component<any, any> {
     }
     protected renderTitle(): JSX.Element {
         if (!this.page.title || !this.survey.showPageTitles) return null;
-        var text = this.page.title;
+        var text = this.page.processedTitle;
         if (this.page.num > 0) {
             text = this.page.num + ". " + text;
         }

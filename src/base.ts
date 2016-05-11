@@ -13,6 +13,7 @@
         questionRemoved(question: IQuestion);
         validateQuestion(name: string): SurveyError;
         processHtml(html: string): string;
+        processText(text: string): string;
         isDesignMode: boolean;
         requiredText: string;
     }

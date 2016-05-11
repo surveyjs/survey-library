@@ -65,7 +65,7 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
         if (this.question.isRequired) {
             titleText += this.question.requiredText;
         }
-        titleText += this.question.title
+        titleText += this.question.processedTitle;
         return (<h5 className={this.titleClassName}>{titleText}</h5>);
     }
     protected renderComment(): JSX.Element {

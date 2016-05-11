@@ -21,6 +21,7 @@ module Survey {
                 return Array.prototype.push.call(this, value);
             };
         }
+        public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
         public get num() { return this.numValue; }
         public set num(value: number) {
             if (this.numValue == value) return;

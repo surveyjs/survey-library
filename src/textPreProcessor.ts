@@ -16,7 +16,7 @@
                 if (!this.canProcessName(name)) continue;
                 if (this.onHasValue && !this.onHasValue(name)) continue;
                 var value = this.onProcess(name);
-                value = value ? value.toString() : "";
+                if (value == null) value = "";
                 text = text.substr(0, item.start) + value + text.substr(item.end + 1);
             }
             return text;

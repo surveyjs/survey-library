@@ -45,6 +45,7 @@ module Survey {
     export interface ISurveyTriggerOwner {
         getObjects(pages: string[], questions: string[]): any[];
         doComplete();
+        setTriggerValue(name: string, value: any, isVariable: boolean);
     }
 
     export class SurveyTrigger extends Trigger {
@@ -86,9 +87,23 @@ module Survey {
         public get isOnNextPage() { return true; }
         protected onSuccess() { if (this.owner) this.owner.doComplete(); }
     }
+    export class SurveyTriggerSetValue extends SurveyTrigger {
+        public setToName: string;
+        public setValue: any;
+        public isVariable: boolean;
+        constructor() {
+            super();
+        }
+        public getType(): string { return "setvaluetrigger"; }
+        protected onSuccess() {
+            if (!this.setToName || !this.owner) return;
+            this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
+        }
+    }
 
     JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
     JsonObject.metaData.addClass("surveytrigger", ["!name"], null, "trigger");
     JsonObject.metaData.addClass("visibletrigger", ["pages", "questions"], function () { return new SurveyTriggerVisible(); }, "surveytrigger");
     JsonObject.metaData.addClass("completetrigger", [], function () { return new SurveyTriggerComplete(); }, "surveytrigger");
+    JsonObject.metaData.addClass("setvaluetrigger", ["!setToName", "setValue", "isVariable:boolean"], function () { return new SurveyTriggerSetValue(); }, "surveytrigger");
 }

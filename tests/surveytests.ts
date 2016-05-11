@@ -413,6 +413,18 @@ module Survey.Tests {
         survey.nextPage();
         assert.equal(survey.state, "completed");
     });
+    QUnit.test("Value trigger test", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var trigger = new SurveyTriggerSetValue();
+        survey.triggers.push(trigger);
+        trigger.name = "question1";
+        trigger.value = "Hello";
+        trigger.setToName = "name1";
+        trigger.setValue = "val1";
+        assert.equal(survey.getValue("name1"), null, "value is not set");
+        survey.setValue("question1", "Hello");
+        assert.equal(survey.getValue("name1"), "val1", "value is set");
+    });
     QUnit.test("String format", function (assert) {
         var strResult = surveyLocalization.getString("textMinLength")["format"](10);
         assert.equal(strResult, "Please enter at least 10 symbols.", "The format string is working");
@@ -431,9 +443,10 @@ module Survey.Tests {
         assert.equal(survey.pages[0].processedTitle, "Page 1 from 2.");
         survey.pages[0].addNewQuestion("text", "email");
         survey.setValue("email", "andrew.telnov@gmail.com");
-        survey.setVariable("var1", "[it works]")
-        survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}</div>";
-        assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it works]</div>");
+        survey.setVariable("var1", "[it is var1]");
+        survey.setValue("val1", "[it is val1]")
+        survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}{val1}</div>";
+        assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
     });
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();

@@ -172,6 +172,7 @@ module Survey {
         }
         public clear() {
             this.data = null;
+            this.variablesHash = {};
             this.isCompleted = false;
             if (this.visiblePageCount > 0) {
                 this.currentPage = this.visiblePages[0];
@@ -457,6 +458,9 @@ module Survey {
                 var question = this.getQuestionByName(name, true);
                 return question != null ? this.getValue(question.name) : null;
             }
+            if (val == "value") {
+                return this.getValue(name);
+            }
             if (val == "variable") {
                 return this.getVariable(name);
             }
@@ -481,6 +485,7 @@ module Survey {
                 delete this.valuesHash[name];
             } else {
                 this.valuesHash[name] = newValue;
+                this.processedTextValues[name.toLowerCase()] = "value";
             }
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue, false);
@@ -536,6 +541,14 @@ module Survey {
             Array.prototype.push.apply(result, this.getPagesByNames(pages));
             Array.prototype.push.apply(result, this.getQuestionsByNames(questions));
             return result;
+        }
+        setTriggerValue(name: string, value: any, isVariable: boolean) {
+            if (!name) return;
+            if (isVariable) {
+                this.setVariable(name, value);
+            } else {
+                this.setValue(name, value);
+            }
         }
     }
 

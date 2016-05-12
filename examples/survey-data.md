@@ -4,12 +4,7 @@ propertiesFile: exampleproperties/data.html
 title: Work with survey data (properties, methods and events).
 ---
 {% capture survey_setup %}
-var survey = new Survey.Survey({ questions: [
-    {type: "text", name: "name", title: "Your name:"},
-    {type: "text", name: "email", title: "Your e-mail"},
-    { type: "checkbox", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4,
-        choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }
-]});
+var survey = new Survey.Survey({% include surveys/survey-data.json %});
 survey.data = {name:"John Doe", email: "johndoe@nobody.com", car:["Ford"]};
 survey.onValueChanged.add(function (sender, options) {
     var el = document.getElementById(options.name);

@@ -5,4 +5,4 @@ canonicalUrl: /examples/
 noSurvey: true
 ---
 
-To see how survey.js works, select examples from the menu on the left.
+To see how survey.js works, please select examples from the menu on the left.

@@ -1,0 +1,6 @@
+{ questions: [
+    {type: "text", name: "name", title: "Your name:"},
+    {type: "text", name: "email", title: "Your e-mail"},
+    { type: "checkbox", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4,
+        choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }
+]}

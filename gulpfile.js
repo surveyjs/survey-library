@@ -32,7 +32,7 @@ var paths = {
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
 
-var copyright = ["/*!",
+var copyright = ["/*!", 
  "* surveyjs - Survey JavaScript library v<%= version %>",
  "* (c) Andrew Telnov - http://surveyjs.org/",
  "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",

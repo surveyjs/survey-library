@@ -9,11 +9,11 @@ class ReactSurveyQuestionradiogroup extends ReactSurveyQuestionradiogroupBase {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <div>
+            <form className={"form-inline"}>
             {this.getItems() }
-                </div>
-        );
+            </form>);
     }
     protected get mainClassName(): string { return "radio"; }
     protected get labelClassName(): string { return "radio"; }
+    protected get textStyle(): any { return { marginLeft: "3px" }; }
 }

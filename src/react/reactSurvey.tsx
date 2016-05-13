@@ -1,11 +1,12 @@
 ﻿/// <reference path="../../typings/react/react.d.ts" />
 /// <reference path="../survey.ts" />
+/// <reference path="reactsurveymodel.tsx" />
 /// <reference path="reactPage.tsx" />
 /// <reference path="reactQuestion.tsx" />
 /// <reference path="reactSurveyNavigation.tsx" />
 
 class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
-    protected survey: Survey.SurveyModel;
+    protected survey: ReactSurveyModel;
     constructor(props: any) {
         super(props);
         this.updateSurvey(props);
@@ -62,19 +63,34 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
     }
 
     protected updateSurvey(newProps: any) {
-        if (newProps && newProps.json) {
-            this.survey = new Survey.SurveyModel(newProps.json);
+        if (newProps) {
+            if (newProps.model) {
+                this.survey = newProps.model;
+            } else {
+                if (newProps.json) {
+                    this.survey = new ReactSurveyModel(newProps.json);
+                }
+            }
         } else {
-            this.survey = new Survey.SurveyModel();
+            this.survey = new ReactSurveyModel();
+        }
+        //set the first page
+        var dummy = this.survey.currentPage;
+        if (newProps && newProps.clientId) {
+            this.survey.clientId = newProps.clientId;
         }
         if (newProps && newProps.data) {
             this.survey.data = newProps.data;
         }
-        this.state = { pageIndexChange: 0, isCompleted: false };
+        this.state = { pageIndexChange: 0, isCompleted: false, modelChanged: 0 };
         this.setSurveyEvents(newProps);
     }
     protected setSurveyEvents(newProps: any) {
         var self = this;
+        this.survey.renderCallback = function () {
+            self.state.modelChanged = self.state.modelChanged + 1;
+            self.setState(self.state);
+        };
         this.survey.onComplete.add((sender) => { self.state.isCompleted = true; self.setState(self.state); });
         this.survey.onCurrentPageChanged.add((sender, options) => {
             self.state.pageIndexChange = self.state.pageIndexChange + 1;

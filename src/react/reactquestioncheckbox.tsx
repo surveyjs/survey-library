@@ -56,9 +56,12 @@ class ReactSurveyQuestioncheckboxItemBase extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.item || !this.question) return null;
-        var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "100%";
+        var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
-        var divStyle = { width: itemWidth, marginRight: marginRight };
+        var divStyle = { marginRight: marginRight };
+        if (itemWidth) {
+            divStyle["width"] = itemWidth;
+        }
         var isChecked = this.question.value && this.question.value.indexOf(this.item.value) > -1;
         var otherItem = (this.item.value === this.question.otherItem.value && isChecked) ? this.renderOther() : null;
         return this.renderCheckbox(isChecked, divStyle, otherItem);

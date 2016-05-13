@@ -31,9 +31,12 @@ class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
     protected get commentClassName(): string { return ""; }
     protected get textStyle(): any { return null; }
     private renderItem(key: string, item: Survey.ItemValue): JSX.Element {
-        var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "100%";
+        var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
-        var divStyle = { width: itemWidth, marginRight: marginRight };
+        var divStyle = { marginRight: marginRight };
+        if (itemWidth) {
+            divStyle["width"] = itemWidth;
+        }
         var isChecked = this.question.value == item.value;
         var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
         return this.renderRadio(key, item, isChecked, divStyle, otherItem);

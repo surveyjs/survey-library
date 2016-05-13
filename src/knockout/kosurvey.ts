@@ -8,7 +8,10 @@ module Survey {
         koProgress: any; koProgressText: any;
 
         constructor(jsonObj: any = null, renderedElement: any = null) {
-            super(jsonObj, renderedElement);
+            super(jsonObj);
+            if (renderedElement) {
+                this.renderedElement = renderedElement;
+            }
             if (typeof ko === 'undefined') throw new Error('knockoutjs library is not loaded.');
             this.render(renderedElement);
         }
@@ -25,6 +28,12 @@ module Survey {
             element.innerHTML = this.getTemplate();
             self.applyBinding();
             self.onRendered.fire(self, {});
+        }
+        public loadSurveyFromService(surveyId: string = null, renderedElement: any = null) {
+            if (renderedElement) {
+                this.renderedElement = renderedElement;
+            }
+            super.loadSurveyFromService(surveyId);
         }
         protected setCompleted() {
             super.setCompleted();
@@ -46,8 +55,8 @@ module Survey {
             this.updateKoCurrentPage();
             super.currentPageChanged(newValue, oldValue);
         }
-        protected onLoadSurveyFromService(element: any) {
-            this.render(element);
+        protected onLoadSurveyFromService() {
+            this.render();
         }
         private applyBinding() {
             if (!this.renderedElement) return;

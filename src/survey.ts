@@ -52,7 +52,7 @@ module Survey {
         public mode: string = "normal";
 
 
-        constructor(jsonObj: any = null, renderedElement: any = null) {
+        constructor(jsonObj: any = null) {
             super();
             var self = this;
             this.textPreProcessor = new TextPreProcessor();
@@ -71,7 +71,7 @@ module Survey {
             if (jsonObj) {
                 this.setJsonObject(jsonObj);
                 if (this.surveyId) {
-                    this.loadSurveyFromService(this.surveyId, renderedElement);
+                    this.loadSurveyFromService(this.surveyId);
                 }
             }
             this.onCreating();
@@ -382,7 +382,7 @@ module Survey {
                 self.onGetResult.fire(self, { success: success, data: data, dataList: dataList, response: response });
             });
         }
-        public loadSurveyFromService(surveyId: string = null, element: any = null) {
+        public loadSurveyFromService(surveyId: string = null) {
             if (surveyId) {
                 this.surveyId = surveyId;
             }
@@ -391,11 +391,11 @@ module Survey {
                 if (success && result) {
                     self.setJsonObject(result);
                     self.notifyAllQuestionsOnValueChanged();
-                    self.onLoadSurveyFromService(element);
+                    self.onLoadSurveyFromService();
                 }
             });
         }
-        protected onLoadSurveyFromService(element: any) {
+        protected onLoadSurveyFromService() {
         }
         private updateVisibleIndexes() {
             this.updatePageVisibleIndexes(this.showPageNumbers);

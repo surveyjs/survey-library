@@ -38,7 +38,7 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;
-        this.question["react"] = this; //TODO
+        this.questionBase["react"] = this; //TODO
         if (!this.questionBase.visible) return null;
         var className = "ReactSurveyQuestion" + this.questionBase.getType();
         var questionRender = this.creator.createQuestionElement(this.questionBase);

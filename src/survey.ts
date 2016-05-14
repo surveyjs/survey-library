@@ -334,17 +334,22 @@ module Survey {
         protected createNewPage(name: string) { return new PageModel(name); }
         private notifyQuestionOnValueChanged(name: string, newValue: any) {
             var questions = this.getAllQuestions();
+            var question = null;
             for (var i: number = 0; i < questions.length; i++) {
                 if (questions[i].name != name) continue;
-                questions[i].onSurveyValueChanged(newValue);
+                question = questions[i];
+                this.doSurveyValueChanged(question, newValue);
             }
-            this.onValueChanged.fire(this, { 'name': name, 'value': newValue });
+            this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
         }
         private notifyAllQuestionsOnValueChanged() {
             var questions = this.getAllQuestions();
             for (var i: number = 0; i < questions.length; i++) {
-                questions[i].onSurveyValueChanged(this.getValue(questions[i].name));
+                this.doSurveyValueChanged(questions[i], this.getValue(questions[i].name));
             }
+        }
+        protected doSurveyValueChanged(question: IQuestion, newValue: any) {
+            question.onSurveyValueChanged(newValue);
         }
         private checkOnPageTriggers() {
             var page = this.currentPage;

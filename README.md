@@ -14,6 +14,14 @@ If you are using bootstrap then go with bootstrap templates:
 ```
 npm install survey-knockout-bootstrap
 ```
+If you use react, then install the react versions:
+```
+npm install survey-react
+```
+```
+npm install survey-react-bootstrap
+```
+
 Or dowload the latest version as zip file [Download](http://surveyjs.org/downloads/surveyjs.zip)
 
 ##Building survey.js from sources

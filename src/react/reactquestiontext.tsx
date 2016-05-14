@@ -19,7 +19,7 @@ class ReactSurveyQuestiontextBase extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <input className={this.mainClassName} type="text" value={this.state.value} onChange={this.handleOnChange} />
+            <input className={this.mainClassName} type="text" value={this.question.value} onChange={this.handleOnChange} />
         );
     }
     protected get mainClassName() { return ""; }

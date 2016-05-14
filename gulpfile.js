@@ -302,7 +302,7 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_ko_dist + 'css'))
       .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko_standard", "build_ko_bootstrap"], "buildTests_ko"));
+gulp.task("makedist", sequence(["sass", "build_ko_standard", "build_ko_bootstrap"], "buildTests_ko", "build_react_standard", "build_react_bootstrap"));
 
 gulp.task("test_ci", function (done) { 
         new Server({ 

@@ -103,7 +103,13 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
                 state.visible = options.question.visible;
                 options.question.react.setState(state);
             }
-            if (newProps && newProps.onCurrentPageChanged) newProps.onCurrentPageChanged(sender, options);
+        });
+        this.survey.onValueChanged.add((sender, options) => {
+            if (options.question && options.question.react) {
+                var state = options.question.react.state;
+                state.value = options.value;
+                options.question.react.setState(state);
+            }
         });
         if (!newProps) return;
         this.survey.onValueChanged.add((sender, options) => {

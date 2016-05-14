@@ -1,0 +1,27 @@
+<div class="examplecontent wrapper wrapper-content">
+    <div class="row">
+            <div {% if page.propertiesFile %}class="col-md-8"{%else%}class="col-md-12"{%endif%}>
+                <h3 class="contenttitle">{{ page.title }}</h3>	
+                {% if page.preSurvey %}
+                    {% include {{page.preSurvey}} %}
+                {% endif %}
+                <div id="surveyContainer" class="contentcontainer  codecontainer" {% if page.noSurvey %}style="display:none"{% endif %}>
+                    <div id="surveyElement"></div>
+                </div>
+                <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
+                    <div id="survey_result"></div>
+                    <input id="btnreRun" type="button" onclick="
+                        document.getElementById('surveyContainer').style.display = '';
+                        document.getElementById('survey_oncomplete').style.display = 'none'; 
+                        reRunSurvey();"
+                        value="Re-run survey"></input>
+                </div>
+                {{ content }}
+            </div>
+            {% if page.propertiesFile %}
+            <div class="col-md-4 exampleoptions">
+                {% include {{page.propertiesFile}} %}
+            </div>
+            {% endif %}
+    </div>
+</div>

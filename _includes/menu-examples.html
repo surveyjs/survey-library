@@ -50,10 +50,16 @@
             ]),
             new ExampleCategory("Survey", [
                 new ExampleItem("Use cookie", "Run survey one time in a browser", "survey-cookie.html"),
+                {% if page.usereact%}
+                {% else %}                
                 new ExampleItem("Change Rendering", "Change question templates", "survey-customtemplate.html"),
+                {% endif %}
                 new ExampleItem("Work with data", "Get/set data from/to survey", "survey-data.html"),
                 new ExampleItem("Survey Options", "Use properties to set up your survey", "survey-options.html"),
+                {% if page.usereact%}
+                {% else %}                
                 new ExampleItem("Custom Navigation", "Use your own navigation", "survey-customnavigation.html"),
+                {% endif %}
                 new ExampleItem("Localization", "Localize your survey", "survey-localization.html"),
                 new ExampleItem("Pre-process title/html", "Use a simple syntax to customize the text", "survey-processtext.html")
             ]),

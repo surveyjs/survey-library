@@ -1,9 +1,21 @@
+{% if page.usereact%}
+<script  type="text/babel">
+{% else %}
 <script type="text/javascript">
+{% endif %}
 /*<![CDATA[*/
 {% if survey_code %}
 {{ survey_code }}
 {% endif %}
 {{ survey_setup }}
+{% if page.usereact%}
+window.survey = survey;
+survey.onComplete.add(function (s) { 
+    var result = "\nThe results are:\n" + JSON.stringify(survey.data);
+    document.getElementById('survey_result').innerHTML = result; 
+    document.getElementById('survey_oncomplete').style.display = '';
+});
+{% endif %}
 {% if survey_events %}
 {{ survey_events }}
 {% endif %}

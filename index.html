@@ -39,7 +39,7 @@ canonicalUrl: /
     </div>
 </div>
 
-<section class="container">
+<section id="steps" class="container">
     <div class="col-lg-12">
         <div class="navy-line"></div>
         <h1>Add Survey into your page.</h1>
@@ -51,19 +51,41 @@ canonicalUrl: /
                 <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}downloads/surveyjs.zip" target="_blank">Download survey.js library</a>
             </div>
             <h2>Or use nmp</h2>
-            <h4>Install nmp package with bootstrap support</h4>
-            <pre><code class="language-markup">npm install survey-knockout-bootstrap</code></pre>
-            <h4>Install nmp package without bootstrap support</h4>
-            <pre><code class="language-markup">npm install survey-knockout</code></pre>
+            <ul class="nav nav-tabs">
+                <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
+                <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+            </ul>
+            <div data-bind="visible:isKnockout">
+                <h4>Install nmp package with bootstrap support</h4>
+                <pre><code class="language-markup">npm install survey-knockout-bootstrap</code></pre>
+                <h4>Install nmp package without bootstrap support</h4>
+                <pre><code class="language-markup">npm install survey-knockout</code></pre>
+            </div>
+            <div data-bind="visible:isReact">
+                <h4>Install nmp package with bootstrap support</h4>
+                <pre><code class="language-markup">npm install survey-react-bootstrap</code></pre>
+                <h4>Install nmp package without bootstrap support</h4>
+                <pre><code class="language-markup">npm install survey-react</code></pre>
+            </div>
         </div>
     </div>
     <div class="row">
        <div class="col-sm-12">
            <h2>Step 2</h2>
-           <h4>Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a></h4> 
-           <div>survey.js uses this MVVM library. The file size is about 50k.</div>
-        <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
-        </code></pre>
+           <h4>Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a> or <a href="https://facebook.github.io/react/">React</a></h4> 
+            <ul class="nav nav-tabs">
+                <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
+                <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+            </ul>
+            <div data-bind="visible:isKnockout">
+                <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
+            </div>
+            <div data-bind="visible:isReact">
+                <pre><code class="language-markup">&lt;script src="https://fb.me/react-0.14.8.js"&gt;&lt;/script&gt;
+&lt;script src="https://fb.me/react-dom-0.14.8.js"&gt;&lt;/script&gt;
+&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"&gt;&lt;/script&gt;                    
+</code></pre>
+            </div>
         </div>
     </div>
     <div class="row">
@@ -72,7 +94,11 @@ canonicalUrl: /
            <h4>Add link(s) to survey.js</h4>
        </div>
     </div>
-    <div class="row">
+    <ul class="nav nav-tabs">
+        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
+        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+    </ul>
+    <div class="row"  data-bind="visible:isKnockout">
        <div class="col-sm-6">
            <h3>For Bootstrap web sites</h3>
         <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.bootstrap.min.js"&gt;&lt;/script&gt;</code></pre>
@@ -81,6 +107,17 @@ canonicalUrl: /
            <h3>For others web sites</h3>
         <pre><code class="language-markup">&lt;link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" /&gt;
 &lt;script src="{{ page.pathprefix }}js/survey.min.js"&gt;&lt;/script&gt;</code></pre>
+       </div>
+    </div>
+    <div class="row"  data-bind="visible:isReact">
+       <div class="col-sm-6">
+           <h3>For Bootstrap web sites</h3>
+        <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.react.bootstrap.min.js"&gt;&lt;/script&gt;</code></pre>
+       </div>
+       <div class="col-sm-6">
+           <h3>For others web sites</h3>
+        <pre><code class="language-markup">&lt;link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" /&gt;
+&lt;script src="{{ page.pathprefix }}js/survey.react.min.js"&gt;&lt;/script&gt;</code></pre>
        </div>
     </div>
     <div class="row">
@@ -106,7 +143,11 @@ canonicalUrl: /
            <h4>Show Survey on the page</h4>
         </div>
     </div>
-    <div class="row">
+    <ul class="nav nav-tabs">
+        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
+        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+    </ul>
+    <div class="row"  data-bind="visible:isKnockout">
        <div class="col-sm-6">
            <h3>As Survey Window</h3>
            <pre><code class="language-js">var surveyWindow = new Survey.SurveyWindow(surveyJSON);
@@ -116,11 +157,26 @@ surveyWindow.survey.onComplete.add(sendDataToServer);</code></pre>
        </div>
        <div class="col-sm-6">
            <h3>Inside your web page</h3>
-           <pre><code class="language-markup">&lt;div id="surveyContainer"&gt; &lt;/div&gt;</code></pre>
+           <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
            <pre><code class="language-js">var survey = new Survey.Survey(surveyJSON, "surveyContainer");
 //Use onComplete event to save the data           
 survey.onComplete.add(sendDataToServer);
 </code></pre>
+       </div>
+    </div>
+    <div class="row"  data-bind="visible:isReact">
+       <div class="col-sm-6">
+           <h3>As Survey Window</h3>
+           <pre><code class="language-js">ReactDOM.render(
+  &lt;ReactSurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;, 
+  document.getElementById("surveyContainer"));</code></pre>
+       </div>
+       <div class="col-sm-6">
+           <h3>Inside your web page</h3>
+           <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
+           <pre><code class="language-js">ReactDOM.render(
+  &lt;ReactSurvey json={surveyJSON} onComplete={sendDataToServer}/&gt;,
+  document.getElementById("surveyContainer"));</code></pre>
        </div>
     </div>
 
@@ -175,7 +231,21 @@ survey.onComplete.add(sendDataToServer);
 
 
 <script type="text/javascript">
-    var     surveyJSON = {% include surveys/survey-about.json %};
+    var ViewModel = function() {
+        var self = this;
+        this.platform = ko.observable("knockout");
+        this.isKnockout = ko.computed(function() { return self.platform() == "knockout"; });
+        this.isReact = ko.computed(function() { return self.platform() == "react"; });
+        this.setKnockout = function() {
+            self.platform("knockout");
+        }
+        this.setReact = function() {
+            self.platform("react");
+        }
+    }   
+    ko.applyBindings(new ViewModel(), document.getElementById("steps"));
+
+    var  surveyJSON = {% include surveys/survey-about.json %};
     var survey = new Survey.Survey(surveyJSON, "surveyContainer");
     survey.onComplete.add(function (s) {
         document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);
@@ -187,5 +257,5 @@ survey.onComplete.add(sendDataToServer);
     surveyWindow.survey.onComplete.add(function (s) {
         alert("The survey result: " + JSON.stringify(s.data));
         s.sendResult('d2ab6936-6764-4ff1-a5a2-baf0a1d919bd');
-    });        
+    });
 </script>

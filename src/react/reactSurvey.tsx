@@ -30,7 +30,7 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
         var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
         var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null;
-        var buttons = (currentPage) ? this.renderNavigation() : null;
+        var buttons = (currentPage && this.survey.showNavigationButtons) ? this.renderNavigation() : null;
         if (!currentPage) {
             currentPage = this.renderEmptySurvey();
         }

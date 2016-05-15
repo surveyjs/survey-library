@@ -1,107 +1,46 @@
+{% assign activeexample = ''%}
+{% assign activecategory = ''%}
+{% for category in site.data.examples.categories %}
+    {% for example in category.items %}
+        {% if page.url contains example.url %}
+            {% assign activeexample = example.name %}
+            {% assign activecategory = category.name %}
+        {% endif %}
+    {% endfor %}    
+{% endfor %}    
 <nav class="navbar-default navbar-static-side examplesidebar" role="navigation">
     <div class="sidebar-collapse">
-        <ul class="nav metismenu" id="side-menu" data-bind="foreach: categories">
-            <li data-bind="css:{active: selected}">
-                <a data-bind="click:onClick" href="#">
-                        <span data-bind="text: name, css: {leftmenucategorytitleactive: expanded()}"></span>
-                    <span class="glyphicon pull-right" aria-hidden="true" data-bind="css:{'glyphicon-chevron-up': expanded(), 'glyphicon-chevron-down': !expanded()}"></span>
+        <ul class="nav metismenu" id="side-menu">
+        {% for category in site.data.examples.categories %}
+            <li {% if category.name == activecategory%}class="active"{% endif%}>
+                <a href="#" onclick="doExpand('{{category.id}}')">
+                    <span>{{category.name}}</span>
+                    <span id="img{{category.id}}" class="glyphicon pull-right {% if category.name == activecategory%}glyphicon-chevron-up{%else%}glyphicon-chevron-down{% endif%}" aria-hidden="true"></span>
                 </a>
-                <ul class="nav nav-second-level"  data-bind="foreach: items, visible:expanded">
-                    <li data-bind="css: {active: selected}">
-                        <a data-bind="attr: {href: url}">
-                            <span data-bind="text:name"></span>
-                            <div><small data-bind="text:text"></small></div>
+                <ul id="examples{{category.id}}" class="nav nav-second-level"{% if category.name != activecategory%}style="display:none"{% endif%}>
+                {% for example in category.items %}
+                    <li {% if example.name == activeexample%}class="active"{% endif%}>
+                        <a href="{{example.url}}">
+                            <span>{{example.name}}</span>
+                            <div><small>{{example.text}}</small></div>
                         </a>
                     </li>
+                {% endfor %}    
                 </ul>
             </li>
-        </ul>
+        {% endfor %}
+        </ul>        
     </div>
 </nav>
 
 <script type="text/javascript">
-    var ExampleItem = function(name, text, url) {
-        this.name = name;
-        this.text = text;
-        this.url = url;
-        this.selected = false;
-    };
-    var ExampleCategory = function(name, items) {
-        this.name = name;
-        this.items = items;
-        this.selected = false;
-        this.expanded = ko.observable(false);
-        var self = this;
-        this.onClick = function() { self.expanded(!self.expanded());}
-    };
-    var ViewModel = function(){
-        this.categories = [
-            new ExampleCategory("Question Types", [
-                new ExampleItem("Radio group", "One choice question", "questiontype-radiogroup.html"),
-                new ExampleItem("Dropdown", "One choice question", "questiontype-dropdown.html"),
-                new ExampleItem("Checkboxes", "Multiple choices question", "questiontype-checkbox.html"),
-                new ExampleItem("Matrix", "Matrix question", "questiontype-matrix.html"),
-                new ExampleItem("Matrixdropdown", "Matrix question with multiple choices", "questiontype-matrixdropdown.html"),
-                new ExampleItem("Multiple Text", "Multiple text question", "questiontype-multipletext.html"),
-                new ExampleItem("Rating", "Rating question", "questiontype-rating.html"),
-                new ExampleItem("Text", "Text question", "questiontype-text.html"),
-                new ExampleItem("Comment", "Comment question", "questiontype-comment.html"),
-                new ExampleItem("Html", "Html Elements", "questiontype-html.html")
-            ]),
-            new ExampleCategory("Survey", [
-                new ExampleItem("Use cookie", "Run survey one time in a browser", "survey-cookie.html"),
-                {% if page.usereact%}
-                {% else %}                
-                new ExampleItem("Change Rendering", "Change question templates", "survey-customtemplate.html"),
-                {% endif %}
-                new ExampleItem("Work with data", "Get/set data from/to survey", "survey-data.html"),
-                new ExampleItem("Survey Options", "Use properties to set up your survey", "survey-options.html"),
-                {% if page.usereact%}
-                {% else %}                
-                new ExampleItem("Custom Navigation", "Use your own navigation", "survey-customnavigation.html"),
-                {% endif %}
-                new ExampleItem("Localization", "Localize your survey", "survey-localization.html"),
-                new ExampleItem("Pre-process title/html", "Use a simple syntax to customize the text", "survey-processtext.html")
-            ]),
-            new ExampleCategory("Validation", [
-                new ExampleItem("Standard validators", "Example of using standard validators", "validators-standard.html"),
-                new ExampleItem("Create custom validators", "Example of creating and using a custom validator", "validators-custom.html"),
-                new ExampleItem("Validate on event", "Example of using OnValidatateQuestion event", "validators-event.html")
-            ]),
-            new ExampleCategory("Triggers", [
-                new ExampleItem("Visible Trigger", "Show/Hide question(s) on survey running", "trigger-visible.html"),
-                new ExampleItem("Complete Trigger", "Complete the survey from any page", "trigger-complete.html"),
-                new ExampleItem("SetValue Trigger", "On changing the question, change values of other questions", "trigger-setvalue.html")
-            ]),
-            new ExampleCategory("Using dxService", [
-                new ExampleItem("Load Survey", "Load survey json from the service", "service-load.html"),
-                new ExampleItem("Save Survey Result", "Save survey result to the service", "service-send.html"),
-                new ExampleItem("Get Survey Result", "Get Survey Result after sending results", "service-result.html"),
-                new ExampleItem("Run survey one time", "Use your user id to run the survey one time and optionally store result on every page", "service-oneperuser.html")
-            ]),
-            new ExampleCategory("Real examples", [
-                new ExampleItem("Product Feedback", "Three pages survey", "real-productfeedback.html"),
-                new ExampleItem("DevExpress Winforms Skins", "The real survey ran in DevExpress", "real-devexpresswinformsskins.html")
-            ])
-        ]
-        this.findSelected = function() {
-            var loc = window.location.href;
-            var pos = loc.lastIndexOf('/');
-            loc = loc.substr(pos + 1);
-            for(var i = 0; i < this.categories.length; i ++) {
-                var category = this.categories[i];
-                for(var j = 0; j < category.items.length; j ++) {
-                    var item = category.items[j];
-                    if(loc == item.url) {
-                        item.selected = true;
-                        category.selected = true;
-                        category.expanded(true);
-                        return;
-                    }
-                }
-            }
-        }
-        this.findSelected();
-    };
-    ko.applyBindings(new ViewModel(), document.getElementById("examples"));
+    function doExpand(categoryId) {
+        var ulCategory = document.getElementById("examples" + categoryId);
+        if(!ulCategory) return;
+        var display = ulCategory.style.display;
+        ulCategory.style.display = display == "none" ? "" : "none";
+        var imgCategory = document.getElementById("img" + categoryId);
+        if(!imgCategory) return;
+        imgCategory.className = display == "none" ? "glyphicon pull-right glyphicon-chevron-up" : "glyphicon pull-right glyphicon-chevron-down";
+    }
 </script>

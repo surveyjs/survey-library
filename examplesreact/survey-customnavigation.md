@@ -17,8 +17,8 @@ function setNavigationVisibility(survey) {
 }
 
 ReactDOM.render(<ReactSurvey model={survey} onCurrentPageChanged={setNavigationVisibility} />, document.getElementById("surveyElement"));
-setNavigationVisibility(sender);
 
+setNavigationVisibility(survey);
 {% endcapture %}
 
 {% include live-example-code.html %}

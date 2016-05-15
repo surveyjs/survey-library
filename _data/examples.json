@@ -1,0 +1,51 @@
+{
+    "categories" : [
+         { "name" : "Question Types", "id": "types",
+           "items": [
+                { "name": "Radio group", "text" : "One choice question", "url": "questiontype-radiogroup.html"},
+                { "name": "Dropdown", "text" : "One choice question", "url": "questiontype-dropdown.html"},
+                { "name": "Checkboxes", "text" : "Multiple choices question", "url": "questiontype-checkbox.html"},
+                { "name": "Matrix", "text" : "Matrix question", "url": "questiontype-matrix.html"},
+                { "name": "Matrixdropdown", "text" : "Matrix question with multiple choices", "url": "questiontype-matrixdropdown.html"},
+                { "name": "Multiple Text", "text" : "Multiple text question", "url": "questiontype-multipletext.html"},
+                { "name": "Rating", "text" : "Rating question", "url": "questiontype-rating.html"},
+                { "name": "Text", "text" : "Text question", "url": "questiontype-text.html"},
+                { "name": "Comment", "text" : "Comment question", "url": "questiontype-comment.html"},
+                { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"}
+            ]},
+            { "name": "Survey", "id": "survey",
+              "items": [
+                {"name": "Use cookie", "text": "Run survey one time in a browser", "url": "survey-cookie.html"},
+                {"name": "Change Rendering", "text": "Change question templates", "url": "survey-customtemplate.html"},
+                {"name": "Work with data", "text": "Get/set data from/to survey", "url": "survey-data.html"},
+                {"name": "Survey Options", "text": "Use properties to set up your survey", "url": "survey-options.html"},
+                {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
+                {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
+                {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"}
+            ]},
+            { "name": "Validation", "id": "validation", 
+              "items": [
+                {"name": "Standard validators", "text": "Example of using standard validators", "url": "validators-standard.html"},
+                {"name": "Create custom validators", "text": "Example of creating and using a custom validator", "url": "validators-custom.html"},
+                {"name": "Validate on event", "text": "Example of using OnValidatateQuestion event", "url": "validators-event.html"}
+            ]},
+            { "name": "Triggers", "id": "triggers", 
+              "items": [
+                {"name": "Visible Trigger", "text": "Show/Hide question(s) on survey running", "url": "trigger-visible.html"},
+                {"name": "Complete Trigger", "text": "Complete the survey from any page", "url": "trigger-complete.html"},
+                {"name": "SetValue Trigger", "text": "On changing the question, change values of other questions", "url": "trigger-setvalue.html"}
+            ]},
+            { "name": "Using dxService", "id": "dxservice", 
+              "items": [
+                {"name": "Load Survey", "text": "Load survey json from the service", "url": "service-load.html"},
+                {"name": "Save Survey Result", "text": "Save survey result to the service", "url": "service-send.html"},
+                {"name": "Get Survey Result", "text": "Get Survey Result after sending results", "url": "service-result.html"},
+                {"name": "Run survey one time", "text": "Use your user id to run the survey one time and optionally store result on every page", "url": "service-oneperuser.html"}
+            ]},
+            { "name": "Real Examples", "id": "real", 
+              "items":[
+                {"name": "Product Feedback", "text": "Three pages survey", "url": "real-productfeedback.html"},
+                {"name": "DevExpress Winforms Skins", "text": "The real survey ran in DevExpress", "url": "real-devexpresswinformsskins.html"}
+            ]}
+        ]
+}        

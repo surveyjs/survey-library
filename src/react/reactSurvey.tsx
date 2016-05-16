@@ -16,6 +16,7 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
     }
     render(): JSX.Element {
         if (this.survey.state == "completed") return this.renderCompleted();
+        if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
     protected get mainClassName(): string { return ""; }
@@ -23,6 +24,10 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
     protected get titleClassName(): string { return ""; }
     protected renderCompleted(): JSX.Element {
         var htmlValue = { __html: this.survey.processedCompletedHtml }
+        return (<div dangerouslySetInnerHTML={htmlValue} />);
+    }
+    protected renderLoading(): JSX.Element {
+        var htmlValue = { __html: this.survey.processedLoadingHtml }
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderSurvey(): JSX.Element {

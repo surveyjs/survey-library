@@ -33,6 +33,7 @@ module Survey {
         private showQuestionNumbersValue: string = "on";
         private localeValue: string = "";
         private isCompleted: boolean = false;
+        private isLoading: boolean = false;
         private processedTextValues: HashTable<any> = {};
         private textPreProcessor: TextPreProcessor;
 
@@ -167,6 +168,7 @@ module Survey {
             
         }
         public get state(): string {
+            if (this.isLoading) return "loading";
             if (this.isCompleted) return "completed";
             return (this.currentPage) ? "running" : "empty"
         }
@@ -252,6 +254,9 @@ module Survey {
                 return this.processHtml(this.completedHtml);
             }
             return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
+        }
+        public get processedLoadingHtml(): string {
+            return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
         }
         public get progressText(): string {
             if (this.currentPage == null) return "";
@@ -392,13 +397,18 @@ module Survey {
                 this.surveyId = surveyId;
             }
             var self = this;
+            this.isLoading = true;
+            this.onLoadingSurveyFromService();
             new dxSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
+                self.isLoading = false;
                 if (success && result) {
                     self.setJsonObject(result);
                     self.notifyAllQuestionsOnValueChanged();
                     self.onLoadSurveyFromService();
                 }
             });
+        }
+        protected onLoadingSurveyFromService() {
         }
         protected onLoadSurveyFromService() {
         }

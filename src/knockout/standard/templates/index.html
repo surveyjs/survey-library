@@ -15,6 +15,9 @@
     <!-- ko if: koState() == "completed" -->
     <div data-bind="html: processedCompletedHtml"></div>
     <!-- /ko -->
+    <!-- ko if: koState() == "loading" -->
+    <div data-bind="html: processedLoadingHtml"></div>
+    <!-- /ko -->
     <!-- ko if: koState() == "empty" -->
     <div data-bind="text:emptySurveyText"></div>
     <!-- /ko -->

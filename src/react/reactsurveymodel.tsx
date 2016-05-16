@@ -13,4 +13,7 @@ class ReactSurveyModel extends Survey.SurveyModel {
     protected onLoadSurveyFromService() {
         this.render();
     }
+    protected onLoadingSurveyFromService() {
+        this.render();
+    }
 }

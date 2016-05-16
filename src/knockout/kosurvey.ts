@@ -24,7 +24,7 @@ module Survey {
                 this.renderedElement = element;
             }
             element = this.renderedElement;
-            if (!element || this.isEmpty) return;
+            if (!element) return;
             element.innerHTML = this.getTemplate();
             self.applyBinding();
             self.onRendered.fire(self, {});
@@ -56,6 +56,9 @@ module Survey {
             super.currentPageChanged(newValue, oldValue);
         }
         protected onLoadSurveyFromService() {
+            this.render();
+        }
+        protected onLoadingSurveyFromService() {
             this.render();
         }
         private applyBinding() {

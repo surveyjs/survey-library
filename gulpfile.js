@@ -68,7 +68,7 @@ var config_ko_bootstrap = {
 }
 var config_react_standard = {
     name: "survey-react",
-    keywords: ["react"],
+    keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
     mainJSfile: "survey.react.js",
@@ -78,7 +78,7 @@ var config_react_standard = {
 
 var config_react_bootstrap = {
     name: "survey-react-bootstrap",
-    keywords: ["react", "Bootstrap"],
+    keywords: ["react", "react-component", "Bootstrap"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
     mainJSfile : "survey.react.bootstrap.js",

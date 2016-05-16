@@ -6,7 +6,8 @@
     "Survey",
     "JavaScript",
     "Library",
-    "react"
+    "react",
+    "react-component"
   ],
   "homepage": "https://surveyjs.org/",
   "license": "MIT",

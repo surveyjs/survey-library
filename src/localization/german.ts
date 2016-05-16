@@ -7,6 +7,7 @@ module Survey {
         progressText: "Seite {0} von {1}",
         emptySurvey: "Es gibt keine sichtbare Frage.",
         completingSurvey: "Vielen Dank für das Ausfüllen des Fragebogens!",
+        loadingSurvey: "Der Fragebogen wird vom Server geladen...",
         otherItemText: "Andere (beschreiben)",
         optionsCaption: "Wählen...",
         requiredError: "Bitte antworten Sie auf die Frage.",

@@ -8,7 +8,6 @@ var survey = new Survey.Survey({% include surveys/survey-cookie.json %});
 
 {% endcapture %}
 
-
 {% include live-example-code.html %}
 <div class="jumbotron">
     <p>

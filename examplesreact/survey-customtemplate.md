@@ -12,7 +12,7 @@ var MyReactSurveyQuestionradiogroup = (function (_super) {
     MyReactSurveyQuestionradiogroup.prototype.render = function () {
         if (!this.question)
             return null;
-        return (React.createElement("div", {className: "btn-group", ref: "toggleInput"}, this.getItems()));
+        return (React.createElement("form", {className: "btn-group", ref: "toggleInput"}, this.getItems()));
     };
     MyReactSurveyQuestionradiogroup.prototype.componentDidMount = function() {
         this.refs.toggleInput.setAttribute('data-toggle', 'buttons');
@@ -22,28 +22,27 @@ var MyReactSurveyQuestionradiogroup = (function (_super) {
         if(isChecked) className += " active";
         return (React.createElement("label", {key: key, style: divStyle, className: className}, 
             React.createElement("input", {type: "radio", checked: isChecked, value: item.value, onChange: this.handleOnChange}), 
-            React.createElement("span", {style: this.textStyle}, item.text), 
+            React.createElement("span", {}, item.text), 
             otherItem));
     };
     return MyReactSurveyQuestionradiogroup;
 }(ReactSurveyQuestionradiogroup));
 
-var ReactSurveyQuestioncheckboxItem = (function (_super) {
-    __extends(ReactSurveyQuestioncheckboxItem, _super);
-    function ReactSurveyQuestioncheckboxItem(props) {
+var MyReactSurveyQuestioncheckboxItem = (function (_super) {
+    __extends(MyReactSurveyQuestioncheckboxItem, _super);
+    function MyReactSurveyQuestioncheckboxItem(props) {
         _super.call(this, props);
     }
-    ReactSurveyQuestioncheckboxItem.prototype.renderCheckbox = function (isChecked, divStyle, otherItem) {
+    MyReactSurveyQuestioncheckboxItem.prototype.renderCheckbox = function (isChecked, divStyle, otherItem) {
         var className = "btn btn-default";
         if(isChecked) className += " active";
         return (React.createElement("label", {className: className, style: divStyle}, 
             React.createElement("input", {type: "checkbox", checked: isChecked, onChange: this.handleOnChange}), 
-            React.createElement("span", {style: this.textStyle}, this.item.text), 
+            React.createElement("span", {}, this.item.text), 
             otherItem));
     };
-    return ReactSurveyQuestioncheckboxItem;
-}(ReactSurveyQuestioncheckboxItemBase));
-
+    return MyReactSurveyQuestioncheckboxItem;
+}(ReactSurveyQuestioncheckboxItem));
 
 var MyReactSurveyQuestioncheckbox = (function (_super) {
     __extends(MyReactSurveyQuestioncheckbox, _super);
@@ -59,7 +58,7 @@ var MyReactSurveyQuestioncheckbox = (function (_super) {
         this.refs.toggleInput.setAttribute('data-toggle', 'buttons');
     };    
     MyReactSurveyQuestioncheckbox.prototype.renderItem = function (key, item) {
-        return React.createElement(ReactSurveyQuestioncheckboxItem, {key: key, question: this.question, item: item});
+        return React.createElement(MyReactSurveyQuestioncheckboxItem, {key: key, question: this.question, item: item, css: this.css, rootCss: this.rootCss });
     };
     return MyReactSurveyQuestioncheckbox;
 }(ReactSurveyQuestioncheckbox));
@@ -69,15 +68,14 @@ var MyReactSurvey = (function (_super) {
     function MyReactSurvey(props) {
         _super.call(this, props);
     }
-    ReactSurveyBase.prototype.createQuestionElement = function (question) {
+    MyReactSurvey.prototype.getReactQuestionClass = function (question) {
         if(question.getType() == "radiogroup") {
-            return React.createElement(MyReactSurveyQuestionradiogroup, { question: question });
+            return MyReactSurveyQuestionradiogroup;
         }
         if(question.getType() == "checkbox") {
-            return React.createElement(MyReactSurveyQuestioncheckbox, { question: question });
+            return MyReactSurveyQuestioncheckbox;
         }
-        var className = "ReactSurveyQuestion" + question.getType();
-        return React.createElement(window[className], { question: question });
+        return _super.prototype.getReactQuestionClass(question);
     };
     return MyReactSurvey;
 }(ReactSurvey));

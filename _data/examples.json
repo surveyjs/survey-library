@@ -16,6 +16,7 @@
             { "name": "Survey", "id": "survey",
               "items": [
                 {"name": "Use cookie", "text": "Run survey one time in a browser", "url": "survey-cookie.html"},
+                {"name": "Custom css", "text": "Use you own css classes", "url": "survey-customcss.html"},
                 {"name": "Change Rendering", "text": "Change question templates", "url": "survey-customtemplate.html"},
                 {"name": "Work with data", "text": "Get/set data from/to survey", "url": "survey-data.html"},
                 {"name": "Survey Options", "text": "Use properties to set up your survey", "url": "survey-options.html"},

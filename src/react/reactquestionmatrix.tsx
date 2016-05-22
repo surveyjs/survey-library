@@ -1,14 +1,17 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_matrix.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionmatrixBase extends React.Component<any, any> {
+class ReactSurveyQuestionmatrix extends React.Component<any, any> {
     private question: Survey.QuestionMatrixModel;
+    protected css: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -27,7 +30,7 @@ class ReactSurveyQuestionmatrixBase extends React.Component<any, any> {
             rows.push(<ReactSurveyQuestionmatrixRow key={key} question={this.question} row={row} />);
         }
         return (
-            <table className={this.mainClassName}>
+            <table className={this.css.root}>
                 <thead>
                     <tr>
                         {firstTH}
@@ -40,7 +43,6 @@ class ReactSurveyQuestionmatrixBase extends React.Component<any, any> {
            </table>
         );
     }
-    protected get mainClassName() { return ""; }
 }
 
 class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {

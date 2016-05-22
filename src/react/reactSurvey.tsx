@@ -7,8 +7,11 @@
 
 class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
     protected survey: ReactSurveyModel;
+    protected css: any;
     constructor(props: any) {
         super(props);
+        this.css = this.createCssObject();
+        if (!this.css) throw "You should not return null for createCssObject() method.";
         this.updateSurvey(props);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -19,9 +22,7 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
-    protected get mainClassName(): string { return ""; }
-    protected get mainPageClassName(): string { return ""; }
-    protected get titleClassName(): string { return ""; }
+    protected createCssObject(): any { return null; }
     protected renderCompleted(): JSX.Element {
         var htmlValue = { __html: this.survey.processedCompletedHtml }
         return (<div dangerouslySetInnerHTML={htmlValue} />);
@@ -40,28 +41,28 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
             currentPage = this.renderEmptySurvey();
         }
         return (
-            <div className={this.mainClassName}>
-            {title}
-            {topProgress}
-            <div className={this.mainPageClassName}>
-                {currentPage}
+            <div className={this.css.root}>
+                {title}
+                <div className={this.css.body}>
+                    {topProgress}
+                    {currentPage}
+                    {bottomProgress}
                 </div>
-            {bottomProgress}
-            {buttons}
-                </div>
+                {buttons}
+            </div>
         );
     }
     protected renderTitle(): JSX.Element {
-        return <div className={this.titleClassName}><h3>{this.survey.title}</h3></div>;
+        return <div className={this.css.header}><h3>{this.survey.title}</h3></div>;
     }
     protected renderPage(): JSX.Element {
-        return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} creator={this} />;
+        return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
     }
     protected renderProgress(isTop: boolean): JSX.Element {
         return null;
     }
     protected renderNavigation(): JSX.Element {
-        return null;
+        return <ReactSurveyNavigation survey = {this.survey} css={this.css}/>;
     }
     protected renderEmptySurvey(): JSX.Element {
         return (<span>{this.survey.emptySurveyText}</span>);
@@ -79,14 +80,15 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         } else {
             this.survey = new ReactSurveyModel();
         }
+        if (newProps) {
+            if (newProps.clientId) this.survey.clientId = newProps.clientId;
+            if (newProps.data) this.survey.data = newProps.data;
+            if (newProps.css) this.survey.mergeCss(newProps.css, this.css);
+        }
+
         //set the first page
         var dummy = this.survey.currentPage;
-        if (newProps && newProps.clientId) {
-            this.survey.clientId = newProps.clientId;
-        }
-        if (newProps && newProps.data) {
-            this.survey.data = newProps.data;
-        }
+
         this.state = { pageIndexChange: 0, isCompleted: false, modelChanged: 0 };
         this.setSurveyEvents(newProps);
     }
@@ -144,13 +146,17 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
             this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
         }
     }
-    //IReactSurveyCreator
-    public createQuestion(question: Survey.QuestionBase): JSX.Element {
-        return <ReactSurveyQuestionBase key={question.name} question={question} creator={this} />;
-    }
-    public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
+    protected getReactQuestionClass(question: Survey.QuestionBase): any {
         var className = "ReactSurveyQuestion" + question.getType();
-        return React.createElement(window[className], { question: question });
+        return window[className];
+    }
+    //IReactSurveyCreator
+    public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
+        var questionCss = this.css[question.getType()];
+        return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css });
+    }
+    public renderError(key: string, errorText: string): JSX.Element {
+        return <div key={key} className={this.css.error.item}>{errorText}</div>;
     }
 
 }

@@ -2,20 +2,33 @@
 /// <reference path="../question_radiogroup.ts" />
 // <reference path="../question_baseselect.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
+class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
     protected question: Survey.QuestionRadiogroupModel;
+    protected css: any;
+    protected rootCss: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
+        this.rootCss = props.rootCss;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
+        this.rootCss = nextProps.rootCss;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     handleOnChange(event) {
         this.question.value = event.target.value;
         this.setState({ value: this.question.value });
+    }
+    render(): JSX.Element {
+        if (!this.question) return null;
+        return (
+            <form className={this.css.root}>
+            {this.getItems() }
+            </form>);
     }
     protected getItems(): Array<any> {
         var items = [];
@@ -26,10 +39,7 @@ class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
         }
         return items;
     }
-    protected get mainClassName(): string { return ""; }
-    protected get labelClassName(): string { return ""; }
-    protected get commentClassName(): string { return ""; }
-    protected get textStyle(): any { return null; }
+    protected get textStyle(): any { return { marginLeft: "3px" }; }
     private renderItem(key: string, item: Survey.ItemValue): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
@@ -42,8 +52,8 @@ class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
         return this.renderRadio(key, item, isChecked, divStyle, otherItem);
     }
     protected renderRadio(key: string, item: Survey.ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
-        return (<div key={key} className={this.mainClassName} style={divStyle}>
-                <label className={this.labelClassName}>
+        return (<div key={key} className={this.css.item} style={divStyle}>
+                <label className={this.css.item}>
                     <input type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
                     <span style={this.textStyle}>{item.text}</span>
                     </label>
@@ -51,6 +61,6 @@ class ReactSurveyQuestionradiogroupBase extends React.Component<any, any> {
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.commentClassName}><ReactSurveyQuestionCommentItem  question={this.question} /></div>);
+        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }

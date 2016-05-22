@@ -448,6 +448,26 @@ module Survey.Tests {
         survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}{val1}</div>";
         assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
     });
+    QUnit.test("merge values", function (assert) {
+        class MySurvey extends SurveyModel {
+            constructor() {
+                super();
+            }
+            public doMergeValues(src: any, dest: any) {
+                super.mergeValues(src, dest);
+            }
+        }
+        var survey = new MySurvey();
+        var dest = {};
+        survey.doMergeValues({ val: 1 }, dest);
+        assert.deepEqual(dest, { val: 1 });
+
+        survey.doMergeValues({ val2: { val1: "str" } }, dest);
+        assert.deepEqual({ val: 1, val2: { val1: "str" } }, dest);
+
+        survey.doMergeValues({ val2: { val2: 2 } }, dest);
+        assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
+    });
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");

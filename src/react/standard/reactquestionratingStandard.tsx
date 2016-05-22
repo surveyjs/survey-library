@@ -3,9 +3,13 @@
 /// <reference path="../../../typings/react/react.d.ts" />
 class ReactSurveyQuestionrating extends React.Component<any, any> {
     private question: Survey.QuestionRatingModel;
+    protected css: any;
+    protected rootCss: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
+        this.rootCss = props.rootCss;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     handleOnChange(event) {
@@ -14,6 +18,8 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
+        this.rootCss = nextProps.rootCss;
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -31,7 +37,7 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
         var comment = this.question.hasOther ? this.renderOther() : null;
         return (
             <div>
-                <table className="sv_q_rating">
+                <table className={this.css.root}>
                     <thead>
                         <tr>
                             <th></th>
@@ -52,6 +58,6 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
         );
     }
     protected renderOther(): JSX.Element {
-        return <div><ReactSurveyQuestionCommentItem question={this.question}/></div>;
+        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }

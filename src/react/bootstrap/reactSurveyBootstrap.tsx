@@ -2,22 +2,40 @@
 /// <reference path="../../survey.ts" />
 /// <reference path="../reactSurvey.tsx" />
 /// <reference path="reactSurveyProgressBootstrap.tsx" />
-/// <reference path="reactSurveyNavigationBootstrap.tsx" />
-/// <reference path="reactQuestionBootstrap.tsx" />
 
 class ReactSurvey extends ReactSurveyBase {
     constructor(props: any) {
         super(props);
     }
-    public createQuestion(question: Survey.QuestionBase): JSX.Element {
-        return <ReactSurveyQuestion key={question.name} question={question} creator={this} />;
+    public renderError(key: string, errorText: string): JSX.Element {
+        return <div  key={key}>
+                <span className={this.css.error.item} aria-hidden="true"></span>
+                <span> {errorText}</span>
+            </div>
     }
     protected renderProgress(isTop: Boolean): JSX.Element {
-        return <ReactSurveyProgress survey = {this.survey} isTop = {isTop} />;
+        return <ReactSurveyProgress survey = {this.survey} css={this.css} isTop = {isTop} />;
     }
-    protected renderNavigation(): JSX.Element {
-        return <ReactSurveyNavigation survey = {this.survey}/>;
+    protected createCssObject(): any {
+        return {
+            header: "panel-heading",
+            body: "panel-body",
+            footer: "panel-footer",
+            navigationButton: "button",
+            progress: "progress center-block",
+            pageTitle: "",
+            question: { root: "", title: "", comment: "form-control" },
+            error: { root: "alert alert-danger", item: "glyphicon glyphicon-exclamation-sign" },
+
+            checkbox: { root: "form-inline", item: "checkbox", other: "" },
+            comment: "form-control",
+            dropdown: "form-control",
+            matrix: { root: "table" },
+            matrixdropdown: { root: "table" },
+            multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
+            radiogroup: { root: "form-inline", item: "radio", other: "" },
+            rating: { root: "btn-group", item: "btn btn-default" },
+            text: "form-control"
+        };
     }
-    protected get titleClassName(): string { return "panel-heading"; }
-    protected get mainPageClassName(): string { return "panel-body"; }
 }

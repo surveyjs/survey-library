@@ -1,14 +1,27 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_checkbox.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestioncheckboxBase extends React.Component<any, any> {
+class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
     protected question: Survey.QuestionCheckboxModel;
+    protected css: any;
+    protected rootCss: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
+        this.rootCss = props.rootCss;
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
+        this.rootCss = nextProps.rootCss;
+    }
+    render(): JSX.Element {
+        if (!this.question) return null;
+        return (
+            <form className={this.css.root}>
+            {this.getItems() }
+                </form>);
     }
     protected getItems(): Array<any> {
         var items = [];
@@ -19,21 +32,31 @@ class ReactSurveyQuestioncheckboxBase extends React.Component<any, any> {
         }
         return items;
     }
+    protected get textStyle(): any { return null; }
     protected renderItem(key: string, item: any): JSX.Element {
-        return <ReactSurveyQuestioncheckboxItemBase key={key} question={this.question} item={item} />;
+        return <ReactSurveyQuestioncheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
     }
 }
-class ReactSurveyQuestioncheckboxItemBase extends React.Component<any, any> {
+class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
     protected question: Survey.QuestionCheckboxModel;
     protected item: Survey.ItemValue;
+    protected css: any;
+    protected rootCss: any;
+    protected textStyle: any;
     constructor(props: any) {
         super(props);
         this.item = props.item;
         this.question = props.question;
+        this.css = props.css;
+        this.rootCss = props.rootCss;
+        this.textStyle = props.textStyle;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {
         this.item = nextProps.item;
+        this.css = nextProps.css;
+        this.rootCss = nextProps.rootCss;
+        this.textStyle = nextProps.textStyle;
         this.question = nextProps.question;
     }
     handleOnChange(event) {
@@ -66,20 +89,17 @@ class ReactSurveyQuestioncheckboxItemBase extends React.Component<any, any> {
         var otherItem = (this.item.value === this.question.otherItem.value && isChecked) ? this.renderOther() : null;
         return this.renderCheckbox(isChecked, divStyle, otherItem);
     }
-    protected get mainClassName(): string { return ""; }
-    protected get labelClassName(): string { return ""; }
-    protected get commentClassName(): string { return ""; }
-    protected get textStyle(): any { return null; }
+    protected get inputStyle(): any { return { marginRight: "3px" }; }
     protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
-        return (<div className={this.mainClassName} style={divStyle}>
-                <label className={this.labelClassName}>
-                    <input type="checkbox"  checked={isChecked} onChange={this.handleOnChange} />
-                    <span style={this.textStyle}>{this.item.text}</span>
+        return (<div className={this.css.item} style={divStyle}>
+                <label className={this.css.item}>
+                    <input type="checkbox" style={this.inputStyle}  checked={isChecked} onChange={this.handleOnChange} />
+                    <span>{this.item.text}</span>
                     </label>
                 {otherItem}
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.commentClassName}><ReactSurveyQuestionCommentItem  question={this.question} /></div>);
+        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }

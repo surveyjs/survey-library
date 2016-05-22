@@ -108,17 +108,15 @@ sv_body {
 }
 //checkboxbase container
 .sv_qcbc { 
-    display: inline-block; 
-    vertical-align:top;
 }
 .sv_q_checkbox {
-    padding: 10px;
+    display: inline-block; 
 }
 .sv_q_other {
-    padding-left: 10px;
+    padding-left: 4px;
 }
 .sv_q_radiogroup {
-    padding: 10px;
+    display: inline-block; 
 }
 .sv_q_rating {
     width: 100%;

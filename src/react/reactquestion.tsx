@@ -6,22 +6,25 @@
 
 module Survey {
     export interface IReactSurveyCreator {
-        createQuestion(question: QuestionBase): JSX.Element;
         createQuestionElement(question: QuestionBase): JSX.Element;
+        renderError(key: string, errorText: string): JSX.Element;
     }
 }
 
-class ReactSurveyQuestionBase extends React.Component<any, any> {
+class ReactSurveyQuestion extends React.Component<any, any> {
     private questionBase: Survey.QuestionBase;
     protected question: Survey.Question;
     private creator: Survey.IReactSurveyCreator;
+    protected css: any;
     constructor(props: any) {
         super(props);
         this.setQuestion(props.question);
         this.creator = props.creator;
+        this.css = props.css;
     }
     componentWillReceiveProps(nextProps: any) {
         this.creator = nextProps.creator;
+        this.css = nextProps.css;
         this.setQuestion(nextProps.question);
     }
     private setQuestion(question) {
@@ -47,7 +50,7 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
         var comment = (this.question && this.question.hasComment) ? this.renderComment() : null;
         var errors = (this.question && this.question.errors.length > 0) ? this.renderErrors() : null;
         return (
-            <div className={this.mainClassName}>
+            <div className={this.css.question.root}>
                 {title}
                 {errors}
                 {questionRender}
@@ -55,9 +58,6 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
             </div>
         );
     }
-    protected get mainClassName() { return "" };
-    protected get titleClassName() { return "" };
-    protected get errorClassName() { return "" };
     protected renderTitle(): JSX.Element {
         var titleText = "";
         if (this.question.visibleIndex > -1) {
@@ -67,13 +67,15 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
             titleText += this.question.requiredText;
         }
         titleText += this.question.processedTitle;
-        return (<h5 className={this.titleClassName}>{titleText}</h5>);
+        return (<h5 className={this.css.question.title}>{titleText}</h5>);
     }
     protected renderComment(): JSX.Element {
         var otherText = Survey.surveyLocalization.getString("otherItemText");
         return (<div>
                 <div>{otherText}</div>
-                <ReactSurveyQuestionCommentItem  question={this.question} />
+                <div className={this.css.question.comment}>
+                <ReactSurveyQuestionCommentItem  question={this.question}/>
+                </div>
             </div>);
     }
     protected renderErrors(): JSX.Element {
@@ -81,11 +83,8 @@ class ReactSurveyQuestionBase extends React.Component<any, any> {
         for (var i = 0; i < this.question.errors.length; i++) {
             var errorText = this.question.errors[i].getText();
             var key = "error" + i;
-            errors.push(this.renderError(key, errorText));
+            errors.push(this.creator.renderError(key, errorText));
         }
-        return (<div className={this.errorClassName}>{errors}</div>);
-    }
-    protected renderError(key: string, errorText: string): JSX.Element {
-        return <div key={key}>{errorText}</div>;
+        return (<div className={this.css.error.root}>{errors}</div>);
     }
 }

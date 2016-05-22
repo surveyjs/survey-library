@@ -1,8 +1,0 @@
-﻿<script type="text/html" id="survey-question-multipletext">
-    <table class="table" data-bind="foreach: { data:  question.koRows, as: 'row' }">
-        <tr data-bind="foreach: { data: row, as: 'item' }">
-            <td data-bind="text: item.title"></td>
-            <td><input type="text" class="form-control" style="float:left" data-bind="attr: {size: question.itemSize}, value: item.koValue" /></td>
-        </tr>
-    </table>
-</script>

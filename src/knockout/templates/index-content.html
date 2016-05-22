@@ -1,0 +1,26 @@
+﻿<script type="text/html" id="survey-index">
+    <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: $root.css.header">
+        <h3 data-bind="text:title"></h3>
+    </div>
+    <!-- ko if: koState() == "running" -->
+    <div data-bind="css: $root.css.body">
+        <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
+        <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
+        <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
+    </div>
+    <div data-bind="visible: showNavigationButtons && !isDesignMode, css: $root.css.footer">
+        <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage(), css: $root.css.navigationButton" />
+        <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: $root.css.navigationButton" />
+        <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage(), css: $root.css.navigationButton" />
+    </div>
+    <!-- /ko -->
+    <!-- ko if: koState() == "completed" -->
+    <div data-bind="html: processedCompletedHtml"></div>
+    <!-- /ko -->
+    <!-- ko if: koState() == "loading" -->
+    <div data-bind="html: processedLoadingHtml"></div>
+    <!-- /ko -->
+    <!-- ko if: koState() == "empty" -->
+    <div data-bind="text:emptySurveyText, css: $root.css.body"></div>
+    <!-- /ko -->
+</script>

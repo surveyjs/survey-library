@@ -1,14 +1,17 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_matrixdropdown.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestionmatrixdropdownBase extends React.Component<any, any> {
+class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
     private question: Survey.QuestionMatrixDropdownModel;
+    protected css: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -26,7 +29,7 @@ class ReactSurveyQuestionmatrixdropdownBase extends React.Component<any, any> {
             rows.push(<ReactSurveyQuestionmatrixdropdownRow key={key} row={row} />);
         }
         return (
-            <table className={this.mainClassName}>
+            <table className={this.css.root}>
                 <thead>
                     <tr>
                         <th></th>
@@ -39,7 +42,6 @@ class ReactSurveyQuestionmatrixdropdownBase extends React.Component<any, any> {
            </table>
         );
     }
-    protected get mainClassName() { return ""; }
 }
 
 class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {

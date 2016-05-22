@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-matrixdropdown">
-    <table class="table">
+    <table data-bind="css: $root.css.matrixdropdown.root">
         <thead>
             <tr>
                 <th></th>
@@ -12,7 +12,7 @@
             <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
             <tr>
                 <td data-bind="text:row.text"></td>
-                <!-- ko foreach: row.cells -->
+                <!-- ko foreach: row.cells-->
                 <td>
                     <select data-bind="options: $data.choices, optionsText: 'text', optionsValue: 'value', value: $data.koValue, optionsCaption: $data.optionsCaption"></select>
                 </td>

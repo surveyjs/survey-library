@@ -1,25 +1,33 @@
 ﻿/// <reference path="../question_rating.ts" />
 module Survey {
     class QuestionRatingImplementor extends QuestionImplementor {
-        koVisibleRateValues: any; koChange: any;
+        koVisibleRateValues: any; koChange: any; koCss: any;
         constructor(question: Question) {
             super(question);
-            this.koVisibleRateValues = ko.observableArray((<QuestionRating>this.question).visibleRateValues);
+            this.koVisibleRateValues = ko.observableArray(this.getValues());
             this.question["koVisibleRateValues"] = this.koVisibleRateValues;
             var self = this;
             this.koChange = function (val) { self.koValue(val.itemValue); };
             this.question["koChange"] = this.koChange;
             (<QuestionRating>this.question).rateValuesChangedCallback = function () { self.onRateValuesChanged(); };
+            this.question["koGetCss"] = function (val) {
+                var css = (<QuestionRating>self.question).itemCss;
+                return self.question["koValue"]() == val.value ? css + " active" : css; };
         }
         protected onRateValuesChanged() {
-            this.koVisibleRateValues((<QuestionRating>this.question).visibleRateValues);
+            this.koVisibleRateValues(this.getValues());
         }
+        private getValues(): Array<any> { return (<QuestionRating>this.question).visibleRateValues; }
     }
 
     export class QuestionRating extends QuestionRatingModel {
+        public itemCss: string;
         constructor(public name: string) {
             super(name);
             new QuestionRatingImplementor(this);
+        }
+        protected onSetData() {
+            this.itemCss = this.data["css"].rating.item;
         }
     }
 

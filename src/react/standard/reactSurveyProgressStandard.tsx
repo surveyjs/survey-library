@@ -7,7 +7,7 @@ class ReactSurveyProgress extends ReactSurveyProgressBase {
         super(props);
     }
     render(): JSX.Element {
-        var style = this.isTop ? {} : { marginTop: "10px" };
-        return (<div className="sv_progress" style={ style }>{this.progressText}</div>);
+        var style = this.isTop ? {} : { marginTop: "10px", marginBottom: "5px" };
+        return (<div className={this.css.progress} style={ style }>{this.progressText}</div>);
     }
 }

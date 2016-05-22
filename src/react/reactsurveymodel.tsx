@@ -10,6 +10,9 @@ class ReactSurveyModel extends Survey.SurveyModel {
             this.renderCallback();
         }
     }
+    public mergeCss(src: any, dest: any) {
+        this.mergeValues(src, dest);
+    }
     protected onLoadSurveyFromService() {
         this.render();
     }

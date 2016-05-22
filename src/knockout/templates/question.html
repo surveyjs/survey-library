@@ -1,14 +1,10 @@
 ﻿<script type="text/html" id="survey-question">
-    <div data-bind="visible: question.koVisible()">
+    <div data-bind="visible: question.koVisible(), css: $root.css.question.root">
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.processedTitle"></h5>
+        <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.processedTitle, css: $root.css.question.title"></h5>
         <!-- /ko -->
-        <div class="alert alert-danger" role="alert" data-bind="visible: koErrors().length > 0, foreach: koErrors">
-            <div>
-                <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-                <span data-bind="text:$data.getText()"></span>
-            </div>
-        </div>
+        <!-- ko template: { name: 'survey-question-errors', data: question } -->
+        <!-- /ko -->
         <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">

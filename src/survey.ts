@@ -180,6 +180,18 @@ module Survey {
                 this.currentPage = this.visiblePages[0];
             }
         }
+        protected mergeValues(src: any, dest: any) {
+            if (!dest || !src) return;
+            for (var key in src) {
+                var value = src[key];
+                if (value && typeof value === 'object') {
+                    if (!dest[key]) dest[key] = {};
+                    this.mergeValues(value, dest[key]);
+                } else {
+                    dest[key] = value;
+                }
+            }
+        }
         protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
             this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
         }

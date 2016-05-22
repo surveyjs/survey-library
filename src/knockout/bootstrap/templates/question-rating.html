@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-rating">
-    <div class="btn-group" data-toggle="buttons">
+    <div data-toggle="buttons" data-bind="css: $root.css.rating.root">
         <!-- ko foreach: question.koVisibleRateValues -->
-        <label class="btn btn-default" data-bind="css:{active: $data.value == question.koValue()}">
+        <label data-bind="css: question.koGetCss($data)">
             <input type="radio"
                     data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}" />
             <span data-bind="visible: $index() == 0, text: question.mininumRateDescription"></span>

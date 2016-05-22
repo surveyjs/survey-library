@@ -1,11 +1,13 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_text.ts" />
 /// <reference path="../../typings/react/react.d.ts" />
-class ReactSurveyQuestiontextBase extends React.Component<any, any> {
+class ReactSurveyQuestiontext extends React.Component<any, any> {
     private question: Survey.QuestionTextModel;
+    protected css: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
+        this.css = props.css;
         this.state = { value: this.question.value };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
@@ -15,12 +17,12 @@ class ReactSurveyQuestiontextBase extends React.Component<any, any> {
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
+        this.css = nextProps.css;
     }
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <input className={this.mainClassName} type="text" value={this.question.value} onChange={this.handleOnChange} />
+            <input className={this.css} type="text" value={this.question.value} onChange={this.handleOnChange} />
         );
     }
-    protected get mainClassName() { return ""; }
 }

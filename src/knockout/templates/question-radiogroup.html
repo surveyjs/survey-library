@@ -1,11 +1,11 @@
 ﻿<script type="text/html" id="survey-question-radiogroup">
-    <form class="form-inline">
+    <form data-bind="css: $root.css.radiogroup.root">
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <div  class="radio" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
+        <div  data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: $root.css.radiogroup.item">
             <input type="radio" data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
             <span data-bind="text: item.text"></span>
             <div data-bind="visible: question.hasOther && ($index() == question.visibleChoices.length-1)">
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: $root.css.radiogroup.other"></div>
             </div>
         </div>
         <!-- /ko -->

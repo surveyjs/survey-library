@@ -8,6 +8,7 @@
         public onHasValue: (name: string) => boolean;
         constructor() { }
         public process(text: string): string {
+            if (!text) return text;
             if (!this.onProcess) return text;
             var items = this.getItems(text);
             for (var i = items.length - 1; i >= 0; i--) {

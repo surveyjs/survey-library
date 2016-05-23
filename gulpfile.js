@@ -18,7 +18,7 @@ var gulp = require('gulp'),
 
 var Server = require("karma").Server;
 
-var libraryVersion = "0.9.6";
+var libraryVersion = "0.9.7";
 
 var paths = {
     webroot: "./" + project.webroot + "/",
@@ -101,16 +101,14 @@ configs["react_bootstrap"]= config_react_bootstrap;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
-function buildTemplates(configName) {
+
+function buildTemplates(configName, index) {
     var curConfig = configs[configName];
-    //Build templates
-    for (var i = 0; i < curConfig.templates.length; i++) {
-        var curTemplate = curConfig.templates[i];
-        gulp.src(curTemplate.path)
-            .pipe(concat(curTemplate.fileName))
-            .pipe(html2ts())
-            .pipe(gulp.dest(curTemplate.dest));
-    }
+    var curTemplate = curConfig.templates[index];
+    return gulp.src(curTemplate.path)
+        .pipe(concat(curTemplate.fileName))
+        .pipe(html2ts())
+        .pipe(gulp.dest(curTemplate.dest));
 }
 function buildFromSources(configName) {
     var curConfig = configs[configName];
@@ -218,7 +216,10 @@ function createPackageJson(configName) {
 }
 
 gulp.task("ko_standard_tempates", function () {
-    return buildTemplates("ko_standard");
+    return buildTemplates("ko_standard", 0);
+});
+gulp.task("ko_standard_windowtempates", function () {
+    return buildTemplates("ko_standard", 1);
 });
 gulp.task("ko_standard_source", function () {
     buildTypeDefinition("ko_standard");
@@ -231,10 +232,13 @@ gulp.task("ko_standard_createPackageJson", function () {
     createPackageJson("ko_standard");
 });
 
-gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_source", "ko_standard_compress", "ko_standard_createPackageJson"));
+gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_windowtempates", "ko_standard_source", "ko_standard_compress", "ko_standard_createPackageJson"));
 
 gulp.task("ko_bootstrap_tempates", function () {
-    return buildTemplates("ko_bootstrap");
+    return buildTemplates("ko_bootstrap", 0);
+});
+gulp.task("ko_bootstrap_windowtempates", function () {
+    return buildTemplates("ko_bootstrap", 1);
 });
 gulp.task("ko_bootstrap_source", function () {
     buildTypeDefinition("ko_bootstrap");
@@ -246,7 +250,7 @@ gulp.task("ko_bootstrap_compress", function () {
 gulp.task("ko_bootstrap_createPackageJson", function () {
     createPackageJson("ko_bootstrap");
 });
-gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_source", "ko_bootstrap_compress", "ko_bootstrap_createPackageJson"));
+gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_windowtempates", "ko_bootstrap_source", "ko_bootstrap_compress", "ko_bootstrap_createPackageJson"));
 
 gulp.task("buildTests_ko", function () {
     return buildTests("ko");

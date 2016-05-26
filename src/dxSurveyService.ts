@@ -22,7 +22,6 @@
             if (clientId) data['clientId'] = clientId;
             if (isPartialCompleted) data['isPartialCompleted'] = true;
             var dataStringify: string = JSON.stringify(data);
-            xhr.setRequestHeader('Content-Length', dataStringify.length.toString());
             var self = this;
             xhr.onload = function () {
                 onSendResult(xhr.status == 200, xhr.response);

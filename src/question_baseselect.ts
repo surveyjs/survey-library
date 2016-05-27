@@ -39,7 +39,7 @@ module Survey {
             if (!this.isOtherSelected || this.comment) return;
             var text = this.otherErrorText;
             if (!text) {
-                text = "Please enter the others value.";
+                text = surveyLocalization.getString("otherRequiredError");
             }
             errors.push(new CustomError(text));
         }

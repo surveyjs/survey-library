@@ -1,14 +1,27 @@
 <div class="propertyitem">
     <p>
         <b>Locale: </b> (default is <empty>)
-        <select style="width:100%" onChange="survey.locale = this.value; survey.render();">
-            <option value=""></option>
-            <option value="en">en</option>
-            <option value="de" selected="true">de</option>
-            <option value="fi">fi</option>
-            <option value="my">my</option>
+        <select id="selLocales" style="width:100%" onChange="survey.locale = this.value; survey.render();">
         </select>
         <pre><code class="language-javascript">survey.locale = yourvalue;
 survey.render();</code></pre>
     </p>
 </div>
+<script>
+    var selEl = document.getElementById("selLocales");
+    var locales = [];
+    for (var key in Survey.surveyLocalization.locales){
+        locales.push(key);
+    }
+    locales.sort();
+    for (var i = 0;  i < locales.length; i ++){
+        var opt = document.createElement('option');
+        var key = locales[i];
+        opt.value = key;
+        opt.innerHTML = key;
+        if(key == "de") {
+            opt.selected = true;
+        }
+        selEl.appendChild(opt);
+    }    
+</script>

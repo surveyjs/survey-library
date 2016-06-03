@@ -153,7 +153,7 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
     //IReactSurveyCreator
     public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
-        return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css });
+        return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css, creator: this });
     }
     public renderError(key: string, errorText: string): JSX.Element {
         return <div key={key} className={this.css.error.item}>{errorText}</div>;

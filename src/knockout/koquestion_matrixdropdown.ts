@@ -1,21 +1,34 @@
 ﻿/// <reference path="../question_matrixdropdown.ts" />
+/// <reference path="../question_dropdown.ts" />
+/// <reference path="../question_checkbox.ts" />
+/// <reference path="../question_radiogroup.ts" />
+/// <reference path="../question_text.ts" />
+/// <reference path="../question_comment.ts" />
+/// <reference path="koquestion_dropdown.ts" />
+/// <reference path="koquestion_checkbox.ts" />
+/// <reference path="koquestion_radiogroup.ts" />
+/// <reference path="koquestion_text.ts" />
+/// <reference path="koquestion_comment.ts" />
+
 module Survey {
     export class MatrixDropdownCell extends MatrixDropdownCellModel {
-        private isValueUpdating = false;
-        koValue: any;
         constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModel, data: IMatrixDropdownData, value: any) {
             super(column, row, data, value);
-            this.koValue = ko.observable(this.value);
-            var self = this;
-            this.koValue.subscribe(function (newValue) {
-                if (self.isValueUpdating) return;
-                self.value = newValue;
-            });
         }
-        protected onValueChanged() {
-            this.isValueUpdating = true;
-            this.koValue(this.value);
-            this.isValueUpdating = false;
+        protected createText(name: string): QuestionTextModel {
+            return new QuestionText(name);
+        }
+        protected createComment(name: string): QuestionCommentModel {
+            return new QuestionComment(name);
+        }
+        protected createDropdownCore(name: string): QuestionDropdownModel {
+            return new QuestionDropdown(name);
+        }
+        protected createCheckboxCore(name: string): QuestionCheckboxModel {
+            return new QuestionCheckbox(name);
+        }
+        protected createRadiogroupCore(name: string): QuestionRadiogroupModel {
+            return new QuestionRadiogroup(name);
         }
     }
     export class MatrixDropdownRow extends MatrixDropdownRowModel {

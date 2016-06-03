@@ -14,7 +14,8 @@
                 <td data-bind="text:row.text"></td>
                 <!-- ko foreach: row.cells-->
                 <td>
-                    <select data-bind="options: $data.choices, optionsText: 'text', optionsValue: 'value', value: $data.koValue, optionsCaption: $data.optionsCaption"></select>
+                    <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                    <!-- /ko -->
                 </td>
                 <!-- /ko -->
             </tr>

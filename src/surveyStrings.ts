@@ -13,6 +13,7 @@
             for (var key in this.locales) {
                 res.push(key);
             }
+            res.sort();
             return res;
         }
     };

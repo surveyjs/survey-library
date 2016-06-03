@@ -116,8 +116,8 @@ module SurveykoTests {
         matrix.choices = [1, 2, 3];
         matrix.columns[1].choices = [4, 5];
         var visibleRows = matrix.visibleRows;
-        matrix.value = { 'row2': { 'column1': 2 } }
-        assert.equal(visibleRows[1].cells[0]["koValue"](), 2, "value was set");
+        matrix.value = { 'row2': { 'column1': 2 } };
+        assert.equal(visibleRows[1].cells[0].question["koValue"](), 2, "value was set");
     });
 
     QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {

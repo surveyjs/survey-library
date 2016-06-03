@@ -1,6 +1,11 @@
-﻿// <reference path="question.ts" />
+﻿/// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
+/// <reference path="question_dropdown.ts" />
+/// <reference path="question_checkbox.ts" />
+/// <reference path="question_radiogroup.ts" />
+/// <reference path="question_text.ts" />
+/// <reference path="question_comment.ts" />
 module Survey {
     export interface IMatrixDropdownData {
         onCellChanged(cell: MatrixDropdownCellModel);
@@ -12,6 +17,8 @@ module Survey {
         private choicesValue: ItemValue[] = [];
         private titleValue: string;
         public optionsCaption: string;
+        private cellTypeValue: string = "dropdown";
+        private colCountValue: number = 0;
         constructor(public name: string, title: string = null) {
             super();
         }
@@ -19,27 +26,83 @@ module Survey {
         public get title() { return this.titleValue ? this.titleValue : this.name; }
         public set title(value: string) { this.titleValue = value; }
         public get choices(): Array<any> { return this.choicesValue; }
+        public get cellType() { return this.cellTypeValue; }
+        public set cellType(value: string) {
+            this.cellTypeValue = value;
+        }
+        public get colCount(): number { return this.colCountValue; }
+        public set colCount(value: number) {
+            if (value < 0 || value > 4) return;
+            this.colCountValue = value;
+        }
         public set choices(newValue: Array<any>) {
             ItemValue.setData(this.choicesValue, newValue);
         }
     }
     export class MatrixDropdownCellModel {
         private data: IMatrixDropdownData
-        private cellValue: any;
+        private questionValue: Question;
         constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModel, data: IMatrixDropdownData, value: any) {
             this.data = data;
-            this.cellValue = value;
+            this.questionValue = this.createQuestion();
+            this.question.value = value;
+            var self = this;
+            var oldCallback = this.question.valueChangedCallback;
+            this.question.valueChangedCallback = function () { self.data.onCellChanged(self); if (oldCallback) oldCallback(); };
         }
         public get choices(): Array<any> { return this.column.choices && this.column.choices.length > 0 ? this.column.choices : this.data.choices; }
         public get optionsCaption(): string { return this.column.optionsCaption ? this.column.optionsCaption : this.data.optionsCaption; }
-        public get value(): any { return this.cellValue; }
+        public get question(): Question { return this.questionValue; }
+        public get value(): any { return this.question.value; }
         public set value(value: any) {
-            this.cellValue = value;
-            this.data.onCellChanged(this);
+            this.question.value = value;
             this.onValueChanged();
         }
         protected onValueChanged() {
         }
+        protected createQuestion(): Question {
+            var cellType = this.column.cellType;
+            var name = this.getQuestionName();
+            if (cellType == "checkbox") return this.createCheckbox(name);
+            if (cellType == "radiogroup") return this.createRadiogroup(name);
+            if (cellType == "text") return this.createText(name);
+            if (cellType == "comment") return this.createComment(name);
+            return this.createDropdown(name);
+        }
+        protected createDropdown(name: string): QuestionDropdownModel {
+            var q = this.createDropdownCore(name);
+            q.choices = this.choices;
+            q.optionsCaption = this.optionsCaption;
+            return q;
+        }
+        protected createCheckbox(name: string): QuestionCheckboxModel {
+            var q = this.createCheckboxCore(name);
+            q.choices = this.choices;
+            q.colCount = this.column.colCount;
+            return q;
+        }
+        protected createRadiogroup(name: string): QuestionRadiogroupModel {
+            var q = this.createRadiogroupCore(name);
+            q.choices = this.choices;
+            q.colCount = this.column.colCount;
+            return q;
+        }
+        protected createText(name: string): QuestionTextModel {
+            return new QuestionTextModel(name);
+        }
+        protected createComment(name: string): QuestionCommentModel {
+            return new QuestionCommentModel(name);
+        }
+        protected createDropdownCore(name: string): QuestionDropdownModel {
+            return new QuestionDropdownModel(name);
+        }
+        protected createCheckboxCore(name: string): QuestionCheckboxModel {
+            return new QuestionCheckboxModel(name);
+        }
+        protected createRadiogroupCore(name: string): QuestionRadiogroupModel {
+            return new QuestionRadiogroupModel(name);
+        }
+        protected getQuestionName(): string { return this.row.name + "_" + this.column.name; }
     }
     export class MatrixDropdownRowModel  {
         protected data: IMatrixDropdownData;
@@ -160,7 +223,11 @@ module Survey {
             this.isRowChanging = false;
         }
     }
-    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption"], function () { return new MatrixDropdownColumn(""); });
+    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType"], function () { return new MatrixDropdownColumn(""); });
+    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
+    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
+    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);
+    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "colCount", [0, 1, 2, 3, 4]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "title", null, null, function (obj: any) { return obj.titleValue; });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },

@@ -220,7 +220,7 @@ module Survey.Tests {
         assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
     });
     QUnit.test("Matrixdropdown cells tests", function (assert) {
-        var question = new QuestionMatrixDropdownModel("textQuestion");
+        var question = new QuestionMatrixDropdownModel("matrixDropdown");
         question.rows = ["row1", "row2", "row3"];
         question.columns.push(new MatrixDropdownColumn("column1"));
         question.columns.push(new MatrixDropdownColumn("column2"));
@@ -243,7 +243,7 @@ module Survey.Tests {
         assert.deepEqual(question.value, null, "set to null if all cells are null");
     });
     QUnit.test("Matrixdropdown value tests after cells generation", function (assert) {
-        var question = new QuestionMatrixDropdownModel("textQuestion");
+        var question = new QuestionMatrixDropdownModel("matrixDropdown");
         question.rows = ["row1", "row2", "row3"];
         question.columns.push(new MatrixDropdownColumn("column1"));
         question.columns.push(new MatrixDropdownColumn("column2"));
@@ -252,5 +252,25 @@ module Survey.Tests {
         var visibleRows = question.visibleRows;
         question.value = { 'row2': { 'column1': 2 } }
         assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
+    });
+    QUnit.test("Matrixdropdown different cell types", function (assert) {
+        var question = new QuestionMatrixDropdownModel("matrixDropdown");
+
+        question.columns.push(new MatrixDropdownColumn("dropdown"));
+        question.columns.push(new MatrixDropdownColumn("checkbox"));
+        question.columns.push(new MatrixDropdownColumn("radiogroup"));
+        question.columns.push(new MatrixDropdownColumn("text"));
+        question.columns.push(new MatrixDropdownColumn("comment"));
+
+        for (var i = 0; i < question.columns.length; i++) {
+            question.columns[i].cellType = question.columns[i].name;
+        }
+        question.rows = ["row1", "row2", "row3"];
+
+        for (var i = 0; i < question.columns.length; i++) {
+            var col = question.columns[i];
+            var row = question.visibleRows[0];
+            assert.equal(row.cells[i].question.getType(), col.name, "Expected " + col.name + ", but was" + row.cells[i].question.getType());
+        }
     });
 }

@@ -2,6 +2,7 @@
 /// <reference path="../../survey.ts" />
 /// <reference path="../reactSurvey.tsx" />
 /// <reference path="reactSurveyProgressBootstrap.tsx" />
+/// <reference path="../../defaultCss/cssbootstrap.ts" />
 
 class ReactSurvey extends ReactSurveyBase {
     constructor(props: any) {
@@ -16,26 +17,5 @@ class ReactSurvey extends ReactSurveyBase {
     protected renderProgress(isTop: Boolean): JSX.Element {
         return <ReactSurveyProgress survey = {this.survey} css={this.css} isTop = {isTop} />;
     }
-    protected createCssObject(): any {
-        return {
-            header: "panel-heading",
-            body: "panel-body",
-            footer: "panel-footer",
-            navigationButton: "button",
-            progress: "progress center-block",
-            pageTitle: "",
-            question: { root: "", title: "", comment: "form-control" },
-            error: { root: "alert alert-danger", item: "glyphicon glyphicon-exclamation-sign" },
-
-            checkbox: { root: "form-inline", item: "checkbox", other: "" },
-            comment: "form-control",
-            dropdown: "form-control",
-            matrix: { root: "table" },
-            matrixdropdown: { root: "table" },
-            multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
-            radiogroup: { root: "form-inline", item: "radio", other: "" },
-            rating: { root: "btn-group", item: "btn btn-default" },
-            text: "form-control"
-        };
-    }
+    protected createCssObject(): any { return Survey.defaultBootstrapCss; }
 }

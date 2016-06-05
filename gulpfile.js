@@ -50,7 +50,7 @@ var config_ko_standard = {
     dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/standard/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/standard/" },
                 { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/"
@@ -61,7 +61,7 @@ var config_ko_bootstrap = {
     dependencies: { "knockout": "^3.4.0", "bootstrap": "^3.3.6" },
     templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/bootstrap/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
                 { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
     mainJSfile: "survey.bootstrap.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/"
@@ -70,7 +70,7 @@ var config_react_standard = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/"
@@ -80,7 +80,7 @@ var config_react_bootstrap = {
     name: "survey-react-bootstrap",
     keywords: ["react", "react-component", "Bootstrap"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
     mainJSfile : "survey.react.bootstrap.js",
     dtsfile: "survey-react-bootstrap.d.ts",
     packagePath: "./packages/survey-react-bootstrap/"

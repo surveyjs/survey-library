@@ -9,11 +9,7 @@ survey.render();</code></pre>
 </div>
 <script>
     var selEl = document.getElementById("selLocales");
-    var locales = [];
-    for (var key in Survey.surveyLocalization.locales){
-        locales.push(key);
-    }
-    locales.sort();
+    var locales = Survey.surveyLocalization.getLocales();
     for (var i = 0;  i < locales.length; i ++){
         var opt = document.createElement('option');
         var key = locales[i];

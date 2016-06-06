@@ -3,16 +3,9 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>survey.js : {{ page.title }}</title>
-        <!--
-        <link href="{{ page.pathprefix }}css/main.css" type="text/css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
-        -->
-        <!--
-        <link href="{{ page.pathprefix }}css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-        -->
         <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css"/>
-        <link href="{{ page.pathprefix }}css/style.css" type="text/css" rel="stylesheet" /> 
-        <link href="{{ page.pathprefix }}css/main.css" type="text/css" rel="stylesheet" />
+        <link href="{{ page.pathprefix }}/css/style.css" type="text/css" rel="stylesheet" /> 
+        <link href="{{ page.pathprefix }}/css/main.css" type="text/css" rel="stylesheet" />
         {% if page.usedxchart or page.usebootstrap %}
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>        
         {% endif %}
@@ -32,7 +25,7 @@
         <script src="{{ page.pathprefix }}js/knockout.js"></script>
         <script src="{{ page.pathprefix }}js/survey.bootstrap.min.js"></script>
         {% endif %}
-        <link href="{{ page.pathprefix }}css/prism.css" type="text/css" rel="stylesheet" />
+        <link href="{{ page.pathprefix }}/css/prism.css" type="text/css" rel="stylesheet" />
         <script src="{{ page.pathprefix }}js/prism.js"></script>
     </head>
     <body class="white-bg">

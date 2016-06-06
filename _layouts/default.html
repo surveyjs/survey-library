@@ -4,8 +4,8 @@
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
         <title>survey.js : {{ page.title }}</title>
         <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css"/>
-        <link href="{{ page.pathprefix }}/css/style.css" type="text/css" rel="stylesheet" /> 
-        <link href="{{ page.pathprefix }}/css/main.css" type="text/css" rel="stylesheet" />
+        <link href="{{ site.baseurl }}/css/style.css" type="text/css" rel="stylesheet" /> 
+        <link href="{{ site.baseurl }}/css/main.css" type="text/css" rel="stylesheet" />
         {% if page.usedxchart or page.usebootstrap %}
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>        
         {% endif %}
@@ -20,13 +20,13 @@
         <script src="https://fb.me/react-0.14.8.js"></script>
         <script src="https://fb.me/react-dom-0.14.8.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
-        <script src="{{ page.pathprefix }}js/survey.react.bootstrap.js"></script>
+        <script src="{{ site.baseurl }}/js/survey.react.bootstrap.js"></script>
         {% else %}
-        <script src="{{ page.pathprefix }}js/knockout.js"></script>
-        <script src="{{ page.pathprefix }}js/survey.bootstrap.min.js"></script>
+        <script src="{{ site.baseurl }}/js/knockout.js"></script>
+        <script src="{{ site.baseurl }}/js/survey.bootstrap.min.js"></script>
         {% endif %}
-        <link href="{{ page.pathprefix }}/css/prism.css" type="text/css" rel="stylesheet" />
-        <script src="{{ page.pathprefix }}js/prism.js"></script>
+        <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />
+        <script src="{{ site.baseurl }}/js/prism.js"></script>
     </head>
     <body class="white-bg">
         {% include menu-top.html %}

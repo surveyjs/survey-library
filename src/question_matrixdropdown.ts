@@ -223,7 +223,7 @@ module Survey {
             this.isRowChanging = false;
         }
     }
-    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType"], function () { return new MatrixDropdownColumn(""); });
+    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount"], function () { return new MatrixDropdownColumn(""); });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
     JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);

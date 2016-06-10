@@ -18,7 +18,9 @@ module Survey {
         numericMinMax: "'{0}' solte gleich oder größer sein als {1} und gleich oder kleiner als {2}",
         numericMin: "'{0}' solte gleich oder größer sein als {1}",
         numericMax: "'{0}' solte gleich oder kleiner als {1}",
-        invalidEmail: "Bitte geben Sie eine gültige Email-Adresse ein."
+        invalidEmail: "Bitte geben Sie eine gültige Email-Adresse ein.",
+        exceedMaxSize: "Die Dateigröße soll nicht mehr als {0}.",
+        otherRequiredError: "Bitte geben Sie den anderen Wert."
     }
     surveyLocalization.locales["de"] = germanSurveyStrings;
 }

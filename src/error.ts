@@ -17,6 +17,25 @@ module Survey {
             return surveyLocalization.getString("numericError");
         }
     }
+    export class ExceedSizeError extends SurveyError {
+        private maxSize: number;
+        constructor(maxSize: number) {
+            super();
+            this.maxSize = maxSize;
+        }
+        public getText(): string {
+            return surveyLocalization.getString("exceedMaxSize")["format"](this.getTextSize());
+        }
+        private getTextSize() {
+            var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            var fixed = [0, 0, 2, 3, 3];
+            if (this.maxSize == 0) return '0 Byte';
+            var i = Math.floor(Math.log(this.maxSize) / Math.log(1024));
+            var value = this.maxSize / Math.pow(1024, i);
+            return value.toFixed(fixed[i]) + ' ' + sizes[i];
+        }
+    }
+
     export class CustomError extends SurveyError {
         private text: string;
         constructor(text: string) {

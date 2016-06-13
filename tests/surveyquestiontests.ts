@@ -220,17 +220,17 @@ module Survey.Tests {
         assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
     });
     QUnit.test("Init SelectBase with comment comment", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         survey.data = { q: "other", "q-Comment": "aaaa" };
-        survey.pages.push(new Page());
+        survey.addNewPage("page1");
         var question = new QuestionSelectBase("q");
         question.choices = ["A", "B", "C", "D"];
         survey.pages[0].addQuestion(question);
         assert.equal(question.comment, "aaaa", "Set the initial comment");
     });
     QUnit.test("SelectBase store others value not in comment", function (assert) {
-        var survey = new Survey();
-        survey.pages.push(new Page());
+        var survey = new SurveyModel();
+        survey.addNewPage("page1");
         var question = new QuestionSelectBase("q");
         question.choices = ["A", "B", "C", "D"];
         question.hasOther = true;
@@ -268,9 +268,9 @@ module Survey.Tests {
         assert.deepEqual(survey.data, { q: "B" }, "'B' is set");
     });
     QUnit.test("Checkbox store others value not in comment", function (assert) {
-        var survey = new Survey();
-        survey.pages.push(new Page());
-        var question = new QuestionCheckbox("q");
+        var survey = new SurveyModel();
+        survey.addNewPage("page1");
+        var question = new QuestionCheckboxModel("q");
         question.choices = ["A", "B", "C", "D"];
         question.hasOther = true;
         survey.pages[0].addQuestion(question);

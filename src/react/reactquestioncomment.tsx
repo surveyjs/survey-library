@@ -29,23 +29,29 @@ class ReactSurveyQuestioncomment extends React.Component<any, any> {
 
 class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
     private question: Survey.Question;
+    private comment: string;
     protected css: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
         this.css = props.css;
-        this.state = { value: this.question.comment };
+        this.comment = this.question.comment;
+        this.state = { value: this.comment };
         this.handleOnChange = this.handleOnChange.bind(this);
+        this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     handleOnChange(event) {
-        this.question.comment = event.target.value;
-        this.setState({ value: this.question.comment });
+        this.comment = event.target.value;
+        this.setState({ value: this.comment });
+    }
+    handleOnBlur(event) {
+        this.question.comment = this.comment;
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} />);
+        return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }

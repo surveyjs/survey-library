@@ -68,13 +68,18 @@ module Survey {
             this.questions.splice(index, 1);
             if (this.data != null) this.data.questionRemoved(question);
         }
-        public hasErrors(): boolean {
+        public hasErrors(focuseOnFirstError: boolean = false): boolean {
             var result = false;
+            var firstErrorQuestion = null;
             for (var i = 0; i < this.questions.length; i++) {
                 if (this.questions[i].visible && this.questions[i].hasErrors()) {
+                    if (focuseOnFirstError && firstErrorQuestion == null) {
+                        firstErrorQuestion = this.questions[i];
+                    }
                     result = true;
                 }
             }
+            if (firstErrorQuestion) firstErrorQuestion.focus();
             return result;
         }
         public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {

@@ -16,6 +16,7 @@
         processText(text: string): string;
         isDesignMode: boolean;
         requiredText: string;
+        storeOthersAsComment: boolean;
     }
     export interface IQuestion {
         name: string;

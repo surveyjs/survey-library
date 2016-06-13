@@ -8,6 +8,7 @@ module Survey {
         public width: string = "100%";
         visibilityChangedCallback: () => void;
         visibleIndexChangedCallback: () => void;
+        focusCallback: () => void;
 
         constructor(public name: string) {
             super();
@@ -26,6 +27,9 @@ module Survey {
         public hasErrors(): boolean { return false; }
         public get hasTitle(): boolean { return false; }
         public get hasComment(): boolean { return false; }
+        public focus() {
+            this.fireCallback(this.focusCallback);
+        }
         setData(newValue: ISurvey) {
             this.data = newValue;
             this.onSetData();

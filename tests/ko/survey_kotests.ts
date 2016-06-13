@@ -171,6 +171,15 @@ module SurveykoTests {
         question.visible = false;
         assert.equal(question["koVisible"](), false, "it is false now");
     });
+    QUnit.test("koComment property", function (assert) {
+        var survey = new Survey.Survey();
+        survey.data = { q: "other", "q-Comment": "aaaa" };
+        var page = survey.addNewPage("page1");
+        var question = new Survey.QuestionDropdown("q");
+        page.addQuestion(question);
+        question.choices = ["A", "B", "C", "D"];
+        assert.equal(question["koComment"](), "aaaa", "Set ko Comment");
+    });
     function createPageWithQuestion(name: string): Survey.Page {
         var page = new Survey.Page(name);
         page.addNewQuestion("text", "q1");

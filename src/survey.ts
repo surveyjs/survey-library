@@ -21,6 +21,7 @@ module Survey {
         public completedHtml: string = "";
         public requiredText: string = "* ";
         public showProgressBar: string = "off";
+        public storeOthersAsComment: boolean = true;
         public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         private currentPageValue: PageModel = null;
@@ -228,7 +229,7 @@ module Survey {
         }
         get isCurrentPageHasErrors(): boolean {
             if (this.currentPage == null) return true;
-            return this.currentPage.hasErrors();
+            return this.currentPage.hasErrors(true);
         }
         public prevPage(): boolean {
             if (this.isFirstPage) return false;
@@ -581,7 +582,7 @@ module Survey {
 
     JsonObject.metaData.addClass("survey", ["locale", "title", "completedHtml:html", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
-        "requiredText", "pagePrevText", "pageNextText", "completeText"]);
+        "storeOthersAsComment:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
         function (obj) { return null; },
@@ -596,6 +597,7 @@ module Survey {
     JsonObject.metaData.setPropertyChoices("survey", "showQuestionNumbers", ["on", "onPage", "off"]);
     JsonObject.metaData.setPropertyValues("survey", "showProgressBar", null, "off");
     JsonObject.metaData.setPropertyChoices("survey", "showProgressBar", ["off", "top", "bottom"]);
+    JsonObject.metaData.setPropertyValues("survey", "storeOthersAsComment", null, true);
     JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "* ");
     JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, null, function (obj: any) { return obj.pagePrevTextValue; });
     JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, null, function (obj: any) { return obj.pageNextTextValue; });

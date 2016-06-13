@@ -219,6 +219,93 @@ module Survey.Tests {
         assert.equal(visibleChanged, 1, "visibiblity changed on time");
         assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
     });
+    QUnit.test("Init SelectBase with comment comment", function (assert) {
+        var survey = new Survey();
+        survey.data = { q: "other", "q-Comment": "aaaa" };
+        survey.pages.push(new Page());
+        var question = new QuestionSelectBase("q");
+        question.choices = ["A", "B", "C", "D"];
+        survey.pages[0].addQuestion(question);
+        assert.equal(question.comment, "aaaa", "Set the initial comment");
+    });
+    QUnit.test("SelectBase store others value not in comment", function (assert) {
+        var survey = new Survey();
+        survey.pages.push(new Page());
+        var question = new QuestionSelectBase("q");
+        question.choices = ["A", "B", "C", "D"];
+        question.hasOther = true;
+        survey.pages[0].addQuestion(question);
+        survey.storeOthersAsComment = false;
+
+        question.value = null;
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, {}, "There is no data in survey");
+
+        question.value = "A";
+        question.comment = "test";
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, { q: "A" }, "'A' is set");
+
+        question.comment = null;
+        question.value = question.otherItem.value;
+        assert.equal(question.isOtherSelected, true, "Any other value that is not from choices is other");
+        assert.deepEqual(survey.data, { q: question.otherItem.value }, "Other Item is set");
+        
+        question.comment = "commentTest";
+        assert.equal(question.isOtherSelected, true, "Any other value that is not from choices is other");
+        assert.deepEqual(survey.data, { q: "commentTest" }, "Other text is set");
+
+        survey.setValue("q", "A");
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(question.value, "A", "'A' is set to the question");
+
+        survey.setValue("q", "FF");
+        assert.equal(question.isOtherSelected, true, "set other from survey");
+        assert.equal(question.value, question.otherItem.value, "value is otherItem.value");
+
+        question.value = "B";
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, { q: "B" }, "'B' is set");
+    });
+    QUnit.test("Checkbox store others value not in comment", function (assert) {
+        var survey = new Survey();
+        survey.pages.push(new Page());
+        var question = new QuestionCheckbox("q");
+        question.choices = ["A", "B", "C", "D"];
+        question.hasOther = true;
+        survey.pages[0].addQuestion(question);
+        survey.storeOthersAsComment = false;
+
+        question.value = null;
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, {}, "There is no data in survey");
+
+        question.value = ["A"];
+        question.comment = "test";
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, { q: ["A"] }, "'A' is set");
+
+        question.comment = null;
+        question.value = ["A", question.otherItem.value];
+        assert.equal(question.isOtherSelected, true, "Any other value that is not from choices is other");
+        assert.deepEqual(survey.data, { q: ["A", question.otherItem.value] }, "Other Item is set");
+
+        question.comment = "commentTest";
+        assert.equal(question.isOtherSelected, true, "Any other value that is not from choices is other");
+        assert.deepEqual(survey.data, { q: ["A", "commentTest"] }, "Other text is set");
+
+        survey.setValue("q", ["A"]);
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(question.value, ["A"], "'A' is set to the question");
+
+        survey.setValue("q", ["A", "FF"]);
+        assert.equal(question.isOtherSelected, true, "set other from survey");
+        assert.deepEqual(question.value, ["A", question.otherItem.value], "value is otherItem.value");
+
+        question.value = ["A", "B"];
+        assert.equal(question.isOtherSelected, false, "Others is not selected");
+        assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
+    });
     QUnit.test("Matrixdropdown cells tests", function (assert) {
         var question = new QuestionMatrixDropdownModel("matrixDropdown");
         question.rows = ["row1", "row2", "row3"];

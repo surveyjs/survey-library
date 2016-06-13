@@ -3,6 +3,8 @@
 /// <reference path="surveystrings.ts" />
 module Survey {
     export class QuestionSelectBase extends Question {
+        private commentValue: string;
+        protected cachedValue: any;
         otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public otherErrorText: string = null;
@@ -11,7 +13,58 @@ module Survey {
             super(name);
         }
         public get isOtherSelected(): boolean {
-            return this.value == this.otherItem.value;
+            return this.storeOthersAsComment ? this.getHasOther(this.value) : this.getHasOther(this.cachedValue);
+        }
+        protected getHasOther(val: any): boolean {
+            return val == this.otherItem.value;
+        }
+        protected getComment(): string {
+            if (this.storeOthersAsComment) return super.getComment();
+            return this.commentValue;
+        }
+        private isSettingComment: boolean = false;
+        protected setComment(newValue: string) {
+            if (this.storeOthersAsComment)
+                super.setComment(newValue)
+            else {
+                if (!this.isSettingComment && newValue != this.commentValue) {
+                    this.isSettingComment = true;
+                    this.commentValue = newValue;
+                    if (this.isOtherSelected) {
+                        this.setNewValueInData(this.cachedValue);
+                    }
+                    this.isSettingComment = false;
+                }
+            }
+        }
+        protected valueFromData(val: any): any {
+            if (this.storeOthersAsComment) return super.valueFromData(val);
+            this.cachedValue = this.valueFromDataCore(val);
+            return this.cachedValue;
+        }
+        protected valueToData(val: any): any {
+            if (this.storeOthersAsComment) return super.valueToData(val);
+            this.cachedValue = val;
+            return this.valueToDataCore(val);
+        }
+        protected valueFromDataCore(val: any): any {
+            if (!this.hasUnknownValue(val)) return val;
+            if (val == this.otherItem.value) return val;
+            this.comment = val;
+            return this.otherItem.value;
+        }
+        protected valueToDataCore(val: any): any {
+            if (val == this.otherItem.value && this.getComment()) {
+                val = this.getComment();
+            }
+            return val;
+        }
+        protected hasUnknownValue(val: any): boolean {
+            if (!val) return false;
+            for (var i = 0; i < this.choicesValues.length; i++) {
+                if (this.choicesValues[i].value == val) return false;
+            }
+            return true;
         }
         get choices(): Array<any> { return this.choicesValues; }
         set choices(newValue: Array<any>) {
@@ -43,6 +96,7 @@ module Survey {
             }
             errors.push(new CustomError(text));
         }
+        protected get storeOthersAsComment() { return this.data != null ? this.data.storeOthersAsComment : true; }
         sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
             var order = this.choicesOrder.toLowerCase();
             if (order == "asc") return this.sortArray(array, 1);

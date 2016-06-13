@@ -44,17 +44,21 @@ module Survey {
             this.onSurveyValueChanged(this.value);
         }
         public get value(): any {
-            if (this.data != null) return this.data.getValue(this.name);
+            if (this.data != null) return this.valueFromData(this.data.getValue(this.name));
             return this.questionValue;
         }
         public set value(newValue: any) {
             this.setNewValue(newValue);
             this.fireCallback(this.valueChangedCallback);
         }
-        public get comment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
+        public get comment(): string { return this.getComment(); }
         public set comment(newValue: string) {
-            this.setNewComment(newValue);
+            this.setComment(newValue);
             this.fireCallback(this.commentChangedCallback);
+        }
+        protected getComment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
+        protected setComment(newValue: string) {
+            this.setNewComment(newValue);
         }
         public isEmpty(): boolean { return this.value == null; }
         public hasErrors(): boolean {
@@ -95,14 +99,19 @@ module Survey {
         }
         private isValueChangedInSurvey = false;
         protected setNewValue(newValue: any) {
-            if (!this.isValueChangedInSurvey && this.data != null) {
-                this.data.setValue(this.name, newValue);
-            }
+            this.setNewValueInData(newValue);
             this.questionValue = newValue;
             this.onValueChanged();
         }
+        protected setNewValueInData(newValue: any) {
+            if (!this.isValueChangedInSurvey && this.data != null) {
+                this.data.setValue(this.name, this.valueToData(newValue));
+            }
+        }
+        protected valueFromData(val: any): any { return val; }
+        protected valueToData(val: any): any { return val; }
         protected onValueChanged() { }
-        private setNewComment(newValue: string) {
+        protected setNewComment(newValue: string) {
             if (this.data != null) {
                 this.data.setComment(this.name, newValue);
             }
@@ -110,7 +119,8 @@ module Survey {
         //IQuestion
         onSurveyValueChanged(newValue: any) {
             this.isValueChangedInSurvey = true;
-            this.value = newValue;
+            this.value = this.valueFromData(newValue);
+            this.fireCallback(this.commentChangedCallback);
             this.isValueChangedInSurvey = false;
         }
         //IValidatorOwner

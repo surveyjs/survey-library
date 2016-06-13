@@ -2,7 +2,12 @@
 /// <reference path="jsonobject.ts" />
 module Survey {
     export class QuestionBase extends Base implements IQuestion {
+        private static questionCounter = 100;
+        private static getQuestionId(): string {
+            return "sq_" + QuestionBase.questionCounter++;
+        }
         protected data: ISurvey;
+        private idValue: string;
         private visibleValue: boolean = true;
         private visibleIndexValue: number = -1;
         public width: string = "100%";
@@ -12,6 +17,7 @@ module Survey {
 
         constructor(public name: string) {
             super();
+            this.idValue = QuestionBase.getQuestionId();
             this.onCreating();
         }
         public get visible(): boolean { return this.visibleValue; }
@@ -27,7 +33,12 @@ module Survey {
         public hasErrors(): boolean { return false; }
         public get hasTitle(): boolean { return false; }
         public get hasComment(): boolean { return false; }
+        public get id(): string { return this.idValue; }
         public focus() {
+            var el = document.getElementById(this.id);
+            if (!!el && el.scrollIntoView) {
+                el.scrollIntoView();
+            }
             this.fireCallback(this.focusCallback);
         }
         setData(newValue: ISurvey) {

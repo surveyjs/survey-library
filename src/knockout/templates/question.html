@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-    <div data-bind="visible: question.koVisible(), css: $root.css.question.root">
+    <div data-bind="visible: question.koVisible(), css: $root.css.question.root, attr: {id: id}">
         <!-- ko if: question.hasTitle -->
         <h5 data-bind="text: question.koNo() +  (question.isRequired ? question.requiredText : '') + question.processedTitle, css: $root.css.question.title"></h5>
         <!-- /ko -->

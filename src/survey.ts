@@ -167,7 +167,9 @@ module Survey {
             var oldValue = this.currentPageValue;
             this.currentPageValue = value;
             this.currentPageChanged(value, oldValue);
-            
+            if (this.currentPageValue) {
+                this.currentPageValue.scrollToFirstQuestion();
+            }
         }
         public get state(): string {
             if (this.isLoading) return "loading";

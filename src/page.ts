@@ -68,6 +68,14 @@ module Survey {
             this.questions.splice(index, 1);
             if (this.data != null) this.data.questionRemoved(question);
         }
+        public scrollToFirstQuestion() {
+            for (var i = 0; i < this.questions.length; i++) {
+                if (this.questions[i].visible) {
+                    this.questions[i].focus();
+                    break;
+                }
+            }
+        }
         public hasErrors(focuseOnFirstError: boolean = false): boolean {
             var result = false;
             var firstErrorQuestion = null;

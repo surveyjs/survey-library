@@ -1,6 +1,6 @@
 /*global require*/
 var gulp = require('gulp'),
-    concat = require("gulp-concat"),
+    concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
     tsd = require('gulp-tsd'),
     gnf = require('gulp-npm-files'),
@@ -12,7 +12,6 @@ var gulp = require('gulp'),
     rename = require("gulp-rename"),
     html2ts = require("gulp-html-to-ts"),
     sequence = require("gulp-sequence"),
-    header = require("gulp-header"),
     jsonTransform = require('gulp-json-transform'),
     project = require("./project.json");
 
@@ -33,12 +32,12 @@ paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
 
 var copyright = ["/*!", 
- "* surveyjs - Survey JavaScript library v<%= version %>",
+ "* surveyjs - Survey JavaScript library v" + libraryVersion,
  "* (c) Andrew Telnov - http://surveyjs.org/",
  "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
  "*/", "", ""].join("\n");
 
-var tdHeader = ["// Type definitions for Survey JavaScript library v<%= version %>",
+var tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
 "// Project: http://surveyjs.org/",
 "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
 "// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped",
@@ -126,7 +125,7 @@ function buildFromSources(configName) {
        }));
     return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(header(copyright, { version: libraryVersion }))
+        .pipe(concat.header(copyright))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))
@@ -151,7 +150,7 @@ function buildTypeDefinition(configName) {
        }));
     return tscResult.dts
         .pipe(concat(curConfig.dtsfile))
-        .pipe(header(tdHeader, { version: libraryVersion }))
+        .pipe(concat.header(tdHeader))
         .pipe(gulp.dest(paths.dist_dts));
 }
 
@@ -163,7 +162,7 @@ function compressMainJS(configName) {
             .pipe(rename({
                 extname: '.min.js'
             }))
-        .pipe(header(copyright, { version: libraryVersion }))
+        .pipe(concat.header(copyright))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"))
         .pipe(gulp.dest(paths.dist));
 }

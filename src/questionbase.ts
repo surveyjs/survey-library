@@ -36,10 +36,12 @@ module Survey {
         public get id(): string { return this.idValue; }
         public focus() {
             var el = document.getElementById(this.id);
-            if (!!el && el.scrollIntoView) {
+            if (!el || !el.scrollIntoView) return;
+            var elemTop = el.getBoundingClientRect().top;
+            if (elemTop < 0) {
                 el.scrollIntoView();
+                this.fireCallback(this.focusCallback);
             }
-            this.fireCallback(this.focusCallback);
         }
         setData(newValue: ISurvey) {
             this.data = newValue;

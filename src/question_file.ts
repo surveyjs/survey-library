@@ -4,6 +4,7 @@
 module Survey {
     export class QuestionFileModel extends Question {
         private showPreviewValue: boolean = false;
+        private isUploading: boolean = false;
         previewValueLoadedCallback: () => void;
         public imageHeight: string;
         public imageWidth: string;
@@ -18,8 +19,9 @@ module Survey {
         public get showPreview() { return this.showPreviewValue; }
         public set showPreview(value: boolean) { this.showPreviewValue = value; }
         public loadFile(file: File) {
+            var self = this;
+            if (this.data && !this.data.uploadFile(this.name, file, this.storeDataAsText, function (status: string) { self.isUploading = status == "uploading";  })) return;
             this.setFileValue(file);
-            //new dxSurveyService().sendFile("test1", "test2", file, null);
         }
         public previewValue: any;
         protected setFileValue(file: File) {
@@ -38,6 +40,12 @@ module Survey {
                 }
             }
             fileReader.readAsDataURL(file);
+        }
+        protected onCheckForErrors(errors: Array<SurveyError>) {
+            super.onCheckForErrors(errors);
+            if (this.isUploading) {
+                this.errors.push(new CustomError(surveyLocalization.getString("uploadingFile")));
+            }
         }
         private checkFileForErrors(file: File): boolean {
             var errorLength = this.errors ? this.errors.length : 0;

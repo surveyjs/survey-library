@@ -49,6 +49,7 @@ module Survey {
         public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+        public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
         public jsonErrors: Array<JsonError> = null;
 
         public mode: string = "normal";
@@ -276,6 +277,25 @@ module Survey {
             var vPages = this.visiblePages;
             var index = vPages.indexOf(this.currentPage) + 1;
             return this.getLocString("progressText")["format"](index, vPages.length);
+        }
+        public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {
+            var accept = true;
+            this.onUploadFile.fire(this, { name: name, file: file, accept: accept });
+            if (!accept) return false;
+            if (!storeDataAsText && this.surveyPostId) {
+                this.uploadFileCore(name, file, uploadingCallback);
+            } 
+            return true;
+        }
+        protected uploadFileCore(name: string, file: File, uploadingCallback: (status: string) => any) {
+            var self = this;
+            if (uploadingCallback) uploadingCallback("uploading");
+            new dxSurveyService().sendFile(this.surveyPostId, file, function (success: boolean, response: any) {
+                if (uploadingCallback) uploadingCallback(success ? "success" : "error");
+                if (success) {
+                    self.setValue(name, response);
+                }
+            });
         }
         getPage(index: number): PageModel {
             return this.pages[index];

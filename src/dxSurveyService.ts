@@ -29,23 +29,18 @@
             };
             xhr.send(dataStringify);
         }
-        /*
-        public sendFile(postId: string, fileId: string, file: File, onSendFile: (success: boolean, response: any) => void) {
+        public sendFile(postId: string, file: File, onSendFile: (success: boolean, response: any) => void) {
             var xhr = new XMLHttpRequest();
             xhr.onload = xhr.onerror = function () {
                 if (!onSendFile) return;
-                onSendFile(xhr.status == 200, xhr.response);
+                onSendFile(xhr.status == 200, JSON.parse(xhr.response));
             };
-            //var data = 'postId=' + postId + '&fileId=' + fileId;
-            //xhr.open("POST", dxSurveyService.serviceUrl + '/upload?' + data, true);
             xhr.open("POST", dxSurveyService.serviceUrl + '/upload/', true);
-            //xhr.setRequestHeader("Content-Type", "multipart/form-data");
             var formData = new FormData();
             formData.append("file", file);
             formData.append("postId", postId);
-            formData.append("fileId", fileId);
             xhr.send(formData);
-        }*/
+        }
         public getResult(resultId: string, name: string, onGetResult: (success: boolean, data: any, dataList: Array<any>, response: any) => void) {
             var xhr = new XMLHttpRequest();
             var data = 'resultId=' + resultId + '&name=' + name;

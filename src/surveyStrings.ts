@@ -37,7 +37,8 @@
         numericMax: "The '{0}' should be equal or less than {1}",
         invalidEmail: "Please enter a valid e-mail.",
         exceedMaxSize: "The file size should not exceed {0}.",
-        otherRequiredError: "Please enter the others value."
+        otherRequiredError: "Please enter the others value.",
+        uploadingFile: "Your file is uploading. Please wait several seconds and try again."
     }
     surveyLocalization.locales["en"] = surveyStrings;
 

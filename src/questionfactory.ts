@@ -3,7 +3,7 @@
 module Survey {
     export class QuestionFactory {
         public static Instance: QuestionFactory = new QuestionFactory();
-        public static DefaultChoices = ["one", "two|second value", { value: 3, text: "third value" }];
+        public static DefaultChoices = ["one", "two|second value", "three|third value"];
         private creatorHash: HashTable<(name: string) => QuestionBase> = {};
 
         public registerQuestion(questionType: string, questionCreator: (name: string) => QuestionBase) {

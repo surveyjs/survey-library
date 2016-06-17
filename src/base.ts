@@ -17,6 +17,7 @@
         isDesignMode: boolean;
         requiredText: string;
         storeOthersAsComment: boolean;
+        uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
     }
     export interface IQuestion {
         name: string;

@@ -1,0 +1,3 @@
+{ questions: [
+    { type: "file", title: "Please upload your photo", name: "image", storeDataAsText: true, showPreview: true, imageWidth: 150, maxSize: 102400 }
+]}

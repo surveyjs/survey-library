@@ -11,7 +11,8 @@
                 { "name": "Rating", "text" : "Rating question", "url": "questiontype-rating.html"},
                 { "name": "Text", "text" : "Text question", "url": "questiontype-text.html"},
                 { "name": "Comment", "text" : "Comment question", "url": "questiontype-comment.html"},
-                { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"}
+                { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"},
+                { "name": "File", "text" : "File Uploading", "url": "questiontype-file.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

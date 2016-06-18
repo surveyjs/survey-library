@@ -1,0 +1,30 @@
+<div class="propertyitem">
+    <p>
+    Preview the image: <input type="checkbox" checked="true" onChange="survey.getQuestionByName('image').showPreview = this.checked; survey.render();"/> default is false.
+    <pre><code class="language-javascript">survey.getQuestionByName('image').showPreview = yourValue; survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+    Store file content directoy in data JSON: <input type="checkbox" checked="true" onChange="survey.getQuestionByName('image').storeDataAsText = this.checked; survey.render();"/> default is false.
+    <pre><code class="language-javascript">survey.getQuestionByName('image').storeDataAsText = yourValue; survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+    Image Preview Height: <input type="text" value="" onChange="survey.getQuestionByName('image').imageHeight = this.value; survey.render();"/> default is empty.
+    <pre><code class="language-javascript">survey.getQuestionByName('image').imageHeight; survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+    Image Preview Width: <input type="text" value="150" onChange="survey.getQuestionByName('image').imageWidth = this.value; survey.render();"/> default is empty.
+    <pre><code class="language-javascript">survey.getQuestionByName('image').imageWidth; survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+    File Max Size (in bytes): <input type="text" value="102400" onChange="survey.getQuestionByName('image').maxSize = this.value; survey.render();"/> default is 0 (no limits).
+    <pre><code class="language-javascript">survey.getQuestionByName('image').maxSize; survey.render();</code></pre>
+    </p>
+</div>

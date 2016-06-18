@@ -26,7 +26,7 @@ module Survey {
         public previewValue: any;
         protected setFileValue(file: File) {
             if (!FileReader) return;
-            if (!this.showPreview || !this.storeDataAsText) return;
+            if (!this.showPreview && !this.storeDataAsText) return;
             if (this.checkFileForErrors(file)) return;
             var fileReader = new FileReader();
             var self = this;
@@ -64,6 +64,6 @@ module Survey {
             return str.indexOf("image") == 0;
         }
     }
-    JsonObject.metaData.addClass("file", ["showPreview:boolean", "imageHeight", "imageWidth", "storeDataAsText:boolean", "maxSize:number"], function () { return new QuestionFileModel(""); }, "questionbase");
+    JsonObject.metaData.addClass("file", ["showPreview:boolean", "imageHeight", "imageWidth", "storeDataAsText:boolean", "maxSize:number"], function () { return new QuestionFileModel(""); }, "question");
     QuestionFactory.Instance.registerQuestion("file", (name) => { return new QuestionFileModel(name); });
 }

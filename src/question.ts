@@ -3,6 +3,7 @@
 /// <reference path="validator.ts" />
 /// <reference path="jsonobject.ts" />
 /// <reference path="questionbase.ts" />
+/// <reference path="textPreProcessor.ts" />
 module Survey {
     export class Question extends QuestionBase implements IValidatorOwner {
         private titleValue: string = null;
@@ -10,6 +11,7 @@ module Survey {
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
         private hasOtherValue: boolean = false;
+        private textPreProcessor: TextPreProcessor;
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
         valueChangedCallback: () => void;
@@ -23,6 +25,29 @@ module Survey {
         public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
         public set title(newValue: string) { this.titleValue = newValue; }
         public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
+        public get fullTitle(): string {
+            if (this.data && this.data.questionTitleTemplate) {
+                if (!this.textPreProcessor) {
+                    var self = this;
+                    this.textPreProcessor = new TextPreProcessor();
+                    this.textPreProcessor.onHasValue = function (name: string) { return self.canProcessedTextValues(name.toLowerCase()); };
+                    this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
+                }
+                return this.textPreProcessor.process(this.data.questionTitleTemplate);
+            }
+            var requireText = this.requiredText;
+            if (requireText) requireText += " ";
+            return this.no + ". " + requireText + this.processedTitle;
+        }
+        protected canProcessedTextValues(name: string): boolean {
+            return name == "no" || name == "title" || name == "require";
+        }
+        protected getProcessedTextValue(name: string): any {
+            if (name == "no") return this.no;
+            if (name == "title") return this.processedTitle;
+            if (name == "require") return this.requiredText;
+            return null;
+        }
         public supportComment(): boolean { return false; }
         public supportOther(): boolean { return false; }
         public get isRequired(): boolean { return this.isRequiredValue; }
@@ -38,6 +63,19 @@ module Survey {
             if (!this.supportOther()) return;
             this.hasOtherValue = val;
             if (this.hasOther) this.hasComment = false;
+        }
+        protected get no(): string {
+            if (this.visibleIndex < 0) return "";
+            var startIndex = 1;
+            var isNumeric = true;
+            var str = "";
+            if (this.data && this.data.questionStartIndex) {
+                str = this.data.questionStartIndex;
+                if (parseInt(str)) startIndex = parseInt(str);
+                else if (str.length == 1) isNumeric = false;
+            }
+            if (isNumeric) return (this.visibleIndex + startIndex).toString();
+            return String.fromCharCode(str.charCodeAt(0) + this.visibleIndex);
         }
         protected onSetData() {
             super.onSetData();
@@ -65,7 +103,7 @@ module Survey {
             this.checkForErrors();
             return this.errors.length > 0;
         }
-        public get requiredText(): string { return this.data != null ? this.data.requiredText : ""; }
+        public get requiredText(): string { return this.data != null && this.isRequired ? this.data.requiredText : ""; }
         private checkForErrors() {
             var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];

@@ -59,14 +59,7 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         );
     }
     protected renderTitle(): JSX.Element {
-        var titleText = "";
-        if (this.question.visibleIndex > -1) {
-            titleText = (this.question.visibleIndex + 1).toString() + ". ";
-        }
-        if (this.question.isRequired) {
-            titleText += this.question.requiredText;
-        }
-        titleText += this.question.processedTitle;
+        var titleText = this.question.fullTitle;
         return (<h5 className={this.css.question.title}>{titleText}</h5>);
     }
     protected renderComment(): JSX.Element {

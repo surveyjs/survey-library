@@ -448,6 +448,20 @@ module Survey.Tests {
         survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}{val1}</div>";
         assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
     });
+    QUnit.test("question fullTitle", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        var question = <Survey.Question>survey.pages[0].questions[1];
+        question.title = "My Title";
+        assert.equal(question.fullTitle, "2. My Title");
+        question.isRequired = true;
+        assert.equal(question.fullTitle, "2. * My Title");
+        survey.questionStartIndex = "100";
+        assert.equal(question.fullTitle, "101. * My Title");
+        survey.questionStartIndex = "A";
+        assert.equal(question.fullTitle, "B. * My Title");
+        survey.questionTitleTemplate = "{no}) {title} ({require})"
+        assert.equal(question.fullTitle, "B) My Title (*)");
+    });
     QUnit.test("merge values", function (assert) {
         class MySurvey extends SurveyModel {
             constructor() {

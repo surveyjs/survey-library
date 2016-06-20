@@ -16,6 +16,8 @@
         processText(text: string): string;
         isDesignMode: boolean;
         requiredText: string;
+        questionStartIndex: string;
+        questionTitleTemplate: string;
         storeOthersAsComment: boolean;
         uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
     }

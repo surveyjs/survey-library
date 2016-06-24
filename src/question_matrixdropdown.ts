@@ -6,6 +6,7 @@
 /// <reference path="question_radiogroup.ts" />
 /// <reference path="question_text.ts" />
 /// <reference path="question_comment.ts" />
+/// <reference path="question_wysiwyg.ts" />
 module Survey {
     export interface IMatrixDropdownData {
         onCellChanged(cell: MatrixDropdownCellModel);
@@ -67,6 +68,7 @@ module Survey {
             if (cellType == "radiogroup") return this.createRadiogroup(name);
             if (cellType == "text") return this.createText(name);
             if (cellType == "comment") return this.createComment(name);
+            if (cellType == "wysiwyg") return this.createWysiwyg(name);
             return this.createDropdown(name);
         }
         protected createDropdown(name: string): QuestionDropdownModel {
@@ -92,6 +94,9 @@ module Survey {
         }
         protected createComment(name: string): QuestionCommentModel {
             return new QuestionCommentModel(name);
+        }
+        protected createWysiwyg(name: string): QuestionWysiwygModel {
+            return new QuestionWysiwygModel(name);
         }
         protected createDropdownCore(name: string): QuestionDropdownModel {
             return new QuestionDropdownModel(name);
@@ -225,7 +230,7 @@ module Survey {
     }
     JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount"], function () { return new MatrixDropdownColumn(""); });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
-    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
+    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment", "wysiwyg"]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);
     JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "colCount", [0, 1, 2, 3, 4]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "title", null, null, function (obj: any) { return obj.titleValue; });

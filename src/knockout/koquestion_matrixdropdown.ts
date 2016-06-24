@@ -4,11 +4,13 @@
 /// <reference path="../question_radiogroup.ts" />
 /// <reference path="../question_text.ts" />
 /// <reference path="../question_comment.ts" />
+/// <reference path="../question_wysiwyg.ts" />
 /// <reference path="koquestion_dropdown.ts" />
 /// <reference path="koquestion_checkbox.ts" />
 /// <reference path="koquestion_radiogroup.ts" />
 /// <reference path="koquestion_text.ts" />
 /// <reference path="koquestion_comment.ts" />
+/// <reference path="koquestion_wysiwyg.ts" />
 
 module Survey {
     export class MatrixDropdownCell extends MatrixDropdownCellModel {
@@ -20,6 +22,9 @@ module Survey {
         }
         protected createComment(name: string): QuestionCommentModel {
             return new QuestionComment(name);
+        }
+        protected createWysiwyg(name: string): QuestionWysiwygModel {
+            return new QuestionWysiwyg(name);
         }
         protected createDropdownCore(name: string): QuestionDropdownModel {
             return new QuestionDropdown(name);

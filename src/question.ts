@@ -7,6 +7,7 @@
 module Survey {
     export class Question extends QuestionBase implements IValidatorOwner {
         private titleValue: string = null;
+        private rootCssValue : string = "";
         private questionValue: any;
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
@@ -24,6 +25,8 @@ module Survey {
         public get hasTitle(): boolean { return true; }
         public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
         public set title(newValue: string) { this.titleValue = newValue; }
+        public get rootCss(): string { return this.rootCssValue}
+        public set rootCss(newValue: string) { this.rootCssValue = newValue;}
         public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
         public get fullTitle(): string {
             if (this.data && this.data.questionTitleTemplate) {
@@ -164,7 +167,7 @@ module Survey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", ["title", "isRequired:boolean", "validators:validators"], null, "questionbase");
+    JsonObject.metaData.addClass("question", ["title", "rootCss", "isRequired:boolean", "validators:validators"], null, "questionbase");
     JsonObject.metaData.setPropertyValues("question", "title", null, null,
         function (obj: any) { return obj.titleValue; });
     JsonObject.metaData.setPropertyClassInfo("question", "validators", "surveyvalidator", "validator");

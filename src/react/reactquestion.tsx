@@ -49,8 +49,9 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment() : null;
         var errors = (this.question && this.question.errors.length > 0) ? this.renderErrors() : null;
+        var className = this.css.question.root + " " + this.question.rootCss;
         return (
-            <div id={this.questionBase.id} className={this.css.question.root}>
+            <div id={this.questionBase.id} className={className}>
                 {title}
                 {errors}
                 {questionRender}

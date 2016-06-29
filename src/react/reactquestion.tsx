@@ -49,8 +49,10 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment() : null;
         var errors = (this.question && this.question.errors.length > 0) ? this.renderErrors() : null;
+        var marginLeft = (this.questionBase.indent > 0) ? this.questionBase.indent * this.css.question.indent + "px" : null;
+        var rootStyle = marginLeft ? { 'margin-left': marginLeft } : null;
         return (
-            <div id={this.questionBase.id} className={this.css.question.root}>
+            <div id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
                 {title}
                 {errors}
                 {questionRender}

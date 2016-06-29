@@ -7,7 +7,7 @@
         navigationButton: "",
         progress: "sv_progress",
         pageTitle: "sv_p_title",
-        question: { root: "sv_q", title: "sv_q_title", comment: "" },
+        question: { root: "sv_q", title: "sv_q_title", comment: "", indent: 20 },
         error: { root: "sv_q_erbox", item: "" },
 
         checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },

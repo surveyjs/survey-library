@@ -6,7 +6,7 @@
         navigationButton: "button",
         progress: "progress center-block",
         pageTitle: "",
-        question: { root: "", title: "", comment: "form-control" },
+        question: { root: "", title: "", comment: "form-control", indent: 20 },
         error: { root: "alert alert-danger", item: "glyphicon glyphicon-exclamation-sign" },
 
         checkbox: { root: "form-inline", item: "checkbox", other: "" },

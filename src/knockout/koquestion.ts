@@ -3,6 +3,7 @@
 module Survey {
     export class QuestionImplementor extends QuestionImplementorBase {
         private isUpdating: boolean = false;
+        private koDummy: any;
         koValue: any; koComment: any; koTitle: any;
         constructor(public question: Question) {
             super(question);
@@ -10,10 +11,12 @@ module Survey {
             question.valueChangedCallback = function () { self.onValueChanged(); };
             question.commentChangedCallback = function () { self.onCommentChanged(); };
             question.errorsChangedCallback = function () { self.onErrorsChanged(); };
+            question.titleChangedCallback = function () { self.onVisibleIndexChanged(); }
             question.visibleIndexChangedCallback = function () { self.onVisibleIndexChanged(); };
+            this.koDummy = ko.observable(0);
             this.koValue = this.createkoValue();
             this.koComment = ko.observable(this.question.comment);
-            this.koTitle = ko.observable(this.question.fullTitle);
+            this.koTitle = ko.computed(function () { self.koDummy(); self.koVisible(); return self.question.fullTitle; });
             this.koErrors(this.question.errors);
             this.koValue.subscribe(function (newValue) {
                 self.updateValue(newValue);
@@ -37,7 +40,7 @@ module Survey {
             this.koVisible(this.question.visible);
         }
         protected onVisibleIndexChanged() {
-            this.koTitle(this.question.fullTitle);
+            this.koDummy(this.koDummy() + 1);
         }
         protected onErrorsChanged() {
             this.koErrors(this.question.errors);

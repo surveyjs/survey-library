@@ -17,13 +17,17 @@ module Survey {
         valueChangedCallback: () => void;
         commentChangedCallback: () => void;
         errorsChangedCallback: () => void;
+        titleChangedCallback: () => void;
 
         constructor(public name: string) {
             super(name);
         }
         public get hasTitle(): boolean { return true; }
         public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
-        public set title(newValue: string) { this.titleValue = newValue; }
+        public set title(newValue: string) {
+            this.titleValue = newValue;
+            this.fireCallback(this.titleChangedCallback);
+        }
         public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
         public get fullTitle(): string {
             if (this.data && this.data.questionTitleTemplate) {

@@ -356,5 +356,18 @@ module Survey.JsonSerializationTests {
          assert.equal(container.items[0].getType(), "shouldcreate", "created the right class in array");
          assert.equal(container.obj.getType(), "shouldcreate", "created the right class in property");
      });
-     
+     QUnit.test("toJsonObject should create new instance of objects", function (assert) {
+         var dealer = new Dealer();
+         var truck = new Truck();
+         truck.maxWeight = 10000;
+         var sport = new SportCar();
+         sport.maxSpeed = 320;
+         dealer.cars = [sport, truck];
+         var jsObj = new JsonObject().toJsonObject(dealer);
+         assert.notEqual(jsObj.cars, dealer.cars);
+         assert.notEqual(jsObj.cars[0], dealer.cars[0]);
+         dealer.cars.push(sport);
+         assert.equal(dealer.cars.length, 3);
+         assert.equal(jsObj.cars.length, 2);
+     });
 }

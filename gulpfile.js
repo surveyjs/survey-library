@@ -2,6 +2,7 @@
 var gulp = require('gulp'),
     concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
+    insert = require('gulp-insert'),
     tsd = require('gulp-tsd'),
     gnf = require('gulp-npm-files'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -116,6 +117,7 @@ function buildFromSources(configName) {
           paths.webroot + "/lib/survey/**/*.d.ts",
           paths.typings
     ].concat(curConfig.src))
+       .pipe(insert.prepend(copyright))
        .pipe(sourcemaps.init())
        .pipe(ts({
            target: "ES5",
@@ -125,7 +127,6 @@ function buildFromSources(configName) {
        }));
     return tsResult.js
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(concat.header(copyright))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.dist))

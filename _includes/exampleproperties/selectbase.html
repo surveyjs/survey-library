@@ -2,7 +2,7 @@
 <div class="propertyitem">
     <p>
     <b>Column count: </b> (default is 1)
-    <select style="width:100%" onChange="survey.getQuestionByName('car').colCount = parseInt(this.value); survey.render();">
+    <select id="selColCount" style="width:100%" onChange="survey.getQuestionByName('car').colCount = parseInt(this.value); survey.render();">
         <option value="0">0</option>
         <option value="1">1</option>
         <option value="2">2</option>
@@ -18,7 +18,7 @@ survey.render();</code></pre>
 <div class="propertyitem">
     <p>
         <b>Choices order: </b> (default is 'none')
-        <select style="width:100%" onChange="survey.getQuestionByName('car').choicesOrder = this.value; survey.render();">
+        <select id="selChoiceOrder" style="width:100%" onChange="survey.getQuestionByName('car').choicesOrder = this.value; survey.render();">
             <option value="none" selected="true">none</option>
             <option value="asc">asc</option>
             <option value="desc">desc</option>
@@ -31,7 +31,7 @@ survey.render();</code></pre>
 </div>
 <div class="propertyitem">
     <p>
-        <input type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" /> <b>Show others: </b> (default is false)
+        <input id="cbShowOthers" type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" /> <b>Show others: </b> (default is false)
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.hasOther = yourvalue; 
 survey.render();</code></pre>
@@ -39,7 +39,7 @@ survey.render();</code></pre>
 </div>
 <div class="propertyitem">
     <p>
-        <b>Others text</b> <input  type="text" style="width:100%" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
+        <b>Others text</b> <input id="tOtherText"  type="text" style="width:100%" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.otherText = yourvalue; 
 survey.render();</code></pre>

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question">
     <div data-bind="visible: question.koVisible(), css: $root.css.question.root, style: {marginLeft: question.koMarginLeft }, attr: {id: id}">
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="text: question.koTitle, css: $root.css.question.title"></h5>
+        <h5 data-bind="text: question.koTitle(), css: $root.css.question.title"></h5>
         <!-- /ko -->
         <!-- ko template: { name: 'survey-question-errors', data: question } -->
         <!-- /ko -->

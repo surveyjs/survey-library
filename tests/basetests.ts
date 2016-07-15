@@ -60,6 +60,16 @@ module Survey.Tests {
         assert.equal(items[3].value, "value1", "set correct value property for the fourth item");
         assert.equal(items[3].text, "text1", "set correct text property for the fourth item");
     });
+    QUnit.test("ItemValue.setData() empty text", function (assert) {
+        var items = new Array<ItemValue>();
+        items.push(new ItemValue(1));
+        items.push(new ItemValue(2));
+        var newItems = new Array<ItemValue>();
+        ItemValue.setData(newItems, items);
+        assert.equal(newItems.length, 2, "there are 2 items");
+        assert.equal(newItems[0].value, 1, "the first value is 1");
+        assert.equal(newItems[0].hasText, false, "There is no text");
+    });
     QUnit.test("ItemValue.setData() boolean", function (assert) {
         var items = new Array<ItemValue>();
         ItemValue.setData(items, [{ value: true, text: "Yes" }, { value: false, text: "No" }]);

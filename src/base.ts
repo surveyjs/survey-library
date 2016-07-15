@@ -40,7 +40,7 @@
                 var value = values[i];
                 var item = new ItemValue(null);
                 if (typeof (value.value) !== 'undefined') {
-                    item.text = value["text"];
+                    item.text = typeof (value.hasText) !== 'undefined' ? value.itemText : value["text"];
                     item.value = value["value"];
                 } else {
                     item.value = value;

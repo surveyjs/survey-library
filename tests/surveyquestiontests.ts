@@ -7,6 +7,7 @@
 /// <reference path="../src/question_multipletext.ts" />
 /// <reference path="../src/question_radiogroup.ts" />
 /// <reference path="../src/question_matrixdropdown.ts" />
+/// <reference path="../src/question_matrixdynamic.ts" />
 /// <reference path="../src/questionfactory.ts" />
 module Survey.Tests {
     QUnit.module("Survey_Questions");
@@ -318,8 +319,10 @@ module Survey.Tests {
         assert.equal(visibleRows.length, 3, "There are three rows");
         assert.equal(visibleRows[0].cells.length, 2, "There are two cells in each row");
         assert.equal(visibleRows[2].cells.length, 2, "There are two cells in each row");
-        assert.equal(visibleRows[0].cells[0].choices, question.choices, "get choices from matrix");
-        assert.equal(visibleRows[0].cells[1].choices, question.columns[1].choices, "get choices from column");
+        var q1 = <QuestionDropdownModel>(visibleRows[0].cells[0].question);
+        var q2 = <QuestionDropdownModel>(visibleRows[0].cells[1].question);
+        assert.deepEqual(q1.choices, question.choices, "get choices from matrix");
+        assert.deepEqual(q2.choices, question.columns[1].choices, "get choices from column");
         assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
         assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
 
@@ -327,6 +330,31 @@ module Survey.Tests {
         visibleRows[0].cells[1].value = 4;
         assert.deepEqual(question.value, { 'row1': { 'column2': 4 } }, "set the cell value correctly");
         visibleRows[0].cells[1].value = null;
+        assert.deepEqual(question.value, null, "set to null if all cells are null");
+    });
+    QUnit.test("Matrixdynamic cells tests", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDynamic");
+        question.rowCount = 3;
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        question.choices = [1, 2, 3];
+        question.columns[1].choices = [4, 5];
+        question.value = [{}, { 'column1': 2 }, {}];
+        var visibleRows = question.visibleRows;
+        assert.equal(visibleRows.length, 3, "There are three rows");
+        assert.equal(visibleRows[0].cells.length, 2, "There are two cells in each row");
+        assert.equal(visibleRows[2].cells.length, 2, "There are two cells in each row");
+        var q1 = <QuestionDropdownModel>(visibleRows[0].cells[0].question);
+        var q2 = <QuestionDropdownModel>(visibleRows[0].cells[1].question);
+        assert.deepEqual(q1.choices, question.choices, "get choices from matrix");
+        assert.deepEqual(q2.choices, question.columns[1].choices, "get choices from column");
+        assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
+        assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
+
+        question.value = null;
+        visibleRows[1].cells[1].value = 4;
+        assert.deepEqual(question.value, [{}, { 'column2': 4 }, {} ], "set the cell value correctly");
+        visibleRows[1].cells[1].value = null;
         assert.deepEqual(question.value, null, "set to null if all cells are null");
     });
     QUnit.test("Matrixdropdown value tests after cells generation", function (assert) {
@@ -339,6 +367,29 @@ module Survey.Tests {
         var visibleRows = question.visibleRows;
         question.value = { 'row2': { 'column1': 2 } }
         assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
+    });
+    QUnit.test("Matrixdynamic value tests after cells generation", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDymanic");
+        question.rowCount = 3;
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        question.choices = [1, 2, 3];
+        question.columns[1].choices = [4, 5];
+        var visibleRows = question.visibleRows;
+        question.value = [{}, { 'column1': 2 }, {}];
+        assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
+    });
+    QUnit.test("Matrixdynamic add/remove rows", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDymanic");
+        question.rowCount = 3;
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        question.value = [{}, { 'column1': 2 }, {}];
+        question.removeRow(1);
+        assert.equal(question.rowCount, 2, "one row is removed");
+        assert.equal(question.value, null, "value is null now");
+        question.addRow();
+        assert.equal(question.rowCount, 3, "one row is added");
     });
     QUnit.test("Matrixdropdown different cell types", function (assert) {
         var question = new QuestionMatrixDropdownModel("matrixDropdown");

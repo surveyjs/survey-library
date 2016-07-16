@@ -1,4 +1,5 @@
 ﻿/// <reference path="../question_matrixdropdown.ts" />
+/// <reference path="../question_matrixdropdownbase.ts" />
 /// <reference path="../question_dropdown.ts" />
 /// <reference path="../question_checkbox.ts" />
 /// <reference path="../question_radiogroup.ts" />
@@ -11,10 +12,15 @@
 /// <reference path="koquestion_comment.ts" />
 
 module Survey {
-    export class MatrixDropdownCell extends MatrixDropdownCellModel {
-        constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModel, data: IMatrixDropdownData, value: any) {
-            super(column, row, data, value);
+    export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
+        constructor(public name: string) {
+            super(name);
+            new QuestionImplementor(this);
         }
+        /*
+        protected createMatrixRow(name: any, text: string, value: any): MatrixDropdownRowModel {
+            return new MatrixDropdownRow(name, text, this, value);
+        }*/
         protected createText(name: string): QuestionTextModel {
             return new QuestionText(name);
         }
@@ -29,23 +35,6 @@ module Survey {
         }
         protected createRadiogroupCore(name: string): QuestionRadiogroupModel {
             return new QuestionRadiogroup(name);
-        }
-    }
-    export class MatrixDropdownRow extends MatrixDropdownRowModel {
-        constructor(public name: any, public text: string, data: IMatrixDropdownData, value: any) {
-            super(name, text, data, value);
-        }
-        protected createCell(column: MatrixDropdownColumn, value: any): MatrixDropdownCellModel {
-            return new MatrixDropdownCell(column, this, this.data, value);
-        }
-    }
-    export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
-        constructor(public name: string) {
-            super(name);
-            new QuestionImplementor(this);
-        }
-        protected createMatrixRow(name: any, text: string, value: any): MatrixDropdownRowModel {
-            return new MatrixDropdownRow(name, text, this, value);
         }
     }
 

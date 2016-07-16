@@ -77,13 +77,13 @@ class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
         }
         return (<tr><td>{this.row.text}</td>{tds}</tr>);
     }
-    protected renderSelect(cell: Survey.MatrixDropdownCellModel): JSX.Element {
+    protected renderSelect(cell: Survey.MatrixDropdownCell): JSX.Element {
         return <ReactSurveyQuestionmatrixdropdownCell cell={cell} css={this.css} rootCss={this.rootCss} creator={this.creator} />
     }
 }
 
 class ReactSurveyQuestionmatrixdropdownCell extends React.Component<any, any> {
-    private cell: Survey.MatrixDropdownCellModel;
+    private cell: Survey.MatrixDropdownCell;
     protected css: any;
     protected rootCss: any;
     protected creator: Survey.IReactSurveyCreator;

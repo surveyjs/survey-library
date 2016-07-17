@@ -38,7 +38,9 @@
         invalidEmail: "Please enter a valid e-mail.",
         exceedMaxSize: "The file size should not exceed {0}.",
         otherRequiredError: "Please enter the others value.",
-        uploadingFile: "Your file is uploading. Please wait several seconds and try again."
+        uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
+        addRow: "Add Row",
+        removeRow: "Remove"
     }
     surveyLocalization.locales["en"] = surveyStrings;
 

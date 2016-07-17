@@ -14,6 +14,7 @@ module Survey {
         static MaxRowCount = 100;
         private rowCounter = 0;
         private rowCountValue: number = 2;
+        public rowCountChangedCallback: () => void;
         constructor(public name: string) {
             super(name);
         }
@@ -24,12 +25,24 @@ module Survey {
         public set rowCount(val: number) {
             if (val < 0 || val > QuestionMatrixDynamicModel.MaxRowCount) return;
             this.rowCountValue = val;
+            if (this.value && this.value.length > val) {
+                var qVal = this.value;
+                qVal.splice(val);
+                this.value = qVal;
+            }
+            this.fireCallback(this.rowCountChangedCallback);
         }
         public addRow() {
+            if (this.generatedVisibleRows) {
+                this.generatedVisibleRows.push(this.createMatrixRow(null));
+            }
             this.rowCount++;
         }
         public removeRow(index: number) {
             if (index < 0 || index >= this.rowCount) return;
+            if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
+                this.generatedVisibleRows.splice(index, 1);
+            }
             if (this.value) {
                 var val = this.createNewValue(this.value);
                 val.splice(index, 1);
@@ -38,6 +51,13 @@ module Survey {
             }
             this.rowCount--;
         }
+        public get addRowText() { return surveyLocalization.getString("addRow"); }
+        public get removeRowText() { return surveyLocalization.getString("removeRow"); }
+        public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
+            if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
+            return this.visibleRows;
+        }
+
         protected generateRows(): Array<MatrixDynamicRowModel> {
             var result = new Array<MatrixDynamicRowModel>();
             if (this.rowCount === 0) return result;

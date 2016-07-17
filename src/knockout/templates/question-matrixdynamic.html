@@ -1,0 +1,26 @@
+﻿<script type="text/html" id="survey-question-matrixdynamic">
+    <table data-bind="css: $root.css.matrixdynamic.root">
+        <thead>
+            <tr>
+                <!-- ko foreach: question.columns -->
+                <th data-bind="text:$data.title"></th>
+                <!-- /ko -->
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- ko foreach: { data: question.koRows, as: 'row' } -->
+            <tr>
+                <!-- ko foreach: row.cells-->
+                <td>
+                    <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                    <!-- /ko -->
+                </td>
+                <!-- /ko -->
+                <td><input type="button" data-bind="click:question.koRemoveRowClick, css: $root.css.matrixdynamic.button, value: question.removeRowText" /></td>
+            </tr>
+            <!-- /ko -->
+        </tbody>
+    </table>
+    <input type="button" data-bind="click:question.koAddRowClick, css: $root.css.matrixdynamic.button, value: question.addRowText" />
+</script>

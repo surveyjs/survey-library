@@ -97,6 +97,7 @@ module Survey {
         private optionsCaptionValue: string;
         private isRowChanging = false;
         protected generatedVisibleRows: Array<MatrixDropdownRowModelBase>;
+        public columnsChangedCallback: () => void;
 
         constructor(public name: string) {
             super(name);
@@ -105,7 +106,10 @@ module Survey {
             return "matrixdropdownbase";
         }
         public get columns(): Array<MatrixDropdownColumn> { return this.columnsValue; }
-        public set columns(value: Array<MatrixDropdownColumn>) { this.columnsValue = value; }
+        public set columns(value: Array<MatrixDropdownColumn>) {
+            this.columnsValue = value;
+            this.fireCallback(this.columnsChangedCallback);
+        }
         public get choices(): Array<any> { return this.choicesValue; }
         public set choices(newValue: Array<any>) {
             ItemValue.setData(this.choicesValue, newValue);

@@ -1,15 +1,5 @@
 ﻿/// <reference path="../question_matrixdropdown.ts" />
 /// <reference path="../question_matrixdropdownbase.ts" />
-/// <reference path="../question_dropdown.ts" />
-/// <reference path="../question_checkbox.ts" />
-/// <reference path="../question_radiogroup.ts" />
-/// <reference path="../question_text.ts" />
-/// <reference path="../question_comment.ts" />
-/// <reference path="koquestion_dropdown.ts" />
-/// <reference path="koquestion_checkbox.ts" />
-/// <reference path="koquestion_radiogroup.ts" />
-/// <reference path="koquestion_text.ts" />
-/// <reference path="koquestion_comment.ts" />
 
 module Survey {
     export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {

@@ -14,6 +14,7 @@
         dropdown: "form-control",
         matrix: { root: "table" },
         matrixdropdown: { root: "table" },
+        matrixdynamic: { root: "table", button: "button" },
         multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
         radiogroup: { root: "form-inline", item: "radio", other: "" },
         rating: { root: "btn-group", item: "btn btn-default" },

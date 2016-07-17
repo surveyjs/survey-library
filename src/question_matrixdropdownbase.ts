@@ -163,37 +163,31 @@ module Survey {
             return column.optionsCaption ? column.optionsCaption : this.optionsCaption;
         }
         protected createDropdown(name: string, column: MatrixDropdownColumn): QuestionDropdownModel {
-            var q = this.createDropdownCore(name);
+            var q = <QuestionDropdownModel>this.createCellQuestion("dropdown", name);
             q.choices = this.getColumnChoices(column);
             q.optionsCaption = this.getColumnOptionsCaption(column);
             return q;
         }
         protected createCheckbox(name: string, column: MatrixDropdownColumn): QuestionCheckboxModel {
-            var q = this.createCheckboxCore(name);
+            var q = <QuestionCheckboxModel>this.createCellQuestion("checkbox", name);
             q.choices = this.getColumnChoices(column);
             q.colCount = column.colCount;
             return q;
         }
         protected createRadiogroup(name: string, column: MatrixDropdownColumn): QuestionRadiogroupModel {
-            var q = this.createRadiogroupCore(name);
+            var q = <QuestionRadiogroupModel>this.createCellQuestion("radiogroup", name);
             q.choices = this.getColumnChoices(column);
             q.colCount = column.colCount;
             return q;
         }
         protected createText(name: string, column: MatrixDropdownColumn): QuestionTextModel {
-            return new QuestionTextModel(name);
+            return <QuestionTextModel>this.createCellQuestion("text", name);
         }
         protected createComment(name: string, column: MatrixDropdownColumn): QuestionCommentModel {
-            return new QuestionCommentModel(name);
+            return <QuestionCommentModel>this.createCellQuestion("comment", name);
         }
-        protected createDropdownCore(name: string): QuestionDropdownModel {
-            return new QuestionDropdownModel(name);
-        }
-        protected createCheckboxCore(name: string): QuestionCheckboxModel {
-            return new QuestionCheckboxModel(name);
-        }
-        protected createRadiogroupCore(name: string): QuestionRadiogroupModel {
-            return new QuestionRadiogroupModel(name);
+        protected createCellQuestion(questionType: string, name: string): Question {
+            return <Question>QuestionFactory.Instance.createQuestion(questionType, name);
         }
         protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
             delete newValue[row.rowName];

@@ -17,25 +17,6 @@ module Survey {
             super(name);
             new QuestionImplementor(this);
         }
-        /*
-        protected createMatrixRow(name: any, text: string, value: any): MatrixDropdownRowModel {
-            return new MatrixDropdownRow(name, text, this, value);
-        }*/
-        protected createText(name: string): QuestionTextModel {
-            return new QuestionText(name);
-        }
-        protected createComment(name: string): QuestionCommentModel {
-            return new QuestionComment(name);
-        }
-        protected createDropdownCore(name: string): QuestionDropdownModel {
-            return new QuestionDropdown(name);
-        }
-        protected createCheckboxCore(name: string): QuestionCheckboxModel {
-            return new QuestionCheckbox(name);
-        }
-        protected createRadiogroupCore(name: string): QuestionRadiogroupModel {
-            return new QuestionRadiogroup(name);
-        }
     }
 
     JsonObject.metaData.overrideClassCreatore("matrixdropdown", function () { return new QuestionMatrixDropdown(""); });

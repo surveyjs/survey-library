@@ -462,6 +462,18 @@ module Survey.Tests {
         survey.questionTitleTemplate = "{no}) {title} ({require})"
         assert.equal(question.fullTitle, "B) My Title (*)");
     });
+    QUnit.test("clearInvisibleValues", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        survey.clearInvisibleValues = true;
+        var question1 = <Survey.Question>survey.pages[0].questions[0];
+        question1.value = "myValue";
+        var question2 = <Survey.Question>survey.pages[0].questions[1];
+        question2.value = "myValue";
+        question1.visible = false;
+        survey.doComplete();
+        assert.equal(question1.value, null, "Clear value of an invisible question");
+        assert.equal(question2.value, "myValue", "Keep value of a visible question");
+    });
     QUnit.test("merge values", function (assert) {
         class MySurvey extends SurveyModel {
             constructor() {

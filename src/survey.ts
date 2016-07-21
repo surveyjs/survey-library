@@ -26,6 +26,7 @@ module Survey {
         public storeOthersAsComment: boolean = true;
         public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
+        public clearInvisibleValues: boolean = false;
         private currentPageValue: PageModel = null;
         private valuesHash: HashTable<any> = {};
         private variablesHash: HashTable<any> = {};
@@ -257,6 +258,9 @@ module Survey {
             return vPages.indexOf(this.currentPage) == vPages.length - 1;
         }
         public doComplete() {
+            if (this.clearInvisibleValues) {
+                this.clearInvisibleQuestionValues();
+            }
             this.setCookie();
             this.setCompleted();
             this.onComplete.fire(this, null);
@@ -518,6 +522,13 @@ module Survey {
             }
             return val(name);
         }
+        private clearInvisibleQuestionValues() {
+            var questions = this.getAllQuestions();
+            for (var i: number = 0; i < questions.length; i++) {
+                if (questions[i].visible) continue;
+                this.setValue(questions[i].name, null);
+            }
+        }
         public getVariable(name: string): any {
             if (!name) return null;
             return this.variablesHash[name];
@@ -606,7 +617,7 @@ module Survey {
 
     JsonObject.metaData.addClass("survey", ["locale", "title", "completedHtml:html", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
-        "storeOthersAsComment:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText", "questionStartIndex", "questionTitleTemplate"]);
+        "storeOthersAsComment:boolean", "clearInvisibleValues:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText", "questionStartIndex", "questionTitleTemplate"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
         function (obj) { return null; },

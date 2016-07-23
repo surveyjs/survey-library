@@ -16,6 +16,7 @@ module Survey {
         private choicesValue: ItemValue[] = [];
         private titleValue: string;
         public optionsCaption: string;
+        public isRequired: boolean;
         private cellTypeValue: string = "dropdown";
         private colCountValue: number = 0;
         constructor(public name: string, title: string = null) {
@@ -149,8 +150,29 @@ module Survey {
             }
             this.isRowChanging = false;
         }
+        public hasErrors(): boolean {
+            var errosInCells = this.hasErrorInCells();
+            return super.hasErrors() || errosInCells;
+        }
+        private hasErrorInCells(): boolean {
+            if (!this.generatedVisibleRows) return false;
+            var res = false;
+            for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
+                if (!this.columns[colIndex].isRequired) continue;
+                for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+                    var cells = this.generatedVisibleRows[i].cells;
+                    res = cells && cells[colIndex] && cells[colIndex].question && cells[colIndex].question.hasErrors() || res;
+                }
+            }
+            return res;
+        }
         //IMatrixDropdownData
         public createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
+            var question = this.createQuestionCore(row, column);
+            question.isRequired = column.isRequired;
+            return question;
+        }
+        protected createQuestionCore(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
             var cellType = column.cellType;
             var name = this.getQuestionName(row, column);
             if (cellType == "checkbox") return this.createCheckbox(name, column);
@@ -213,7 +235,7 @@ module Survey {
             this.isRowChanging = false;
         }
     }
-    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount"], function () { return new MatrixDropdownColumn(""); });
+    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount", "isRequired:boolean"], function () { return new MatrixDropdownColumn(""); });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
     JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);

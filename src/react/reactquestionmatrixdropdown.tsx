@@ -72,8 +72,10 @@ class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
         if (!this.row) return null;
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
-            var select = this.renderSelect(this.row.cells[i]);
-            tds.push(<td key={"row" + i}>{select}</td>);
+            var cell = this.row.cells[i];
+            var errors = <ReactSurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
+            var select = this.renderSelect(cell);
+            tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
         return (<tr><td>{this.row.text}</td>{tds}</tr>);
     }

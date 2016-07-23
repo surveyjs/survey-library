@@ -391,6 +391,21 @@ module Survey.Tests {
         question.addRow();
         assert.equal(question.rowCount, 3, "one row is added");
     });
+    QUnit.test("Matrixdynamic required column", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDymanic");
+        question.rowCount = 2;
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        question.columns.push(new MatrixDropdownColumn("column2"));
+        var rows = question.visibleRows;
+        assert.equal(question.hasErrors(), false, "No errors");
+        question.columns[0].isRequired = true;
+        var rows = question.visibleRows;
+        assert.equal(question.hasErrors(), true, "column1 should not be empty. All rows are empty");
+        question.value = [{ 'column1': 2 }, {}];
+        assert.equal(question.hasErrors(), true, "column1 should not be empty. the second row is empty");
+        question.value = [{ 'column1': 2 }, { 'column1': 3}];
+        assert.equal(question.hasErrors(), false, "column1 should not be empty. all values are set");
+    });
     QUnit.test("Matrixdropdown different cell types", function (assert) {
         var question = new QuestionMatrixDropdownModel("matrixDropdown");
 

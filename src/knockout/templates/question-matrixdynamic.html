@@ -13,6 +13,8 @@
             <tr>
                 <!-- ko foreach: row.cells-->
                 <td>
+                    <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
+                    <!-- /ko -->
                     <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
                     <!-- /ko -->
                 </td>

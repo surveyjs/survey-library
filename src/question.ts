@@ -129,13 +129,13 @@ module Survey {
             }
         }
         protected onCheckForErrors(errors: Array<SurveyError>) {
-            if (this.isRequired) {
-                if (this.isEmpty()) {
-                    this.errors.push(new AnswerRequiredError());
-                }
+            if (this.hasRequiredError()) {
+                this.errors.push(new AnswerRequiredError());
             }
         }
-
+        protected hasRequiredError(): boolean {
+            return this.isRequired && this.isEmpty();
+        }
         protected runValidators(): SurveyError {
             return new ValidatorRunner().run(this);
         }

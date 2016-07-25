@@ -11,9 +11,9 @@ fixtures.forEach(({ postfix, subPath }) => {
      fixture `Test Radiogroup question (${postfix})` 
          .page `http://surveyjs.org/${subPath}/questiontype-radiogroup.html`; 
 
-    test("Show others item and change it's text", async t => {
-        await t
-            .typeText('#tOtherText', 'My Others', { replace: true })
+     test("Show others item and change it's text", async t => {
+         await t
+             .typeText('#tOtherText', 'My Others', { replace: true });
         await t 
             .click("#cbShowOthers");
         var othersRadio = await t.select('input[type="radio"][value="other"]');

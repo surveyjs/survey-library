@@ -221,7 +221,7 @@ module Survey.Tests {
         assert.equal(counter, 2, "onValueChanged event is called one time");
     });
     QUnit.test("onValueChanged event - do not call on equal value", function (assert) {
-        var survey = new Survey();
+        var survey = new SurveyModel();
         var counter = 0;
         survey.onValueChanged.add(function (sender: SurveyModel, options: any) { counter++; });
         survey.setValue("name", 1);

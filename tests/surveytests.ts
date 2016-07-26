@@ -220,6 +220,27 @@ module Survey.Tests {
         (<Question>survey.pages[0].questions[0]).value = "val";
         assert.equal(counter, 2, "onValueChanged event is called one time");
     });
+    QUnit.test("onValueChanged event - do not call on equal value", function (assert) {
+        var survey = new Survey();
+        var counter = 0;
+        survey.onValueChanged.add(function (sender: SurveyModel, options: any) { counter++; });
+        survey.setValue("name", 1);
+        assert.equal(counter, 1, "onValueChanged event is called one time");
+        survey.setValue("name", 1);
+        assert.equal(counter, 1, "1 is the same value");
+        survey.setValue("name", { col1: [1, { cel2: "2" }] });
+        assert.equal(counter, 2, "onValueChanged event is called two times");
+        survey.setValue("name", { col1: [1, { cel2: "2" }] });
+        assert.equal(counter, 2, "2, the value is the same");
+        survey.setValue("name", { col1: [1, { cel2: "2" }, 3] });
+        assert.equal(counter, 3, "onValueChanged event is called three times");
+        survey.setValue("name", { col1: [1, { cel2: "2" }, 3] });
+        assert.equal(counter, 3, "3, the value is the same");
+        var value = survey.getValue("name");
+        value.col1.push(4);
+        survey.setValue("name", value);
+        assert.equal(counter, 4, "onValueChanged event is called fourth times");
+    });
     QUnit.test("onValueChanged event is not called on changing matrix value", function (assert) {
         var survey = twoPageSimplestSurvey();
         var matrixQuestion = new QuestionMatrixModel("matrix");

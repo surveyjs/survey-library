@@ -541,9 +541,15 @@ module Survey {
         //ISurvey data
         getValue(name: string): any {
             if (!name || name.length == 0) return null;
-            return this.valuesHash[name];
+            var value = this.valuesHash[name];
+            if (value && value instanceof Object) {
+                //do not return the same object instance!!!
+                value = JSON.parse(JSON.stringify(value));
+            }
+            return value;
         }
         setValue(name: string, newValue: any) {
+            if (this.isValueEqual(name, newValue)) return;
             if (newValue == "" || newValue == null) {
                 delete this.valuesHash[name];
             } else {
@@ -552,6 +558,27 @@ module Survey {
             }
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue, false);
+        }
+        private isValueEqual(name: string, newValue: any): boolean {
+            if (newValue == "") newValue = null;
+            var oldValue = this.getValue(name);
+            if (newValue === null || oldValue === null) return newValue === oldValue;
+            return this.isTwoValueEquals(newValue, oldValue);
+        }
+        private isTwoValueEquals(x: any, y: any): boolean {
+            if (x === y) return true;
+            if (!(x instanceof Object) || !(y instanceof Object)) return false;
+            for (var p in x) {
+                if (!x.hasOwnProperty(p)) continue;
+                if (!y.hasOwnProperty(p)) return false;
+                if (x[p] === y[p]) continue;
+                if (typeof (x[p]) !== "object") return false;
+                if (!this.isTwoValueEquals(x[p], y[p])) return false;
+            }
+            for (p in y) {
+                if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+            }
+            return true;
         }
         getComment(name: string): string {
             var result = this.data[name + this.commentPrefix];

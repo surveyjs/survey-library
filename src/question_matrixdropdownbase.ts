@@ -17,8 +17,8 @@ module Survey {
         private choicesValue: ItemValue[] = [];
         private titleValue: string;
         public optionsCaption: string;
-        public isRequired: boolean;
-        public hasOther: boolean;
+        public isRequired: boolean = false;
+        public hasOther: boolean = false;
         private cellTypeValue: string = "dropdown";
         private colCountValue: number = 0;
         constructor(public name: string, title: string = null) {
@@ -117,6 +117,15 @@ module Survey {
         public set columns(value: Array<MatrixDropdownColumn>) {
             this.columnsValue = value;
             this.fireCallback(this.columnsChangedCallback);
+        }
+        public getColumnTitle(column: MatrixDropdownColumn): string {
+            var result = column.title;
+            if (column.isRequired && this.data) {
+                var requireText = this.data.requiredText;
+                if (requireText) requireText += " ";
+                result = requireText + result;
+            }
+            return result;
         }
         public get choices(): Array<any> { return this.choicesValue; }
         public set choices(newValue: Array<any>) {

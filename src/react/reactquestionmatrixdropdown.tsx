@@ -25,7 +25,7 @@ class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
             var key = "column" + i;
-            headers.push(<th key={key}>{column.title}</th>);
+            headers.push(<th key={key}>{this.question.getColumnTitle(column)}</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;

@@ -4,7 +4,7 @@
             <tr>
                 <th></th>
                 <!-- ko foreach: question.columns -->
-                <th data-bind="text:$data.title"></th>
+                <th data-bind="text:question.getColumnTitle($data)"></th>
                 <!-- /ko -->
             </tr>
         </thead>

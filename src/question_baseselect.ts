@@ -8,23 +8,24 @@ module Survey {
         otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public otherErrorText: string = null;
+        public storeOthersAsComment: boolean = true;
         choicesOrderValue: string = "none";
         constructor(name: string) {
             super(name);
         }
         public get isOtherSelected(): boolean {
-            return this.storeOthersAsComment ? this.getHasOther(this.value) : this.getHasOther(this.cachedValue);
+            return this.getStoreOthersAsComment() ? this.getHasOther(this.value) : this.getHasOther(this.cachedValue);
         }
         protected getHasOther(val: any): boolean {
             return val == this.otherItem.value;
         }
         protected getComment(): string {
-            if (this.storeOthersAsComment) return super.getComment();
+            if (this.getStoreOthersAsComment()) return super.getComment();
             return this.commentValue;
         }
         private isSettingComment: boolean = false;
         protected setComment(newValue: string) {
-            if (this.storeOthersAsComment)
+            if (this.getStoreOthersAsComment())
                 super.setComment(newValue)
             else {
                 if (!this.isSettingComment && newValue != this.commentValue) {
@@ -38,12 +39,12 @@ module Survey {
             }
         }
         protected valueFromData(val: any): any {
-            if (this.storeOthersAsComment) return super.valueFromData(val);
+            if (this.getStoreOthersAsComment()) return super.valueFromData(val);
             this.cachedValue = this.valueFromDataCore(val);
             return this.cachedValue;
         }
         protected valueToData(val: any): any {
-            if (this.storeOthersAsComment) return super.valueToData(val);
+            if (this.getStoreOthersAsComment()) return super.valueToData(val);
             this.cachedValue = val;
             return this.valueToDataCore(val);
         }
@@ -96,7 +97,7 @@ module Survey {
             }
             errors.push(new CustomError(text));
         }
-        protected get storeOthersAsComment() { return this.data != null ? this.data.storeOthersAsComment : true; }
+        protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.data != null ? this.data.storeOthersAsComment : true); }
         sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
             var order = this.choicesOrder.toLowerCase();
             if (order == "asc") return this.sortArray(array, 1);
@@ -135,13 +136,14 @@ module Survey {
             this.fireCallback(this.colCountChangedCallback);
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean", "!choices:itemvalues", "choicesOrder", "otherText", "otherErrorText"], null, "question");
+    JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean", "!choices:itemvalues", "choicesOrder", "otherText", "otherErrorText", "storeOthersAsComment:boolean"], null, "question");
     JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
         function (obj: any) { return ItemValue.getData(obj.choices); },
         function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
     JsonObject.metaData.setPropertyValues("selectbase", "choicesOrder", null, "none");
     JsonObject.metaData.setPropertyChoices("selectbase", "choicesOrder", ["none", "asc", "desc", "random"]);
     JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, surveyLocalization.getString("otherItemText"));
+    JsonObject.metaData.setPropertyValues("selectbase", "storeOthersAsComment", null, true);
 
     JsonObject.metaData.addClass("checkboxbase", ["colCount:number"], null, "selectbase");
     JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);

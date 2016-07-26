@@ -87,7 +87,7 @@ module Survey {
         }
         public get value(): any {
             if (this.data != null) return this.valueFromData(this.data.getValue(this.name));
-            return this.questionValue;
+            return this.valueFromData(this.questionValue);
         }
         public set value(newValue: any) {
             this.setNewValue(newValue);
@@ -95,6 +95,7 @@ module Survey {
         }
         public get comment(): string { return this.getComment(); }
         public set comment(newValue: string) {
+            if (this.comment == newValue) return;
             this.setComment(newValue);
             this.fireCallback(this.commentChangedCallback);
         }
@@ -142,13 +143,16 @@ module Survey {
         private isValueChangedInSurvey = false;
         protected setNewValue(newValue: any) {
             this.setNewValueInData(newValue);
-            this.questionValue = newValue;
             this.onValueChanged();
         }
         protected setNewValueInData(newValue: any) {
-            if (!this.isValueChangedInSurvey && this.data != null) {
-                this.data.setValue(this.name, this.valueToData(newValue));
+            if (!this.isValueChangedInSurvey) {
+                newValue = this.valueToData(newValue);
+                if (this.data != null) {
+                    this.data.setValue(this.name, newValue);
+                }
             }
+            this.questionValue = newValue;
         }
         protected valueFromData(val: any): any { return val; }
         protected valueToData(val: any): any { return val; }

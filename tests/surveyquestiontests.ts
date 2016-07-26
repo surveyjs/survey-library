@@ -406,6 +406,16 @@ module Survey.Tests {
         question.value = [{ 'column1': 2 }, { 'column1': 3}];
         assert.equal(question.hasErrors(), false, "column1 should not be empty. all values are set");
     });
+    QUnit.test("Matrixdynamic hasOther column", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDymanic");
+        question.choices = [1, 2, 3];
+        question.rowCount = 1;
+        question.columns.push(new MatrixDropdownColumn("column1"));
+        var rows = question.visibleRows;
+        assert.equal(question.hasErrors(), false, "Everything is fine so far");
+        rows[0].cells[0].question.value = "other";
+        assert.equal(question.hasErrors(), true, "Should set other value");
+    });
     QUnit.test("Matrixdropdown different cell types", function (assert) {
         var question = new QuestionMatrixDropdownModel("matrixDropdown");
 

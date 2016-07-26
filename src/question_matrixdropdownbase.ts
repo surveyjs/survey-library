@@ -6,9 +6,10 @@
 /// <reference path="question_radiogroup.ts" />
 /// <reference path="question_text.ts" />
 /// <reference path="question_comment.ts" />
+/// <reference path="question_baseselect.ts" />
 module Survey {
     export interface IMatrixDropdownData {
-        onCellChanged(cell: MatrixDropdownCell);
+        onCellChanged(cell: MatrixDropdownCell, newCellValue: any);
         columns: Array<MatrixDropdownColumn>;
         createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     }
@@ -17,6 +18,7 @@ module Survey {
         private titleValue: string;
         public optionsCaption: string;
         public isRequired: boolean;
+        public hasOther: boolean;
         private cellTypeValue: string = "dropdown";
         private colCountValue: number = 0;
         constructor(public name: string, title: string = null) {
@@ -47,14 +49,19 @@ module Survey {
             this.questionValue = this.data.createQuestion(this.row, this.column);
             this.question.value = value;
             var self = this;
-            var oldCallback = this.question.valueChangedCallback;
-            this.question.valueChangedCallback = function () { self.data.onCellChanged(self); if (oldCallback) oldCallback(); };
+            var oldValueChangedCallback = this.question.valueChangedCallback;
+            var oldCommentChangedCallback = this.question.commentChangedCallback;
+            this.question.valueChangedCallback = function () { self.onCellChanged(self.question.value); if (oldValueChangedCallback) oldValueChangedCallback(); };
+            this.question.commentChangedCallback = function () { self.onCellChanged(self.question.comment); if (oldCommentChangedCallback) oldCommentChangedCallback(); };
         }
         public get question(): Question { return this.questionValue; }
         public get value(): any { return this.question.value; }
         public set value(value: any) {
             this.question.value = value;
             this.onValueChanged();
+        }
+        private onCellChanged(newValue: any) {
+            this.data.onCellChanged(this, newValue);
         }
         protected onValueChanged() {
         }
@@ -158,7 +165,6 @@ module Survey {
             if (!this.generatedVisibleRows) return false;
             var res = false;
             for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
-                if (!this.columns[colIndex].isRequired) continue;
                 for (var i = 0; i < this.generatedVisibleRows.length; i++) {
                     var cells = this.generatedVisibleRows[i].cells;
                     res = cells && cells[colIndex] && cells[colIndex].question && cells[colIndex].question.hasErrors() || res;
@@ -170,6 +176,12 @@ module Survey {
         public createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
             var question = this.createQuestionCore(row, column);
             question.isRequired = column.isRequired;
+            question.hasOther = column.hasOther;
+            if (column.hasOther) {
+                if (question instanceof QuestionSelectBase) {
+                    (<QuestionSelectBase>question).storeOthersAsComment = false;
+                }
+            }
             return question;
         }
         protected createQuestionCore(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
@@ -219,11 +231,11 @@ module Survey {
             delete newValue[row.rowName];
             return Object.keys(newValue).length == 0 ? null : newValue;
         }
-        onCellChanged(cell: MatrixDropdownCell) {
+        onCellChanged(cell: MatrixDropdownCell, newCellValue: any) {
             var newValue = this.createNewValue(this.value);
             var rowValue = this.getRowValue(cell.row, newValue, true);
             if (cell.value) {
-                rowValue[cell.column.name] = cell.value;
+                rowValue[cell.column.name] = newCellValue;
             } else {
                 delete rowValue[cell.column.name];
                 if (Object.keys(rowValue).length == 0) {
@@ -235,7 +247,7 @@ module Survey {
             this.isRowChanging = false;
         }
     }
-    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount", "isRequired:boolean"], function () { return new MatrixDropdownColumn(""); });
+    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount", "isRequired:boolean", "hasOther:boolean"], function () { return new MatrixDropdownColumn(""); });
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
     JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
     JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);

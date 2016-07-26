@@ -117,7 +117,7 @@ function buildFromSources(configName) {
           paths.webroot + "/lib/survey/**/*.d.ts",
           paths.typings
     ].concat(curConfig.src))
-       //.pipe(insert.prepend(copyright))
+       .pipe(insert.prepend(copyright))
        .pipe(sourcemaps.init())
        .pipe(ts({
            target: "ES5",

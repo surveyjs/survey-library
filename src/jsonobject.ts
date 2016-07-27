@@ -52,22 +52,13 @@ module Survey {
         static typeSymbol = ':';
         properties: Array<JsonObjectProperty> = null;
         requiredProperties: Array<string> = null;
-        constructor(public name: string, propertiesNames: Array<string>, public creator: () => any = null, public parentName: string = null) {
+        constructor(public name: string, properties: Array<any>, public creator: () => any = null, public parentName: string = null) {
             this.properties = new Array<JsonObjectProperty>();
-            for (var i = 0; i < propertiesNames.length; i++) {
-                var propertyName = propertiesNames[i];
-                var propertyType = null;
-                var typeIndex = propertyName.indexOf(JsonMetadataClass.typeSymbol);
-                if (typeIndex > -1) {
-                    propertyType = propertyName.substring(typeIndex + 1);
-                    propertyName = propertyName.substring(0, typeIndex);
+            for (var i = 0; i < properties.length; i++) {
+                var prop = this.createProperty(properties[i]);
+                if (prop) {
+                    this.properties.push(prop);
                 }
-                var propertyName = this.getPropertyName(propertyName);
-                var prop = new JsonObjectProperty(propertyName);
-                if (propertyType) {
-                    prop.type = propertyType;
-                }
-                this.properties.push(prop);
             }
         }
         public find(name: string): JsonObjectProperty {
@@ -76,14 +67,64 @@ module Survey {
             }
             return null;
         }
+        private createProperty(propInfo: any): JsonObjectProperty {
+            var propertyName = typeof propInfo === "string" ? propInfo : propInfo.name;
+            if (!propertyName) return;
+            var propertyType = null;
+            var typeIndex = propertyName.indexOf(JsonMetadataClass.typeSymbol);
+            if (typeIndex > -1) {
+                propertyType = propertyName.substring(typeIndex + 1);
+                propertyName = propertyName.substring(0, typeIndex);
+            }
+            propertyName = this.getPropertyName(propertyName);
+            var prop = new JsonObjectProperty(propertyName);
+            if (propertyType) {
+                prop.type = propertyType;
+            }
+            if (typeof propInfo === "object") {
+                if (propInfo.type) {
+                    prop.type = propInfo.type;
+                }
+                if (propInfo.default) {
+                    prop.defaultValue = propInfo.default;
+                }
+                if (propInfo.isRequired) {
+                    this.makePropertyRequired(prop.name);
+                }
+                if (propInfo.choices) {
+                    var choicesFunc = typeof propInfo.choices === "function" ? propInfo.choices : null;
+                    var choicesValue = typeof propInfo.choices !== "function" ? propInfo.choices : null;
+                    prop.setChoices(choicesValue, choicesFunc);
+                }
+                if (propInfo.onGetValue) {
+                    prop.onGetValue = propInfo.onGetValue;
+                }
+                if (propInfo.onSetValue) {
+                    prop.onSetValue = propInfo.onSetValue;
+                }
+                if (propInfo.className) {
+                    prop.className = propInfo.className;
+                }
+                if (propInfo.baseClassName) {
+                    prop.baseClassName = propInfo.baseClassName;
+                }
+                if (propInfo.classNamePart) {
+                    prop.classNamePart = propInfo.classNamePart;
+                }
+            }
+            return prop;
+        }
         private getPropertyName(propertyName: string): string {
             if (propertyName.length == 0 || propertyName[0] != JsonMetadataClass.requiredSymbol) return propertyName;
             propertyName = propertyName.slice(1);
+            this.makePropertyRequired(propertyName);
+            return propertyName;
+        }
+        private makePropertyRequired(propertyName: string) {
             if (!this.requiredProperties) {
                 this.requiredProperties = new Array<string>();
             }
             this.requiredProperties.push(propertyName);
-            return propertyName;
         }
     }
     export class JsonMetadata {
@@ -91,8 +132,8 @@ module Survey {
         private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
         private classProperties: HashTable<Array<JsonObjectProperty>> = {};
         private classRequiredProperties: HashTable<Array<string>> = {};
-        public addClass(name: string, propertiesNames: Array<string>, creator: () => any = null, parentName: string = null): JsonMetadataClass {
-            var metaDataClass = new JsonMetadataClass(name, propertiesNames, creator, parentName);
+        public addClass(name: string, properties: Array<any>, creator: () => any = null, parentName: string = null): JsonMetadataClass {
+            var metaDataClass = new JsonMetadataClass(name, properties, creator, parentName);
             this.classes[name] = metaDataClass;
             if (parentName) {
                 var children = this.childrenClasses[parentName];

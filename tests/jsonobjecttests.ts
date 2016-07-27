@@ -14,11 +14,11 @@ module Survey.JsonSerializationTests {
         public maxSpeed: number;
         public getType(): string { return "sport"; }
     }
-    class Truck extends BigCar { 
+    class Truck extends BigCar {
         public maxWeight: number;
         public getType(): string { return "truck"; }
     }
-     
+
     class Dealer {
         public name: string;
         public unserializedName: string;
@@ -57,7 +57,7 @@ module Survey.JsonSerializationTests {
 
     class NonCreatingObject {
         public A: number;
-        public getType(): string {  return "shouldnotcreate"; }
+        public getType(): string { return "shouldnotcreate"; }
     }
     class CreatingObject extends NonCreatingObject {
         public B: number;
@@ -69,40 +69,27 @@ module Survey.JsonSerializationTests {
         public getType(): string { return "container"; }
     }
 
-    JsonObject.metaData.addClass("dealer", ["name", "dummyname", "cars", "stringArray", "defaultValue", "car", "truck", "trucks", "changeNameOnSet"]);
-    JsonObject.metaData.setPropertyValues("dealer", "defaultValue", null, "default");
-    JsonObject.metaData.setPropertyValues("dealer", "changeNameOnSet", null, null, null, function (obj: any, value: any, jsonConv: JsonObject) {
-        obj.name = value;
-    });
-    JsonObject.metaData.setPropertyValues("dealer", "truck", "truck");
-    JsonObject.metaData.setPropertyValues("dealer", "trucks", "truck");
-    JsonObject.metaData.setPropertyClassInfo("dealer", "cars", "car");
+    JsonObject.metaData.addClass("dealer", ["name", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
+        { name: "cars", baseClassName: "car" },
+        { name: "truck", className: "truck" }, { name: "trucks", className: "truck" },
+        { name: "changeNameOnSet", onSetValue: function (obj: any, value: any, jsonConv: JsonObject) { obj.name = value; } }]);
 
     JsonObject.metaData.addClass("fast", [], function () { return new FastCar(); }, "car");
     JsonObject.metaData.addClass("big", [], null, "car");
 
     JsonObject.metaData.addClass("car", ["name"]);
-    JsonObject.metaData.addClass("truck", ["maxWeight:number"], function () { return new Truck(); }, "big");
-    JsonObject.metaData.addClass("sport", ["!maxSpeed"], function () { return new SportCar(); }, "fast");
-    JsonObject.metaData.setPropertyChoices("sport", "maxSpeed", [100, 150, 200, 250]);
-    JsonObject.metaData.setPropertyChoices("truck", "maxWeight", null, () => { return [500, 1500] });
+    JsonObject.metaData.addClass("truck", [{ name: "maxWeight:number", choices: () => { return [500, 1500] } }], function () { return new Truck(); }, "big");
+    JsonObject.metaData.addClass("sport", [{ name: "!maxSpeed", choices: [100, 150, 200, 250] }], function () { return new SportCar(); }, "fast");
 
-    JsonObject.metaData.addClass("itemvaluelistowner", ["items"]);
-    JsonObject.metaData.setPropertyValues("itemvaluelistowner", "items", null, null,
-        function (obj: any) { return ItemValue.getData(obj.items);},
-        function (obj: any, value: any) { ItemValue.setData(obj.items, value); });
+    JsonObject.metaData.addClass("itemvaluelistowner", [{ name: "items", onGetValue: function (obj: any) { return ItemValue.getData(obj.items); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.items, value); } }]);
 
-    
     JsonObject.metaData.addClass("item_thelongpart", ["baseSt"]);
     JsonObject.metaData.addClass("itemA_thelongpart", ["A"], function () { return new LongNameItemA(); }, "LongNameItemBase");
     JsonObject.metaData.addClass("itemB_thelongpart", ["B"], function () { return new LongNameItemB(); }, "LongNameItemBase");
-    JsonObject.metaData.addClass("LongNamesOwner", ["items"]);
-    JsonObject.metaData.setPropertyClassInfo("LongNamesOwner", "items", "item_thelongpart", "_thelongpart");
+    JsonObject.metaData.addClass("LongNamesOwner", [{ name: "items", baseClassName: "item_thelongpart", classNamePart: "_thelongpart" }]);
 
     JsonObject.metaData.addClass("shouldnotcreate", ["A"], function () { return new NonCreatingObject(); });
-    JsonObject.metaData.addClass("container", ["obj", "items"]);
-    JsonObject.metaData.setPropertyValues("container", "obj", "shouldnotcreate");
-    JsonObject.metaData.setPropertyValues("container", "items", "shouldnotcreate");
+    JsonObject.metaData.addClass("container", [{ name: "obj", className: "shouldnotcreate" }, { name: "items", className: "shouldnotcreate"}]);
     JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { return new CreatingObject(); });
 
     QUnit.module("JsonSerializationTests");

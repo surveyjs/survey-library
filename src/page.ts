@@ -76,11 +76,11 @@ module Survey {
                 }
             }
         }
-        public hasErrors(focuseOnFirstError: boolean = false): boolean {
+        public hasErrors(fireCallback: boolean = true, focuseOnFirstError: boolean = false): boolean {
             var result = false;
             var firstErrorQuestion = null;
             for (var i = 0; i < this.questions.length; i++) {
-                if (this.questions[i].visible && this.questions[i].hasErrors()) {
+                if (this.questions[i].visible && this.questions[i].hasErrors(fireCallback)) {
                     if (focuseOnFirstError && firstErrorQuestion == null) {
                         firstErrorQuestion = this.questions[i];
                     }

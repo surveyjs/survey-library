@@ -32,7 +32,7 @@ module Survey {
             }
         }
         public get visibleIndex(): number { return this.visibleIndexValue; }
-        public hasErrors(): boolean { return false; }
+        public hasErrors(fireCallback: boolean = true): boolean { return false; }
         public get hasTitle(): boolean { return false; }
         public get hasComment(): boolean { return false; }
         public get id(): string { return this.idValue; }

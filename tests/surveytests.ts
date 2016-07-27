@@ -515,6 +515,25 @@ module Survey.Tests {
         survey.doMergeValues({ val2: { val2: 2 } }, dest);
         assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
     });
+    QUnit.test("test goNextPageAutomatic property", function (assert) {
+        var survey = twoPageSimplestSurvey();
+
+        var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion("dropdown", "question5");
+        dropDownQ.choices = [1, 2, 3];
+        dropDownQ.hasOther = true;
+        survey.goNextPageAutomatic = true;
+        assert.equal(survey.currentPage.name, survey.pages[0].name, "the first page is default page");
+        survey.setValue("question1", 1);
+        survey.setValue("question2", 2);
+        assert.equal(survey.currentPage.name, survey.pages[1].name, "go to the second page automatically");
+        (<Question>survey.currentPage.questions[0]).value = "3";
+        (<Question>survey.currentPage.questions[1]).value = "4";
+        dropDownQ.value = dropDownQ.otherItem.value;
+        assert.equal(survey.currentPage.name, survey.pages[1].name, "stay on the second page");
+        assert.notEqual(survey.state, "completed", "survey is still running");
+        dropDownQ.comment = "other value";
+        assert.equal(survey.state, "completed", "complete the survey");
+    });
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");

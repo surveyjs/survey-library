@@ -178,17 +178,17 @@ module Survey {
             }
             this.isRowChanging = false;
         }
-        public hasErrors(): boolean {
-            var errosInCells = this.hasErrorInCells();
-            return super.hasErrors() || errosInCells;
+        public hasErrors(fireCallback: boolean = true): boolean {
+            var errosInCells = this.hasErrorInCells(fireCallback);
+            return super.hasErrors(fireCallback) || errosInCells;
         }
-        private hasErrorInCells(): boolean {
+        private hasErrorInCells(fireCallback: boolean): boolean {
             if (!this.generatedVisibleRows) return false;
             var res = false;
             for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
                 for (var i = 0; i < this.generatedVisibleRows.length; i++) {
                     var cells = this.generatedVisibleRows[i].cells;
-                    res = cells && cells[colIndex] && cells[colIndex].question && cells[colIndex].question.hasErrors() || res;
+                    res = cells && cells[colIndex] && cells[colIndex].question && cells[colIndex].question.hasErrors(fireCallback) || res;
                 }
             }
             return res;

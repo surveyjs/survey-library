@@ -104,12 +104,12 @@ module Survey {
             this.setNewComment(newValue);
         }
         public isEmpty(): boolean { return this.value == null; }
-        public hasErrors(): boolean {
-            this.checkForErrors();
+        public hasErrors(fireCallback: boolean = true): boolean {
+            this.checkForErrors(fireCallback);
             return this.errors.length > 0;
         }
         public get requiredText(): string { return this.survey != null && this.isRequired ? this.survey.requiredText : ""; }
-        private checkForErrors() {
+        private checkForErrors(fireCallback: boolean) {
             var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];
             this.onCheckForErrors(this.errors);
@@ -125,7 +125,7 @@ module Survey {
                     this.errors.push(error);
                 }
             }
-            if (errorLength != this.errors.length || errorLength > 0) {
+            if (fireCallback && (errorLength != this.errors.length || errorLength > 0)) {
                 this.fireCallback(this.errorsChangedCallback);
             }
         }

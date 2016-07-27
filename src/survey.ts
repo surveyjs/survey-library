@@ -24,6 +24,7 @@ module Survey {
         public questionTitleTemplate: string = "";
         public showProgressBar: string = "off";
         public storeOthersAsComment: boolean = true;
+        public goNextPageAutomatic: boolean = false;
         public pages: Array<PageModel> = new Array<PageModel>();
         public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
         public clearInvisibleValues: boolean = false;
@@ -235,7 +236,7 @@ module Survey {
         }
         get isCurrentPageHasErrors(): boolean {
             if (this.currentPage == null) return true;
-            return this.currentPage.hasErrors(true);
+            return this.currentPage.hasErrors(true, true);
         }
         public prevPage(): boolean {
             if (this.isFirstPage) return false;
@@ -398,13 +399,23 @@ module Survey {
             question.onSurveyValueChanged(newValue);
         }
         private checkOnPageTriggers() {
-            var page = this.currentPage;
-            for (var i = 0; i < page.questions.length; i++) {
-                var question = page.questions[i];
-                if (!question.visible || !question.name) continue;
+            var questions = this.getCurrentPageQuestions();
+            for (var i = 0; i < questions.length; i++) {
+                var question = questions[i];
                 var value = this.getValue(question.name);
                 this.checkTriggers(question.name, value, true);
             }
+        }
+        private getCurrentPageQuestions(): Array<QuestionBase> {
+            var result = [];
+            var page = this.currentPage;
+            if (!page) return result;
+            for (var i = 0; i < page.questions.length; i++) {
+                var question = page.questions[i];
+                if (!question.visible || !question.name) continue;
+                result.push(question);
+            }
+            return result;
         }
         private checkTriggers(name: string, newValue: any, isOnNextPage: boolean) {
             for (var i: number = 0; i < this.triggers.length; i++) {
@@ -558,6 +569,7 @@ module Survey {
             }
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue, false);
+            this.tryGoNextPageAutomatic();
         }
         private isValueEqual(name: string, newValue: any): boolean {
             if (newValue == "") newValue = null;
@@ -580,6 +592,20 @@ module Survey {
             }
             return true;
         }
+        private tryGoNextPageAutomatic() {
+            if (!this.goNextPageAutomatic || !this.currentPage) return;
+            var questions = this.getCurrentPageQuestions();
+            for (var i = 0; i < questions.length; i++) {
+                if (!this.getValue(questions[i].name)) return;
+            }
+            if (!this.currentPage.hasErrors(false, false)) {
+                if (!this.isLastPage) {
+                    this.nextPage();
+                } else {
+                    this.doComplete();
+                }
+            }
+        }
         getComment(name: string): string {
             var result = this.data[name + this.commentPrefix];
             if (result == null) result = "";
@@ -591,6 +617,7 @@ module Survey {
                 delete this.valuesHash[name];
             } else {
                 this.valuesHash[name] = newValue;
+                this.tryGoNextPageAutomatic();
             }
         }
         questionVisibilityChanged(question: IQuestion, newValue: boolean) {
@@ -644,7 +671,7 @@ module Survey {
 
     JsonObject.metaData.addClass("survey", ["locale", "title", "completedHtml:html", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
-        "storeOthersAsComment:boolean", "clearInvisibleValues:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText", "questionStartIndex", "questionTitleTemplate"]);
+        "storeOthersAsComment:boolean", "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText", "questionStartIndex", "questionTitleTemplate"]);
     JsonObject.metaData.setPropertyValues("survey", "pages", "page");
     JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
         function (obj) { return null; },

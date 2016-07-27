@@ -9,7 +9,7 @@
 /// <reference path="question_baseselect.ts" />
 module Survey {
     export interface IMatrixDropdownData {
-        onCellChanged(cell: MatrixDropdownCell, newCellValue: any);
+        onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
         columns: Array<MatrixDropdownColumn>;
         createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     }
@@ -42,61 +42,73 @@ module Survey {
         }
     }
     export class MatrixDropdownCell {
-        private data: IMatrixDropdownData
         private questionValue: Question;
-        constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData, value: any) {
-            this.data = data;
-            this.questionValue = this.data.createQuestion(this.row, this.column);
-            this.question.value = value;
-            var self = this;
-            var oldValueChangedCallback = this.question.valueChangedCallback;
-            var oldCommentChangedCallback = this.question.commentChangedCallback;
-            this.question.valueChangedCallback = function () { self.onCellChanged(self.question.value); if (oldValueChangedCallback) oldValueChangedCallback(); };
-            this.question.commentChangedCallback = function () { self.onCellChanged(self.question.comment); if (oldCommentChangedCallback) oldCommentChangedCallback(); };
+        constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
+            this.questionValue = data.createQuestion(this.row, this.column);
+            this.questionValue.setData(row);
         }
         public get question(): Question { return this.questionValue; }
         public get value(): any { return this.question.value; }
         public set value(value: any) {
             this.question.value = value;
-            this.onValueChanged();
-        }
-        private onCellChanged(newValue: any) {
-            this.data.onCellChanged(this, newValue);
-        }
-        protected onValueChanged() {
         }
     }
-    export class MatrixDropdownRowModelBase {
+    export class MatrixDropdownRowModelBase implements ISurveyData {
         protected data: IMatrixDropdownData;
-        protected rowValue: any;
+        private rowValues: HashTable<any> = {};
+        private rowComments: HashTable<any> = {};
+        private isSettingValue: boolean = false;
+
         public cells: Array<MatrixDropdownCell> = [];
 
         constructor(data: IMatrixDropdownData, value: any) {
             this.data = data;
-            this.rowValue = value;
+            this.value = value;
             this.buildCells();
         }
         public get rowName() { return null; }
-        public get value() { return this.rowValue; }
+        public get value() { return this.rowValues; }
         public set value(value: any) {
-            this.rowValue = value;
-            for (var i = 0; i < this.cells.length; i++) {
-                this.cells[i].value = this.getCellValue(this.cells[i].column);
+            this.isSettingValue = true;
+            this.rowValues = {};
+            if (value != null) {
+                for (var key in value) {
+                    this.rowValues[key] = value[key];
+                }
             }
+            for (var i = 0; i < this.cells.length; i++) {
+                this.cells[i].question.onSurveyValueChanged(this.getValue(this.cells[i].column.name));
+            }
+            this.isSettingValue = false;
+        }
+        public getValue(name: string): any {
+            return this.rowValues[name];
+        }
+        public setValue(name: string, newValue: any) {
+            if (this.isSettingValue) return;
+            if (newValue === "") newValue = null;
+            if (newValue != null) {
+                this.rowValues[name] = newValue;
+            } else {
+                delete this.rowValues[name];
+            }
+            this.data.onRowChanged(this, this.value);
+        }
+        public getComment(name: string): string {
+            return this.rowComments[name];
+        }
+        public setComment(name: string, newValue: string) {
+            this.rowComments[name] = newValue;
         }
         private buildCells() {
             var columns = this.data.columns;
             for (var i = 0; i < columns.length; i++) {
                 var column = columns[i];
-                this.cells.push(this.createCell(column, this.getCellValue(column)));
+                this.cells.push(this.createCell(column));
             }
         }
-        protected createCell(column: MatrixDropdownColumn, value: any): MatrixDropdownCell {
-            return new MatrixDropdownCell(column, this, this.data, value);
-        }
-        protected getCellValue(column: MatrixDropdownColumn): any {
-            if (!this.rowValue) return null;
-            return this.rowValue[column.name];
+        protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
+            return new MatrixDropdownCell(column, this, this.data);
         }
     }
     export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
@@ -184,6 +196,7 @@ module Survey {
         //IMatrixDropdownData
         public createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
             var question = this.createQuestionCore(row, column);
+            question.name = column.name;
             question.isRequired = column.isRequired;
             question.hasOther = column.hasOther;
             if (column.hasOther) {
@@ -240,16 +253,16 @@ module Survey {
             delete newValue[row.rowName];
             return Object.keys(newValue).length == 0 ? null : newValue;
         }
-        onCellChanged(cell: MatrixDropdownCell, newCellValue: any) {
+        onRowChanged(row: MatrixDropdownRowModelBase, newRowValue: any) {
             var newValue = this.createNewValue(this.value);
-            var rowValue = this.getRowValue(cell.row, newValue, true);
-            if (cell.value) {
-                rowValue[cell.column.name] = newCellValue;
-            } else {
-                delete rowValue[cell.column.name];
-                if (Object.keys(rowValue).length == 0) {
-                    newValue = this.deleteRowValue(newValue, cell.row);
-                }
+            var rowValue = this.getRowValue(row, newValue, true);
+            for (var key in rowValue) delete rowValue[key];
+            if (newRowValue) {
+                newRowValue = JSON.parse(JSON.stringify(newRowValue));
+                for (var key in newRowValue) rowValue[key] = newRowValue[key];
+             }
+            if (Object.keys(rowValue).length == 0) {
+                newValue = this.deleteRowValue(newValue, row);
             }
             this.isRowChanging = true;
             this.setNewValue(newValue);

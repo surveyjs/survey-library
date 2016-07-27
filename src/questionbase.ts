@@ -6,7 +6,8 @@ module Survey {
         private static getQuestionId(): string {
             return "sq_" + QuestionBase.questionCounter++;
         }
-        protected data: ISurvey;
+        protected data: ISurveyData;
+        protected survey: ISurvey;
         private idValue: string;
         private visibleValue: boolean = true;
         private visibleIndexValue: number = -1;
@@ -26,8 +27,8 @@ module Survey {
             if (val == this.visible) return;
             this.visibleValue = val;
             this.fireCallback(this.visibilityChangedCallback);
-            if (this.data) {
-                this.data.questionVisibilityChanged(<IQuestion>this, this.visible);
+            if (this.survey) {
+                this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
             }
         }
         public get visibleIndex(): number { return this.visibleIndexValue; }
@@ -44,8 +45,9 @@ module Survey {
                 this.fireCallback(this.focusCallback);
             }
         }
-        setData(newValue: ISurvey) {
+        setData(newValue: ISurveyData) {
             this.data = newValue;
+            this.survey = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
             this.onSetData();
         }
         protected fireCallback(callback: () => void) {

@@ -2,11 +2,13 @@
     export interface HashTable<T> {
         [key: string]: T;
     }
-    export interface ISurvey {
+    export interface ISurveyData {
         getValue(name: string): any;
         setValue(name: string, newValue: any);
         getComment(name: string): string;
         setComment(name: string, newValue: string);
+    }
+    export interface ISurvey extends ISurveyData {
         pageVisibilityChanged(page: IPage, newValue: boolean);
         questionVisibilityChanged(question: IQuestion, newValue: boolean);
         questionAdded(question: IQuestion, index: number);

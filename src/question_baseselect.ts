@@ -97,7 +97,7 @@ module Survey {
             }
             errors.push(new CustomError(text));
         }
-        protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.data != null ? this.data.storeOthersAsComment : true); }
+        protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.survey != null ? this.survey.storeOthersAsComment : true); }
         sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
             var order = this.choicesOrder.toLowerCase();
             if (order == "asc") return this.sortArray(array, 1);

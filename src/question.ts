@@ -8,6 +8,7 @@ module Survey {
     export class Question extends QuestionBase implements IValidatorOwner {
         private titleValue: string = null;
         private questionValue: any;
+        private questionComment: string;
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
         private hasOtherValue: boolean = false;
@@ -28,16 +29,16 @@ module Survey {
             this.titleValue = newValue;
             this.fireCallback(this.titleChangedCallback);
         }
-        public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
+        public get processedTitle() { return this.survey != null ? this.survey.processText(this.title) : this.title; }
         public get fullTitle(): string {
-            if (this.data && this.data.questionTitleTemplate) {
+            if (this.survey && this.survey.questionTitleTemplate) {
                 if (!this.textPreProcessor) {
                     var self = this;
                     this.textPreProcessor = new TextPreProcessor();
                     this.textPreProcessor.onHasValue = function (name: string) { return self.canProcessedTextValues(name.toLowerCase()); };
                     this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
                 }
-                return this.textPreProcessor.process(this.data.questionTitleTemplate);
+                return this.textPreProcessor.process(this.survey.questionTitleTemplate);
             }
             var requireText = this.requiredText;
             if (requireText) requireText += " ";
@@ -73,8 +74,8 @@ module Survey {
             var startIndex = 1;
             var isNumeric = true;
             var str = "";
-            if (this.data && this.data.questionStartIndex) {
-                str = this.data.questionStartIndex;
+            if (this.survey && this.survey.questionStartIndex) {
+                str = this.survey.questionStartIndex;
                 if (parseInt(str)) startIndex = parseInt(str);
                 else if (str.length == 1) isNumeric = false;
             }
@@ -86,8 +87,7 @@ module Survey {
             this.onSurveyValueChanged(this.value);
         }
         public get value(): any {
-            if (this.data != null) return this.valueFromData(this.data.getValue(this.name));
-            return this.valueFromData(this.questionValue);
+            return this.valueFromData(this.getValueCore());
         }
         public set value(newValue: any) {
             this.setNewValue(newValue);
@@ -99,7 +99,7 @@ module Survey {
             this.setComment(newValue);
             this.fireCallback(this.commentChangedCallback);
         }
-        protected getComment(): string { return this.data != null ? this.data.getComment(this.name) : ""; }
+        protected getComment(): string { return this.data != null ? this.data.getComment(this.name) : this.questionComment; }
         protected setComment(newValue: string) {
             this.setNewComment(newValue);
         }
@@ -108,7 +108,7 @@ module Survey {
             this.checkForErrors();
             return this.errors.length > 0;
         }
-        public get requiredText(): string { return this.data != null && this.isRequired ? this.data.requiredText : ""; }
+        public get requiredText(): string { return this.survey != null && this.isRequired ? this.survey.requiredText : ""; }
         private checkForErrors() {
             var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];
@@ -119,8 +119,8 @@ module Survey {
                     this.errors.push(error);
                 }
             }
-            if (this.data && this.errors.length == 0) {
-                var error = this.data.validateQuestion(this.name);
+            if (this.survey && this.errors.length == 0) {
+                var error = this.survey.validateQuestion(this.name);
                 if (error) {
                     this.errors.push(error);
                 }
@@ -148,11 +148,18 @@ module Survey {
         protected setNewValueInData(newValue: any) {
             if (!this.isValueChangedInSurvey) {
                 newValue = this.valueToData(newValue);
-                if (this.data != null) {
-                    this.data.setValue(this.name, newValue);
-                }
+                this.setValueCore(newValue);
             }
-            this.questionValue = newValue;
+        }
+        private getValueCore() {
+            return this.data != null ? this.data.getValue(this.name) : this.questionValue;
+        }
+        private setValueCore(newValue: any) {
+            if (this.data != null) {
+                this.data.setValue(this.name, newValue);
+            } else {
+                this.questionValue = newValue;
+            }
         }
         protected valueFromData(val: any): any { return val; }
         protected valueToData(val: any): any { return val; }
@@ -160,7 +167,7 @@ module Survey {
         protected setNewComment(newValue: string) {
             if (this.data != null) {
                 this.data.setComment(this.name, newValue);
-            }
+            } else this.questionComment = newValue;
         }
         //IQuestion
         onSurveyValueChanged(newValue: any) {

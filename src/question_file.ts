@@ -20,7 +20,7 @@ module Survey {
         public set showPreview(value: boolean) { this.showPreviewValue = value; }
         public loadFile(file: File) {
             var self = this;
-            if (this.data && !this.data.uploadFile(this.name, file, this.storeDataAsText, function (status: string) { self.isUploading = status == "uploading";  })) return;
+            if (this.survey && !this.survey.uploadFile(this.name, file, this.storeDataAsText, function (status: string) { self.isUploading = status == "uploading";  })) return;
             this.setFileValue(file);
         }
         public previewValue: any;

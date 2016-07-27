@@ -120,8 +120,8 @@ module Survey {
         }
         public getColumnTitle(column: MatrixDropdownColumn): string {
             var result = column.title;
-            if (column.isRequired && this.data) {
-                var requireText = this.data.requiredText;
+            if (column.isRequired && this.survey) {
+                var requireText = this.survey.requiredText;
                 if (requireText) requireText += " ";
                 result = requireText + result;
             }

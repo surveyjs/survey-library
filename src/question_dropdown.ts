@@ -13,9 +13,7 @@ module Survey {
             return "dropdown";
         }
     }
-    JsonObject.metaData.addClass("dropdown", ["optionsCaption"], function () { return new QuestionDropdownModel(""); }, "selectbase");
-    JsonObject.metaData.setPropertyValues("dropdown", "optionsCaption", null, null,
-        function (obj: any) { return obj.optionsCaptionValue; });
-
+    JsonObject.metaData.addClass("dropdown", [{ name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; }}],
+        function () { return new QuestionDropdownModel(""); }, "selectbase");
     QuestionFactory.Instance.registerQuestion("dropdown", (name) => { var q = new QuestionDropdownModel(name); q.choices = QuestionFactory.DefaultChoices; return q; });
 }

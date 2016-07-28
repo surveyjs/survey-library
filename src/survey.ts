@@ -669,29 +669,17 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("survey", ["locale", "title", "completedHtml:html", "pages", "questions", "triggers:triggers", "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
-        "showNavigationButtons:boolean", "showTitle:boolean", "showPageTitles:boolean", "showPageNumbers:boolean", "showQuestionNumbers", "showProgressBar",
-        "storeOthersAsComment:boolean", "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean", "requiredText", "pagePrevText", "pageNextText", "completeText", "questionStartIndex", "questionTitleTemplate"]);
-    JsonObject.metaData.setPropertyValues("survey", "pages", "page");
-    JsonObject.metaData.setPropertyValues("survey", "questions", null, null,
-        function (obj) { return null; },
-        function (obj, value, jsonConverter) {
-            var page = obj.addNewPage("");
-            jsonConverter.toObject({ questions: value }, page);
-        });
-    JsonObject.metaData.setPropertyValues("survey", "showNavigationButtons", null, true);
-    JsonObject.metaData.setPropertyValues("survey", "showTitle", null, true);
-    JsonObject.metaData.setPropertyValues("survey", "showPageTitles", null, true);
-    JsonObject.metaData.setPropertyValues("survey", "showQuestionNumbers", null, "on");
-    JsonObject.metaData.setPropertyChoices("survey", "showQuestionNumbers", ["on", "onPage", "off"]);
-    JsonObject.metaData.setPropertyValues("survey", "showProgressBar", null, "off");
-    JsonObject.metaData.setPropertyChoices("survey", "showProgressBar", ["off", "top", "bottom"]);
-    JsonObject.metaData.setPropertyValues("survey", "storeOthersAsComment", null, true);
-    JsonObject.metaData.setPropertyValues("survey", "requiredText", null, "*");
-    JsonObject.metaData.setPropertyValues("survey", "pagePrevText", null, null, function (obj: any) { return obj.pagePrevTextValue; });
-    JsonObject.metaData.setPropertyValues("survey", "pageNextText", null, null, function (obj: any) { return obj.pageNextTextValue; });
-    JsonObject.metaData.setPropertyValues("survey", "completeText", null, null, function (obj: any) { return obj.completeTextValue; });
-    JsonObject.metaData.setPropertyClassInfo("survey", "triggers", "surveytrigger", "trigger");
-    JsonObject.metaData.setPropertyClassInfo("survey", "questions", "question");
-    JsonObject.metaData.setPropertyChoices("survey", "locale", null, () => { return surveyLocalization.getLocales() });
+    JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
+        "title", "completedHtml:html", { name: "pages", className: "page" },
+        { name: "questions", baseClassName: "question", onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
+        { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
+        "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
+        { name: "showNavigationButtons:boolean", default: true }, { name: "showTitle:boolean", default: true }, { name: "showPageTitles:boolean", default: true },
+        "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
+        { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
+        { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",
+        { name: "pagePrevText", onGetValue: function (obj: any) { return obj.pagePrevTextValue; } },
+        { name: "pageNextText", onGetValue: function (obj: any) { return obj.pageNextTextValue; } },
+        { name: "completeText", onGetValue: function (obj: any) { return obj.completeTextValue; } }, 
+        { name: "requiredText", default: "*" }, "questionStartIndex", "questionTitleTemplate"]);
 }

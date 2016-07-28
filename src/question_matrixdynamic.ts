@@ -99,7 +99,6 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("matrixdynamic", ["rowCount:number"], function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
-    JsonObject.metaData.setPropertyValues("matrixdynamic", "rows", null, 2);
+    JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }], function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
     QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
 }

@@ -269,21 +269,13 @@ module Survey {
             this.isRowChanging = false;
         }
     }
-    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", "title", "choices:itemvalues", "optionsCaption", "cellType", "colCount", "isRequired:boolean", "hasOther:boolean"], function () { return new MatrixDropdownColumn(""); });
-    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "cellType", null, "dropdown");
-    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "cellType", ["dropdown", "checkbox", "radiogroup", "text", "comment"]);
-    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "colCount", null, 0);
-    JsonObject.metaData.setPropertyChoices("matrixdropdowncolumn", "colCount", [0, 1, 2, 3, 4]);
-    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "title", null, null, function (obj: any) { return obj.titleValue; });
-    JsonObject.metaData.setPropertyValues("matrixdropdowncolumn", "choices", null, null,
-        function (obj: any) { return ItemValue.getData(obj.choices); },
-        function (obj: any, value: any) { obj.choices = value; });
+    JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+        { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
+        "optionsCaption", { name: "cellType", default: "dropdown", choices: ["dropdown", "checkbox", "radiogroup", "text", "comment"] },
+        { name: "colCount", default: 0, choices: [0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean"],
+        function () { return new MatrixDropdownColumn(""); });
 
-    JsonObject.metaData.addClass("matrixdropdownbase", ["columns:matrixdropdowncolumns", "choices:itemvalues", "optionsCaption"], function () { return new QuestionMatrixDropdownModelBase(""); }, "question");
-    JsonObject.metaData.setPropertyValues("matrixdropdownbase", "columns", "matrixdropdowncolumn");
-    JsonObject.metaData.setPropertyValues("matrixdropdownbase", "choices", null, null,
-        function (obj: any) { return ItemValue.getData(obj.choices); },
-        function (obj: any, value: any) { obj.choices = value; });
-    JsonObject.metaData.setPropertyValues("matrixdropdownbase", "optionsCaption", null, null,
-        function (obj: any) { return obj.optionsCaptionValue; });
+    JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn" },
+        { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
+        { name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; }}], function () { return new QuestionMatrixDropdownModelBase(""); }, "question");
 }

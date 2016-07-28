@@ -64,9 +64,6 @@ module Survey {
             this.fireCallback(this.visibleIndexChangedCallback);
         }
     }
-    JsonObject.metaData.addClass("questionbase", ["!name", "visible:boolean", "width", "indent:number"]);
-    JsonObject.metaData.setPropertyValues("questionbase", "visible", null, true);
-    JsonObject.metaData.setPropertyValues("questionbase", "width", null, "100%");
-    JsonObject.metaData.setPropertyValues("questionbase", "indent", null, 0);
-    JsonObject.metaData.setPropertyChoices("questionbase", "indent", [0, 1, 2, 3]);
+    JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, 
+        { name: "width", default: "100%" }, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);
 }

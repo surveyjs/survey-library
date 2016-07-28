@@ -22,7 +22,7 @@ module Survey {
         setData(data: IMultipleTextData) {
             this.data = data;
         }
-        public get title() { return this.titleValue ? this.titleValue : this.name;  }
+        public get title() { return this.titleValue ? this.titleValue : this.name; }
         public set title(newText: string) { this.titleValue = newText; }
         public get value() {
             return this.data ? this.data.getMultipleTextValue(this.name) : null;
@@ -116,7 +116,7 @@ module Survey {
             }
             return null;
         }
-       //IMultipleTextData
+        //IMultipleTextData
         getMultipleTextValue(name: string) {
             if (!this.value) return null;
             return this.value[name];
@@ -132,15 +132,11 @@ module Survey {
             this.isMultipleItemValueChanging = false;
         }
     }
-    JsonObject.metaData.addClass("multipletextitem", ["name", "title", "validators:validators"], function () { return new MultipleTextItemModel(""); });
-    JsonObject.metaData.setPropertyClassInfo("multipletextitem", "validators", "surveyvalidator", "validator");
-    JsonObject.metaData.setPropertyValues("multipletextitem", "title", null, null,
-        function (obj: any) { return obj.titleValue; });
+    JsonObject.metaData.addClass("multipletextitem", ["name", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+        { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }], function () { return new MultipleTextItemModel(""); });
 
-    JsonObject.metaData.addClass("multipletext", ["!items:textitems", "itemSize:number", "colCount:number"], function () { return new QuestionMultipleTextModel(""); }, "question");
-    JsonObject.metaData.setPropertyValues("multipletext", "items", "multipletextitem");
-    JsonObject.metaData.setPropertyValues("multipletext", "itemSize", null, 25);
-    JsonObject.metaData.setPropertyValues("multipletext", "colCount", null, 1);
-    JsonObject.metaData.setPropertyChoices("multipletext", "colCount", [1, 2, 3, 4]);
+    JsonObject.metaData.addClass("multipletext", [{ name: "!items:textitems", className: "multipletextitem" },
+        { name: "itemSize:number", default: 25 }, { name: "colCount:number", default: 1, choices: [1, 2, 3, 4] }],
+        function () { return new QuestionMultipleTextModel(""); }, "question");
     QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleTextModel(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
 }

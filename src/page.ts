@@ -100,7 +100,5 @@ module Survey {
         protected onNumChanged(value: number) {
         }
     }
-    JsonObject.metaData.addClass("page", ["name", "questions", "visible:boolean", "title"], function () { return new PageModel(); });
-    JsonObject.metaData.setPropertyValues("page", "visible", null, true);
-    JsonObject.metaData.setPropertyClassInfo("page", "questions", "question");
+    JsonObject.metaData.addClass("page", ["name", { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "title"], function () { return new PageModel(); });
  }

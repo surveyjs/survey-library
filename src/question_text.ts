@@ -14,7 +14,6 @@ module Survey {
             return super.isEmpty() || this.value == "";
         }
     }
-    JsonObject.metaData.addClass("text", ["size:number"], function () { return new QuestionTextModel(""); }, "question");
-    JsonObject.metaData.setPropertyValues("text", "size", null, 25);
+    JsonObject.metaData.addClass("text", [{ name: "size:number", default: 25 }], function () { return new QuestionTextModel(""); }, "question");
     QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionTextModel(name); });
 }

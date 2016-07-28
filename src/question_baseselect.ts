@@ -136,16 +136,11 @@ module Survey {
             this.fireCallback(this.colCountChangedCallback);
         }
     }
-    JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean", "!choices:itemvalues", "choicesOrder", "otherText", "otherErrorText", "storeOthersAsComment:boolean"], null, "question");
-    JsonObject.metaData.setPropertyValues("selectbase", "choices", null, null,
-        function (obj: any) { return ItemValue.getData(obj.choices); },
-        function (obj: any, value: any) { ItemValue.setData(obj.choices, value); });
-    JsonObject.metaData.setPropertyValues("selectbase", "choicesOrder", null, "none");
-    JsonObject.metaData.setPropertyChoices("selectbase", "choicesOrder", ["none", "asc", "desc", "random"]);
-    JsonObject.metaData.setPropertyValues("selectbase", "otherText", null, surveyLocalization.getString("otherItemText"));
-    JsonObject.metaData.setPropertyValues("selectbase", "storeOthersAsComment", null, true);
+    JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
+        { name: "!choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
+        { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
+        { name: "otherText", default: surveyLocalization.getString("otherItemText") }, "otherErrorText",
+        { name: "storeOthersAsComment:boolean", default: true}], null, "question");
 
-    JsonObject.metaData.addClass("checkboxbase", ["colCount:number"], null, "selectbase");
-    JsonObject.metaData.setPropertyValues("checkboxbase", "colCount", null, 1);
-    JsonObject.metaData.setPropertyChoices("checkboxbase", "colCount", [0, 1, 2, 3, 4]);
+    JsonObject.metaData.addClass("checkboxbase", [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4] }], null, "selectbase");
 }

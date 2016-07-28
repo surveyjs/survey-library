@@ -39,10 +39,7 @@ module Survey {
         }
     }
  
-    JsonObject.metaData.addClass("matrixdropdown", ["rows:itemvalues"], function () { return new QuestionMatrixDropdownModel(""); }, "matrixdropdownbase");
-    JsonObject.metaData.setPropertyValues("matrixdropdown", "rows", null, null,
-        function (obj: any) { return ItemValue.getData(obj.rows); },
-        function (obj: any, value: any) { obj.rows = value; });
- 
+    JsonObject.metaData.addClass("matrixdropdown", [{ name: "rows:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.rows); }, onSetValue: function (obj: any, value: any) { obj.rows = value; }}],
+        function () { return new QuestionMatrixDropdownModel(""); }, "matrixdropdownbase");
     QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => { var q = new QuestionMatrixDropdownModel(name); q.choices = [1, 2, 3, 4, 5]; q.rows = ["Row 1", "Row 2"]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
 }

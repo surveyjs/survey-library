@@ -150,25 +150,6 @@ module Survey {
                 metaDataClass.creator = creator;
             }
         }
-        public setPropertyValues(name: string, propertyName: string, propertyClassName: string, defaultValue: any = null, onGetValue: (obj: any) => any = null, onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null) {
-            var property = this.findProperty(name, propertyName);
-            if (!property) return;
-            property.className = propertyClassName;
-            property.defaultValue = defaultValue;
-            property.onGetValue = onGetValue;
-            property.onSetValue = onSetValue;
-        }
-        public setPropertyChoices(name: string, propertyName: string, choices: Array<any>, choicesFunc: () => Array<any> = null) {
-            var property = this.findProperty(name, propertyName);
-            if (!property) return;
-            property.setChoices(choices, choicesFunc);
-        }
-        public setPropertyClassInfo(name: string, propertyName: string, baseClassName: string, classNamePart: string = null) {
-            var property = this.findProperty(name, propertyName);
-            if (!property) return;
-            property.baseClassName = baseClassName;
-            property.classNamePart = classNamePart;
-        }
         public getProperties(name: string): Array<JsonObjectProperty> {
             var properties = this.classProperties[name];
             if (!properties) {
@@ -209,10 +190,6 @@ module Survey {
         }
         private findClass(name: string): JsonMetadataClass {
             return this.classes[name];
-        }
-        private findProperty(name: string, propertyName: string): JsonObjectProperty {
-            var metaDataClass = this.findClass(name);
-            return metaDataClass ? metaDataClass.find(propertyName) : null;
         }
         private fillProperties(name: string, list: Array<JsonObjectProperty>) {
             var metaDataClass = this.findClass(name);

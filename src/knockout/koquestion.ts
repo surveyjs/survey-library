@@ -16,6 +16,7 @@ module Survey {
             this.koDummy = ko.observable(0);
             this.koValue = this.createkoValue();
             this.koComment = ko.observable(this.question.comment);
+            this.koTitle = ko.pureComputed(function () { self.koDummy(); return self.question.fullTitle; });
             this.koErrors(this.question.errors);
             this.koValue.subscribe(function (newValue) {
                 self.updateValue(newValue);
@@ -25,7 +26,7 @@ module Survey {
             });
             this.question["koValue"] = this.koValue;
             this.question["koComment"] = this.koComment;
-            this.question["koTitle"] = function () { self.koDummy(); return self.question.fullTitle; };
+            this.question["koTitle"] = this.koTitle;
         }
         protected onValueChanged() {
             if (this.isUpdating) return;

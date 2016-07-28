@@ -180,6 +180,10 @@ module SurveykoTests {
         question.choices = ["A", "B", "C", "D"];
         assert.equal(question["koComment"](), "aaaa", "Set ko Comment");
     });
+    QUnit.test("Load title correctly from JSON", function (assert) {
+        var survey = new Survey.Survey({ questions: [{ type: "text", name: "question1" }] });
+        assert.equal(survey.pages[0].questions[0]["koTitle"](), "1. question1", "title is getting from name");
+    });
     function createPageWithQuestion(name: string): Survey.Page {
         var page = new Survey.Page(name);
         page.addNewQuestion("text", "q1");

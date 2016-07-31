@@ -23,11 +23,16 @@ module Survey {
             this.question["koRemoveRowClick"] = this.koRemoveRowClick;
             this.question["koOverflowX"] = this.koOverflowX;
             (<QuestionMatrixDynamic>this.question).rowCountChangedCallback = function () { self.onRowCountChanged(); };
-            (<QuestionMatrixDynamic>this.question).columnsChangedCallback = function () { self.onRowCountChanged(); };
+            (<QuestionMatrixDynamic>this.question).columnsChangedCallback = function () { self.onColumnChanged(); };
             (<QuestionMatrixDynamic>this.question).updateCellsCallbak = function () { self.onUpdateCells(); };
         }
         protected onUpdateCells() {
             //Genereate rows again.
+            var rows = (<QuestionMatrixDynamic>this.question)["generatedVisibleRows"];
+            var columns = (<QuestionMatrixDynamic>this.question).columns;
+            if (rows && rows.length > 0 && columns && columns.length > 0) this.onColumnChanged();
+        }
+        protected onColumnChanged() {
             var rows = (<QuestionMatrixDynamic>this.question).visibleRows;
             this.onRowCountChanged();
         }

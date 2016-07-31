@@ -25,7 +25,9 @@ class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
             var key = "column" + i;
-            headers.push(<th key={key}>{this.question.getColumnTitle(column)}</th>);
+            var minWidth = this.question.getColumnWidth(column);
+            var columnStyle = minWidth ? { minWidth: minWidth } : {};
+            headers.push(<th key={key} style={columnStyle}>{this.question.getColumnTitle(column) }</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;
@@ -34,18 +36,21 @@ class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
             var key = "row" + i;
             rows.push(<ReactSurveyQuestionmatrixdropdownRow key={key} row={row} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
         }
+        var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll'} : {};
         return (
-            <table className={this.css.root}>
-                <thead>
-                    <tr>
-                        <th></th>
-                        {headers}
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows}
-                </tbody>
-           </table>
+            <div  style={divStyle}>
+                <table className={this.css.root}>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {headers}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows}
+                    </tbody>
+                </table>
+            </div>
         );
     }
 }

@@ -1,28 +1,30 @@
 ﻿<script type="text/html" id="survey-question-matrixdynamic">
-    <table data-bind="css: $root.css.matrixdynamic.root">
-        <thead>
-            <tr>
-                <!-- ko foreach: question.columns -->
-                <th data-bind="text: question.getColumnTitle($data)"></th>
-                <!-- /ko -->
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- ko foreach: { data: question.koRows, as: 'row' } -->
-            <tr>
-                <!-- ko foreach: row.cells-->
-                <td>
-                    <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
+    <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+        <table data-bind="css: $root.css.matrixdynamic.root">
+            <thead>
+                <tr>
+                    <!-- ko foreach: question.columns -->
+                    <th data-bind="text: question.getColumnTitle($data), style: { minWidth: question.getColumnWidth($data) }"></th>
                     <!-- /ko -->
-                    <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- ko foreach: { data: question.koRows, as: 'row' } -->
+                <tr>
+                    <!-- ko foreach: row.cells-->
+                    <td>
+                        <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
+                        <!-- /ko -->
+                        <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                        <!-- /ko -->
+                    </td>
                     <!-- /ko -->
-                </td>
+                    <td><input type="button" data-bind="click:question.koRemoveRowClick, css: $root.css.matrixdynamic.button, value: question.removeRowText" /></td>
+                </tr>
                 <!-- /ko -->
-                <td><input type="button" data-bind="click:question.koRemoveRowClick, css: $root.css.matrixdynamic.button, value: question.removeRowText" /></td>
-            </tr>
-            <!-- /ko -->
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
     <input type="button" data-bind="click:question.koAddRowClick, css: $root.css.matrixdynamic.button, value: question.addRowText" />
 </script>

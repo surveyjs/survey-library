@@ -19,8 +19,9 @@ module Survey {
         public optionsCaption: string;
         public isRequired: boolean = false;
         public hasOther: boolean = false;
-        private cellTypeValue: string = "dropdown";
-        private colCountValue: number = 0;
+        public minWidth: string = "";
+        public cellType: string = "default";
+        private colCountValue: number = -1;
         constructor(public name: string, title: string = null) {
             super();
         }
@@ -28,13 +29,9 @@ module Survey {
         public get title() { return this.titleValue ? this.titleValue : this.name; }
         public set title(value: string) { this.titleValue = value; }
         public get choices(): Array<any> { return this.choicesValue; }
-        public get cellType() { return this.cellTypeValue; }
-        public set cellType(value: string) {
-            this.cellTypeValue = value;
-        }
         public get colCount(): number { return this.colCountValue; }
         public set colCount(value: number) {
-            if (value < 0 || value > 4) return;
+            if (value < -1 || value > 4) return;
             this.colCountValue = value;
         }
         public set choices(newValue: Array<any>) {
@@ -117,7 +114,12 @@ module Survey {
         private optionsCaptionValue: string;
         private isRowChanging = false;
         protected generatedVisibleRows: Array<MatrixDropdownRowModelBase>;
+        public horizontalScroll: boolean = false;
+        private cellTypeValue: string = "dropdown";
+        private columnColCountValue: number = 0;
+        public columnMinWidth: string = "";
         public columnsChangedCallback: () => void;
+        public updateCellsCallbak: () => void;
 
         constructor(public name: string) {
             super(name);
@@ -130,6 +132,18 @@ module Survey {
             this.columnsValue = value;
             this.fireCallback(this.columnsChangedCallback);
         }
+        public get cellType(): string { return this.cellTypeValue; }
+        public set cellType(newValue: string) {
+            if (this.cellType == newValue) return;
+            this.cellTypeValue = newValue;
+            this.fireCallback(this.updateCellsCallbak);
+        }
+        public get columnColCount(): number { return this.columnColCountValue; }
+        public set columnColCount(value: number) {
+            if (value < 0 || value > 4) return;
+            this.columnColCountValue = value;
+            this.fireCallback(this.updateCellsCallbak);
+        }
         public getColumnTitle(column: MatrixDropdownColumn): string {
             var result = column.title;
             if (column.isRequired && this.survey) {
@@ -138,6 +152,9 @@ module Survey {
                 result = requireText + result;
             }
             return result;
+        }
+        public getColumnWidth(column: MatrixDropdownColumn): string {
+            return column.minWidth ? column.minWidth : this.columnMinWidth;
         }
         public get choices(): Array<any> { return this.choicesValue; }
         public set choices(newValue: Array<any>) {
@@ -207,7 +224,7 @@ module Survey {
             return question;
         }
         protected createQuestionCore(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
-            var cellType = column.cellType;
+            var cellType = column.cellType == "default" ? this.cellType : column.cellType;
             var name = this.getQuestionName(row, column);
             if (cellType == "checkbox") return this.createCheckbox(name, column);
             if (cellType == "radiogroup") return this.createRadiogroup(name, column);
@@ -231,13 +248,13 @@ module Survey {
         protected createCheckbox(name: string, column: MatrixDropdownColumn): QuestionCheckboxModel {
             var q = <QuestionCheckboxModel>this.createCellQuestion("checkbox", name);
             q.choices = this.getColumnChoices(column);
-            q.colCount = column.colCount;
+            q.colCount = column.colCount > - 1 ? column.colCount : this.columnColCount;
             return q;
         }
         protected createRadiogroup(name: string, column: MatrixDropdownColumn): QuestionRadiogroupModel {
             var q = <QuestionRadiogroupModel>this.createCellQuestion("radiogroup", name);
             q.choices = this.getColumnChoices(column);
-            q.colCount = column.colCount;
+            q.colCount = column.colCount > - 1 ? column.colCount : this.columnColCount;
             return q;
         }
         protected createText(name: string, column: MatrixDropdownColumn): QuestionTextModel {
@@ -271,11 +288,14 @@ module Survey {
     }
     JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
         { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
-        "optionsCaption", { name: "cellType", default: "dropdown", choices: ["dropdown", "checkbox", "radiogroup", "text", "comment"] },
-        { name: "colCount", default: 0, choices: [0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean"],
+        "optionsCaption", { name: "cellType", default: "default", choices: ["default", "dropdown", "checkbox", "radiogroup", "text", "comment"] },
+        { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth"],
         function () { return new MatrixDropdownColumn(""); });
 
-    JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn" },
+    JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn" }, "horizontalScroll:boolean",
         { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
-        { name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; }}], function () { return new QuestionMatrixDropdownModelBase(""); }, "question");
+        { name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; } },
+        { name: "cellType", default: "dropdown", choices: ["dropdown", "checkbox", "radiogroup", "text", "comment"] },
+        { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] }, "columnMinWidth"],
+        function () { return new QuestionMatrixDropdownModelBase(""); }, "question");
 }

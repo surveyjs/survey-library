@@ -1,25 +1,27 @@
 ﻿<script type="text/html" id="survey-question-matrixdropdown">
-    <table data-bind="css: $root.css.matrixdropdown.root">
-        <thead>
-            <tr>
-                <th></th>
-                <!-- ko foreach: question.columns -->
-                <th data-bind="text:question.getColumnTitle($data)"></th>
-                <!-- /ko -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
-            <tr>
-                <td data-bind="text:row.text"></td>
-                <!-- ko foreach: row.cells-->
-                <td>
-                    <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+    <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+        <table data-bind="css: $root.css.matrixdropdown.root">
+            <thead>
+                <tr>
+                    <th></th>
+                    <!-- ko foreach: question.columns -->
+                    <th data-bind="text: question.getColumnTitle($data), style: { minWidth: question.getColumnWidth($data) }"></th>
                     <!-- /ko -->
-                </td>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
+                <tr>
+                    <td data-bind="text:row.text"></td>
+                    <!-- ko foreach: row.cells-->
+                    <td>
+                        <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                        <!-- /ko -->
+                    </td>
+                    <!-- /ko -->
+                </tr>
                 <!-- /ko -->
-            </tr>
-            <!-- /ko -->
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </script>

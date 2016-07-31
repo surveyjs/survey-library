@@ -534,6 +534,28 @@ module Survey.Tests {
         dropDownQ.comment = "other value";
         assert.equal(survey.state, "completed", "complete the survey");
     });
+    QUnit.test("multiple triger on checkbox stop working.", function (assert) {
+        var survey = new SurveyModel({
+            pages: [{
+                questions: [
+                    { type: "checkbox", name: "question1", choices: ["one", "two", "three"] },
+                    { type: "text", name: "question2", visible: false },
+                    { type: "text", name: "question3", visible: false },
+                    { type: "text", name: "question4", visible: false }]
+            }],
+            triggers: [{ type: "visible", operator: "contains", value: "one", name: "question1", questions: ["question2"] },
+                { type: "visible", operator: "contains", value: "two", name: "question1", questions: ["question3"] }]
+        });
+
+        var check = <QuestionCheckboxModel>survey.getQuestionByName("question1");
+        var value = ["one"]
+        check.value = value;
+        assert.equal(survey.getQuestionByName("question2").visible, true, "The second question is visible");
+        value.push("two");
+        check.value = value;
+        assert.equal(survey.getQuestionByName("question3").visible, true, "The third question is visible");
+    });
+
     function twoPageSimplestSurvey() {
         var survey = new SurveyModel();
         var page = survey.addNewPage("Page 1");

@@ -550,20 +550,24 @@ module Survey {
             this.processedTextValues[name.toLowerCase()] = "variable";
         }
         //ISurvey data
+        private getUnbindValue(value: any): any {
+            if (value && value instanceof Object) {
+                //do not return the same object instance!!!
+                return JSON.parse(JSON.stringify(value));
+            }
+            return value;
+        }
         getValue(name: string): any {
             if (!name || name.length == 0) return null;
             var value = this.valuesHash[name];
-            if (value && value instanceof Object) {
-                //do not return the same object instance!!!
-                value = JSON.parse(JSON.stringify(value));
-            }
-            return value;
+            return this.getUnbindValue(value);
         }
         setValue(name: string, newValue: any) {
             if (this.isValueEqual(name, newValue)) return;
             if (newValue == "" || newValue == null) {
                 delete this.valuesHash[name];
             } else {
+                newValue = this.getUnbindValue(newValue);
                 this.valuesHash[name] = newValue;
                 this.processedTextValues[name.toLowerCase()] = "value";
             }

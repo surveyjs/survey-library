@@ -59,9 +59,8 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         return (<h5 className={this.css.question.title}>{titleText}</h5>);
     }
     protected renderComment(): JSX.Element {
-        var otherText = Survey.surveyLocalization.getString("otherItemText");
         return (<div>
-                <div>{otherText}</div>
+                <div>{this.question.commentText}</div>
                 <div className={this.css.question.comment}>
                 <ReactSurveyQuestionCommentItem  question={this.question}/>
                 </div>

@@ -8,7 +8,7 @@
         <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">
-            <div data-bind="text:$root.getLocString('otherItemText')"></div>
+            <div data-bind="text:question.commentText"></div>
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
     </div>

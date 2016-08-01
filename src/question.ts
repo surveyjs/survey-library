@@ -12,6 +12,7 @@ module Survey {
         private isRequiredValue: boolean = false;
         private hasCommentValue: boolean = false;
         private hasOtherValue: boolean = false;
+        private commentTextValue: string = "";
         private textPreProcessor: TextPreProcessor;
         errors: Array<SurveyError> = [];
         validators: Array<SurveyValidator> = new Array<SurveyValidator>();
@@ -62,6 +63,10 @@ module Survey {
             if (!this.supportComment()) return;
             this.hasCommentValue = val;
             if (this.hasComment) this.hasOther = false;
+        }
+        public get commentText(): string { return this.commentTextValue ? this.commentTextValue : surveyLocalization.getString("otherItemText"); }
+        public set commentText(value: string) {
+            this.commentTextValue = value;
         }
         public get hasOther(): boolean { return this.hasOtherValue; }
         public set hasOther(val: boolean) {
@@ -180,5 +185,6 @@ module Survey {
         getValidatorTitle(): string { return null; }
    }
     JsonObject.metaData.addClass("question", [{ name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+        { name: "commentText", onGetValue: function (obj: any) { return obj.commentTextValue; } },
         "isRequired:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");
 }

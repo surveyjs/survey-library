@@ -14,6 +14,7 @@ module Survey {
         static MaxRowCount = 100;
         private rowCounter = 0;
         private rowCountValue: number = 2;
+        private addRowTextValue: string = null;
         public rowCountChangedCallback: () => void;
         constructor(public name: string) {
             super(name);
@@ -51,7 +52,10 @@ module Survey {
             }
             this.rowCount--;
         }
-        public get addRowText() { return surveyLocalization.getString("addRow"); }
+        public get addRowText() { return this.addRowTextValue ? this.addRowTextValue : surveyLocalization.getString("addRow"); }
+        public set addRowText(value: string) {
+            this.addRowTextValue = value;
+        }
         public get removeRowText() { return surveyLocalization.getString("removeRow"); }
         public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
             if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
@@ -99,6 +103,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }], function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
+    JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 },
+        { name: "addRowText", onGetValue: function (obj: any) { return obj.addRowTextValue; } }], function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
     QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
 }

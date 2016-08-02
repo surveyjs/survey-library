@@ -7,6 +7,7 @@
                 { "name": "Checkboxes", "text" : "Multiple choices question", "url": "questiontype-checkbox.html"},
                 { "name": "Matrix", "text" : "Matrix question", "url": "questiontype-matrix.html"},
                 { "name": "Matrixdropdown", "text" : "Matrix question with multiple choices", "url": "questiontype-matrixdropdown.html"},
+                { "name": "Matrixdynamic", "text" : "Matrix question with dynamic rows", "url": "questiontype-matrixdynamic.html"},
                 { "name": "Multiple Text", "text" : "Multiple text question", "url": "questiontype-multipletext.html"},
                 { "name": "Rating", "text" : "Rating question", "url": "questiontype-rating.html"},
                 { "name": "Text", "text" : "Text question", "url": "questiontype-text.html"},
@@ -23,7 +24,8 @@
                 {"name": "Survey Options", "text": "Use properties to set up your survey", "url": "survey-options.html"},
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
-                {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"}
+                {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
+                {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
             ]},
             { "name": "Validation", "id": "validation", 
               "items": [

@@ -312,6 +312,17 @@ module Survey.Tests {
         assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, 0, "onPage:the second question");
         assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 0, "onPage:the third question");
     });
+    QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
+        var survey = twoPageSimplestSurvey();
+        assert.equal((<Question>survey.getQuestionByName("question1")).fullTitle, "1. question1", "the first question showQuestionNumbers=on");
+        assert.equal((<Question>survey.getQuestionByName("question3")).fullTitle, "3. question3", "the thrid question showQuestionNumbers=on");
+        survey.showQuestionNumbers = "onPage";
+        assert.equal((<Question>survey.getQuestionByName("question1")).fullTitle, "1. question1", "the first question showQuestionNumbers=onPage");
+        assert.equal((<Question>survey.getQuestionByName("question3")).fullTitle, "1. question3", "the thrid question showQuestionNumbers=onPage");
+        survey.showQuestionNumbers = "off";
+        assert.equal((<Question>survey.getQuestionByName("question1")).fullTitle, "question1", "the first question showQuestionNumbers=onPage");
+        assert.equal((<Question>survey.getQuestionByName("question3")).fullTitle, "question3", "the thrid question showQuestionNumbers=onPage");
+    });
     QUnit.test("Question visibleIndex and no title question", function (assert) {
         var survey = twoPageSimplestSurvey();
         assert.equal((<Question>survey.getQuestionByName("question1")).visibleIndex, 0, "the first question");

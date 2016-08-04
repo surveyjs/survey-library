@@ -43,7 +43,9 @@ module Survey {
             }
             var requireText = this.requiredText;
             if (requireText) requireText += " ";
-            return this.no + ". " + requireText + this.processedTitle;
+            var no = this.no;
+            if (no) no += ". ";
+            return no + requireText + this.processedTitle;
         }
         protected canProcessedTextValues(name: string): boolean {
             return name == "no" || name == "title" || name == "require";

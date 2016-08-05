@@ -1,0 +1,10 @@
+language: node_js
+
+before_script:
+  - npm install -g gulp
+  - npm install -g typescript
+script:
+  - gulp tsd
+  - gulp copyfiles
+  - gulp makedist
+  - gulp test_ci

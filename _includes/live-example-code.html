@@ -25,7 +25,7 @@ survey.onComplete.add(function (s) {
 
 {% if survey_code %}
 <div>Source code: Survey code</div>
-<pre><code class="language-javascript">{{ survey_code | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+<pre><code class="language-javascript">{{ survey_code + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
 {% endif %}
 {% if survey_events %}
 <div>Source code: Survey events</div>
@@ -33,3 +33,4 @@ survey.onComplete.add(function (s) {
 {% endif %}
 <div>Source code: Survey setup</div>
 <pre><code class="language-javascript">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+

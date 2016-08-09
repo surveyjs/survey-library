@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../typings/react/react.d.ts" />
+﻿/// <reference path="../../../typings/index.d.ts" />
 /// <reference path="reactSurveyStandard.tsx" />
 
 class ReactSurveyWindow extends ReactSurvey {

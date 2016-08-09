@@ -1,6 +1,6 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_matrix.ts" />
-/// <reference path="../../typings/react/react.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 class ReactSurveyQuestionmatrix extends React.Component<any, any> {
     private question: Survey.QuestionMatrixModel;
     protected css: any;

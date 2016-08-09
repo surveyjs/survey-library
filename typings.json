@@ -1,0 +1,18 @@
+{
+  "name": "surveyjs",
+  "globalDependencies": {
+    "knockout": "github:DefinitelyTyped/DefinitelyTyped/knockout/knockout.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "qunit": "github:DefinitelyTyped/DefinitelyTyped/qunit/qunit.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-global": "github:DefinitelyTyped/DefinitelyTyped/react/react-global.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-dom": "github:DefinitelyTyped/DefinitelyTyped/react/react-dom.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-css-transition-group": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-css-transition-group.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-create-fragment": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-create-fragment.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-linked-state-mixin": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-linked-state-mixin.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-transition-group": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-transition-group.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react": "github:DefinitelyTyped/DefinitelyTyped/react/react.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-perf": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-perf.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-update": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-update.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-test-utils": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-test-utils.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
+    "react-addons-pure-render-mixin": "github:DefinitelyTyped/DefinitelyTyped/react/react-addons-pure-render-mixin.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232"
+  }
+}

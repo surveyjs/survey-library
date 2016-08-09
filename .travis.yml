@@ -3,8 +3,9 @@ language: node_js
 before_script:
   - npm install -g gulp
   - npm install -g typescript
+  - npm install -g typings
 script:
-  - gulp tsd
+  - typings install
   - gulp copyfiles
   - gulp makedist
   - gulp test_ci

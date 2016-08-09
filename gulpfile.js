@@ -3,7 +3,6 @@ var gulp = require('gulp'),
     concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
     insert = require('gulp-insert'),
-    tsd = require('gulp-tsd'),
     gnf = require('gulp-npm-files'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
@@ -279,14 +278,6 @@ gulp.task("react_bootstrap_createPackageJson", function () {
     createPackageJson("react_bootstrap");
 });
 gulp.task("build_react_bootstrap", sequence("react_bootstrap_source", "react_bootstrap_compress", "react_bootstrap_createPackageJson"));
-
-gulp.task('tsd', function (callback) {
-    tsd({
-        command: 'reinstall',
-        latest: true,
-        config: 'tsd.json'
-    }, callback);
-});
 
 gulp.task('copyfiles', function (callback) {
     gulp.src(gnf(null, 'package.json'), { base: './' })

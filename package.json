@@ -4,10 +4,8 @@
   "private": true,
   "devDependencies": {
     "qunit": "^0.9.1",
-    "tsd": "^0.6.5",
     "rimraf": "^2.5.2",
     "gulp": "^3.9.1",
-    "gulp-tsd": "^0.1.1",
     "gulp-typescript": "^2.13.6",
     "gulp-insert": "^0.5.0",
     "gulp-concat-util": "^0.5.5",

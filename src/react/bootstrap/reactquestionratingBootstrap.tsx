@@ -1,6 +1,6 @@
 ﻿/// <reference path="../../survey.ts" />
 /// <reference path="../../question_rating.ts" />
-/// <reference path="../../../typings/react/react.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 class ReactSurveyQuestionrating extends React.Component<any, any> {
     private question: Survey.QuestionRatingModel;
     protected css: any;

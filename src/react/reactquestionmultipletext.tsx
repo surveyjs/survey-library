@@ -1,6 +1,6 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_multipletext.ts" />
-/// <reference path="../../typings/react/react.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
     private question: Survey.QuestionMultipleTextModel;
     protected css: any;

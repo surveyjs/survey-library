@@ -1,7 +1,7 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question.ts" />
 /// <reference path="../question_comment.ts" />
-/// <reference path="../../typings/react/react.d.ts" />
+/// <reference path="../../typings/index.d.ts" />
 class ReactSurveyQuestioncomment extends React.Component<any, any> {
     private question: Survey.QuestionCommentModel;
     protected css: any;

@@ -14,29 +14,33 @@ var survey = new Survey.Survey({
                 }]
             },
             {
-                type: "comment", name: "firstcomputer", title: "Please tell us about your first computer", isRequired: true,
+                type: "comment", name: "firstcomputer", title: "Please tell us about your first computer (type the word 'computer')", isRequired: true,
                 validators: [{type:"text", minLength:20}]
             },
-
         ]
     });
+function isNumber(n) { return n && !isNaN(parseFloat(n)) && isFinite(n); }    
 {% endcapture %}
 {% capture survey_events %}
 survey.onValidateQuestion.add(function (s, options) {
-    var computerType = s.getValue('computertype');
-    if (!computerType) return;
     if (options.name == 'pricelimit') {
-        var value = options.value['leastamount'];
-        if (value) {
-            if (!isNumber(options.value)) {
-                options.error = "The least amount should be a value.";
-                return;
-            }
-            var value = parseFloat(options.value);
-            if (computerType == 'desktop' && value < 100) {
-                options.error = "The desktop should cost at least 100$.";
-                return;
-            }
+        var leastamount = options.value['leastamount'];
+        var mostamount = options.value['mostamount'];
+        if(!isNumber(leastamount)) {
+            options.error = "The 'least amount' should be a numeric.";
+        } else {
+            if(!isNumber(mostamount)) {
+                options.error = "The 'most amount' should be a numeric.";
+            } else {
+                if(leastamount > mostamount) {
+                    options.error = "The 'most amount' should be more 'less amount'.";
+                }
+            }   
+        }
+    }
+    if (options.name == 'firstcomputer') {
+        if(options.value.indexOf('computer') < 0) {
+            options.error = "Please type the word 'computer'.";
         }
     }
 });

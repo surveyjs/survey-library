@@ -24,9 +24,9 @@
     }
     render(): JSX.Element {
         if (!this.survey) return null;
-        var prevButton = !this.survey.isFirstPage ? this.renderButton(this.handlePrevClick, this.survey.pagePrevText) : null;
-        var nextButton = !this.survey.isLastPage ? this.renderButton(this.handleNextClick, this.survey.pageNextText) : null;
-        var completeButton = this.survey.isLastPage ? this.renderButton(this.handleCompleteClick, this.survey.completeText) : null;
+        var prevButton = !this.survey.isFirstPage ? this.renderButton(this.handlePrevClick, this.survey.pagePrevText, this.css.navigation.prev) : null;
+        var nextButton = !this.survey.isLastPage ? this.renderButton(this.handleNextClick, this.survey.pageNextText, this.css.navigation.next) : null;
+        var completeButton = this.survey.isLastPage ? this.renderButton(this.handleCompleteClick, this.survey.completeText, this.css.navigation.complete) : null;
         return (
             <div className={this.css.footer}>
                 {prevButton}
@@ -35,8 +35,9 @@
                 </div>
         );
     }
-    protected renderButton(click: any, text: string): JSX.Element {
+    protected renderButton(click: any, text: string, btnClassName: string): JSX.Element {
         var style = { marginRight: "5px" };
-        return <input className={this.css.navigationButton} style={style} type="button" onClick={click} value={text} />;
+        var className = this.css.navigationButton + (btnClassName ? ' ' + btnClassName : "");
+        return <input className={className} style={style} type="button" onClick={click} value={text} />;
     }
 }

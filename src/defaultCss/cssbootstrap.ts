@@ -3,7 +3,7 @@
         header: "panel-heading",
         body: "panel-body",
         footer: "panel-footer",
-        navigationButton: "button",
+        navigationButton: "", navigation: { complete: "", prev: "", next: "" },
         progress: "progress center-block",
         pageTitle: "",
         question: { root: "", title: "", comment: "form-control", indent: 20 },

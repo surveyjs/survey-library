@@ -4,7 +4,7 @@
         header: "",
         body: "sv_body",
         footer: "sv_nav",
-        navigationButton: "",
+        navigationButton: "", navigation: { complete: "", prev:"", next: ""},
         progress: "sv_progress",
         pageTitle: "sv_p_title",
         question: { root: "sv_q", title: "sv_q_title", comment: "", indent: 20 },

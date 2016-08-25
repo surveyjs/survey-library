@@ -1,7 +1,8 @@
-﻿/// <reference path="base.ts" />
+﻿/// <reference path="conditionsParser.ts" />
+
 module Survey {
 
-    export class Condition extends Base {
+    export class Condition {
         static operatorsValue: HashTable<Function> = null;
         static get operators() {
             if (Condition.operatorsValue != null) return Condition.operatorsValue;
@@ -22,10 +23,6 @@ module Survey {
         private opValue: string = "equal";
         public left: any;
         public right: any;
-        constructor() {
-            super();
-        }
-        public getType(): string { return "Condition"; }
         public get operator(): string { return this.opValue; }
         public set operator(value: string) {
             if (!value) return;
@@ -33,8 +30,10 @@ module Survey {
             if (!Condition.operators[value]) return;
             this.opValue = value;
         }
-        public perform(): boolean {
-            return Condition.operators[this.operator](this.left, this.right);
+        public perform(left: any = null, right: any = null): boolean {
+            if (!left) left = this.left;
+            if (!right) right = this.right;
+            return Condition.operators[this.operator](left, right);
         }
     }
     export class ConditionNode {
@@ -50,9 +49,50 @@ module Survey {
             if (value != "and" && value != "or") return;
             this.connectiveValue = value;
         }
+        public get isEmpty() { return this.children.length == 0; }
         public clear() {
             this.children = [];
             this.connective = "and";
+        }
+    }
+    export class ConditionRunner {
+        private expressionValue: string;
+        private root: ConditionNode;
+        private values: HashTable<any>;
+        public constructor(expression: string) {
+            this.root = new ConditionNode();
+            this.expression = expression;
+        }
+        public get expression(): string { return this.expressionValue; }
+        public set expression(value: string) {
+            this.expressionValue = value;
+            new ConditionsParser().parse(this.expressionValue, this.root);
+        }
+        public run(values: HashTable<any>): boolean {
+            this.values = values;
+            return this.runNode(this.root);
+        }
+        private runNode(node: ConditionNode): boolean {
+            var onFirstFail = node.connective == "and";
+            for (var i = 0; i < node.children.length; i++) {
+                var res = this.runNodeCondition(node.children[i]);
+                if (!res && onFirstFail) return false; 
+                if (res && !onFirstFail) return true; 
+            }
+            return onFirstFail; 
+        }
+        private runNodeCondition(value: any): boolean {
+            if (!value) return false;
+            if (value["children"]) return this.runNode(value);
+            if (value["left"]) return this.runCondition(value);
+            return false;
+        }
+        private runCondition(condition: Condition): boolean {
+            var left = condition.left;
+            if (left && this.values[left]) left = this.values[left];
+            var right = condition.right;
+            if (right && this.values[right]) right = this.values[right];
+            return condition.perform(left, right);
         }
     }
 }

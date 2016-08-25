@@ -170,4 +170,22 @@ module Survey.Tests {
         assert.equal(right.children[1].operator, "equal");
         assert.equal(right.children[1].right, 3);
     });
+    QUnit.test("Run one condition", function (assert) {
+        var runner = new ConditionRunner("'a' > 5");
+        var values = { a: 6 };
+        assert.equal(runner.run(values), true, "6 > 5");
+        values = { a: 5 };
+        assert.equal(runner.run(values), false, "5 > 5");
+    });
+    QUnit.test("Run complex condition", function (assert) {
+        var runner = new ConditionRunner("'age' >= 21 and ('sex' = 'male' or 'kids' > 1)");
+        var values = { age: 21, sex: 'male', kids: 1 };
+        assert.equal(runner.run(values), true, "21 >= 21 and (male = male or 1 > 1");
+        var values = { age: 21, sex: 'female', kids: 1 };
+        assert.equal(runner.run(values), false, "21 >= 21 and (male = female or 1 > 1");
+        var values = { age: 21, sex: 'female', kids: 2 };
+        assert.equal(runner.run(values), true, "21 >= 21 and (male = female or 2 > 1");
+        var values = { age: 20, sex: 'male', kids: 2 };
+        assert.equal(runner.run(values), false, "20 >= 21 and (male = male or 2 > 1");
+    });
 }

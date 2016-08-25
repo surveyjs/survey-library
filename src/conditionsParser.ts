@@ -17,6 +17,55 @@ module Survey {
             var res = this.parseText();
             return res;
         }
+        public toString(root: ConditionNode): string {
+            this.root = root;
+            return this.nodeToString(root);
+        }
+        private toStringCore(value: any): string {
+            if (!value) return "";
+            if (value["children"]) return this.nodeToString(value);
+            if (value["left"]) return this.conditionToString(value);
+            return "";
+        }
+        private nodeToString(node: ConditionNode): string {
+            if (node.isEmpty) return "";
+            var res = "";
+            for (var i = 0; i < node.children.length; i++) {
+                var nodeText = this.toStringCore(node.children[i]);
+                if (nodeText) {
+                    if (res) res += ' ' + node.connective + ' ';
+                    res += nodeText;
+                }
+            }
+            if (node != this.root && node.children.length > 1) {
+                res = '(' + res + ')';
+            }
+            return res;
+        }
+        private conditionToString(condition: Condition): string {
+            if (!condition.right || !condition.operator) return "";
+            var left = condition.left;
+            if (left && !this.isNumeric(left)) left = "'" + left + "'";
+            var res = left + ' ' + this.operationToString(condition.operator);
+            if (this.isNoRightOperation(condition.operator)) return res;
+            var right = condition.right;
+            if (right && !this.isNumeric(right)) right = "'" + right + "'";
+            return res + ' ' + right;
+        }
+        private operationToString(op: string): string {
+            if (op == "equal") return "=";
+            if (op == "notequal") return "!=";
+            if (op == "greater") return ">";
+            if (op == "less") return "<";
+            if (op == "greaterorequal") return ">=";
+            if (op == "lessorequal") return "<=";
+            return op;
+        }
+        private isNumeric(value: string): boolean {
+            var val = parseFloat(value);
+            if (isNaN(val)) return false;
+            return isFinite(val);
+        }
         private parseText(): boolean {
             this.node = this.root;
             this.expressionNodes = [];

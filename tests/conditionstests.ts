@@ -188,4 +188,10 @@ module Survey.Tests {
         var values = { age: 20, sex: 'male', kids: 2 };
         assert.equal(runner.run(values), false, "20 >= 21 and (male = male or 2 > 1");
     });
+    QUnit.test("Expression Tree to Text", function (assert) {
+        var parser = new ConditionsParser();
+        var node = new ConditionNode();
+        parser.parse("'age' >= 21 and ('sex' = 'male' or 'kids' > 1)", node);
+        assert.equal(parser.toString(node), "'age' >= 21 and ('sex' = 'male' or 'kids' > 1)");
+    });
 }

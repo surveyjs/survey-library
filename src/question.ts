@@ -120,7 +120,7 @@ module Survey {
             var errorLength = this.errors ? this.errors.length : 0;
             this.errors = [];
             this.onCheckForErrors(this.errors);
-            if (this.errors.length == 0) {
+            if (this.errors.length == 0 && this.value) {
                 var error = this.runValidators();
                 if (error) {
                     this.errors.push(error);

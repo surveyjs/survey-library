@@ -143,6 +143,7 @@ module Survey.Tests {
         var mText = new QuestionTextModel("");
         assert.equal(mText.hasErrors(), false, "There is no error by default");
         mText.validators.push(new NumericValidator(10, 20));
+        assert.equal(mText.hasErrors(), false, "There is no error since the value is empty");
         mText.value = "ss";
         assert.equal(mText.hasErrors(), true, "The value should be numeric");
         mText.value = 25;

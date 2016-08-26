@@ -19,9 +19,15 @@ module Survey {
             if (typeof ko === 'undefined') throw new Error('knockoutjs library is not loaded.');
             this.render(renderedElement);
         }
-        public get cssNavigationComplete() { return this.css.navigationButton + ' ' + this.css.navigation.complete; }
-        public get cssNavigationPrev() { return this.css.navigationButton + ' ' + this.css.navigation.prev; }
-        public get cssNavigationNext() { return this.css.navigationButton + ' ' + this.css.navigation.next; }
+        public get cssNavigationComplete() { return this.getNavigationCss(this.css.navigationButton, this.css.navigation.complete); }
+        public get cssNavigationPrev() { return this.getNavigationCss(this.css.navigationButton, this.css.navigation.prev); }
+        public get cssNavigationNext() { return this.getNavigationCss(this.css.navigationButton, this.css.navigation.next); }
+        private getNavigationCss(main: string, btn: string) {
+            var res = "";
+            if (main) res = main;
+            if (btn) res += ' ' + btn;
+            return res;
+        }
         public get css(): any { return this.cssValue; }
         public set css(value: any) {
             this.mergeValues(value, this.cssValue);

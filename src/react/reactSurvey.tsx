@@ -158,6 +158,6 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
     public renderError(key: string, errorText: string): JSX.Element {
         return <div key={key} className={this.css.error.item}>{errorText}</div>;
     }
-
+    public questionTitleLocation(): string { return this.survey.questionTitleLocation; }
 }
 

@@ -8,6 +8,7 @@ module Survey {
     export interface IReactSurveyCreator {
         createQuestionElement(question: QuestionBase): JSX.Element;
         renderError(key: string, errorText: string): JSX.Element;
+        questionTitleLocation(): string;
     }
 }
 
@@ -40,17 +41,19 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         var className = "ReactSurveyQuestion" + this.questionBase.getType();
         var questionRender = this.creator.createQuestionElement(this.questionBase);
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;
+        var titleTop = this.creator.questionTitleLocation() == "top" ? title : null;
+        var titleBottom = this.creator.questionTitleLocation() == "bottom" ? title : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment() : null;
-        //var errors = (this.question && this.question.errors.length > 0) ? this.renderErrors() : null;
         var errors = this.renderErrors();
         var marginLeft = (this.questionBase.indent > 0) ? this.questionBase.indent * this.css.question.indent + "px" : null;
         var rootStyle = marginLeft ? { marginLeft: marginLeft } : null;
         return (
             <div id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
-                {title}
+                {titleTop}
                 {errors}
                 {questionRender}
                 {comment}
+                {titleBottom}
             </div>
         );
     }

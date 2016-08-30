@@ -36,6 +36,7 @@ module Survey {
         private completeTextValue: string;
         private showPageNumbersValue: boolean = false;
         private showQuestionNumbersValue: string = "on";
+        private questionTitleLocationValue: string = "top";
         private localeValue: string = "";
         private isCompleted: boolean = false;
         private isLoading: boolean = false;
@@ -108,6 +109,11 @@ module Survey {
             if (value === this.showQuestionNumbers) return;
             this.showQuestionNumbersValue = value;
             this.updateVisibleIndexes();
+        };
+        public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
+        public set questionTitleLocation(value: string) {
+            if (value === this.questionTitleLocationValue) return;
+            this.questionTitleLocationValue = value;
         };
         public get data(): any {
             var result = {};
@@ -680,6 +686,7 @@ module Survey {
         "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
         { name: "showNavigationButtons:boolean", default: true }, { name: "showTitle:boolean", default: true }, { name: "showPageTitles:boolean", default: true },
         "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
+        { name: "questionTitleLocation", default: "top", choices: ["top", "bottom"] },
         { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
         { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",
         { name: "pagePrevText", onGetValue: function (obj: any) { return obj.pagePrevTextValue; } },

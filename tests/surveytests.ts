@@ -526,6 +526,28 @@ module Survey.Tests {
         survey.doMergeValues({ val2: { val2: 2 } }, dest);
         assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
     });
+    QUnit.test("Several questions in one row", function (assert) {
+        var page = new PageModel();
+        for (var i = 0; i < 10; i++) {
+            page.addQuestion(new QuestionTextModel("q" + (i + 1)));
+        }
+        assert.equal(page.rows.length, 10, "10 rows for each question");
+        page.questions[0].startWithNewLine = false;
+        assert.equal(page.rows.length, 10, "still 10 rows for each question");
+        assert.equal(page.rows[0].questions[0].renderWidth, "100%", "the render width is 100%");
+        for (var i = 0; i < 10; i++) {
+            page.questions[i].startWithNewLine = i % 2 == 0;
+        }
+        assert.equal(page.rows.length, 10, "every second has startWithNewLine equals false, still 10 row");
+        for (var i = 0; i < 10; i++) {
+            assert.equal(page.rows[i].questions.length, i % 2 == 0 ? 2 : 0, "every second row has two question and another 0");
+            assert.equal(page.rows[i].visible, i % 2 == 0 ? true : false, "every second row is visible");
+            if (i % 2 == 0) {
+                assert.equal(page.rows[i].questions[0].renderWidth, "50%", "the render width is 50%");
+                assert.equal(page.rows[i].questions[1].renderWidth, "49%", "the render width is 50%");
+            }
+        }
+    });
     QUnit.test("test goNextPageAutomatic property", function (assert) {
         var survey = twoPageSimplestSurvey();
 

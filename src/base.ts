@@ -9,6 +9,7 @@
         setComment(name: string, newValue: string);
     }
     export interface ISurvey extends ISurveyData {
+        currentPage: IPage;
         pageVisibilityChanged(page: IPage, newValue: boolean);
         questionVisibilityChanged(question: IQuestion, newValue: boolean);
         questionAdded(question: IQuestion, index: number);

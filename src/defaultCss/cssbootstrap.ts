@@ -6,6 +6,7 @@
         navigationButton: "", navigation: { complete: "", prev: "", next: "" },
         progress: "progress center-block",
         pageTitle: "",
+        row: "",
         question: { root: "", title: "", comment: "form-control", indent: 20 },
         error: { root: "alert alert-danger", item: "glyphicon glyphicon-exclamation-sign" },
 

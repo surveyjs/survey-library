@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-    <div data-bind="visible: question.koVisible(), css: $root.css.question.root, style: {marginLeft: question.koMarginLeft }, attr: {id: id}">
+    <div style="vertical-align:top" data-bind="css: $root.css.question.root, style: {display: question.koVisible() ? 'inline-block': 'none', marginLeft: question.koMarginLeft, width: question.koRenderWidth }, attr: {id: id}">
         <!-- ko if: question.hasTitle -->
         <h5 data-bind="visible: $root.questionTitleLocation == 'top', text: question.koTitle(), css: $root.css.question.title"></h5>
         <!-- /ko -->

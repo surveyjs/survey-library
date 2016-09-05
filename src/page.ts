@@ -3,7 +3,57 @@
 /// <reference path="jsonobject.ts" />
 
 module Survey {
+    export class QuestionRowModel {
+        private visibleValue: boolean = false;
+        visibilityChangedCallback: () => void;
+        constructor(public page: PageModel, public question: QuestionBase) {
+            var self = this;
+            this.question.rowVisibilityChangedCallback = function () { self.onRowVisibilityChanged(); }
+        }
+        public questions: Array<QuestionBase> = [];
+        public get visible(): boolean { return this.visibleValue; }
+        public set visible(val: boolean) {
+            if (val == this.visible) return;
+            this.visibleValue = val;
+            this.onVisibleChanged();
+        }
+        public updateVisible() {
+            this.visible = this.calcVisible();
+            this.setWidth();
+        }
+        public addQuestion(q: QuestionBase) {
+            this.questions.push(q);
+            this.updateVisible();
+        }
+        protected onVisibleChanged() {
+            if (this.visibilityChangedCallback) this.visibilityChangedCallback();
+        }
+        public setWidth() {
+            var visCount = this.getVisibleCount();
+            if (visCount == 0) return;
+            var counter = 0;
+            for (var i = 0; i < this.questions.length; i++)
+                if (this.questions[i].visible) {
+                    var delta = counter > 0 && counter == visCount - 1 ? 1 : 0;
+                    this.questions[i].renderWidth = this.question.width ? this.question.width : (Math.floor(100 / visCount) - delta) + '%';
+                    counter++;
+                }
+        }
+        private onRowVisibilityChanged() {
+            this.page.onRowVisibilityChanged(this);
+        }
+        private getVisibleCount(): number {
+            var res = 0;
+            for (var i = 0; i < this.questions.length; i++) {
+                if (this.questions[i].visible) res++;
+            }
+            return res;
+        }
+        private calcVisible(): boolean { return this.getVisibleCount() > 0; }
+    }
+
     export class PageModel extends Base implements IPage {
+        private rowValues: Array<QuestionRowModel> = null;
         questions: Array<QuestionBase> = new Array<QuestionBase>();
         public data: ISurvey = null;
 
@@ -20,6 +70,44 @@ module Survey {
                 }
                 return Array.prototype.push.call(this, value);
             };
+        }
+        public get rows(): Array<QuestionRowModel> {
+            this.rowValues = this.buildRows();
+            return this.rowValues;
+        }
+        public get isActive() { return (!this.data) || this.data.currentPage == this; }
+        protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRowModel(this, question); }
+        private get isDesignMode() { return this.data && this.data.isDesignMode; }
+        private buildRows(): Array<QuestionRowModel> {
+            var result = new Array<QuestionRowModel>();
+            var lastRowVisibleIndex = -1;
+            var designMode = this.isDesignMode;
+            var self = this;
+            for (var i = 0; i < this.questions.length; i++) {
+                var q = this.questions[i];
+                result.push(this.createRow(q));
+                if (q.startWithNewLine) {
+                    lastRowVisibleIndex = i;
+                    result[i].addQuestion(q);
+                } else {
+                    if (lastRowVisibleIndex < 0) lastRowVisibleIndex = i;
+                    result[lastRowVisibleIndex].addQuestion(q);
+                }
+            }
+            for (var i = 0; i < result.length; i++) {
+                result[i].setWidth();
+            }
+            return result;
+        }
+        onRowVisibilityChanged(row: QuestionRowModel) {
+            if (!this.isActive || !this.rowValues) return;
+            var index = this.rowValues.indexOf(row);
+            for (var i = index; i >= 0; i--) {
+                if (this.rowValues[i].questions.indexOf(row.question) > -1) {
+                    this.rowValues[i].updateVisible();
+                    break;
+                }
+            }
         }
         public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
         public get num() { return this.numValue; }

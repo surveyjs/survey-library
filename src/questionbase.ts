@@ -10,12 +10,16 @@ module Survey {
         protected survey: ISurvey;
         private idValue: string;
         private visibleValue: boolean = true;
+        public startWithNewLine: boolean = true;
         private visibleIndexValue: number = -1;
-        public width: string = "100%";
+        public width: string = "";
+        private renderWidthValue: string = "";
         public indent: number = 0;
+        focusCallback: () => void;
+        renderWidthChangedCallback: () => void;
+        rowVisibilityChangedCallback: () => void;
         visibilityChangedCallback: () => void;
         visibleIndexChangedCallback: () => void;
-        focusCallback: () => void;
 
         constructor(public name: string) {
             super();
@@ -27,6 +31,7 @@ module Survey {
             if (val == this.visible) return;
             this.visibleValue = val;
             this.fireCallback(this.visibilityChangedCallback);
+            this.fireCallback(this.rowVisibilityChangedCallback);
             if (this.survey) {
                 this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
             }
@@ -36,6 +41,12 @@ module Survey {
         public get hasTitle(): boolean { return false; }
         public get hasComment(): boolean { return false; }
         public get id(): string { return this.idValue; }
+        public get renderWidth(): string { return this.renderWidthValue; }
+        public set renderWidth(val: string) {
+            if (val == this.renderWidth) return;
+            this.renderWidthValue = val;
+            this.fireCallback(this.renderWidthChangedCallback);
+        }
         public focus() {
             var el = document.getElementById(this.id);
             if (!el || !el.scrollIntoView) return;
@@ -65,5 +76,5 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, 
-        { name: "width", default: "100%" }, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);
+        { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);
 }

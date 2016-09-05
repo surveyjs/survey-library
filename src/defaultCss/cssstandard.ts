@@ -7,6 +7,7 @@
         navigationButton: "", navigation: { complete: "", prev:"", next: ""},
         progress: "sv_progress",
         pageTitle: "sv_p_title",
+        row: "sv_row",
         question: { root: "sv_q", title: "sv_q_title", comment: "", indent: 20 },
         error: { root: "sv_q_erbox", item: "" },
 

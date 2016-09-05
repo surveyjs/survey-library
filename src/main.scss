@@ -78,13 +78,14 @@ sv_body {
 .sv_p_title {
 
 }
+.sv_row {
+    border-bottom:1px solid #ccc;
+    border-bottom:1px solid rgba(0,0,0,.2);
+}
 .sv_q {
-    width: 100%;
     padding: 10px 3px;
     margin:0;
     clear:none;
-    border-bottom:1px solid #ccc;
-    border-bottom:1px solid rgba(0,0,0,.2);
 }
 .sv_nav {
 }

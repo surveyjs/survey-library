@@ -36,6 +36,7 @@ module Survey {
                 if (this.questions[i].visible) {
                     var delta = counter > 0 && counter == visCount - 1 ? 1 : 0;
                     this.questions[i].renderWidth = this.question.width ? this.question.width : (Math.floor(100 / visCount) - delta) + '%';
+                    this.questions[i].rightIndent = counter < visCount - 1 ? 1 : 0;
                     counter++;
                 }
         }

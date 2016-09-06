@@ -15,6 +15,7 @@ module Survey {
         public width: string = "";
         private renderWidthValue: string = "";
         public indent: number = 0;
+        public rightIndent: number = 0;
         focusCallback: () => void;
         renderWidthChangedCallback: () => void;
         rowVisibilityChangedCallback: () => void;

@@ -545,7 +545,7 @@ module Survey.Tests {
             if (i % 2 == 0) {
                 assert.equal(page.rows[i].questions[0].renderWidth, "50%", "the render width is 50%");
                 assert.equal(page.rows[i].questions[0].rightIndent, 1, "the indent is 1");
-                assert.equal(page.rows[i].questions[1].renderWidth, "49%", "the render width is 50%");
+                assert.equal(page.rows[i].questions[1].renderWidth, "50%", "the render width is 50%");
                 assert.equal(page.rows[i].questions[1].rightIndent, 0, "the indent is 0");
             }
         }

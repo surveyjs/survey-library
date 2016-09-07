@@ -131,6 +131,7 @@ module Survey {
                 }
             }
             this.notifyAllQuestionsOnValueChanged();
+            this.runConditions();
         }
         public get comments(): any {
             var result = {};
@@ -431,6 +432,15 @@ module Survey {
                 }
             }
         }
+        private runConditions() {
+            this.runConditionsForList(this.getAllQuestions(false));
+            this.runConditionsForList(this.pages);
+        }
+        private runConditionsForList(list: Array<IConditionRunner>) {
+            for (var i = 0; i < list.length; i++) {
+                list[i].runCondition(this.valuesHash);
+            }
+        }
         public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
             if (!postId && this.surveyPostId) {
                 postId = this.surveyPostId;
@@ -506,6 +516,7 @@ module Survey {
             if (this.hasCookie) {
                 this.doComplete();
             }
+            this.runConditions();
             this.updateVisibleIndexes();
         }
         protected onBeforeCreating() { }
@@ -579,6 +590,7 @@ module Survey {
             }
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue, false);
+            this.runConditions();
             this.tryGoNextPageAutomatic();
         }
         private isValueEqual(name: string, newValue: any): boolean {

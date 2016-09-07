@@ -33,7 +33,16 @@ module Survey {
         public perform(left: any = null, right: any = null): boolean {
             if (!left) left = this.left;
             if (!right) right = this.right;
-            return Condition.operators[this.operator](left, right);
+
+            return Condition.operators[this.operator](this.getPureValue(left), this.getPureValue(right));
+        }
+        private getPureValue(val: any): any {
+            if (!val || (typeof val != "string")) return val;
+            var str = "";
+            if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);
+            var len = val.length;
+            if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"'))  val = val.substr(0, len - 1);
+            return val;
         }
     }
     export class ConditionNode {
@@ -65,6 +74,7 @@ module Survey {
         }
         public get expression(): string { return this.expressionValue; }
         public set expression(value: string) {
+            if (this.expression == value) return;
             this.expressionValue = value;
             new ConditionsParser().parse(this.expressionValue, this.root);
         }

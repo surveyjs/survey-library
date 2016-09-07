@@ -24,14 +24,17 @@
         storeOthersAsComment: boolean;
         uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
     }
-    export interface IQuestion {
+    export interface IConditionRunner {
+        runCondition(values: HashTable<any>);
+    }
+    export interface IQuestion extends IConditionRunner {
         name: string;
         visible: boolean;
         hasTitle: boolean;
         setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
     }
-    export interface IPage {
+    export interface IPage extends IConditionRunner {
         visible: boolean;
     }
 

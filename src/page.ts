@@ -52,10 +52,12 @@ module Survey {
         private calcVisible(): boolean { return this.getVisibleCount() > 0; }
     }
 
-    export class PageModel extends Base implements IPage {
+    export class PageModel extends Base implements IPage, IConditionRunner {
         private rowValues: Array<QuestionRowModel> = null;
+        private conditionRunner: ConditionRunner = null;
         questions: Array<QuestionBase> = new Array<QuestionBase>();
         public data: ISurvey = null;
+        public visibleIf: string = "";
 
         public title: string = "";
         public visibleIndex: number = -1;
@@ -185,8 +187,14 @@ module Survey {
                 list.push(this.questions[i]);
             }
         }
+        public runCondition(values: HashTable<any>) {
+            if (!this.visibleIf) return;
+            if (!this.conditionRunner) this.conditionRunner = new ConditionRunner(this.visibleIf);
+            this.conditionRunner.expression = this.visibleIf;
+            this.visible = this.conditionRunner.run(values);
+        }
         protected onNumChanged(value: number) {
         }
     }
-    JsonObject.metaData.addClass("page", ["name", { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "title"], function () { return new PageModel(); });
+    JsonObject.metaData.addClass("page", ["name", { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf", "title"], function () { return new PageModel(); });
  }

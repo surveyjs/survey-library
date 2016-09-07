@@ -569,6 +569,34 @@ module Survey.Tests {
         dropDownQ.comment = "other value";
         assert.equal(survey.state, "completed", "complete the survey");
     });
+    QUnit.test("simple condition test", function (assert) {
+        var survey = new SurveyModel({
+            pages: [{ name: "page1",
+                questions: [
+                    { type: "checkbox", name: "q1", choices: ["yes", "no"] },
+                    { type: "checkbox", name: "q2", choices: ["yes", "no"] }]
+            }, { name : "page2", visibleIf: "q1 = 'yes' or 'q2' = 'no'",
+                    questions: [
+                        { type: "text", name: "q3", visibleIf: "q1 = 'yes' and 'q2' = 'no'", },
+                        { type: "text", name: "q4" }]
+                }
+            ]
+        });
+        var q3 = survey.getQuestionByName("q3");
+        assert.equal(survey.pages[1].visible, false, "initially the page becomes invisible");
+        assert.equal(q3.visible, false, "initially q3 becomes invisible");
+        survey.setValue("q1", "yes");
+        survey.setValue("q2", "no");
+        assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+        assert.equal(q3.visible, true, "q3 becomes visible, q1 = 'yes' and q2 = 'no'");
+        survey.setValue("q2", "yes");
+        assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+        assert.equal(q3.visible, false, "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'");
+        survey.setValue("q1", "no");
+        assert.equal(survey.pages[1].visible, false, "the page becomes invisible, q1 = 'no'");
+        assert.equal(q3.visible, false, "q3becomes invisible, q1 = 'no' and q2 = 'yes'");
+    });
+
     QUnit.test("multiple triger on checkbox stop working.", function (assert) {
         var survey = new SurveyModel({
             pages: [{

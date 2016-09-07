@@ -53,6 +53,12 @@ module Survey.Tests {
         op.left = 5; assert.equal(op.perform(), false, "lessorequal: 4 <= 5");
         op.left = 4; assert.equal(op.perform(), true, "less: 4 <= 4");
     });
+    QUnit.test("Condition with quotes", function (assert) {
+        var op = new Condition();
+        op.left = "yes";
+        op.right = "'yes'";
+        assert.equal(op.perform(), true, "equal: yes == 'yes'");
+    });
     function checkItemCondition(op: string, expectedOp: string): boolean {
         var parser = new ConditionsParser();
         var node = new ConditionNode();

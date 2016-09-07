@@ -1,13 +1,15 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="jsonobject.ts" />
 module Survey {
-    export class QuestionBase extends Base implements IQuestion {
+    export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         private static questionCounter = 100;
         private static getQuestionId(): string {
             return "sq_" + QuestionBase.questionCounter++;
         }
         protected data: ISurveyData;
         protected survey: ISurvey;
+        private conditionRunner: ConditionRunner = null;
+        public visibleIf: string = "";
         private idValue: string;
         private visibleValue: boolean = true;
         public startWithNewLine: boolean = true;
@@ -67,7 +69,13 @@ module Survey {
         }
         protected onSetData() { }
         protected onCreating() { }
-        //IQuestion
+        public runCondition(values: HashTable<any>) {
+            if (!this.visibleIf) return;
+            if (!this.conditionRunner) this.conditionRunner = new ConditionRunner(this.visibleIf);
+            this.conditionRunner.expression = this.visibleIf;
+            this.visible = this.conditionRunner.run(values);
+        }
+       //IQuestion
         onSurveyValueChanged(newValue: any) {
         }
         setVisibleIndex(value: number) {
@@ -76,6 +84,6 @@ module Survey {
             this.fireCallback(this.visibleIndexChangedCallback);
         }
     }
-    JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, 
+    JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf", 
         { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);
 }

@@ -121,6 +121,16 @@ module Survey.Tests {
         assert.equal(node.children[0].right, 2);
         assert.equal(node.connective, "and");
     });
+    QUnit.test("Condition: on item - string value and name has spaces", function (assert) {
+        var parser = new ConditionsParser();
+        var node = new ConditionNode();
+        parser.parse("'my question'<>'this first value'", node);
+        assert.equal(node.children.length, 1);
+        assert.equal(node.children[0].left, "my question");
+        assert.equal(node.children[0].operator, "notequal");
+        assert.equal(node.children[0].right, "this first value");
+        assert.equal(node.connective, "and");
+    });
     QUnit.test("Condition: two items or", function (assert) {
         var parser = new ConditionsParser();
         var node = new ConditionNode();

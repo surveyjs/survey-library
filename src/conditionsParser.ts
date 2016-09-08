@@ -137,9 +137,10 @@ module Survey {
             if (hasQuotes) this.at++;
             var isFirstOpCh = this.isOperatorChar(this.ch);
             while (this.at < this.length) {
-                if (this.isSpace(this.ch)) break;
+                if (!hasQuotes && this.isSpace(this.ch)) break;
                 if (this.isQuotes(this.ch)) {
-                    this.at++; break;
+                    if (hasQuotes) this.at++;
+                    break;
                 }
                 if (!hasQuotes) {
                     if (isFirstOpCh != this.isOperatorChar(this.ch)) break;

@@ -110,4 +110,15 @@ module Survey.SerializationTests {
         assert.equal(jsonObj.errors.length, 1, "one serialization error");
         assert.equal(jsonObj.errors[0].type, "requiredproperty", "The required property error");
     });
+    QUnit.test("Deserialize choicesByUrl", function (assert) {
+        var question = new QuestionDropdownModel("q1");
+        assert.equal(question.choicesByUrl.isEmpty, true, "It is created, but no data");
+        var jsonObj = new JsonObject();
+        jsonObj.toObject(
+            { type: "dropdown", name: "country", choicesByUrl: { url: 'http://services.groupkt.com/country/get/all', path: 'RestResponse;result' } }
+            , question);
+        assert.equal(question.choicesByUrl.getType(), "choicesByUrl", "It is the real object");
+        assert.equal(question.choicesByUrl.isEmpty, false, "There are data");
+        assert.equal(question.choicesByUrl.path, 'RestResponse;result', "data is copied correctly");
+    });
 }

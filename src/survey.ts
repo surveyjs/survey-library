@@ -432,6 +432,12 @@ module Survey {
                 }
             }
         }
+        private doQuestionsOnLoad() {
+            var questions = this.getAllQuestions(false);
+            for (var i = 0; i < questions.length; i++) {
+                questions[i].onSurveyLoad();
+            }
+        }
         private runConditions() {
             this.runConditionsForList(this.getAllQuestions(false));
             this.runConditionsForList(this.pages);
@@ -516,6 +522,7 @@ module Survey {
             if (this.hasCookie) {
                 this.doComplete();
             }
+            this.doQuestionsOnLoad();
             this.runConditions();
             this.updateVisibleIndexes();
         }

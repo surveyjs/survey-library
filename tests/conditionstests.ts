@@ -4,20 +4,6 @@
 module Survey.Tests {
     QUnit.module("Conditions");
 
-    class ConditionData implements ISurveyData {
-        private values: HashTable<any> = {};
-        constructor() {
-        }    
-        public getValue(name: string): any { return this.values[name]; }
-        public setValue(name: string, newValue: any) {
-            this.values[name] = newValue;
-        }
-        public getComment(name: string): string { return null;  }
-        public setComment(name: string, newValue: string) {
-            //do nothing
-        }
-    }
-
     QUnit.test("Condition", function (assert) {
         var op = new Condition();
         op.right = 5;

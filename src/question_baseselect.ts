@@ -7,11 +7,16 @@ module Survey {
         protected cachedValue: any;
         otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
         public choicesValues: Array<ItemValue> = new Array<ItemValue>();
+        public choicesByUrl: ChoicesRestfull;
         public otherErrorText: string = null;
         public storeOthersAsComment: boolean = true;
         choicesOrderValue: string = "none";
+        choicesChangedCallback: () => void;
         constructor(name: string) {
             super(name);
+            this.choicesByUrl = new ChoicesRestfull();
+            var self = this;
+            this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };
         }
         public get isOtherSelected(): boolean {
             return this.getStoreOthersAsComment() ? this.getHasOther(this.value) : this.getHasOther(this.cachedValue);
@@ -70,6 +75,7 @@ module Survey {
         get choices(): Array<any> { return this.choicesValues; }
         set choices(newValue: Array<any>) {
             ItemValue.setData(this.choicesValues, newValue);
+            this.fireCallback(this.choicesChangedCallback);
         }
         get choicesOrder(): string { return this.choicesOrderValue; }
         set choicesOrder(newValue: string) {
@@ -98,21 +104,29 @@ module Survey {
             errors.push(new CustomError(text));
         }
         protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.survey != null ? this.survey.storeOthersAsComment : true); }
-        sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
+        onSurveyLoad() {
+            if (this.choicesByUrl) this.choicesByUrl.run();
+        }
+        private onLoadChoicesFromUrl(array: Array<ItemValue>) {
+            if (array && array.length > 0) {
+                this.choices = array;
+            }
+        }
+        private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
             var order = this.choicesOrder.toLowerCase();
             if (order == "asc") return this.sortArray(array, 1);
             if (order == "desc") return this.sortArray(array, -1);
             if (order == "random") return this.randomizeArray(array);
             return array;
         }
-        sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
+        private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
             return array.sort(function (a, b) {
                 if (a.text < b.text) return -1 * mult;
                 if (a.text > b.text) return 1 * mult;
                 return 0;
             });
         }
-        randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
+        private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
             for (var i = array.length - 1; i > 0; i--) {
                 var j = Math.floor(Math.random() * (i + 1));
                 var temp = array[i];
@@ -139,6 +153,7 @@ module Survey {
     JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
         { name: "!choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
         { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
+        { name: "choicesByUrl", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
         { name: "otherText", default: surveyLocalization.getString("otherItemText") }, "otherErrorText",
         { name: "storeOthersAsComment:boolean", default: true}], null, "question");
 

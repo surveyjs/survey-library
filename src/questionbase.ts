@@ -78,6 +78,8 @@ module Survey {
        //IQuestion
         onSurveyValueChanged(newValue: any) {
         }
+        onSurveyLoad() {
+        }
         setVisibleIndex(value: number) {
             if (this.visibleIndexValue == value) return;
             this.visibleIndexValue = value;

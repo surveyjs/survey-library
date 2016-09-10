@@ -33,6 +33,7 @@
         hasTitle: boolean;
         setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
+        onSurveyLoad();
     }
     export interface IPage extends IConditionRunner {
         visible: boolean;

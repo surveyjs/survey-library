@@ -11,6 +11,12 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         this.question = props.question;
         this.css = props.css;
         this.rootCss = props.rootCss;
+        this.state = { choicesChanged: 0 };
+        var self = this;
+        this.question.choicesChangedCallback = function () {
+            self.state.choicesChanged = self.state.choicesChanged + 1;
+            self.setState(self.state);
+        }
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {

@@ -34,6 +34,7 @@
         setVisibleIndex(value: number);
         onSurveyValueChanged(newValue: any);
         onSurveyLoad();
+        supportGoNextPageAutomatic(): boolean;
     }
     export interface IPage extends IConditionRunner {
         visible: boolean;

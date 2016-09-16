@@ -10,9 +10,8 @@ module Survey {
         public getType(): string {
             return "text";
         }
-        isEmpty(): boolean {
-            return super.isEmpty() || this.value == "";
-        }
+        isEmpty(): boolean {  return super.isEmpty() || this.value == ""; }
+        supportGoNextPageAutomatic() { return true; }
     }
     JsonObject.metaData.addClass("text", [{ name: "size:number", default: 25 }], function () { return new QuestionTextModel(""); }, "question");
     QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionTextModel(name); });

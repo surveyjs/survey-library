@@ -10,6 +10,7 @@ module Survey {
         public getType(): string {
             return "radiogroup";
         }
+        supportGoNextPageAutomatic() { return true; }
     }
     JsonObject.metaData.addClass("radiogroup", [], function () { return new QuestionRadiogroupModel(""); }, "checkboxbase");
     QuestionFactory.Instance.registerQuestion("radiogroup", (name) => { var q = new QuestionRadiogroupModel(name); q.choices = QuestionFactory.DefaultChoices; return q;});

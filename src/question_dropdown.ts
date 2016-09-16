@@ -12,6 +12,7 @@ module Survey {
         public getType(): string {
             return "dropdown";
         }
+        supportGoNextPageAutomatic() { return true; }
     }
     JsonObject.metaData.addClass("dropdown", [{ name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; }}],
         function () { return new QuestionDropdownModel(""); }, "selectbase");

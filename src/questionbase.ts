@@ -85,6 +85,7 @@ module Survey {
             this.visibleIndexValue = value;
             this.fireCallback(this.visibleIndexChangedCallback);
         }
+        supportGoNextPageAutomatic() { return false; }
     }
     JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf", 
         { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

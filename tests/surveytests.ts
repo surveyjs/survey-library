@@ -5,6 +5,7 @@
 /// <reference path="../src/question_checkbox.ts" />
 /// <reference path="../src/question_matrix.ts" />
 /// <reference path="../src/question_html.ts" />
+/// <reference path="../src/question_file.ts" />
 /// <reference path="../src/questionfactory.ts" />
 /// <reference path="../src/trigger.ts" />
 module Survey.Tests {
@@ -569,6 +570,55 @@ module Survey.Tests {
         dropDownQ.comment = "other value";
         assert.equal(survey.state, "completed", "complete the survey");
     });
+    QUnit.test("test goNextPageAutomatic property", function (assert) {
+        var survey = twoPageSimplestSurvey();
+
+        var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion("dropdown", "question5");
+        dropDownQ.choices = [1, 2, 3];
+        dropDownQ.hasOther = true;
+        survey.goNextPageAutomatic = true;
+        assert.equal(survey.currentPage.name, survey.pages[0].name, "the first page is default page");
+        survey.setValue("question1", 1);
+        survey.setValue("question2", 2);
+        assert.equal(survey.currentPage.name, survey.pages[1].name, "go to the second page automatically");
+        (<Question>survey.currentPage.questions[0]).value = "3";
+        (<Question>survey.currentPage.questions[1]).value = "4";
+        dropDownQ.value = dropDownQ.otherItem.value;
+        assert.equal(survey.currentPage.name, survey.pages[1].name, "stay on the second page");
+        assert.notEqual(survey.state, "completed", "survey is still running");
+        dropDownQ.comment = "other value";
+        assert.equal(survey.state, "completed", "complete the survey");
+    });
+    QUnit.test("goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
+        var questions = [];
+        questions.push({ question: new QuestionCheckboxModel("check"), auto: false, value: [1] });
+        questions.push({ question: new QuestionRadiogroupModel("radio"), auto: true, value: 1 });
+        questions.push({ question: new QuestionDropdownModel("dropdown"), auto: true, value: 1 });
+        questions.push({ question: new QuestionCommentModel("comment"), auto: false, value: "1" });
+        questions.push({ question: new QuestionFileModel("file"), auto: false, value: "1" });
+        questions.push({ question: new QuestionFileModel("html"), auto: false, value: null });
+        questions.push({ question: new QuestionMatrixModel("matrix"), auto: false, value: [{ item1: 1 }] });
+        questions.push({ question: new QuestionMatrixDropdownModel("matrixdropdown"), auto: false, value: [{ item1: 1 }] });
+        questions.push({ question: new QuestionMatrixDynamicModel("matrixdynamic"), auto: false, value: [{ item1: 1 }] });
+        questions.push({ question: new QuestionMultipleTextModel("multitext"), auto: false, value: [{ item1: "1" }] });
+        questions.push({ question: new QuestionRatingModel("rating"), auto: true, value: 1 });
+        questions.push({ question: new QuestionTextModel("text"), auto: true, value: "1" });
+        var pageIndex = 0;
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            var survey = new SurveyModel();
+            var page = survey.addNewPage("firstpage");
+            page.addQuestion(q.question);
+            //survey.addNewPage("lastpage");
+            survey.goNextPageAutomatic = true;
+            if (q.value) {
+                q.question.value = q.value;
+            }
+            var state = q.auto ? "completed" : "running";
+            assert.equal(survey.state, state, "goNextPageAutomatic is incorrect for question: " + q.question.name);
+        }
+    });
+
     QUnit.test("simple condition test", function (assert) {
         var survey = new SurveyModel({
             pages: [{ name: "page1",

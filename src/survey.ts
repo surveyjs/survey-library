@@ -598,7 +598,7 @@ module Survey {
             this.notifyQuestionOnValueChanged(name, newValue);
             this.checkTriggers(name, newValue, false);
             this.runConditions();
-            this.tryGoNextPageAutomatic();
+            this.tryGoNextPageAutomatic(name);
         }
         private isValueEqual(name: string, newValue: any): boolean {
             if (newValue == "") newValue = null;
@@ -621,8 +621,10 @@ module Survey {
             }
             return true;
         }
-        private tryGoNextPageAutomatic() {
+        private tryGoNextPageAutomatic(name: string) {
             if (!this.goNextPageAutomatic || !this.currentPage) return;
+            var question = this.getQuestionByName(name);
+            if (question && !question.supportGoNextPageAutomatic()) return;
             var questions = this.getCurrentPageQuestions();
             for (var i = 0; i < questions.length; i++) {
                 if (!this.getValue(questions[i].name)) return;
@@ -646,7 +648,7 @@ module Survey {
                 delete this.valuesHash[name];
             } else {
                 this.valuesHash[name] = newValue;
-                this.tryGoNextPageAutomatic();
+                this.tryGoNextPageAutomatic(name);
             }
         }
         questionVisibilityChanged(question: IQuestion, newValue: boolean) {

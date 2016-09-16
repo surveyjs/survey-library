@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-index">
+﻿<div data-bind="css: $root.css.root">
     <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: $root.css.header">
         <h3 data-bind="text:title"></h3>
     </div>
@@ -23,4 +23,4 @@
     <!-- ko if: koState() == "empty" -->
     <div data-bind="text:emptySurveyText, css: $root.css.body"></div>
     <!-- /ko -->
-</script>
+</div>

@@ -1,5 +1,6 @@
 ﻿module Survey {
     export var defaultBootstrapCss = {
+        root: "",
         header: "panel-heading",
         body: "panel-body",
         footer: "panel-footer",

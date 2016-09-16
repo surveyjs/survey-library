@@ -15,6 +15,7 @@ module Survey {
         private rowCounter = 0;
         private rowCountValue: number = 2;
         private addRowTextValue: string = null;
+        public minRowCount = 0;
         public rowCountChangedCallback: () => void;
         constructor(public name: string) {
             super(name);
@@ -61,7 +62,22 @@ module Survey {
             if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
             return this.visibleRows;
         }
-
+        protected onCheckForErrors(errors: Array<SurveyError>) {
+            super.onCheckForErrors(errors);
+            if (this.hasErrorInRows()) {
+                errors.push(new CustomError(surveyLocalization.getString("minRowCountError")["format"](this.minRowCount)));
+            }
+        }
+        private hasErrorInRows(): boolean {
+            if (this.minRowCount <= 0 || !this.generatedVisibleRows) return false;
+            var res = false;
+            var setRowCount = 0;
+            for (var rowIndex = 0; rowIndex < this.generatedVisibleRows.length; rowIndex++) {
+                var row = this.generatedVisibleRows[rowIndex];
+                if (!row.isEmpty) setRowCount++;
+            }
+            return setRowCount < this.minRowCount;
+        }
         protected generateRows(): Array<MatrixDynamicRowModel> {
             var result = new Array<MatrixDynamicRowModel>();
             if (this.rowCount === 0) return result;
@@ -103,7 +119,7 @@ module Survey {
         }
     }
 
-    JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 },
+    JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 },
         { name: "addRowText", onGetValue: function (obj: any) { return obj.addRowTextValue; } }], function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
     QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
 }

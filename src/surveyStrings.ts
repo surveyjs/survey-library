@@ -30,6 +30,7 @@
         requiredError: "Please answer the question.",
         numericError: "The value should be a numeric.",
         textMinLength: "Please enter at least {0} symbols.",
+        minRowCountError: "Please fill at least {0} rows.",
         minSelectError: "Please select at least {0} variants.",
         maxSelectError: "Please select not more than {0} variants.",
         numericMinMax: "The '{0}' should be equal or more than {1} and equal or less than {2}",

@@ -437,4 +437,15 @@ module Survey.Tests {
             assert.equal(row.cells[i].question.getType(), col.name, "Expected " + col.name + ", but was" + row.cells[i].question.getType());
         }
     });
+    QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
+        var question = new QuestionMatrixDynamicModel("matrixDropdown");
+        question.rowCount = 2;
+        question.columns.push(new MatrixDropdownColumn("dropdown"));
+        var rows = question.visibleRows; 
+        assert.equal(question.hasErrors(), false, "There is no errors in the matrix. Null is possible");
+        assert.equal(rows[0].isEmpty, true, "There is no error in the first row");
+        assert.equal(rows[1].isEmpty, true, "There is no error in the second row");
+        question.minRowCount = 2;
+        assert.equal(question.hasErrors(), true, "Error, value in all rows are required");
+    });
 }

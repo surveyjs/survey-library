@@ -97,6 +97,12 @@ module Survey {
         public setComment(name: string, newValue: string) {
             this.rowComments[name] = newValue;
         }
+        public get isEmpty() {
+            var val = this.value;
+            if (!val) return true;
+            for (var key in val) return false;
+            return true;
+        }
         private buildCells() {
             var columns = this.data.columns;
             for (var i = 0; i < columns.length; i++) {
@@ -114,10 +120,10 @@ module Survey {
         private optionsCaptionValue: string;
         private isRowChanging = false;
         protected generatedVisibleRows: Array<MatrixDropdownRowModelBase>;
-        public horizontalScroll: boolean = false;
         private cellTypeValue: string = "dropdown";
         private columnColCountValue: number = 0;
         public columnMinWidth: string = "";
+        public horizontalScroll: boolean = false;
         public columnsChangedCallback: () => void;
         public updateCellsCallbak: () => void;
 
@@ -196,10 +202,10 @@ module Survey {
             this.isRowChanging = false;
         }
         public hasErrors(fireCallback: boolean = true): boolean {
-            var errosInCells = this.hasErrorInCells(fireCallback);
-            return super.hasErrors(fireCallback) || errosInCells;
+            var errosInColumns = this.hasErrorInColumns(fireCallback);
+            return super.hasErrors(fireCallback) || errosInColumns;
         }
-        private hasErrorInCells(fireCallback: boolean): boolean {
+        private hasErrorInColumns(fireCallback: boolean): boolean {
             if (!this.generatedVisibleRows) return false;
             var res = false;
             for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
@@ -292,7 +298,8 @@ module Survey {
         { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth"],
         function () { return new MatrixDropdownColumn(""); });
 
-    JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn" }, "horizontalScroll:boolean",
+    JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn" },
+        "horizontalScroll:boolean", 
         { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
         { name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; } },
         { name: "cellType", default: "dropdown", choices: ["dropdown", "checkbox", "radiogroup", "text", "comment"] },

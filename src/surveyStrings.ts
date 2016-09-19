@@ -37,6 +37,8 @@
         numericMin: "The '{0}' should be equal or more than {1}",
         numericMax: "The '{0}' should be equal or less than {1}",
         invalidEmail: "Please enter a valid e-mail.",
+        urlRequestError: "The request return error '{0}'. {1}",
+        urlGetChoicesError: "The request returns empty data or the 'path' property is incorrect",
         exceedMaxSize: "The file size should not exceed {0}.",
         otherRequiredError: "Please enter the others value.",
         uploadingFile: "Your file is uploading. Please wait several seconds and try again.",

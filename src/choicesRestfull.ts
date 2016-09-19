@@ -7,19 +7,22 @@ module Survey {
         public valueName: string = "";
         public titleName: string = "";
         public getResultCallback: (items: Array<ItemValue>) => void;
+        public error: SurveyError = null;
         constructor() {
             super();
         }
         public run() {
             if (!this.url || !this.getResultCallback) return;
+            this.error = null;
             var xhr = new XMLHttpRequest();
             xhr.open('GET', this.url);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             var self = this;
             xhr.onload = function () {
-                var result = JSON.parse(xhr.response);
                 if (xhr.status == 200) {
                     self.onLoad(JSON.parse(xhr.response));
+                } else {
+                    self.onError(xhr.statusText, xhr.responseText);
                 }
             };
             xhr.send();
@@ -42,20 +45,27 @@ module Survey {
             this.titleName = "";
         }
         protected onLoad(result: any) {
-            if (!result) return;
-            result = this.getResultAfterPath(result);
-            if (!result || !result["length"]) return;
             var items = [];
-            for (var i = 0; i < result.length; i++) {
-                var itemValue = result[i];
-                if (!itemValue) continue;
-                var value = this.getValue(itemValue);
-                var title = this.getTitle(itemValue);
-                items.push(new ItemValue(value, title));
+            result = this.getResultAfterPath(result);
+            if (result && result["length"]) {
+                for (var i = 0; i < result.length; i++) {
+                    var itemValue = result[i];
+                    if (!itemValue) continue;
+                    var value = this.getValue(itemValue);
+                    var title = this.getTitle(itemValue);
+                    items.push(new ItemValue(value, title));
+                }
+            } else {
+                this.error = new CustomError(surveyLocalization.getString("urlGetChoicesError"));
             }
             this.getResultCallback(items);
         }
+        private onError(status: string, response: string) {
+            this.error = new CustomError(surveyLocalization.getString("urlRequestError")["format"](status, response));
+            this.getResultCallback([]);
+        }
         private getResultAfterPath(result: any) {
+            if (!result) return result;
             if (!this.path) return result;
             var pathes = this.getPathes();
             for (var i = 0; i < pathes.length; i++) {

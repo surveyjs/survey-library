@@ -1620,5 +1620,3 @@ declare module Survey {
         protected text: string;
     }
 }
-
-}

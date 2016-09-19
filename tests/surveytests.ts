@@ -609,7 +609,6 @@ module Survey.Tests {
             var survey = new SurveyModel();
             var page = survey.addNewPage("firstpage");
             page.addQuestion(q.question);
-            //survey.addNewPage("lastpage");
             survey.goNextPageAutomatic = true;
             if (q.value) {
                 q.question.value = q.value;

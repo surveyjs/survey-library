@@ -33,7 +33,7 @@ module Survey {
             if (visCount == 0) return;
             var counter = 0;
             for (var i = 0; i < this.questions.length; i++)
-                if (this.questions[i].visible) {
+                if (this.isQuestionVisible(this.questions[i])) {
                     this.questions[i].renderWidth = this.question.width ? this.question.width : Math.floor(100 / visCount) + '%';
                     this.questions[i].rightIndent = counter < visCount - 1 ? 1 : 0;
                     counter++;
@@ -45,10 +45,11 @@ module Survey {
         private getVisibleCount(): number {
             var res = 0;
             for (var i = 0; i < this.questions.length; i++) {
-                if (this.questions[i].visible) res++;
+                if (this.isQuestionVisible(this.questions[i])) res++;
             }
             return res;
         }
+        private isQuestionVisible(q: QuestionBase): boolean { return this.page.isQuestionVisible(q); } 
         private calcVisible(): boolean { return this.getVisibleCount() > 0; }
     }
 
@@ -78,12 +79,12 @@ module Survey {
             return this.rowValues;
         }
         public get isActive() { return (!this.data) || this.data.currentPage == this; }
+        public isQuestionVisible(question: QuestionBase): boolean { return question.visible || this.isDesignMode; }
         protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRowModel(this, question); }
         private get isDesignMode() { return this.data && this.data.isDesignMode; }
         private buildRows(): Array<QuestionRowModel> {
             var result = new Array<QuestionRowModel>();
             var lastRowVisibleIndex = -1;
-            var designMode = this.isDesignMode;
             var self = this;
             for (var i = 0; i < this.questions.length; i++) {
                 var q = this.questions[i];

@@ -59,7 +59,11 @@ module Survey {
         public supportComment(): boolean { return false; }
         public supportOther(): boolean { return false; }
         public get isRequired(): boolean { return this.isRequiredValue; }
-        public set isRequired(val: boolean) { this.isRequiredValue = val; }
+        public set isRequired(val: boolean) {
+            if (this.isRequired == val) return;
+            this.isRequiredValue = val;
+            this.fireCallback(this.titleChangedCallback);
+        }
         public get hasComment(): boolean { return this.hasCommentValue; }
         public set hasComment(val: boolean) {
             if (!this.supportComment()) return;

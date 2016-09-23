@@ -190,7 +190,7 @@ module Survey {
         //IValidatorOwner
         getValidatorTitle(): string { return null; }
    }
-    JsonObject.metaData.addClass("question", [{ name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+    JsonObject.metaData.addClass("question", [{ name: "title:text", onGetValue: function (obj: any) { return obj.titleValue; } },
         { name: "commentText", onGetValue: function (obj: any) { return obj.commentTextValue; } },
         "isRequired:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");
 }

@@ -1,11 +1,21 @@
 ﻿/// <reference path="../src/base.ts" />
 /// <reference path="../src/choicesRestfull.ts" />
+/// <reference path="../src/question_dropdown.ts" />
 module Survey.Tests {
     QUnit.module("choicesRestfull");
 
     class ChoicesRestfullTester extends ChoicesRestfull {
         public runJson(json: any) {
             this.onLoad(json);
+        }
+    }
+    class QuestionDropdownModelTester extends QuestionDropdownModel {
+        constructor(name: string) {
+            super(name);
+        }
+        protected createRestfull(): ChoicesRestfull { return new ChoicesRestfullTester(); }
+        public runChoicesByUrl(json: any) {
+            (<ChoicesRestfullTester>this.choicesByUrl).runJson(json);
         }
     }
 
@@ -19,6 +29,16 @@ module Survey.Tests {
         assert.equal(items.length, 5, "there are 5 countries");
         assert.equal(items[0].value, "Afghanistan", "the first country is Afghanistan");
         assert.equal(items[4].value, "American Samoa", "the fifth country is American Samoa");
+    });
+    QUnit.test("Test dropdown", function (assert) {
+        var question = new QuestionDropdownModelTester("q1");
+        assert.equal(question.choices.length, 0, "There is no choices by default");
+        assert.equal(question.visibleChoices.length, 0, "There is no visible choices by default");
+        var json = getCountries();
+        question.choicesByUrl.path = "RestResponse;result";
+        question.runChoicesByUrl(json);
+        assert.equal(question.choices.length, 0, "Choices do not used");
+        assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
     });
     function getCountries(): any {
         return {

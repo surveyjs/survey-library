@@ -99,6 +99,12 @@ module Survey.SerializationTests {
         var jsObj = new JsonObject().toJsonObject(mtQuestion);
         assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}", "serialize multiple text question");
     });
+    QUnit.test("Serialize restfull choices", function (assert) {
+        var question = new QuestionDropdownModel("q1");
+        question.choicesByUrl.path = "name";
+        var jsObj = new JsonObject().toJsonObject(question);
+        assert.equal(JSON.stringify(jsObj), "{\"name\":\"q1\",\"choicesByUrl\":{\"path\":\"name\"}}", "serialize choicesByUrl");
+    });
     QUnit.test("Deserialize question with missing name", function (assert) {
         var survey = new SurveyModel();
         var jsonObj = new JsonObject();

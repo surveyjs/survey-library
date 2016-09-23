@@ -6,7 +6,8 @@ module Survey {
         private commentValue: string;
         protected cachedValue: any;
         otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
-        public choicesValues: Array<ItemValue> = new Array<ItemValue>();
+        private choicesFromUrl: Array<ItemValue> = null;
+        private choicesValues: Array<ItemValue> = new Array<ItemValue>();
         public choicesByUrl: ChoicesRestfull;
         public otherErrorText: string = null;
         public storeOthersAsComment: boolean = true;
@@ -14,7 +15,7 @@ module Survey {
         choicesChangedCallback: () => void;
         constructor(name: string) {
             super(name);
-            this.choicesByUrl = new ChoicesRestfull();
+            this.choicesByUrl = this.createRestfull();
             var self = this;
             this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };
         }
@@ -24,6 +25,7 @@ module Survey {
         protected getHasOther(val: any): boolean {
             return val == this.otherItem.value;
         }
+        protected createRestfull(): ChoicesRestfull { return new ChoicesRestfull(); }
         protected getComment(): string {
             if (this.getStoreOthersAsComment()) return super.getComment();
             return this.commentValue;
@@ -67,8 +69,9 @@ module Survey {
         }
         protected hasUnknownValue(val: any): boolean {
             if (!val) return false;
-            for (var i = 0; i < this.choicesValues.length; i++) {
-                if (this.choicesValues[i].value == val) return false;
+            var items = this.activeChoices;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].value == val) return false;
             }
             return true;
         }
@@ -85,13 +88,14 @@ module Survey {
         get otherText(): string { return this.otherItem.text; }
         set otherText(value: string) { this.otherItem.text = value; }
         get visibleChoices(): Array<ItemValue> {
-            if (!this.hasOther && this.choicesOrder == "none") return this.choices;
-            var result = this.sortVisibleChoices(this.choices.slice());
+            if (!this.hasOther && this.choicesOrder == "none") return this.activeChoices;
+            var result = this.sortVisibleChoices(this.activeChoices.slice());
             if (this.hasOther) {
                 result.push(this.otherItem);
             }
             return result;
         }
+        private get activeChoices(): Array<ItemValue> { return this.choicesFromUrl ? this.choicesFromUrl : this.choices; }
         public supportComment(): boolean { return true; }
         public supportOther(): boolean { return true; }
         protected onCheckForErrors(errors: Array<SurveyError>) {
@@ -116,9 +120,13 @@ module Survey {
             if (errorCount > 0 || this.errors.length > 0) {
                 this.fireCallback(this.errorsChangedCallback);
             }
+            var newChoices = null;
             if (array && array.length > 0) {
-                this.choices = array;
+                newChoices = new Array<ItemValue>();
+                ItemValue.setData(newChoices, array);
             }
+            this.choicesFromUrl = newChoices;
+            this.fireCallback(this.choicesChangedCallback);
         }
         private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
             var order = this.choicesOrder.toLowerCase();
@@ -159,9 +167,9 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
-        { name: "!choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
+        { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
         { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
-        { name: "choicesByUrl", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
+        { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
         { name: "otherText", default: surveyLocalization.getString("otherItemText") }, "otherErrorText",
         { name: "storeOthersAsComment:boolean", default: true}], null, "question");
 

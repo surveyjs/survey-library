@@ -16,8 +16,8 @@ module Survey {
         private visibleIndexValue: number = -1;
         public width: string = "";
         private renderWidthValue: string = "";
+        private rightIndentValue: number = 0;
         public indent: number = 0;
-        public rightIndent: number = 0;
         focusCallback: () => void;
         renderWidthChangedCallback: () => void;
         rowVisibilityChangedCallback: () => void;
@@ -48,6 +48,12 @@ module Survey {
         public set renderWidth(val: string) {
             if (val == this.renderWidth) return;
             this.renderWidthValue = val;
+            this.fireCallback(this.renderWidthChangedCallback);
+        }
+        public get rightIndent(): number { return this.rightIndentValue; }
+        public set rightIndent(val: number) {
+            if (val == this.rightIndent) return;
+            this.rightIndentValue = val;
             this.fireCallback(this.renderWidthChangedCallback);
         }
         public focus() {

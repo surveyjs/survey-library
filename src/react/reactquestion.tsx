@@ -32,7 +32,14 @@ class ReactSurveyQuestion extends React.Component<any, any> {
         this.questionBase = question;
         this.question = question instanceof Survey.Question ? question : null;
         var value = this.question ? this.question.value : null;
-        this.state = { visible: this.questionBase.visible, value: value, error: 0 };
+        this.state = { visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0 };
+        var self = this;
+        if (this.questionBase) {
+            this.questionBase.renderWidthChangedCallback = function () {
+                self.state.renderWidth = self.state.renderWidth + 1;
+                self.setState(self.state);
+            }
+        }
     }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;

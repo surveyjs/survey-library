@@ -624,9 +624,9 @@ module Survey.Tests {
                 questions: [
                     { type: "checkbox", name: "q1", choices: ["yes", "no"] },
                     { type: "checkbox", name: "q2", choices: ["yes", "no"] }]
-            }, { name : "page2", visibleIf: "q1 = 'yes' or 'q2' = 'no'",
+            }, { name : "page2", visibleIf: "{q1} = 'yes' or {q2} = 'no'",
                     questions: [
-                        { type: "text", name: "q3", visibleIf: "q1 = 'yes' and 'q2' = 'no'", },
+                        { type: "text", name: "q3", visibleIf: "{q1} = 'yes' and {q2} = 'no'", },
                         { type: "text", name: "q4" }]
                 }
             ]

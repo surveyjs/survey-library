@@ -99,10 +99,24 @@ module Survey {
         }
         private runCondition(condition: Condition): boolean {
             var left = condition.left;
-            if (left && this.values[left]) left = this.values[left];
+            var name = this.getValueName(left);
+            if (name) {
+                if (!(name in this.values)) return false;
+                left = this.values[name];
+            }
             var right = condition.right;
-            if (right && this.values[right]) right = this.values[right];
+            name = this.getValueName(right);
+            if (name) {
+                if (!(name in this.values)) return false;
+                right = this.values[name];
+            }
             return condition.perform(left, right);
+        }
+        private getValueName(nodeValue: any) {
+            if (!nodeValue) return null;
+            if (typeof nodeValue !== 'string') return null;
+            if (nodeValue.length < 3 || nodeValue[0] != '{' || nodeValue[nodeValue.length - 1] != '}') return null;
+            return nodeValue.substr(1, nodeValue.length - 2);
         }
     }
 }

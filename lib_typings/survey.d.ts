@@ -1,7 +1,6 @@
 // Type definitions for Survey JavaScript library v0.9.11
 // Project: http://surveyjs.org/
 // Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>
-// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 declare module Survey {
     interface HashTable<T> {
@@ -190,6 +189,7 @@ declare module Survey {
         valueName: string;
         titleName: string;
         getResultCallback: (items: Array<ItemValue>) => void;
+        error: SurveyError;
         constructor();
         run(): void;
         getType(): string;
@@ -197,6 +197,7 @@ declare module Survey {
         setData(json: any): void;
         clear(): void;
         protected onLoad(result: any): void;
+        private onError(status, response);
         private getResultAfterPath(result);
         private getPathes();
         private getValue(item);
@@ -314,6 +315,8 @@ declare module Survey {
         numericMin: string;
         numericMax: string;
         invalidEmail: string;
+        urlRequestError: string;
+        urlGetChoicesError: string;
         exceedMaxSize: string;
         otherRequiredError: string;
         uploadingFile: string;
@@ -422,6 +425,7 @@ declare module Survey {
         setWidth(): void;
         private onRowVisibilityChanged();
         private getVisibleCount();
+        private isQuestionVisible(q);
         private calcVisible();
     }
     class PageModel extends Base implements IPage, IConditionRunner {
@@ -438,6 +442,7 @@ declare module Survey {
         constructor(name?: string);
         rows: Array<QuestionRowModel>;
         isActive: boolean;
+        isQuestionVisible(question: QuestionBase): boolean;
         protected createRow(question: QuestionBase): QuestionRowModel;
         private isDesignMode;
         private buildRows();

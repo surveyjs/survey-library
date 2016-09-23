@@ -10,7 +10,9 @@
   "homepage": "https://surveyjs.org/",
   "license": "MIT",
   "files": [
-    "dist/"
+    "dist/",
+    "js/",
+    "css/"
   ],
   "main": "fileName",
   "repository": {

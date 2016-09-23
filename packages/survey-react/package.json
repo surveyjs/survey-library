@@ -1,6 +1,6 @@
 {
   "name": "survey-react",
-  "version": "0.9.11",
+  "version": "0.9.12",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -12,7 +12,9 @@
   "homepage": "https://surveyjs.org/",
   "license": "MIT",
   "files": [
-    "dist/"
+    "dist/",
+    "js/",
+    "css/"
   ],
   "main": "survey.react.min.js",
   "repository": {

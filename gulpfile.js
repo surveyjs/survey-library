@@ -17,14 +17,15 @@ var gulp = require('gulp'),
 
 var Server = require("karma").Server;
 
-var libraryVersion = "0.9.11";
+var libraryVersion = "0.9.12";
 
 var paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
     dist_dts: "./dist/typings/",
     tsTests: "./tests/*.ts",
-    package_ko_dist: "./packages/survey-knockout/dist/",
+    package_ko: "./packages/survey-knockout/",
+    package_react: "./packages/survey-react/",
     typings: "./typings/**/*.d.ts",
     styles: "./src/*.scss",
 };
@@ -40,7 +41,6 @@ var copyright = ["/*!",
 var tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
 "// Project: http://surveyjs.org/",
 "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
-"// Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped",
 "",""].join("\n");
 
 var config_ko_standard = {
@@ -141,7 +141,6 @@ function buildTypeDefinition(configName) {
           paths.webroot + "/lib/survey/**/*.d.ts",
           paths.typings
     ].concat(curConfig.src))
-       .pipe(sourcemaps.init())
        .pipe(ts({
            target: "ES5",
            noExternalResolve: true,
@@ -164,6 +163,7 @@ function compressMainJS(configName) {
             }))
         .pipe(concat.header(copyright))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"))
+        .pipe(gulp.dest(curConfig.packagePath + "js/"))
         .pipe(gulp.dest(paths.dist));
 }
 
@@ -294,7 +294,10 @@ gulp.task('sass', function () {
       .pipe(sass.sync().on('error', sass.logError))
       .pipe(concat("survey.css"))
       .pipe(gulp.dest(paths.webroot + 'css'))
-        .pipe(gulp.dest(paths.package_ko_dist + 'css'))
+      .pipe(gulp.dest(paths.package_ko + 'dist/css'))
+      .pipe(gulp.dest(paths.package_ko + 'css'))
+      .pipe(gulp.dest(paths.package_react + 'dist/css'))
+      .pipe(gulp.dest(paths.package_react + 'css'))
       .pipe(gulp.dest(paths.dist + 'css'));
 });
 gulp.task("makedist", sequence(["sass", "build_ko_standard", "build_ko_bootstrap"], "buildTests_ko", "build_react_standard", "build_react_bootstrap"));

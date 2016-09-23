@@ -4,6 +4,7 @@
            "items": [
                 { "name": "Radio group", "text" : "One choice question", "url": "questiontype-radiogroup.html"},
                 { "name": "Dropdown", "text" : "One choice question", "url": "questiontype-dropdown.html"},
+                { "name": "Dropdown + restfull", "text" : "Get data from a restfull service", "url": "questiontype-dropdownrestfull.html"},
                 { "name": "Checkboxes", "text" : "Multiple choices question", "url": "questiontype-checkbox.html"},
                 { "name": "Matrix", "text" : "Matrix question", "url": "questiontype-matrix.html"},
                 { "name": "Matrixdropdown", "text" : "Matrix question with multiple choices", "url": "questiontype-matrixdropdown.html"},
@@ -34,8 +35,9 @@
                 {"name": "Create custom validators", "text": "Example of creating and using a custom validator", "url": "validators-custom.html"},
                 {"name": "Validate on event", "text": "Example of using OnValidatateQuestion event", "url": "validators-event.html"}
             ]},
-            { "name": "Triggers", "id": "triggers", 
+            { "name": "Conditions and Triggers", "id": "triggers", 
               "items": [
+                {"name": "VisibleIf", "text": "Create complex conditions to control question visibility", "url": "condition-kids.html"},
                 {"name": "Visible Trigger", "text": "Show/Hide question(s) on survey running", "url": "trigger-visible.html"},
                 {"name": "Complete Trigger", "text": "Complete the survey from any page", "url": "trigger-complete.html"},
                 {"name": "SetValue Trigger", "text": "On changing the question, change values of other questions", "url": "trigger-setvalue.html"}

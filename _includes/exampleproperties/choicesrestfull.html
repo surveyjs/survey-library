@@ -1,0 +1,36 @@
+<div class="propertyitem">
+    <p>
+        <b>Link to a restufull service:</b>
+        <input type="text" style="width:100%" onchange="var q = survey.getQuestionByName('country'); q.choicesByUrl.url = this.value; q.choicesByUrl.run();" value="http://services.groupkt.com/country/get/all" /> 
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('country');
+q.choicesByUrl.url = 'http://yourrestfullserviceurl';
+q.choicesByUrl.run();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+        <b>The path to the array of results in the returned json:</b>
+        <input type="text" style="width:100%" onchange="var q = survey.getQuestionByName('country'); q.choicesByUrl.path = this.value; q.choicesByUrl.run();" value="RestResponse;result" /> 
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('country');
+q.choicesByUrl.path = 'MyPathToTheResult';
+q.choicesByUrl.run();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+        <b>The 'value' element name in the returned json:</b>
+        <input type="text" style="width:100%" onchange="var q = survey.getQuestionByName('country'); q.choicesByUrl.valueName = this.value; q.choicesByUrl.run();" value="name" /> 
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('country');
+q.choicesByUrl.valueName = 'thePropertyNameForValue';
+q.choicesByUrl.run();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+        <b>The 'title' element name in the returned json (if empty, the value is used):</b>
+        <input type="text" style="width:100%" onchange="var q = survey.getQuestionByName('country'); q.choicesByUrl.titleName = this.value; q.choicesByUrl.run();" /> 
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('country');
+q.choicesByUrl.titleName = 'thePropertyNameForTitle';
+q.choicesByUrl.run();</code></pre>
+    </p>
+</div>

@@ -1,0 +1,4 @@
+{ questions: [
+    { type: "dropdown", name: "country", title: "Select the country...", isRequired: true, 
+     choicesByUrl: {url: "http://services.groupkt.com/country/get/all", path: "RestResponse;result", valueName: "name"} }
+]}

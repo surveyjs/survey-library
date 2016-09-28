@@ -9,7 +9,7 @@
         pageTitle: "",
         row: "",
         question: { root: "", title: "", comment: "form-control", indent: 20 },
-        error: { root: "alert alert-danger", title: "glyphicon glyphicon-exclamation-sign", item: "" },
+        error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
         checkbox: { root: "form-inline", item: "checkbox", other: "" },
         comment: "form-control",

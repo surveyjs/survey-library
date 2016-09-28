@@ -27,7 +27,8 @@ module.exports = (options) => {
                     loaders:[
                         require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig),
                         require.resolve('ts-loader'),
-                    ]
+                    ],
+                    include: options.tsInclude
                 },
                 {
                     test: /\.(js|jsx)$/,

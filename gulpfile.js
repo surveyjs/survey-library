@@ -322,12 +322,55 @@ const webpack = require('webpack');
 const config = require('./webpack.config');
 const releaseConfig = require('./webpack.config.release');
 
-const options = {
+const reactStandardOptions = {
     entryPoints: {
-        'myNiceBundle': __dirname + '/src/reactStandardIndex'
+        'reactStandardBundle': __dirname + '/src/reactStandardIndex'
     },
+    tsInclude: [
+        "src/*",
+        "src/react/*",
+        "src/react/standard/*"
+    ],
     outputDir: __dirname + '/bundles'
 };
+
+const reactBootstrapOptions = {
+    entryPoints: {
+        'reactBootstrapBundle': __dirname + '/src/reactBootstrapIndex'
+    },
+    tsInclude: [
+        "src/*",
+        "src/react/*",
+        "src/react/bootstrap/*"
+    ],
+    outputDir: __dirname + '/bundles'
+};
+
+const koStandardOptions = {
+    entryPoints: {
+        'koStandardBundle': __dirname + '/src/koStandardIndex'
+    },
+    tsInclude: [
+        "src/*",
+        "src/knockout/*",
+        "src/knockout/standard/*"
+    ],
+    outputDir: __dirname + '/bundles'
+};
+
+const koBootstrapOptions = {
+    entryPoints: {
+        'koBootstrapBundle': __dirname + '/src/koBootstrapIndex'
+    },
+    tsInclude: [
+        "src/*",
+        "src/knockout/*",
+        "src/knockout/bootstrap/*"
+    ],
+    outputDir: __dirname + '/bundles'
+};
+
+let options;
 
 const handleWebpackOutput = (err, stats) => {
     if (err) throw new gutil.PluginError('gulp_err', err);
@@ -344,6 +387,30 @@ const getDevCompiler = (options) => {
 const getReleaseCompiler = (options) => {
     return webpack(releaseConfig(options));
 };
+
+gulp.task('build:react:standard', () => {
+    options = reactStandardOptions;
+    build();
+});
+
+gulp.task('build:react:bootstrap', () => {
+    options = reactBootstrapOptions;
+    build();
+});
+
+gulp.task('build:ko:standard', () => {
+    options = koStandardOptions;
+    build();
+});
+
+gulp.task('build:ko:bootstrap', () => {
+    options = koBootstrapOptions;
+    build();
+});
+
+function build() {
+    gulp.start('build:dev', 'build:release');
+}
 
 gulp.task('build:dev', (done) => {
     const compiler = getDevCompiler(options);

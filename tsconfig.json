@@ -6,9 +6,6 @@
     "noImplicitAny": false,
     "jsx": "react"
   },
-  "include": [
-    "src/react/*"
-  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

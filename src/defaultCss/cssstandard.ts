@@ -9,7 +9,7 @@
         pageTitle: "sv_p_title",
         row: "sv_row",
         question: { root: "sv_q", title: "sv_q_title", comment: "", indent: 20 },
-        error: { root: "sv_q_erbox", item: "" },
+        error: { root: "sv_q_erbox", title: "", item: "" },
 
         checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },
         comment: "",

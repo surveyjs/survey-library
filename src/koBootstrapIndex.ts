@@ -55,6 +55,4 @@ import './knockout/templateText';
 // ko_bootstrap
 import './knockout/bootstrap/koSurveybootstrap';
 import './knockout/bootstrap/koSurveyWindowbootstrap';
-import './knockout/bootstrap/template.ko.html';
-import './knockout/bootstrap/template.window.ko.html';
 import './knockout/bootstrap/templateTextbootstrap';

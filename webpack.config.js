@@ -19,7 +19,7 @@ module.exports = (options) => {
             [options.bundleName]: path.resolve(__dirname, options.entryPoint)
         },
         output: {
-            path: path.resolve(__dirname, options.outputDir),
+            path: path.resolve(__dirname, options.outputDir), // this is not important because we use gulp dest
             filename: '[name].js'
         },
         module: {

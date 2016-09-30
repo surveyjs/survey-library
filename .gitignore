@@ -17,10 +17,4 @@ wwwroot/*
 project.lock.json
 *.cmd
 .tsdrc
-
-
 .idea
-src/**/*.js
-src/**/*.js.map
-tests/**/*.js
-tests/**/*js.map

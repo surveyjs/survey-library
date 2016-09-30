@@ -6,6 +6,10 @@
     "noImplicitAny": false,
     "jsx": "react"
   },
+  "include": [
+    "typings/index.d.ts",
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

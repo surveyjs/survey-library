@@ -323,51 +323,27 @@ const config = require('./webpack.config');
 const releaseConfig = require('./webpack.config.release');
 
 const reactStandardOptions = {
-    entryPoints: {
-        'reactStandardBundle': __dirname + '/src/reactStandardIndex'
-    },
-    tsInclude: [
-        "src/*",
-        "src/react/*",
-        "src/react/standard/*"
-    ],
-    outputDir: __dirname + '/bundles'
+    bundleName: 'reactStandardBundle',
+    entryPoint: 'src/reactStandardIndex',
+    outputDir: 'bundles'
 };
 
 const reactBootstrapOptions = {
-    entryPoints: {
-        'reactBootstrapBundle': __dirname + '/src/reactBootstrapIndex'
-    },
-    tsInclude: [
-        "src/*",
-        "src/react/*",
-        "src/react/bootstrap/*"
-    ],
-    outputDir: __dirname + '/bundles'
+    bundleName: 'reactBootstrapBundle',
+    entryPoint: 'src/reactBootstrapIndex',
+    outputDir: 'bundles'
 };
 
 const koStandardOptions = {
-    entryPoints: {
-        'koStandardBundle': __dirname + '/src/koStandardIndex'
-    },
-    tsInclude: [
-        "src/*",
-        "src/knockout/*",
-        "src/knockout/standard/*"
-    ],
-    outputDir: __dirname + '/bundles'
+    bundleName: 'koStandardBundle',
+    entryPoint: 'src/koStandardIndex',
+    outputDir: 'bundles'
 };
 
 const koBootstrapOptions = {
-    entryPoints: {
-        'koBootstrapBundle': __dirname + '/src/koBootstrapIndex'
-    },
-    tsInclude: [
-        "src/*",
-        "src/knockout/*",
-        "src/knockout/bootstrap/*"
-    ],
-    outputDir: __dirname + '/bundles'
+    bundleName: 'koBootstrapBundle',
+    entryPoint: 'src/koBootstrapIndex',
+    outputDir: 'bundles'
 };
 
 let options;

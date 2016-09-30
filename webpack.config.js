@@ -15,9 +15,11 @@ module.exports = (options) => {
         resolve: {
             extensions: ['', '.js', '.ts', '.jsx', '.tsx']
         },
-        entry: options.entryPoints,
+        entry: {
+            [options.bundleName]: path.resolve(__dirname, options.entryPoint)
+        },
         output: {
-            path: path.join(options.outputDir),
+            path: path.resolve(__dirname, options.outputDir),
             filename: '[name].js'
         },
         module: {
@@ -27,8 +29,7 @@ module.exports = (options) => {
                     loaders:[
                         require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig),
                         require.resolve('ts-loader'),
-                    ],
-                    include: options.tsInclude
+                    ]
                 },
                 {
                     test: /\.(js|jsx)$/,

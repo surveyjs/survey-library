@@ -1,5 +1,4 @@
-/!*global require*!/
-
+/*global require*/
 const gulp = require('gulp'),
     concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
@@ -28,20 +27,20 @@ const paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
     dist_dts: "./dist/typings/",
-    tsTests: "./tests/!*.ts",
+    tsTests: "./tests/*.ts",
     package_ko: "./packages/survey-knockout/",
     package_react: "./packages/survey-react/",
-    typings: "./typings/!**!/!*.d.ts",
-    styles: "./src/!*.scss",
+    typings: "./typings/**/*.d.ts",
+    styles: "./src/*.scss",
 };
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
 
-const copyright = ["/!*!",
+const copyright = ["/*!",
     "* surveyjs - Survey JavaScript library v" + libraryVersion,
     "* (c) Andrew Telnov - http://surveyjs.org/",
     "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
-    "*!/", "", ""].join("\n");
+    "*/", "", ""].join("\n");
 
 const tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
     "// Project: http://surveyjs.org/",
@@ -52,61 +51,59 @@ const config_ko_standard = {
     name: "survey-knockout",
     keywords: ["Knockout"],
     dependencies: {"knockout": "^3.4.0"},
-    templates: [{ path: ["./src/knockout/templates/!*.html", "./src/knockout/standard/templates/!*.html"], fileName: "template.ko.html", dest: "./src/knockout/standard/" },
-        { path: "./src/knockout/standard/templates.window/!*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
-    src: ["./src/!*.ts", "./src/localization/!*.ts", "./src/defaultCss/cssstandard.ts", "./src/knockout/!*.ts", "./src/knockout/standard/!*.ts"],
+    templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/standard/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/standard/" },
+        { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/",
-    bundleName: 'koStandardBundle',
-    entryPoint: 'src/koStandardIndex',
-    outputDir: 'bundles'
+    bundleName: "koStandardBundle",
+    entryPoint: "src/koStandardIndex",
+    outputDir: "bundles"
 };
-
 const config_ko_bootstrap = {
     name: "survey-knockout-bootstrap",
     keywords: ["Knockout", "Bootstrap"],
     dependencies: { "knockout": "^3.4.0", "bootstrap": "^3.3.6" },
-    templates: [{ path: ["./src/knockout/templates/!*.html", "./src/knockout/bootstrap/templates/!*.html"], fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
-        { path: "./src/knockout/bootstrap/templates.window/!*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
-    src: ["./src/!*.ts", "./src/localization/!*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/!*.ts", "./src/knockout/bootstrap/!*.ts"],
+    templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/bootstrap/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
+        { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
     mainJSfile: "survey.bootstrap.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/",
-    bundleName: 'koBootstrapBundle',
-    entryPoint: 'src/koBootstrapIndex',
-    outputDir: 'bundles'
+    bundleName: "koBootstrapBundle",
+    entryPoint: "src/koBootstrapIndex",
+    outputDir: "bundles"
 };
-
 const config_react_standard = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
-    src: ["./src/!*.ts", "./src/localization/!*.ts", "./src/defaultCss/cssstandard.ts", "./src/react/!*.tsx", "./src/react/standard/!*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
-    bundleName: 'reactStandardBundle',
-    entryPoint: 'src/reactStandardIndex',
-    outputDir: 'bundles'
+    bundleName: "reactStandardBundle",
+    entryPoint: "src/reactStandardIndex",
+    outputDir: "bundles"
 };
 
 const config_react_bootstrap = {
     name: "survey-react-bootstrap",
     keywords: ["react", "react-component", "Bootstrap"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
-    src: ["./src/!*.ts", "./src/localization/!*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/react/!*.tsx", "./src/react/bootstrap/!*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
     mainJSfile : "survey.react.bootstrap.js",
     dtsfile: "survey-react-bootstrap.d.ts",
     packagePath: "./packages/survey-react-bootstrap/",
     bundleName: 'reactBootstrapBundle',
-    entryPoint: 'src/reactBootstrapIndex',
-    outputDir: 'bundles'
+    entryPoint: "src/reactBootstrapIndex",
+    outputDir: "bundles"
 };
 
 const config_test_ko = {
     dtsfile: "survey.d.ts",
-    src: "./tests/ko/!*.ts",
+    src: "./tests/ko/*.ts",
     mainJSfile: "survey.tests.ko.js",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };
@@ -133,10 +130,9 @@ function buildFromSources(configName) {
     // return gulp.src(curConfig.entryPoint)
     //     .pipe(webpackStream(webpackConfig(curConfig), webpack))
     //     .pipe(gulp.dest('./bundles'));
-
     //Build js file
     const tsResult = gulp.src([
-        paths.webroot + "/lib/survey/!**!/!*.d.ts",
+        paths.webroot + "/lib/survey/**/*.d.ts",
         paths.typings
     ].concat(curConfig.src))
         .pipe(insert.prepend(copyright))
@@ -161,7 +157,7 @@ function buildTypeDefinition(configName) {
     //Build js file
     //Build typescript definition
     const tscResult = gulp.src([
-        paths.webroot + "/lib/survey/!**!/!*.d.ts",
+        paths.webroot + "/lib/survey/**/*.d.ts",
         paths.typings
     ].concat(curConfig.src))
         .pipe(ts({
@@ -182,7 +178,7 @@ function compressMainJS(configName) {
     gulp.src(paths.dist + curConfig.mainJSfile)
         .pipe(uglify())
         .pipe(rename({
-            extname: '.min.js'
+            extname: ".min.js"
         }))
         .pipe(concat.header(copyright))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"))
@@ -288,7 +284,7 @@ gulp.task("react_standard_compress", function () {
 gulp.task("react_standard_createPackageJson", function () {
     createPackageJson("react_standard");
 });
-gulp.task("build_react_standard", sequence("react_standard_source"));
+gulp.task("build_react_standard", sequence("react_standard_source", "react_standard_compress", "react_standard_createPackageJson"));
 
 gulp.task("react_bootstrap_source", function () {
     //buildTypeDefinition("react_bootstrap");
@@ -337,107 +333,103 @@ gulp.task("server", serve({
     port: 30001
 }));
 
+// new test tasks
+// const gulp = require('gulp');
+const gutil = require('gulp-util');
 
-//
-//
-// 'use strict';
-//
-// const gutil = require('gulp-util');
-//
-//
-// const reactStandardOptions = {
-//     bundleName: 'reactStandardBundle',
-//     entryPoint: 'src/reactStandardIndex',
-//     outputDir: 'bundles'
-// };
-//
-// const reactBootstrapOptions = {
-//     bundleName: 'reactBootstrapBundle',
-//     entryPoint: 'src/reactBootstrapIndex',
-//     outputDir: 'bundles'
-// };
-//
-// const koStandardOptions = {
-//     bundleName: 'koStandardBundle',
-//     entryPoint: 'src/koStandardIndex',
-//     outputDir: 'bundles'
-// };
-//
-// const koBootstrapOptions = {
-//     bundleName: 'koBootstrapBundle',
-//     entryPoint: 'src/koBootstrapIndex',
-//     outputDir: 'bundles'
-// };
-//
-// let options;
-//
-// const handleWebpackOutput = (err, stats) => {
-//     if (err) throw new gutil.PluginError('gulp_err', err);
-//     gutil.log('[gulp_err]', stats.toString({
-//         colors: true,
-//         chunks: false
-//     }));
-// };
-//
-// const getDevCompiler = (options) => {
-//     return webpack(webpackConfig(options));
-// };
-//
-// const getReleaseCompiler = (options) => {
-//     return webpack(webpackReleaseConfig(options));
-// };
-//
-// gulp.task('build:react:standard', () => {
-//     options = reactStandardOptions;
-//     build();
-// });
-//
-// gulp.task('build:react:bootstrap', () => {
-//     options = reactBootstrapOptions;
-//     build();
-// });
-//
-// gulp.task('build:ko:standard', () => {
-//     options = koStandardOptions;
-//     build();
-// });
-//
-// gulp.task('build:ko:bootstrap', () => {
-//     options = koBootstrapOptions;
-//     build();
-// });
-//
-// function build() {
-//     gulp.start('build:dev', 'build:release');
-// }
-//
-// gulp.task('build:dev', (done) => {
-//     const compiler = getDevCompiler(options);
-//     compiler.run((err, stats) => {
-//         handleWebpackOutput(err, stats);
-//         done();
-//     });
-// });
-//
-// gulp.task('build:release', (done) => {
-//     const compiler = getReleaseCompiler(options);
-//     compiler.run((err, stats) => {
-//         handleWebpackOutput(err, stats);
-//         done();
-//     });
-// });
-//
-// gulp.task('watch', ['build:dev'], () => {
-//     const compiler = getDevCompiler(options);
-//     compiler.watch({
-//         aggregateTimeout: 300, // wait so long for more changes
-//         poll: 2000 // windows needs polling to pick up changes :(
-//     }, (err, stats) => {
-//         handleWebpackOutput(err, stats);
-//     });
-// });
-//
-// module.exports = {
-//     getDevCompiler: getDevCompiler,
-//     getReleaseCompiler: getReleaseCompiler
-// };
+const reactStandardOptions = {
+    bundleName: 'reactStandardBundle',
+    entryPoint: 'src/reactStandardIndex',
+    outputDir: 'bundles'
+};
+
+const reactBootstrapOptions = {
+    bundleName: 'reactBootstrapBundle',
+    entryPoint: 'src/reactBootstrapIndex',
+    outputDir: 'bundles'
+};
+
+const koStandardOptions = {
+    bundleName: 'koStandardBundle',
+    entryPoint: 'src/koStandardIndex',
+    outputDir: 'bundles'
+};
+
+const koBootstrapOptions = {
+    bundleName: 'koBootstrapBundle',
+    entryPoint: 'src/koBootstrapIndex',
+    outputDir: 'bundles'
+};
+
+let options;
+
+const handleWebpackOutput = (err, stats) => {
+    if (err) throw new gutil.PluginError('gulp_err', err);
+    gutil.log('[gulp_err]', stats.toString({
+        colors: true,
+        chunks: false
+    }));
+};
+
+const getDevCompiler = (options) => {
+    return webpack(webpackConfig(options));
+};
+
+const getReleaseCompiler = (options) => {
+    return webpack(webpackReleaseConfig(options));
+};
+
+gulp.task('build:react:standard', () => {
+    options = reactStandardOptions;
+    build();
+});
+
+gulp.task('build:react:bootstrap', () => {
+    options = reactBootstrapOptions;
+    build();
+});
+
+gulp.task('build:ko:standard', () => {
+    options = koStandardOptions;
+    build();
+});
+
+gulp.task('build:ko:bootstrap', () => {
+    options = koBootstrapOptions;
+    build();
+});
+
+function build() {
+    gulp.start('build:dev', 'build:release');
+}
+
+gulp.task('build:dev', (done) => {
+    const compiler = getDevCompiler(options);
+    compiler.run((err, stats) => {
+        handleWebpackOutput(err, stats);
+        done();
+    });
+});
+
+gulp.task('build:release', (done) => {
+    const compiler = getReleaseCompiler(options);
+    compiler.run((err, stats) => {
+        handleWebpackOutput(err, stats);
+        done();
+    });
+});
+
+gulp.task('watch', ['build:dev'], () => {
+    const compiler = getDevCompiler(options);
+    compiler.watch({
+        aggregateTimeout: 300, // wait so long for more changes
+        poll: 2000 // windows needs polling to pick up changes :(
+    }, (err, stats) => {
+        handleWebpackOutput(err, stats);
+    });
+});
+
+module.exports = {
+    getDevCompiler: getDevCompiler,
+    getReleaseCompiler: getReleaseCompiler
+};

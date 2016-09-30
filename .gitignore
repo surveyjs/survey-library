@@ -19,7 +19,7 @@ project.lock.json
 .tsdrc
 
 
-idea
+.idea
 src/**/*.js
 src/**/*.js.map
 tests/**/*.js

@@ -28,7 +28,7 @@ module.exports = (options) => {
                     test: /\.(ts|tsx)$/,
                     loaders:[
                         require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig),
-                        require.resolve('ts-loader'),
+                        require.resolve('awesome-typescript-loader')
                     ]
                 },
                 {

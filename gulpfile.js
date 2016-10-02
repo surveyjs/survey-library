@@ -1,3 +1,5 @@
+"use strict";
+
 /*global require*/
 const gulp = require('gulp'),
     concat = require("gulp-concat-util"),
@@ -400,7 +402,7 @@ gulp.task('build:ko:bootstrap', () => {
 });
 
 function build() {
-    gulp.start('build:dev', 'build:release');
+    gulp.start('build:dev');
 }
 
 gulp.task('build:dev', (done) => {

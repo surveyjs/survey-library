@@ -2,13 +2,11 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 class ReactSurveyQuestionrating extends React.Component<any, any> {
-    private question: Survey.QuestionRatingModel;
     protected css: any;
     protected rootCss: any;
 
     constructor(props: any) {
         super(props);
-        this.question = props.question;
         this.css = props.css;
         this.rootCss = props.rootCss;
     }

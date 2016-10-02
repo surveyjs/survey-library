@@ -1,5 +1,6 @@
 'use strict';
 
+const webpack = require('webpack');
 const path = require('path');
 
 module.exports = (options) => {
@@ -38,7 +39,9 @@ module.exports = (options) => {
                 }
             ]
         },
-        plugins: [],
+        plugins: [
+            new webpack.NoErrorsPlugin()
+        ],
         devtool: 'cheap-source-map',
         debug: true,
         eslint: {

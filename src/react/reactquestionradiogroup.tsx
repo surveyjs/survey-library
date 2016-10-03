@@ -1,5 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_radiogroup.ts" />
+﻿/// <reference path="../question_radiogroup.ts" />
 // <reference path="../question_baseselect.ts" />
 class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
     protected question: Survey.QuestionRadiogroupModel;

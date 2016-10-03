@@ -1,5 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="reactquestion.tsx" />
+﻿/// <reference path="reactquestion.tsx" />
 class ReactSurveyPage extends React.Component<any, any> {
     private page: Survey.PageModel;
     private survey: Survey.SurveyModel;

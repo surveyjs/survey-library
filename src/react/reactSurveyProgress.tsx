@@ -1,6 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-
-class ReactSurveyProgressBase extends React.Component<any, any> {
+﻿class ReactSurveyProgressBase extends React.Component<any, any> {
     private survey: Survey.SurveyModel;
     protected isTop: boolean;
     protected css: any;

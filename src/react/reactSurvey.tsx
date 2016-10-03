@@ -1,5 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="reactsurveymodel.tsx" />
+﻿/// <reference path="reactsurveymodel.tsx" />
 /// <reference path="reactPage.tsx" />
 /// <reference path="reactQuestion.tsx" />
 /// <reference path="reactSurveyNavigation.tsx" />

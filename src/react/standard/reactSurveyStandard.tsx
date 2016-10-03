@@ -1,5 +1,4 @@
-﻿/// <reference path="../../survey.ts" />
-/// <reference path="reactSurveyProgressStandard.tsx" />
+﻿/// <reference path="reactSurveyProgressStandard.tsx" />
 /// <reference path="../../defaultCss/cssstandard.ts" />
 
 class ReactSurvey extends ReactSurveyBase {

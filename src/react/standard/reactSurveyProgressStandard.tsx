@@ -1,5 +1,4 @@
-﻿/// <reference path="../../survey.ts" />
-/// <reference path="../reactSurveyProgress.tsx" />
+﻿/// <reference path="../reactSurveyProgress.tsx" />
 
 class ReactSurveyProgress extends ReactSurveyProgressBase {
     constructor(props: any) {

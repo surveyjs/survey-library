@@ -1,6 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-
-class ReactSurveyModel extends Survey.SurveyModel {
+﻿class ReactSurveyModel extends Survey.SurveyModel {
     renderCallback: () => void;
     constructor(jsonObj: any = null) {
         super(jsonObj);

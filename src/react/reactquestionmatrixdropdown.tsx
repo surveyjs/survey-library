@@ -1,5 +1,4 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_matrixdropdown.ts" />
+﻿/// <reference path="../question_matrixdropdown.ts" />
 class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
     private question: Survey.QuestionMatrixDropdownModel;
     protected css: any;

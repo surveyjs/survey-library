@@ -1,6 +1,6 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="surveyStrings.ts" />
-module Survey {
+namespace Survey {
     export class AnswerRequiredError extends SurveyError {
         constructor()  {
             super();

@@ -1,7 +1,7 @@
 ﻿/// <reference path="../question_matrixdropdown.ts" />
 /// <reference path="../question_matrixdropdownbase.ts" />
 
-module Survey {
+namespace Survey {
     export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
         constructor(public name: string) {
             super(name);

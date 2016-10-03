@@ -1,6 +1,6 @@
 ﻿/// <reference path="questionbase.ts" />
 /// <reference path="base.ts" />
-module Survey {
+namespace Survey {
     export class QuestionFactory {
         public static Instance: QuestionFactory = new QuestionFactory();
         public static DefaultChoices = ["one", "two|second value", "three|third value"];

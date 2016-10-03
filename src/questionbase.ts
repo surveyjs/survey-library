@@ -1,6 +1,6 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         private static questionCounter = 100;
         private static getQuestionId(): string {

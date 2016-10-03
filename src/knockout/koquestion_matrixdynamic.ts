@@ -1,7 +1,7 @@
 ﻿/// <reference path="../question_matrixdynamic.ts" />
 /// <reference path="../question_matrixdropdownbase.ts" />
 
-module Survey {
+namespace Survey {
 
     export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
         koRows: any; koRecalc: any;

@@ -1,7 +1,7 @@
 ﻿// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class QuestionRatingModel extends Question {
         static defaultRateValues: ItemValue[] = [];
         private rates: ItemValue[] = [];

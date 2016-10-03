@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     export class SurveyTemplateTextBase {
         constructor() {
         }

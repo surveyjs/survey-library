@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     export class SurveyWindowModel extends Base  {
         public static surveyElementName = "windowSurveyJS";
         surveyValue: SurveyModel;

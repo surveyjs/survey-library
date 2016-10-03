@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_radiogroup.ts" />
-module Survey {
+namespace Survey {
     export class QuestionRadiogroup extends QuestionRadiogroupModel {
         constructor(public name: string) {
             super(name);

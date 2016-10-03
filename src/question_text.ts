@@ -1,7 +1,7 @@
 ﻿// <reference path="question.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class QuestionTextModel extends Question {
         public size: number = 25;
         constructor(public name: string) {

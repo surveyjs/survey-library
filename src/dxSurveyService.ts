@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     export class dxSurveyService {
         public static serviceUrl: string = "https://dxsurveyapi.azurewebsites.net/api/Survey";
         //public static serviceUrl: string = "http://localhost:50488/api/Survey";

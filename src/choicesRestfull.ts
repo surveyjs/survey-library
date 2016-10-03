@@ -1,6 +1,6 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class ChoicesRestfull extends Base {
         public url: string = "";
         public path: string = "";

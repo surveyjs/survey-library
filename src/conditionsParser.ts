@@ -1,6 +1,6 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="conditions.ts" />
-module Survey {
+namespace Survey {
     export class ConditionsParser {
         private text: string;
         private root: ConditionNode;

@@ -4,7 +4,7 @@
 /// <reference path="jsonobject.ts" />
 /// <reference path="questionbase.ts" />
 /// <reference path="textPreProcessor.ts" />
-module Survey {
+namespace Survey {
     export class Question extends QuestionBase implements IValidatorOwner {
         private titleValue: string = null;
         private questionValue: any;

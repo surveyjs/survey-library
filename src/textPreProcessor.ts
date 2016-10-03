@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     class TextPreProcessorItem {
         public start: number;
         public end: number;

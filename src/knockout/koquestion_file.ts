@@ -1,6 +1,6 @@
 ﻿/// <reference path="../question_file.ts" />
 /// <reference path="koquestion.ts" />
-module Survey {
+namespace Survey {
     class QuestionFileImplementor extends QuestionImplementor {
         koDataUpdater: any; koData: any; koHasValue: any;
         constructor(question: Question) {

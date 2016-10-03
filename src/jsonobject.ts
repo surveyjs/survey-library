@@ -1,5 +1,5 @@
 ﻿/// <reference path="base.ts" />
-module Survey {
+namespace Survey {
 
     export class JsonObjectProperty {
         private typeValue: string = null;

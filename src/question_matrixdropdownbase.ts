@@ -7,7 +7,7 @@
 /// <reference path="question_text.ts" />
 /// <reference path="question_comment.ts" />
 /// <reference path="question_baseselect.ts" />
-module Survey {
+namespace Survey {
     export interface IMatrixDropdownData {
         onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
         columns: Array<MatrixDropdownColumn>;

@@ -1,7 +1,7 @@
 ﻿// <reference path="question_selectbase.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class QuestionDropdownModel extends QuestionSelectBase {
         private optionsCaptionValue: string;
         constructor(public name: string) {

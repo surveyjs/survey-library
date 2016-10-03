@@ -1,5 +1,5 @@
 /// <reference path="..//surveyStrings.ts" />
-module Survey {
+namespace Survey {
   var finnishSurveyStrings = {
       pagePrevText: "Edellinen",
       pageNextText: "Seuraava",

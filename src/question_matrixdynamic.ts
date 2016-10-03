@@ -3,7 +3,7 @@
 /// <reference path="jsonobject.ts" />
 /// <reference path="question_matrixdropdownbase.ts" />
 
-module Survey {
+namespace Survey {
     export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
         constructor(public index: number, data: IMatrixDropdownData, value: any) {
             super(data, value);

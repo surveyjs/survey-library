@@ -1,5 +1,5 @@
 ﻿/// <reference path="../page.ts" />
-module Survey {
+namespace Survey {
 
     export class QuestionRow extends QuestionRowModel {
         koVisible: any; 

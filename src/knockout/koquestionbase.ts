@@ -1,5 +1,5 @@
 ﻿/// <reference path="../questionbase.ts" />
-module Survey {
+namespace Survey {
     export class QuestionImplementorBase {
         koVisible: any; koErrors: any; koMarginLeft: any; koPaddingRight: any; koRenderWidth: any;
         constructor(public question: QuestionBase) {

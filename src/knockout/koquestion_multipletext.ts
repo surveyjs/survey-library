@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_multipletext.ts" />
-module Survey {
+namespace Survey {
     export class MultipleTextItem extends MultipleTextItemModel {
         private isKOValueUpdating = false;
         koValue: any;

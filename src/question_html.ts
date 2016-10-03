@@ -1,7 +1,7 @@
 ﻿// <reference path="questionbase.ts" />
 /// <reference path="questionfactory.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class QuestionHtmlModel extends QuestionBase {
         private htmlValue: string;
         constructor(public name: string) {

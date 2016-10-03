@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_dropdown.ts" />
-module Survey {
+namespace Survey {
     export class QuestionDropdown extends QuestionDropdownModel {
         constructor(public name: string) {
             super(name);

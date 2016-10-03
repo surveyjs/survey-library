@@ -1,17 +1,17 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
-
-class ReactSurveyQuestionrating extends React.Component<any, any> {
-    protected css: any;
-    protected rootCss: any;
-
-    constructor(props: any) {
-        super(props);
-        this.css = props.css;
-        this.rootCss = props.rootCss;
-    }
-}
-
+// import * as React from "react";
+// import * as ReactDOM from "react-dom";
+//
+// class ReactSurveyQuestionrating extends React.Component<any, any> {
+//     protected css: any;
+//     protected rootCss: any;
+//
+//     constructor(props: any) {
+//         super(props);
+//         this.css = props.css;
+//         this.rootCss = props.rootCss;
+//     }
+// }
+//
 // // model
 // import './base';
 // import './choicesRestfull';

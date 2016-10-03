@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_matrix.ts" />
-module Survey {
+namespace Survey {
     export class MatrixRow extends MatrixRowModel {
         private isValueUpdating = false;
         koValue: any;

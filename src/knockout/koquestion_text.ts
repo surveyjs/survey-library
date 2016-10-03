@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_text.ts" />
-module Survey {
+namespace Survey {
     export class QuestionText extends QuestionTextModel {
         constructor(public name: string) {
             super(name);

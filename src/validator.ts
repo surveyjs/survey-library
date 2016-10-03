@@ -1,7 +1,7 @@
 ﻿/// <reference path="base.ts" />
 /// <reference path="error.ts" />
 /// <reference path="jsonobject.ts" />
-module Survey {
+namespace Survey {
     export class ValidatorResult {
         constructor(public value: any, public error: SurveyError = null) {
         }

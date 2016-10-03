@@ -1,6 +1,6 @@
 ﻿/// <reference path="../question_checkbox.ts" />
 /// <reference path="koquestion_baseselect.ts" />
-module Survey {
+namespace Survey {
     class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
         constructor(question: Question) {
             super(question);

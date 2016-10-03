@@ -1,6 +1,6 @@
 ﻿/// <reference path="../question_html.ts" />
 /// <reference path="koquestionbase.ts" />
-module Survey {
+namespace Survey {
     export class QuestionHtml extends QuestionHtmlModel {
         constructor(public name: string) {
             super(name);

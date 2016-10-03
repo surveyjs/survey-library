@@ -1,7 +1,7 @@
 ﻿// <reference path="question.ts" />
 /// <reference path="jsonobject.ts" />
 /// <reference path="surveystrings.ts" />
-module Survey {
+namespace Survey {
     export class QuestionSelectBase extends Question {
         private commentValue: string;
         protected cachedValue: any;

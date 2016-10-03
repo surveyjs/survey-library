@@ -1,6 +1,6 @@
 ﻿/// <reference path="..//surveyStrings.ts" />
 //Created on behalf https://github.com/Frank13
-module Survey {
+namespace Survey {
     var frenchSurveyStrings = {
         pagePrevText: "Pr\u00e9c\u00e9dent",
         pageNextText: "Suivant",

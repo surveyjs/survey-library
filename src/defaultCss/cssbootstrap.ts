@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     export var defaultBootstrapCss = {
         root: "",
         header: "panel-heading",

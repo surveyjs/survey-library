@@ -1,4 +1,4 @@
-﻿module Survey {
+﻿namespace Survey {
     export var defaultStandardCss = {
         root: "sv_main",
         header: "",

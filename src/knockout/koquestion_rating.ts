@@ -1,5 +1,5 @@
 ﻿/// <reference path="../question_rating.ts" />
-module Survey {
+namespace Survey {
     class QuestionRatingImplementor extends QuestionImplementor {
         koVisibleRateValues: any; koChange: any; koCss: any;
         constructor(question: Question) {

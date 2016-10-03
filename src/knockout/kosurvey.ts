@@ -1,5 +1,5 @@
 ﻿/// <reference path="../survey.ts" />
-module Survey {
+namespace Survey {
     export class SurveyBase extends SurveyModel {
         private renderedElement: HTMLElement;
         private cssValue: any;

@@ -1,6 +1,6 @@
 ﻿/// <reference path="conditionsParser.ts" />
 
-module Survey {
+namespace Survey {
 
     export class Condition {
         static operatorsValue: HashTable<Function> = null;

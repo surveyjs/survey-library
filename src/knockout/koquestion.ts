@@ -1,6 +1,6 @@
 ﻿/// <reference path="../question.ts" />
 /// <reference path="koquestionbase.ts" />
-module Survey {
+namespace Survey {
     export class QuestionImplementor extends QuestionImplementorBase {
         private isUpdating: boolean = false;
         private koDummy: any;

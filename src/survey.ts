@@ -5,7 +5,7 @@
 /// <reference path="dxSurveyService.ts" />
 /// <reference path="textPreProcessor.ts" />
 
-module Survey {
+namespace Survey {
     export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         public surveyId: string = null;
         public surveyPostId: string = null;

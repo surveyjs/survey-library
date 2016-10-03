@@ -4,7 +4,7 @@
 /// <reference path="../../typings/index.d.ts" />
 /// <reference path="reactQuestioncomment.tsx" />
 
-module Survey {
+namespace Survey {
     export interface IReactSurveyCreator {
         createQuestionElement(question: QuestionBase): JSX.Element;
         renderError(key: string, errorText: string): JSX.Element;

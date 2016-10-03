@@ -1,5 +1,5 @@
 ﻿/// <reference path="koquestion.ts" />
-module Survey {
+namespace Survey {
     export class QuestionSelectBaseImplementor extends QuestionImplementor{
         private koChoiceChangedCount: any;
         koOtherVisible: any; koVisibleChoices: any; 

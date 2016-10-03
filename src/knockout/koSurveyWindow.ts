@@ -1,6 +1,6 @@
 ﻿/// <reference path="../surveywindow.ts" />
 /// <reference path="kosurvey.ts" />
-module Survey {
+namespace Survey {
     export class SurveyWindowBase extends SurveyWindowModel {
         koExpanded: any;
         doExpand: any;

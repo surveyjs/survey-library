@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../typings/index.d.ts" />
-/// <reference path="reactSurveyStandard.tsx" />
+﻿/// <reference path="reactSurveyStandard.tsx" />
 
 class ReactSurveyWindow extends ReactSurvey {
     private title: string;

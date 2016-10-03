@@ -1,6 +1,5 @@
 ﻿/// <reference path="../survey.ts" />
 /// <reference path="../question_checkbox.ts" />
-/// <reference path="../../typings/index.d.ts" />
 class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
     protected question: Survey.QuestionCheckboxModel;
     protected css: any;

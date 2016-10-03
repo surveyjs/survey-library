@@ -1,5 +1,4 @@
-﻿/// <reference path="../../typings/index.d.ts" />
-/// <reference path="../survey.ts" />
+﻿/// <reference path="../survey.ts" />
 
 class ReactSurveyProgressBase extends React.Component<any, any> {
     private survey: Survey.SurveyModel;

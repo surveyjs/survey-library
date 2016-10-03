@@ -1,5 +1,4 @@
-﻿/// <reference path="../../../typings/index.d.ts" />
-/// <reference path="../../survey.ts" />
+﻿/// <reference path="../../survey.ts" />
 /// <reference path="../reactSurveyProgress.tsx" />
 
 class ReactSurveyProgress extends ReactSurveyProgressBase {

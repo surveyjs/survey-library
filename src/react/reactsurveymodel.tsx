@@ -1,4 +1,4 @@
-﻿class ReactSurveyModel extends Survey.SurveyModel {
+﻿export default class ReactSurveyModel extends Survey.SurveyModel {
     renderCallback: () => void;
     constructor(jsonObj: any = null) {
         super(jsonObj);

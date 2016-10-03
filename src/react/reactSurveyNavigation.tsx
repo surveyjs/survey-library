@@ -1,4 +1,4 @@
-﻿class ReactSurveyNavigation extends React.Component<any, any> {
+﻿export default class ReactSurveyNavigation extends React.Component<any, any> {
     private survey: Survey.SurveyModel;
     protected css: any;
     constructor(props: any) {

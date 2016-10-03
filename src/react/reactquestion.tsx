@@ -1,4 +1,4 @@
-﻿/// <reference path="../question.ts" />
+﻿import * as React from 'react';
 /// <reference path="../surveyStrings.ts" />
 /// <reference path="reactQuestioncomment.tsx" />
 
@@ -10,7 +10,7 @@ namespace Survey {
     }
 }
 
-class ReactSurveyQuestion extends React.Component<any, any> {
+export default class ReactSurveyQuestion extends React.Component<any, any> {
     private questionBase: Survey.QuestionBase;
     protected question: Survey.Question;
     private creator: Survey.IReactSurveyCreator;
@@ -83,7 +83,7 @@ class ReactSurveyQuestion extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyQuestionErrors extends React.Component<any, any> {
+export class ReactSurveyQuestionErrors extends React.Component<any, any> {
     protected question: Survey.Question;
     private creator: Survey.IReactSurveyCreator;
     protected css: any;

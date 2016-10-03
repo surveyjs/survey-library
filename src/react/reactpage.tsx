@@ -1,5 +1,7 @@
-﻿/// <reference path="reactquestion.tsx" />
-class ReactSurveyPage extends React.Component<any, any> {
+﻿import * as React from 'react';
+import ReactSurveyQuestion from './reactquestion'
+
+export default class ReactSurveyPage extends React.Component<any, any> {
     private page: Survey.PageModel;
     private survey: Survey.SurveyModel;
     private creator: Survey.IReactSurveyCreator;
@@ -46,7 +48,7 @@ class ReactSurveyPage extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyRow extends React.Component<any, any> {
+export class ReactSurveyRow extends React.Component<any, any> {
     private row: Survey.QuestionRowModel;
     private survey: Survey.SurveyModel;
     private creator: Survey.IReactSurveyCreator;

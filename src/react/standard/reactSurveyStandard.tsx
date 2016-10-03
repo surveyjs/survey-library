@@ -1,7 +1,7 @@
-﻿/// <reference path="reactSurveyProgressStandard.tsx" />
-/// <reference path="../../defaultCss/cssstandard.ts" />
+﻿import {ReactSurveyProgress} from './reactSurveyProgressStandard';
+import ReactSurveyBase from '../reactSurvey';
 
-class ReactSurvey extends ReactSurveyBase {
+export default class ReactSurvey extends ReactSurveyBase {
     constructor(props: any) {
         super(props);
     }

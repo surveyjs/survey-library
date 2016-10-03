@@ -341,7 +341,7 @@ const gutil = require('gulp-util');
 
 const reactStandardOptions = {
     bundleName: 'reactStandardBundle',
-    entryPoint: 'src/reactStandardIndex',
+    entryPoint: 'src/react/standard/reactSurveyWindowStandard',
     outputDir: 'bundles'
 };
 

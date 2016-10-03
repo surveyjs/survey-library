@@ -1,4 +1,4 @@
-﻿class ReactSurveyProgressBase extends React.Component<any, any> {
+﻿export default class ReactSurveyProgressBase extends React.Component<any, any> {
     private survey: Survey.SurveyModel;
     protected isTop: boolean;
     protected css: any;

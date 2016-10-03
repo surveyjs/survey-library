@@ -1,9 +1,9 @@
-﻿/// <reference path="reactsurveymodel.tsx" />
-/// <reference path="reactPage.tsx" />
-/// <reference path="reactQuestion.tsx" />
-/// <reference path="reactSurveyNavigation.tsx" />
+﻿import * as React from 'react';
+import ReactSurveyModel from './reactsurveymodel'
+import ReactSurveyPage from './reactpage'
+import ReactSurveyNavigation from './reactSurveyNavigation'
 
-class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
+export default class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
     protected survey: ReactSurveyModel;
     protected css: any;
     constructor(props: any) {

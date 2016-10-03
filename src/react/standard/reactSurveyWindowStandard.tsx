@@ -1,6 +1,6 @@
-﻿/// <reference path="reactSurveyStandard.tsx" />
+﻿import ReactSurvey from './reactSurveyStandard';
 
-class ReactSurveyWindow extends ReactSurvey {
+export default class ReactSurveyWindow extends ReactSurvey {
     private title: string;
     constructor(props: any) {
         super(props);

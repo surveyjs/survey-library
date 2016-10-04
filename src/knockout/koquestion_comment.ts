@@ -1,12 +1,14 @@
-﻿/// <reference path="../question_comment.ts" />
-namespace Survey {
-    export class QuestionComment extends QuestionCommentModel {
-        constructor(public name: string) {
-            super(name);
-            new QuestionImplementor(this);
-        }
-    }
+﻿import JsonObject from "../jsonobject";
+import QuestionFactory from "../questionfactory";
+import QuestionCommentModel from "../question_comment";
+import {QuestionImplementor} from "./koquestion";
 
-    JsonObject.metaData.overrideClassCreatore("comment", function () { return new QuestionComment(""); });
-    QuestionFactory.Instance.registerQuestion("comment", (name) => { return new QuestionComment(name); });
+export default class QuestionComment extends QuestionCommentModel {
+    constructor(public name: string) {
+        super(name);
+        new QuestionImplementor(this);
+    }
 }
+
+JsonObject.metaData.overrideClassCreatore("comment", function () { return new QuestionComment(""); });
+QuestionFactory.Instance.registerQuestion("comment", (name) => { return new QuestionComment(name); });

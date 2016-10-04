@@ -1,4 +1,4 @@
-﻿import {HashTable} from 'base';
+﻿import {HashTable} from './base';
 import ConditionsParser from './conditionsParser';
 
 export class Condition {

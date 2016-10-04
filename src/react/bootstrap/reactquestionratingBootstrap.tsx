@@ -1,6 +1,9 @@
-﻿/// <reference path="../../question_rating.ts" />
-class ReactSurveyQuestionrating extends React.Component<any, any> {
-    private question: Survey.QuestionRatingModel;
+﻿import {ReactSurveyQuestionCommentItem} from "../reactquestioncomment";
+import QuestionRatingModel from "../../question_rating";
+import {ItemValue} from "../../base";
+
+export default class ReactSurveyQuestionrating extends React.Component<any, any> {
+    private question: QuestionRatingModel;
     protected css: any;
     protected rootCss: any;
     constructor(props: any) {
@@ -35,7 +38,7 @@ class ReactSurveyQuestionrating extends React.Component<any, any> {
             </div>
         );
     }
-    protected renderItem(key: string, item: Survey.ItemValue, minText: string, maxText: string): JSX.Element {
+    protected renderItem(key: string, item: ItemValue, minText: string, maxText: string): JSX.Element {
         var isChecked = this.question.value == item.value;
         var className = this.css.item;
         if (isChecked) className += " active";

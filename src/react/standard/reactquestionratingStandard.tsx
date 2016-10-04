@@ -1,6 +1,8 @@
-﻿/// <reference path="../../question_rating.ts" />
-class ReactSurveyQuestionrating extends React.Component<any, any> {
-    private question: Survey.QuestionRatingModel;
+﻿import {ReactSurveyQuestionCommentItem} from "../reactquestioncomment";
+import QuestionRatingModel from "../../question_rating";
+
+export default class ReactSurveyQuestionrating extends React.Component<any, any> {
+    private question: QuestionRatingModel;
     protected css: any;
     protected rootCss: any;
     constructor(props: any) {

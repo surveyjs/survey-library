@@ -1,9 +1,11 @@
-﻿import * as React from 'react';
-import ReactSurveyModel from './reactsurveymodel'
-import ReactSurveyPage from './reactpage'
-import ReactSurveyNavigation from './reactSurveyNavigation'
+﻿import * as React from "react";
+import ReactSurveyModel from "./reactsurveymodel";
+import ReactSurveyPage from "./reactpage";
+import ReactSurveyNavigation from "./reactSurveyNavigation";
+import QuestionBase from "../questionbase";
+import {IReactSurveyCreator} from "./reactquestion";
 
-export default class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
+export default class ReactSurveyBase extends React.Component<any, any> implements IReactSurveyCreator {
     protected survey: ReactSurveyModel;
     protected css: any;
     constructor(props: any) {
@@ -22,11 +24,11 @@ export default class ReactSurveyBase extends React.Component<any, any> implement
     }
     protected createCssObject(): any { return null; }
     protected renderCompleted(): JSX.Element {
-        var htmlValue = { __html: this.survey.processedCompletedHtml }
+        var htmlValue = { __html: this.survey.processedCompletedHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderLoading(): JSX.Element {
-        var htmlValue = { __html: this.survey.processedLoadingHtml }
+        var htmlValue = { __html: this.survey.processedLoadingHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderSurvey(): JSX.Element {
@@ -144,12 +146,12 @@ export default class ReactSurveyBase extends React.Component<any, any> implement
             this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
         }
     }
-    protected getReactQuestionClass(question: Survey.QuestionBase): any {
+    protected getReactQuestionClass(question: QuestionBase): any {
         var className = "ReactSurveyQuestion" + question.getType();
         return window[className];
     }
     //IReactSurveyCreator
-    public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
+    public createQuestionElement(question: QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
         return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css, creator: this });
     }

@@ -1,9 +1,10 @@
 ﻿import JsonObject from './jsonobject';
 import QuestionBase from './questionbase';
-/// <reference path="questionfactory.ts" />
-/// <reference path="error.ts" />
-/// <reference path="validator.ts" />
-/// <reference path="textPreProcessor.ts" />
+import {SurveyError} from "./base";
+import {surveyLocalization} from "./surveyStrings";
+import {AnswerRequiredError} from "./error";
+import SurveyValidator, {IValidatorOwner, ValidatorRunner} from "./validator";
+import TextPreProcessor from "./textPreProcessor";
 
 export default class Question extends QuestionBase implements IValidatorOwner {
     private titleValue: string = null;

@@ -1,19 +1,18 @@
 ﻿import * as React from 'react';
-/// <reference path="../surveyStrings.ts" />
-/// <reference path="reactQuestioncomment.tsx" />
+import QuestionBase from './questionbase';
+import Question from '../question';
+import {ReactSurveyQuestionCommentItem} from './reactquestioncomment';
 
-namespace Survey {
-    export interface IReactSurveyCreator {
-        createQuestionElement(question: QuestionBase): JSX.Element;
-        renderError(key: string, errorText: string): JSX.Element;
-        questionTitleLocation(): string;
-    }
+export interface IReactSurveyCreator {
+    createQuestionElement(question: QuestionBase): JSX.Element;
+    renderError(key: string, errorText: string): JSX.Element;
+    questionTitleLocation(): string;
 }
 
 export default class ReactSurveyQuestion extends React.Component<any, any> {
-    private questionBase: Survey.QuestionBase;
-    protected question: Survey.Question;
-    private creator: Survey.IReactSurveyCreator;
+    private questionBase: QuestionBase;
+    protected question: Question;
+    private creator: IReactSurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -28,7 +27,7 @@ export default class ReactSurveyQuestion extends React.Component<any, any> {
     }
     private setQuestion(question) {
         this.questionBase = question;
-        this.question = question instanceof Survey.Question ? question : null;
+        this.question = question instanceof Question ? question : null;
         var value = this.question ? this.question.value : null;
         this.state = { visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0 };
         var self = this;
@@ -84,8 +83,8 @@ export default class ReactSurveyQuestion extends React.Component<any, any> {
 }
 
 export class ReactSurveyQuestionErrors extends React.Component<any, any> {
-    protected question: Survey.Question;
-    private creator: Survey.IReactSurveyCreator;
+    protected question: Question;
+    private creator: IReactSurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -99,7 +98,7 @@ export class ReactSurveyQuestionErrors extends React.Component<any, any> {
         this.css = nextProps.css;
     }
     private setQuestion(question) {
-        this.question = question instanceof Survey.Question ? question : null;
+        this.question = question instanceof Question ? question : null;
         if (this.question) {
             var self = this;
             this.question.errorsChangedCallback = function () {

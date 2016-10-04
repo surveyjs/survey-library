@@ -1,6 +1,6 @@
 ﻿/// <reference path="../question.ts" />
 /// <reference path="../question_comment.ts" />
-class ReactSurveyQuestioncomment extends React.Component<any, any> {
+export default class ReactSurveyQuestioncomment extends React.Component<any, any> {
     private question: Survey.QuestionCommentModel;
     protected css: any;
     constructor(props: any) {
@@ -25,7 +25,7 @@ class ReactSurveyQuestioncomment extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
+export class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
     private question: Survey.Question;
     private comment: string;
     protected css: any;

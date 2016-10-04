@@ -23,7 +23,8 @@ module.exports = (options) => {
             path: path.resolve(__dirname, options.outputDir), // this is not important because we use gulp dest
             filename: '[name].js',
             library: 'Survey',
-            libraryTarget: 'umd'
+            libraryTarget: 'umd',
+            umdNamedDefine: true
         },
         externals: {
             'react': {

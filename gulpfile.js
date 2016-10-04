@@ -341,25 +341,25 @@ const gutil = require('gulp-util');
 
 const reactStandardOptions = {
     bundleName: 'reactStandardBundle',
-    entryPoint: 'src/react/standard/reactSurveyWindowStandard',
+    entryPoint: 'webpack/reactStandardIndex',
     outputDir: 'bundles'
 };
 
 const reactBootstrapOptions = {
     bundleName: 'reactBootstrapBundle',
-    entryPoint: 'src/reactBootstrapIndex',
+    entryPoint: 'webpack/reactBootstrapIndex',
     outputDir: 'bundles'
 };
 
 const koStandardOptions = {
     bundleName: 'koStandardBundle',
-    entryPoint: 'src/koStandardIndex',
+    entryPoint: 'webpack/koStandardIndex',
     outputDir: 'bundles'
 };
 
 const koBootstrapOptions = {
     bundleName: 'koBootstrapBundle',
-    entryPoint: 'src/koBootstrapIndex',
+    entryPoint: 'webpack/koBootstrapIndex',
     outputDir: 'bundles'
 };
 

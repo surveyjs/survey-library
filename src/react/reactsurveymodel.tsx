@@ -1,4 +1,6 @@
-﻿export default class ReactSurveyModel extends Survey.SurveyModel {
+﻿import SurveyModel from "../survey";
+
+export default class ReactSurveyModel extends SurveyModel {
     renderCallback: () => void;
     constructor(jsonObj: any = null) {
         super(jsonObj);

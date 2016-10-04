@@ -1,8 +1,5 @@
-﻿/// <reference path="base.ts" />
-import Base, {
-    IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable
-} from 'base';
-import JsonObject from 'jsonobject';
+﻿import Base, {IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
+import JsonObject from './jsonobject';
 import {ConditionRunner} from './conditions';
 
 export default class QuestionBase extends Base implements IQuestion, IConditionRunner {

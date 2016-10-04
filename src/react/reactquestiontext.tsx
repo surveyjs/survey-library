@@ -1,6 +1,8 @@
-﻿/// <reference path="../question_text.ts" />
-class ReactSurveyQuestiontext extends React.Component<any, any> {
-    private question: Survey.QuestionTextModel;
+﻿import * as React from 'react';
+import QuestionTextModel from "../question_text";
+
+export default class ReactSurveyQuestiontext extends React.Component<any, any> {
+    private question: QuestionTextModel;
     protected css: any;
     constructor(props: any) {
         super(props);

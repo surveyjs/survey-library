@@ -1,7 +1,8 @@
-﻿/// <reference path="../question.ts" />
-/// <reference path="../question_file.ts" />
-class ReactSurveyQuestionfile extends React.Component<any, any> {
-    private question: Survey.QuestionFileModel;
+﻿import * as React from 'react';
+import {QuestionFileModel} from "../question_file";
+
+export default class ReactSurveyQuestionfile extends React.Component<any, any> {
+    private question: QuestionFileModel;
     protected css: any;
     constructor(props: any) {
         super(props);

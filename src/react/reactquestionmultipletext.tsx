@@ -1,6 +1,9 @@
-﻿/// <reference path="../question_multipletext.ts" />
-class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
-    private question: Survey.QuestionMultipleTextModel;
+﻿import * as React from 'react';
+import QuestionMultipleTextModel from "../question_multipletext";
+import {MultipleTextItemModel} from "../question_multipletext";
+
+export default class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
+    private question: QuestionMultipleTextModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -26,7 +29,7 @@ class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
             </table>
         );
     }
-    protected renderRow(key: string, items: Array<Survey.MultipleTextItemModel>) {
+    protected renderRow(key: string, items: Array<MultipleTextItemModel>) {
         var tds = [];
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
@@ -35,13 +38,13 @@ class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
         }
         return <tr key={key}>{tds}</tr>;
     }
-    protected renderItem(item: Survey.MultipleTextItemModel): JSX.Element {
+    protected renderItem(item: MultipleTextItemModel): JSX.Element {
         return <ReactSurveyQuestionmultipletextItem item={item} css={this.css} />;
     }
 }
 
 class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
-    private item: Survey.MultipleTextItemModel;
+    private item: MultipleTextItemModel;
     protected css: any;
     constructor(props: any) {
         super(props);

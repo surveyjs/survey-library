@@ -1,6 +1,10 @@
-﻿/// <reference path="../question_checkbox.ts" />
-class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
-    protected question: Survey.QuestionCheckboxModel;
+﻿import * as React from 'react';
+import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {QuestionCheckboxModel} from "../question_checkbox";
+import {ItemValue} from "../base";
+
+export default class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
+    protected question: QuestionCheckboxModel;
     protected css: any;
     protected rootCss: any;
     constructor(props: any) {
@@ -42,8 +46,8 @@ class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
     }
 }
 class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
-    protected question: Survey.QuestionCheckboxModel;
-    protected item: Survey.ItemValue;
+    protected question: QuestionCheckboxModel;
+    protected item: ItemValue;
     protected css: any;
     protected rootCss: any;
     protected textStyle: any;

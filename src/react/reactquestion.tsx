@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import QuestionBase from './questionbase';
+import QuestionBase from '../questionbase';
 import Question from '../question';
 import {ReactSurveyQuestionCommentItem} from './reactquestioncomment';
 

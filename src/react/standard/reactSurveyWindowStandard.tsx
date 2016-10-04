@@ -1,4 +1,5 @@
 ﻿import ReactSurvey from './reactSurveyStandard';
+import SurveyModel from "../../survey";
 
 export default class ReactSurveyWindow extends ReactSurvey {
     private title: string;
@@ -39,7 +40,7 @@ export default class ReactSurveyWindow extends ReactSurvey {
         var hasExpanded = newProps["expanded"] ? newProps.expanded : false;
         this.state = { expanded: hasExpanded, hidden: false };
         var self = this;
-        this.survey.onComplete.add(function (s: Survey.SurveyModel) {
+        this.survey.onComplete.add(function (s: SurveyModel) {
             self.state.hidden = true;
             self.setState(self.state);
         });

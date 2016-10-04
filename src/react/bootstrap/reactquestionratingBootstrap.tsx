@@ -1,4 +1,5 @@
-﻿import {ReactSurveyQuestionCommentItem} from "../reactquestioncomment";
+﻿import * as React from 'react';
+import {ReactSurveyQuestionCommentItem} from "../reactquestioncomment";
 import QuestionRatingModel from "../../question_rating";
 import {ItemValue} from "../../base";
 

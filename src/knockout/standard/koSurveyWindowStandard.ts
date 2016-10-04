@@ -1,9 +1,8 @@
-﻿/// <reference path="../kosurveywindow.ts" />
-import Survey from './koSurveyStandard';
+﻿import Survey from './koSurveyStandard';
 import SurveyWindowBase from "../koSurveyWindow";
 import SurveyModel from "../../survey";
 
-export class SurveyWindow extends SurveyWindowBase {
+export default class SurveyWindow extends SurveyWindowBase {
     koExpanded: any;
     doExpand: any;
     constructor(jsonObj: any) {

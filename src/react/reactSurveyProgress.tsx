@@ -1,5 +1,8 @@
-﻿export default class ReactSurveyProgressBase extends React.Component<any, any> {
-    private survey: Survey.SurveyModel;
+﻿import * as React from 'react';
+import SurveyModel from "../survey";
+
+export default class ReactSurveyProgressBase extends React.Component<any, any> {
+    private survey: SurveyModel;
     protected isTop: boolean;
     protected css: any;
     constructor(props: any) {

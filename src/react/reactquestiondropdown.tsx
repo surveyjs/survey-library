@@ -1,6 +1,9 @@
-﻿/// <reference path="../question_dropdown.ts" />
-class ReactSurveyQuestiondropdown extends React.Component<any, any> {
-    private question: Survey.QuestionDropdownModel;
+﻿import * as React from 'react';
+import QuestionDropdownModel from "../question_dropdown";
+import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+
+export default class ReactSurveyQuestiondropdown extends React.Component<any, any> {
+    private question: QuestionDropdownModel;
     protected css: any;
     protected rootCss: any;
 
@@ -14,7 +17,7 @@ class ReactSurveyQuestiondropdown extends React.Component<any, any> {
         this.question.choicesChangedCallback = function () {
             self.state.choicesChanged = self.state.choicesChanged + 1;
             self.setState(self.state);
-        }
+        };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     handleOnChange(event) {

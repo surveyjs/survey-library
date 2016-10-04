@@ -1,6 +1,9 @@
-﻿/// <reference path="../question_matrix.ts" />
-class ReactSurveyQuestionmatrix extends React.Component<any, any> {
-    private question: Survey.QuestionMatrixModel;
+﻿import * as React from 'react';
+import QuestionMatrixModel from "../question_matrix";
+import {MatrixRowModel} from "../question_matrix";
+
+export default class ReactSurveyQuestionmatrix extends React.Component<any, any> {
+    private question: QuestionMatrixModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -44,8 +47,8 @@ class ReactSurveyQuestionmatrix extends React.Component<any, any> {
 }
 
 class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
-    private question: Survey.QuestionMatrixModel;
-    private row: Survey.MatrixRowModel;
+    private question: QuestionMatrixModel;
+    private row: MatrixRowModel;
     constructor(props: any) {
         super(props);
         this.question = props.question;

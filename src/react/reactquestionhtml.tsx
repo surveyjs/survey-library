@@ -1,7 +1,8 @@
-﻿/// <reference path="../question.ts" />
-/// <reference path="../question_html.ts" />
-class ReactSurveyQuestionhtml extends React.Component<any, any> {
-    private question: Survey.QuestionHtmlModel;
+﻿import * as React from 'react';
+import QuestionHtmlModel from "../question_html";
+
+export default class ReactSurveyQuestionhtml extends React.Component<any, any> {
+    private question: QuestionHtmlModel;
     constructor(props: any) {
         super(props);
         this.question = props.question;
@@ -11,7 +12,7 @@ class ReactSurveyQuestionhtml extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question || !this.question.html) return null;
-        var htmlValue = { __html: this.question.processedHtml }
+        var htmlValue = { __html: this.question.processedHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} /> );
     }
 }

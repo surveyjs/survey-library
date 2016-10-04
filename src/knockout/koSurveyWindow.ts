@@ -26,7 +26,7 @@ export default class SurveyWindowBase extends SurveyWindowModel {
         ko.cleanNode(this.windowElement);
         ko.applyBindings(this, this.windowElement);
         document.body.appendChild(this.windowElement);
-        (<Survey>this.survey).render(SurveyWindow.surveyElementName);
+        (<SurveyBase>this.survey).render(SurveyWindowBase.surveyElementName);
         this.isShowingValue = true;
     }
     protected getDefaultTemplate(): string { throw new Error("Please override this method"); }

@@ -45,7 +45,7 @@ export default class ReactSurveyQuestioncheckbox extends React.Component<any, an
         return <ReactSurveyQuestioncheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
     }
 }
-class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
+export class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
     protected question: QuestionCheckboxModel;
     protected item: ItemValue;
     protected css: any;

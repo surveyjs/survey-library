@@ -58,7 +58,7 @@ export default class ReactSurveyQuestionmatrixdropdown extends React.Component<a
     }
 }
 
-class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
+export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
     private row: MatrixDropdownRowModel;
     protected css: any;
     protected rootCss: any;

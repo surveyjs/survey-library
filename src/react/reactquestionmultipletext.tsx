@@ -43,7 +43,7 @@ export default class ReactSurveyQuestionmultipletext extends React.Component<any
     }
 }
 
-class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
+export class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
     private item: MultipleTextItemModel;
     protected css: any;
     constructor(props: any) {

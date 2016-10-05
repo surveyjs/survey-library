@@ -1,7 +1,14 @@
-﻿/// <reference path="template.ko.html.ts" /> // TODO need to understand
+﻿import {html} from './template.ko.html'
 import SurveyTemplateTextBase from "../templateText";
 
 export default class SurveyTemplateText extends SurveyTemplateTextBase {
-    protected get text(): string { return template.ko.html; }
-    protected set text(value: string) { template.ko.html = value; }
+    template: string;
+
+    constructor() {
+        super();
+        this.template = html;
+    }
+
+    protected get text(): string { return this.template; }
+    protected set text(value: string) { this.template = value; }
 }

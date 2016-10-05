@@ -1,4 +1,5 @@
-﻿import Survey from './koSurveyStandard';
+﻿import {html} from './template.window.ko.html'
+import Survey from './koSurveyStandard';
 import SurveyWindowBase from "../koSurveyWindow";
 import SurveyModel from "../../survey";
 
@@ -11,5 +12,5 @@ export default class SurveyWindow extends SurveyWindowBase {
     protected createSurvey(jsonObj: any): SurveyModel {
         return new Survey(jsonObj)
     }
-    protected getDefaultTemplate(): string { return template.window.ko.html }
+    protected getDefaultTemplate(): string { return html }
 }

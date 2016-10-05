@@ -125,6 +125,10 @@ function buildTemplates(configName, index) {
     return gulp.src(curTemplate.path)
         .pipe(concat(curTemplate.fileName))
         .pipe(html2ts())
+        .pipe(insert.transform(function(contents, file) {
+            contents = contents.slice(0, -1); //remove last symbol '}'
+            return contents.replace('module template.ko { ', '');
+        }))
         .pipe(gulp.dest(curTemplate.dest));
 }
 function buildFromSources(configName) {

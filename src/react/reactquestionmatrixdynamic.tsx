@@ -1,12 +1,14 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_matrixdynamic.ts" />
-/// <reference path="reactquestion.tsx" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
-    private question: Survey.QuestionMatrixDynamicModel;
+﻿import * as React from 'react';
+import QuestionMatrixDynamicModel from "../question_matrixdynamic";
+import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
+import {MatrixDynamicRowModel} from "../question_matrixdynamic";
+import {MatrixDropdownCell} from "../question_matrixdropdownbase";
+
+export default class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
+    private question: QuestionMatrixDynamicModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: Survey.IReactSurveyCreator;
+    protected creator: IReactSurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -24,7 +26,7 @@ class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
         this.question.rowCountChangedCallback = function () {
             self.state.rowCounter = self.state.rowCounter + 1;
             self.setState(self.state);
-        }
+        };
         this.handleOnRowAddClick = this.handleOnRowAddClick.bind(this);
     }
     handleOnRowAddClick(event) {
@@ -72,13 +74,13 @@ class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, any> {
-    private row: Survey.MatrixDynamicRowModel;
-    private question: Survey.QuestionMatrixDynamicModel;
+export class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, any> {
+    private row: MatrixDynamicRowModel;
+    private question: QuestionMatrixDynamicModel;
     private index: number;
     protected css: any;
     protected rootCss: any;
-    protected creator: Survey.IReactSurveyCreator;
+    protected creator: IReactSurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -103,7 +105,7 @@ class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, any> {
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <ReactSurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
+            var errors = <ReactSurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />;
             var select = this.renderQuestion(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
@@ -111,7 +113,7 @@ class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, any> {
         tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
         return (<tr>{tds}</tr>);
     }
-    protected renderQuestion(cell: Survey.MatrixDropdownCell): JSX.Element {
+    protected renderQuestion(cell: MatrixDropdownCell): JSX.Element {
         return this.creator.createQuestionElement(cell.question);
     }
     protected renderButton(): JSX.Element {

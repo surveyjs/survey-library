@@ -1,4 +1,5 @@
-﻿import {QuestionImplementor} from "./koquestion";
+﻿import * as ko from "knockout";
+import {QuestionImplementor} from "./koquestion";
 import Question from "../question";
 import QuestionSelectBase, {QuestionCheckboxBase} from "../question_baseselect";
 

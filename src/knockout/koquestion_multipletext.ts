@@ -1,4 +1,5 @@
-﻿import QuestionMultipleTextModel, {MultipleTextItemModel} from "../question_multipletext";
+﻿import * as ko from "knockout";
+import QuestionMultipleTextModel, {MultipleTextItemModel} from "../question_multipletext";
 import {QuestionImplementor} from "./koquestion";
 import Question from "../question";
 import JsonObject from "../jsonobject";

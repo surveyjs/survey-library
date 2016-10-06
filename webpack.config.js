@@ -57,7 +57,10 @@ module.exports = (options) => {
             ]
         },
         plugins: [
-            new webpack.NoErrorsPlugin()
+            new webpack.NoErrorsPlugin(),
+            new webpack.ProvidePlugin({
+                "ko": "knockout"
+            })
         ],
         // devtool: 'cheap-source-map',
         debug: true,

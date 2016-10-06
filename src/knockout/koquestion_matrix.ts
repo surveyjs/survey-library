@@ -1,4 +1,5 @@
-﻿import QuestionMatrixModel, {MatrixRowModel, IMatrixData} from "../question_matrix";
+﻿import * as ko from "knockout";
+import QuestionMatrixModel, {MatrixRowModel, IMatrixData} from "../question_matrix";
 import {QuestionImplementor} from "./koquestion";
 import JsonObject from "../jsonobject";
 import QuestionFactory from "../questionfactory";

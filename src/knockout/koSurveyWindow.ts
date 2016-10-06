@@ -1,4 +1,5 @@
-﻿import SurveyWindowModel from "../surveyWindow";
+﻿import * as ko from "knockout";
+import SurveyWindowModel from "../surveyWindow";
 import SurveyModel from "../survey";
 import SurveyBase from "./kosurvey";
 

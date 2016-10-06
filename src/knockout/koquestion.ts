@@ -1,4 +1,5 @@
-﻿import QuestionImplementorBase from "./koquestionbase";
+﻿import * as ko from "knockout";
+import QuestionImplementorBase from "./koquestionbase";
 import Question from "../question";
 
 export class QuestionImplementor extends QuestionImplementorBase {

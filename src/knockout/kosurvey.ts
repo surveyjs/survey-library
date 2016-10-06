@@ -1,4 +1,5 @@
-﻿import SurveyModel from "../survey";
+﻿import * as ko from "knockout";
+import SurveyModel from "../survey";
 import {Event} from "../base";
 import Page from "./kopage";
 import PageModel from "../page";

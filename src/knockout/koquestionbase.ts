@@ -1,4 +1,5 @@
-﻿import QuestionBase from "../questionbase";
+﻿import * as ko from "knockout";
+import QuestionBase from "../questionbase";
 
 export default class QuestionImplementorBase {
     koVisible: any; koErrors: any; koMarginLeft: any; koPaddingRight: any; koRenderWidth: any;

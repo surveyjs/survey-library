@@ -1,4 +1,5 @@
-﻿import {QuestionCheckboxBaseImplementor} from "./koquestion_baseselect";
+﻿import * as ko from "knockout";
+import {QuestionCheckboxBaseImplementor} from "./koquestion_baseselect";
 import JsonObject from "../jsonobject";
 import QuestionFactory from "../questionfactory";
 import {QuestionCheckboxModel} from "../question_checkbox";

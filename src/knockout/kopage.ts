@@ -1,4 +1,5 @@
-﻿import PageModel, {QuestionRowModel} from "../page";
+﻿import * as ko from "knockout";
+import PageModel, {QuestionRowModel} from "../page";
 import JsonObject from "../jsonobject";
 import QuestionBase from "../questionbase";
 

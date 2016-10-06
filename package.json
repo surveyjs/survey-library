@@ -36,7 +36,8 @@
     "rimraf": "^2.5.2",
     "ts-loader": "^0.8.2",
     "typescript": "^2.0.2",
-    "webpack": "^1.13.2"
+    "webpack": "^1.13.2",
+    "webpack-stream": "^3.2.0"
   },
   "dependencies": {
     "knockout": "^3.4.0",

@@ -19,7 +19,8 @@ const gulp = require('gulp'),
     webpackStream = require('webpack-stream'),
     webpack = require('webpack'),
     webpackConfig = require('./webpack.config'),
-    webpackReleaseConfig = require('./webpack.config.release');
+    webpackReleaseConfig = require('./webpack.config.release'),
+    webpackTestsConfig = require('./webpack.config.tests');
 
 const Server = require("karma").Server;
 
@@ -59,8 +60,8 @@ const config_ko_standard = {
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/",
-    bundleName: "koStandardBundle",
-    entryPoint: "src/koStandardIndex",
+    bundleName: "survey.ko",
+    entryPoint: "webpack/koStandardIndex",
     outputDir: "bundles"
 };
 const config_ko_bootstrap = {
@@ -73,8 +74,8 @@ const config_ko_bootstrap = {
     mainJSfile: "survey.bootstrap.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/",
-    bundleName: "koBootstrapBundle",
-    entryPoint: "src/koBootstrapIndex",
+    bundleName: "survey.ko.bootstrap",
+    entryPoint: "webpack/koBootstrapIndex",
     outputDir: "bundles"
 };
 const config_react_standard = {
@@ -85,8 +86,8 @@ const config_react_standard = {
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
-    bundleName: "reactStandardBundle",
-    entryPoint: "src/reactStandardIndex",
+    bundleName: "survey.react",
+    entryPoint: "webpack/reactStandardIndex",
     outputDir: "bundles"
 };
 
@@ -98,15 +99,17 @@ const config_react_bootstrap = {
     mainJSfile : "survey.react.bootstrap.js",
     dtsfile: "survey-react-bootstrap.d.ts",
     packagePath: "./packages/survey-react-bootstrap/",
-    bundleName: 'reactBootstrapBundle',
-    entryPoint: "src/reactBootstrapIndex",
+    bundleName: "survey.react.bootstrap",
+    entryPoint: "webpack/reactBootstrapIndex",
     outputDir: "bundles"
 };
 
 const config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
-    mainJSfile: "survey.tests.ko.js",
+    entryPoint: "./tests/ko/index",
+    bundleName: "survey.tests.ko",
+    outputDir: "bundles",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };
 
@@ -134,23 +137,26 @@ function buildTemplates(configName, index) {
 }
 function buildFromSources(configName) {
     const curConfig = configs[configName];
-    // return gulp.src(curConfig.entryPoint)
-    //     .pipe(webpackStream(webpackConfig(curConfig), webpack))
-    //     .pipe(gulp.dest('./bundles'));
+
+    const tsResult = gulp.src(curConfig.entryPoint)
+        .pipe(webpackStream(webpackConfig(curConfig), webpack))
+        .pipe(gulp.dest('./bundles'));
+
     //Build js file
-    const tsResult = gulp.src([
-        paths.webroot + "/lib/survey/**/*.d.ts",
-        paths.typings
-    ].concat(curConfig.src))
-        .pipe(insert.prepend(copyright))
-        .pipe(sourcemaps.init())
-        .pipe(ts({
-            target: "ES5",
-            noImplicitAny: false,
-            declarationFiles: true,
-            jsx: "react"
-        }));
-    return tsResult.js
+    // const tsResult = gulp.src([
+    //     paths.webroot + "/lib/survey/**/*.d.ts", // TODO need to understand
+    //     paths.typings
+    // ].concat(curConfig.src))
+    //     .pipe(insert.prepend(copyright))
+    //     .pipe(sourcemaps.init())
+    //     .pipe(ts({
+    //         target: "ES5",
+    //         noImplicitAny: false,
+    //         declarationFiles: true,
+    //         jsx: "react"
+    //     }));
+
+    return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "src" }))
         //Source map is a part of generated file
@@ -180,33 +186,40 @@ function buildTypeDefinition(configName) {
 }
 
 function compressMainJS(configName) {
-    const curConfig = configs[configName];
-    //Compress
-    gulp.src(paths.dist + curConfig.mainJSfile)
-        .pipe(uglify())
-        .pipe(rename({
-            extname: ".min.js"
-        }))
-        .pipe(concat.header(copyright))
-        .pipe(gulp.dest(curConfig.packagePath + "dist/"))
-        .pipe(gulp.dest(curConfig.packagePath + "js/"))
-        .pipe(gulp.dest(paths.dist));
+    // const curConfig = configs[configName];
+    // //Compress
+    // gulp.src(paths.dist + curConfig.mainJSfile)
+    //     .pipe(uglify())
+    //     .pipe(rename({
+    //         extname: ".min.js"
+    //     }))
+    //     .pipe(concat.header(copyright))
+    //     .pipe(gulp.dest(curConfig.packagePath + "dist/"))
+    //     .pipe(gulp.dest(curConfig.packagePath + "js/"))
+    //     .pipe(gulp.dest(paths.dist));
 }
 
 function buildTests(configName) {
     const curConfig = testconfigs[configName];
     //Build sources
-    const tsResult = gulp.src([
-        paths.typings,
-        paths.tsTests,
-        curConfig.src])
-        .pipe(sourcemaps.init())
-        .pipe(ts({
-            target: "ES5",
-            noImplicitAny: false
-        }));
+    // const tsResult = gulp.src([
+    //     paths.typings,
+    //     paths.tsTests,
+    //     curConfig.src])
+    //     .pipe(sourcemaps.init())
+    //     .pipe(ts({
+    //         typescript: require('typescript'), // In my package.json I have "typescript": "~1.8.0-dev.20151128"
+    //         target: 'ES5',
+    //         module: 'commonjs',
+    //         experimentalDecorators: true,
+    //         emitDecoratorMetadata: true
+    //     }));
 
-    return tsResult.js
+    const tsResult = gulp.src(curConfig.entryPoint)
+        .pipe(webpackStream(webpackTestsConfig(curConfig), webpack))
+        .pipe(gulp.dest('./bundles'));
+
+    return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "tests" }))
         //Source map is a part of generated file
@@ -345,25 +358,25 @@ gulp.task("server", serve({
 const gutil = require('gulp-util');
 
 const reactStandardOptions = {
-    bundleName: 'reactStandardBundle',
+    bundleName: 'survey.react',
     entryPoint: 'webpack/reactStandardIndex',
     outputDir: 'bundles'
 };
 
 const reactBootstrapOptions = {
-    bundleName: 'reactBootstrapBundle',
+    bundleName: 'survey.react.bootstrap',
     entryPoint: 'webpack/reactBootstrapIndex',
     outputDir: 'bundles'
 };
 
 const koStandardOptions = {
-    bundleName: 'koStandardBundle',
+    bundleName: 'survey.ko',
     entryPoint: 'webpack/koStandardIndex',
     outputDir: 'bundles'
 };
 
 const koBootstrapOptions = {
-    bundleName: 'koBootstrapBundle',
+    bundleName: 'survey.ko.bootstrap',
     entryPoint: 'webpack/koBootstrapIndex',
     outputDir: 'bundles'
 };

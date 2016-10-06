@@ -67,7 +67,7 @@ import {ReactSurveyQuestioncheckboxItem} from "../src/react/reactquestioncheckbo
 import {ReactSurveyQuestionmatrixRow} from "../src/react/reactquestionmatrix";
 import {ReactSurveyQuestionmatrixdropdownRow} from "../src/react/reactquestionmatrixdropdown";
 import {ReactSurveyQuestionmultipletextItem} from "../src/react/reactquestionmultipletext";
-import {ReactSurveyQuestionmatrixdynamic, ReactSurveyQuestionmatrixdynamicRow} from "../src/react/reactquestionmatrixdynamic"
+import ReactSurveyQuestionmatrixdynamic, {ReactSurveyQuestionmatrixdynamicRow} from "../src/react/reactquestionmatrixdynamic";
 
 module.exports = {
     /*common*/

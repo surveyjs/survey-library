@@ -15,3 +15,9 @@ export * from '../textPreprocessorTests';
 export * from './kosurveymodeltests';
 export * from './survey_kotests';
 export * from './templatetexttests';
+
+// localization
+export * from '../../src/localization/russian';
+export * from '../../src/localization/french';
+export * from '../../src/localization/finnish';
+export * from '../../src/localization/german';

@@ -75,6 +75,11 @@ import SurveyWindow from "../src/knockout/standard/koSurveyWindowStandard";
 import SurveyTemplateText from "../src/knockout/standard/templateTextStandard";
 import Survey from "../src/knockout/standard/koSurveyStandard";
 
+export * from '../src/localization/russian';
+export * from '../src/localization/french';
+export * from '../src/localization/finnish';
+export * from '../src/localization/german';
+
 module.exports = {
     ItemValue:ItemValue,
     Base:Base,

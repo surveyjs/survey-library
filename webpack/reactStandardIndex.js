@@ -69,6 +69,11 @@ import {ReactSurveyQuestionmatrixdropdownRow} from "../src/react/reactquestionma
 import {ReactSurveyQuestionmultipletextItem} from "../src/react/reactquestionmultipletext";
 import ReactSurveyQuestionmatrixdynamic, {ReactSurveyQuestionmatrixdynamicRow} from "../src/react/reactquestionmatrixdynamic";
 
+export * from '../src/localization/russian';
+export * from '../src/localization/french';
+export * from '../src/localization/finnish';
+export * from '../src/localization/german';
+
 module.exports = {
     /*common*/
     "AnswerCountValidator": AnswerCountValidator,

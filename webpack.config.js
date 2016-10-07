@@ -20,7 +20,7 @@ module.exports = (options) => {
             [options.bundleName]: path.resolve(__dirname, options.entryPoint)
         },
         output: {
-            path: path.resolve(__dirname, options.outputDir), // this is not important because we use gulp dest
+            path: path.resolve(__dirname, options.outputDir), // TODO this is not important because we use gulp dest
             filename: '[name].js',
             library: 'Survey',
             libraryTarget: 'umd',
@@ -45,7 +45,7 @@ module.exports = (options) => {
                 {
                     test: /\.(ts|tsx)$/,
                     loaders:[
-                        require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig),
+                        require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig), // TODO why do we need it
                         require.resolve('awesome-typescript-loader')
                     ]
                 },
@@ -56,17 +56,14 @@ module.exports = (options) => {
                 }
             ]
         },
+        debug: true,
         plugins: [
             new webpack.NoErrorsPlugin(),
             new webpack.ProvidePlugin({
                 "ko": "knockout"
             })
         ],
-        // devtool: 'cheap-source-map',
-        debug: true,
-        eslint: {
-            configFile: path.join(__dirname, '.eslintrc')
-        }
+        devtool: 'cheap-inline-module-source-map'
     };
 
     return config;

@@ -17,10 +17,7 @@ const gulp = require('gulp'),
     jsonTransform = require('gulp-json-transform'),
     project = require("./project.json"),
     webpackStream = require('webpack-stream'),
-    webpack = require('webpack'),
-    webpackConfig = require('./webpack.config'),
-    webpackReleaseConfig = require('./webpack.config.release'),
-    webpackTestsConfig = require('./webpack.config.tests');
+    getWebpackConfig = require('./webpack.config');
 
 const Server = require("karma").Server;
 
@@ -64,6 +61,7 @@ const config_ko_standard = {
     entryPoint: "webpack/koStandardIndex",
     outputDir: "bundles"
 };
+
 const config_ko_bootstrap = {
     name: "survey-knockout-bootstrap",
     keywords: ["Knockout", "Bootstrap"],
@@ -78,6 +76,7 @@ const config_ko_bootstrap = {
     entryPoint: "webpack/koBootstrapIndex",
     outputDir: "bundles"
 };
+
 const config_react_standard = {
     name: "survey-react",
     keywords: ["react", "react-component"],
@@ -135,31 +134,15 @@ function buildTemplates(configName, index) {
         }))
         .pipe(gulp.dest(curTemplate.dest));
 }
+
 function buildFromSources(configName) {
     const curConfig = configs[configName];
-
     const tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(webpackConfig(curConfig), webpack))
+        .pipe(webpackStream(getWebpackConfig(curConfig)))
         .pipe(gulp.dest('./bundles'));
-
-    //Build js file
-    // const tsResult = gulp.src([
-    //     paths.webroot + "/lib/survey/**/*.d.ts", // TODO need to understand
-    //     paths.typings
-    // ].concat(curConfig.src))
-    //     .pipe(insert.prepend(copyright))
-    //     .pipe(sourcemaps.init())
-    //     .pipe(ts({
-    //         target: "ES5",
-    //         noImplicitAny: false,
-    //         declarationFiles: true,
-    //         jsx: "react"
-    //     }));
-
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(sourcemaps.write({ sourceRoot: "src" }))
-        //Source map is a part of generated file
+        .pipe(insert.prepend(copyright))
         .pipe(gulp.dest(paths.dist))
         .pipe(gulp.dest(paths.jsFolder))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"));
@@ -186,47 +169,28 @@ function buildTypeDefinition(configName) {
 }
 
 function compressMainJS(configName) {
-    // const curConfig = configs[configName];
-    // //Compress
-    // gulp.src(paths.dist + curConfig.mainJSfile)
-    //     .pipe(uglify())
-    //     .pipe(rename({
-    //         extname: ".min.js"
-    //     }))
-    //     .pipe(concat.header(copyright))
-    //     .pipe(gulp.dest(curConfig.packagePath + "dist/"))
-    //     .pipe(gulp.dest(curConfig.packagePath + "js/"))
-    //     .pipe(gulp.dest(paths.dist));
+    const curConfig = configs[configName];
+    gulp.src(paths.dist + curConfig.mainJSfile)
+        .pipe(uglify())
+        .pipe(rename({
+            extname: ".min.js"
+        }))
+        .pipe(concat.header(copyright))
+        .pipe(gulp.dest('./bundles'))
+        .pipe(gulp.dest(curConfig.packagePath + "dist/"))
+        .pipe(gulp.dest(curConfig.packagePath + "js/"))
+        .pipe(gulp.dest(paths.dist));
 }
 
 function buildTests(configName) {
     const curConfig = testconfigs[configName];
-    //Build sources
-    // const tsResult = gulp.src([
-    //     paths.typings,
-    //     paths.tsTests,
-    //     curConfig.src])
-    //     .pipe(sourcemaps.init())
-    //     .pipe(ts({
-    //         typescript: require('typescript'), // In my package.json I have "typescript": "~1.8.0-dev.20151128"
-    //         target: 'ES5',
-    //         module: 'commonjs',
-    //         experimentalDecorators: true,
-    //         emitDecoratorMetadata: true
-    //     }));
-
     const tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(webpackTestsConfig(curConfig), webpack))
+        .pipe(webpackStream(getWebpackConfig(curConfig)))
         .pipe(gulp.dest('./bundles'));
-
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "tests" }))
         //Source map is a part of generated file
-        .pipe(gulp.dest(paths.testsFolder));
-    //Copy html file
-    gulp.src(curConfig.htmlFile)
-    // Perform minification tasks, etc here
         .pipe(gulp.dest(paths.testsFolder));
 }
 
@@ -352,104 +316,3 @@ gulp.task("server", serve({
     root: ["wwwroot"],
     port: 30001
 }));
-
-// new test tasks
-// const gulp = require('gulp');
-const gutil = require('gulp-util');
-
-const reactStandardOptions = {
-    bundleName: 'survey.react',
-    entryPoint: 'webpack/reactStandardIndex',
-    outputDir: 'bundles'
-};
-
-const reactBootstrapOptions = {
-    bundleName: 'survey.react.bootstrap',
-    entryPoint: 'webpack/reactBootstrapIndex',
-    outputDir: 'bundles'
-};
-
-const koStandardOptions = {
-    bundleName: 'survey.ko',
-    entryPoint: 'webpack/koStandardIndex',
-    outputDir: 'bundles'
-};
-
-const koBootstrapOptions = {
-    bundleName: 'survey.ko.bootstrap',
-    entryPoint: 'webpack/koBootstrapIndex',
-    outputDir: 'bundles'
-};
-
-let options;
-
-const handleWebpackOutput = (err, stats) => {
-    if (err) throw new gutil.PluginError('gulp_err', err);
-    gutil.log('[gulp_err]', stats.toString({
-        colors: true,
-        chunks: false
-    }));
-};
-
-const getDevCompiler = (options) => {
-    return webpack(webpackConfig(options));
-};
-
-const getReleaseCompiler = (options) => {
-    return webpack(webpackReleaseConfig(options));
-};
-
-gulp.task('build:react:standard', () => {
-    options = reactStandardOptions;
-    build();
-});
-
-gulp.task('build:react:bootstrap', () => {
-    options = reactBootstrapOptions;
-    build();
-});
-
-gulp.task('build:ko:standard', () => {
-    options = koStandardOptions;
-    build();
-});
-
-gulp.task('build:ko:bootstrap', () => {
-    options = koBootstrapOptions;
-    build();
-});
-
-function build() {
-    gulp.start('build:dev');
-}
-
-gulp.task('build:dev', (done) => {
-    const compiler = getDevCompiler(options);
-    compiler.run((err, stats) => {
-        handleWebpackOutput(err, stats);
-        done();
-    });
-});
-
-gulp.task('build:release', (done) => {
-    const compiler = getReleaseCompiler(options);
-    compiler.run((err, stats) => {
-        handleWebpackOutput(err, stats);
-        done();
-    });
-});
-
-gulp.task('watch', ['build:dev'], () => {
-    const compiler = getDevCompiler(options);
-    compiler.watch({
-        aggregateTimeout: 300, // wait so long for more changes
-        poll: 2000 // windows needs polling to pick up changes :(
-    }, (err, stats) => {
-        handleWebpackOutput(err, stats);
-    });
-});
-
-module.exports = {
-    getDevCompiler: getDevCompiler,
-    getReleaseCompiler: getReleaseCompiler
-};

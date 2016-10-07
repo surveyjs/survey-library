@@ -58,8 +58,7 @@ const config_ko_standard = {
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
-    entryPoint: "webpack/koStandardIndex",
-    outputDir: "bundles"
+    entryPoint: "webpack/koStandardIndex"
 };
 
 const config_ko_bootstrap = {
@@ -73,8 +72,7 @@ const config_ko_bootstrap = {
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/",
     bundleName: "survey.ko.bootstrap",
-    entryPoint: "webpack/koBootstrapIndex",
-    outputDir: "bundles"
+    entryPoint: "webpack/koBootstrapIndex"
 };
 
 const config_react_standard = {
@@ -86,8 +84,7 @@ const config_react_standard = {
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
-    entryPoint: "webpack/reactStandardIndex",
-    outputDir: "bundles"
+    entryPoint: "webpack/reactStandardIndex"
 };
 
 const config_react_bootstrap = {
@@ -99,8 +96,7 @@ const config_react_bootstrap = {
     dtsfile: "survey-react-bootstrap.d.ts",
     packagePath: "./packages/survey-react-bootstrap/",
     bundleName: "survey.react.bootstrap",
-    entryPoint: "webpack/reactBootstrapIndex",
-    outputDir: "bundles"
+    entryPoint: "webpack/reactBootstrapIndex"
 };
 
 const config_test_ko = {
@@ -108,7 +104,6 @@ const config_test_ko = {
     src: "./tests/ko/*.ts",
     entryPoint: "./tests/ko/index",
     bundleName: "survey.tests.ko",
-    outputDir: "bundles",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };
 
@@ -138,8 +133,7 @@ function buildTemplates(configName, index) {
 function buildFromSources(configName) {
     const curConfig = configs[configName];
     const tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)))
-        .pipe(gulp.dest('./bundles'));
+        .pipe(webpackStream(getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(insert.prepend(copyright))
@@ -176,7 +170,6 @@ function compressMainJS(configName) {
             extname: ".min.js"
         }))
         .pipe(concat.header(copyright))
-        .pipe(gulp.dest('./bundles'))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"))
         .pipe(gulp.dest(curConfig.packagePath + "js/"))
         .pipe(gulp.dest(paths.dist));
@@ -185,8 +178,7 @@ function compressMainJS(configName) {
 function buildTests(configName) {
     const curConfig = testconfigs[configName];
     const tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)))
-        .pipe(gulp.dest('./bundles'));
+        .pipe(webpackStream(getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "tests" }))

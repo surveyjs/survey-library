@@ -20,7 +20,6 @@ module.exports = (options) => {
             [options.bundleName]: path.resolve(__dirname, options.entryPoint)
         },
         output: {
-            path: path.resolve(__dirname, options.outputDir), // TODO this is not important because we use gulp dest
             filename: '[name].js',
             library: 'Survey',
             libraryTarget: 'umd',

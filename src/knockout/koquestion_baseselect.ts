@@ -1,16 +1,14 @@
 ﻿/// <reference path="koquestion.ts" />
 module Survey {
     export class QuestionSelectBaseImplementor extends QuestionImplementor{
-        private koChoiceChangedCount: any;
         koOtherVisible: any; koVisibleChoices: any; 
         constructor(question: Question) {
             super(question);
             var self = this;
 
-            this.koChoiceChangedCount = ko.observable(0);
             this.koOtherVisible = ko.computed(function () { self.koValue(); return self.isOtherSelected; });
-            this.koVisibleChoices = ko.computed(function () { self.koChoiceChangedCount(); return (<QuestionCheckboxBase>self.question).visibleChoices; });
-            (<QuestionCheckboxBase>question).choicesChangedCallback = function () { self.koChoiceChangedCount(self.koChoiceChangedCount() + 1); };
+            this.koVisibleChoices = ko.observableArray((<QuestionCheckboxBase>self.question).visibleChoices);
+            (<QuestionCheckboxBase>question).choicesChangedCallback = function () { self.koVisibleChoices((<QuestionCheckboxBase>self.question).visibleChoices); };
             this.question["koOtherVisible"] = this.koOtherVisible;
             this.question["koVisibleChoices"] = this.koVisibleChoices;
         }

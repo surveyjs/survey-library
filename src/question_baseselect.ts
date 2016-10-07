@@ -80,6 +80,9 @@ module Survey {
             ItemValue.setData(this.choicesValues, newValue);
             this.fireCallback(this.choicesChangedCallback);
         }
+        protected hasOtherChanged() {
+            this.fireCallback(this.choicesChangedCallback);
+        }
         get choicesOrder(): string { return this.choicesOrderValue; }
         set choicesOrder(newValue: string) {
             if (newValue == this.choicesOrderValue) return;

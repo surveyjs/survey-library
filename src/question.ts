@@ -76,10 +76,12 @@ module Survey {
         }
         public get hasOther(): boolean { return this.hasOtherValue; }
         public set hasOther(val: boolean) {
-            if (!this.supportOther()) return;
+            if (!this.supportOther() || this.hasOther == val) return;
             this.hasOtherValue = val;
             if (this.hasOther) this.hasComment = false;
+            this.hasOtherChanged();
         }
+        protected hasOtherChanged() { }
         protected get no(): string {
             if (this.visibleIndex < 0) return "";
             var startIndex = 1;

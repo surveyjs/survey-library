@@ -2,7 +2,7 @@
 export * from "./chunks/model";
 
 // localization
-export * from './chunks/localization';
+import './chunks/localization';
 
 // knockout
 export * from './chunks/knockout';

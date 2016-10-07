@@ -102,7 +102,7 @@ const config_react_bootstrap = {
 const config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
-    entryPoint: "./src/entries/testKo",
+    entryPoint: "./tests/entries/testKo",
     bundleName: "survey.tests.ko",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };

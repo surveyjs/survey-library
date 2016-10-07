@@ -2,7 +2,7 @@
 export * from "./chunks/model";
 
 // localization
-export * from './chunks/localization';
+import './chunks/localization';
 
 // react
 export * from "./chunks/react";

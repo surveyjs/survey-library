@@ -58,7 +58,7 @@ const config_ko_standard = {
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
-    entryPoint: "src/entries/koStandardIndex"
+    entryPoint: "src/entries/koStandard"
 };
 
 const config_ko_bootstrap = {
@@ -72,7 +72,7 @@ const config_ko_bootstrap = {
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout-bootstrap/",
     bundleName: "survey.ko.bootstrap",
-    entryPoint: "src/entries/koBootstrapIndex"
+    entryPoint: "src/entries/koBootstrap"
 };
 
 const config_react_standard = {
@@ -84,7 +84,7 @@ const config_react_standard = {
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
-    entryPoint: "src/entries/reactStandardIndex"
+    entryPoint: "src/entries/reactStandard"
 };
 
 const config_react_bootstrap = {
@@ -96,13 +96,13 @@ const config_react_bootstrap = {
     dtsfile: "survey-react-bootstrap.d.ts",
     packagePath: "./packages/survey-react-bootstrap/",
     bundleName: "survey.react.bootstrap",
-    entryPoint: "src/entries/reactBootstrapIndex"
+    entryPoint: "src/entries/reactBootstrap"
 };
 
 const config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
-    entryPoint: "./src/entries/index",
+    entryPoint: "./src/entries/testKo",
     bundleName: "survey.tests.ko",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };

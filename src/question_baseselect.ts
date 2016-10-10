@@ -170,7 +170,7 @@ module Survey {
         }
     }
     JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
-        { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
+        { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
         { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
         { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
         { name: "otherText", default: surveyLocalization.getString("otherItemText") }, "otherErrorText",

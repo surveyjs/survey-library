@@ -7,7 +7,7 @@ module Survey {
         completeText: "Terminer",
         otherItemText: "Autre (pr\u00e9ciser)",
         progressText: "Page {0} sur {1}",
-        emptySurvey: "Il n'y a ni page visible ni question visible dansce questionnaire",
+        emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
         completingSurvey: "Merci d'avoir r\u00e9pondu au questionnaire!",
         loadingSurvey: "Le questionnaire est en cours de chargement...",
         optionsCaption: "Choisissez...",

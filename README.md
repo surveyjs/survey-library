@@ -11,7 +11,6 @@ For example,
 ```
 import ReactSurveyQuestion from 'survey-react';
 import {ReactSurveyQuestionErrors} from 'survey-react';
-
 ```
 ##Building survey.js from sources
 

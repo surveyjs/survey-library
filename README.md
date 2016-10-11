@@ -8,7 +8,7 @@ For example, change from `ReactSurveyWindow` to `Survey.ReactSurveyWindow`.
 
 ##Builds
 
-You can find forks build in package folder.
+You can find built in libraries in the package folder or build the libraries by yourself.
 
 ##Building survey.js from sources
 

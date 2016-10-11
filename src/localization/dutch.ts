@@ -1,7 +1,7 @@
 ﻿/// <reference path="..//surveyStrings.ts" />
 //Created on behalf https://github.com/Frank13
 module Survey {
-    var frenchSurveyStrings = {
+    var dutchSurveyStrings = {
         pagePrevText: "Vorige",
         pageNextText: "Volgende",
         completeText: "Afsluiten",
@@ -23,5 +23,5 @@ module Survey {
         exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}.",
         otherRequiredError: "Gelieve het veld 'Andere' in te vullen"
     }
-    surveyLocalization.locales["nl"] = frenchSurveyStrings;
+    surveyLocalization.locales["nl"] = dutchSurveyStrings;
 }

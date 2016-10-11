@@ -1,7 +1,6 @@
 ﻿/// <reference path="../../src/base.ts" />
 /// <reference path="../../src/survey.ts" />
 /// <reference path="../../src/knockout/kosurvey.ts" />
-/// <reference path="../../src/knockout/standard/kosurveystandard.ts" />
 /// <reference path="../../src/knockout/kopage.ts" />
 /// <reference path="../../src/knockout/koquestion_rating.ts" />
 /// <reference path="../../src/question.ts" />

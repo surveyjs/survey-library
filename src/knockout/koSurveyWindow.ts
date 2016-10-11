@@ -1,18 +1,20 @@
 ﻿/// <reference path="../surveywindow.ts" />
 /// <reference path="kosurvey.ts" />
 module Survey {
-    export class SurveyWindowBase extends SurveyWindowModel {
+    export class SurveyWindow extends SurveyWindowModel {
         koExpanded: any;
+        koExpandedCss: any;
         doExpand: any;
         constructor(jsonObj: any) {
             super(jsonObj);
             this.koExpanded = ko.observable(false);
+            this.koExpandedCss = ko.observable(this.getButtonCss());
             var self = this;
             this.doExpand = function () { self.changeExpanded(); }
-            this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); });
+            this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); self.koExpandedCss(self.getButtonCss()) });
         }
         protected createSurvey(jsonObj: any): SurveyModel {
-            return new SurveyBase(jsonObj)
+            return new Survey(jsonObj)
         }
         protected expandcollapse(value: boolean) {
             super.expandcollapse(value);
@@ -28,17 +30,21 @@ module Survey {
             (<Survey>this.survey).render(SurveyWindow.surveyElementName);
             this.isShowingValue = true;
         }
-        protected getDefaultTemplate(): string { throw new Error("Please override this method"); }
+        protected getDefaultTemplate(): string { return template.window.ko.html }
         public hide() {
             document.body.removeChild(this.windowElement);
             this.windowElement.innerHTML = "";
             this.isShowingValue = false;
         }
+        public get css(): any { return this.survey["css"]; }
         private changeExpanded() {
             this.expandcollapse(!this.isExpanded);
         }
         private onComplete() {
             this.hide();
+        }
+        private getButtonCss() {
+            return this.koExpanded() ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
         }
    }
 }

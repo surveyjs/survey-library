@@ -3,7 +3,7 @@
 module SurveykoTests {
     QUnit.module("Template Text");
 
-    export class SurveyTemplateTextTest extends Survey.SurveyTemplateTextBase {
+    export class SurveyTemplateTextTest extends Survey.SurveyTemplateText {
         constructor(public template: string) { super(); }
         protected get text(): string { return this.template; }
         protected set text(value: string) { this.template = value; }

@@ -1,4 +1,12 @@
 ﻿module Survey {
+    export var surveyCss = {
+        currentType: "",
+        getCss: function () {
+            var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
+            if (!loc) loc = defaultStandardCss;
+            return loc;
+        },
+    }
     export var defaultStandardCss = {
         root: "sv_main",
         header: "",
@@ -19,7 +27,15 @@
         matrixdynamic: { root: "table", button: "" },
         multipletext: { root: "", itemTitle: "", itemValue: "" },
         radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", other: "sv_q_other" },
-        rating: { root: "sv_q_rating", item: "" },
-        text: ""
+        rating: { root: "sv_q_rating", item: "sv_q_rating_item" },
+        text: "",
+        window: {
+            root: "sv_window", body: "sv_window_content",
+            header: {
+                root: "sv_window_title", title: "", button: "", buttonExpanded: "", buttonCollapsed: ""
+            }
+        }
     };
+
+    surveyCss["standard"] = defaultStandardCss;
 }

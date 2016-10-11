@@ -1,8 +1,11 @@
-﻿/// <reference path="../survey.ts" />
+﻿/// <reference path="template.ko.html.ts" />
+/// <reference path="../survey.ts" />
+/// <reference path="../defaultCss/cssstandard.ts" />
 module Survey {
-    export class SurveyBase extends SurveyModel {
+    export class Survey extends SurveyModel {
+        public static get cssType(): string { return surveyCss.currentType; }
+        public static set cssType(value: string) { surveyCss.currentType = value; }
         private renderedElement: HTMLElement;
-        private cssValue: any;
         public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
 
         koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; koState: any;
@@ -28,9 +31,9 @@ module Survey {
             if (btn) res += ' ' + btn;
             return res;
         }
-        public get css(): any { return this.cssValue; }
+        public get css(): any { return surveyCss.getCss(); }
         public set css(value: any) {
-            this.mergeValues(value, this.cssValue);
+            this.mergeValues(value, this.css);
         }
         public render(element: any = null) {
             var self = this;
@@ -57,11 +60,9 @@ module Survey {
             this.updateKoCurrentPage();
         }
         protected createNewPage(name: string) { return new Page(name); }
-        protected createCssObject(): any { return null; }
-        protected getTemplate(): string { throw new Error("Please override this method"); }
+        protected getTemplate(): string { return template.ko.html; }
         protected onBeforeCreating() {
             var self = this;
-            this.cssValue = this.createCssObject();
             this.dummyObservable = ko.observable(0);
             this.koCurrentPage = ko.computed(function () { self.dummyObservable(); return self.currentPage; });
             this.koIsFirstPage = ko.computed(function () { self.dummyObservable(); return self.isFirstPage; });

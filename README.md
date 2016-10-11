@@ -8,9 +8,11 @@ For example, change from `ReactSurveyWindow` to `Survey.ReactSurveyWindow`.
 
 If you are using **ES2015 modules** you can import only those modules that you need.
 For example, 
-`import ReactSurveyQuestion from 'survey-react';` or
-`import {ReactSurveyQuestionErrors} from 'survey-react';`
+```
+import ReactSurveyQuestion from 'survey-react';
+import {ReactSurveyQuestionErrors} from 'survey-react';
 
+```
 ##Building survey.js from sources
 
 To build library yourself:

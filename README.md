@@ -68,6 +68,17 @@ To build library yourself:
 
 Find the features under development and Todo list in the [Trello board](https://trello.com/b/lAwhTw3H/surveyjs-project).
 
+##Fork features
+
+**surveyjs** sources contain **ES2015 modules system** now and build by **webpack**. We use **UMD** build which allows us to use our library in any modules system. 
+**surveyjs** can be added as **classic html script tag** with global variable `Survey`. Or with some module system like **ES2015 modules**, for example, `import * as Survey from 'survey-react';`
+
+If you are using **html script tag** you should know, that all "react" objects like `ReactSurveyWindow` is inside global variable `Survey` now. So you need to change your code.
+For example, change from `ReactSurveyWindow` to `Survey.ReactSurveyWindow`.
+
+If you are using **ES2015 modules** you can import only those modules that you need.
+For example, `import ReactSurveyQuestion from 'survey-react';` or `import {ReactSurveyQuestionErrors} from 'survey-react';`
+
 ##License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)

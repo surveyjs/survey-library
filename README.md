@@ -6,6 +6,10 @@
 If you are using **html script tag** you should know, that all "react" objects like `ReactSurveyWindow` is inside global variable `Survey` now. So you need to change your code.
 For example, change from `ReactSurveyWindow` to `Survey.ReactSurveyWindow`.
 
+##Builds
+
+You can find built in libraries in the package folder or build the libraries by yourself.
+
 ##Building survey.js from sources
 
 To build library yourself:

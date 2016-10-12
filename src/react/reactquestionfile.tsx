@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import {QuestionFileModel} from "../question_file";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestionfile extends React.Component<any, any> {
     private question: QuestionFileModel;
@@ -36,3 +37,7 @@ export default class ReactSurveyQuestionfile extends React.Component<any, any> {
         return (<div>  <img src={this.question.previewValue} height={this.question.imageHeight} width={this.question.imageWidth} /></div>);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("file", (props) => {
+    return React.createElement(ReactSurveyQuestionfile, props);
+});

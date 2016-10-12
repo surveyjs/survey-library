@@ -4,6 +4,7 @@ import ReactSurveyPage from "./reactpage";
 import ReactSurveyNavigation from "./reactSurveyNavigation";
 import QuestionBase from "../questionbase";
 import {IReactSurveyCreator} from "./reactquestion";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyBase extends React.Component<any, any> implements IReactSurveyCreator {
     protected survey: ReactSurveyModel;
@@ -146,18 +147,16 @@ export default class ReactSurveyBase extends React.Component<any, any> implement
             this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
         }
     }
-    protected getReactQuestionClass(question: QuestionBase): any {
-        var className = "ReactSurveyQuestion" + question.getType();
-        return window[className];
-    }
+
     //IReactSurveyCreator
     public createQuestionElement(question: QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
-        return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css, creator: this });
+        return ReactQuestionFactory.Instance.createQuestion(question.getType(), {
+            question: question, css: questionCss, rootCss: this.css, creator: this
+        });
     }
     public renderError(key: string, errorText: string): JSX.Element {
         return <div key={key} className={this.css.error.item}>{errorText}</div>;
     }
     public questionTitleLocation(): string { return this.survey.questionTitleLocation; }
 }
-

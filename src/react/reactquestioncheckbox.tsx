@@ -2,6 +2,7 @@
 import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
 import {ItemValue} from "../base";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
     protected question: QuestionCheckboxModel;
@@ -111,3 +112,7 @@ export class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
         return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
+    return React.createElement(ReactSurveyQuestioncheckbox, props);
+});

@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import QuestionHtmlModel from "../question_html";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestionhtml extends React.Component<any, any> {
     private question: QuestionHtmlModel;
@@ -16,3 +17,7 @@ export default class ReactSurveyQuestionhtml extends React.Component<any, any> {
         return (<div dangerouslySetInnerHTML={htmlValue} /> );
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("html", (props) => {
+    return React.createElement(ReactSurveyQuestionhtml, props);
+});

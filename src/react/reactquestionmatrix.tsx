@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import QuestionMatrixModel from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestionmatrix extends React.Component<any, any> {
     private question: QuestionMatrixModel;
@@ -77,3 +78,7 @@ export class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
         return (<tr>{firstTD}{tds}</tr>);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("matrix", (props) => {
+    return React.createElement(ReactSurveyQuestionmatrix, props);
+});

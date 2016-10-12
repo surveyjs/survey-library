@@ -3,6 +3,7 @@ import QuestionMatrixDropdownModel from "../question_matrixdropdown";
 import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
     private question: QuestionMatrixDropdownModel;
@@ -91,3 +92,7 @@ export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, a
         return this.creator.createQuestionElement(cell.question);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("matrixdropdown", (props) => {
+    return React.createElement(ReactSurveyQuestionmatrixdropdown, props);
+});

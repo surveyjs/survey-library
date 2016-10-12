@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import QuestionCommentModel from "../question_comment";
 import Question from "../question";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestioncomment extends React.Component<any, any> {
     private question: QuestionCommentModel;
@@ -55,3 +56,7 @@ export class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
         return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("comment", (props) => {
+    return React.createElement(ReactSurveyQuestioncomment, props);
+});

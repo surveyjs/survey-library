@@ -1,5 +1,7 @@
 ﻿import * as React from 'react';
 import QuestionTextModel from "../question_text";
+import ReactQuestionFactory from "./reactquestionfactory";
+
 
 export default class ReactSurveyQuestiontext extends React.Component<any, any> {
     private question: QuestionTextModel;
@@ -26,3 +28,7 @@ export default class ReactSurveyQuestiontext extends React.Component<any, any> {
         );
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
+    return React.createElement(ReactSurveyQuestiontext, props);
+});

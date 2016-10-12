@@ -3,6 +3,7 @@ import QuestionMatrixDynamicModel from "../question_matrixdynamic";
 import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
+import ReactQuestionFactory from "./reactquestionfactory";
 
 export default class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
     private question: QuestionMatrixDynamicModel;
@@ -120,3 +121,7 @@ export class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, an
         return <input className={this.css.button} type="button" onClick={this.handleOnRowRemoveClick} value={this.question.removeRowText} />;
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", (props) => {
+    return React.createElement(ReactSurveyQuestionmatrixdynamic, props);
+});

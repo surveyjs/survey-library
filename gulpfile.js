@@ -49,30 +49,20 @@ var config_ko = {
     dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
                 { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/knockout/*.ts"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/"
 }
 
-var config_react_standard = {
+var config_react = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/react/*.tsx"],
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/"
-}
-
-var config_react_bootstrap = {
-    name: "survey-react-bootstrap",
-    keywords: ["react", "react-component", "Bootstrap"],
-    dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
-    mainJSfile : "survey.react.bootstrap.js",
-    dtsfile: "survey-react-bootstrap.d.ts",
-    packagePath: "./packages/survey-react-bootstrap/"
 }
 
 var config_test_ko = {
@@ -84,8 +74,7 @@ var config_test_ko = {
 
 var configs = {};
 configs["ko"] = config_ko;
-configs["react_standard"] = config_react_standard;
-configs["react_bootstrap"]= config_react_bootstrap;
+configs["react"] = config_react;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -226,29 +215,17 @@ gulp.task("buildTests_ko", function () {
     return buildTests("ko");
 });
 
-gulp.task("react_standard_source", function () {
-    //buildTypeDefinition("react_standard");
-    return buildFromSources("react_standard");
+gulp.task("react_source", function () {
+    //buildTypeDefinition("react");
+    return buildFromSources("react");
 });
-gulp.task("react_standard_compress", function () {
-    compressMainJS("react_standard");
+gulp.task("react_compress", function () {
+    compressMainJS("react");
 });
-gulp.task("react_standard_createPackageJson", function () {
-    createPackageJson("react_standard");
+gulp.task("react_createPackageJson", function () {
+    createPackageJson("react");
 });
-gulp.task("build_react_standard", sequence("react_standard_source", "react_standard_compress", "react_standard_createPackageJson"));
-
-gulp.task("react_bootstrap_source", function () {
-        //buildTypeDefinition("react_bootstrap");
-    return buildFromSources("react_bootstrap");
-});
-gulp.task("react_bootstrap_compress", function () {
-    compressMainJS("react_bootstrap");
-    });
-gulp.task("react_bootstrap_createPackageJson", function () {
-    createPackageJson("react_bootstrap");
-});
-gulp.task("build_react_bootstrap", sequence("react_bootstrap_source", "react_bootstrap_compress", "react_bootstrap_createPackageJson"));
+gulp.task("build_react", sequence("react_source", "react_compress", "react_createPackageJson"));
 
 gulp.task('copyfiles', function (callback) {
     gulp.src(gnf(null, 'package.json'), { base: './' })
@@ -271,7 +248,7 @@ gulp.task('sass', function () {
       .pipe(gulp.dest(paths.package_react + 'css'))
       .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react_standard", "build_react_bootstrap"));
+gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"));
 
 gulp.task("test_ci", function (done) { 
         new Server({ 

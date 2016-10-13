@@ -13,7 +13,7 @@
         body: "sv_body",
         footer: "sv_nav",
         navigationButton: "", navigation: { complete: "", prev:"", next: ""},
-        progress: "sv_progress",
+        progress: "sv_progress", progressBar: "",
         pageTitle: "sv_p_title",
         row: "sv_row",
         question: { root: "sv_q", title: "sv_q_title", comment: "", indent: 20 },

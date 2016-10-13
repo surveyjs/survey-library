@@ -4,14 +4,15 @@
 /// <reference path="reactPage.tsx" />
 /// <reference path="reactQuestion.tsx" />
 /// <reference path="reactSurveyNavigation.tsx" />
+/// <reference path="../defaultCss/cssstandard.ts" />
 
-class ReactSurveyBase extends React.Component<any, any> implements Survey.IReactSurveyCreator {
+class ReactSurvey extends React.Component<any, any> implements Survey.IReactSurveyCreator {
+    public static get cssType(): string { return Survey.surveyCss.currentType; }
+    public static set cssType(value: string) { Survey.surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
-    protected css: any;
     constructor(props: any) {
         super(props);
-        this.css = this.createCssObject();
-        if (!this.css) throw "You should not return null for createCssObject() method.";
+
         this.updateSurvey(props);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -22,7 +23,10 @@ class ReactSurveyBase extends React.Component<any, any> implements Survey.IReact
         if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
-    protected createCssObject(): any { return null; }
+    public get css(): any { return Survey.surveyCss.getCss(); }
+    public set css(value: any) {
+        this.survey.mergeCss(value, this.css);
+    }
     protected renderCompleted(): JSX.Element {
         var htmlValue = { __html: this.survey.processedCompletedHtml }
         return (<div dangerouslySetInnerHTML={htmlValue} />);

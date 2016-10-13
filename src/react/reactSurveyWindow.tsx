@@ -1,5 +1,5 @@
-﻿/// <reference path="../../../typings/index.d.ts" />
-/// <reference path="reactSurveyBootstrap.tsx" />
+﻿/// <reference path="../../typings/index.d.ts" />
+/// <reference path="reactSurvey.tsx" />
 
 class ReactSurveyWindow extends ReactSurvey {
     private title: string;
@@ -16,7 +16,7 @@ class ReactSurveyWindow extends ReactSurvey {
         var header = this.renderHeader();
         var body = this.state.expanded ? this.renderBody() : null;
         var style = { position: "fixed", bottom: "3px", right: "10px" };
-        return <div className="modal-content" style={style}>
+        return <div className={this.css.window.root} style={style}>
             {header}
             {body}
             </div>;
@@ -25,17 +25,17 @@ class ReactSurveyWindow extends ReactSurvey {
     protected renderHeader(): JSX.Element {
         var styleA = { width: "100%" };
         var styleTitle = { paddingRight: "10px" };
-        var glyphClassName = this.state.expanded ? "glyphicon-chevron-down" : "glyphicon-chevron-up";
+        var glyphClassName = this.state.expanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
         glyphClassName = "glyphicon pull-right " + glyphClassName;
-        return <div className="modal-header panel-title">
+        return <div className={this.css.window.header.root}>
             <a href="#" onClick={this.handleOnExpanded} style={styleA}>
-                <span className="pull-left" style={styleTitle}>{this.title}</span>
+                <span className={this.css.window.header.title} style={styleTitle}>{this.title}</span>
                 <span className={glyphClassName} aria-hidden="true"></span>
             </a>
         </div>;
     }
     protected renderBody(): JSX.Element {
-        return <div class="modal-body">
+        return <div class={this.css.window.body}>
         {this.renderSurvey() }
             </div>
     }

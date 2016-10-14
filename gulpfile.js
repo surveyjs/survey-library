@@ -1,5 +1,5 @@
 /*global require*/
-const gulp = require('gulp'),
+var gulp = require('gulp'),
     concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
     insert = require('gulp-insert'),
@@ -17,11 +17,11 @@ const gulp = require('gulp'),
     webpackStream = require('webpack-stream'),
     getWebpackConfig = require('./webpack.config');
 
-const Server = require("karma").Server;
+var Server = require("karma").Server;
 
-const libraryVersion = "0.9.12";
+var libraryVersion = "0.9.12";
 
-const paths = {
+var paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
     dist_dts: "./dist/typings/",
@@ -34,13 +34,13 @@ const paths = {
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
 
-const copyright = ["/*!",
+var copyright = ["/*!",
     "* surveyjs - Survey JavaScript library v" + libraryVersion,
     "* (c) Andrew Telnov - http://surveyjs.org/",
     "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
     "*/", "", ""].join("\n");
 
-const tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
+var tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
     "// Project: http://surveyjs.org/",
     "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
     "",""].join("\n");
@@ -59,7 +59,7 @@ var config_ko = {
     entryPoint: "src/entries/ko"
 };
 
-const config_react = {
+var config_react = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
@@ -71,7 +71,7 @@ const config_react = {
     entryPoint: "src/entries/react"
 };
 
-const config_test_ko = {
+var config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
     entryPoint: "./tests/entries/testKo",
@@ -79,16 +79,16 @@ const config_test_ko = {
     htmlFile: "./tests/ko/index_tests_ko.html"
 };
 
-const configs = {};
+var configs = {};
 configs["ko"] = config_ko;
 configs["react"] = config_react;
-const testconfigs = {};
+var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
 
 function buildTemplates(configName, index) {
-    const curConfig = configs[configName];
-    const curTemplate = curConfig.templates[index];
+    var curConfig = configs[configName];
+    var curTemplate = curConfig.templates[index];
     return gulp.src(curTemplate.path)
         .pipe(concat(curTemplate.fileName))
         .pipe(html2ts())
@@ -101,8 +101,8 @@ function buildTemplates(configName, index) {
 }
 
 function buildFromSources(configName) {
-    const curConfig = configs[configName];
-    const tsResult = gulp.src(curConfig.entryPoint)
+    var curConfig = configs[configName];
+    var tsResult = gulp.src(curConfig.entryPoint)
         .pipe(webpackStream(getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
@@ -113,10 +113,10 @@ function buildFromSources(configName) {
 }
 
 function buildTypeDefinition(configName) {
-    const curConfig = configs[configName];
+    var curConfig = configs[configName];
     //Build js file
     //Build typescript definition
-    const tscResult = gulp.src([
+    var tscResult = gulp.src([
         paths.webroot + "/lib/survey/**/*.d.ts",
         paths.typings
     ].concat(curConfig.src))
@@ -133,7 +133,7 @@ function buildTypeDefinition(configName) {
 }
 
 function compressMainJS(configName) {
-    const curConfig = configs[configName];
+    var curConfig = configs[configName];
     gulp.src(paths.dist + curConfig.mainJSfile)
         .pipe(uglify())
         .pipe(rename({
@@ -146,8 +146,8 @@ function compressMainJS(configName) {
 }
 
 function buildTests(configName) {
-    const curConfig = testconfigs[configName];
-    const tsResult = gulp.src(curConfig.entryPoint)
+    var curConfig = testconfigs[configName];
+    var tsResult = gulp.src(curConfig.entryPoint)
         .pipe(webpackStream(getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
@@ -157,19 +157,19 @@ function buildTests(configName) {
 }
 
 function createPackageJson(configName) {
-    const curConfig = configs[configName];
+    var curConfig = configs[configName];
     return gulp.src("packagetemplate.json")
         .pipe(jsonTransform(function (data) {
             data.name = curConfig.name;
             data.version = libraryVersion;
             if (curConfig.keywords) {
-                for (let i = 0; i < curConfig.keywords.length; i++) {
+                for (var i = 0; i < curConfig.keywords.length; i++) {
                     data.keywords.push(curConfig.keywords[i]);
                 }
             }
             data.main = curConfig.mainJSfile.replace(".js", ".min.js");
             if (curConfig.dependencies) {
-                for (const key in curConfig.dependencies) {
+                for (var key in curConfig.dependencies) {
                     data.dependencies[key] = curConfig.dependencies[key];
                 }
             }

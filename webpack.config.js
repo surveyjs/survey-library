@@ -16,9 +16,6 @@ module.exports = function(options) {
         resolve: {
             extensions: ['', '.js', '.ts', '.jsx', '.tsx']
         },
-        entry: {
-            [options.bundleName]: path.resolve(__dirname, options.entryPoint)
-        },
         output: {
             filename: '[name].js',
             library: 'Survey',
@@ -64,6 +61,8 @@ module.exports = function(options) {
         ],
         devtool: 'cheap-inline-module-source-map'
     };
+
+    config.entry[options.bundleName] = path.resolve(__dirname, options.entryPoint);
 
     return config;
 };

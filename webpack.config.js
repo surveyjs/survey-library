@@ -1,17 +1,17 @@
 'use strict';
 
-const webpack = require('webpack');
-const path = require('path');
+var webpack = require('webpack');
+var path = require('path');
 
 module.exports = (options) => {
-    const babelConfig =  {
+    var babelConfig =  {
         presets: [
             [require.resolve('babel-preset-es2015'), { loose: true }],
             require.resolve('babel-preset-react')
         ]
     };
 
-    const config = {
+    var config = {
         resolveLoader: {root: path.join(__dirname, 'node_modules')},
         resolve: {
             extensions: ['', '.js', '.ts', '.jsx', '.tsx']

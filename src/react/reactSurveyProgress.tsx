@@ -1,8 +1,8 @@
-﻿/// <reference path="../../typings/index.d.ts" />
-/// <reference path="../survey.ts" />
+﻿import * as React from 'react';
+import SurveyModel from "../survey";
 
-class ReactSurveyProgress extends React.Component<any, any> {
-    private survey: Survey.SurveyModel;
+export default class ReactSurveyProgress extends React.Component<any, any> {
+    private survey: SurveyModel;
     protected isTop: boolean;
     protected css: any;
     constructor(props: any) {

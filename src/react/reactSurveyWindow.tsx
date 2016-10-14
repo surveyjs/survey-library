@@ -1,7 +1,7 @@
-﻿/// <reference path="../../typings/index.d.ts" />
-/// <reference path="reactSurvey.tsx" />
+import ReactSurvey from "./reactSurvey";
+import SurveyModel from "../survey";
 
-class ReactSurveyWindow extends ReactSurvey {
+export default class ReactSurveyWindow extends ReactSurvey {
     private title: string;
     constructor(props: any) {
         super(props);
@@ -45,7 +45,7 @@ class ReactSurveyWindow extends ReactSurvey {
         var hasExpanded = newProps["expanded"] ? newProps.expanded : false;
         this.state = { expanded: hasExpanded, hidden: false };
         var self = this;
-        this.survey.onComplete.add(function (s: Survey.SurveyModel) {
+        this.survey.onComplete.add(function (s: SurveyModel) {
             self.state.hidden = true;
             self.setState(self.state);
         });

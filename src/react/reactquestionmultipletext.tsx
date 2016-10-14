@@ -1,8 +1,10 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_multipletext.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
-    private question: Survey.QuestionMultipleTextModel;
+﻿import * as React from 'react';
+import QuestionMultipleTextModel from "../question_multipletext";
+import {MultipleTextItemModel} from "../question_multipletext";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+export default class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
+    private question: QuestionMultipleTextModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -28,7 +30,7 @@ class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
             </table>
         );
     }
-    protected renderRow(key: string, items: Array<Survey.MultipleTextItemModel>) {
+    protected renderRow(key: string, items: Array<MultipleTextItemModel>) {
         var tds = [];
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
@@ -37,13 +39,13 @@ class ReactSurveyQuestionmultipletext extends React.Component<any, any> {
         }
         return <tr key={key}>{tds}</tr>;
     }
-    protected renderItem(item: Survey.MultipleTextItemModel): JSX.Element {
+    protected renderItem(item: MultipleTextItemModel): JSX.Element {
         return <ReactSurveyQuestionmultipletextItem item={item} css={this.css} />;
     }
 }
 
-class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
-    private item: Survey.MultipleTextItemModel;
+export class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
+    private item: MultipleTextItemModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -67,3 +69,7 @@ class ReactSurveyQuestionmultipletextItem extends React.Component<any, any> {
     }
     protected get mainClassName(): string { return ""; }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("multipletext", (props) => {
+    return React.createElement(ReactSurveyQuestionmultipletext, props);
+});

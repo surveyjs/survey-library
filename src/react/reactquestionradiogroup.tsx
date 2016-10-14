@@ -1,9 +1,11 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_radiogroup.ts" />
-// <reference path="../question_baseselect.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
-    protected question: Survey.QuestionRadiogroupModel;
+﻿import * as React from 'react';
+import QuestionRadiogroupModel from "../question_radiogroup";
+import {ItemValue} from "../base";
+import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+export default class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
+    protected question: QuestionRadiogroupModel;
     protected css: any;
     protected rootCss: any;
     constructor(props: any) {
@@ -16,7 +18,7 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         this.question.choicesChangedCallback = function () {
             self.state.choicesChanged = self.state.choicesChanged + 1;
             self.setState(self.state);
-        }
+        };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -46,7 +48,7 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         return items;
     }
     protected get textStyle(): any { return { marginLeft: "3px" }; }
-    private renderItem(key: string, item: Survey.ItemValue): JSX.Element {
+    private renderItem(key: string, item: ItemValue): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
         var divStyle = { marginRight: marginRight };
@@ -57,7 +59,7 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
         return this.renderRadio(key, item, isChecked, divStyle, otherItem);
     }
-    protected renderRadio(key: string, item: Survey.ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+    protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
         return (<div key={key} className={this.css.item} style={divStyle}>
                 <label className={this.css.item}>
                     <input type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
@@ -70,3 +72,7 @@ class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
         return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
+    return React.createElement(ReactSurveyQuestionradiogroup, props);
+});

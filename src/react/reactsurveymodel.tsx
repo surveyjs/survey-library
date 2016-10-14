@@ -1,6 +1,6 @@
-﻿/// <reference path="../survey.ts" />
+﻿import SurveyModel from "../survey";
 
-class ReactSurveyModel extends Survey.SurveyModel {
+export default class ReactSurveyModel extends SurveyModel {
     renderCallback: () => void;
     constructor(jsonObj: any = null) {
         super(jsonObj);

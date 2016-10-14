@@ -1,25 +1,29 @@
+"use strict";
+
 /*global require*/
-var gulp = require('gulp'),
+const gulp = require('gulp'),
     concat = require("gulp-concat-util"),
     ts = require('gulp-typescript'),
     insert = require('gulp-insert'),
     gnf = require('gulp-npm-files'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
-    qunit = require("gulp-qunit"), 
+    qunit = require("gulp-qunit"),
     serve = require("gulp-serve"),
     uglify = require("gulp-uglify"),
     rename = require("gulp-rename"),
     html2ts = require("gulp-html-to-ts"),
     sequence = require("gulp-sequence"),
     jsonTransform = require('gulp-json-transform'),
-    project = require("./project.json");
+    project = require("./project.json"),
+    webpackStream = require('webpack-stream'),
+    getWebpackConfig = require('./webpack.config');
 
-var Server = require("karma").Server;
+const Server = require("karma").Server;
 
-var libraryVersion = "0.9.12";
+const libraryVersion = "0.9.12";
 
-var paths = {
+const paths = {
     webroot: "./" + project.webroot + "/",
     dist: "./dist/",
     dist_dts: "./dist/typings/",
@@ -32,99 +36,98 @@ var paths = {
 paths.jsFolder = paths.webroot + "js/";
 paths.testsFolder = paths.webroot + "tests/";
 
-var copyright = ["/*!", 
- "* surveyjs - Survey JavaScript library v" + libraryVersion,
- "* (c) Andrew Telnov - http://surveyjs.org/",
- "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
- "*/", "", ""].join("\n");
+const copyright = ["/*!",
+    "* surveyjs - Survey JavaScript library v" + libraryVersion,
+    "* (c) Andrew Telnov - http://surveyjs.org/",
+    "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
+    "*/", "", ""].join("\n");
 
-var tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
-"// Project: http://surveyjs.org/",
-"// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
-"",""].join("\n");
+const tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
+    "// Project: http://surveyjs.org/",
+    "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+    "",""].join("\n");
 
 var config_ko = {
     name: "survey-knockout",
     keywords: ["Knockout"],
     dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
-                { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
+        { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
     packagePath: "./packages/survey-knockout/"
-}
+    bundleName: "survey.ko",
+    entryPoint: "src/entries/koStandard"
+};
 
-var config_react = {
+const config_react = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/react/*.tsx"],
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
-    packagePath: "./packages/survey-react/"
-}
+    packagePath: "./packages/survey-react/",
+    bundleName: "survey.react",
+    entryPoint: "src/entries/reactStandard"
+};
 
-var config_test_ko = {
+const config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
-    mainJSfile: "survey.tests.ko.js",
+    entryPoint: "./tests/entries/testKo",
+    bundleName: "survey.tests.ko",
     htmlFile: "./tests/ko/index_tests_ko.html"
-}
+};
 
-var configs = {};
+const configs = {};
 configs["ko"] = config_ko;
 configs["react"] = config_react;
-var testconfigs = {};
+const testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
 
 function buildTemplates(configName, index) {
-    var curConfig = configs[configName];
-    var curTemplate = curConfig.templates[index];
+    const curConfig = configs[configName];
+    const curTemplate = curConfig.templates[index];
     return gulp.src(curTemplate.path)
         .pipe(concat(curTemplate.fileName))
         .pipe(html2ts())
+        .pipe(insert.transform(function(contents, file) {
+            contents = contents.slice(0, -1); //remove last symbol '}'
+            contents = contents.replace('module template.window.ko { ', '');
+            return contents.replace('module template.ko { ', '');
+        }))
         .pipe(gulp.dest(curTemplate.dest));
 }
+
 function buildFromSources(configName) {
-    var curConfig = configs[configName];
-    //Build js file
-    var tsResult = gulp.src([
-          paths.webroot + "/lib/survey/**/*.d.ts",
-          paths.typings
-    ].concat(curConfig.src))
-       .pipe(insert.prepend(copyright))
-       .pipe(sourcemaps.init())
-       .pipe(ts({
-           target: "ES5",
-           noImplicitAny: false,
-           declarationFiles: true,
-           jsx: "react"
-       }));
-    return tsResult.js
+    const curConfig = configs[configName];
+    const tsResult = gulp.src(curConfig.entryPoint)
+        .pipe(webpackStream(getWebpackConfig(curConfig)));
+    return tsResult
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(sourcemaps.write({ sourceRoot: "src" }))
-        //Source map is a part of generated file
+        .pipe(insert.prepend(copyright))
         .pipe(gulp.dest(paths.dist))
         .pipe(gulp.dest(paths.jsFolder))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"));
 }
 
 function buildTypeDefinition(configName) {
-    var curConfig = configs[configName];
-        //Build js file
-        //Build typescript definition
-    var tscResult = gulp.src([
-          paths.webroot + "/lib/survey/**/*.d.ts",
-          paths.typings
+    const curConfig = configs[configName];
+    //Build js file
+    //Build typescript definition
+    const tscResult = gulp.src([
+        paths.webroot + "/lib/survey/**/*.d.ts",
+        paths.typings
     ].concat(curConfig.src))
-       .pipe(ts({
-           target: "ES5",
-           noExternalResolve: true,
-           declaration: true,
-           jsx: "react"
-       }));
+        .pipe(ts({
+            target: "ES5",
+            noExternalResolve: true,
+            declaration: true,
+            jsx: "react"
+        }));
     return tscResult.dts
         .pipe(concat(curConfig.dtsfile))
         .pipe(concat.header(tdHeader))
@@ -132,13 +135,12 @@ function buildTypeDefinition(configName) {
 }
 
 function compressMainJS(configName) {
-    var curConfig = configs[configName];
-    //Compress
+    const curConfig = configs[configName];
     gulp.src(paths.dist + curConfig.mainJSfile)
         .pipe(uglify())
-            .pipe(rename({
-                extname: '.min.js'
-            }))
+        .pipe(rename({
+            extname: ".min.js"
+        }))
         .pipe(concat.header(copyright))
         .pipe(gulp.dest(curConfig.packagePath + "dist/"))
         .pipe(gulp.dest(curConfig.packagePath + "js/"))
@@ -146,43 +148,30 @@ function compressMainJS(configName) {
 }
 
 function buildTests(configName) {
-    var curConfig = testconfigs[configName];
-    //Build sources
-    var tsResult = gulp.src([
-              paths.typings,
-              paths.tsTests,
-              curConfig.src])
-           .pipe(sourcemaps.init())
-           .pipe(ts({
-               target: "ES5",
-               noImplicitAny: false
-           }));
-
-    return tsResult.js
+    const curConfig = testconfigs[configName];
+    const tsResult = gulp.src(curConfig.entryPoint)
+        .pipe(webpackStream(getWebpackConfig(curConfig)));
+    return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(sourcemaps.write({ sourceRoot: "tests" }))
         //Source map is a part of generated file
         .pipe(gulp.dest(paths.testsFolder));
-    //Copy html file
-    gulp.src(curConfig.htmlFile)
-    // Perform minification tasks, etc here
-    .pipe(gulp.dest(paths.testsFolder));
 }
 
 function createPackageJson(configName) {
-    var curConfig = configs[configName];
+    const curConfig = configs[configName];
     return gulp.src("packagetemplate.json")
         .pipe(jsonTransform(function (data) {
             data.name = curConfig.name;
             data.version = libraryVersion;
             if (curConfig.keywords) {
-                for (var i = 0; i < curConfig.keywords.length; i++) {
+                for (let i = 0; i < curConfig.keywords.length; i++) {
                     data.keywords.push(curConfig.keywords[i]);
                 }
             }
             data.main = curConfig.mainJSfile.replace(".js", ".min.js");
             if (curConfig.dependencies) {
-                for (var key in curConfig.dependencies) {
+                for (const key in curConfig.dependencies) {
                     data.dependencies[key] = curConfig.dependencies[key];
                 }
             }
@@ -239,25 +228,25 @@ gulp.task('copyfiles', function (callback) {
 gulp.task('sass', function () {
     "use strict";
     gulp.src(paths.styles)
-      .pipe(sass.sync().on('error', sass.logError))
-      .pipe(concat("survey.css"))
-      .pipe(gulp.dest(paths.webroot + 'css'))
-      .pipe(gulp.dest(paths.package_ko + 'dist/css'))
-      .pipe(gulp.dest(paths.package_ko + 'css'))
-      .pipe(gulp.dest(paths.package_react + 'dist/css'))
-      .pipe(gulp.dest(paths.package_react + 'css'))
-      .pipe(gulp.dest(paths.dist + 'css'));
+        .pipe(sass.sync().on('error', sass.logError))
+        .pipe(concat("survey.css"))
+        .pipe(gulp.dest(paths.webroot + 'css'))
+        .pipe(gulp.dest(paths.package_ko + 'dist/css'))
+        .pipe(gulp.dest(paths.package_ko + 'css'))
+        .pipe(gulp.dest(paths.package_react + 'dist/css'))
+        .pipe(gulp.dest(paths.package_react + 'css'))
+        .pipe(gulp.dest(paths.dist + 'css'));
 });
 gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"));
 
-gulp.task("test_ci", function (done) { 
-        new Server({ 
-            configFile: __dirname + "/karma.conf.js", 
-            singleRun: true 
-}, done).start(); 
-}); 
- 
-gulp.task("server", serve({ 
-     root: ["wwwroot"], 
-     port: 30001 
-})); 
+gulp.task("test_ci", function (done) {
+    new Server({
+        configFile: __dirname + "/karma.conf.js",
+        singleRun: true
+    }, done).start();
+});
+
+gulp.task("server", serve({
+    root: ["wwwroot"],
+    port: 30001
+}));

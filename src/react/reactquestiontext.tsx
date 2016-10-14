@@ -1,8 +1,10 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_text.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestiontext extends React.Component<any, any> {
-    private question: Survey.QuestionTextModel;
+﻿import * as React from 'react';
+import QuestionTextModel from "../question_text";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+
+export default class ReactSurveyQuestiontext extends React.Component<any, any> {
+    private question: QuestionTextModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -22,7 +24,11 @@ class ReactSurveyQuestiontext extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <input className={this.css} type="text" value={this.question.value} onChange={this.handleOnChange} />
+            <input className={this.css} type="text" value={this.question.value || ''} onChange={this.handleOnChange} />
         );
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
+    return React.createElement(ReactSurveyQuestiontext, props);
+});

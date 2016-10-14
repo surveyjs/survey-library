@@ -1,11 +1,15 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_matrixdropdown.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
-    private question: Survey.QuestionMatrixDropdownModel;
+﻿import * as React from 'react';
+import QuestionMatrixDropdownModel from "../question_matrixdropdown";
+import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
+import {MatrixDropdownRowModel} from "../question_matrixdropdown";
+import {MatrixDropdownCell} from "../question_matrixdropdownbase";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+export default class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
+    private question: QuestionMatrixDropdownModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: Survey.IReactSurveyCreator;
+    protected creator: IReactSurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -55,11 +59,11 @@ class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
-    private row: Survey.MatrixDropdownRowModel;
+export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
+    private row: MatrixDropdownRowModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: Survey.IReactSurveyCreator;
+    protected creator: IReactSurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -84,7 +88,11 @@ class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
         }
         return (<tr><td>{this.row.text}</td>{tds}</tr>);
     }
-    protected renderSelect(cell: Survey.MatrixDropdownCell): JSX.Element {
+    protected renderSelect(cell: MatrixDropdownCell): JSX.Element {
         return this.creator.createQuestionElement(cell.question);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("matrixdropdown", (props) => {
+    return React.createElement(ReactSurveyQuestionmatrixdropdown, props);
+});

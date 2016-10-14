@@ -1,9 +1,10 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question.ts" />
-/// <reference path="../question_comment.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestioncomment extends React.Component<any, any> {
-    private question: Survey.QuestionCommentModel;
+﻿import * as React from 'react';
+import QuestionCommentModel from "../question_comment";
+import Question from "../question";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+export default class ReactSurveyQuestioncomment extends React.Component<any, any> {
+    private question: QuestionCommentModel;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -27,8 +28,8 @@ class ReactSurveyQuestioncomment extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
-    private question: Survey.Question;
+export class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
+    private question: Question;
     private comment: string;
     protected css: any;
     constructor(props: any) {
@@ -55,3 +56,7 @@ class ReactSurveyQuestionCommentItem extends React.Component<any, any> {
         return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("comment", (props) => {
+    return React.createElement(ReactSurveyQuestioncomment, props);
+});

@@ -1,8 +1,11 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../question_checkbox.ts" />
-/// <reference path="../../typings/index.d.ts" />
-class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
-    protected question: Survey.QuestionCheckboxModel;
+﻿import * as React from 'react';
+import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {QuestionCheckboxModel} from "../question_checkbox";
+import {ItemValue} from "../base";
+import ReactQuestionFactory from "./reactquestionfactory";
+
+export default class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
+    protected question: QuestionCheckboxModel;
     protected css: any;
     protected rootCss: any;
     constructor(props: any) {
@@ -43,9 +46,9 @@ class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
         return <ReactSurveyQuestioncheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
     }
 }
-class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
-    protected question: Survey.QuestionCheckboxModel;
-    protected item: Survey.ItemValue;
+export class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
+    protected question: QuestionCheckboxModel;
+    protected item: ItemValue;
     protected css: any;
     protected rootCss: any;
     protected textStyle: any;
@@ -109,3 +112,7 @@ class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
         return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
+
+ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
+    return React.createElement(ReactSurveyQuestioncheckbox, props);
+});

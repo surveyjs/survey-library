@@ -1,10 +1,15 @@
-﻿/// <reference path="../survey.ts" />
-/// <reference path="../../typings/index.d.ts" />
-/// <reference path="reactquestion.tsx" />
-class ReactSurveyPage extends React.Component<any, any> {
-    private page: Survey.PageModel;
-    private survey: Survey.SurveyModel;
-    private creator: Survey.IReactSurveyCreator;
+﻿import * as React from 'react';
+import ReactSurveyQuestion from './reactquestion'
+import PageModel from "../page";
+import SurveyModel from "../survey";
+import {IReactSurveyCreator} from "./reactquestion";
+import {QuestionRowModel} from "../page";
+import QuestionBase from "../questionbase";
+
+export default class ReactSurveyPage extends React.Component<any, any> {
+    private page: PageModel;
+    private survey: SurveyModel;
+    private creator: IReactSurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -34,7 +39,7 @@ class ReactSurveyPage extends React.Component<any, any> {
                 </div>
         );
     }
-    protected createRow(row: Survey.QuestionRowModel, index: number): JSX.Element {
+    protected createRow(row: QuestionRowModel, index: number): JSX.Element {
         var rowName = "row" + (index + 1);
         return <ReactSurveyRow key={rowName} row={row} survey={this.survey} creator={this.creator} css={this.css} />;
     }
@@ -48,10 +53,10 @@ class ReactSurveyPage extends React.Component<any, any> {
     }
 }
 
-class ReactSurveyRow extends React.Component<any, any> {
-    private row: Survey.QuestionRowModel;
-    private survey: Survey.SurveyModel;
-    private creator: Survey.IReactSurveyCreator;
+export class ReactSurveyRow extends React.Component<any, any> {
+    private row: QuestionRowModel;
+    private survey: SurveyModel;
+    private creator: IReactSurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -84,7 +89,7 @@ class ReactSurveyRow extends React.Component<any, any> {
             </div>
         );
     }
-    protected createQuestion(question: Survey.QuestionBase): JSX.Element {
+    protected createQuestion(question: QuestionBase): JSX.Element {
         return <ReactSurveyQuestion key={question.name} question={question} creator={this.creator} css={this.css} />;
     }
 }

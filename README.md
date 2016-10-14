@@ -1,14 +1,30 @@
-##Fork features
+**survey.js** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
+[![Build Status](https://travis-ci.org/andrewtelnov/surveyjs.svg?branch=master)](https://travis-ci.org/andrewtelnov/surveyjs)
+##Getting started
+[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-**surveyjs** sources contain **ES2015 modules system** now and build by **webpack**. We use **UMD** build which allows us to use our library in any modules system. 
-**surveyjs** can be added as **classic html script tag** with global variable `Survey`. Or with some module system like **ES2015 modules**, for example, `import * as Survey from 'survey-react';`
+To find our more about the library go
+* to the [surveyjs.org site](http://surveyjs.org) 
+* explore the live [Examples](http://surveyjs.org/examples/) 
+* and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
 
-If you are using **html script tag** you should know, that all "react" objects like `ReactSurveyWindow` is inside global variable `Survey` now. So you need to change your code.
-For example, change from `ReactSurveyWindow` to `Survey.ReactSurveyWindow`.
+Install the library using npm.
+```
+npm install survey-knockout
+```
+If you are using bootstrap then go with bootstrap templates:
+```
+npm install survey-knockout-bootstrap
+```
+If you use react, then install the react versions:
+```
+npm install survey-react
+```
+```
+npm install survey-react-bootstrap
+```
 
-##Builds
-
-You can find built in libraries in the package folder or build the libraries by yourself.
+Or dowload the latest version as zip file [Download](http://surveyjs.org/downloads/surveyjs.zip)
 
 ##Building survey.js from sources
 
@@ -47,3 +63,16 @@ To build library yourself:
 	gulp test_ci
 	```
 	The first command will copy all required files to 'wwwroot' directory and the last command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
+
+##Coming features
+
+Find the features under development and Todo list in the [Trello board](https://trello.com/b/lAwhTw3H/surveyjs-project).
+
+##License
+
+MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+
+
+##Visual Editor
+
+Visual Editor sources are [here](https://github.com/andrewtelnov/surveyjs.editor)

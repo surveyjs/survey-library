@@ -3,7 +3,7 @@
 var webpack = require('webpack');
 var path = require('path');
 
-module.exports = (options) => {
+module.exports = function(options) {
     var babelConfig =  {
         presets: [
             [require.resolve('babel-preset-es2015'), { loose: true }],

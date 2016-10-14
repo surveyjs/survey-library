@@ -1,12 +1,12 @@
-﻿/// <reference path="../../typings/index.d.ts" />
-/// <reference path="../survey.ts" />
-/// <reference path="reactsurveymodel.tsx" />
-/// <reference path="reactPage.tsx" />
-/// <reference path="reactQuestion.tsx" />
-/// <reference path="reactSurveyNavigation.tsx" />
-/// <reference path="../defaultCss/cssstandard.ts" />
+import * as React from "react";
+import ReactSurveyModel from "./reactsurveymodel";
+import ReactSurveyPage from "./reactpage";
+import ReactSurveyNavigation from "./reactSurveyNavigation";
+import QuestionBase from "../questionbase";
+import {IReactSurveyCreator} from "./reactquestion";
+import ReactQuestionFactory from "./reactquestionfactory";
 
-class ReactSurvey extends React.Component<any, any> implements Survey.IReactSurveyCreator {
+export default class ReactSurvey extends React.Component<any, any> implements IReactSurveyCreator {
     public static get cssType(): string { return Survey.surveyCss.currentType; }
     public static set cssType(value: string) { Survey.surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
@@ -28,11 +28,11 @@ class ReactSurvey extends React.Component<any, any> implements Survey.IReactSurv
         this.survey.mergeCss(value, this.css);
     }
     protected renderCompleted(): JSX.Element {
-        var htmlValue = { __html: this.survey.processedCompletedHtml }
+        var htmlValue = { __html: this.survey.processedCompletedHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderLoading(): JSX.Element {
-        var htmlValue = { __html: this.survey.processedLoadingHtml }
+        var htmlValue = { __html: this.survey.processedLoadingHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderSurvey(): JSX.Element {
@@ -150,18 +150,16 @@ class ReactSurvey extends React.Component<any, any> implements Survey.IReactSurv
             this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
         }
     }
-    protected getReactQuestionClass(question: Survey.QuestionBase): any {
-        var className = "ReactSurveyQuestion" + question.getType();
-        return window[className];
-    }
+
     //IReactSurveyCreator
-    public createQuestionElement(question: Survey.QuestionBase): JSX.Element {
+    public createQuestionElement(question: QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
-        return React.createElement(this.getReactQuestionClass(question), { question: question, css: questionCss, rootCss: this.css, creator: this });
+        return ReactQuestionFactory.Instance.createQuestion(question.getType(), {
+            question: question, css: questionCss, rootCss: this.css, creator: this
+        });
     }
     public renderError(key: string, errorText: string): JSX.Element {
         return <div key={key} className={this.css.error.item}>{errorText}</div>;
     }
     public questionTitleLocation(): string { return this.survey.questionTitleLocation; }
 }
-

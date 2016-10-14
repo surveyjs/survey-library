@@ -5,10 +5,11 @@ import ReactSurveyNavigation from "./reactSurveyNavigation";
 import QuestionBase from "../questionbase";
 import {IReactSurveyCreator} from "./reactquestion";
 import ReactQuestionFactory from "./reactquestionfactory";
+import {surveyCss} from "../defaultCss/cssstandard";
 
 export default class ReactSurvey extends React.Component<any, any> implements IReactSurveyCreator {
-    public static get cssType(): string { return Survey.surveyCss.currentType; }
-    public static set cssType(value: string) { Survey.surveyCss.currentType = value; }
+    public static get cssType(): string { return surveyCss.currentType; }
+    public static set cssType(value: string) { surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
     constructor(props: any) {
         super(props);
@@ -23,7 +24,7 @@ export default class ReactSurvey extends React.Component<any, any> implements IR
         if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
-    public get css(): any { return Survey.surveyCss.getCss(); }
+    public get css(): any { return surveyCss.getCss(); }
     public set css(value: any) {
         this.survey.mergeCss(value, this.css);
     }

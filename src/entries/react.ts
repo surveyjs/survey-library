@@ -27,7 +27,7 @@ export {ReactSurveyQuestionmatrixdropdownRow} from "../react/reactquestionmatrix
 export {ReactSurveyQuestionmultipletextItem} from "../react/reactquestionmultipletext";
 export {default as ReactSurveyQuestionmatrixdynamic, ReactSurveyQuestionmatrixdynamicRow} from "../react/reactquestionmatrixdynamic";
 export {default as ReactSurvey} from "../react/reactSurvey";
-export {ReactSurveyProgress} from "../react/reactSurveyProgress";
+export {default as ReactSurveyProgress} from "../react/reactSurveyProgress";
 export {default as ReactSurveyQuestionrating} from "../react/reactquestionrating";
 export {default as ReactSurveyWindow} from "../react/reactSurveyWindow";
 

@@ -2,6 +2,7 @@
 import SurveyWindowModel from "../surveyWindow";
 import SurveyModel from "../survey";
 import SurveyBase from "./kosurvey";
+import {html} from './template.window.ko.html'
 
 export default class SurveyWindowBase extends SurveyWindowModel {
     koExpanded: any;
@@ -30,7 +31,7 @@ export default class SurveyWindowBase extends SurveyWindowModel {
         (<SurveyBase>this.survey).render(SurveyWindowBase.surveyElementName);
         this.isShowingValue = true;
     }
-    protected getDefaultTemplate(): string { return template.window.ko.html }
+    protected getDefaultTemplate(): string { return html }
     public hide() {
         document.body.removeChild(this.windowElement);
         this.windowElement.innerHTML = "";

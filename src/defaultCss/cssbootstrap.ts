@@ -1,4 +1,6 @@
-﻿var defaultBootstrapCss = {
+﻿import {surveyCss} from "./cssstandard";
+
+var defaultBootstrapCss = {
     root: "",
     header: "panel-heading",
     body: "panel-body",

@@ -33,7 +33,7 @@ export {default as SurveyWindowBase} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateTextBase} from "../knockout/templateText";
 export {default as SurveyWindow} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateText} from "../knockout/templateText";
-export {default as Survey} from "../knockout/koSurvey";
+export {default as Survey} from "../knockout/kosurvey";
 
 // css standard
 export {default as defaultStandardCss} from "../defaultCss/cssstandard";

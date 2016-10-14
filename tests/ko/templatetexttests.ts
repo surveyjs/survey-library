@@ -1,4 +1,4 @@
-﻿import SurveyTemplateTextBase from "../../src/knockout/templateText";
+﻿import SurveyTemplateText from "../../src/knockout/templateText";
 
 QUnit.module("Template Text");
 

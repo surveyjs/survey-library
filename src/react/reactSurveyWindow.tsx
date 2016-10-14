@@ -1,5 +1,5 @@
-import ReactSurvey from "./reactSurveyBootstrap";
-import SurveyModel from "../../survey";
+import ReactSurvey from "./reactSurvey";
+import SurveyModel from "../survey";
 
 export default class ReactSurveyWindow extends ReactSurvey {
     private title: string;

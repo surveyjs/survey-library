@@ -56,9 +56,9 @@ var config_ko = {
     src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
-    packagePath: "./packages/survey-knockout/"
+    packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
-    entryPoint: "src/entries/koStandard"
+    entryPoint: "src/entries/ko"
 };
 
 const config_react = {
@@ -70,7 +70,7 @@ const config_react = {
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
-    entryPoint: "src/entries/reactStandard"
+    entryPoint: "src/entries/react"
 };
 
 const config_test_ko = {

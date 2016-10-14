@@ -1,5 +1,3 @@
-"use strict";
-
 /*global require*/
 const gulp = require('gulp'),
     concat = require("gulp-concat-util"),

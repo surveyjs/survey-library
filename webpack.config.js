@@ -16,6 +16,7 @@ module.exports = function(options) {
         resolve: {
             extensions: ['', '.js', '.ts', '.jsx', '.tsx']
         },
+        entry: {},
         output: {
             filename: '[name].js',
             library: 'Survey',

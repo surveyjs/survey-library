@@ -47,56 +47,30 @@ const tdHeader = ["// Type definitions for Survey JavaScript library v" + librar
     "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
     "",""].join("\n");
 
-const config_ko_standard = {
+var config_ko = {
     name: "survey-knockout",
     keywords: ["Knockout"],
     dependencies: {"knockout": "^3.4.0"},
-    templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/standard/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/standard/" },
-        { path: "./src/knockout/standard/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/standard/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/knockout/*.ts", "./src/knockout/standard/*.ts"],
+    templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
+        { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts"],
     mainJSfile: "survey.js",
     dtsfile: "survey.d.ts",
-    packagePath: "./packages/survey-knockout/",
+    packagePath: "./packages/survey-knockout/"
     bundleName: "survey.ko",
     entryPoint: "src/entries/koStandard"
 };
 
-const config_ko_bootstrap = {
-    name: "survey-knockout-bootstrap",
-    keywords: ["Knockout", "Bootstrap"],
-    dependencies: { "knockout": "^3.4.0", "bootstrap": "^3.3.6" },
-    templates: [{ path: ["./src/knockout/templates/*.html", "./src/knockout/bootstrap/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/bootstrap/" },
-        { path: "./src/knockout/bootstrap/templates.window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/bootstrap/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts", "./src/knockout/bootstrap/*.ts"],
-    mainJSfile: "survey.bootstrap.js",
-    dtsfile: "survey.d.ts",
-    packagePath: "./packages/survey-knockout-bootstrap/",
-    bundleName: "survey.ko.bootstrap",
-    entryPoint: "src/entries/koBootstrap"
-};
-
-const config_react_standard = {
+const config_react = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/react/*.tsx", "./src/react/standard/*.tsx"],
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/react/*.tsx"],
     mainJSfile: "survey.react.js",
     dtsfile: "survey-react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
     entryPoint: "src/entries/reactStandard"
-};
-
-const config_react_bootstrap = {
-    name: "survey-react-bootstrap",
-    keywords: ["react", "react-component", "Bootstrap"],
-    dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1", "bootstrap": "^3.3.6" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssbootstrap.ts", "./src/react/*.tsx", "./src/react/bootstrap/*.tsx"],
-    mainJSfile : "survey.react.bootstrap.js",
-    dtsfile: "survey-react-bootstrap.d.ts",
-    packagePath: "./packages/survey-react-bootstrap/",
-    bundleName: "survey.react.bootstrap",
-    entryPoint: "src/entries/reactBootstrap"
 };
 
 const config_test_ko = {
@@ -108,10 +82,8 @@ const config_test_ko = {
 };
 
 const configs = {};
-configs["ko_standard"] = config_ko_standard;
-configs["ko_bootstrap"] = config_ko_bootstrap;
-configs["react_standard"] = config_react_standard;
-configs["react_bootstrap"]= config_react_bootstrap;
+configs["ko"] = config_ko;
+configs["react"] = config_react;
 const testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -209,70 +181,40 @@ function createPackageJson(configName) {
         .pipe(gulp.dest(curConfig.packagePath));
 }
 
-gulp.task("ko_standard_tempates", function () {
-    return buildTemplates("ko_standard", 0);
+gulp.task("ko_tempates", function () {
+    return buildTemplates("ko", 0);
 });
-gulp.task("ko_standard_windowtempates", function () {
-    return buildTemplates("ko_standard", 1);
+gulp.task("ko_windowtempates", function () {
+    return buildTemplates("ko", 1);
 });
-gulp.task("ko_standard_source", function () {
-    buildTypeDefinition("ko_standard");
-    return buildFromSources("ko_standard");
+gulp.task("ko_source", function () {
+    buildTypeDefinition("ko");
+    return buildFromSources("ko");
 });
-gulp.task("ko_standard_compress", function () {
-    compressMainJS("ko_standard");
+gulp.task("ko_compress", function () {
+    compressMainJS("ko");
 });
-gulp.task("ko_standard_createPackageJson", function () {
-    createPackageJson("ko_standard");
+gulp.task("ko_createPackageJson", function () {
+    createPackageJson("ko");
 });
 
-gulp.task("build_ko_standard", sequence("ko_standard_tempates", "ko_standard_windowtempates", "ko_standard_source", "ko_standard_compress", "ko_standard_createPackageJson"));
-
-gulp.task("ko_bootstrap_tempates", function () {
-    return buildTemplates("ko_bootstrap", 0);
-});
-gulp.task("ko_bootstrap_windowtempates", function () {
-    return buildTemplates("ko_bootstrap", 1);
-});
-gulp.task("ko_bootstrap_source", function () {
-    buildTypeDefinition("ko_bootstrap");
-    return buildFromSources("ko_bootstrap");
-});
-gulp.task("ko_bootstrap_compress", function () {
-    compressMainJS("ko_bootstrap");
-});
-gulp.task("ko_bootstrap_createPackageJson", function () {
-    createPackageJson("ko_bootstrap");
-});
-gulp.task("build_ko_bootstrap", sequence("ko_bootstrap_tempates", "ko_bootstrap_windowtempates", "ko_bootstrap_source", "ko_bootstrap_compress", "ko_bootstrap_createPackageJson"));
+gulp.task("build_ko", sequence("ko_tempates", "ko_windowtempates", "ko_source", "ko_compress", "ko_createPackageJson"));
 
 gulp.task("buildTests_ko", function () {
     return buildTests("ko");
 });
 
-gulp.task("react_standard_source", function () {
-    //buildTypeDefinition("react_standard");
-    return buildFromSources("react_standard");
+gulp.task("react_source", function () {
+    //buildTypeDefinition("react");
+    return buildFromSources("react");
 });
-gulp.task("react_standard_compress", function () {
-    compressMainJS("react_standard");
+gulp.task("react_compress", function () {
+    compressMainJS("react");
 });
-gulp.task("react_standard_createPackageJson", function () {
-    createPackageJson("react_standard");
+gulp.task("react_createPackageJson", function () {
+    createPackageJson("react");
 });
-gulp.task("build_react_standard", sequence("react_standard_source", "react_standard_compress", "react_standard_createPackageJson"));
-
-gulp.task("react_bootstrap_source", function () {
-    //buildTypeDefinition("react_bootstrap");
-    return buildFromSources("react_bootstrap");
-});
-gulp.task("react_bootstrap_compress", function () {
-    compressMainJS("react_bootstrap");
-});
-gulp.task("react_bootstrap_createPackageJson", function () {
-    createPackageJson("react_bootstrap");
-});
-gulp.task("build_react_bootstrap", sequence("react_bootstrap_source", "react_bootstrap_compress", "react_bootstrap_createPackageJson"));
+gulp.task("build_react", sequence("react_source", "react_compress", "react_createPackageJson"));
 
 gulp.task('copyfiles', function (callback) {
     gulp.src(gnf(null, 'package.json'), { base: './' })
@@ -295,7 +237,7 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_react + 'css'))
         .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko_standard", "build_ko_bootstrap"], "buildTests_ko", "build_react_standard", "build_react_bootstrap"));
+gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"));
 
 gulp.task("test_ci", function (done) {
     new Server({

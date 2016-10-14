@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import ReactSurveyModel from "./reactsurveymodel";
 import ReactSurveyPage from "./reactpage";
 import ReactSurveyNavigation from "./reactSurveyNavigation";
@@ -6,13 +6,13 @@ import QuestionBase from "../questionbase";
 import {IReactSurveyCreator} from "./reactquestion";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyBase extends React.Component<any, any> implements IReactSurveyCreator {
+export default class ReactSurvey extends React.Component<any, any> implements IReactSurveyCreator {
+    public static get cssType(): string { return Survey.surveyCss.currentType; }
+    public static set cssType(value: string) { Survey.surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
-    protected css: any;
     constructor(props: any) {
         super(props);
-        this.css = this.createCssObject();
-        if (!this.css) throw "You should not return null for createCssObject() method.";
+
         this.updateSurvey(props);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -23,7 +23,10 @@ export default class ReactSurveyBase extends React.Component<any, any> implement
         if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
-    protected createCssObject(): any { return null; }
+    public get css(): any { return Survey.surveyCss.getCss(); }
+    public set css(value: any) {
+        this.survey.mergeCss(value, this.css);
+    }
     protected renderCompleted(): JSX.Element {
         var htmlValue = { __html: this.survey.processedCompletedHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);

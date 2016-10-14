@@ -1,4 +1,4 @@
-﻿export default class SurveyTemplateTextBase {
+﻿export default class SurveyTemplateText {
     constructor() {
     }
     public replaceText(replaceText: string, id: string, questionType: string = null) {
@@ -20,6 +20,6 @@
         }
         return result + '"';
     }
-    protected get text(): string { return ""; }
-    protected set text(value: string) {  }
+    protected get text(): string { return template.ko.html; }
+    protected set text(value: string) { template.ko.html = value; }
 }

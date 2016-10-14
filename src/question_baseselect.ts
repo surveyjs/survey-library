@@ -36,7 +36,7 @@ export default class QuestionSelectBase extends Question {
     private isSettingComment: boolean = false;
     protected setComment(newValue: string) {
         if (this.getStoreOthersAsComment())
-            super.setComment(newValue);
+            super.setComment(newValue)
         else {
             if (!this.isSettingComment && newValue != this.commentValue) {
                 this.isSettingComment = true;
@@ -81,6 +81,9 @@ export default class QuestionSelectBase extends Question {
     get choices(): Array<any> { return this.choicesValues; }
     set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValues, newValue);
+        this.fireCallback(this.choicesChangedCallback);
+    }
+    protected hasOtherChanged() {
         this.fireCallback(this.choicesChangedCallback);
     }
     get choicesOrder(): string { return this.choicesOrderValue; }
@@ -170,11 +173,10 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     }
 }
 JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
-    { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { ItemValue.setData(obj.choices, value); }},
+    { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
     { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
     { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
     { name: "otherText", default: surveyLocalization.getString("otherItemText") }, "otherErrorText",
     { name: "storeOthersAsComment:boolean", default: true}], null, "question");
 
 JsonObject.metaData.addClass("checkboxbase", [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4] }], null, "selectbase");
-

@@ -6,7 +6,7 @@
                 <input type="radio" data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
                 <span data-bind="text: item.text"></span>
             </label>
-            <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices.length-1)">
+            <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
                 <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: $root.css.radiogroup.other"></div>
             </div>
         </div>

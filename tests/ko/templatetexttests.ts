@@ -2,11 +2,11 @@
 
 QUnit.module("Template Text");
 
-export class SurveyTemplateTextTest extends SurveyTemplateTextBase {
-    constructor(public template: string) { super(); }
-    protected get text(): string { return this.template; }
-    protected set text(value: string) { this.template = value; }
-}
+    export class SurveyTemplateTextTest extends SurveyTemplateText {
+        constructor(public template: string) { super(); }
+        protected get text(): string { return this.template; }
+        protected set text(value: string) { this.template = value; }
+    }
 
 QUnit.test("Replace the page", function (assert) {
     var template = new SurveyTemplateTextTest('<script type="text/ html" id="survey-page">Test1</script>');

@@ -52,7 +52,7 @@ export default class ReactSurveyQuestion extends React.Component<any, any> {
         var marginLeft = (this.questionBase.indent > 0) ? this.questionBase.indent * this.css.question.indent + "px" : null;
         var paddingRight = (this.questionBase.rightIndent > 0) ? this.questionBase.rightIndent * this.css.question.indent + "px" : null;
         var rootStyle = { display: 'inline-block', verticalAlign: 'top' };
-        if (this.question.renderWidth) rootStyle["width"] = this.question.renderWidth;
+        if (this.questionBase.renderWidth) rootStyle["width"] = this.questionBase.renderWidth;
         if (marginLeft) rootStyle["marginLeft"] = marginLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;
         return (

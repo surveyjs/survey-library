@@ -1,6 +1,7 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import {ReactSurveyQuestionCommentItem} from "../reactquestioncomment";
 import QuestionRatingModel from "../../question_rating";
+import {ItemValue} from "../../base";
 
 export default class ReactSurveyQuestionrating extends React.Component<any, any> {
     private question: QuestionRatingModel;
@@ -24,39 +25,32 @@ export default class ReactSurveyQuestionrating extends React.Component<any, any>
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        var headers = [];
         var values = [];
         for (var i = 0; i < this.question.visibleRateValues.length; i++) {
-            var keyHeader = "header" + i;
-            var keyValue = "value" + i;
-            var item = this.question.visibleRateValues[i];
-            headers.push(<th key={keyHeader}>{item.text}</th>);
-            values.push(<td key={keyValue}>
-                  <input type="radio" name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
-                </td>);
+            var minText = i == 0 ? this.question.mininumRateDescription + " " : null;
+            var maxText = i == this.question.visibleRateValues.length - 1 ? " " + this.question.maximumRateDescription : null;
+            values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minText, maxText));
         }
         var comment = this.question.hasOther ? this.renderOther() : null;
         return (
-            <div>
-                <table className={this.css.root}>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            {headers}
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{this.question.mininumRateDescription}</td>
-                            {values}
-                            <td>{this.question.maximumRateDescription}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div className={this.css.root} data-toggle="buttons">
+                {values}
                 {comment}
             </div>
         );
+    }
+    protected renderItem(key: string, item: ItemValue, minText: string, maxText: string): JSX.Element {
+        var isChecked = this.question.value == item.value;
+        var className = this.css.item;
+        if (isChecked) className += " active";
+        var min = minText ? <span>{minText}</span> : null;
+        var max = maxText ? <span>{maxText}</span> : null;
+        return <label key={key} className={className}>
+            <input type="radio" name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
+            {min}
+            <span>{item.text}</span>
+            {max}
+            </label>;
     }
     protected renderOther(): JSX.Element {
         return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);

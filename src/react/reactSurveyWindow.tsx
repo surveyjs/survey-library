@@ -1,4 +1,4 @@
-﻿import ReactSurvey from './reactSurveyStandard';
+import ReactSurvey from "./reactSurveyBootstrap";
 import SurveyModel from "../../survey";
 
 export default class ReactSurveyWindow extends ReactSurvey {
@@ -15,7 +15,8 @@ export default class ReactSurveyWindow extends ReactSurvey {
         if (this.state.hidden) return null;
         var header = this.renderHeader();
         var body = this.state.expanded ? this.renderBody() : null;
-        return <div className="sv_window">
+        var style = { position: "fixed", bottom: "3px", right: "10px" };
+        return <div className={this.css.window.root} style={style}>
             {header}
             {body}
             </div>;
@@ -23,14 +24,18 @@ export default class ReactSurveyWindow extends ReactSurvey {
     }
     protected renderHeader(): JSX.Element {
         var styleA = { width: "100%" };
-        return <div className="sv_window_title">
+        var styleTitle = { paddingRight: "10px" };
+        var glyphClassName = this.state.expanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
+        glyphClassName = "glyphicon pull-right " + glyphClassName;
+        return <div className={this.css.window.header.root}>
             <a href="#" onClick={this.handleOnExpanded} style={styleA}>
-                <span>{this.title}</span>
+                <span className={this.css.window.header.title} style={styleTitle}>{this.title}</span>
+                <span className={glyphClassName} aria-hidden="true"></span>
             </a>
         </div>;
     }
     protected renderBody(): JSX.Element {
-        return <div class="sv_window_content">
+        return <div class={this.css.window.body}>
         {this.renderSurvey() }
             </div>
     }

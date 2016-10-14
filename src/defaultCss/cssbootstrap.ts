@@ -4,7 +4,7 @@
     body: "panel-body",
     footer: "panel-footer",
     navigationButton: "", navigation: { complete: "", prev: "", next: "" },
-    progress: "progress center-block",
+    progress: "progress center-block", progressBar: "progress-bar",
     pageTitle: "",
     row: "",
     question: { root: "", title: "", comment: "form-control", indent: 20 },
@@ -19,7 +19,14 @@
     multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
     radiogroup: { root: "form-inline", item: "radio", other: "" },
     rating: { root: "btn-group", item: "btn btn-default" },
-    text: "form-control"
+    text: "form-control",
+    window: {
+        root: "modal-content", body: "modal-body",
+        header: {
+            root: "modal-header panel-title", title: "pull-left", button: "glyphicon pull-right",
+            buttonExpanded: "glyphicon pull-right glyphicon-chevron-up", buttonCollapsed: "glyphicon pull-right glyphicon-chevron-down"
+        }
+    }
 };
-
+surveyCss["bootstrap"] = defaultBootstrapCss;
 export default defaultBootstrapCss;

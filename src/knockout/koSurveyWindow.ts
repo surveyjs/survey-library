@@ -10,7 +10,7 @@ export default class SurveyWindowBase extends SurveyWindowModel {
         super(jsonObj);
         this.koExpanded = ko.observable(false);
         var self = this;
-        this.doExpand = function () { self.changeExpanded(); };
+        this.doExpand = function () { self.changeExpanded(); }
         this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); });
     }
     protected createSurvey(jsonObj: any): SurveyModel {
@@ -30,16 +30,20 @@ export default class SurveyWindowBase extends SurveyWindowModel {
         (<SurveyBase>this.survey).render(SurveyWindowBase.surveyElementName);
         this.isShowingValue = true;
     }
-    protected getDefaultTemplate(): string { throw new Error("Please override this method"); }
+    protected getDefaultTemplate(): string { return template.window.ko.html }
     public hide() {
         document.body.removeChild(this.windowElement);
         this.windowElement.innerHTML = "";
         this.isShowingValue = false;
     }
+    public get css(): any { return this.survey["css"]; }
     private changeExpanded() {
         this.expandcollapse(!this.isExpanded);
     }
     private onComplete() {
         this.hide();
+    }
+    private getButtonCss() {
+        return this.koExpanded() ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
     }
 }

@@ -48,7 +48,7 @@ export default class SurveyQuestionMatrixDynamic extends React.Component<any, an
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<ReactSurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
         return (

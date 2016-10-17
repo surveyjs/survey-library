@@ -1,15 +1,15 @@
 ﻿import * as React from 'react';
-import ReactSurveyQuestion from './reactquestion'
+import SurveyQuestion from './reactquestion'
 import PageModel from "../page";
 import SurveyModel from "../survey";
-import {IReactSurveyCreator} from "./reactquestion";
+import {ISurveyCreator} from "./reactquestion";
 import {QuestionRowModel} from "../page";
 import QuestionBase from "../questionbase";
 
 export default class SurveyPage extends React.Component<any, any> {
     private page: PageModel;
     private survey: SurveyModel;
-    private creator: IReactSurveyCreator;
+    private creator: ISurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -56,7 +56,7 @@ export default class SurveyPage extends React.Component<any, any> {
 export class SurveyRow extends React.Component<any, any> {
     private row: QuestionRowModel;
     private survey: SurveyModel;
-    private creator: IReactSurveyCreator;
+    private creator: ISurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -90,6 +90,6 @@ export class SurveyRow extends React.Component<any, any> {
         );
     }
     protected createQuestion(question: QuestionBase): JSX.Element {
-        return <ReactSurveyQuestion key={question.name} question={question} creator={this.creator} css={this.css} />;
+        return <SurveyQuestion key={question.name} question={question} creator={this.creator} css={this.css} />;
     }
 }

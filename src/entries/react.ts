@@ -16,7 +16,7 @@ export {default as SurveyNavigation} from "../react/reactSurveyNavigation";
 export {default as SurveyPage, SurveyRow} from "../react/reactpage";
 export {default as SurveyProgressBase} from "../react/reactSurveyProgress";
 export {default as SurveyQuestion,  SurveyQuestionErrors} from "../react/reactquestion";
-export {SurveyQuestionCommentItem, default as SurveyQuestioncomment} from "../react/reactquestioncomment";
+export {SurveyQuestionCommentItem, default as SurveyQuestionComment} from "../react/reactquestioncomment";
 export {default as SurveyQuestionCheckbox, SurveyQuestionCheckboxItem} from "../react/reactquestioncheckbox";
 export {default as SurveyQuestionDropdown} from "../react/reactquestiondropdown";
 export {default as SurveyQuestionMatrixDropdown, SurveyQuestionMatrixDropdownRow} from "../react/reactquestionmatrixdropdown";

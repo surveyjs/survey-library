@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import QuestionBase from '../questionbase';
 import Question from '../question';
-import {ReactSurveyQuestionCommentItem} from './reactquestioncomment';
+import {SurveyQuestionCommentItem} from './reactquestioncomment';
 
 export interface ISurveyCreator {
     createQuestionElement(question: QuestionBase): JSX.Element;
@@ -72,7 +72,7 @@ export default class SurveyQuestion extends React.Component<any, any> {
         return (<div>
                 <div>{this.question.commentText}</div>
                 <div className={this.css.question.comment}>
-                <ReactSurveyQuestionCommentItem  question={this.question}/>
+                <SurveyQuestionCommentItem  question={this.question}/>
                 </div>
             </div>);
     }

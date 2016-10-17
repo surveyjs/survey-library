@@ -1,10 +1,10 @@
 ﻿import * as React from 'react';
-import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
 import {ItemValue} from "../base";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestioncheckbox extends React.Component<any, any> {
+export default class SurveyQuestionCheckbox extends React.Component<any, any> {
     protected question: QuestionCheckboxModel;
     protected css: any;
     protected rootCss: any;
@@ -43,10 +43,10 @@ export default class ReactSurveyQuestioncheckbox extends React.Component<any, an
     }
     protected get textStyle(): any { return null; }
     protected renderItem(key: string, item: any): JSX.Element {
-        return <ReactSurveyQuestioncheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
+        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
     }
 }
-export class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
+export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
     protected question: QuestionCheckboxModel;
     protected item: ItemValue;
     protected css: any;
@@ -109,10 +109,10 @@ export class ReactSurveyQuestioncheckboxItem extends React.Component<any, any> {
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
-    return React.createElement(ReactSurveyQuestioncheckbox, props);
+    return React.createElement(SurveyQuestionCheckbox, props);
 });

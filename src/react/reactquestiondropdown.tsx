@@ -1,9 +1,9 @@
 ﻿import * as React from 'react';
 import QuestionDropdownModel from "../question_dropdown";
-import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestiondropdown extends React.Component<any, any> {
+export default class SurveyQuestionDropdown extends React.Component<any, any> {
     private question: QuestionDropdownModel;
     protected css: any;
     protected rootCss: any;
@@ -52,10 +52,10 @@ export default class ReactSurveyQuestiondropdown extends React.Component<any, an
     }
     protected renderOther(): JSX.Element {
         var style = { marginTop: "3px" };
-        return <div style={style}><ReactSurveyQuestionCommentItem question={this.question} css={this.rootCss}/></div>;
+        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss}/></div>;
     }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("dropdown", (props) => {
-    return React.createElement(ReactSurveyQuestiondropdown, props);
+    return React.createElement(SurveyQuestionDropdown, props);
 });

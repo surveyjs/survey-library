@@ -1,10 +1,10 @@
 ﻿import * as React from 'react';
 import QuestionRadiogroupModel from "../question_radiogroup";
 import {ItemValue} from "../base";
-import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionradiogroup extends React.Component<any, any> {
+export default class SurveyQuestionRadiogroup extends React.Component<any, any> {
     protected question: QuestionRadiogroupModel;
     protected css: any;
     protected rootCss: any;
@@ -69,10 +69,10 @@ export default class ReactSurveyQuestionradiogroup extends React.Component<any, 
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
-    return React.createElement(ReactSurveyQuestionradiogroup, props);
+    return React.createElement(SurveyQuestionRadiogroup, props);
 });

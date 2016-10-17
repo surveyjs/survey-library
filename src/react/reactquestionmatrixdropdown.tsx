@@ -1,15 +1,15 @@
 ﻿import * as React from 'react';
 import QuestionMatrixDropdownModel from "../question_matrixdropdown";
-import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
+import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionmatrixdropdown extends React.Component<any, any> {
+export default class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
     private question: QuestionMatrixDropdownModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: IReactSurveyCreator;
+    protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -38,7 +38,7 @@ export default class ReactSurveyQuestionmatrixdropdown extends React.Component<a
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<ReactSurveyQuestionmatrixdropdownRow key={key} row={row} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDropdownRow key={key} row={row} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll'} : {};
         return (
@@ -59,11 +59,11 @@ export default class ReactSurveyQuestionmatrixdropdown extends React.Component<a
     }
 }
 
-export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixDropdownRow extends React.Component<any, any> {
     private row: MatrixDropdownRowModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: IReactSurveyCreator;
+    protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -82,7 +82,7 @@ export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, a
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <ReactSurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
+            var errors = <SurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
             var select = this.renderSelect(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
@@ -94,5 +94,5 @@ export class ReactSurveyQuestionmatrixdropdownRow extends React.Component<any, a
 }
 
 ReactQuestionFactory.Instance.registerQuestion("matrixdropdown", (props) => {
-    return React.createElement(ReactSurveyQuestionmatrixdropdown, props);
+    return React.createElement(SurveyQuestionMatrixDropdown, props);
 });

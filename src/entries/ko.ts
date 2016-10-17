@@ -4,6 +4,8 @@ export * from "./chunks/model";
 // localization
 import './chunks/localization';
 
+// css standard
+export {default as defaultStandardCss} from "../defaultCss/cssstandard";
 //css frameworks
 import './chunks/cssFrameworks';
 
@@ -38,5 +40,3 @@ export {default as SurveyWindow} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateText} from "../knockout/templateText";
 export {default as Survey} from "../knockout/kosurvey";
 
-// css standard
-export {default as defaultStandardCss} from "../defaultCss/cssstandard";

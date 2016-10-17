@@ -1,9 +1,10 @@
 import * as React from 'react';
-import {ReactSurveyQuestionCommentItem} from "./reactquestioncomment";
+import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import QuestionRatingModel from "../question_rating";
 import {ItemValue} from "../base";
+import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionrating extends React.Component<any, any> {
+export default class SurveyQuestionRating extends React.Component<any, any> {
     private question: QuestionRatingModel;
     protected css: any;
     protected rootCss: any;
@@ -53,6 +54,9 @@ export default class ReactSurveyQuestionrating extends React.Component<any, any>
             </label>;
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><ReactSurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
     }
 }
+ReactQuestionFactory.Instance.registerQuestion("rating", (props) => {
+    return React.createElement(SurveyQuestionRating, props);
+});

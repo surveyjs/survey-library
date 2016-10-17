@@ -3,7 +3,7 @@ import QuestionTextModel from "../question_text";
 import ReactQuestionFactory from "./reactquestionfactory";
 
 
-export default class ReactSurveyQuestiontext extends React.Component<any, any> {
+export default class SurveyQuestionText extends React.Component<any, any> {
     private question: QuestionTextModel;
     protected css: any;
     constructor(props: any) {
@@ -30,5 +30,5 @@ export default class ReactSurveyQuestiontext extends React.Component<any, any> {
 }
 
 ReactQuestionFactory.Instance.registerQuestion("text", (props) => {
-    return React.createElement(ReactSurveyQuestiontext, props);
+    return React.createElement(SurveyQuestionText, props);
 });

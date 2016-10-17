@@ -3,16 +3,16 @@ import QuestionBase from '../questionbase';
 import Question from '../question';
 import {ReactSurveyQuestionCommentItem} from './reactquestioncomment';
 
-export interface IReactSurveyCreator {
+export interface ISurveyCreator {
     createQuestionElement(question: QuestionBase): JSX.Element;
     renderError(key: string, errorText: string): JSX.Element;
     questionTitleLocation(): string;
 }
 
-export default class ReactSurveyQuestion extends React.Component<any, any> {
+export default class SurveyQuestion extends React.Component<any, any> {
     private questionBase: QuestionBase;
     protected question: Question;
-    private creator: IReactSurveyCreator;
+    private creator: ISurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);
@@ -42,7 +42,6 @@ export default class ReactSurveyQuestion extends React.Component<any, any> {
         if (!this.questionBase || !this.creator) return null;
         this.questionBase["react"] = this; //TODO
         if (!this.questionBase.visible) return null;
-        var className = "ReactSurveyQuestion" + this.questionBase.getType();
         var questionRender = this.creator.createQuestionElement(this.questionBase);
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;
         var titleTop = this.creator.questionTitleLocation() == "top" ? title : null;
@@ -78,13 +77,13 @@ export default class ReactSurveyQuestion extends React.Component<any, any> {
             </div>);
     }
     protected renderErrors(): JSX.Element {
-        return <ReactSurveyQuestionErrors question={this.question} css={this.css} creator={this.creator} />
+        return <SurveyQuestionErrors question={this.question} css={this.css} creator={this.creator} />
     }
 }
 
-export class ReactSurveyQuestionErrors extends React.Component<any, any> {
+export class SurveyQuestionErrors extends React.Component<any, any> {
     protected question: Question;
-    private creator: IReactSurveyCreator;
+    private creator: ISurveyCreator;
     protected css: any;
     constructor(props: any) {
         super(props);

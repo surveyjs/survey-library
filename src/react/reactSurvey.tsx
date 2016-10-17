@@ -1,13 +1,13 @@
 import * as React from "react";
 import ReactSurveyModel from "./reactsurveymodel";
-import ReactSurveyPage from "./reactpage";
-import ReactSurveyNavigation from "./reactSurveyNavigation";
+import SurveyPage from "./reactpage";
+import SurveyNavigation from "./reactSurveyNavigation";
 import QuestionBase from "../questionbase";
-import {IReactSurveyCreator} from "./reactquestion";
+import {ISurveyCreator} from "./reactquestion";
 import ReactQuestionFactory from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
 
-export default class ReactSurvey extends React.Component<any, any> implements IReactSurveyCreator {
+export default class Survey extends React.Component<any, any> implements ISurveyCreator {
     public static get cssType(): string { return surveyCss.currentType; }
     public static set cssType(value: string) { surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
@@ -61,13 +61,13 @@ export default class ReactSurvey extends React.Component<any, any> implements IR
         return <div className={this.css.header}><h3>{this.survey.title}</h3></div>;
     }
     protected renderPage(): JSX.Element {
-        return <ReactSurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
+        return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
     }
     protected renderProgress(isTop: boolean): JSX.Element {
         return null;
     }
     protected renderNavigation(): JSX.Element {
-        return <ReactSurveyNavigation survey = {this.survey} css={this.css}/>;
+        return <SurveyNavigation survey = {this.survey} css={this.css}/>;
     }
     protected renderEmptySurvey(): JSX.Element {
         return (<span>{this.survey.emptySurveyText}</span>);
@@ -152,7 +152,7 @@ export default class ReactSurvey extends React.Component<any, any> implements IR
         }
     }
 
-    //IReactSurveyCreator
+    //ISurveyCreator
     public createQuestionElement(question: QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
         return ReactQuestionFactory.Instance.createQuestion(question.getType(), {

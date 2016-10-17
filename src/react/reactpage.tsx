@@ -6,7 +6,7 @@ import {IReactSurveyCreator} from "./reactquestion";
 import {QuestionRowModel} from "../page";
 import QuestionBase from "../questionbase";
 
-export default class ReactSurveyPage extends React.Component<any, any> {
+export default class SurveyPage extends React.Component<any, any> {
     private page: PageModel;
     private survey: SurveyModel;
     private creator: IReactSurveyCreator;
@@ -41,7 +41,7 @@ export default class ReactSurveyPage extends React.Component<any, any> {
     }
     protected createRow(row: QuestionRowModel, index: number): JSX.Element {
         var rowName = "row" + (index + 1);
-        return <ReactSurveyRow key={rowName} row={row} survey={this.survey} creator={this.creator} css={this.css} />;
+        return <SurveyRow key={rowName} row={row} survey={this.survey} creator={this.creator} css={this.css} />;
     }
     protected renderTitle(): JSX.Element {
         if (!this.page.title || !this.survey.showPageTitles) return null;
@@ -53,7 +53,7 @@ export default class ReactSurveyPage extends React.Component<any, any> {
     }
 }
 
-export class ReactSurveyRow extends React.Component<any, any> {
+export class SurveyRow extends React.Component<any, any> {
     private row: QuestionRowModel;
     private survey: SurveyModel;
     private creator: IReactSurveyCreator;

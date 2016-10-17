@@ -51,9 +51,9 @@ var config_ko = {
     dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
         { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/cssstandard.ts", "./src/defaultCss/cssbootstrap.ts", "./src/knockout/*.ts"],
-    mainJSfile: "survey.js",
-    dtsfile: "survey.d.ts",
+    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/knockout/*.ts"],
+    mainJSfile: "survey.ko.js",
+    dtsfile: "survey-ko.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
     entryPoint: "src/entries/ko"

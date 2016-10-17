@@ -4,6 +4,9 @@ export * from "./chunks/model";
 // localization
 import './chunks/localization';
 
+//css frameworks
+import './chunks/cssFrameworks';
+
 // react
 export {default as ReactSurveyBase} from "../react/reactSurvey";
 export {default as ReactSurveyModel} from "../react/reactsurveymodel";

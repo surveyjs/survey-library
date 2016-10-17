@@ -4,6 +4,9 @@ export * from "./chunks/model";
 // localization
 import './chunks/localization';
 
+//css frameworks
+import './chunks/cssFrameworks';
+
 // knockout
 export {QuestionRow, default as Page} from "../knockout/kopage";
 export {default as QuestionImplementorBase} from "../knockout/koquestionbase";

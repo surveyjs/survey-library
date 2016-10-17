@@ -35,6 +35,12 @@ module.exports = function(options) {
                 commonjs2: 'react-dom',
                 commonjs: 'react-dom',
                 amd: 'react-dom'
+            },
+            'knockout': {
+                root: 'ko',
+                commonjs2: 'knockout',
+                commonjs: 'knockout',
+                amd: 'knockout'
             }
         },
         module: {
@@ -55,10 +61,7 @@ module.exports = function(options) {
         },
         debug: true,
         plugins: [
-            new webpack.NoErrorsPlugin(),
-            new webpack.ProvidePlugin({
-                "ko": "knockout"
-            })
+            new webpack.NoErrorsPlugin()
         ],
         devtool: 'cheap-inline-module-source-map'
     };

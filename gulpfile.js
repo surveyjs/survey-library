@@ -167,7 +167,7 @@ function createPackageJson(configName) {
                     data.keywords.push(curConfig.keywords[i]);
                 }
             }
-            data.main = curConfig.mainJSfile.replace(".js", ".min.js");
+            data.main = "js/" + curConfig.mainJSfile.replace(".js", ".min.js");
             if (curConfig.dependencies) {
                 for (var key in curConfig.dependencies) {
                     data.dependencies[key] = curConfig.dependencies[key];

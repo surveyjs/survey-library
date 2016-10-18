@@ -1,21 +1,23 @@
 ﻿import * as ko from "knockout";
 import SurveyWindowModel from "../surveyWindow";
 import SurveyModel from "../survey";
-import SurveyBase from "./kosurvey";
+import Survey from "./kosurvey";
 import {html} from './template.window.ko.html'
 
-export default class SurveyWindowBase extends SurveyWindowModel {
+export default class SurveyWindow extends SurveyWindowModel {
     koExpanded: any;
+    koExpandedCss: any;
     doExpand: any;
     constructor(jsonObj: any) {
         super(jsonObj);
         this.koExpanded = ko.observable(false);
+        this.koExpandedCss = ko.observable(this.getButtonCss());
         var self = this;
         this.doExpand = function () { self.changeExpanded(); }
-        this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); });
+        this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); self.koExpandedCss(self.getButtonCss()) });
     }
     protected createSurvey(jsonObj: any): SurveyModel {
-        return new SurveyBase(jsonObj)
+        return new Survey(jsonObj)
     }
     protected expandcollapse(value: boolean) {
         super.expandcollapse(value);
@@ -28,7 +30,7 @@ export default class SurveyWindowBase extends SurveyWindowModel {
         ko.cleanNode(this.windowElement);
         ko.applyBindings(this, this.windowElement);
         document.body.appendChild(this.windowElement);
-        (<SurveyBase>this.survey).render(SurveyWindowBase.surveyElementName);
+        (<Survey>this.survey).render(SurveyWindow.surveyElementName);
         this.isShowingValue = true;
     }
     protected getDefaultTemplate(): string { return html }

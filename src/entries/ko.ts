@@ -10,6 +10,7 @@ export {default as defaultStandardCss} from "../defaultCss/cssstandard";
 import './chunks/cssFrameworks';
 
 // knockout
+export {default as Survey} from "../knockout/kosurvey";
 export {QuestionRow, default as Page} from "../knockout/kopage";
 export {default as QuestionImplementorBase} from "../knockout/koquestionbase";
 export {QuestionImplementor} from "../knockout/koquestion";
@@ -33,10 +34,7 @@ export {
 export {default as QuestionRadiogroup} from "../knockout/koquestion_radiogroup";
 export {default as QuestionRating} from "../knockout/koquestion_rating";
 export {default as QuestionText} from "../knockout/koquestion_text";
-export {default as SurveyBase} from "../knockout/kosurvey";
-export {default as SurveyWindowBase} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateTextBase} from "../knockout/templateText";
 export {default as SurveyWindow} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateText} from "../knockout/templateText";
-export {default as Survey} from "../knockout/kosurvey";
 

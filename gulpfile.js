@@ -95,6 +95,7 @@ function buildTemplates(configName, index) {
         .pipe(insert.transform(function(contents, file) {
             contents = contents.slice(0, -1); //remove last symbol '}'
             contents = contents.replace('module template.window.ko { ', '');
+            contents = contents.replace('export var html', 'export var koTemplate = { html : ""}; koTemplate.html');
             return contents.replace('module template.ko { ', '');
         }))
         .pipe(gulp.dest(curTemplate.dest));

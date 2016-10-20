@@ -1,10 +1,7 @@
-﻿import {html} from "./template.ko.html";
+﻿import {koTemplate} from "./template.ko.html";
 
 export default class SurveyTemplateText {
-    template: string;
-
     constructor() {
-        this.template = html;
     }
 
     public replaceText(replaceText: string, id: string, questionType: string = null) {
@@ -26,6 +23,6 @@ export default class SurveyTemplateText {
         }
         return result + '"';
     }
-    protected get text(): string { return this.template; }
-    protected set text(value: string) { this.template = value; }
+    protected get text(): string { return koTemplate.html; }
+    protected set text(value: string) { koTemplate.html = value; }
 }

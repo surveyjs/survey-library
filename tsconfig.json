@@ -6,13 +6,6 @@
     "noImplicitAny": false,
     "jsx": "react"
   },
-//  "filesGlob": [
-  //    "typings/index.d.ts"
-  //  ], // TODO
-  "include": [
-    "typings/index.d.ts",
-    "src/**/*"
-  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

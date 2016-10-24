@@ -38,3 +38,5 @@ export {default as SurveyTemplateTextBase} from "../knockout/templateText";
 export {default as SurveyWindow} from "../knockout/koSurveyWindow";
 export {default as SurveyTemplateText} from "../knockout/templateText";
 
+export {__extends} from "../extends";
+

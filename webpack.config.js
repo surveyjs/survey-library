@@ -14,7 +14,7 @@ module.exports = function(options) {
     var config = {
         resolveLoader: {root: path.join(__dirname, 'node_modules')},
         resolve: {
-            extensions: ['', '.js', '.ts', '.jsx', '.tsx']
+            extensions: ['', '.ts', '.tsx']
         },
         entry: {},
         output: {
@@ -64,7 +64,10 @@ module.exports = function(options) {
         },
         debug: true,
         plugins: [
-            new webpack.NoErrorsPlugin()
+            new webpack.NoErrorsPlugin(),
+            new webpack.ProvidePlugin({
+                __extends: path.join(__dirname, 'src', 'extends.ts')
+            })
         ],
         devtool: 'inline-source-map'
     };

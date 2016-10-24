@@ -31,3 +31,4 @@ export {default as SurveyProgress} from "../react/reactSurveyProgress";
 export {default as SurveyQuestionRating} from "../react/reactquestionrating";
 export {default as SurveyWindow} from "../react/reactSurveyWindow";
 
+export {__extends} from "../extends";

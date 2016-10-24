@@ -4,7 +4,6 @@ var gulp = require('gulp'),
     ts = require('gulp-typescript'),
     insert = require('gulp-insert'),
     gnf = require('gulp-npm-files'),
-    sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass'),
     qunit = require("gulp-qunit"),
     serve = require("gulp-serve"),
@@ -51,9 +50,17 @@ var config_ko = {
     dependencies: {"knockout": "^3.4.0"},
     templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
         { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/knockout/*.ts"],
+    src: [
+        "./src/*.ts",
+        "./src/localization/*.ts",
+        "./src/defaultCss/cssstandard.ts",
+        "./src/defaultCss/cssbootstrap.ts",
+        "./src/knockout/*.ts",
+        "./src/entries/chunks/**/*.ts",
+        "./src/entries/ko.ts"
+    ],
     mainJSfile: "survey.ko.js",
-    dtsfile: "survey-ko.d.ts",
+    dtsfile: "ko.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
     entryPoint: "src/entries/ko"
@@ -63,9 +70,16 @@ var config_react = {
     name: "survey-react",
     keywords: ["react", "react-component"],
     dependencies: { "react": "^15.0.1", "react-dom": "^15.0.1" },
-    src: ["./src/*.ts", "./src/localization/*.ts", "./src/defaultCss/*.ts", "./src/react/*.tsx"],
+    src: [
+        "./src/*.ts",
+        "./src/localization/*.ts",
+        "./src/defaultCss/*.ts",
+        "./src/react/*.tsx",
+        "./src/entries/chunks/**/*.ts",
+        "./src/entries/react.ts"
+    ],
     mainJSfile: "survey.react.js",
-    dtsfile: "survey-react.d.ts",
+    dtsfile: "react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
     entryPoint: "src/entries/react"
@@ -124,13 +138,14 @@ function buildTypeDefinition(configName) {
         .pipe(ts({
             target: "ES5",
             noExternalResolve: true,
+            outDir: "./some/dir/TODO/", // TODO we need any value of outDir for save folders structure for d.ts. BUT WHY?
             declaration: true,
             jsx: "react"
         }));
     return tscResult.dts
-        .pipe(concat(curConfig.dtsfile))
         .pipe(concat.header(tdHeader))
-        .pipe(gulp.dest(paths.dist_dts));
+        .pipe(gulp.dest(paths.dist_dts))
+        .pipe(gulp.dest(curConfig.packagePath + "dist/typings"));
 }
 
 function compressMainJS(configName) {
@@ -152,8 +167,6 @@ function buildTests(configName) {
         .pipe(webpackStream(getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
-        .pipe(sourcemaps.write({ sourceRoot: "tests" }))
-        //Source map is a part of generated file
         .pipe(gulp.dest(paths.testsFolder));
 }
 
@@ -168,7 +181,8 @@ function createPackageJson(configName) {
                     data.keywords.push(curConfig.keywords[i]);
                 }
             }
-            data.main = "js/" + curConfig.mainJSfile.replace(".js", ".min.js");
+            data.main = './js/' + curConfig.mainJSfile.replace(".js", ".min.js");
+            data.typings = './dist/typings/entries/' + curConfig.dtsfile;
             if (curConfig.dependencies) {
                 for (var key in curConfig.dependencies) {
                     data.dependencies[key] = curConfig.dependencies[key];
@@ -204,7 +218,7 @@ gulp.task("buildTests_ko", function () {
 });
 
 gulp.task("react_source", function () {
-    //buildTypeDefinition("react");
+    buildTypeDefinition("react");
     return buildFromSources("react");
 });
 gulp.task("react_compress", function () {

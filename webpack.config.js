@@ -44,12 +44,15 @@ module.exports = function(options) {
             }
         },
         module: {
+            preLoaders: [
+                { test: /\.(js|jsx)$/, loader: "source-map-loader" }
+            ],
             loaders: [
                 {
                     test: /\.(ts|tsx)$/,
                     loaders:[
                         require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig), // TODO why do we need it
-                        require.resolve('awesome-typescript-loader')
+                        require.resolve('ts-loader')
                     ]
                 },
                 {
@@ -61,9 +64,12 @@ module.exports = function(options) {
         },
         debug: true,
         plugins: [
-            new webpack.NoErrorsPlugin()
+            new webpack.NoErrorsPlugin(),
+            new webpack.ProvidePlugin({
+                __extends: path.join(__dirname, 'src', 'extends.ts')
+            })
         ],
-        devtool: 'cheap-inline-module-source-map'
+        devtool: 'inline-source-map'
     };
 
     config.entry[options.bundleName] = path.resolve(__dirname, options.entryPoint);

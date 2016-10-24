@@ -2,7 +2,7 @@ export {
     AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator,
     default as SurveyValidator, TextValidator, ValidatorResult, ValidatorRunner
 } from "../../validator";
-export {default as Base, Event, ItemValue, SurveyError} from "../../base";
+export {default as Base, Event, ItemValue, SurveyError, ISurvey} from "../../base";
 export {ChoicesRestfull} from "../../choicesRestfull";
 export {Condition, ConditionNode, ConditionRunner} from "../../conditions";
 export {default as ConditionsParser} from "../../conditionsParser";

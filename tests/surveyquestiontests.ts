@@ -127,6 +127,14 @@ QUnit.test("Matrix Question set values after visible row generated", function (a
     matrix.value = { row1: "col1" };
     assert.equal(rows[0].value, "col1", "set the row value correctly");
 });
+QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.rows = ["row1", "row2"];
+    matrix.columns = ["col1", "col2"];
+    assert.equal(matrix.hasErrors(), false, "There is no errors by default");
+    matrix.isAllRowRequired = true;
+    assert.equal(matrix.hasErrors(), true, "There is no errors by default");
+});
 QUnit.test("Multiple Text Item: text property", function (assert) {
     var mItem = new MultipleTextItemModel("text1");
     assert.equal(mItem.title, "text1", "get value from name");

@@ -14,7 +14,7 @@ module.exports = function(options) {
     var config = {
         resolveLoader: {root: path.join(__dirname, 'node_modules')},
         resolve: {
-            extensions: ['', '.js', '.ts', '.jsx', '.tsx']
+            extensions: ['', '.ts', '.tsx']
         },
         entry: {},
         output: {

@@ -15,7 +15,7 @@ module.exports = function (config) {
           "wwwroot/js/qunit.css",
           "wwwroot/js/knockout.js",
 
-          "wwwroot/js/survey.js",
+          "wwwroot/js/survey.ko.js",
 
           "wwwroot/tests/survey.tests.ko.js",
     ],
@@ -27,7 +27,7 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'wwwroot/js/survey.js': ['coverage']
+            'wwwroot/js/survey.ko.js': ['coverage']
         },
 
         // test results reporter to use

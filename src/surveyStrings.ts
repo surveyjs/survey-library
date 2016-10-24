@@ -27,6 +27,7 @@ export var surveyStrings = {
     loadingSurvey: "Survey is loading from the server...",
     optionsCaption: "Choose...",
     requiredError: "Please answer the question.",
+    requiredInAllRowsError: "Please answer questions in all rows.",
     numericError: "The value should be a numeric.",
     textMinLength: "Please enter at least {0} symbols.",
     minRowCountError: "Please fill at least {0} rows.",

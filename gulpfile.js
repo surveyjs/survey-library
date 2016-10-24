@@ -59,7 +59,7 @@ var config_ko = {
         "./src/entries/chunks/**/*.ts",
         "./src/entries/ko.ts"
     ],
-    mainJSfile: "survey.js",
+    mainJSfile: "survey.ko.js",
     dtsfile: "ko.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
@@ -86,6 +86,7 @@ var config_react = {
 };
 
 var config_test_ko = {
+    dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
     entryPoint: "./tests/entries/testKo",
     bundleName: "survey.tests.ko",
@@ -108,6 +109,7 @@ function buildTemplates(configName, index) {
         .pipe(insert.transform(function(contents, file) {
             contents = contents.slice(0, -1); //remove last symbol '}'
             contents = contents.replace('module template.window.ko { ', '');
+            contents = contents.replace('export var html', 'export var koTemplate = { html : ""}; koTemplate.html');
             return contents.replace('module template.ko { ', '');
         }))
         .pipe(gulp.dest(curTemplate.dest));

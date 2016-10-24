@@ -90,6 +90,7 @@ export default class QuestionSelectBase extends Question {
     set choicesOrder(newValue: string) {
         if (newValue == this.choicesOrderValue) return;
         this.choicesOrderValue = newValue;
+        this.fireCallback(this.choicesChangedCallback);
     }
     get otherText(): string { return this.otherItem.text; }
     set otherText(value: string) { this.otherItem.text = value; }

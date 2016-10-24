@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import SurveyModel from "../survey";
 
-export default class ReactSurveyNavigation extends React.Component<any, any> {
+export default class SurveyNavigation extends React.Component<any, any> {
     private survey: SurveyModel;
     protected css: any;
     constructor(props: any) {

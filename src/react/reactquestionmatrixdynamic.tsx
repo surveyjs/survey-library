@@ -1,15 +1,15 @@
 ﻿import * as React from 'react';
 import QuestionMatrixDynamicModel from "../question_matrixdynamic";
-import {IReactSurveyCreator, ReactSurveyQuestionErrors} from "./reactquestion";
+import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionmatrixdynamic extends React.Component<any, any> {
+export default class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
     private question: QuestionMatrixDynamicModel;
     protected css: any;
     protected rootCss: any;
-    protected creator: IReactSurveyCreator;
+    protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -48,7 +48,7 @@ export default class ReactSurveyQuestionmatrixdynamic extends React.Component<an
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<ReactSurveyQuestionmatrixdynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
         return (
@@ -75,13 +75,13 @@ export default class ReactSurveyQuestionmatrixdynamic extends React.Component<an
     }
 }
 
-export class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixDynamicRow extends React.Component<any, any> {
     private row: MatrixDynamicRowModel;
     private question: QuestionMatrixDynamicModel;
     private index: number;
     protected css: any;
     protected rootCss: any;
-    protected creator: IReactSurveyCreator;
+    protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
@@ -106,7 +106,7 @@ export class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, an
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <ReactSurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />;
+            var errors = <SurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />;
             var select = this.renderQuestion(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
@@ -123,5 +123,5 @@ export class ReactSurveyQuestionmatrixdynamicRow extends React.Component<any, an
 }
 
 ReactQuestionFactory.Instance.registerQuestion("matrixdynamic", (props) => {
-    return React.createElement(ReactSurveyQuestionmatrixdynamic, props);
+    return React.createElement(SurveyQuestionMatrixDynamic, props);
 });

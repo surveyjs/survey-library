@@ -2,7 +2,7 @@
 import QuestionHtmlModel from "../question_html";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionhtml extends React.Component<any, any> {
+export default class SurveyQuestionHtml extends React.Component<any, any> {
     private question: QuestionHtmlModel;
     constructor(props: any) {
         super(props);
@@ -19,5 +19,5 @@ export default class ReactSurveyQuestionhtml extends React.Component<any, any> {
 }
 
 ReactQuestionFactory.Instance.registerQuestion("html", (props) => {
-    return React.createElement(ReactSurveyQuestionhtml, props);
+    return React.createElement(SurveyQuestionHtml, props);
 });

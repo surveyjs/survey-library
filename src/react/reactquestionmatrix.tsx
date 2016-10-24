@@ -3,7 +3,7 @@ import QuestionMatrixModel from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionmatrix extends React.Component<any, any> {
+export default class SurveyQuestionMatrix extends React.Component<any, any> {
     private question: QuestionMatrixModel;
     protected css: any;
     constructor(props: any) {
@@ -29,7 +29,7 @@ export default class ReactSurveyQuestionmatrix extends React.Component<any, any>
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<ReactSurveyQuestionmatrixRow key={key} question={this.question} row={row} />);
+            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} row={row} />);
         }
         return (
             <table className={this.css.root}>
@@ -47,7 +47,7 @@ export default class ReactSurveyQuestionmatrix extends React.Component<any, any>
     }
 }
 
-export class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixRow extends React.Component<any, any> {
     private question: QuestionMatrixModel;
     private row: MatrixRowModel;
     constructor(props: any) {
@@ -80,5 +80,5 @@ export class ReactSurveyQuestionmatrixRow extends React.Component<any, any> {
 }
 
 ReactQuestionFactory.Instance.registerQuestion("matrix", (props) => {
-    return React.createElement(ReactSurveyQuestionmatrix, props);
+    return React.createElement(SurveyQuestionMatrix, props);
 });

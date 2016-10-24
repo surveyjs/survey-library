@@ -4,7 +4,7 @@ import {Event} from "../base";
 import Page from "./kopage";
 import PageModel from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
-import {html} from "./template.ko.html";
+import {koTemplate} from "./template.ko.html";
 
 export default class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }
@@ -64,7 +64,7 @@ export default class Survey extends SurveyModel {
         this.updateKoCurrentPage();
     }
     protected createNewPage(name: string) { return new Page(name); }
-    protected getTemplate(): string { return html; }
+    protected getTemplate(): string { return koTemplate.html; }
     protected onBeforeCreating() {
         var self = this;
         this.dummyObservable = ko.observable(0);

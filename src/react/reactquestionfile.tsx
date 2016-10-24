@@ -2,7 +2,7 @@
 import {QuestionFileModel} from "../question_file";
 import ReactQuestionFactory from "./reactquestionfactory";
 
-export default class ReactSurveyQuestionfile extends React.Component<any, any> {
+export default class SurveyQuestionFile extends React.Component<any, any> {
     private question: QuestionFileModel;
     protected css: any;
     constructor(props: any) {
@@ -39,5 +39,5 @@ export default class ReactSurveyQuestionfile extends React.Component<any, any> {
 }
 
 ReactQuestionFactory.Instance.registerQuestion("file", (props) => {
-    return React.createElement(ReactSurveyQuestionfile, props);
+    return React.createElement(SurveyQuestionFile, props);
 });

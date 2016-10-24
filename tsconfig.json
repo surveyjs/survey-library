@@ -7,6 +7,10 @@
     "noEmitHelpers": true,
     "jsx": "react"
   },
+  "include": [
+    "typings/index.d.ts",
+    "src/**/*.ts"
+  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

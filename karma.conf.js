@@ -15,7 +15,7 @@ module.exports = function (config) {
           "wwwroot/js/qunit.css",
           "wwwroot/js/knockout.js",
 
-          "wwwroot/js/survey.js",
+          "wwwroot/js/survey.ko.js",
 
           "wwwroot/tests/survey.tests.ko.js",
     ],

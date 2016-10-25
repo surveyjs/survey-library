@@ -1,7 +1,7 @@
-﻿import QuestionBase from './questionbase';
+﻿import {QuestionBase} from './questionbase';
 import {HashTable} from "./base";
 
-export default class QuestionFactory {
+export class QuestionFactory {
     public static Instance: QuestionFactory = new QuestionFactory();
     public static DefaultChoices = ["one", "two|second value", "three|third value"];
     private creatorHash: HashTable<(name: string) => QuestionBase> = {};

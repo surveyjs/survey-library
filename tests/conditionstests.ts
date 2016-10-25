@@ -1,4 +1,4 @@
-﻿import ConditionsParser from "../src/conditionsParser";
+﻿import {ConditionsParser} from "../src/conditionsParser";
 import {Condition, ConditionNode, ConditionRunner} from "../src/conditions";
 
 QUnit.module("Conditions");

@@ -5,9 +5,9 @@
         if (!loc) loc = defaultStandardCss;
         return loc;
     },
-}
+};
 
-var defaultStandardCss = {
+export var defaultStandardCss = {
     root: "sv_main",
     header: "",
     body: "sv_body",
@@ -38,4 +38,3 @@ var defaultStandardCss = {
 };
 
 surveyCss["standard"] = defaultStandardCss;
-export default defaultStandardCss;

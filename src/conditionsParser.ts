@@ -1,6 +1,6 @@
 ﻿import {Condition, ConditionNode} from "./conditions";
 
-export default class ConditionsParser {
+export class ConditionsParser {
     private text: string;
     private root: ConditionNode;
     private expressionNodes: Array<ConditionNode>;

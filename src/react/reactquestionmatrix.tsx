@@ -1,9 +1,9 @@
 ﻿import * as React from 'react';
-import QuestionMatrixModel from "../question_matrix";
+import {QuestionMatrixModel} from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionMatrix extends React.Component<any, any> {
+export class SurveyQuestionMatrix extends React.Component<any, any> {
     private question: QuestionMatrixModel;
     protected css: any;
     constructor(props: any) {

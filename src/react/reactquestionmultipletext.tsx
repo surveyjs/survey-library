@@ -1,9 +1,9 @@
 ﻿import * as React from 'react';
-import QuestionMultipleTextModel from "../question_multipletext";
+import {QuestionMultipleTextModel} from "../question_multipletext";
 import {MultipleTextItemModel} from "../question_multipletext";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionMultipleText extends React.Component<any, any> {
+export class SurveyQuestionMultipleText extends React.Component<any, any> {
     private question: QuestionMultipleTextModel;
     protected css: any;
     constructor(props: any) {

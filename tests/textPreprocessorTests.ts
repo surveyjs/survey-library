@@ -1,4 +1,4 @@
-﻿import TextPreProcessor from "../src/textPreProcessor";
+﻿import {TextPreProcessor} from "../src/textPreProcessor";
 
 QUnit.module("TextPreprocessorTests");
 

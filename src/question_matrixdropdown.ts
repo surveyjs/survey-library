@@ -1,10 +1,10 @@
-﻿import QuestionMatrixDropdownModelBase, {
+﻿import {QuestionMatrixDropdownModelBase,
     MatrixDropdownRowModelBase,
     IMatrixDropdownData
 } from "./question_matrixdropdownbase";
-import JsonObject from "./jsonobject";
+import {JsonObject} from "./jsonobject";
 import {ItemValue} from "./base";
-import QuestionFactory from "./questionfactory";
+import {QuestionFactory} from "./questionfactory";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     constructor(public name: any, public text: string, data: IMatrixDropdownData, value: any) {
@@ -12,7 +12,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     }
     public get rowName() { return this.name; }
 }
-export default class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
+export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
     private rowsValue: ItemValue[] = [];
 
     constructor(public name: string) {

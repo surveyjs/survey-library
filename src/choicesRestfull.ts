@@ -1,5 +1,5 @@
-﻿import Base, {ItemValue, SurveyError} from "./base";
-import JsonObject from "./jsonobject";
+﻿import {Base, ItemValue, SurveyError} from "./base";
+import {JsonObject} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {CustomError} from "./error";
 

@@ -1,10 +1,10 @@
-﻿import Base, {ItemValue} from "./base";
-import Question from "./question";
-import JsonObject from "./jsonobject";
+﻿import {Base, ItemValue} from "./base";
+import {Question} from "./question";
+import {JsonObject} from "./jsonobject";
 import {SurveyError} from "./base";
 import {surveyLocalization} from './surveyStrings';
 import {CustomError} from "./error";
-import QuestionFactory from "./questionfactory";
+import {QuestionFactory} from "./questionfactory";
 
 export interface IMatrixData {
     onMatrixRowChanged(row: MatrixRowModel);
@@ -27,7 +27,7 @@ export class MatrixRowModel extends Base {
     protected onValueChanged() {
     }
 }
-export default class QuestionMatrixModel extends Question implements IMatrixData {
+export class QuestionMatrixModel extends Question implements IMatrixData {
     private columnsValue: ItemValue[] = [];
     private rowsValue: ItemValue[] = [];
     private isRowChanging = false;

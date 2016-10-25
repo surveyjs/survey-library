@@ -1,5 +1,5 @@
 ﻿import {ChoicesRestfull} from "../src/choicesRestfull";
-import QuestionDropdownModel from "../src/question_dropdown";
+import {QuestionDropdownModel} from "../src/question_dropdown";
 import {ItemValue} from "../src/base";
 
 QUnit.module("choicesRestfull");

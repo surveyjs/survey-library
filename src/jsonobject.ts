@@ -276,7 +276,7 @@ export class JsonRequiredPropertyError extends JsonError {
     }
 }
 
-export default class JsonObject {
+export class JsonObject {
     private static typePropertyName = "type";
     private static positionPropertyName = "pos";
     private static metaDataValue = new JsonMetadata();

@@ -1,14 +1,14 @@
-﻿import JsonObject from "./jsonobject";
-import Question from "./question";
-import Base, {ItemValue, ISurveyData, HashTable} from "./base";
+﻿import {JsonObject} from "./jsonobject";
+import {Question} from "./question";
+import {Base, ItemValue, ISurveyData, HashTable} from "./base";
 import {surveyLocalization} from "./surveyStrings";
-import QuestionSelectBase from "./question_baseselect";
-import QuestionDropdownModel from "./question_dropdown";
+import {QuestionSelectBase} from "./question_baseselect";
+import {QuestionDropdownModel} from "./question_dropdown";
 import {QuestionCheckboxModel} from "./question_checkbox";
-import QuestionRadiogroupModel from "./question_radiogroup";
-import QuestionTextModel from "./question_text";
-import QuestionCommentModel from "./question_comment";
-import QuestionFactory from "./questionfactory";
+import {QuestionRadiogroupModel} from "./question_radiogroup";
+import {QuestionTextModel} from "./question_text";
+import {QuestionCommentModel} from "./question_comment";
+import {QuestionFactory} from "./questionfactory";
 
 export interface IMatrixDropdownData {
     onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
@@ -120,7 +120,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData {
     }
 }
 
-export default class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
+export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
     private columnsValue: Array<MatrixDropdownColumn> = [];
     private choicesValue: ItemValue[] = [];
     private optionsCaptionValue: string;

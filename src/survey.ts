@@ -1,15 +1,15 @@
-﻿import JsonObject from "./jsonobject";
-import Base, {ISurvey, HashTable, IQuestion, IConditionRunner, IPage, SurveyError, Event} from "./base";
+﻿import {JsonObject} from "./jsonobject";
+import {Base, ISurvey, HashTable, IQuestion, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
-import PageModel from "./page";
-import TextPreProcessor from "./textPreProcessor";
-import dxSurveyService from "./dxSurveyService";
+import {PageModel} from "./page";
+import {TextPreProcessor} from "./textPreProcessor";
+import {dxSurveyService} from "./dxSurveyService";
 import {JsonError} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
-import QuestionBase from "./questionbase";
+import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
 
-export default class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
+export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public surveyId: string = null;
     public surveyPostId: string = null;
     public clientId: string = null;

@@ -1,6 +1,6 @@
-﻿import Question from "./question";
-import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+﻿import {Question} from "./question";
+import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 import {SurveyError} from "./base";
 import {CustomError, ExceedSizeError} from "./error";
 import {surveyLocalization} from "./surveyStrings";

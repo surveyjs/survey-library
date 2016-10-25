@@ -1,7 +1,7 @@
 ﻿import * as ko from "knockout";
-import QuestionBase from "../questionbase";
+import {QuestionBase} from "../questionbase";
 
-export default class QuestionImplementorBase {
+export class QuestionImplementorBase {
     koVisible: any; koErrors: any; koMarginLeft: any; koPaddingRight: any; koRenderWidth: any;
     constructor(public question: QuestionBase) {
         var self = this;

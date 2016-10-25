@@ -1,6 +1,6 @@
 ﻿import {koTemplate} from "./template.ko.html";
 
-export default class SurveyTemplateText {
+export class SurveyTemplateText {
     constructor() {
     }
 

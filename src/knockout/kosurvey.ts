@@ -1,12 +1,12 @@
 ﻿import * as ko from "knockout";
-import SurveyModel from "../survey";
+import {SurveyModel} from "../survey";
 import {Event} from "../base";
-import Page from "./kopage";
-import PageModel from "../page";
+import {Page} from "./kopage";
+import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {koTemplate} from "./template.ko.html";
 
-export default class Survey extends SurveyModel {
+export class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }
     public static set cssType(value: string) { surveyCss.currentType = value; }
     private renderedElement: HTMLElement;

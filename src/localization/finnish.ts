@@ -1,6 +1,6 @@
 import {surveyLocalization} from "../surveyStrings";
 
-var finnishSurveyStrings = {
+export var finnishSurveyStrings = {
     pagePrevText: "Edellinen",
     pageNextText: "Seuraava",
     completeText: "Valmis",
@@ -23,5 +23,3 @@ var finnishSurveyStrings = {
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;
-
-export default finnishSurveyStrings;

@@ -1,6 +1,6 @@
 ﻿import {surveyLocalization} from "../surveyStrings";
 
-var germanSurveyStrings = {
+export var germanSurveyStrings = {
     pagePrevText: "Zurück",
     pageNextText: "Weiter",
     completeText: "Fertig",
@@ -24,5 +24,3 @@ var germanSurveyStrings = {
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;
-
-export default germanSurveyStrings;

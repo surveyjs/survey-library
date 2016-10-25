@@ -1,6 +1,6 @@
 ﻿import {surveyLocalization} from "../surveyStrings";
 
-var russianSurveyStrings = {
+export var russianSurveyStrings = {
     pagePrevText: "Назад",
     pageNextText: "Далее",
     completeText: "Готово",
@@ -23,5 +23,3 @@ var russianSurveyStrings = {
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;
-
-export default russianSurveyStrings;

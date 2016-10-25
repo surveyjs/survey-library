@@ -44,7 +44,7 @@ export var surveyStrings = {
     uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
     addRow: "Add Row",
     removeRow: "Remove"
-}
+};
 surveyLocalization.locales["en"] = surveyStrings;
 
 if (!String.prototype["format"]) {

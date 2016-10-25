@@ -1,9 +1,9 @@
 ﻿import * as React from 'react';
-import QuestionDropdownModel from "../question_dropdown";
+import {QuestionDropdownModel} from "../question_dropdown";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionDropdown extends React.Component<any, any> {
+export class SurveyQuestionDropdown extends React.Component<any, any> {
     private question: QuestionDropdownModel;
     protected css: any;
     protected rootCss: any;

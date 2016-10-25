@@ -1,11 +1,11 @@
-﻿import JsonObject from "./jsonobject";
-import Question from "./question";
+﻿import {JsonObject} from "./jsonobject";
+import {Question} from "./question";
 import {ItemValue, SurveyError} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {CustomError} from "./error";
 import {ChoicesRestfull} from "./choicesRestfull";
 
-export default class QuestionSelectBase extends Question {
+export class QuestionSelectBase extends Question {
     private commentValue: string;
     protected cachedValue: any;
     otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));

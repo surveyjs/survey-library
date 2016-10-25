@@ -1,9 +1,9 @@
 ﻿import {ItemValue} from "./base";
-import Question from "./question";
-import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+import {Question} from "./question";
+import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 
-export default class QuestionRatingModel extends Question {
+export class QuestionRatingModel extends Question {
     static defaultRateValues: ItemValue[] = [];
     private rates: ItemValue[] = [];
     public mininumRateDescription: string = null;

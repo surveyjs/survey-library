@@ -1,7 +1,7 @@
-﻿import Base, {HashTable} from "./base";
-import JsonObject from "./jsonobject";
+﻿import {Base, HashTable} from "./base";
+import {JsonObject} from "./jsonobject";
 
-export default class Trigger extends Base {
+export class Trigger extends Base {
     static operatorsValue: HashTable<Function> = null;
     static get operators() {
         if (Trigger.operatorsValue != null) return Trigger.operatorsValue;

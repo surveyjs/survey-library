@@ -1,4 +1,4 @@
-﻿import JsonObject, {JsonUnknownPropertyError} from "../src/jsonobject";
+﻿import {JsonObject, JsonUnknownPropertyError} from "../src/jsonobject";
 import {ItemValue} from "../src/base";
 
 class Car {

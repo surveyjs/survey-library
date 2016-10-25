@@ -1,6 +1,6 @@
 import {HashTable} from "../base";
 
-export default class ReactQuestionFactory {
+export class ReactQuestionFactory {
     public static Instance: ReactQuestionFactory = new ReactQuestionFactory();
     public static DefaultChoices = ["one", "two|second value", "three|third value"];
     private creatorHash: HashTable<(name: string) => JSX.Element> = {};

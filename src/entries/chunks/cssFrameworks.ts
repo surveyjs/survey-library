@@ -1,1 +1,1 @@
-﻿import '../../defaultCss/cssbootstrap.ts';
+﻿import '../../defaultCss/cssbootstrap';

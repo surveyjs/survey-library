@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
-import SurveyModel from "../survey";
+import {SurveyModel} from "../survey";
 
-export default class SurveyProgress extends React.Component<any, any> {
+export class SurveyProgress extends React.Component<any, any> {
     private survey: SurveyModel;
     protected isTop: boolean;
     protected css: any;

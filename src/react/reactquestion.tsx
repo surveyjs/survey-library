@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
-import QuestionBase from '../questionbase';
-import Question from '../question';
+import {QuestionBase} from '../questionbase';
+import {Question} from '../question';
 import {SurveyQuestionCommentItem} from './reactquestioncomment';
 
 export interface ISurveyCreator {
@@ -9,7 +9,7 @@ export interface ISurveyCreator {
     questionTitleLocation(): string;
 }
 
-export default class SurveyQuestion extends React.Component<any, any> {
+export class SurveyQuestion extends React.Component<any, any> {
     private questionBase: QuestionBase;
     protected question: Question;
     private creator: ISurveyCreator;

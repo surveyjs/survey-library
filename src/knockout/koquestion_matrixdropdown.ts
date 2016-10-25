@@ -1,9 +1,9 @@
-﻿import QuestionMatrixDropdownModel from "../question_matrixdropdown";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+﻿import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 import {QuestionImplementor} from "./koquestion";
 
-export default class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
+export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     constructor(public name: string) {
         super(name);
         new QuestionImplementor(this);

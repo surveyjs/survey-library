@@ -1,9 +1,9 @@
-﻿import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
-import QuestionSelectBase from "./question_baseselect";
+﻿import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
+import {QuestionSelectBase} from "./question_baseselect";
 import {surveyLocalization} from "./surveyStrings";
 
-export default class QuestionDropdownModel extends QuestionSelectBase {
+export class QuestionDropdownModel extends QuestionSelectBase {
     private optionsCaptionValue: string;
     constructor(public name: string) {
         super(name);

@@ -1,11 +1,11 @@
 ﻿import * as React from 'react';
-import QuestionMatrixDropdownModel from "../question_matrixdropdown";
+import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
+export class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
     private question: QuestionMatrixDropdownModel;
     protected css: any;
     protected rootCss: any;

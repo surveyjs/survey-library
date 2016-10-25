@@ -1,8 +1,8 @@
-﻿import JsonObject from "./jsonobject";
-import Base, {IPage, IConditionRunner, ISurvey, IQuestion, HashTable} from "./base";
-import QuestionBase from "./questionbase";
+﻿import {JsonObject} from "./jsonobject";
+import {Base, IPage, IConditionRunner, ISurvey, IQuestion, HashTable} from "./base";
+import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
-import QuestionFactory from "./questionfactory";
+import {QuestionFactory} from "./questionfactory";
 
 export class QuestionRowModel {
     private visibleValue: boolean = false;
@@ -54,7 +54,7 @@ export class QuestionRowModel {
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
-export default class PageModel extends Base implements IPage, IConditionRunner {
+export class PageModel extends Base implements IPage, IConditionRunner {
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
     questions: Array<QuestionBase> = new Array<QuestionBase>();

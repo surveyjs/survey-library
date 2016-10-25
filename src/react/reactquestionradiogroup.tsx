@@ -1,10 +1,10 @@
 ﻿import * as React from 'react';
-import QuestionRadiogroupModel from "../question_radiogroup";
+import {QuestionRadiogroupModel} from "../question_radiogroup";
 import {ItemValue} from "../base";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionRadiogroup extends React.Component<any, any> {
+export class SurveyQuestionRadiogroup extends React.Component<any, any> {
     protected question: QuestionRadiogroupModel;
     protected css: any;
     protected rootCss: any;

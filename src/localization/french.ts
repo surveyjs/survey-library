@@ -1,7 +1,7 @@
 ﻿//Created on behalf https://github.com/Frank13
 import {surveyLocalization} from "../surveyStrings";
 
-var frenchSurveyStrings = {
+export var frenchSurveyStrings = {
     pagePrevText: "Pr\u00e9c\u00e9dent",
     pageNextText: "Suivant",
     completeText: "Terminer",
@@ -24,5 +24,3 @@ var frenchSurveyStrings = {
     otherRequiredError: "Merci de pr\u00e9ciser le champ 'Autre'."
 };
 surveyLocalization.locales["fr"] = frenchSurveyStrings;
-
-export default frenchSurveyStrings;

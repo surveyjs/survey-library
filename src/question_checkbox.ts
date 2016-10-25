@@ -1,5 +1,5 @@
-﻿import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+﻿import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 import {QuestionCheckboxBase} from "./question_baseselect";
 
 export class QuestionCheckboxModel extends QuestionCheckboxBase {

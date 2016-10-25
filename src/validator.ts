@@ -1,14 +1,14 @@
-﻿import Base, {SurveyError} from "./base";
+﻿import {Base, SurveyError} from "./base";
 import {CustomError, RequreNumericError} from "./error";
 import {surveyLocalization} from "./surveyStrings";
-import JsonObject from './jsonobject';
+import {JsonObject} from './jsonobject';
 
 export class ValidatorResult {
     constructor(public value: any, public error: SurveyError = null) {
     }
 }
 
-export default class SurveyValidator extends Base {
+export class SurveyValidator extends Base {
     public text: string = "";
     constructor() {
         super();

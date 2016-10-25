@@ -1,17 +1,17 @@
-﻿import Question from "../src/question";
-import QuestionFactory from "../src/questionfactory";
-import QuestionSelectBase from "../src/question_baseselect";
-import QuestionTextModel from "../src/question_text";
-import SurveyModel from "../src/survey";
+﻿import {Question} from "../src/question";
+import {QuestionFactory} from "../src/questionfactory";
+import {QuestionSelectBase} from "../src/question_baseselect";
+import {QuestionTextModel} from "../src/question_text";
+import {SurveyModel} from "../src/survey";
 import {QuestionCheckboxModel} from "../src/question_checkbox";
-import QuestionMatrixModel from "../src/question_matrix";
-import {MultipleTextItemModel, default as QuestionMultipleTextModel} from "../src/question_multipletext";
+import {QuestionMatrixModel} from "../src/question_matrix";
+import {MultipleTextItemModel, QuestionMultipleTextModel} from "../src/question_multipletext";
 import {NumericValidator, AnswerCountValidator} from "../src/validator";
-import QuestionRadiogroupModel from "../src/question_radiogroup";
-import QuestionMatrixDropdownModel from "../src/question_matrixdropdown";
+import {QuestionRadiogroupModel} from "../src/question_radiogroup";
+import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
-import QuestionDropdownModel from "../src/question_dropdown";
-import QuestionMatrixDynamicModel from "../src/question_matrixdynamic";
+import {QuestionDropdownModel} from "../src/question_dropdown";
+import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 
 QUnit.module("Survey_Questions");
 

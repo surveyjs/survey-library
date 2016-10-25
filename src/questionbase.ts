@@ -1,8 +1,8 @@
-﻿import Base, {IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
-import JsonObject from './jsonobject';
+﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
+import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 
-export default class QuestionBase extends Base implements IQuestion, IConditionRunner {
+export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     private static questionCounter = 100;
     private static getQuestionId(): string {
         return "sq_" + QuestionBase.questionCounter++;

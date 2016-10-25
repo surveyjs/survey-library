@@ -1,6 +1,6 @@
 import {surveyLocalization} from "../surveyStrings";
 
-var turkishSurveyStrings = {
+export var turkishSurveyStrings = {
         pagePrevText: "Geri",
         pageNextText: "İleri",
         completeText: "Anketi Tamamla",
@@ -30,5 +30,3 @@ var turkishSurveyStrings = {
 };
 
 surveyLocalization.locales["tr"] = turkishSurveyStrings;
-
-export default turkishSurveyStrings;

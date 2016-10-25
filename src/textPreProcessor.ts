@@ -3,7 +3,7 @@
     public end: number;
 }
 
-export default class TextPreProcessor {
+export class TextPreProcessor {
     public onProcess: (name: string) => any;
     public onHasValue: (name: string) => boolean;
     constructor() { }

@@ -1,8 +1,8 @@
-﻿import QuestionFactory from "./questionfactory";
-import JsonObject from "./jsonobject";
-import Question from "./question";
+﻿import {QuestionFactory} from "./questionfactory";
+import {JsonObject} from "./jsonobject";
+import {Question} from "./question";
 
-export default class QuestionTextModel extends Question {
+export class QuestionTextModel extends Question {
     public size: number = 25;
     constructor(public name: string) {
         super(name);

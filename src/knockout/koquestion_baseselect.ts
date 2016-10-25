@@ -1,9 +1,9 @@
 ﻿import * as ko from "knockout";
 import {QuestionImplementor} from "./koquestion";
-import Question from "../question";
-import QuestionSelectBase, {QuestionCheckboxBase} from "../question_baseselect";
+import {Question} from "../question";
+import {QuestionSelectBase, QuestionCheckboxBase} from "../question_baseselect";
 
-export default class QuestionSelectBaseImplementor extends QuestionImplementor{
+export class QuestionSelectBaseImplementor extends QuestionImplementor{
     koOtherVisible: any; koVisibleChoices: any;
     constructor(question: Question) {
         super(question);

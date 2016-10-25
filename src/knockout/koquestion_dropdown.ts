@@ -1,9 +1,9 @@
-﻿import QuestionDropdownModel from "../question_dropdown";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
-import QuestionSelectBaseImplementor from "./koquestion_baseselect";
+﻿import {QuestionDropdownModel} from "../question_dropdown";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
+import {QuestionSelectBaseImplementor} from "./koquestion_baseselect";
 
-export default class QuestionDropdown extends QuestionDropdownModel {
+export class QuestionDropdown extends QuestionDropdownModel {
     constructor(public name: string) {
         super(name);
         new QuestionSelectBaseImplementor(this);

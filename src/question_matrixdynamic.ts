@@ -1,8 +1,8 @@
-﻿import QuestionMatrixDropdownModelBase, {
+﻿import {QuestionMatrixDropdownModelBase,
     MatrixDropdownRowModelBase, IMatrixDropdownData
 } from "./question_matrixdropdownbase";
-import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 import {surveyLocalization} from "./surveyStrings";
 import {SurveyError} from "./base";
 import {CustomError} from "./error";
@@ -14,7 +14,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
     public get rowName() { return "row" + this.index; }
 }
 
-export default class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
+export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
     static MaxRowCount = 100;
     private rowCounter = 0;
     private rowCountValue: number = 2;

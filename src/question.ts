@@ -1,12 +1,12 @@
-﻿import JsonObject from './jsonobject';
-import QuestionBase from './questionbase';
+﻿import {JsonObject} from './jsonobject';
+import {QuestionBase} from './questionbase';
 import {SurveyError} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
-import SurveyValidator, {IValidatorOwner, ValidatorRunner} from "./validator";
-import TextPreProcessor from "./textPreProcessor";
+import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
+import {TextPreProcessor} from "./textPreProcessor";
 
-export default class Question extends QuestionBase implements IValidatorOwner {
+export class Question extends QuestionBase implements IValidatorOwner {
     private titleValue: string = null;
     private questionValue: any;
     private questionComment: string;

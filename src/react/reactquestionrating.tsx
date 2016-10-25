@@ -1,10 +1,10 @@
 import * as React from 'react';
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
-import QuestionRatingModel from "../question_rating";
+import {QuestionRatingModel} from "../question_rating";
 import {ItemValue} from "../base";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionRating extends React.Component<any, any> {
+export class SurveyQuestionRating extends React.Component<any, any> {
     private question: QuestionRatingModel;
     protected css: any;
     protected rootCss: any;

@@ -1,13 +1,13 @@
-﻿import Survey from "../../src/knockout/kosurvey";
-import QuestionText from "../../src/knockout/koquestion_text";
-import QuestionDropdown from "../../src/knockout/koquestion_dropdown";
-import QuestionCheckbox from "../../src/knockout/koquestion_checkbox";
-import Question from "../../src/question";
-import QuestionMatrix from "../../src/knockout/koquestion_matrix";
-import QuestionMatrixDropdown from "../../src/knockout/koquestion_matrixdropdown";
+﻿import {Survey} from "../../src/knockout/kosurvey";
+import {QuestionText} from "../../src/knockout/koquestion_text";
+import {QuestionDropdown} from "../../src/knockout/koquestion_dropdown";
+import {QuestionCheckbox} from "../../src/knockout/koquestion_checkbox";
+import {Question} from "../../src/question";
+import {QuestionMatrix} from "../../src/knockout/koquestion_matrix";
+import {QuestionMatrixDropdown} from "../../src/knockout/koquestion_matrixdropdown";
 import {MatrixDropdownColumn} from "../../src/question_matrixdropdownbase";
-import QuestionMultipleText, {MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
-import Page from "../../src/knockout/kopage";
+import {QuestionMultipleText, MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
+import {Page} from "../../src/knockout/kopage";
 
 QUnit.module("koTests");
 

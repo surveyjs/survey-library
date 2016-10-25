@@ -1,11 +1,11 @@
 ﻿import * as ko from "knockout";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 import {QuestionFileModel} from "../question_file";
 import {QuestionImplementor} from "./koquestion";
-import Question from "../question";
+import {Question} from "../question";
 
-export default class QuestionFileImplementor extends QuestionImplementor {
+export class QuestionFileImplementor extends QuestionImplementor {
     koDataUpdater: any; koData: any; koHasValue: any;
     constructor(question: Question) {
         super(question);

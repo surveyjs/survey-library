@@ -1,9 +1,9 @@
-﻿import QuestionRadiogroupModel from "../question_radiogroup";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+﻿import {QuestionRadiogroupModel} from "../question_radiogroup";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 import {QuestionCheckboxBaseImplementor} from "./koquestion_baseselect";
 
-export default class QuestionRadiogroup extends QuestionRadiogroupModel {
+export class QuestionRadiogroup extends QuestionRadiogroupModel {
     constructor(public name: string) {
         super(name);
         new QuestionCheckboxBaseImplementor(this);

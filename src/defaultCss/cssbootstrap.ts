@@ -1,6 +1,6 @@
 ﻿import {surveyCss} from "./cssstandard";
 
-var defaultBootstrapCss = {
+export var defaultBootstrapCss = {
     root: "",
     header: "panel-heading",
     body: "panel-body",
@@ -31,4 +31,3 @@ var defaultBootstrapCss = {
     }
 };
 surveyCss["bootstrap"] = defaultBootstrapCss;
-export default defaultBootstrapCss;

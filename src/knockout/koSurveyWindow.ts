@@ -1,10 +1,10 @@
 ﻿import * as ko from "knockout";
-import SurveyWindowModel from "../surveyWindow";
-import SurveyModel from "../survey";
-import Survey from "./kosurvey";
+import {SurveyWindowModel} from "../surveyWindow";
+import {SurveyModel} from "../survey";
+import {Survey} from "./kosurvey";
 import {koTemplate} from './template.window.ko.html'
 
-export default class SurveyWindow extends SurveyWindowModel {
+export class SurveyWindow extends SurveyWindowModel {
     koExpanded: any;
     koExpandedCss: any;
     doExpand: any;

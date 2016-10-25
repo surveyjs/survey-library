@@ -1,12 +1,12 @@
 ﻿import * as React from 'react';
-import SurveyQuestion from './reactquestion'
-import PageModel from "../page";
-import SurveyModel from "../survey";
+import {SurveyQuestion} from './reactquestion'
+import {PageModel} from "../page";
+import {SurveyModel} from "../survey";
 import {ISurveyCreator} from "./reactquestion";
 import {QuestionRowModel} from "../page";
-import QuestionBase from "../questionbase";
+import {QuestionBase} from "../questionbase";
 
-export default class SurveyPage extends React.Component<any, any> {
+export class SurveyPage extends React.Component<any, any> {
     private page: PageModel;
     private survey: SurveyModel;
     private creator: ISurveyCreator;

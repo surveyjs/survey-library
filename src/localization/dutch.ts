@@ -1,7 +1,7 @@
 ﻿//Created on behalf https://github.com/Frank13
 import {surveyLocalization} from "../surveyStrings";
 
-var dutchSurveyStrings = {
+export var dutchSurveyStrings = {
     pagePrevText: "Vorige",
     pageNextText: "Volgende",
     completeText: "Afsluiten",
@@ -25,5 +25,3 @@ var dutchSurveyStrings = {
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;
-
-export default dutchSurveyStrings;

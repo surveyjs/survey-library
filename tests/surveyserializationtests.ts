@@ -1,11 +1,11 @@
-﻿import SurveyModel from "../src/survey";
-import JsonObject from "../src/jsonobject";
-import PageModel from "../src/page";
-import QuestionTextModel from "../src/question_text";
+﻿import {SurveyModel} from "../src/survey";
+import {JsonObject} from "../src/jsonobject";
+import {PageModel} from "../src/page";
+import {QuestionTextModel} from "../src/question_text";
 import {QuestionCheckboxModel} from "../src/question_checkbox";
-import Question from "../src/question";
-import QuestionMultipleTextModel, {MultipleTextItemModel} from "../src/question_multipletext";
-import QuestionDropdownModel from "../src/question_dropdown";
+import {Question} from "../src/question";
+import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
+import {QuestionDropdownModel} from "../src/question_dropdown";
 
 QUnit.module("SurveySerialization");
 

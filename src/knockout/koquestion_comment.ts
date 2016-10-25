@@ -1,9 +1,9 @@
-﻿import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
-import QuestionCommentModel from "../question_comment";
+﻿import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
+import {QuestionCommentModel} from "../question_comment";
 import {QuestionImplementor} from "./koquestion";
 
-export default class QuestionComment extends QuestionCommentModel {
+export class QuestionComment extends QuestionCommentModel {
     constructor(public name: string) {
         super(name);
         new QuestionImplementor(this);

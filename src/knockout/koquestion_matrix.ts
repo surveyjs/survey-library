@@ -1,8 +1,8 @@
 ﻿import * as ko from "knockout";
-import QuestionMatrixModel, {MatrixRowModel, IMatrixData} from "../question_matrix";
+import {QuestionMatrixModel, MatrixRowModel, IMatrixData} from "../question_matrix";
 import {QuestionImplementor} from "./koquestion";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 
 export class MatrixRow extends MatrixRowModel {
     private isValueUpdating = false;
@@ -22,7 +22,7 @@ export class MatrixRow extends MatrixRowModel {
         this.isValueUpdating = false;
     }
 }
-export default class QuestionMatrix extends QuestionMatrixModel {
+export class QuestionMatrix extends QuestionMatrixModel {
     constructor(public name: string) {
         super(name);
         new QuestionImplementor(this);

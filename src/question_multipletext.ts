@@ -1,8 +1,8 @@
-﻿import Base from "./base";
-import SurveyValidator, {IValidatorOwner, ValidatorRunner} from "./validator";
-import Question from "./question";
-import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+﻿import {Base} from "./base";
+import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
+import {Question} from "./question";
+import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 import {SurveyError} from "./base";
 
 export interface IMultipleTextData {
@@ -41,7 +41,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner {
     getValidatorTitle(): string { return this.title; }
 }
 
-export default class QuestionMultipleTextModel extends Question implements IMultipleTextData {
+export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
     private colCountValue: number = 1;
     colCountChangedCallback: () => void;
     public itemSize: number = 25;

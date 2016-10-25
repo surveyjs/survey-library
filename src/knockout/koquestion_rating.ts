@@ -1,9 +1,9 @@
 ﻿import * as ko from "knockout";
 import {QuestionImplementor} from "./koquestion";
-import QuestionRatingModel from "../question_rating";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
-import Question from "../question";
+import {QuestionRatingModel} from "../question_rating";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
+import {Question} from "../question";
 
 class QuestionRatingImplementor extends QuestionImplementor {
     koVisibleRateValues: any; koChange: any; koCss: any;
@@ -25,7 +25,7 @@ class QuestionRatingImplementor extends QuestionImplementor {
     private getValues(): Array<any> { return (<QuestionRating>this.question).visibleRateValues; }
 }
 
-export default class QuestionRating extends QuestionRatingModel {
+export class QuestionRating extends QuestionRatingModel {
     public itemCss: string;
     constructor(public name: string) {
         super(name);

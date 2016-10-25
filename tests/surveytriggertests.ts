@@ -1,4 +1,4 @@
-﻿import Trigger, {ISurveyTriggerOwner, SurveyTriggerVisible} from "../src/trigger";
+﻿import {Trigger, ISurveyTriggerOwner, SurveyTriggerVisible} from "../src/trigger";
 
 QUnit.module("Triggers");
 

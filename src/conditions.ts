@@ -1,5 +1,5 @@
 ﻿import {HashTable} from './base';
-import ConditionsParser from './conditionsParser';
+import {ConditionsParser} from './conditionsParser';
 
 export class Condition {
     static operatorsValue: HashTable<Function> = null;

@@ -1,7 +1,7 @@
-import Survey from "./reactSurvey";
-import SurveyModel from "../survey";
+import {Survey} from "./reactSurvey";
+import {SurveyModel} from "../survey";
 
-export default class SurveyWindow extends Survey {
+export class SurveyWindow extends Survey {
     private title: string;
     constructor(props: any) {
         super(props);

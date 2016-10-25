@@ -1,9 +1,9 @@
 ﻿import * as React from 'react';
-import QuestionTextModel from "../question_text";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {QuestionTextModel} from "../question_text";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
 
-export default class SurveyQuestionText extends React.Component<any, any> {
+export class SurveyQuestionText extends React.Component<any, any> {
     private question: QuestionTextModel;
     protected css: any;
     constructor(props: any) {

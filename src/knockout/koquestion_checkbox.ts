@@ -1,9 +1,9 @@
 ﻿import * as ko from "knockout";
 import {QuestionCheckboxBaseImplementor} from "./koquestion_baseselect";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 import {QuestionCheckboxModel} from "../question_checkbox";
-import Question from "../question";
+import {Question} from "../question";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
     constructor(question: Question) {
@@ -20,7 +20,7 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
         }
     }
 }
-export default class QuestionCheckbox extends QuestionCheckboxModel {
+export class QuestionCheckbox extends QuestionCheckboxModel {
     constructor(public name: string) {
         super(name);
         new QuestionCheckboxImplementor(this);

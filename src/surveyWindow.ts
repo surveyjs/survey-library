@@ -1,7 +1,7 @@
-﻿import Base from "./base";
-import SurveyModel from "./survey";
+﻿import {Base} from "./base";
+import {SurveyModel} from "./survey";
 
-export default class SurveyWindowModel extends Base  {
+export class SurveyWindowModel extends Base  {
     public static surveyElementName = "windowSurveyJS";
     surveyValue: SurveyModel;
     windowElement: HTMLDivElement;

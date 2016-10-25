@@ -1,9 +1,9 @@
 ﻿import * as ko from "knockout";
-import QuestionMultipleTextModel, {MultipleTextItemModel} from "../question_multipletext";
+import {QuestionMultipleTextModel, MultipleTextItemModel} from "../question_multipletext";
 import {QuestionImplementor} from "./koquestion";
-import Question from "../question";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+import {Question} from "../question";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 
 export class MultipleTextItem extends MultipleTextItemModel {
     private isKOValueUpdating = false;
@@ -40,7 +40,7 @@ export class QuestionMultipleTextImplementor extends QuestionImplementor {
     }
 }
 
-export default class QuestionMultipleText extends QuestionMultipleTextModel {
+export class QuestionMultipleText extends QuestionMultipleTextModel {
     constructor(public name: string) {
         super(name);
         new QuestionMultipleTextImplementor(this);

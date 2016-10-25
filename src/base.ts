@@ -96,7 +96,7 @@ export class ItemValue {
     }
 }
 
-export default class Base {
+export class Base {
     public getType(): string {
         throw new Error('This method is abstract');
     }

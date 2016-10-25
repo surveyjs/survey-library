@@ -1,13 +1,13 @@
 import * as React from "react";
-import ReactSurveyModel from "./reactsurveymodel";
-import SurveyPage from "./reactpage";
-import SurveyNavigation from "./reactSurveyNavigation";
-import QuestionBase from "../questionbase";
+import {ReactSurveyModel} from "./reactsurveymodel";
+import {SurveyPage} from "./reactpage";
+import {SurveyNavigation} from "./reactSurveyNavigation";
+import {QuestionBase} from "../questionbase";
 import {ISurveyCreator} from "./reactquestion";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
 
-export default class Survey extends React.Component<any, any> implements ISurveyCreator {
+export class Survey extends React.Component<any, any> implements ISurveyCreator {
     public static get cssType(): string { return surveyCss.currentType; }
     public static set cssType(value: string) { surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;

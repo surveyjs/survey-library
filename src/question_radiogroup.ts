@@ -1,8 +1,8 @@
-﻿import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+﻿import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 import {QuestionCheckboxBase} from "./question_baseselect";
 
-export default class QuestionRadiogroupModel extends QuestionCheckboxBase {
+export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     constructor(public name: string) {
         super(name);
     }

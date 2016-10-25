@@ -1,8 +1,8 @@
-﻿import QuestionBase from "./questionbase";
-import JsonObject from "./jsonobject";
-import QuestionFactory from "./questionfactory";
+﻿import {QuestionBase} from "./questionbase";
+import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 
-export default class QuestionHtmlModel extends QuestionBase {
+export class QuestionHtmlModel extends QuestionBase {
     private htmlValue: string;
     constructor(public name: string) {
         super(name);

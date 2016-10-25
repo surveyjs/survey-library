@@ -1,11 +1,11 @@
 ﻿import * as React from 'react';
-import QuestionMatrixDynamicModel from "../question_matrixdynamic";
+import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
-import ReactQuestionFactory from "./reactquestionfactory";
+import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export default class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
+export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
     private question: QuestionMatrixDynamicModel;
     protected css: any;
     protected rootCss: any;

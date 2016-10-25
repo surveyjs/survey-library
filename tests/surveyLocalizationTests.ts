@@ -1,5 +1,5 @@
 ﻿import {surveyLocalization} from "../src/surveyStrings";
-import SurveyModel from "../src/survey";
+import {SurveyModel} from "../src/survey";
 
 QUnit.module("LocalizationsTests");
 

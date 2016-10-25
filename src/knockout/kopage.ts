@@ -1,7 +1,7 @@
 ﻿import * as ko from "knockout";
-import PageModel, {QuestionRowModel} from "../page";
-import JsonObject from "../jsonobject";
-import QuestionBase from "../questionbase";
+import {PageModel, QuestionRowModel} from "../page";
+import {JsonObject} from "../jsonobject";
+import {QuestionBase} from "../questionbase";
 
 export class QuestionRow extends QuestionRowModel {
     koVisible: any;
@@ -21,7 +21,7 @@ export class QuestionRow extends QuestionRowModel {
     }
 }
 
-export default class Page extends PageModel {
+export class Page extends PageModel {
     koNo: any;
     constructor(name: string = "") {
         super(name);

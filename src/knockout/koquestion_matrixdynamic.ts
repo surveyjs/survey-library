@@ -1,10 +1,10 @@
 ﻿import * as ko from "knockout";
-import JsonObject from "../jsonobject";
-import QuestionFactory from "../questionfactory";
+import {JsonObject} from "../jsonobject";
+import {QuestionFactory} from "../questionfactory";
 import {QuestionImplementor} from "./koquestion";
-import QuestionMatrixDynamicModel from "../question_matrixdynamic";
-import Question from "../question";
-import QuestionMatrixDropdownModelBase from "../question_matrixdropdownbase";
+import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
+import {Question} from "../question";
+import {QuestionMatrixDropdownModelBase} from "../question_matrixdropdownbase";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 
 export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
@@ -55,7 +55,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
     }
 }
 
-export default class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
+export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
     constructor(public name: string) {
         super(name);
         new QuestionMatrixDynamicImplementor(this);

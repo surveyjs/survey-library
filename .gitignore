@@ -7,6 +7,7 @@ node_modules/*
 packages/*/node_modules/*
 packages/*/dist/*
 Properties/*
+src/*/*.js
 shippable/*
 typings/*
 wwwroot/*
@@ -18,3 +19,14 @@ project.lock.json
 *.cmd
 .tsdrc
 .idea
+/Content/survey.css
+/src/knockout/template.window.ko.html.ts
+/src/knockout/template.ko.html.ts
+*.js
+/packages/survey-react/package.json
+/packages/survey-react/css/survey.css
+/packages/survey-react/css
+/packages/survey-react
+/packages/survey-knockout/package.json
+/packages/survey-knockout/css/survey.css
+/.gitattributes

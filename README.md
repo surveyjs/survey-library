@@ -12,16 +12,9 @@ Install the library using npm.
 ```
 npm install survey-knockout
 ```
-If you are using bootstrap then go with bootstrap templates:
-```
-npm install survey-knockout-bootstrap
-```
-If you use react, then install the react versions:
+If you use react, then install the react version:
 ```
 npm install survey-react
-```
-```
-npm install survey-react-bootstrap
 ```
 
 Or dowload the latest version as zip file [Download](http://surveyjs.org/downloads/surveyjs.zip)
@@ -63,10 +56,6 @@ To build library yourself:
 	gulp test_ci
 	```
 	The first command will copy all required files to 'wwwroot' directory and the last command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
-
-##Coming features
-
-Find the features under development and Todo list in the [Trello board](https://trello.com/b/lAwhTw3H/surveyjs-project).
 
 ##License
 

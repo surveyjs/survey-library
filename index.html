@@ -76,9 +76,8 @@ canonicalUrl: /
                 <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
             </div>
             <div data-bind="visible:isReact">
-                <pre><code class="language-markup">&lt;script src="https://fb.me/react-0.14.8.js"&gt;&lt;/script&gt;
-&lt;script src="https://fb.me/react-dom-0.14.8.js"&gt;&lt;/script&gt;
-&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"&gt;&lt;/script&gt;                    
+                <pre><code class="language-js">import React from 'react';
+import ReactDOM from 'react-dom';
 </code></pre>
             </div>
         </div>
@@ -99,7 +98,7 @@ canonicalUrl: /
         </div>
         <div data-bind="visible:isReact">
             <h5>Link to the react version of the library.</h5>
-            <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.react.min.js"&gt;&lt;/script&gt;</code></pre>
+            <pre><code class="language-js">import * as Survey from "survey-react";</code></pre>
         </div>
        </div>
     </div>

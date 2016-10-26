@@ -6,7 +6,7 @@ propertiesFile: exampleproperties/customnavigation.html
 preSurvey: survey-custombuttons.html
 ---
 {% capture survey_setup %}
-var survey = new ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 
 function setNavigationVisibility(survey) {
@@ -16,7 +16,7 @@ function setNavigationVisibility(survey) {
     document.getElementById('surveyProgress').innerText = "Page " + (survey.currentPage.visibleIndex + 1) + " of " + survey.visiblePageCount + ".";
 }
 
-ReactDOM.render(<ReactSurvey model={survey} onCurrentPageChanged={setNavigationVisibility} />, document.getElementById("surveyElement"));
+ReactDOM.render(<Survey.Survey model={survey} onCurrentPageChanged={setNavigationVisibility} />, document.getElementById("surveyElement"));
 
 setNavigationVisibility(survey);
 {% endcapture %}

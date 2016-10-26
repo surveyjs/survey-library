@@ -4,7 +4,7 @@ usereact: true
 title: Use your custom react components to render checkbox and radiogroup questions. Use bootstrap buttons group.
 ---
 {% capture survey_setup %}
-var MyReactSurveyQuestionradiogroup = (function (_super) {
+var MyReactSurveyQuestionRadiogroup = (function (_super) {
     __extends(MyReactSurveyQuestionradiogroup, _super);
     function MyReactSurveyQuestionradiogroup(props) {
         _super.call(this, props);
@@ -26,9 +26,9 @@ var MyReactSurveyQuestionradiogroup = (function (_super) {
             otherItem));
     };
     return MyReactSurveyQuestionradiogroup;
-}(ReactSurveyQuestionradiogroup));
+}(Survey.SurveyQuestionRadiogroup));
 
-var MyReactSurveyQuestioncheckboxItem = (function (_super) {
+var MyReactSurveyQuestionCheckboxItem = (function (_super) {
     __extends(MyReactSurveyQuestioncheckboxItem, _super);
     function MyReactSurveyQuestioncheckboxItem(props) {
         _super.call(this, props);
@@ -41,8 +41,8 @@ var MyReactSurveyQuestioncheckboxItem = (function (_super) {
             React.createElement("span", {}, this.item.text), 
             otherItem));
     };
-    return MyReactSurveyQuestioncheckboxItem;
-}(ReactSurveyQuestioncheckboxItem));
+    return MyReactSurveyQuestionCheckboxItem;
+}(Survey.SurveyQuestionCheckboxItem));
 
 var MyReactSurveyQuestioncheckbox = (function (_super) {
     __extends(MyReactSurveyQuestioncheckbox, _super);
@@ -61,7 +61,7 @@ var MyReactSurveyQuestioncheckbox = (function (_super) {
         return React.createElement(MyReactSurveyQuestioncheckboxItem, {key: key, question: this.question, item: item, css: this.css, rootCss: this.rootCss });
     };
     return MyReactSurveyQuestioncheckbox;
-}(ReactSurveyQuestioncheckbox));
+}(Survey.SurveyQuestionCheckbox));
 
 var MyReactSurvey = (function (_super) {
     __extends(MyReactSurvey, _super);
@@ -78,9 +78,9 @@ var MyReactSurvey = (function (_super) {
         return _super.prototype.getReactQuestionClass(question);
     };
     return MyReactSurvey;
-}(ReactSurvey));
+}(Survey.Survey));
 
-var survey = new ReactSurveyModel({% include surveys/survey-about.json %});
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-about.json %});
 ReactDOM.render(<MyReactSurvey model={survey} />, document.getElementById("surveyElement"));
 {% endcapture %}
 

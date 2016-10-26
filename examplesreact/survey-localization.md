@@ -5,9 +5,9 @@ propertiesFile: exampleproperties/localization.html
 title: Localize your survey
 ---
 {% capture survey_setup %}
-var survey = new ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
-ReactDOM.render(<ReactSurvey model={survey} />, document.getElementById("surveyElement"));
+ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
 
 //Example of adding new locale into the library.
 var mycustomSurveyStrings = {

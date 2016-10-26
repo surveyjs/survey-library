@@ -4,7 +4,7 @@ usereact: true
 title: Example of using onValidateQuestion event
 ---
 {% capture survey_setup %}
-var survey = new ReactSurveyModel({
+var survey = new Survey.ReactSurveyModel({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
@@ -48,7 +48,7 @@ function surveyValidateQuestion(s, options) {
 }
 
     
-ReactDOM.render(<ReactSurvey model={survey} onValidateQuestion={surveyValidateQuestion} />, document.getElementById("surveyElement"));    
+ReactDOM.render(<Survey.Survey model={survey} onValidateQuestion={surveyValidateQuestion} />, document.getElementById("surveyElement"));    
 {% endcapture %}
 
 {% include live-example-code.html %}

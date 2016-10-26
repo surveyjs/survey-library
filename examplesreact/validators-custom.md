@@ -4,6 +4,16 @@ usereact: true
 title: Create custom validator
 ---
 {% capture survey_code %}
+//TODO- remove
+var __extends = undefined && undefined.__extends || function (d, b) {
+    for (var p in b) {
+        if (b.hasOwnProperty(p)) d[p] = b[p];
+    }function __() {
+        this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+
 var MyTextValidator = (function (_super) {
     __extends(MyTextValidator, _super);
     function MyTextValidator() {
@@ -32,13 +42,13 @@ Survey.JsonObject.metaData.addClass("mytextvalidator", [], function () { return 
 {% endcapture %}
 
 {% capture survey_setup %}
-var survey = new ReactSurveyModel({
+var survey = new Survey.ReactSurveyModel({
         questions: [
                 { type: "comment",  name: "memo", isRequired: true,
                 title: "Type here 'survey' to pass the validation ",
                 validators: [{type: "mytext"}]}
             ]});
-ReactDOM.render(<ReactSurvey model={survey} />, document.getElementById("surveyElement"));            
+ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));            
 {% endcapture %}
 
 {% include live-example-code.html %}

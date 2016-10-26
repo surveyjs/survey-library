@@ -31,9 +31,9 @@ function runSurvey() {
         var memo = document.getElementById('sentResults');
         memo.value = memo.value + text;
     };
-    ReactDOM.render(<ReactSurvey model={survey} clientId={clientId} onComplete={surveyComplete} onSendResult={surveySendResult} />, document.getElementById("surveyElement"));
+    ReactDOM.render(<Survey.Survey model={survey} clientId={clientId} onComplete={surveyComplete} onSendResult={surveySendResult} />, document.getElementById("surveyElement"));
 }
-var survey = new ReactSurveyModel({
+var survey = new Survey.ReactSurveyModel({
         surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
         surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
 }, "surveyContainer");

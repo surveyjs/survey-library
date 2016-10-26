@@ -5,8 +5,8 @@ title: Use cookie to run servey one time in a browser.
 disablereRun: true
 ---
 {% capture survey_setup %}
-var survey = new ReactSurveyModel({% include surveys/survey-cookie.json %});
-ReactDOM.render(<ReactSurvey model={survey} />, document.getElementById("surveyElement"));
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-cookie.json %});
+ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
 {% endcapture %}
 
 

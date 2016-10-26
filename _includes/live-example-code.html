@@ -32,5 +32,5 @@ survey.onComplete.add(function (s) {
 <pre><code class="language-javascript">{{ survey_events | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
 {% endif %}
 <div>Source code: Survey setup</div>
-<pre><code class="language-javascript">{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+<pre><code class="language-javascript">Survey.Survey.cssType = "bootstrap";{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
 

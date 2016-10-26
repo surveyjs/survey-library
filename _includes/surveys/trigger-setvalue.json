@@ -1,7 +1,7 @@
 {
         triggers: [
             { type: "setvalue", name: "copy", operator: "equal", value: "Yes", setToName: "name", setValue: "Jon Snow" },
-            { type: "setvalue", name: "copy", operator: "equal", value: "Yes", setToName: "email", setValue: "jon.show@nightwatch.com" },
+            { type: "setvalue", name: "copy", operator: "equal", value: "Yes", setToName: "email", setValue: "jon.snow@nightwatch.com" },
             { type: "setvalue", name: "copy", operator: "equal", value: "Yes", setToName: "tempvar", isVariable: true, setValue: "You have decided to use your current information." },
             { type: "setvalue", name: "copy", operator: "equal", value: "No", setToName: "name", setValue: "" },
             { type: "setvalue", name: "copy", operator: "equal", value: "No", setToName: "email", setValue: "" },

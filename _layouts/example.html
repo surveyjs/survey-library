@@ -4,9 +4,12 @@ pathprefix: ../
 mainmenukey: examples
 ---
 {% include menu-examples.html %}
+<script>
+Survey.Survey.cssType = "bootstrap";    
+</script>
 {% include content-examples.html %}
 
-<script>
+<script>    
 function reRunSurvey() {
     survey.clear();
     survey.render('survey');

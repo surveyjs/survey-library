@@ -6,6 +6,7 @@ import {QuestionBase} from "../questionbase";
 import {ISurveyCreator} from "./reactquestion";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
+import {SurveyProgress} from "./reactSurveyProgress"
 
 export class Survey extends React.Component<any, any> implements ISurveyCreator {
     public static get cssType(): string { return surveyCss.currentType; }
@@ -64,7 +65,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
     }
     protected renderProgress(isTop: boolean): JSX.Element {
-        return null;
+        return <SurveyProgress survey={this.survey} css={this.css} isTop={isTop}  />;
     }
     protected renderNavigation(): JSX.Element {
         return <SurveyNavigation survey = {this.survey} css={this.css}/>;

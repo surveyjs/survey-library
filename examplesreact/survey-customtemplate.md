@@ -4,20 +4,17 @@ usereact: true
 title: Use your custom react components to render checkbox and radiogroup questions. Use bootstrap buttons group.
 ---
 {% capture survey_setup %}
-var MyReactSurveyQuestionRadiogroup = (function (_super) {
-    __extends(MyReactSurveyQuestionradiogroup, _super);
-    function MyReactSurveyQuestionradiogroup(props) {
-        _super.call(this, props);
-    }
-    MyReactSurveyQuestionradiogroup.prototype.render = function () {
+
+class MySurveyQuestionRadiogroup extends Survey.SurveyQuestionRadiogroup {
+    render() {
         if (!this.question)
             return null;
-        return (React.createElement("form", {className: "btn-group", ref: "toggleInput"}, this.getItems()));
+        return React.createElement("form", {className: "btn-group", ref: "toggleInput"}, this.getItems());
     };
-    MyReactSurveyQuestionradiogroup.prototype.componentDidMount = function() {
+    componentDidMount() {
         this.refs.toggleInput.setAttribute('data-toggle', 'buttons');
     };    
-    MyReactSurveyQuestionradiogroup.prototype.renderRadio = function (key, item, isChecked, divStyle, otherItem) {
+    renderRadio(key, item, isChecked, divStyle, otherItem) {
         var className = "btn btn-default";
         if(isChecked) className += " active";
         return (React.createElement("label", {key: key, style: divStyle, className: className}, 
@@ -25,15 +22,10 @@ var MyReactSurveyQuestionRadiogroup = (function (_super) {
             React.createElement("span", {}, item.text), 
             otherItem));
     };
-    return MyReactSurveyQuestionradiogroup;
-}(Survey.SurveyQuestionRadiogroup));
+}
 
-var MyReactSurveyQuestionCheckboxItem = (function (_super) {
-    __extends(MyReactSurveyQuestioncheckboxItem, _super);
-    function MyReactSurveyQuestioncheckboxItem(props) {
-        _super.call(this, props);
-    }
-    MyReactSurveyQuestioncheckboxItem.prototype.renderCheckbox = function (isChecked, divStyle, otherItem) {
+class MySurveyQuestionCheckboxItem extends Survey.SurveyQuestionCheckboxItem {
+    renderCheckbox(isChecked, divStyle, otherItem) {
         var className = "btn btn-default";
         if(isChecked) className += " active";
         return (React.createElement("label", {className: className, style: divStyle}, 
@@ -41,47 +33,32 @@ var MyReactSurveyQuestionCheckboxItem = (function (_super) {
             React.createElement("span", {}, this.item.text), 
             otherItem));
     };
-    return MyReactSurveyQuestionCheckboxItem;
-}(Survey.SurveyQuestionCheckboxItem));
+}
 
-var MyReactSurveyQuestioncheckbox = (function (_super) {
-    __extends(MyReactSurveyQuestioncheckbox, _super);
-    function MyReactSurveyQuestioncheckbox(props) {
-        _super.call(this, props);
-    }
-    MyReactSurveyQuestioncheckbox.prototype.render = function () {
+class MySurveyQuestionCheckbox extends Survey.SurveyQuestionCheckbox {
+    render() {
         if (!this.question)
             return null;
-        return (React.createElement("div", {className: "btn-group", ref: "toggleInput"}, this.getItems()));
-    };
-    MyReactSurveyQuestioncheckbox.prototype.componentDidMount = function() {
+        return React.createElement("div", {className: "btn-group", ref: "toggleInput"}, this.getItems());
+    }
+    componentDidMount() {
         this.refs.toggleInput.setAttribute('data-toggle', 'buttons');
     };    
-    MyReactSurveyQuestioncheckbox.prototype.renderItem = function (key, item) {
-        return React.createElement(MyReactSurveyQuestioncheckboxItem, {key: key, question: this.question, item: item, css: this.css, rootCss: this.rootCss });
+    renderItem(key, item) {
+        return React.createElement(MySurveyQuestionCheckboxItem, {key: key, question: this.question, item: item, css: this.css, rootCss: this.rootCss });
     };
-    return MyReactSurveyQuestioncheckbox;
-}(Survey.SurveyQuestionCheckbox));
+} 
+ 
+Survey.ReactQuestionFactory.Instance.registerQuestion("checkbox", (props) => {
+    return React.createElement(MySurveyQuestionCheckbox, props);
+});
 
-var MyReactSurvey = (function (_super) {
-    __extends(MyReactSurvey, _super);
-    function MyReactSurvey(props) {
-        _super.call(this, props);
-    }
-    MyReactSurvey.prototype.getReactQuestionClass = function (question) {
-        if(question.getType() == "radiogroup") {
-            return MyReactSurveyQuestionradiogroup;
-        }
-        if(question.getType() == "checkbox") {
-            return MyReactSurveyQuestioncheckbox;
-        }
-        return _super.prototype.getReactQuestionClass(question);
-    };
-    return MyReactSurvey;
-}(Survey.Survey));
+Survey.ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
+    return React.createElement(MySurveyQuestionRadiogroup, props);
+});
 
 var survey = new Survey.ReactSurveyModel({% include surveys/survey-about.json %});
-ReactDOM.render(<MyReactSurvey model={survey} />, document.getElementById("surveyElement"));
+ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
 {% endcapture %}
 
 {% include live-example-code.html %}

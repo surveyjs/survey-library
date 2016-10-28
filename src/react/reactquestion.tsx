@@ -38,9 +38,14 @@ export class SurveyQuestion extends React.Component<any, any> {
             }
         }
     }
+    componentDidMount() {
+        if (this.questionBase) this.questionBase["react"] = this;
+    }
+    componentWillUnmount() {
+        if (this.questionBase) this.questionBase["react"] = null;
+    }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;
-        this.questionBase["react"] = this; //TODO
         if (!this.questionBase.visible) return null;
         var questionRender = this.creator.createQuestionElement(this.questionBase);
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;

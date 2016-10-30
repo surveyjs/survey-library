@@ -48,7 +48,7 @@ var config_ko = {
     name: "survey-knockout",
     keywords: ["Knockout"],
     dependencies: {"knockout": "^3.4.0"},
-    templates: [{ path: ["./src/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
+    templates: [{ path: ["./src/knockout/templates/*.html", "./src/plugins/knockout/templates/*.html"], fileName: "template.ko.html", dest: "./src/knockout/" },
         { path: "./src/knockout/templates/window/*.html", fileName: "template.window.ko.html", dest: "./src/knockout/" }],
     src: [
         "./src/*.ts",
@@ -57,6 +57,8 @@ var config_ko = {
         "./src/defaultCss/cssbootstrap.ts",
         "./src/knockout/*.ts",
         "./src/entries/chunks/**/*.ts",
+        "./src/plugins/*.ts",
+        "./src/plugins/knockout/*.ts",
         "./src/entries/ko.ts"
     ],
     mainJSfile: "survey.ko.js",
@@ -76,6 +78,8 @@ var config_react = {
         "./src/defaultCss/*.ts",
         "./src/react/*.tsx",
         "./src/entries/chunks/**/*.ts",
+        "./src/plugins/*.ts",
+        "./src/plugins/react/*.tsx",
         "./src/entries/react.ts"
     ],
     mainJSfile: "survey.react.js",

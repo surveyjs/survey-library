@@ -657,6 +657,25 @@ QUnit.test("simple condition test", function (assert) {
     assert.equal(q3.visible, false, "q3becomes invisible, q1 = 'no' and q2 = 'yes'");
 });
 
+QUnit.test("simple condition test, page visibility", function (assert) {
+    var survey = new SurveyModel({
+        pages: [{
+            name: "page1",
+            questions: [
+                { type: "checkbox", name: "q1", choices: ["yes", "no"] }]
+        }, {
+                name: "page2", visibleIf: "{q1} contains 'yes'",
+                questions: [
+                    { type: "text", name: "q3" }]
+            }
+        ]
+    });
+    var page2 = survey.getPageByName("page2");
+    assert.equal(page2.visible, false, "the initial page2 is invisible");
+    survey.setValue("q1", ["yes"]);
+    assert.equal(page2.visible, true, "the page becomes visible, q1 = 'yes'");
+});
+
 QUnit.test("multiple triger on checkbox stop working.", function (assert) {
     var survey = new SurveyModel({
         pages: [{

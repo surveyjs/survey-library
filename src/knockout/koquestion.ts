@@ -28,6 +28,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.question["koValue"] = this.koValue;
         this.question["koComment"] = this.koComment;
         this.question["koTitle"] = this.koTitle;
+        this.question["koQuestionAfterRender"] = this.koQuestionAfterRender;
     }
     protected onValueChanged() {
         if (this.isUpdating) return;
@@ -62,5 +63,11 @@ export class QuestionImplementor extends QuestionImplementorBase {
     }
     protected getNo(): string {
         return this.question.visibleIndex > -1 ? this.question.visibleIndex + 1 + ". " : "";
+    }
+    protected koQuestionAfterRender(el, con) {
+        var tEl = el[0];
+        if (tEl.nodeName == "#text") tEl.data = "";
+        tEl = el[el.length - 1];
+        if (tEl.nodeName == "#text") tEl.data = "";
     }
 }

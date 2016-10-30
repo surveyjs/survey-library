@@ -33,4 +33,5 @@ export {ReactQuestionFactory} from "../react/reactquestionfactory";
 
 export {__extends} from "../extends";
 
-//export {default as SurveyQuestionDate} from "../plugins/questiondate/react/reactquestiondate";
+//Uncomment to include the "date" question type.
+//export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

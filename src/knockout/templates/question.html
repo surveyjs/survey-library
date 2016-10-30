@@ -5,7 +5,7 @@
         <!-- /ko -->
         <!-- ko template: { name: 'survey-question-errors', data: question } -->
         <!-- /ko -->
-        <!-- ko template: { name: 'survey-question-' + question.getType(), data: question } -->
+        <!-- ko template: { name: 'survey-question-' + question.getType(), data: question, afterRender: question.koQuestionAfterRender } -->
         <!-- /ko -->
         <div data-bind="visible: question.hasComment">
             <div data-bind="text:question.commentText"></div>

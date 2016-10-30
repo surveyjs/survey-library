@@ -1,6 +1,6 @@
 ﻿import * as React from 'react';
 import QuestionDateModel from "../question_date";
-import {ReactQuestionFactory} from "../../../react/reactquestionfactory";
+import {ReactQuestionFactory} from "../../react/reactquestionfactory";
 
 
 export default class SurveyQuestionDate extends React.Component<any, any> {
@@ -22,7 +22,8 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
         this.css = nextProps.css;
     }
     componentDidMount() {
-        var scriptText = "$(function () { $('#" + this.getDateId() + "').datepicker(); });";
+        var funcText = this.question.getjQueryScript(this.getDateId());
+        var scriptText = "$(function () { " + funcText + " });";
         var rootId = this.getDivId();
         var scriptEl = document.createElement("script");
         scriptEl.type = "text\/javascript";
@@ -31,17 +32,17 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        var inputId = "date_" + this.question.name;
         return (
             <div id={this.getDivId()}>
                 <input className={this.css} id={this.getDateId()} type="text" value={this.question.value || ''} onChange={this.handleOnChange} />
             </div>
         );
     }
-    private getDateId(): string { return "date_" + this.question.name; }
-    private getDivId(): string { return "rootDate_" + this.question.name; }
+    private getDateId(): string { return "date_" + this.question.id; }
+    private getDivId(): string { return "rootDate_" + this.question.id; }
 }
 
+//Tell json serializer to create exactly this class. Override it from the model that doesn't have any rendering functionality.
 ReactQuestionFactory.Instance.registerQuestion("date", (props) => {
     return React.createElement(SurveyQuestionDate, props);
 });

@@ -39,3 +39,5 @@ export {SurveyTemplateText} from "../knockout/templateText";
 
 export {__extends} from "../extends";
 
+//Uncomment to include the "date" question type.
+//export {QuestionDate} from "../plugins/knockout/koquestion_date";

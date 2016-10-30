@@ -43,3 +43,6 @@ export {TextPreProcessor} from "../../textPreProcessor";
 
 export {dxSurveyService} from "../../dxSurveyService";
 export {surveyLocalization, surveyStrings} from "../../surveyStrings";
+
+//Uncomment to include the "date" question type.
+//export {default as QuestionDateModel} from "../../plugins/question_date";

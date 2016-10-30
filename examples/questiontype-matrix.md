@@ -1,5 +1,6 @@
 ---
 layout: example
+propertiesFile: exampleproperties/questionmatrix.html
 title: Matrix (type:'matrix')
 ---
 {% capture survey_setup %}

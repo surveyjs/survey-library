@@ -1,0 +1,8 @@
+<div class="propertyitem">
+    <p>
+    Require answer for all rows <input type="checkbox" onChange="survey.getQuestionByName('Quality').isAllRowRequired = this.checked; survey.render();"/> (default is false).
+    <pre><code class="language-javascript">var q = survey.getQuestionByName('questionname'); 
+q.isAllRowRequired = yourValue;
+survey.render();</code></pre>
+    </p>
+</div>

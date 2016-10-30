@@ -1,4 +1,4 @@
-﻿** The example of creating new question type: "date", based on jQuery UI date widget.
+﻿# The example of creating new question type: "date", based on jQuery UI date widget.
 
 ##To include the plugin into the bundle
 

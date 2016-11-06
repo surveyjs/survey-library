@@ -57,6 +57,9 @@ To build library yourself:
 	```
 	The first command will copy all required files to 'wwwroot' directory and the last command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
 
+##Create your own question type.
+Explore the [example](https://github.com/andrewtelnov/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.
+
 ##License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)

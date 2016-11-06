@@ -18,7 +18,7 @@ var gulp = require('gulp'),
 
 var Server = require("karma").Server;
 
-var libraryVersion = "0.10.0";
+var libraryVersion = "0.10.1";
 
 var paths = {
     webroot: "./" + project.webroot + "/",

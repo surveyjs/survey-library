@@ -6,6 +6,7 @@ import {CustomError} from "./error";
 import {ChoicesRestfull} from "./choicesRestfull";
 
 export class QuestionSelectBase extends Question {
+    private visibleChoicesCache: Array<ItemValue> = null;
     private commentValue: string;
     protected cachedValue: any;
     otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
@@ -36,7 +37,7 @@ export class QuestionSelectBase extends Question {
     private isSettingComment: boolean = false;
     protected setComment(newValue: string) {
         if (this.getStoreOthersAsComment())
-            super.setComment(newValue)
+            super.setComment(newValue);
         else {
             if (!this.isSettingComment && newValue != this.commentValue) {
                 this.isSettingComment = true;
@@ -81,26 +82,28 @@ export class QuestionSelectBase extends Question {
     get choices(): Array<any> { return this.choicesValues; }
     set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValues, newValue);
-        this.fireCallback(this.choicesChangedCallback);
+        this.onVisibleChoicesChanged();
     }
     protected hasOtherChanged() {
-        this.fireCallback(this.choicesChangedCallback);
+        this.onVisibleChoicesChanged();
     }
     get choicesOrder(): string { return this.choicesOrderValue; }
     set choicesOrder(newValue: string) {
         if (newValue == this.choicesOrderValue) return;
         this.choicesOrderValue = newValue;
-        this.fireCallback(this.choicesChangedCallback);
+        this.onVisibleChoicesChanged();
     }
     get otherText(): string { return this.otherItem.text; }
     set otherText(value: string) { this.otherItem.text = value; }
     get visibleChoices(): Array<ItemValue> {
         if (!this.hasOther && this.choicesOrder == "none") return this.activeChoices;
-        var result = this.sortVisibleChoices(this.activeChoices.slice());
-        if (this.hasOther) {
-            result.push(this.otherItem);
+        if(!this.visibleChoicesCache) {
+            this.visibleChoicesCache = this.sortVisibleChoices(this.activeChoices.slice());
+            if (this.hasOther) {
+                this.visibleChoicesCache.push(this.otherItem);
+            }
         }
-        return result;
+        return this.visibleChoicesCache;
     }
     private get activeChoices(): Array<ItemValue> { return this.choicesFromUrl ? this.choicesFromUrl : this.choices; }
     public supportComment(): boolean { return true; }
@@ -133,6 +136,10 @@ export class QuestionSelectBase extends Question {
             ItemValue.setData(newChoices, array);
         }
         this.choicesFromUrl = newChoices;
+        this.onVisibleChoicesChanged();
+    }
+    private onVisibleChoicesChanged() {
+        this.visibleChoicesCache = null;
         this.fireCallback(this.choicesChangedCallback);
     }
     private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {

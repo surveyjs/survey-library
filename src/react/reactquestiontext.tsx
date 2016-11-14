@@ -24,7 +24,7 @@ export class SurveyQuestionText extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <input className={this.css} type="text" value={this.question.value || ''} onChange={this.handleOnChange} />
+            <input className={this.css} type="text" value={this.question.value || ''} size={this.question.size} onChange={this.handleOnChange} />
         );
     }
 }

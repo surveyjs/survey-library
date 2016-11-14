@@ -11,6 +11,7 @@ export class Survey extends SurveyModel {
     public static set cssType(value: string) { surveyCss.currentType = value; }
     private renderedElement: HTMLElement;
     public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    private isFirstRender: boolean = true;
 
     koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; koState: any;
     koProgress: any; koProgressText: any;
@@ -93,9 +94,20 @@ export class Survey extends SurveyModel {
         if (!this.renderedElement) return;
         this.updateKoCurrentPage();
         ko.cleanNode(this.renderedElement);
+        if (!this.isFirstRender) {
+            this.updateCurrentPageQuestions();
+        }
+        this.isFirstRender = false;
         ko.applyBindings(this, this.renderedElement);
     }
     private updateKoCurrentPage() {
         this.dummyObservable(this.dummyObservable() + 1);
+    }
+    private updateCurrentPageQuestions() {
+        var questions = this.currentPage ? this.currentPage.questions : [];
+        for (var i = 0; i < questions.length; i++) {
+            var q = questions[i];
+            if (q.visible) q["updateQuestion"]();
+        }
     }
 }

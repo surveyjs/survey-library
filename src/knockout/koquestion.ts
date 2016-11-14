@@ -29,6 +29,10 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.question["koComment"] = this.koComment;
         this.question["koTitle"] = this.koTitle;
         this.question["koQuestionAfterRender"] = this.koQuestionAfterRender;
+        this.question["updateQuestion"] = function () { self.updateQuestion(); }
+    }
+    protected updateQuestion() {
+        this.koDummy(this.koDummy() + 1);
     }
     protected onValueChanged() {
         if (this.isUpdating) return;

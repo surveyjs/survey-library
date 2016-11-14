@@ -17,7 +17,9 @@ export class QuestionImplementorBase {
         this.question["koErrors"] = this.koErrors;
         this.question["koMarginLeft"] = this.koMarginLeft;
         this.question["koPaddingRight"] = this.koPaddingRight;
+        this.question["updateQuestion"] = function () { self.updateQuestion(); }
     }
+    protected updateQuestion() {  }
     protected onVisibilityChanged() {
         this.koVisible(this.question.visible);
     }

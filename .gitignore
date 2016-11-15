@@ -22,11 +22,12 @@ project.lock.json
 /Content/survey.css
 /src/knockout/template.window.ko.html.ts
 /src/knockout/template.ko.html.ts
-*.js
+/packages/survey-react/**/*.js
 /packages/survey-react/package.json
 /packages/survey-react/css/survey.css
 /packages/survey-react/css
 /packages/survey-react
+/packages/survey-knockout/**/*.js
 /packages/survey-knockout/package.json
 /packages/survey-knockout/css/survey.css
 /.gitattributes

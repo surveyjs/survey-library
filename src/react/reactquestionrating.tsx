@@ -34,7 +34,7 @@ export class SurveyQuestionRating extends React.Component<any, any> {
         }
         var comment = this.question.hasOther ? this.renderOther() : null;
         return (
-            <div className={this.css.root} data-toggle="buttons">
+            <div className={this.css.root}>
                 {values}
                 {comment}
             </div>
@@ -47,7 +47,7 @@ export class SurveyQuestionRating extends React.Component<any, any> {
         var min = minText ? <span>{minText}</span> : null;
         var max = maxText ? <span>{maxText}</span> : null;
         return <label key={key} className={className}>
-            <input type="radio" name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
+            <input type="radio" style={{display: "none"}} name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
             {min}
             <span>{item.text}</span>
             {max}

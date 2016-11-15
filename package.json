@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "testcafe": "testcafe chrome testCafe/tests"
+  },
   "version": "0.9.5",
   "name": "surveyjs",
   "private": true,
@@ -29,10 +32,12 @@
     "karma-junit-reporter": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-qunit": "^1.0.0",
+    "node-uuid": "^1.4.7",
     "qunit": "^0.9.1",
     "qunitjs": "^2.0.1",
     "rimraf": "^2.5.2",
     "source-map-loader": "^0.1.5",
+    "testcafe": "^0.10.0",
     "ts-loader": "^0.8.2",
     "typescript": "^2.0.2",
     "webpack": "^1.13.2",

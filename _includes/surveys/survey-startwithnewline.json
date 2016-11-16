@@ -3,7 +3,7 @@
  pages: [
   { name: "Address",  title: "Address",
    questions: [
-    { type: "text", name: "address1", title: "Stree Address" },
+    { type: "text", name: "address1", title: "Street Address" },
     { type: "text", name: "address2", title: "Address Line 2" },
     { type: "text", name: "city", title: "City" },
     { type: "text", name: "state", startWithNewLine: false, title: "State / Province / Region" },

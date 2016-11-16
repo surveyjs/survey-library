@@ -26,16 +26,8 @@ survey.onValidateQuestion.add(function (s, options) {
     if (options.name == 'pricelimit') {
         var leastamount = options.value['leastamount'];
         var mostamount = options.value['mostamount'];
-        if(!isNumber(leastamount)) {
-            options.error = "The 'least amount' should be a numeric.";
-        } else {
-            if(!isNumber(mostamount)) {
-                options.error = "The 'most amount' should be a numeric.";
-            } else {
-                if(leastamount > mostamount) {
-                    options.error = "The 'most amount' should be more 'less amount'.";
-                }
-            }   
+        if(leastamount > mostamount) {
+            options.error = "The 'most amount' should be more 'less amount'.";
         }
     }
     if (options.name == 'firstcomputer') {

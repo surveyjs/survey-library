@@ -1,6 +1,5 @@
 ---
 layout: example
-propertiesFile: exampleproperties/text.html
 title: Text (type:'text')
 ---
 {% capture survey_setup %}

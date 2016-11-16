@@ -1,5 +1,5 @@
 {questions: [
-{ type: "matrixdynamic", name: "frameworksRate", title: "Please rate your teachers", addRowText: "Add Subject", 
+{ type: "matrixdynamic", name: "teachersRate", title: "Please rate your teachers", addRowText: "Add Subject",
     horizontalScroll: true, columnMinWidth: "120px",  columnColCount: 1, cellType: "radiogroup",
     choices: [{value: 1 , text: "Yes"}, {value: 0, text: "Sometimes"}, {value: -1, text: "No"}],
     columns: [{ name: "subject", cellType:"dropdown", title: "Select a subject", isRequired: true, minWidth: "300px", choices: ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]}, 

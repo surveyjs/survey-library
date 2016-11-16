@@ -1,7 +1,6 @@
 ---
 layout: example
 usereact: true
-propertiesFile: exampleproperties/text.html
 title: Text (type:'text')
 ---
 {% capture survey_setup %}

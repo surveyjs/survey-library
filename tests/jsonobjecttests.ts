@@ -227,6 +227,13 @@ QUnit.test("ItemValueListOwner deserialization", function (assert) {
     assert.equal(list.items[3].value, "value1", "set correct value property for the fourth item");
     assert.equal(list.items[3].text, "text1", "set correct text property for the fourth item");
 });
+QUnit.test("ItemValueListOwner deserialization, custom property in ItemValue", function (assert) {
+    var list = new ItemValueListOwner();
+    
+    new JsonObject().toObject({ "items": [{ "value": 7, "text": "Item 1", price: 55.5 }, 5, "item", "value1|text1"] }, list);
+    assert.equal(list.items.length, 4, "there are 4 items");
+    assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
+});
 QUnit.test("LongNamesOwner serialization", function (assert) {
     var owner = new LongNamesOwner();
     var l1 = new LongNameItemA();  l1.A = 5;

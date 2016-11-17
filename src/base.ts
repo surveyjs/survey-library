@@ -48,7 +48,10 @@ export class ItemValue {
             var item = new ItemValue(null);
             if (typeof (value.value) !== 'undefined') {
                 item.text = typeof (value.hasText) !== 'undefined' ? value.itemText : value["text"];
-                item.value = value["value"];
+                for (var key in value) {
+                    if (key == "text") continue;
+                    item[key] = value[key];
+                }
             } else {
                 item.value = value;
             }

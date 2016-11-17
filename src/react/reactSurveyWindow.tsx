@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {Survey} from "./reactSurvey";
 import {SurveyModel} from "../survey";
 

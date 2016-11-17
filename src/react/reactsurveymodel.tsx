@@ -1,4 +1,5 @@
-﻿import {SurveyModel} from "../survey";
+﻿import * as React from 'react';
+import {SurveyModel} from "../survey";
 
 export class ReactSurveyModel extends SurveyModel {
     renderCallback: () => void;

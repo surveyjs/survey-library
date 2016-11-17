@@ -152,14 +152,14 @@ survey.onComplete.add(sendDataToServer);
        <div class="col-sm-6">
            <h3>As Survey Window</h3>
            <pre><code class="language-js">ReactDOM.render(
-  &lt;ReactSurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;, 
+  &lt;Survey.SurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;,
   document.getElementById("surveyContainer"));</code></pre>
        </div>
        <div class="col-sm-6">
            <h3>Inside your web page</h3>
            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
            <pre><code class="language-js">ReactDOM.render(
-  &lt;ReactSurvey json={surveyJSON} onComplete={sendDataToServer}/&gt;,
+  &lt;Survey.Survey json={surveyJSON} onComplete={sendDataToServer}/&gt;,
   document.getElementById("surveyContainer"));</code></pre>
        </div>
     </div>

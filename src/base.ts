@@ -49,7 +49,9 @@ export class ItemValue {
             if (typeof (value.value) !== 'undefined') {
                 item.text = typeof (value.hasText) !== 'undefined' ? value.itemText : value["text"];
                 for (var key in value) {
-                    if (key == "text") continue;
+                    if (key == "text" || (typeof value[key] == 'function')) continue;
+                    var descriptor = Object.getOwnPropertyDescriptor(value, key);
+                    if (descriptor && !descriptor.writable) continue;
                     item[key] = value[key];
                 }
             } else {

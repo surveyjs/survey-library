@@ -59,6 +59,14 @@ QUnit.test("Comment and other could not be set together", function (assert) {
     assert.equal(questionDropDown.hasComment, false, "After set other to true");
     assert.equal(questionDropDown.hasOther, true, "After set other to true");
 });
+QUnit.test("set choices from another question", function (assert) {
+    var q1 = new QuestionSelectBase("q1");
+    q1.choices = [{ value: 1, text: "One", price: 4 }, "Two", "Three"];
+    var q2 = new QuestionSelectBase("q2");
+    q2.choices = q1.choices;
+    assert.equal(q2.choices.length, 3, "all three were copied");
+    assert.equal(q2.choices[0]["price"], 4, "additional data is copied");
+});
 QUnit.test("visibleChoices changes on setting others to true/false", function (assert) {
     var question = new QuestionSelectBase("dropdownQuestion");
     question.choices = ["One", "Two", "Three"];

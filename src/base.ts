@@ -47,13 +47,13 @@ export class ItemValue {
             var value = values[i];
             var item = new ItemValue(null);
             if (typeof (value.value) !== 'undefined') {
-                item.text = typeof (value.hasText) !== 'undefined' ? value.itemText : value["text"];
-                for (var key in value) {
-                    if (key == "text" || (typeof value[key] == 'function')) continue;
-                    var descriptor = Object.getOwnPropertyDescriptor(value, key);
-                    if (descriptor && !descriptor.writable) continue;
-                    item[key] = value[key];
+                var exception = null;
+                if (typeof (value.getType) !== 'undefined' && value.getType() == 'itemvalue') {
+                    value.itemValue = value.itemValue;
+                    item.itemText = value.itemText;
+                    exception = ItemValue.itemValueProp;
                 }
+                ItemValue.copyAttributes(value, item, exception);
             } else {
                 item.value = value;
             }
@@ -71,6 +71,14 @@ export class ItemValue {
             }
         }
         return result;
+    }
+    private static itemValueProp = [ "text", "value", "hasText"];
+    private static copyAttributes(src: any, dest: any, exceptons: Array<string>) {
+        for (var key in src) {
+            if ((typeof src[key] == 'function')) continue;
+            if (exceptons && exceptons.indexOf(key) > -1) continue;
+            dest[key] = src[key];
+        }
     }
     private itemValue: any;
     private itemText: string;

@@ -72,6 +72,12 @@ export class ItemValue {
         }
         return result;
     }
+    public static getItemByValue(items: Array<ItemValue>, val: any): ItemValue {
+        for (var i = 0; i < items.length; i ++) {
+            if (items[i].value == val) return items[i];
+        }
+        return null;
+    }
     private static itemValueProp = [ "text", "value", "hasText"];
     private static copyAttributes(src: any, dest: any, exceptons: Array<string>) {
         for (var key in src) {

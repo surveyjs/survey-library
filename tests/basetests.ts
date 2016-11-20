@@ -88,3 +88,16 @@ QUnit.test("ItemValue.getData()", function (assert) {
     ItemValue.setData(items, [{ value: 7, text: "Item 1" }, 5, "item"]);
     assert.deepEqual(data, [{ value: 7, text: "Item 1" }, 5, "item"], "convert some items to simple values");
 });
+
+QUnit.test("ItemValue.getItemByValue()", function (assert) {
+    var items = new Array<ItemValue>();
+    items.push(new ItemValue(7, "Item 1"));
+    items.push(new ItemValue(5));
+    items[1]["custom"] = 'mydata';
+    items.push(new ItemValue("item"));
+    var item = ItemValue.getItemByValue(items, 5);
+    assert.equal(item.value, 5, "find item correctly");
+    assert.equal(item["custom"], 'mydata', "get custom data correctly");
+    item = ItemValue.getItemByValue(items, 55);
+    assert.equal(item, null, "there is no item by this value");
+});

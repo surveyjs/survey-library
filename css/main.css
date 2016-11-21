@@ -64,6 +64,9 @@ a.navy-link {
     }
 }
 /*EO overrides*/
+.features a {
+    color: #1ab394;
+}
 
 .survey-gray {
     background-color: #f4f4f4;
@@ -104,14 +107,11 @@ a.navy-link {
     border: none;
     padding: 0 0 0 90px;
 }
-.features a {
-    color: #1ab394;
-}
 .features h3 {
     font-size: 20px;
 }
 .features .panel {
-    margin-bottom: 0;
+    margin-bottom: 20px;
 }
 @media (max-width: 1300px) {
     .features h3 {
@@ -151,21 +151,15 @@ footer.panel-footer {
     padding-bottom: 35px;
     text-align: center;
 }
-
-
-
-.steps {
+.steps-body {
     margin: 0;
-    height: 2691px;
+    padding-bottom: 60px;
 }
 .step-name {
     font-size: 25px;
     display: block;
     padding-right: 125px;
     padding-bottom: 12px;
-}
-.download-btn {
-    width: 195px;
 }
 .step-left {
     padding-right: 62px;
@@ -192,6 +186,20 @@ footer.panel-footer {
     content: "";
 }
 .step-right {
-    border: 1px solid orange;
     padding-left: 60px;
+}
+.step-right:after {
+    position: absolute;
+    width: 4px;
+    height: 100%;
+    display: block;
+    top: 0;
+    left: -4px;
+    background: #e7eaec;
+    content: "";
+}
+.step-panel {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 50px;
 }

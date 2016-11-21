@@ -57,7 +57,7 @@ a.navy-link {
     margin-bottom: 0;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1300px) {
     .container {
         width: 1300px;
     }
@@ -109,6 +109,11 @@ a.navy-link {
 .features h3 {
     font-size: 20px;
 }
+@media (max-width: 1300px) {
+    .features h3 {
+        font-size: 18px;
+    }
+}
 .features a:hover {
     text-decoration: underline;
 }
@@ -123,5 +128,16 @@ a.navy-link {
 @media (max-width: 767px) {
     .features .panel-body {
         height: 105px;
+    }
+}
+
+footer.panel-footer {
+    background-color: #eee;
+    border: none;
+    padding: 20px 0 20px 158px;
+}
+@media (max-width: 992px) {
+    footer.panel-footer {
+        padding: 20px;
     }
 }

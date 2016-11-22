@@ -150,24 +150,25 @@ import ReactDOM from 'react-dom';
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
                 <h1>Step 5</h1>
                 <h4>Show Survey on the page</h4>
-                <h5>If you are using Bootstrap, tell the library to use the bootstrap css classes.</h5>
-                <pre><code class="language-js">Survey.Survey.cssType = "bootstrap";</code></pre>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
+                    <h5>If you are using Bootstrap, tell the library to use the bootstrap css classes.</h5>
+                    <pre><code class="language-js">Survey.Survey.cssType = "bootstrap";</code></pre>
+
                     <ul class="nav nav-tabs">
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
                     </ul>
                     <div class="row tab-content"  data-bind="visible:isKnockout">
-                        <div class="col-sm-6">
+                        <div>
                             <h3>As Survey Window</h3>
                             <pre><code class="language-js">var surveyWindow = new Survey.SurveyWindow(surveyJSON);
 surveyWindow.show();
 //Use onComplete event to save the data
 surveyWindow.survey.onComplete.add(sendDataToServer);</code></pre>
                         </div>
-                        <div class="col-sm-6">
+                        <div>
                             <h3>Inside your web page</h3>
                             <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
                             <pre><code class="language-js">var survey = new Survey.Survey(surveyJSON, "surveyContainer");
@@ -177,13 +178,13 @@ survey.onComplete.add(sendDataToServer);
                         </div>
                     </div>
                     <div class="row tab-content"  data-bind="visible:isReact">
-                        <div class="col-sm-6">
+                        <div>
                             <h3>As Survey Window</h3>
                             <pre><code class="language-js">ReactDOM.render(
   &lt;Survey.SurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;,
   document.getElementById("surveyContainer"));</code></pre>
                         </div>
-                        <div class="col-sm-6">
+                        <div>
                             <h3>Inside your web page</h3>
                             <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
                             <pre><code class="language-js">ReactDOM.render(

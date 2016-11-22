@@ -272,3 +272,19 @@ footer.panel-footer {
     border-bottom: 15px solid transparent;
     border-left: 15px solid white;
 }
+
+.step-7-right {
+    height: 170px;
+}
+
+@media (max-width: 992px) {
+    .step-right, .step-left, .step div[class*="pull"].step-right, .step div[class*="push"].step-left {
+        padding: 10px 5%;
+    }
+    .step-panel:after, .step-right:before, .step-right:after {
+        display: none;
+    }
+    .step-7-right {
+        height: 0;
+    }
+}

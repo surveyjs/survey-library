@@ -74,10 +74,10 @@ canonicalUrl: /
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
                     </ul>
-                    <div data-bind="visible:isKnockout">
+                    <div class="tab-content" data-bind="visible:isKnockout">
                         <pre><code class="language-markup">npm install survey-knockout</code></pre>
                     </div>
-                    <div data-bind="visible:isReact">
+                    <div class="tab-content" data-bind="visible:isReact">
                         <pre><code class="language-markup">npm install survey-react</code></pre>
                     </div>
                 </div>
@@ -95,10 +95,10 @@ canonicalUrl: /
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
                     </ul>
-                    <div data-bind="visible:isKnockout">
+                    <div class="tab-content" data-bind="visible:isKnockout">
                         <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
-                    <div data-bind="visible:isReact">
+                    <div class="tab-content" data-bind="visible:isReact">
                 <pre><code class="language-js">import React from 'react';
 import ReactDOM from 'react-dom';
 </code></pre>
@@ -120,11 +120,11 @@ import ReactDOM from 'react-dom';
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
                     </ul>
-                    <div data-bind="visible:isKnockout">
+                    <div class="tab-content" data-bind="visible:isKnockout">
                         <h5>Link to the knockout version of the library.</h5>
                         <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.ko.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
-                    <div data-bind="visible:isReact">
+                    <div class="tab-content" data-bind="visible:isReact">
                         <h5>Link to the react version of the library.</h5>
                         <pre><code class="language-js">import * as Survey from "survey-react";</code></pre>
                     </div>
@@ -159,7 +159,7 @@ import ReactDOM from 'react-dom';
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
                     </ul>
-                    <div class="row"  data-bind="visible:isKnockout">
+                    <div class="row tab-content"  data-bind="visible:isKnockout">
                         <div class="col-sm-6">
                             <h3>As Survey Window</h3>
                             <pre><code class="language-js">var surveyWindow = new Survey.SurveyWindow(surveyJSON);
@@ -176,7 +176,7 @@ survey.onComplete.add(sendDataToServer);
 </code></pre>
                         </div>
                     </div>
-                    <div class="row"  data-bind="visible:isReact">
+                    <div class="row tab-content"  data-bind="visible:isReact">
                         <div class="col-sm-6">
                             <h3>As Survey Window</h3>
                             <pre><code class="language-js">ReactDOM.render(

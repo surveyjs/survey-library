@@ -61,13 +61,13 @@ canonicalUrl: /
     </div>
     <div class="steps-body row survey-gray">
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
                 <h1>Step 1</h1>
                 <a class="btn btn-primary download-btn btn-lg" role="button" href="{{ page.pathprefix }}downloads/surveyjs.zip" target="_blank">
                     Download survey.js library
                 </a>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
                     <h2>Or use npm</h2>
                     <ul class="nav nav-tabs">
@@ -85,7 +85,11 @@ canonicalUrl: /
         </div>
 
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-push-6 col-md-push-6 step-left">
+                <h1>Step 2</h1>
+                <h4>Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a> or <a href="https://facebook.github.io/react/">React</a></h4>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
                 <div class="step-panel">
                     <ul class="nav nav-tabs">
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
@@ -101,18 +105,14 @@ import ReactDOM from 'react-dom';
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
-                <h1>Step 2</h1>
-                <h4>Add a link to a <a href="http://knockoutjs.com">KnockoutJS</a> or <a href="https://facebook.github.io/react/">React</a></h4>
-            </div>
         </div>
 
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
                 <h1>Step 3</h1>
                 <h4>Add link(s) to survey.js</h4>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
                     <h5>If you are NOT going to use the Bootstrap, add the link to survey css.</h5>
                     <pre><code class="language-markup">&lt;link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" /&gt;</code></pre>
@@ -133,28 +133,27 @@ import ReactDOM from 'react-dom';
         </div>
 
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                <h1>Step 4</h1>
+                <h4>Build JSON using</h4>
+                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/" target="_blank">Visual Survey Editor</a>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
                 <div class="step-panel">
                     <h4>JSON example<a href="{{ page.pathprefix }}builder/index.html?surveyid=d5220f76-4802-40cf-ad67-61d7e55608e5" target="_blank"> (Load it in Visual Survey Editor now)</a></h4>
                     <pre><code class="language-js">var surveyJSON = {% include surveys/survey-about.json %}</code></pre>
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
-                <h1>Step 4</h1>
-                <h4>Build JSON using</h4>
-                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/" target="_blank">Visual Survey Editor</a>
-            </div>
         </div>
 
-
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
                 <h1>Step 5</h1>
                 <h4>Show Survey on the page</h4>
                 <h5>If you are using Bootstrap, tell the library to use the bootstrap css classes.</h5>
                 <pre><code class="language-js">Survey.Survey.cssType = "bootstrap";</code></pre>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
                     <ul class="nav nav-tabs">
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
@@ -197,7 +196,11 @@ survey.onComplete.add(sendDataToServer);
         </div>
 
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                <h1>Step 6</h1>
+                <h4>Save survey data on the web server.</h4>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
                 <div class="step-panel row">
                     <div class="col-sm-6">
                         <h3>Your web server</h3>
@@ -215,20 +218,17 @@ survey.onComplete.add(sendDataToServer);
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
-                <h1>Step 6</h1>
-                <h4>Save survey data on the web server.</h4>
-            </div>
         </div>
 
         <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-left"></div>
-            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 step-right">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
                 <h1>Step 7 (optional)</h1>
                 <p>Get the results of your survey using the <a href="http://dxsurvey.com/" target="_blank">dxSurvey Service</a>.</p>
                 <p>Share the survey results via direct link. <a href="http://dxsurvey.com/Results/Survey/d5220f76-4802-40cf-ad67-61d7e55608e5" target="_blank">Current Survey Results</a>
                 </p>
                 <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}examples/service-result.html">Show me example</a>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right" style="height: 170px;">
             </div>
         </div>
     </div>

@@ -201,15 +201,15 @@ survey.onComplete.add(sendDataToServer);
                 <h4>Save survey data on the web server.</h4>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
-                <div class="step-panel row">
-                    <div class="col-sm-6">
+                <div class="step-panel">
+                    <div>
                         <h3>Your web server</h3>
                         <pre><code class="language-js">function sendDataToServer(survey) {
   var resultAsString = JSON.stringify(survey.data);
   alert(resultAsString); //send Ajax request to your web server.
 });</code></pre>
                     </div>
-                    <div class="col-sm-6">
+                    <div>
                         <h3>dxSurvey.com service</h3>
                         <pre><code class="language-js">function sendDataToServer(survey) {
   //You should get the Guid for storing survey data in dxSurvey.com

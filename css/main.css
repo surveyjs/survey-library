@@ -189,12 +189,18 @@ footer.panel-footer {
     padding-right: 125px;
     padding-bottom: 12px;
 }
+.step  pre[class*="language-"] {
+    background-color: white;
+    border-radius: 0;
+    border: 1px solid #e7eaec;
+}
 .step-left {
     padding-right: 62px;
     text-align: right;
 }
 .step-right {
     padding-left: 60px;
+    padding-right: 5%;
 }
 .step div[class*="push"].step-left {
     padding-right: 0;
@@ -202,7 +208,7 @@ footer.panel-footer {
     padding-left: 60px;
 }
 .step div[class*="pull"].step-right {
-    padding-left:0;
+    padding-left: 5%;
     padding-right: 62px;
     text-align: right;
 }
@@ -210,11 +216,12 @@ footer.panel-footer {
     background-color: #fff;
     padding: 20px;
     margin-bottom: 50px;
+    border-radius: 5px;
 }
 .step-panel > .tab-content{
     border: 1px solid #e7eaec;
     border-top: none;
-    padding: 17px;
+    padding: 20px;
 }
 .step-right:before {
     position: absolute;
@@ -243,4 +250,25 @@ footer.panel-footer {
 .step div[class*="pull"].step-right:after {
     right: 0;
     left: initial;
+}
+
+.step-panel:after {
+    position: absolute;
+    top: 15px;
+    left: 51px;
+    content: "";
+    width: 0;
+    height: 0;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-right:15px solid white;
+}
+
+.step div[class*="pull"] .step-panel:after {
+    left: initial;
+    right: 53px;
+    border: none;
+    border-top: 15px solid transparent;
+    border-bottom: 15px solid transparent;
+    border-left: 15px solid white;
 }

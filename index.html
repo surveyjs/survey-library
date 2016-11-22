@@ -217,6 +217,11 @@ survey.onComplete.add(sendDataToServer);
 });</code></pre>
                     </div>
                 </div>
+
+                <div class="jumbotron">
+                    <h3>The survey example</h3>
+                    <div class="surveycontent panel" id="surveyContainer"></div>
+                </div>
             </div>
         </div>
 
@@ -233,17 +238,6 @@ survey.onComplete.add(sendDataToServer);
         </div>
     </div>
 </section>
-
-<div class="jumbotron">
-  <div class="row">
-      <div class="col-sm-3 col-centered"></div>
-      <div class="col-sm-6 col-centered">
-          <h3>The survey example</h3>
-          <div class="surveycontent panel" id="surveyContainer"></div>
-      </div>
-      <div class="col-sm-3 col-centered"></div>
-  </div>
-</div>
 <!--service-result.html-->
 
 
@@ -265,6 +259,10 @@ survey.onComplete.add(sendDataToServer);
 
     var  surveyJSON = {% include surveys/survey-about.json %};
     var survey = new Survey.Survey(surveyJSON, "surveyContainer");
+    survey.css = {
+        navigationButton: "btn btn-primary"
+    };
+    survey.render();
     survey.onComplete.add(function (s) {
         document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);
         s.sendResult('d2ab6936-6764-4ff1-a5a2-baf0a1d919bd');

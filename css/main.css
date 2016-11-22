@@ -6,7 +6,7 @@
 
 .surveycontent {
     align-content: center;
-    width:500px;
+    width:100%;
 }
 .examplesidebar {
     float:left;
@@ -251,7 +251,6 @@ footer.panel-footer {
     right: 0;
     left: initial;
 }
-
 .step-panel:after {
     position: absolute;
     top: 15px;
@@ -263,7 +262,6 @@ footer.panel-footer {
     border-bottom: 15px solid transparent;
     border-right:15px solid white;
 }
-
 .step div[class*="pull"] .step-panel:after {
     left: initial;
     right: 53px;
@@ -272,11 +270,19 @@ footer.panel-footer {
     border-bottom: 15px solid transparent;
     border-left: 15px solid white;
 }
-
 .step-7-right {
     height: 170px;
 }
-
+.steps .jumbotron {
+    text-align: left;
+}
+.steps .jumbotron .panel-footer{
+    background-color: white;
+    border-top: none;
+}
+.steps .jumbotron .panel-heading {
+    border-bottom: 1px solid #e7eaec;
+}
 @media (max-width: 992px) {
     .step-right, .step-left, .step div[class*="pull"].step-right, .step div[class*="push"].step-left {
         padding: 10px 5%;

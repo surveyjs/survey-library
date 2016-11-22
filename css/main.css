@@ -91,10 +91,12 @@ a.navy-link {
     margin-left: 0;
     margin-right: 0;
 }
-/*EO overrides*/
-.features a {
+
+a {
     color: #1ab394;
 }
+
+/*EO overrides*/
 
 .survey-gray {
     background-color: #f4f4f4;
@@ -293,4 +295,9 @@ footer.panel-footer {
     .step-7-right {
         height: 0;
     }
+}
+.step-panel code[class*="language-"], .step-panel pre[class*="language-"] {
+    white-space: initial;
+    word-break: initial;
+    word-wrap: break-word;
 }

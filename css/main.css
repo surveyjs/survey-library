@@ -19,6 +19,9 @@
 }
 .exampleoptions {
     margin-top: 30px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
 }
 span.navy {
   color: #1ab394;
@@ -97,6 +100,11 @@ a:hover {
 
 /*EO overrides*/
 
+.maincontent pre[class*="language-"] {
+    background-color: white;
+    border-radius: 0;
+    border: 1px solid #e7eaec;
+}
 .survey-gray {
     background-color: #f4f4f4;
 }
@@ -184,11 +192,6 @@ footer.panel-footer {
     display: block;
     padding-right: 125px;
     padding-bottom: 12px;
-}
-.step  pre[class*="language-"] {
-    background-color: white;
-    border-radius: 0;
-    border: 1px solid #e7eaec;
 }
 .step-left {
     padding-right: 62px;
@@ -349,6 +352,11 @@ footer.panel-footer {
 }
 
 .maincontent .examplecontent {
-    background-color: #fff;
+    background-color: #f4f4f4;
 }
 
+.survey-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+}

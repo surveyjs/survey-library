@@ -36,16 +36,6 @@ a.navy-link {
 }
 
 /*overrides*/
-.navbar-default .navbar-nav > .active > a,
-.navbar-default .navbar-nav > .active > a:hover,
-.navbar-default .navbar-nav > .active > a:focus,
-.navbar-default .nav > li > a:hover,
-.navbar-default .nav > li > a:focus{
-    color: #1ab394;
-    background-color: #f4f4f4;
-    border-left: none;
-}
-
 .nav > li.active {
     border-left: none;
 }
@@ -99,6 +89,12 @@ a {
 a:hover {
     text-decoration: underline;
     color: #1ab394;
+}
+
+.navbar-static-side {
+    z-index: 2001;
+    position: initial;
+    width: 220px;
 }
 
 /*EO overrides*/
@@ -295,4 +291,14 @@ footer.panel-footer {
     .step-7-right {
         height: 0;
     }
+}
+
+/*examples*/
+
+.survey-navbar .active > a,
+.survey-navbar .nav > li > a:hover,
+.survey-navbar .nav > li > a:focus{
+    color: #1ab394;
+    background-color: #f4f4f4;
+    border-left: none;
 }

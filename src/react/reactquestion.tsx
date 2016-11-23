@@ -33,18 +33,6 @@ export class SurveyQuestion extends React.Component<any, any> {
             visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
             visibleIndexValue: -1
         };
-        /*
-        var self = this;
-        if (this.questionBase) {
-            this.questionBase.renderWidthChangedCallback = function () {
-                self.state.renderWidth = self.state.renderWidth + 1;
-                self.setState(self.state);
-            }
-            this.questionBase.visibleIndexChangedCallback = function() {
-                self.state.visibleIndexValue = self.questionBase.visibleIndex;
-                self.setState(self.state);
-            }
-        }*/
     }
     componentDidMount() {
         if (this.questionBase) {

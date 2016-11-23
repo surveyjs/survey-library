@@ -1,20 +1,13 @@
 ﻿import * as React from 'react';
 import {SurveyModel} from "../survey";
+import {SurveyNavigationBase} from "./reactSurveyNavigationBase";
 
-export class SurveyNavigation extends React.Component<any, any> {
-    private survey: SurveyModel;
-    protected css: any;
+export class SurveyNavigation extends SurveyNavigationBase {
     constructor(props: any) {
         super(props);
-        this.survey = props.survey;
-        this.css = props.css;
         this.handlePrevClick = this.handlePrevClick.bind(this);
         this.handleNextClick = this.handleNextClick.bind(this);
         this.handleCompleteClick = this.handleCompleteClick.bind(this);
-    }
-    componentWillReceiveProps(nextProps: any) {
-        this.survey = nextProps.survey;
-        this.css = nextProps.css;
     }
     handlePrevClick(event) {
         this.survey.prevPage();

@@ -489,6 +489,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     protected onLoadSurveyFromService() {
     }
+    private checkPageVisibility(question: IQuestion, oldQuestionVisible: boolean) {
+        var page = this.getPageByQuestion(question);
+        if (!page) return;
+        var newValue = page.isVisible;
+        if (newValue != page.getIsPageVisible(question) || oldQuestionVisible) {
+            this.pageVisibilityChanged(page, newValue);
+        }
+    }
     private updateVisibleIndexes() {
         this.updatePageVisibleIndexes(this.showPageNumbers);
         if (this.showQuestionNumbers == "onPage") {
@@ -657,6 +665,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     questionVisibilityChanged(question: IQuestion, newValue: boolean) {
         this.updateVisibleIndexes();
         this.onVisibleChanged.fire(this, { 'question': question, 'name': question.name, 'visible': newValue });
+        this.checkPageVisibility(question, !newValue);
     }
     pageVisibilityChanged(page: IPage, newValue: boolean) {
         this.updateVisibleIndexes();

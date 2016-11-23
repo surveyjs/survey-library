@@ -129,9 +129,11 @@ export class PageModel extends Base implements IPage, IConditionRunner {
         }
     }
     public getType(): string { return "page"; }
-    public get isVisible(): boolean {
+    public get isVisible(): boolean {  return this.getIsPageVisible(null); }
+    public getIsPageVisible(exceptionQuestion: IQuestion): boolean {
         if (!this.visible) return false;
         for (var i = 0; i < this.questions.length; i++) {
+            if (this.questions[i] == exceptionQuestion) continue;
             if (this.questions[i].visible) return true;
         }
         return false;

@@ -360,3 +360,10 @@ footer.panel-footer {
     padding: 20px;
     border-radius: 5px;
 }
+
+.source-code-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    margin-top: 15px;
+}

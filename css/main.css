@@ -302,3 +302,31 @@ footer.panel-footer {
     background-color: #f4f4f4;
     border-left: none;
 }
+
+.nav-second-level.nav > li.active > a:hover,
+.nav-second-level.nav > li.active > a:focus,
+.nav-second-level.nav > li.active > a {
+    background-color: #192732;
+}
+
+.nav-second-level.nav > li.active > a:before {
+    background-color: #1ab394;
+    width: 4px;
+    height: 4px;
+    border-radius: 4px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 40px;
+}
+
+.nav-second-level.nav > li.active > a:after {
+    background-color: #1ab394;
+    width: 3px;
+    height: 100%;
+    border-radius: 4px;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+}

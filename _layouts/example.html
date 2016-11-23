@@ -3,38 +3,41 @@ layout: default
 pathprefix: ../
 mainmenukey: examples
 ---
-{% include menu-examples.html %}
-<script>
-Survey.Survey.cssType = "bootstrap";    
-</script>
-{% include content-examples.html %}
 
-<script>    
-function reRunSurvey() {
-    survey.clear();
-    survey.render('survey');
-}
-{% if page.usereact%}
-    {% if page.disablereRun %}
-    document.getElementById('btnreRun').style.display = 'none'; 
-    {% endif %}
-{% else %}
-function renderSurvey() {
-    if(typeof survey == 'undefined') return;
-    survey.css = {
-        navigationButton: "btn btn-primary"
-    };
-    survey.onComplete.add(function (s) { 
-        var result = "\nThe results are:\n" + JSON.stringify(survey.data);
-        document.getElementById('survey_result').innerHTML = result; 
-        document.getElementById('survey_oncomplete').style.display = '';
+<div class="examples-wrapper">
+    {% include menu-examples.html %}
+    <script>
+    Survey.Survey.cssType = "bootstrap";
+    </script>
+    {% include content-examples.html %}
+
+    <script>
+    function reRunSurvey() {
+        survey.clear();
+        survey.render('survey');
+    }
+    {% if page.usereact%}
         {% if page.disablereRun %}
-        document.getElementById('btnreRun').style.display = 'none'; 
+        document.getElementById('btnreRun').style.display = 'none';
         {% endif %}
-    });
-    survey.render("surveyElement");
-}
-    
-renderSurvey();
-{% endif %}    
-</script>
+    {% else %}
+    function renderSurvey() {
+        if(typeof survey == 'undefined') return;
+        survey.css = {
+            navigationButton: "btn btn-primary"
+        };
+        survey.onComplete.add(function (s) {
+            var result = "\nThe results are:\n" + JSON.stringify(survey.data);
+            document.getElementById('survey_result').innerHTML = result;
+            document.getElementById('survey_oncomplete').style.display = '';
+            {% if page.disablereRun %}
+            document.getElementById('btnreRun').style.display = 'none';
+            {% endif %}
+        });
+        survey.render("surveyElement");
+    }
+
+    renderSurvey();
+    {% endif %}
+    </script>
+</div>

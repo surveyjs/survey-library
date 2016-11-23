@@ -33,7 +33,9 @@
         <div class="maincontent">
         {{ content }}
         </div>
-        {% include footer.html %}
+        {% if page.hasFooter%}
+            {% include footer.html %}
+        {% endif %}
         <script type="text/javascript">               
             // Analytics
             var _gaq = _gaq || [];

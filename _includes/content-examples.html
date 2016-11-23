@@ -1,5 +1,10 @@
 <div class="examplecontent wrapper wrapper-content">
     <div class="row">
+        {% if page.propertiesFile %}
+        <div class="col-md-4 exampleoptions">
+            {% include {{page.propertiesFile}} %}
+        </div>
+        {% endif %}
         <div {% if page.propertiesFile %}class="col-md-8"{%else%}class="col-md-12"{%endif%}>
             <h3 class="contenttitle">{{ page.title }}</h3>	
             {% if page.preSurvey %}
@@ -17,22 +22,21 @@
                         reRunSurvey();"
                         value="Re-run survey"></input>
                 </div>
-                <ul class="nav nav-tabs" style="margin-top:10px;margin-bottom:10px">
-                    {% if page.usereact %}
-                    <li role="presentation"><a href="{{ page.url | replace:'examplesreact/','examples/' }}">Knockoutjs</a></li>
-                    <li role="presentation"  class="active"><a>Reactjs</a></li>
-                    {% else %}
-                    <li role="presentation" class="active"><a>Knockoutjs</a></li>
-                    <li role="presentation"><a href="{{ page.url | replace:'examples/','examplesreact/' }}">Reactjs</a></li>
-                    {% endif %}
-                </ul>
             {% endif %}
-            {{ content }}
         </div>
-        {% if page.propertiesFile %}
-        <div class="col-md-4 exampleoptions">
-            {% include {{page.propertiesFile}} %}
-        </div>
+    </div>
+    <div class="row">
+        {% if page.title != 'Live examples' %}
+        <ul class="nav nav-tabs" style="margin-top:10px;margin-bottom:10px">
+            {% if page.usereact %}
+            <li role="presentation"><a href="{{ page.url | replace:'examplesreact/','examples/' }}">Knockoutjs</a></li>
+            <li role="presentation"  class="active"><a>Reactjs</a></li>
+            {% else %}
+            <li role="presentation" class="active"><a>Knockoutjs</a></li>
+            <li role="presentation"><a href="{{ page.url | replace:'examples/','examplesreact/' }}">Reactjs</a></li>
+            {% endif %}
+        </ul>
         {% endif %}
+        {{ content }}
     </div>
 </div>

@@ -29,20 +29,43 @@ export class SurveyQuestion extends React.Component<any, any> {
         this.questionBase = question;
         this.question = question instanceof Question ? question : null;
         var value = this.question ? this.question.value : null;
-        this.state = { visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0 };
+        this.state = { 
+            visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
+            visibleIndexValue: -1
+        };
+        /*
         var self = this;
         if (this.questionBase) {
             this.questionBase.renderWidthChangedCallback = function () {
                 self.state.renderWidth = self.state.renderWidth + 1;
                 self.setState(self.state);
             }
-        }
+            this.questionBase.visibleIndexChangedCallback = function() {
+                self.state.visibleIndexValue = self.questionBase.visibleIndex;
+                self.setState(self.state);
+            }
+        }*/
     }
     componentDidMount() {
-        if (this.questionBase) this.questionBase["react"] = this;
+        if (this.questionBase) {
+            var self = this;
+            this.questionBase["react"] = self;
+            this.questionBase.renderWidthChangedCallback = function () {
+                self.state.renderWidth = self.state.renderWidth + 1;
+                self.setState(self.state);
+            }
+            this.questionBase.visibleIndexChangedCallback = function() {
+                self.state.visibleIndexValue = self.questionBase.visibleIndex;
+                self.setState(self.state);
+            }
+        }
     }
     componentWillUnmount() {
-        if (this.questionBase) this.questionBase["react"] = null;
+        if (this.questionBase) {
+            this.questionBase["react"] = null;
+            this.questionBase.renderWidthChangedCallback = null;
+            this.questionBase.visibleIndexChangedCallback = null;
+        }
     }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;

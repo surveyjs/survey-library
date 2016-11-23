@@ -21,6 +21,9 @@ function reRunSurvey() {
 {% else %}
 function renderSurvey() {
     if(typeof survey == 'undefined') return;
+    survey.css = {
+        navigationButton: "btn btn-primary"
+    };
     survey.onComplete.add(function (s) { 
         var result = "\nThe results are:\n" + JSON.stringify(survey.data);
         document.getElementById('survey_result').innerHTML = result; 

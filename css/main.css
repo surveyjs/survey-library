@@ -97,6 +97,10 @@ a:hover {
     width: 220px;
 }
 
+.form-control:focus, .single-line:focus {
+    border-color: #e5e6e7 !important;
+}
+
 /*EO overrides*/
 
 .survey-gray {
@@ -330,3 +334,20 @@ footer.panel-footer {
     top: 0;
     left: 0;
 }
+
+.custom-select {
+    background-image: url("/images/custom_select_arrow.png");
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+.custom-select > select {
+    -webkit-appearance:none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+
+    background: transparent;
+}
+

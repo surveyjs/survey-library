@@ -16,7 +16,7 @@
 .custom-checkbox:checked + label:before {
     content: '';
     position: absolute;
-    right: -50px;
+    right: -40px;
     top: -50%;
     width: 32px;
     height: 32px;
@@ -28,7 +28,7 @@
     content: '✔';
     position: absolute;
     top: 0;
-    right: -42px;
+    right: -32px;
     font-size: 18px;
     line-height: 0.8;
     color: #fff;

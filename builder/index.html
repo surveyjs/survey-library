@@ -10,9 +10,10 @@ usebootstrap: true
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/worker-json.js" type="text/javascript" charset="utf-8"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/mode-json.js" type="text/javascript" charset="utf-8"></script> 
 <link href="{{ site.baseurl }}/css/surveyeditor.css" type="text/css" rel="stylesheet" />
+<link href="{{ site.baseurl }}/css/custom-surveyeditor.css" type="text/css" rel="stylesheet" />
 <script src="{{ site.baseurl }}/js/surveyeditor.js"></script>
 
-<div id="editor"></div>
+<div id="editor" class="survey-editor"></div>
 <script>
     function getParameterByName(name, url) {
         if (!url) url = window.location.href;

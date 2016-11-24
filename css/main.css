@@ -269,9 +269,6 @@ footer.panel-footer {
     border-bottom: 15px solid transparent;
     border-left: 15px solid white;
 }
-.step-7-right {
-    height: 170px;
-}
 .steps .jumbotron {
     text-align: left;
 }
@@ -288,9 +285,6 @@ footer.panel-footer {
     }
     .step-panel:after, .step-right:before, .step-right:after {
         display: none;
-    }
-    .step-7-right {
-        height: 0;
     }
 }
 

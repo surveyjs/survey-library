@@ -35,8 +35,8 @@ survey.render();</code></pre>
 </div>
 <div class="propertyitem">
     <p>
-        <input id="cbShowOthers" type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" />
-        <b>Show others: </b> (default is false)
+        <input id="cbShowOthers" type="checkbox" class="custom-checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" />
+        <label for="cbShowOthers"><b>Show others: </b> (default is false)</label>
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.hasOther = yourvalue; 
 survey.render();</code></pre>

@@ -2,13 +2,15 @@
 <div class="propertyitem">
     <p>
     <b>Column count: </b> (default is 1)
-    <select id="selColCount" style="width:100%" onChange="survey.getQuestionByName('car').colCount = parseInt(this.value); survey.render();">
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4" selected="true">4</option>
-    </select>
+    <div class="custom-select">
+        <select id="selColCount" class="form-control" style="width:100%" onChange="survey.getQuestionByName('car').colCount = parseInt(this.value); survey.render();">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected="true">4</option>
+        </select>
+    </div>
     <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.colCount = yourValue; 
 survey.render();</code></pre>
@@ -18,12 +20,14 @@ survey.render();</code></pre>
 <div class="propertyitem">
     <p>
         <b>Choices order: </b> (default is 'none')
-        <select id="selChoiceOrder" style="width:100%" onChange="survey.getQuestionByName('car').choicesOrder = this.value; survey.render();">
-            <option value="none" selected="true">none</option>
-            <option value="asc">asc</option>
-            <option value="desc">desc</option>
-            <option value="random">random</option>
-        </select>
+        <div class="custom-select">
+            <select id="selChoiceOrder" class="form-control" style="width:100%" onChange="survey.getQuestionByName('car').choicesOrder = this.value; survey.render();">
+                <option value="none" selected="true">none</option>
+                <option value="asc">asc</option>
+                <option value="desc">desc</option>
+                <option value="random">random</option>
+            </select>
+        </div>
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.choicesOrder = yourvalue; 
 survey.render();</code></pre>
@@ -31,7 +35,8 @@ survey.render();</code></pre>
 </div>
 <div class="propertyitem">
     <p>
-        <input id="cbShowOthers" type="checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" /> <b>Show others: </b> (default is false)
+        <input id="cbShowOthers" type="checkbox" class="custom-checkbox" onchange="survey.getQuestionByName('car').hasOther = this.checked; survey.render();" />
+        <label for="cbShowOthers"><b>Show others: </b> (default is false)</label>
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.hasOther = yourvalue; 
 survey.render();</code></pre>
@@ -39,7 +44,7 @@ survey.render();</code></pre>
 </div>
 <div class="propertyitem">
     <p>
-        <b>Others text</b> <input id="tOtherText"  type="text" style="width:100%" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
+        <b>Others text</b> <input class="form-control" id="tOtherText"  type="text" style="width:100%" value="Other (describe)" onchange="survey.getQuestionByName('car').otherText = this.value; survey.render();"/>
         <pre><code class="language-javascript">var q = survey.getQuestionByName('car');
 q.otherText = yourvalue; 
 survey.render();</code></pre>

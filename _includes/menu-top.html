@@ -1,16 +1,21 @@
 {% assign current = page.url | downcase | split: '/' %}
-<div class="navbar-wrapper">
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container">
+<nav class="navbar navbar-default survey-gray survey-navbar">
+    <div class="container-fluid">
         <div class="navbar-header">
-            <a class="btn btn-lg btn-primary" href="{{ site.baseurl }}/index.html">survey.js</a>
-        </div>      
-        <ul class="nav navbar-nav navbar-right topmenu">
-            <li {% if current[1] == 'index.html' %}class='active'{% endif %}><a rel="home" href="{{ site.baseurl }}/index.html">Home</a></li>
+            <a class="btn btn-lg btn-primary main-btn" href="{{ site.baseurl }}/index.html"></a>
+            <a class="version-link" role="button" href="https://github.com/andrewtelnov/surveyjs/releases" target="_blank">
+                the latest version 0.10.0
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li {% if current[1] == 'examples' or current[1] =='builder'%}class=''{% else %}class='active'{% endif %}><a rel="home" href="{{ site.baseurl }}/index.html">Home</a></li>
             <li {% if current[1] == 'examples' %}class='active'{% endif %}><a rel="examples" href="{{ site.baseurl }}/examples/">Examples</a></li>
             <li {% if current[1] == 'builder' %}class='active'{% endif %}><a rel="builder" href="{{ site.baseurl }}/builder/">Survey Editor</a></li>
             <li><a href="http://github.com/andrewtelnov/surveyjs">Source</a></li>
+            <li><a href="https://github.com/andrewtelnov/surveyjs/issues">Issues</a></li>
         </ul>
-        </div>
-    </nav>
-</div>
+    </div>
+</nav>

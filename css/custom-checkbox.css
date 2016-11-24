@@ -1,0 +1,58 @@
+/* Base for label styling */
+.custom-checkbox:not(:checked),
+.custom-checkbox:checked {
+    position: absolute;
+    left: -9999px;
+}
+.custom-checkbox:not(:checked) + label,
+.custom-checkbox:checked + label {
+    position: relative;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+/* checkbox aspect */
+.custom-checkbox:not(:checked) + label:before,
+.custom-checkbox:checked + label:before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -50%;
+    width: 32px;
+    height: 32px;
+    background: #1ab394;
+}
+/* checked mark aspect */
+.custom-checkbox:not(:checked) + label:after,
+.custom-checkbox:checked + label:after {
+    content: '✔';
+    position: absolute;
+    top: 0;
+    right: -32px;
+    font-size: 18px;
+    line-height: 0.8;
+    color: #fff;
+    transition: all .2s;
+}
+/* checked mark aspect changes */
+.custom-checkbox:not(:checked) + label:after {
+    opacity: 0;
+    transform: scale(0);
+}
+.custom-checkbox:checked + label:after {
+    opacity: 1;
+    transform: scale(1);
+}
+/* disabled checkbox */
+.custom-checkbox:disabled:not(:checked) + label:before,
+.custom-checkbox:disabled:checked + label:before {
+    box-shadow: none;
+    border-color: #bbb;
+    background-color: #ddd;
+}
+.custom-checkbox:disabled:checked + label:after {
+    color: #999;
+}
+.custom-checkbox:disabled + label {
+    color: #aaa;
+}

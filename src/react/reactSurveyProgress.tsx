@@ -1,19 +1,15 @@
 ﻿import * as React from 'react';
 import {SurveyModel} from "../survey";
+import {SurveyNavigationBase} from "./reactSurveyNavigationBase";
 
-export class SurveyProgress extends React.Component<any, any> {
-    private survey: SurveyModel;
+export class SurveyProgress extends SurveyNavigationBase {
     protected isTop: boolean;
-    protected css: any;
     constructor(props: any) {
         super(props);
-        this.survey = props.survey;
-        this.css = props.css;
         this.isTop = props.isTop;
     }
     componentWillReceiveProps(nextProps: any) {
-        this.survey = nextProps.survey;
-        this.css = nextProps.css;
+        super.componentWillReceiveProps(nextProps);
         this.isTop = nextProps.isTop;
     }
     protected get progress(): number { return this.survey.getProgress(); }

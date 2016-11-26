@@ -11,6 +11,8 @@ export class SurveyPage extends React.Component<any, any> {
     private survey: SurveyModel;
     private creator: ISurveyCreator;
     protected css: any;
+    protected pageNode: any;
+
     constructor(props: any) {
         super(props);
         this.page = props.page;
@@ -24,6 +26,25 @@ export class SurveyPage extends React.Component<any, any> {
         this.creator = nextProps.creator;
         this.css = nextProps.css;
     }
+    componentDidMount() {
+        if (this.pageNode) {
+            var firstField = this.pageNode.querySelector(
+                "input:not(:disabled):not([readonly]):not([type=hidden])" +  
+                ",select:not(:disabled):not([readonly])"+
+                ",textarea:not(:disabled):not([readonly])");
+            firstField && firstField.focus();
+        }
+    }
+    componentDidUpdate() {
+        if (this.page.isVisible && this.page.isActive && this.pageNode) {
+            var firstField = this.pageNode.querySelector(
+                "input:not(:disabled):not([readonly]):not([type=hidden])" +  
+                ",select:not(:disabled):not([readonly])"+
+                ",textarea:not(:disabled):not([readonly])");
+            firstField && firstField.focus();
+            this.pageNode && this.pageNode.parentNode.scrollIntoView({ behavior: "instant", block: "start", });
+        }
+    }
     render(): JSX.Element {
         if (this.page == null || this.survey == null || this.creator == null) return null;
         var title = this.renderTitle();
@@ -33,7 +54,7 @@ export class SurveyPage extends React.Component<any, any> {
             rows.push(this.createRow(questionRows[i], i));
         }
         return (
-            <div>
+            <div ref={node => this.pageNode = node }>
                 {title}
                 {rows}
                 </div>

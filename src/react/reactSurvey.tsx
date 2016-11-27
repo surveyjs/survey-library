@@ -6,7 +6,8 @@ import {QuestionBase} from "../questionbase";
 import {ISurveyCreator} from "./reactquestion";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
-import {SurveyProgress} from "./reactSurveyProgress"
+import {SurveyProgress} from "./reactSurveyProgress";
+import {SurveyPageId} from "../base";
 
 export class Survey extends React.Component<any, any> implements ISurveyCreator {
     public static get cssType(): string { return surveyCss.currentType; }
@@ -49,7 +50,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         return (
             <div className={this.css.root}>
                 {title}
-                <div className={this.css.body}>
+                <div id={SurveyPageId} className={this.css.body}>
                     {topProgress}
                     {currentPage}
                     {bottomProgress}

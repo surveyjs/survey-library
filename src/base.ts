@@ -126,6 +126,17 @@ export class SurveyError {
     }
 }
 
+export const SurveyPageId = "sq_page";
+export class SurveyElement {
+    public static ScrollElementToTop(elementId: string): boolean {
+        var el = document.getElementById(elementId);
+        if (!el || !el.scrollIntoView) return false;
+        var elemTop = el.getBoundingClientRect().top;
+        if (elemTop < 0)  el.scrollIntoView();
+        return elemTop < 0;
+    }
+}
+
 export class Event<T extends Function, Options>  {
     private callbacks: Array<T>;
     public get isEmpty(): boolean { return this.callbacks == null || this.callbacks.length == 0; }

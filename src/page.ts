@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, IPage, IConditionRunner, ISurvey, IQuestion, HashTable} from "./base";
+import {Base, IPage, IConditionRunner, ISurvey, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
@@ -55,6 +55,12 @@ export class QuestionRowModel {
 }
 
 export class PageModel extends Base implements IPage, IConditionRunner {
+    private static pageCounter = 100;
+    private static getPageId(): string {
+        return "sp_" + PageModel.pageCounter++;
+    }
+
+    private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
     questions: Array<QuestionBase> = new Array<QuestionBase>();
@@ -67,6 +73,7 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     private visibleValue: boolean = true;
     constructor(public name: string = "") {
         super();
+        this.idValue = PageModel.getPageId();
         var self = this;
         this.questions.push = function (value) {
             if (self.data != null) {
@@ -75,6 +82,7 @@ export class PageModel extends Base implements IPage, IConditionRunner {
             return Array.prototype.push.call(this, value);
         };
     }
+    public get id(): string { return this.idValue; }
     public get rows(): Array<QuestionRowModel> {
         this.rowValues = this.buildRows();
         return this.rowValues;
@@ -169,6 +177,9 @@ export class PageModel extends Base implements IPage, IConditionRunner {
                 break;
             }
         }
+    }
+    public scrollToTop() {
+        SurveyElement.ScrollElementToTop(SurveyPageId);
     }
     public hasErrors(fireCallback: boolean = true, focuseOnFirstError: boolean = false): boolean {
         var result = false;

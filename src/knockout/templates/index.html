@@ -5,7 +5,7 @@
     <!-- ko if: koState() == "running" -->
     <div data-bind="css: $root.css.body">
         <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
-        <div data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
+        <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
         <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
     </div>
     <div data-bind="visible: showNavigationButtons && !isDesignMode, css: $root.css.footer">

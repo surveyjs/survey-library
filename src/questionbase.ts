@@ -1,4 +1,4 @@
-﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
+﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, SurveyElement} from './base';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 
@@ -58,11 +58,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         this.fireCallback(this.renderWidthChangedCallback);
     }
     public focus() {
-        var el = document.getElementById(this.id);
-        if (!el || !el.scrollIntoView) return;
-        var elemTop = el.getBoundingClientRect().top;
-        if (elemTop < 0) {
-            el.scrollIntoView();
+        if (SurveyElement.ScrollElementToTop) {
             this.fireCallback(this.focusCallback);
         }
     }

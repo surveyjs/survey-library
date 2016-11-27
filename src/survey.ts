@@ -182,7 +182,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.currentPageValue = value;
         this.currentPageChanged(value, oldValue);
         if (this.currentPageValue) {
-            this.currentPageValue.scrollToFirstQuestion();
+            this.currentPageValue.scrollToTop();
         }
     }
     public get state(): string {

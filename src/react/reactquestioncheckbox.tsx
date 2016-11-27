@@ -94,7 +94,7 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
         if (itemWidth) {
             divStyle["width"] = itemWidth;
         }
-        var isChecked = this.question.value && this.question.value.indexOf(this.item.value) > -1;
+        var isChecked = (this.question.value && this.question.value.indexOf(this.item.value) > -1) || false;
         var otherItem = (this.item.value === this.question.otherItem.value && isChecked) ? this.renderOther() : null;
         return this.renderCheckbox(isChecked, divStyle, otherItem);
     }

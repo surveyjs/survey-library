@@ -365,3 +365,16 @@ QUnit.test("toJsonObject should create new instance of objects", function (asser
     assert.equal(dealer.cars.length, 3);
     assert.equal(jsObj.cars.length, 2);
 });
+
+QUnit.test("Add new property to object", function (assert) {
+    var propertiesCount = JsonObject.metaData.getProperties("truck").length;
+    JsonObject.metaData.addProperty("car", "isUsed:boolean");
+    var dealer = new Dealer();
+    new JsonObject().toObject({ "truck": { "isUsed": true, "maxWeight": 10000 } }, dealer);
+    assert.equal(dealer.truck["isUsed"], true, "new property is here");
+    assert.equal(propertiesCount + 1, JsonObject.metaData.getProperties("truck").length, "there is on one property more");
+    var jsObj = new JsonObject().toJsonObject(dealer);
+    assert.equal(JSON.stringify(jsObj), "{\"truck\":{\"isUsed\":true,\"maxWeight\":10000}}", "property is serialized");
+    JsonObject.metaData.removeProperty("car", "isUsed");
+    assert.equal(propertiesCount, JsonObject.metaData.getProperties("truck").length, "the additional property is removed");
+});

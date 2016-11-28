@@ -66,7 +66,7 @@ export class JsonMetadataClass {
         }
         return null;
     }
-    private createProperty(propInfo: any): JsonObjectProperty {
+    public createProperty(propInfo: any): JsonObjectProperty {
         var propertyName = typeof propInfo === "string" ? propInfo : propInfo.name;
         if (!propertyName) return;
         var propertyType = null;
@@ -177,6 +177,46 @@ export class JsonMetadata {
         }
         return properties;
     }
+    public addProperty(className: string, propertyInfo: any) {
+        var metaDataClass = this.findClass(className);
+        if (!metaDataClass) return;
+        var property = metaDataClass.createProperty(propertyInfo);
+        if (property) {
+            this.addPropertyToClass(metaDataClass, property);
+            this.emptyClassPropertiesHash(metaDataClass);
+        }
+    }
+    public removeProperty(className: string, propertyName: string) {
+        var metaDataClass = this.findClass(className);
+        if (!metaDataClass) return false;
+        var property = metaDataClass.find(propertyName);
+        if (property) {
+            this.removePropertyFromClass(metaDataClass, property);
+            this.emptyClassPropertiesHash(metaDataClass);
+        }
+    }
+    private addPropertyToClass(metaDataClass: JsonMetadataClass, property: JsonObjectProperty) {
+        if (metaDataClass.find(property.name) != null) return;
+        metaDataClass.properties.push(property);
+    }
+    private removePropertyFromClass(metaDataClass: JsonMetadataClass, property: JsonObjectProperty) {
+        var index = metaDataClass.properties.indexOf(property);
+        if (index < 0) return;
+        metaDataClass.properties.splice(index, 1);
+        if (metaDataClass.requiredProperties) {
+            index = metaDataClass.requiredProperties.indexOf(property.name);
+            if (index >= 0) {
+                metaDataClass.requiredProperties.splice(index, 1);
+            }
+        }
+    }
+    private emptyClassPropertiesHash(metaDataClass: JsonMetadataClass) {
+        this.classProperties[metaDataClass.name] = null;
+        var childClasses = this.getChildrenClasses(metaDataClass.name);
+        for (var i = 0; i < childClasses.length; i++) {
+            this.classProperties[childClasses[i].name] = null;
+        }
+    }
     private fillChildrenClasses(name: string, canBeCreated: boolean, result: Array<JsonMetadataClass>) {
         var children = this.childrenClasses[name];
         if (!children) return;
@@ -197,10 +237,10 @@ export class JsonMetadata {
             this.fillProperties(metaDataClass.parentName, list);
         }
         for (var i = 0; i < metaDataClass.properties.length; i++) {
-            this.addProperty(metaDataClass.properties[i], list, list.length);
+            this.addPropertyCore(metaDataClass.properties[i], list, list.length);
         }
     }
-    private addProperty(property: JsonObjectProperty, list: Array<JsonObjectProperty>, endIndex: number) {
+    private addPropertyCore(property: JsonObjectProperty, list: Array<JsonObjectProperty>, endIndex: number) {
         var index = -1;
         for (var i = 0; i < endIndex; i++) {
             if (list[i].name == property.name) {

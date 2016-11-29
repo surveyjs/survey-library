@@ -15,7 +15,7 @@ export var polishSurveyStrings = {
     textMinLength: "Proszę wpisać co najmniej {0} znaków.",
     minSelectError: "Proszę wybrać co najmniej {0} pozycji.",
     maxSelectError: "Proszę wybrać nie więcej niż {0} pozycji.",
-    numericMinMax: "'Odpowiedź {0}' powinna być większa lub równa {1} oraz mniejsza lub równa {2}",
+    numericMinMax: "Odpowiedź '{0}' powinna być większa lub równa {1} oraz mniejsza lub równa {2}",
     numericMin: "Odpowiedź '{0}' powinna być większa lub równa {1}",
     numericMax: "Odpowiedź '{0}' powinna być mniejsza lub równa {1}",
     invalidEmail: "Proszę podać prawidłowy adres email.",

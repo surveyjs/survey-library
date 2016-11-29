@@ -32,19 +32,12 @@ frameworks.forEach( (framework) => {
 
     if (framework.indexOf("bootstrap") === -1) {
         test(`change rows count`, async t => {
-            const getHeight = ClientFunction(() =>
-            document.querySelector('textarea').clientHeight - 4); // 4 - it is paddings top and bottom (2 + 2)
-            let oldHeight;
-            let newHeight;
-
-            oldHeight = await getHeight();
+            const getComment = Selector(() =>
+                document.querySelector(`textarea[rows="2"]`), {visibilityCheck: true});
 
             await t
-                .click(`#change_rows_to_2`);
-
-            newHeight = await getHeight();
-
-            assert.equal(oldHeight, newHeight*2);
+                .click(`#change_rows_to_2`)
+                .hover(getComment);
         });
 
         test(`change cols count`, async t => {

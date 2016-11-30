@@ -12,7 +12,7 @@ frameworks.forEach( (framework) => {
         .beforeEach( async t => {
             await t
                 .typeText(`#testName`, title)
-                .pressKey(`enter`);
+                .click(`body`);
         });
 
     test(`check works and delete`, async t => {

@@ -115,6 +115,10 @@ a:hover {
     border-radius: 0;
     background-image: url("/images/main_btn.png");
 }
+.main-btn:active {
+    background-image: url("/images/main_btn.png");
+    box-shadow: none;
+}
 @media (max-width: 767px) {
     .main-btn {
         margin-left: 0;

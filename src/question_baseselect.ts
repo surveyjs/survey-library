@@ -11,6 +11,7 @@ export class QuestionSelectBase extends Question {
     protected cachedValue: any;
     otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
     private choicesFromUrl: Array<ItemValue> = null;
+    private cachedValueForUrlRequestion: any = null;
     private choicesValues: Array<ItemValue> = new Array<ItemValue>();
     public choicesByUrl: ChoicesRestfull;
     public otherErrorText: string = null;
@@ -48,6 +49,10 @@ export class QuestionSelectBase extends Question {
                 this.isSettingComment = false;
             }
         }
+    }
+    protected setNewValue(newValue: any) {
+        if (newValue) this.cachedValueForUrlRequestion = newValue;        
+        super.setNewValue(newValue);
     }
     protected valueFromData(val: any): any {
         if (this.getStoreOthersAsComment()) return super.valueFromData(val);
@@ -137,6 +142,9 @@ export class QuestionSelectBase extends Question {
         }
         this.choicesFromUrl = newChoices;
         this.onVisibleChoicesChanged();
+        if (this.cachedValueForUrlRequestion) {
+            this.value = this.cachedValueForUrlRequestion;
+        }
     }
     private onVisibleChoicesChanged() {
         this.visibleChoicesCache = null;

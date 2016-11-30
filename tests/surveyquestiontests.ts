@@ -467,3 +467,19 @@ QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
     question.minRowCount = 2;
     assert.equal(question.hasErrors(), true, "Error, value in all rows are required");
 });
+QUnit.test("Text inputType=number", function (assert) {
+    var question = new QuestionTextModel("text");
+    question.inputType = "number";
+    question.value = "2";
+    assert.strictEqual(question.value, 2, "make it numeric");
+    question.value = "2.25";
+    assert.strictEqual(question.value, 2.25, "make it numeric/float");
+    question.value = "2.25sdd";
+    assert.ok(!question.value, "it is empty");
+});
+QUnit.test("Text inputType=range", function (assert) {
+    var question = new QuestionTextModel("text");
+    question.inputType = "range";
+    question.value = "25";
+    assert.strictEqual(question.value, 25, "make it numeric");
+});

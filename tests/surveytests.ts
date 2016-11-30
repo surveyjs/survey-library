@@ -376,19 +376,39 @@ QUnit.test("Pages num", function (assert) {
     assert.equal(survey.pages[0].num, 1, "true:the first page");
     assert.equal(survey.pages[1].num, 2, "true:the second page");
 });
-QUnit.test("onVisibleChanged event", function (assert) {
+QUnit.test("Server validation", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var serverFunction = function (options) {
+        if (options.data["question1"] && options.data["question1"] > 100) {
+            options.errors["question1"] = "Question 1 should be higher than 100";
+        }
+        options.complete();
+    }
+    survey.onServerValidateQuestions = function (sender, options) {
+        serverFunction(options);
+    };
+    survey.setValue("question1", 101);
+    survey.nextPage();
+    assert.equal(survey.currentPage.visibleIndex, 0, "Get server error");
+    survey.setValue("question1", 10);
+    survey.nextPage();
+    assert.equal(survey.currentPage.visibleIndex, 1, "No errors server error");
+});
+QUnit.test("onVisibleChanged call validation", function (assert) {
     var survey = twoPageSimplestSurvey();
     survey.onValidateQuestion.add(function (sender, options) {
         if (options.name == "question1" && options.value > 100) {
             options.error = "Question 1 should be higher than 100";
         }
     });
+
     assert.equal(survey.isCurrentPageHasErrors, false, "There is no error if the value is empty");
     survey.setValue("question1", 1);
     assert.equal(survey.isCurrentPageHasErrors, false, "the value is less than 100");
     survey.setValue("question1", 101);
     assert.equal(survey.isCurrentPageHasErrors, true, "the value is more than 100, no errors");
 });
+
 QUnit.test("Page visibility", function (assert) {
     var page = new PageModel("page");
     assert.equal(page.isVisible, false, "page is invisible if there is no questions in it");

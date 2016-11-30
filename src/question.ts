@@ -123,6 +123,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
         return this.errors.length > 0;
     }
     public get requiredText(): string { return this.survey != null && this.isRequired ? this.survey.requiredText : ""; }
+    public addError(error: SurveyError) {
+        this.errors.push(error);
+        this.fireCallback(this.errorsChangedCallback);
+    }
     private checkForErrors(fireCallback: boolean) {
         var errorLength = this.errors ? this.errors.length : 0;
         this.errors = [];

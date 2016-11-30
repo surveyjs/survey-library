@@ -45,6 +45,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     private isLoading: boolean = false;
     private processedTextValues: HashTable<any> = {};
     private textPreProcessor: TextPreProcessor;
+    private isValidatingOnServerValue: boolean = false;
 
     public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -54,6 +55,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -235,13 +237,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public nextPage(): boolean {
         if (this.isLastPage) return false;
         if (this.isCurrentPageHasErrors) return false;
-        this.checkOnPageTriggers();
-        if (this.sendResultOnPageNext && this.clientId) {
-            this.sendResult(this.surveyPostId, this.clientId, true);
-        }
-        var vPages = this.visiblePages;
-        var index = vPages.indexOf(this.currentPage);
-        this.currentPage = vPages[index + 1];
+        if (this.doServerValidation()) return false;
+        this.doNextPage();
         return true;
     }
     get isCurrentPageHasErrors(): boolean {
@@ -256,6 +253,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     public completeLastPage() : boolean {
         if (this.isCurrentPageHasErrors) return false;
+        if (this.doServerValidation()) return false;
         this.doComplete();
         return true;
     }
@@ -278,6 +276,55 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (this.surveyPostId) {
             this.sendResult();
         }
+    }
+    public get isValidatingOnServer(): boolean { return this.isValidatingOnServerValue; }
+    private setIsValidatingOnServer(val: boolean) {
+        if (val == this.isValidatingOnServer) return;
+        this.isValidatingOnServerValue = val;
+        this.onIsValidatingOnServerChanged();
+    }
+    protected onIsValidatingOnServerChanged() { }
+    protected doServerValidation(): boolean {
+        if (!this.onServerValidateQuestions) return false;
+        var self = this;
+        var options = { data: {}, errors: {}, survey: this, complete : function () { self.completeServerValidation(options); } };
+        for (var i = 0; i < this.currentPage.questions.length; i++) {
+            var question = this.currentPage.questions[i];
+            if (!question.visible) continue;
+            var value = this.getValue(question.name);
+            if (value) options.data[question.name] = value;
+        }
+        this.setIsValidatingOnServer(true);
+        this.onServerValidateQuestions(this, options);
+        return true;
+    }
+    private completeServerValidation(options: any) {
+        this.setIsValidatingOnServer(false);
+        if (!options && !options.survey) return;
+        var self = options.survey;
+        var hasErrors = false;
+        if (options.errors) {
+            for (var name in options.errors) {
+                var question = self.getQuestionByName(name);
+                if (question && question["errors"]) {
+                    hasErrors = true;
+                    question["addError"](new CustomError(options.errors[name]));
+                }
+            }
+        }
+        if (!hasErrors) {
+            if (self.isLastPage) self.doComplete();
+            else self.doNextPage();
+        }
+    }
+    protected doNextPage() {
+        this.checkOnPageTriggers();
+        if (this.sendResultOnPageNext && this.clientId) {
+            this.sendResult(this.surveyPostId, this.clientId, true);
+        }
+        var vPages = this.visiblePages;
+        var index = vPages.indexOf(this.currentPage);
+        this.currentPage = vPages[index + 1];
     }
     protected setCompleted() {
         this.isCompleted = true;
@@ -680,7 +727,6 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.updateVisibleIndexes();
         this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
     }
-
     validateQuestion(name: string): SurveyError {
         if (this.onValidateQuestion.isEmpty) return null;
         var options = { name: name, value: this.getValue(name), error: null };

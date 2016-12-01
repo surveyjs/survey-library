@@ -32,6 +32,7 @@
             { "name": "Validation", "id": "validation", 
               "items": [
                 {"name": "Standard validators", "text": "Example of using standard validators", "url": "validators-standard.html"},
+                {"name": "Validate on Server", "text": "Validate answers of the current page on server", "url": "validators-server.html"},
                 {"name": "Create custom validators", "text": "Example of creating and using a custom validator", "url": "validators-custom.html"},
                 {"name": "Validate on event", "text": "Example of using OnValidatateQuestion event", "url": "validators-event.html"}
             ]},

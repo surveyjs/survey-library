@@ -134,7 +134,7 @@ sv_body {
   background-color: #e6e6e6;
   border-color: #adadad; }
 
-[data-toggle='buttons'] > .sv_q_rating_item input[type='radio'] {
+.sv_q_rating > .sv_q_rating_item input[type='radio'] {
   position: absolute;
   clip: rect(0px, 0px, 0px, 0px);
   pointer-events: none; }

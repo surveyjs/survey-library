@@ -29,7 +29,7 @@ export class QuestionTextModel extends Question {
     }
 }
 
-JsonObject.metaData.addClass("text", [{ name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "password", "range", "tel", "text", "time", "url", "week"] },
+JsonObject.metaData.addClass("text", [{ name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
     { name: "size:number", default: 25 }], function () { return new QuestionTextModel(""); }, "question");
 
 QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionTextModel(name); });

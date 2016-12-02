@@ -2,6 +2,7 @@
     "categories" : [
          { "name" : "Question Types", "id": "types",
            "items": [
+                { "name": "Text", "text" : "Single questioin entry for text, e-mail, date and so on", "url": "questiontype-text.html"},
                 { "name": "Radio group", "text" : "One choice question", "url": "questiontype-radiogroup.html"},
                 { "name": "Dropdown", "text" : "One choice question", "url": "questiontype-dropdown.html"},
                 { "name": "Dropdown + restfull", "text" : "Get data from a restfull service", "url": "questiontype-dropdownrestfull.html"},
@@ -11,7 +12,6 @@
                 { "name": "Matrixdynamic", "text" : "Matrix question with dynamic rows", "url": "questiontype-matrixdynamic.html"},
                 { "name": "Multiple Text", "text" : "Multiple text question", "url": "questiontype-multipletext.html"},
                 { "name": "Rating", "text" : "Rating question", "url": "questiontype-rating.html"},
-                { "name": "Text", "text" : "Text question", "url": "questiontype-text.html"},
                 { "name": "Comment", "text" : "Comment question", "url": "questiontype-comment.html"},
                 { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"},
                 { "name": "File", "text" : "File Uploading", "url": "questiontype-file.html"}

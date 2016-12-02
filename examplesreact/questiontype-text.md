@@ -2,6 +2,7 @@
 layout: example
 usereact: true
 title: Text (type:'text')
+propertiesFile: exampleproperties/questiontext.html
 ---
 {% capture survey_setup %}
 var survey = new Survey.ReactSurveyModel({% include surveys/questiontype-text.json %});

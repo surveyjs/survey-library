@@ -27,7 +27,7 @@ survey.onServerValidateQuestions = function (survey, options) {
             }
         }
         //if the country is unknown, add the error
-        if (!found) options.errors["country"] = "The country name '" + countryName +"' is unknown.";
+        if (!found) options.errors["country"] = "The country name '" + countryName +"' is not in this list: http://services.groupkt.com/country/get/all";
         //tell survey that we are done with the server validation
         options.complete();
     });

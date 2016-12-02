@@ -1,4 +1,6 @@
  { questions: [
-     { type: "text", name: "email", 
-     title: "Thank you for taking our survey. Your survey is almost complete, please enter your email address in the box below if you wish to participate in our drawing, then press the 'Submit' button."}
+     {name:"name", type:"text", title: "Please enter your name:", isRequired: true},
+     {name:"birthdate", type:"text", inputType:"date", title: "Your birthdate:", isRequired: true},
+     {name:"color", type:"text", inputType:"color", title: "Your favorite color:"},
+     {name:"email", type:"text", inputType:"email", title: "Your e-mail:", isRequired: true, validators: [{type:"email"}]}
 ]}

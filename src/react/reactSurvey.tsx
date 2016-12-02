@@ -143,6 +143,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if (newProps.onValidateQuestion) {
             this.survey.onValidateQuestion.add((sender, options) => { newProps.onValidateQuestion(sender, options); });
         }
+        if (newProps.onServerValidateQuestions) {
+            this.survey.onServerValidateQuestions = newProps.onServerValidateQuestions;
+        }
         if (newProps.onSendResult) {
             this.survey.onSendResult.add((sender, options) => { newProps.onSendResult(sender, options); });
         }

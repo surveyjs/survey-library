@@ -129,11 +129,21 @@ export class SurveyError {
 export const SurveyPageId = "sq_page";
 export class SurveyElement {
     public static ScrollElementToTop(elementId: string): boolean {
+        if (!elementId) return false;
         var el = document.getElementById(elementId);
         if (!el || !el.scrollIntoView) return false;
         var elemTop = el.getBoundingClientRect().top;
         if (elemTop < 0)  el.scrollIntoView();
         return elemTop < 0;
+    }
+    public static FocusElement(elementId: string): boolean {
+        if (!elementId) return false;
+        var el = document.getElementById(elementId);
+        if (el) {
+            el.focus();
+            return true;
+        }
+        return false;
     }
 }
 

@@ -122,6 +122,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.checkForErrors(fireCallback);
         return this.errors.length > 0;
     }
+    public get currentErrorCount(): number { return this.errors.length; }
     public get requiredText(): string { return this.survey != null && this.isRequired ? this.survey.requiredText : ""; }
     public addError(error: SurveyError) {
         this.errors.push(error);

@@ -43,12 +43,12 @@ export class SurveyQuestionRadiogroup extends React.Component<any, any> {
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(this.renderItem(key, item));
+            items.push(this.renderItem(key, item, i == 0));
         }
         return items;
     }
     protected get textStyle(): any { return { marginLeft: "3px" }; }
-    private renderItem(key: string, item: ItemValue): JSX.Element {
+    private renderItem(key: string, item: ItemValue, isFirst: boolean): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
         var divStyle = { marginRight: marginRight };
@@ -57,12 +57,13 @@ export class SurveyQuestionRadiogroup extends React.Component<any, any> {
         }
         var isChecked = this.question.value == item.value;
         var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
-        return this.renderRadio(key, item, isChecked, divStyle, otherItem);
+        return this.renderRadio(key, item, isChecked, divStyle, otherItem, isFirst);
     }
-    protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+    protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean): JSX.Element {
+        var id = isFirst ? this.question.inputId : null;
         return (<div key={key} className={this.css.item} style={divStyle}>
                 <label className={this.css.item}>
-                    <input type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
+                <input id={id} type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
                     <span style={this.textStyle}>{item.text}</span>
                     </label>
                 {otherItem}

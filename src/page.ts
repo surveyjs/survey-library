@@ -170,12 +170,18 @@ export class PageModel extends Base implements IPage, IConditionRunner {
         this.questions.splice(index, 1);
         if (this.data != null) this.data.questionRemoved(question);
     }
-    public scrollToFirstQuestion() {
+    public focusFirstQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
-            if (this.questions[i].visible) {
-                this.questions[i].focus();
-                break;
-            }
+            if (!this.questions[i].visible) continue;
+            this.questions[i].focus();
+            break;
+        }
+    }
+    public focusFirstErrorQuestion() {
+        for (var i = 0; i < this.questions.length; i++) {
+            if (!this.questions[i].visible || this.questions[i].currentErrorCount == 0) continue;
+            this.questions[i].focus(true);
+            break;
         }
     }
     public scrollToTop() {
@@ -192,7 +198,7 @@ export class PageModel extends Base implements IPage, IConditionRunner {
                 result = true;
             }
         }
-        if (firstErrorQuestion) firstErrorQuestion.focus();
+        if (firstErrorQuestion) firstErrorQuestion.focus(true);
         return result;
     }
     public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {

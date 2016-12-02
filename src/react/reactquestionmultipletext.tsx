@@ -35,22 +35,25 @@ export class SurveyQuestionMultipleText extends React.Component<any, any> {
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
             tds.push(<td key={"label" + i}><span className={this.css.itemTitle}>{item.title}</span></td>);
-            tds.push(<td key={"value" + i}>{this.renderItem(item)}</td>);
+            tds.push(<td key={"value" + i}>{this.renderItem(item, i == 0)}</td>);
         }
         return <tr key={key}>{tds}</tr>;
     }
-    protected renderItem(item: MultipleTextItemModel): JSX.Element {
-        return <SurveyQuestionMultipleTextItem item={item} css={this.css} />;
+    protected renderItem(item: MultipleTextItemModel, isFirst: boolean): JSX.Element {
+        var inputId = isFirst ? this.question.inputId : null;
+        return <SurveyQuestionMultipleTextItem item={item} css={this.css} inputId={inputId} />;
     }
 }
 
 export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
     private item: MultipleTextItemModel;
+    private inputId: string;
     protected css: any;
     constructor(props: any) {
         super(props);
         this.item = props.item;
         this.css = props.css;
+        this.inputId = props.inputId;
         this.state = { value: this.item.value };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
@@ -65,7 +68,7 @@ export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.item) return null;
         var style = { float: "left" };
-        return (<input  className={this.css.itemValue} style={style} type="text" value={this.state.value} onChange={this.handleOnChange} />);
+        return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} onChange={this.handleOnChange} />);
     }
     protected get mainClassName(): string { return ""; }
 }

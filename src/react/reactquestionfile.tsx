@@ -27,7 +27,7 @@ export class SurveyQuestionFile extends React.Component<any, any> {
         var img = this.renderImage();
         return (
             <div>
-                <input type="file" onChange={this.handleOnChange}/>
+                <input id={this.question.inputId} type="file" onChange={this.handleOnChange}/>
                 {img}
             </div>           
         );

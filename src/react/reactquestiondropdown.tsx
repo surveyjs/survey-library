@@ -42,7 +42,7 @@ export class SurveyQuestionDropdown extends React.Component<any, any> {
         var comment = this.question.value === this.question.otherItem.value ? this.renderOther() : null;
         return (
             <div>
-            <select className={this.css} value={this.state.value} onChange={this.handleOnChange}>
+                <select id={this.question.inputId} className={this.css} value={this.state.value} onChange={this.handleOnChange}>
               <option value="">{this.question.optionsCaption}</option>
               {options}
             </select>

@@ -42,9 +42,11 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     }
     public get visibleIndex(): number { return this.visibleIndexValue; }
     public hasErrors(fireCallback: boolean = true): boolean { return false; }
+    public get currentErrorCount(): number { return 0; }
     public get hasTitle(): boolean { return false; }
     public get hasComment(): boolean { return false; }
     public get id(): string { return this.idValue; }
+    public get inputId(): string { return this.id + "i"; }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {
         if (val == this.renderWidth) return;
@@ -57,10 +59,18 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         this.rightIndentValue = val;
         this.fireCallback(this.renderWidthChangedCallback);
     }
-    public focus() {
-        if (SurveyElement.ScrollElementToTop) {
+    public focus(onError: boolean = false) {
+        SurveyElement.ScrollElementToTop(this.id);
+        var id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
+        if (SurveyElement.FocusElement(id)) {
             this.fireCallback(this.focusCallback);
         }
+    }
+    protected getFirstInputElementId(): string {
+        return this.inputId;
+    }
+    protected getFirstErrorInputElementId(): string {
+        return this.getFirstInputElementId();
     }
     setData(newValue: ISurveyData) {
         this.data = newValue;

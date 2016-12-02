@@ -37,13 +37,13 @@ export class SurveyQuestionCheckbox extends React.Component<any, any> {
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(this.renderItem(key, item));
+            items.push(this.renderItem(key, item, i == 0));
         }
         return items;
     }
     protected get textStyle(): any { return null; }
-    protected renderItem(key: string, item: any): JSX.Element {
-        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} />;
+    protected renderItem(key: string, item: any, isFirst: boolean): JSX.Element {
+        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
     }
 }
 export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
@@ -52,6 +52,7 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
     protected css: any;
     protected rootCss: any;
     protected textStyle: any;
+    protected isFirst: any;
     constructor(props: any) {
         super(props);
         this.item = props.item;
@@ -59,6 +60,7 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
         this.css = props.css;
         this.rootCss = props.rootCss;
         this.textStyle = props.textStyle;
+        this.isFirst = props.isFirst;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -67,6 +69,7 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
         this.rootCss = nextProps.rootCss;
         this.textStyle = nextProps.textStyle;
         this.question = nextProps.question;
+        this.isFirst = nextProps.isFirst;
     }
     handleOnChange(event) {
         var newValue = this.question.value;
@@ -100,9 +103,10 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
     }
     protected get inputStyle(): any { return { marginRight: "3px" }; }
     protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
+        var id = this.isFirst ? this.question.inputId : null;
         return (<div className={this.css.item} style={divStyle}>
-                <label className={this.css.item}>
-                    <input type="checkbox" style={this.inputStyle}  checked={isChecked} onChange={this.handleOnChange} />
+            <label className={this.css.item}>
+                <input type="checkbox" id={id} style={this.inputStyle}  checked={isChecked} onChange={this.handleOnChange} />
                     <span>{this.item.text}</span>
                     </label>
                 {otherItem}

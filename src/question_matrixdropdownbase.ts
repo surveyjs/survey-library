@@ -222,6 +222,25 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         return res;
     }
+    protected getFirstInputElementId(): string {
+        var question = this.getFirstCellQuestion(false);
+        return question ? question.inputId : super.getFirstInputElementId();
+    }
+    protected getFirstErrorInputElementId(): string {
+        var question = this.getFirstCellQuestion(true);
+        return question ? question.inputId : super.getFirstErrorInputElementId();
+    }
+    protected getFirstCellQuestion(onError: boolean): Question {
+        if (!this.generatedVisibleRows) return null;
+        for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+            var cells = this.generatedVisibleRows[i].cells;
+            for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
+                if (!onError) return cells[colIndex].question;
+                if (cells[colIndex].question.currentErrorCount > 0) return cells[colIndex].question
+            }
+        }
+        return null;
+    }
     //IMatrixDropdownData
     public createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
         var question = this.createQuestionCore(row, column);

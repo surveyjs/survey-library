@@ -13,6 +13,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     public static get cssType(): string { return surveyCss.currentType; }
     public static set cssType(value: string) { surveyCss.currentType = value; }
     protected survey: ReactSurveyModel;
+    private isCurrentPageChanged: boolean = false;
     constructor(props: any) {
         super(props);
 
@@ -20,6 +21,16 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     }
     componentWillReceiveProps(nextProps: any) {
         this.updateSurvey(nextProps);
+    }
+    componentDidUpdate() {
+        if (this.isCurrentPageChanged) {
+            this.isCurrentPageChanged = false;
+            var curPage = this.survey.currentPage;
+            if (curPage) {
+                curPage.scrollToTop();
+                curPage.focusFirstQuestion();
+            }
+        }
     }
     render(): JSX.Element {
         if (this.survey.state == "completed") return this.renderCompleted();
@@ -107,6 +118,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         };
         this.survey.onComplete.add((sender) => { self.state.isCompleted = true; self.setState(self.state); });
         this.survey.onCurrentPageChanged.add((sender, options) => {
+            self.isCurrentPageChanged = true;
             self.state.pageIndexChange = self.state.pageIndexChange + 1;
             self.setState(self.state);
             if (newProps && newProps.onCurrentPageChanged) newProps.onCurrentPageChanged(sender, options);

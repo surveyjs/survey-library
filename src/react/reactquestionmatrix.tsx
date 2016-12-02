@@ -29,7 +29,7 @@ export class SurveyQuestionMatrix extends React.Component<any, any> {
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} row={row} />);
+            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} row={row} isFirst={i == 0} />);
         }
         return (
             <table className={this.css.root}>
@@ -50,10 +50,12 @@ export class SurveyQuestionMatrix extends React.Component<any, any> {
 export class SurveyQuestionMatrixRow extends React.Component<any, any> {
     private question: QuestionMatrixModel;
     private row: MatrixRowModel;
+    private isFirst: boolean;
     constructor(props: any) {
         super(props);
         this.question = props.question;
         this.row = props.row;
+        this.isFirst = props.isFirst;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     handleOnChange(event) {
@@ -63,6 +65,7 @@ export class SurveyQuestionMatrixRow extends React.Component<any, any> {
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
         this.row = nextProps.row;
+        this.isFirst = nextProps.isFirst;
     }
     render(): JSX.Element {
         if (!this.row) return null;
@@ -72,7 +75,8 @@ export class SurveyQuestionMatrixRow extends React.Component<any, any> {
             var column = this.question.columns[i];
             var key = "value" + i;
             var isChecked = this.row.value == column.value;
-            var td = <td key={key}><input type="radio" name={this.row.fullName} value={column.value} checked={isChecked} onChange={this.handleOnChange}/></td>;
+            var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
+            var td = <td key={key}><input id={inputId} type="radio" name={this.row.fullName} value={column.value} checked={isChecked} onChange={this.handleOnChange}/></td>;
             tds.push(td);
         }
         return (<tr>{firstTD}{tds}</tr>);

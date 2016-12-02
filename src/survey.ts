@@ -183,8 +183,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var oldValue = this.currentPageValue;
         this.currentPageValue = value;
         this.currentPageChanged(value, oldValue);
+        //TODO probably remove- It is not needed for react version.
+        this.focusFirstQuestion();
+    }
+    public focusFirstQuestion() {
         if (this.currentPageValue) {
-            //TODO probably remove- It is not needed for react version.
             this.currentPageValue.scrollToTop();
             this.currentPageValue.focusFirstQuestion();
         }

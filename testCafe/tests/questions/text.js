@@ -19,7 +19,7 @@ frameworks.forEach( (framework) => {
         let surveyResult;
 
         await t
-            .typeText(`div input`, `stub@gmail.com`)
+            .typeText(`input[type=email]`, `stub@gmail.com`)
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
@@ -31,7 +31,7 @@ frameworks.forEach( (framework) => {
     if (framework.indexOf("bootstrap") === -1) {
         test(`change size`, async t => {
             const getWidth = ClientFunction(() =>
-                document.querySelector('div input').clientWidth);
+                document.querySelector('input[type=email]').clientWidth);
             let oldWidth;
             let newWidth;
 
@@ -45,4 +45,14 @@ frameworks.forEach( (framework) => {
             assert(oldWidth > newWidth);
         });
     }
+
+    test(`check input types`, async t => {
+        const types = ["color", "date", "datetime", "datetime-local", "email", "month", "password", "range", "tel",
+            "text", "time", "url", "week"];
+
+        for (let i=0; i< types.length; i++) {
+           await t
+               .hover(`input[type=${types[i]}]`);
+        }
+    });
 });

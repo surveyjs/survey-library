@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-file">
-    <input type="file" data-bind="event: {change: dochange}">
+    <input type="file" data-bind="attr: {id: question.inputId}, event: {change: dochange}">
     <div>
         <img data-bind="attr: { src: question.koData, height: question.imageHeight, width: question.imageWidth }, visible: question.koHasValue">
     </div>

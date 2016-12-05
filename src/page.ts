@@ -172,7 +172,8 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     }
     public focusFirstQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
-            if (!this.questions[i].visible) continue;
+            var question = this.questions[i];
+            if (!question.visible || !question.hasInput) continue;
             this.questions[i].focus();
             break;
         }

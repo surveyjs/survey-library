@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from './jsonobject';
 import {QuestionBase} from './questionbase';
-import {SurveyError} from "./base";
+import {SurveyError, SurveyElement} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
 import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
@@ -26,6 +26,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
         super(name);
     }
     public get hasTitle(): boolean { return true; }
+    public get hasInput(): boolean { return true; }
+    public get inputId(): string { return this.id + "i"; }
     public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
     public set title(newValue: string) {
         this.titleValue = newValue;
@@ -47,6 +49,19 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var no = this.no;
         if (no) no += ". ";
         return no + requireText + this.processedTitle;
+    }
+    public focus(onError: boolean = false) {
+        SurveyElement.ScrollElementToTop(this.id);
+        var id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
+        if (SurveyElement.FocusElement(id)) {
+            this.fireCallback(this.focusCallback);
+        }
+    }
+    protected getFirstInputElementId(): string {
+        return this.inputId;
+    }
+    protected getFirstErrorInputElementId(): string {
+        return this.getFirstInputElementId();
     }
     protected canProcessedTextValues(name: string): boolean {
         return name == "no" || name == "title" || name == "require";

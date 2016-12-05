@@ -79,6 +79,7 @@ export class Survey extends SurveyModel {
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
         this.updateKoCurrentPage();
         super.currentPageChanged(newValue, oldValue);
+        this.focusFirstQuestion();
     }
     pageVisibilityChanged(page: IPage, newValue: boolean) {
         super.pageVisibilityChanged(page, newValue);

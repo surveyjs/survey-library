@@ -3,7 +3,7 @@
         <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
         <div data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: $root.css.checkbox.item">
             <label data-bind="css: $root.css.checkbox.item">
-                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value}, checked: question.koValue" />
+                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue" />
                 <span data-bind="text: item.text"></span>
             </label>
             <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">

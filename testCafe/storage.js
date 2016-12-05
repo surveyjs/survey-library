@@ -324,11 +324,19 @@ window.SurveysStorage = {
     "text": {
         data: {
             questions: [
-                {
-                    type: "text", name: "email",
-                    title: "Thank you for taking our survey. Your survey is almost complete, please enter your email " +
-                    "address in the box below if you wish to participate in our drawing, then press the 'Submit' button."
-                }
+                {name:"name", type:"text", title: "Please enter your name:"},
+                {name:"birthdate", type:"text", inputType:"date", title: "Your birthdate:"},
+                {name:"color", type:"text", inputType:"color", title: "Your favorite color:"},
+                {name:"email", type:"text", inputType:"email", title: "Your e-mail:", isRequired: true, validators: [{type:"email"}]},
+                {name:"datetime", type:"text", inputType:"datetime", title: "Your lunch time:"},
+                {name:"datetime-local", type:"text", inputType:"datetime-local", title: "Your supper time:"},
+                {name:"month", type:"text", inputType:"month", title: "Your favorite month:"},
+                {name:"password", type:"text", inputType:"password", title: "Please enter password:"},
+                {name:"range", type:"text", inputType:"range", title: "Please set price range:"},
+                {name:"tel", type:"text", inputType:"tel", title: "Enter your phone number"},
+                {name:"time", type:"text", inputType:"time", title: "When do you watch TV?"},
+                {name:"url", type:"text", inputType:"url", title: "Add link to your site please"},
+                {name:"week", type:"text", inputType:"week", title: "Mark any week which you want"},
             ]
         },
         modifications: [{
@@ -984,6 +992,39 @@ window.SurveysStorage = {
             Survey.JsonObject.metaData.addClass("mytextvalidator", [], function () { return new MyTextValidator(); }, "surveyvalidator");
         },
         modifications: []
+    },
+
+    "validateOnServer": {
+        data: {
+            questions: [{ type: "text", name: "country", title: "Type a country:" }]
+        },
+        modifications: [{
+            title: "add_server_validation",
+            value: function(survey) {
+                survey.onServerValidateQuestions = function (survey, options) {
+                    //options.data contains the data for the current page.
+                    var countryName = options.data["country"];
+                    //If the question is empty then do nothing
+                    if (!countryName) options.complete();
+                    //call the ajax method
+                    $.ajax({
+                        url: "http://services.groupkt.com/country/get/all"
+                    }).then(function (data) {
+                        var found = false;
+                        var countries = data.RestResponse.result;
+                        for (var i = 0; i < countries.length; i++) {
+                            if (countries[i].name == countryName) {
+                                found = true; break;
+                            }
+                        }
+                        //if the country is unknown, add the error
+                        if (!found) options.errors["country"] = "The country name '" + countryName +"' is not in this list: http://services.groupkt.com/country/get/all";
+                        //tell survey that we are done with the server validation
+                        options.complete();
+                    });
+                }
+            }
+        }]
     },
 
     "validateOnEvent": {

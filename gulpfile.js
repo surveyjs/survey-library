@@ -14,7 +14,8 @@ var gulp = require('gulp'),
     jsonTransform = require('gulp-json-transform'),
     project = require("./project.json"),
     webpackStream = require('webpack-stream'),
-    getWebpackConfig = require('./webpack.config');
+    getWebpackConfig = require('./webpack.config'),
+    getWebpackAngularConfig = require('./webpack.angular.config');
 
 var Server = require("karma").Server;
 
@@ -27,6 +28,7 @@ var paths = {
     tsTests: "./tests/*.ts",
     package_ko: "./packages/survey-knockout/",
     package_react: "./packages/survey-react/",
+    package_angular: "./packages/survey-angular/",
     typings: "./typings/**/*.d.ts",
     styles: "./src/*.scss",
 };
@@ -89,6 +91,28 @@ var config_react = {
     entryPoint: "src/entries/react"
 };
 
+var config_angular = {
+    name: "survey-angular",
+    keywords: ["angular", "angular-component"],
+    dependencies: { "angular": "^1.5.9" },
+    src: [
+        "./src/*.ts",
+        "./src/localization/*.ts",
+        "./src/defaultCss/*.ts",
+        "./src/entries/chunks/**/*.ts",
+        "./src/react/*.tsx",
+        "./src/angular/*.ts",
+        "./src/angular/*.tsx",
+        "./src/entries/react.ts",
+        "./src/entries/angular.ts"
+    ],
+    mainJSfile: "survey.angular.js",
+    dtsfile: "angular.d.ts",
+    packagePath: "./packages/survey-angular/",
+    bundleName: "survey.angular",
+    entryPoint: "src/entries/angular"
+};
+
 var config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
@@ -100,6 +124,7 @@ var config_test_ko = {
 var configs = {};
 configs["ko"] = config_ko;
 configs["react"] = config_react;
+configs["angular"] = config_angular;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -122,7 +147,7 @@ function buildTemplates(configName, index) {
 function buildFromSources(configName) {
     var curConfig = configs[configName];
     var tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)));
+        .pipe(webpackStream(configName==="angular" ? getWebpackAngularConfig(curConfig) : getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(insert.prepend(copyright))
@@ -233,6 +258,18 @@ gulp.task("react_createPackageJson", function () {
 });
 gulp.task("build_react", sequence("react_source", "react_compress", "react_createPackageJson"));
 
+gulp.task("angular_source", function () {
+    buildTypeDefinition("angular");
+    return buildFromSources("angular");
+});
+gulp.task("angular_compress", function () {
+    compressMainJS("angular");
+});
+gulp.task("angular_createPackageJson", function () {
+    createPackageJson("angular");
+});
+gulp.task("build_angular", sequence("angular_source", "angular_compress", "angular_createPackageJson"));
+
 gulp.task('copyfiles', function (callback) {
     gulp.src(gnf(null, 'package.json'), { base: './' })
         .pipe(rename(function (path) {
@@ -252,9 +289,11 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_ko + 'css'))
         .pipe(gulp.dest(paths.package_react + 'dist/css'))
         .pipe(gulp.dest(paths.package_react + 'css'))
+        .pipe(gulp.dest(paths.package_angular + 'dist/css'))
+        .pipe(gulp.dest(paths.package_angular + 'css'))
         .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"));
+gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react", "build_angular"));
 
 gulp.task("test_ci", function (done) {
     new Server({

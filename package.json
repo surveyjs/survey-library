@@ -39,7 +39,7 @@
     "source-map-loader": "^0.1.5",
     "testcafe": "^0.10.0",
     "ts-loader": "^0.8.2",
-    "typescript": "^2.0.2",
+    "typescript": "~2.0.6",
     "webpack": "^1.13.2",
     "webpack-stream": "^3.2.0"
   },

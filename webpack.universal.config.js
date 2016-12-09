@@ -58,7 +58,7 @@ module.exports = function(options) {
             new webpack.NoErrorsPlugin(),
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, 'src', 'extends.ts'),
-                __assign: path.join(__dirname, 'src/angular', 'assign.ts')
+                __assign: path.join(__dirname, 'src', 'assign.ts')
             })
         ],
         devtool: 'inline-source-map'

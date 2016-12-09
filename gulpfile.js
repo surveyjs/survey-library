@@ -15,7 +15,7 @@ var gulp = require('gulp'),
     project = require("./project.json"),
     webpackStream = require('webpack-stream'),
     getWebpackConfig = require('./webpack.config'),
-    getWebpackAngularConfig = require('./webpack.angular.config');
+    getWebpackUniversalConfig = require('./webpack.universal.config');
 
 var Server = require("karma").Server;
 
@@ -147,7 +147,7 @@ function buildTemplates(configName, index) {
 function buildFromSources(configName) {
     var curConfig = configs[configName];
     var tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(configName==="angular" ? getWebpackAngularConfig(curConfig) : getWebpackConfig(curConfig)));
+        .pipe(webpackStream(configName !== "react" && configName !== "ko"? getWebpackUniversalConfig(curConfig) : getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(insert.prepend(copyright))
@@ -193,7 +193,7 @@ function compressMainJS(configName) {
 function buildTests(configName) {
     var curConfig = testconfigs[configName];
     var tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)));
+        .pipe(webpackStream(configName !== "react" && configName !== "ko"? getWebpackUniversalConfig(curConfig) : getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(gulp.dest(paths.testsFolder));

@@ -5,6 +5,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "noEmitHelpers": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react"
   },
   "include": [

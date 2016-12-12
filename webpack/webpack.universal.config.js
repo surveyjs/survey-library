@@ -32,6 +32,14 @@ module.exports = function(options) {
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
+        externals: {
+            'jquery': {
+                root: 'jQuery',
+                commonjs2: 'jquery',
+                commonjs: 'jquery',
+                amd: 'jquery'
+            }
+        },
         module: {
             preLoaders: [
                 { test: /\.(js|jsx)$/, loader: "source-map-loader" }
@@ -57,8 +65,8 @@ module.exports = function(options) {
         plugins: [
             new webpack.NoErrorsPlugin(),
             new webpack.ProvidePlugin({
-                __extends: path.join(__dirname, 'src', 'extends.ts'),
-                __assign: path.join(__dirname, 'src', 'assign.ts')
+                __extends: path.join(__dirname, '../src', 'extends.ts'),
+                __assign: path.join(__dirname, '../src', 'assign.ts')
             })
         ],
         devtool: 'inline-source-map'
@@ -68,4 +76,3 @@ module.exports = function(options) {
 
     return config;
 };
-

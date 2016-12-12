@@ -66,7 +66,7 @@ module.exports = function(options) {
         plugins: [
             new webpack.NoErrorsPlugin(),
             new webpack.ProvidePlugin({
-                __extends: path.join(__dirname, 'src', 'extends.ts')
+                __extends: path.join(__dirname, '../src', 'extends.ts')
             })
         ],
         devtool: 'inline-source-map'

@@ -6,5 +6,5 @@ title: Show several questions in one line/row.
 dataFile: surveys/survey-startwithnewline.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

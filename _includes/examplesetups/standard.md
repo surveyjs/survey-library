@@ -8,5 +8,3 @@ var survey = new Survey.Survey({% include {{page.dataFile}} %});
 {% elsif page.usejquery%}
 {% endif %}
 {% endcapture %}
-
-

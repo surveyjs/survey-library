@@ -6,5 +6,5 @@ title: Pre-process question and page titles, and html properties. Use survey pro
 dataFile: surveys/survey-processtext.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

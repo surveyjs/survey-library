@@ -6,5 +6,5 @@ title: One choice - dropdown (type:'dropdown'). Get the choices from a restfull 
 dataFile: surveys/questiontype-dropdownrestfull.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

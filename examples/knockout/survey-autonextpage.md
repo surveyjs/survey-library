@@ -6,5 +6,5 @@ propertiesFile: exampleproperties/autonextpage.html
 dataFile: surveys/survey-autonextpage.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

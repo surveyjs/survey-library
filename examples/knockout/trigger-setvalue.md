@@ -5,5 +5,5 @@ title: SetValue Trigger - on changing the question, change values of other quest
 dataFile: surveys/trigger-setvalue.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

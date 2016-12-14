@@ -5,5 +5,5 @@ title: Standard validators
 dataFile: surveys/validators-standard.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

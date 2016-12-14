@@ -6,5 +6,5 @@ title: Visible Trigger - Show/Hide question(s) on survey running.
 dataFile: surveys/trigger-visible.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

@@ -6,5 +6,5 @@ title: File uploading (type:'file')
 dataFile: surveys/questiontype-file.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

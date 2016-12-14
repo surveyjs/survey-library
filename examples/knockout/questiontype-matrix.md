@@ -6,5 +6,5 @@ title: Matrix (type:'matrix')
 dataFile: surveys/questiontype-matrix.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

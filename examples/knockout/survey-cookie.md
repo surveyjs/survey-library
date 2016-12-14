@@ -6,7 +6,7 @@ disablereRun: true
 dataFile: surveys/survey-cookie.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}
 <div class="jumbotron">
     <p>

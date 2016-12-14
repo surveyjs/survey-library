@@ -7,6 +7,6 @@ title: One choice - radio group (type:'radiogroup')
 dataFile: surveys/questiontype-radiogroup.json
 ---
 
-{% include examplesetups/standard-setup.md %}
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}
 {% include demo-selectbase-choices.html %}

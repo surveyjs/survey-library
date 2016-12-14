@@ -1,11 +1,9 @@
 ---
 layout: example
 usereact: true
-title: Write an expression in "visibleIf" to show/hide your question(s) 
+title: Write an expression in "visibleIf" to show/hide your question(s)
+dataFile: surveys/condition-kids.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/condition-kids.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
 
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

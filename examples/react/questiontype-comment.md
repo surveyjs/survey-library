@@ -2,11 +2,9 @@
 layout: example
 usereact: true
 propertiesFile: exampleproperties/comment.html
-title: Comment (type:'comment') 
+title: Comment (type:'comment')
+dataFile: surveys/questiontype-comment.json
 ---
-{% capture survey_setup %}
-var survey = new  Survey.ReactSurveyModel({% include surveys/questiontype-comment.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
 
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

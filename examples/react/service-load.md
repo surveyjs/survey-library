@@ -1,10 +1,7 @@
 ---
 layout: example
-usereact: true
 title: Load survey json from the dxSurvey Service
+usereact: true
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel( { surveyId: '5af48e08-a0a5-44a5-83f4-1c90e8e98de1' });
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
-{% include live-example-code.html %}
+
+{% include examplesetups/service-load.md %}

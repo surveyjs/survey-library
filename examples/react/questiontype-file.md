@@ -3,10 +3,8 @@ layout: example
 usereact: true
 propertiesFile: exampleproperties/file.html
 title: File uploading (type:'file')
+dataFile: surveys/questiontype-file.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/questiontype-file.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
 
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

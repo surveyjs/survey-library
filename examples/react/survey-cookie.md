@@ -3,13 +3,10 @@ layout: example
 usereact: true
 title: Use cookie to run servey one time in a browser.
 disablereRun: true
+dataFile: surveys/survey-cookie.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-cookie.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
 
-
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}
 <div class="jumbotron">
     <p>

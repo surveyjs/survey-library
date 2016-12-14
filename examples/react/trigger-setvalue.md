@@ -2,9 +2,8 @@
 layout: example
 usereact: true
 title: SetValue Trigger - on changing the question, change values of other questions.
+dataFile: surveys/trigger-setvalue.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/trigger-setvalue.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
+
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

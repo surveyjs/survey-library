@@ -3,9 +3,8 @@ layout: example
 usereact: true
 propertiesFile: exampleproperties/completetrigger.html
 title: Complete Trigger - finishes the survey.
+dataFile: surveys/trigger-complete.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/trigger-complete.json %});
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% endcapture %}
+
+{% include examplesetups/standard.md %}
 {% include live-example-code.html %}

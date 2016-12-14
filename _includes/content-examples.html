@@ -23,11 +23,11 @@
                 {% if page.title != 'Live examples' %}
                 <ul class="nav nav-tabs" style="margin-top:10px;margin-bottom:10px">
                     {% if page.usereact %}
-                    <li role="presentation"><a href="{{ page.url | replace:'examplesreact/','examples/' }}">Knockoutjs</a></li>
+                    <li role="presentation"><a href="{{ page.url | replace:'examples/react/','examples/knockout/' }}">Knockoutjs</a></li>
                     <li role="presentation"  class="active"><a>Reactjs</a></li>
                     {% else %}
                     <li role="presentation" class="active"><a>Knockoutjs</a></li>
-                    <li role="presentation"><a href="{{ page.url | replace:'examples/','examplesreact/' }}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{ page.url | replace:'examples/knockout/','examples/react/' }}">Reactjs</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}

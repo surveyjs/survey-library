@@ -1,10 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/questionmatrix.html
 title: Matrix (type:'matrix')
+dataFile: surveys/questiontype-matrix.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-matrix.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

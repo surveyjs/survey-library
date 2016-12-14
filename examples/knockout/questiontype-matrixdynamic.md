@@ -1,9 +1,9 @@
 ---
 layout: example
+useknockout: true
 title: Matrix with dynamic rows (type:'matrixdynamic')
+dataFile: surveys/questiontype-matrixdynamic.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-matrixdynamic.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

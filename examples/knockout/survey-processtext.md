@@ -1,10 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/processtext.html
-title: Pre-process question and page titles, and html properties. Use survey properties to change the templates. 
+title: Pre-process question and page titles, and html properties. Use survey properties to change the templates.
+dataFile: surveys/survey-processtext.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-processtext.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

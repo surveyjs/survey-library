@@ -1,13 +1,12 @@
 ---
 layout: example
+useknockout: true
 title: Use cookie to run servey one time in a browser.
 disablereRun: true
+dataFile: surveys/survey-cookie.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-cookie.json %});
 
-{% endcapture %}
-
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}
 <div class="jumbotron">
     <p>

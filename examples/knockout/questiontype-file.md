@@ -1,10 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/file.html
 title: File uploading (type:'file')
+dataFile: surveys/questiontype-file.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-file.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

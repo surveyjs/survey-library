@@ -1,10 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/comment.html
-title: Comment (type:'comment') 
+title: Comment (type:'comment')
+dataFile: surveys/questiontype-comment.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-comment.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

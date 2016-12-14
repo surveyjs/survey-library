@@ -1,12 +1,12 @@
 ---
 layout: example
+useknockout: true
 hasColumnCount: true
 propertiesFile: exampleproperties/selectbase.html
 title: One choice - checkbox (type:'checkbox')
+dataFile: surveys/questiontype-checkbox.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-checkbox.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}
 {% include demo-selectbase-choices.html %}

@@ -1,9 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/visibletrigger.html
 title: Visible Trigger - Show/Hide question(s) on survey running.
+dataFile: surveys/trigger-visible.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/trigger-visible.json %});
-{% endcapture %}
+
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

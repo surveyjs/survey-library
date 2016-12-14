@@ -1,10 +1,9 @@
 ---
 layout: example
+useknockout: true
 title: Product Feedback survey
+dataFile: surveys/real-productfeedback.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/real-productfeedback.json %});
 
-{% endcapture %}
-
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

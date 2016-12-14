@@ -1,10 +1,10 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/startwithnewline.html
-title: Show several questions in one line/row. 
+title: Show several questions in one line/row.
+dataFile: surveys/survey-startwithnewline.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-startwithnewline.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

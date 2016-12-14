@@ -1,9 +1,9 @@
 ---
 layout: example
+useknockout: true
 title: Matrix with multiple choices (type:'matrixdropdown')
+dataFile: surveys/questiontype-matrixdropdown.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-matrixdropdown.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

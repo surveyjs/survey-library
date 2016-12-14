@@ -1,11 +1,11 @@
 ---
 layout: example
+useknockout: true
 propertiesFile: exampleproperties/selectbase.html
 title: One choice - dropdown (type:'dropdown')
+dataFile: surveys/questiontype-dropdown.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-dropdown.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}
 {% include demo-selectbase-choices.html %}

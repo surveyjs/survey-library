@@ -1,9 +1,9 @@
 ---
 layout: example
-title: Write an expression in "visibleIf" to show/hide your question(s) 
+useknockout: true
+title: Write an expression in "visibleIf" to show/hide your question(s)
+dataFile: surveys/condition-kids.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/condition-kids.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

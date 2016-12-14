@@ -8,15 +8,12 @@ var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
 
 //Example of adding new locale into the library.
-var Survey;
-(function (Survey) {
-    var mycustomSurveyStrings = {
-        pagePrevText: "My Page Prev",
-        pageNextText: "My Page Next",
-        completeText: "OK - Press to Complete",
-    };
-    Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
-})(Survey || (Survey = {}));
+var mycustomSurveyStrings = {
+    pagePrevText: "My Page Prev",
+    pageNextText: "My Page Next",
+    completeText: "OK - Press to Complete",
+};
+Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 
 {% endcapture %}
 

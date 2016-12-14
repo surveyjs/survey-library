@@ -1,9 +1,10 @@
 ---
 layout: example
+useknockout: true
 title: Go to the next page automatically
 propertiesFile: exampleproperties/autonextpage.html
+dataFile: surveys/survey-autonextpage.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-autonextpage.json %});
-{% endcapture %}
+
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

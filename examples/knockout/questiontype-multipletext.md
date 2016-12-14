@@ -1,9 +1,9 @@
 ---
 layout: example
+useknockout: true
 title: Multiple Text (type:'multipletext')
+dataFile: surveys/questiontype-multipletext.json
 ---
-{% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-multipletext.json %});
-{% endcapture %}
 
+{% include examplesetups/standard-setup.md %}
 {% include live-example-code.html %}

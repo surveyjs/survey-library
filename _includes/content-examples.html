@@ -22,12 +22,19 @@
             <div class="row source-code-container">
                 {% if page.title != 'Live examples' %}
                 <ul class="nav nav-tabs" style="margin-top:10px;margin-bottom:10px">
+                    {% assign path = page.url | split: '/' %}
                     {% if page.usereact %}
-                    <li role="presentation"><a href="{{ page.url | replace:'examples/react/','examples/knockout/' }}">Knockoutjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"  class="active"><a>Reactjs</a></li>
-                    {% else %}
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    {% elsif page.useknockout %}
                     <li role="presentation" class="active"><a>Knockoutjs</a></li>
-                    <li role="presentation"><a href="{{ page.url | replace:'examples/knockout/','examples/react/' }}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    {% elsif page.usejquery %}
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation" class="active"><a>jQuery</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}

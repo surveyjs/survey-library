@@ -7,7 +7,7 @@
         <link href="{{ site.baseurl }}/css/style.css" type="text/css" rel="stylesheet" /> 
         <link href="{{ site.baseurl }}/css/main.css" type="text/css" rel="stylesheet" />
         <link href="{{ site.baseurl }}/css/custom-checkbox.css" type="text/css" rel="stylesheet" />
-        {% if page.usedxchart or page.usebootstrap or page.jquery %}
+        {% if page.usedxchart or page.usebootstrap or page.jquery or page.usejquery%}
         <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>        
         {% endif %}
         {% if page.usedxchart%}
@@ -22,9 +22,11 @@
         <script src="https://fb.me/react-dom-0.14.8.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
         <script src="{{ site.baseurl }}/js/survey.react.min.js"></script>
-        {% else %}
+        {% elsif page.useknockout%}
         <script src="{{ site.baseurl }}/js/knockout.js"></script>
         <script src="{{ site.baseurl }}/js/survey.ko.min.js"></script>
+        {% elsif page.usejquery%}
+        <script src="{{ site.baseurl }}/js/survey.jquery.min.js"></script>
         {% endif %}
         <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />
         <script src="{{ site.baseurl }}/js/prism.js"></script>

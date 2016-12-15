@@ -1,4 +1,4 @@
-{% if page.usereact%}
+{% if page.usereact %}
 <script  type="text/babel">
 {% else %}
 <script type="text/javascript">
@@ -8,7 +8,7 @@
 {{ survey_code }}
 {% endif %}
 {{ survey_setup }}
-{% if page.usereact%}
+{% if page.useknockout != true %}
 window.survey = survey;
 survey.onComplete.add(function (s) { 
     var result = "\nThe results are:\n" + JSON.stringify(survey.data);

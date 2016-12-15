@@ -49,6 +49,21 @@ QUnit.test("Current Page", function (assert) {
     survey.pages.pop();
     assert.equal(survey.currentPage, survey.pages[0], "the first page is current after removing the current one");
 });
+QUnit.test("CurrentPageNo", function (assert) {
+    var survey = new SurveyModel();
+    survey.addPage(createPageWithQuestion("Page 1"));
+    assert.equal(survey.currentPageNo, 0, "the first page is  current");
+    survey.currentPageNo = -1;
+    assert.equal(survey.currentPageNo, 0, "can't set curent page to -1");
+    survey.currentPageNo = 1;
+    assert.equal(survey.currentPageNo, 0, "can't set curent page to PageNo + 1");
+    var sPage = createPageWithQuestion("new Page");
+    survey.addPage(sPage);
+    survey.currentPageNo = 1;
+    assert.equal(survey.currentPageNo, 1, "second page is current");
+    survey.pages.pop();
+    assert.equal(survey.currentPageNo, 0, "the first page is current after removing the current one");
+});
 QUnit.test("Remove Page", function (assert) {
     var survey = new SurveyModel();
     survey.mode = "designer";

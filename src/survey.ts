@@ -184,6 +184,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.currentPageValue = value;
         this.currentPageChanged(value, oldValue);
     }
+    public get currentPageNo(): number {
+        return this.visiblePages.indexOf(this.currentPage);
+    }
+    public set currentPageNo(value: number) {
+        var vPages = this.visiblePages;
+        if (value < 0 || value >= this.visiblePages.length) return;
+        this.currentPage = this.visiblePages[value];
+    }
     public focusFirstQuestion() {
         if (this.currentPageValue) {
             this.currentPageValue.scrollToTop();

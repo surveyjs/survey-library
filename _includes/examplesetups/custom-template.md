@@ -72,4 +72,5 @@ new Survey.SurveyTemplateText().replaceText('{% include templates/question-check
 
 {% elsif page.useangular%}
 {% elsif page.usejquery%}
+<h1>This feature is not supported yet<h1>
 {% endif %}

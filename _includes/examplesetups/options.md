@@ -15,4 +15,11 @@ survey.showProgressBar = "bottom";
 {% include live-example-code.html %}
 {% elsif page.useangular%}
 {% elsif page.usejquery%}
+{% capture survey_setup %}
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+survey.showProgressBar = "bottom";
+$("#surveyElement").Survey({model:survey});
+{% endcapture %}
+
+{% include live-example-code.html %}
 {% endif %}

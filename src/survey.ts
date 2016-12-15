@@ -260,7 +260,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.doComplete();
         return true;
     }
-    public get isFirstPage(): boolean {
+    public get isFirstPage(): boolean { 
         if (this.currentPage == null) return true;
         return this.visiblePages.indexOf(this.currentPage) == 0;
     }
@@ -690,7 +690,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         for (var i = 0; i < questions.length; i++) {
             if (!this.getValue(questions[i].name)) return;
         }
-        if (!this.currentPage.hasErrors(false, false)) {
+        if (!this.currentPage.hasErrors(true, false)) {
             if (!this.isLastPage) {
                 this.nextPage();
             } else {

@@ -180,6 +180,25 @@ QUnit.test("Load title correctly from JSON", function (assert) {
     var survey = new Survey({ questions: [{ type: "text", name: "question1" }] });
     assert.equal(survey.pages[0].questions[0]["koTitle"](), "1. question1", "title is getting from name");
 });
+QUnit.test("koErrors should be empty after prevPage bug#151", function (assert) {
+    var survey = new Survey();
+    survey.goNextPageAutomatic = true;
+    var page = survey.addNewPage("page1");
+    var question = <QuestionDropdown>page.addNewQuestion("dropdown", "q1");
+    question.choices = [1, 2, 3];
+    question.isRequired = true;
+    page = survey.addNewPage("page2");
+    page.addNewQuestion("text", "q2");
+
+    survey.nextPage();
+    assert.equal(question["koErrors"]().length, 1, "The question is not filled out.");
+    (<Question>survey.pages[0].questions[0]).value = 1;
+    assert.equal(question["koErrors"]().length, 0, "The question has not errors");
+    assert.equal(survey.currentPage.name, "page2", "Go to the next page");
+    survey.prevPage();
+    assert.equal(question["koErrors"]().length, 0, "The question has not errors");
+});
+
 
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);

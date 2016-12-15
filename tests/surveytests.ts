@@ -197,7 +197,6 @@ QUnit.test("Should set required questions before go on the  next page or finish"
     var survey = twoPageSimplestSurvey();
     assert.notEqual(survey, null, "Survey is not  null");
     (<Question>survey.pages[0].questions[0]).isRequired = true;
-    (<Question>survey.pages[1].questions[0]).isRequired = true;
 
     assert.equal(survey.nextPage(), false, "Can not go to the next page");
     assert.equal(survey.pages[0].questions[0].hasErrors(), true, "The question is not filled out.");
@@ -209,6 +208,30 @@ QUnit.test("Should set required questions before go on the  next page or finish"
     assert.equal(survey.pages[0].questions[0].hasErrors(), false, "The question is filled out.");
     assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
 });
+QUnit.test("Should not be errors after prevPage bug#151", function (assert) {
+    var survey = new SurveyModel();
+    survey.goNextPageAutomatic = true;
+    var page = survey.addNewPage("page1");
+    var question = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    question.choices = [1, 2, 3];
+    question.isRequired = true;
+    page = survey.addNewPage("page2");
+    page.addNewQuestion("text", "q2");
+
+    var errorsChangedCounter = 0;
+    question.errorsChangedCallback = function () { errorsChangedCounter++; };
+    survey.nextPage();
+    assert.equal(question.errors.length, 1, "The question is not filled out.");
+    assert.equal(errorsChangedCounter, 1, "called one time");
+    question.value = 1;
+    assert.equal(errorsChangedCounter, 2, "called second time");
+    assert.equal(question.errors.length, 0, "The question has not errors");
+    assert.equal(survey.currentPage.name, survey.pages[1].name, "Go to the next page");
+    survey.prevPage();
+    assert.equal(errorsChangedCounter, 2, "called second time");
+    assert.equal(question.errors.length, 0, "The question has not errors");
+});
+
 QUnit.test("Invisible required questions should not be take into account", function (assert) {
     var survey = twoPageSimplestSurvey();
     assert.notEqual(survey, null, "Survey is not  null");
@@ -601,24 +624,17 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
     dropDownQ.comment = "other value";
     assert.equal(survey.state, "completed", "complete the survey");
 });
-QUnit.test("test goNextPageAutomatic property", function (assert) {
+QUnit.test("test goNextPageAutomatic after errors", function (assert) {
     var survey = twoPageSimplestSurvey();
 
-    var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion("dropdown", "question5");
-    dropDownQ.choices = [1, 2, 3];
-    dropDownQ.hasOther = true;
     survey.goNextPageAutomatic = true;
+    (<Question>survey.getQuestionByName("question2")).isRequired = true;
     assert.equal(survey.currentPage.name, survey.pages[0].name, "the first page is default page");
     survey.setValue("question1", 1);
+    survey.nextPage();
+    assert.equal(survey.currentPage.name, survey.pages[0].name, "we are still on the first page. There are errors.");
     survey.setValue("question2", 2);
     assert.equal(survey.currentPage.name, survey.pages[1].name, "go to the second page automatically");
-    (<Question>survey.currentPage.questions[0]).value = "3";
-    (<Question>survey.currentPage.questions[1]).value = "4";
-    dropDownQ.value = dropDownQ.otherItem.value;
-    assert.equal(survey.currentPage.name, survey.pages[1].name, "stay on the second page");
-    assert.notEqual(survey.state, "completed", "survey is still running");
-    dropDownQ.comment = "other value";
-    assert.equal(survey.state, "completed", "complete the survey");
 });
 QUnit.test("goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
     var questions = [];

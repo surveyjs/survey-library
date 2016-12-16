@@ -51,29 +51,6 @@
                 </ul>
                 {% endif %}
                 {{ content }}
-                {% if page.useangular %}
-                <script>
-                    (function() {
-                        var HelloApp =
-                            ng.core
-                                .Component({
-                                    selector: 'ng-app',
-                                    template: '<div id="surveyContainer" class="survey-container contentcontainer codecontainer">' +
-                                    '<div id="surveyElement"></div></div>'
-                                })
-                                .Class({
-                                    constructor: function() {
-                                    },
-                                    ngOnInit: function() {
-                                        window.onAngularComponentInit();
-                                    }
-                                });
-                        document.addEventListener('DOMContentLoaded', function() {
-                            ng.platformBrowserDynamic.bootstrap(HelloApp);
-                        });
-                    })();
-                </script>
-                {% endif %}
             </div>
         </div>
         {% if page.propertiesFile %}

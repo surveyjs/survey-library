@@ -9,6 +9,23 @@ var survey = new Survey.ReactSurveyModel({% include {{page.dataFile}} %});
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {model:survey});
 }
+var HelloApp =
+    ng.core
+        .Component({
+            selector: 'ng-app',
+            template: '<div id="surveyContainer" class="survey-container contentcontainer codecontainer">' +
+            '<div id="surveyElement"></div></div>'
+        })
+        .Class({
+            constructor: function() {
+            },
+            ngOnInit: function() {
+                onAngularComponentInit();
+            }
+        });
+document.addEventListener('DOMContentLoaded', function() {
+    ng.platformBrowserDynamic.bootstrap(HelloApp);
+});
 {% elsif page.usejquery%}
 var survey = new Survey.ReactSurveyModel({% include {{page.dataFile}} %});
 $("#surveyElement").Survey({model:survey});

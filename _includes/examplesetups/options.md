@@ -14,6 +14,16 @@ survey.showProgressBar = "bottom";
 
 {% include live-example-code.html %}
 {% elsif page.useangular%}
+{% capture survey_setup %}
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+survey.showProgressBar = "bottom";
+function onAngularComponentInit() {
+    Survey.SurveyNG.render("surveyElement", {model:survey});
+}
+{% include examplesetups/angular-example-component.md %}
+{% endcapture %}
+
+{% include live-example-code.html %}
 {% elsif page.usejquery%}
 {% capture survey_setup %}
 var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});

@@ -1,5 +1,6 @@
 ---
 layout: example
+usereact: true
 title: Live examples
 canonicalUrl: /examples/
 ---

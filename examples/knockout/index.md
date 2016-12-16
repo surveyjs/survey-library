@@ -1,5 +1,6 @@
 ---
 layout: example
+useknockout: true
 title: Live examples
 canonicalUrl: /examples/
 ---

@@ -1,5 +1,6 @@
 ---
 layout: example
+useangular: true
 title: Live examples
 canonicalUrl: /examples/
 ---

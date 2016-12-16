@@ -1,5 +1,6 @@
 ---
 layout: example
+usejquery: true
 title: Live examples
 canonicalUrl: /examples/
 ---

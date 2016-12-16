@@ -52,6 +52,29 @@ function setNavigationVisibility(survey) {
 
 {% include live-example-code.html %}
 {% elsif page.useangular%}
+{% capture survey_setup %}
+var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+survey.showTitle = false;
+
+function setNavigationVisibility(survey) {
+    document.getElementById('surveyPrev').style.display = !survey.isFirstPage ? "inline" : "none";
+    document.getElementById('surveyNext').style.display = !survey.isLastPage ? "inline" : "none";
+    document.getElementById('surveyComplete').style.display = survey.isLastPage ? "inline" : "none";
+    document.getElementById('surveyProgress').innerText = "Page " + (survey.currentPage.visibleIndex + 1) + " of " + survey.visiblePageCount + ".";
+}
+
+function onAngularComponentInit() {
+    Survey.SurveyNG.render("surveyElement", {
+        model:survey,
+        onCurrentPageChanged: setNavigationVisibility
+    });
+}
+{% include examplesetups/angular-example-component.md %}
+
+setNavigationVisibility(survey);
+{% endcapture %}
+
+{% include live-example-code.html %}
 {% elsif page.usejquery%}
 {% capture survey_setup %}
 var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});

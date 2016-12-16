@@ -6,17 +6,21 @@
             {% include {{page.preSurvey}} %}
             {% endif %}
             {% if page.title != 'Live examples' %}
-            <div id="surveyContainer" class="survey-container contentcontainer  codecontainer">
-                <div id="surveyElement"></div>
-            </div>
-            <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
-                <div id="survey_result"></div>
-                <input id="btnreRun" type="button" onclick="
-                        document.getElementById('surveyContainer').style.display = '';
-                        document.getElementById('survey_oncomplete').style.display = 'none';
-                        reRunSurvey();"
-                       value="Re-run survey"></input>
-            </div>
+                {% if page.useangular %}
+                    <ng-app></ng-app>
+                {% else %}
+                    <div id="surveyContainer" class="survey-container contentcontainer  codecontainer">
+                        <div id="surveyElement"></div>
+                    </div>
+                {% endif %}
+                <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">
+                    <div id="survey_result"></div>
+                    <input id="btnreRun" type="button" onclick="
+                                    document.getElementById('surveyContainer').style.display = '';
+                                    document.getElementById('survey_oncomplete').style.display = 'none';
+                                    reRunSurvey();"
+                           value="Re-run survey"></input>
+                </div>
             {% endif %}
 
             <div class="row source-code-container">
@@ -27,18 +31,49 @@
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"  class="active"><a>Reactjs</a></li>
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/angular/{{path[3]}}">Angular2</a></li>
                     {% elsif page.useknockout %}
                     <li role="presentation" class="active"><a>Knockoutjs</a></li>
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/react/{{path[3]}}">Reactjs</a></li>
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/angular/{{path[3]}}">Angular2</a></li>
                     {% elsif page.usejquery %}
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"><a href="{{page.pathprefix}}/examples/react/{{path[3]}}">Reactjs</a></li>
                     <li role="presentation" class="active"><a>jQuery</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/angular/{{path[3]}}">Angular2</a></li>
+                    {% elsif page.useangular %}
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{page.pathprefix}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    <li role="presentation" class="active"><a>Angular2</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}
                 {{ content }}
+                {% if page.useangular %}
+                <script>
+                    (function() {
+                        var HelloApp =
+                            ng.core
+                                .Component({
+                                    selector: 'ng-app',
+                                    template: '<div id="surveyContainer" class="survey-container contentcontainer codecontainer">' +
+                                    '<div id="surveyElement"></div></div>'
+                                })
+                                .Class({
+                                    constructor: function() {
+                                    },
+                                    ngOnInit: function() {
+                                        window.onAngularComponentInit();
+                                    }
+                                });
+                        document.addEventListener('DOMContentLoaded', function() {
+                            ng.platformBrowserDynamic.bootstrap(HelloApp);
+                        });
+                    })();
+                </script>
+                {% endif %}
             </div>
         </div>
         {% if page.propertiesFile %}

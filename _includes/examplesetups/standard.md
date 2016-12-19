@@ -1,17 +1,13 @@
 {% capture survey_setup %}
+var survey = new Survey.Model({% include {{page.dataFile}} %});
 {% if page.usereact %}
-var survey = new Survey.ReactSurveyModel({% include {{page.dataFile}} %});
 ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
-{% elsif page.useknockout%}
-var survey = new Survey.Survey({% include {{page.dataFile}} %});
 {% elsif page.useangular%}
-var survey = new Survey.ReactSurveyModel({% include {{page.dataFile}} %});
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {model:survey});
 }
 {% include examplesetups/angular-example-component.md %}
 {% elsif page.usejquery%}
-var survey = new Survey.ReactSurveyModel({% include {{page.dataFile}} %});
 $("#surveyElement").Survey({model:survey});
 {% endif %}
 {% endcapture %}

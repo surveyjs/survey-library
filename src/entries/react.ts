@@ -11,7 +11,8 @@ import './chunks/cssFrameworks';
 
 // react
 export {Survey} from "../react/reactSurvey";
-export {ReactSurveyModel} from "../react/reactsurveymodel";
+export {ReactSurveyModel} from "../react/reactsurveymodel"; // TODO need to remove someday
+export {ReactSurveyModel as Model} from "../react/reactsurveymodel";
 export {SurveyNavigationBase} from "../react/reactSurveyNavigationBase";
 export {SurveyNavigation} from "../react/reactSurveyNavigation";
 export {SurveyPage, SurveyRow} from "../react/reactpage";
@@ -30,7 +31,8 @@ export {SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicRow} from "../re
 export {SurveyProgress} from "../react/reactSurveyProgress";
 export {SurveyQuestionRating} from "../react/reactquestionrating";
 export {SurveyWindow} from "../react/reactSurveyWindow";
-export {ReactQuestionFactory} from "../react/reactquestionfactory";
+export {ReactQuestionFactory} from "../react/reactquestionfactory"; // TODO need to remove someday
+export {ReactQuestionFactory as QuestionFactory} from "../react/reactquestionfactory";
 
 export {__extends} from "../extends";
 

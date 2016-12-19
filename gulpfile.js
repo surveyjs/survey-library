@@ -14,7 +14,7 @@ var gulp = require('gulp'),
     jsonTransform = require('gulp-json-transform'),
     project = require("./project.json"),
     webpackStream = require('webpack-stream'),
-    getWebpackConfig = require('./webpack/getKoReactConfig'),
+    getWebpackConfig = require('./webpack/webpack.config'),
     getWebpackUniversalConfig = require('./webpack/webpack.universal.config');
 
 var Server = require("karma").Server;
@@ -330,7 +330,7 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_angular + 'css'))
         .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"/*, "build_angular", "build_jquery"*/));
+gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react", "build_angular", "build_jquery"));
 
 gulp.task("test_ci", function (done) {
     new Server({

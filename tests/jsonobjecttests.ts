@@ -378,3 +378,21 @@ QUnit.test("Add new property to object", function (assert) {
     JsonObject.metaData.removeProperty("car", "isUsed");
     assert.equal(propertiesCount, JsonObject.metaData.getProperties("truck").length, "the additional property is removed");
 });
+
+QUnit.test("Add a new number property with default value", function (assert) {
+    JsonObject.metaData.addProperty("car", { name: "tag:number", default: 1 });
+    var dealer = new Dealer();
+    new JsonObject().toObject({ "truck": { "tag": 10, "maxWeight": 10000 } }, dealer);
+    assert.equal(dealer.truck["tag"], 10, "new property is here");
+    var jsObj = new JsonObject().toJsonObject(dealer);
+    assert.equal(JSON.stringify(jsObj), "{\"truck\":{\"tag\":10,\"maxWeight\":10000}}", "property is serialized");
+    dealer.truck["tag"] = 1;
+    jsObj = new JsonObject().toJsonObject(dealer);
+    assert.equal(JSON.stringify(jsObj), "{\"truck\":{\"maxWeight\":10000}}", "property is serialized");
+
+    new JsonObject().toObject({ "truck": { "maxWeight": 10000 } }, dealer);
+    jsObj = new JsonObject().toJsonObject(dealer);
+    assert.equal(JSON.stringify(jsObj), "{\"truck\":{\"maxWeight\":10000}}", "property is serialized");
+
+    JsonObject.metaData.removeProperty("car", "tag");
+});

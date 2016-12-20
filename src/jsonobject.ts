@@ -365,6 +365,7 @@ export class JsonObject {
         } else {
             value = obj[property.name];
         }
+        if (value === undefined || value === null) return;
         if (property.isDefaultValue(value)) return;
         if (this.isValueArray(value)) {
             var arrValue = [];
@@ -398,7 +399,7 @@ export class JsonObject {
             obj[key] = value;
         }
     }
-    private isValueArray(value: any): boolean { return value.constructor.toString().indexOf("Array") > -1; }
+    private isValueArray(value: any): boolean { return value && value.constructor.toString().indexOf("Array") > -1; }
     private createNewObj(value: any, property: JsonObjectProperty): any {
         var result = { newObj: null, error: null };
         var className = value[JsonObject.typePropertyName];

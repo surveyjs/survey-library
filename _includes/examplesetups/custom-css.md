@@ -1,6 +1,6 @@
 {% if page.usereact %}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/questiontype-matrix.json %});
+var survey = new Survey.Model({% include surveys/questiontype-matrix.json %});
 var myCss = {
         matrix: {root: "table table-striped"},
         navigationButton: "button btn-lg"   
@@ -93,7 +93,7 @@ ReactDOM.render(<Survey.Survey model={survey} css={myCss} />, document.getElemen
 </script>
 {% elsif page.useknockout%}
 {% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/questiontype-matrix.json %});
+var survey = new Survey.Model({% include surveys/questiontype-matrix.json %});
 survey.css = {
         matrix: {root: "table table-striped"},
         navigationButton: "button btn-lg"   
@@ -114,7 +114,7 @@ survey.css = {
 </script>
 {% elsif page.useangular%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/questiontype-matrix.json %});
+var survey = new Survey.Model({% include surveys/questiontype-matrix.json %});
 var myCss = {
         matrix: {root: "table table-striped"},
         navigationButton: "button btn-lg"   
@@ -213,7 +213,7 @@ function onAngularComponentInit() {
 </script>
 {% elsif page.usejquery%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/questiontype-matrix.json %});
+var survey = new Survey.Model({% include surveys/questiontype-matrix.json %});
 var myCss = {
         matrix: {root: "table table-striped"},
         navigationButton: "button btn-lg"   

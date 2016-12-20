@@ -1,6 +1,6 @@
 {% if page.usereact %}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 
 function setNavigationVisibility(survey) {
@@ -32,7 +32,7 @@ survey.onCurrentPageChanged.add(function (sender, options) {
 </pre>
 
 {% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 survey.onRendered.add(function (sender) {
     setNavigationVisibility(sender);
@@ -53,7 +53,7 @@ function setNavigationVisibility(survey) {
 {% include live-example-code.html %}
 {% elsif page.useangular%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 
 function setNavigationVisibility(survey) {
@@ -77,7 +77,7 @@ setNavigationVisibility(survey);
 {% include live-example-code.html %}
 {% elsif page.usejquery%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 
 function setNavigationVisibility(survey) {

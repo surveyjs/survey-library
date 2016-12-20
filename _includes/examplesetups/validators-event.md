@@ -1,6 +1,6 @@
 {% if page.usereact %}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
@@ -42,7 +42,7 @@ ReactDOM.render(<Survey.Survey model={survey} onValidateQuestion={surveyValidate
 {% include live-example-code.html %}
 {% elsif page.useknockout%}
 {% capture survey_setup %}
-var survey = new Survey.Survey({
+var survey = new Survey.Model({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
@@ -80,7 +80,7 @@ survey.onValidateQuestion.add(function (s, options) {
 {% include live-example-code.html %}
 {% elsif page.useangular%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
@@ -127,7 +127,7 @@ function onAngularComponentInit() {
 {% include live-example-code.html %}
 {% elsif page.usejquery%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [
             { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
             items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",

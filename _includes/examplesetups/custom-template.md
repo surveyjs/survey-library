@@ -53,7 +53,7 @@ Survey.ReactQuestionFactory.Instance.registerQuestion("radiogroup", (props) => {
     return React.createElement(MySurveyQuestionRadiogroup, props);
 });
 
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-about.json %});
+var survey = new Survey.Model({% include surveys/survey-about.json %});
 ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
 {% endcapture %}
 
@@ -61,7 +61,7 @@ ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surve
 
 {% elsif page.useknockout%}
 {% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-about.json %});
+var survey = new Survey.Model({% include surveys/survey-about.json %});
 
 new Survey.SurveyTemplateText().replaceText('{% include templates/question-radiogroup.html %}', "question", "radiogroup");
 new Survey.SurveyTemplateText().replaceText('{% include templates/question-checkbox.html %}', "question", "checkbox");

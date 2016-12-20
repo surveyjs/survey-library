@@ -1,6 +1,6 @@
 {% if page.usereact %}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [{ type: "text", name: "country", title: "Type a country:" }]
     });
 
@@ -35,7 +35,7 @@ ReactDOM.render(<Survey.Survey model={survey} onServerValidateQuestions={surveyV
 {% include live-example-code.html %}
 {% elsif page.useknockout%}
 {% capture survey_setup %}
-var survey = new Survey.Survey( {
+var survey = new Survey.Model( {
         questions: [{ type: "text", name: "country", title: "Type a country:" }]
     });
 {% endcapture %}
@@ -68,7 +68,7 @@ survey.onServerValidateQuestions = function (survey, options) {
 {% include live-example-code.html %}
 {% elsif page.useangular%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [{ type: "text", name: "country", title: "Type a country:" }]
     });
 
@@ -109,7 +109,7 @@ function onAngularComponentInit() {
 {% include live-example-code.html %}
 {% elsif page.usejquery%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({
+var survey = new Survey.Model({
         questions: [{ type: "text", name: "country", title: "Type a country:" }]
     });
 

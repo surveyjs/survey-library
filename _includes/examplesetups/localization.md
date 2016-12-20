@@ -1,6 +1,6 @@
 {% if page.usereact %}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
 ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
 
@@ -24,7 +24,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 </div>
 {% elsif page.useknockout%}
 {% capture survey_setup %}
-var survey = new Survey.Survey({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
 
 //Example of adding new locale into the library.
@@ -46,7 +46,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 </div>
 {% elsif page.useangular%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {model:survey});
@@ -73,7 +73,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 </div>
 {% elsif page.usejquery%}
 {% capture survey_setup %}
-var survey = new Survey.ReactSurveyModel({% include surveys/survey-severalpages.json %});
+var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.locale = "de";
 $("#surveyElement").Survey({model:survey});
 

@@ -14,7 +14,8 @@ var gulp = require('gulp'),
     jsonTransform = require('gulp-json-transform'),
     project = require("./project.json"),
     webpackStream = require('webpack-stream'),
-    getWebpackConfig = require('./webpack.config');
+    getWebpackConfig = require('./webpack/webpack.config'),
+    getWebpackUniversalConfig = require('./webpack/webpack.universal.config');
 
 var Server = require("karma").Server;
 
@@ -27,6 +28,7 @@ var paths = {
     tsTests: "./tests/*.ts",
     package_ko: "./packages/survey-knockout/",
     package_react: "./packages/survey-react/",
+    package_angular: "./packages/survey-angular/",
     typings: "./typings/**/*.d.ts",
     styles: "./src/*.scss",
 };
@@ -65,7 +67,7 @@ var config_ko = {
     dtsfile: "ko.d.ts",
     packagePath: "./packages/survey-knockout/",
     bundleName: "survey.ko",
-    entryPoint: "src/entries/ko"
+    entryPoint: "../src/entries/ko"
 };
 
 var config_react = {
@@ -86,13 +88,57 @@ var config_react = {
     dtsfile: "react.d.ts",
     packagePath: "./packages/survey-react/",
     bundleName: "survey.react",
-    entryPoint: "src/entries/react"
+    entryPoint: "../src/entries/react"
+};
+
+var config_angular = {
+    name: "survey-angular",
+    keywords: ["angular", "angular-component"],
+    dependencies: { "angular": "^1.5.9" },
+    src: [
+        "./src/*.ts",
+        "./src/localization/*.ts",
+        "./src/defaultCss/*.ts",
+        "./src/entries/chunks/**/*.ts",
+        "./src/react/*.tsx",
+        "./src/angular/*.ts",
+        "./src/angular/*.tsx",
+        "./src/entries/react.ts",
+        "./src/entries/angular.ts"
+    ],
+    mainJSfile: "survey.angular.js",
+    dtsfile: "angular.d.ts",
+    packagePath: "./packages/survey-angular/",
+    bundleName: "survey.angular",
+    entryPoint: "../src/entries/angular"
+};
+
+var config_jquery = {
+    name: "survey-angular",
+    keywords: ["jquery", "jquery-plugin"],
+    dependencies: { "angular": "^1.5.9" },
+    src: [
+        "./src/*.ts",
+        "./src/localization/*.ts",
+        "./src/defaultCss/*.ts",
+        "./src/entries/chunks/**/*.ts",
+        "./src/react/*.tsx",
+        "./src/angular/*.ts",
+        "./src/angular/*.tsx",
+        "./src/entries/react.ts",
+        "./src/entries/jquery.tsx"
+    ],
+    mainJSfile: "survey.jquery.js",
+    dtsfile: "jquery.d.ts",
+    packagePath: "./packages/survey-jquery/",
+    bundleName: "survey.jquery",
+    entryPoint: "../src/entries/jquery"
 };
 
 var config_test_ko = {
     dtsfile: "survey.d.ts",
     src: "./tests/ko/*.ts",
-    entryPoint: "./tests/entries/testKo",
+    entryPoint: "../tests/entries/testKo",
     bundleName: "survey.tests.ko",
     htmlFile: "./tests/ko/index_tests_ko.html"
 };
@@ -100,6 +146,8 @@ var config_test_ko = {
 var configs = {};
 configs["ko"] = config_ko;
 configs["react"] = config_react;
+configs["angular"] = config_angular;
+configs["jquery"] = config_jquery;
 var testconfigs = {};
 testconfigs["ko"] = config_test_ko;
 
@@ -122,7 +170,7 @@ function buildTemplates(configName, index) {
 function buildFromSources(configName) {
     var curConfig = configs[configName];
     var tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)));
+        .pipe(webpackStream(configName !== "react" && configName !== "ko"? getWebpackUniversalConfig(curConfig) : getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(insert.prepend(copyright))
@@ -142,6 +190,7 @@ function buildTypeDefinition(configName) {
         .pipe(ts({
             target: "ES5",
             noExternalResolve: true,
+            allowSyntheticDefaultImports: true,
             outDir: "./some/dir/TODO/", // TODO we need any value of outDir for save folders structure for d.ts. BUT WHY?
             declaration: true,
             jsx: "react"
@@ -168,7 +217,7 @@ function compressMainJS(configName) {
 function buildTests(configName) {
     var curConfig = testconfigs[configName];
     var tsResult = gulp.src(curConfig.entryPoint)
-        .pipe(webpackStream(getWebpackConfig(curConfig)));
+        .pipe(webpackStream(configName !== "react" && configName !== "ko"? getWebpackUniversalConfig(curConfig) : getWebpackConfig(curConfig)));
     return tsResult
         .pipe(concat(curConfig.mainJSfile))
         .pipe(gulp.dest(paths.testsFolder));
@@ -233,6 +282,31 @@ gulp.task("react_createPackageJson", function () {
 });
 gulp.task("build_react", sequence("react_source", "react_compress", "react_createPackageJson"));
 
+gulp.task("angular_source", function () {
+    buildTypeDefinition("angular");
+    return buildFromSources("angular");
+});
+gulp.task("angular_compress", function () {
+    compressMainJS("angular");
+});
+gulp.task("angular_createPackageJson", function () {
+    createPackageJson("angular");
+});
+gulp.task("build_angular", sequence("angular_source", "angular_compress", "angular_createPackageJson"));
+
+
+gulp.task("jquery_source", function () {
+    buildTypeDefinition("jquery");
+    return buildFromSources("jquery");
+});
+gulp.task("jquery_compress", function () {
+    compressMainJS("jquery");
+});
+gulp.task("jquery_createPackageJson", function () {
+    createPackageJson("jquery");
+});
+gulp.task("build_jquery", sequence("jquery_source", "jquery_compress", "jquery_createPackageJson"));
+
 gulp.task('copyfiles', function (callback) {
     gulp.src(gnf(null, 'package.json'), { base: './' })
         .pipe(rename(function (path) {
@@ -252,9 +326,11 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_ko + 'css'))
         .pipe(gulp.dest(paths.package_react + 'dist/css'))
         .pipe(gulp.dest(paths.package_react + 'css'))
+        .pipe(gulp.dest(paths.package_angular + 'dist/css'))
+        .pipe(gulp.dest(paths.package_angular + 'css'))
         .pipe(gulp.dest(paths.dist + 'css'));
 });
-gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react"));
+gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react", "build_angular", "build_jquery"));
 
 gulp.task("test_ci", function (done) {
     new Server({

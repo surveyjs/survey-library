@@ -6,14 +6,23 @@ var path = require('path');
 module.exports = function(options) {
     var babelConfig =  {
         presets: [
-            [require.resolve('babel-preset-es2015'), { loose: true }],
-            require.resolve('babel-preset-react')
+            'latest',
+            'stage-0',
+            'react'
+        ],
+        plugins: [
+            'transform-react-remove-prop-types',
+            'transform-react-constant-elements'
         ]
     };
 
     var config = {
         resolveLoader: {root: path.join(__dirname, 'node_modules')},
         resolve: {
+            alias: {
+                'react': 'preact-compat',
+                'react-dom': 'preact-compat'
+            },
             extensions: ['', '.ts', '.tsx']
         },
         entry: {},
@@ -24,23 +33,11 @@ module.exports = function(options) {
             umdNamedDefine: true
         },
         externals: {
-            'react': {
-                root: 'React',
-                commonjs2: 'react',
-                commonjs: 'react',
-                amd: 'react'
-            },
-            'react-dom': {
-                root: 'ReactDOM',
-                commonjs2: 'react-dom',
-                commonjs: 'react-dom',
-                amd: 'react-dom'
-            },
-            'knockout': {
-                root: 'ko',
-                commonjs2: 'knockout',
-                commonjs: 'knockout',
-                amd: 'knockout'
+            'jquery': {
+                root: 'jQuery',
+                commonjs2: 'jquery',
+                commonjs: 'jquery',
+                amd: 'jquery'
             }
         },
         module: {
@@ -50,6 +47,7 @@ module.exports = function(options) {
             loaders: [
                 {
                     test: /\.(ts|tsx)$/,
+                    exclude: /node_modules/,
                     loaders:[
                         require.resolve('babel-loader') + '?' + JSON.stringify(babelConfig), // TODO why do we need it
                         require.resolve('ts-loader')
@@ -58,6 +56,7 @@ module.exports = function(options) {
                 {
                     test: /\.(js|jsx)$/,
                     loader: require.resolve('babel-loader'),
+                    exclude: /node_modules/,
                     query: babelConfig
                 }
             ]
@@ -66,7 +65,8 @@ module.exports = function(options) {
         plugins: [
             new webpack.NoErrorsPlugin(),
             new webpack.ProvidePlugin({
-                __extends: path.join(__dirname, 'src', 'extends.ts')
+                __extends: path.join(__dirname, '../src', 'extends.ts'),
+                __assign: path.join(__dirname, '../src', 'assign.ts')
             })
         ],
         devtool: 'inline-source-map'

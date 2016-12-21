@@ -10,7 +10,8 @@ export {defaultStandardCss} from "../defaultCss/cssstandard";
 import './chunks/cssFrameworks';
 
 // knockout
-export {Survey} from "../knockout/kosurvey";
+export {Survey} from "../knockout/kosurvey"; // TODO need to remove someday
+export {Survey as Model} from "../knockout/kosurvey";
 export {QuestionRow, Page} from "../knockout/kopage";
 export {QuestionImplementorBase} from "../knockout/koquestionbase";
 export {QuestionImplementor} from "../knockout/koquestion";

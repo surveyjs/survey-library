@@ -3,7 +3,7 @@ import * as ReactDOM from 'react-dom';
 import {Survey} from "../react/reactSurvey";
 import jQuery from 'jquery';
 
-jQuery.fn.extend({
+jQuery["fn"].extend({
     Survey: function(props) {
         this.each(
             function() {

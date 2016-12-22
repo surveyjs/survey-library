@@ -16,7 +16,7 @@ mainmenukey: examples
         survey.clear();
         survey.render('survey');
     }
-    {% if page.usereact%}
+    {% if page.useknockout != true %}
         {% if page.disablereRun %}
         document.getElementById('btnreRun').style.display = 'none';
         {% endif %}

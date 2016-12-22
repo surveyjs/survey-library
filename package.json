@@ -41,6 +41,7 @@
     "preact-compat": "^3.9.4",
     "qunit": "^0.9.1",
     "qunitjs": "^2.0.1",
+    "jquery": "^3.1.1",
     "rimraf": "^2.5.2",
     "source-map-loader": "^0.1.5",
     "testcafe": "^0.10.0",

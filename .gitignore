@@ -33,3 +33,15 @@ project.lock.json
 /.gitattributes
 /packages/survey-knockout/README.md
 /travis_code.txt
+/packages/survey-jquery/README.md
+/packages/survey-jquery/package.json
+/packages/survey-jquery/js/survey.jquery.min.js
+/packages/survey-jquery/js
+/packages/survey-jquery
+/packages/survey-angular/README.md
+/packages/survey-angular/package.json
+/packages/survey-angular/js/survey.angular.min.js
+/packages/survey-angular/js
+/packages/survey-angular/css/survey.css
+/packages/survey-angular/css
+/packages/survey-angular

@@ -9,10 +9,19 @@ To find our more about the library go
 * and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
 
 Install the library using npm.
+Angular2 version:
+```
+npm install survey-angular
+```
+jQuery version:
+```
+npm install survey-jquery
+```
+Knockout version:
 ```
 npm install survey-knockout
 ```
-If you use react, then install the react version:
+React version:
 ```
 npm install survey-react
 ```

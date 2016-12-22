@@ -2,6 +2,8 @@
 var survey = new Survey.Model({% include {{page.dataFile}} %});
 {% if page.usereact %}
 ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
+{% elsif page.useknockout%}
+survey.render("surveyElement");
 {% elsif page.useangular%}
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {model:survey});

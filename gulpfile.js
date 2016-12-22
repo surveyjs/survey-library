@@ -29,6 +29,7 @@ var paths = {
     package_ko: "./packages/survey-knockout/",
     package_react: "./packages/survey-react/",
     package_angular: "./packages/survey-angular/",
+    package_jquery: "./packages/survey-jquery/",
     typings: "./typings/**/*.d.ts",
     styles: "./src/*.scss",
 };
@@ -114,9 +115,9 @@ var config_angular = {
 };
 
 var config_jquery = {
-    name: "survey-angular",
+    name: "survey-jquery",
     keywords: ["jquery", "jquery-plugin"],
-    dependencies: { "angular": "^1.5.9" },
+    dependencies: { "jquery": "^3.1.1" },
     src: [
         "./src/*.ts",
         "./src/localization/*.ts",

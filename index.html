@@ -206,6 +206,21 @@ import ReactDOM from 'react-dom';
                     </ul>
                     <div class="row tab-content"  data-bind="visible:isAngular">
                         <div>
+                            <h3>As Survey Window</h3>
+                            <pre><code class="language-markup">&lt;ng-app&gt;&lt;/ng-app&gt;</code></pre>
+                            <pre><code class="language-js">@Component({
+  selector: 'ng-app',
+  template: `&lt;div id='surveyElement'&gt;&lt;/div&gt;`,
+})
+export class AppComponent  {
+  ngOnInit() {
+    var survey = new Survey.Model(surveyJSON);
+    Survey.SurveyWindowNG.render("surveyElement", {model:survey});
+  }
+}
+</code></pre>
+                        </div>
+                        <div>
                             <h3>Inside your web page</h3>
                             <pre><code class="language-markup">&lt;ng-app&gt;&lt;/ng-app&gt;</code></pre>
                             <pre><code class="language-js">@Component({
@@ -222,6 +237,14 @@ export class AppComponent  {
                         </div>
                     </div>
                     <div class="row tab-content"  data-bind="visible:isJquery">
+                        <div>
+                            <h3>As Survey Window</h3>
+                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
+$("#surveyContainer").SurveyWindow({
+    model:survey,
+    onComplete={sendDataToServer}
+});</code></pre>
+                        </div>
                         <div>
                             <h3>Inside your web page</h3>
                             <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>

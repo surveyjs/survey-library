@@ -1,6 +1,7 @@
 {
   "name": "surveyjs",
   "globalDependencies": {
+    "jquery": "registry:dt/jquery#1.10.0+20161119044246",
     "knockout": "github:DefinitelyTyped/DefinitelyTyped/knockout/knockout.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",
     "node": "registry:dt/node#6.0.0+20161019125345",
     "qunit": "github:DefinitelyTyped/DefinitelyTyped/qunit/qunit.d.ts#08ed4e9f1869e37e29514d862e0158b40e550232",

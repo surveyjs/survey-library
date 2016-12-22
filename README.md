@@ -9,6 +9,7 @@ To find our more about the library go
 * and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
 
 Install the library using npm.
+
 Angular2 version:
 ```
 npm install survey-angular

@@ -187,6 +187,9 @@ html body {
             color: #a7a7a7; }
     .svd_container .svd_content .svd_json_editor {
       height: 450px; }
+    .svd_container .svd_content .svd_json_editor_area {
+      height: 450px;
+      width: 100%; }
 
 .svd_container [draggable] {
   -moz-user-select: none;

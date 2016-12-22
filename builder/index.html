@@ -25,9 +25,8 @@ usebootstrap: true
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }    
-    var editor = new SurveyEditor.SurveyEditor("editor");
-    editor.showOptions = true;
+    }
+    var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true});
     var surveyId = getParameterByName("surveyid");
     if(surveyId) {
         editor.loadSurvey(surveyId);

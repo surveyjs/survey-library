@@ -4,6 +4,7 @@ usejquery: true
 title: Use cookie to run servey one time in a browser.
 disablereRun: true
 dataFile: surveys/survey-cookie.json
+redirect_from: "/examples/survey-cookie.html"
 ---
 
 {% include examplesetups/standard.md %}

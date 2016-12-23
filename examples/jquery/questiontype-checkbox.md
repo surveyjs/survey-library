@@ -5,6 +5,7 @@ hasColumnCount: true
 propertiesFile: exampleproperties/selectbase.html
 title: One choice - checkbox (type:'checkbox')
 dataFile: surveys/questiontype-checkbox.json
+redirect_from: "/examples/questiontype-checkbox.html"
 ---
 
 {% include examplesetups/standard.md %}

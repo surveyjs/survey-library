@@ -329,6 +329,8 @@ gulp.task('sass', function () {
         .pipe(gulp.dest(paths.package_react + 'css'))
         .pipe(gulp.dest(paths.package_angular + 'dist/css'))
         .pipe(gulp.dest(paths.package_angular + 'css'))
+        .pipe(gulp.dest(paths.package_jquery + 'dist/css'))
+        .pipe(gulp.dest(paths.package_jquery + 'css'))
         .pipe(gulp.dest(paths.dist + 'css'));
 });
 gulp.task("makedist", sequence(["sass", "build_ko"], "buildTests_ko", "build_react", "build_angular", "build_jquery"));

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "testcafe": "testcafe chrome testCafe/tests"
+    "testcafe": "testcafe chrome testCafe/tests",
+    "test": "concurrently \"http-server\" \"testcafe chrome testCafe/tests/\""
   },
   "version": "0.9.5",
   "name": "surveyjs",

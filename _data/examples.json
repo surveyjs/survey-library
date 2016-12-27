@@ -27,7 +27,8 @@
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
                 {"name": "Change Rendering", "text": "Change question templates", "url": "survey-customtemplate.html"},
-                {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
+                {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"},
+                {"name": "Custom question", "text": "Create you own question", "url": "custom-question.html"}
             ]},
             { "name": "Validation", "id": "validation", 
               "items": [

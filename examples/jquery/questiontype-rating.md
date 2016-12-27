@@ -3,7 +3,7 @@ layout: example
 usejquery: true
 propertiesFile: exampleproperties/rating.html
 title: Rating (type:'rating')
-dataFile: surveys/questiontype-radiogroup.json
+dataFile: surveys/questiontype-rating.json
 redirect_from: "/examples/questiontype-rating.html"
 ---
 

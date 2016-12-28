@@ -4,8 +4,14 @@
 <script type="text/javascript">
 {% endif %}
 /*<![CDATA[*/
+{% if survey_code_0 %}
+{{ survey_code_0 }}
+{% endif %}
 {% if survey_code %}
 {{ survey_code }}
+{% endif %}
+{% if survey_code_1 %}
+{{ survey_code_1 }}
 {% endif %}
 {{ survey_setup }}
 {% if page.useknockout != true %}
@@ -23,9 +29,17 @@ survey.onComplete.add(function (s) {
 </script>
 
 
+{% if survey_code_0 %}
+<div>Source code: Survey code</div>
+<pre><code class="language-javascript">{{ survey_code_0 + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+{% endif %}
 {% if survey_code %}
 <div>Source code: Survey code</div>
 <pre><code class="language-javascript">{{ survey_code + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+{% endif %}
+{% if survey_code_1 %}
+<div>Source code: Survey code</div>
+<pre><code class="language-javascript">{{ survey_code_1 + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
 {% endif %}
 {% if survey_events %}
 <div>Source code: Survey events</div>
@@ -33,4 +47,3 @@ survey.onComplete.add(function (s) {
 {% endif %}
 <div>Source code: Survey setup</div>
 <pre><code class="language-javascript">Survey.Survey.cssType = "bootstrap";{{ survey_setup | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
-

@@ -1,0 +1,5 @@
+{
+    questions: [
+        {name:"name", type:"emoji", title: "Do you like dogs?", rateValues:["😫", "😔", "😃"]}
+    ]
+}

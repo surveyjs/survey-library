@@ -3,7 +3,7 @@ layout: example
 usereact: true
 propertiesFile: exampleproperties/rating.html
 title: Rating (type:'rating')
-dataFile: surveys/questiontype-radiogroup.json
+dataFile: surveys/questiontype-rating.json
 ---
 
 {% include examplesetups/standard.md %}

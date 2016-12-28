@@ -6,6 +6,14 @@
 
 {% else %}
 
+{% if page.useknockout %}
+
+{% capture ko_template %}
+{% include templates/custom-question.html %}
+{% endcapture %}
+
+{% endif %}
+
 {% capture survey_code_0 %}
 
 // implements class inheritance
@@ -66,8 +74,8 @@ var QuestionEmojiModel = (function (_super) {
 //static props
 QuestionEmojiModel.defaultRateValues = [];
 
-debugger;
 Survey.defaultStandardCss.emoji = {root: "sv_q_emoji", item: "sv_q_emoji_item"};
+Survey.defaultBootstrapCss.emoji = {root: "btn-group", item: "btn btn-default"};
 
 Survey.ItemValue.setData(QuestionEmojiModel.defaultRateValues, [1, 2, 3, 4, 5]);
 

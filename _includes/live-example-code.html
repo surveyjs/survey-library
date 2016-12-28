@@ -1,3 +1,7 @@
+{% if ko_template %}
+{{ ko_template }}
+{% endif %}
+
 {% if page.usereact %}
 <script  type="text/babel">
 {% else %}
@@ -28,7 +32,10 @@ survey.onComplete.add(function (s) {
 /*]]>*/
 </script>
 
-
+{% if ko_template %}
+<div>Source code: knockout template</div>
+<pre><code class="language-javascript">{{ ko_template + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>
+{% endif %}
 {% if survey_code_0 %}
 <div>Source code: Survey code</div>
 <pre><code class="language-javascript">{{ survey_code_0 + '</script>' | replace:'/*<![CDATA[*/','' | replace:'/*]]>*/','' | escape }}</code></pre>

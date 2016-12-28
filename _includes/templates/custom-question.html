@@ -1,0 +1,14 @@
+<script type="text/html" id="survey-question-emoji">
+    <div data-bind="css: $root.css.emoji.root">
+        <!-- ko foreach: question.koVisibleRateValues -->
+        <label data-bind="css: question.koGetCss($data)">
+            <input type="radio" style="display: none;"
+                   data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}" />
+            <span data-bind="text: $data.text, style: question.koGetEmojiStyle($data)"></span>
+        </label>
+        <!-- /ko -->
+    </div>
+    <div data-bind="visible: question.hasOther">
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question } }"></div>
+    </div>
+</script>

@@ -6,8 +6,8 @@ import './chunks/localization';
 
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
-//css frameworks
-import './chunks/cssFrameworks';
+// css bootstrap
+export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
 
 // react
 export {Survey} from "../react/reactSurvey";

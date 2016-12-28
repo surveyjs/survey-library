@@ -6,8 +6,8 @@ import './chunks/localization';
 
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
-//css frameworks
-import './chunks/cssFrameworks';
+// css bootstrap
+export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
 
 // knockout
 export {Survey} from "../knockout/kosurvey"; // TODO need to remove someday

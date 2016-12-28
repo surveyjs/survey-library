@@ -15,7 +15,6 @@
 {% endif %}
 
 {% capture survey_code_0 %}
-
 // implements class inheritance
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -26,7 +25,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 {% endcapture %}
 
 {% capture survey_code %}
-
 // implements question model
 var QuestionEmojiModel = (function (_super) {
 
@@ -105,9 +103,7 @@ Survey.QuestionFactory.Instance.registerQuestion("emoji", (name) => { return new
 {% endcapture %}
 
 {% capture survey_code_1 %}
-
 {% if page.usereact %}
-
 var SurveyQuestionEmoji = (function (_super) {
 
     __extends(SurveyQuestionEmoji, _super);
@@ -188,7 +184,6 @@ Survey.ReactQuestionFactory.Instance.registerQuestion("emoji", (props) => {
 });
 
 {% elsif page.useknockout %}
-
 var QuestionEmojiImplementor = (function (_super) {
 
     __extends(QuestionEmojiImplementor, _super);

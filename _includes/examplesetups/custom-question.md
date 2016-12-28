@@ -1,8 +1,8 @@
 {% if page.useangular %}
-<h1>This feature is not supported yet</h1>
+<h1>This feature is not supported yet. Please use knockout and react versions.</h1>
 
 {% elsif page.usejquery %}
-<h1>This feature is not supported yet</h1>
+<h1>This feature is not supported yet.  Please use knockout and react versions.</h1>
 
 {% else %}
 

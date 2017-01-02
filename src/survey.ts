@@ -203,11 +203,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (this.isCompleted) return "completed";
         return (this.currentPage) ? "running" : "empty"
     }
-    public clear() {
-        this.data = null;
-        this.variablesHash = {};
+    public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+        if (clearData) {
+            this.data = null;
+            this.variablesHash = {};
+        }
         this.isCompleted = false;
-        if (this.visiblePageCount > 0) {
+        if (gotoFirstPage && this.visiblePageCount > 0) {
             this.currentPage = this.visiblePages[0];
         }
     }

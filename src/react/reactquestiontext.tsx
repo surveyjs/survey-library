@@ -10,12 +10,16 @@ export class SurveyQuestionText extends React.Component<any, any> {
         super(props);
         this.question = props.question;
         this.css = props.css;
-        this.state = { value: this.question.value };
+        this.state = { value: this.question.value || '' };
         this.handleOnChange = this.handleOnChange.bind(this);
+        this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     handleOnChange(event) {
+        this.setState({ value: event.target.value });
+    }
+    handleOnBlur(event) {
         this.question.value = event.target.value;
-        this.setState({ value: this.question.value });
+        this.setState({ value: this.question.value || '' });
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
@@ -24,7 +28,7 @@ export class SurveyQuestionText extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <input id={this.question.inputId} className={this.css} type={this.question.inputType} value={this.question.value || ''} size={this.question.size} onChange={this.handleOnChange} />
+            <input id={this.question.inputId} className={this.css} type={this.question.inputType} value={this.state.value} size={this.question.size} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />
         );
     }
 }

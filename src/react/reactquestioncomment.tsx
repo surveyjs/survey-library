@@ -10,12 +10,16 @@ export class SurveyQuestionComment extends React.Component<any, any> {
         super(props);
         this.question = props.question;
         this.css = props.css;
-        this.state = { value: this.question.value };
+        this.state = { value: this.question.value || '' };
         this.handleOnChange = this.handleOnChange.bind(this);
+        this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     handleOnChange(event) {
+        this.setState({ value: event.target.value });
+    }
+    handleOnBlur(event) {
         this.question.value = event.target.value;
-        this.setState({ value: this.question.value });
+        this.setState({ value: this.question.value || '' });
     }
     componentWillReceiveProps(nextProps: any) {
         this.question = nextProps.question;
@@ -23,7 +27,7 @@ export class SurveyQuestionComment extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <textarea id={this.question.inputId} className={this.css} type="text" value={this.state.value} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
+            <textarea id={this.question.inputId} className={this.css} type="text" value={this.state.value}  onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
         );
     }
 }

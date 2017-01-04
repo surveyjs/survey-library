@@ -54,10 +54,14 @@ export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
         this.item = props.item;
         this.css = props.css;
         this.inputId = props.inputId;
-        this.state = { value: this.item.value };
+        this.state = { value: this.item.value || '' };
         this.handleOnChange = this.handleOnChange.bind(this);
+        this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     handleOnChange(event) {
+        this.setState({ value: event.target.value });
+    }
+    handleOnBlur(event) {
         this.item.value = event.target.value;
         this.setState({ value: this.item.value });
     }
@@ -68,7 +72,7 @@ export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.item) return null;
         var style = { float: "left" };
-        return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} onChange={this.handleOnChange} />);
+        return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />);
     }
     protected get mainClassName(): string { return ""; }
 }

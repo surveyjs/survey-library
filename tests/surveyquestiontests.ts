@@ -143,6 +143,17 @@ QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
     matrix.isAllRowRequired = true;
     assert.equal(matrix.hasErrors(), true, "There is no errors by default");
 });
+QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.rows = ["row1", "row2"];
+    matrix.columns = ["col1", "col2"];
+    assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+    matrix.value = { row1: "col1" };
+    assert.equal(matrix.supportGoNextPageAutomatic(), false, "The second row is not set");
+    matrix.value = { row1: "col1", row2: "col1" };
+    assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
+});
+
 QUnit.test("Multiple Text Item: text property", function (assert) {
     var mItem = new MultipleTextItemModel("text1");
     assert.equal(mItem.title, "text1", "get value from name");

@@ -659,7 +659,11 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     questions.push({ question: new QuestionCommentModel("comment"), auto: false, value: "1" });
     questions.push({ question: new QuestionFileModel("file"), auto: false, value: "1" });
     questions.push({ question: new QuestionFileModel("html"), auto: false, value: null });
-    questions.push({ question: new QuestionMatrixModel("matrix"), auto: false, value: [{ item1: 1 }] });
+    var matrix = new QuestionMatrixModel("matrix");
+    matrix.rows = ["row1", "row2"];
+    matrix.columns = ["col1", "col2"];
+    questions.push({ question: matrix, auto: false, value: { "row1": "col1" } });
+    questions.push({ question: matrix, auto: true, value: { "row1": "col1", "row2": "col1" } });
     questions.push({ question: new QuestionMatrixDropdownModel("matrixdropdown"), auto: false, value: [{ item1: 1 }] });
     questions.push({ question: new QuestionMatrixDynamicModel("matrixdynamic"), auto: false, value: [{ item1: 1 }] });
     questions.push({ question: new QuestionMultipleTextModel("multitext"), auto: false, value: [{ item1: "1" }] });

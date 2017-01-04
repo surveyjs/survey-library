@@ -64,6 +64,7 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         this.generatedVisibleRows = result;
         return result;
     }
+    supportGoNextPageAutomatic() { return this.hasValuesInAllRows(); }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);
         if (this.hasErrorInRows()) {
@@ -72,16 +73,18 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     }
     private hasErrorInRows(): boolean {
         if (!this.isAllRowRequired) return false;
+        return !this.hasValuesInAllRows();
+    }
+    private hasValuesInAllRows(): boolean {
         var rows = this.generatedVisibleRows;
         if (!rows) rows = this.visibleRows;
-        if (!rows) return false;
+        if (!rows) return true;
         for (var i = 0; i < rows.length; i++) {
             var val = rows[i].value;
-            if (!val) return true;
+            if (!val) return false;
         }
-        return false;
+        return true;
     }
-
     protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
         return new MatrixRowModel(name, text, fullName, this, value);
     }

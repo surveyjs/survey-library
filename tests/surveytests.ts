@@ -664,8 +664,19 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     matrix.columns = ["col1", "col2"];
     questions.push({ question: matrix, auto: false, value: { "row1": "col1" } });
     questions.push({ question: matrix, auto: true, value: { "row1": "col1", "row2": "col1" } });
-    questions.push({ question: new QuestionMatrixDropdownModel("matrixdropdown"), auto: false, value: [{ item1: 1 }] });
-    questions.push({ question: new QuestionMatrixDynamicModel("matrixdynamic"), auto: false, value: [{ item1: 1 }] });
+
+    var dropDownMatrix = new QuestionMatrixDropdownModel("matrixdropdown");
+    dropDownMatrix.addColumn("col1");
+    dropDownMatrix.rows = ["row1", "row2"];
+    questions.push({ question: dropDownMatrix, auto: false, value: { "row1": { "col1": 1 } } });
+    questions.push({ question: dropDownMatrix, auto: true, value: { "row1": { "col1": 1 }, "row2": { "col1": 2 } } });
+
+    var dynamicMatrix = new QuestionMatrixDynamicModel("matrixdynamic");
+    dynamicMatrix.addColumn("col1");
+    dynamicMatrix.rowCount = 2;
+    questions.push({ question: dynamicMatrix, auto: false, value: [{ "col1": 1 }] });
+    questions.push({ question: dynamicMatrix, auto: true, value: [{ "col1": 1 }, { "col1": 1 }] });
+
     questions.push({ question: new QuestionMultipleTextModel("multitext"), auto: false, value: [{ item1: "1" }] });
     questions.push({ question: new QuestionRatingModel("rating"), auto: true, value: 1 });
     questions.push({ question: new QuestionTextModel("text"), auto: true, value: "1" });

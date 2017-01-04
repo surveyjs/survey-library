@@ -207,6 +207,20 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         this.isRowChanging = false;
     }
+    supportGoNextPageAutomatic() {
+        var rows = this.generatedVisibleRows;
+        if (!rows) rows = this.visibleRows;
+        if (!rows) return true;
+        for (var i = 0; i < rows.length; i++) {
+            var cells = this.generatedVisibleRows[i].cells;
+            if (!cells) continue;
+            for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+                var question = cells[colIndex].question;
+                if (question && (!question.supportGoNextPageAutomatic() || !question.value)) return false;
+            }
+        }
+        return true;
+    }
     public hasErrors(fireCallback: boolean = true): boolean {
         var errosInColumns = this.hasErrorInColumns(fireCallback);
         return super.hasErrors(fireCallback) || errosInColumns;

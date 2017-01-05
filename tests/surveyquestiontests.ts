@@ -169,6 +169,18 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function (ass
     mText.items[1].value = "val2";
     assert.deepEqual(mText.value, { text1: "val1", text2: "val2" }, "set the value from the text item");
 });
+QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (assert) {
+    var mText = new QuestionMultipleTextModel("q1");
+    mText.items.push(new MultipleTextItemModel("text1"));
+    mText.items.push(new MultipleTextItemModel("text2"));
+
+    assert.equal(mText.supportGoNextPageAutomatic(), false, "all text are empty");
+    mText.value = { tex1: "val1" };
+    assert.equal(mText.supportGoNextPageAutomatic(), false, "The second text is empty");
+    mText.value = { text1: "val1", text2: "val2" };
+    assert.equal(mText.supportGoNextPageAutomatic(), true, "Both text inputs are set");
+});
+
 QUnit.test("Validators for text question", function (assert) {
     var mText = new QuestionTextModel("");
     assert.equal(mText.hasErrors(), false, "There is no error by default");

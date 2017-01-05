@@ -54,4 +54,4 @@ JsonObject.metaData.overrideClassCreatore("multipletextitem", function () { retu
 
 JsonObject.metaData.overrideClassCreatore("multipletext", function () { return new QuestionMultipleText(""); });
 
-QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleText(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
+QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleText(name); q.addItem("text1"); q.addItem("text2"); return q; });

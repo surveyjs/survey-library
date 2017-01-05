@@ -659,6 +659,7 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     questions.push({ question: new QuestionCommentModel("comment"), auto: false, value: "1" });
     questions.push({ question: new QuestionFileModel("file"), auto: false, value: "1" });
     questions.push({ question: new QuestionFileModel("html"), auto: false, value: null });
+
     var matrix = new QuestionMatrixModel("matrix");
     matrix.rows = ["row1", "row2"];
     matrix.columns = ["col1", "col2"];
@@ -677,9 +678,15 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     questions.push({ question: dynamicMatrix, auto: false, value: [{ "col1": 1 }] });
     questions.push({ question: dynamicMatrix, auto: false, value: [{ "col1": 1 }, { "col1": 1 }] });
 
-    questions.push({ question: new QuestionMultipleTextModel("multitext"), auto: false, value: [{ item1: "1" }] });
+    var multipleText = new QuestionMultipleTextModel("multitext");
+    multipleText.addItem("t1");
+    multipleText.addItem("t2");
+    questions.push({ question: multipleText, auto: false, value: { t1: "1" } });
+    questions.push({ question: multipleText, auto: true, value: { t1: "1", t2: "2" } });
+
     questions.push({ question: new QuestionRatingModel("rating"), auto: true, value: 1 });
     questions.push({ question: new QuestionTextModel("text"), auto: true, value: "1" });
+
     var pageIndex = 0;
     for (var i = 0; i < questions.length; i++) {
         var q = questions[i];

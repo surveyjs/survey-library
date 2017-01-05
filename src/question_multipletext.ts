@@ -64,10 +64,18 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         this.itemsValues = value;
         this.fireCallback(this.colCountChangedCallback);
     }
-    public AddItem(name: string, title: string = null): MultipleTextItemModel {
+    public addItem(name: string, title: string = null): MultipleTextItemModel {
         var item = this.createTextItem(name, title);
         this.items.push(item);
         return item;
+    }
+    //TODO-remove later. Delay removing in case somebody use this function.
+    private AddItem(name: string, title: string = null): MultipleTextItemModel { return this.addItem(name, title); }
+    supportGoNextPageAutomatic() {
+        for (var i = 0; i < this.items.length; i++) {
+            if (!this.items[i].value) return false;
+        }
+        return true;
     }
     public get colCount(): number { return this.colCountValue; }
     public set colCount(value: number) {
@@ -143,4 +151,4 @@ JsonObject.metaData.addClass("multipletext", [{ name: "!items:textitems", classN
         { name: "itemSize:number", default: 25 }, { name: "colCount:number", default: 1, choices: [1, 2, 3, 4] }],
     function () { return new QuestionMultipleTextModel(""); }, "question");
 
-QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleTextModel(name); q.AddItem("text1"); q.AddItem("text2"); return q; });
+QuestionFactory.Instance.registerQuestion("multipletext", (name) => { var q = new QuestionMultipleTextModel(name); q.addItem("text1"); q.addItem("text2"); return q; });

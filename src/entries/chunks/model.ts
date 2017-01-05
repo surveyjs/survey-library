@@ -6,6 +6,7 @@ export {Base, Event, ItemValue, SurveyError, ISurvey} from "../../base";
 export {ChoicesRestfull} from "../../choicesRestfull";
 export {Condition, ConditionNode, ConditionRunner} from "../../conditions";
 export {ConditionsParser} from "../../conditionsParser";
+export {ProcessValue} from "../../conditionProcessValue";
 export {CustomError, ExceedSizeError, RequreNumericError} from "../../error";
 export {
     JsonError, JsonIncorrectTypeError, JsonMetadata, JsonMetadataClass,

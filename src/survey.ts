@@ -3,6 +3,7 @@ import {Base, ISurvey, HashTable, IQuestion, IConditionRunner, IPage, SurveyErro
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
+import {ProcessValue} from "./conditionProcessValue";
 import {dxSurveyService} from "./dxSurveyService";
 import {JsonError} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
@@ -69,7 +70,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         super();
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
-        this.textPreProcessor.onHasValue = function (name: string) { return self.processedTextValues[name.toLowerCase()]; };
+        this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
         this.pages.push = function (value) {
             value.data = self;
@@ -612,19 +613,25 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     private addQuestionToProcessedTextValues(question: IQuestion) {
         this.processedTextValues[question.name.toLowerCase()] = "question";
     }
+    private hasProcessedTextValue(name: string): boolean {
+        var firstName = new ProcessValue().getFirstName(name);
+        return this.processedTextValues[firstName.toLowerCase()];
+    }
     private getProcessedTextValue(name: string): any {
-        var name = name.toLowerCase();
-        var val = this.processedTextValues[name];
+        var firstName = new ProcessValue().getFirstName(name);
+        var val = this.processedTextValues[firstName.toLowerCase()];
         if (!val) return null;
+        if (val == "variable") {
+            return this.getVariable(name.toLowerCase());
+        }
         if (val == "question") {
-            var question = this.getQuestionByName(name, true);
-            return question != null ? this.getValue(question.name) : null;
+            var question = this.getQuestionByName(firstName, true);
+            if (!question) return null;
+            name = question.name + name.substr(firstName.length);
+            return new ProcessValue().getValue(name, this.valuesHash);
         }
         if (val == "value") {
-            return this.getValue(name);
-        }
-        if (val == "variable") {
-            return this.getVariable(name);
+            return new ProcessValue().getValue(name, this.valuesHash);
         }
         return val(name);
     }

@@ -550,6 +550,29 @@ QUnit.test("pre process title", function (assert) {
     survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}{val1}</div>";
     assert.equal(survey.processedCompletedHtml, "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
 });
+
+QUnit.test("pre process completedHtml nested properties and arrays", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+
+    var multipleText = new QuestionMultipleTextModel("mt");
+    multipleText.addItem("t1");
+    multipleText.addItem("t2");
+    page.addQuestion(multipleText);
+
+    var dynamicMatrix = new QuestionMatrixDynamicModel("matrix");
+    dynamicMatrix.addColumn("col1");
+    dynamicMatrix.addColumn("col2");
+    dynamicMatrix.addColumn("col3");
+    page.addQuestion(dynamicMatrix);
+
+    multipleText.value = { t2: "Year" };
+    dynamicMatrix.value = [{ col1: 1 }, {col2: 2017}];
+
+    survey.completedHtml = "{mt.t2}:{matrix[1].col2}";
+    assert.equal(survey.processedCompletedHtml, "Year:2017");
+});
+
 QUnit.test("question fullTitle", function (assert) {
     var survey = twoPageSimplestSurvey();
     var question = <Question>survey.pages[0].questions[1];

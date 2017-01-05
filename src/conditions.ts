@@ -1,5 +1,6 @@
 ﻿import {HashTable} from './base';
 import {ConditionsParser} from './conditionsParser';
+import {ProcessValue} from "./conditionProcessValue";
 
 export class Condition {
     static operatorsValue: HashTable<Function> = null;
@@ -65,11 +66,13 @@ export class ConditionNode {
 }
 export class ConditionRunner {
     private expressionValue: string;
+    private processValue: ProcessValue;
     private root: ConditionNode;
     private values: HashTable<any>;
     public constructor(expression: string) {
         this.root = new ConditionNode();
         this.expression = expression;
+        this.processValue = new ProcessValue();
     }
     public get expression(): string { return this.expressionValue; }
     public set expression(value: string) {
@@ -100,14 +103,14 @@ export class ConditionRunner {
         var left = condition.left;
         var name = this.getValueName(left);
         if (name) {
-            if (!(name in this.values)) return false;
-            left = this.values[name];
+            if (!this.processValue.hasValue(name, this.values)) return false;
+            left = this.processValue.getValue(name, this.values);
         }
         var right = condition.right;
         name = this.getValueName(right);
         if (name) {
-            if (!(name in this.values)) return false;
-            right = this.values[name];
+            if (!this.processValue.hasValue(name, this.values)) return false;
+            right = this.processValue.getValue(name, this.values);
         }
         return condition.perform(left, right);
     }

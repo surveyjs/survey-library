@@ -205,6 +205,15 @@ QUnit.test("Run complex condition", function (assert) {
     assert.equal(runner.run(values), false, "20 >= 21 and (male = male or 2 > 1)");
 });
 
+QUnit.test("Run condition with nested properties", function (assert) {
+    var runner = new ConditionRunner("{age.min} >= 35 and ({age.max} <= 80");
+    var values = { age: { min: 36, max: 40 } };
+    assert.equal(runner.run(values), true, "min > 35 max < 80");
+    values.age.min = 21;
+    assert.equal(runner.run(values), false, "min < 35 max < 80");
+});
+
+
 QUnit.test("Expression Tree to Text", function (assert) {
     var parser = new ConditionsParser();
     var node = new ConditionNode();

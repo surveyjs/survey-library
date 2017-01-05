@@ -7,11 +7,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         super(name);
     }
     protected getHasOther(val: any): boolean {
-        if (!val) return false;
+        if (!val || !Array.isArray(val)) return false;
         return val.indexOf(this.otherItem.value) >= 0;
     }
     protected valueFromDataCore(val: any): any {
-        if (!val || !val.length) return val;
+        if (!val || !Array.isArray(val)) return val;
 
         for (var i = 0; i < val.length; i++) {
             if (val[i] == this.otherItem.value) return val;

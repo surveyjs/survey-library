@@ -479,29 +479,29 @@ QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
     assert.equal(question.hasErrors(), true, "Error, value in all rows are required");
 });
 QUnit.test("Matrixdropdown supportGoNextPageAutomatic property", function (assert) {
-    var question = new QuestionMatrixDynamicModel("matrix");
-    question.rowCount = 2;
+    var question = new QuestionMatrixDropdownModel("matrix");
+    question.rows = ["row1", "row2"];
     question.columns.push(new MatrixDropdownColumn("col1"));
     question.columns.push(new MatrixDropdownColumn("col2"));
     var rows = question.visibleRows;
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in rows");
-    question.value = [{ "col1": 1, "col2": 11 }];
+    question.value = { "row1": { "col1": 1, "col2": 11 } };
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in the second row");
-    question.value = [{ "col1": 1, "col2": 11 }, { "col1": 2, "col2": 22 }];
+    question.value = { "row1": { "col1": 1, "col2": 11 }, "row2": { "col1": 2, "col2": 22 }};
     assert.equal(question.supportGoNextPageAutomatic(), true, "All row values are set");
-    question.value = [{ "col1": 1 }, { "col1": 2, "col2": 22 }];
+    question.value = { "row1": { "col1": 1}, "row2": { "col1": 2, "col2": 22 } };
     assert.equal(question.supportGoNextPageAutomatic(), false, "The first row is not set completely");
 });
 
 QUnit.test("Matrixdropdown supportGoNextPageAutomatic always false for checkbox", function (assert) {
-    var question = new QuestionMatrixDynamicModel("matrix");
-    question.rowCount = 1;
+    var question = new QuestionMatrixDropdownModel("matrix");
+    question.rows = ["row1", "row2"];
     question.columns.push(new MatrixDropdownColumn("col1"));
     question.columns.push(new MatrixDropdownColumn("col2"));
     question.columns[1].cellType = "checkbox";
     
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in rows");
-    question.value = [{ "col1": 1, "col2": [1] }];
+    question.value = { "row1": { "col1": 1, "col2": 11 } };
     assert.equal(question.supportGoNextPageAutomatic(), false, "Checkbox doesn't support gotNextPageAutomatic");
 });
 

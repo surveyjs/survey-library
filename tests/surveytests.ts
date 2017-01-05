@@ -675,7 +675,7 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     dynamicMatrix.addColumn("col1");
     dynamicMatrix.rowCount = 2;
     questions.push({ question: dynamicMatrix, auto: false, value: [{ "col1": 1 }] });
-    questions.push({ question: dynamicMatrix, auto: true, value: [{ "col1": 1 }, { "col1": 1 }] });
+    questions.push({ question: dynamicMatrix, auto: false, value: [{ "col1": 1 }, { "col1": 1 }] });
 
     questions.push({ question: new QuestionMultipleTextModel("multitext"), auto: false, value: [{ item1: "1" }] });
     questions.push({ question: new QuestionRatingModel("rating"), auto: true, value: 1 });

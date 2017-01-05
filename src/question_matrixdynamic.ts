@@ -66,6 +66,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public set removeRowText(value: string) {
         this.removeRowTextValue = value;
     }
+    public supportGoNextPageAutomatic() {   return false;  }
     public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
         if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
         return this.visibleRows;

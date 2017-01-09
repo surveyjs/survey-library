@@ -95,7 +95,7 @@ var config_react = {
 var config_angular = {
     name: "survey-angular",
     keywords: ["angular", "angular-component"],
-    dependencies: { "angular": "^1.5.9" },
+    dependencies: { "@types/react": "0.0.0" },
     src: [
         "./src/*.ts",
         "./src/localization/*.ts",
@@ -117,7 +117,7 @@ var config_angular = {
 var config_jquery = {
     name: "survey-jquery",
     keywords: ["jquery", "jquery-plugin"],
-    dependencies: { "jquery": "^3.1.1" },
+    dependencies: { "jquery": "^3.1.1", "@types/react": "0.0.0" },
     src: [
         "./src/*.ts",
         "./src/localization/*.ts",

@@ -117,7 +117,7 @@ var config_angular = {
 var config_jquery = {
     name: "survey-jquery",
     keywords: ["jquery", "jquery-plugin"],
-    dependencies: { "jquery": "^3.1.1", "@types/react": "0.0.0" },
+    dependencies: { "jquery": ">=1.12.4", "@types/react": "0.0.0" },
     src: [
         "./src/*.ts",
         "./src/localization/*.ts",

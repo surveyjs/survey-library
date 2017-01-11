@@ -19,15 +19,24 @@ export interface IMatrixDropdownData {
 export class MatrixDropdownColumn extends Base {
     private choicesValue: ItemValue[] = [];
     private titleValue: string;
+    private static idCounter = 100;
+    private static getId(): string {
+        return "scol_" + MatrixDropdownColumn.idCounter++;
+    }
+    private idValue: string;
     public optionsCaption: string;
     public isRequired: boolean = false;
     public hasOther: boolean = false;
     public minWidth: string = "";
     public cellType: string = "default";
     private colCountValue: number = -1;
+
     constructor(public name: string, title: string = null) {
         super();
+        this.idValue = MatrixDropdownColumn.getId();
     }
+
+    public get id(): string { return this.idValue; }
     public getType() { return "matrixdropdowncolumn" }
     public get title() { return this.titleValue ? this.titleValue : this.name; }
     public set title(value: string) { this.titleValue = value; }
@@ -60,14 +69,21 @@ export class MatrixDropdownRowModelBase implements ISurveyData {
     private rowValues: HashTable<any> = {};
     private rowComments: HashTable<any> = {};
     private isSettingValue: boolean = false;
-
+    private static idCounter = 100;
+    private static getId(): string {
+        return "srow_" + MatrixDropdownRowModelBase.idCounter++;
+    }
+    private idValue: string;
     public cells: Array<MatrixDropdownCell> = [];
 
     constructor(data: IMatrixDropdownData, value: any) {
         this.data = data;
         this.value = value;
+        this.idValue = MatrixDropdownRowModelBase.getId();
         this.buildCells();
     }
+
+    public get id(): string { return this.idValue; }
     public get rowName() { return null; }
     public get value() { return this.rowValues; }
     public set value(value: any) {

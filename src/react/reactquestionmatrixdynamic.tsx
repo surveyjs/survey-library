@@ -38,17 +38,15 @@ export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
         var headers = [];
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
-            var key = "column" + i;
             var minWidth = this.question.getColumnWidth(column);
             var columnStyle = minWidth ? { minWidth: minWidth } : {};
-            headers.push(<th key={key} style={columnStyle}>{this.question.getColumnTitle(column) }</th>);
+            headers.push(<th key={column.id} style={columnStyle}>{this.question.getColumnTitle(column) }</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
-            var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDynamicRow key={row.id} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
         return (

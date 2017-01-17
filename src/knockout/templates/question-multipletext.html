@@ -2,7 +2,14 @@
     <table data-bind="css: $root.css.multipletext.root, foreach: { data:  question.koRows, as: 'row' }">
         <tr data-bind="foreach: { data: row, as: 'item' }">
             <td data-bind="text: item.title, css: $root.css.multipletext.itemTitle"></td>
-            <td><input type="text" style="float:left" data-bind="attr: {size: question.itemSize, id: ($index() == 0) ? question.inputId : ''}, value: item.koValue, css: $root.css.multipletext.itemValue" /></td>
+            <td>
+                <!-- ko if: $root.isEditMode -->
+                <input type="text" style="float:left" data-bind="attr: {size: question.itemSize, id: ($index() == 0) ? question.inputId : ''}, value: item.koValue, css: $root.css.multipletext.itemValue" />
+                <!-- /ko -->
+                <!-- ko if: $root.isDisplayMode -->
+                <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: $root.css.multipletext.itemValue"></div>
+                <!-- /ko -->
+            </td>
         </tr>
     </table>
 </script>

@@ -64,9 +64,9 @@ QUnit.test("CurrentPageNo", function (assert) {
     survey.pages.pop();
     assert.equal(survey.currentPageNo, 0, "the first page is current after removing the current one");
 });
-QUnit.test("Remove Page", function (assert) {
+QUnit.test("Remove Page in design mode", function (assert) {
     var survey = new SurveyModel();
-    survey.mode = "designer";
+    survey.setDesignMode(true);
     survey.addPage(new PageModel("Page 1"));
     survey.addPage(new PageModel("Page 2"));
     assert.equal(survey.PageCount, 2, "Two pages");
@@ -75,6 +75,13 @@ QUnit.test("Remove Page", function (assert) {
     survey.removePage(survey.pages[0]);
     assert.equal(survey.PageCount, 1, "One page left");
     assert.equal(survey.currentPage.name, "Page 2", "the second page is  current");
+});
+QUnit.test("Do not show errors in display mode", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    (<Question>survey.pages[0].questions[0]).isRequired = true;
+    survey.mode = "display";
+    survey.nextPage();
+    assert.equal(survey.currentPage, survey.pages[1], "Can move into another page");
 });
 
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (assert) {

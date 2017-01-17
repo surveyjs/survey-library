@@ -1,3 +1,8 @@
 ﻿<script type="text/html" id="survey-question-comment">
-    <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows, id: question.inputId}, value:question.koValue, css: $root.css.comment" />
+    <!-- ko if: $root.isEditMode -->
+    <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows, id: question.inputId}, value:question.koValue, css: $root.css.comment"></textarea>
+    <!-- /ko -->
+    <!-- ko if: $root.isDisplayMode -->
+    <div data-bind="text:question.koValue, css: $root.css.text"></div>
+    <!-- /ko -->
 </script>

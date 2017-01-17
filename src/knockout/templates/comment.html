@@ -1,3 +1,8 @@
 ﻿<script type="text/html" id="survey-comment">
-  <input data-bind="value:$data.question.koComment, visible:$data.visible, css: $root.css.question.comment" />
+    <!-- ko if: $root.isEditMode -->
+    <input data-bind="value:$data.question.koComment, visible:$data.visible, css: $root.css.question.comment" />
+    <!-- /ko -->
+    <!-- ko if: $root.isDisplayMode -->
+    <div data-bind="text:$data.question.koComment, visible:$data.visible, css: $root.css.question.comment"></div>
+    <!-- /ko -->
 </script>

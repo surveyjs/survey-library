@@ -14,7 +14,7 @@
                 <td data-bind="visible: question.hasRows, text:row.text"></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <input type="radio" data-bind="attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue"/>
+                    <input type="radio" data-bind="attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: $root.isEditMode" "/>
                 </td>
                 <!-- /ko -->
             </tr>

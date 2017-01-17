@@ -6,7 +6,9 @@
                     <!-- ko foreach: question.columns -->
                     <th data-bind="text: question.getColumnTitle($data), style: { minWidth: question.getColumnWidth($data) }"></th>
                     <!-- /ko -->
+                    <!-- ko if: $root.isEditMode -->
                     <th></th>
+                    <!-- /ko -->
                 </tr>
             </thead>
             <tbody>
@@ -20,11 +22,15 @@
                         <!-- /ko -->
                     </td>
                     <!-- /ko -->
+                    <!-- ko if: $root.isEditMode -->
                     <td><input type="button" data-bind="click:question.koRemoveRowClick, css: $root.css.matrixdynamic.button, value: question.removeRowText" /></td>
+                    <!-- /ko -->
                 </tr>
                 <!-- /ko -->
             </tbody>
         </table>
     </div>
+    <!-- ko if: $root.isEditMode -->
     <input type="button" data-bind="click:question.koAddRowClick, css: $root.css.matrixdynamic.button, value: question.addRowText" />
+    <!-- /ko -->
 </script>

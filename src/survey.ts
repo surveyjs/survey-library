@@ -47,6 +47,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     private processedTextValues: HashTable<any> = {};
     private textPreProcessor: TextPreProcessor;
     private isValidatingOnServerValue: boolean = false;
+    private modeValue: string = "edit";
+    private isDesignModeValue: boolean = false;
 
     public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -62,9 +64,6 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public jsonErrors: Array<JsonError> = null;
-
-    public mode: string = "normal";
-
 
     constructor(jsonObj: any = null) {
         super();
@@ -121,6 +120,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (value === this.questionTitleLocationValue) return;
         this.questionTitleLocationValue = value;
     };
+    public get mode(): string { return this.modeValue; }
+    public set mode(value: string) {
+        if (value == this.mode) return;
+        if (value != "edit" && value != "display") return;
+        this.modeValue = value;
+    }
     public get data(): any {
         var result = {};
         for (var key in this.valuesHash) {
@@ -234,7 +239,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var index = this.visiblePages.indexOf(this.currentPage) + 1;
         return Math.ceil((index * 100 / this.visiblePageCount));
     }
-    public get isDesignMode(): boolean { return this.mode == "designer"; }
+    public get isEditMode(): boolean { return this.mode == "edit"; }
+    public get isDisplayMode(): boolean { return this.mode == "display"; }
+    public get isDesignMode(): boolean { return this.isDesignModeValue; }
+    public setDesignMode(value: boolean) {
+        this.isDesignModeValue = value;
+    }
     public get hasCookie(): boolean {
         if (!this.cookieName) return false;
         var cookies = document.cookie;
@@ -250,7 +260,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     public nextPage(): boolean {
         if (this.isLastPage) return false;
-        if (this.isCurrentPageHasErrors) return false;
+        if (this.isEditMode && this.isCurrentPageHasErrors) return false;
         if (this.doServerValidation()) return false;
         this.doNextPage();
         return true;
@@ -266,7 +276,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.currentPage = vPages[index - 1];
     }
     public completeLastPage() : boolean {
-        if (this.isCurrentPageHasErrors) return false;
+        if (this.isEditMode && this.isCurrentPageHasErrors) return false;
         if (this.doServerValidation()) return false;
         this.doComplete();
         return true;
@@ -787,6 +797,7 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
     { name: "questionTitleLocation", default: "top", choices: ["top", "bottom"] },
     { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
+    { name: "mode", default: "edit", choices: ["edit", "display"] },
     { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",
     { name: "pagePrevText", onGetValue: function (obj: any) { return obj.pagePrevTextValue; } },
     { name: "pageNextText", onGetValue: function (obj: any) { return obj.pageNextTextValue; } },

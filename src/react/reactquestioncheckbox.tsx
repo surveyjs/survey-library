@@ -1,18 +1,13 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
 import {ItemValue} from "../base";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionCheckbox extends React.Component<any, any> {
-    protected question: QuestionCheckboxModel;
-    protected css: any;
-    protected rootCss: any;
+export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.state = { choicesChanged: 0 };
         var self = this;
         this.question.choicesChangedCallback = function () {
@@ -20,11 +15,7 @@ export class SurveyQuestionCheckbox extends React.Component<any, any> {
             self.setState(self.state);
         }
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
-    }
+    protected get question(): QuestionCheckboxModel { return this.questionBase as QuestionCheckboxModel; }
     render(): JSX.Element {
         if (!this.question) return null;
         return (
@@ -43,30 +34,25 @@ export class SurveyQuestionCheckbox extends React.Component<any, any> {
     }
     protected get textStyle(): any { return null; }
     protected renderItem(key: string, item: any, isFirst: boolean): JSX.Element {
-        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
+        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
     }
 }
-export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
+export class SurveyQuestionCheckboxItem extends SurveyElementBase {
     protected question: QuestionCheckboxModel;
     protected item: ItemValue;
-    protected css: any;
-    protected rootCss: any;
     protected textStyle: any;
     protected isFirst: any;
     constructor(props: any) {
         super(props);
         this.item = props.item;
         this.question = props.question;
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.textStyle = props.textStyle;
         this.isFirst = props.isFirst;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
         this.item = nextProps.item;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
         this.textStyle = nextProps.textStyle;
         this.question = nextProps.question;
         this.isFirst = nextProps.isFirst;
@@ -106,14 +92,14 @@ export class SurveyQuestionCheckboxItem extends React.Component<any, any> {
         var id = this.isFirst ? this.question.inputId : null;
         return (<div className={this.css.item} style={divStyle}>
             <label className={this.css.item}>
-                <input type="checkbox" id={id} style={this.inputStyle}  checked={isChecked} onChange={this.handleOnChange} />
+                <input type="checkbox" id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
                     <span>{this.item.text}</span>
                     </label>
                 {otherItem}
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss}  isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 

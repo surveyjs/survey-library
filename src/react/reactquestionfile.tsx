@@ -1,17 +1,15 @@
 ﻿import * as React from 'react';
+import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionFileModel} from "../question_file";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionFile extends React.Component<any, any> {
-    private question: QuestionFileModel;
-    protected css: any;
+export class SurveyQuestionFile extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
         this.state = { fileLoaded: 0 };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
+    protected get question(): QuestionFileModel { return this.questionBase as QuestionFileModel; }
     handleOnChange(event) {
         var src = event.target || event.srcElement; 
         if (!window["FileReader"]) return;
@@ -19,15 +17,16 @@ export class SurveyQuestionFile extends React.Component<any, any> {
         this.question.loadFile(src.files[0]);
         this.setState({ fileLoaded: this.state.fileLoaded + 1 });
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-    }
     render(): JSX.Element {
         if (!this.question) return null;
         var img = this.renderImage();
+        var fileInput = null;
+        if (!this.isDisplayMode) {
+            fileInput = <input id={this.question.inputId} type="file" onChange={this.handleOnChange}/>;
+        }
         return (
             <div>
-                <input id={this.question.inputId} type="file" onChange={this.handleOnChange}/>
+                {fileInput}
                 {img}
             </div>           
         );

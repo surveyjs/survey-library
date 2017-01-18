@@ -1,28 +1,19 @@
 import * as React from 'react';
+import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionRatingModel} from "../question_rating";
 import {ItemValue} from "../base";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionRating extends React.Component<any, any> {
-    private question: QuestionRatingModel;
-    protected css: any;
-    protected rootCss: any;
+export class SurveyQuestionRating extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
+    protected get question(): QuestionRatingModel { return this.questionBase as QuestionRatingModel; }
     handleOnChange(event) {
         this.question.value = event.target.value;
         this.setState({ value: this.question.value });
-    }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -47,14 +38,14 @@ export class SurveyQuestionRating extends React.Component<any, any> {
         var min = minText ? <span>{minText}</span> : null;
         var max = maxText ? <span>{maxText}</span> : null;
         return <label key={key} className={className}>
-            <input type="radio" style={{display: "none"}} name={this.question.name} value={item.value} checked={this.question.value == item.value} onChange={this.handleOnChange} />
+            <input type="radio" style={{ display: "none" }} name={this.question.name} value={item.value} disabled={this.isDisplayMode} checked={this.question.value == item.value} onChange={this.handleOnChange} />
             {min}
             <span>{item.text}</span>
             {max}
             </label>;
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 ReactQuestionFactory.Instance.registerQuestion("rating", (props) => {

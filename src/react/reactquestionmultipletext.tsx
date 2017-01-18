@@ -1,20 +1,14 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMultipleTextModel} from "../question_multipletext";
 import {MultipleTextItemModel} from "../question_multipletext";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionMultipleText extends React.Component<any, any> {
-    private question: QuestionMultipleTextModel;
-    protected css: any;
+export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-    }
+    protected get question(): QuestionMultipleTextModel { return this.questionBase as QuestionMultipleTextModel; }
     render(): JSX.Element {
         if (!this.question) return null;
         var tableRows = this.question.getRows();
@@ -41,18 +35,16 @@ export class SurveyQuestionMultipleText extends React.Component<any, any> {
     }
     protected renderItem(item: MultipleTextItemModel, isFirst: boolean): JSX.Element {
         var inputId = isFirst ? this.question.inputId : null;
-        return <SurveyQuestionMultipleTextItem item={item} css={this.css} inputId={inputId} />;
+        return <SurveyQuestionMultipleTextItem item={item} css={this.css} isDisplayMode={this.isDisplayMode} inputId={inputId} />;
     }
 }
 
-export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
+export class SurveyQuestionMultipleTextItem extends SurveyElementBase {
     private item: MultipleTextItemModel;
     private inputId: string;
-    protected css: any;
     constructor(props: any) {
         super(props);
         this.item = props.item;
-        this.css = props.css;
         this.inputId = props.inputId;
         this.state = { value: this.item.value || '' };
         this.handleOnChange = this.handleOnChange.bind(this);
@@ -72,6 +64,7 @@ export class SurveyQuestionMultipleTextItem extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.item) return null;
         var style = { float: "left" };
+        if (this.isDisplayMode) return (<div id={this.inputId} className={this.css.itemValue} style={style}>{this.item.value}</div>);
         return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />);
     }
     protected get mainClassName(): string { return ""; }

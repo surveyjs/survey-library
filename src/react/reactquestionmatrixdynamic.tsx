@@ -1,27 +1,22 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
-    private question: QuestionMatrixDynamicModel;
-    protected css: any;
-    protected rootCss: any;
-    protected creator: ISurveyCreator;
+export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
         this.setProperties(props);
     }
+    protected get question(): QuestionMatrixDynamicModel { return this.questionBase as QuestionMatrixDynamicModel; }
     componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
         this.setProperties(nextProps);
     }
     private setProperties(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
-        this.creator = nextProps.creator;
         var self = this;
         this.state = { rowCounter: 0 };
         this.question.rowCountChangedCallback = function () {
@@ -48,9 +43,10 @@ export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDynamicRow key={key} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
+        var btnDeleteTD = !this.isDisplayMode ? <th></th> : null;
         return (
             <div>
                 <div  style={divStyle}>
@@ -58,7 +54,7 @@ export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
                         <thead>
                             <tr>
                                 {headers}
-                                <th></th>
+                                {btnDeleteTD}
                              </tr>
                         </thead>
                         <tbody>
@@ -71,30 +67,28 @@ export class SurveyQuestionMatrixDynamic extends React.Component<any, any> {
         );
     }
     protected renderAddRowButton(): JSX.Element {
+        if (this.isDisplayMode) return null;
         return <input className={this.css.button} type="button" onClick={this.handleOnRowAddClick} value={this.question.addRowText} />;
     }
 }
 
-export class SurveyQuestionMatrixDynamicRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
     private row: MatrixDynamicRowModel;
     private question: QuestionMatrixDynamicModel;
     private index: number;
-    protected css: any;
-    protected rootCss: any;
     protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
     }
     componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
         this.setProperties(nextProps);
     }
     private setProperties(nextProps: any) {
         this.row = nextProps.row;
         this.question = nextProps.question;
         this.index = nextProps.index;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
         this.creator = nextProps.creator;
         this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
     }
@@ -110,8 +104,10 @@ export class SurveyQuestionMatrixDynamicRow extends React.Component<any, any> {
             var select = this.renderQuestion(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
-        var removeButton = this.renderButton();
-        tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
+        if (!this.isDisplayMode) {
+            var removeButton = this.renderButton();
+            tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
+        }
         return (<tr>{tds}</tr>);
     }
     protected renderQuestion(cell: MatrixDropdownCell): JSX.Element {

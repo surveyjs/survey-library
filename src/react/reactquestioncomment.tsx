@@ -1,19 +1,17 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionCommentModel} from "../question_comment";
 import {Question} from "../question";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionComment extends React.Component<any, any> {
-    private question: QuestionCommentModel;
-    protected css: any;
+export class SurveyQuestionComment extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
         this.state = { value: this.question.value || '' };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }
+    protected get question(): QuestionCommentModel { return this.questionBase as QuestionCommentModel; }
     handleOnChange(event) {
         this.setState({ value: event.target.value });
     }
@@ -21,25 +19,22 @@ export class SurveyQuestionComment extends React.Component<any, any> {
         this.question.value = event.target.value;
         this.setState({ value: this.question.value || '' });
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-    }
     render(): JSX.Element {
         if (!this.question) return null;
+        if (this.isDisplayMode)
+            return (<div id={this.question.inputId} className={this.css}>{this.question.value}</div>)
         return (
             <textarea id={this.question.inputId} className={this.css} type="text" value={this.state.value}  onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
         );
     }
 }
 
-export class SurveyQuestionCommentItem extends React.Component<any, any> {
+export class SurveyQuestionCommentItem extends SurveyElementBase {
     private question: Question;
     private comment: string;
-    protected css: any;
     constructor(props: any) {
         super(props);
         this.question = props.question;
-        this.css = props.css;
         this.comment = this.question.comment;
         this.state = { value: this.comment };
         this.handleOnChange = this.handleOnChange.bind(this);
@@ -57,6 +52,8 @@ export class SurveyQuestionCommentItem extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        if (this.isDisplayMode)
+            return (<div className={this.css.question.comment}>{this.comment}</div>);
         return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }

@@ -1,28 +1,16 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
-    private question: QuestionMatrixDropdownModel;
-    protected css: any;
-    protected rootCss: any;
-    protected creator: ISurveyCreator;
+export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.setProperties(props);
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.setProperties(nextProps);
-    }
-    private setProperties(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
-        this.creator = nextProps.creator;
-    }
+    protected get question(): QuestionMatrixDropdownModel { return this.questionBase as QuestionMatrixDropdownModel; }
     render(): JSX.Element {
         if (!this.question) return null;
         var headers = [];
@@ -38,7 +26,7 @@ export class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixDropdownRow key={key} row={row} css={this.css} rootCss={this.rootCss} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDropdownRow key={key} row={row} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll'} : {};
         return (
@@ -59,22 +47,19 @@ export class SurveyQuestionMatrixDropdown extends React.Component<any, any> {
     }
 }
 
-export class SurveyQuestionMatrixDropdownRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
     private row: MatrixDropdownRowModel;
-    protected css: any;
-    protected rootCss: any;
     protected creator: ISurveyCreator;
     constructor(props: any) {
         super(props);
         this.setProperties(props);
     }
     componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
         this.setProperties(nextProps);
     }
     private setProperties(nextProps: any) {
         this.row = nextProps.row;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
         this.creator = nextProps.creator;
     }
     render(): JSX.Element {

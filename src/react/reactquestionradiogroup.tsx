@@ -1,18 +1,13 @@
 ﻿import * as React from 'react';
+import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionRadiogroupModel} from "../question_radiogroup";
 import {ItemValue} from "../base";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionRadiogroup extends React.Component<any, any> {
-    protected question: QuestionRadiogroupModel;
-    protected css: any;
-    protected rootCss: any;
+export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.state = { choicesChanged: 0 };
         var self = this;
         this.question.choicesChangedCallback = function () {
@@ -21,10 +16,9 @@ export class SurveyQuestionRadiogroup extends React.Component<any, any> {
         };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
+    protected get question(): QuestionRadiogroupModel { return this.questionBase as QuestionRadiogroupModel; }
     componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
+        super.componentWillReceiveProps(nextProps);
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     handleOnChange(event) {
@@ -63,14 +57,14 @@ export class SurveyQuestionRadiogroup extends React.Component<any, any> {
         var id = isFirst ? this.question.inputId : null;
         return (<div key={key} className={this.css.item} style={divStyle}>
                 <label className={this.css.item}>
-                <input id={id} type="radio"  checked={isChecked} value={item.value} onChange={this.handleOnChange} />
+                <input id={id} type="radio"  checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
                     <span style={this.textStyle}>{item.text}</span>
                     </label>
                 {otherItem}
             </div>);
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} /></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 

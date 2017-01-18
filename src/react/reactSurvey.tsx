@@ -169,7 +169,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     public createQuestionElement(question: QuestionBase): JSX.Element {
         var questionCss = this.css[question.getType()];
         return ReactQuestionFactory.Instance.createQuestion(question.getType(), {
-            question: question, css: questionCss, rootCss: this.css, creator: this
+            question: question, css: questionCss, rootCss: this.css, isDisplayMode: this.survey.isDisplayMode, creator: this
         });
     }
     public renderError(key: string, errorText: string): JSX.Element {

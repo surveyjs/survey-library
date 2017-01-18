@@ -1,18 +1,12 @@
 ﻿import * as React from 'react';
+import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionDropdownModel} from "../question_dropdown";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionDropdown extends React.Component<any, any> {
-    private question: QuestionDropdownModel;
-    protected css: any;
-    protected rootCss: any;
-
+export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.state = { value: this.question.value, choicesChanged: 0 };
         var self = this;
         this.question.choicesChangedCallback = function () {
@@ -21,17 +15,24 @@ export class SurveyQuestionDropdown extends React.Component<any, any> {
         };
         this.handleOnChange = this.handleOnChange.bind(this);
     }
+    protected get question(): QuestionDropdownModel { return this.questionBase as QuestionDropdownModel; }
     handleOnChange(event) {
         this.question.value = event.target.value;
         this.setState({ value: this.question.value });
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
-    }
     render(): JSX.Element {
         if (!this.question) return null;
+        var comment = this.question.value === this.question.otherItem.value ? this.renderOther() : null;
+        var select = this.renderSelect();
+        return (
+            <div>
+            {select}
+            {comment}
+            </div>
+        );
+    }
+    protected renderSelect(): JSX.Element {
+        if (this.isDisplayMode)  return (<div id={this.question.inputId} className={this.css}>{this.question.value}</div>);
         var options = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
@@ -39,20 +40,16 @@ export class SurveyQuestionDropdown extends React.Component<any, any> {
             var option = <option key={key} value={item.value}>{item.text}</option>;
             options.push(option);
         }
-        var comment = this.question.value === this.question.otherItem.value ? this.renderOther() : null;
         return (
-            <div>
-                <select id={this.question.inputId} className={this.css} value={this.state.value} onChange={this.handleOnChange}>
-              <option value="">{this.question.optionsCaption}</option>
-              {options}
+            <select id={this.question.inputId} className={this.css} value={this.state.value} onChange={this.handleOnChange}>
+            <option value="">{this.question.optionsCaption}</option>
+            {options}
             </select>
-            {comment}
-            </div>
         );
     }
     protected renderOther(): JSX.Element {
         var style = { marginTop: "3px" };
-        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss}/></div>;
+        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>;
     }
 }
 

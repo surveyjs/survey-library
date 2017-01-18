@@ -1,20 +1,14 @@
 ﻿import * as React from 'react';
+import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixModel} from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
-export class SurveyQuestionMatrix extends React.Component<any, any> {
-    private question: QuestionMatrixModel;
-    protected css: any;
+export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.question = props.question;
-        this.css = props.css;
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.question = nextProps.question;
-        this.css = nextProps.css;
-    }
+    protected get question(): QuestionMatrixModel { return this.questionBase as QuestionMatrixModel; }
     render(): JSX.Element {
         if (!this.question) return null;
         var firstTH = this.question.hasRows ? <th></th> : null;
@@ -29,7 +23,7 @@ export class SurveyQuestionMatrix extends React.Component<any, any> {
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} row={row} isFirst={i == 0} />);
+            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} row={row} isFirst={i == 0} />);
         }
         return (
             <table className={this.css.root}>
@@ -47,7 +41,7 @@ export class SurveyQuestionMatrix extends React.Component<any, any> {
     }
 }
 
-export class SurveyQuestionMatrixRow extends React.Component<any, any> {
+export class SurveyQuestionMatrixRow extends SurveyElementBase {
     private question: QuestionMatrixModel;
     private row: MatrixRowModel;
     private isFirst: boolean;
@@ -63,6 +57,7 @@ export class SurveyQuestionMatrixRow extends React.Component<any, any> {
         this.setState({ value: this.row.value });
     }
     componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
         this.question = nextProps.question;
         this.row = nextProps.row;
         this.isFirst = nextProps.isFirst;
@@ -76,7 +71,7 @@ export class SurveyQuestionMatrixRow extends React.Component<any, any> {
             var key = "value" + i;
             var isChecked = this.row.value == column.value;
             var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
-            var td = <td key={key}><input id={inputId} type="radio" name={this.row.fullName} value={column.value} checked={isChecked} onChange={this.handleOnChange}/></td>;
+            var td = <td key={key}><input id={inputId} type="radio" name={this.row.fullName} value={column.value} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange}/></td>;
             tds.push(td);
         }
         return (<tr>{firstTD}{tds}</tr>);

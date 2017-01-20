@@ -523,7 +523,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
     }
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
-        this.onPartialSend.fire(this, null);
+        if (isPartialCompleted && this.onPartialSend) {
+            this.onPartialSend.fire(this, null);
+        }
         if (this.isEditMode) return;
         if (!postId && this.surveyPostId) {
             postId = this.surveyPostId;

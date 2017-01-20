@@ -51,6 +51,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     private isDesignModeValue: boolean = false;
 
     public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    public onPartialSend: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -522,6 +523,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
     }
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
+        this.onPartialSend.fire(this, null);
         if (this.isEditMode) return;
         if (!postId && this.surveyPostId) {
             postId = this.surveyPostId;

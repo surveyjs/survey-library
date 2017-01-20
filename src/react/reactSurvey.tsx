@@ -113,6 +113,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             self.setState(self.state);
         };
         this.survey.onComplete.add((sender) => { self.state.isCompleted = true; self.setState(self.state); });
+        this.survey.onPartialSend.add((sender) => { self.setState(self.state); });
         this.survey.onCurrentPageChanged.add((sender, options) => {
             self.isCurrentPageChanged = true;
             self.state.pageIndexChange = self.state.pageIndexChange + 1;
@@ -140,6 +141,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         });
         if (newProps.onComplete) {
             this.survey.onComplete.add((sender) => { newProps.onComplete(sender); });
+        }
+        if (newProps.onPartialSend) {
+            this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });
         }
         this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
         if (newProps.onQuestionAdded) {

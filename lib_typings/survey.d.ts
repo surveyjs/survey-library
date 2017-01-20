@@ -42,6 +42,7 @@ export declare class SurveyModel extends Base implements ISurvey, ISurveyTrigger
     private processedTextValues;
     private textPreProcessor;
     onComplete: Event<(sender: SurveyModel) => any, any>;
+    onPartialSend: Event<(sender: SurveyModel) => any, any>;
     onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any>;
     onValueChanged: Event<(sender: SurveyModel, options: any) => any, any>;
     onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any>;

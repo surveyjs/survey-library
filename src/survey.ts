@@ -344,7 +344,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     protected doNextPage() {
         this.checkOnPageTriggers();
-        if (this.sendResultOnPageNext && this.clientId) {
+        if (this.sendResultOnPageNext) {
             this.sendResult(this.surveyPostId, this.clientId, true);
         }
         var vPages = this.visiblePages;
@@ -523,19 +523,20 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
     }
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
+        if (!this.isEditMode) return;
         if (isPartialCompleted && this.onPartialSend) {
             this.onPartialSend.fire(this, null);
         }
-        if (this.isEditMode) return;
-        if (!postId && this.surveyPostId) {
-            postId = this.surveyPostId;
+        if (!this.surveyPostId && postId) {
+            this.surveyPostId = postId;
         }
-        if (!postId) return;
+        if (!this.surveyPostId) return;
         if (clientId) {
             this.clientId = clientId;
         }
+        if (isPartialCompleted && !this.clientId) return;
         var self = this;
-        new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
+        new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
             self.onSendResult.fire(self, { success: success, response: response});
         }, this.clientId, isPartialCompleted);
     }

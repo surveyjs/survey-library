@@ -56,18 +56,23 @@ export class MatrixDropdownCell {
 }
 
 export class MatrixDropdownRowModelBase implements ISurveyData {
+    private static idCounter: number = 1;
+    private static getId(): string { return "srow_" + MatrixDropdownRowModelBase.idCounter++; }
     protected data: IMatrixDropdownData;
     private rowValues: HashTable<any> = {};
     private rowComments: HashTable<any> = {};
     private isSettingValue: boolean = false;
+    private idValue: string;
 
     public cells: Array<MatrixDropdownCell> = [];
 
     constructor(data: IMatrixDropdownData, value: any) {
         this.data = data;
         this.value = value;
+        this.idValue = MatrixDropdownRowModelBase.getId();
         this.buildCells();
     }
+    public get id(): string { return this.idValue; }
     public get rowName() { return null; }
     public get value() { return this.rowValues; }
     public set value(value: any) {

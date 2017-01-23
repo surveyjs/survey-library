@@ -20,16 +20,16 @@ gulp.task('build_prod', function () {
         buildKnockoutTemplates(),
         webpack('dev'),
         webpack('prod'),
-        createPackageJson(),
-        buildTests()
+        buildTests(),
+        createPackageJson()
     );
 });
 
 gulp.task('build_dev', function () {
     return merge2(
         compileSass(),
-        buildKnockoutTemplates()
-        // webpack('dev')
+        buildKnockoutTemplates(),
+        webpack('dev')
     );
 });
 

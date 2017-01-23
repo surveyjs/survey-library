@@ -64,7 +64,7 @@ module.exports = function(options) {
         },
         debug: true,
         plugins: [
-            new webpack.NoErrorsPlugin(),
+            new webpack.NoEmitOnErrorsPlugin(),
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, '../src', 'extends.ts')
             })

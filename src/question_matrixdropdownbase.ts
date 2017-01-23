@@ -202,8 +202,12 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         return result;
     }
+    protected onBeforeValueChanged(val: any) {
+    }
     protected onValueChanged() {
-        if (this.isRowChanging || !(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
+        if (this.isRowChanging) return;
+        this.onBeforeValueChanged(this.value);
+        if(!(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
         this.isRowChanging = true;
         var val = this.createNewValue(this.value);
         for (var i = 0; i < this.generatedVisibleRows.length; i++) {

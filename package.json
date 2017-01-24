@@ -1,7 +1,8 @@
 {
   "scripts": {
     "testcafe": "testcafe chrome testCafe/tests",
-    "test": "concurrently \"http-server\" \"testcafe chrome testCafe/tests/\""
+    "test": "concurrently \"http-server\" \"testcafe chrome testCafe/tests/\"",
+    "build": "webpack --env.buildType dev --env.platform knockout"
   },
   "version": "0.9.5",
   "name": "surveyjs",
@@ -9,13 +10,15 @@
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
-    "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.14.0",
-    "babel-preset-react": "^6.11.1",
     "babel-plugin-transform-react-constant-elements": "^6.9.1",
     "babel-plugin-transform-react-remove-prop-types": "^0.2.11",
+    "babel-plugin-transform-runtime": "^6.15.0",
+    "babel-preset-es2015": "^6.14.0",
     "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.11.1",
     "babel-preset-stage-0": "^6.16.0",
+    "css-loader": "^0.26.1",
+    "extract-text-webpack-plugin": "^2.0.0-beta",
     "gulp": "^3.9.1",
     "gulp-concat-util": "^0.5.5",
     "gulp-cssmin": "^0.1.7",
@@ -32,6 +35,7 @@
     "gulp-typescript": "^2.13.6",
     "gulp-uglify": "^1.5.3",
     "gulp-util": "^3.0.7",
+    "jquery": "^3.1.1",
     "karma": "^0.13.22",
     "karma-coverage": "^1.0.0",
     "karma-junit-reporter": "^1.0.0",
@@ -42,13 +46,14 @@
     "preact-compat": "^3.9.4",
     "qunit": "^0.9.1",
     "qunitjs": "^2.0.1",
-    "jquery": "^3.1.1",
     "rimraf": "^2.5.2",
+    "sass-loader": "^4.1.1",
     "source-map-loader": "^0.1.5",
+    "style-loader": "^0.13.1",
     "testcafe": "^0.10.0",
     "ts-loader": "^0.8.2",
     "typescript": "~2.0.6",
-    "webpack": "^1.13.2",
+    "webpack": "^2.2.0",
     "webpack-stream": "^3.2.0"
   },
   "dependencies": {

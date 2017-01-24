@@ -2,12 +2,14 @@
 
 var webpack = require('webpack');
 var path = require('path');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = function(options) {
+    var packagePath = './packages/survey-' + options.platform + '/';
     var config = {
         entry: {},
         resolve: {
-            extensions: ['.ts', '.tsx']
+            extensions: ['.ts', '.tsx', '.scss']
         },
         module: {
             rules: [
@@ -15,11 +17,18 @@ module.exports = function(options) {
                     loader: 'ts-loader',
                     test: /\.(ts|tsx)$/,
                     exclude: /node_modules/
-                }
+                },
+                {
+                    test: /\.scss$/,
+                    loader: ExtractTextPlugin.extract({
+                        fallbackLoader: "style-loader",
+                        loader: "css-loader!sass-loader"
+                    })
+                },
             ]
         },
         output: {
-            filename: './packages/survey-' + options.platform + '/dist/[name].js',
+            filename: packagePath + '[name].js',
             library: 'Survey',
             libraryTarget: 'umd',
             umdNamedDefine: true
@@ -51,6 +60,7 @@ module.exports = function(options) {
             }
         },
         plugins: [
+            new ExtractTextPlugin({ filename: packagePath + 'survey.css' }),
             new webpack.NoEmitOnErrorsPlugin(),
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, './src', 'extends.ts'),

@@ -7,6 +7,8 @@ var banner = require('./copyright');
 
 module.exports = function(options) {
     var packagePath = './packages/survey-' + options.platform + '/';
+    var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
+
     var config = {
         entry: {},
         resolve: {
@@ -15,17 +17,21 @@ module.exports = function(options) {
         module: {
             rules: [
                 {
-                    loader: 'ts-loader',
                     test: /\.(ts|tsx)$/,
+                    loader: 'ts-loader',
                     exclude: /node_modules/
                 },
                 {
                     test: /\.scss$/,
-                    loader: ExtractTextPlugin.extract({
+                    loader: extractCSS.extract({
                         fallbackLoader: "style-loader",
                         loader: "css-loader!sass-loader"
                     })
                 },
+                {
+                    test: /\.html$/,
+                    loader: "html-loader"
+                }
             ]
         },
         output: {
@@ -61,8 +67,7 @@ module.exports = function(options) {
             }
         },
         plugins: [
-            new ExtractTextPlugin({ filename: packagePath + 'survey.css' }),
-            new webpack.NoEmitOnErrorsPlugin(),
+            extractCSS,
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, './src', 'extends.ts'),
                 __assign: path.join(__dirname, './src', 'assign.ts')
@@ -95,4 +100,4 @@ module.exports = function(options) {
     config.entry['survey.' + options.platform] = path.resolve(__dirname, './src/entries/' + options.platform);
 
     return config;
-}
+};

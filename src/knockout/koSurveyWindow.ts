@@ -2,7 +2,7 @@
 import {SurveyWindowModel} from "../surveyWindow";
 import {SurveyModel} from "../survey";
 import {Survey} from "./kosurvey";
-import {koTemplate} from './template.window.ko.html'
+var koTemplate = require("html-loader?interpolate!val-loader!./template.window.ko.html");
 
 export class SurveyWindow extends SurveyWindowModel {
     koExpanded: any;
@@ -33,7 +33,7 @@ export class SurveyWindow extends SurveyWindowModel {
         (<Survey>this.survey).render(SurveyWindow.surveyElementName);
         this.isShowingValue = true;
     }
-    protected getDefaultTemplate(): string { return koTemplate.html }
+    protected getDefaultTemplate(): string { return koTemplate }
     public hide() {
         document.body.removeChild(this.windowElement);
         this.windowElement.innerHTML = "";

@@ -1,3 +1,6 @@
+// styles
+import "../../main.scss";
+
 export {
     AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator,
     SurveyValidator, TextValidator, ValidatorResult, ValidatorRunner

@@ -20,8 +20,6 @@ project.lock.json
 .tsdrc
 .idea
 /Content/survey.css
-/src/knockout/template.window.ko.html.ts
-/src/knockout/template.ko.html.ts
 /packages/survey-react/**/*.js
 /packages/survey-react/package.json
 /packages/survey-react/css/survey.css

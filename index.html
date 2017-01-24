@@ -244,7 +244,7 @@ export class AppComponent  {
                             <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
 $("#surveyContainer").SurveyWindow({
     model:survey,
-    onComplete:{sendDataToServer}
+    onComplete:sendDataToServer
 });</code></pre>
                         </div>
                         <div>
@@ -253,7 +253,7 @@ $("#surveyContainer").SurveyWindow({
                             <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
 $("#surveyContainer").Survey({
     model:survey,
-    onComplete:{sendDataToServer}
+    onComplete:sendDataToServer
 });
 </code></pre>
                         </div>

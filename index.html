@@ -160,7 +160,7 @@ import ReactDOM from 'react-dom';
                     </div>
                     <div class="tab-content" data-bind="visible:isJquery">
                         <h5>Link to the jquery version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/jquery.ko.min.js"&gt;&lt;/script&gt;</code></pre>
+                        <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.jquery.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                     <div class="tab-content" data-bind="visible:isKnockout">
                         <h5>Link to the knockout version of the library.</h5>
@@ -215,6 +215,7 @@ import ReactDOM from 'react-dom';
 export class AppComponent  {
   ngOnInit() {
     var survey = new Survey.Model(surveyJSON);
+    survey.onComplete.add(sendDataToServer);
     Survey.SurveyWindowNG.render("surveyElement", {model:survey});
   }
 }
@@ -230,6 +231,7 @@ export class AppComponent  {
 export class AppComponent  {
   ngOnInit() {
     var survey = new Survey.Model(surveyJSON);
+    survey.onComplete.add(sendDataToServer);
     Survey.SurveyNG.render("surveyElement", {model:survey});
   }
 }
@@ -304,14 +306,14 @@ survey.onComplete.add(sendDataToServer);
                         <pre><code class="language-js">function sendDataToServer(survey) {
   var resultAsString = JSON.stringify(survey.data);
   alert(resultAsString); //send Ajax request to your web server.
-});</code></pre>
+}</code></pre>
                     </div>
                     <div>
                         <h3>dxSurvey.com service</h3>
                         <pre><code class="language-js">function sendDataToServer(survey) {
   //You should get the Guid for storing survey data in dxSurvey.com
   survey.sendResult('e544a02f-7fff-4ffb-b62d-6a9aa16efd7c');
-});</code></pre>
+}</code></pre>
                     </div>
                 </div>
 

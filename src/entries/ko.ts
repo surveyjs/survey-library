@@ -8,6 +8,8 @@ import './chunks/localization';
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
 export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
+// styles
+import "../main.scss";
 
 // knockout
 export {Survey} from "../knockout/kosurvey"; // TODO need to remove someday

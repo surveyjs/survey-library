@@ -3,6 +3,7 @@
 var webpack = require('webpack');
 var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var banner = require('./copyright');
 
 module.exports = function(options) {
     var packagePath = './packages/survey-' + options.platform + '/';
@@ -28,7 +29,7 @@ module.exports = function(options) {
             ]
         },
         output: {
-            filename: packagePath + '[name].js',
+            filename: packagePath + '[name]' + (options.buildType === 'prod' ? '.min': '') + '.js',
             library: 'Survey',
             libraryTarget: 'umd',
             umdNamedDefine: true
@@ -65,7 +66,7 @@ module.exports = function(options) {
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, './src', 'extends.ts'),
                 __assign: path.join(__dirname, './src', 'assign.ts')
-            })
+            }),
         ],
         devtool: 'inline-source-map'
     };
@@ -79,17 +80,16 @@ module.exports = function(options) {
 
     if (options.buildType === 'prod') {
         config.devtool = false;
-        config.plugins.push(
-            new webpack.optimize.UglifyJsPlugin()
-        );
+        config.plugins = config.plugins.concat([
+            new webpack.optimize.UglifyJsPlugin(),
+            new webpack.BannerPlugin(banner)
+        ]);
     }
 
     if (options.buildType === 'dev') {
-        config.plugins.push(
-            new webpack.LoaderOptionsPlugin({
-                debug: true
-            })
-        );
+        config.plugins = config.plugins.concat([
+            new webpack.LoaderOptionsPlugin({ debug: true})
+        ]);
     }
 
     config.entry['survey.' + options.platform] = path.resolve(__dirname, './src/entries/' + options.platform);

@@ -19,7 +19,7 @@ var gulp = require('gulp'),
 
 var Server = require("karma").Server;
 
-var libraryVersion = "0.10.3";
+var libraryVersion = "0.10.4";
 
 var paths = {
     webroot: "./" + project.webroot + "/",
@@ -38,7 +38,7 @@ paths.testsFolder = paths.webroot + "tests/";
 
 var copyright = ["/*!",
     "* surveyjs - Survey JavaScript library v" + libraryVersion,
-    "* (c) Devsoft Baltic OÜ - http://surveyjs.org/",
+    "* (c) Devsoft Baltic OÜ - http://surveyjs.io/",
     "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
     "*/", "", ""].join("\n");
 

@@ -8,7 +8,7 @@
     "Bootstrap",
     "Library"
   ],
-  "homepage": "https://surveyjs.org/",
+  "homepage": "http://surveyjs.org/",
   "license": "MIT",
   "files": [
     "dist/",
@@ -18,7 +18,7 @@
   "main": "fileName",
   "repository": {
     "type": "git",
-    "url": "https://github.com/andrewtelnov/surveyjs.git"
+    "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "engines": {
     "node": ">=0.10.0"

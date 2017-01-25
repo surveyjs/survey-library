@@ -38,13 +38,13 @@ paths.testsFolder = paths.webroot + "tests/";
 
 var copyright = ["/*!",
     "* surveyjs - Survey JavaScript library v" + libraryVersion,
-    "* (c) Andrew Telnov - http://surveyjs.org/",
+    "* (c) Devsoft Baltic OÜ - http://surveyjs.org/",
     "* License: MIT (http://www.opensource.org/licenses/mit-license.php)",
     "*/", "", ""].join("\n");
 
 var tdHeader = ["// Type definitions for Survey JavaScript library v" + libraryVersion,
     "// Project: http://surveyjs.org/",
-    "// Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+    "// Definitions by: tdHeader <https://github.com/surveyjs/>",
     "",""].join("\n");
 
 var config_ko = {

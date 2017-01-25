@@ -1,4 +1,4 @@
-﻿var koTemplate = require("html-loader?interpolate!val-loader!./template.ko.html");
+﻿var koTemplate = require("html-loader?interpolate!val-loader!./templates/entry.html");
 
 export class SurveyTemplateText {
     constructor() {

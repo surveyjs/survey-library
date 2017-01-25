@@ -2,7 +2,7 @@
 import {SurveyWindowModel} from "../surveyWindow";
 import {SurveyModel} from "../survey";
 import {Survey} from "./kosurvey";
-var koTemplate = require("html-loader?interpolate!val-loader!./template.window.ko.html");
+var koTemplate = require("html-loader?interpolate!val-loader!./templates/window/window.html");
 
 export class SurveyWindow extends SurveyWindowModel {
     koExpanded: any;

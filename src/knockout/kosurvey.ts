@@ -4,7 +4,7 @@ import {IPage, Event} from "../base";
 import {Page} from "./kopage";
 import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
-var koTemplate = require("html-loader?interpolate!val-loader!./template.ko.html");
+var koTemplate = require("html-loader?interpolate!val-loader!./templates/entry.html");
 
 export class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }

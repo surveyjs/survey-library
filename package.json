@@ -8,6 +8,13 @@
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
+    "@types/angular": "^1.6.2",
+    "@types/jquery": "^2.0.39",
+    "@types/knockout": "^3.4.39",
+    "@types/node": "^7.0.4",
+    "@types/qunit": "^2.0.31",
+    "@types/react": "^15.0.4",
+    "@types/react-dom": "^0.14.21",
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
     "babel-plugin-transform-react-constant-elements": "^6.9.1",

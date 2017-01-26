@@ -118,7 +118,7 @@ module.exports = function(options) {
                     loader: 'ts-loader',
                     options: {
                         compilerOptions: {
-                            'declaration': options.buildType === 'dev', // TODO need change to prod !!!
+                            'declaration': options.buildType === 'prod',
                             'outDir': packagePath + 'typings/'
                         }
                     }
@@ -148,14 +148,7 @@ module.exports = function(options) {
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, './src', 'extends.ts'),
                 __assign: path.join(__dirname, './src', 'assign.ts')
-            }),
-            new webpack.ProgressPlugin(percentage_handler), // TODO need add to prod !!!
-            new GenerateJsonPlugin( // TODO need add to prod !!!
-                packagePath + 'package.json',
-                packagePlatformJson,
-                undefined,
-                2
-            )
+            })
         ],
         devtool: 'inline-source-map'
     };
@@ -165,13 +158,34 @@ module.exports = function(options) {
             'react': 'preact-compat',
             'react-dom': 'preact-compat'
         };
+
+        // TODO because of preact-compat https://github.com/developit/preact-compat/issues/192 need to better decision
+        config.module.rules.push({
+            loader: 'babel-loader',
+            include: [
+                path.join(__dirname, './node_modules/preact-compat/src'),
+            ],
+            options: {
+                presets: [
+                    ['latest', { modules: false }],
+                ],
+            },
+        });
+        // EO TODO
     }
 
     if (options.buildType === 'prod') {
         config.devtool = false;
         config.plugins = config.plugins.concat([
             new webpack.optimize.UglifyJsPlugin(),
-            new webpack.BannerPlugin(banner)
+            new webpack.BannerPlugin(banner),
+            new webpack.ProgressPlugin(percentage_handler),
+            new GenerateJsonPlugin(
+                packagePath + 'package.json',
+                packagePlatformJson,
+                undefined,
+                2
+            )
         ]);
     }
 

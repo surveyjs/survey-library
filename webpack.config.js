@@ -4,10 +4,25 @@ var webpack = require('webpack');
 var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var banner = require('./copyright');
+var dts = require('dts-bundle');
+var rimraf = require('rimraf');
 
 module.exports = function(options) {
     var packagePath = './packages/survey-' + options.platform + '/';
     var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
+
+    var percentage_handler = function handler(percentage, msg) {
+        if ( 0 == percentage ) {
+            console.log("Build started... good luck!");
+            rimraf.sync(packagePath);
+        } else if ( 1 == percentage ) {
+            dts.bundle({
+                name: '../../survey.' + options.platform,
+                main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
+            });
+            rimraf.sync(packagePath + 'typings');
+        }
+    };
 
     var config = {
         entry: {},
@@ -19,18 +34,23 @@ module.exports = function(options) {
                 {
                     test: /\.(ts|tsx)$/,
                     loader: 'ts-loader',
-                    exclude: /node_modules/
+                    options: {
+                        compilerOptions: {
+                            'declaration': options.buildType === 'dev', // TODO need change to prod !!!
+                            'outDir': packagePath + 'typings/'
+                        }
+                    }
                 },
                 {
                     test: /\.scss$/,
                     loader: extractCSS.extract({
-                        fallbackLoader: "style-loader",
-                        loader: "css-loader!sass-loader"
+                        fallbackLoader: 'style-loader',
+                        loader: 'css-loader!sass-loader'
                     })
                 },
                 {
                     test: /\.html$/,
-                    loader: "html-loader"
+                    loader: 'html-loader'
                 }
             ]
         },
@@ -72,6 +92,7 @@ module.exports = function(options) {
                 __extends: path.join(__dirname, './src', 'extends.ts'),
                 __assign: path.join(__dirname, './src', 'assign.ts')
             }),
+            new webpack.ProgressPlugin(percentage_handler)
         ],
         devtool: 'inline-source-map'
     };

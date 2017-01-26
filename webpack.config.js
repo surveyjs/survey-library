@@ -6,6 +6,58 @@ var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var banner = require('./copyright');
 var dts = require('dts-bundle');
 var rimraf = require('rimraf');
+var GenerateJsonPlugin = require('generate-json-webpack-plugin');
+var packageJson = require('./package.json');
+
+var platformOptions = {
+    'react': {
+        externals: {
+            'react': {
+                root: 'React',
+                commonjs2: 'react',
+                commonjs: 'react',
+                amd: 'react'
+            },
+            'react-dom': {
+                root: 'ReactDOM',
+                commonjs2: 'react-dom',
+                commonjs: 'react-dom',
+                amd: 'react-dom'
+            }
+        },
+        keywords: ['react', 'react-component'],
+        dependencies: { 'react': '^15.0.1', 'react-dom': '^15.0.1' }
+    },
+    'ko': {
+        externals: {
+            'knockout': {
+                root: 'ko',
+                commonjs2: 'knockout',
+                commonjs: 'knockout',
+                amd: 'knockout'
+            }
+        },
+        keywords: ['knockout'],
+        dependencies: {'knockout': '^3.4.0'}
+    },
+    'jquery': {
+        externals: {
+            'jquery': {
+                root: 'jQuery',
+                commonjs2: 'jquery',
+                commonjs: 'jquery',
+                amd: 'jquery'
+            }
+        },
+        keywords: ['jquery', 'jquery-plugin'],
+        dependencies: { 'jquery': '>=1.12.4', '@types/react': '0.0.0' }
+    },
+    'angular': {
+        externals: {},
+        keywords: ['angular', 'angular-component'],
+        dependencies: { '@types/react': '0.0.0' }
+    }
+};
 
 module.exports = function(options) {
     var packagePath = './packages/survey-' + options.platform + '/';
@@ -13,7 +65,7 @@ module.exports = function(options) {
 
     var percentage_handler = function handler(percentage, msg) {
         if ( 0 == percentage ) {
-            console.log("Build started... good luck!");
+            console.log('Build started... good luck!');
             rimraf.sync(packagePath);
         } else if ( 1 == percentage ) {
             dts.bundle({
@@ -24,6 +76,36 @@ module.exports = function(options) {
         }
     };
 
+    var packagePlatformJson = {
+        'name': 'survey-' + options.platform,
+        'version': packageJson.version,
+        'description': 'survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.',
+        'keywords': [
+            'Survey',
+            'JavaScript',
+            'Bootstrap',
+            'Library'
+        ].concat(platformOptions[options.platform].keywords),
+        'homepage': 'https://surveyjs.org/',
+        'license': 'MIT',
+        'files': [
+            'survey.css',
+            'survey.min.css',
+            'survey.' + options.platform + '.js',
+            'survey.' + options.platform + '.min.js'
+        ],
+        'main': [
+            'survey.min.css',
+            'survey.' + options.platform + '.min.js'
+        ],
+        'repository': {
+            'type': 'git',
+            'url': 'https://github.com/andrewtelnov/surveyjs.git'
+        },
+        'typings': 'survey.' + options.platform + '.d.ts',
+        'dependencies': platformOptions[options.platform].dependencies
+    };
+    
     var config = {
         entry: {},
         resolve: {
@@ -60,39 +142,20 @@ module.exports = function(options) {
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
-        externals: {
-            'react': {
-                root: 'React',
-                commonjs2: 'react',
-                commonjs: 'react',
-                amd: 'react'
-            },
-            'react-dom': {
-                root: 'ReactDOM',
-                commonjs2: 'react-dom',
-                commonjs: 'react-dom',
-                amd: 'react-dom'
-            },
-            'knockout': {
-                root: 'ko',
-                commonjs2: 'knockout',
-                commonjs: 'knockout',
-                amd: 'knockout'
-            },
-            'jquery': {
-                root: 'jQuery',
-                commonjs2: 'jquery',
-                commonjs: 'jquery',
-                amd: 'jquery'
-            }
-        },
+        externals: platformOptions[options.platform].externals,
         plugins: [
             extractCSS,
             new webpack.ProvidePlugin({
                 __extends: path.join(__dirname, './src', 'extends.ts'),
                 __assign: path.join(__dirname, './src', 'assign.ts')
             }),
-            new webpack.ProgressPlugin(percentage_handler)
+            new webpack.ProgressPlugin(percentage_handler), // TODO need add to prod !!!
+            new GenerateJsonPlugin( // TODO need add to prod !!!
+                packagePath + 'package.json',
+                packagePlatformJson,
+                undefined,
+                2
+            )
         ],
         devtool: 'inline-source-map'
     };

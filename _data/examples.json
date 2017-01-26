@@ -24,6 +24,7 @@
                 {"name": "Custom css", "text": "Use you own css classes", "url": "survey-customcss.html"},
                 {"name": "Survey Options", "text": "Use properties to set up your survey", "url": "survey-options.html"},
                 {"name": "Work with data", "text": "Get/set data from/to survey", "url": "survey-data.html"},
+                {"name": "Read-only/display mode", "text": "View answers of other people", "url": "survey-displaymode.html"},
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
                 {"name": "Change Rendering", "text": "Change question templates", "url": "survey-customtemplate.html"},

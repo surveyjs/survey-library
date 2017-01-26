@@ -7,13 +7,20 @@ mainmenukey: examples
 <div class="examples-wrapper">
     {% include menu-examples.html %}
     <script>
+    Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
     Survey.Survey.cssType = "bootstrap";
     </script>
     {% include content-examples.html %}
 
     <script>
     function reRunSurvey() {
+        {% if page.keepSurveyData %}    
+        var surveyData = survey.data;
         survey.clear();
+        survey.data = surveyData;
+        {% else %}
+        survey.clear();
+        {% endif %}
         survey.render('survey');
     }
     {% if page.useknockout != true %}
@@ -23,9 +30,6 @@ mainmenukey: examples
     {% else %}
     function renderSurvey() {
         if(typeof survey == 'undefined') return;
-        survey.css = {
-            navigationButton: "btn btn-primary"
-        };
         survey.onComplete.add(function (s) {
             var result = "\nThe results are:\n" + JSON.stringify(survey.data);
             document.getElementById('survey_result').innerHTML = result;

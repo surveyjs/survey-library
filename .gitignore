@@ -28,6 +28,7 @@ project.lock.json
 /packages/survey-knockout/**/*.js
 /packages/survey-knockout/package.json
 /packages/survey-knockout/css/survey.css
+/packages/survey-knockout
 /.gitattributes
 /packages/survey-knockout/README.md
 /travis_code.txt

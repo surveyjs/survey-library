@@ -28,7 +28,7 @@ var platformOptions = {
         keywords: ['react', 'react-component'],
         dependencies: { 'react': '^15.0.1', 'react-dom': '^15.0.1' }
     },
-    'ko': {
+    'knockout': {
         externals: {
             'knockout': {
                 root: 'ko',

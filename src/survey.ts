@@ -721,7 +721,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (question && !question.supportGoNextPageAutomatic()) return;
         var questions = this.getCurrentPageQuestions();
         for (var i = 0; i < questions.length; i++) {
-            if (!this.getValue(questions[i].name)) return;
+            if (questions[i].hasInput && !this.getValue(questions[i].name)) return;
         }
         if (!this.currentPage.hasErrors(true, false)) {
             if (!this.isLastPage) {

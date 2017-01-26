@@ -731,6 +731,18 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
         assert.equal(survey.state, state, "goNextPageAutomatic is incorrect for question: " + q.question.name);
     }
 });
+QUnit.test("goNextPageAutomatic bug #200: https://github.com/surveyjs/surveyjs/issues/200", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    page.addNewQuestion("html", "q1");
+    var q2 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q2");
+    q2.choices = [1, 2, 3];
+    page = survey.addNewPage("page2");
+    page.addNewQuestion("text", "q3");
+    survey.goNextPageAutomatic = true;
+    (<Question>survey.getQuestionByName("q2")).value = 1;
+    assert.equal(survey.currentPage.name, survey.pages[1].name, "go to the next page");
+});
 
 QUnit.test("simple condition test", function (assert) {
     var survey = new SurveyModel({

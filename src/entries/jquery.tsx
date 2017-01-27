@@ -27,4 +27,4 @@ jQuery["fn"].extend({
 });
 
 export * from "./react";
-export {__assign} from "../assign";
+export {__assign} from "tslib";

@@ -7,7 +7,7 @@ import {Question} from "../src/question";
 import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 
-QUnit.module("SurveySerialization");
+export default QUnit.module("SurveySerialization");
 
 QUnit.test("Serialize two pages", function (assert) {
     var survey = new SurveyModel();

@@ -143,11 +143,7 @@ module.exports = function(options) {
         },
         externals: platformOptions[options.platform].externals,
         plugins: [
-            extractCSS,
-            new webpack.ProvidePlugin({
-                __extends: path.join(__dirname, './src', 'extends.ts'),
-                __assign: path.join(__dirname, './src', 'assign.ts')
-            })
+            extractCSS
         ],
         devtool: 'inline-source-map'
     };

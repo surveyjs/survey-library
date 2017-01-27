@@ -13,7 +13,7 @@ import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 
-QUnit.module("Survey_Questions");
+export default QUnit.module("Survey_Questions");
 
 QUnit.test("Only some questions support comment", function (assert) {
     var questionText = <Question>QuestionFactory.Instance.createQuestion("text", "textQuestion");

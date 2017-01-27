@@ -4,7 +4,8 @@
     "module": "es2015",
     "sourceMap": true,
     "noImplicitAny": false,
-    "noEmitHelpers": true,
+    "importHelpers": true,
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "jsx": "react"
   },

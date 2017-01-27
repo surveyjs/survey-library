@@ -35,7 +35,7 @@ export {SurveyWindow} from "../react/reactSurveyWindow";
 export {ReactQuestionFactory} from "../react/reactquestionfactory"; // TODO need to remove someday
 export {ReactQuestionFactory as QuestionFactory} from "../react/reactquestionfactory";
 
-export {__extends} from "../extends";
+export {__extends} from "tslib";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

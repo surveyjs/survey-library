@@ -1,6 +1,6 @@
 ﻿import {Trigger, ISurveyTriggerOwner, SurveyTriggerVisible} from "../src/trigger";
 
-QUnit.module("Triggers");
+export default QUnit.module("Triggers");
 
 class TriggerTester extends Trigger {
     constructor(public succFunc: Function = null, public failureFunc: Function = null) {

@@ -9,7 +9,7 @@ import {MatrixDropdownColumn} from "../../src/question_matrixdropdownbase";
 import {QuestionMultipleText, MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
 import {Page} from "../../src/knockout/kopage";
 
-QUnit.module("koTests");
+export default QUnit.module("koTests");
 
 QUnit.test("Survey.koCurrentPage", function (assert) {
     var survey = new Survey();

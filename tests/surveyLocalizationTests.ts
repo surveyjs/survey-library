@@ -1,7 +1,12 @@
 ﻿import {surveyLocalization} from "../src/surveyStrings";
 import {SurveyModel} from "../src/survey";
 
-QUnit.module("LocalizationsTests");
+import '../src/localization/russian';
+import '../src/localization/french';
+import '../src/localization/finnish';
+import '../src/localization/german';
+
+export default QUnit.module("LocalizationsTests");
 
 QUnit.test("get default strings", function (assert) {
     assert.equal(surveyLocalization.getString("pageNextText"), "Next");

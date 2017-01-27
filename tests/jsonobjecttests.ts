@@ -93,7 +93,7 @@ JsonObject.metaData.addClass("shouldnotcreate", ["A"], function () { return new 
 JsonObject.metaData.addClass("container", [{ name: "obj", className: "shouldnotcreate" }, { name: "items", className: "shouldnotcreate"}]);
 JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { return new CreatingObject(); });
 
-QUnit.module("JsonSerializationTests");
+export default QUnit.module("JsonSerializationTests");
 
 QUnit.test("Metadata for non inherited class", function (assert) {
     assert.equal(JsonObject.metaData.getProperties("dealer").length, 9, "Flat properties list");

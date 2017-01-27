@@ -1,8 +1,8 @@
 ﻿import {SurveyTemplateText} from "../../src/knockout/templateText";
 
-QUnit.module("Template Text");
+export default QUnit.module("Template Text");
 
-    export class SurveyTemplateTextTest extends SurveyTemplateText {
+    class SurveyTemplateTextTest extends SurveyTemplateText {
         constructor(public template: string) { super(); }
         protected get text(): string { return this.template; }
         protected set text(value: string) { this.template = value; }

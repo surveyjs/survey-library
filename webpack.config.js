@@ -66,7 +66,6 @@ module.exports = function(options) {
     var percentage_handler = function handler(percentage, msg) {
         if ( 0 == percentage ) {
             console.log('Build started... good luck!');
-            rimraf.sync(packagePath);
         } else if ( 1 == percentage ) {
             dts.bundle({
                 name: '../../survey.' + options.platform,

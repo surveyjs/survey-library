@@ -69,7 +69,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         );
     }
     protected renderTitle(): JSX.Element {
-        return <div className={this.css.header}><h3>{this.survey.title}</h3></div>;
+        return <div className={this.css.header}><h3>{this.survey.processedTitle}</h3></div>;
     }
     protected renderPage(): JSX.Element {
         return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;

@@ -117,6 +117,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.showQuestionNumbersValue = value;
         this.updateVisibleIndexes();
     };
+    public get processedTitle() { return this.processText(this.title); }
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
         if (value === this.questionTitleLocationValue) return;
@@ -796,7 +797,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
 }
 
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
-    "title", "completedHtml:html", { name: "pages", className: "page" },
+    "title", { name: "focusFirstQuestionAutomatic:boolean", default: true}, "completedHtml:html", { name: "pages", className: "page" },
     { name: "questions", baseClassName: "question", onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",

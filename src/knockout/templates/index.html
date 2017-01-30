@@ -1,6 +1,6 @@
 ﻿<div data-bind="css: $root.css.root">
     <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: $root.css.header">
-        <h3 data-bind="text:title"></h3>
+        <h3 data-bind="text:processedTitle"></h3>
     </div>
     <!-- ko if: koState() == "running" -->
     <div data-bind="css: $root.css.body">

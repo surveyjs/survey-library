@@ -81,6 +81,7 @@ module.exports = function(options) {
             dts.bundle({
                 name: '../../survey.' + options.platform,
                 main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
+                outputAsModuleFolder: true
             });
             rimraf.sync(packagePath + 'typings');
         }

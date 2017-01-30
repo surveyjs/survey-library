@@ -31,8 +31,7 @@ module.exports = function(config) {
         webpack: {
             devtool: 'inline-source-map',
             module: webpackConfig.module,
-            resolve: webpackConfig.resolve,
-            plugins: webpackConfig.plugins
+            resolve: webpackConfig.resolve
         },
         reporters: ['progress', 'dots', 'junit', 'coverage'],
         browsers: ['PhantomJS'],

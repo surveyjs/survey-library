@@ -7,6 +7,7 @@ var dts = require('dts-bundle');
 var rimraf = require('rimraf');
 var GenerateJsonPlugin = require('generate-json-webpack-plugin');
 var packageJson = require('./package.json');
+var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
@@ -78,12 +79,23 @@ module.exports = function(options) {
         if ( 0 == percentage ) {
             console.log('Build started... good luck!');
         } else if ( 1 == percentage ) {
-            dts.bundle({
-                name: '../../survey.' + options.platform,
-                main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
-                outputAsModuleFolder: true
-            });
-            rimraf.sync(packagePath + 'typings');
+            if (options.buildType === "prod") {
+                dts.bundle({
+                    name: '../../survey.' + options.platform,
+                    main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
+                    outputAsModuleFolder: true
+                });
+                rimraf.sync(packagePath + 'typings');
+            }
+            //TODO someday need to remove
+            if (options.platform === "knockout") {
+                if (options.buildType === "prod") {
+                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');
+                    fs.rename('./packages/survey-knockout/survey.knockout.d.ts', './packages/survey-knockout/survey.ko.d.ts');
+                } else {
+                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');
+                }
+            }
         }
     };
 
@@ -155,6 +167,7 @@ module.exports = function(options) {
         },
         externals: platformOptions[options.platform].externals,
         plugins: [
+            new webpack.ProgressPlugin(percentage_handler),
             extractCSS
         ],
         devtool: 'inline-source-map'
@@ -186,7 +199,6 @@ module.exports = function(options) {
         config.plugins = config.plugins.concat([
             new webpack.optimize.UglifyJsPlugin(),
             new webpack.BannerPlugin(banner),
-            new webpack.ProgressPlugin(percentage_handler),
             new GenerateJsonPlugin(
                 packagePath + 'package.json',
                 packagePlatformJson,

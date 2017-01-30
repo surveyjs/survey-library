@@ -25,7 +25,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     componentDidUpdate() {
         if (this.isCurrentPageChanged) {
             this.isCurrentPageChanged = false;
-            this.survey.focusFirstQuestion();
+            if (this.survey.focusFirstQuestionAutomatic) {
+                this.survey.focusFirstQuestion();
+            }
         }
     }
     render(): JSX.Element {

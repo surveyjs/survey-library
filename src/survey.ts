@@ -19,6 +19,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
 
     public commentPrefix: string = "-Comment";
     public title: string = "";
+    public focusFirstQuestionAutomatic: boolean = true;
     public showNavigationButtons: boolean = true;
     public showTitle: boolean = true;
     public showPageTitles: boolean = true;

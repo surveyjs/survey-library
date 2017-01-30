@@ -86,6 +86,7 @@ module.exports = function(options) {
                     outputAsModuleFolder: true
                 });
                 rimraf.sync(packagePath + 'typings');
+                fs.createReadStream('./npmREADME.md').pipe(fs.createWriteStream(packagePath + 'README.md'));
             }
             //TODO someday need to remove
             if (options.platform === "knockout") {

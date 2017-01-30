@@ -3,11 +3,22 @@
 var webpack = require('webpack');
 var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var banner = require('./copyright');
 var dts = require('dts-bundle');
 var rimraf = require('rimraf');
 var GenerateJsonPlugin = require('generate-json-webpack-plugin');
 var packageJson = require('./package.json');
+
+var banner = [
+    "surveyjs - Survey JavaScript library v" + packageJson.version,
+    "(c) Andrew Telnov - http://surveyjs.org/",
+    "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
+].join("\n");
+
+// TODO add to dts_bundler
+var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
+    "Project: http://surveyjs.org/",
+    "Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+    ""].join("\n");
 
 var platformOptions = {
     'react': {

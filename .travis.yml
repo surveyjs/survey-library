@@ -2,16 +2,10 @@ language: node_js
 node_js:
   - "4"
 
-before_script:
-  - npm install -g gulp
-  - npm install -g typescript
-  - npm install -g typings
 script:
-  - typings install
-  - gulp copyfiles
-  - gulp makedist
-  - gulp test_ci
-before_deploy: "tar -zcvf surveyjs.tar.gz dist"
+  - npm run build_prod
+  - karma start
+before_deploy: "tar -zcvf surveyjs.tar.gz packages"
 deploy:
   provider: releases
   api_key:

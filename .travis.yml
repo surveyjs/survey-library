@@ -4,6 +4,7 @@ node_js:
 
 before_script:
   - npm install -g concurrently
+  - npm install -g ajv
 script:
   - npm run build_prod
   - karma start

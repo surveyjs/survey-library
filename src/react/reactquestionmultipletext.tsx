@@ -65,7 +65,7 @@ export class SurveyQuestionMultipleTextItem extends SurveyElementBase {
         if (!this.item) return null;
         var style = { float: "left" };
         if (this.isDisplayMode) return (<div id={this.inputId} className={this.css.itemValue} style={style}>{this.item.value}</div>);
-        return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />);
+        return (<input id={this.inputId} className={this.css.itemValue} style={style} type="text" value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />);
     }
     protected get mainClassName(): string { return ""; }
 }

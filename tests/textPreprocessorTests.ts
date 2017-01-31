@@ -1,7 +1,7 @@
 ﻿import {TextPreProcessor} from "../src/textPreProcessor";
 import {ProcessValue} from "../src/conditionProcessValue";
 
-QUnit.module("TextPreprocessorTests");
+export default QUnit.module("TextPreprocessorTests");
 
 QUnit.test("Replace simple names", function (assert) {
     var processor = new TextPreProcessor();

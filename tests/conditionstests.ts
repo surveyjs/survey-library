@@ -1,7 +1,7 @@
 ﻿import {ConditionsParser} from "../src/conditionsParser";
 import {Condition, ConditionNode, ConditionRunner} from "../src/conditions";
 
-QUnit.module("Conditions");
+export default QUnit.module("Conditions");
 
 QUnit.test("Condition", function (assert) {
     var op = new Condition();

@@ -4,6 +4,9 @@ export * from "./chunks/model";
 // localization
 import './chunks/localization';
 
+// helpers
+import './chunks/helpers';
+
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
@@ -34,8 +37,6 @@ export {SurveyQuestionRating} from "../react/reactquestionrating";
 export {SurveyWindow} from "../react/reactSurveyWindow";
 export {ReactQuestionFactory} from "../react/reactquestionfactory"; // TODO need to remove someday
 export {ReactQuestionFactory as QuestionFactory} from "../react/reactquestionfactory";
-
-export {__extends} from "../extends";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

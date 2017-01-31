@@ -2,7 +2,7 @@
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {ItemValue} from "../src/base";
 
-QUnit.module("choicesRestfull");
+export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
     public runJson(json: any) {

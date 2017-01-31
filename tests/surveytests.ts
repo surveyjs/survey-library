@@ -20,7 +20,7 @@ import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionRatingModel} from "../src/question_rating";
 
-QUnit.module("Survey");
+export default QUnit.module("Survey");
 
 QUnit.test("set data property", function (assert) {
     var survey = new SurveyModel();

@@ -2,7 +2,7 @@
 import {QuestionRating} from "../../src/knockout/koquestion_rating";
 import {Survey} from "../../src/knockout/kosurvey";
 
-QUnit.module("koTests");
+export default QUnit.module("koTests");
 
 QUnit.test("Serialize two pages", function (assert) {
     var survey = new Survey();

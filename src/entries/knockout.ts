@@ -4,10 +4,16 @@ export * from "./chunks/model";
 // localization
 import './chunks/localization';
 
+// helpers
+import './chunks/helpers';
+
+
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
 export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
+// styles
+import "../main.scss";
 
 // knockout
 export {Survey} from "../knockout/kosurvey"; // TODO need to remove someday
@@ -37,8 +43,6 @@ export {QuestionRating} from "../knockout/koquestion_rating";
 export {QuestionText} from "../knockout/koquestion_text";
 export {SurveyWindow} from "../knockout/koSurveyWindow";
 export {SurveyTemplateText} from "../knockout/templateText";
-
-export {__extends} from "../extends";
 
 //Uncomment to include the "date" question type.
 //export {QuestionDate} from "../plugins/knockout/koquestion_date";

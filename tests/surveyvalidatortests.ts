@@ -1,6 +1,6 @@
 ﻿import {NumericValidator, EmailValidator} from "../src/validator";
 
-QUnit.module("Validators");
+export default QUnit.module("Validators");
 
 QUnit.test("Numeric validator", function (assert) {
     var validator = new NumericValidator();

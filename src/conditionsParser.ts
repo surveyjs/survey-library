@@ -106,7 +106,7 @@ export class ConditionsParser {
         var res = this.readConditions();
         if (res) {
             this.skip();
-            res = this.ch == ')';
+            res = this.ch == <string>')';
             this.at++;
             this.popExpression();
         }

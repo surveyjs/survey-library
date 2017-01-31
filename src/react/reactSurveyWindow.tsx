@@ -36,7 +36,7 @@ export class SurveyWindow extends Survey {
         </div>;
     }
     protected renderBody(): JSX.Element {
-        return <div class={this.css.window.body}>
+        return <div className={this.css.window.body}>
         {this.renderSurvey() }
             </div>
     }

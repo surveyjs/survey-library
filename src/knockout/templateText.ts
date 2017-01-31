@@ -1,4 +1,4 @@
-﻿import {koTemplate} from "./template.ko.html";
+﻿var koTemplate = require("html-loader?interpolate!val-loader!./templates/entry.html");
 
 export class SurveyTemplateText {
     constructor() {
@@ -23,6 +23,6 @@ export class SurveyTemplateText {
         }
         return result + '"';
     }
-    protected get text(): string { return koTemplate.html; }
-    protected set text(value: string) { koTemplate.html = value; }
+    protected get text(): string { return koTemplate; }
+    protected set text(value: string) { koTemplate = value; }
 }

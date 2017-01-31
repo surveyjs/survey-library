@@ -1,6 +1,6 @@
 ﻿import {ItemValue, Event} from "../src/base";
 
-QUnit.module("Base");
+export default QUnit.module("Base");
 
 QUnit.test("Event hasEvents property", function (assert) {
     var event = new Event<() => any, any>();

@@ -44,3 +44,5 @@ project.lock.json
 /packages/survey-angular/css/survey.css
 /packages/survey-angular/css
 /packages/survey-angular
+/src/knockout/template.window.ko.html.ts
+/src/knockout/template.ko.html.ts

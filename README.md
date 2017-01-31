@@ -47,8 +47,6 @@ To build library yourself:
 	npm install -g karma-cli
 	npm install
 	```
-	The first `npm` command sets up the popular [Gulp](http://gulpjs.com/) build tool. 
-	The second `npm` command sets up the Typescript Definition Manager [Typings](https://github.com/typings/typings).
 
  3. **Build the library**
 	```

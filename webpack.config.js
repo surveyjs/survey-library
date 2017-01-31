@@ -83,7 +83,8 @@ module.exports = function(options) {
                 dts.bundle({
                     name: '../../survey.' + options.platform,
                     main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
-                    outputAsModuleFolder: true
+                    outputAsModuleFolder: true,
+                    headerText: dts_banner
                 });
                 rimraf.sync(packagePath + 'typings');
                 fs.createReadStream('./npmREADME.md').pipe(fs.createWriteStream(packagePath + 'README.md'));

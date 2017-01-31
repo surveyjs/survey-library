@@ -8,7 +8,7 @@
         <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
         <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
     </div>
-    <div data-bind="visible: showNavigationButtons && !isDesignMode, css: $root.css.footer">
+    <div data-bind="visible: koIsNavigationButtonsShowing, css: $root.css.footer">
         <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage(), css: $root.cssNavigationPrev" />
         <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: $root.cssNavigationNext" />
         <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage(), css: $root.cssNavigationComplete" />

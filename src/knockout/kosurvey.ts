@@ -13,7 +13,7 @@ export class Survey extends SurveyModel {
     public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     private isFirstRender: boolean = true;
 
-    koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; dummyObservable: any; koState: any;
+    koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; koIsNavigationButtonsShowing: any; dummyObservable: any; koState: any;
     koProgress: any; koProgressText: any;
 
     constructor(jsonObj: any = null, renderedElement: any = null, css: any = null) {
@@ -70,6 +70,7 @@ export class Survey extends SurveyModel {
         var self = this;
         this.dummyObservable = ko.observable(0);
         this.koCurrentPage = ko.computed(function () { self.dummyObservable(); return self.currentPage; });
+        this.koIsNavigationButtonsShowing = ko.computed(function () { self.dummyObservable(); return self.isNavigationButtonsShowing; });
         this.koIsFirstPage = ko.computed(function () { self.dummyObservable(); return self.isFirstPage; });
         this.koIsLastPage = ko.computed(function () { self.dummyObservable(); return self.isLastPage; });
         this.koProgressText = ko.computed(function () { self.dummyObservable(); return self.progressText; });

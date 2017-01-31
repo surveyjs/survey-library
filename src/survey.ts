@@ -242,6 +242,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var index = this.visiblePages.indexOf(this.currentPage) + 1;
         return Math.ceil((index * 100 / this.visiblePageCount));
     }
+    public get isNavigationButtonsShowing(): boolean {
+        if (this.isDesignMode) return false;
+        var page = this.currentPage;
+        if (!page) return false;
+        return page.navigationButtonsVisibility == "show" ||
+            (page.navigationButtonsVisibility != "hide" && this.showNavigationButtons);
+    }
     public get isEditMode(): boolean { return this.mode == "edit"; }
     public get isDisplayMode(): boolean { return this.mode == "display"; }
     public get isDesignMode(): boolean { return this.isDesignModeValue; }

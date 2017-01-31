@@ -6,7 +6,7 @@ before_script:
   - npm install -g concurrently
 script:
   - npm run build_prod
-  - karma start
+  - karma start --single-run
 before_deploy: "tar -zcvf surveyjs.tar.gz packages"
 deploy:
   provider: releases

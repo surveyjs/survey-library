@@ -15,9 +15,7 @@ mainmenukey: examples
     <script>
     function reRunSurvey() {
         {% if page.keepSurveyData %}    
-        var surveyData = survey.data;
-        survey.clear();
-        survey.data = surveyData;
+        survey.clear(false, true);
         {% else %}
         survey.clear();
         {% endif %}

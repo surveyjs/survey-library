@@ -81,19 +81,24 @@ export class NumericValidator extends SurveyValidator {
 }
 
 export class TextValidator extends SurveyValidator {
-    constructor(public minLength: number = 0) {
+    constructor(public minLength: number = 0, public maxLength: number = 0) {
         super();
     }
     public getType(): string { return "textvalidator"; }
     public validate(value: any, name: string = null): ValidatorResult {
-        if (this.minLength <= 0) return;
-        if (value.length < this.minLength) {
+        if (this.minLength > 0 && value.length < this.minLength) {
+            return new ValidatorResult(null, new CustomError(this.getErrorText(name)));
+        }
+        if (this.maxLength > 0 && value.length > this.maxLength) {
             return new ValidatorResult(null, new CustomError(this.getErrorText(name)));
         }
         return null;
     }
     protected getDefaultErrorText(name: string) {
-        return surveyLocalization.getString("textMinLength")["format"](this.minLength);
+        if (this.minLength > 0 && this.maxLength > 0)
+            return surveyLocalization.getString("textMinMaxLength")["format"](this.minLength, this.maxLength);
+        if (this.minLength > 0) return surveyLocalization.getString("textMinLength")["format"](this.minLength);
+        return surveyLocalization.getString("textMaxLength")["format"](this.maxLength);
     }
 }
 
@@ -148,7 +153,7 @@ export class EmailValidator extends SurveyValidator {
 
 JsonObject.metaData.addClass("surveyvalidator", ["text"]);
 JsonObject.metaData.addClass("numericvalidator", ["minValue:number", "maxValue:number"], function () { return new NumericValidator(); }, "surveyvalidator");
-JsonObject.metaData.addClass("textvalidator", ["minLength:number"], function () { return new TextValidator(); }, "surveyvalidator");
+JsonObject.metaData.addClass("textvalidator", ["minLength:number", "maxLength:number"], function () { return new TextValidator(); }, "surveyvalidator");
 JsonObject.metaData.addClass("answercountvalidator", ["minCount:number", "maxCount:number"], function () { return new AnswerCountValidator(); }, "surveyvalidator");
 JsonObject.metaData.addClass("regexvalidator", ["regex"], function () { return new RegexValidator(); }, "surveyvalidator");
 JsonObject.metaData.addClass("emailvalidator", [], function () { return new EmailValidator(); }, "surveyvalidator");

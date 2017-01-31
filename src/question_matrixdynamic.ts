@@ -99,6 +99,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     protected createMatrixRow(value: any): MatrixDynamicRowModel {
         return new MatrixDynamicRowModel(this.rowCounter ++, this, value);
     }
+    protected onBeforeValueChanged(val: any) {
+        var newRowCount = val && Array.isArray(val) ? val.length : 0;
+        if (newRowCount <= this.rowCount) return;
+        this.rowCountValue = newRowCount;
+        if (this.generatedVisibleRows) {
+            this.generatedVisibleRows = this.visibleRows;
+        }
+    }
     protected createNewValue(curValue: any): any {
         var result = curValue;
         if (!result) result = [];

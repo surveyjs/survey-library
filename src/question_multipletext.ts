@@ -13,6 +13,7 @@ export interface IMultipleTextData {
 export class MultipleTextItemModel extends Base implements IValidatorOwner {
     private data: IMultipleTextData;
     private titleValue: string;
+    public placeHolder: string;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(public name: any = null, title: string = null) {
@@ -144,7 +145,7 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     }
 }
 
-JsonObject.metaData.addClass("multipletextitem", ["name", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+JsonObject.metaData.addClass("multipletextitem", ["name", "placeHolder", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
     { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }], function () { return new MultipleTextItemModel(""); });
 
 JsonObject.metaData.addClass("multipletext", [{ name: "!items:textitems", className: "multipletextitem" },

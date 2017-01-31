@@ -56,18 +56,23 @@ export class MatrixDropdownCell {
 }
 
 export class MatrixDropdownRowModelBase implements ISurveyData {
+    private static idCounter: number = 1;
+    private static getId(): string { return "srow_" + MatrixDropdownRowModelBase.idCounter++; }
     protected data: IMatrixDropdownData;
     private rowValues: HashTable<any> = {};
     private rowComments: HashTable<any> = {};
     private isSettingValue: boolean = false;
+    private idValue: string;
 
     public cells: Array<MatrixDropdownCell> = [];
 
     constructor(data: IMatrixDropdownData, value: any) {
         this.data = data;
         this.value = value;
+        this.idValue = MatrixDropdownRowModelBase.getId();
         this.buildCells();
     }
+    public get id(): string { return this.idValue; }
     public get rowName() { return null; }
     public get value() { return this.rowValues; }
     public set value(value: any) {
@@ -197,8 +202,12 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         return result;
     }
+    protected onBeforeValueChanged(val: any) {
+    }
     protected onValueChanged() {
-        if (this.isRowChanging || !(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
+        if (this.isRowChanging) return;
+        this.onBeforeValueChanged(this.value);
+        if(!(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;
         this.isRowChanging = true;
         var val = this.createNewValue(this.value);
         for (var i = 0; i < this.generatedVisibleRows.length; i++) {

@@ -227,7 +227,7 @@ export class JsonMetadata {
             this.fillChildrenClasses(children[i].name, canBeCreated, result);
         }
     }
-    private findClass(name: string): JsonMetadataClass {
+    public findClass(name: string): JsonMetadataClass {
         return this.classes[name];
     }
     private fillProperties(name: string, list: Array<JsonObjectProperty>) {

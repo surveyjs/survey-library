@@ -5,6 +5,7 @@ import {Question} from "./question";
 export class QuestionTextModel extends Question {
     public size: number = 25;
     public inputType: string = "text";
+    public placeHolder: string;
     constructor(public name: string) {
         super(name);
     }
@@ -30,6 +31,6 @@ export class QuestionTextModel extends Question {
 }
 
 JsonObject.metaData.addClass("text", [{ name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
-    { name: "size:number", default: 25 }], function () { return new QuestionTextModel(""); }, "question");
+    { name: "size:number", default: 25 }, "placeHolder"], function () { return new QuestionTextModel(""); }, "question");
 
 QuestionFactory.Instance.registerQuestion("text", (name) => { return new QuestionTextModel(name); });

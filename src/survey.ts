@@ -19,6 +19,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
 
     public commentPrefix: string = "-Comment";
     public title: string = "";
+    public focusFirstQuestionAutomatic: boolean = true;
     public showNavigationButtons: boolean = true;
     public showTitle: boolean = true;
     public showPageTitles: boolean = true;
@@ -51,6 +52,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     private isDesignModeValue: boolean = false;
 
     public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    public onPartialSend: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -115,6 +117,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.showQuestionNumbersValue = value;
         this.updateVisibleIndexes();
     };
+    public get processedTitle() { return this.processText(this.title); }
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
         if (value === this.questionTitleLocationValue) return;
@@ -239,6 +242,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var index = this.visiblePages.indexOf(this.currentPage) + 1;
         return Math.ceil((index * 100 / this.visiblePageCount));
     }
+    public get isNavigationButtonsShowing(): boolean {
+        if (this.isDesignMode) return false;
+        var page = this.currentPage;
+        if (!page) return false;
+        return page.navigationButtonsVisibility == "show" ||
+            (page.navigationButtonsVisibility != "hide" && this.showNavigationButtons);
+    }
     public get isEditMode(): boolean { return this.mode == "edit"; }
     public get isDisplayMode(): boolean { return this.mode == "display"; }
     public get isDesignMode(): boolean { return this.isDesignModeValue; }
@@ -343,7 +353,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     protected doNextPage() {
         this.checkOnPageTriggers();
-        if (this.sendResultOnPageNext && this.clientId) {
+        if (this.sendResultOnPageNext) {
             this.sendResult(this.surveyPostId, this.clientId, true);
         }
         var vPages = this.visiblePages;
@@ -522,16 +532,20 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
     }
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
-        if (this.isEditMode) return;
-        if (!postId && this.surveyPostId) {
-            postId = this.surveyPostId;
+        if (!this.isEditMode) return;
+        if (isPartialCompleted && this.onPartialSend) {
+            this.onPartialSend.fire(this, null);
         }
-        if (!postId) return;
+        if (!this.surveyPostId && postId) {
+            this.surveyPostId = postId;
+        }
+        if (!this.surveyPostId) return;
         if (clientId) {
             this.clientId = clientId;
         }
+        if (isPartialCompleted && !this.clientId) return;
         var self = this;
-        new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
+        new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
             self.onSendResult.fire(self, { success: success, response: response});
         }, this.clientId, isPartialCompleted);
     }
@@ -716,7 +730,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (question && !question.supportGoNextPageAutomatic()) return;
         var questions = this.getCurrentPageQuestions();
         for (var i = 0; i < questions.length; i++) {
-            if (!this.getValue(questions[i].name)) return;
+            if (questions[i].hasInput && !this.getValue(questions[i].name)) return;
         }
         if (!this.currentPage.hasErrors(true, false)) {
             if (!this.isLastPage) {
@@ -790,7 +804,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
 }
 
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
-    "title", "completedHtml:html", { name: "pages", className: "page" },
+    "title", { name: "focusFirstQuestionAutomatic:boolean", default: true}, "completedHtml:html", { name: "pages", className: "page" },
     { name: "questions", baseClassName: "question", onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",

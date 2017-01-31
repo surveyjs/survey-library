@@ -25,7 +25,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     componentDidUpdate() {
         if (this.isCurrentPageChanged) {
             this.isCurrentPageChanged = false;
-            this.survey.focusFirstQuestion();
+            if (this.survey.focusFirstQuestionAutomatic) {
+                this.survey.focusFirstQuestion();
+            }
         }
     }
     render(): JSX.Element {
@@ -67,7 +69,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         );
     }
     protected renderTitle(): JSX.Element {
-        return <div className={this.css.header}><h3>{this.survey.title}</h3></div>;
+        return <div className={this.css.header}><h3>{this.survey.processedTitle}</h3></div>;
     }
     protected renderPage(): JSX.Element {
         return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
@@ -113,6 +115,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             self.setState(self.state);
         };
         this.survey.onComplete.add((sender) => { self.state.isCompleted = true; self.setState(self.state); });
+        this.survey.onPartialSend.add((sender) => { self.setState(self.state); });
         this.survey.onCurrentPageChanged.add((sender, options) => {
             self.isCurrentPageChanged = true;
             self.state.pageIndexChange = self.state.pageIndexChange + 1;
@@ -140,6 +143,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         });
         if (newProps.onComplete) {
             this.survey.onComplete.add((sender) => { newProps.onComplete(sender); });
+        }
+        if (newProps.onPartialSend) {
+            this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });
         }
         this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
         if (newProps.onQuestionAdded) {

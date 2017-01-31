@@ -66,6 +66,7 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     questions: Array<QuestionBase> = new Array<QuestionBase>();
     public data: ISurvey = null;
     public visibleIf: string = "";
+    public navigationButtonsVisibility: string = "inherit";
 
     public title: string = "";
     public visibleIndex: number = -1;
@@ -218,4 +219,4 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     protected onNumChanged(value: number) {
     }
 }
-JsonObject.metaData.addClass("page", ["name", { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf", "title"], function () { return new PageModel(); });
+JsonObject.metaData.addClass("page", ["name", { name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"]}, { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf", "title"], function () { return new PageModel(); });

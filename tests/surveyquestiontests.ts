@@ -459,6 +459,19 @@ QUnit.test("Matrixdynamic hasOther column", function (assert) {
     rows[0].cells[0].question.value = "other";
     assert.equal(question.hasErrors(), true, "Should set other value");
 });
+QUnit.test("Matrixdynamic adjust rowCount on setting the value", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    question.rowCount = 0;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    question.value = [{}, { 'column1': 2 }, {}];
+    assert.equal(question.rowCount, 3, "It should be 3 rowCount");
+    var rows = question.visibleRows;
+    question.value = [{}, { 'column1': 2 }, {}, {}];
+    assert.equal(question.rowCount, 4, "It should be 4 rowCount");
+    question.value = [{ 'column1': 2 }];
+    assert.equal(question.rowCount, 4, "Keep row count equals 4");
+});
 QUnit.test("Matrixdropdown different cell types", function (assert) {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
 

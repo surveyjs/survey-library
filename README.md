@@ -1,10 +1,10 @@
 **survey.js** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
-[![Build Status](https://travis-ci.org/andrewtelnov/surveyjs.svg?branch=master)](https://travis-ci.org/andrewtelnov/surveyjs)
+[![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs)
 
-![alt tag](https://raw.githubusercontent.com/andrewtelnov/surveyjs/master/survey_product_feedback.gif)
+![alt tag](https://raw.githubusercontent.com/surveyjs/surveyjs/master/survey_product_feedback.gif)
 
 ##Getting started
-[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![Join the chat at https://gitter.im/surveyjs/surveyjs](https://badges.gitter.im/surveyjs/surveyjs.svg)](https://gitter.im/surveyjs/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
 To find our more about the library go
 * to the [surveyjs.org site](http://surveyjs.org) 
@@ -38,7 +38,7 @@ To build library yourself:
 
  1. **Clone the repo from GitHub**  
 	```
-	git clone https://github.com/andrewtelnov/surveyjs.git
+	git clone https://github.com/surveyjs/surveyjs.git
 	cd surveyjs
 	```
 
@@ -63,7 +63,7 @@ To build library yourself:
 	This command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
 
 ##Create your own question type.
-Explore the [example](https://github.com/andrewtelnov/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.
+Explore the [example](https://github.com/surveyjs/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.
 
 ##License
 
@@ -71,5 +71,5 @@ MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.op
 
 
 ##Visual Editor
-
-Visual Editor sources are [here](https://github.com/andrewtelnov/surveyjs.editor)
+Visual Editor [site](http://editor.surveyjs.io)
+Visual Editor sources are [here](https://github.com/surveyjs/editor)

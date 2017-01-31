@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-text">
     <!-- ko if: $root.isEditMode -->
-    <input data-bind="attr: {type: question.inputType, size: question.size, id: question.inputId}, value:question.koValue, css: $root.css.text"/>
+    <input data-bind="attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.placeHolder}, value:question.koValue, css: $root.css.text"/>
     <!-- /ko -->
     <!-- ko if: $root.isDisplayMode -->
     <div data-bind="text:question.koValue, css: $root.css.text"></div>

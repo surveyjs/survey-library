@@ -30,6 +30,8 @@ export var surveyStrings = {
     requiredInAllRowsError: "Please answer questions in all rows.",
     numericError: "The value should be numeric.",
     textMinLength: "Please enter at least {0} symbols.",
+    textMaxLength: "Please enter less than {0} symbols.",
+    textMinMaxLength: "Please enter more than {0} and less than {1} symbols.",
     minRowCountError: "Please fill in at least {0} rows.",
     minSelectError: "Please select at least {0} variants.",
     maxSelectError: "Please select no more than {0} variants.",

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>Welcome to Vue</title>
+        <script src="https://unpkg.com/vue/dist/vue.js"></script>
+        <script src="../../packages/survey-vue/survey.vue.js"></script>
+        <link href="../../packages/survey-vue/survey.css" rel="stylesheet">
+    </head>
+
+<body>
+
+<div id="app">
+        <survey :json='{ questions: [{ type: "radiogroup", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4, choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }]}'></survey>
+    </div>
+<script>
+        var survey = Survey.Survey;
+    
+        var app = new Vue({
+            el: '#app',
+            components: {
+                'survey': survey
+            }
+        });
+    </script>
+</body>
+</html>

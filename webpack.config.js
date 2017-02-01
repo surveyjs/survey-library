@@ -146,7 +146,7 @@ module.exports = function(options) {
     var config = {
         entry: {},
         resolve: {
-            extensions: ['.ts', '.tsx', '.scss']
+            extensions: ['.ts', '.js', '.tsx', '.scss']
         },
         module: {
             rules: [
@@ -159,7 +159,7 @@ module.exports = function(options) {
                             'outDir': packagePath + 'typings/'
                         },
                         appendTsSuffixTo: [/\.vue$/]
-                        }
+                    }
                 },
                 {
                     test: /\.vue$/,

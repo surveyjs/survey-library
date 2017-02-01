@@ -68,6 +68,18 @@ var platformOptions = {
         externals: {},
         keywords: ['angular', 'angular-component'],
         dependencies: { '@types/react': '0.0.0' }
+    },
+    'vue': {
+        externals: {
+            'vue': {
+                root: 'Vue',
+                commonjs2: 'vue',
+                commonjs: 'vue',
+                amd: 'vue'
+            }
+        },
+        keywords: ['vue'],
+        dependencies: { 'vue': "^2.1.10" }
     }
 };
 
@@ -145,7 +157,15 @@ module.exports = function(options) {
                         compilerOptions: {
                             'declaration': options.buildType === 'prod',
                             'outDir': packagePath + 'typings/'
+                        },
+                        appendTsSuffixTo: [/\.vue$/]
                         }
+                },
+                {
+                    test: /\.vue$/,
+                    loader: 'vue-loader',
+                    options: {
+                        esModule: true
                     }
                 },
                 {

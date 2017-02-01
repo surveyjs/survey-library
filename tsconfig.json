@@ -5,6 +5,7 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "importHelpers": true,
+    "experimentalDecorators": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "jsx": "react"

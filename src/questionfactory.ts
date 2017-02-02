@@ -3,7 +3,7 @@ import {HashTable} from "./base";
 
 export class QuestionFactory {
     public static Instance: QuestionFactory = new QuestionFactory();
-    public static DefaultChoices = ["one", "two|second value", "three|third value"];
+    public static DefaultChoices = ["1|first item", "2|second item", "3|third item"];
     private creatorHash: HashTable<(name: string) => QuestionBase> = {};
 
     public registerQuestion(questionType: string, questionCreator: (name: string) => QuestionBase) {

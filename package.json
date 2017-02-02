@@ -57,7 +57,6 @@
     "style-loader": "^0.13.1",
     "testcafe": "^0.10.0",
     "ts-loader": "^2.0.0",
-    "tslib": "^1.5.0",
     "typescript": "^2.1.5",
     "val-loader": "^0.5.0",
     "vue": "^2.1.10",

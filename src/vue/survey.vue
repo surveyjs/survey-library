@@ -1,16 +1,23 @@
 <template>
-    <div v-if="hasTitle" v-bind:class="css.header"><h3>{{model.processedTitle}}</h3></div>
+    <div>
+        <div v-if="hasTitle" :class="css.header"><h3>{{model.processedTitle}}</h3></div>
+        <SurveyPage :survey="model" :page="model.currentPage" :css="css" :creator="this" />
+    </div>
 </template>
 
 <script lang="ts">
-    import * as Vue from 'vue'
-    import Component from 'vue-class-component'
+    import * as Vue from 'vue';
+    import Component from 'vue-class-component';
     import {surveyCss} from "../defaultCss/cssstandard";
-    import {VueSurveyModel} from './vueSurveyModel'
+    import {VueSurveyModel} from './surveyModel';
+    import {default as SurveyPage} from './surveyPage.vue';
 
     @Component({
         props: {
             json: Object
+        },
+        components: {
+            SurveyPage: SurveyPage
         }
     })
     export default class Survey extends Vue {

@@ -10,15 +10,13 @@
 <body>
 
 <div id="app">
-        <survey :json='{ title: "My survey", questions: [{ type: "radiogroup", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4, choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }]}'></survey>
+        <Survey :json='{ title: "My survey", questions: [{ type: "radiogroup", name: "car", title: "What car are you driving?", isRequired: true, colCount: 4, choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] }]}'></Survey>
     </div>
 <script>
-        var survey = Survey.Survey;
-    
         var app = new Vue({
             el: '#app',
             components: {
-                'survey': survey
+                'Survey': Survey.Survey
             }
         });
     </script>

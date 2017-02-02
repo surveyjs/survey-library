@@ -12,4 +12,4 @@ export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
 export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
 
-export {default as Survey} from "../vue/vueSurvey.vue";
+export {default as Survey} from "../vue/survey.vue";

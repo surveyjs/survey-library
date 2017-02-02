@@ -5,7 +5,7 @@ export * from "./chunks/model";
 import './chunks/localization';
 
 // helpers
-import './chunks/helpers';
+export * from  './chunks/helpers';
 
 
 // css standard

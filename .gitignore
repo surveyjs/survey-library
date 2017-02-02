@@ -11,6 +11,8 @@ src/*/*.js
 shippable/*
 typings/*
 wwwroot/*
+tmp/*
+.vscode/*
 *.sln
 *.xproj*
 *.ini

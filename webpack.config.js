@@ -134,7 +134,10 @@ module.exports = function(options) {
     var config = {
         entry: {},
         resolve: {
-            extensions: ['.ts', '.tsx', '.scss']
+            extensions: ['.ts', '.tsx', '.scss'],
+            alias: {
+                tslib:  path.join(__dirname, './src/entries/chunks/helpers.ts'),
+            }
         },
         module: {
             rules: [
@@ -176,10 +179,8 @@ module.exports = function(options) {
     };
 
     if (options.platform === 'angular' || options.platform === 'jquery') {
-        config.resolve.alias = {
-            'react': 'preact-compat',
-            'react-dom': 'preact-compat'
-        };
+        config.resolve.alias['react'] = 'preact-compat';
+        config.resolve.alias['react-dom'] = 'preact-compat';
 
         // TODO because of preact-compat https://github.com/developit/preact-compat/issues/192 need to better decision
         config.module.rules.push({

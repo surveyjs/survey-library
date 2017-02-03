@@ -8,7 +8,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         return "sq_" + QuestionBase.questionCounter++;
     }
     protected data: ISurveyData;
-    protected survey: ISurvey;
+    private surveyValue: ISurvey;
     private conditionRunner: ConditionRunner = null;
     public visibleIf: string = "";
     private idValue: string;
@@ -62,9 +62,10 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public focus(onError: boolean = false) { }
     setData(newValue: ISurveyData) {
         this.data = newValue;
-        this.survey = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
+        this.surveyValue = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
         this.onSetData();
     }
+    public get survey(): ISurvey { return this.surveyValue; }
     protected fireCallback(callback: () => void) {
         if (callback) callback();
     }

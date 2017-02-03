@@ -22,6 +22,7 @@ export interface ISurvey extends ISurveyData {
     questionTitleTemplate: string;
     storeOthersAsComment: boolean;
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
+    afterRenderQuestion(question: IQuestion, htmlElement);
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);
@@ -135,6 +136,13 @@ export class SurveyElement {
         var elemTop = el.getBoundingClientRect().top;
         if (elemTop < 0)  el.scrollIntoView();
         return elemTop < 0;
+    }
+    public static GetFirstNonTextElement(elements: any) {
+        if (!elements || !elements.length) return;
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].nodeName != "#text") return elements[i]; 
+        }
+        return null;
     }
     public static FocusElement(elementId: string): boolean {
         if (!elementId) return false;

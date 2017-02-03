@@ -46,6 +46,8 @@ export class SurveyQuestion extends React.Component<any, any> {
                 self.state.visibleIndexValue = self.questionBase.visibleIndex;
                 self.setState(self.state);
             }
+            var el = this.refs["root"];
+            if (el && this.questionBase.survey) this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
         }
     }
     componentWillUnmount() {
@@ -71,7 +73,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         if (marginLeft) rootStyle["marginLeft"] = marginLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;
         return (
-            <div id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
+            <div  ref="root" id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
                 {titleTop}
                 {errors}
                 {questionRender}

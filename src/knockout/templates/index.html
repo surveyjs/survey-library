@@ -1,11 +1,11 @@
-﻿<div data-bind="css: $root.css.root">
+﻿<div data-bind="css: $root.css.root, afterRender: koEventAfterRender">
     <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: $root.css.header">
         <h3 data-bind="text:processedTitle"></h3>
     </div>
     <!-- ko if: koState() == "running" -->
     <div data-bind="css: $root.css.body">
         <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
-        <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage }"></div>
+        <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
         <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
     </div>
     <div data-bind="visible: koIsNavigationButtonsShowing, css: $root.css.footer">

@@ -65,6 +65,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public jsonErrors: Array<JsonError> = null;
 
     constructor(jsonObj: any = null) {
@@ -378,6 +381,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var index = vPages.indexOf(this.currentPage) + 1;
         return this.getLocString("progressText")["format"](index, vPages.length);
     }
+    protected afterRenderSurvey(htmlElement) {
+        this.onAfterRenderSurvey.fire(this, { survey: this, htmlElement: htmlElement });
+    }
+    afterRenderPage(htmlElement) {
+        if (this.onAfterRenderPage.isEmpty) return;
+        this.onAfterRenderPage.fire(this, { page: this.currentPage, htmlElement: htmlElement });
+    }
+    afterRenderQuestion(question: IQuestion, htmlElement) {
+        this.onAfterRenderQuestion.fire(this, { question: question, htmlElement: htmlElement });
+    }
+
     public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {
         var accept = true;
         this.onUploadFile.fire(this, { name: name, file: file, accept: accept });

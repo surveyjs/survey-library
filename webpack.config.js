@@ -11,14 +11,14 @@ var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
-    "(c) Andrew Telnov - http://surveyjs.org/",
+    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.org/",
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
     "Project: http://surveyjs.org/",
-    "Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+    "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
     ""].join("\n");
 
 var platformOptions = {
@@ -125,7 +125,7 @@ module.exports = function(options) {
         ],
         'repository': {
             'type': 'git',
-            'url': 'https://github.com/andrewtelnov/surveyjs.git'
+            'url': 'https://github.com/surveyjs/surveyjs.git'
         },
         'typings': 'survey.' + options.platform + '.d.ts',
         'dependencies': platformOptions[options.platform].dependencies

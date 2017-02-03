@@ -9,4 +9,5 @@ tmp/*
 .idea
 /packages/**/*
 /.gitattributes
+project.json
 

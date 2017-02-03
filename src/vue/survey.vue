@@ -10,19 +10,14 @@
     import Component from 'vue-class-component'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {VueSurveyModel} from './surveyModel'
-    import {default as SurveyPage} from './surveyPage.vue'
 
     @Component({
         props: {
             json: Object
-        },
-        components: {
-            SurveyPage
         }
     })
     export default class Survey extends Vue {
         json: Object;
-
         model: VueSurveyModel;
         constructor () {
             super();
@@ -35,4 +30,5 @@
             return surveyCss.getCss();
         }
     }
+    Vue.component("Survey", Survey)
 </script>

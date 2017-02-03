@@ -1,3 +1,9 @@
+/*!
+ * surveyjs Editor v0.11.0
+ * (c) Devsoft Baltic O� - http://surveyjs.io/
+ * Github - https://github.com/surveyjs/editor
+ * License: (http://editor.surveyjs.io/license.html)
+ */
 html body {
   background-color: #fff; }
 
@@ -228,8 +234,8 @@ html body {
 
 @font-face {
   font-family: 'icomoon';
-  src: url("fonts/icomoon.eot?sbpmys");
-  src: url("fonts/icomoon.eot?sbpmys#iefix") format("embedded-opentype"), url("fonts/icomoon.ttf?sbpmys") format("truetype"), url("fonts/icomoon.woff?sbpmys") format("woff"), url("fonts/icomoon.svg?sbpmys#icomoon") format("svg");
+  src: url(./fonts/icomoon.eot);
+  src: url(./fonts/icomoon.eot#iefix) format("embedded-opentype"), url(./fonts/icomoon.ttf) format("truetype"), url(./fonts/icomoon.woff) format("woff"), url(./fonts/icomoon.svg#icomoon) format("svg");
   font-weight: normal;
   font-style: normal; }
 
@@ -247,40 +253,40 @@ html body {
   -moz-osx-font-smoothing: grayscale; }
 
 .icon-checkbox:before {
-  content: "\e900"; }
+  content: "\E900"; }
 
 .icon-comment:before {
-  content: "\e901"; }
+  content: "\E901"; }
 
 .icon-dropdown:before {
-  content: "\e902"; }
+  content: "\E902"; }
 
 .icon-file:before {
-  content: "\e903"; }
+  content: "\E903"; }
 
 .icon-html:before {
-  content: "\e904"; }
+  content: "\E904"; }
 
 .icon-default:before {
-  content: "\e905"; }
+  content: "\E905"; }
 
 .icon-matrixdynamic:before {
-  content: "\e906"; }
+  content: "\E906"; }
 
 .icon-matrixdropdown:before {
-  content: "\e907"; }
+  content: "\E907"; }
 
 .icon-matrix:before {
-  content: "\e908"; }
+  content: "\E908"; }
 
 .icon-multipletext:before {
-  content: "\e909"; }
+  content: "\E909"; }
 
 .icon-radiogroup:before {
-  content: "\e90a"; }
+  content: "\E90A"; }
 
 .icon-rating:before {
-  content: "\e90b"; }
+  content: "\E90B"; }
 
 .icon-text:before {
-  content: "\e90c"; }
+  content: "\E90C"; }

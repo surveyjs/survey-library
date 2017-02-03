@@ -17,7 +17,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 
 {% include live-example-code.html %}
 <div class="jumbotron">
-    <p>To get all localizable strings, please go to <a href="https://github.com/andrewtelnov/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
+    <p>To get all localizable strings, please go to <a href="https://github.com/surveyjs/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
     <p>
     If you want to share your localization with the community, please create a new typescript file, similar to german.ts, and do a pull request.
     </p>
@@ -39,7 +39,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 
 {% include live-example-code.html %}
 <div class="jumbotron">
-    <p>To get all localizable strings, please go to <a href="https://github.com/andrewtelnov/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
+    <p>To get all localizable strings, please go to <a href="https://github.com/surveyjs/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
     <p>
     If you want to share your localization with the community, please create a new typescript file, similar to german.ts, and do a pull request.
     </p>
@@ -66,7 +66,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 
 {% include live-example-code.html %}
 <div class="jumbotron">
-    <p>To get all localizable strings, please go to <a href="https://github.com/andrewtelnov/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
+    <p>To get all localizable strings, please go to <a href="https://github.com/surveyjs/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
     <p>
     If you want to share your localization with the community, please create a new typescript file, similar to german.ts, and do a pull request.
     </p>
@@ -90,7 +90,7 @@ Survey.surveyLocalization.locales["my"] = mycustomSurveyStrings;
 
 {% include live-example-code.html %}
 <div class="jumbotron">
-    <p>To get all localizable strings, please go to <a href="https://github.com/andrewtelnov/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
+    <p>To get all localizable strings, please go to <a href="https://github.com/surveyjs/surveyjs/tree/master/src/localization" target="_blank">Github</a>.</p>
     <p>
     If you want to share your localization with the community, please create a new typescript file, similar to german.ts, and do a pull request.
     </p>

@@ -1,11 +1,9 @@
 <template>
     <div>
-        <h4 v-show="hasTitle" :class="css.pageTitle">{{pageNum + page.processedTitle}}</h4>
-        <template v-for="row in page.rows">
-            <div v-show="row.visible" :class="css.row">
-                <component :is="question.getType()" v-for="question in row.questions" :question="question" :css="css"/>
-            </div>
-        </template>
+        <h4 v-show="hasTitle" :class="css.pageTitle">{{num + page.processedTitle}}</h4>
+        <div v-for="row in rows" v-show="row.visible" :class="css.row">
+            <component :is="question.getType()" v-for="question in row.questions" :question="question" :css="css"/>
+        </div>
     </div>
 </template>
 
@@ -33,8 +31,11 @@
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }
-        get pageNum () {
+        get num () {
             return this.page.num > 0 ? this.page.num + ". " : "";
+        }
+        get rows () {
+            return this.page.rows;
         }
     }
     Vue.component("SurveyPage", SurveyPage)

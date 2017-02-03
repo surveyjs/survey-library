@@ -1,16 +1,14 @@
 <template>
     <form :class="css.radiogroup.root">
-        <template v-for="item in question.visibleChoices">
-            <div :class="css.radiogroup.item" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
-                <label :class="css.radiogroup.item">
-                    <input type="radio" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: $root.isEditMode" />
-                    <span>{{item.text}}</span>
-                </label>
-                <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
-                    <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: $root.css.radiogroup.other"></div>
-                </div>
+        <div v-for="item in question.visibleChoices" :class="css.radiogroup.item" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
+            <label :class="css.radiogroup.item">
+                <input type="radio" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: $root.isEditMode" />
+                <span>{{item.text}}</span>
+            </label>
+            <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: $root.css.radiogroup.other"></div>
             </div>
-        </template>
+        </div>
     </form>
 </template>
 

@@ -71,7 +71,9 @@ var platformOptions = {
     }
 };
 
-module.exports = function(options) {
+module.exports = function (options) {
+    //TODO 
+    options.platformPrefix = options.platform == 'knockout' ? 'ko' : options.platform;
     var packagePath = './packages/survey-' + options.platform + '/';
     var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
 
@@ -81,22 +83,13 @@ module.exports = function(options) {
         } else if ( 1 == percentage ) {
             if (options.buildType === "prod") {
                 dts.bundle({
-                    name: '../../survey.' + options.platform,
+                    name: '../../survey.' + options.platformPrefix,
                     main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
                     outputAsModuleFolder: true,
                     headerText: dts_banner
                 });
                 rimraf.sync(packagePath + 'typings');
                 fs.createReadStream('./npmREADME.md').pipe(fs.createWriteStream(packagePath + 'README.md'));
-            }
-            //TODO someday need to remove
-            if (options.platform === "knockout") {
-                if (options.buildType === "prod") {
-                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');
-                    fs.rename('./packages/survey-knockout/survey.knockout.d.ts', './packages/survey-knockout/survey.ko.d.ts');
-                } else {
-                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');
-                }
             }
         }
     };
@@ -115,19 +108,15 @@ module.exports = function(options) {
         'license': 'MIT',
         'files': [
             'survey.css',
-            'survey.min.css',
-            'survey.' + options.platform + '.js',
-            'survey.' + options.platform + '.min.js'
+            'survey.' + options.platformPrefix + '.js',
+            'survey.' + options.platformPrefix + '.min.js'
         ],
-        'main': [
-            'survey.min.css',
-            'survey.' + options.platform + '.min.js'
-        ],
+        'main': 'survey.' + options.platformPrefix + '.min.js',
         'repository': {
             'type': 'git',
             'url': 'https://github.com/surveyjs/surveyjs.git'
         },
-        'typings': 'survey.' + options.platform + '.d.ts',
+        'typings': 'survey.' + options.platformPrefix + '.d.ts',
         'dependencies': platformOptions[options.platform].dependencies
     };
     

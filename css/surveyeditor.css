@@ -7,14 +7,6 @@
 html body {
   background-color: #fff; }
 
-@media (max-width: 991px) {
-  .svd_container .svd_content .svd_editors {
-    padding: 0; } }
-
-@media (max-width: 991px) {
-  .svd_container .svd_content .svd_properties {
-    margin-top: 20px; } }
-
 @media (max-width: 816px) {
   .svd_container .nav-tabs.svd_menu > li.active > a {
     color: #1ab394;

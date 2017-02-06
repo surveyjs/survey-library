@@ -2,7 +2,7 @@
     <div>
         <h4 v-show="hasTitle" :class="css.pageTitle">{{num + page.processedTitle}}</h4>
         <div v-for="row in rows" v-show="row.visible" :class="css.row">
-            <component :is="question.getType()" v-for="question in row.questions" :question="question" :css="css"/>
+            <component :is="question.getType()" v-for="question in row.questions" :question="question" :isEditMode="survey.isEditMode" :css="css"/>
         </div>
     </div>
 </template>

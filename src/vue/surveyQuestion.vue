@@ -12,16 +12,17 @@
 
     @Component({
         props: {
-            question: Question
+            question: Question,
+            isEditMode: Boolean,
+            css: surveyCss
         }
     })
     export default class SurveyQuestion<T extends Question> extends Vue {
         question: T;
+        isEditMode: Boolean
+        css: Object
         constructor () {
             super();
-        }
-        get css () {
-            return surveyCss.getCss();
         }
     }
 </script>

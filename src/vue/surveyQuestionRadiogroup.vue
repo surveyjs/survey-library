@@ -1,14 +1,12 @@
 <template>
     <form :class="css.radiogroup.root">
-        <div v-for="item in question.visibleChoices" :class="css.radiogroup.item" data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: question.colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="css.radiogroup.item">
-                <input type="radio" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: $root.isEditMode" />
+                <input type="radio" :name="question.name" :value="item.value" :id="(index === 0) ? question.inputId : ''" v-model="question.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
             </label>
-            <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: $root.css.radiogroup.other"></div>
-            </div>
         </div>
+        <SurveyComment v-show="question.hasOther" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css" :visible="question.isOtherSelected"></SurveyComment>
     </form>
 </template>
 
@@ -21,7 +19,9 @@
 
     @Component({
         props: {
-            question: QuestionRadiogroupModel
+            question: QuestionRadiogroupModel,
+            isEditMode: Boolean,
+            css: surveyCss
         }
     })
     export default class SurveyQuestionRadiogroup extends SurveyQuestion<QuestionRadiogroupModel> {

@@ -12,7 +12,7 @@
     import {Question} from '../question'
 
     @Component
-    export default class Comment extends Vue {
+    export default class OtherChoice extends Vue {
         @Prop
         question: Question
         @Prop
@@ -20,5 +20,5 @@
         @Prop
         css: Object
     }
-    Vue.component("survey-other-choice", Comment)
+    Vue.component("survey-other-choice", OtherChoice)
 </script>

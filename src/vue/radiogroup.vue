@@ -13,7 +13,6 @@
 <script lang="ts">
     import * as Vue from 'vue'
     import {Component} from 'vue-property-decorator'
-    import {surveyCss} from "../defaultCss/cssstandard"
     import {default as Question} from './question'
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 

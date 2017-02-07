@@ -25,9 +25,6 @@
         survey: VueSurveyModel;
         page: PageModel;
         css: Object;
-        constructor () {
-            super();
-        }
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

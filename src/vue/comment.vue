@@ -22,9 +22,6 @@
         question: Question
         isEditMode: boolean
         css: Object
-        constructor () {
-            super();
-        }
     }
     Vue.component("survey-comment", Comment)
 </script>

@@ -14,7 +14,7 @@
     import * as Vue from 'vue'
     import Component from 'vue-class-component'
     import {surveyCss} from "../defaultCss/cssstandard"
-    import {default as Question} from './question.vue'
+    import {default as Question} from './question'
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 
     @Component({
@@ -27,9 +27,6 @@
     export default class Radiogroup extends Question<QuestionRadiogroupModel> {
         onValueChanged() {
             this.isOtherSelected = this.question.isOtherSelected;
-        }
-        constructor () {
-            super();
         }
         isOtherSelected = false;
         mounted() {

@@ -18,3 +18,4 @@ export {default as Radiogroup} from "../vue/radiogroup.vue";
 export {default as OtherChoice} from '../vue/otherChoice.vue';
 export {default as Rating} from "../vue/rating.vue";
 export {default as Comment} from '../vue/comment.vue';
+export {default as Text} from "../vue/text.vue";

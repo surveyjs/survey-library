@@ -26,5 +26,5 @@
             super();
         }
     }
-    Vue.component("SurveyComment", SurveyComment)
+    Vue.component("survey-comment", SurveyComment)
 </script>

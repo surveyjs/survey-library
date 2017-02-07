@@ -6,7 +6,7 @@
                 <span>{{item.text}}</span>
             </label>
         </div>
-        <SurveyComment v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"></SurveyComment>
+        <survey-comment v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </form>
 </template>
 
@@ -39,5 +39,5 @@
             this.question.valueChangedCallback = undefined; // TODO: ensure this works
         }
     }
-    Vue.component("radiogroup", SurveyQuestionRadiogroup)
+    Vue.component("survey-radiogroup", SurveyQuestionRadiogroup)
 </script>

@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="hasTitle" :class="css.header"><h3>{{model.processedTitle}}</h3></div>
-        <SurveyPage :survey="model" :page="model.currentPage" :css="css" />
+        <survey-page :survey="model" :page="model.currentPage" :css="css" />
     </div>
 </template>
 
@@ -30,5 +30,5 @@
             return surveyCss.getCss();
         }
     }
-    Vue.component("Survey", Survey)
+    Vue.component("survey", Survey)
 </script>

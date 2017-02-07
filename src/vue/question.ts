@@ -9,5 +9,5 @@ export default class Question<T extends QuestionModel> extends Vue {
     @Prop
     isEditMode: Boolean
     @Prop
-    css: Object
+    css: any
 }

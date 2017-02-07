@@ -12,7 +12,8 @@
 <div id="app">
         <survey :json='{ title: "My survey", questions: [
 		{ type: "radiogroup", name: "car", hasOther: true, title: "What car are you driving?", isRequired: true, colCount: 4, comment: "Comment", choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] },
-		{ type: "radiogroup", name: "pet", title: "What is your favorite pet?", isRequired: true, colCount: 1, choices: ["None", "Dog", "Cat"] }
+		{ type: "radiogroup", name: "pet", title: "What is your favorite pet?", isRequired: true, colCount: 1, choices: ["None", "Dog", "Cat"] },
+        { type: "rating", name: "satisfaction", title: "How satisfied are you with the Product?", mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" }
 	]}'></survey>
 
     <survey :json='{questions:[{ type: "comment", name: "suggestions", title:"What would make you more satisfied with the Product?" }]}'></survey>

@@ -16,4 +16,5 @@ export {default as Survey} from "../vue/survey.vue";
 export {default as Page} from "../vue/page.vue";
 export {default as Radiogroup} from "../vue/radiogroup.vue";
 export {default as OtherChoice} from '../vue/otherChoice.vue';
+export {default as Rating} from "../vue/rating.vue";
 export {default as Comment} from '../vue/comment.vue';

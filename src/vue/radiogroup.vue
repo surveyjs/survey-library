@@ -6,7 +6,7 @@
                 <span>{{item.text}}</span>
             </label>
         </div>
-        <survey-comment v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </form>
 </template>
 
@@ -19,15 +19,17 @@
 
     @Component
     export default class Radiogroup extends Question<QuestionRadiogroupModel> {
-        onValueChanged() {
-            this.isOtherSelected = this.question.isOtherSelected;
-        }
         isOtherSelected = false;
+
         mounted() {
             this.question.valueChangedCallback = this.onValueChanged;
         }
         beforeDestroy() {
             this.question.valueChangedCallback = undefined; // TODO: ensure this works
+        }
+
+        onValueChanged() {
+            this.isOtherSelected = this.question.isOtherSelected;
         }
     }
     Vue.component("survey-radiogroup", Radiogroup)

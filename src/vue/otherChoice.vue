@@ -20,5 +20,5 @@
         @Prop
         css: Object
     }
-    Vue.component("survey-comment", Comment)
+    Vue.component("survey-other-choice", Comment)
 </script>

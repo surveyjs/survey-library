@@ -1,7 +1,7 @@
 <template>
     <div>
-        <input v-if="isEditMode" type="text" v-show="visible" :class="css.question.comment" v-model="question.comment"/>
-        <div v-else v-show="visible" :class="css.question.comment">{{question.comment}}</div>
+        <input v-if="isEditMode" type="text" :class="css.question.comment" v-model="question.comment"/>
+        <div v-else :class="css.question.comment">{{question.comment}}</div>
     </div>
 </template>
 
@@ -15,15 +15,13 @@
         props: {
             question: Question,
             isEditMode: Boolean,
-            css: surveyCss,
-            visible: Boolean
+            css: surveyCss
         }
     })
     export default class SurveyComment extends Vue {
         question: Question
         isEditMode: boolean
         css: Object
-        visible: boolean
         constructor () {
             super();
         }

@@ -21,7 +21,7 @@
             css: surveyCss
         }
     })
-    export default class SurveyPage extends Vue {
+    export default class Page extends Vue {
         survey: VueSurveyModel;
         page: PageModel;
         css: Object;
@@ -38,5 +38,5 @@
             return this.page.rows;
         }
     }
-    Vue.component("survey-page", SurveyPage)
+    Vue.component("survey-page", Page)
 </script>

@@ -18,7 +18,7 @@
             css: surveyCss
         }
     })
-    export default class SurveyComment extends Vue {
+    export default class Comment extends Vue {
         question: Question
         isEditMode: boolean
         css: Object
@@ -26,5 +26,5 @@
             super();
         }
     }
-    Vue.component("survey-comment", SurveyComment)
+    Vue.component("survey-comment", Comment)
 </script>

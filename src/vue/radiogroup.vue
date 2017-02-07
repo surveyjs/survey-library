@@ -14,7 +14,7 @@
     import * as Vue from 'vue'
     import Component from 'vue-class-component'
     import {surveyCss} from "../defaultCss/cssstandard"
-    import {default as SurveyQuestion} from './surveyQuestion.vue'
+    import {default as Question} from './question.vue'
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 
     @Component({
@@ -24,7 +24,7 @@
             css: surveyCss
         }
     })
-    export default class SurveyQuestionRadiogroup extends SurveyQuestion<QuestionRadiogroupModel> {
+    export default class Radiogroup extends Question<QuestionRadiogroupModel> {
         onValueChanged() {
             this.isOtherSelected = this.question.isOtherSelected;
         }
@@ -39,5 +39,5 @@
             this.question.valueChangedCallback = undefined; // TODO: ensure this works
         }
     }
-    Vue.component("survey-radiogroup", SurveyQuestionRadiogroup)
+    Vue.component("survey-radiogroup", Radiogroup)
 </script>

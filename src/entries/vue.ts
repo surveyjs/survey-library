@@ -13,6 +13,6 @@ export {defaultStandardCss} from "../defaultCss/cssstandard";
 export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
 
 export {default as Survey} from "../vue/survey.vue";
-export {default as SurveyPage} from "../vue/surveyPage.vue";
-export {default as SurveyQuestionRadiogroup} from "../vue/surveyQuestionRadiogroup.vue";
-export {default as SurveyComment} from '../vue/surveyComment.vue';
+export {default as Page} from "../vue/page.vue";
+export {default as Radiogroup} from "../vue/radiogroup.vue";
+export {default as Comment} from '../vue/comment.vue';

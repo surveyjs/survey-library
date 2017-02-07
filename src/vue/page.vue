@@ -9,22 +9,20 @@
 
 <script lang="ts">
     import * as Vue from 'vue'
-    import Component from 'vue-class-component'
+    import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {VueSurveyModel} from './surveyModel'
     import {PageModel} from '../page'
 
-    @Component({
-        props: {
-            survey: VueSurveyModel,
-            page: PageModel,
-            css: surveyCss
-        }
-    })
+    @Component
     export default class Page extends Vue {
-        survey: VueSurveyModel;
-        page: PageModel;
-        css: Object;
+        @Prop
+        survey: VueSurveyModel
+        @Prop
+        page: PageModel
+        @Prop
+        css: Object
+
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

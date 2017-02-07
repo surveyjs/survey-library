@@ -12,18 +12,12 @@
 
 <script lang="ts">
     import * as Vue from 'vue'
-    import Component from 'vue-class-component'
+    import {Component} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {default as Question} from './question'
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 
-    @Component({
-        props: {
-            question: QuestionRadiogroupModel,
-            isEditMode: Boolean,
-            css: surveyCss
-        }
-    })
+    @Component
     export default class Radiogroup extends Question<QuestionRadiogroupModel> {
         onValueChanged() {
             this.isOtherSelected = this.question.isOtherSelected;

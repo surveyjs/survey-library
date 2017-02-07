@@ -7,20 +7,17 @@
 
 <script lang="ts">
     import * as Vue from 'vue'
-    import Component from 'vue-class-component'
+    import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {Question} from '../question'
 
-    @Component({
-        props: {
-            question: Question,
-            isEditMode: Boolean,
-            css: surveyCss
-        }
-    })
+    @Component
     export default class Comment extends Vue {
+        @Prop
         question: Question
+        @Prop
         isEditMode: boolean
+        @Prop
         css: Object
     }
     Vue.component("survey-comment", Comment)

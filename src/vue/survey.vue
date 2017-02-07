@@ -7,18 +7,17 @@
 
 <script lang="ts">
     import * as Vue from 'vue'
-    import Component from 'vue-class-component'
+    import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {VueSurveyModel} from './surveyModel'
 
-    @Component({
-        props: {
-            json: Object
-        }
-    })
+    @Component
     export default class Survey extends Vue {
-        json: Object;
-        model: VueSurveyModel;
+        @Prop
+        json: Object
+
+        model: VueSurveyModel
+
         constructor () {
             super();
             this.model = new VueSurveyModel(this.json);

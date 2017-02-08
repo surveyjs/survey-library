@@ -1,8 +1,8 @@
 <template>
     <div>
         <textarea v-if="isEditMode" type="text" v-model="question.value" :id="question.inputId" :cols="question.cols"
-                  :rows="question.rows" :placeholder="question.placeHolder" :css="css"></textarea>
-        <div v-else :text="question.value" :css="css"></div>
+                  :rows="question.rows" :placeholder="question.placeHolder" :class="css.comment.root"></textarea>
+        <div v-else :text="question.value" :class="css.comment.root"></div>
     </div>
 </template>
 

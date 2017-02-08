@@ -21,3 +21,4 @@ export {default as Comment} from '../vue/comment.vue';
 export {default as Checkbox} from '../vue/checkbox.vue';
 export {default as Text} from "../vue/text.vue";
 export {default as MultipleText} from "../vue/multipletext.vue";
+export {default as Dropdown} from "../vue/dropdown.vue";

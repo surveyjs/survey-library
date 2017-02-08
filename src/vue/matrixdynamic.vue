@@ -8,7 +8,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in question.visibleRows">
+                <tr v-for="row in rows">
                     <td v-for="cell in row.cells">
                         <survey-errors :question="question" :css="css"/>
                         <component :is="'survey-' + cell.question.getType()" :question="cell.question" :isEditMode="isEditMode" :css="css"/>
@@ -30,6 +30,9 @@
 
     @Component
     export default class MatrixDynamic extends Question<QuestionMatrixDynamicModel> {
+        get rows() {
+            return this.question.visibleRows;
+        }
         removeRowClick(row) {
             var rows = this.question.cachedVisibleRows;
             var index = rows.indexOf(row);

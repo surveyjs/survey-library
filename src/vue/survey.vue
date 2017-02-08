@@ -13,8 +13,8 @@
                 <input type="button" :value="model.completeText" v-show="model.isLastPage" :class="css.cssNavigationComplete" @click="completeLastPage"/>
             </div>
         <template>
-        <div v-if="model.state === 'completed'" :html="model.processedCompletedHtml"></div>
-        <div v-if="model.state === 'loading'" :html="model.processedLoadingHtml"></div>
+        <div v-if="model.state === 'completed'" v-html="model.processedCompletedHtml"></div>
+        <div v-if="model.state === 'loading'" v-html="model.processedLoadingHtml"></div>
         <div v-if="model.state === 'empty'" :class="css.body">{{model.emptySurveyText}}</div>
     </div>
 </template>

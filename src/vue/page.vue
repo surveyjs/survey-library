@@ -20,14 +20,14 @@
     import * as Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
-    import {VueSurveyModel} from './surveyModel'
+    import {SurveyModel} from '../survey'
     import {Question as QuestionModel} from '../question'
     import {PageModel} from '../page'
 
     @Component
     export default class Page extends Vue {
         @Prop
-        survey: VueSurveyModel
+        survey: SurveyModel
         @Prop
         page: PageModel
         @Prop

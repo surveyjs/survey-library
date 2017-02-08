@@ -20,12 +20,13 @@
 
     @Component
     export default class Rating extends Question<QuestionRatingModel> {
+        selection = ''
         getCss(val) {
             const ratingCss = this.css.rating.item;
-            return this.question.value == val.value ? ratingCss + " active" : ratingCss;
+            return this.selection == val.value ? ratingCss + " active" : ratingCss;
         }
         change(e) {
-            this.question.value = e.target.value;
+            this.selection = this.question.value = e.target.value;
         }
     }
     Vue.component("survey-rating", Rating)

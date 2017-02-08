@@ -35,6 +35,8 @@
         constructor () {
             super();
             this.model = new VueSurveyModel(this.json);
+            // TODO - remove it to index html or somewhere outside
+            //this.model.data = { name: "John Doe", email: "johndoe@nobody.com", car: "Ford",  car2: ["Ford", "Audi"], quality: [1, 3, 2, 2] };
         }
         get hasTitle () {
             return !!this.model.title && this.model.showTitle;

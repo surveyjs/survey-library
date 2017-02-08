@@ -1,5 +1,5 @@
 <template>
-    <div role="alert" v-show="question.errors.length > 0" :class="css.error.root">
+    <div role="alert" v-show="!!question.errors && question.errors.length > 0" :class="css.error.root">
         <div v-for="error in question.errors">
             <span :class="css.error.icon" aria-hidden="true"></span>
             <span :class="css.error.item">{{error.getText()}}</span>

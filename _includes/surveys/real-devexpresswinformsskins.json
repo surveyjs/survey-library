@@ -1,7 +1,4 @@
 {
-    triggers: [{ type: "visible", name: "skinNumber", value: "many", questions: ["skinShips", "skinValue", "skinSelected", "skinFavorite", "userImportance"] },
-            { type: "visible", name: "skinShips", value: "all", questions: ["skinValue"] },
-            { type: "visible", operator: "notequal", name: "skinShips", value: "all", questions: ["skinSelected"] }],
     pages: [
         {   title: "Skin/theme choices in your WinForms applications",
             questions: [
@@ -17,7 +14,7 @@
             questions: [
                 {
                     type: "radiogroup", name: "skinShips", title: "If you include more than one skin/theme within your application, please specify whether you ship all DevExpress WinForms skins/themes or whether you ship a select number.",
-                    isRequired: true, choices: ["all|I ship all skins", "selected|I ship only a select number"]
+                    isRequired: true, choices: ["all|I ship all skins", "selected|I ship only a select number"], visibleIf: "{skinNumber} = 'many'"
                 }
             ]
         },
@@ -26,6 +23,7 @@
             questions: [
                 {
                     type: "matrix", name: "skinValue", title: " If you ship all DevExpress skins/themes, please rank the importance and/or business value of the skins below to your end-users.",
+                    visibleIf: "{skinNumber} = 'many' and {skinShips} = 'all'",
                     columns: ["high|High value for end-users", "donotknow|I don't know", "low|Low value for end-users"],
                     rows: ["msOffice latest|Skins Emulating the Latest Versions of MS Office and Windows",
                             "msOffice previous|Skins Emulating Previous Versions of MS Office and Windows",
@@ -43,6 +41,7 @@
             questions: [
                 {
                     type: "checkbox", name: "skinSelected", title: "If you ship only a select number of DevExpress skins/themes, please specify the skins/themes you include in your application.",
+                    visibleIf: "{skinNumber} = 'many' and {skinShips} != 'all'",
                     choices: ["msOffice latest|Skins Emulating the Latest Versions of MS Office and Windows",
                             "msOffice previous|Skins Emulating Previous Versions of MS Office and Windows",
                             "macOS|Skins Emulating Mac OS",
@@ -58,7 +57,7 @@
             title: "Personal Favorite",
             questions: [
                 {
-                    type: "text", name: "skinFavorite", title: "Do you have a personal favorite skin/theme?"
+                    type: "text", name: "skinFavorite", title: "Do you have a personal favorite skin/theme?", visibleIf: "{skinNumber} = 'many'"
                 }
             ]
         },
@@ -66,7 +65,8 @@
             title: "Color Variety versus Shape & Style Variety",
             questions: [
                 {
-                    type: "radiogroup", name: "userImportance", title: "What is more important for your end-users?",
+                    type: "radiogroup", name: "userImportance", title: "What is more important for your end-users?", 
+                    visibleIf: "{skinNumber} = 'many'",
                     choices: ["color|Color variety", "elements|Elements, shapes and styles"]
                 }
             ]

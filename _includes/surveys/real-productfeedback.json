@@ -1,5 +1,4 @@
-{triggers: [{ type: "visible", name: "satisfaction", operator: "greater", value: 3, questions: ["recommend friends"] }],
-    pages: [
+{ pages: [
         {questions: [
             { type: "matrix", name: "Quality", title: "Please indicate if you agree or disagree with the following statements",
                 columns: [{ value: 1, text: "Strongly Disagree" }, 
@@ -13,7 +12,7 @@
                        { value: "easy to use", text: "Product is easy to use" }]},
             { type: "rating", name: "satisfaction", title: "How satisfied are you with the Product?", 
                 mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied" },
-            { type: "rating", name: "recommend friends", visible: false, 
+            { type: "rating", name: "recommend friends", visibleIf: "{satisfaction} > 3", 
                 title: "How likely are you to recommend the Product to a friend or co-worker?", 
                 mininumRateDescription: "Will not recommend", maximumRateDescription: "I will recommend" },
             { type: "comment", name: "suggestions", title:"What would make you more satisfied with the Product?", }

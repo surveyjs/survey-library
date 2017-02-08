@@ -26,3 +26,4 @@ export {default as Dropdown} from "../vue/dropdown.vue";
 export {default as File} from "../vue/file.vue";
 export {default as MatrixDropdown} from "../vue/matrixdropdown.vue";
 export {default as Errors} from "../vue/errors.vue";
+export {default as Html} from "../vue/html.vue";

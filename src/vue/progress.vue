@@ -1,0 +1,27 @@
+<template>
+    <div style="width:60%;" :class="css.progress">
+        <div :class="css.progressBar" :style="{width: progress}"
+             role="progressbar" aria-valuemin="0"
+             aria-valuemax="100">
+            <span>{{survey.progressText}}</span>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+    import * as Vue from 'vue'
+    import {Component, Prop} from 'vue-property-decorator'
+    import {SurveyModel} from '../survey'
+
+    @Component
+    export default class Progress extends Vue {
+        @Prop
+        survey: SurveyModel
+        @Prop
+        css: any
+        get progress() {
+            return this.survey.getProgress() + '%';
+        }
+    }
+    Vue.component("survey-progress", Progress)
+</script>

@@ -28,3 +28,4 @@ export {default as MatrixDropdown} from "../vue/matrixdropdown.vue";
 export {default as Errors} from "../vue/errors.vue";
 export {default as Html} from "../vue/html.vue";
 export {default as MatrixDynamic} from "../vue/matrixdynamic.vue";
+export {default as Progress} from "../vue/progress.vue";

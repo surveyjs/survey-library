@@ -3,9 +3,9 @@
         <div v-if="hasTitle" :class="css.header"><h3>{{model.processedTitle}}</h3></div>
         <template v-if="model.state === 'running'">
             <div :class="css.body">
-                <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
+                <survey-progress v-if="model.showProgressBar =='top'" :survey="model" :css="css"/>
                 <survey-page id="sq-page" :survey="model" :page="model.currentPage" :css="css" />
-                <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
+                <survey-progress style="margin-top:10px" v-if="model.showProgressBar =='bottom'" :survey="model" :css="css"/>
             </div>
             <div v-if="model.isNavigationButtonsShowing" :class="css.footer">
                 <input type="button" :value="model.pagePrevText" v-show="!model.isFirstPage" :class="css.cssNavigationPrev" @click="prevPage"/>

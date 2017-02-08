@@ -5,11 +5,12 @@
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="../../packages/survey-vue/survey.vue.js"></script>
     <link href="../../packages/survey-vue/survey.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://getbootstrap.com/dist/css/bootstrap.css">
 </head>
 
 <body>
     <div id="app">
-        <survey :json='{ title: "My survey", pages: [
+        <survey skin="bootstrap" :json='{ title: "My survey", pages: [
             {
                 name: "page1",
                 title: "Page 1",

@@ -16,7 +16,7 @@
     import {QuestionDropdownModel} from '../question_dropdown'
 
     @Component
-    export default class Checkbox extends Question<QuestionDropdownModel> {
+    export default class Dropdown extends Question<QuestionDropdownModel> {
         isOtherSelected = false;
 
         mounted() {
@@ -30,5 +30,5 @@
             this.isOtherSelected = this.question.isOtherSelected;
         }
     }
-    Vue.component("survey-dropdown", Checkbox)
+    Vue.component("survey-dropdown", Dropdown)
 </script>

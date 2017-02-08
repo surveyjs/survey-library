@@ -11,8 +11,7 @@
                 <tr v-for="(row, rowIndex) in question.visibleRows">
                     <td>{{row.text}}</td>
                     <td v-for="cell in row.cells">
-                        <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
-                        <!-- /ko -->
+                        <survey-errors :question="question" :css="css"/>
                         <component :is="'survey-' + cell.question.getType()" :question="cell.question" :isEditMode="isEditMode" :css="css"/>
                     </td>
                 </tr>

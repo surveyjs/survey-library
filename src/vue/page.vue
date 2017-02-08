@@ -4,8 +4,12 @@
         <div v-for="row in rows" v-show="row.visible" :class="css.row">
             <div v-for="question in row.questions" :class="css.question.root" style="vertical-align:top" :id="row.id" :style="{display: question.visible ? 'inline-block': 'none', marginLeft: getIndentSize(question, question.indent), paddingRight: getIndentSize(question, question.rightIndent), width: question.renderWidth }">
                 <h5 v-if="question.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'">{{question.title}}</h5>
-                <!-- ko template: { name: 'survey-question-errors', data: question } -->
-                <!-- /ko -->
+                <div role="alert" v-show="question.errors.length > 0" :class="css.error.root">
+                    <div v-for="error in question.errors">
+                        <span :class="css.error.icon" aria-hidden="true"></span>
+                        <span :class="css.error.item">{{error.getText()}}</span>
+                    </div>
+                </div>
                 <component :is="'survey-' + question.getType()" :question="question" :isEditMode="survey.isEditMode" :css="css"/>
                 <div v-show="question.hasComment">
                     <div>{{question.commentText}}</div>

@@ -1,6 +1,6 @@
 <template>
     <form :class="css.radiogroup.root">
-        <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: question.colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="css.radiogroup.item">
                 <input type="radio" :name="question.name" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
@@ -29,6 +29,12 @@
 
         onValueChanged() {
             this.isOtherSelected = this.question.isOtherSelected;
+        }
+
+        // TODO may be need to move to the model
+        get colWidth() {
+            var colCount = this.question.colCount;
+            return colCount > 0 ? (100 / colCount) + '%' : "";
         }
     }
     Vue.component("survey-radiogroup", Radiogroup)

@@ -1,10 +1,10 @@
 <template>
     <div>
-        <select v-if="isEditMode" :id="question.inputId" v-model="question.value" :class="css.dropdown.root">
+        <select v-if="isEditMode" :id="question.inputId" v-model="question.value" :class="css.dropdown">
             <option value="">{{question.optionsCaption}}</option>
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>
-        <div v-else :text="question.value" :class="css.dropdown.root"></div>
+        <div v-else :text="question.value" :class="css.dropdown"></div>
         <survey-other-choice v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </div>
 </template>

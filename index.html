@@ -372,16 +372,10 @@ survey.onComplete.add(sendDataToServer);
     survey.css = {
         navigationButton: "btn btn-primary"
     };
+    survey.surveyPostId = 'd2ab6936-6764-4ff1-a5a2-baf0a1d919bd';
     survey.render();
-    survey.onComplete.add(function (s) {
-        document.getElementById("surveyContainer").innerHTML = "The survey result: " + JSON.stringify(s.data);
-        s.sendResult('d2ab6936-6764-4ff1-a5a2-baf0a1d919bd');
-    });    
 
     var surveyWindow = new Survey.SurveyWindow(surveyJSON);
     surveyWindow.show();
-    surveyWindow.survey.onComplete.add(function (s) {
-        alert("The survey result: " + JSON.stringify(s.data));
-        s.sendResult('d2ab6936-6764-4ff1-a5a2-baf0a1d919bd');
-    });
+    surveyWindow.survey.surveyPostId = 'd2ab6936-6764-4ff1-a5a2-baf0a1d919bd';
 </script>

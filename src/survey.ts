@@ -145,6 +145,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             for (var key in data) {
                 this.valuesHash[key] = data[key];
                 this.checkTriggers(key, data[key], false);
+                if (!this.processedTextValues[key.toLowerCase()]) {
+                    this.processedTextValues[key.toLowerCase()] = "value";
+                }
             }
         }
         this.notifyAllQuestionsOnValueChanged();

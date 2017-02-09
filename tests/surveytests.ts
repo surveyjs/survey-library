@@ -558,6 +558,9 @@ QUnit.test("Serialize email validator", function (assert) {
 });
 QUnit.test("pre process title", function (assert) {
     var survey = twoPageSimplestSurvey();
+    survey.data = { name: "John" };
+    survey.title = "Hello {name}";
+    assert.equal(survey.processedTitle, "Hello John", "process survey title correctly");
     survey.pages[0].title = "Page {PageNo} from {PageCount}.";
     assert.equal(survey.pages[0].processedTitle, "Page 1 from 2.");
     survey.pages[0].addNewQuestion("text", "email");

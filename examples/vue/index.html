@@ -10,7 +10,11 @@
 
 <body>
     <div id="app">
-        <survey skin="bootstrap" :json='{ title: "My survey", showProgressBar: "top", pages: [
+        <survey :survey='survey'/>
+    </div>
+
+    <script>
+        var surveyJson = { title: "My survey", showProgressBar: "top", pages: [
             {
                 name: "page1",
                 title: "Page 1",
@@ -132,12 +136,16 @@
                     { type: "html", name: "info", html:"<div><img src=&#39;http://surveyjs.org/images/26178-20160417.jpg&#39;/></div>" }
                 ]
             }
-        ]}'></survey>
-    </div>
-
-    <script>
+        ]};
+        Survey.surveyCss.currentType = "bootstrap";
+        var model = new Survey.SurveyModel(surveyJson);
+        model.data = { name: "John Doe", email: "johndoe@nobody.com", car: "Ford", car3: "Audi", car2: ["Ford", "Audi"], quality: [1, 3, 2, 2] };
+        
         var app = new Vue({
-            el: '#app'
+            el: '#app',
+            data: {
+                survey: model
+            }
         });
     </script>
 </body>

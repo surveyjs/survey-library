@@ -1,21 +1,21 @@
 <template>
     <div :class="css.root">
-        <div v-if="hasTitle" :class="css.header"><h3>{{model.processedTitle}}</h3></div>
-        <template v-if="model.state === 'running'">
+        <div v-if="hasTitle" :class="css.header"><h3>{{survey.processedTitle}}</h3></div>
+        <template v-if="survey.state === 'running'">
             <div :class="css.body">
-                <survey-progress v-if="model.showProgressBar =='top'" :survey="model" :css="css"/>
-                <survey-page id="sq-page" :survey="model" :page="model.currentPage" :css="css" />
-                <survey-progress style="margin-top:10px" v-if="model.showProgressBar =='bottom'" :survey="model" :css="css"/>
+                <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>
+                <survey-page id="sq-page" :survey="survey" :page="survey.currentPage" :css="css" />
+                <survey-progress style="margin-top:10px" v-if="survey.showProgressBar =='bottom'" :survey="survey" :css="css"/>
             </div>
-            <div v-if="model.isNavigationButtonsShowing" :class="css.footer">
-                <input type="button" :value="model.pagePrevText" v-show="!model.isFirstPage" :class="css.cssNavigationPrev" @click="prevPage"/>
-                <input type="button" :value="model.pageNextText" v-show="!model.isLastPage" :class="css.cssNavigationNext" @click="nextPage"/>
-                <input type="button" :value="model.completeText" v-show="model.isLastPage" :class="css.cssNavigationComplete" @click="completeLastPage"/>
+            <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
+                <input type="button" :value="survey.pagePrevText" v-show="!survey.isFirstPage" :class="css.cssNavigationPrev" @click="prevPage"/>
+                <input type="button" :value="survey.pageNextText" v-show="!survey.isLastPage" :class="css.cssNavigationNext" @click="nextPage"/>
+                <input type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="css.cssNavigationComplete" @click="completeLastPage"/>
             </div>
         <template>
-        <div v-if="model.state === 'completed'" v-html="model.processedCompletedHtml"></div>
-        <div v-if="model.state === 'loading'" v-html="model.processedLoadingHtml"></div>
-        <div v-if="model.state === 'empty'" :class="css.body">{{model.emptySurveyText}}</div>
+        <div v-if="survey.state === 'completed'" v-html="survey.processedCompletedHtml"></div>
+        <div v-if="survey.state === 'loading'" v-html="survey.processedLoadingHtml"></div>
+        <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
     </div>
 </template>
 
@@ -28,33 +28,25 @@
     @Component
     export default class Survey extends Vue {
         @Prop
-        json: Object
-        @Prop({default: 'standard'})
-        skin: string
-
-        model: SurveyModel
+        survey: SurveyModel
 
         constructor () {
             super();
-            surveyCss.currentType = this.skin;
-            this.model = new SurveyModel(this.json);
-            // TODO - remove it to index html or somewhere outside
-            //this.model.data = { name: "John Doe", email: "johndoe@nobody.com", car: "Ford", car3: "Audi", car2: ["Ford", "Audi"], quality: [1, 3, 2, 2] };
         }
         get hasTitle () {
-            return !!this.model.title && this.model.showTitle;
+            return !!this.survey.title && this.survey.showTitle;
         }
         get css () {
             return surveyCss.getCss();
         }
         prevPage() {
-            this.model.prevPage();
+            this.survey.prevPage();
         }
         nextPage() {
-            this.model.nextPage();
+            this.survey.nextPage();
         }
         completeLastPage() {
-            this.model.completeLastPage();
+            this.survey.completeLastPage();
         }
     }
     Vue.component("survey", Survey)

@@ -7,6 +7,7 @@ import './chunks/localization';
 // helpers
 import './chunks/helpers';
 
+export {surveyCss} from "../defaultCss/cssstandard";
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap

@@ -1,4 +1,4 @@
-
+'use strict';
 
 var webpack = require('webpack');
 var path = require('path');
@@ -11,14 +11,14 @@ var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
-    "Copyright (c) 2015-2017 Devsoft Baltic OÃœ  - http://surveyjs.org/",
+    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.org/",
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
     "Project: http://surveyjs.org/",
-    "Definitions by: Devsoft Baltic OÃœ <https://github.com/surveyjs/>",
+    "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
     ""].join("\n");
 
 var platformOptions = {

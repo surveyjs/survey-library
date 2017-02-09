@@ -332,6 +332,16 @@ QUnit.test("onValueChanged event is not called on changing multi text value", fu
     assert.equal(name, "multitext", "onValueChanged event, property name is correct");
     assert.deepEqual(newValue, { "item2": "text1" }, "onValueChanged event, property newValue is correct");
 });
+QUnit.test("onComplete event", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var counter = 0;
+    survey.onComplete.add(function () { counter++; });
+    survey.nextPage();
+    survey.nextPage();
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "The survey is completed");
+    assert.equal(counter, 1, "onComplete calls one time");
+});
 QUnit.test("onVisibleChanged event", function (assert) {
     var survey = twoPageSimplestSurvey();
     var name = "";

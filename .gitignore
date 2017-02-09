@@ -23,3 +23,6 @@ tmp/*
 /hosting.ini
 /src/knockout/template.window.ko.html.ts
 /src/knockout/template.ko.html.ts
+/bin/Debug/dnxcore50
+/obj/Debug
+/web.config

@@ -550,16 +550,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (isPartialCompleted && this.onPartialSend) {
             this.onPartialSend.fire(this, null);
         }
-        if (!this.surveyPostId && postId) {
-            this.surveyPostId = postId;
+
+        if (!postId && this.surveyPostId) {
+            postId = this.surveyPostId;
         }
-        if (!this.surveyPostId) return;
+        if (!postId) return;
         if (clientId) {
             this.clientId = clientId;
         }
         if (isPartialCompleted && !this.clientId) return;
         var self = this;
-        new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
+        new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
             self.onSendResult.fire(self, { success: success, response: response});
         }, this.clientId, isPartialCompleted);
     }

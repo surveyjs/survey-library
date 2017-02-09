@@ -78,9 +78,9 @@ module.exports = function (options) {
     var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
 
     var percentage_handler = function handler(percentage, msg) {
-        if ( 0 == percentage ) {
+        if ( 0 === percentage ) {
             console.log('Build started... good luck!');
-        } else if ( 1 == percentage ) {
+        } else if ( 1 === percentage ) {
             if (options.buildType === "prod") {
                 dts.bundle({
                     name: '../../survey.' + options.platformPrefix,
@@ -208,5 +208,5 @@ module.exports = function (options) {
 
     config.entry['survey.' + options.platform] = path.resolve(__dirname, './src/entries/' + options.platform);
 
-    return config;
+    return [config];
 };

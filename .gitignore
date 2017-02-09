@@ -11,3 +11,4 @@ tmp/*
 /.gitattributes
 project.json
 /lib_typings
+npm-debug.*

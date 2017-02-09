@@ -1,19 +1,9 @@
 language: node_js
 node_js:
-  - "4.7.2"
+  - "4"
 
 before_script:
   - npm install -g concurrently@3.1.0
 script:
   - npm run build_prod
   - karma start --single-run
-before_deploy: "tar -zcvf surveyjs.tar.gz packages"
-deploy:
-  provider: releases
-  api_key:
-      secure: "Lr8z0Dj+oakqyzK+2zQeZGW5QwprPzlXl5ODN7ajk0IRn2aTMceKgs0uk2iqO7AdyqkGrDD89NeRFlKBbiPVrsee4WRV+vf9FinDG6BRtEoHIScQzHeKlvqdSU3QtjUxdQVqwL1oa6VJYrIxdctFcKkZqh76IVzbacK9bzZavDZZQ7offhyBKP/VEPgKuYBPfCJiKI7kW0niWUztBlPbjpo1Tz1KlTTBrIBNpRka2crZ7n0eADXwyl6bA1EKx5Za2YE0pPeKnutKSymDPT147lovb+ViRkKcxT/xRu2xtzb9exsH/BB2KEOgS+llmON57jI00ntnVhDsFRiZQ6nP6sMM1qiRpkO+nu6tH4yRLptw6ekR2had+ERvaNr4SO4gvplo2RtzYufUPjbBLc40aQDu5DBeLmvTgKE4WLL8DiQ0cC7Gf+AfJRah3VtPfoQbCd2n/AkwR8yObrZDdJPwBAbpPCXNONHOK8Exmgz1Q7HDcm5BLMnTfyAjzpbZ23gtilxvtUAqUorwkDiPms3eEjWYNw5cew0hTHlavWaAt/wSKlX2Z42WgUbrCPQRGYIEL6nE9cE07HOhd0swddNS/Jx5u762ldPtOuaTkRUqDrLX0upwXSl47VHmgUAoHi8JUzPW0quUMWywH4gKdqcV5I4kYICvE6PqrXbNotseKIU="
-  file:
-    - "surveyjs.tar.gz"
-  skip_cleanup: true
-  on:
-    tags: true

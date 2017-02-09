@@ -208,5 +208,5 @@ module.exports = function (options) {
 
     config.entry['survey.' + options.platform] = path.resolve(__dirname, './src/entries/' + options.platform);
 
-    return [config];
+    return config;
 };

@@ -2,8 +2,5 @@ language: node_js
 node_js:
   - "4"
 
-before_script:
-  - npm install -g concurrently@3.1.0
 script:
-  - npm run build_prod
-  - karma start --single-run
+  - webpack --env.buildType dev --env.platform knockout

@@ -10,4 +10,4 @@ tmp/*
 /packages/**/*
 /.gitattributes
 project.json
-
+/lib_typings

@@ -19,6 +19,7 @@
                 </tr>
             </tbody>
         </table>
+        <input type="button" v-if="isEditMode" :class="css.matrixdynamic.button" :value="question.addRowText" @click="addRowClick"/>
     </div>
 </template>
 
@@ -39,6 +40,9 @@
             if (index > -1) {
                 this.question.removeRow(index);
             }
+        }
+        addRowClick() {
+            this.question.addRow();
         }
     }
     Vue.component("survey-matrixdynamic", MatrixDynamic)

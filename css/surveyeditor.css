@@ -1,5 +1,5 @@
 /*!
- * surveyjs Editor v0.11.0
+ * surveyjs Editor v0.11.1
  * (c) Devsoft Baltic O� - http://surveyjs.io/
  * Github - https://github.com/surveyjs/editor
  * License: (http://editor.surveyjs.io/license.html)
@@ -226,8 +226,8 @@ html body {
 
 @font-face {
   font-family: 'icomoon';
-  src: url(./fonts/icomoon.eot);
-  src: url(./fonts/icomoon.eot#iefix) format("embedded-opentype"), url(./fonts/icomoon.ttf) format("truetype"), url(./fonts/icomoon.woff) format("woff"), url(./fonts/icomoon.svg#icomoon) format("svg");
+  src: url("fonts/icomoon.eot?sbpmys");
+  src: url("fonts/icomoon.eot?sbpmys#iefix") format("embedded-opentype"), url("fonts/icomoon.ttf?sbpmys") format("truetype"), url("fonts/icomoon.woff?sbpmys") format("woff"), url("fonts/icomoon.svg?sbpmys#icomoon") format("svg");
   font-weight: normal;
   font-style: normal; }
 

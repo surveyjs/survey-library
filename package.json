@@ -13,7 +13,7 @@
     "build_jquery_prod": "webpack --env.buildType prod --env.platform jquery",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\""
   },
-  "version": "0.11.0",
+  "version": "0.11.1",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {

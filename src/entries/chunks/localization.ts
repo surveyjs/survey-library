@@ -6,4 +6,5 @@ import '../../localization/german';
 import '../../localization/greek';
 import '../../localization/polish';
 import '../../localization/russian';
+import '../../localization/swedish';
 import '../../localization/turkish';

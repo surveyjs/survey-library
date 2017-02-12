@@ -1,10 +1,19 @@
 ﻿import * as ko from "knockout";
 import {SurveyModel} from "../survey";
-import {IPage, Event, SurveyElement} from "../base";
+import {IPage, IQuestion, Event, SurveyElement} from "../base";
 import {Page} from "./kopage";
 import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
-import {koTemplate} from "./templateText";
+import {koTemplate, SurveyTemplateText} from "./templateText";
+import {QuestionCustomWidgetModel, CustomWidgetCollection} from "../questionCustomWidgets";
+
+export class QuestionCustomWidget extends QuestionCustomWidgetModel {
+    constructor(public name: string, public htmlTempate: string, public onIsFit: (question: IQuestion) => boolean) {
+        super(name, onIsFit);
+    }
+}
+
+CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => { new SurveyTemplateText().replaceText((<QuestionCustomWidget>customWidget).htmlTempate, "widget", customWidget.name); });
 
 export class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }
@@ -119,3 +128,4 @@ export class Survey extends SurveyModel {
         }
     }
 }
+

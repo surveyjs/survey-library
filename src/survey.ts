@@ -9,6 +9,7 @@ import {JsonError} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
+import {CustomWidgetCollection} from './questionCustomWidgets';
 
 export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public surveyId: string = null;
@@ -197,6 +198,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (value == this.currentPageValue) return;
         var oldValue = this.currentPageValue;
         this.currentPageValue = value;
+        this.updateCustomWidgets(value);
         this.currentPageChanged(value, oldValue);
     }
     public get currentPageNo(): number {
@@ -238,6 +240,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             } else {
                 dest[key] = value;
             }
+        }
+    }
+    protected updateCustomWidgets(page: PageModel) {
+        if (!page) return;
+        for (var i = 0; i < page.questions.length; i++) {
+            page.questions[i].customWidget = CustomWidgetCollection.Instance.getCustomWidget(page.questions[i]);
         }
     }
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {

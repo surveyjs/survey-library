@@ -49,5 +49,14 @@
             this.survey.completeLastPage();
         }
     }
+
+    // TODO: make this functionality available via surveyCss in all examples
+    Object.defineProperty(Survey, 'cssType', {
+        get: function() { return surveyCss.currentType; },
+        set: function(newType) { surveyCss.currentType = newType; },
+        enumerable: true,
+        configurable: false
+    });
+
     Vue.component("survey", Survey)
 </script>

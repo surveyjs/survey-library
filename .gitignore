@@ -12,3 +12,5 @@ tmp/*
 project.json
 /lib_typings
 npm-debug.*
+_site
+Gemfile.lock

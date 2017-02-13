@@ -36,7 +36,7 @@ var json = { title: "Product Feedback Survey Example", showProgressBar: "top", p
 ]};
 
 Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
-Survey.surveyCss.currentType = "bootstrap";
+Survey.Survey.cssType = "bootstrap";
 
 var model = new Survey.Model(json);
 

@@ -1,7 +1,0 @@
----
-layout: example
-useangular: true
-title: Example of using onValidateQuestion event
----
-
-{% include examplesetups/validators-event.md %}

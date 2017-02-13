@@ -10,7 +10,11 @@
                     <ng-app></ng-app>
                 {% else %}
                     <div id="surveyContainer" class="survey-container contentcontainer  codecontainer">
-                        <div id="surveyElement"></div>
+                        <div id="surveyElement">
+                            {% if page.usevue %}
+                                <survey :survey='survey'/>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
                 <div id="survey_oncomplete" class="contentcontainer codecontainer" style="display:none">

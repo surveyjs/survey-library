@@ -22,6 +22,10 @@ module Jekyll
 
       self.data['dataFile'] = example['dataFile'] || "surveys/#{example['name']}.json"
       self.data['title'] = example['title']
+
+      if 'jquery'.eql? platform #TODO: avoid this somehow...
+        self.data['redirect_from'] = "/examples/#{example['name']}.html"
+      end
     end
   end
 
@@ -42,3 +46,4 @@ module Jekyll
   end
 
 end
+

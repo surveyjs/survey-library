@@ -32,21 +32,31 @@
                     <li role="presentation"><a href="{{site.baseurl}}/examples/jquery/{{path[3]}}">jQuery</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"  class="active"><a>Reactjs</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/vue/{{path[3]}}">Vue</a></li>
                     {% elsif page.useknockout %}
                     <li role="presentation"><a href="{{site.baseurl}}/examples/angular/{{path[3]}}">Angular2</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/jquery/{{path[3]}}">jQuery</a></li>
                     <li role="presentation" class="active"><a>Knockoutjs</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/vue/{{path[3]}}">Vue</a></li>
                     {% elsif page.usejquery %}
                     <li role="presentation"><a href="{{site.baseurl}}/examples/angular/{{path[3]}}">Angular2</a></li>
                     <li role="presentation" class="active"><a>jQuery</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/vue/{{path[3]}}">Vue</a></li>
                     {% elsif page.useangular %}
                     <li role="presentation" class="active"><a>Angular2</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/jquery/{{path[3]}}">jQuery</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
                     <li role="presentation"><a href="{{site.baseurl}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/vue/{{path[3]}}">Vue</a></li>
+                    {% elsif page.usevue %}
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/angular/{{path[3]}}">Angular2</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/jquery/{{path[3]}}">jQuery</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/knockout/{{path[3]}}">Knockoutjs</a></li>
+                    <li role="presentation"><a href="{{site.baseurl}}/examples/react/{{path[3]}}">Reactjs</a></li>
+                    <li role="presentation" class="active"><a>Vue</a></li>
                     {% endif %}
                 </ul>
                 {% endif %}

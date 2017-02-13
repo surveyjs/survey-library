@@ -1,0 +1,13 @@
+[
+    { "name": "questiontype-text", "title": "Text (type:'text')"},
+    { "name": "questiontype-radiogroup", "title": "One choice - radio group (type:'radiogroup')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html" },
+    { "name": "condition-kids", "title": "Write an expression in 'visibleIf' to show/hide your question(s)" },
+    { "name": "custom-question", "title": "Create custom question. For example 'emoji' question", "includes": ["examplesetups/custom-question.md"] },
+    { "name": "questiontype-checkbox", "title": "One choice - checkbox (type:'checkbox')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html",
+        "includes": [
+            "examplesetups/standard.md",
+            "live-example-code.html",
+            "demo-selectbase-choices.html"
+        ]
+    }
+]

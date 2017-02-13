@@ -1,3 +1,4 @@
 markdown: kramdown
 gems:
   - jekyll-redirect-from
+examples_dir: samples

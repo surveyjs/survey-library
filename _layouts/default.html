@@ -40,6 +40,9 @@
         <script src="{{ site.baseurl }}/js/angular2/angular.platform-browser-dynamic.umd.js"></script>
 
         <script src="{{ site.baseurl }}/js/survey.angular.min.js"></script>
+        {% elsif page.usevue%}
+        <script src="{{ site.baseurl }}/js/vue.min.js"></script>
+        <script src="{{ site.baseurl }}/js/survey.vue.min.js"></script>
         {% endif %}
         <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />
         <script src="{{ site.baseurl }}/js/prism.js"></script>

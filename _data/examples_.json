@@ -1,6 +1,4 @@
 [
-    { "name": "questiontype-text", "title": "Text (type:'text')"},
-    { "name": "questiontype-radiogroup", "title": "One choice - radio group (type:'radiogroup')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html" },
     { "name": "condition-kids", "title": "Write an expression in 'visibleIf' to show/hide your question(s)" },
     { "name": "custom-question", "title": "Create custom question. For example 'emoji' question", "includes": ["examplesetups/custom-question.md"] },
     { "name": "questiontype-checkbox", "title": "One choice - checkbox (type:'checkbox')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html",
@@ -8,6 +6,122 @@
             "examplesetups/standard.md",
             "live-example-code.html",
             "demo-selectbase-choices.html"
+        ]
+    },
+    { "name": "questiontype-comment", "title": "Comment (type:'comment')", "propertiesFile": "exampleproperties/comment.html" },
+    { "name": "questiontype-dropdown", "title": "One choice - dropdown (type:'dropdown')", "propertiesFile": "exampleproperties/selectbase.html",
+        "includes": [
+            "examplesetups/standard.md",
+            "live-example-code.html",
+            "demo-selectbase-choices.html"
+        ]
+    },
+    { "name": "questiontype-dropdownrestfull", "title": "One choice - dropdown (type:'dropdown'). Get the choices from a restfull service.", "propertiesFile": "exampleproperties/choicesrestfull.html" },
+    { "name": "questiontype-file", "title": "File uploading (type:'file')", "propertiesFile": "exampleproperties/file.html" },
+    { "name": "questiontype-html", "title": "Use html elements inside your survey (type:'html')", "propertiesFile": "exampleproperties/html.html" },
+    { "name": "questiontype-matrix", "title": "Matrix (type:'matrix')", "propertiesFile": "exampleproperties/questionmatrix.html" },
+    { "name": "questiontype-matrixdropdown", "title": "Matrix with multiple choices (type:'matrixdropdown')" },
+    { "name": "questiontype-matrixdynamic", "title": "Matrix with dynamic rows (type:'matrixdynamic')" },
+    { "name": "questiontype-multipletext", "title": "Multiple Text (type:'multipletext')" },
+    { "name": "questiontype-radiogroup", "title": "One choice - radio group (type:'radiogroup')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html",
+        "includes": [
+            "examplesetups/standard.md",
+            "live-example-code.html",
+            "demo-selectbase-choices.html"
+        ]
+    },
+    { "name": "questiontype-rating", "title": "Rating (type:'rating')", "propertiesFile": "exampleproperties/rating.html" },
+    { "name": "questiontype-text", "title": "Text (type:'text')", "propertiesFile": "exampleproperties/questiontext.html" },
+    { "name": "real-devexpresswinformsskins", "title": "DevExpress WinForms Look & Feel Technology" },
+    { "name": "real-productfeedback", "title": "Product Feedback survey" },
+    { "name": "service-load", "title": "Load survey json from the dxSurvey Service",
+        "includes": [
+            "examplesetups/service-load.md"
+        ]
+    },
+    { "name": "service-oneperuser", "title": "Allow your clients/users run survey only one time.",
+        "includes": [
+            "examplesetups/service-oneperuser.md"
+        ]
+    },
+    { "name": "service-result", "title": "Get Survey Result after sending results",
+        "includes": [
+            "examplesetups/service-result.md"
+        ]
+    },
+    { "name": "service-send", "title": "Save survey result into the dxSurvey Service",
+        "includes": [
+            "examplesetups/service-send.md"
+        ]
+    },
+    { "name": "survey-autonextpage", "title": "Go to the next page automatically", "propertiesFile": "exampleproperties/autonextpage.html" },
+    { "name": "survey-cookie", "disablereRun": true, "title": "Use cookie to run servey one time in a browser.",
+        "includes": [
+            "examplesetups/standard.md",
+            "live-example-code.html",
+            "examplesetups/survey-cookie.md"
+        ]
+    },
+    { "name": "survey-customcss", "title": "Custom css",
+        "includes": [
+            "examplesetups/custom-css.md"
+        ]
+    },
+    { "name": "survey-customnavigation", "title": "Custom navigation", "propertiesFile": "exampleproperties/customnavigation.html",
+        "includes": [
+            "examplesetups/custom-navigation.md"
+        ]
+    },
+    { "name": "survey-customtemplate", "title": "Change the template for checkbox and radiogroup questions. Use bootstrap buttons group.",
+        "includes": [
+            "examplesetups/custom-template.md"
+        ]
+    },
+    { "name": "survey-data", "title": "Work with survey data (properties, methods and events).", "propertiesFile": "exampleproperties/data.html",
+        "includes": [
+            "examplesetups/data.md"
+        ]
+    },
+    { "name": "survey-displaymode", "title": "View survey results of other people in read-only/display mode", "dataFile": "surveys/real-productfeedback.json",
+        "includes": [
+            "examplesetups/displaymode.md",
+            "live-example-code.html"
+        ]
+    },
+    { "name": "survey-localization", "title": "Localize your survey", "propertiesFile": "exampleproperties/localization.html",
+        "includes": [
+            "examplesetups/localization.md"
+        ]
+    },
+    { "name": "survey-options", "title": "Use properties to set up your survey", "propertiesFile": "exampleproperties/options.html",
+        "includes": [
+            "examplesetups/options.md"
+        ]
+    },
+    { "name": "survey-processtext", "title": "Pre-process question and page titles, and html properties. Use survey properties to change the templates.", "propertiesFile": "exampleproperties/processtext.html" },
+    { "name": "survey-startwithnewline", "title": "Show several questions in one line/row.", "propertiesFile": "exampleproperties/startwithnewline.html" },
+    { "name": "trigger-complete", "title": "Complete Trigger - finishes the survey.", "propertiesFile": "exampleproperties/completetrigger.html", "dataFile": "surveys/trigger-complete.json" },
+    { "name": "trigger-setvalue", "title": "SetValue Trigger - on changing the question, change values of other questions.", "dataFile": "surveys/trigger-setvalue.json" },
+    { "name": "trigger-visible", "title": "Visible Trigger - Show/Hide question(s) on survey running.", "propertiesFile": "exampleproperties/visibletrigger.html", "dataFile": "surveys/trigger-visible.json" },
+    { "name": "validators-custom", "title": "Create custom validator",
+        "includes": [
+            "examplesetups/validators-custom.md"
+        ]
+    },
+    { "name": "validators-event", "title": "Example of using onValidateQuestion event",
+        "includes": [
+            "examplesetups/validators-event.md"
+        ]
+    },
+    { "name": "validators-server", "title": "Example of using onServerValidateQuestions callback",
+        "includes": [
+            "examplesetups/validators-server.md"
+        ]
+    },
+    { "name": "validators-standard", "title": "Standard validators" },
+    { "name": "index", "title": "Live examples", "canonicalUrl": "/examples/",
+        "includes": [
+            "examplesetups/index.md"
         ]
     }
 ]

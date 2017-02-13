@@ -17,8 +17,10 @@ module Jekyll
 
       self.data['hasColumnCount'] = example['hasColumnCount']
       self.data['propertiesFile'] = example['propertiesFile']
+      self.data['disablereRun'] = example['disablereRun']
+      self.data['canonicalUrl'] = example['canonicalUrl']
 
-      self.data['dataFile'] = "surveys/#{example['name']}.json"
+      self.data['dataFile'] = example['dataFile'] || "surveys/#{example['name']}.json"
       self.data['title'] = example['title']
     end
   end

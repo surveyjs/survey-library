@@ -400,6 +400,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.onAfterRenderPage.fire(this, { page: this.currentPage, htmlElement: htmlElement });
     }
     afterRenderQuestion(question: IQuestion, htmlElement) {
+        if ((<QuestionBase>question).customWidget) (<QuestionBase>question).customWidget.afterRender(question, htmlElement);
         this.onAfterRenderQuestion.fire(this, { question: question, htmlElement: htmlElement });
     }
 
@@ -734,21 +735,6 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var oldValue = this.getValue(name);
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
-    }
-    private isTwoValueEquals(x: any, y: any): boolean {
-        if (x === y) return true;
-        if (!(x instanceof Object) || !(y instanceof Object)) return false;
-        for (var p in x) {
-            if (!x.hasOwnProperty(p)) continue;
-            if (!y.hasOwnProperty(p)) return false;
-            if (x[p] === y[p]) continue;
-            if (typeof (x[p]) !== "object") return false;
-            if (!this.isTwoValueEquals(x[p], y[p])) return false;
-        }
-        for (p in y) {
-            if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
-        }
-        return true;
     }
     private tryGoNextPageAutomatic(name: string) {
         if (!this.goNextPageAutomatic || !this.currentPage) return;

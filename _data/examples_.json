@@ -44,7 +44,7 @@
             "examplesetups/service-oneperuser.md"
         ]
     },
-    { "name": "service-result", "title": "Get Survey Result after sending results",
+    { "name": "service-result", "title": "Get Survey Result after sending results", "usedxchart": true,
         "includes": [
             "examplesetups/service-result.md"
         ]

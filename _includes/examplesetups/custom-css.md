@@ -27,11 +27,11 @@ $("#surveyElement").Survey({
 });
 
 {% elsif page.usevue%}
+survey.css = myCss;
 var app = new Vue({
     el: '#surveyElement',
     data: {
-        survey: survey,
-        css: myCss
+        survey: survey
     }
 });
 

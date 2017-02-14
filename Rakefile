@@ -12,8 +12,8 @@ namespace :site do
   #
 
   # Usaage:
-  # bundle exec rake blog:publish
-  desc "Publish blog to gh-pages"
+  # bundle exec rake site:publish
+  desc "Publish site to gh-pages"
   task :publish do
     # Compile the Jekyll site using the config.
     Jekyll::Site.new(Jekyll.configuration({

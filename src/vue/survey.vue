@@ -8,9 +8,9 @@
                 <survey-progress style="margin-top:10px" v-if="survey.showProgressBar =='bottom'" :survey="survey" :css="css"/>
             </div>
             <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
-                <input type="button" :value="survey.pagePrevText" v-show="!survey.isFirstPage" :class="css.cssNavigationPrev" @click="prevPage"/>
-                <input type="button" :value="survey.pageNextText" v-show="!survey.isLastPage" :class="css.cssNavigationNext" @click="nextPage"/>
-                <input type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="css.cssNavigationComplete" @click="completeLastPage"/>
+                <input type="button" :value="survey.pagePrevText" v-show="!survey.isFirstPage" :class="getNavBtnClasses('prev')" @click="prevPage"/>
+                <input type="button" :value="survey.pageNextText" v-show="!survey.isLastPage" :class="getNavBtnClasses('next')" @click="nextPage"/>
+                <input type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="getNavBtnClasses('complete')" @click="completeLastPage"/>
             </div>
         <template>
         <div v-if="survey.state === 'completed'" v-html="survey.processedCompletedHtml"></div>
@@ -49,7 +49,11 @@
             return !!this.survey.title && this.survey.showTitle;
         }
         get css () {
-            return surveyCss.getCss();
+            return this.survey.css;
+        }
+        getNavBtnClasses(btnType) {
+            const btnClass = this.css.navigation[btnType];
+            return this.css.navigationButton + ' ' + btnClass;
         }
         prevPage() {
             this.survey.prevPage();

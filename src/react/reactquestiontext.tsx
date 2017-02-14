@@ -12,6 +12,10 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     protected get question(): QuestionTextModel { return this.questionBase as QuestionTextModel; }
+    componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
+        this.state = { value: this.question.value || '' };
+    }
     handleOnChange(event) {
         this.setState({ value: event.target.value });
     }

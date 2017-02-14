@@ -16,6 +16,10 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         this.handleOnChange = this.handleOnChange.bind(this);
     }
     protected get question(): QuestionDropdownModel { return this.questionBase as QuestionDropdownModel; }
+    componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
+        this.state.value = this.question.value;
+    }
     handleOnChange(event) {
         this.question.value = event.target.value;
         this.setState({ value: this.question.value });

@@ -8,3 +8,6 @@ exclude:
   - "Gemfile.*"
   - "Rakefile"
   - "README.md"
+  - "node_modules"
+  - "tmp"
+  - "packages"

@@ -48,6 +48,10 @@ export class SurveyQuestion extends React.Component<any, any> {
             }
             var el = this.refs["root"];
             if (el && this.questionBase.survey) this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
+            if (this.questionBase.customWidget) {
+                el = this.refs["widget"];
+                if (el) this.questionBase.customWidget.afterRender(this.questionBase, el);
+            }
         }
     }
     componentWillUnmount() {
@@ -60,7 +64,7 @@ export class SurveyQuestion extends React.Component<any, any> {
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) return null;
         if (!this.questionBase.visible) return null;
-        var questionRender = this.creator.createQuestionElement(this.questionBase);
+        var questionRender = this.renderQuestion();
         var title = this.questionBase.hasTitle ? this.renderTitle() : null;
         var titleTop = this.creator.questionTitleLocation() == "top" ? title : null;
         var titleBottom = this.creator.questionTitleLocation() == "bottom" ? title : null;
@@ -81,6 +85,20 @@ export class SurveyQuestion extends React.Component<any, any> {
                 {titleBottom}
             </div>
         );
+    }
+    protected renderQuestion(): JSX.Element {
+        var customWidget = this.questionBase.customWidget;
+        if (!customWidget) return this.creator.createQuestionElement(this.questionBase);
+        var widget = null;
+        if (customWidget.widgetJson.render) {
+            widget = customWidget.widgetJson.render(this.questionBase);
+        } else {
+            if (customWidget.htmlTemplate) {
+                var htmlValue = { __html: customWidget.htmlTemplate };
+                return (<div ref="widget" dangerouslySetInnerHTML={htmlValue}></div>);
+            }
+        }
+        return <div ref="widget">{widget}</div>
     }
     protected renderTitle(): JSX.Element {
         var titleText = this.question.fullTitle;

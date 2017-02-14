@@ -5,7 +5,7 @@ export class QuestionCustomWidget {
     constructor(public name: string, public widgetJson: any) {
         this.htmlTemplate = widgetJson.htmlTemplate ? widgetJson.htmlTemplate : "";
     }
-    public afterRender(question: IQuestion, el: HTMLElement) {
+    public afterRender(question: IQuestion, el: any) {
         if (this.widgetJson.afterRender) this.widgetJson.afterRender(question, el);
     }
     public isFit(question: IQuestion): boolean {

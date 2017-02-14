@@ -4,6 +4,9 @@
 {% elsif page.usejquery %}
 <h1>This feature is not supported yet.  Please use knockout and react versions.</h1>
 
+{% elsif page.usevue %}
+<h1>This feature is not supported yet.  Please use knockout and react versions.</h1>
+
 {% else %}
 
 {% if page.useknockout %}

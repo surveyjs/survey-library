@@ -1,4 +1,4 @@
-﻿import {Survey, QuestionCustomWidget} from "../../src/knockout/kosurvey";
+﻿import {Survey} from "../../src/knockout/kosurvey";
 import {QuestionText} from "../../src/knockout/koquestion_text";
 import {QuestionDropdown} from "../../src/knockout/koquestion_dropdown";
 import {QuestionCheckbox} from "../../src/knockout/koquestion_checkbox";
@@ -8,7 +8,7 @@ import {QuestionMatrixDropdown} from "../../src/knockout/koquestion_matrixdropdo
 import {MatrixDropdownColumn} from "../../src/question_matrixdropdownbase";
 import {QuestionMultipleText, MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
 import {Page} from "../../src/knockout/kopage";
-import {CustomWidgetCollection} from "../../src/questionCustomWidgets";
+import {CustomWidgetCollection, QuestionCustomWidget} from "../../src/questionCustomWidgets";
 import {koTemplate} from "../../src/knockout/templateText";
 
 export default QUnit.module("koTests");
@@ -203,7 +203,7 @@ QUnit.test("koErrors should be empty after prevPage bug#151", function (assert) 
 
 QUnit.test("add customwidget item", function (assert) {
     CustomWidgetCollection.Instance.clear();
-    CustomWidgetCollection.Instance.addCustomWidget(new QuestionCustomWidget("first", "<input type='text' />", (question) => { return false; }));
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "first", htmlTemplate: "<input type='text' />", isFit: (question) => { return false; } });
     assert.equal(CustomWidgetCollection.Instance.widgets.length, 1, "one widget is added");
     assert.ok(koTemplate, "ko template is exists");
     assert.ok(koTemplate.indexOf("survey-widget-first") > -1, "text was added");

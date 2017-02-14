@@ -19,7 +19,7 @@ import {QuestionFileModel} from "../src/question_file";
 import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionRatingModel} from "../src/question_rating";
-import {CustomWidgetCollection, QuestionCustomWidgetModel} from "../src/questionCustomWidgets";
+import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey");
 
@@ -872,8 +872,8 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
 
 QUnit.test("assign customWidgets to questions", function (assert) {
     CustomWidgetCollection.Instance.clear();
-    CustomWidgetCollection.Instance.addCustomWidget(new QuestionCustomWidgetModel("first", (question) => { return question.name == "question2"; }));
-    CustomWidgetCollection.Instance.addCustomWidget(new QuestionCustomWidgetModel("second", (question) => { return (<Question>question).getType() == "checkbox"; }));
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "first", isFit: (question) => { return question.name == "question2"; } });
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "second", isFit: (question) => { return (<Question>question).getType() == "checkbox"; } });
     var survey = twoPageSimplestSurvey();
     survey.pages[0].addNewQuestion("checkbox", "question5");
     assert.equal(survey.currentPage, survey.pages[0], "the first page is choosen");

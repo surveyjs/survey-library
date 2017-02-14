@@ -1,5 +1,5 @@
 ﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
-import {QuestionCustomWidgetModel} from './questionCustomWidgets';
+import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 
@@ -11,7 +11,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     protected data: ISurveyData;
     private surveyValue: ISurvey;
     private conditionRunner: ConditionRunner = null;
-    public customWidget: QuestionCustomWidgetModel;
+    public customWidget: QuestionCustomWidget;
     public visibleIf: string = "";
     private idValue: string;
     private visibleValue: boolean = true;

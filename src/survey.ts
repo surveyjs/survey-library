@@ -400,7 +400,6 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.onAfterRenderPage.fire(this, { page: this.currentPage, htmlElement: htmlElement });
     }
     afterRenderQuestion(question: IQuestion, htmlElement) {
-        if ((<QuestionBase>question).customWidget) (<QuestionBase>question).customWidget.afterRender(question, htmlElement);
         this.onAfterRenderQuestion.fire(this, { question: question, htmlElement: htmlElement });
     }
 

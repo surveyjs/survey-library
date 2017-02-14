@@ -5,15 +5,12 @@ import {Page} from "./kopage";
 import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {koTemplate, SurveyTemplateText} from "./templateText";
-import {QuestionCustomWidgetModel, CustomWidgetCollection} from "../questionCustomWidgets";
+import {QuestionCustomWidget, CustomWidgetCollection} from "../questionCustomWidgets";
 
-export class QuestionCustomWidget extends QuestionCustomWidgetModel {
-    constructor(public name: string, public htmlTempate: string, public onIsFit: (question: IQuestion) => boolean) {
-        super(name, onIsFit);
-    }
-}
-
-CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => { new SurveyTemplateText().replaceText((<QuestionCustomWidget>customWidget).htmlTempate, "widget", customWidget.name); });
+CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
+    if (!customWidget.htmlTemplate) customWidget.htmlTemplate = "<div>'htmlTemplate' attribute is missed.</div>"
+    new SurveyTemplateText().replaceText(customWidget.htmlTemplate, "widget", customWidget.name);
+});
 
 export class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }

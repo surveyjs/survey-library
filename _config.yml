@@ -1,1 +1,10 @@
 markdown: kramdown
+
+include:
+  - ".nojekyll"
+
+exclude:
+  - "Gemfile"
+  - "Gemfile.*"
+  - "Rakefile"
+  - "README.md"

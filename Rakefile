@@ -2,7 +2,7 @@
 require "jekyll"
 
 # Github pages publishing.
-namespace :blog do
+namespace :site do
   #
   # Because we are using 3rd party plugins for jekyll to manage the asset pipeline
   # and suchlike we are unable to just branch the code, we have to process the site
@@ -27,7 +27,7 @@ namespace :blog do
 
     # Make a temporary directory for the build before production release.
     # This will be torn down once the task is complete.
-    Dir.mktmpdir do |tmp|
+    Dir.mkdir("tmp") do |tmp|
       # Copy accross our compiled _site directory.
       cp_r "_site/.", tmp
 

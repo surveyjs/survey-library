@@ -23,16 +23,28 @@
     import * as Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
-    import {SurveyModel} from '../survey'
+    import {VueSurveyModel as SurveyModel} from './surveyModel'
 
     @Component
     export default class Survey extends Vue {
         @Prop
         survey: SurveyModel
 
+        forceUpdate() {
+            this.$forceUpdate();
+        }
+
         constructor () {
             super();
         }
+
+        mounted() {
+            this.survey.renderCallback = this.forceUpdate;
+        }
+        beforeDestroy() {
+            this.survey.renderCallback = undefined;
+        }
+
         get hasTitle () {
             return !!this.survey.title && this.survey.showTitle;
         }

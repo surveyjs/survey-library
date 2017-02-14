@@ -20,6 +20,7 @@ module Jekyll
       self.data['disablereRun'] = example['disablereRun']
       self.data['canonicalUrl'] = example['canonicalUrl']
       self.data['usedxchart'] = example['usedxchart']
+      self.data['jquery'] = example['jquery']
 
       self.data['dataFile'] = example['dataFile'] || "surveys/#{example['name']}.json"
       self.data['title'] = example['title']

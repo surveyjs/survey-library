@@ -113,7 +113,7 @@
             "examplesetups/validators-event.md"
         ]
     },
-    { "name": "validators-server", "title": "Example of using onServerValidateQuestions callback",
+    { "name": "validators-server", "title": "Example of using onServerValidateQuestions callback", "jquery": true,
         "includes": [
             "examplesetups/validators-server.md"
         ]

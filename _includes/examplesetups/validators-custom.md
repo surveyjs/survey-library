@@ -43,6 +43,8 @@ function onAngularComponentInit() {
 {% include examplesetups/angular-example-component.md %}
 {% elsif page.usejquery%}
 $("#surveyElement").Survey({model:survey});
+{% elsif page.usevue %}
+var app = new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}
 {% endcapture %}
 

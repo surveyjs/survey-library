@@ -18,7 +18,7 @@
             ]},
             { "name" : "Custom Widgets", "id": "custom-widgets",
               "items": [
-                { "name": "TagBoxWidget", "text" : "TagBox as a Custom Widget", "url": "custom-widget.html"}
+                { "name": "TagBoxWidget", "text" : "TagBox as a Custom Widget", "url": "custom-widget-tagbox.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

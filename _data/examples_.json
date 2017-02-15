@@ -124,9 +124,9 @@
             "examplesetups/index.md"
         ]
     },
-    { "name": "custom-widget", "title": "TagBox Custom Widget", "usedevextreme": true, "jquery": true,
+    { "name": "custom-widget-tagbox", "title": "TagBox Custom Widget", "usedevextreme": true, "jquery": true,
         "includes": [
-            "examplesetups/custom-widget.md"
+            "examplesetups/custom-widget-tagbox.md"
         ]
     }
 ]

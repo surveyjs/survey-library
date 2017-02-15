@@ -21,9 +21,12 @@
     @Component
     export default class Rating extends Question<QuestionRatingModel> {
         selection = ''
-        getCss(val) {
-            const ratingCss = this.css.rating.item;
-            return this.selection == val.value ? ratingCss + " active" : ratingCss;
+        getCss(item) {
+            let css = this.css.rating.item;
+            if (this.selection == item.value || this.question.value == item.value) {
+                css = css + " active";
+            }
+            return css;
         }
         change(e) {
             this.selection = this.question.value = e.target.value;

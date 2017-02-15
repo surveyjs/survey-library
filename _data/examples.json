@@ -16,6 +16,10 @@
                 { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"},
                 { "name": "File", "text" : "File Uploading", "url": "questiontype-file.html"}
             ]},
+            { "name" : "Custom Widgets", "id": "custom-widgets",
+              "items": [
+                { "name": "TagBoxWidget", "text" : "TagBox as a Custom Widget", "url": "custom-widget.html"}
+            ]},
             { "name": "Survey", "id": "survey",
               "items": [
                 {"name": "Use cookie", "text": "Run survey one time in a browser", "url": "survey-cookie.html"},

@@ -34,7 +34,7 @@ var widget = {
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-ReactDOM.render(<Survey.Survey model={survey} onCurrentPageChanged={setNavigationVisibility} />, document.getElementById("surveyElement"));
+ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
 
 {% elsif page.useknockout %}
 var widget = {
@@ -48,8 +48,7 @@ Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {
-        model:survey,
-        onCurrentPageChanged: setNavigationVisibility
+        model:survey
     });
 }
 {% include examplesetups/angular-example-component.md %}
@@ -59,7 +58,6 @@ Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 $("#surveyElement").Survey({
     model: survey
 });
-setNavigationVisibility(survey);
 
 {% elsif page.usevue %}
 var widget = {

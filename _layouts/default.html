@@ -14,11 +14,6 @@
         <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/globalize/0.1.1/globalize.min.js"></script>        
         <script type="text/javascript" src="https://cdn3.devexpress.com/jslib/15.1.5/js/dx.chartjs.js"></script>
         {% endif %}
-        {% if page.usedevextreme %}
-        <script src="https://cdn3.devexpress.com/jslib/16.2.4/js/dx.all.js"></script>
-        <link href="https://cdn3.devexpress.com/jslib/16.2.4/css/dx.common.css" type="text/css" rel="stylesheet">
-        <link href="https://cdn3.devexpress.com/jslib/16.2.4/css/dx.light.css" type="text/css" rel="stylesheet">
-        {% endif %}
         {% if page.usebootstrap%}
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
         {% endif %}
@@ -51,6 +46,11 @@
         {% endif %}
         <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />
         <script src="{{ site.baseurl }}/js/prism.js"></script>
+        {% if page.usedevextreme %}
+        <script src="https://cdn3.devexpress.com/jslib/16.2.4/js/dx.all.js"></script>
+        <link href="https://cdn3.devexpress.com/jslib/16.2.4/css/dx.common.css" type="text/css" rel="stylesheet">
+        <link href="https://cdn3.devexpress.com/jslib/16.2.4/css/dx.light.css" type="text/css" rel="stylesheet">
+        {% endif %}
     </head>
     <body class="white-bg">
         {% include menu-top.html %}

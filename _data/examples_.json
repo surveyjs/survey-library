@@ -39,7 +39,7 @@
             "examplesetups/service-load.md"
         ]
     },
-    { "name": "service-oneperuser", "title": "Allow your clients/users run survey only one time.",
+    { "name": "service-oneperuser", "title": "Allow your clients/users run survey only one time.", "propertiesFile": "exampleproperties/runonetime.html",
         "includes": [
             "examplesetups/service-oneperuser.md"
         ]

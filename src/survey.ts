@@ -9,6 +9,7 @@ import {JsonError} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
+import {CustomWidgetCollection} from './questionCustomWidgets';
 
 export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public surveyId: string = null;
@@ -65,6 +66,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public jsonErrors: Array<JsonError> = null;
 
     constructor(jsonObj: any = null) {
@@ -142,6 +146,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             for (var key in data) {
                 this.valuesHash[key] = data[key];
                 this.checkTriggers(key, data[key], false);
+                if (!this.processedTextValues[key.toLowerCase()]) {
+                    this.processedTextValues[key.toLowerCase()] = "value";
+                }
             }
         }
         this.notifyAllQuestionsOnValueChanged();
@@ -191,6 +198,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (value == this.currentPageValue) return;
         var oldValue = this.currentPageValue;
         this.currentPageValue = value;
+        this.updateCustomWidgets(value);
         this.currentPageChanged(value, oldValue);
     }
     public get currentPageNo(): number {
@@ -232,6 +240,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             } else {
                 dest[key] = value;
             }
+        }
+    }
+    protected updateCustomWidgets(page: PageModel) {
+        if (!page) return;
+        for (var i = 0; i < page.questions.length; i++) {
+            page.questions[i].customWidget = CustomWidgetCollection.Instance.getCustomWidget(page.questions[i]);
         }
     }
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
@@ -378,6 +392,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var index = vPages.indexOf(this.currentPage) + 1;
         return this.getLocString("progressText")["format"](index, vPages.length);
     }
+    protected afterRenderSurvey(htmlElement) {
+        this.onAfterRenderSurvey.fire(this, { survey: this, htmlElement: htmlElement });
+    }
+    afterRenderPage(htmlElement) {
+        if (this.onAfterRenderPage.isEmpty) return;
+        this.onAfterRenderPage.fire(this, { page: this.currentPage, htmlElement: htmlElement });
+    }
+    afterRenderQuestion(question: IQuestion, htmlElement) {
+        this.onAfterRenderQuestion.fire(this, { question: question, htmlElement: htmlElement });
+    }
+
     public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {
         var accept = true;
         this.onUploadFile.fire(this, { name: name, file: file, accept: accept });
@@ -536,16 +561,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (isPartialCompleted && this.onPartialSend) {
             this.onPartialSend.fire(this, null);
         }
-        if (!this.surveyPostId && postId) {
-            this.surveyPostId = postId;
+
+        if (!postId && this.surveyPostId) {
+            postId = this.surveyPostId;
         }
-        if (!this.surveyPostId) return;
+        if (!postId) return;
         if (clientId) {
             this.clientId = clientId;
         }
         if (isPartialCompleted && !this.clientId) return;
         var self = this;
-        new dxSurveyService().sendResult(this.surveyPostId, this.data, function (success: boolean, response: any) {
+        new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
             self.onSendResult.fire(self, { success: success, response: response});
         }, this.clientId, isPartialCompleted);
     }
@@ -708,21 +734,6 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var oldValue = this.getValue(name);
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
-    }
-    private isTwoValueEquals(x: any, y: any): boolean {
-        if (x === y) return true;
-        if (!(x instanceof Object) || !(y instanceof Object)) return false;
-        for (var p in x) {
-            if (!x.hasOwnProperty(p)) continue;
-            if (!y.hasOwnProperty(p)) return false;
-            if (x[p] === y[p]) continue;
-            if (typeof (x[p]) !== "object") return false;
-            if (!this.isTwoValueEquals(x[p], y[p])) return false;
-        }
-        for (p in y) {
-            if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
-        }
-        return true;
     }
     private tryGoNextPageAutomatic(name: string) {
         if (!this.goNextPageAutomatic || !this.currentPage) return;

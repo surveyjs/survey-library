@@ -22,6 +22,7 @@ export interface ISurvey extends ISurveyData {
     questionTitleTemplate: string;
     storeOthersAsComment: boolean;
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
+    afterRenderQuestion(question: IQuestion, htmlElement);
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);
@@ -119,6 +120,21 @@ export class Base {
     public getType(): string {
         throw new Error('This method is abstract');
     }
+    protected isTwoValueEquals(x: any, y: any): boolean {
+        if (x === y) return true;
+        if (!(x instanceof Object) || !(y instanceof Object)) return false;
+        for (var p in x) {
+            if (!x.hasOwnProperty(p)) continue;
+            if (!y.hasOwnProperty(p)) return false;
+            if (x[p] === y[p]) continue;
+            if (typeof (x[p]) !== "object") return false;
+            if (!this.isTwoValueEquals(x[p], y[p])) return false;
+        }
+        for (p in y) {
+            if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+        }
+        return true;
+    }
 }
 export class SurveyError {
     public getText(): string {
@@ -135,6 +151,13 @@ export class SurveyElement {
         var elemTop = el.getBoundingClientRect().top;
         if (elemTop < 0)  el.scrollIntoView();
         return elemTop < 0;
+    }
+    public static GetFirstNonTextElement(elements: any) {
+        if (!elements || !elements.length) return;
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].nodeName != "#text") return elements[i]; 
+        }
+        return null;
     }
     public static FocusElement(elementId: string): boolean {
         if (!elementId) return false;

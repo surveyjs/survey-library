@@ -1,6 +1,7 @@
 ﻿import * as ko from "knockout";
 import {QuestionImplementorBase} from "./koquestionbase";
 import {Question} from "../question";
+import {SurveyElement} from "../base";
 
 export class QuestionImplementor extends QuestionImplementorBase {
     private isUpdating: boolean = false;
@@ -28,7 +29,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.question["koValue"] = this.koValue;
         this.question["koComment"] = this.koComment;
         this.question["koTitle"] = this.koTitle;
-        this.question["koQuestionAfterRender"] = this.koQuestionAfterRender;
+        this.question["koQuestionAfterRender"] = function (el, con) { self.koQuestionAfterRender(el, con); };
     }
     protected updateQuestion() {
         this.koDummy(this.koDummy() + 1);
@@ -67,10 +68,12 @@ export class QuestionImplementor extends QuestionImplementorBase {
     protected getNo(): string {
         return this.question.visibleIndex > -1 ? this.question.visibleIndex + 1 + ". " : "";
     }
-    protected koQuestionAfterRender(el, con) {
-        var tEl = el[0];
+    protected koQuestionAfterRender(elements, con) {
+        var el = SurveyElement.GetFirstNonTextElement(elements);
+        var tEl = elements[0];
         if (tEl.nodeName == "#text") tEl.data = "";
-        tEl = el[el.length - 1];
+        tEl = elements[elements.length - 1];
         if (tEl.nodeName == "#text") tEl.data = "";
+        if (el && this.question.customWidget) this.question.customWidget.afterRender(this.question, el);
     }
 }

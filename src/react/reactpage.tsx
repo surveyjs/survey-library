@@ -24,6 +24,10 @@ export class SurveyPage extends React.Component<any, any> {
         this.creator = nextProps.creator;
         this.css = nextProps.css;
     }
+    componentDidMount() {
+        var el = this.refs["root"];
+        if (el && this.survey) this.survey.afterRenderPage(el);
+    }
     render(): JSX.Element {
         if (this.page == null || this.survey == null || this.creator == null) return null;
         var title = this.renderTitle();
@@ -33,7 +37,7 @@ export class SurveyPage extends React.Component<any, any> {
             rows.push(this.createRow(questionRows[i], i));
         }
         return (
-            <div>
+            <div ref="root">
                 {title}
                 {rows}
                 </div>

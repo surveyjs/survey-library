@@ -5,6 +5,7 @@ import '../src/localization/russian';
 import '../src/localization/french';
 import '../src/localization/finnish';
 import '../src/localization/german';
+import '../src/localization/swedish';
 
 export default QUnit.module("LocalizationsTests");
 
@@ -45,5 +46,16 @@ QUnit.test("set finnish localization", function (assert) {
     var survey = new SurveyModel();
     survey.locale = "fi";
     assert.equal(survey.completeText, "Valmis");
+    surveyLocalization.currentLocale = "";
+});
+QUnit.test("set swedish localization", function (assert) {
+    var locales = surveyLocalization.getLocales();
+    assert.ok(locales.indexOf("en") > -1, "has en");
+    assert.ok(locales.indexOf("sv") > -1, "has sv");
+});
+QUnit.test("set swedish localization", function (assert) {
+    var survey = new SurveyModel();
+    survey.locale = "sv";
+    assert.equal(survey.completeText, "Färdig");
     surveyLocalization.currentLocale = "";
 });

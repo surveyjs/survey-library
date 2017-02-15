@@ -2,6 +2,7 @@
 import {PageModel, QuestionRowModel} from "../page";
 import {JsonObject} from "../jsonobject";
 import {QuestionBase} from "../questionbase";
+import {SurveyElement} from "../base";
 
 export class QuestionRow extends QuestionRowModel {
     koVisible: any;
@@ -22,10 +23,16 @@ export class QuestionRow extends QuestionRowModel {
 }
 
 export class Page extends PageModel {
-    koNo: any;
+    koNo: any; koQuestionAfterRender: any;
     constructor(name: string = "") {
         super(name);
         this.koNo = ko.observable("");
+        var self = this;
+        this.koQuestionAfterRender = function (elements, con) {
+            if (!self.data) return;
+            var el = SurveyElement.GetFirstNonTextElement(elements);
+            if (el) self.data.afterRenderQuestion(con, el);
+        };
         this.onCreating();
     }
     protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRow(this, question); }

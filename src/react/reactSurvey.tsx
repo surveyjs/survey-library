@@ -30,6 +30,10 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             }
         }
     }
+    componentDidMount() {
+        var el = this.refs["root"];
+        if (el && this.survey) this.survey.doAfterRenderSurvey(el);
+    }
     render(): JSX.Element {
         if (this.survey.state == "completed") return this.renderCompleted();
         if (this.survey.state == "loading") return this.renderLoading();
@@ -57,7 +61,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             currentPage = this.renderEmptySurvey();
         }
         return (
-            <div className={this.css.root}>
+            <div ref="root" className={this.css.root}>
                 {title}
                 <div id={SurveyPageId} className={this.css.body}>
                     {topProgress}
@@ -148,6 +152,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });
         }
         this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
+        if (newProps.onServerValidateQuestions) {
+            this.survey.onServerValidateQuestions = newProps.onServerValidateQuestions;
+        }
         if (newProps.onQuestionAdded) {
             this.survey.onQuestionAdded.add((sender, options) => { newProps.onQuestionAdded(sender, options); });
         }
@@ -157,9 +164,6 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if (newProps.onValidateQuestion) {
             this.survey.onValidateQuestion.add((sender, options) => { newProps.onValidateQuestion(sender, options); });
         }
-        if (newProps.onServerValidateQuestions) {
-            this.survey.onServerValidateQuestions = newProps.onServerValidateQuestions;
-        }
         if (newProps.onSendResult) {
             this.survey.onSendResult.add((sender, options) => { newProps.onSendResult(sender, options); });
         }
@@ -168,6 +172,15 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         }
         if (newProps.onProcessHtml) {
             this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
+        }
+        if (newProps.onAfterRenderSurvey) {
+            this.survey.onAfterRenderSurvey.add((sender, options) => { newProps.onAfterRenderSurvey(sender, options); });
+        }
+        if (newProps.onAfterRenderPage) {
+            this.survey.onAfterRenderPage.add((sender, options) => { newProps.onAfterRenderPage(sender, options); });
+        }
+        if (newProps.onAfterRenderQuestion) {
+            this.survey.onAfterRenderQuestion.add((sender, options) => { newProps.onAfterRenderQuestion(sender, options); });
         }
     }
 

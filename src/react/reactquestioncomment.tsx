@@ -12,6 +12,10 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     protected get question(): QuestionCommentModel { return this.questionBase as QuestionCommentModel; }
+    componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
+        this.state = { value: this.question.value || '' };
+    }
     handleOnChange(event) {
         this.setState({ value: event.target.value });
     }

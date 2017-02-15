@@ -1,20 +1,27 @@
 ﻿import * as ko from "knockout";
 import {SurveyModel} from "../survey";
-import {IPage, Event} from "../base";
+import {IPage, IQuestion, Event, SurveyElement} from "../base";
 import {Page} from "./kopage";
 import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
-import {koTemplate} from "./templateText";
+import {koTemplate, SurveyTemplateText} from "./templateText";
+import {QuestionCustomWidget, CustomWidgetCollection} from "../questionCustomWidgets";
+
+CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
+    if (!customWidget.htmlTemplate) customWidget.htmlTemplate = "<div>'htmlTemplate' attribute is missed.</div>"
+    new SurveyTemplateText().replaceText(customWidget.htmlTemplate, "widget", customWidget.name);
+});
 
 export class Survey extends SurveyModel {
     public static get cssType(): string { return surveyCss.currentType; }
     public static set cssType(value: string) { surveyCss.currentType = value; }
     private renderedElement: HTMLElement;
+    //TODO remove it, since there is onAfterRenderSurvey
     public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     private isFirstRender: boolean = true;
 
     koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; koIsNavigationButtonsShowing: any; dummyObservable: any; koState: any;
-    koProgress: any; koProgressText: any;
+    koProgress: any; koProgressText: any; koAfterRenderPage: any;
 
     constructor(jsonObj: any = null, renderedElement: any = null, css: any = null) {
         super(jsonObj);
@@ -53,6 +60,7 @@ export class Survey extends SurveyModel {
         element.innerHTML = this.getTemplate();
         self.applyBinding();
         self.onRendered.fire(self, {});
+        self.afterRenderSurvey(element);
     }
     public loadSurveyFromService(surveyId: string = null, renderedElement: any = null) {
         if (renderedElement) {
@@ -76,6 +84,10 @@ export class Survey extends SurveyModel {
         this.koProgressText = ko.computed(function () { self.dummyObservable(); return self.progressText; });
         this.koProgress = ko.computed(function () { self.dummyObservable(); return self.getProgress(); });
         this.koState = ko.computed(function () { self.dummyObservable(); return self.state; });
+        this.koAfterRenderPage = function (elements, con) {
+            var el = SurveyElement.GetFirstNonTextElement(elements);
+            if (el) self.afterRenderPage(el);
+        };
     }
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
         this.updateKoCurrentPage();
@@ -113,3 +125,4 @@ export class Survey extends SurveyModel {
         }
     }
 }
+

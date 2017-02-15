@@ -19,6 +19,7 @@ import {QuestionFileModel} from "../src/question_file";
 import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionRatingModel} from "../src/question_rating";
+import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey");
 
@@ -332,6 +333,16 @@ QUnit.test("onValueChanged event is not called on changing multi text value", fu
     assert.equal(name, "multitext", "onValueChanged event, property name is correct");
     assert.deepEqual(newValue, { "item2": "text1" }, "onValueChanged event, property newValue is correct");
 });
+QUnit.test("onComplete event", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var counter = 0;
+    survey.onComplete.add(function () { counter++; });
+    survey.nextPage();
+    survey.nextPage();
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "The survey is completed");
+    assert.equal(counter, 1, "onComplete calls one time");
+});
 QUnit.test("onVisibleChanged event", function (assert) {
     var survey = twoPageSimplestSurvey();
     var name = "";
@@ -548,6 +559,9 @@ QUnit.test("Serialize email validator", function (assert) {
 });
 QUnit.test("pre process title", function (assert) {
     var survey = twoPageSimplestSurvey();
+    survey.data = { name: "John" };
+    survey.title = "Hello {name}";
+    assert.equal(survey.processedTitle, "Hello John", "process survey title correctly");
     survey.pages[0].title = "Page {PageNo} from {PageCount}.";
     assert.equal(survey.pages[0].processedTitle, "Page 1 from 2.");
     survey.pages[0].addNewQuestion("text", "email");
@@ -855,6 +869,20 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
     check.value = value;
     assert.equal(survey.getQuestionByName("question3").visible, true, "The third question is visible");
 });
+
+QUnit.test("assign customWidgets to questions", function (assert) {
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "first", isFit: (question) => { return question.name == "question2"; } });
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "second", isFit: (question) => { return (<Question>question).getType() == "checkbox"; } });
+    var survey = twoPageSimplestSurvey();
+    survey.pages[0].addNewQuestion("checkbox", "question5");
+    assert.equal(survey.currentPage, survey.pages[0], "the first page is choosen");
+    assert.equal((<Question>survey.getQuestionByName("question1")).customWidget, null, "there is no custom widget for this question");
+    assert.equal((<Question>survey.getQuestionByName("question2")).customWidget.name, "first", "has the first custom widget");
+    assert.equal((<Question>survey.getQuestionByName("question5")).customWidget.name, "second", "has the second custom widget");
+    CustomWidgetCollection.Instance.clear();
+});
+
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

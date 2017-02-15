@@ -1,4 +1,5 @@
 ﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
+import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 
@@ -8,8 +9,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         return "sq_" + QuestionBase.questionCounter++;
     }
     protected data: ISurveyData;
-    protected survey: ISurvey;
+    private surveyValue: ISurvey;
     private conditionRunner: ConditionRunner = null;
+    public customWidget: QuestionCustomWidget;
     public visibleIf: string = "";
     private idValue: string;
     private visibleValue: boolean = true;
@@ -62,9 +64,10 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public focus(onError: boolean = false) { }
     setData(newValue: ISurveyData) {
         this.data = newValue;
-        this.survey = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
+        this.surveyValue = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
         this.onSetData();
     }
+    public get survey(): ISurvey { return this.surveyValue; }
     protected fireCallback(callback: () => void) {
         if (callback) callback();
     }
@@ -88,5 +91,5 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     }
     supportGoNextPageAutomatic() { return false; }
 }
-JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:text",
+JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:expression",
     { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

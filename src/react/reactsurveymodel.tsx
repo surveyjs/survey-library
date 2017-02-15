@@ -14,6 +14,9 @@ export class ReactSurveyModel extends SurveyModel {
     public mergeCss(src: any, dest: any) {
         this.mergeValues(src, dest);
     }
+    public doAfterRenderSurvey(el) {
+        this.afterRenderSurvey(el);
+    }
     protected onLoadSurveyFromService() {
         this.render();
     }

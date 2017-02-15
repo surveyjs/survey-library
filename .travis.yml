@@ -1,12 +1,21 @@
 language: node_js
 node_js:
-  - "4"
+  - "6"
 
 before_script:
-  - npm install -g concurrently
+  - npm install -g concurrently@3.1.0
+
 script:
-  - npm run build_prod
+  - npm run build_knockout_dev
+  - npm run build_knockout_prod
+  - npm run build_react_dev
+  - npm run build_react_prod
+  - npm run build_angular_dev
+  - npm run build_angular_prod
+  - npm run build_jquery_dev
+  - npm run build_jquery_prod
   - karma start --single-run
+
 before_deploy: "tar -zcvf surveyjs.tar.gz packages"
 deploy:
   provider: releases

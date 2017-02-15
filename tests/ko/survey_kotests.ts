@@ -8,6 +8,8 @@ import {QuestionMatrixDropdown} from "../../src/knockout/koquestion_matrixdropdo
 import {MatrixDropdownColumn} from "../../src/question_matrixdropdownbase";
 import {QuestionMultipleText, MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
 import {Page} from "../../src/knockout/kopage";
+import {CustomWidgetCollection, QuestionCustomWidget} from "../../src/questionCustomWidgets";
+import {koTemplate} from "../../src/knockout/templateText";
 
 export default QUnit.module("koTests");
 
@@ -197,6 +199,15 @@ QUnit.test("koErrors should be empty after prevPage bug#151", function (assert) 
     assert.equal(survey.currentPage.name, "page2", "Go to the next page");
     survey.prevPage();
     assert.equal(question["koErrors"]().length, 0, "The question has not errors");
+});
+
+QUnit.test("add customwidget item", function (assert) {
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "first", htmlTemplate: "<input type='text' />", isFit: (question) => { return false; } });
+    assert.equal(CustomWidgetCollection.Instance.widgets.length, 1, "one widget is added");
+    assert.ok(koTemplate, "ko template is exists");
+    assert.ok(koTemplate.indexOf("survey-widget-first") > -1, "text was added");
+    CustomWidgetCollection.Instance.clear();
 });
 
 

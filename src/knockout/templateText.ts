@@ -4,10 +4,17 @@ export class SurveyTemplateText {
     constructor() {
     }
 
+    public addText(newText: string, id: string, name: string) {
+        id = this.getId(id, name);
+        this.text = this.text + '<script type="text/html" ' + id + '>' + newText + '</script>';
+    }
     public replaceText(replaceText: string, id: string, questionType: string = null) {
-        id = this.getId(id, questionType);
-        var pos = this.text.indexOf(id);
-        if (pos < 0) return;
+        var posId = this.getId(id, questionType);
+        var pos = this.text.indexOf(posId);
+        if (pos < 0) {
+            this.addText(replaceText, id, questionType);
+            return;
+        }
         pos = this.text.indexOf('>', pos);
         if (pos < 0) return;
         var startPos = pos + 1;

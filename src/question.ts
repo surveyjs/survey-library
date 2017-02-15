@@ -118,9 +118,13 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public get value(): any {
         return this.valueFromData(this.getValueCore());
     }
+    private isvalueChangedCallbackFiring: boolean = false;
     public set value(newValue: any) {
         this.setNewValue(newValue);
+        if (this.isvalueChangedCallbackFiring) return;
+        this.isvalueChangedCallbackFiring = true;
         this.fireCallback(this.valueChangedCallback);
+        this.isvalueChangedCallbackFiring = false;
     }
     public get comment(): string { return this.getComment(); }
     public set comment(newValue: string) {

@@ -11,14 +11,14 @@ var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
-    "(c) Andrew Telnov - http://surveyjs.org/",
+    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.org/",
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
     "Project: http://surveyjs.org/",
-    "Definitions by: Andrew Telnov <https://github.com/andrewtelnov/>",
+    "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
     ""].join("\n");
 
 var platformOptions = {
@@ -83,17 +83,19 @@ var platformOptions = {
     }
 };
 
-module.exports = function(options) {
+module.exports = function (options) {
+    //TODO 
+    options.platformPrefix = options.platform == 'knockout' ? 'ko' : options.platform;
     var packagePath = './packages/survey-' + options.platform + '/';
     var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
 
     var percentage_handler = function handler(percentage, msg) {
-        if ( 0 == percentage ) {
+        if ( 0 === percentage ) {
             console.log('Build started... good luck!');
-        } else if ( 1 == percentage ) {
+        } else if ( 1 === percentage ) {
             if (options.buildType === "prod") {
                 dts.bundle({
-                    name: '../../survey.' + options.platform,
+                    name: '../../survey.' + options.platformPrefix,
                     main: packagePath + 'typings/entries/' + options.platform + '.d.ts',
                     outputAsModuleFolder: true,
                     headerText: dts_banner
@@ -101,15 +103,14 @@ module.exports = function(options) {
                 rimraf.sync(packagePath + 'typings');
                 fs.createReadStream('./npmREADME.md').pipe(fs.createWriteStream(packagePath + 'README.md'));
             }
-            //TODO someday need to remove
-            if (options.platform === "knockout") {
-                if (options.buildType === "prod") {
-                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');
-                    fs.rename('./packages/survey-knockout/survey.knockout.d.ts', './packages/survey-knockout/survey.ko.d.ts');
-                } else {
-                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');
-                }
-            }
+            //TODO someday need to remove		
+            if (options.platform === "knockout") {		
+                if (options.buildType === "prod") {		
+                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');		
+                } else {		
+                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');		
+                }		
+            }		
         }
     };
 
@@ -127,19 +128,15 @@ module.exports = function(options) {
         'license': 'MIT',
         'files': [
             'survey.css',
-            'survey.min.css',
-            'survey.' + options.platform + '.js',
-            'survey.' + options.platform + '.min.js'
+            'survey.' + options.platformPrefix + '.js',
+            'survey.' + options.platformPrefix + '.min.js'
         ],
-        'main': [
-            'survey.min.css',
-            'survey.' + options.platform + '.min.js'
-        ],
+        'main': 'survey.' + options.platformPrefix + '.min.js',
         'repository': {
             'type': 'git',
-            'url': 'https://github.com/andrewtelnov/surveyjs.git'
+            'url': 'https://github.com/surveyjs/surveyjs.git'
         },
-        'typings': 'survey.' + options.platform + '.d.ts',
+        'typings': 'survey.' + options.platformPrefix + '.d.ts',
         'dependencies': platformOptions[options.platform].dependencies
     };
     

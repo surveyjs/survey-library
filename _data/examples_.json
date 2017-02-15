@@ -67,7 +67,7 @@
             "examplesetups/custom-css.md"
         ]
     },
-    { "name": "survey-customnavigation", "title": "Custom navigation", "propertiesFile": "exampleproperties/customnavigation.html",
+    { "name": "survey-customnavigation", "title": "Custom navigation", "propertiesFile": "exampleproperties/customnavigation.html", "preSurvey": "survey-custombuttons.html",
         "includes": [
             "examplesetups/custom-navigation.md"
         ]

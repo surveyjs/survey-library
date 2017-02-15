@@ -21,6 +21,7 @@ module Jekyll
       self.data['canonicalUrl'] = example['canonicalUrl']
       self.data['usedxchart'] = example['usedxchart']
       self.data['jquery'] = example['jquery']
+      self.data['preSurvey'] = example['preSurvey']
 
       self.data['dataFile'] = example['dataFile'] || "surveys/#{example['name']}.json"
       self.data['title'] = example['title']

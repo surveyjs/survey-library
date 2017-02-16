@@ -2,10 +2,6 @@ language: node_js
 node_js:
   - "6"
 
-branches:
-  only:
-  - master
-  
 before_script:
   - npm install -g concurrently@3.1.0
 
@@ -18,6 +14,8 @@ script:
   - npm run build_angular_prod
   - npm run build_jquery_dev
   - npm run build_jquery_prod
+  - npm run build_vue_dev
+  - npm run build_vue_prod
   - karma start --single-run
 
 before_deploy: "tar -zcvf surveyjs.tar.gz packages"

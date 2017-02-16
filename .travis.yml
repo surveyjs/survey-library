@@ -14,6 +14,8 @@ script:
   - npm run build_angular_prod
   - npm run build_jquery_dev
   - npm run build_jquery_prod
+  - npm run build_vue_dev
+  - npm run build_vue_prod
   - karma start --single-run
 
 before_deploy: "tar -zcvf surveyjs.tar.gz packages"

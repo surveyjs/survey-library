@@ -15,7 +15,7 @@
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\""
   },
-  "version": "v0.12.0",
+  "version": "0.12.0",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {

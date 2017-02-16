@@ -128,5 +128,10 @@
         "includes": [
             "examplesetups/custom-widget-tagbox.md"
         ]
+    },
+    { "name": "custom-widget-datepicker", "title": "TagBox Custom Widget", "jquery": true,
+        "includes": [
+            "examplesetups/custom-widget-datepicker.md"
+        ]
     }
 ]

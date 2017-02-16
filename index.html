@@ -23,6 +23,7 @@ hasFooter: true
                 <a href="{{ page.pathprefix }}examples/angular/survey-customcss.html">JQuery»</a>
                 <a href="{{ page.pathprefix }}examples/knockout/survey-customcss.html">Knockout»</a>
                 <a href="{{ page.pathprefix }}examples/react/survey-customcss.html">React»</a>
+                <a href="{{ page.pathprefix }}examples/vue/survey-customcss.html">Vue»</a>
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
@@ -46,6 +47,7 @@ hasFooter: true
                 <a href="{{ page.pathprefix }}examples/angular/survey-data.html">JQuery»</a>
                 <a href="{{ page.pathprefix }}examples/knockout/survey-data.html">Knockout»</a>
                 <a href="{{ page.pathprefix }}examples/react/survey-data.html">React»</a>
+                <a href="{{ page.pathprefix }}examples/vue/survey-data.html">Vue»</a>
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
@@ -59,6 +61,7 @@ hasFooter: true
                 <a href="{{ page.pathprefix }}examples/angular/service-result.html">JQuery»</a>
                 <a href="{{ page.pathprefix }}examples/knockout/service-result.html">Knockout»</a>
                 <a href="{{ page.pathprefix }}examples/react/service-result.html">React»</a>
+                <a href="{{ page.pathprefix }}examples/vue/service-result.html">Vue»</a>
             </div>
         </div>
     </div>
@@ -85,6 +88,7 @@ hasFooter: true
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
                     </ul>
                     <div class="tab-content" data-bind="visible:isAngular">
                         <pre><code class="language-markup">npm install survey-angular</code></pre>
@@ -98,6 +102,9 @@ hasFooter: true
                     <div class="tab-content" data-bind="visible:isReact">
                         <pre><code class="language-markup">npm install survey-react</code></pre>
                     </div>
+                    <div class="tab-content" data-bind="visible:isVue">
+                        <pre><code class="language-markup">npm install survey-vue</code></pre>
+                    </div>
                 </div>
             </div>
         </div>
@@ -110,6 +117,7 @@ hasFooter: true
                     <a href="https://jquery.com/" target="_blank">JQuery</a> or
                     <a href="http://knockoutjs.com" target="_blank">KnockoutJS</a> or
                     <a href="https://facebook.github.io/react/" target="_blank">React</a>
+                    <a href="https://vuejs.org/" target="_blank">Vue</a>
                 </h4>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
@@ -119,6 +127,7 @@ hasFooter: true
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
                     </ul>
                     <div class="tab-content" data-bind="visible:isAngular">
                 <pre><code class="language-js">import { Component } from '@angular/core';
@@ -134,6 +143,9 @@ hasFooter: true
                 <pre><code class="language-js">import React from 'react';
 import ReactDOM from 'react-dom';
 </code></pre>
+                    </div>
+                    <div class="tab-content" data-bind="visible:isVue">
+                        <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                 </div>
             </div>
@@ -153,6 +165,7 @@ import ReactDOM from 'react-dom';
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
                     </ul>
                     <div class="tab-content" data-bind="visible:isAngular">
                         <h5>Link to the angular2 version of the library.</h5>
@@ -169,6 +182,10 @@ import ReactDOM from 'react-dom';
                     <div class="tab-content" data-bind="visible:isReact">
                         <h5>Link to the react version of the library.</h5>
                         <pre><code class="language-js">import * as Survey from "survey-react";</code></pre>
+                    </div>
+                    <div class="tab-content" data-bind="visible:isVue">
+                        <h5>Link to the vue version of the library.</h5>
+                        <pre><code class="language-js">import * as Survey from "survey-vue";</code></pre>
                     </div>
                 </div>
             </div>
@@ -203,6 +220,7 @@ import ReactDOM from 'react-dom';
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
                         <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
                         <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
+                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
                     </ul>
                     <div class="row tab-content"  data-bind="visible:isAngular">
                         <div>
@@ -290,6 +308,20 @@ survey.onComplete.add(sendDataToServer);
   document.getElementById("surveyContainer"));</code></pre>
                         </div>
                     </div>
+                    <div class="row tab-content"  data-bind="visible:isVue">
+                        <div>
+                            <h3>As Survey Window</h3>
+                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;survey-window :survey="survey"&gt;&lt;/survey-window&gt;&lt;/div&gt;</code></pre>
+                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
+new Vue({ el: '#surveyContainer', data: { survey: survey } });</code></pre>
+                        </div>
+                        <div>
+                            <h3>Inside your web page</h3>
+                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;survey :survey="survey"&gt;&lt;/survey&gt;&lt;/div&gt;</code></pre>
+                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
+new Vue({ el: '#surveyContainer', data: { survey: survey } });</code></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -353,6 +385,7 @@ function sendDataToServer(survey) {
         this.isJquery = ko.computed(function() { return self.platform() == "jquery"; });
         this.isKnockout = ko.computed(function() { return self.platform() == "knockout"; });
         this.isReact = ko.computed(function() { return self.platform() == "react"; });
+        this.isVue = ko.computed(function() { return self.platform() == "vue"; });
 
         this.setAngular = function() {
             self.platform("angular");
@@ -365,6 +398,9 @@ function sendDataToServer(survey) {
         };
         this.setReact = function() {
             self.platform("react");
+        };
+        this.setVue = function() {
+            self.platform("vue");
         };
     };
     ko.applyBindings(new ViewModel(), document.getElementById("steps"));

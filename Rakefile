@@ -10,14 +10,11 @@ namespace :site do
     })).process
 
     origin = `git config --get remote.origin.url`
-    Dir.mkdir("tmp") do |tmp|
-      cp_r "_site/.", tmp
-      Dir.chdir tmp
+    Dir.chdir "_site/."
 
-      system "git init"
-      system "git add . && git commit -m 'Site updated at #{Time.now.utc}'"
-      system "git remote add origin #{origin}"
-      system "git push origin master:refs/heads/gh-pages --force"
-    end
+    system "git init"
+    system "git add . && git commit -m \"Site updated at #{Time.now.utc}\""
+    system "git remote add origin #{origin}"
+    system "git push origin master:refs/heads/gh-pages --force"
   end
 end

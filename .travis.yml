@@ -2,6 +2,10 @@ language: node_js
 node_js:
   - "6"
 
+branches:
+  only:
+  - master
+  
 before_script:
   - npm install -g concurrently@3.1.0
 

@@ -5,7 +5,7 @@
             <div v-for="question in row.questions" :class="css.question.root" style="vertical-align:top" :id="row.id" :style="{display: question.visible ? 'inline-block': 'none', marginLeft: getIndentSize(question, question.indent), paddingRight: getIndentSize(question, question.rightIndent), width: question.renderWidth }">
                 <h5 v-if="question.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'">{{question.fullTitle}}</h5>
                 <survey-errors :question="question" :css="css"/>
-                <component :is="'survey-' + question.getType()" :question="question" :isEditMode="survey.isEditMode" :css="css"/>
+                <component :is="getWidgetComponentName(question)" :question="question" :isEditMode="survey.isEditMode" :css="css"/>
                 <div v-show="question.hasComment">
                     <div>{{question.commentText}}</div>
                     <survey-comment :question="question" :isEditMode="survey.isEditMode" :css="css"/>
@@ -34,6 +34,12 @@
         @Prop
         css: Object
 
+        getWidgetComponentName(question: QuestionModel) {
+            if(question.customWidget) {
+                return question.customWidget.name;
+            }
+            return 'survey-' + question.getType();
+        }
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

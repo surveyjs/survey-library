@@ -1,5 +1,5 @@
 <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/mint-choc/jquery-ui.css" type="text/css" rel="stylesheet" /> 
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" /> 
 
 
 {% capture survey_setup %}

@@ -14,3 +14,14 @@ project.json
 npm-debug.*
 _site
 Gemfile.lock
+/typings
+/src/knockout/template.window.ko.html.ts
+/src/knockout/template.ko.html.ts
+/Properties
+/web.config
+/travis_code.txt
+/survey.js.xproj
+/survey.js.sln
+/Startup.cs
+/project.lock.json
+/hosting.ini

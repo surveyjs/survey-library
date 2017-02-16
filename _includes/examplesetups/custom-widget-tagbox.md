@@ -45,6 +45,30 @@ var widget = {
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 
 {% elsif page.useangular %}
+var widget = {
+    name: "tagbox",
+    htmlTemplate: "<div></div>",
+    isFit : function(question) { return question.name == 'countries'; },
+    afterRender: function(question, el) {
+        var widget = $(el).dxTagBox({
+            items: question.visibleChoices,
+            value: question.value,
+            searchEnabled: true,
+            displayExpr: "text",
+            valueExpr: "value",
+            onValueChanged: function (e) {
+                question.value = e.value;
+            }
+        }).dxTagBox("instance");
+        //It requires when choices fills on ajax callback, using choicesByUrl property.
+        question.choicesChangedCallback = function() {
+            widget.option("items", question.visibleChoices);
+        }
+        question.valueChangedCallback = function() {
+            widget.option("value", question.value);
+        }
+    }
+}
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {
@@ -54,6 +78,30 @@ function onAngularComponentInit() {
 {% include examplesetups/angular-example-component.md %}
 
 {% elsif page.usejquery %}
+var widget = {
+    name: "tagbox",
+    htmlTemplate: "<div></div>",
+    isFit : function(question) { return question.name == 'countries'; },
+    afterRender: function(question, el) {
+        var widget = $(el).dxTagBox({
+            items: question.visibleChoices,
+            value: question.value,
+            searchEnabled: true,
+            displayExpr: "text",
+            valueExpr: "value",
+            onValueChanged: function (e) {
+                question.value = e.value;
+            }
+        }).dxTagBox("instance");
+        //It requires when choices fills on ajax callback, using choicesByUrl property.
+        question.choicesChangedCallback = function() {
+            widget.option("items", question.visibleChoices);
+        }
+        question.valueChangedCallback = function() {
+            widget.option("value", question.value);
+        }
+    }
+}
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 $("#surveyElement").Survey({
     model: survey

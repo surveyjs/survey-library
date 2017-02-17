@@ -10,7 +10,7 @@
             <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
                 <input type="button" :value="survey.pagePrevText" v-show="!survey.isFirstPage" :class="getNavBtnClasses('prev')" @click="prevPage"/>
                 <input type="button" :value="survey.pageNextText" v-show="!survey.isLastPage" :class="getNavBtnClasses('next')" @click="nextPage"/>
-                <input type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="getNavBtnClasses('complete')" @click="completeLastPage"/>
+                <input v-if="survey.isEditMode" type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="getNavBtnClasses('complete')" @click="completeLastPage"/>
             </div>
         </template>
         <div v-if="survey.state === 'completed'" v-html="survey.processedCompletedHtml"></div>

@@ -18,8 +18,8 @@
             ]},
             { "name" : "Custom Widgets", "id": "custom-widgets",
               "items": [
-                { "name": "TagBoxWidget", "text" : "TagBox as a Custom Widget", "url": "custom-widget-tagbox.html"},
-                { "name": "DatepickerWidget", "text" : "DatePicker as a Custom Widget", "url": "custom-widget-datepicker.html"}
+                { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"},
+                { "name": "Datepicker", "text" : "JqueryUI DatePicker", "url": "custom-widget-datepicker.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

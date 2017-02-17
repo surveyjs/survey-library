@@ -22,7 +22,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
         if (!this.survey || !this.survey.isNavigationButtonsShowing) return null;
         var prevButton = !this.survey.isFirstPage ? this.renderButton(this.handlePrevClick, this.survey.pagePrevText, this.css.navigation.prev) : null;
         var nextButton = !this.survey.isLastPage ? this.renderButton(this.handleNextClick, this.survey.pageNextText, this.css.navigation.next) : null;
-        var completeButton = this.survey.isLastPage ? this.renderButton(this.handleCompleteClick, this.survey.completeText, this.css.navigation.complete) : null;
+        var completeButton = this.survey.isLastPage && this.survey.isEditMode ? this.renderButton(this.handleCompleteClick, this.survey.completeText, this.css.navigation.complete) : null;
         return (
             <div className={this.css.footer}>
                 {prevButton}

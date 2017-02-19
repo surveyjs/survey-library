@@ -77,6 +77,9 @@ To build library yourself:
 ##Create your own question type.
 Explore the [example](https://github.com/surveyjs/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.
 
+##Use 3rd party controls as question widgets.
+Explore the [example](http://surveyjs.org/examples/react/custom-widget-datepicker.html) based on jquery datepicker
+
 ##License
 
 MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)

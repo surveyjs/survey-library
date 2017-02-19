@@ -110,9 +110,7 @@ export class SurveyQuestion extends React.Component<any, any> {
     protected renderComment(): JSX.Element {
         return (<div>
                 <div>{this.question.commentText}</div>
-                <div className={this.css.question.comment}>
-                <SurveyQuestionCommentItem  question={this.question}/>
-                </div>
+                <SurveyQuestionCommentItem  question={this.question} css={this.css} />
             </div>);
     }
     protected renderErrors(): JSX.Element {

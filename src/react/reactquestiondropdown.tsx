@@ -3,6 +3,7 @@ import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionDropdownModel} from "../question_dropdown";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {ReactQuestionFactory} from "./reactquestionfactory";
+import {browser} from "../utils";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -44,8 +45,13 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
             var option = <option key={key} value={item.value}>{item.text}</option>;
             options.push(option);
         }
+
+        let onChange = null;
+        if (browser.msie) {
+            onChange = this.handleOnChange;
+        }
         return (
-            <select id={this.question.inputId} className={this.css} value={this.state.value} onInput={this.handleOnChange}>
+            <select id={this.question.inputId} className={this.css} value={this.state.value} onChange={onChange} onInput={this.handleOnChange}>
             <option value="">{this.question.optionsCaption}</option>
             {options}
             </select>

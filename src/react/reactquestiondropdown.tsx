@@ -45,7 +45,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
             options.push(option);
         }
         return (
-            <select id={this.question.inputId} className={this.css} value={this.state.value} onChange={this.handleOnChange}>
+            <select id={this.question.inputId} className={this.css} value={this.state.value} onInput={this.handleOnChange}>
             <option value="">{this.question.optionsCaption}</option>
             {options}
             </select>

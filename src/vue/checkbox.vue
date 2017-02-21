@@ -21,10 +21,13 @@
         isOtherSelected = false;
         selectedValues = [];
 
-        constructor() {
-            super();
+        private _updateState() {
             this.selectedValues = this.question.value || [];
             this.isOtherSelected = this.question.isOtherSelected;
+        }
+
+        mounted() {
+            this._updateState();
         }
 
         // TODO may be need to move to the model
@@ -37,6 +40,10 @@
         onSelectedValuesChanged(val: Array<any>, oldVal: Array<any>) {
             this.question.value = this.selectedValues;
             this.isOtherSelected = this.question.isOtherSelected;
+        }
+        @Watch('question')
+        onQuestionChanged(val: Array<any>, oldVal: Array<any>) {
+            this._updateState();
         }
     }
     Vue.component("survey-checkbox", Checkbox)

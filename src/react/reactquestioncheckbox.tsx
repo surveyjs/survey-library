@@ -19,9 +19,9 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         return (
-            <form className={this.css.root}>
-            {this.getItems() }
-                </form>);
+            <div className={this.css.root}>
+                {this.getItems() }
+            </div>);
     }
     protected getItems(): Array<any> {
         var items = [];

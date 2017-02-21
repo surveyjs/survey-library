@@ -81,14 +81,17 @@ export class SurveyRow extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (this.row == null || this.survey == null || this.creator == null) return null;
-        if (!this.row.visible) return null;
-        var questions = [];
-        for (var i = 0; i < this.row.questions.length; i++) {
-            var question = this.row.questions[i];
-            questions.push(this.createQuestion(question));
+        var questions = null;
+        if (this.row.visible) {
+            questions = [];
+            for (var i = 0; i < this.row.questions.length; i++) {
+                var question = this.row.questions[i];
+                questions.push(this.createQuestion(question));
+            }
         }
+        var style = this.row.visible ?  {} : { display: "none" };
         return (
-            <div className={this.css.row}>
+            <div className={this.css.row} style={style}>
                 {questions}
             </div>
         );

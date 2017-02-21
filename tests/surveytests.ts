@@ -870,6 +870,37 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
     assert.equal(survey.getQuestionByName("question3").visible, true, "The third question is visible");
 });
 
+QUnit.test("visibleIf and page rows", function (assert) {
+    var survey = new SurveyModel({
+        pages:[
+            {name:"component",questions:[{type:"dropdown",choices:[{value:"app",text:"Application / Web"},{value:"database",text:"Database"}],name:"component",title:"Component Type"},
+            {type:"dropdown",choices:[{value:"windows",text:"Windows"},{value:"linux",text:"Linux"}],name:"componentOs",title:"Which operating system are you using?",visible:false,visibleIf:"{component} = 'app' "},
+            {type:"text",name:"question1",title:"Question 1",visible:false,visibleIf:"{component} = 'app' "},
+            {type:"text",name:"question2",title:"Question 2",visible:false,visibleIf:"{component} = 'app' "},
+            {type:"text",name:"database",title:"Database name",visible:false,visibleIf:"{component} = 'database' "}]}],
+            questionTitleTemplate:"{title} {require}:",requiredText:"(*)",sendResultOnPageNext:true,showQuestionNumbers:"off"
+    });
+    var page = survey.currentPage;
+    assert.equal(page.rows.length, 5);
+    
+    survey.setValue("component", "app");
+    assert.equal(page.rows[1].visible, true);
+    assert.equal(page.rows[1].question.name, "componentOs");
+    assert.equal(page.rows[4].visible, false);
+    assert.equal(page.rows[4].question.name, "database");
+
+    survey.setValue("component", "database");
+    assert.equal(page.rows[1].visible, false);
+    assert.equal(page.rows[1].question.name, "componentOs");
+    assert.equal(page.rows[4].visible, true);
+    assert.equal(page.rows[4].question.name, "database");
+
+    survey.setValue("component", "app");
+    assert.equal(page.rows[1].visible, true);
+    assert.equal(page.rows[1].question.name, "componentOs");
+    assert.equal(page.rows[4].visible, false);
+    assert.equal(page.rows[4].question.name, "database");
+});
 QUnit.test("assign customWidgets to questions", function (assert) {
     CustomWidgetCollection.Instance.clear();
     CustomWidgetCollection.Instance.addCustomWidget({ name: "first", isFit: (question) => { return question.name == "question2"; } });

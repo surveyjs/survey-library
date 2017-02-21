@@ -21,12 +21,12 @@
         <script src="https://fb.me/react-0.14.8.js"></script>
         <script src="https://fb.me/react-dom-0.14.8.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
-        <script src="{{ site.baseurl }}/js/survey.react.min.js"></script>
+        <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.react.min.js"></script>
         {% elsif page.useknockout%}
         <script src="{{ site.baseurl }}/js/knockout.js"></script>
-        <script src="{{ site.baseurl }}/js/survey.ko.min.js"></script>
+        <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.ko.min.js"></script>
         {% elsif page.usejquery%}
-        <script src="{{ site.baseurl }}/js/survey.jquery.min.js"></script>
+        <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.jquery.min.js"></script>
         {% elsif page.useangular%}
         <!-- The stuff Angular 2 needs -->
         <script src="{{ site.baseurl }}/js/angular2/zone.min.js"></script>
@@ -39,10 +39,10 @@
         <script src="{{ site.baseurl }}/js/angular2/angular.platform-browser.umd.js"></script>
         <script src="{{ site.baseurl }}/js/angular2/angular.platform-browser-dynamic.umd.js"></script>
 
-        <script src="{{ site.baseurl }}/js/survey.angular.min.js"></script>
+        <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.angular.min.js"></script>
         {% elsif page.usevue%}
         <script src="{{ site.baseurl }}/js/vue.min.js"></script>
-        <script src="{{ site.baseurl }}/js/survey.vue.min.js"></script>
+        <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.vue.min.js"></script>
         {% endif %}
         <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />
         <script src="{{ site.baseurl }}/js/prism.js"></script>

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input v-if="isEditMode" :class="css.text" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change"/>
+        <input v-if="isEditMode" :class="css.text" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="value" @change="change"/>
         <div v-else :class="css.text">{{question.value}}</div>
     </div>
 </template>
@@ -13,6 +13,19 @@
 
     @Component
     export default class Text extends Question<QuestionTextModel> {
+        value = '';
+
+        mounted() {
+            this.question.valueChangedCallback = this.onValueChanged;
+        }
+        beforeDestroy() {
+            this.question.valueChangedCallback = undefined; // TODO: ensure this works
+        }
+
+        onValueChanged() {
+            this.value = this.question.value;
+        }
+
         change(event) {
             this.question.value = event.target.value;
         }

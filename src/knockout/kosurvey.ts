@@ -57,6 +57,7 @@ export class Survey extends SurveyModel {
         }
         element = this.renderedElement;
         if (!element) return;
+        this.updateCustomWidgets(this.currentPage);
         element.innerHTML = this.getTemplate();
         self.applyBinding();
         self.onRendered.fire(self, {});

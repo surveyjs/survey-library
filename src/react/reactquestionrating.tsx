@@ -21,9 +21,9 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
         var minText = this.question.mininumRateDescription ? this.question.mininumRateDescription + " " : "";
         var maxText = this.question.maximumRateDescription ? " " + this.question.maximumRateDescription : "";
         for (var i = 0; i < this.question.visibleRateValues.length; i++) {
-            var minText = i == 0 ? minText : "";
-            var maxText = i == this.question.visibleRateValues.length - 1 ? maxText : "";
-            values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minText, maxText));
+            var minTextValue = i == 0 ? minText : "";
+            var maxTextValue = i == this.question.visibleRateValues.length - 1 ? maxText : "";
+            values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minTextValue, maxTextValue));
         }
         var comment = this.question.hasOther ? this.renderOther() : null;
         return (

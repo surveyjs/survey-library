@@ -8,8 +8,9 @@ export class JsonObjectProperty {
     public classNamePart: string = null;
     public baseClassName: string = null;
     public defaultValue: any = null;
+    public readOnly: boolean = false;
     public onGetValue: (obj: any) => any = null;
-    public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any
+    public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
 
     constructor(public name: string) {
     }
@@ -149,14 +150,21 @@ export class JsonMetadata {
             metaDataClass.creator = creator;
         }
     }
-    public getProperties(name: string): Array<JsonObjectProperty> {
-        var properties = this.classProperties[name];
+    public getProperties(className: string): Array<JsonObjectProperty> {
+        var properties = this.classProperties[className];
         if (!properties) {
             properties = new Array<JsonObjectProperty>();
-            this.fillProperties(name, properties);
-            this.classProperties[name] = properties;
+            this.fillProperties(className, properties);
+            this.classProperties[className] = properties;
         }
         return properties;
+    }
+    public findProperty(className: string, propertyName: string) : JsonObjectProperty {
+        var properties = this.getProperties(className);
+        for(var i = 0; i < properties.length; i ++) {
+            if(properties[i].name == propertyName) return properties[i];
+        }
+        return null;
     }
     public createClass(name: string): any {
         var metaDataClass = this.findClass(name);

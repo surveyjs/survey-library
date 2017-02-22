@@ -396,3 +396,11 @@ QUnit.test("Add a new number property with default value", function (assert) {
 
     JsonObject.metaData.removeProperty("car", "tag");
 });
+
+QUnit.test("Get property and readonly", function (assert) {
+    var property = JsonObject.metaData.findProperty("truck", "name");
+    assert.equal(property.readOnly, false, "readOnly is false by default");
+    property.readOnly = true;
+    var property2 = JsonObject.metaData.findProperty("truck", "name");
+    assert.equal(property2.readOnly, true, "readOnly is true now");
+});

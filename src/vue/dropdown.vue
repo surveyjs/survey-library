@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <select v-if="isEditMode" :id="question.inputId" v-model="question.value" :class="css.dropdown">
+    <div :class="css.dropdown.root">
+        <select v-if="isEditMode" :id="question.inputId" v-model="question.value" :class="css.dropdown.control">
             <option value="">{{question.optionsCaption}}</option>
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>

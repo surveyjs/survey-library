@@ -56,7 +56,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean): JSX.Element {
         var id = isFirst ? this.question.inputId : null;
         return (<div key={key} className={this.css.item} style={divStyle}>
-                <label className={this.css.item}>
+                <label className={this.css.label}>
                 <input id={id} type="radio"  checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
                     <span style={this.textStyle}>{item.text}</span>
                     </label>

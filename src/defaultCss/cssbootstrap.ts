@@ -14,12 +14,12 @@ export var defaultBootstrapCss = {
 
     checkbox: { root: "form-inline", item: "checkbox", other: "" },
     comment: "form-control",
-    dropdown: "form-control",
+    dropdown: { root: "", control: "form-control" },
     matrix: { root: "table" },
     matrixdropdown: { root: "table" },
     matrixdynamic: { root: "table", button: "button" },
     multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
-    radiogroup: { root: "form-inline", item: "radio", other: "" },
+    radiogroup: { root: "form-inline", item: "radio", label: "", other: "" },
     rating: { root: "btn-group", item: "btn btn-default" },
     text: "form-control",
     window: {

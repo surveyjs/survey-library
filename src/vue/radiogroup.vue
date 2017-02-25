@@ -1,7 +1,7 @@
 <template>
     <form :class="css.radiogroup.root">
         <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
-            <label :class="css.radiogroup.item">
+            <label :class="css.radiogroup.label">
                 <input type="radio" :name="question.name" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
             </label>

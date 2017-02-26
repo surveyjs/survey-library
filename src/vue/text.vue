@@ -17,6 +17,7 @@
 
         mounted() {
             this.question.valueChangedCallback = this.onValueChanged;
+            this.value = this.question.value || '';
         }
         beforeDestroy() {
             this.question.valueChangedCallback = undefined; // TODO: ensure this works

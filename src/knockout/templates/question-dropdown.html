@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
     <!-- ko if: $root.isEditMode -->
-    <select data-bind="attr: {id: question.inputId}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: $root.css.dropdown"></select>
+    <select data-bind="attr: {id: question.inputId}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: $root.css.dropdown.control"></select>
     <!-- /ko -->
     <!-- ko if: $root.isDisplayMode -->
-    <div data-bind="text:question.koValue, css: $root.css.dropdown"></div>
+    <div data-bind="text:question.koValue, css: $root.css.dropdown.control"></div>
     <!-- /ko -->
     <div data-bind="visible: question.hasOther">
         <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>

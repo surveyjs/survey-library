@@ -758,6 +758,21 @@ QUnit.test("goNextPageAutomatic bug #200: https://github.com/surveyjs/surveyjs/i
     assert.equal(survey.currentPage.name, survey.pages[1].name, "go to the next page");
 });
 
+QUnit.test("goNextPageAutomatic and clearInvisibleValues bug #252: https://github.com/surveyjs/surveyjs/issues/252", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.choices = [1, 2, 3];
+    var q2 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q2");
+    q2.visible = false;
+    q2.value = 1;
+    survey.goNextPageAutomatic = true;
+    survey.clearInvisibleValues = true;
+    (<Question>survey.getQuestionByName("q1")).value = 1;
+    assert.equal(survey.state, "completed");
+});
+
+
 QUnit.test("isNavigationButtonsShowing", function (assert) {
     var survey = twoPageSimplestSurvey();
     assert.equal(survey.isNavigationButtonsShowing, true, "by default buttons are shown");

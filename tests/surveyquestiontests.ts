@@ -539,6 +539,8 @@ QUnit.test("Text inputType=number", function (assert) {
     assert.strictEqual(question.value, 2.25, "make it numeric/float");
     question.value = "2.25sdd";
     assert.ok(!question.value, "it is empty");
+    question.value = "0";
+    assert.strictEqual(question.value, 0, "zero value");
 });
 QUnit.test("Text inputType=range", function (assert) {
     var question = new QuestionTextModel("text");

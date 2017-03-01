@@ -928,6 +928,16 @@ QUnit.test("assign customWidgets to questions", function (assert) {
     assert.equal((<Question>survey.getQuestionByName("question5")).customWidget.name, "second", "has the second custom widget");
     CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("Set 0 value for text inputType=number from survey. Bug #267", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    page.addNewQuestion("text", "question1");
+    var question = <QuestionTextModel>page.questions[0];
+    question.inputType = "number";
+    assert.strictEqual(question.value, undefined, "undefined initial value");
+    question.value = "0";
+    assert.strictEqual(question.value, 0, "zero value");
+});
 
 
 function twoPageSimplestSurvey() {

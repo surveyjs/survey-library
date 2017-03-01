@@ -2,7 +2,7 @@
     <form :class="css.checkbox.root">
         <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="css.radiogroup.item">
-                <input type="checkbox" :name="question.name" :value="item.value" v-model="selectedValues" :id="question.inputId + '_' + item.value" :disabled="!isEditMode" />
+                <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
             </label>
         </div>
@@ -18,17 +18,9 @@
 
     @Component
     export default class Checkbox extends Question<QuestionCheckboxModel> {
+        isUpdatingQuestion = false;
         isOtherSelected = false;
-        selectedValues = [];
-
-        private _updateState() {
-            this.selectedValues = this.question.value || [];
-            this.isOtherSelected = this.question.isOtherSelected;
-        }
-
-        mounted() {
-            this._updateState();
-        }
+        value = [];
 
         // TODO may be need to move to the model
         get colWidth() {
@@ -36,14 +28,40 @@
             return colCount > 0 ? (100 / colCount) + '%' : "";
         }
 
-        @Watch('selectedValues')
-        onSelectedValuesChanged(val: Array<any>, oldVal: Array<any>) {
-            this.question.value = this.selectedValues;
+        onValueChanged() {
+            if(!this.isUpdatingQuestion) {
+                if(this.question.value === undefined) {
+                    this.question.value = [];
+                }
+                this.value = this.question.value;
+            }
             this.isOtherSelected = this.question.isOtherSelected;
         }
+
+        mounted() {
+            this.onValueChanged();
+            this.question.valueChangedCallback = this.onValueChanged;
+        }
+
+        @Watch('value')
+        onSelectedValuesChanged(val: Array<any>, oldVal: Array<any>) {
+            this.isUpdatingQuestion = true;
+            try {
+                this.question.value = this.value;
+            }
+            finally {
+                this.isUpdatingQuestion = false;
+            }
+        }
         @Watch('question')
-        onQuestionChanged(val: Array<any>, oldVal: Array<any>) {
-            this._updateState();
+        onQuestionChanged(val: QuestionCheckboxModel, oldVal: QuestionCheckboxModel) {
+            this.onValueChanged();
+            if(!!oldVal) {
+                oldVal.valueChangedCallback = undefined;
+            }
+            if(!!val) {
+                val.valueChangedCallback = this.onValueChanged;
+            }
         }
     }
     Vue.component("survey-checkbox", Checkbox)

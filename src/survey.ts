@@ -717,7 +717,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     setValue(name: string, newValue: any) {
         if (this.isValueEqual(name, newValue)) return;
-        if (newValue == "" || newValue == null) {
+        if (newValue === "" || newValue === null) {
             delete this.valuesHash[name];
         } else {
             newValue = this.getUnbindValue(newValue);
@@ -758,7 +758,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     setComment(name: string, newValue: string) {
         name = name + this.commentPrefix;
-        if (newValue == "" || newValue == null) {
+        if (newValue === "" || newValue === null) {
             delete this.valuesHash[name];
         } else {
             this.valuesHash[name] = newValue;

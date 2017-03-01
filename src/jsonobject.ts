@@ -22,12 +22,14 @@ export class JsonObjectProperty {
     }
     public getValue(obj: any): any {
         if (this.onGetValue) return this.onGetValue(obj);
-        return null;
+        return obj[this.name];
     }
     public get hasToUseSetValue() { return this.onSetValue; }
     public setValue(obj: any, value: any, jsonConv: JsonObject) {
         if (this.onSetValue) {
             this.onSetValue(obj, value, jsonConv);
+        } else {
+            obj[this.name] = value;
         }
     }
     public getObjType(objType: string) {
@@ -367,12 +369,7 @@ export class JsonObject {
         return result;
     }
     protected valueToJson(obj: any, result: any, property: JsonObjectProperty) {
-        var value = null;
-        if (property.hasToUseGetValue) {
-            value = property.getValue(obj);
-        } else {
-            value = obj[property.name];
-        }
+        var value = property.getValue(obj);
         if (value === undefined || value === null) return;
         if (property.isDefaultValue(value)) return;
         if (this.isValueArray(value)) {

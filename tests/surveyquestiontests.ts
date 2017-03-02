@@ -12,6 +12,7 @@ import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
+import {JsonObject} from "../src/jsonobject";
 
 export default QUnit.module("Survey_Questions");
 
@@ -524,6 +525,22 @@ QUnit.test("Matrixdropdown supportGoNextPageAutomatic always false for checkbox"
     question.columns.push(new MatrixDropdownColumn("col1"));
     question.columns.push(new MatrixDropdownColumn("col2"));
     question.columns[1].cellType = "checkbox";
+    var json = new JsonObject().toJsonObject(question);
+    json.type = question.getType();
+    question.columns.push(new MatrixDropdownColumn("col3"));
+    question.columns.push(new MatrixDropdownColumn("col4"));
+    new JsonObject().toObject(json, question);
+    
+    assert.equal(question.columns.length, 2, "There were two columns");
+});
+
+QUnit.test("Matrixdropdown set columns", function (assert) {
+    var question = new QuestionMatrixDropdownModel("matrix");
+    question.rows = ["row1", "row2"];
+    question.columns.push(new MatrixDropdownColumn("col1"));
+    question.columns.push(new MatrixDropdownColumn("col2"));
+    
+
     
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in rows");
     question.value = { "row1": { "col1": 1, "col2": 11 } };

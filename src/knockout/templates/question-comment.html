@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-comment">
-    <!-- ko if: $root.isEditMode -->
-    <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder}, value:question.koValue, css: $root.css.comment"></textarea>
+    <!-- ko if: question.survey.isEditMode -->
+    <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder}, value:question.koValue, css: question.survey.css.comment"></textarea>
     <!-- /ko -->
-    <!-- ko if: $root.isDisplayMode -->
-    <div data-bind="text:question.koValue, css: $root.css.text"></div>
+    <!-- ko if: question.survey.isDisplayMode -->
+    <div data-bind="text:question.koValue, css: question.survey.css.text"></div>
     <!-- /ko -->
 </script>

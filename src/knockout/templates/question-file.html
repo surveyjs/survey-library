@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-file">
-    <!-- ko if: $root.isEditMode -->
-    <input type="file" data-bind="attr: {id: question.inputId}, event: {change: dochange}">
+    <!-- ko if: question.survey.isEditMode -->
+    <input type="file" data-bind="attr: {id: question.inputId}, event: {change: question.dochange}">
     <!-- /ko -->
     <div>
         <img data-bind="attr: { src: question.koData, height: question.imageHeight, width: question.imageWidth }, visible: question.koHasValue">

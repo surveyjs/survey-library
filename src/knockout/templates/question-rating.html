@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-question-rating">
-    <div data-bind="css: $root.css.rating.root">
+    <div data-bind="css: question.survey.css.rating.root">
         <!-- ko foreach: question.koVisibleRateValues -->
         <label data-bind="css: question.koGetCss($data)">
             <input type="radio" style="display: none;"
-                    data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}, enable: $root.isEditMode" />
+                    data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}, enable: question.survey.isEditMode" />
             <span data-bind="visible: $index() == 0, text: question.mininumRateDescription"></span>
             <span data-bind="text: $data.text"></span>
             <span data-bind="visible: $index() == (question.koVisibleRateValues().length-1), text: question.maximumRateDescription"></span>

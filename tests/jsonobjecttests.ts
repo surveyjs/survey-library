@@ -404,3 +404,11 @@ QUnit.test("Get property and readonly", function (assert) {
     var property2 = JsonObject.metaData.findProperty("truck", "name");
     assert.equal(property2.readOnly, true, "readOnly is true now");
 });
+
+QUnit.test("Add alternative/misspelled property support, https://github.com/surveyjs/surveyjs/issues/280", function (assert) {
+    JsonObject.metaData.findProperty("truck", "maxWeight").alternativeName = "maxaWeight";
+    var dealer = new Dealer();
+    new JsonObject().toObject({ "cars": [{ "type": "sport", "maxSpeed": 320 }, { "type": "truck", "maxaWeight": 10000 }] }, dealer);
+    var truck: any = dealer.cars[1];
+    assert.equal(truck.maxWeight, 10000, "deserialize the second object");
+});

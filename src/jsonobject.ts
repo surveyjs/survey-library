@@ -5,6 +5,7 @@ export class JsonObjectProperty {
     private choicesValue: Array<any> = null;
     private choicesfunc: () => Array<any> = null;
     public className: string = null;
+    public alternativeName: string = null;
     public classNamePart: string = null;
     public baseClassName: string = null;
     public defaultValue: any = null;
@@ -112,6 +113,9 @@ export class JsonMetadataClass {
             }
             if (propInfo.classNamePart) {
                 prop.classNamePart = propInfo.classNamePart;
+            }
+            if(propInfo.alternativeName) {
+                prop.alternativeName = propInfo.alternativeName;
             }
         }
         return prop;
@@ -401,7 +405,7 @@ export class JsonObject {
             value = newObj.newObj;
         }
         if (!newObj.error) {
-            obj[key] = value;
+            obj[property.name] = value;
         }
     }
     private isValueArray(value: any): boolean { return value && value.constructor.toString().indexOf("Array") > -1; }
@@ -467,7 +471,8 @@ export class JsonObject {
     private findProperty(properties: Array<JsonObjectProperty>, key: any): JsonObjectProperty {
         if (!properties) return null;
         for (var i = 0; i < properties.length; i++) {
-            if (properties[i].name == key) return properties[i];
+            var prop = properties[i];
+            if (prop.name == key || prop.alternativeName == key) return prop;
         }
         return null;
     }

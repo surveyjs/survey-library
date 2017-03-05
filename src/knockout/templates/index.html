@@ -14,7 +14,7 @@
         <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete" />
     </div>
     <!-- /ko -->
-    <!-- ko if: koState() == "completed" -->
+    <!-- ko if: koState() == "completed" && showCompletedPage -->
     <div data-bind="html: processedCompletedHtml"></div>
     <!-- /ko -->
     <!-- ko if: koState() == "loading" -->

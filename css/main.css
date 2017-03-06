@@ -365,3 +365,16 @@ footer.panel-footer {
     border-radius: 5px;
     margin-top: 15px;
 }
+
+.cr-rating .cr-item {
+    display: inline-block;
+    text-align: center;
+    margin: 0 2px;
+}
+
+.cr-rating .cr-item .cr-label {
+    border: 1px solid green;
+    background-color: #1ab394;
+    border-radius: 5px;
+    padding: 5px;
+}

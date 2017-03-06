@@ -133,5 +133,10 @@
         "includes": [
             "examplesetups/custom-widget-datepicker.md"
         ]
+    },
+    { "name": "custom-widget-custom-rating", "title": "Custom Rating Custom Widget",
+        "includes": [
+            "examplesetups/custom-widget-custom-rating.md"
+        ]
     }
 ]

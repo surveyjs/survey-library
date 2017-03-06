@@ -19,7 +19,8 @@
             { "name" : "Custom Widgets", "id": "custom-widgets",
               "items": [
                 { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"},
-                { "name": "Datepicker", "text" : "JqueryUI DatePicker", "url": "custom-widget-datepicker.html"}
+                { "name": "Datepicker", "text" : "JqueryUI DatePicker", "url": "custom-widget-datepicker.html"},
+                { "name": "CustomRating", "text" : "Pure JS Rating", "url": "custom-widget-custom-rating.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

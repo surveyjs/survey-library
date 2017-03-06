@@ -18,8 +18,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         var values = [];
-        var minText = this.question.mininumRateDescription ? this.question.mininumRateDescription + " " : "";
-        var maxText = this.question.maximumRateDescription ? " " + this.question.maximumRateDescription : "";
+        var minText = this.question.minRateDescription ? this.question.minRateDescription + " " : "";
+        var maxText = this.question.maxRateDescription ? " " + this.question.maxRateDescription : "";
         for (var i = 0; i < this.question.visibleRateValues.length; i++) {
             var minTextValue = i == 0 ? minText : "";
             var maxTextValue = i == this.question.visibleRateValues.length - 1 ? maxText : "";

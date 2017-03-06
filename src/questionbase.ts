@@ -64,7 +64,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public focus(onError: boolean = false) { }
     setData(newValue: ISurveyData) {
         this.data = newValue;
-        this.surveyValue = (newValue && newValue["questionAdded"]) ? <ISurvey>newValue : null;
+        if(newValue && newValue["questionAdded"]) {
+            this.surveyValue = <ISurvey>newValue;
+        }
         this.onSetData();
     }
     public get survey(): ISurvey { return this.surveyValue; }

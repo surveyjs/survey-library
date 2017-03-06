@@ -13,7 +13,7 @@
                 <input v-if="survey.isEditMode" type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="getNavBtnClasses('complete')" @click="completeLastPage"/>
             </div>
         </template>
-        <div v-if="survey.state === 'completed'" v-html="survey.processedCompletedHtml"></div>
+        <div v-if="hasCompletedPage" v-html="survey.processedCompletedHtml"></div>
         <div v-if="survey.state === 'loading'" v-html="survey.processedLoadingHtml"></div>
         <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
     </div>
@@ -47,6 +47,9 @@
 
         get hasTitle () {
             return !!this.survey.title && this.survey.showTitle;
+        }
+        get hasCompletedPage() {
+            return this.survey.showCompletedPage && this.survey.state === 'completed';
         }
         get css () {
             return this.survey.css;

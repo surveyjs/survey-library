@@ -44,6 +44,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         this.survey.mergeCss(value, this.css);
     }
     protected renderCompleted(): JSX.Element {
+        if(!this.survey.showCompletedPage) return null;
         var htmlValue = { __html: this.survey.processedCompletedHtml };
         return (<div dangerouslySetInnerHTML={htmlValue} />);
     }

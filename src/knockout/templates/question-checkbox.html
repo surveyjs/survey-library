@@ -1,13 +1,13 @@
 ﻿<script type="text/html" id="survey-question-checkbox">
-    <form data-bind="css: $root.css.checkbox.root">
+    <form data-bind="css: question.survey.css.checkbox.root">
         <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <div data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: $root.css.checkbox.item">
-            <label data-bind="css: $root.css.checkbox.item">
-                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: $root.isEditMode" />
+        <div data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: question.survey.css.checkbox.item">
+            <label data-bind="css: question.survey.css.checkbox.item">
+                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: question.survey.isEditMode" />
                 <span data-bind="text: item.text"></span>
             </label>
             <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }, css: $root.css.checkbox.other"></div>
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }, css: question.survey.css.checkbox.other"></div>
             </div>
         </div>
         <!-- /ko -->

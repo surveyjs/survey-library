@@ -1,26 +1,26 @@
-﻿<div data-bind="css: $root.css.root, afterRender: koEventAfterRender">
-    <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: $root.css.header">
+﻿<div data-bind="css: css.root, afterRender: koEventAfterRender">
+    <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: css.header">
         <h3 data-bind="text:processedTitle"></h3>
     </div>
     <!-- ko if: koState() == "running" -->
-    <div data-bind="css: $root.css.body">
-        <div data-bind="visible: showProgressBar =='top', template: { name: 'survey-progress', data: $data }"></div>
+    <div data-bind="css: css.body">
+        <div data-bind="visible: showProgressBar =='top', template: 'survey-progress'"></div>
         <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
-        <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: { name: 'survey-progress', data: $data }"></div>
+        <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: 'survey-progress'"></div>
     </div>
-    <div data-bind="visible: koIsNavigationButtonsShowing, css: $root.css.footer">
-        <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage(), css: $root.cssNavigationPrev" />
-        <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: $root.cssNavigationNext" />
-        <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: $root.cssNavigationComplete" />
+    <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
+        <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage(), css: cssNavigationPrev" />
+        <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: cssNavigationNext" />
+        <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete" />
     </div>
     <!-- /ko -->
-    <!-- ko if: koState() == "completed" -->
+    <!-- ko if: koState() == "completed" && showCompletedPage -->
     <div data-bind="html: processedCompletedHtml"></div>
     <!-- /ko -->
     <!-- ko if: koState() == "loading" -->
     <div data-bind="html: processedLoadingHtml"></div>
     <!-- /ko -->
     <!-- ko if: koState() == "empty" -->
-    <div data-bind="text:emptySurveyText, css: $root.css.body"></div>
+    <div data-bind="text:emptySurveyText, css: css.body"></div>
     <!-- /ko -->
 </div>

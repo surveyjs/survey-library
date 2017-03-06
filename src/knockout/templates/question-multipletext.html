@@ -1,13 +1,13 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
-    <table data-bind="css: $root.css.multipletext.root, foreach: { data:  question.koRows, as: 'row' }">
+    <table data-bind="css: question.survey.css.multipletext.root, foreach: { data:  question.koRows, as: 'row' }">
         <tr data-bind="foreach: { data: row, as: 'item' }">
-            <td data-bind="text: item.title, css: $root.css.multipletext.itemTitle"></td>
+            <td data-bind="text: item.title, css: question.survey.css.multipletext.itemTitle"></td>
             <td>
-                <!-- ko if: $root.isEditMode -->
-                <input type="text" style="float:left" data-bind="attr: {size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: $root.css.multipletext.itemValue" />
+                <!-- ko if: question.survey.isEditMode -->
+                <input type="text" style="float:left" data-bind="attr: {size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: question.survey.css.multipletext.itemValue" />
                 <!-- /ko -->
-                <!-- ko if: $root.isDisplayMode -->
-                <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: $root.css.multipletext.itemValue"></div>
+                <!-- ko if: question.survey.isDisplayMode -->
+                <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.survey.css.multipletext.itemValue"></div>
                 <!-- /ko -->
             </td>
         </tr>

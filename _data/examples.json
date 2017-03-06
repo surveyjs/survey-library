@@ -21,7 +21,8 @@
                 { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"},
                 { "name": "Datepicker", "text" : "JqueryUI DatePicker", "url": "custom-widget-datepicker.html"},
                 { "name": "CustomRating", "text" : "Pure JS Rating", "url": "custom-widget-custom-rating.html"},
-                { "name": "Select2", "text" : "Select2", "url": "custom-widget-select2.html"}
+                { "name": "Select2", "text" : "Select2", "url": "custom-widget-select2.html"},
+                { "name": "iCheck", "text" : "iCheck", "url": "custom-widget-icheck.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

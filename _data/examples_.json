@@ -138,5 +138,10 @@
         "includes": [
             "examplesetups/custom-widget-custom-rating.md"
         ]
+    },
+    { "name": "custom-widget-select2", "title": "Select2 Custom Widget", "jquery": true,
+        "includes": [
+            "examplesetups/custom-widget-select2.md"
+        ]
     }
 ]

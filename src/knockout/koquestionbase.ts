@@ -37,7 +37,8 @@ export class QuestionImplementorBase {
         return indent * css.question.indent + "px";
     }
     private getTemplateName(): string {
-        if (this.question.customWidget) return "survey-widget-" + this.question.customWidget.name;
+        if (this.question.customWidget && !this.question.customWidget.widgetJson.isDefaultRender)
+            return "survey-widget-" + this.question.customWidget.name;
         return "survey-question-" + this.question.getType();
     }
 }

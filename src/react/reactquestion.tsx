@@ -90,6 +90,11 @@ export class SurveyQuestion extends React.Component<any, any> {
         var customWidget = this.questionBase.customWidget;
         if (!customWidget) return this.creator.createQuestionElement(this.questionBase);
         var widget = null;
+
+        if (customWidget.widgetJson.isDefaultRender) {
+            return <div ref="widget">{this.creator.createQuestionElement(this.questionBase)}</div>
+        }
+
         if (customWidget.widgetJson.render) {
             widget = customWidget.widgetJson.render(this.questionBase);
         } else {

@@ -155,7 +155,7 @@ export class SurveyElement {
     public static GetFirstNonTextElement(elements: any) {
         if (!elements || !elements.length) return;
         for (var i = 0; i < elements.length; i++) {
-            if (elements[i].nodeName != "#text") return elements[i]; 
+            if (elements[i].nodeName != "#text" && elements[i].nodeName != "#comment") return elements[i];
         }
         return null;
     }

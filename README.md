@@ -66,7 +66,7 @@ To build library yourself:
 	```
 	npm run build_prod
 	```
-	After that you should have the library at 'dist' directory.
+	After that you should have the libraries (anlugar, jquery, knockout, react an vue) at 'packages' directory.
 
  4. **Run unit tests**
 	```

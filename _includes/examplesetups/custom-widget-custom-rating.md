@@ -3,8 +3,9 @@ var survey = new Survey.Model({
     questions: [
       {
         type: "radiogroup",
+        title: "Customer satisfaction degree",
         name: "radiogroup1",
-        choices: [{value: 5, text: "Satisfied"}, {value: 4}, {value: 3}, {value: 2, text: "Upset"}],
+        choices: [{value: 0, text: "Upset"}, {value: 1}, {value: 2}, {value: 3}, {value: 4}, {value: 5}, {value: 6}, {value: 7}, {value: 8}, {value: 9, text: "Satisfied"}],
       }
     ]
   }
@@ -28,7 +29,7 @@ var widget = {
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-survey.data = {radiogroup1:"3"};
+survey.data = {radiogroup1:"8"};
 
 {% if page.usereact %}
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
@@ -70,7 +71,7 @@ Vue.component(widget.name, {
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-survey.data = {radiogroup1:"3"};
+survey.data = {radiogroup1:"8"};
 
 new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}

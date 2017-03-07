@@ -408,7 +408,7 @@ export class JsonObject {
             obj[property.name] = value;
         }
     }
-    private isValueArray(value: any): boolean { return value && value.constructor.toString().indexOf("Array") > -1; }
+    private isValueArray(value: any): boolean { return value && Array.isArray(value); }
     private createNewObj(value: any, property: JsonObjectProperty): any {
         var result = { newObj: null, error: null };
         var className = value[JsonObject.typePropertyName];
@@ -453,9 +453,7 @@ export class JsonObject {
         this.errors.push(error);
     }
     private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
-        if (!this.isValueArray(obj[key])) {
-            obj[key] = [];
-        }
+        if(obj[key] && obj[key].length > 0) obj[key] = [];
         for (var i = 0; i < value.length; i++) {
             var newValue = this.createNewObj(value[i], property);
             if (newValue.newObj) {

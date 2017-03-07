@@ -6,6 +6,7 @@ import {QuestionCheckboxModel} from "../src/question_checkbox";
 import {Question} from "../src/question";
 import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
 import {QuestionDropdownModel} from "../src/question_dropdown";
+import {QuestionMatrixDropdownModelBase, MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
 
 export default QUnit.module("SurveySerialization");
 
@@ -125,4 +126,16 @@ QUnit.test("Deserialize choicesByUrl", function (assert) {
     assert.equal(question.choicesByUrl.getType(), "choicesByUrl", "It is the real object");
     assert.equal(question.choicesByUrl.isEmpty, false, "There are data");
     assert.equal(question.choicesByUrl.path, 'RestResponse;result', "data is copied correctly");
+});
+QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
+    var matrix = new QuestionMatrixDropdownModelBase("q1");
+    matrix.columns.push(new MatrixDropdownColumn("col1"));
+    matrix.columns.push(new MatrixDropdownColumn("col2"));
+    var json = new JsonObject().toJsonObject(matrix);
+    var matrix2 = new QuestionMatrixDropdownModelBase("q2");
+    matrix2.columns.push(new MatrixDropdownColumn("col3"));
+    new JsonObject().toObject(json, matrix2);
+    assert.equal(matrix2.columns.length, 2, "There are two columns");
+    assert.equal(matrix2.columns[0].name, "col1", "Name is correct");
+    assert.equal(matrix2.columns[0].getType(), "matrixdropdowncolumn", "Name is correct");
 });

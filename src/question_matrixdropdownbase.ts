@@ -348,7 +348,7 @@ JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", o
         { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth"],
     function () { return new MatrixDropdownColumn(""); });
 
-JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn", onSetValue: function (obj: any, value: any) { obj.columns = value; } },
+JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn"},
         "horizontalScroll:boolean",
         { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
         { name: "optionsCaption", onGetValue: function (obj: any) { return obj.optionsCaptionValue; } },

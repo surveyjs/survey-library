@@ -48,6 +48,7 @@ export class Survey extends SurveyModel {
         this.mergeValues(value, this.css);
     }
     public render(element: any = null) {
+        this.updateCustomWidgets(this.currentPage);
         var self = this;
         if (element && typeof element == "string") {
             element = document.getElementById(element);
@@ -57,11 +58,12 @@ export class Survey extends SurveyModel {
         }
         element = this.renderedElement;
         if (!element) return;
-        this.updateCustomWidgets(this.currentPage);
         element.innerHTML = this.getTemplate();
         self.applyBinding();
-        self.onRendered.fire(self, {});
-        self.afterRenderSurvey(element);
+    }
+    public koEventAfterRender(element, survey) {
+        survey.onRendered.fire(self, {});
+        survey.afterRenderSurvey(element);
     }
     public loadSurveyFromService(surveyId: string = null, renderedElement: any = null) {
         if (renderedElement) {
@@ -127,3 +129,13 @@ export class Survey extends SurveyModel {
     }
 }
 
+ko.components.register('survey', {
+    viewModel: {
+        createViewModel: function(params, componentInfo) {
+            var survey: Survey = ko.unwrap(params.survey);
+            survey.render();
+            return params.survey;
+        }
+    },
+    template: koTemplate
+});

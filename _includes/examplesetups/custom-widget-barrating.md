@@ -89,9 +89,9 @@ Vue.component(widget.name, {
 
         var vm = this;
         $(vm.$el).barrating('show', {
-            theme: question.ratingTheme,
+            theme: vm.question.ratingTheme,
             initialRating: vm.question.value,
-            showValues: question.showValues,
+            showValues: vm.question.showValues,
             showSelectedRating: false,
             onSelect: function(value, text) {
                 vm.question.value = value;

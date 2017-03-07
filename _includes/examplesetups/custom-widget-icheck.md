@@ -9,6 +9,47 @@ var survey = new Survey.Model({ questions: [
 ]});
 
 {% if page.usevue != true %}
+var widget = {
+    name: "icheck",
+    isFit : function(question) { return question["renderAs"] === 'icheck'; },
+    isDefaultRender: true,
+    afterRender: function(question, el) {
+        var select = function() {
+          $(el).find("input[value=" + question.value + "]").iCheck('check');
+        }
+        $(el).find('input').iCheck({
+          checkboxClass: 'iradio_square-blue',
+          radioClass: 'iradio_square-blue',
+          increaseArea: '20%' // optional
+        });
+        $(el).find('input').on('ifChecked', function(event){
+          question.value = event.target.value;
+        });
+        question.valueChangedCallback = select;
+        select();
+    }
+}
+Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
+survey.data = {car:"3"};
+
+{% if page.usereact %}
+ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
+
+{% elsif page.useknockout %}
+
+{% elsif page.useangular %}
+function onAngularComponentInit() {
+    Survey.SurveyNG.render("surveyElement", {
+        model:survey
+    });
+}
+{% include examplesetups/angular-example-component.md %}
+
+{% elsif page.usejquery %}
+$("#surveyElement").Survey({
+    model: survey
+});
+{% endif %}
 
 {% elsif page.usevue %}
 var widget = {

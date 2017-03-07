@@ -16,8 +16,10 @@
 
 {% capture survey_setup %}
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "renderAs", default: "standard", choices: ["standard", "barrating"]});
+Survey.JsonObject.metaData.addProperty("dropdown", {name: "ratingTheme", default: "fontawesome-stars", choices: ["fontawesome-stars", "css-stars", "bars-pill", "bars-1to10", "bars-movie", "bars-square", "bars-reversed", "bars-horizontal", "bootstrap-stars", "fontawesome-stars-o"]});
+Survey.JsonObject.metaData.addProperty("dropdown", {name: "showValues", default: false});
 var survey = new Survey.Model({ questions: [
- { type: "dropdown", name: "barrating1", renderAs: "barrating", title: "Choose...", 
+ { type: "dropdown", name: "barrating1", renderAs: "barrating", "ratingTheme": "fontawesome-stars", title: "Choose...", 
      choices: ["1", "2", "3", "4", "5"] }
 ]});
 
@@ -33,9 +35,9 @@ var widget = {
         var $el = $(el).find("select");
 {% endif %}
         $el.barrating('show', {
-            theme: 'fontawesome-stars',
+            theme: question.ratingTheme,
             initialRating: question.value,
-            showValues: false,
+            showValues: question.showValues,
             showSelectedRating: false,
             onSelect: function(value, text) {
                 question.value = value;
@@ -87,9 +89,9 @@ Vue.component(widget.name, {
 
         var vm = this;
         $(vm.$el).barrating('show', {
-            theme: 'fontawesome-stars',
+            theme: question.ratingTheme,
             initialRating: vm.question.value,
-            showValues: false,
+            showValues: question.showValues,
             showSelectedRating: false,
             onSelect: function(value, text) {
                 vm.question.value = value;

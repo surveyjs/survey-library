@@ -1,0 +1,32 @@
+<div class="propertyitem">
+    <p>
+        <b>Bar rating theme: </b> (default is 'fontawesome-stars')
+        <div class="custom-select">
+            <select id="selChoiceOrder" class="form-control" style="width:100%" onChange="survey.getQuestionByName('barrating1').ratingTheme = this.value; survey.render();">
+                <option value="fontawesome-stars" selected="true">fontawesome-stars</option>
+                <option value="css-stars">css-stars</option>
+                <option value="bars-pill">bars-pill</option>
+                <option value="bars-1to10">bars-1to10</option>
+                <option value="bars-movie">bars-movie</option>
+                <option value="bars-square">bars-square</option>
+                <option value="bars-reversed">bars-reversed</option>
+                <option value="bars-horizontal">bars-horizontal</option>
+                <option value="bootstrap-stars">bootstrap-stars</option>
+                <option value="fontawesome-stars-o">fontawesome-stars-o</option>
+            </select>
+        </div>
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('barrating1');
+q.ratingTheme = yourvalue; 
+survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+        <input id="cbShowValues" type="checkbox" class="custom-checkbox" onchange="survey.getQuestionByName('barrating1').showValues = this.checked; survey.render();" />
+        <label for="cbShowValues"><b>Show values: </b> (default is false)</label>
+        <pre><code class="language-javascript">var q = survey.getQuestionByName('barrating1');
+q.showValues = yourvalue; 
+survey.render();</code></pre>
+    </p>
+</div>
+

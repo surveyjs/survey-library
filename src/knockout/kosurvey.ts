@@ -8,6 +8,7 @@ import {koTemplate, SurveyTemplateText} from "./templateText";
 import {QuestionCustomWidget, CustomWidgetCollection} from "../questionCustomWidgets";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
+    if (customWidget.widgetJson.isDefaultRender) return;
     if (!customWidget.htmlTemplate) customWidget.htmlTemplate = "<div>'htmlTemplate' attribute is missed.</div>"
     new SurveyTemplateText().replaceText(customWidget.htmlTemplate, "widget", customWidget.name);
 });

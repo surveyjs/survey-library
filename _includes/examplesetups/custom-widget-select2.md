@@ -4,11 +4,56 @@
 {% capture survey_setup %}
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "renderAs", default: "standard", choices: ["standard", "select2"]});
 var survey = new Survey.Model({ questions: [
- { type: "dropdown", name: "car", renderAs: "select2", title: "Choose...", isRequired: true, colCount: 0,
+ { type: "dropdown", name: "customSelect", renderAs: "select2", title: "Choose...", isRequired: true, colCount: 0,
      choices: ["1", "2", "3", "4", "5"] }
 ]});
 
 {% if page.usevue != true %}
+var widget = {
+    name: "select2",
+    htmlTemplate: "<select style='width: 100%;'></select>",
+    isFit : function(question) { return question["renderAs"] === 'select2'; },
+    afterRender: function(question, el) {
+{% if page.useknockout %}
+        var $el = $(el);
+{% else %}
+        var $el = $(el).find("select");
+{% endif %}
+        var widget = $el.select2({
+            data: question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
+            theme: "classic"
+        });
+        $el.on('select2:select', function (e) {
+            question.value = e.target.value;
+        });
+        var updateHandler = function() {
+            $el.val(question.value).trigger("change");
+        };
+        question.valueChangedCallback = updateHandler;
+        updateHandler();
+    }
+}
+Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
+survey.data = { customSelect: "3" };
+
+{% if page.usereact %}
+ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
+
+{% elsif page.useknockout %}
+
+{% elsif page.useangular %}
+function onAngularComponentInit() {
+    Survey.SurveyNG.render("surveyElement", {
+        model:survey
+    });
+}
+{% include examplesetups/angular-example-component.md %}
+
+{% elsif page.usejquery %}
+$("#surveyElement").Survey({
+    model: survey
+});
+{% endif %}
 
 {% elsif page.usevue %}
 var widget = {
@@ -18,23 +63,26 @@ var widget = {
 
 Vue.component(widget.name, {
     props: ['question', 'css', 'isEditMode'],
-    template: '<select :id="question.inputId" v-model="question.value" style="width:50%"><option v-for="(item, index) in question.visibleChoices" :value="item.value">{{ "{{ item.text" }}}}</option></select>',
+    template: "<select style='width: 100%;'></select>",
     mounted: function () {
         var vm = this;
         $(vm.$el).select2({
-          theme: "classic"
+            data: vm.question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
+            theme: "classic"
         });
         $(vm.$el).on('select2:select', function (e) {
           vm.question.value = e.target.value;
         });
-        vm.question.valueChangedCallback = function() {
+        var updateHandler = function() {
             $(vm.$el).val(vm.question.value).trigger("change");
         }
+        vm.question.valueChangedCallback = updateHandler;
+        updateHandler();
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 
-survey.data = {car:"3"};
+survey.data = { customSelect: "3" };
 
 new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}

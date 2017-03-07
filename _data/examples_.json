@@ -148,5 +148,10 @@
         "includes": [
             "examplesetups/custom-widget-icheck.md"
         ]
+    },
+    { "name": "custom-widget-barrating", "title": "Bar rating Custom Widget", "jquery": true,
+        "includes": [
+            "examplesetups/custom-widget-barrating.md"
+        ]
     }
 ]

@@ -16,7 +16,7 @@ export class QuestionSelectBase extends Question {
     public choicesByUrl: ChoicesRestfull;
     public otherErrorText: string = null;
     public storeOthersAsComment: boolean = true;
-    choicesOrderValue: string = "none";
+    private choicesOrderValue: string = "none";
     choicesChangedCallback: () => void;
     constructor(name: string) {
         super(name);

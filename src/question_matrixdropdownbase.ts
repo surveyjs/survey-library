@@ -8,6 +8,7 @@ import {QuestionCheckboxModel} from "./question_checkbox";
 import {QuestionRadiogroupModel} from "./question_radiogroup";
 import {QuestionTextModel} from "./question_text";
 import {QuestionCommentModel} from "./question_comment";
+import {ChoicesRestfull} from "./choicesRestfull";
 import {QuestionFactory} from "./questionfactory";
 
 export interface IMatrixDropdownData {
@@ -24,9 +25,14 @@ export class MatrixDropdownColumn extends Base {
     public hasOther: boolean = false;
     public minWidth: string = "";
     public cellType: string = "default";
+    public inputType: string = "text";
+    public placeHolder: string;
+    public choicesOrder: string = "none";
+    public choicesByUrl: ChoicesRestfull;
     private colCountValue: number = -1;
     constructor(public name: string, title: string = null) {
         super();
+        this.choicesByUrl = new ChoicesRestfull();
     }
     public getType() { return "matrixdropdowncolumn" }
     public get title() { return this.titleValue ? this.titleValue : this.name; }
@@ -140,6 +146,14 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
 
     constructor(public name: string) {
         super(name);
+        var self = this;
+        this.columnsValue.push = function (value) {
+            if (self.data != null) {
+                self.fireCallback(self.columnsChangedCallback);
+            }
+            return Array.prototype.push.call(this, value);
+        };
+        
     }
     public getType(): string {
         return "matrixdropdownbase";
@@ -296,27 +310,40 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     protected createDropdown(name: string, column: MatrixDropdownColumn): QuestionDropdownModel {
         var q = <QuestionDropdownModel>this.createCellQuestion("dropdown", name);
-        q.choices = this.getColumnChoices(column);
+        this.setSelectBaseProperties(q, column);
         q.optionsCaption = this.getColumnOptionsCaption(column);
         return q;
     }
     protected createCheckbox(name: string, column: MatrixDropdownColumn): QuestionCheckboxModel {
         var q = <QuestionCheckboxModel>this.createCellQuestion("checkbox", name);
-        q.choices = this.getColumnChoices(column);
+        this.setSelectBaseProperties(q, column);
         q.colCount = column.colCount > - 1 ? column.colCount : this.columnColCount;
         return q;
     }
     protected createRadiogroup(name: string, column: MatrixDropdownColumn): QuestionRadiogroupModel {
         var q = <QuestionRadiogroupModel>this.createCellQuestion("radiogroup", name);
-        q.choices = this.getColumnChoices(column);
+        this.setSelectBaseProperties(q, column);
         q.colCount = column.colCount > - 1 ? column.colCount : this.columnColCount;
         return q;
     }
+    protected setSelectBaseProperties(question: QuestionSelectBase, column: MatrixDropdownColumn) {
+        question.choicesOrder = column.choicesOrder;
+        question.choices = this.getColumnChoices(column);
+        question.choicesByUrl.setData(column.choicesByUrl);
+        if(!question.choicesByUrl.isEmpty) {
+            question.choicesByUrl.run();
+        }
+    }
     protected createText(name: string, column: MatrixDropdownColumn): QuestionTextModel {
-        return <QuestionTextModel>this.createCellQuestion("text", name);
+        var q = <QuestionTextModel>this.createCellQuestion("text", name);
+        q.inputType = column.inputType;
+        q.placeHolder = column.placeHolder;
+        return q;
     }
     protected createComment(name: string, column: MatrixDropdownColumn): QuestionCommentModel {
-        return <QuestionCommentModel>this.createCellQuestion("comment", name);
+        var q = <QuestionCommentModel>this.createCellQuestion("comment", name);
+        q.placeHolder = column.placeHolder;
+        return q;
     }
     protected createCellQuestion(questionType: string, name: string): Question {
         return <Question>QuestionFactory.Instance.createQuestion(questionType, name);
@@ -345,7 +372,11 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
 JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
         { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
         "optionsCaption", { name: "cellType", default: "default", choices: ["default", "dropdown", "checkbox", "radiogroup", "text", "comment"] },
-        { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth"],
+        { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth", "placeHolder",
+        { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
+        { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
+        { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] }],
+        
     function () { return new MatrixDropdownColumn(""); });
 
 JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn"},

@@ -453,7 +453,7 @@ export class JsonObject {
         this.errors.push(error);
     }
     private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
-        if(obj[key] && obj[key].length > 0) obj[key] = [];
+        if(obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
         for (var i = 0; i < value.length; i++) {
             var newValue = this.createNewObj(value[i], property);
             if (newValue.newObj) {

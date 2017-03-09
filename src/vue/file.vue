@@ -2,7 +2,7 @@
     <div>
         <input v-if="isEditMode" type="file" :id="question.inputId" @change="doChange"/>
         <div>
-            <img v-show="question.previewValue" :src="previewSrc" :height="question.imageHeight" :width="question.imageWidth"/>
+            <img v-show="question.previewValue" :src="question.value" :height="question.imageHeight" :width="question.imageWidth"/>
         </div>
     </div>
 </template>
@@ -15,19 +15,6 @@
 
     @Component
     export default class File extends Question<QuestionFileModel> {
-        previewSrc = null
-
-        mounted() {
-            this.question.valueChangedCallback = this.onValueChanged;
-        }
-        beforeDestroy() {
-            this.question.valueChangedCallback = undefined; // TODO: ensure this works
-        }
-
-        onValueChanged() {
-            this.previewSrc = this.question.value;
-        }
-
         doChange (e) {
             var src = e.target || e.srcElement;
             if (!window["FileReader"]) return;

@@ -5,7 +5,7 @@
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>
         <div v-else :text="question.value" :class="css.dropdown.control"></div>
-        <survey-other-choice v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </div>
 </template>
 
@@ -16,19 +16,6 @@
     import {QuestionDropdownModel} from '../question_dropdown'
 
     @Component
-    export default class Dropdown extends Question<QuestionDropdownModel> {
-        isOtherSelected = false;
-
-        mounted() {
-            this.question.valueChangedCallback = this.onValueChanged;
-        }
-        beforeDestroy() {
-            this.question.valueChangedCallback = undefined; // TODO: ensure this works
-        }
-
-        onValueChanged() {
-            this.isOtherSelected = this.question.isOtherSelected;
-        }
-    }
+    export default class Dropdown extends Question<QuestionDropdownModel> {}
     Vue.component("survey-dropdown", Dropdown)
 </script>

@@ -25,6 +25,10 @@ export class VueSurveyModel extends SurveyModel {
     set css(value: any) {
         this.mergeValues(value, this.css);
     }
+    protected _setDataValue(data: any, key: string) {
+        super._setDataValue(data, key);
+        this.vueValuesHash[key] = data[key];
+    }
     getValue(name: string): any {
         if (!name || name.length === 0) return null;
         var value = this.vueValuesHash[name];

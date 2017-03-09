@@ -141,11 +141,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
         return result;
     }
+    protected _setDataValue(data: any, key: string) {
+        this.valuesHash[key] = data[key];
+    }
     public set data(data: any) {
         this.valuesHash = {};
         if (data) {
             for (var key in data) {
-                this.valuesHash[key] = data[key];
+                this._setDataValue(data, key);
                 this.checkTriggers(key, data[key], false);
                 if (!this.processedTextValues[key.toLowerCase()]) {
                     this.processedTextValues[key.toLowerCase()] = "value";

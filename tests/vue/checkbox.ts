@@ -52,22 +52,14 @@ QUnit.test("Survey.Checkbox initialization and values", (assert) => {
     vm.css = survey.css;
     vm.$mount();
 
+    assert.deepEqual(question.value, ["second item"]);
     assert.deepEqual(vm.value, ["second item"]);
-    assert.equal(vm.isOtherSelected, false);
 
     vm.value = ["second item", "other"];
-    var done = assert.async();
-    vm.$nextTick(() => { // @Watch
-        assert.equal(vm.isOtherSelected, true);
-        assert.deepEqual(question.value, ["second item", "other"]);
-        done();
-    });
+    assert.deepEqual(question.value, ["second item", "other"]);
 });
 
 QUnit.test("Survey.Checkbox question changed", (assert) => {
-    assert.expect(2);
-    var done = assert.async();
-
     var survey = new VueSurveyModel(surveyJSON);
     survey.data = { "question1": ["second item"], "question2": ["item1"] };
     var question1: QuestionCheckboxModel = <any>survey.pages[0].rows[0].questions[0];
@@ -78,52 +70,9 @@ QUnit.test("Survey.Checkbox question changed", (assert) => {
     vm.css = survey.css;
     vm.$mount();
 
-    vm.$nextTick(() => { // @Watch
-        assert.deepEqual(vm.value, ["second item"]);
-        vm.question = question2;
-        vm.$nextTick(() => { // @Watch
-            assert.deepEqual(vm.value, ["item1"]);
-            done();
-        });
-    });
-});
-
-QUnit.test("Survey.Checkbox question initial isOtherSelected", function (assert) {
-    var survey = new VueSurveyModel(surveyJSON);
-    survey.data = { "question1": ["third item", "other"] };
-    var question: QuestionCheckboxModel = <any>survey.pages[0].rows[0].questions[0];
-
-    const vm = new Checkbox;
-    vm.question = question;
-    vm.css = survey.css;
-    vm.$mount();
-
-    assert.deepEqual(vm.value, ["third item", "other"]);
-    assert.equal(vm.isOtherSelected, true);
-});
-
-QUnit.test("Survey.Checkbox question changed isOtherSelected", function (assert) {
-    var survey = new VueSurveyModel(surveyJSON);
-    survey.data = { "question1": ["second item"], "question2": ["item1"] };
-    var question1: QuestionCheckboxModel = <any>survey.pages[0].rows[0].questions[0];
-    var question2: QuestionCheckboxModel = <any>survey.pages[1].rows[0].questions[0];
-
-    const vm = new Checkbox;
+    assert.deepEqual(vm.value, ["second item"]);
     vm.question = question2;
-    vm.css = survey.css;
-    vm.$mount();
-
     assert.deepEqual(vm.value, ["item1"]);
-    assert.equal(vm.isOtherSelected, false);
-
-    vm.question = question1;
-    vm.value = ["third item", "other"];
-    var done = assert.async();
-    vm.$nextTick(() => { // @Watch
-        assert.deepEqual(question1.value, ["third item", "other"]);
-        assert.equal(vm.isOtherSelected, true);
-        done();
-    });
 });
 
 QUnit.test("Survey.Checkbox question value in model has been changed", function (assert) {
@@ -139,10 +88,5 @@ QUnit.test("Survey.Checkbox question value in model has been changed", function 
     assert.deepEqual(vm.value, ["second item"]);
 
     question.value = ["third item", "other"];
-    var done = assert.async();
-    vm.$nextTick(() => { // @Watch
-        assert.deepEqual(vm.value, ["third item", "other"]);
-        assert.equal(vm.isOtherSelected, true);
-        done();
-    });
+    assert.deepEqual(vm.value, ["third item", "other"]);
 });

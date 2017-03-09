@@ -6,7 +6,7 @@
                 <span>{{item.text}}</span>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther && isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </form>
 </template>
 
@@ -18,19 +18,6 @@
 
     @Component
     export default class Radiogroup extends Question<QuestionRadiogroupModel> {
-        isOtherSelected = false;
-
-        mounted() {
-            this.question.valueChangedCallback = this.onValueChanged;
-        }
-        beforeDestroy() {
-            this.question.valueChangedCallback = undefined; // TODO: ensure this works
-        }
-
-        onValueChanged() {
-            this.isOtherSelected = this.question.isOtherSelected;
-        }
-
         // TODO may be need to move to the model
         get colWidth() {
             var colCount = this.question.colCount;

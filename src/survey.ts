@@ -704,7 +704,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.processedTextValues[name.toLowerCase()] = "variable";
     }
     //ISurvey data
-    private getUnbindValue(value: any): any {
+    protected getUnbindValue(value: any): any {
         if (value && value instanceof Object) {
             //do not return the same object instance!!!
             return JSON.parse(JSON.stringify(value));

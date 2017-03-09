@@ -106,10 +106,33 @@ Vue.component(widget.name, {
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 
 survey.data = { barrating1: "3" };
-
-new Vue({ el: '#surveyElement', data: { survey: survey } });
+var vueApp = new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}
 
 {% endcapture %}
+
+{% if page.usereact %}
+<script type="text/babel">
+{% else %}
+<script>
+{% endif %}
+window.surveyForceUpdate = function() {
+    document.getElementById("surveyElement").innerHTML = "";
+{% if page.useknockout %}
+    survey.render();
+{% elsif page.usereact %}
+    ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
+{% elsif page.usejquery %}
+    $("#surveyElement").Survey({ model: survey });
+{% elsif page.useangular %}
+    document.querySelector("ng-app").innerHTML = "";
+    ng.platformBrowserDynamic.bootstrap(HelloApp);
+{% elsif page.usevue %}
+    document.getElementById("surveyElement").innerHTML = "<survey :survey='survey'/>";
+    vueApp.$destroy();
+    vueApp = new Vue({ el: '#surveyElement', data: { survey: survey } });
+{% endif %}
+}
+</script>
 
 {% include live-example-code.html %}

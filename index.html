@@ -79,10 +79,13 @@ hasFooter: true
                 <a class="btn btn-primary download-btn btn-lg" role="button" href="https://github.com/surveyjs/surveyjs/releases" target="_blank">
                     Download survey.js library
                 </a>
+                <a class="btn btn-primary download-btn btn-lg" role="button" href="https://github.com/surveyjs/builds" target="_blank">
+                    or get it from cdn
+                </a>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
-                    <h2>Or use npm</h2>
+                    <h2>or install via npm</h2>
                     <ul class="nav nav-tabs">
                         <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
@@ -159,7 +162,7 @@ import ReactDOM from 'react-dom';
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
                 <div class="step-panel">
                     <h5>If you are NOT going to use the Bootstrap, add the link to survey css.</h5>
-                    <pre><code class="language-markup">&lt;link href="{{ page.pathprefix }}css/survey.css" type="text/css" rel="stylesheet" /&gt;</code></pre>
+                    <pre><code class="language-markup">&lt;link href="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.css" type="text/css" rel="stylesheet" /&gt;</code></pre>
                     <ul class="nav nav-tabs">
                         <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
                         <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
@@ -169,23 +172,23 @@ import ReactDOM from 'react-dom';
                     </ul>
                     <div class="tab-content" data-bind="visible:isAngular">
                         <h5>Link to the angular2 version of the library.</h5>
-                        <pre><code class="language-js">import * as Survey from "survey-angular";</code></pre>
+                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.angular.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                     <div class="tab-content" data-bind="visible:isJquery">
                         <h5>Link to the jquery version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.jquery.min.js"&gt;&lt;/script&gt;</code></pre>
+                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.jquery.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                     <div class="tab-content" data-bind="visible:isKnockout">
                         <h5>Link to the knockout version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="{{ page.pathprefix }}js/survey.ko.min.js"&gt;&lt;/script&gt;</code></pre>
+                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.ko.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                     <div class="tab-content" data-bind="visible:isReact">
                         <h5>Link to the react version of the library.</h5>
-                        <pre><code class="language-js">import * as Survey from "survey-react";</code></pre>
+                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.react.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                     <div class="tab-content" data-bind="visible:isVue">
                         <h5>Link to the vue version of the library.</h5>
-                        <pre><code class="language-js">import * as Survey from "survey-vue";</code></pre>
+                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.vue.min.js"&gt;&lt;/script&gt;</code></pre>
                     </div>
                 </div>
             </div>

@@ -129,7 +129,7 @@
             "examplesetups/custom-widget-tagbox.md"
         ]
     },
-    { "name": "custom-widget-datepicker", "title": "TagBox Custom Widget", "jquery": true,
+    { "name": "custom-widget-datepicker", "title": "JQuery UI Datepicker Custom Widget", "jquery": true, "propertiesFile": "exampleproperties/datepicker.html",
         "includes": [
             "examplesetups/custom-widget-datepicker.md"
         ]

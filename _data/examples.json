@@ -18,7 +18,7 @@
             ]},
             { "name" : "Custom Widgets", "id": "custom-widgets",
               "items": [
-                { "name": "TagBoxSelect2", "text" : "Select2 TagBox", "url": "custom-widget-select2-tagbox.html"},
+                { "name": "TagBox (Select2)", "text" : "Select2 TagBox", "url": "custom-widget-select2-tagbox.html"},
                 { "name": "Datepicker", "text" : "JqueryUI DatePicker", "url": "custom-widget-datepicker.html"},
                 { "name": "CustomRating", "text" : "Pure JS Rating", "url": "custom-widget-custom-rating.html"},
                 { "name": "Select2", "text" : "Select2", "url": "custom-widget-select2.html"},

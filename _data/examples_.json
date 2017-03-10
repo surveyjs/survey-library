@@ -149,7 +149,7 @@
             "examplesetups/custom-widget-select2.md"
         ]
     },
-    { "name": "custom-widget-icheck", "title": "Icheck Custom Widget", "jquery": true,
+    { "name": "custom-widget-icheck", "title": "iCheck Radiogroup Custom Widget", "jquery": true,
         "includes": [
             "examplesetups/custom-widget-icheck.md"
         ]

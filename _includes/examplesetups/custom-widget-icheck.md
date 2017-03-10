@@ -4,9 +4,10 @@
 {% capture survey_setup %}
 Survey.JsonObject.metaData.addProperty("radiogroup", {name: "renderAs", default: "standard", choices: ["standard", "icheck"]});
 var survey = new Survey.Model({ questions: [
- { type: "radiogroup", name: "car", renderAs: "icheck", title: "Choose...", isRequired: true, colCount: 0,
-     choices: ["1", "2", "3", "4", "5"] }
+ { type: "radiogroup", name: "position", renderAs: "icheck", title: "Choose job position...", isRequired: true, colCount: 0,
+     choices: ["1|Designer", "2|Front-end Developer", "3|Back-end Developer", "4|Database Administrator", "5|System Engineer"] }
 ]});
+survey.data = {position:"2"};
 
 {% if page.usevue != true %}
 var widget = {
@@ -19,8 +20,7 @@ var widget = {
         }
         $(el).find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
-          radioClass: 'iradio_square-blue',
-          increaseArea: '20%' // optional
+          radioClass: 'iradio_square-blue'
         });
         $(el).find('input').on('ifChecked', function(event){
           question.value = event.target.value;
@@ -30,7 +30,6 @@ var widget = {
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-survey.data = {car:"3"};
 
 {% if page.usereact %}
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
@@ -66,8 +65,7 @@ Vue.component(widget.name, {
         }
         $(vm.$el).find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
-          radioClass: 'iradio_square-blue',
-          increaseArea: '20%' // optional
+          radioClass: 'iradio_square-blue'
         });
         $(vm.$el).find('input').on('ifChecked', function(event){
           vm.question.value = event.target.value;
@@ -77,8 +75,6 @@ Vue.component(widget.name, {
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-
-survey.data = {car:"3"};
 
 new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}

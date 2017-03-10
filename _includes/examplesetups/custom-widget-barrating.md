@@ -19,7 +19,7 @@ Survey.JsonObject.metaData.addProperty("dropdown", {name: "renderAs", default: "
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "ratingTheme", default: "fontawesome-stars", choices: ["fontawesome-stars", "css-stars", "bars-pill", "bars-1to10", "bars-movie", "bars-square", "bars-reversed", "bars-horizontal", "bootstrap-stars", "fontawesome-stars-o"]});
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "showValues", default: false});
 var survey = new Survey.Model({ questions: [
- { type: "dropdown", name: "barrating1", renderAs: "barrating", "ratingTheme": "fontawesome-stars", title: "Choose...", 
+ { type: "dropdown", name: "barrating1", renderAs: "barrating", "ratingTheme": "fontawesome-stars", title: "Please rate the moive you've just watched", 
      choices: ["1", "2", "3", "4", "5"] }
 ]});
 

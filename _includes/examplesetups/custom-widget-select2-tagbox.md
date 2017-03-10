@@ -4,9 +4,8 @@
 {% capture survey_setup %}
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "renderAs", default: "standard", choices: ["standard", "select2tagbox"]});
 var survey = new Survey.Model({ questions: [
- { type: "dropdown", name: "tagBox1", renderAs: "select2tagbox", title: "Choose...", isRequired: true, colCount: 0,
-     choices: ["1", "2", "3", "4", "5"] }
-]});
+ { type: "dropdown", renderAs: "select2tagbox", choicesByUrl: { url: "https://restcountries.eu/rest/v1/all" }, name: "countries", title: "Please select all countries you have been for the last 3 years."}
+ ]});
 
 {% if page.usevue != true %}
 var widget = {
@@ -21,15 +20,19 @@ var widget = {
 {% endif %}
         var widget = $el.select2({
             tags: "true",
-            data: question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
             theme: "classic"
         });
         $el.on('select2:unselect', function (e) {
             var index = (question.value || []).indexOf(e.params.data.id);
             if(index !== -1) {
-                question.value = question.value.splice(index, 1);
+                var val = question.value;
+                val.splice(index, 1);
+                question.value = val;
             }
         });
+        question.choicesChangedCallback = function() {
+            $el.select2({data: question.visibleChoices.map(function(choice) { return { id: choice.value, text: choice.text }; })});
+        }
         $el.on('select2:select', function (e) {
             question.value = (question.value || []).concat(e.params.data.id);
         });
@@ -41,7 +44,7 @@ var widget = {
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-survey.data = { customSelect: "3" };
+survey.data = { countries: ["Andorra"] };
 
 {% if page.usereact %}
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
@@ -73,15 +76,19 @@ Vue.component(widget.name, {
     template: "<select multiple='multiple' style='width: 100%;'></select>",
     mounted: function () {
         var vm = this;
-        $(vm.$el).select2({
+        var widget = $(vm.$el).select2({
             tags: "true",
-            data: vm.question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
             theme: "classic"
         });
+        vm.question.choicesChangedCallback = function() {
+            $(vm.$el).select2({data: vm.question.visibleChoices.map(function(choice) { return { id: choice.value, text: choice.text }; })});
+        }
         $(vm.$el).on('select2:unselect', function (e) {
             var index = (vm.question.value || []).indexOf(e.params.data.id);
             if(index !== -1) {
-                vm.question.value = vm.question.value.splice(index, 1);
+                var val = vm.question.value;
+                val.splice(index, 1);
+                vm.question.value = val;
             }
         });
         $(vm.$el).on('select2:select', function (e) {
@@ -96,7 +103,7 @@ Vue.component(widget.name, {
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 
-survey.data = { customSelect: "3" };
+survey.data = { countries: ["Andorra"] };
 
 new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}

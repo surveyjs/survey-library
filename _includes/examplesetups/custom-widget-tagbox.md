@@ -3,7 +3,7 @@
 var survey = new Survey.Model({
     pages: [
         { name:"page1", questions: [
-            { type: "checkbox", isRequired:true, choicesByUrl: { url: "https://restcountries.eu/rest/v1/all" }, isRequired: true, name: "countries", title: "Please select all countries you have been for the last 3 years." }
+            { type: "checkbox", isRequired:true, choicesByUrl: { url: "https://restcountries.eu/rest/v1/all" }, name: "countries", title: "Please select all countries you have been for the last 3 years." }
         ]}
     ]
 });

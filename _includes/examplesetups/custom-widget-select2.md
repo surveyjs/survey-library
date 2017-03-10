@@ -4,8 +4,7 @@
 {% capture survey_setup %}
 Survey.JsonObject.metaData.addProperty("dropdown", {name: "renderAs", default: "standard", choices: ["standard", "select2"]});
 var survey = new Survey.Model({ questions: [
- { type: "dropdown", name: "customSelect", renderAs: "select2", title: "Choose...", isRequired: true, colCount: 0,
-     choices: ["1", "2", "3", "4", "5"] }
+ { type: "dropdown", renderAs: "select2", choicesByUrl: { url: "https://restcountries.eu/rest/v1/all" }, name: "countries", title: "Please select the country you have arrived from:"}
 ]});
 
 {% if page.usevue != true %}
@@ -20,9 +19,11 @@ var widget = {
         var $el = $(el).find("select");
 {% endif %}
         var widget = $el.select2({
-            data: question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
             theme: "classic"
         });
+        question.choicesChangedCallback = function() {
+            $el.select2({data: question.visibleChoices.map(function(choice) { return { id: choice.value, text: choice.text }; })});
+        }
         $el.on('select2:select', function (e) {
             question.value = e.target.value;
         });
@@ -34,7 +35,7 @@ var widget = {
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-survey.data = { customSelect: "3" };
+survey.data = { countries: "Andorra" };
 
 {% if page.usereact %}
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
@@ -70,6 +71,9 @@ Vue.component(widget.name, {
             data: vm.question.choices.map(function(choice) { return { id: choice.value, text: choice.text }; }),
             theme: "classic"
         });
+        vm.question.choicesChangedCallback = function() {
+            $(vm.$el).select2({data: vm.question.visibleChoices.map(function(choice) { return { id: choice.value, text: choice.text }; })});
+        }
         $(vm.$el).on('select2:select', function (e) {
           vm.question.value = e.target.value;
         });
@@ -81,8 +85,7 @@ Vue.component(widget.name, {
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
-
-survey.data = { customSelect: "3" };
+survey.data = { countries: "Andorra" };
 
 new Vue({ el: '#surveyElement', data: { survey: survey } });
 {% endif %}

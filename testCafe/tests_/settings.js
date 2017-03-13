@@ -16,5 +16,16 @@ export const initSurvey = ClientFunction((json) => {
     model.render("surveyElement");
     window.survey = model;
 });
+
 export const getSurveyResult = ClientFunction(() => window.SurveyResult);
 
+export const setOptions = ClientFunction((questionName, modValue) => {
+    var mergeOptions = function (obj1, obj2) {
+        for (var attrname in obj2) {
+            obj1[attrname] = obj2[attrname];
+        }
+    };
+    var q = survey.getQuestionByName(questionName || 'car');
+    mergeOptions(q, modValue);
+    survey.render();
+});

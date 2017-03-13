@@ -1,18 +1,7 @@
-import {frameworks, url, initSurvey, getSurveyResult} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
 const title = `comment`;
-
-export const setOptions = ClientFunction((questionName, modValue) => {
-    var mergeOptions = function (obj1, obj2) {
-        for (var attrname in obj2) {
-            obj1[attrname] = obj2[attrname];
-        }
-    };
-    var q = survey.getQuestionByName(questionName || 'car');
-    mergeOptions(q, modValue);
-    survey.render();
-});
 
 var json = {
     questions: [{

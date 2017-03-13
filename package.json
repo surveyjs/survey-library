@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "karma start",
-    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/tests/\"",
+    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/tests_/\"",
     "release": "standard-version --message \"Release: %s\"",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",
     "build_react_dev": "webpack --env.buildType dev --env.platform react",
@@ -58,7 +58,7 @@
     "sass-loader": "4.1.1",
     "standard-version": "4.0.0",
     "style-loader": "0.13.1",
-    "testcafe": "^0.13.0",
+    "testcafe": "0.13.0",
     "ts-loader": "2.0.0",
     "typescript": "2.1.5",
     "val-loader": "0.5.0",

@@ -4,7 +4,7 @@
     { type: "dropdown", name: "kids", title: "How many kids do you have", visibleIf: "{haveKids}='Yes'",
         isRequired: true, choices:[1, 2, 3, 4, 5] }, 
     { type: "dropdown", name: "kid1Age", title: "The first kid age:", visibleIf: "{haveKids}='Yes' and {kids} >= 1",
-        isRequired: true, startWithNewLine: false, choices:[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]},
+        isRequired: true, choices:[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]},
     { type: "dropdown", name: "kid2Age", title: "The second kid age:", visibleIf: "{haveKids}='Yes' and {kids} >= 2",
         isRequired: true, startWithNewLine: false, choices:[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]},
     { type: "dropdown", name: "kid3Age", title: "The third kid age:", visibleIf: "{haveKids}='Yes' and {kids} >= 3",

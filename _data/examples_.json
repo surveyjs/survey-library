@@ -1,5 +1,6 @@
 [
-    { "name": "condition-kids", "title": "Write an expression in 'visibleIf' to show/hide your question(s)" },
+    { "name": "condition-kids", "title": "Write an expression in 'visibleIf' to show/hide your question(s)",
+         "hasColumnCount": true, "propertiesFile": "exampleproperties/condition-kids.html" },
     { "name": "custom-question", "title": "Create custom question. For example 'emoji' question", "includes": ["examplesetups/custom-question.md"] },
     { "name": "questiontype-checkbox", "title": "One choice - checkbox (type:'checkbox')", "hasColumnCount": true, "propertiesFile": "exampleproperties/selectbase.html",
         "includes": [

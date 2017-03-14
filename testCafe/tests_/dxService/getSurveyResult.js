@@ -48,7 +48,7 @@ frameworks.forEach( (framework) => {
     test(`correct get result`, async t => {
         await setupSurvey();
         await t
-            .click(`form div:nth-child(20) label input`)
+            .click(`div:nth-child(20) label input`)
             .click(`input[value="Complete"]`)
             .hover(`svg`);
     });

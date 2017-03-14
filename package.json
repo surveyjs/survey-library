@@ -37,6 +37,7 @@
     "extract-text-webpack-plugin": "^2.0.0-rc.3",
     "generate-json-webpack-plugin": "0.2.1",
     "html-loader": "0.4.4",
+    "http-server": "0.9.0",
     "jquery": "3.1.1",
     "karma": "1.4.0",
     "karma-chrome-launcher": "2.0.0",

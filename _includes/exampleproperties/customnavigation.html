@@ -1,17 +1,31 @@
 <p>
+Get/set the current page No: 
+<select id="surveyPageNo" type="text" value="0" onChange="survey.currentPageNo = this.value;">
+    <option>0</option>
+    <option>1</option>
+    <option>2</option>
+</select>
+from 0 to visible page count - 1.
+<pre><code class="language-javascript">survey.currentPageNo = yourValue;</code></pre>
+</p>
+<p>
 Page Prev Text: <input type="text" value="Previous" onChange="survey.pagePrevText = this.value; survey.render();"/> default is "Previous".
-<pre><code class="language-javascript">survey.pagePrevText = yourValue; survey.render();</code></pre>
+<pre><code class="language-javascript">survey.pagePrevText = yourValue;
+survey.render();</code></pre>
 </p>
 <p>
 Page Next Text: <input type="text" value="Next" onChange="survey.pageNextText = this.value; survey.render();"/> default is "Next".
-<pre><code class="language-javascript">survey.pageNextText = yourValue; survey.render();</code></pre>
+<pre><code class="language-javascript">survey.pageNextText = yourValue;
+survey.render();</code></pre>
 </p>
 <p>
 Complete Text: <input type="text" value="Complete" onChange="survey.completeText = this.value; survey.render();"/> default is "Complete".
-<pre><code class="language-javascript">survey.completeText = yourValue; survey.render();</code></pre>
+<pre><code class="language-javascript">survey.completeText = yourValue;
+survey.render();</code></pre>
 </p>
 <p>
 Show Navigation Buttons: <input type="checkbox" checked="true" onChange="survey.showNavigationButtons = this.checked; survey.render();"/> default is true.
-<pre><code class="language-javascript">survey.showNavigationButtons = yourValue; survey.render();</code></pre>
+<pre><code class="language-javascript">survey.showNavigationButtons = yourValue;
+survey.render();</code></pre>
 </p>
 <p>

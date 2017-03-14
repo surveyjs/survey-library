@@ -24,42 +24,43 @@ survey.onCurrentPageChanged.add(function (sender, options) {
 var survey = new Survey.Model({% include surveys/survey-severalpages.json %});
 survey.showTitle = false;
 
-function setNavigationVisibility(survey) {
+function doOnCurrentPageChanged(survey) {
     document.getElementById('surveyPrev').style.display = !survey.isFirstPage ? "inline" : "none";
     document.getElementById('surveyNext').style.display = !survey.isLastPage ? "inline" : "none";
     document.getElementById('surveyComplete').style.display = survey.isLastPage ? "inline" : "none";
     document.getElementById('surveyProgress').innerText = "Page " + (survey.currentPage.visibleIndex + 1) + " of " + survey.visiblePageCount + ".";
+    if(document.getElementById('surveyPageNo')) document.getElementById('surveyPageNo').value = survey.currentPageNo;
 }
 
 {% if page.usereact %}
-ReactDOM.render(<Survey.Survey model={survey} onCurrentPageChanged={setNavigationVisibility} />, document.getElementById("surveyElement"));
-setNavigationVisibility(survey);
+ReactDOM.render(<Survey.Survey model={survey} onCurrentPageChanged={doOnCurrentPageChanged} />, document.getElementById("surveyElement"));
+doOnCurrentPageChanged(survey);
 
 {% elsif page.useknockout %}
-survey.onRendered.add(setNavigationVisibility);
-survey.onCurrentPageChanged.add(setNavigationVisibility);
+survey.onRendered.add(doOnCurrentPageChanged);
+survey.onCurrentPageChanged.add(doOnCurrentPageChanged);
 
 {% elsif page.useangular %}
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {
         model:survey,
-        onCurrentPageChanged: setNavigationVisibility
+        onCurrentPageChanged: doOnCurrentPageChanged
     });
 }
 {% include examplesetups/angular-example-component.md %}
-setNavigationVisibility(survey);
+doOnCurrentPageChanged(survey);
 
 {% elsif page.usejquery %}
 $("#surveyElement").Survey({
     model: survey,
-    onCurrentPageChanged: setNavigationVisibility
+    onCurrentPageChanged: doOnCurrentPageChanged
 });
-setNavigationVisibility(survey);
+doOnCurrentPageChanged(survey);
 
 {% elsif page.usevue %}
-survey.onCurrentPageChanged.add(setNavigationVisibility);
+survey.onCurrentPageChanged.add(doOnCurrentPageChanged);
 new Vue({ el: '#surveyElement', data: { survey: survey } });
-setNavigationVisibility(survey);
+doOnCurrentPageChanged(survey);
 
 {% endif %}
 

@@ -19,7 +19,8 @@ script:
 - npm run build_vue_prod
 - karma start --single-run
 - test $TRAVIS_EVENT_TYPE = 'cron' \
-  && npm run testcafe
+  && npm run testcafe \
+  && echo "Non-cron task, testcafe skipped"
 before_deploy: tar -zcvf surveyjs.tar.gz packages
 deploy:
 - provider: releases

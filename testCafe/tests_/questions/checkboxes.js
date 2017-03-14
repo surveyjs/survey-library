@@ -47,7 +47,7 @@ frameworks.forEach( (framework) => {
         let surveyResult;
 
         await t
-            .click(`form div:nth-child(5) label input`)
+            .click(`div:nth-child(5) label input`)
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
@@ -58,8 +58,8 @@ frameworks.forEach( (framework) => {
         let surveyResult;
 
         await t
-            .click(`form div:nth-child(8) label input`)
-            .click(`form div:nth-child(5) label input`)
+            .click(`div:nth-child(8) label input`)
+            .click(`div:nth-child(5) label input`)
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
@@ -67,7 +67,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change column count`, async t => {
-        const getStyleWidth = ClientFunction(() => document.querySelector(`form div`).style.width);
+        const getStyleWidth = ClientFunction(() => document.querySelector(`div[id*=sq_1] div[style*=width]`).style.width);
         let styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '25%');
 
@@ -83,9 +83,9 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change choices order`, async t => {
-        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`form div`).length);
-        const getFirst = Selector('form > div', { index: 0});
-        const getSecond = Selector('form > div', { index: 1});
+        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`div[id*=sq_1] div[style*=width]`).length);
+        const getFirst = Selector('div[id*=sq_1] div[style*=width]', { index: 0});
+        const getSecond = Selector('div[id*=sq_1] div[style*=width]', { index: 1});
         let rnd_count = 0;
         let first, second, first_2;
         let choicesCount = await getChoicesCount();
@@ -132,10 +132,10 @@ frameworks.forEach( (framework) => {
     test(`check integrity`, async t => {
         let i;
         const getChoicesCount = ClientFunction(() =>
-            document.querySelectorAll('form input[type=checkbox]').length);
+            document.querySelectorAll('div[id*=sq_1] div[style*=width]').length);
         const getChoicesExistence = ClientFunction(() => {
             var choices = ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot",
-                "Toyota", "Citroen", "other"];
+                "Toyota", "Citroen", "Other (describe)"];
             var result;
             for (var i = 0; i < choices.length; i++) {
                 if (document.documentElement.innerHTML.indexOf(choices[i]) === -1) return false;
@@ -171,7 +171,7 @@ frameworks.forEach( (framework) => {
 
     test(`check "other" choice doesn't change order`, async t => {
         const getOtherChoice = Selector(() =>
-            document.querySelectorAll(`form > div`)[11]);
+            document.querySelectorAll(`div[id*=sq_1] div[style*=width]`)[11]);
         let otherChoice;
 
         await setOptions('car', { hasOther: true });
@@ -183,12 +183,12 @@ frameworks.forEach( (framework) => {
 
     test(`choose other`, async t => {
         const getOtherInput = Selector(() =>
-            document.querySelectorAll("form div:nth-child(12) input")[1]);
+            document.querySelectorAll("div:nth-child(12) input")[1]);
         let surveyResult;
 
         await setOptions('car', { hasOther: true });
         await t
-            .click(`form div:nth-child(12) label input`)
+            .click(`div:nth-child(12) label input`)
             .typeText(getOtherInput, 'Zaporozec')
             .click(`input[value=Complete]`);
 

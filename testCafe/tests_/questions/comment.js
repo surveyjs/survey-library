@@ -10,7 +10,6 @@ var json = {
         title: "What would make you more satisfied with the Product?"
     }]
 };
-var survey;
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`

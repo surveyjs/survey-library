@@ -42,7 +42,7 @@ function init() {
     var model = new Survey.Model(json);
 
     var app = new Vue({
-        el: '#app',
+        el: '#surveyElement',
         data: {
             survey: model
         }

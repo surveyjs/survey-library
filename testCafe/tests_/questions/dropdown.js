@@ -42,7 +42,7 @@ frameworks.forEach( (framework) => {
         assert.equal(typeof surveyResult, `undefined`);
     });
 
-    test.only(`choose value`, async t => {
+    test(`choose value`, async t => {
         let surveyResult;
 
         await t

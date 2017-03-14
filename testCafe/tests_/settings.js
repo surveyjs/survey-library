@@ -1,8 +1,10 @@
 import {Selector, ClientFunction} from 'testcafe';
 
 export const frameworks = [
-        //'knockout',
-        'react'
+        'knockout',
+        'jquery',
+        'react',
+        "vue"
     ];
 export const url = 'http://127.0.0.1:8080/examples/';
 
@@ -15,15 +17,26 @@ export const initSurvey = ClientFunction((framework, json) => {
     var surveyComplete = function (model) {
         window.SurveyResult = model.data;
     };
+    model.onComplete.add(surveyComplete);
 
-    document.getElementById("surveyElement").innerHTML = "";
     if(framework === "knockout") {
-        model.onComplete.add(surveyComplete);
+        document.getElementById("surveyElement").innerHTML = "";
         model.render("surveyElement");
     }
+    else if(framework === "jquery") {
+        document.getElementById("surveyElement").innerHTML = "";
+        $("#surveyElement").Survey({model:model});
+    }
     else if(framework === "react") {
+        document.getElementById("surveyElement").innerHTML = "";
         ReactDOM.render(React.createElement(Survey.Survey, { model: model, onComplete: surveyComplete }), document.getElementById("surveyElement"));
     }
+    else if(framework === "vue") {
+        document.getElementById("surveyElement").innerHTML = "<survey :survey='survey'/>";
+        !!window.vueApp && vueApp.$destroy();
+        window.vueApp = new Vue({ el: '#surveyElement', data: { survey: model } });
+    }
+
 
     window.survey = model;
 });

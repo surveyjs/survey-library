@@ -24,7 +24,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async ctx => {
-            await initSurvey(json);
+            await initSurvey(framework, json);
         });
 
     test(`choose empty`, async t => {

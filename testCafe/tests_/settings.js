@@ -1,9 +1,12 @@
 import {Selector, ClientFunction} from 'testcafe';
 
-export const frameworks = ['knockout'/*, 'knockout/bootstrap', 'react/standard', 'react/bootstrap'*/];
+export const frameworks = [
+        'knockout',
+        'react'
+    ];
 export const url = 'http://127.0.0.1:8080/testCafe/';
 
-export const initSurvey = ClientFunction((json) => {
+export const initSurvey = ClientFunction((framework, json) => {
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
     Survey.Survey.cssType = "bootstrap";
 
@@ -13,7 +16,13 @@ export const initSurvey = ClientFunction((json) => {
         window.SurveyResult = model.data;
     });
 
-    model.render("surveyElement");
+    if(framework === "knockout") {
+        model.render("surveyElement");
+    }
+    else if(framework === "react") {
+        ReactDOM.render(React.createElement(Survey.Survey, { model: model }), document.getElementById("surveyElement"));
+    }
+
     window.survey = model;
 });
 

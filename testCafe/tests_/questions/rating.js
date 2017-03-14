@@ -16,7 +16,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await initSurvey(json);
+            await initSurvey(framework, json);
         });
 
     test(`description exists`, async t => {

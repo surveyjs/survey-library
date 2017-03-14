@@ -54,7 +54,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change column count`, async t => {
-        const getStyleWidth = ClientFunction(() => document.querySelector(`form div`).style.width);
+        const getStyleWidth = ClientFunction(() => document.querySelector(`div[id*=sq_1] div[style*=width]`).style.width);
         let styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '25%');
 
@@ -68,9 +68,9 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change choices order`, async t => {
-        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`form div`).length);
-        const getFirst = Selector('form > div', { index: 0});
-        const getSecond = Selector('form > div', { index: 1});
+        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`div[id*=sq_1] div[style*=width]`).length);
+        const getFirst = Selector('div[id*=sq_1] div[style*=width]', { index: 0});
+        const getSecond = Selector('div[id*=sq_1] div[style*=width]', { index: 1});
         let rnd_count = 0;
         let first, second, first_2;
         let choicesCount = await getChoicesCount();
@@ -119,7 +119,7 @@ frameworks.forEach( (framework) => {
             "Toyota", "Citroen"];
         let i;
         const getChoicesCount = ClientFunction(() =>
-            document.querySelectorAll('form input[type=radio]').length);
+            document.querySelectorAll('div input[type=radio]').length);
         let choicesCount;
         let checkIntegrity = async () => {
             choicesCount = await getChoicesCount();
@@ -151,7 +151,7 @@ frameworks.forEach( (framework) => {
 
     test(`check "other" choice doesn't change order`, async t => {
         const getOtherChoice = Selector(() =>
-            document.querySelectorAll(`form > div`)[11]);
+            document.querySelectorAll(`div[id*=sq_1] div[style*=width]`)[11]);
         let otherChoice;
 
         await setOptions('car', { hasOther: true, otherText: "Other" });

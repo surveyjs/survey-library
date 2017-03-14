@@ -42,13 +42,13 @@ frameworks.forEach( (framework) => {
         assert.equal(typeof surveyResult, `undefined`);
     });
 
-    test(`choose value`, async t => {
+    test.only(`choose value`, async t => {
         let surveyResult;
 
         await t
             .click(`select`)
             .click(`option[value=Nissan]`)
-            .click(`input[value=Complete]`);
+            .click(`input[value=Complete]`)
 
         surveyResult = await getSurveyResult();
         assert.equal(surveyResult.car, 'Nissan');
@@ -150,9 +150,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`choose other`, async t => {
-        const getOtherInput = Selector(() =>
-            document.querySelectorAll("input")[0]);
-        let surveyResult;
+        const getOtherInput = Selector(() => document.querySelectorAll("input")[0]);
 
         await setOptions('car', { hasOther: true, otherText: "Other" });
         await t
@@ -161,7 +159,7 @@ frameworks.forEach( (framework) => {
             .typeText(getOtherInput, 'Zaporozec')
             .click(`input[value=Complete]`);
 
-        surveyResult = await getSurveyResult();
+        let surveyResult = await getSurveyResult();
         assert.equal(surveyResult.car, 'other');
         assert.equal(surveyResult['car-Comment'], 'Zaporozec');
     });

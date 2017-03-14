@@ -1,10 +1,10 @@
 import {Selector, ClientFunction} from 'testcafe';
 
 export const frameworks = [
-        'knockout',
+        //'knockout',
         'react'
     ];
-export const url = 'http://127.0.0.1:8080/testCafe/';
+export const url = 'http://127.0.0.1:8080/examples/';
 
 export const initSurvey = ClientFunction((framework, json) => {
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
@@ -12,15 +12,17 @@ export const initSurvey = ClientFunction((framework, json) => {
 
     var model = new Survey.Model(json);
 
-    model.onComplete.add(function (model) {
+    var surveyComplete = function (model) {
         window.SurveyResult = model.data;
-    });
+    };
 
+    document.getElementById("surveyElement").innerHTML = "";
     if(framework === "knockout") {
+        model.onComplete.add(surveyComplete);
         model.render("surveyElement");
     }
     else if(framework === "react") {
-        ReactDOM.render(React.createElement(Survey.Survey, { model: model }), document.getElementById("surveyElement"));
+        ReactDOM.render(React.createElement(Survey.Survey, { model: model, onComplete: surveyComplete }), document.getElementById("surveyElement"));
     }
 
     window.survey = model;

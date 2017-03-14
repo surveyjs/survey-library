@@ -30,7 +30,6 @@ script:
 - npm run build_vue_dev
 - npm run build_vue_prod
 - karma start --single-run
-- npm run testcafe
 before_deploy: tar -zcvf surveyjs.tar.gz packages
 deploy:
 - provider: releases

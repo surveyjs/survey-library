@@ -1,8 +1,21 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `dropdown`;
+
+const json = {
+            questions: [{
+                type: "dropdown",
+                name: "car",
+                title: "What car are you driving?",
+                isRequired: true,
+                colCount: 0,
+                choices: [
+                    "None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot",
+                    "Toyota", "Citroen"
+                ]
+            }]
+        };
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +23,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`choose empty`, async t => {
@@ -37,7 +48,7 @@ frameworks.forEach( (framework) => {
         await t
             .click(`select`)
             .click(`option[value=Nissan]`)
-            .click(`input[value=Complete]`);
+            .click(`input[value=Complete]`)
 
         surveyResult = await getSurveyResult();
         assert.equal(surveyResult.car, 'Nissan');
@@ -52,8 +63,7 @@ frameworks.forEach( (framework) => {
         let choicesCount = await getChoicesCount();
 
         // asc
-        await t
-            .click(`#order_asc`);
+        await setOptions('car', { choicesOrder: "asc" });
         first = await getFirst();
         second = await getSecond();
 
@@ -61,8 +71,7 @@ frameworks.forEach( (framework) => {
         assert.equal(second.textContent, 'BMW');
 
         // desc
-        await t
-            .click(`#order_desc`);
+        await setOptions('car', { choicesOrder: "desc" });
         first = await getFirst();
         second = await getSecond();
         assert.equal(first.textContent, 'Volkswagen');
@@ -74,9 +83,8 @@ frameworks.forEach( (framework) => {
         }
 
         for (let i = 0; i < 15; i++) {
-            await t
-                .click(`#order_asc`)
-                .click(`#order_random`);
+            await setOptions('car', { choicesOrder: "asc" });
+            await setOptions('car', { choicesOrder: "random" });
             first_2 = await getFirst();
 
             if (first.textContent !== first_2.textContent) {
@@ -110,16 +118,13 @@ frameworks.forEach( (framework) => {
             }
         };
 
-        await t
-            .click(`#order_asc`);
+        await setOptions('car', { choicesOrder: "asc" });
         await checkIntegrity();
 
-        await t
-            .click(`#order_desc`);
+        await setOptions('car', { choicesOrder: "desc" });
         await checkIntegrity();
 
-        await t
-            .click(`#order_random`);
+        await setOptions('car', { choicesOrder: "random" });
         await checkIntegrity();
     });
 
@@ -127,8 +132,7 @@ frameworks.forEach( (framework) => {
         const getPosition = ClientFunction(() => document.documentElement.innerHTML.indexOf('Other'));
         let position ;
 
-        await t
-            .click(`#show_other`);
+        await setOptions('car', { hasOther: true, otherText: "Other" });
         position = await getPosition();
         assert.notEqual(position, -1);
     });
@@ -138,27 +142,24 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll(`select option`)[12]);
         let otherChoice;
 
-        await t
-            .click(`#show_other`)
-            .click(`#order_desc`);
+        await setOptions('car', { hasOther: true, otherText: "Other" });
+        await setOptions('car', { choicesOrder: "desc" });
 
         otherChoice = await getOtherChoice();
         assert.equal(otherChoice.textContent, 'Other');
     });
 
     test(`choose other`, async t => {
-        const getOtherInput = Selector(() =>
-            document.querySelectorAll("input")[1]);
-        let surveyResult;
+        const getOtherInput = Selector(() => document.querySelectorAll("input")[0]);
 
+        await setOptions('car', { hasOther: true, otherText: "Other" });
         await t
-            .click(`#show_other`)
             .click(`select`)
             .click(`option[value=other]`)
             .typeText(getOtherInput, 'Zaporozec')
             .click(`input[value=Complete]`);
 
-        surveyResult = await getSurveyResult();
+        let surveyResult = await getSurveyResult();
         assert.equal(surveyResult.car, 'other');
         assert.equal(surveyResult['car-Comment'], 'Zaporozec');
     });

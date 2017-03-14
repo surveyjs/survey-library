@@ -1,8 +1,15 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `comment`;
+
+var json = {
+    questions: [{
+        type: "comment",
+        name: "suggestions",
+        title: "What would make you more satisfied with the Product?"
+    }]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +17,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`fill textarea`, async t => {
@@ -35,9 +40,8 @@ frameworks.forEach( (framework) => {
             const getComment = Selector(() =>
                 document.querySelector(`textarea[rows="2"]`), {visibilityCheck: true});
 
-            await t
-                .click(`#change_rows_to_2`)
-                .hover(getComment);
+            await setOptions('suggestions', { rows: 2 });
+            await t.hover(getComment);
         });
 
         test(`change cols count`, async t => {
@@ -48,8 +52,7 @@ frameworks.forEach( (framework) => {
 
             oldWidth = await getWidth();
 
-            await t
-                .click(`#change_cols_to_25`);
+            await setOptions('suggestions', { cols: 25 });
 
             newWidth = await getWidth();
 

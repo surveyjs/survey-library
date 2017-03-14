@@ -1,8 +1,15 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `html`;
+
+const json = {
+            questions: [{
+                    type: "html",
+                    name: "info",
+                    html: "<table><body><row><td><img src='http://surveyjs.org/images/26178-20160417.jpg' width='100px' /></td><td style='padding:20px'>You may put here any html code. For example images, <b>text</b> or <a href='http://surveyjs.org/builder/index.html'  target='_blank'>links</a></td></row></body></table>"
+            }]
+        };
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +17,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`check html elements`, async t => {
@@ -31,8 +36,7 @@ frameworks.forEach( (framework) => {
         const getPosition = ClientFunction(() =>
             document.documentElement.innerHTML.indexOf('Wombat'));
 
-        await t
-            .click(`#change_html`);
+        await setOptions('info', { html: "<h1>Wombat</h1>" });
 
         assert.notEqual(await getPosition(), -1);
     });

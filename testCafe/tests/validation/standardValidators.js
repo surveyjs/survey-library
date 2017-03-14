@@ -1,8 +1,23 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `standardValidators`;
+
+const json = {
+    questions: [
+        { type: "text", name: "email", title: "Please enter your e-mail", isRequired: true, validators: [{type:"email"}]},
+        { type: "multipletext", name: "pricelimit", title: "What is the... ", isRequired: true, colCount: 2,
+            items: [{ name: "leastamount", title: "The least amount you have ever paid for a computer",
+                validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
+            },
+                {  name: "mostamount", title: "The most amount you have ever paid for a computer",
+                    validators: [{ type: "numeric", minValue: 10, maxValue: 10000 }]
+                }]
+        },
+        { type: "comment", name: "firstcomputer", title: "Please tell us about your first computer", isRequired: true,
+            validators: [{type:"text", minLength:20}]}
+    ]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +25,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`check validation`, async t => {
@@ -40,7 +53,7 @@ frameworks.forEach( (framework) => {
         await t
             .typeText(await getTextInputByIndex(0), `wombat`)
             .click(`input[value="Complete"]`)
-            .hover(getError(`Please enter a valid e-mail.`, 0))
+            .hover(getError(`Please enter a valid e-mail address.`, 0))
             .hover(getError(`Please answer the question.`, 0))
             .hover(getError(`Please answer the question.`, 1));
 
@@ -48,7 +61,7 @@ frameworks.forEach( (framework) => {
             .typeText(await getTextInputByIndex(0), `wombat@mail.mail`, {replace: true})
             .typeText(await getTextInputByIndex(1), `wombat`)
             .click(`input[value="Complete"]`)
-            .hover(getError(`The value should be a numeric.`, 0))
+            .hover(getError(`The value should be numeric.`, 0))
             .hover(getError(`Please answer the question.`, 0));
 
         await t

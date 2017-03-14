@@ -1,18 +1,30 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `checkboxes`;
+
+const json = {
+    questions: [{
+        type: "checkbox",
+        name: "car",
+        title: "What car are you driving?",
+        isRequired: true,
+        colCount: 4,
+        hasOther: true,
+        choices: [
+            "None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot",
+            "Toyota", "Citroen"
+        ]
+    }]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
         
         .page `${url}${framework}`
 
-        .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+        .beforeEach( async ctx => {
+            await initSurvey(framework, json);
         });
 
     test(`choose empty`, async t => {
@@ -35,7 +47,7 @@ frameworks.forEach( (framework) => {
         let surveyResult;
 
         await t
-            .click(`form div:nth-child(5) label input`)
+            .click(`div:nth-child(5) label input`)
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
@@ -46,8 +58,8 @@ frameworks.forEach( (framework) => {
         let surveyResult;
 
         await t
-            .click(`form div:nth-child(8) label input`)
-            .click(`form div:nth-child(5) label input`)
+            .click(`div:nth-child(8) label input`)
+            .click(`div:nth-child(5) label input`)
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
@@ -55,32 +67,31 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change column count`, async t => {
-        const getStyleWidth = ClientFunction(() => document.querySelector(`form div`).style.width);
+        const getStyleWidth = ClientFunction(() => document.querySelector(`div[id*=sq_1] div[style*=width]`).style.width);
         let styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '25%');
 
-        await t
-            .click(`#column_count_to_1`);
+        await setOptions('car', { colCount: 1 });
+
         styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '100%');
 
-        await t
-            .click(`#column_count_to_2`);
+        await setOptions('car', { colCount: 2 });
+
         styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '50%');
     });
 
     test(`change choices order`, async t => {
-        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`form div`).length);
-        const getFirst = Selector('form > div', { index: 0});
-        const getSecond = Selector('form > div', { index: 1});
+        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`div[id*=sq_1] div[style*=width]`).length);
+        const getFirst = Selector('div[id*=sq_1] div[style*=width]', { index: 0});
+        const getSecond = Selector('div[id*=sq_1] div[style*=width]', { index: 1});
         let rnd_count = 0;
         let first, second, first_2;
         let choicesCount = await getChoicesCount();
 
         // asc
-        await t
-            .click(`#order_asc`);
+        await setOptions('car', { choicesOrder: "asc" });
         first = await getFirst();
         second = await getSecond();
 
@@ -88,8 +99,7 @@ frameworks.forEach( (framework) => {
         assert.equal(second.textContent.trim(), 'BMW');
 
         // desc
-        await t
-            .click(`#order_desc`);
+        await setOptions('car', { choicesOrder: "desc" });
         first = await getFirst();
         second = await getSecond();
         assert.equal(first.textContent.trim(), 'Volkswagen');
@@ -101,9 +111,8 @@ frameworks.forEach( (framework) => {
         }
 
         for (let i = 0; i < 15; i++) {
-            await t
-                .click(`#order_asc`)
-                .click(`#order_random`);
+            await setOptions('car', { choicesOrder: "asc" });
+            await setOptions('car', { choicesOrder: "random" });
             first_2 = await getFirst();
 
             if (first.textContent.trim() !== first_2.textContent.trim()) {
@@ -123,10 +132,10 @@ frameworks.forEach( (framework) => {
     test(`check integrity`, async t => {
         let i;
         const getChoicesCount = ClientFunction(() =>
-            document.querySelectorAll('form input[type=checkbox]').length);
+            document.querySelectorAll('div[id*=sq_1] div[style*=width]').length);
         const getChoicesExistence = ClientFunction(() => {
             var choices = ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot",
-                "Toyota", "Citroen"];
+                "Toyota", "Citroen", "Other (describe)"];
             var result;
             for (var i = 0; i < choices.length; i++) {
                 if (document.documentElement.innerHTML.indexOf(choices[i]) === -1) return false;
@@ -136,21 +145,18 @@ frameworks.forEach( (framework) => {
         let choicesCount, choicesExistence;
         let checkIntegrity = async () => {
             choicesCount = await getChoicesCount();
-            assert.equal(choicesCount, 11);
+            assert.equal(choicesCount, 12);
             choicesExistence = await getChoicesExistence();
             assert(choicesExistence);
         };
 
-        await t
-            .click(`#order_asc`);
+        await setOptions('car', { choicesOrder: "asc" });
         await checkIntegrity();
 
-        await t
-            .click(`#order_desc`);
+        await setOptions('car', { choicesOrder: "desc" });
         await checkIntegrity();
 
-        await t
-            .click(`#order_random`);
+        await setOptions('car', { choicesOrder: "random" });
         await checkIntegrity();
     });
 
@@ -158,33 +164,31 @@ frameworks.forEach( (framework) => {
         const getPosition = ClientFunction(() => document.documentElement.innerHTML.indexOf('Other'));
         let position;
 
-        await t
-            .click(`#show_other`);
+        await setOptions('car', { hasOther: true });
         position = await getPosition();
         assert.notEqual(position, -1);
     });
 
     test(`check "other" choice doesn't change order`, async t => {
         const getOtherChoice = Selector(() =>
-            document.querySelectorAll(`form > div`)[11]);
+            document.querySelectorAll(`div[id*=sq_1] div[style*=width]`)[11]);
         let otherChoice;
 
-        await t
-            .click(`#show_other`)
-            .click(`#order_desc`);
+        await setOptions('car', { hasOther: true });
+        await setOptions('car', { choicesOrder: "desc" });
 
         otherChoice = await getOtherChoice();
-        assert.equal(otherChoice.textContent.trim(), 'Other');
+        assert.equal(otherChoice.textContent.trim(), 'Other (describe)');
     });
 
     test(`choose other`, async t => {
         const getOtherInput = Selector(() =>
-            document.querySelectorAll("form div:nth-child(12) input")[1]);
+            document.querySelectorAll("div:nth-child(12) input")[1]);
         let surveyResult;
 
+        await setOptions('car', { hasOther: true });
         await t
-            .click(`#show_other`)
-            .click(`form div:nth-child(12) label input`)
+            .click(`div:nth-child(12) label input`)
             .typeText(getOtherInput, 'Zaporozec')
             .click(`input[value=Complete]`);
 

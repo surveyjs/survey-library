@@ -1,8 +1,15 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `multipletext`;
+
+const json = {
+            questions: [{
+                    type: "multipletext", name: "pricelimit", title: "What is the... ", colCount: 2,
+                    items: [{name: "mostamount", title: "Most amount you would every pay for a product like ours"},
+                        {name: "leastamount", title: "The least amount you would feel comfortable paying"}]
+            }]
+        };
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +17,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`fill text fields`, async t => {

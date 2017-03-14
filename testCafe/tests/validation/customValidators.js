@@ -1,8 +1,42 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `customValidators`;
+const setupSurvey = ClientFunction(() => {
+    var MyTextValidator = (function (_super) {
+        Survey.__extends(MyTextValidator, _super);
+        function MyTextValidator() {
+            _super.call(this);
+        }
+        MyTextValidator.prototype.getType = function () { return "mytextvalidator"; };
+        MyTextValidator.prototype.validate = function (value, name) {
+            if(value.indexOf("survey") < 0) {
+                //report an error
+                return new Survey.ValidatorResult(null, new Survey.CustomError(this.getErrorText(name)));
+            }
+            //return Survey.ValidatorResult object if you want to correct the entered value
+            // return new Survey.ValidatorResult(youCorrectedValue);
+            //return nothing if there is no any error.
+            return null;
+        };
+        //the default error text. It shows if user do not set the 'text' property
+        MyTextValidator.prototype.getDefaultErrorText = function(name) {
+            return "You text should contains 'survey' word.";
+        };
+        return MyTextValidator;
+    })(Survey.SurveyValidator);
+    Survey.MyTextValidator = MyTextValidator;
+    //add into survey Json metaData
+    Survey.JsonObject.metaData.addClass("mytextvalidator", [], function () { return new MyTextValidator(); }, "surveyvalidator");
+});
+
+const json = {
+    questions: [ {
+        type: "comment", name: "memo", isRequired: true,
+        title: "Type here 'survey' to pass the validation ",
+        validators: [{type: "mytextvalidator"}]
+    }]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +44,8 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await setupSurvey();
+            await initSurvey(framework, json);
         });
 
     test(`check validation`, async t => {

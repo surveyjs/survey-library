@@ -1,8 +1,12 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `saveSurveyResult`;
+
+const json = {
+    surveyId: '0edf84f9-14f7-4944-a857-e327e1dceebb',
+    surveyPostId: '8c03f02b-0b55-4cda-96b8-d1bf7c87b05d'
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -21,9 +25,11 @@ frameworks.forEach( (framework) => {
         oldCount = await getResultsCount();
 
         await t
-            .navigateTo(url + framework)
-            .typeText(`#testName`, title)
-            .pressKey(`enter`)
+            .navigateTo(url + framework);
+
+        await initSurvey(framework, json);
+
+        await t
             .click(`input[type=checkbox]`)
             .click(`input[value=Complete]`)
             .navigateTo(`https://dxsurvey.com/Home/SurveyResults/0edf84f9-14f7-4944-a857-e327e1dceebb`);

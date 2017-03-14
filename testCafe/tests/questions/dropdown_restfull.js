@@ -1,8 +1,28 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `dropdown_restfull`;
+
+const json = {
+            questions: [{
+                type: "dropdown",
+                name: "country",
+                title: "Select the country...",
+                isRequired: true,
+                choicesByUrl: {
+                    url: "http://services.groupkt.com/country/get/all",
+                    path: "RestResponse;result",
+                    valueName: "name"
+                }
+            }]
+        };
+
+export const changeValue = ClientFunction(() => {
+    var q = survey.getQuestionByName('country');
+    q.choicesByUrl.valueName = 'alpha2_code';
+    q.choicesByUrl.titleName = 'name';
+    q.choicesByUrl.run();
+});
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +30,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`choose empty`, async t => {
@@ -51,9 +69,8 @@ frameworks.forEach( (framework) => {
         let position;
         let surveyResult;
 
-        await t
-            .wait(1000)
-            .click('#change_value');
+        await t.wait(1000);
+        await changeValue();
 
         position = await getPosition();
         assert.notEqual(position, -1);

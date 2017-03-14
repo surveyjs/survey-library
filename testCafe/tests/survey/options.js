@@ -1,8 +1,79 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `options`;
+
+const change_question_required_text = ClientFunction(() => {
+    survey.requiredText = "😱";
+    survey.render();
+});
+
+const set_question_numbers_on_page = ClientFunction(() => {
+    survey.showQuestionNumbers = "onPage";
+    survey.render();
+});
+
+const set_question_numbers_off = ClientFunction(() => {
+    survey.showQuestionNumbers = "off";
+    survey.render();
+});
+
+const hide_survey_title = ClientFunction(() => {
+    survey.showTitle = false;
+    survey.render();
+});
+
+const hide_page_title = ClientFunction(() => {
+    survey.showPageTitles = false;
+    survey.render();
+});
+
+const show_page_numbers = ClientFunction(() => {
+    survey.showPageNumbers = true;
+    survey.render();
+});
+
+const show_top_progress_bar = ClientFunction(() => {
+    survey.showProgressBar = "top";
+    survey.render();
+});
+
+const show_bottom_progress_bar = ClientFunction(() => {
+    survey.showProgressBar = "bottom";
+    survey.render();
+});
+
+const set_completed_html = ClientFunction(() => {
+    survey.completedHtml = "<h1>Wombat</h1>";
+    survey.render();
+});
+
+const json = {
+    title: "Software developer survey.",
+    pages: [
+        { title: "What operating system do you use?",
+            questions: [
+                {type:"checkbox", name:"opSystem", title: "OS", hasOther: true, isRequired: true,
+                    choices:["Windows", "Linux", "Macintosh OSX"]}
+            ]
+        },
+        {   title: "What language(s) are you currently using?",
+            questions: [
+                {type:"checkbox", name:"langs",title:"Plese select from the list",
+                    colCount: 4, isRequired: true,
+                    choices:["Javascript", "Java", "Python", "CSS", "PHP", "Ruby", "C++", "C",
+                        "Shell", "C#", "Objective-C", "R", "VimL", "Go", "Perl", "CoffeeScript",
+                        "TeX", "Swift", "Scala", "Emacs List", "Haskell", "Lua", "Clojure",
+                        "Matlab", "Arduino", "Makefile", "Groovy", "Puppet", "Rust", "PowerShell"]
+                }
+            ]},
+        { title: "Please enter your name and e-mail",
+            questions: [
+                {type: "text", name: "name", title: "Name:"},
+                {type: "text", name: "email", title: "Your e-mail"}]
+        }
+    ]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,16 +81,13 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`change question required text`, async t => {
         const getPosition = ClientFunction(() => document.documentElement.innerHTML.indexOf("😱"));
 
-        await t
-            .click(`#change_question_required_text`);
+        await change_question_required_text();
 
         assert.notEqual(await getPosition(), -1);
     });
@@ -30,8 +98,9 @@ frameworks.forEach( (framework) => {
 
         await t
             .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`)
-            .click(`#set_question_numbers_on_page`);
+            .click(`input[value="Next"]`);
+
+        await set_question_numbers_on_page();
 
         assert.notEqual(await getPosition(), -1);
     });
@@ -40,8 +109,7 @@ frameworks.forEach( (framework) => {
         const getPosition = ClientFunction(() =>
             document.documentElement.innerHTML.indexOf("1. * Plese select from the list"));
 
-        await t
-            .click(`#set_question_numbers_off`);
+        await set_question_numbers_off();
 
         assert.equal(await getPosition(), -1);
     });
@@ -50,8 +118,7 @@ frameworks.forEach( (framework) => {
         const getTitle = Selector(() =>
             document.querySelectorAll("h3"), { text: "Software developer survey.", visibilityCheck: true, timeout: 1000});
 
-        await t
-            .click(`#hide_survey_title`);
+        await hide_survey_title();
 
         assert.equal(await getTitle(), null);
     });
@@ -64,8 +131,7 @@ frameworks.forEach( (framework) => {
                 timeout: 1000
             });
 
-        await t
-            .click(`#hide_page_title`);
+        await hide_page_title();
 
         assert.equal(await getTitle(), null);
     });
@@ -76,8 +142,7 @@ frameworks.forEach( (framework) => {
         const getPositionPage2 = ClientFunction(() =>
             document.documentElement.innerHTML.indexOf("2. What language(s) are you currently using?"));
 
-        await t
-            .click(`#show_page_numbers`);
+        await show_page_numbers();
         assert.notEqual(await getPositionPage1(), -1);
 
         await t
@@ -100,8 +165,7 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll("span")[0].innerHTML.indexOf("Page 1 of 3") !== -1
         );
 
-        await t
-            .click(`#show_top_progress_bar`);
+        await show_top_progress_bar();
 
         assert.notEqual(await getProgressBar(), null);
         assert(await isFirstSpanProgress());
@@ -115,8 +179,7 @@ frameworks.forEach( (framework) => {
             return spans[spans.length - 1].innerHTML.indexOf("Page 1 of 3") !== -1;
         });
 
-        await t
-            .click(`#show_bottom_progress_bar`);
+        await show_bottom_progress_bar();
 
         assert.notEqual(await getProgressBar(), null);
         assert(await isLastSpanProgress());
@@ -126,8 +189,8 @@ frameworks.forEach( (framework) => {
         const getProgressBar = Selector(() =>
             document.querySelectorAll("div"), { text: "Page 2 of 3", visibilityCheck: true});
 
+        await show_top_progress_bar();
         await t
-            .click(`#show_top_progress_bar`)
             .click(`input[type=checkbox]`)
             .click(`input[value="Next"]`);
 
@@ -138,8 +201,8 @@ frameworks.forEach( (framework) => {
         const getPosition = ClientFunction(() =>
             document.documentElement.innerHTML.indexOf("Wombat"));
 
+        await set_completed_html();
         await t
-            .click(`#set_completed_html`)
             .click(`input[type=checkbox]`)
             .click(`input[value="Next"]`)
             .click(`input[type=checkbox]`)

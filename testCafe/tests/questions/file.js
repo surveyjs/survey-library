@@ -1,8 +1,19 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `file`;
+
+const json = {
+            questions: [{
+                type: "file",
+                title: "Please upload your photo",
+                name: "image",
+                storeDataAsText: true,
+                showPreview: true,
+                imageWidth: 150,
+                maxSize: 102400
+            }]
+        };
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +21,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`choose file`, async t => {
@@ -52,8 +61,8 @@ frameworks.forEach( (framework) => {
         const getImageExistance =  ClientFunction(() =>
             !document.querySelector('img') || document.querySelector('img').style.display === 'none');
 
+        await setOptions('image', { showPreview: false });
         await t
-            .click(`#do_not_show_image_preview`)
             .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`);
 
         assert(await getImageExistance());
@@ -68,8 +77,8 @@ frameworks.forEach( (framework) => {
     test(`file not in data`, async t => {
         let surveyResult;
 
+        await setOptions('image', { storeDataAsText: false });
         await t
-            .click(`#do_not_store_file_in_data`)
             .setFilesToUpload(`input[type=file]`, `../resources/stub.txt`)
             .click(`input[value=Complete]`);
 
@@ -84,8 +93,12 @@ frameworks.forEach( (framework) => {
             document.querySelector('img').height);
 
         await t
-            .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`)
-            .click(`#change_image_preview_height_width`);
+            .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`);
+
+        await setOptions('image', {
+                imageHeight: 50,
+                imageWidth: 50
+            });
 
         assert.equal(await getWidth(), 50);
         assert.equal(await getHeight(), 50);
@@ -98,22 +111,22 @@ frameworks.forEach( (framework) => {
     //     const getImageExistance = ClientFunction(() =>
     //         !!document.querySelector('img'));
     //     let surveyResult;
-    //
+    
     //     await t
     //         .setFilesToUpload(`input[type=file]`, `../resources/big_Dashka.jpg`);
     //     assert.notEqual(await getPosition(), -1);
-    //
+    
+    //     await setOptions('image', { maxSize: 0 });
     //     await t
-    //         .click('#change_file_max_size')
     //         .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`)
     //         .setFilesToUpload(`input[type=file]`, `../resources/big_Dashka.jpg`);
-    //
+    
     //     assert.equal(await getPosition(), -1);
     //     assert(await getImageExistance());
-    //
+    
     //     await t
     //         .click(`input[value=Complete]`);
-    //
+    
     //     surveyResult = await getSurveyResult();
     //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);
     // });

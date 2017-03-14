@@ -1,8 +1,14 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `rating`;
+
+const json = {
+            questions: [{
+                type: "rating", name: "satisfaction", title: "How satisfied are you with the Product?",
+                mininumRateDescription: "Not Satisfied", maximumRateDescription: "Completely satisfied"
+            }]
+        };
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +16,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`description exists`, async t => {

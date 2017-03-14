@@ -1,8 +1,29 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `questionsInOneLine`;
+
+const changeTitleLocation = ClientFunction(() => {
+    survey.questionTitleLocation = 'top';
+    survey.render();
+});
+
+const json = {
+    questionTitleLocation: "bottom", showQuestionNumbers: "off",
+    pages: [
+        { name: "Address",  title: "Address",
+            questions: [
+                { type: "text", name: "address1", title: "Stree Address" },
+                { type: "text", name: "address2", title: "Address Line 2" },
+                { type: "text", name: "city", title: "City" },
+                { type: "text", name: "state", startWithNewLine: false, title: "State / Province / Region" },
+                { type: "text", name: "zip", title: "Zip / Postal Code" },
+                { type: "dropdown", name: "country", startWithNewLine: false, title: "Country",
+                    choicesByUrl: {url: "http://services.groupkt.com/country/get/all", path: "RestResponse;result", valueName: "name"}    }
+            ]
+        }
+    ]
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,9 +31,7 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`check one line`, async t => {
@@ -39,8 +58,7 @@ frameworks.forEach( (framework) => {
 
         assert(await isInputAboveHeader());
 
-        await t
-            .click(`#change_title_location`);
+        await changeTitleLocation();
 
         assert(await isHeaderAboveInput());
     });

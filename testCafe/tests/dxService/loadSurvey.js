@@ -1,8 +1,11 @@
-import {frameworks, url} from "../settings";
+import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const getSurveyResult = ClientFunction(() => window.SurveyResult);
 const title = `loadSurvey`;
+
+const json = {
+    surveyId: '5af48e08-a0a5-44a5-83f4-1c90e8e98de1'
+};
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
@@ -10,17 +13,15 @@ frameworks.forEach( (framework) => {
         .page `${url}${framework}`
 
         .beforeEach( async t => {
-            await t
-                .typeText(`#testName`, title)
-                .click(`body`);
+            await initSurvey(framework, json);
         });
 
     test(`correct loading`, async t => {
         let surveyResult;
 
         await t
-            .click(`form div:nth-child(1) label input`)
-            .click(`form div:nth-child(3) label input`)
+            .click(`div:nth-child(1) label input`)
+            .click(`div:nth-child(3) label input`)
             .click(`input[value="Complete"]`);
 
         surveyResult = await getSurveyResult();

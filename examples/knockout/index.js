@@ -1,4 +1,4 @@
-if(!window["%hammerhead%"]) {
+function init() {
     var json = { title: "Product Feedback Survey Example", showProgressBar: "top", pages: [
         {questions: [
             { type: "matrix", name: "Quality", title: "Please indicate if you agree or disagree with the following statements",
@@ -42,4 +42,9 @@ if(!window["%hammerhead%"]) {
     var model = new Survey.Model(json);
 
     model.render("surveyElement");
+    
+}
+
+if(!window["%hammerhead%"]) {
+    init();
 }

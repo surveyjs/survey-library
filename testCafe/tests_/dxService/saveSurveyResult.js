@@ -27,7 +27,7 @@ frameworks.forEach( (framework) => {
         await t
             .navigateTo(url + framework);
 
-        await initSurvey(json);
+        await initSurvey(framework, json);
 
         await t
             .click(`input[type=checkbox]`)

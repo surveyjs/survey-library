@@ -148,10 +148,11 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         super(name);
         var self = this;
         this.columnsValue.push = function (value) {
+            var result = Array.prototype.push.call(this, value);
             if (self.data != null) {
                 self.fireCallback(self.columnsChangedCallback);
             }
-            return Array.prototype.push.call(this, value);
+            return result;
         };
         
     }

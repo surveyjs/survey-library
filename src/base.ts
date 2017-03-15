@@ -27,6 +27,9 @@ export interface ISurvey extends ISurveyData {
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);
 }
+export interface IElement  extends IConditionRunner{
+    visible: boolean;
+}
 export interface IQuestion extends IConditionRunner {
     name: string;
     visible: boolean;
@@ -36,8 +39,11 @@ export interface IQuestion extends IConditionRunner {
     onSurveyLoad();
     supportGoNextPageAutomatic(): boolean;
 }
-export interface IPage extends IConditionRunner {
-    visible: boolean;
+export interface IPanel extends IElement {
+    
+}
+export interface IPage extends IPanel {
+
 }
 
 export class ItemValue {

@@ -7,6 +7,7 @@ export * from '../surveyLocalizationTests';
 export * from '../surveyquestiontests';
 export * from '../surveyserializationtests';
 export * from '../surveytests';
+export * from '../paneltests';
 export * from '../surveytriggertests';
 export * from '../surveyvalidatortests';
 export * from '../textPreprocessorTests';

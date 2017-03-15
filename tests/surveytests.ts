@@ -380,6 +380,20 @@ QUnit.test("Question visibleIndex", function (assert) {
     assert.equal((<Question>survey.getQuestionByName("question2")).visibleIndex, 0, "onPage:the second question");
     assert.equal((<Question>survey.getQuestionByName("question3")).visibleIndex, 0, "onPage:the third question");
 });
+QUnit.test("Question visibleIndex, add-remove questions", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var q1 = new QuestionTextModel("q1");
+    page.questions.push(q1);
+    page.questions.push(new QuestionTextModel("q2"));
+    assert.equal((<Question>survey.getQuestionByName("q1")).visibleIndex, 0, "the first question");
+    assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, 1, "the second question");
+    var q3 = new QuestionTextModel("q3");
+    page.questions.splice(0, 1, q3);
+    assert.equal((<Question>survey.getQuestionByName("q3")).visibleIndex, 0, "the first question");
+    assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, 1, "the second question");
+});
+
 QUnit.test("showQuestionNumbers - question fullTitle", function (assert) {
     var survey = twoPageSimplestSurvey();
     assert.equal((<Question>survey.getQuestionByName("question1")).fullTitle, "1. question1", "the first question showQuestionNumbers=on");

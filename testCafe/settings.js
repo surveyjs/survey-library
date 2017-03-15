@@ -2,15 +2,19 @@ import {Selector, ClientFunction} from 'testcafe';
 
 export const frameworks = [
         'knockout',
-        'jquery',
-        'react',
-        "vue"
+        //'jquery',
+        //'react',
+        //"vue"
+    ];
+export const cssTypes = [
+        'standard',
+        'bootstrap'
     ];
 export const url = 'http://127.0.0.1:8080/examples/';
 
-export const initSurvey = ClientFunction((framework, json) => {
+export const initSurvey = ClientFunction((framework, json, cssType = "standard") => {
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
-    Survey.Survey.cssType = "bootstrap";
+    Survey.Survey.cssType = cssType;
 
     var model = new Survey.Model(json);
 
@@ -36,7 +40,6 @@ export const initSurvey = ClientFunction((framework, json) => {
         !!window.vueApp && vueApp.$destroy();
         window.vueApp = new Vue({ el: '#surveyElement', data: { survey: model } });
     }
-
 
     window.survey = model;
 });

@@ -159,5 +159,10 @@
         "includes": [
             "examplesetups/custom-widget-barrating.md"
         ]
+    },
+    { "name": "custom-widget-matrix-icheck", "title": "Matrix with iCheck", "jquery": true,
+        "includes": [
+            "examplesetups/custom-widget-matrix-icheck.md"
+        ]
     }
 ]

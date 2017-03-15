@@ -24,7 +24,8 @@
                 { "name": "Select2", "text" : "Select2", "url": "custom-widget-select2.html"},
                 { "name": "iCheck", "text" : "iCheck", "url": "custom-widget-icheck.html"},
                 { "name": "Barrating", "text" : "Antennaio Barrating", "url": "custom-widget-barrating.html"},
-                { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"}
+                { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"},
+                { "name": "ICheckMatrix", "text" : "Matrix with iCheck", "url": "custom-widget-matrix-icheck.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

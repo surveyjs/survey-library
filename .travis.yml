@@ -19,6 +19,7 @@ before_script:
 - sleep 3
 - npm install -g concurrently@3.1.0
 script:
+- if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then echo "CRON!"; fi
 - npm run build_knockout_dev
 - npm run build_knockout_prod
 - npm run build_react_dev
@@ -33,7 +34,6 @@ script:
 #- http-server &
 #- testcafe chrome testCafe/
 #- npm run testcafe_sauce
-- if [[ "$TRAVIS_EVENT_TYPE"" = "cron" ]]; then echo "CRON!"; fi
 before_deploy: tar -zcvf surveyjs.tar.gz packages
 deploy:
 - provider: releases

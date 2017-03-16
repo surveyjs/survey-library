@@ -32,6 +32,8 @@ script:
 - karma start --single-run
 - http-server &
 - testcafe chrome testCafe/
+#- npm run testcafe_sauce
+- if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then echo "Starting functional tests on SauceLabs..."; npm run testcafe_sauce; fi
 before_deploy: tar -zcvf surveyjs.tar.gz packages
 deploy:
 - provider: releases

@@ -4,7 +4,7 @@
 ![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif)
 
 ##Getting started
-[![Join the chat at https://gitter.im/surveyjs/surveyjs](https://badges.gitter.im/surveyjs/surveyjs.svg)](https://gitter.im/surveyjs/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
 To find out more about the library go
 * to the [surveyjs.org site](http://surveyjs.org) 

@@ -1,6 +1,6 @@
 <template>
     <form :class="css.checkbox.root">
-        <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: '100%', 'margin-right': question.colCount === 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="css.radiogroup.item">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
@@ -23,6 +23,10 @@
         }
         set value(newVal) {
             this.question.value = newVal;
+        }
+        get colWidth() {
+            var colCount = this.question.colCount;
+            return colCount > 0 ? (100 / colCount) + '%' : "";
         }
     }
     Vue.component("survey-checkbox", Checkbox)

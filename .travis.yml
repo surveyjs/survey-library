@@ -32,6 +32,7 @@ script:
 - karma start --single-run
 - http-server &
 - testcafe chrome testCafe/
+- npm run testcafe_sauce
 before_deploy: tar -zcvf surveyjs.tar.gz packages
 deploy:
 - provider: releases

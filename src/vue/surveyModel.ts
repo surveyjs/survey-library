@@ -1,3 +1,4 @@
+import * as Vue from 'vue'
 import {SurveyModel} from "../survey";
 import {surveyCss} from "../defaultCss/cssstandard"
 
@@ -14,6 +15,7 @@ export class VueSurveyModel extends SurveyModel {
         }
     }
     protected onLoadSurveyFromService() {
+        this.getAllQuestions().forEach(question => Vue.set(this.vueValuesHash, question.name, undefined));
         this.render();
     }
     protected onLoadingSurveyFromService() {
@@ -38,5 +40,4 @@ export class VueSurveyModel extends SurveyModel {
         super.setValue(name, newValue);
         this.vueValuesHash[name] = newValue;
     }
-
 }

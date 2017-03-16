@@ -4,9 +4,9 @@
             <label :class="css.radiogroup.item">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="!isEditMode" />
                 <span>{{item.text}}</span>
+                <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
     </form>
 </template>
 

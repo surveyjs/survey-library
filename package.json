@@ -2,7 +2,7 @@
   "scripts": {
     "test": "karma start",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
-    "testcafe_sauce":  "testcafe \"saucelabs:Chrome@beta:Windows 10,saucelabs:Firefox@51.0:Windows 10\" testCafe/",
+    "testcafe_sauce":  "testcafe \"saucelabs:Chrome@56.0:Windows 10,saucelabs:Firefox@51.0:Windows 10,saucelabs:MicrosoftEdge@14.14393:Windows 10,saucelabs:Internet Explorer@11.103:Windows 10,saucelabs:Chrome@48.0:Linux\" testCafe/",
     "release": "standard-version --message \"Release: %s\"",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",
     "build_react_dev": "webpack --env.buildType dev --env.platform react",

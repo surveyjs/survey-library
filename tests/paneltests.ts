@@ -3,6 +3,7 @@ import {PageModel} from "../src/page";
 import {QuestionFactory} from "../src/questionfactory";
 import {Question} from "../src/question";
 import {QuestionTextModel} from "../src/question_text";
+import {JsonObject, JsonUnknownPropertyError} from "../src/jsonobject";
 
 export default QUnit.module("Panel");
 
@@ -13,7 +14,7 @@ QUnit.test("questions-elements synhronization", function (assert) {
     page.addNewQuestion("text", "q3");
     assert.equal(page.questions.length, 3, "There are 3 questions");
     assert.equal(page.elements.length, 3, "There are 3 elements");
-    page.questions.splice(1, 1);
+    page.removeQuestion(page.questions[1]);
     assert.equal(page.questions.length, 2, "There are 2 questions");
     assert.equal(page.elements.length, 2, "There are 2 elements");
     assert.equal((<Question>page.elements[1]).name, "q3", "The second element is correct");
@@ -32,3 +33,9 @@ QUnit.test("elements-questions synhronization", function (assert) {
     assert.equal(page.questions[1].name, "q3", "The second element is correct");
 });
 
+QUnit.test("load page from json with old questions", function (assert) {
+    var page = new PageModel();
+    new JsonObject().toObject({ "questions":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q2" }]}, page);
+    assert.equal(page.elements.length, 2, "There are two elements");
+    assert.equal(page.questions.length, 2, "There are two questions");
+});

@@ -396,7 +396,7 @@ export class JsonObject {
             return;
         }
         if (this.isValueArray(value)) {
-            this.valueToArray(value, obj, key, property);
+            this.valueToArray(value, obj, property.name, property);
             return;
         }
         var newObj = this.createNewObj(value, property);

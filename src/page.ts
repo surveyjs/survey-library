@@ -64,6 +64,7 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
     private elementsValue: Array<IElement> = new Array<IElement>();
+    private isQuestionsReady: boolean = false;
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
     public data: ISurvey = null;
     public visibleIf: string = "";
@@ -76,17 +77,23 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
         super();
         this.idValue = PageModelBase.getPanelId();
         var self = this;
-        this.questionsValue.push = function (value): number { return self.doOnPushElement(this, value); };
-        this.questionsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
-            return self.doSpliceElements(this, start, deleteCount, ...items);
-        };
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
             return self.doSpliceElements(this, start, deleteCount, ...items);
         };
     }
     public get id(): string { return this.idValue; }
-    public get questions(): Array<QuestionBase> { return this.questionsValue; }
+    public get questions(): Array<QuestionBase> { 
+        if(!this.isQuestionsReady) {
+            this.questionsValue = [];
+            for(var i = 0; i < this.elements.length; i ++) {
+                this.questionsValue.push(<QuestionBase>this.elements[i]);
+            }
+            this.isQuestionsReady = true;
+        } 
+
+        return this.questionsValue;
+    }
     public get elements(): Array<IElement> { return this.elementsValue; }
     public get rows(): Array<QuestionRowModel> {
         this.rowValues = this.buildRows();
@@ -96,22 +103,13 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
     public isQuestionVisible(question: QuestionBase): boolean { return question.visible || this.isDesignMode; }
     protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRowModel(this, question); }
     private get isDesignMode() { return this.data && this.data.isDesignMode; }
-    private arrayChangeCounter: number = 0;
     private doOnPushElement(list: Array<IElement>, value: IElement) {
-        this.arrayChangeCounter ++;
+        this.isQuestionsReady = false;
         var result = Array.prototype.push.call(list, value);
-        if(this.arrayChangeCounter < 2) {
-            if(list === this.questionsValue) {
-                this.onAddQuestion(<QuestionBase>value, list.length);
-            } else {
-                this.onAddElement(value, list.length);
-            }
-        }
-        this.arrayChangeCounter --;
+        this.onAddQuestion(<QuestionBase>value, list.length);
         return result;
     }
     private doSpliceElements(list: Array<IElement>, start?: number, deleteCount?: number, ...items: IElement[]) {
-        this.arrayChangeCounter ++;
         if(!start) start = 0;
         if(!deleteCount) deleteCount = 0;
         var deletedQuestions = [];
@@ -119,48 +117,25 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
             if(i + start >= list.length) continue;
             deletedQuestions.push(list[i + start]);
         }
+        this.isQuestionsReady = false;
         var result = Array.prototype.splice.call(list, start, deleteCount, ... items);
-        if(this.arrayChangeCounter < 2) {
-            if(!items) items = [];
-            for(var i = 0; i < deletedQuestions.length; i ++) {
-                if(list == this.questionsValue) {
-                    this.onRemoveQuestion(deletedQuestions[i])
-                } else {
-                    this.onRemoveElement(deletedQuestions[i])
-                }
-            }
-            for(var i = 0; i < items.length; i ++) {
-                if(list == this.questionsValue) {
-                    this.onAddQuestion(<QuestionBase>items[i], start + i);
-                } else {
-                    this.onAddElement(items[i], start + i);
-                }
-            }
+        if(!items) items = [];
+        for(var i = 0; i < deletedQuestions.length; i ++) {
+            this.onRemoveQuestion(deletedQuestions[i])
         }
-        this.arrayChangeCounter --;
+        for(var i = 0; i < items.length; i ++) {
+                this.onAddQuestion(<QuestionBase>items[i], start + i);
+        }
         return result;
     }
     private onAddQuestion(question: QuestionBase, index: number) {
-        this.elements.splice(index, 0, question);
         if(this.data) {
             question.setData(this.data);
             this.data.questionAdded(question, index);
         }
     }
     private onRemoveQuestion(question: QuestionBase) {
-        var index = this.elements.indexOf(question);
-        if(index > -1) this.elements.splice(index, 1);        
         if(this.data) this.data.questionRemoved(question);
-    }
-    private onAddElement(element: IElement, index: number) {
-        var q = <QuestionBase>element;
-        if(q) this.questions.splice(index, 0, q);
-    }
-    private onRemoveElement(element: IElement) {
-        var q = <QuestionBase>element;
-        if(!q) return;
-        var index = this.questions.indexOf(q);
-        if(index > -1) this.questions.splice(index, 1);        
     }
     private buildRows(): Array<QuestionRowModel> {
         var result = new Array<QuestionRowModel>();
@@ -220,10 +195,10 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
 
     public addQuestion(question: QuestionBase, index: number = -1) {
         if (question == null) return;
-        if (index < 0 || index >= this.questions.length) {
-            this.questions.push(question);
+        if (index < 0 || index >= this.elements.length) {
+            this.elements.push(question);
         } else {
-            this.questions.splice(index, 0, question);
+            this.elements.splice(index, 0, question);
         }
     }
     public addNewQuestion(questionType: string, name: string): QuestionBase {
@@ -232,9 +207,9 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
         return question;
     }
     public removeQuestion(question: QuestionBase) {
-        var index = this.questions.indexOf(question);
+        var index = this.elements.indexOf(question);
         if (index < 0) return;
-        this.questions.splice(index, 1);
+        this.elements.splice(index, 1);
     }
     public focusFirstQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
@@ -293,4 +268,5 @@ export class PageModel extends PageModelBase {
     public getType(): string { return "page"; }
 }
 
-JsonObject.metaData.addClass("page", ["name", { name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }, { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PageModel(); });
+JsonObject.metaData.addClass("page", ["name", { name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }, 
+    { name: "elements", alternativeName: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PageModel(); });

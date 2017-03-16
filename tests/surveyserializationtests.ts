@@ -36,7 +36,7 @@ QUnit.test("Serialize two questions", function (assert) {
     page.addQuestion(textQuestion);
     page.addQuestion(checkBoxQuestion);
     var jsObj = new JsonObject().toJsonObject(page);
-    assert.equal(JSON.stringify(jsObj), "{\"name\":\"Page1\",\"questions\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"hasComment\":true,\"choices\":[\"red\",\"white\"]}]}", "serialize two questions");
+    assert.equal(JSON.stringify(jsObj), "{\"name\":\"Page1\",\"elements\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"hasComment\":true,\"choices\":[\"red\",\"white\"]}]}", "serialize two questions");
 });
 QUnit.test("Deserialize two questions", function (assert) {
     var survey = new SurveyModel();

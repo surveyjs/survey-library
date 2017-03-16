@@ -384,12 +384,12 @@ QUnit.test("Question visibleIndex, add-remove questions", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var q1 = new QuestionTextModel("q1");
-    page.questions.push(q1);
-    page.questions.push(new QuestionTextModel("q2"));
+    page.elements.push(q1);
+    page.elements.push(new QuestionTextModel("q2"));
     assert.equal((<Question>survey.getQuestionByName("q1")).visibleIndex, 0, "the first question");
     assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, 1, "the second question");
     var q3 = new QuestionTextModel("q3");
-    page.questions.splice(0, 1, q3);
+    page.elements.splice(0, 1, q3);
     assert.equal((<Question>survey.getQuestionByName("q3")).visibleIndex, 0, "the first question");
     assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, 1, "the second question");
 });

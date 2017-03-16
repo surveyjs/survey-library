@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, IPage, IConditionRunner, ISurvey, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
+import {Base, IPage, IConditionRunner, ISurvey, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
@@ -7,7 +7,7 @@ import {QuestionFactory} from "./questionfactory";
 export class QuestionRowModel {
     private visibleValue: boolean = false;
     visibilityChangedCallback: () => void;
-    constructor(public page: PageModel, public question: QuestionBase) {
+    constructor(public page: PageModelBase, public question: QuestionBase) {
         var self = this;
         this.question.rowVisibilityChangedCallback = function () { self.onRowVisibilityChanged(); }
     }
@@ -54,19 +54,19 @@ export class QuestionRowModel {
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
-export class PageModel extends Base implements IPage, IConditionRunner {
-    private static pageCounter = 100;
-    private static getPageId(): string {
-        return "sp_" + PageModel.pageCounter++;
+export class PageModelBase extends Base implements IPage, IConditionRunner {
+    private static panelCounter = 100;
+    private static getPanelId(): string {
+        return "sp_" + PageModelBase.panelCounter++;
     }
 
     private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
+    private elementsValue: Array<IElement> = new Array<IElement>();
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
     public data: ISurvey = null;
     public visibleIf: string = "";
-    public navigationButtonsVisibility: string = "inherit";
 
     public title: string = "";
     public visibleIndex: number = -1;
@@ -74,42 +74,20 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     private visibleValue: boolean = true;
     constructor(public name: string = "") {
         super();
-        this.idValue = PageModel.getPageId();
+        this.idValue = PageModelBase.getPanelId();
         var self = this;
-        this.questionsValue.push = function (value): number {
-            var result = Array.prototype.push.call(this, value);
-            if (self.data != null) {
-                value.setData(self.data);
-                self.data.questionAdded(value, this.length);
-            }
-            return result;
-        };
-        
+        this.questionsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.questionsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
-            if(!start) start = 0;
-            if(!deleteCount) deleteCount = 0;
-            var deletedQuestions = [];
-            for(var i = 0; i < deleteCount; i ++) {
-                if(i + start >= this.length) continue;
-                deletedQuestions.push(this[i + start]);
-            }
-            var result = Array.prototype.splice.call(this, start, deleteCount, ... items);
-            if (self.data != null) {
-                if(items) {
-                    for(var i = 0; i < items.length; i ++) {
-                        items[i].setData(self.data);
-                        self.data.questionAdded(items[i], start + i);
-                    }
-                }
-                for(var i = 0; i < deletedQuestions.length; i ++) {
-                    self.data.questionRemoved(deletedQuestions[i]);
-                }
-            }
-            return result;
+            return self.doSpliceElements(this, start, deleteCount, ...items);
+        };
+        this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
+        this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
+            return self.doSpliceElements(this, start, deleteCount, ...items);
         };
     }
     public get id(): string { return this.idValue; }
     public get questions(): Array<QuestionBase> { return this.questionsValue; }
+    public get elements(): Array<IElement> { return this.elementsValue; }
     public get rows(): Array<QuestionRowModel> {
         this.rowValues = this.buildRows();
         return this.rowValues;
@@ -118,6 +96,72 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     public isQuestionVisible(question: QuestionBase): boolean { return question.visible || this.isDesignMode; }
     protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRowModel(this, question); }
     private get isDesignMode() { return this.data && this.data.isDesignMode; }
+    private arrayChangeCounter: number = 0;
+    private doOnPushElement(list: Array<IElement>, value: IElement) {
+        this.arrayChangeCounter ++;
+        var result = Array.prototype.push.call(list, value);
+        if(this.arrayChangeCounter < 2) {
+            if(list === this.questionsValue) {
+                this.onAddQuestion(<QuestionBase>value, list.length);
+            } else {
+                this.onAddElement(value, list.length);
+            }
+        }
+        this.arrayChangeCounter --;
+        return result;
+    }
+    private doSpliceElements(list: Array<IElement>, start?: number, deleteCount?: number, ...items: IElement[]) {
+        this.arrayChangeCounter ++;
+        if(!start) start = 0;
+        if(!deleteCount) deleteCount = 0;
+        var deletedQuestions = [];
+        for(var i = 0; i < deleteCount; i ++) {
+            if(i + start >= list.length) continue;
+            deletedQuestions.push(list[i + start]);
+        }
+        var result = Array.prototype.splice.call(list, start, deleteCount, ... items);
+        if(this.arrayChangeCounter < 2) {
+            if(!items) items = [];
+            for(var i = 0; i < deletedQuestions.length; i ++) {
+                if(list == this.questionsValue) {
+                    this.onRemoveQuestion(deletedQuestions[i])
+                } else {
+                    this.onRemoveElement(deletedQuestions[i])
+                }
+            }
+            for(var i = 0; i < items.length; i ++) {
+                if(list == this.questionsValue) {
+                    this.onAddQuestion(<QuestionBase>items[i], start + i);
+                } else {
+                    this.onAddElement(items[i], start + i);
+                }
+            }
+        }
+        this.arrayChangeCounter --;
+        return result;
+    }
+    private onAddQuestion(question: QuestionBase, index: number) {
+        this.elements.splice(index, 0, question);
+        if(this.data) {
+            question.setData(this.data);
+            this.data.questionAdded(question, index);
+        }
+    }
+    private onRemoveQuestion(question: QuestionBase) {
+        var index = this.elements.indexOf(question);
+        if(index > -1) this.elements.splice(index, 1);        
+        if(this.data) this.data.questionRemoved(question);
+    }
+    private onAddElement(element: IElement, index: number) {
+        var q = <QuestionBase>element;
+        if(q) this.questions.splice(index, 0, q);
+    }
+    private onRemoveElement(element: IElement) {
+        var q = <QuestionBase>element;
+        if(!q) return;
+        var index = this.questions.indexOf(q);
+        if(index > -1) this.questions.splice(index, 1);        
+    }
     private buildRows(): Array<QuestionRowModel> {
         var result = new Array<QuestionRowModel>();
         var lastRowVisibleIndex = -1;
@@ -240,4 +284,13 @@ export class PageModel extends Base implements IPage, IConditionRunner {
     protected onNumChanged(value: number) {
     }
 }
+
+export class PageModel extends PageModelBase {
+    public navigationButtonsVisibility: string = "inherit";
+    constructor(public name: string = "") {
+        super(name);
+    }
+    public getType(): string { return "page"; }
+}
+
 JsonObject.metaData.addClass("page", ["name", { name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }, { name: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PageModel(); });

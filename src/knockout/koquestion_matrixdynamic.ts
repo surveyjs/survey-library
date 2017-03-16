@@ -14,7 +14,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
         super(question);
         this.koRecalc = ko.observable(0);
         this.koRows = ko.pureComputed(function () {
-            this.koRecalc(); return (<QuestionMatrixDynamic>this.question).cachedVisibleRows;
+            this.koRecalc(); return (<QuestionMatrixDynamic>this.question).visibleRows;
         }, this);
         this.koOverflowX = ko.pureComputed(function () {
             return (<QuestionMatrixDropdownModelBase>this.question).horizontalScroll ? "scroll": "none";

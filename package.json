@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "karma start",
-    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/tests_/\"",
+    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
+    "testcafe_sauce":  "testcafe \"saucelabs:Chrome@beta:Windows 10,saucelabs:Firefox@51.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s\"",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",
     "build_react_dev": "webpack --env.buildType dev --env.platform react",
@@ -37,6 +38,7 @@
     "extract-text-webpack-plugin": "^2.0.0-rc.3",
     "generate-json-webpack-plugin": "0.2.1",
     "html-loader": "0.4.4",
+    "http-server": "0.9.0",
     "jquery": "3.1.1",
     "karma": "1.4.0",
     "karma-chrome-launcher": "2.0.0",
@@ -59,6 +61,7 @@
     "standard-version": "4.0.0",
     "style-loader": "0.13.1",
     "testcafe": "0.13.0",
+    "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.0.0",
     "typescript": "2.1.5",
     "val-loader": "0.5.0",

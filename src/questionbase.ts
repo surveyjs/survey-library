@@ -32,6 +32,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         this.idValue = QuestionBase.getQuestionId();
         this.onCreating();
     }
+    public get isPanel(): boolean { return false; }
     public get visible(): boolean { return this.visibleValue; }
     public set visible(val: boolean) {
         if (val == this.visible) return;

@@ -85,7 +85,7 @@ export class SurveyRow extends React.Component<any, any> {
         if (this.row.visible) {
             questions = [];
             for (var i = 0; i < this.row.questions.length; i++) {
-                var question = this.row.questions[i];
+                var question =this.row.questions[i] as QuestionBase;
                 questions.push(this.createQuestion(question));
             }
         }

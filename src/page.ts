@@ -7,11 +7,11 @@ import {QuestionFactory} from "./questionfactory";
 export class QuestionRowModel {
     private visibleValue: boolean = false;
     visibilityChangedCallback: () => void;
-    constructor(public page: PageModelBase, public question: QuestionBase) {
+    constructor(public panel: PanelModelBase, public question: IElement) {
         var self = this;
         this.question.rowVisibilityChangedCallback = function () { self.onRowVisibilityChanged(); }
     }
-    public questions: Array<QuestionBase> = [];
+    public questions: Array<IElement> = [];
     public get visible(): boolean { return this.visibleValue; }
     public set visible(val: boolean) {
         if (val == this.visible) return;
@@ -22,7 +22,7 @@ export class QuestionRowModel {
         this.visible = this.calcVisible();
         this.setWidth();
     }
-    public addQuestion(q: QuestionBase) {
+    public addQuestion(q: IElement) {
         this.questions.push(q);
         this.updateVisible();
     }
@@ -41,7 +41,7 @@ export class QuestionRowModel {
             }
     }
     private onRowVisibilityChanged() {
-        this.page.onRowVisibilityChanged(this);
+        this.panel.onRowVisibilityChanged(this);
     }
     private getVisibleCount(): number {
         var res = 0;
@@ -50,14 +50,14 @@ export class QuestionRowModel {
         }
         return res;
     }
-    private isQuestionVisible(q: QuestionBase): boolean { return this.page.isQuestionVisible(q); }
+    private isQuestionVisible(q: IElement): boolean { return this.panel.isQuestionVisible(q); }
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
-export class PageModelBase extends Base implements IPage, IConditionRunner {
+export class PanelModelBase extends Base implements IConditionRunner {
     private static panelCounter = 100;
     private static getPanelId(): string {
-        return "sp_" + PageModelBase.panelCounter++;
+        return "sp_" + PanelModelBase.panelCounter++;
     }
 
     private idValue: string;
@@ -66,6 +66,7 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
     private elementsValue: Array<IElement> = new Array<IElement>();
     private isQuestionsReady: boolean = false;
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
+    public parent: PanelModelBase = null;
     public data: ISurvey = null;
     public visibleIf: string = "";
 
@@ -75,7 +76,7 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
     private visibleValue: boolean = true;
     constructor(public name: string = "") {
         super();
-        this.idValue = PageModelBase.getPanelId();
+        this.idValue = PanelModelBase.getPanelId();
         var self = this;
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
@@ -87,12 +88,24 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
         if(!this.isQuestionsReady) {
             this.questionsValue = [];
             for(var i = 0; i < this.elements.length; i ++) {
-                this.questionsValue.push(<QuestionBase>this.elements[i]);
+                var el = this.elements[i];
+                if(el.isPanel) {
+                    var qs = (<PanelModel>el).questions;
+                    for(var i = 0; i < qs.length; i ++) {
+                        this.questionsValue.push(qs[i]);    
+                    }
+                } {
+                    this.questionsValue.push(<QuestionBase>el);
+                }
             }
             this.isQuestionsReady = true;
         } 
 
         return this.questionsValue;
+    }
+    private markQuestionListDirty() {
+        this.isQuestionsReady = false;
+        if(this.parent) this.parent.markQuestionListDirty();
     }
     public get elements(): Array<IElement> { return this.elementsValue; }
     public get rows(): Array<QuestionRowModel> {
@@ -100,13 +113,13 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
         return this.rowValues;
     }
     public get isActive() { return (!this.data) || this.data.currentPage == this; }
-    public isQuestionVisible(question: QuestionBase): boolean { return question.visible || this.isDesignMode; }
+    public isQuestionVisible(question: IElement): boolean { return question.visible || this.isDesignMode; }
     protected createRow(question: QuestionBase): QuestionRowModel { return new QuestionRowModel(this, question); }
     private get isDesignMode() { return this.data && this.data.isDesignMode; }
     private doOnPushElement(list: Array<IElement>, value: IElement) {
-        this.isQuestionsReady = false;
+        this.markQuestionListDirty();
         var result = Array.prototype.push.call(list, value);
-        this.onAddQuestion(<QuestionBase>value, list.length);
+        this.onAddElement(value, list.length);
         return result;
     }
     private doSpliceElements(list: Array<IElement>, start?: number, deleteCount?: number, ...items: IElement[]) {
@@ -117,25 +130,38 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
             if(i + start >= list.length) continue;
             deletedQuestions.push(list[i + start]);
         }
-        this.isQuestionsReady = false;
+        this.markQuestionListDirty();
         var result = Array.prototype.splice.call(list, start, deleteCount, ... items);
         if(!items) items = [];
         for(var i = 0; i < deletedQuestions.length; i ++) {
             this.onRemoveQuestion(deletedQuestions[i])
         }
         for(var i = 0; i < items.length; i ++) {
-                this.onAddQuestion(<QuestionBase>items[i], start + i);
+                this.onAddElement(items[i], start + i);
         }
         return result;
     }
-    private onAddQuestion(question: QuestionBase, index: number) {
-        if(this.data) {
-            question.setData(this.data);
-            this.data.questionAdded(question, index);
+    private onAddElement(element: IElement, index: number) {
+        if(element.isPanel) {
+            var p = <PanelModel>element;
+            p.data = this.data;
+            p.parent = this;
+        } else {
+            if(this.data) {
+                var q = <QuestionBase>element;
+                q.setData(this.data);
+                this.data.questionAdded(q, index);
+            }
         }
     }
-    private onRemoveQuestion(question: QuestionBase) {
-        if(this.data) this.data.questionRemoved(question);
+    private onRemoveQuestion(element: IElement) {
+        if(element.isPanel) {
+            var p = <PanelModel>element;
+            if(p.parent) p.parent.markQuestionListDirty();
+        } else {
+            var q = <QuestionBase>element;
+            if(this.data) this.data.questionRemoved(q);
+        }
     }
     private buildRows(): Array<QuestionRowModel> {
         var result = new Array<QuestionRowModel>();
@@ -201,10 +227,23 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
             this.elements.splice(index, 0, question);
         }
     }
+    public addPanel(panel: PanelModel, index: number = -1) {
+        if (panel == null) return;
+        if (index < 0 || index >= this.elements.length) {
+            this.elements.push(panel);
+        } else {
+            this.elements.splice(index, 0, panel);
+        }
+    }
     public addNewQuestion(questionType: string, name: string): QuestionBase {
         var question = QuestionFactory.Instance.createQuestion(questionType, name);
         this.addQuestion(question);
         return question;
+    }
+    public addNewPanel(name: string): PanelModel {
+        var panel = new PanelModel(name);
+        this.addPanel(panel);
+        return panel;
     }
     public removeQuestion(question: QuestionBase) {
         var index = this.elements.indexOf(question);
@@ -260,7 +299,31 @@ export class PageModelBase extends Base implements IPage, IConditionRunner {
     }
 }
 
-export class PageModel extends PageModelBase {
+//export class 
+export class PanelModel extends PanelModelBase implements IElement {
+    private renderWidthValue: string;
+    private rightIndentValue: number;
+    public width: string;
+    rowVisibilityChangedCallback: () => void;
+    constructor(public name: string = "") {
+        super(name);
+    }
+    public get isPanel(): boolean { return true; }
+    public get renderWidth(): string { return this.renderWidthValue; }
+    public set renderWidth(val: string) {
+        if (val == this.renderWidth) return;
+        this.renderWidthValue = val;
+        //this.fireCallback(this.renderWidthChangedCallback);
+    }
+    public get rightIndent(): number { return this.rightIndentValue; }
+    public set rightIndent(val: number) {
+        if (val == this.rightIndent) return;
+        this.rightIndentValue = val;
+        //this.fireCallback(this.renderWidthChangedCallback);
+    }
+}
+
+export class PageModel extends PanelModelBase implements IPage {
     public navigationButtonsVisibility: string = "inherit";
     constructor(public name: string = "") {
         super(name);

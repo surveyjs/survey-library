@@ -6,8 +6,8 @@ import {SurveyElement} from "../base";
 
 export class QuestionRow extends QuestionRowModel {
     koVisible: any;
-    constructor(public page: PageModel, public question: QuestionBase) {
-        super(page, question);
+    constructor(public panel: PageModel, public question: QuestionBase) {
+        super(panel, question);
         this.koVisible = ko.observable(this.visible);
     }
     protected onVisibleChanged() {

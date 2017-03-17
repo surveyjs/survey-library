@@ -28,11 +28,16 @@ export interface IConditionRunner {
     runCondition(values: HashTable<any>);
 }
 export interface IElement  extends IConditionRunner{
-    visible: boolean;
-}
-export interface IQuestion extends IConditionRunner {
     name: string;
     visible: boolean;
+    rowVisibilityChangedCallback: () => void;
+    renderWidth: string;
+    width: string;
+    rightIndent: number;
+    isPanel: boolean;
+}
+
+export interface IQuestion extends IElement {
     hasTitle: boolean;
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);
@@ -42,8 +47,8 @@ export interface IQuestion extends IConditionRunner {
 export interface IPanel extends IElement {
     
 }
-export interface IPage extends IPanel {
-
+export interface IPage extends IConditionRunner {
+    visible: boolean;
 }
 
 export class ItemValue {

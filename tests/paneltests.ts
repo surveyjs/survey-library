@@ -39,3 +39,17 @@ QUnit.test("load page from json with old questions", function (assert) {
     assert.equal(page.elements.length, 2, "There are two elements");
     assert.equal(page.questions.length, 2, "There are two questions");
 });
+
+QUnit.test("Simple test on nested panel", function (assert) {
+    var page = new PageModel();
+    page.addNewQuestion("text", "q1");
+    var panel = page.addNewPanel("p1");
+    panel.addNewQuestion("text", "q2_1");
+    panel.addNewQuestion("text", "q2_2");
+    page.addNewQuestion("text", "q3");
+    assert.equal(page.elements.length, 3, "There are two elements");
+    assert.equal(page.questions.length, 4, "There are four questions");
+    panel.addNewQuestion("text", "q2_3");
+    assert.equal(page.elements.length, 3, "There are two elements");
+    assert.equal(page.questions.length, 5, "There are four questions");
+});

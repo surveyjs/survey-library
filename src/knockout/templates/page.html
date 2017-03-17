@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-page">
     <h4 data-bind="visible: (title.length > 0) && data.showPageTitles, text: koNo() + processedTitle, css: data.css.pageTitle"></h4>
     <!-- ko foreach: { data: rows, as: 'row'} -->
-    <div data-bind="visible: row.koVisible, css: page.data.css.row">
+    <div data-bind="visible: row.koVisible, css: panel.data.css.row">
         <!-- ko foreach: { data: row.questions, as: 'question' , afterRender: row.koAfterRender } -->
             <!-- ko template: { name: 'survey-question', data: question, afterRender: $parent.panel.koQuestionAfterRender } --><!-- /ko -->
         <!-- /ko -->

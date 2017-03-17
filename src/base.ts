@@ -153,7 +153,8 @@ export class SurveyError {
     }
 }
 
-export const SurveyPageId = "sq_page";
+export var SurveyPageId: string;
+SurveyPageId = "sq_page";
 export class SurveyElement {
     public static ScrollElementToTop(elementId: string): boolean {
         if (!elementId) return false;

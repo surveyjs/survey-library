@@ -46,6 +46,16 @@ const initSurvey = ClientFunction((framework) => {
 
     window.runSurveyCheck = runSurveyCheck;
 
+    function  surveySendResult (survey) {
+        var text = "clientId:" + survey.clientId + ". The results are:" + JSON.stringify(survey.data)  + String.fromCharCode(13, 10);
+        var memo = document.getElementById('sentResults');
+        memo.value = memo.value + text;
+    };
+
+    function surveyComplete(s) {
+        document.getElementById("clientIdContainer").style.display = "inline";
+    }
+
     if (framework === "knockout") {
         function runSurvey() {
             var survey = new Survey.Survey({
@@ -72,14 +82,6 @@ const initSurvey = ClientFunction((framework) => {
             document.getElementById("clientIdContainer").style.display = "none";
             survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
             var clientId = document.getElementById('clientId').value;
-            var surveyComplete = function (s) {
-                document.getElementById("clientIdContainer").style.display = "inline";
-            };
-            var surveySendResult = function (survey) {
-                var text = "clientId:" + survey.clientId + ". The results are:" + JSON.stringify(survey.data)  + String.fromCharCode(13, 10);
-                var memo = document.getElementById('sentResults');
-                memo.value = memo.value + text;
-            };
             ReactDOM.render(React.createElement(Survey.Survey, { model: survey, clientId: clientId, onComplete: surveyComplete, onSendResult: surveySendResult }), document.getElementById("surveyElement"));
         }
         var survey = new Survey.ReactSurveyModel({
@@ -88,6 +90,43 @@ const initSurvey = ClientFunction((framework) => {
         }, "surveyElement");
 
         window.runSurvey = runSurvey;
+    } else if (framework === "vue") {
+        function runSurvey() {
+            var survey = new Survey.Model({
+                surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
+            }, "surveyContainer");
+            survey.clientId = document.getElementById('clientId').value;
+            survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
+            survey.onComplete.add(surveyComplete);
+            survey.onSendResult.add(surveySendResult);
+            document.getElementById("clientIdContainer").style.display = "none";
+
+            new Vue({ el: '#surveyElement', data: { survey: survey } });
+
+        }
+        window.runSurvey = runSurvey;
+    } else if (framework === "jquery") {
+        function runSurvey() {
+            var survey = new Survey.Model({
+                surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
+            }, "surveyContainer");
+            document.getElementById("clientIdContainer").style.display = "none";
+            survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
+            var clientId = document.getElementById('clientId').value;
+
+            $("#surveyElement").Survey({
+                model: survey,
+                clientId: clientId,
+                onComplete: surveyComplete,
+                onSendResult: surveySendResult
+            });
+
+        }
+        window.runSurvey = runSurvey;
+    } else if (framework === "angular") {
+        // TODO this feature are not supported yet
     }
 });
 
@@ -101,7 +140,7 @@ frameworks.forEach( (framework) => {
         });
 
     test(`check one time run`, async t => {
-        const getResultTextArea = Selector(() => document.querySelector('textarea'));
+        const getResultTextArea = Selector(() => document.querySelector('#sentResults'));
         const getSurveyMsg = ClientFunction(() =>  document.getElementById('surveyMsg').innerHTML);
         let clientID = uuid.v1();
         let resultTextArea;
@@ -126,7 +165,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`send results before moving on the next page`, async t => {
-        const getResultTextArea = Selector(() => document.querySelector('textarea'));
+        const getResultTextArea = Selector(() => document.querySelector('#sentResults'), {timeout: 3000});
         let clientID = uuid.v1();
         let resultTextArea;
 

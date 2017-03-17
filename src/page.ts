@@ -308,6 +308,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     constructor(public name: string = "") {
         super(name);
     }
+    public getType(): string { return "panel"; }
     public get isPanel(): boolean { return true; }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {
@@ -331,5 +332,8 @@ export class PageModel extends PanelModelBase implements IPage {
     public getType(): string { return "page"; }
 }
 
-JsonObject.metaData.addClass("page", ["name", { name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }, 
-    { name: "elements", alternativeName: "questions", baseClassName: "question" }, { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PageModel(); });
+JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question" },
+    { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PanelModel(); });
+
+JsonObject.metaData.addClass("page", [{ name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }], 
+    function () { return new PageModel(); }, "panel");

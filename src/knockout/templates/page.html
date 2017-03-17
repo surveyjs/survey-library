@@ -3,7 +3,7 @@
     <!-- ko foreach: { data: rows, as: 'row'} -->
     <div data-bind="visible: row.koVisible, css: page.data.css.row">
         <!-- ko foreach: { data: row.questions, as: 'question' , afterRender: row.koAfterRender } -->
-            <!-- ko template: { name: 'survey-question', data: question, afterRender: $parent.page.koQuestionAfterRender } --><!-- /ko -->
+            <!-- ko template: { name: 'survey-question', data: question, afterRender: $parent.panel.koQuestionAfterRender } --><!-- /ko -->
         <!-- /ko -->
     </div>
     <!-- /ko -->

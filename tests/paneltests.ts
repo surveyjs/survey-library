@@ -35,9 +35,11 @@ QUnit.test("elements-questions synhronization", function (assert) {
 
 QUnit.test("load page from json with old questions", function (assert) {
     var page = new PageModel();
-    new JsonObject().toObject({ "questions":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q2" }]}, page);
+    var jsonObject = new JsonObject();
+    jsonObject.toObject({ "questions":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q2" }]}, page);
     assert.equal(page.elements.length, 2, "There are two elements");
     assert.equal(page.questions.length, 2, "There are two questions");
+    assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });
 
 QUnit.test("Simple test on nested panel", function (assert) {
@@ -52,4 +54,16 @@ QUnit.test("Simple test on nested panel", function (assert) {
     panel.addNewQuestion("text", "q2_3");
     assert.equal(page.elements.length, 3, "There are two elements");
     assert.equal(page.questions.length, 5, "There are four questions");
+});
+QUnit.test("load nested panel from json", function (assert) {
+    var page = new PageModel();
+    var page = new PageModel();
+    var jsonObject = new JsonObject();
+    jsonObject.toObject({ "elements":[ 
+        { "type": "text", "name": "q1" }, 
+        {"type": "panel", "elements":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q3" }]}, 
+    { "type": "text", "name": "q3" }]}, page);
+    assert.equal(page.elements.length, 3, "There are two elements");
+    assert.equal(page.questions.length, 4, "There are four questions");
+    assert.equal(jsonObject.errors.length, 0, "There is no errors");
 });

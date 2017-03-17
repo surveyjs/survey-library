@@ -739,7 +739,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
     }
-    private tryGoNextPageAutomatic(name: string) {
+    protected tryGoNextPageAutomatic(name: string) {
         if (!this.goNextPageAutomatic || !this.currentPage) return;
         var question = this.getQuestionByName(name);
         if (question && (!question.visible || !question.supportGoNextPageAutomatic())) return;

@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 import {ReactSurveyModel} from "./reactsurveymodel";
 import {SurveyPage} from "./reactpage";
 import {SurveyNavigation} from "./reactSurveyNavigation";

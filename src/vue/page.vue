@@ -23,7 +23,7 @@
     import {SurveyModel} from '../survey'
     import {Question as QuestionModel} from '../question'
     import {PageModel} from '../page'
-    import {QuestionRowModel} from '../page'
+    import {QuestionRowModel} from '../panel'
 
     @Component
     export default class Page extends Vue {

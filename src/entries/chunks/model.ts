@@ -24,7 +24,8 @@ export {MatrixDropdownRowModel, QuestionMatrixDropdownModel} from "../../questio
 export {MatrixDynamicRowModel, QuestionMatrixDynamicModel} from "../../question_matrixdynamic";
 export {MatrixRowModel, QuestionMatrixModel} from "../../question_matrix";
 export {MultipleTextItemModel, QuestionMultipleTextModel} from "../../question_multipletext";
-export {PageModel, QuestionRowModel} from "../../page";
+export {PanelModel, PanelModelBase, QuestionRowModel} from "../../panel";
+export {PageModel} from "../../page";
 export {Question} from "../../question";
 export {QuestionBase} from "../../questionbase";
 export {QuestionCheckboxBase, QuestionSelectBase} from "../../question_baseselect";

@@ -3,7 +3,7 @@ import {SurveyQuestion} from './reactquestion'
 import {PageModel} from "../page";
 import {SurveyModel} from "../survey";
 import {ISurveyCreator} from "./reactquestion";
-import {QuestionRowModel} from "../page";
+import {QuestionRowModel} from "../panel";
 import {QuestionBase} from "../questionbase";
 
 export class SurveyPage extends React.Component<any, any> {

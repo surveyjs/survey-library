@@ -46,15 +46,31 @@ QUnit.test("Simple test on nested panel", function (assert) {
     var page = new PageModel();
     page.addNewQuestion("text", "q1");
     var panel = page.addNewPanel("p1");
+    assert.equal(page.elements.length, 2, "There are two elements");
+    assert.equal(page.questions.length, 1, "There is still one question");
     panel.addNewQuestion("text", "q2_1");
     panel.addNewQuestion("text", "q2_2");
+    assert.equal(page.elements.length, 2, "There are two elements");
+    assert.equal(page.questions.length, 3, "There are three questions");
     page.addNewQuestion("text", "q3");
     assert.equal(page.elements.length, 3, "There are two elements");
     assert.equal(page.questions.length, 4, "There are four questions");
     panel.addNewQuestion("text", "q2_3");
     assert.equal(page.elements.length, 3, "There are two elements");
-    assert.equal(page.questions.length, 5, "There are four questions");
+    assert.equal(page.questions.length, 5, "There are five questions");
 });
+
+QUnit.test("add questions to list", function (assert) {
+    var page = new PageModel();
+    page.addNewQuestion("text", "q1");
+    var panel = page.addNewPanel("p1");
+    panel.addNewQuestion("text", "q2_1");
+    page.addNewQuestion("text", "q3");
+    var list = [];
+    page.addQuestionsToList(list);
+    assert.equal(list.length, 3, "There are three questions");
+});
+
 QUnit.test("load nested panel from json", function (assert) {
     var page = new PageModel();
     var page = new PageModel();
@@ -62,7 +78,7 @@ QUnit.test("load nested panel from json", function (assert) {
     jsonObject.toObject({ "elements":[ 
         { "type": "text", "name": "q1" }, 
         {"type": "panel", "elements":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q3" }]}, 
-    { "type": "text", "name": "q3" }]}, page);
+    { "type": "text", "name": "q4" }]}, page);
     assert.equal(page.elements.length, 3, "There are two elements");
     assert.equal(page.questions.length, 4, "There are four questions");
     assert.equal(jsonObject.errors.length, 0, "There is no errors");

@@ -34,6 +34,7 @@ export interface IElement  extends IConditionRunner{
     renderWidth: string;
     width: string;
     rightIndent: number;
+    startWithNewLine: boolean;
     isPanel: boolean;
 }
 

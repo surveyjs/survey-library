@@ -136,7 +136,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     private choicesValue: ItemValue[] = [];
     private optionsCaptionValue: string;
     private isRowChanging = false;
-    protected generatedVisibleRows: Array<MatrixDropdownRowModelBase>;
+    protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = [];
     private cellTypeValue: string = "dropdown";
     private columnColCountValue: number = 0;
     public columnMinWidth: string = "";

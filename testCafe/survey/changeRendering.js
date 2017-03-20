@@ -235,31 +235,33 @@ frameworks.forEach( (framework) => {
             await setupSurvey(framework);
         });
 
-    test(`check new elements rendering`, async t => {
-        const getBtn = Selector(index => document.querySelectorAll('.btn-group .btn')[index - 1]);
-        let surveyResult;
+    if (framework === "react" || framework === "knockout") {
+        test(`check new elements rendering`, async t => {
+            const getBtn = Selector(index => document.querySelectorAll('.btn-group .btn')[index - 1]);
+            let surveyResult;
 
-        await t
-            .click(getBtn(1))
-            .hover(getBtn(2))
-            .hover(getBtn(3))
-            .hover(getBtn(4))
-            .hover(getBtn(5));
+            await t
+                .click(getBtn(1))
+                .hover(getBtn(2))
+                .hover(getBtn(3))
+                .hover(getBtn(4))
+                .hover(getBtn(5));
 
-        await t
-            .click(getBtn(3))
-            .click(`input[value=Next]`);
+            await t
+                .click(getBtn(3))
+                .click(`input[value=Next]`);
 
-        await t
-            .click(getBtn(2))
-            .click(`input[value=Next]`)
-            .click(`input[value=Complete]`);
+            await t
+                .click(getBtn(2))
+                .click(`input[value=Next]`)
+                .click(`input[value=Complete]`);
 
-        surveyResult = await getSurveyResult();
-        assert.deepEqual(surveyResult, {
-            "frameworkUsing":"Yes",
-            "framework":["Bootstrap"],
-            "mvvmUsing":"No"
+            surveyResult = await getSurveyResult();
+            assert.deepEqual(surveyResult, {
+                "frameworkUsing":"Yes",
+                "framework":["Bootstrap"],
+                "mvvmUsing":"No"
+            });
         });
-    });
+    }
 });

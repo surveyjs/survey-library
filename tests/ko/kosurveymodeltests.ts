@@ -1,6 +1,7 @@
 ﻿import {JsonObject} from "../../src/jsonobject";
 import {QuestionRating} from "../../src/knockout/koquestion_rating";
 import {Survey} from "../../src/knockout/kosurvey";
+import {Page} from "../../src/knockout/kopage";
 
 export default QUnit.module("koTests");
 
@@ -23,4 +24,11 @@ QUnit.test("Deserialize rate widget, custom rateValues", function (assert) {
     new JsonObject().toObject({ pages: [{ questions:[ { type: "rating", name: "question7", rateValues: [{ value: "1", text: "A" }, "B", "C", "D"] }] }] }, survey);
     var question = <QuestionRating>survey.pages[0].questions[0];
     assert.equal(question.visibleRateValues[1].value, "B", "correctly deserialized");
+});
+
+QUnit.test("Create rows", function (assert) {
+    var survey = new Survey();
+    new JsonObject().toObject({ "questions": [{ "type": "text", "name": "q1" }, { "type": "text", "name": "q2" }] }, survey);
+    var page = <Page>survey.pages[0];
+    assert.equal(page["koRows"]().length, 2, "There are two rows");
 });

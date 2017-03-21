@@ -17,6 +17,7 @@ export interface ISurvey extends ISurveyData {
     processHtml(html: string): string;
     processText(text: string): string;
     isDesignMode: boolean;
+    isLoadingFromJson: boolean;
     requiredText: string;
     questionStartIndex: string;
     questionTitleTemplate: string;
@@ -36,6 +37,7 @@ export interface IElement  extends IConditionRunner{
     rightIndent: number;
     startWithNewLine: boolean;
     isPanel: boolean;
+    onSurveyLoad();
 }
 
 export interface IQuestion extends IElement {
@@ -43,14 +45,13 @@ export interface IQuestion extends IElement {
     hasTitle: boolean;
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);
-    onSurveyLoad();
     supportGoNextPageAutomatic(): boolean;
 }
 export interface IPanel extends IElement {
-    
 }
 export interface IPage extends IConditionRunner {
     visible: boolean;
+    onSurveyLoad();
 }
 
 export class ItemValue {

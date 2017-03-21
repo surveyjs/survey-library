@@ -545,10 +545,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             }
         }
     }
-    private doQuestionsOnLoad() {
-        var questions = this.getAllQuestions(false);
-        for (var i = 0; i < questions.length; i++) {
-            questions[i].onSurveyLoad();
+    private doElementsOnLoad() {
+        for(var i = 0; i < this.pages.length; i ++) {
+            this.pages[i].onSurveyLoad();
         }
     }
     private runConditions() {
@@ -637,19 +636,23 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             questions[i].setVisibleIndex(showIndex && questions[i].visible && questions[i].hasTitle ? (index++) : -1);
         }
     }
+    private isLoadingFromJsonValue = false;
+    public get isLoadingFromJson() { return this.isLoadingFromJsonValue; }
     private setJsonObject(jsonObj: any) {
         if (!jsonObj) return;
         this.jsonErrors = null;
+        this.isLoadingFromJsonValue = true;
         var jsonConverter = new JsonObject();
         jsonConverter.toObject(jsonObj, this);
         if (jsonConverter.errors.length > 0) {
             this.jsonErrors = jsonConverter.errors;
         }
+        this.isLoadingFromJsonValue = false;
         this.updateProcessedTextValues();
         if (this.hasCookie) {
             this.doComplete();
         }
-        this.doQuestionsOnLoad();
+        this.doElementsOnLoad();
         this.runConditions();
         this.updateVisibleIndexes();
     }

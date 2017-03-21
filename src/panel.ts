@@ -27,7 +27,7 @@ export class QuestionRowModel {
     protected onVisibleChanged() {
         if (this.visibilityChangedCallback) this.visibilityChangedCallback();
     }
-    public setWidth() {
+    private setWidth() {
         var visCount = this.getVisibleCount();
         if (visCount == 0) return;
         var counter = 0;
@@ -64,6 +64,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
     public parent: PanelModelBase = null;
     public data: ISurvey = null;
     public visibleIf: string = "";
+    rowsChangedCallback: () => void;
 
     public title: string = "";
     public visibleIndex: number = -1;
@@ -103,7 +104,9 @@ export class PanelModelBase extends Base implements IConditionRunner {
     }
     public get elements(): Array<IElement> { return this.elementsValue; }
     public get rows(): Array<QuestionRowModel> {
-        this.rowValues = this.buildRows();
+        if(!this.rowValues) {
+            this.rowValues = this.buildRows();
+        }
         return this.rowValues;
     }
     public get isActive() { return (!this.data) || this.data.currentPage == this.root; }
@@ -113,11 +116,23 @@ export class PanelModelBase extends Base implements IConditionRunner {
         return res;
     }
     protected createRow(): QuestionRowModel { return new QuestionRowModel(this); }
+    public onSurveyLoad() {
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].onSurveyLoad();
+        }
+        if(this.rowsChangedCallback) this.rowsChangedCallback();
+    }
+    protected get isLoadingFromJson(): boolean { return this.data && this.data.isLoadingFromJson; }
+    protected onRowsChanged() {
+        this.rowValues = null;
+        if(this.rowsChangedCallback && !this.isLoadingFromJson) this.rowsChangedCallback();
+    }
     private get isDesignMode() { return this.data && this.data.isDesignMode; }
     private doOnPushElement(list: Array<IElement>, value: IElement) {
-        this.markQuestionListDirty();
         var result = Array.prototype.push.call(list, value);
+        this.markQuestionListDirty();
         this.onAddElement(value, list.length);
+        this.onRowsChanged();
         return result;
     }
     private doSpliceElements(list: Array<IElement>, start?: number, deleteCount?: number, ...items: IElement[]) {
@@ -128,8 +143,8 @@ export class PanelModelBase extends Base implements IConditionRunner {
             if(i + start >= list.length) continue;
             deletedQuestions.push(list[i + start]);
         }
-        this.markQuestionListDirty();
         var result = Array.prototype.splice.call(list, start, deleteCount, ... items);
+        this.markQuestionListDirty();
         if(!items) items = [];
         for(var i = 0; i < deletedQuestions.length; i ++) {
             this.onRemoveQuestion(deletedQuestions[i])
@@ -137,7 +152,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
         for(var i = 0; i < items.length; i ++) {
             this.onAddElement(items[i], start + i);
         }
-        this.markQuestionListDirty();
+        this.onRowsChanged();
         return result;
     }
     private onAddElement(element: IElement, index: number) {
@@ -162,17 +177,21 @@ export class PanelModelBase extends Base implements IConditionRunner {
         }
     }
     private onElementVisibilityChanged(element: any) {
-        if (!this.isActive || !this.rowValues) return;
-        for (var i = 0; i < this.rowValues.length; i++) {
-            var row = this.rowValues[i];
-            if (row.questions.indexOf(element) > -1) {
-                row.updateVisible();
-                break;
-            }
+        if (this.isActive && this.rowValues) {
+            this.updateRowsVisibility(element);
         }
         if(this.parent) {
             this.parent.onElementVisibilityChanged(this);
         }
+    }
+    private updateRowsVisibility(element: any)  {
+            for (var i = 0; i < this.rowValues.length; i++) {
+                var row = this.rowValues[i];
+                if (row.questions.indexOf(element) > -1) {
+                    row.updateVisible();
+                    break;
+                }
+            }
     }
     private buildRows(): Array<QuestionRowModel> {
         var result = new Array<QuestionRowModel>();
@@ -186,7 +205,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
             row.addQuestion(el);
         }
         for (var i = 0; i < result.length; i++) {
-            result[i].setWidth();
+            result[i].updateVisible();
         }
         return result;
     }

@@ -656,13 +656,17 @@ QUnit.test("merge values", function (assert) {
 });
 QUnit.test("Several questions in one row", function (assert) {
     var page = new PageModel();
-    for (var i = 0; i < 10; i++) {
-        page.addQuestion(new QuestionTextModel("q" + (i + 1)));
-    }
+    for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
     assert.equal(page.rows.length, 10, "10 rows for each question");
+
+    page = new PageModel();
+    for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
     page.questions[0].startWithNewLine = false;
     assert.equal(page.rows.length, 10, "still 10 rows for each question");
     assert.equal(page.rows[0].questions[0].renderWidth, "100%", "the render width is 100%");
+
+    page = new PageModel();
+    for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
     for (var i = 0; i < 10; i++) {
         page.questions[i].startWithNewLine = i % 2 == 0;
     }

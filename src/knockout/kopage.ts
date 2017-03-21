@@ -6,13 +6,15 @@ import {QuestionBase} from "../questionbase";
 import {SurveyElement, IElement} from "../base";
 
 export class QuestionRow extends QuestionRowModel {
-    koVisible: any;
+    koVisible: any; koElements: any;
     constructor(public panel: PanelModelBase) {
         super(panel);
         this.koVisible = ko.observable(this.visible);
+        this.koElements = ko.observableArray();
     }
     protected onVisibleChanged() {
         this.koVisible(this.visible);
+        this.koElements(this.questions);
     }
     public koAfterRender(el, con) {
         for (var i = 0; i < el.length; i++) {
@@ -24,9 +26,13 @@ export class QuestionRow extends QuestionRowModel {
 }
 
 export class PanelImplementorBase {
+    koRows: any;
     constructor(public panel: PanelModelBase) {
         var self = this;
+        this.koRows = ko.observableArray();
+        this.panel.rowsChangedCallback = function() {self.koRows(self.panel.rows); };
         this.panel["koQuestionAfterRender"] = function (el, con) { self.koQuestionAfterRender(el, con); };
+        this.panel["koRows"] = this.koRows;
     }
     protected koQuestionAfterRender(elements, con) {
         if (!this.panel.data) return;

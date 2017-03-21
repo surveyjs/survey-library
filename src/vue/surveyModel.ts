@@ -1,6 +1,6 @@
-import * as Vue from 'vue'
+import Vue from 'vue';
 import {SurveyModel} from "../survey";
-import {surveyCss} from "../defaultCss/cssstandard"
+import {surveyCss} from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
     private vueValuesHash: {[index: string]: any} = {};
@@ -33,11 +33,12 @@ export class VueSurveyModel extends SurveyModel {
     }
     getValue(name: string): any {
         if (!name || name.length === 0) return null;
-        var value = this.vueValuesHash[name];
+        var value = this.vueValuesHash ? this.vueValuesHash[name] : null;
         return super.getUnbindValue(value);
     }
     setValue(name: string, newValue: any) {
         super.setValue(name, newValue);
         this.vueValuesHash[name] = newValue;
+        this.tryGoNextPageAutomatic(name);
     }
 }

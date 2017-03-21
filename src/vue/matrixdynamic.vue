@@ -10,7 +10,7 @@
             <tbody>
                 <tr v-for="row in rows">
                     <td v-for="cell in row.cells">
-                        <survey-errors :question="question" :css="css"/>
+                        <survey-errors :question="cell.question" :css="css"/>
                         <component :is="'survey-' + cell.question.getType()" :question="cell.question" :isEditMode="isEditMode" :css="css"/>
                     </td>
                     <td v-if="isEditMode">
@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts">
-    import * as Vue from 'vue'
+    import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {QuestionMatrixDynamicModel} from '../question_matrixdynamic'

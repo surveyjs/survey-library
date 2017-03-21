@@ -2,8 +2,9 @@ import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../setti
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
 const title = `changeRendering`;
+
 const setupSurvey = ClientFunction((framework) => {
-    if (framework === "knockout") {
+    const setupKnockout = function() {
         var survey = new Survey.Survey({ title: "Tell us, what technologies do you use?", pages: [
             { name:"page1", questions: [
                 { type: "radiogroup", choices: [ "Yes", "No" ], isRequired: true, name: "frameworkUsing",title: "Do you use any front-end framework like Bootstrap?" },
@@ -29,7 +30,9 @@ const setupSurvey = ClientFunction((framework) => {
         });
 
         survey.render();
-    } else if (framework === "react") {
+    };
+
+    const setupReact = function() {
         var _createClass = function () {
             function defineProperties(target, props) {
                 for (var i = 0; i < props.length; i++) {
@@ -182,7 +185,25 @@ const setupSurvey = ClientFunction((framework) => {
             return React.createElement(MySurveyQuestionRadiogroup, props);
         });
 
-        survey.render();
+        ReactDOM.render(React.createElement(Survey.Survey, { model: survey }), document.getElementById("surveyElement"));
+    };
+
+    const setupVue = function() {};
+
+    const setupAngular = function() {};
+
+    const setupJquery = function() {};
+
+    if (framework === "knockout") {
+        setupKnockout();
+    } else if (framework === "react") {
+        setupReact();
+    } else if (framework === "vue") {
+        setupVue();
+    } else if (framework === "angular") {
+        setupAngular();
+    } else if (framework === "jquery") {
+        setupJquery();
     }
 });
 
@@ -214,31 +235,33 @@ frameworks.forEach( (framework) => {
             await setupSurvey(framework);
         });
 
-    test(`check new elements rendering`, async t => {
-        const getBtn = Selector(index => document.querySelectorAll('.btn-group .btn')[index - 1]);
-        let surveyResult;
+    if (framework === "react" || framework === "knockout") {
+        test(`check new elements rendering`, async t => {
+            const getBtn = Selector(index => document.querySelectorAll('.btn-group .btn')[index - 1]);
+            let surveyResult;
 
-        await t
-            .click(getBtn(1))
-            .hover(getBtn(2))
-            .hover(getBtn(3))
-            .hover(getBtn(4))
-            .hover(getBtn(5));
+            await t
+                .click(getBtn(1))
+                .hover(getBtn(2))
+                .hover(getBtn(3))
+                .hover(getBtn(4))
+                .hover(getBtn(5));
 
-        await t
-            .click(getBtn(3))
-            .click(`input[value=Next]`);
+            await t
+                .click(getBtn(3))
+                .click(`input[value=Next]`);
 
-        await t
-            .click(getBtn(2))
-            .click(`input[value=Next]`)
-            .click(`input[value=Complete]`);
+            await t
+                .click(getBtn(2))
+                .click(`input[value=Next]`)
+                .click(`input[value=Complete]`);
 
-        surveyResult = await getSurveyResult();
-        assert.deepEqual(surveyResult, {
-            "frameworkUsing":"Yes",
-            "framework":["Bootstrap"],
-            "mvvmUsing":"No"
+            surveyResult = await getSurveyResult();
+            assert.deepEqual(surveyResult, {
+                "frameworkUsing":"Yes",
+                "framework":["Bootstrap"],
+                "mvvmUsing":"No"
+            });
         });
-    });
+    }
 });

@@ -17,12 +17,49 @@ const initSurvey = ClientFunction((framework, json) => {
         navigationButton: "button btn-lg"
     };
 
-    if(framework === "knockout") {
+    if (framework === "knockout") {
         model.css = myCss;
         model.render("surveyElement");
     }
-    else if(framework === "react") {
+    else if (framework === "react") {
         ReactDOM.render(React.createElement(Survey.Survey, { model: model, css: myCss }), document.getElementById("surveyElement"));
+    } else if (framework === "vue") {
+        model.css = myCss;
+        var app = new Vue({
+            el: '#surveyElement',
+            data: {
+                survey: model
+            }
+        });
+    } else if (framework === "jquery") {
+        $("#surveyElement").Survey({
+            model: model,
+            css: myCss
+        });
+    } else if (framework === "angular") {
+        function onAngularComponentInit() {
+            Survey.SurveyNG.render("surveyElement", {
+                model:model,
+                css: myCss
+            });
+        }
+        var HelloApp =
+            ng.core
+                .Component({
+                    selector: 'ng-app',
+                    template: '<div id="surveyContainer" class="survey-container contentcontainer codecontainer">' +
+                    '<div id="surveyElement"></div></div>'
+                })
+                .Class({
+                    constructor: function() {
+                    },
+                    ngOnInit: function() {
+                        onAngularComponentInit();
+                    }
+                });
+        document.addEventListener('DOMContentLoaded', function() {
+            ng.platformBrowserDynamic.bootstrap(HelloApp);
+        });
     }
 
     window.survey = model;

@@ -2,9 +2,9 @@ import {Selector, ClientFunction} from 'testcafe';
 
 export const frameworks = [
         'knockout',
-        //'jquery',
-        //'react',
-        //"vue"
+        // 'jquery',
+        // 'react',
+        "vue"
     ];
 export const cssTypes = [
         'standard',

@@ -73,7 +73,6 @@ QUnit.test("add questions to list", function (assert) {
 
 QUnit.test("load nested panel from json", function (assert) {
     var page = new PageModel();
-    var page = new PageModel();
     var jsonObject = new JsonObject();
     jsonObject.toObject({ "elements":[ 
         { "type": "text", "name": "q1" }, 
@@ -82,4 +81,42 @@ QUnit.test("load nested panel from json", function (assert) {
     assert.equal(page.elements.length, 3, "There are two elements");
     assert.equal(page.questions.length, 4, "There are four questions");
     assert.equal(jsonObject.errors.length, 0, "There is no errors");
+});
+
+QUnit.test("panel rows generation - simple", function (assert) {
+    var page = new PageModel();
+    var q1 = page.addNewQuestion("text", "q1");
+    page.addNewQuestion("text", "q2");
+    assert.equal(page.rows.length, 2, "There are two rows");
+    assert.equal(page.rows[0].visible, true, "The first row is visible");
+    q1.visible = false;
+    assert.equal(page.rows[0].visible, false, "The first row is invisible now");
+});
+
+QUnit.test("panel rows generation - startNewLine false", function (assert) {
+    var page = new PageModel();
+    var q1 = page.addNewQuestion("text", "q1");
+    var q2 = page.addNewQuestion("text", "q2");
+    q2.startWithNewLine = false;
+    assert.equal(page.rows.length, 1, "There is one row");
+    assert.equal(page.rows[0].visible, true, "The first row is visible");
+    q1.visible = false;
+    assert.equal(page.rows[0].visible, true, "The first row is still visible");
+    q2.visible = false;
+    assert.equal(page.rows[0].visible, false, "The first row is invisible now");
+});
+
+QUnit.test("panel rows generation - nested panel", function (assert) {
+    var page = new PageModel();
+    var q1 = page.addNewQuestion("text", "q1");
+    var p1 = page.addNewPanel("p1");
+    var p1q1 = p1.addNewQuestion("text", "p1q1");
+    assert.equal(page.rows.length, 2, "There is two rows");
+    assert.equal(page.rows[1].visible, true, "The panel row is visible");
+    p1.visible = false;
+    assert.equal(page.rows[1].visible, false, "The panel row is invisible since panel is invisible");
+    p1.visible = true;
+    assert.equal(page.rows[1].visible, true, "The panel row is visible since panel is visible");
+    p1q1.visible = false;
+    assert.equal(page.rows[1].visible, false, "The panel row is invisible since all questions are invisible");
 });

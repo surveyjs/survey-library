@@ -666,16 +666,13 @@ QUnit.test("Several questions in one row", function (assert) {
     for (var i = 0; i < 10; i++) {
         page.questions[i].startWithNewLine = i % 2 == 0;
     }
-    assert.equal(page.rows.length, 10, "every second has startWithNewLine equals false, still 10 row");
-    for (var i = 0; i < 10; i++) {
-        assert.equal(page.rows[i].questions.length, i % 2 == 0 ? 2 : 0, "every second row has two question and another 0");
-        assert.equal(page.rows[i].visible, i % 2 == 0 ? true : false, "every second row is visible");
-        if (i % 2 == 0) {
-            assert.equal(page.rows[i].questions[0].renderWidth, "50%", "the render width is 50%");
-            assert.equal(page.rows[i].questions[0].rightIndent, 1, "the indent is 1");
-            assert.equal(page.rows[i].questions[1].renderWidth, "50%", "the render width is 50%");
-            assert.equal(page.rows[i].questions[1].rightIndent, 0, "the indent is 0");
-        }
+    assert.equal(page.rows.length, 5, "every second has startWithNewLine equals false, there 5 rows now");
+    for (var i = 0; i < 5; i++) {
+        assert.equal(page.rows[i].questions.length, 2, "two questions for every row");
+        assert.equal(page.rows[i].questions[0].renderWidth, "50%", "the render width is 50%");
+        assert.equal(page.rows[i].questions[0].rightIndent, 1, "the indent is 1");
+        assert.equal(page.rows[i].questions[1].renderWidth, "50%", "the render width is 50%");
+        assert.equal(page.rows[i].questions[1].rightIndent, 0, "the indent is 0");
     }
 });
 QUnit.test("test goNextPageAutomatic property", function (assert) {
@@ -914,21 +911,15 @@ QUnit.test("visibleIf and page rows", function (assert) {
     
     survey.setValue("component", "app");
     assert.equal(page.rows[1].visible, true);
-    assert.equal(page.rows[1].question.name, "componentOs");
     assert.equal(page.rows[4].visible, false);
-    assert.equal(page.rows[4].question.name, "database");
 
     survey.setValue("component", "database");
     assert.equal(page.rows[1].visible, false);
-    assert.equal(page.rows[1].question.name, "componentOs");
     assert.equal(page.rows[4].visible, true);
-    assert.equal(page.rows[4].question.name, "database");
 
     survey.setValue("component", "app");
     assert.equal(page.rows[1].visible, true);
-    assert.equal(page.rows[1].question.name, "componentOs");
     assert.equal(page.rows[4].visible, false);
-    assert.equal(page.rows[4].question.name, "database");
 });
 QUnit.test("assign customWidgets to questions", function (assert) {
     CustomWidgetCollection.Instance.clear();

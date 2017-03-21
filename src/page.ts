@@ -60,6 +60,13 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     protected onNumChanged(value: number) {
     }
+    protected onVisibleChanged() {
+        super.onVisibleChanged();
+        if (this.data != null) {
+            this.data.pageVisibilityChanged(this, this.visible);
+        }
+    }
+
 }
 
 JsonObject.metaData.addClass("page", [{ name: "navigationButtonsVisibility", default: "inherit", choices: ["iherit", "show", "hide"] }], 

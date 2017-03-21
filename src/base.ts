@@ -29,7 +29,7 @@ export interface IConditionRunner {
 }
 export interface IElement  extends IConditionRunner{
     name: string;
-    visible: boolean;
+    isVisible: boolean;
     rowVisibilityChangedCallback: () => void;
     renderWidth: string;
     width: string;
@@ -39,6 +39,7 @@ export interface IElement  extends IConditionRunner{
 }
 
 export interface IQuestion extends IElement {
+    visible: boolean;
     hasTitle: boolean;
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);

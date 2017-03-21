@@ -43,6 +43,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
             this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
         }
     }
+    public get isVisible(): boolean { return this.visible || (this.survey && this.survey.isDesignMode); }
     public get visibleIndex(): number { return this.visibleIndexValue; }
     public hasErrors(fireCallback: boolean = true): boolean { return false; }
     public get currentErrorCount(): number { return 0; }

@@ -7,9 +7,7 @@ import {QuestionFactory} from "./questionfactory";
 export class QuestionRowModel {
     private visibleValue: boolean = false;
     visibilityChangedCallback: () => void;
-    constructor(public panel: PanelModelBase, public question: IElement) {
-        var self = this;
-        this.question.rowVisibilityChangedCallback = function () { self.onRowVisibilityChanged(); }
+    constructor(public panel: PanelModelBase) {
     }
     public questions: Array<IElement> = [];
     public get visible(): boolean { return this.visibleValue; }
@@ -34,23 +32,20 @@ export class QuestionRowModel {
         if (visCount == 0) return;
         var counter = 0;
         for (var i = 0; i < this.questions.length; i++)
-            if (this.isQuestionVisible(this.questions[i])) {
-                this.questions[i].renderWidth = this.question.width ? this.question.width : Math.floor(100 / visCount) + '%';
-                this.questions[i].rightIndent = counter < visCount - 1 ? 1 : 0;
+            if (this.questions[i].isVisible) {
+                var q = this.questions[i];
+                q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + '%';
+                q.rightIndent = counter < visCount - 1 ? 1 : 0;
                 counter++;
             }
-    }
-    private onRowVisibilityChanged() {
-        this.panel.onRowVisibilityChanged(this);
     }
     private getVisibleCount(): number {
         var res = 0;
         for (var i = 0; i < this.questions.length; i++) {
-            if (this.isQuestionVisible(this.questions[i])) res++;
+            if (this.questions[i].isVisible) res++;
         }
         return res;
     }
-    private isQuestionVisible(q: IElement): boolean { return this.panel.isQuestionVisible(q); }
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
@@ -111,9 +106,13 @@ export class PanelModelBase extends Base implements IConditionRunner {
         this.rowValues = this.buildRows();
         return this.rowValues;
     }
-    public get isActive() { return (!this.data) || this.data.currentPage == this; }
-    public isQuestionVisible(question: IElement): boolean { return question.visible || this.isDesignMode; }
-    protected createRow(el: IElement): QuestionRowModel { return new QuestionRowModel(this, el); }
+    public get isActive() { return (!this.data) || this.data.currentPage == this.root; }
+    protected get root(): PanelModelBase {
+        var res = <PanelModelBase>this;
+        while(res.parent) res = res.parent;
+        return res;
+    }
+    protected createRow(): QuestionRowModel { return new QuestionRowModel(this); }
     private get isDesignMode() { return this.data && this.data.isDesignMode; }
     private doOnPushElement(list: Array<IElement>, value: IElement) {
         this.markQuestionListDirty();
@@ -153,11 +152,26 @@ export class PanelModelBase extends Base implements IConditionRunner {
                 this.data.questionAdded(q, index);
             }
         }
+        var self = this;
+        element.rowVisibilityChangedCallback = function () { self.onElementVisibilityChanged(element); }
     }
     private onRemoveQuestion(element: IElement) {
         if(!element.isPanel) {
             var q = <QuestionBase>element;
             if(this.data) this.data.questionRemoved(q);
+        }
+    }
+    private onElementVisibilityChanged(element: any) {
+        if (!this.isActive || !this.rowValues) return;
+        for (var i = 0; i < this.rowValues.length; i++) {
+            var row = this.rowValues[i];
+            if (row.questions.indexOf(element) > -1) {
+                row.updateVisible();
+                break;
+            }
+        }
+        if(this.parent) {
+            this.parent.onElementVisibilityChanged(this);
         }
     }
     private buildRows(): Array<QuestionRowModel> {
@@ -166,40 +180,27 @@ export class PanelModelBase extends Base implements IConditionRunner {
         var self = this;
         for (var i = 0; i < this.elements.length; i++) {
             var el = this.elements[i];
-            result.push(this.createRow(el));
-            if (el.startWithNewLine) {
-                lastRowVisibleIndex = i;
-                result[i].addQuestion(el);
-            } else {
-                if (lastRowVisibleIndex < 0) lastRowVisibleIndex = i;
-                result[lastRowVisibleIndex].addQuestion(el);
-            }
+            var isNewRow = i == 0 || el.startWithNewLine;
+            var row = isNewRow ? this.createRow() : result[result.length - 1];
+            if(isNewRow) result.push(row);
+            row.addQuestion(el);
         }
         for (var i = 0; i < result.length; i++) {
             result[i].setWidth();
         }
         return result;
     }
-    onRowVisibilityChanged(row: QuestionRowModel) {
-        if (!this.isActive || !this.rowValues) return;
-        var index = this.rowValues.indexOf(row);
-        for (var i = index; i >= 0; i--) {
-            if (this.rowValues[i].questions.indexOf(row.question) > -1) {
-                this.rowValues[i].updateVisible();
-                break;
-            }
-        }
-    }
     public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
     public get visible(): boolean { return this.visibleValue; }
     public set visible(value: boolean) {
         if (value === this.visible) return;
         this.visibleValue = value;
-        if (this.data != null) {
-            this.data.pageVisibilityChanged(this, this.visible);
-        }
+        this.onVisibleChanged();
     }
-    public get isVisible(): boolean {  return this.getIsPageVisible(null); }
+    protected onVisibleChanged() {
+
+    }
+    public get isVisible(): boolean {  return (this.data && this.data.isDesignMode) || this.getIsPageVisible(null); }
     public getIsPageVisible(exceptionQuestion: IQuestion): boolean {
         if (!this.visible) return false;
         for (var i = 0; i < this.questions.length; i++) {
@@ -271,6 +272,9 @@ export class PanelModel extends PanelModelBase implements IElement {
         if (val == this.rightIndent) return;
         this.rightIndentValue = val;
         //this.fireCallback(this.renderWidthChangedCallback);
+    }
+    protected onVisibleChanged() {
+        if(this.rowVisibilityChangedCallback) this.rowVisibilityChangedCallback();
     }
 }
 

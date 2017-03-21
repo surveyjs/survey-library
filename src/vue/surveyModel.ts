@@ -1,6 +1,6 @@
-import * as Vue from 'vue'
+import Vue from 'vue';
 import {SurveyModel} from "../survey";
-import {surveyCss} from "../defaultCss/cssstandard"
+import {surveyCss} from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
     private vueValuesHash: {[index: string]: any} = {};

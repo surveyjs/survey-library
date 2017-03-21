@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-    import * as Vue from 'vue'
+    import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {QuestionTextModel} from '../question_text'

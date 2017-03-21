@@ -1,4 +1,4 @@
-import * as Vue from 'vue'
+import Vue from 'vue'
 import {VueSurveyModel} from "../../src/vue/surveyModel";
 import Checkbox from "../../src/vue/checkbox.vue";
 export {default as OtherChoice} from "../../src/vue/otherChoice.vue";

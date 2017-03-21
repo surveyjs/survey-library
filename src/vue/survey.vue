@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-    import * as Vue from 'vue'
+    import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {VueSurveyModel as SurveyModel} from './surveyModel'

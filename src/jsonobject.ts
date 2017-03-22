@@ -10,6 +10,7 @@ export class JsonObjectProperty {
     public baseClassName: string = null;
     public defaultValue: any = null;
     public readOnly: boolean = false;
+    public visible: boolean = true;
     public onGetValue: (obj: any) => any = null;
     public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
 
@@ -90,6 +91,9 @@ export class JsonMetadataClass {
             }
             if (propInfo.default) {
                 prop.defaultValue = propInfo.default;
+            }
+            if(propInfo.visible === false) {
+                prop.visible = false;
             }
             if (propInfo.isRequired) {
                 this.makePropertyRequired(prop.name);

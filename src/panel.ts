@@ -228,22 +228,19 @@ export class PanelModelBase extends Base implements IConditionRunner {
         }
         return false;
     }
-
-    public addQuestion(question: QuestionBase, index: number = -1) {
-        if (question == null) return;
+    public addElement(element: IElement, index: number = -1) {
+        if (element == null) return;
         if (index < 0 || index >= this.elements.length) {
-            this.elements.push(question);
+            this.elements.push(element);
         } else {
-            this.elements.splice(index, 0, question);
+            this.elements.splice(index, 0, element);
         }
     }
+    public addQuestion(question: QuestionBase, index: number = -1) {
+        this.addElement(question, index);
+    }
     public addPanel(panel: PanelModel, index: number = -1) {
-        if (panel == null) return;
-        if (index < 0 || index >= this.elements.length) {
-            this.elements.push(panel);
-        } else {
-            this.elements.splice(index, 0, panel);
-        }
+        this.addElement(panel, index);
     }
     public addNewQuestion(questionType: string, name: string): QuestionBase {
         var question = QuestionFactory.Instance.createQuestion(questionType, name);
@@ -297,5 +294,5 @@ export class PanelModel extends PanelModelBase implements IElement {
     }
 }
 
-JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question" },
+JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
     { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PanelModel(); });

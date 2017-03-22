@@ -71,8 +71,8 @@ class CreatingObjectContainer {
 }
 
 JsonObject.metaData.addClass("dealer", ["name", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
-    { name: "cars", baseClassName: "car" },
-    { name: "truck", className: "truck" }, { name: "trucks", className: "truck" },
+    { name: "cars", baseClassName: "car", visible: false },
+    { name: "truck", className: "truck" }, { name: "trucks", className: "truck", visible: false },
     { name: "changeNameOnSet", onSetValue: function (obj: any, value: any, jsonConv: JsonObject) { obj.name = value; } }]);
 
 JsonObject.metaData.addClass("fast", [], function () { return new FastCar(); }, "car");
@@ -411,4 +411,9 @@ QUnit.test("Add alternative/misspelled property support, https://github.com/surv
     new JsonObject().toObject({ "cars": [{ "type": "sport", "maxSpeed": 320 }, { "type": "truck", "maxaWeight": 10000 }] }, dealer);
     var truck: any = dealer.cars[1];
     assert.equal(truck.maxWeight, 10000, "deserialize the second object");
+});
+
+QUnit.test("Check if visible is set", function (assert) {
+    assert.equal(JsonObject.metaData.findProperty("dealer", "name").visible, true, "By default the property is visible");
+    assert.equal(JsonObject.metaData.findProperty("dealer", "cars").visible, false, "Cars is invisible");
 });

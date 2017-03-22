@@ -252,10 +252,13 @@ export class PanelModelBase extends Base implements IConditionRunner {
         this.addPanel(panel);
         return panel;
     }
-    public removeQuestion(question: QuestionBase) {
-        var index = this.elements.indexOf(question);
+    public removeElement(element: IElement) {
+        var index = this.elements.indexOf(element);
         if (index < 0) return;
         this.elements.splice(index, 1);
+    }
+    public removeQuestion(question: QuestionBase) {
+        this.removeElement(question);
     }
     public runCondition(values: HashTable<any>) {
         if (!this.visibleIf) return;

@@ -15,14 +15,16 @@ var widget = {
     isFit : function(question) { return question["renderAs"] === 'icheck'; },
     isDefaultRender: true,
     afterRender: function(question, el) {
+        var $el = $(el);
         var select = function() {
-          $(el).find("input[value=" + question.value + "]").iCheck('check');
+          $el.find("input[value=" + question.value + "]").iCheck('check');
         }
-        $(el).find('input').iCheck({
+        $el.find('input').data({"iCheck": undefined});
+        $el.find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
           radioClass: 'iradio_square-blue'
         });
-        $(el).find('input').on('ifChecked', function(event){
+        $el.find('input').on('ifChecked', function(event){
           question.value = event.target.value;
         });
         question.valueChangedCallback = select;
@@ -59,18 +61,19 @@ Vue.component(widget.name, {
     props: ['question', 'css', 'isEditMode'],
     template:'<div><div v-for="(item, index) in question.visibleChoices"><label><input type="radio" :name="question.name" :value="item.value" :id="question.inputId + \'_\' + item.value"  /><span>{{ "{{ item.text" }}}}</span></label></div></div>',
     mounted: function () {
-        var vm = this;
+        var question = this.question;
+        var $el = $(this.$el);
         var select = function() {
-          $(vm.$el).find("input[value=" + vm.question.value + "]").iCheck('check');
+          $el.find("input[value=" + question.value + "]").iCheck('check');
         }
-        $(vm.$el).find('input').iCheck({
+        $el.find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
           radioClass: 'iradio_square-blue'
         });
-        $(vm.$el).find('input').on('ifChecked', function(event){
-          vm.question.value = event.target.value;
+        $el.find('input').on('ifChecked', function(event){
+          question.value = event.target.value;
         });
-        vm.question.valueChangedCallback = select;
+        question.valueChangedCallback = select;
         select();
     }
 })

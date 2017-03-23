@@ -25,6 +25,7 @@ var widget = {
     isDefaultRender: true,
     isFit : function(question) { return question.getType() === 'matrix'; },
     afterRender: function(question, el) {
+        $(el).find('input').data({"iCheck": undefined});
         $(el).find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
           radioClass: 'iradio_square-blue'

@@ -124,7 +124,19 @@ a:hover {
         margin-left: 0;
     }
 }
+.navbar.navbar-default .navbar-brand {
+    width: 220px;
+    background-image: url('/images/brand_back.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+}
 .version-link {
+    line-height: 50px;
     margin-left: 15px;
     font-size: 15px;
 }

@@ -8,7 +8,7 @@ export class QuestionImplementorBase {
         question.visibilityChangedCallback = function () { self.onVisibilityChanged(); };
         question.renderWidthChangedCallback = function () { self.onRenderWidthChanged(); };
         this.koTemplateName = ko.pureComputed(function () { return self.getTemplateName(); });
-        this.koVisible = ko.observable(this.question.visible);
+        this.koVisible = ko.observable(this.question.isVisible);
         this.koRenderWidth = ko.observable(this.question.renderWidth);
         this.koErrors = ko.observableArray();
         this.koMarginLeft = ko.pureComputed(function () { self.koRenderWidth(); return self.getIndentSize(self.question.indent); });
@@ -23,7 +23,7 @@ export class QuestionImplementorBase {
     }
     protected updateQuestion() {  }
     protected onVisibilityChanged() {
-        this.koVisible(this.question.visible);
+        this.koVisible(this.question.isVisible);
     }
     protected onRenderWidthChanged() {
         this.koRenderWidth(this.question.renderWidth);

@@ -182,6 +182,45 @@ QUnit.test("Condition: a and (b or c)", function (assert) {
     assert.equal(right.children[1].right, 3);
 });
 
+QUnit.test("Condition: (a and b) or (c and d)", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("('a' = 1 and b = 2) or ('c' = 3 or 'd' = 4)", node);
+    assert.equal(node.children.length, 2);
+    assert.equal(node.connective, "or");
+    var left = node.children[0];
+
+    assert.equal(left.children.length, 2);
+    assert.equal(left.connective, "and");
+    assert.equal(left.children[0].left, "a");
+    assert.equal(left.children[0].operator, "equal");
+    assert.equal(left.children[0].right, 1);
+    assert.equal(left.children[1].left, "b");
+    assert.equal(left.children[1].operator, "equal");
+    assert.equal(left.children[1].right, 2);
+
+    var right = node.children[1];
+    assert.equal(right.children.length, 2);
+    assert.equal(right.connective, "or");
+    assert.equal(right.children[0].left, "c");
+    assert.equal(right.children[0].operator, "equal");
+    assert.equal(right.children[0].right, 3);
+    assert.equal(right.children[1].left, "d");
+    assert.equal(right.children[1].operator, "equal");
+    assert.equal(right.children[1].right, 4);
+});
+
+QUnit.test("Parse condition from #303", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("({question-fruit} = 'fruit-apple' and {question-apple-variety} = 'apple-variety-red-delicious') or ({question-fruit} = 'fruit-orange' and {question-orange-variety} = 'orange-variety-blood')", node);
+    assert.equal(node.children.length, 2);
+    assert.equal(node.connective, "or");
+    var left = node.children[0];
+    var right = node.children[1];
+});
+
+
 QUnit.test("Run one condition", function (assert) {
     var runner = new ConditionRunner("{a} > 5");
     var values = { a: 6 };
@@ -213,6 +252,17 @@ QUnit.test("Run condition with nested properties", function (assert) {
     assert.equal(runner.run(values), false, "min < 35 max < 80");
 });
 
+QUnit.test("Condition check #303", function (assert) {
+    var runner = new ConditionRunner("({question-fruit} = 'fruit-apple' and {question-apple-variety} = 'apple-variety-red-delicious') or ({question-fruit} = 'fruit-orange' and {question-orange-variety} = 'orange-variety-blood')");
+    var values = {  };
+    assert.equal(runner.run(values), false, "nothing was set");
+    values = {"question-fruit": "fruit-apple", "question-apple-variety":"apple-variety-red-delicious"};
+    assert.equal(runner.run(values), true, "The first part is correct");
+    values["question-fruit"] = "fruit-orange";
+    assert.equal(runner.run(values), false, "the value is incorrect");
+    values["question-orange-variety"] = "orange-variety-blood";
+    assert.equal(runner.run(values), true, "The second part is correct");
+});
 
 QUnit.test("Expression Tree to Text", function (assert) {
     var parser = new ConditionsParser();

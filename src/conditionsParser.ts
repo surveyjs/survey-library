@@ -83,7 +83,9 @@ export class ConditionsParser {
         return true;
     }
     private readCondition(): boolean {
-        if (!this.readExpression()) return false;
+        var expRes = this.readExpression();
+        if (expRes < 0) return false;
+        if(expRes == 1) return true;
         var left = this.readString();
         if (!left) return false;
         var op = this.readOperator();
@@ -98,9 +100,9 @@ export class ConditionsParser {
         this.addCondition(c);
         return true;
     }
-    private readExpression(): boolean {
+    private readExpression(): number {
         this.skip();
-        if (this.at >= this.length || this.ch != '(') return true;
+        if (this.at >= this.length || this.ch != '(') return 0;
         this.at++;
         this.pushExpression();
         var res = this.readConditions();
@@ -109,8 +111,9 @@ export class ConditionsParser {
             res = this.ch == <string>')';
             this.at++;
             this.popExpression();
+            return 1;
         }
-        return res;
+        return -1;
     }
     private get ch(): string { return this.text.charAt(this.at); }
     private skip() {

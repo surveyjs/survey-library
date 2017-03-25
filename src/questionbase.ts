@@ -15,7 +15,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public visibleIf: string = "";
     private idValue: string;
     private visibleValue: boolean = true;
-    public startWithNewLine: boolean = true;
+    private startWithNewLineValue: boolean = true;
     private visibleIndexValue: number = -1;
     public width: string = "";
     private renderWidthValue: string = "";
@@ -24,6 +24,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     focusCallback: () => void;
     renderWidthChangedCallback: () => void;
     rowVisibilityChangedCallback: () => void;
+    startWithNewLineChangedCallback: () => void;
     visibilityChangedCallback: () => void;
     visibleIndexChangedCallback: () => void;
 
@@ -51,6 +52,12 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public get hasInput(): boolean { return false; }
     public get hasComment(): boolean { return false; }
     public get id(): string { return this.idValue; }
+    public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
+    public set startWithNewLine(value: boolean) { 
+        if(this.startWithNewLine == value) return;
+        this.startWithNewLineValue = value;
+        if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
+    }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {
         if (val == this.renderWidth) return;

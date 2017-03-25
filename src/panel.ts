@@ -169,6 +169,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
         }
         var self = this;
         element.rowVisibilityChangedCallback = function () { self.onElementVisibilityChanged(element); }
+        element.startWithNewLineChangedCallback = function () { self.onElementStartWithNewLineChanged(element); }
     }
     private onRemoveQuestion(element: IElement) {
         if(!element.isPanel) {
@@ -183,6 +184,9 @@ export class PanelModelBase extends Base implements IConditionRunner {
         if(this.parent) {
             this.parent.onElementVisibilityChanged(this);
         }
+    }
+    private onElementStartWithNewLineChanged(element: any) {
+        this.onRowsChanged();
     }
     private updateRowsVisibility(element: any)  {
             for (var i = 0; i < this.rowValues.length; i++) {
@@ -273,8 +277,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     private renderWidthValue: string;
     private rightIndentValue: number;
     public width: string;
-    public startWithNewLine: boolean = true;
+    private startWithNewLineValue: boolean = true;
     rowVisibilityChangedCallback: () => void;
+    startWithNewLineChangedCallback: () => void;
     constructor(public name: string = "") {
         super(name);
     }
@@ -285,6 +290,12 @@ export class PanelModel extends PanelModelBase implements IElement {
         if (val == this.renderWidth) return;
         this.renderWidthValue = val;
         //this.fireCallback(this.renderWidthChangedCallback);
+    }
+    public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
+    public set startWithNewLine(value: boolean) { 
+        if(this.startWithNewLine == value) return;
+        this.startWithNewLineValue = value;
+        if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
     public get rightIndent(): number { return this.rightIndentValue; }
     public set rightIndent(val: number) {

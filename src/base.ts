@@ -32,6 +32,7 @@ export interface IElement  extends IConditionRunner{
     name: string;
     isVisible: boolean;
     rowVisibilityChangedCallback: () => void;
+    startWithNewLineChangedCallback: () => void;
     renderWidth: string;
     width: string;
     rightIndent: number;

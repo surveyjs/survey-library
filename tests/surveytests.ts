@@ -20,6 +20,7 @@ import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionRatingModel} from "../src/question_rating";
 import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCustomWidgets";
+import {QuestionSelectBase} from "../src/question_baseselect";
 
 export default QUnit.module("Survey");
 
@@ -619,6 +620,26 @@ QUnit.test("clearInvisibleValues", function (assert) {
     survey.doComplete();
     assert.equal(question1.value, null, "Clear value of an invisible question");
     assert.equal(question2.value, "myValue", "Keep value of a visible question");
+});
+QUnit.test("clearInvisibleValues - comments and other values, #309", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.hasOther = true;
+    var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
+    q2.hasComment = true;
+    var q3 = <QuestionTextModel>page.addNewQuestion("text", "q3");
+    survey.clearInvisibleValues = true;
+    q1.value = q1.otherItem.value;
+    q1.comment = "comment1";
+    q2.value = "val2";
+    q2.comment = "comment2";
+    q3.value = "val3";
+    q1.visible = false;
+    q2.visible = false;
+    assert.notDeepEqual(survey.data, {"q3": "val3"}, "There are many vlues yet");
+    survey.doComplete();
+    assert.deepEqual(survey.data, {"q3": "val3"}, "There should be one value only");
 });
 QUnit.test("merge values", function (assert) {
     class MySurvey extends SurveyModel {

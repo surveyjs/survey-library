@@ -694,7 +694,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         var questions = this.getAllQuestions();
         for (var i: number = 0; i < questions.length; i++) {
             if (questions[i].visible) continue;
-            this.setValue(questions[i].name, null);
+            this.clearValue(questions[i].name);
         }
     }
     public getVariable(name: string): any {
@@ -714,12 +714,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
         return value;
     }
-    getValue(name: string): any {
+    public getValue(name: string): any {
         if (!name || name.length == 0) return null;
         var value = this.valuesHash[name];
         return this.getUnbindValue(value);
     }
-    setValue(name: string, newValue: any) {
+    public setValue(name: string, newValue: any) {
         if (this.isValueEqual(name, newValue)) return;
         if (newValue === "" || newValue === null) {
             delete this.valuesHash[name];
@@ -755,12 +755,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             }
         }
     }
-    getComment(name: string): string {
+    public getComment(name: string): string {
         var result = this.data[name + this.commentPrefix];
         if (result == null) result = "";
         return result;
     }
-    setComment(name: string, newValue: string) {
+    public setComment(name: string, newValue: string) {
         name = name + this.commentPrefix;
         if (newValue === "" || newValue === null) {
             delete this.valuesHash[name];
@@ -768,6 +768,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             this.valuesHash[name] = newValue;
             this.tryGoNextPageAutomatic(name);
         }
+    }
+    public clearValue(name: string) {
+        this.setValue(name, null);
+        this.setComment(name, null);
     }
     questionVisibilityChanged(question: IQuestion, newValue: boolean) {
         this.updateVisibleIndexes();

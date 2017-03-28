@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, HashTable, IQuestion, IConditionRunner, IPage, SurveyError, Event} from "./base";
+import {Base, ISurvey, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -70,6 +70,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onAfterRenderPanel: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public jsonErrors: Array<JsonError> = null;
 
     constructor(jsonObj: any = null) {
@@ -403,6 +404,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     }
     afterRenderQuestion(question: IQuestion, htmlElement) {
         this.onAfterRenderQuestion.fire(this, { question: question, htmlElement: htmlElement });
+    }
+    afterRenderPanel(panel: IElement, htmlElement) {
+        this.onAfterRenderPanel.fire(this, { panel: panel, htmlElement: htmlElement });
     }
 
     public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {

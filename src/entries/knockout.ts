@@ -18,7 +18,7 @@ import "../main.scss";
 // knockout
 export {Survey} from "../knockout/kosurvey"; // TODO need to remove someday
 export {Survey as Model} from "../knockout/kosurvey";
-export {QuestionRow, Page} from "../knockout/kopage";
+export {QuestionRow, Page, Panel} from "../knockout/kopage";
 export {QuestionImplementorBase} from "../knockout/koquestionbase";
 export {QuestionImplementor} from "../knockout/koquestion";
 export {QuestionSelectBaseImplementor} from "../knockout/koquestion_baseselect";

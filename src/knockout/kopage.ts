@@ -33,12 +33,18 @@ export class PanelImplementorBase {
         this.koRows = ko.observableArray();
         this.panel.rowsChangedCallback = function() {self.koRows(self.panel.rows); };
         this.panel["koQuestionAfterRender"] = function (el, con) { self.koQuestionAfterRender(el, con); };
+        this.panel["koPanelAfterRender"] = function (el, con) { self.koPanelAfterRender(el, con); };
         this.panel["koRows"] = this.koRows;
     }
     protected koQuestionAfterRender(elements, con) {
         if (!this.panel.data) return;
         var el = SurveyElement.GetFirstNonTextElement(elements);
         if (el) this.panel.data.afterRenderQuestion(con, el);
+    }
+    protected koPanelAfterRender(elements, con) {
+        if (!this.panel.data) return;
+        var el = SurveyElement.GetFirstNonTextElement(elements);
+        if (el) this.panel.data.afterRenderPanel(con, el);
     }
 }
 

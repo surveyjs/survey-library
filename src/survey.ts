@@ -319,9 +319,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         return vPages.indexOf(this.currentPage) == vPages.length - 1;
     }
     public doComplete() {
-        if (this.clearInvisibleValues) {
-            this.clearInvisibleQuestionValues();
-        }
+        this.clearUnusedValues();
         this.setCookie();
         this.setCompleted();
         this.onComplete.fire(this, null);
@@ -692,6 +690,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
             return new ProcessValue().getValue(name, this.valuesHash);
         }
         return val(name);
+    }
+    private clearUnusedValues() {
+        var questions = this.getAllQuestions();
+        for (var i: number = 0; i < questions.length; i++) {
+            questions[i].clearUnusedValues();
+        }
+        if (this.clearInvisibleValues) {
+            this.clearInvisibleQuestionValues();
+        }
     }
     private clearInvisibleQuestionValues() {
         var questions = this.getAllQuestions();

@@ -101,6 +101,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         this.fireCallback(this.visibleIndexChangedCallback);
     }
     supportGoNextPageAutomatic() { return false; }
+    clearUnusedValues() {}
 }
 JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:expression",
     { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

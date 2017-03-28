@@ -47,6 +47,7 @@ export interface IQuestion extends IElement {
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);
     supportGoNextPageAutomatic(): boolean;
+    clearUnusedValues();
 }
 export interface IPanel extends IElement {
 }

@@ -655,6 +655,18 @@ QUnit.test("clearInvisibleValues - comments and other values, #309", function (a
     survey.doComplete();
     assert.deepEqual(survey.data, {"q3": "val3"}, "There should be one value only");
 });
+QUnit.test("Do not store others value if others is not selected, #311", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.hasOther = true;
+    q1.value = q1.otherItem.value;
+    q1.comment = "comment1";
+    q1.value = 1;
+    assert.notDeepEqual(survey.data, {"q1": 1}, "There is a comment yet");
+    survey.doComplete();
+    assert.deepEqual(survey.data, {"q1": 1}, "There no comment");
+});
 QUnit.test("merge values", function (assert) {
     class MySurvey extends SurveyModel {
         constructor() {

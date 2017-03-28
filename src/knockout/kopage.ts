@@ -4,6 +4,7 @@ import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel";
 import {JsonObject} from "../jsonobject";
 import {QuestionBase} from "../questionbase";
 import {SurveyElement, IElement} from "../base";
+import {ElementFactory} from "../questionfactory";
 
 export class QuestionRow extends QuestionRowModel {
     koVisible: any; koElements: any;
@@ -79,3 +80,5 @@ export class Page extends PageModel {
 
 JsonObject.metaData.overrideClassCreatore("panel", function () { return new Panel(); });
 JsonObject.metaData.overrideClassCreatore("page", function () { return new Page(); });
+
+ElementFactory.Instance.registerElement("panel", (name) => { return new Panel(name); });

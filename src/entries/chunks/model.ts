@@ -32,7 +32,7 @@ export {QuestionCheckboxBase, QuestionSelectBase} from "../../question_baseselec
 export {QuestionCheckboxModel} from "../../question_checkbox";
 export {QuestionCommentModel} from "../../question_comment";
 export {QuestionDropdownModel} from "../../question_dropdown";
-export {QuestionFactory} from "../../questionfactory";
+export {QuestionFactory, ElementFactory} from "../../questionfactory";
 export {QuestionFileModel} from "../../question_file";
 export {QuestionHtmlModel} from "../../question_html";
 export {QuestionRadiogroupModel} from "../../question_radiogroup";

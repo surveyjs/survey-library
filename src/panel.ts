@@ -189,13 +189,13 @@ export class PanelModelBase extends Base implements IConditionRunner {
         this.onRowsChanged();
     }
     private updateRowsVisibility(element: any)  {
-            for (var i = 0; i < this.rowValues.length; i++) {
-                var row = this.rowValues[i];
-                if (row.questions.indexOf(element) > -1) {
-                    row.updateVisible();
-                    break;
-                }
+        for (var i = 0; i < this.rowValues.length; i++) {
+            var row = this.rowValues[i];
+            if (row.questions.indexOf(element) > -1) {
+                row.updateVisible();
+                break;
             }
+        }
     }
     private buildRows(): Array<QuestionRowModel> {
         var result = new Array<QuestionRowModel>();
@@ -252,9 +252,12 @@ export class PanelModelBase extends Base implements IConditionRunner {
         return question;
     }
     public addNewPanel(name: string): PanelModel {
-        var panel = new PanelModel(name);
+        var panel = this.createNewPanel(name);
         this.addPanel(panel);
         return panel;
+    }
+    protected createNewPanel(name: string): PanelModel {
+        return new PanelModel(name);
     }
     public removeElement(element: IElement) {
         var index = this.elements.indexOf(element);

@@ -13,9 +13,13 @@ export class QuestionRow extends QuestionRowModel {
         this.koVisible = ko.observable(this.visible);
         this.koElements = ko.observableArray();
     }
+    public addQuestion(q: IElement) {
+        super.addQuestion(q);
+        this.koElements(this.questions);
+    }
     protected onVisibleChanged() {
         this.koVisible(this.visible);
-        this.koElements(this.questions);
+        super.onVisibleChanged();
     }
     public koAfterRender(el, con) {
         for (var i = 0; i < el.length; i++) {
@@ -78,6 +82,10 @@ export class Page extends PageModel {
         this.onCreating();
     }
     protected createRow(): QuestionRowModel { return new QuestionRow(this); }
+    protected createNewPanel(name: string): PanelModel {
+        return new Panel(name);
+    }
+
     protected onCreating() { }
     protected onNumChanged(value: number) {
         this["koNo"](value > 0 ? value + ". " : "");

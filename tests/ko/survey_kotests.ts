@@ -172,6 +172,17 @@ QUnit.test("Question MultipleText: koRows", function (assert) {
     assert.equal(mQuestion["koRows"]().length, 2, "two rows now");
     assert.equal(mQuestion["koRows"]()[0].length, 1, "just one item in the first row");
 });
+QUnit.test("koElements", function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    page.addNewQuestion("text", "q1");
+    page.addNewPanel("panel1");
+    assert.equal(page["koRows"]().length, 2, "There are two rows");
+    assert.equal(page.rows[0].questions.length, 1, "One element in the first row");
+    assert.equal(page.rows[1].questions.length, 1, "One element in the second row");
+    assert.equal(page["koRows"]()[0]["koElements"]().length, 1, "One element in the first row, ko");
+    assert.equal(page["koRows"]()[1]["koElements"]().length, 1, "One element in the second row, ko");
+});
 QUnit.test("Set notification on setting survey data", function (assert) {
     var survey = new Survey();
     var page = survey.addNewPage("page1");

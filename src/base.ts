@@ -35,6 +35,7 @@ export interface IQuestion extends IConditionRunner {
     onSurveyValueChanged(newValue: any);
     onSurveyLoad();
     supportGoNextPageAutomatic(): boolean;
+    clearUnusedValues();
 }
 export interface IPage extends IConditionRunner {
     visible: boolean;

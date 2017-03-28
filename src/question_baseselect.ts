@@ -173,6 +173,12 @@ export class QuestionSelectBase extends Question {
         }
         return array;
     }
+    clearUnusedValues() {
+        super.clearUnusedValues();
+        if(!this.isOtherSelected) {
+            this.comment = null;
+        }
+    }
 }
 
 export class QuestionCheckboxBase extends QuestionSelectBase {

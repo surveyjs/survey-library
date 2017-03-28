@@ -1,6 +1,9 @@
 // styles
 import "../../main.scss";
 
+export let Version: string;
+Version = `${process.env.VERSION}`;
+
 export {
     AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator,
     SurveyValidator, TextValidator, ValidatorResult, ValidatorRunner

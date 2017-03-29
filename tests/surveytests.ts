@@ -177,6 +177,22 @@ QUnit.test("Survey.getQuestionByName", function (assert) {
     assert.equal(survey.getQuestionByName("Q3").name, "Q3", "find question on the second page");
     assert.equal(survey.getQuestionByName("Q0"), null, "return null");
 });
+QUnit.test("Survey.getPageByQuestion/getPageByElement", function (assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage("page1");
+    var page2 = survey.addNewPage("page2");
+    page1.addNewQuestion("text", "q1");
+    var panel1 = page1.addNewPanel("panel1");
+    var q2 = panel1.addNewQuestion("text", "q2");
+    var panel2 = panel1.addNewPanel("panel2");
+    var q3 = panel1.addNewQuestion("text", "q3");
+    var q4 = page2.addNewQuestion("text", "q4");
+    assert.equal(survey.getPageByQuestion(q2).name, "page1", "q1 - page1");
+    assert.equal(survey.getPageByQuestion(q3).name, "page1", "q3 - page1");
+    assert.equal(survey.getPageByQuestion(q4).name, "page2", "q4 - page2");
+    assert.equal(survey.getPageByElement(panel1).name, "page1", "panel1 - page1");
+    assert.equal(survey.getPageByElement(panel2).name, "page1", "panel2 - page1");
+});
 QUnit.test("SurveyData interface implementation", function (assert) {
     var surveyData: ISurvey;
     surveyData = new SurveyModel();

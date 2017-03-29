@@ -472,12 +472,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
         return result;
     }
-    public getPageByQuestion(question: IQuestion): PageModel {
+    public getPageByElement(element: IElement): PageModel {
         for (var i: number = 0; i < this.pages.length; i++) {
             var page = this.pages[i];
-            if (page.questions.indexOf(<QuestionBase>question) > -1) return page;
+            if(page.containsElement(element)) return page;
         }
         return null;
+    }
+    public getPageByQuestion(question: IQuestion): PageModel {
+        return this.getPageByElement(question);
     }
     public getPageByName(name: string): PageModel {
         for (var i: number = 0; i < this.pages.length; i++) {

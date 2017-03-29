@@ -103,6 +103,16 @@ export class PanelModelBase extends Base implements IConditionRunner {
         if(this.parent) this.parent.markQuestionListDirty();
     }
     public get elements(): Array<IElement> { return this.elementsValue; }
+    public containsElement(element: IElement): boolean {
+        for(var i = 0; i < this.elements.length; i ++) {
+            var el: any = this.elements[i];
+            if(el == element) return true;
+            if(el.isPanel) {
+                if((<PanelModelBase>el).containsElement(element)) return true;
+            }
+        }
+        return false;
+    }
     public get rows(): Array<QuestionRowModel> {
         if(!this.rowValues) {
             this.rowValues = this.buildRows();

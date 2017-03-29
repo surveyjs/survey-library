@@ -1,5 +1,5 @@
 import {JsonObject} from "./jsonobject";
-import {Base, IPage, IConditionRunner, ISurvey, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
+import {Base, IPage, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
@@ -147,7 +147,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
         this.markQuestionListDirty();
         if(!items) items = [];
         for(var i = 0; i < deletedQuestions.length; i ++) {
-            this.onRemoveQuestion(deletedQuestions[i])
+            this.onRemoveElement(deletedQuestions[i])
         }
         for(var i = 0; i < items.length; i ++) {
             this.onAddElement(items[i], start + i);
@@ -160,6 +160,9 @@ export class PanelModelBase extends Base implements IConditionRunner {
             var p = <PanelModel>element;
             p.data = this.data;
             p.parent = this;
+            if(this.data) {
+                this.data.panelAdded(p, index);
+            }
         } else {
             if(this.data) {
                 var q = <QuestionBase>element;
@@ -171,10 +174,12 @@ export class PanelModelBase extends Base implements IConditionRunner {
         element.rowVisibilityChangedCallback = function () { self.onElementVisibilityChanged(element); }
         element.startWithNewLineChangedCallback = function () { self.onElementStartWithNewLineChanged(element); }
     }
-    private onRemoveQuestion(element: IElement) {
+    private onRemoveElement(element: IElement) {
         if(!element.isPanel) {
             var q = <QuestionBase>element;
             if(this.data) this.data.questionRemoved(q);
+        } else {
+            if(this.data) this.data.panelRemoved(q);
         }
     }
     private onElementVisibilityChanged(element: any) {
@@ -287,6 +292,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         super(name);
     }
     public getType(): string { return "panel"; }
+    public setData(newValue: ISurveyData) { this.data = <ISurvey>newValue; }
     public get isPanel(): boolean { return true; }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {

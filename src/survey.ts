@@ -61,6 +61,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     public onPageVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onPanelAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onPanelRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -804,6 +806,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
     questionRemoved(question: IQuestion) {
         this.updateVisibleIndexes();
         this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
+    }
+    panelAdded(panel: IElement, index: number) {
+        this.updateVisibleIndexes();
+        this.onPanelAdded.fire(this, { 'panel': panel, 'name': panel.name, 'index': index });
+    }
+    panelRemoved(panel: IElement) {
+        this.updateVisibleIndexes();
+        this.onPanelRemoved.fire(this, { 'panel': panel, 'name': panel.name });
     }
     validateQuestion(name: string): SurveyError {
         if (this.onValidateQuestion.isEmpty) return null;

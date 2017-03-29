@@ -13,6 +13,8 @@ export interface ISurvey extends ISurveyData {
     questionVisibilityChanged(question: IQuestion, newValue: boolean);
     questionAdded(question: IQuestion, index: number);
     questionRemoved(question: IQuestion);
+    panelAdded(panel: IElement, index: number);
+    panelRemoved(panel: IElement);
     validateQuestion(name: string): SurveyError;
     processHtml(html: string): string;
     processText(text: string): string;
@@ -32,6 +34,7 @@ export interface IConditionRunner {
 export interface IElement  extends IConditionRunner{
     name: string;
     isVisible: boolean;
+    setData(newValue: ISurveyData);
     rowVisibilityChangedCallback: () => void;
     startWithNewLineChangedCallback: () => void;
     renderWidth: string;

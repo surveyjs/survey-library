@@ -11,9 +11,9 @@ export interface ISurvey extends ISurveyData {
     currentPage: IPage;
     pageVisibilityChanged(page: IPage, newValue: boolean);
     questionVisibilityChanged(question: IQuestion, newValue: boolean);
-    questionAdded(question: IQuestion, index: number);
+    questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any);
+    panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any);
     questionRemoved(question: IQuestion);
-    panelAdded(panel: IElement, index: number);
     panelRemoved(panel: IElement);
     validateQuestion(name: string): SurveyError;
     processHtml(html: string): string;

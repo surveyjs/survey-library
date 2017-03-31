@@ -171,13 +171,13 @@ export class PanelModelBase extends Base implements IConditionRunner {
             p.data = this.data;
             p.parent = this;
             if(this.data) {
-                this.data.panelAdded(p, index);
+                this.data.panelAdded(p, index, this, this.root);
             }
         } else {
             if(this.data) {
                 var q = <QuestionBase>element;
                 q.setData(this.data);
-                this.data.questionAdded(q, index);
+                this.data.questionAdded(q, index, this, this.root);
             }
         }
         var self = this;

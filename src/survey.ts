@@ -801,18 +801,18 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         this.updateVisibleIndexes();
         this.onPageVisibleChanged.fire(this, { 'page': page, 'visible': newValue });
     }
-    questionAdded(question: IQuestion, index: number) {
+    questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any) {
         this.updateVisibleIndexes();
         this.addQuestionToProcessedTextValues(question);
-        this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index });
+        this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel });
     }
     questionRemoved(question: IQuestion) {
         this.updateVisibleIndexes();
         this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
     }
-    panelAdded(panel: IElement, index: number) {
+    panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
         this.updateVisibleIndexes();
-        this.onPanelAdded.fire(this, { 'panel': panel, 'name': panel.name, 'index': index });
+        this.onPanelAdded.fire(this, { 'panel': panel, 'name': panel.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel });
     }
     panelRemoved(panel: IElement) {
         this.updateVisibleIndexes();

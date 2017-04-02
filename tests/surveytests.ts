@@ -1,5 +1,6 @@
 ﻿import {SurveyModel} from "../src/survey";
 import {PageModel} from "../src/page";
+import {PanelModel} from "../src/panel";
 import {QuestionFactory} from "../src/questionfactory";
 import {Question} from "../src/question";
 import {QuestionHtmlModel} from "../src/question_html";
@@ -203,6 +204,17 @@ QUnit.test("Add/remove panel", function (assert) {
     assert.equal(page1.elements.length, 1, "There is one element");
     page1.removeElement(panel1);
     assert.equal(page1.elements.length, 0, "There is no elements");
+});
+QUnit.test("Add panel with questions", function (assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage("page1");
+    var panel1 = new PanelModel("panel1");
+    var q1 = panel1.addNewQuestion("text", "q1");
+    var panel2 = panel1.addNewPanel("panel2");
+    var q2 = panel2.addNewQuestion("text", "q2");
+    page1.addElement(panel1);
+    assert.equal(panel1.data, survey, "The data is set correctly in the root panel");
+    assert.equal(q2.survey, survey, "The survey is set correctly in the question of the nested root");
 });
 QUnit.test("SurveyData interface implementation", function (assert) {
     var surveyData: ISurvey;

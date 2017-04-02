@@ -55,6 +55,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
         return "sp_" + PanelModelBase.panelCounter++;
     }
 
+    private dataValue: ISurvey = null;
     private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
@@ -62,7 +63,6 @@ export class PanelModelBase extends Base implements IConditionRunner {
     private isQuestionsReady: boolean = false;
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
     public parent: PanelModelBase = null;
-    public data: ISurvey = null;
     public visibleIf: string = "";
     rowsChangedCallback: () => void;
 
@@ -78,6 +78,15 @@ export class PanelModelBase extends Base implements IConditionRunner {
             return self.doSpliceElements(this, start, deleteCount, ...items);
         };
     }
+    public get data(): ISurvey { return this.dataValue; }
+    public set data(value: ISurvey) {
+        if(this.dataValue === value) return;
+        this.dataValue = value;
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].setData(value);
+        }
+    }
+
     public get id(): string { return this.idValue; }
     public get questions(): Array<QuestionBase> { 
         if(!this.isQuestionsReady) {
@@ -303,9 +312,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     public getType(): string { return "panel"; }
     public setData(newValue: ISurveyData) { 
         this.data = <ISurvey>newValue; 
-        for(var i = 0; i < this.elements.length; i ++) {
-            this.elements[i].setData(newValue);
-        }
     }
     public get isPanel(): boolean { return true; }
     public get renderWidth(): string { return this.renderWidthValue; }

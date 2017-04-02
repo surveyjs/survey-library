@@ -186,10 +186,9 @@ export class PanelModelBase extends Base implements IConditionRunner {
     }
     private onRemoveElement(element: IElement) {
         if(!element.isPanel) {
-            var q = <QuestionBase>element;
-            if(this.data) this.data.questionRemoved(q);
+            if(this.data) this.data.questionRemoved(<QuestionBase>element);
         } else {
-            if(this.data) this.data.panelRemoved(q);
+            if(this.data) this.data.panelRemoved(element);
         }
     }
     private onElementVisibilityChanged(element: any) {

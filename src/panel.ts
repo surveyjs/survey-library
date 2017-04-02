@@ -5,9 +5,10 @@ import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
 
 export class QuestionRowModel {
-    private visibleValue: boolean = false;
+    private visibleValue: boolean;
     visibilityChangedCallback: () => void;
     constructor(public panel: PanelModelBase) {
+        this.visibleValue = panel.data && panel.data.isDesignMode;
     }
     public questions: Array<IElement> = [];
     public get visible(): boolean { return this.visibleValue; }

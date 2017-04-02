@@ -42,9 +42,6 @@ export class QuestionImplementor extends QuestionImplementorBase {
         if (this.isUpdating) return;
         this.koComment(this.question.comment);
     }
-    protected onVisibilityChanged() {
-        this.koVisible(this.question.visible);
-    }
     protected onVisibleIndexChanged() {
         this.koDummy(this.koDummy() + 1);
     }

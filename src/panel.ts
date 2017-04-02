@@ -302,7 +302,12 @@ export class PanelModel extends PanelModelBase implements IElement {
         super(name);
     }
     public getType(): string { return "panel"; }
-    public setData(newValue: ISurveyData) { this.data = <ISurvey>newValue; }
+    public setData(newValue: ISurveyData) { 
+        this.data = <ISurvey>newValue; 
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].setData(newValue);
+        }
+    }
     public get isPanel(): boolean { return true; }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {

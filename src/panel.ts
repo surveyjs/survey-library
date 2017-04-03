@@ -306,7 +306,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     private renderWidthValue: string;
     private rightIndentValue: number;
     public width: string;
+    private innerIndentValue: number = 0;
     private startWithNewLineValue: boolean = true;
+    renderWidthChangedCallback: () => void;
     rowVisibilityChangedCallback: () => void;
     startWithNewLineChangedCallback: () => void;
     constructor(public name: string = "") {
@@ -317,11 +319,17 @@ export class PanelModel extends PanelModelBase implements IElement {
         this.data = <ISurvey>newValue; 
     }
     public get isPanel(): boolean { return true; }
+    public get innerIndent(): number { return this.innerIndentValue; }
+    public set innerIndent(val: number) {
+        if (val == this.innerIndentValue) return;
+        this.innerIndentValue = val;
+        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
+    }
     public get renderWidth(): string { return this.renderWidthValue; }
     public set renderWidth(val: string) {
         if (val == this.renderWidth) return;
         this.renderWidthValue = val;
-        //this.fireCallback(this.renderWidthChangedCallback);
+        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
     public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
     public set startWithNewLine(value: boolean) { 
@@ -333,7 +341,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     public set rightIndent(val: number) {
         if (val == this.rightIndent) return;
         this.rightIndentValue = val;
-        //this.fireCallback(this.renderWidthChangedCallback);
+        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
     protected onVisibleChanged() {
         if(this.rowVisibilityChangedCallback) this.rowVisibilityChangedCallback();
@@ -341,4 +349,5 @@ export class PanelModel extends PanelModelBase implements IElement {
 }
 
 JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
-    { name: "visible:boolean", default: true }, "visibleIf:expression", "title"], function () { return new PanelModel(); });
+    { name: "visible:boolean", default: true }, "visibleIf:expression", "title",
+    {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); });

@@ -62,16 +62,31 @@ export class PageImplementor extends PanelImplementorBase {
 }
 
 export class Panel extends PanelModel {
+    koInnerMargin: any;
     constructor(name: string = "") {
         super(name);
         new PanelImplementorBase(this);
         this.onCreating();
+        var self = this;
+        this.renderWidthChangedCallback = function() { self.onRenderWidthChanged(); }
+        this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
     }
     protected createRow(): QuestionRowModel { return new QuestionRow(this); }
     protected onCreating() { }
     protected onNumChanged(value: number) {
         this["koNo"](value > 0 ? value + ". " : "");
     }
+    protected onRenderWidthChanged() {  
+        this.koInnerMargin(this.getIndentSize(this.innerIndent));
+    }
+    private getIndentSize(indent: number): string {
+        if (indent < 1) return "";
+        if (!this.data) return "";
+        var css = this.data["css"];
+        if (!css) return "";
+        return indent * css.question.indent + "px";
+    }
+
 }
 
 

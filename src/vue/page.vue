@@ -16,9 +16,11 @@
     import {SurveyModel} from '../survey'
     import {Question as QuestionModel} from '../question'
     import {PageModel} from '../page'
-    import {getIndentSize as _getIndentSize} from './getIndentSize'
+    import {helpers} from './helpers'
 
-    @Component
+    @Component({
+        mixins: [helpers]
+    })
     export default class Page extends Vue {
         @Prop
         survey: SurveyModel
@@ -35,10 +37,6 @@
         }
         get rows () {
             return this.page.rows;
-        }
-
-        getIndentSize(question: QuestionModel, indent: number): string {
-            return _getIndentSize(question, indent)
         }
     }
     Vue.component("survey-page", Page)

@@ -14,9 +14,11 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
     import {Question as QuestionModel} from '../question'
-    import {getIndentSize as _getIndentSize} from './getIndentSize'
+    import {helpers} from './helpers'
 
-    @Component
+    @Component({
+        mixins: [helpers]
+    })
     export default class Panel extends Vue {
         @Prop
         question: PanelModel
@@ -33,10 +35,6 @@
         }
         get survey () {
             return this.question.data;
-        }
-
-        getIndentSize(question: QuestionModel, indent: number): string {
-            return _getIndentSize(question, indent)
         }
     }
     Vue.component("survey-panel", Panel)

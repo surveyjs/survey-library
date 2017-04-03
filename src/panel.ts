@@ -202,7 +202,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
         }
     }
     private onElementVisibilityChanged(element: any) {
-        if (this.isActive && this.rowValues) {
+        if (this.rowValues) {
             this.updateRowsVisibility(element);
         }
         if(this.parent) {

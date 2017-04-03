@@ -13,9 +13,9 @@ export class QuestionRow extends QuestionRowModel {
         this.koVisible = ko.observable(this.visible);
         this.koElements = ko.observableArray();
     }
-    public addQuestion(q: IElement) {
-        super.addQuestion(q);
-        this.koElements(this.questions);
+    public addElement(q: IElement) {
+        super.addElement(q);
+        this.koElements(this.elements);
     }
     protected onVisibleChanged() {
         this.koVisible(this.visible);

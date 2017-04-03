@@ -10,7 +10,9 @@ export class QuestionRowModel {
     constructor(public panel: PanelModelBase) {
         this.visibleValue = panel.data && panel.data.isDesignMode;
     }
-    public questions: Array<IElement> = [];
+    public elements: Array<IElement> = [];
+    //TODO remove after updating react and vue
+    public get questions(): Array<IElement> { return this.elements;} 
     public get visible(): boolean { return this.visibleValue; }
     public set visible(val: boolean) {
         if (val == this.visible) return;
@@ -21,8 +23,8 @@ export class QuestionRowModel {
         this.visible = this.calcVisible();
         this.setWidth();
     }
-    public addQuestion(q: IElement) {
-        this.questions.push(q);
+    public addElement(q: IElement) {
+        this.elements.push(q);
         this.updateVisible();
     }
     protected onVisibleChanged() {
@@ -32,9 +34,9 @@ export class QuestionRowModel {
         var visCount = this.getVisibleCount();
         if (visCount == 0) return;
         var counter = 0;
-        for (var i = 0; i < this.questions.length; i++)
-            if (this.questions[i].isVisible) {
-                var q = this.questions[i];
+        for (var i = 0; i < this.elements.length; i++)
+            if (this.elements[i].isVisible) {
+                var q = this.elements[i];
                 q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + '%';
                 q.rightIndent = counter < visCount - 1 ? 1 : 0;
                 counter++;
@@ -42,8 +44,8 @@ export class QuestionRowModel {
     }
     private getVisibleCount(): number {
         var res = 0;
-        for (var i = 0; i < this.questions.length; i++) {
-            if (this.questions[i].isVisible) res++;
+        for (var i = 0; i < this.elements.length; i++) {
+            if (this.elements[i].isVisible) res++;
         }
         return res;
     }
@@ -215,7 +217,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
     private updateRowsVisibility(element: any)  {
         for (var i = 0; i < this.rowValues.length; i++) {
             var row = this.rowValues[i];
-            if (row.questions.indexOf(element) > -1) {
+            if (row.elements.indexOf(element) > -1) {
                 row.updateVisible();
                 break;
             }
@@ -230,7 +232,7 @@ export class PanelModelBase extends Base implements IConditionRunner {
             var isNewRow = i == 0 || el.startWithNewLine;
             var row = isNewRow ? this.createRow() : result[result.length - 1];
             if(isNewRow) result.push(row);
-            row.addQuestion(el);
+            row.addElement(el);
         }
         for (var i = 0; i < result.length; i++) {
             result[i].updateVisible();

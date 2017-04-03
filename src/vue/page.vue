@@ -3,14 +3,7 @@
         <h4 v-show="hasTitle" :class="css.pageTitle">{{num + page.processedTitle}}</h4>
         <div v-for="row in rows" v-show="row.visible" :class="css.row">
             <div v-for="question in row.questions" :class="css.question.root" style="vertical-align:top" :id="question.id" :style="{display: question.visible ? 'inline-block': 'none', marginLeft: getIndentSize(question, question.indent), paddingRight: getIndentSize(question, question.rightIndent), width: question.renderWidth }">
-                <h5 v-if="question.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'">{{question.fullTitle}}</h5>
-                <survey-errors :question="question" :css="css"/>
-                <component :is="getWidgetComponentName(question)" :question="question" :isEditMode="survey.isEditMode" :css="css"/>
-                <div v-show="question.hasComment">
-                    <div>{{question.commentText}}</div>
-                    <survey-comment :question="question" :isEditMode="survey.isEditMode" :css="css"/>
-                </div>
-                <h5 v-if="question.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="css.question.title">{{question.fullTitle}}</h5>
+                <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
         </div>
     </div>
@@ -34,12 +27,6 @@
         @Prop
         css: Object
 
-        getWidgetComponentName(question: QuestionModel) {
-            if(question.customWidget) {
-                return question.customWidget.name;
-            }
-            return 'survey-' + question.getType();
-        }
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

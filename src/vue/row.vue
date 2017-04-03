@@ -19,6 +19,7 @@
     import {SurveyModel} from '../survey'
     import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
     import {Question as QuestionModel} from '../question'
+    import {getIndentSize as _getIndentSize} from './getIndentSize'
 
     @Component
     export default class Row extends Vue {
@@ -36,12 +37,8 @@
             return 'survey-' + element.getType();
         }
 
-        getIndentSize(element: QuestionModel, indent: number): string {
-            if (indent < 1) return "";
-            if (!element["data"]) return "";
-            var css = element["data"]["css"];
-            if (!css) return "";
-            return indent * css.question.indent + "px";
+        getIndentSize(question: QuestionModel, indent: number): string {
+            return _getIndentSize(question, indent)
         }
     }
     Vue.component("survey-row", Row)

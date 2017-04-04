@@ -14,6 +14,7 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
     import {Question as QuestionModel} from '../question'
+    import {ISurvey} from '../base'
     import {helpers} from './helpers'
 
     @Component({

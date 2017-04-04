@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4 v-show="hasTitle" :class="css.pageTitle">{{question.processedTitle}}</h4>
-        <div :style="{margin: getIndentSize(question, question.innerIndent)}">
+        <div :style="{ marginLeft: getIndentSize(question, question.innerIndent) }">
             <div v-for="row in rows" v-show="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>

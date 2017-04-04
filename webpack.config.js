@@ -191,6 +191,10 @@ module.exports = function (options) {
         externals: platformOptions[options.platform].externals,
         plugins: [
             new webpack.ProgressPlugin(percentage_handler),
+            new webpack.DefinePlugin({
+                "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
+                "process.env.VERSION": JSON.stringify(packageJson.version)
+            }),
             extractCSS
         ],
         devtool: 'inline-source-map'

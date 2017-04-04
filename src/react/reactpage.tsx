@@ -3,7 +3,7 @@ import {SurveyQuestion} from './reactquestion'
 import {PageModel} from "../page";
 import {SurveyModel} from "../survey";
 import {ISurveyCreator} from "./reactquestion";
-import {QuestionRowModel} from "../panel";
+import {QuestionRowModel, PanelModel} from "../panel";
 import {QuestionBase} from "../questionbase";
 
 export class SurveyPage extends React.Component<any, any> {
@@ -57,6 +57,57 @@ export class SurveyPage extends React.Component<any, any> {
     }
 }
 
+export class SurveyPanel extends React.Component<any, any> {
+    private panel: PanelModel;
+    private survey: SurveyModel;
+    private creator: ISurveyCreator;
+    protected css: any;
+    constructor(props: any) {
+        super(props);
+        this.panel = props.panel;
+        this.survey = props.survey;
+        this.creator = props.creator;
+        this.css = props.css;
+    }
+    componentWillReceiveProps(nextProps: any) {
+        this.panel = nextProps.panel;
+        this.survey = nextProps.survey;
+        this.creator = nextProps.creator;
+        this.css = nextProps.css;
+    }
+    componentDidMount() {
+        var el = this.refs["root"];
+        if (el && this.survey) this.survey.afterRenderPage(el);
+    }
+    render(): JSX.Element {
+        if (this.panel == null || this.survey == null || this.creator == null) return null;
+        var title = this.renderTitle();
+        var rows = [];
+        var questionRows = this.panel.rows;
+        for (var i = 0; i < questionRows.length; i++) {
+            rows.push(this.createRow(questionRows[i], i));
+        }
+        var style = { margin: this.panel.innerIndent * this.css.question.indent + 'px' };
+        return (
+            <div ref="root">
+                {title}
+                <div style={style}>
+                    {rows}
+                </div>
+            </div>
+        );
+    }
+    protected createRow(row: QuestionRowModel, index: number): JSX.Element {
+        var rowName = "row" + (index + 1);
+        return <SurveyRow key={rowName} row={row} survey={this.survey} creator={this.creator} css={this.css} />;
+    }
+    protected renderTitle(): JSX.Element {
+        if (!this.panel.title) return null;
+        var text = this.panel.processedTitle;
+        return (<h4 className={this.css.pageTitle}>{text}</h4>);
+    }
+}
+
 export class SurveyRow extends React.Component<any, any> {
     private row: QuestionRowModel;
     private survey: SurveyModel;
@@ -85,7 +136,7 @@ export class SurveyRow extends React.Component<any, any> {
         if (this.row.visible) {
             questions = [];
             for (var i = 0; i < this.row.elements.length; i++) {
-                var question =this.row.elements[i] as QuestionBase;
+                let question = this.row.elements[i] as QuestionBase;
                 questions.push(this.createQuestion(question));
             }
         }
@@ -97,6 +148,10 @@ export class SurveyRow extends React.Component<any, any> {
         );
     }
     protected createQuestion(question: QuestionBase): JSX.Element {
-        return <SurveyQuestion key={question.name} question={question} creator={this.creator} css={this.css} />;
+        if (question.isPanel) {
+            return <SurveyPanel key={question.name} panel={question} creator={this.creator} survey={this.survey} css={this.css} />;
+        } else {
+            return <SurveyQuestion key={question.name} question={question} creator={this.creator} css={this.css} />;
+        }
     }
 }

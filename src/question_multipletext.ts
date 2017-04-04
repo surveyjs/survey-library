@@ -4,15 +4,18 @@ import {Question} from "./question";
 import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {SurveyError} from "./base";
+import {AnswerRequiredError} from "./error";
 
 export interface IMultipleTextData {
     getMultipleTextValue(name: string): any;
     setMultipleTextValue(name: string, value: any);
+    getIsRequiredText(): string;
 }
 
 export class MultipleTextItemModel extends Base implements IValidatorOwner {
     private data: IMultipleTextData;
     private titleValue: string;
+    public isRequired: boolean = false;
     public placeHolder: string;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
@@ -26,8 +29,14 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner {
     setData(data: IMultipleTextData) {
         this.data = data;
     }
+
     public get title() { return this.titleValue ? this.titleValue : this.name; }
     public set title(newText: string) { this.titleValue = newText; }
+    public get fullTitle(): string {
+        var res = this.title;
+        if(this.isRequired && this.data) res = this.data.getIsRequiredText() + ' ' + res;
+        return res;
+    }
     public get value() {
         return this.data ? this.data.getMultipleTextValue(this.name) : null;
     }
@@ -85,8 +94,6 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
             return result;
         };
     }
-    //TODO-remove later. Delay removing in case somebody use this function.
-    private AddItem(name: string, title: string = null): MultipleTextItemModel { return this.addItem(name, title); }
     supportGoNextPageAutomatic() {
         for (var i = 0; i < this.items.length; i++) {
             if (!this.items[i].value) return false;
@@ -143,6 +150,24 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         }
         return null;
     }
+    public hasErrors(fireCallback: boolean = true): boolean {
+        var res = super.hasErrors(fireCallback);
+        if(!res) res = this.hasErrorInItems(fireCallback);
+        return res;
+    }
+    protected hasErrorInItems(fireCallback: boolean): boolean {
+        for(var i = 0; i < this.items.length; i ++) {
+            var item = this.items[i];
+            if(item.isRequired && !item.value) {
+                this.errors.push(new AnswerRequiredError());
+                if(fireCallback) {
+                    this.fireCallback(this.errorsChangedCallback);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
     //IMultipleTextData
     getMultipleTextValue(name: string) {
         if (!this.value) return null;
@@ -158,9 +183,12 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         this.setNewValue(newValue);
         this.isMultipleItemValueChanging = false;
     }
+    getIsRequiredText(): string {
+        return this.survey ? this.survey.requiredText : "";
+    }
 }
 
-JsonObject.metaData.addClass("multipletextitem", ["name", "placeHolder", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
+JsonObject.metaData.addClass("multipletextitem", ["name", "isRequired:boolean", "placeHolder", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
     { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }], function () { return new MultipleTextItemModel(""); });
 
 JsonObject.metaData.addClass("multipletext", [{ name: "!items:textitems", className: "multipletextitem" },

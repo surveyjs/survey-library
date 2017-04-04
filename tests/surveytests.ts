@@ -393,6 +393,19 @@ QUnit.test("adding, inserting Multiple Text Item correctly", function (assert) {
     item2.value = "4";
     assert.equal(item2.value, "4", "Check4. data was set correctly");
 });
+QUnit.test("Multiple Text required items", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var multiTextQuestion = new QuestionMultipleTextModel("multitext");
+    survey.pages[0].addQuestion(multiTextQuestion);
+    var item1 = multiTextQuestion.addItem("item1");
+    var item2 = multiTextQuestion.addItem("item2");
+    item1.isRequired = true;
+    assert.equal(item1.fullTitle, "* item1", "Add isRequired Text");
+    assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
+    assert.equal(multiTextQuestion.hasErrors(), true, "item1 is required and it is empty");
+    item1.value = 1;
+    assert.equal(multiTextQuestion.hasErrors(), false, "item1 is required and it has a value");
+});
 QUnit.test("onComplete event", function (assert) {
     var survey = twoPageSimplestSurvey();
     var counter = 0;

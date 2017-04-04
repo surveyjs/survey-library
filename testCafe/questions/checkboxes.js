@@ -67,7 +67,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change column count`, async t => {
-        const getStyleWidth = ClientFunction(() => document.querySelector(`div[id*=sq_1] div[style*=width]`).style.width);
+        const getStyleWidth = ClientFunction(() => document.querySelector(`div[id*=sq_1] div[style*=margin-right]`).style.width);
         let styleWidth = await getStyleWidth();
         assert.equal(styleWidth, '25%');
 
@@ -83,9 +83,9 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change choices order`, async t => {
-        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`div[id*=sq_1] div[style*=width]`).length);
-        const getFirst = Selector('div[id*=sq_1] div[style*=width]', { index: 0});
-        const getSecond = Selector('div[id*=sq_1] div[style*=width]', { index: 1});
+        const getChoicesCount = ClientFunction(() => document.querySelectorAll(`div[id*=sq_1] div[style*=margin-right]`).length);
+        const getFirst = Selector('div[id*=sq_1] div[style*=margin-right]', { index: 0});
+        const getSecond = Selector('div[id*=sq_1] div[style*=margin-right]', { index: 1});
         let rnd_count = 0;
         let first, second, first_2;
         let choicesCount = await getChoicesCount();
@@ -132,7 +132,7 @@ frameworks.forEach( (framework) => {
     test(`check integrity`, async t => {
         let i;
         const getChoicesCount = ClientFunction(() =>
-            document.querySelectorAll('div[id*=sq_1] div[style*=width]').length);
+            document.querySelectorAll('div[id*=sq_1] div[style*=margin-right]').length);
         const getChoicesExistence = ClientFunction(() => {
             var choices = ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot",
                 "Toyota", "Citroen", "Other (describe)"];
@@ -171,7 +171,7 @@ frameworks.forEach( (framework) => {
 
     test(`check "other" choice doesn't change order`, async t => {
         const getOtherChoice = Selector(() =>
-            document.querySelectorAll(`div[id*=sq_1] div[style*=width]`)[11]);
+            document.querySelectorAll(`div[id*=sq_1] div[style*=margin-right]`)[11]);
         let otherChoice;
 
         await setOptions('car', { hasOther: true });

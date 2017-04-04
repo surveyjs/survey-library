@@ -17,6 +17,7 @@
     import {Question as QuestionModel} from '../question'
     import {PageModel} from '../page'
     import {helpers} from './helpers'
+    import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
 
     @Component({
         mixins: [helpers]

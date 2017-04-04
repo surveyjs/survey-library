@@ -49,13 +49,7 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     private itemsValues: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
     constructor(public name: string) {
         super(name);
-        var self = this;
-        this.items.push = function (value) {
-            value.setData(self);
-            var result = Array.prototype.push.call(this, value);
-            self.fireCallback(self.colCountChangedCallback);
-            return result;
-        };
+        this.setItemsOverriddenMethods();
     }
     public getType(): string {
         return "multipletext";
@@ -63,12 +57,33 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     public get items(): Array<MultipleTextItemModel> { return this.itemsValues; }
     public set items(value: Array<MultipleTextItemModel>) {
         this.itemsValues = value;
+        this.setItemsOverriddenMethods();
         this.fireCallback(this.colCountChangedCallback);
     }
     public addItem(name: string, title: string = null): MultipleTextItemModel {
         var item = this.createTextItem(name, title);
         this.items.push(item);
         return item;
+    }
+    private setItemsOverriddenMethods() {
+        var self = this;
+        this.itemsValues.push = function (value) {
+            value.setData(self);
+            var result = Array.prototype.push.call(this, value);
+            self.fireCallback(self.colCountChangedCallback);
+            return result;
+        };
+        this.itemsValues.splice = function (start?: number, deleteCount?: number, ...items: MultipleTextItemModel[]): MultipleTextItemModel[] {
+            if(!start) start = 0;
+            if(!deleteCount) deleteCount = 0;
+            var result = Array.prototype.splice.call(self.itemsValues, start, deleteCount, ... items);
+            if(!items) items = [];
+            for(var i = 0; i < items.length; i ++) {
+                items[i].setData(self);
+            }
+            self.fireCallback(self.colCountChangedCallback);
+            return result;
+        };
     }
     //TODO-remove later. Delay removing in case somebody use this function.
     private AddItem(name: string, title: string = null): MultipleTextItemModel { return this.addItem(name, title); }

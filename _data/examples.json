@@ -38,11 +38,9 @@
                 {"name": "Read-only/display mode", "text": "View answers of other people", "url": "survey-displaymode.html"},
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
-                {"name": "Change Rendering", "text": "Change question templates", "url": "survey-customtemplate.html"},
-                {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"},
-                {"name": "Custom question", "text": "Create you own question", "url": "custom-question.html"}
+                {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
             ]},
-            { "name": "Conditions and Triggers", "id": "triggers", 
+            { "name": "Conditions and Triggers", "id": "triggers",
               "items": [
                 {"name": "VisibleIf", "text": "Create complex conditions to control question visibility", "url": "condition-kids.html"},
                 {"name": "Visible Trigger", "text": "Show/Hide question(s) on survey running", "url": "trigger-visible.html"},

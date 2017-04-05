@@ -164,5 +164,10 @@
         "includes": [
             "examplesetups/custom-widget-matrix-icheck.md"
         ]
+    },
+    { "name": "custom-widget-sortablejs", "title": "Sortablejs question", "jquery": false,
+        "includes": [
+            "examplesetups/custom-widget-sortablejs.md"
+        ]
     }
 ]

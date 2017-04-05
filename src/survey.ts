@@ -558,12 +558,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
         }
     }
     private runConditions() {
-        this.runConditionsForList(this.getAllQuestions(false));
-        this.runConditionsForList(this.pages);
-    }
-    private runConditionsForList(list: Array<IConditionRunner>) {
-        for (var i = 0; i < list.length; i++) {
-            list[i].runCondition(this.valuesHash);
+        var pages = this.pages;
+        for(var i = 0; i < pages.length; i ++) {
+            pages[i].runCondition(this.valuesHash);
         }
     }
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {

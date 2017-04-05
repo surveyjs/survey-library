@@ -294,6 +294,9 @@ export class PanelModelBase extends Base implements IConditionRunner {
         this.removeElement(question);
     }
     public runCondition(values: HashTable<any>) {
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].runCondition(values);
+        }
         if (!this.visibleIf) return;
         if (!this.conditionRunner) this.conditionRunner = new ConditionRunner(this.visibleIf);
         this.conditionRunner.expression = this.visibleIf;

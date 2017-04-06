@@ -390,3 +390,12 @@ footer.panel-footer {
     border-radius: 5px;
     padding: 5px;
 }
+
+/*image picker*/
+.examples-wrapper ul.thumbnails.image_picker_selector li .thumbnail.selected {
+    background: #1ab394;
+}
+.examples-wrapper ul.thumbnails.image_picker_selector li .thumbnail {
+    padding: 10px;
+}
+/*EO image picker*/

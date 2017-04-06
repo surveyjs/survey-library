@@ -169,5 +169,10 @@
         "includes": [
             "examplesetups/custom-widget-sortablejs.md"
         ]
+    },
+    { "name": "custom-widget-image-picker", "title": "Image Picker question", "jquery": true,
+        "includes": [
+            "examplesetups/custom-widget-image-picker.md"
+        ]
     }
 ]

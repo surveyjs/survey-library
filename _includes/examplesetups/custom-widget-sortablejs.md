@@ -64,6 +64,81 @@ var widget = {
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 
 {% elsif page.usereact %}
+var widget = {
+    name: "sortablejs",
+    isFit : function(question) { return question["renderAs"] === 'sortablejs'; },
+    render: function(questionBase) {
+      const style = {
+        border: '1px solid #1ab394',
+        minHeight:'50px',
+        width:'100%',
+        marginTop:'10px'
+      };
+      const itemStyle = {
+        backgroundColor:'#1ab394',
+        color:'#fff',
+        margin:'5px',
+        padding:'10px'
+      }
+      const containerStyle = {
+        width:'50%'
+      }
+      let items = questionBase.visibleChoices.map((item, index) =>
+        <div key={index} data-value={item.value}>
+          <div style={itemStyle}>{item.text}</div>
+        </div>
+      );
+      
+      return (
+        <div style={containerStyle}>
+          <div className="result" style={style}>
+            <span>move items here</span>
+          </div>
+          <div className="source" style={style}>
+            {items}
+          </div>
+        </div>
+      );
+    },
+    afterRender: function(question, el) {
+      question.value = []
+
+      var resultContainer = document.querySelector(".result");
+      var emptyText = resultContainer.querySelector("span");
+      var sourceContainer = document.querySelector(".source");
+      
+      Sortable.create(resultContainer, {
+          animation: 150,
+          group: {
+        		name: 'top3',
+        		pull: true,
+        		put: true
+          },
+        	onSort: function (evt) {
+        	  var result = [];
+
+        	  if (evt.to.children.length === 1) {
+        	      emptyText.style.display = "inline-block";
+        	  } else {
+        	      emptyText.style.display = "none";
+            	  for (var i = 1; i < evt.to.children.length; i++) {
+            	      result.push(evt.to.children[i].dataset.value)
+            	  }
+        	  }
+        		question.value = result;
+        	},
+      });
+      Sortable.create(sourceContainer, {
+          animation: 150,
+          group: {
+        		name: 'top3',
+        		pull: true,
+        		put: true
+          }
+      });
+    }
+}
+Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
 
 {% elsif page.useangular %}

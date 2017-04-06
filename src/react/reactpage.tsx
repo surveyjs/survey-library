@@ -87,7 +87,7 @@ export class SurveyPanel extends React.Component<any, any> {
         for (var i = 0; i < questionRows.length; i++) {
             rows.push(this.createRow(questionRows[i], i));
         }
-        var style = { "margin-left": this.panel.innerIndent * this.css.question.indent + 'px' };
+        var style = { "marginLeft": this.panel.innerIndent * this.css.question.indent + 'px' };
         return (
             <div ref="root">
                 {title}

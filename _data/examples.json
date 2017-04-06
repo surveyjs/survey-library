@@ -14,7 +14,8 @@
                 { "name": "Rating", "text" : "Rating question", "url": "questiontype-rating.html"},
                 { "name": "Comment", "text" : "Comment question", "url": "questiontype-comment.html"},
                 { "name": "Html", "text" : "Html Elements", "url": "questiontype-html.html"},
-                { "name": "File", "text" : "File Uploading", "url": "questiontype-file.html"}
+                { "name": "File", "text" : "File Uploading", "url": "questiontype-file.html"},
+                { "name": "Panel", "text" : "Panel container", "url": "questiontype-panel.html"}
             ]},
             { "name" : "Custom Widgets", "id": "custom-widgets",
               "items": [

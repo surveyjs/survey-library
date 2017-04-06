@@ -11,14 +11,14 @@ var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
-    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.org/",
+    "Copyright (c) 2015-2017 Devsoft Baltic OÃœ  - http://surveyjs.org/",
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
     "Project: http://surveyjs.org/",
-    "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
+    "Definitions by: Devsoft Baltic OÃœ <https://github.com/surveyjs/>",
     ""].join("\n");
 
 var platformOptions = {
@@ -62,12 +62,12 @@ var platformOptions = {
             }
         },
         keywords: ['jquery', 'jquery-plugin'],
-        dependencies: { 'jquery': '>=1.12.4', '@types/react': '0.0.0' }
+        dependencies: { 'jquery': '>=1.12.4', '@types/react': '15.0.21' }
     },
     'angular': {
         externals: {},
         keywords: ['angular', 'angular-component'],
-        dependencies: { '@types/react': '0.0.0' }
+        dependencies: { '@types/react': '15.0.21' }
     },
     'vue': {
         externals: {

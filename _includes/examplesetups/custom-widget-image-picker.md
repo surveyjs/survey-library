@@ -63,8 +63,8 @@ $("#surveyElement").Survey({
 
 {% elsif page.usevue %}
 var widget = {
-    name: "antennaio-jquery-bar-rating",
-    isFit : function(question) { return question["renderAs"] === 'barrating'; }
+    name: "imagepicker",
+    isFit : function(question) { return question["renderAs"] === 'imagepicker'; },
 }
 
 Vue.component(widget.name, {
@@ -75,21 +75,19 @@ Vue.component(widget.name, {
       </select>
     `,
     mounted: function () {
-
         var vm = this;
-        $(vm.$el).barrating('show', {
-            theme: vm.question.ratingTheme,
-            initialRating: vm.question.value,
-            showValues: vm.question.showValues,
-            showSelectedRating: false,
-            onSelect: function(value, text) {
-                vm.question.value = value;
-            }
-        });
-
-        vm.question.valueChangedCallback = function() {
-            $(vm.$el).barrating('set', vm.question.value);
+        var $el = $(vm.$el);
+        var options = $el.find('option');
+        for (var i=0; i<options.length; i++) {
+            options[i].dataset["imgSrc"] = options[i].text;
         }
+        $el.imagepicker({
+            hide_select : true,
+            show_label  : false,
+            selected: function(opts) {
+                vm.question.value = opts.picker.select[0].value;
+            }
+        })
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

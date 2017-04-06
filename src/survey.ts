@@ -10,8 +10,9 @@ import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
 import {CustomWidgetCollection} from './questionCustomWidgets';
+import {ILocalizableOwner} from "./localizablestring";
 
-export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner {
+export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, ILocalizableOwner {
     public surveyId: string = null;
     public surveyPostId: string = null;
     public clientId: string = null;

@@ -5,9 +5,10 @@ import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
 import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
 import {TextPreProcessor} from "./textPreProcessor";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 export class Question extends QuestionBase implements IValidatorOwner {
-    private titleValue: string = null;
+    private locTitleValue: LocalizableString;
     private questionValue: any;
     private questionComment: string;
     private isRequiredValue: boolean = false;
@@ -24,15 +25,20 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
     constructor(public name: string) {
         super(name);
+        this.locTitleValue = new LocalizableString(null);
     }
     public get hasTitle(): boolean { return true; }
     public get hasInput(): boolean { return true; }
     public get inputId(): string { return this.id + "i"; }
-    public get title(): string { return (this.titleValue) ? this.titleValue : this.name; }
+    public get title(): string { 
+        var res = this.locTitle.text;
+        return res ? res : this.name; 
+    }
     public set title(newValue: string) {
-        this.titleValue = newValue;
+        this.locTitle.text = newValue;
         this.fireCallback(this.titleChangedCallback);
     }
+    public get locTitle(): LocalizableString { return this.locTitleValue; } 
     public get processedTitle() { return this.survey != null ? this.survey.processText(this.title) : this.title; }
     public get fullTitle(): string {
         if (this.survey && this.survey.questionTitleTemplate) {
@@ -113,6 +119,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     protected onSetData() {
         super.onSetData();
+        this.locTitle.owner = <ILocalizableOwner>(<any>this.data);
         this.onSurveyValueChanged(this.value);
     }
     public get value(): any {
@@ -217,6 +224,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     //IValidatorOwner
     getValidatorTitle(): string { return null; }
 }
-JsonObject.metaData.addClass("question", [{ name: "title:text", onGetValue: function (obj: any) { return obj.titleValue; } },
+JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "commentText", onGetValue: function (obj: any) { return obj.commentTextValue; } },
     "isRequired:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

@@ -1,15 +1,13 @@
 export interface ILocalizableOwner {
-    getLocale(): string;
+    locale: string;
 }
 
 export class LocalizableString {
     public static  defaultLocale: string = "default";
     private values = {};
-    private owner: ILocalizableOwner;
-    constructor (owner: ILocalizableOwner) {
-        this.owner = owner;
+    constructor (public owner: ILocalizableOwner) {
     }
-    public get locale() {return this.owner ? this.owner.getLocale() : ""; }
+    public get locale() {return this.owner ? this.owner.locale : ""; }
     public get text() : string { 
         var keys = Object.keys(this.values);
         if(keys.length == 0) return "";

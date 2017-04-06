@@ -11,6 +11,7 @@ export class JsonObjectProperty {
     public defaultValue: any = null;
     public readOnly: boolean = false;
     public visible: boolean = true;
+    public serializationProperty: string = null;
     public onGetValue: (obj: any) => any = null;
     public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
 
@@ -24,14 +25,17 @@ export class JsonObjectProperty {
     }
     public getValue(obj: any): any {
         if (this.onGetValue) return this.onGetValue(obj);
+        if(this.serializationProperty) return obj[this.serializationProperty].getJson();
         return obj[this.name];
     }
-    public get hasToUseSetValue() { return this.onSetValue; }
+    public get hasToUseSetValue() { return this.onSetValue || this.serializationProperty; }
     public setValue(obj: any, value: any, jsonConv: JsonObject) {
         if (this.onSetValue) {
             this.onSetValue(obj, value, jsonConv);
         } else {
-            obj[this.name] = value;
+            if(this.serializationProperty) 
+                obj[this.serializationProperty].setJson(value);
+            else obj[this.name] = value;
         }
     }
     public getObjType(objType: string) {
@@ -108,6 +112,9 @@ export class JsonMetadataClass {
             }
             if (propInfo.onSetValue) {
                 prop.onSetValue = propInfo.onSetValue;
+            }
+            if(propInfo.serializationProperty) {
+                prop.serializationProperty = propInfo.serializationProperty;
             }
             if (propInfo.className) {
                 prop.className = propInfo.className;

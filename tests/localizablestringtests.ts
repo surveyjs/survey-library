@@ -1,6 +1,7 @@
 import {ILocalizableOwner, LocalizableString} from "../src/localizablestring";
+import {JsonObject} from "../src/jsonobject";
 
-export default QUnit.module("ocalizableString");
+export default QUnit.module("LocalizableString");
 
 class LocalizableOwnerTester implements ILocalizableOwner {
     constructor(public locale: string) {}
@@ -12,9 +13,16 @@ class LocalizableObjectTester {
     constructor(public owner: ILocalizableOwner) {
         this.locString = new LocalizableString(owner);
     }
+    public get locText(): LocalizableString { return this.locString; };
     public get text() { return this.locString.text;}
     public set text(value: string) { this.locString.text = value;}
+    public getType(): string { return "locstringtester"; }
 }
+
+JsonObject.metaData.addClass("locstringtester", [
+    { name: "text", serializationProperty: "locText" }
+]);
+
 
 QUnit.test("Simple get/set tests", function (assert) {
     var owner = new LocalizableOwnerTester("");
@@ -65,4 +73,22 @@ QUnit.test("Test get JSON", function (assert) {
     var json = {"default": "val2", "en": "val3"};
     locString.setJson(json);
     assert.deepEqual(locString.getJson(), json, "Several values");
+});
+
+QUnit.test("Test json deserialization", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var tester = new LocalizableObjectTester(owner);
+    new JsonObject().toObject({ "text": {"default": "val2", "en": "val3"} }, tester);
+    assert.equal(tester.locText.getLocaleText(""), "val2", "Check1");
+    assert.equal(tester.locText.getLocaleText("en"), "val3", "Check2");    
+});
+
+QUnit.test("Test json serialization", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var tester = new LocalizableObjectTester(owner);
+    tester.text = "val2"
+    owner.locale = "en";
+    tester.text = "val3";
+    var json = new JsonObject().toJsonObject(tester);
+    assert.deepEqual(json, { "text": {"default": "val2", "en": "val3"} }, "Serialize object correctly");
 });

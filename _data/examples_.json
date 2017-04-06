@@ -19,6 +19,7 @@
     },
     { "name": "questiontype-dropdownrestfull", "title": "One choice - dropdown (type:'dropdown'). Get the choices from a restfull service.", "propertiesFile": "exampleproperties/choicesrestfull.html" },
     { "name": "questiontype-file", "title": "File uploading (type:'file')", "propertiesFile": "exampleproperties/file.html" },
+    { "name": "questiontype-panel", "title": "Panel container", "propertiesFile": "exampleproperties/panel.html" },
     { "name": "questiontype-html", "title": "Use html elements inside your survey (type:'html')", "propertiesFile": "exampleproperties/html.html" },
     { "name": "questiontype-matrix", "title": "Matrix (type:'matrix')", "propertiesFile": "exampleproperties/questionmatrix.html" },
     { "name": "questiontype-matrixdropdown", "title": "Matrix with multiple choices (type:'matrixdropdown')" },

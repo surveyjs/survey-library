@@ -1,0 +1,13 @@
+<div class="propertyitem">
+    <p>
+    Title: <input type="text" value="Please, help us improve our product" onChange="survey.pages[0].elements[1].title = this.value; survey.render();"/> default is empty.
+    <pre><code class="language-javascript">survey.pages[0].elements[1].title = yourTitle; survey.render();</code></pre>
+    </p>
+</div>
+<div class="propertyitem">
+    <p>
+    Inner Indent: <input type="text" value="1" onChange="survey.pages[0].elements[1].innerIndent = this.value; survey.render();"/> default is 1.
+    <pre><code class="language-javascript">survey.pages[0].elements[1].innerIndent = yourTitle; survey.render();</code></pre>
+    </p>
+</div>
+<script>survey.getQuestionByName('satisfaction').value = 2;</script>

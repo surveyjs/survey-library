@@ -154,8 +154,7 @@ var widget = {
     </div>
   </div>
 `,
-    afterRender: function(question, el) {  
-      debugger;
+    afterRender: function(question, el) {    
       var resultContainer = el.querySelector(".result");
       var emptyText = resultContainer.querySelector("span");
       var sourceContainer = el.querySelector(".source");

@@ -9,6 +9,7 @@ export {
     SurveyValidator, TextValidator, ValidatorResult, ValidatorRunner
 } from "../../validator";
 export {Base, Event, ItemValue, SurveyError, ISurvey} from "../../base";
+export {ILocalizableOwner, LocalizableString} from "../../localizablestring";
 export {ChoicesRestfull} from "../../choicesRestfull";
 export {Condition, ConditionNode, ConditionRunner} from "../../conditions";
 export {ConditionsParser} from "../../conditionsParser";

@@ -285,10 +285,17 @@ export class PanelModelBase extends Base implements IConditionRunner {
     protected createNewPanel(name: string): PanelModel {
         return new PanelModel(name);
     }
-    public removeElement(element: IElement) {
+    public removeElement(element: IElement): boolean {
         var index = this.elements.indexOf(element);
-        if (index < 0) return;
+        if (index < 0) {
+            for(var i = 0; i < this.elements.length; i ++) {
+                var el = this.elements[i];
+                if(el.isPanel && (<PanelModelBase>(<any>el)).removeElement(element)) return true;
+            }
+            return false;
+        }
         this.elements.splice(index, 1);
+        return true;
     }
     public removeQuestion(question: QuestionBase) {
         this.removeElement(question);

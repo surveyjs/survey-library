@@ -205,6 +205,15 @@ QUnit.test("Add/remove panel", function (assert) {
     page1.removeElement(panel1);
     assert.equal(page1.elements.length, 0, "There is no elements");
 });
+QUnit.test("Remove element from nested panel, #321", function (assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage("page1");
+    var panel1 = page1.addNewPanel("panel1");
+    var q1 = panel1.addNewQuestion("text", "q1");
+    assert.equal(panel1.elements.length, 1, "There is one question in the panel");
+    page1.removeElement(q1);
+    assert.equal(panel1.elements.length, 0, "There no questions in the panel");
+});
 QUnit.test("Add panel with questions", function (assert) {
     var survey = new SurveyModel();
     var page1 = survey.addNewPage("page1");

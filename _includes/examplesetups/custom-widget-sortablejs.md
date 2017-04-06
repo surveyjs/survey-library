@@ -67,6 +67,66 @@ Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
 
 {% elsif page.useangular %}
+var widget = {
+    name: "sortablejs",
+    isFit : function(question) { return question["renderAs"] === 'sortablejs'; },
+    htmlTemplate: `
+  <div style="width:50%">
+    <div class="result" style="border-style:solid;border-width:1px;border-color:#1ab394;width:100%; min-height:50px;">
+      <span>move items here</span>
+    </div>
+    <div class="source" style="border-style:solid;border-width:1px;border-color:#1ab394;width:100%; min-height:50px; margin-top:10px;">
+    </div>
+  </div>
+`,
+    afterRender: function(question, el) {  
+      debugger;
+      var resultContainer = el.querySelector(".result");
+      var emptyText = resultContainer.querySelector("span");
+      var sourceContainer = el.querySelector(".source");
+      question.visibleChoices.forEach(function(choice) {
+        item = document.createElement('div');
+        item.setAttribute("data-value", choice.value);
+        itemText = document.createElement('div');
+        itemText.setAttribute("style", "background-color:#1ab394;color:#fff;margin:5px;padding:10px;");
+        itemText.innerHTML = choice.text;
+        item.appendChild(itemText);
+        sourceContainer.appendChild(item);
+      });
+      Sortable.create(resultContainer, {
+          animation: 150,
+          group: {
+        		name: 'top3',
+        		pull: true,
+        		put: true
+          },
+        	onSort: function (evt) {
+        	  var result = [];
+        	  if (evt.to.children.length === 1) {
+        	      emptyText.style.display = "inline-block";
+        	  } else {
+        	      emptyText.style.display = "none";
+            	  for (var i = 1; i < evt.to.children.length; i++) {
+            	      result.push(evt.to.children[i].dataset.value)
+            	  }
+        	  }
+        		question.value = result;
+        	},
+      });
+      Sortable.create(sourceContainer, {
+          animation: 150,
+          group: {
+        		name: 'top3',
+        		pull: true,
+        		put: true
+          }
+      });
+    }
+}
+
+Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
+
+
 function onAngularComponentInit() {
     Survey.SurveyNG.render("surveyElement", {
         model:survey

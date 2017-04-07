@@ -29,7 +29,11 @@ export class LocalizableString {
     }
     public setLocaleText(loc: string, value: string) {
         if(!loc) loc = LocalizableString.defaultLocale;
-        this.values[loc] = value;
+        if(!value) {
+            if(this.values[loc]) delete this.values[loc];
+        } else {
+            if (typeof value === 'string') this.values[loc] = value;
+        }
     }
     public getJson(): any {
         var keys = Object.keys(this.values);

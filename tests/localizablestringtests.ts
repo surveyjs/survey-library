@@ -120,6 +120,25 @@ QUnit.test("Array<ItemValue> localization serialize", function (assert) {
     items[1].text = "de-text2";
     assert.deepEqual(ItemValue.getData(items), 
         [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
-        {value: "val2", text: "de-text2"}], "serialize localization")
+        {value: "val2", text: "de-text2"}], "serialize localization");
+    items[1].text = "";
+    assert.deepEqual(ItemValue.getData(items), 
+        [{value: "val1", text: {"default": "text1", "de": "de-text1"}}, "val2"], "serialize localization, with empty text in the second item");
+});
+QUnit.test("Array<ItemValue> localization deserialize/setData", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    var json = [{value: "val1", text: {"default": "text1", "de": "de-text1", pos: {start: 0, end: 10}}},
+        {value: "val2", text: "de-text2"}];
+    ItemValue.setData(items, json);
+    owner.locale = "fr";
+    assert.equal(items[0].text, "text1", "Check1, use default text");
+    assert.equal(items[1].text, "de-text2", "Check2, use default value");
+    owner.locale = "de";
+    assert.equal(items[0].text, "de-text1", "Check3, use 'de' text");
+    assert.equal(items[1].text, "de-text2", "Check4, use 'de' value");
+    var serJson = [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
+        {value: "val2", text: "de-text2"}];
+    assert.deepEqual(ItemValue.getData(items), serJson, "There is no pos object");
 });
 

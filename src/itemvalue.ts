@@ -29,7 +29,7 @@ export class ItemValue {
             var item = new ItemValue(null);
             if (typeof (value.value) !== 'undefined') {
                 var exception = null;
-                if (typeof (value.getType) !== 'undefined' && value.getType() == 'itemvalue') {
+                if (ItemValue.isObjItemValue(value)) {
                     value.itemValue = value.itemValue;
                     item.locText.setJson(value.locText.getJson());
                     exception = ItemValue.itemValueProp;
@@ -59,12 +59,17 @@ export class ItemValue {
         }
         return null;
     }
+    private static isObjItemValue(obj: any) { return typeof (obj.getType) !== 'undefined' && obj.getType() == 'itemvalue'}
     private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText"];
     private static copyAttributes(src: any, dest: any, exceptons: Array<string>) {
         for (var key in src) {
             if ((typeof src[key] == 'function')) continue;
             if (exceptons && exceptons.indexOf(key) > -1) continue;
-            dest[key] = src[key];
+            if(key == "text" && ItemValue.isObjItemValue(dest)) {
+                dest.locText.setJson(src[key]);
+            } else {
+                dest[key] = src[key];    
+            }  
         }
     }
     private itemValue: any;

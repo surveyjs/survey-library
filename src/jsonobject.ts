@@ -19,7 +19,7 @@ export class JsonObjectProperty {
     }
     public get type(): string { return this.typeValue ? this.typeValue : "string"; }
     public set type(value: string) { this.typeValue = value; }
-    public get hasToUseGetValue() { return this.onGetValue; }
+    public get hasToUseGetValue() { return this.onGetValue || this.serializationProperty; }
     public isDefaultValue(value: any): boolean {
         return (this.defaultValue) ? (this.defaultValue == value) : !(value);
     }

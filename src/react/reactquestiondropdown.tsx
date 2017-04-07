@@ -3,7 +3,7 @@ import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionDropdownModel} from "../question_dropdown";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {ReactQuestionFactory} from "./reactquestionfactory";
-import {browser} from "../utils";
+import {browser, compareVersions} from "../utils";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -47,7 +47,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         }
 
         let onChange = null;
-        if (browser.msie) {
+        if (browser.msie || (browser.firefox && compareVersions(browser.version, '51') < 0)) {
             onChange = this.handleOnChange;
         }
         return (

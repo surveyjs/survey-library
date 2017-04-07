@@ -3,7 +3,7 @@
     IMatrixDropdownData
 } from "./question_matrixdropdownbase";
 import {JsonObject} from "./jsonobject";
-import {ItemValue} from "./base";
+import {ItemValue} from "./itemvalue";
 import {QuestionFactory} from "./questionfactory";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {

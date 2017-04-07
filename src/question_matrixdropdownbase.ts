@@ -1,6 +1,7 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {Base, ItemValue, ISurveyData, HashTable} from "./base";
+import {Base, ISurveyData, HashTable} from "./base";
+import {ItemValue} from "./itemvalue";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionSelectBase} from "./question_baseselect";
 import {QuestionDropdownModel} from "./question_dropdown";

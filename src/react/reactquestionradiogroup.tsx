@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionRadiogroupModel} from "../question_radiogroup";
-import {ItemValue} from "../base";
+import {ItemValue} from "../itemvalue";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 

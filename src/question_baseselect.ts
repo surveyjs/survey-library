@@ -1,6 +1,7 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {ItemValue, SurveyError} from "./base";
+import {SurveyError} from "./base";
+import {ItemValue} from "./itemvalue";
 import {surveyLocalization} from "./surveyStrings";
 import {CustomError} from "./error";
 import {ChoicesRestfull} from "./choicesRestfull";

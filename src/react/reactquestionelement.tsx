@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {ItemValue} from "../base";
+import {ItemValue} from "../itemvalue";
 import {QuestionBase} from '../questionbase';
 import {ISurveyCreator} from "./reactquestion";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";

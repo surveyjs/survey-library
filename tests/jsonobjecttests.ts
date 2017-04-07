@@ -1,5 +1,5 @@
 ﻿import {JsonObject, JsonUnknownPropertyError} from "../src/jsonobject";
-import {ItemValue} from "../src/base";
+import {ItemValue} from "../src/itemvalue";
 
 class Car {
     public name: string;

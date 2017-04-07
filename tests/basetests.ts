@@ -1,4 +1,5 @@
-﻿import {ItemValue, Event} from "../src/base";
+﻿import {Event} from "../src/base";
+import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("Base");
 

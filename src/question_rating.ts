@@ -1,4 +1,4 @@
-﻿import {ItemValue} from "./base";
+﻿import {ItemValue} from "./itemvalue";
 import {Question} from "./question";
 import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";

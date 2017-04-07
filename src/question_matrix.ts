@@ -1,4 +1,5 @@
-﻿import {Base, ItemValue} from "./base";
+﻿import {Base} from "./base";
+import {ItemValue} from "./itemvalue";
 import {Question} from "./question";
 import {JsonObject} from "./jsonobject";
 import {SurveyError} from "./base";

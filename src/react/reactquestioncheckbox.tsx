@@ -2,7 +2,7 @@
 import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
-import {ItemValue} from "../base";
+import {ItemValue} from "../itemvalue";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {

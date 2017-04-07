@@ -2,7 +2,7 @@ import * as React from 'react';
 import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionRatingModel} from "../question_rating";
-import {ItemValue} from "../base";
+import {ItemValue} from "../itemvalue";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 
 export class SurveyQuestionRating extends SurveyQuestionElementBase {

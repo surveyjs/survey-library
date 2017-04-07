@@ -1074,6 +1074,28 @@ QUnit.test("Survey Localication - check question.title", function (assert) {
     assert.equal(q1.title, "de-val1", "Use 'de' title");
 });
 
+QUnit.test("Survey Localication - check page/panel.title and processedTitle", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var panel = page.addNewPanel("panel1");
+    assert.equal(page.processedTitle, "", "page title is empty");
+    assert.equal(panel.processedTitle, "", "panel title is empty");
+    survey.setDesignMode(true);
+    assert.equal(page.processedTitle, "", "page title is empty at design-time");
+    assert.equal(panel.processedTitle, "[panel1]", "panel title uses name");
+    page.title = "pageText";
+    panel.title = "panelText";
+    survey.locale = "de";
+    page.title = "de-pageText";
+    panel.title = "de-panelText";
+    survey.locale = "fr";
+    assert.equal(page.title, "pageText", "Use the default page title");
+    assert.equal(panel.title, "panelText", "Use the default panel title");
+    survey.locale = "de";
+    assert.equal(page.title, "de-pageText", "Use the 'de' page title");
+    assert.equal(panel.title, "de-panelText", "Use the 'de' panel title");
+});
+
 QUnit.test("Survey Localication - dropdown.choices", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

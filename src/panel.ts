@@ -3,6 +3,7 @@ import {Base, IPage, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 export class QuestionRowModel {
     private visibleValue: boolean;
@@ -52,7 +53,7 @@ export class QuestionRowModel {
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
-export class PanelModelBase extends Base implements IConditionRunner {
+export class PanelModelBase extends Base implements IConditionRunner, ILocalizableOwner {
     private static panelCounter = 100;
     private static getPanelId(): string {
         return "sp_" + PanelModelBase.panelCounter++;
@@ -68,13 +69,13 @@ export class PanelModelBase extends Base implements IConditionRunner {
     public parent: PanelModelBase = null;
     public visibleIf: string = "";
     rowsChangedCallback: () => void;
-
-    public title: string = "";
+    private locTitleValue: LocalizableString;
     public visibleIndex: number = -1;
     private visibleValue: boolean = true;
     constructor(public name: string = "") {
         super();
         this.idValue = PanelModelBase.getPanelId();
+        this.locTitleValue = new LocalizableString(this);
         var self = this;
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
@@ -89,8 +90,18 @@ export class PanelModelBase extends Base implements IConditionRunner {
             this.elements[i].setData(value);
         }
     }
+    public get title(): string { return this.locTitle.text; }
+    public set title(newValue: string) {
+        this.locTitle.text = newValue;
+    }
+    public get locTitle(): LocalizableString { return this.locTitleValue; } 
+    public getLocale(): string {
+        return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
+    }
+
 
     public get id(): string { return this.idValue; }
+    public get isPanel(): boolean { return false; }
     public get questions(): Array<QuestionBase> { 
         if(!this.isQuestionsReady) {
             this.questionsValue = [];
@@ -239,7 +250,11 @@ export class PanelModelBase extends Base implements IConditionRunner {
         }
         return result;
     }
-    public get processedTitle() { return this.data != null ? this.data.processText(this.title) : this.title; }
+    public get processedTitle() { 
+        var str = this.title;
+        if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
+        return this.data != null ? this.data.processText(str) : str; 
+    }
     public get visible(): boolean { return this.visibleValue; }
     public set visible(value: boolean) {
         if (value === this.visible) return;
@@ -359,5 +374,5 @@ export class PanelModel extends PanelModelBase implements IElement {
 }
 
 JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
-    { name: "visible:boolean", default: true }, "visibleIf:expression", "title",
+    { name: "visible:boolean", default: true }, "visibleIf:expression", { name: "title:text", serializationProperty: "locTitle" },
     {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); });

@@ -13,6 +13,7 @@ import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {JsonObject} from "../src/jsonobject";
+import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("Survey_Questions");
 
@@ -365,8 +366,8 @@ QUnit.test("Matrixdropdown cells tests", function (assert) {
     assert.equal(visibleRows[2].cells.length, 2, "There are two cells in each row");
     var q1 = <QuestionDropdownModel>(visibleRows[0].cells[0].question);
     var q2 = <QuestionDropdownModel>(visibleRows[0].cells[1].question);
-    assert.deepEqual(q1.choices, question.choices, "get choices from matrix");
-    assert.deepEqual(q2.choices, question.columns[1].choices, "get choices from column");
+    assert.deepEqual(ItemValue.getData(q1.choices), ItemValue.getData(question.choices), "get choices from matrix");
+    assert.deepEqual(ItemValue.getData(q2.choices), ItemValue.getData(question.columns[1].choices), "get choices from column");
     assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
     assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
 
@@ -390,8 +391,8 @@ QUnit.test("Matrixdynamic cells tests", function (assert) {
     assert.equal(visibleRows[2].cells.length, 2, "There are two cells in each row");
     var q1 = <QuestionDropdownModel>(visibleRows[0].cells[0].question);
     var q2 = <QuestionDropdownModel>(visibleRows[0].cells[1].question);
-    assert.deepEqual(q1.choices, question.choices, "get choices from matrix");
-    assert.deepEqual(q2.choices, question.columns[1].choices, "get choices from column");
+    assert.deepEqual(ItemValue.getData(q1.choices), ItemValue.getData(question.choices), "get choices from matrix");
+    assert.deepEqual(ItemValue.getData(q2.choices), ItemValue.getData(question.columns[1].choices), "get choices from column");
     assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
     assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
 

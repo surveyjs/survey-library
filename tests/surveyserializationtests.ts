@@ -139,3 +139,17 @@ QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
     assert.equal(matrix2.columns[0].name, "col1", "Name is correct");
     assert.equal(matrix2.columns[0].getType(), "matrixdropdowncolumn", "Name is correct");
 });
+
+QUnit.test("Survey serialize dropdown.choices localization", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "question1");
+    q1.choices = ["val1"];
+    q1.choices[0].text = "text1";
+    survey.locale = "de";
+    q1.choices[0].text = "de-text1";
+    survey.locale = "";
+    var json = new JsonObject().toJsonObject(survey);
+    var checkedJson = { pages: [ { name: "page1", elements: [ { type: "dropdown",  choices: [ { value: "val1", text: {"default": "text1", "de": "de-text1"}}], name: "question1" } ] }]};
+    assert.deepEqual(json, checkedJson, "Jsons should be the same");
+});

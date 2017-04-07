@@ -11,11 +11,13 @@ import {QuestionTextModel} from "./question_text";
 import {QuestionCommentModel} from "./question_comment";
 import {ChoicesRestfull} from "./choicesRestfull";
 import {QuestionFactory} from "./questionfactory";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 export interface IMatrixDropdownData {
     onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
     columns: Array<MatrixDropdownColumn>;
     createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
+    getLocale(): string;
 }
 
 export class MatrixDropdownColumn extends Base {
@@ -62,7 +64,7 @@ export class MatrixDropdownCell {
     }
 }
 
-export class MatrixDropdownRowModelBase implements ISurveyData {
+export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwner {
     private static idCounter: number = 1;
     private static getId(): string { return "srow_" + MatrixDropdownRowModelBase.idCounter++; }
     protected data: IMatrixDropdownData;
@@ -120,6 +122,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData {
         for (var key in val) return false;
         return true;
     }
+    public getLocale(): string { return this.data ? this.data.getLocale() : "";}
     private buildCells() {
         var columns = this.data.columns;
         for (var i = 0; i < columns.length; i++) {

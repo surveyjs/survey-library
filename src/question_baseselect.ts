@@ -13,7 +13,7 @@ export class QuestionSelectBase extends Question {
     otherItem: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
     private choicesFromUrl: Array<ItemValue> = null;
     private cachedValueForUrlRequestion: any = null;
-    private choicesValues: Array<ItemValue> = new Array<ItemValue>();
+    private choicesValues: Array<ItemValue>;
     public choicesByUrl: ChoicesRestfull;
     public otherErrorText: string = null;
     public storeOthersAsComment: boolean = true;
@@ -21,6 +21,7 @@ export class QuestionSelectBase extends Question {
     choicesChangedCallback: () => void;
     constructor(name: string) {
         super(name);
+        this.choicesValues = ItemValue.createArray(this);
         this.choicesByUrl = this.createRestfull();
         var self = this;
         this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };

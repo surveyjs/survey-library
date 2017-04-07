@@ -1,5 +1,27 @@
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+
 export class ItemValue {
     public static Separator = '|';
+    public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
+        var items: Array<ItemValue> = [];
+        ItemValue.setupArray(items, locOwner);
+        return items;
+    }
+    public static setupArray(items: Array<ItemValue>, locOwner: ILocalizableOwner) {
+        items.push = function(value): number {
+            var result = Array.prototype.push.call(this, value);
+            value.locOwner = locOwner;
+            return result;
+        };
+        items.splice = function (start?: number, deleteCount?: number, ...items: ItemValue[]): ItemValue[] {
+            var result = Array.prototype.splice.call(this, start, deleteCount, ... items);
+            if(!items) items = [];
+            for(var i = 0; i < items.length; i ++) {
+                items[i].locOwner = locOwner;
+            }
+            return result;
+        };
+    }
     public static setData(items: Array<ItemValue>, values: Array<any>) {
         items.length = 0;
         for (var i = 0; i < values.length; i++) {
@@ -9,7 +31,7 @@ export class ItemValue {
                 var exception = null;
                 if (typeof (value.getType) !== 'undefined' && value.getType() == 'itemvalue') {
                     value.itemValue = value.itemValue;
-                    item.itemText = value.itemText;
+                    item.locText.setJson(value.locText.getJson());
                     exception = ItemValue.itemValueProp;
                 }
                 ItemValue.copyAttributes(value, item, exception);
@@ -24,7 +46,7 @@ export class ItemValue {
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
             if (item.hasText) {
-                result.push({ value: item.value, text: item.text });
+                result.push({ value: item.value, text: item.locText.getJson() });
             } else {
                 result.push(item.value);
             }
@@ -37,7 +59,7 @@ export class ItemValue {
         }
         return null;
     }
-    private static itemValueProp = [ "text", "value", "hasText"];
+    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText"];
     private static copyAttributes(src: any, dest: any, exceptons: Array<string>) {
         for (var key in src) {
             if ((typeof src[key] == 'function')) continue;
@@ -46,12 +68,17 @@ export class ItemValue {
         }
     }
     private itemValue: any;
-    private itemText: string;
+    private locText: LocalizableString;
     constructor(value: any, text: string = null) {
-        this.text = text;
+        this.locText = new LocalizableString(null);
+        if(text) this.locText.text = text;
         this.value = value;
     }
     public getType(): string { return "itemvalue"; }
+    public get locOwner() : ILocalizableOwner { return this.locText.owner; }
+    public set locOwner(value: ILocalizableOwner) {
+        this.locText.owner = value;
+    }
     public get value(): any { return this.itemValue; }
     public set value(newValue: any) {
         this.itemValue = newValue;
@@ -63,13 +90,13 @@ export class ItemValue {
             this.text = str.slice(index + 1);
         }
     }
-    public get hasText(): boolean { return this.itemText ? true : false; }
+    public get hasText(): boolean { return this.locText.text ? true : false; }
     public get text(): string {
-        if (this.hasText) return this.itemText;
+        if (this.hasText) return this.locText.text;
         if (this.value) return this.value.toString();
         return null;
     }
     public set text(newText: string) {
-        this.itemText = newText;
+        this.locText.text = newText;
     }
 }

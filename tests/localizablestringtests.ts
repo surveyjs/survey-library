@@ -1,5 +1,6 @@
 import {ILocalizableOwner, LocalizableString} from "../src/localizablestring";
 import {JsonObject} from "../src/jsonobject";
+import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("LocalizableString");
 
@@ -92,3 +93,33 @@ QUnit.test("Test json serialization", function (assert) {
     var json = new JsonObject().toJsonObject(tester);
     assert.deepEqual(json, { "text": {"default": "val2", "en": "val3"} }, "Serialize object correctly");
 });
+
+QUnit.test("Array<ItemValue> localization", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    items.push(new ItemValue("val1", "text1"));
+    items.push(new ItemValue("val2"));
+    owner.locale = "de";
+    items[0].text = "de-text1";
+    owner.locale = "fr";
+    assert.equal(items[0].text, "text1", "Check1, use default text");
+    assert.equal(items[1].text, "val2", "Check2, use default value");
+    owner.locale = "de";
+    items[1].text = "de-text2";
+    assert.equal(items[0].text, "de-text1", "Check3, use 'de' text");
+    assert.equal(items[1].text, "de-text2", "Check4, use 'de' value");
+});
+
+QUnit.test("Array<ItemValue> localization serialize", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    items.push(new ItemValue("val1", "text1"));
+    items.push(new ItemValue("val2"));
+    owner.locale = "de";
+    items[0].text = "de-text1";
+    items[1].text = "de-text2";
+    assert.deepEqual(ItemValue.getData(items), 
+        [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
+        {value: "val2", text: "de-text2"}], "serialize localization")
+});
+

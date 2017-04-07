@@ -5,6 +5,7 @@ export default QUnit.module("LocalizableString");
 
 class LocalizableOwnerTester implements ILocalizableOwner {
     constructor(public locale: string) {}
+    public getLocale(): string { return this.locale; }
 }
 
 class LocalizableObjectTester {

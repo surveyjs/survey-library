@@ -1062,6 +1062,17 @@ QUnit.test("Set 0 value for text inputType=number from survey. Bug #267", functi
     assert.strictEqual(question.value, 0, "zero value");
 });
 
+QUnit.test("Survey Localication - check question.title", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var q1 = <QuestionTextModel>survey.getQuestionByName("question1");
+    q1.title = "val1";
+    survey.locale = "de";
+    q1.title = "de-val1";
+    survey.locale = "fr";
+    assert.equal(q1.title, "val1", "Use the default title");
+    survey.locale = "de";
+    assert.equal(q1.title, "de-val1", "Use 'de' title");
+});
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

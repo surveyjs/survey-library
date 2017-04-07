@@ -1,5 +1,5 @@
 export interface ILocalizableOwner {
-    locale: string;
+    getLocale(): string;
 }
 
 export class LocalizableString {
@@ -7,7 +7,7 @@ export class LocalizableString {
     private values = {};
     constructor (public owner: ILocalizableOwner) {
     }
-    public get locale() {return this.owner ? this.owner.locale : ""; }
+    public get locale() {return this.owner ? this.owner.getLocale() : ""; }
     public get text() : string { 
         var keys = Object.keys(this.values);
         if(keys.length == 0) return "";

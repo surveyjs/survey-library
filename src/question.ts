@@ -7,7 +7,7 @@ import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
-export class Question extends QuestionBase implements IValidatorOwner {
+export class Question extends QuestionBase implements IValidatorOwner, ILocalizableOwner {
     private locTitleValue: LocalizableString;
     private locCommentTextValue: LocalizableString;
     private questionValue: any;
@@ -25,8 +25,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
     constructor(public name: string) {
         super(name);
-        this.locTitleValue = new LocalizableString(null);
-        this.locCommentTextValue = new LocalizableString(null);
+        this.locTitleValue = new LocalizableString(this);
+        this.locCommentTextValue = new LocalizableString(this);
     }
     public get hasTitle(): boolean { return true; }
     public get hasInput(): boolean { return true; }
@@ -40,6 +40,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.fireCallback(this.titleChangedCallback);
     }
     public get locTitle(): LocalizableString { return this.locTitleValue; } 
+    public getLocale(): string {
+        return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
+    }
     public get locCommentText(): LocalizableString { return this.locCommentTextValue; } 
     public get processedTitle() { return this.survey != null ? this.survey.processText(this.title) : this.title; }
     public get fullTitle(): string {
@@ -124,8 +127,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     protected onSetData() {
         super.onSetData();
-        this.locTitle.owner = <ILocalizableOwner>(<any>this.data);
-        this.locCommentText.owner = <ILocalizableOwner>(<any>this.data);
         this.onSurveyValueChanged(this.value);
     }
     public get value(): any {

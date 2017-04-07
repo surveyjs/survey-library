@@ -103,7 +103,7 @@ export class ConditionRunner {
         var left = condition.left;
         var name = this.getValueName(left);
         if (name) {
-            if (!this.processValue.hasValue(name, this.values)) return false;
+            if (!this.processValue.hasValue(name, this.values)) return condition.operator === "empty";
             left = this.processValue.getValue(name, this.values);
         }
         var right = condition.right;

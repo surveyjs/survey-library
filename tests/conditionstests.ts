@@ -264,6 +264,24 @@ QUnit.test("Condition check #303", function (assert) {
     assert.equal(runner.run(values), true, "The second part is correct");
 });
 
+QUnit.test("Condition check empty for undefined variables #323", function (assert) {
+    var runner = new ConditionRunner("{var1} empty");
+    var values = {  };
+    assert.equal(runner.run(values), true, "it is empty");
+    values = {var1 : 1};
+    assert.equal(runner.run(values), false, "it is not empty");
+});
+
+QUnit.test("Condition check for undefined variables #323", function (assert) {
+    var runner = new ConditionRunner("{var1} < 3 or {var1} empty");
+    var values = {  };
+    assert.equal(runner.run(values), true, "empty should work");
+    values = {var1 : 1};
+    assert.equal(runner.run(values), true, "1 < 3");
+    values = {var1 : 5};
+    assert.equal(runner.run(values), false, "5 > 3");
+});
+
 QUnit.test("Expression Tree to Text", function (assert) {
     var parser = new ConditionsParser();
     var node = new ConditionNode();

@@ -27,17 +27,7 @@ export class ItemValue {
         for (var i = 0; i < values.length; i++) {
             var value = values[i];
             var item = new ItemValue(null);
-            if (typeof (value.value) !== 'undefined') {
-                var exception = null;
-                if (ItemValue.isObjItemValue(value)) {
-                    value.itemValue = value.itemValue;
-                    item.locText.setJson(value.locText.getJson());
-                    exception = ItemValue.itemValueProp;
-                }
-                ItemValue.copyAttributes(value, item, exception);
-            } else {
-                item.value = value;
-            }
+            item.setData(value);
             items.push(item);
         }
     }
@@ -59,31 +49,18 @@ export class ItemValue {
         }
         return null;
     }
-    private static isObjItemValue(obj: any) { return typeof (obj.getType) !== 'undefined' && obj.getType() == 'itemvalue'}
     private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText"];
-    private static copyAttributes(src: any, dest: any, exceptons: Array<string>) {
-        for (var key in src) {
-            if ((typeof src[key] == 'function')) continue;
-            if (exceptons && exceptons.indexOf(key) > -1) continue;
-            if(key == "text" && ItemValue.isObjItemValue(dest)) {
-                dest.locText.setJson(src[key]);
-            } else {
-                dest[key] = src[key];    
-            }  
-        }
-    }
     private itemValue: any;
-    private locText: LocalizableString;
+    private locTextValue: LocalizableString;
     constructor(value: any, text: string = null) {
-        this.locText = new LocalizableString(null);
+        this.locTextValue = new LocalizableString(null);
         if(text) this.locText.text = text;
         this.value = value;
     }
     public getType(): string { return "itemvalue"; }
+    public get locText(): LocalizableString { return this.locTextValue; }
     public get locOwner() : ILocalizableOwner { return this.locText.owner; }
-    public set locOwner(value: ILocalizableOwner) {
-        this.locText.owner = value;
-    }
+    public set locOwner(value: ILocalizableOwner) { this.locText.owner = value; }
     public get value(): any { return this.itemValue; }
     public set value(newValue: any) {
         this.itemValue = newValue;
@@ -103,5 +80,30 @@ export class ItemValue {
     }
     public set text(newText: string) {
         this.locText.text = newText;
+    }
+    public setData(value: any) {
+        if (typeof (value.value) !== 'undefined') {
+            var exception = null;
+            if (this.isObjItemValue(value)) {
+                value.itemValue = value.itemValue;
+                this.locText.setJson(value.locText.getJson());
+                exception = ItemValue.itemValueProp;
+            }
+            this.copyAttributes(value, exception);
+        } else {
+            this.value = value;
+        }
+    }
+    private  isObjItemValue(obj: any) { return typeof (obj.getType) !== 'undefined' && obj.getType() == 'itemvalue'}
+    private copyAttributes(src: any, exceptons: Array<string>) {
+        for (var key in src) {
+            if ((typeof src[key] == 'function')) continue;
+            if (exceptons && exceptons.indexOf(key) > -1) continue;
+            if(key == "text") {
+                this.locText.setJson(src[key]);
+            } else {
+                this[key] = src[key];    
+            }  
+        }
     }
 }

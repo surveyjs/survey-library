@@ -11,6 +11,7 @@ import {Page} from "../../src/knockout/kopage";
 import {CustomWidgetCollection, QuestionCustomWidget} from "../../src/questionCustomWidgets";
 import {koTemplate} from "../../src/knockout/templateText";
 import {QuestionMatrixDynamic} from "../../src/knockout/koquestion_matrixdynamic";
+import {surveyLocalization} from "../../src/surveyStrings";
 
 export default QUnit.module("koTests");
 
@@ -250,6 +251,18 @@ QUnit.test("add customwidget item", function (assert) {
     assert.ok(koTemplate, "ko template is exists");
     assert.ok(koTemplate.indexOf("survey-widget-first") > -1, "text was added");
     CustomWidgetCollection.Instance.clear();
+});
+
+QUnit.test("Localization, otherItem", function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    q1.choices = [1, 2];
+    q1.hasOther = true;
+    var defaultText = q1["koVisibleChoices"]()[2].text;
+    assert.equal(q1["koVisibleChoices"]()[2].text, surveyLocalization.getString("otherItemText"), "use default locale");
+    survey.locale = "de";
+    assert.notEqual(q1["koVisibleChoices"]()[2].text, defaultText, "use another locale locale");
 });
 
 

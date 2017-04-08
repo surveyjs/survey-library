@@ -324,6 +324,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.conditionRunner.expression = this.visibleIf;
         this.visible = this.conditionRunner.run(values);
     }
+    public onLocaleChanged() {
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].onLocaleChanged()
+        }
+    }
 }
 
 //export class 

@@ -43,6 +43,7 @@ export interface IElement  extends IConditionRunner{
     startWithNewLine: boolean;
     isPanel: boolean;
     onSurveyLoad();
+    onLocaleChanged();
 }
 
 export interface IQuestion extends IElement {

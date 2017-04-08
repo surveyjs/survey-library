@@ -91,17 +91,18 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
         this.visible = this.conditionRunner.run(values);
     }
     //IQuestion
-    onSurveyValueChanged(newValue: any) {
+    public onSurveyValueChanged(newValue: any) {
     }
-    onSurveyLoad() {
+    public onSurveyLoad() {
     }
-    setVisibleIndex(value: number) {
+    public setVisibleIndex(value: number) {
         if (this.visibleIndexValue == value) return;
         this.visibleIndexValue = value;
         this.fireCallback(this.visibleIndexChangedCallback);
     }
-    supportGoNextPageAutomatic() { return false; }
-    clearUnusedValues() {}
+    public supportGoNextPageAutomatic() { return false; }
+    public clearUnusedValues() {}
+    public onLocaleChanged() {}
 }
 JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:expression",
     { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

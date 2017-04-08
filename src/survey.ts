@@ -105,6 +105,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public set locale(value: string) {
         this.localeValue = value;
         surveyLocalization.currentLocale = value;
+        for(var i = 0; i < this.pages.length; i ++) {
+            this.pages[i].onLocaleChanged();
+        }
     }
     //ILocalizableOwner
     public getLocale() { return this.locale; }

@@ -32,7 +32,13 @@ export class LocalizableString {
         if(!value) {
             if(this.values[loc]) delete this.values[loc];
         } else {
-            if (typeof value === 'string') this.values[loc] = value;
+            if (typeof value === 'string') {
+                if(loc != LocalizableString.defaultLocale && value == this.getLocaleText(LocalizableString.defaultLocale)) {
+                    this.setLocaleText(loc, null);
+                } else {
+                    this.values[loc] = value;
+                }
+            }
         }
     }
     public getJson(): any {

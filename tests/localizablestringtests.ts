@@ -74,6 +74,9 @@ QUnit.test("Test get JSON", function (assert) {
     var json = {"default": "val2", "en": "val3"};
     locString.setJson(json);
     assert.deepEqual(locString.getJson(), json, "Several values");
+
+    locString.setLocaleText("en", "val2");
+    assert.equal(locString.getJson(), "val2", "There is one value again, 'en' was equaled to default");
 });
 
 QUnit.test("Test json deserialization", function (assert) {

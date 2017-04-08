@@ -7,7 +7,7 @@ import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
-export class Question extends QuestionBase implements IValidatorOwner, ILocalizableOwner {
+export class Question extends QuestionBase implements IValidatorOwner {
     private locTitleValue: LocalizableString;
     private locCommentTextValue: LocalizableString;
     private questionValue: any;
@@ -40,9 +40,6 @@ export class Question extends QuestionBase implements IValidatorOwner, ILocaliza
         this.fireCallback(this.titleChangedCallback);
     }
     public get locTitle(): LocalizableString { return this.locTitleValue; } 
-    public getLocale(): string {
-        return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
-    }
     public get locCommentText(): LocalizableString { return this.locCommentTextValue; } 
     public get processedTitle() { return this.survey != null ? this.survey.processText(this.title) : this.title; }
     public get fullTitle(): string {

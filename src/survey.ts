@@ -10,7 +10,7 @@ import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
 import {CustomWidgetCollection} from './questionCustomWidgets';
-import {ILocalizableOwner} from "./localizablestring";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, ILocalizableOwner {
     public surveyId: string = null;
@@ -20,22 +20,27 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public sendResultOnPageNext: boolean = false;
 
     public commentPrefix: string = "-Comment";
-    public title: string = "";
     public focusFirstQuestionAutomatic: boolean = true;
     public showNavigationButtons: boolean = true;
     public showTitle: boolean = true;
     public showPageTitles: boolean = true;
     public showCompletedPage: boolean = true;
-    public completedHtml: string = "";
     public requiredText: string = "*";
     public questionStartIndex: string = "";
-    public questionTitleTemplate: string = "";
     public showProgressBar: string = "off";
     public storeOthersAsComment: boolean = true;
     public goNextPageAutomatic: boolean = false;
     public pages: Array<PageModel> = new Array<PageModel>();
     public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
     public clearInvisibleValues: boolean = false;
+
+    private locTitleValue : LocalizableString;
+    private locCompletedHtmlValue : LocalizableString;
+    private locPagePrevTextValue : LocalizableString;
+    private locPageNextTextValue : LocalizableString;
+    private locCompleteTextValue : LocalizableString;
+    private locQuestionTitleTemplateValue: LocalizableString;
+
     private currentPageValue: PageModel = null;
     private valuesHash: HashTable<any> = {};
     private variablesHash: HashTable<any> = {};
@@ -78,6 +83,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
 
     constructor(jsonObj: any = null) {
         super();
+        this.locTitleValue = new LocalizableString(this);
+        this.locCompletedHtmlValue = new LocalizableString(this);
+        this.locPagePrevTextValue = new LocalizableString(this);
+        this.locPageNextTextValue = new LocalizableString(this);
+        this.locCompleteTextValue = new LocalizableString(this);
+        this.locQuestionTitleTemplateValue = new LocalizableString(this);
+        
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
@@ -112,13 +124,27 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     //ILocalizableOwner
     public getLocale() { return this.locale; }
     public getLocString(str: string) { return surveyLocalization.getString(str); }
+
     public get emptySurveyText(): string { return this.getLocString("emptySurvey"); }
-    public get pagePrevText() { return (this.pagePrevTextValue) ? this.pagePrevTextValue : this.getLocString("pagePrevText"); }
-    public set pagePrevText(newValue: string) { this.pagePrevTextValue = newValue; }
-    public get pageNextText() { return (this.pageNextTextValue) ? this.pageNextTextValue : this.getLocString("pageNextText"); }
-    public set pageNextText(newValue: string) { this.pageNextTextValue = newValue; }
-    public get completeText() { return (this.completeTextValue) ? this.completeTextValue : this.getLocString("completeText"); }
-    public set completeText(newValue: string) { this.completeTextValue = newValue; }
+    public get title(): string { return this.locTitle.text; }
+    public set title(value: string) { this.locTitle.text = value; }
+    public get locTitle(): LocalizableString { return this.locTitleValue; }
+    public get completedHtml(): string { return this.locCompletedHtml.text;}
+    public set completedHtml(value: string) { this.locCompletedHtml.text = value;}
+    public get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    public get pagePrevText(): string { return this.locPagePrevText.text ? this.locPagePrevText.text : this.getLocString("pagePrevText"); }
+    public set pagePrevText(newValue: string) { this.locPagePrevText.text = newValue; }
+    public get locPagePrevText(): LocalizableString { return this.locPagePrevTextValue;}
+    public get pageNextText(): string { return this.locPageNextText.text ? this.locPageNextText.text : this.getLocString("pageNextText"); }
+    public set pageNextText(newValue: string) { this.locPageNextText.text = newValue; }
+    public get locPageNextText(): LocalizableString { return this.locPageNextTextValue;}
+    public get completeText(): string { return this.locCompleteText.text ? this.locCompleteText.text : this.getLocString("completeText"); }
+    public set completeText(newValue: string) { this.locCompleteText.text = newValue; }
+    public get locCompleteText(): LocalizableString { return this.locCompleteTextValue;}
+    public get questionTitleTemplate(): string { return this.locQuestionTitleTemplate.text;}
+    public set questionTitleTemplate(value: string) { this.locQuestionTitleTemplate.text = value;}
+    public get locQuestionTitleTemplate(): LocalizableString { return this.locQuestionTitleTemplateValue; }
+
     public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
     public set showPageNumbers(value: boolean) {
         if (value === this.showPageNumbers) return;
@@ -852,8 +878,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
 }
 
+//Make localizable: completedHtml, pagePrevText, pageNextText, completeText
+
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
-    "title", { name: "focusFirstQuestionAutomatic:boolean", default: true}, "completedHtml:html", { name: "pages", className: "page", visible: false },
+    {name: "title", serializationProperty: "locTitle"}, { name: "focusFirstQuestionAutomatic:boolean", default: true}, 
+    {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, { name: "pages", className: "page", visible: false },
     { name: "questions", baseClassName: "question", visible: false, onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     "surveyId", "surveyPostId", "cookieName", "sendResultOnPageNext:boolean",
@@ -864,7 +893,7 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
     { name: "mode", default: "edit", choices: ["edit", "display"] },
     { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",
-    { name: "pagePrevText", onGetValue: function (obj: any) { return obj.pagePrevTextValue; } },
-    { name: "pageNextText", onGetValue: function (obj: any) { return obj.pageNextTextValue; } },
-    { name: "completeText", onGetValue: function (obj: any) { return obj.completeTextValue; } },
-    { name: "requiredText", default: "*" }, "questionStartIndex", "questionTitleTemplate"]);
+    { name: "pagePrevText", serializationProperty: "locPagePrevText"},
+    { name: "pageNextText", serializationProperty: "locPageNextText"},
+    { name: "completeText", serializationProperty: "locCompleteText"},
+    { name: "requiredText", default: "*" }, "questionStartIndex", {name: "questionTitleTemplate", serializationProperty: "locQuestionTitleTemplate"}]);

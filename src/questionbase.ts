@@ -2,8 +2,9 @@
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
+import {ILocalizableOwner} from "./localizablestring";
 
-export class QuestionBase extends Base implements IQuestion, IConditionRunner {
+export class QuestionBase extends Base implements IQuestion, IConditionRunner, ILocalizableOwner {
     private static questionCounter = 100;
     private static getQuestionId(): string {
         return "sq_" + QuestionBase.questionCounter++;
@@ -103,6 +104,10 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner {
     public supportGoNextPageAutomatic() { return false; }
     public clearUnusedValues() {}
     public onLocaleChanged() {}
+    //ILocalizableOwner
+    public getLocale(): string {
+        return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
+    }
 }
 JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:expression",
     { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

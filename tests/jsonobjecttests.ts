@@ -93,6 +93,25 @@ JsonObject.metaData.addClass("shouldnotcreate", ["A"], function () { return new 
 JsonObject.metaData.addClass("container", [{ name: "obj", className: "shouldnotcreate" }, { name: "items", className: "shouldnotcreate"}]);
 JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { return new CreatingObject(); });
 
+class CheckGetPropertyValue {
+    public directProp: string;
+    public getValueProp: string;
+    public getValuePropGetter: string;
+    public serProperty: string;
+    public getSerProperty: CheckGetPropertyValueGetter = new CheckGetPropertyValueGetter();
+    public locProperty: string;
+    public locPropertyGetter: CheckGetPropertyValueGetter = new CheckGetPropertyValueGetter();
+    public getType(): string { return "getpropertyvalue"; }
+}
+
+class CheckGetPropertyValueGetter {
+    public text: string;
+    public getJson(): any { return {"text": this.text }; }
+}
+
+JsonObject.metaData.addClass("getpropertyvalue", ["directProp", {name: "getValueProp", onGetValue: function (obj: any) { return obj.getValuePropGetter; }},
+    {name: "serProperty", serializationProperty: "getSerProperty"}, {name: "locProperty", serializationProperty: "locPropertyGetter"}]);
+
 export default QUnit.module("JsonSerializationTests");
 
 QUnit.test("Metadata for non inherited class", function (assert) {
@@ -413,7 +432,31 @@ QUnit.test("Add alternative/misspelled property support, https://github.com/surv
     assert.equal(truck.maxWeight, 10000, "deserialize the second object");
 });
 
+
 QUnit.test("Check if visible is set", function (assert) {
     assert.equal(JsonObject.metaData.findProperty("dealer", "name").visible, true, "By default the property is visible");
     assert.equal(JsonObject.metaData.findProperty("dealer", "cars").visible, false, "Cars is invisible");
+});
+
+QUnit.test("Test getPropertyValue and isLocalizable", function (assert) {
+    var obj = new CheckGetPropertyValue();
+    obj.directProp = "dirValue";
+    obj.getValueProp = "getValue_no";
+    obj.getValuePropGetter = "getValue_yes";
+    obj.serProperty = "serProperty_no";
+    obj.getSerProperty.text = "serProperty_yes";
+    obj.locProperty = "loc_no";
+    obj.locPropertyGetter.text = "loc_yes";
+    
+    var property = JsonObject.metaData.findProperty(obj.getType(), "directProp");
+    assert.equal(property.getPropertyValue(obj), "dirValue", "dirProperty works correctly");
+    
+    property = JsonObject.metaData.findProperty(obj.getType(), "getValueProp");
+    assert.equal(property.getPropertyValue(obj), "getValue_yes", "getValueProp works correctly");
+
+    property = JsonObject.metaData.findProperty(obj.getType(), "serProperty");
+    assert.deepEqual(property.getPropertyValue(obj), {"text": "serProperty_yes"}, "getValueProp works correctly");
+
+    property = JsonObject.metaData.findProperty(obj.getType(), "locProperty");
+    assert.equal(property.getPropertyValue(obj), "loc_yes", "getValueProp works correctly");
 });

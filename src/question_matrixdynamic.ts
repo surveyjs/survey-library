@@ -6,6 +6,7 @@ import {QuestionFactory} from "./questionfactory";
 import {surveyLocalization} from "./surveyStrings";
 import {SurveyError} from "./base";
 import {CustomError} from "./error";
+import {LocalizableString} from "./localizablestring";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
     constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -18,12 +19,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     static MaxRowCount = 100;
     private rowCounter = 0;
     private rowCountValue: number = 2;
-    private addRowTextValue: string = null;
-    private removeRowTextValue: string = null;
+    private locAddRowTextValue: LocalizableString;
+    private locRemoveRowTextValue: LocalizableString;
     public minRowCount = 0;
     public rowCountChangedCallback: () => void;
     constructor(public name: string) {
         super(name);
+        this.locAddRowTextValue = new LocalizableString(this);
+        this.locRemoveRowTextValue = new LocalizableString(this);
     }
     public getType(): string {
         return "matrixdynamic";
@@ -58,14 +61,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         }
         this.rowCount--;
     }
-    public get addRowText() { return this.addRowTextValue ? this.addRowTextValue : surveyLocalization.getString("addRow"); }
-    public set addRowText(value: string) {
-        this.addRowTextValue = value;
-    }
-    public get removeRowText() { return this.removeRowTextValue ? this.removeRowTextValue : surveyLocalization.getString("removeRow"); }
-    public set removeRowText(value: string) {
-        this.removeRowTextValue = value;
-    }
+    public get addRowText() { return this.locAddRowText.text ? this.locAddRowText.text : surveyLocalization.getString("addRow"); }
+    public set addRowText(value: string) { this.locAddRowText.text = value; }
+    public get locAddRowText() { return this.locAddRowTextValue; }
+    public get removeRowText() { return this.locRemoveRowText.text ? this.locRemoveRowText.text : surveyLocalization.getString("removeRow"); }
+    public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
+    public get locRemoveRowText() { return this.locRemoveRowTextValue; }
     public supportGoNextPageAutomatic() {   return false;  }
     public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
         if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
@@ -137,8 +138,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
 }
 
 JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 },
-        { name: "addRowText", onGetValue: function (obj: any) { return obj.addRowTextValue; } },
-        { name: "removeRowText", onGetValue: function (obj: any) { return obj.removeRowTextValue; } }],
+        { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
 
 QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });

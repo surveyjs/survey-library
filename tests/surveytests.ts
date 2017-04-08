@@ -1109,6 +1109,49 @@ QUnit.test("Survey Localication - dropdown.choices", function (assert) {
     assert.equal(q1.choices[0].text, "text1", "Use the default text");
 });
 
+QUnit.test("Survey Localication - dropdownmatrix.columns", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
+    var col1 = q1.addColumn("col1");
+    q1.rows = ["row1", "row2"];
+    page.addQuestion(q1);
+    
+    col1.choices = ["val1"];
+    col1.title = "title1";
+    col1.optionsCaption = "caption1";
+    col1.choices[0].text = "text1";
+    survey.locale = "de";
+    col1.title = "de-title1";
+    col1.optionsCaption = "de-caption1";
+    col1.choices[0].text = "de-text1";
+    assert.equal(col1.title, "de-title1", "Use 'de' text, title");
+    assert.equal(col1.optionsCaption, "de-caption1", "Use 'de' text, optionsCaption");
+    assert.equal(col1.choices[0].text, "de-text1", "Use 'de' text, choices");
+    survey.locale = "fr";
+    assert.equal(col1.title, "title1", "Use default text, title");
+    assert.equal(col1.optionsCaption, "caption1", "Use default text, optionsCaption");
+    assert.equal(col1.choices[0].text, "text1", "Use the default text");
+});
+
+QUnit.test("Survey Localication - multipletext.items", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMultipleTextModel("mText");
+    var item = q1.addItem("item1")
+    page.addQuestion(q1);
+    item.title = "title1";
+    item.placeHolder = "caption1";
+    survey.locale = "de";
+    item.title = "de-title1";
+    item.placeHolder = "de-caption1";
+    assert.equal(item.title, "de-title1", "Use 'de' text, title");
+    assert.equal(item.placeHolder, "de-caption1", "Use 'de' text, placeHolder");
+    survey.locale = "fr";
+    assert.equal(item.title, "title1", "Use default text, title");
+    assert.equal(item.placeHolder, "caption1", "Use default text, placeHolder");
+});
+
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

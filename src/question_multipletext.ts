@@ -5,23 +5,27 @@ import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {SurveyError} from "./base";
 import {AnswerRequiredError} from "./error";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 export interface IMultipleTextData {
     getMultipleTextValue(name: string): any;
     setMultipleTextValue(name: string, value: any);
     getIsRequiredText(): string;
+    getLocale(): string;
 }
 
-export class MultipleTextItemModel extends Base implements IValidatorOwner {
+export class MultipleTextItemModel extends Base implements IValidatorOwner, ILocalizableOwner {
     private data: IMultipleTextData;
-    private titleValue: string;
+    private locTitleValue: LocalizableString;
+    private locPlaceHolderValue: LocalizableString;
     public isRequired: boolean = false;
-    public placeHolder: string;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(public name: any = null, title: string = null) {
         super();
+        this.locTitleValue = new LocalizableString(this);
         this.title = title;
+        this.locPlaceHolderValue = new LocalizableString(this);
     }
     public getType(): string {
         return "multipletextitem";
@@ -30,13 +34,17 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner {
         this.data = data;
     }
 
-    public get title() { return this.titleValue ? this.titleValue : this.name; }
-    public set title(newText: string) { this.titleValue = newText; }
+    public get title() { return this.locTitle.text ? this.locTitle.text : this.name; }
+    public set title(value: string) { this.locTitle.text = value; }
+    public get locTitle() { return this.locTitleValue; }
     public get fullTitle(): string {
         var res = this.title;
         if(this.isRequired && this.data) res = this.data.getIsRequiredText() + ' ' + res;
         return res;
     }
+    public get placeHolder(): string { return this.locPlaceHolder.text; }
+    public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
+    public get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
     public get value() {
         return this.data ? this.data.getMultipleTextValue(this.name) : null;
     }
@@ -45,10 +53,12 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner {
             this.data.setMultipleTextValue(this.name, value);
         }
     }
-    onValueChanged(newValue: any) {
+    public onValueChanged(newValue: any) {
     }
     //IValidatorOwner
-    getValidatorTitle(): string { return this.title; }
+    public getValidatorTitle(): string { return this.title; }
+    //ILocalizableOwner
+    public getLocale() { return this.data ? this.data.getLocale() : "";}
 }
 
 export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
@@ -188,8 +198,9 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     }
 }
 
-JsonObject.metaData.addClass("multipletextitem", ["name", "isRequired:boolean", "placeHolder", { name: "title", onGetValue: function (obj: any) { return obj.titleValue; } },
-    { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }], function () { return new MultipleTextItemModel(""); });
+JsonObject.metaData.addClass("multipletextitem", ["name", "isRequired:boolean", { name: "placeHolder", serializationProperty: "locPlaceHolder"}, 
+    { name: "title", serializationProperty: "locTitle" }, { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
+    function () { return new MultipleTextItemModel(""); });
 
 JsonObject.metaData.addClass("multipletext", [{ name: "!items:textitems", className: "multipletextitem" },
         { name: "itemSize:number", default: 25 }, { name: "colCount:number", default: 1, choices: [1, 2, 3, 4] }],

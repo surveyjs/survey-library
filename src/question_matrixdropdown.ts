@@ -13,10 +13,11 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     public get rowName() { return this.name; }
 }
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
-    private rowsValue: ItemValue[] = [];
+    private rowsValue: Array<ItemValue>;
 
     constructor(public name: string) {
         super(name);
+        this.rowsValue = ItemValue.createArray(this);
     }
     public getType(): string {
         return "matrixdropdown";

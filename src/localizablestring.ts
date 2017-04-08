@@ -37,6 +37,9 @@ export class LocalizableString {
                     this.setLocaleText(loc, null);
                 } else {
                     this.values[loc] = value;
+                    if(loc == LocalizableString.defaultLocale) {
+                        this.deleteValuesEqualsToDefault(value);
+                    }
                 }
             }
         }
@@ -44,7 +47,7 @@ export class LocalizableString {
     public getJson(): any {
         var keys = Object.keys(this.values);
         if(keys.length == 0) return null;
-        if(keys.length == 1) return this.values[keys[0]];
+        if(keys.length == 1 && keys[0] == LocalizableString.defaultLocale) return this.values[keys[0]];
         return this.values;
     }
     public setJson(value: any) {
@@ -57,5 +60,12 @@ export class LocalizableString {
                 this.setLocaleText(key, value[key]);
             }
         }
+    }
+    private deleteValuesEqualsToDefault(defaultValue: string) {
+        var keys = Object.keys(this.values);
+        for(var i = 0; i < keys.length; i ++) {
+            if(keys[i] == LocalizableString.defaultLocale) continue;
+            if(this.values[keys[i]] == defaultValue) delete this.values[keys[i]];
+        }                
     }
 }

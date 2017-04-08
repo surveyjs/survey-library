@@ -69,14 +69,20 @@ QUnit.test("Test get JSON", function (assert) {
 
     assert.equal(locString.getJson(), null, "There is no values");
     locString.setLocaleText("en", "value1");
-    assert.equal(locString.getJson(), "value1", "There is one value");
+    assert.deepEqual(locString.getJson(), {"en" : "value1"}, "There is one value, but 'en'");
 
     var json = {"default": "val2", "en": "val3"};
     locString.setJson(json);
     assert.deepEqual(locString.getJson(), json, "Several values");
 
     locString.setLocaleText("en", "val2");
-    assert.equal(locString.getJson(), "val2", "There is one value again, 'en' was equaled to default");
+    assert.deepEqual(locString.getJson(), "val2", "There is one value again, 'en' was equaled to default");
+
+    locString.setLocaleText("en", "val1");
+    assert.deepEqual(locString.getJson(), {"default" : "val2", "en": "val1"}, "'en' is different from default now");
+
+    locString.setLocaleText("", "val1");
+    assert.deepEqual(locString.getJson(), "val1", "'en' and default are the same");
 });
 
 QUnit.test("Test json deserialization", function (assert) {
@@ -123,7 +129,7 @@ QUnit.test("Array<ItemValue> localization serialize", function (assert) {
     items[1].text = "de-text2";
     assert.deepEqual(ItemValue.getData(items), 
         [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
-        {value: "val2", text: "de-text2"}], "serialize localization");
+        {value: "val2", text: {"de": "de-text2"}}], "serialize localization");
     items[1].text = "";
     assert.deepEqual(ItemValue.getData(items), 
         [{value: "val1", text: {"default": "text1", "de": "de-text1"}}, "val2"], "serialize localization, with empty text in the second item");

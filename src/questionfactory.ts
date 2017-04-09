@@ -6,7 +6,7 @@ import {surveyLocalization} from "./surveyStrings";
 export class QuestionFactory {
     public static Instance: QuestionFactory = new QuestionFactory();
     public static get DefaultChoices(): string[] { 
-        return ["1|" + surveyLocalization.getString("choices_firstItem"), "2|" + surveyLocalization.getString("choices_secondItem"), "3|" +  + surveyLocalization.getString("choices_thirdItem")];
+        return ["1|" + surveyLocalization.getString("choices_firstItem"), "2|" + surveyLocalization.getString("choices_secondItem"), "3|" + surveyLocalization.getString("choices_thirdItem")];
     }
     public static get DefaultColums(): string[] { 
         var colName = surveyLocalization.getString("matrix_column") + " ";

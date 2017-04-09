@@ -129,4 +129,4 @@ JsonObject.metaData.addClass("matrix", [{ name: "columns:itemvalues", onGetValue
     { name: "rows:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.rows); }, onSetValue: function (obj: any, value: any) { obj.rows = value; } },
     "isAllRowRequired:boolean"],  function () { return new QuestionMatrixModel(""); }, "question");
 
-QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrixModel(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
+QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrixModel(name); q.rows = QuestionFactory.DefaultRows; q.columns = QuestionFactory.DefaultColums; return q; });

@@ -154,6 +154,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
 }
 
 export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
+    public static  addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
+        var colNames = QuestionFactory.DefaultColums;
+        for(var i = 0; i < colNames.length; i ++)
+            matrix.addColumn(colNames[i]);
+    }
     private columnsValue: Array<MatrixDropdownColumn> = [];
     private choicesValue: Array<ItemValue>;
     private locOptionsCaptionValue: LocalizableString;

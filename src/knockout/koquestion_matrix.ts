@@ -33,4 +33,4 @@ export class QuestionMatrix extends QuestionMatrixModel {
 }
 
 JsonObject.metaData.overrideClassCreatore("matrix", function () { return new QuestionMatrix(""); });
-QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrix(name); q.rows = ["Row 1", "Row 2"]; q.columns = ["Column 1", "Column 2", "Column 3"]; return q; });
+QuestionFactory.Instance.registerQuestion("matrix", (name) => { var q = new QuestionMatrix(name); q.rows = QuestionFactory.DefaultRows; q.columns = QuestionFactory.DefaultColums; return q; });

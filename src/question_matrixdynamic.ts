@@ -141,4 +141,4 @@ JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", defaul
         { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
+QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; QuestionMatrixDropdownModelBase.addDefaultColumns(q); return q; });

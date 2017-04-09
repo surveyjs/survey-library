@@ -45,7 +45,12 @@ export var surveyStrings = {
     otherRequiredError: "Please enter the other value.",
     uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
     addRow: "Add row",
-    removeRow: "Remove"
+    removeRow: "Remove",
+    choices_firstItem: "first item",
+    choices_secondItem: "second item",
+    choices_thirdItem: "third item",
+    matrix_column: "Column",
+    matrix_row: "Row"
 };
 surveyLocalization.locales["en"] = surveyStrings;
 

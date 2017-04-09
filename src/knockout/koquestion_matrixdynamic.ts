@@ -64,4 +64,4 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
 
 JsonObject.metaData.overrideClassCreatore("matrixdynamic", function () { return new QuestionMatrixDynamic(""); });
 
-QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamic(name); q.choices = [1, 2, 3, 4, 5]; q.rowCount = 2; q.addColumn("Column 1"); q.addColumn("Column 2"); q.addColumn("Column 3"); return q; });
+QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamic(name); q.choices = [1, 2, 3, 4, 5]; q.rowCount = 2; QuestionMatrixDropdownModelBase.addDefaultColumns(q); return q; });

@@ -1109,6 +1109,21 @@ QUnit.test("Survey Localication - dropdown.choices", function (assert) {
     assert.equal(q1.choices[0].text, "text1", "Use the default text");
 });
 
+QUnit.test("Survey Localication - matrix.columns", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixModel("matrix");
+    q1.columns = ["col1"];
+    page.addQuestion(q1);
+    
+    q1.columns[0].text = "text1";
+    survey.locale = "de";
+    q1.columns[0].text = "de-text1";
+    assert.equal(q1.columns[0].text, "de-text1", "Use 'de' text");
+    survey.locale = "fr";
+    assert.equal(q1.columns[0].text, "text1", "Use the default text");
+});
+
 QUnit.test("Survey Localication - dropdownmatrix.columns", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

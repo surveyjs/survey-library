@@ -30,13 +30,14 @@ export class MatrixRowModel extends Base {
 }
 export class QuestionMatrixModel extends Question implements IMatrixData {
     private columnsValue: Array<ItemValue>;
-    private rowsValue: ItemValue[] = [];
+    private rowsValue: Array<ItemValue>;
     private isRowChanging = false;
     private generatedVisibleRows: Array<MatrixRowModel>;
     public isAllRowRequired: boolean = false;
     constructor(public name: string) {
         super(name);
         this.columnsValue = ItemValue.createArray(this);
+        this.rowsValue = ItemValue.createArray(this);
     }
     public getType(): string {
         return "matrix";

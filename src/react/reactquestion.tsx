@@ -55,10 +55,15 @@ export class SurveyQuestion extends React.Component<any, any> {
         }
     }
     componentWillUnmount() {
+        var el = this.refs["root"];
         if (this.questionBase) {
             this.questionBase["react"] = null;
             this.questionBase.renderWidthChangedCallback = null;
             this.questionBase.visibleIndexChangedCallback = null;
+        }
+        if (this.questionBase.customWidget) {
+            el = this.refs["widget"];
+            if (el) this.questionBase.customWidget.willUnmount(this.questionBase, el);
         }
     }
     render(): JSX.Element {

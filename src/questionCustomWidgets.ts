@@ -8,6 +8,9 @@ export class QuestionCustomWidget {
     public afterRender(question: IQuestion, el: any) {
         if (this.widgetJson.afterRender) this.widgetJson.afterRender(question, el);
     }
+    public willUnmount(question: IQuestion, el: any) {
+        if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
+    }
     public isFit(question: IQuestion): boolean {
         if (this.widgetJson.isFit) return this.widgetJson.isFit(question);
         return false;

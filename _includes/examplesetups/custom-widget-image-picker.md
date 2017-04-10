@@ -38,6 +38,15 @@ var widget = {
             }
         })
     }
+    {% if page.useknockout %}
+
+    {% else %}
+        ,
+        willUnmount: function(question, el) {
+            var $el = $(el).find("select");
+            $el.data('picker').destroy();
+        } 
+    {% endif %}
 }
 
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

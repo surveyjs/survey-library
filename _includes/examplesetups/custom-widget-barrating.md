@@ -48,6 +48,15 @@ var widget = {
             $(el).find('select').barrating('set', question.value);
         }
     }
+    {% if page.useknockout %}
+
+    {% else %}
+        ,
+        willUnmount: function(question, el) {
+            var $el = $(el).find("select");
+            $el.barrating('destroy');
+        } 
+    {% endif %}
 }
 
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

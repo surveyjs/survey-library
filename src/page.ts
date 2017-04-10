@@ -36,28 +36,6 @@ export class PageModel extends PanelModelBase implements IPage {
     public scrollToTop() {
         SurveyElement.ScrollElementToTop(SurveyPageId);
     }
-    public hasErrors(fireCallback: boolean = true, focuseOnFirstError: boolean = false): boolean {
-        var result = false;
-        var firstErrorQuestion = null;
-        for (var i = 0; i < this.questions.length; i++) {
-            if (this.questions[i].visible && this.questions[i].hasErrors(fireCallback)) {
-                if (focuseOnFirstError && firstErrorQuestion == null) {
-                    firstErrorQuestion = this.questions[i];
-                }
-                result = true;
-            }
-        }
-        if (firstErrorQuestion) firstErrorQuestion.focus(true);
-        return result;
-    }
-    public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {
-        if (visibleOnly && !this.visible) return;
-        var qs = this.questions;
-        for (var i: number = 0; i < qs.length; i++) {
-            if (visibleOnly && !qs[i].visible) continue;
-            list.push(qs[i]);
-        }
-    }
     protected onNumChanged(value: number) {
     }
     protected onVisibleChanged() {

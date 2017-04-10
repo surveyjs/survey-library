@@ -560,6 +560,16 @@ QUnit.test("onVisibleChanged call validation", function (assert) {
     survey.setValue("question1", 101);
     assert.equal(survey.isCurrentPageHasErrors, true, "the value is more than 100, no errors");
 });
+QUnit.test("isCurrentPageHasErrors, required question in the invisible panel, #325", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var panel = survey.pages[0].addNewPanel("panel");
+    var requiredQuestion = <QuestionTextModel>panel.addNewQuestion("text", "requriedQuestion");
+    requiredQuestion.isRequired = true;
+
+    assert.equal(survey.isCurrentPageHasErrors, true, "requiredQuestion value is empty");
+    panel.visible = false;
+    assert.equal(survey.isCurrentPageHasErrors, false, "requiredQuestion value is empty, but the parent panel is invisible");
+});
 
 QUnit.test("Page visibility", function (assert) {
     var page = new PageModel("page");

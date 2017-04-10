@@ -98,8 +98,6 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     public getLocale(): string {
         return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
     }
-
-
     public get id(): string { return this.idValue; }
     public get isPanel(): boolean { return false; }
     public get questions(): Array<QuestionBase> { 
@@ -135,6 +133,35 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             }
         }
         return false;
+    }
+    public hasErrors(fireCallback: boolean = true, focuseOnFirstError: boolean = false): boolean {
+        var result = false;
+        var firstErrorQuestion = null;
+        var visibleQuestions = [];
+        this.addQuestionsToList(visibleQuestions, true);
+        for (var i = 0; i < visibleQuestions.length; i++) {
+            if (visibleQuestions[i].hasErrors(fireCallback)) {
+                if (focuseOnFirstError && firstErrorQuestion == null) {
+                    firstErrorQuestion = visibleQuestions[i];
+                }
+                result = true;
+            }
+        }
+        if (firstErrorQuestion) firstErrorQuestion.focus(true);
+        return result;
+    }
+    public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {
+        if (visibleOnly && !this.visible) return;
+        for (var i = 0; i < this.elements.length; i++) {
+            var el = this.elements[i];
+            if (visibleOnly && !el.visible) continue;
+            if(el.isPanel) {
+                (<PanelModel>el).addQuestionsToList(list, visibleOnly);
+            }
+            else { 
+                list.push(<IQuestion>el);
+            }
+        }
     }
     public get rows(): Array<QuestionRowModel> {
         if(!this.rowValues) {

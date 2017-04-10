@@ -33,6 +33,7 @@ export interface IConditionRunner {
 }
 export interface IElement  extends IConditionRunner{
     name: string;
+    visible: boolean;
     isVisible: boolean;
     setData(newValue: ISurveyData);
     rowVisibilityChangedCallback: () => void;
@@ -47,7 +48,6 @@ export interface IElement  extends IConditionRunner{
 }
 
 export interface IQuestion extends IElement {
-    visible: boolean;
     hasTitle: boolean;
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);

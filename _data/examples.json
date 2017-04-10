@@ -33,7 +33,6 @@
             { "name": "Survey", "id": "survey",
               "items": [
                 {"name": "Use cookie", "text": "Run survey one time in a browser", "url": "survey-cookie.html"},
-                {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
                 {"name": "Questions in one line","text":  "Show several questions in one line", "url": "survey-startwithnewline.html"},
                 {"name": "Custom css", "text": "Use you own css classes", "url": "survey-customcss.html"},
                 {"name": "Survey Options", "text": "Use properties to set up your survey", "url": "survey-options.html"},
@@ -42,6 +41,11 @@
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
                 {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
+            ]},
+            { "name": "Localization", "id": "localization",
+              "items": [
+                {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
+                {"name": "Multi Languages","text":  "Create a survey with multi languages support", "url": "survey-multilanguages.html"}
             ]},
             { "name": "Conditions and Triggers", "id": "triggers",
               "items": [

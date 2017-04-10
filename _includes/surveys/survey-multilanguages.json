@@ -1,0 +1,51 @@
+{
+ locale: "de",
+ pages: [ { name: "page1", elements: [
+    {
+     type: "matrixdropdown",
+     choices: [
+      {
+       value: 5,
+       text: {
+        default: "5 (the best)",
+        de: "5 (Das beste)"
+       }
+      }, 4,  3, 2,
+      {
+       value: 1,
+       text: {
+        default: "1 (the worst)",
+        de: "1 (Das Schlechteste)"
+       }
+      }
+     ],
+     columns: [
+      {
+       name: "rate",
+       title: {
+        default: "Rating",
+        de: "Bewertung"
+       }
+      }
+     ],
+     name: "favoriteMovie",
+     rows: [ {value: "moonlight", text: "Moonlight" },
+      {
+       value: "zootopia",
+       text: {
+        default: "Zootopia",
+        de: "Zoomania"
+       }
+      },
+      { value: "water", text: "Hell or High Water" },
+      { value: "manchester", text: "Manchester by the Sea" }, {value: "lalaland", text: "La La Land" }
+     ],
+     title: {
+      default: "Please rate these movies",
+      de: "Bitte bewerten Sie diese Filme"
+     }
+    }
+   ]
+  }
+ ]
+}

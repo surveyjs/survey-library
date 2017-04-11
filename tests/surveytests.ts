@@ -96,7 +96,15 @@ QUnit.test("Question is readOnly", function (assert) {
     survey.mode = "display";
     assert.equal(q1.isReadOnly, true, "check2. question is  readonly because survey in the display mode");
 });
-
+QUnit.test("Do not show required error for readOnly questions", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var page = survey.pages[0];
+    var q1 = <Question>(<Question>page.questions[0]);
+    q1.isRequired = true;
+    assert.equal(page.hasErrors(), true, "There is a required error");
+    q1.readOnly = true;
+    assert.equal(page.hasErrors(), false, "There is no errors, the question is readOnly");
+});
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (assert) {
     var survey = new SurveyModel();
     assert.equal(survey.progressText, "", "there is pages");

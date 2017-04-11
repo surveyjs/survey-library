@@ -140,9 +140,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         var visibleQuestions = [];
         this.addQuestionsToList(visibleQuestions, true);
         for (var i = 0; i < visibleQuestions.length; i++) {
-            if (visibleQuestions[i].hasErrors(fireCallback)) {
+            var question = visibleQuestions[i];
+            if(question.isReadOnly) continue;
+            if (question.hasErrors(fireCallback)) {
                 if (focuseOnFirstError && firstErrorQuestion == null) {
-                    firstErrorQuestion = visibleQuestions[i];
+                    firstErrorQuestion = question;
                 }
                 result = true;
             }

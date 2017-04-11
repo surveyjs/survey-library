@@ -23,6 +23,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
     titleChangedCallback: () => void;
+    readOnlyChangedCallback: () => void;
 
     constructor(public name: string) {
         super(name);
@@ -117,7 +118,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.readOnlyValue = value; 
         this.readOnlyChanged();
     }
-    protected readOnlyChanged() { }
+    protected readOnlyChanged() { 
+        this.fireCallback(this.readOnlyChangedCallback);
+    }
     protected get no(): string {
         if (this.visibleIndex < 0) return "";
         var startIndex = 1;

@@ -330,6 +330,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         question.name = column.name;
         question.isRequired = column.isRequired;
         question.hasOther = column.hasOther;
+        question.readOnly = this.readOnly;
         question.setData(this.survey);
         if (column.hasOther) {
             if (question instanceof QuestionSelectBase) {

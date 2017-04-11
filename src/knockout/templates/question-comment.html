@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-comment">
-    <!-- ko if: question.survey.isEditMode -->
+    <!-- ko ifnot: question.koIsReadOnly -->
     <textarea type="text" data-bind="attr: {cols: question.cols, rows: question.rows, id: question.inputId, placeholder: question.placeHolder}, value:question.koValue, css: question.survey.css.comment"></textarea>
     <!-- /ko -->
-    <!-- ko if: question.survey.isDisplayMode -->
+    <!-- ko if: question.koIsReadOnly -->
     <div data-bind="text:question.koValue, css: question.survey.css.text"></div>
     <!-- /ko -->
 </script>

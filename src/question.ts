@@ -23,7 +23,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
     titleChangedCallback: () => void;
-    readOnlyChangedCallback: () => void;
 
     constructor(public name: string) {
         super(name);

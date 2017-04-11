@@ -31,7 +31,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         var value = this.question ? this.question.value : null;
         this.state = { 
             visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
-            visibleIndexValue: -1
+            visibleIndexValue: -1, isReadOnly : this.questionBase.isReadOnly
         };
     }
     componentDidMount() {
@@ -44,6 +44,10 @@ export class SurveyQuestion extends React.Component<any, any> {
             }
             this.questionBase.visibleIndexChangedCallback = function() {
                 self.state.visibleIndexValue = self.questionBase.visibleIndex;
+                self.setState(self.state);
+            }
+            this.questionBase.readOnlyChangedCallback = function() {
+                self.state.isReadOnly = self.questionBase.isReadOnly;
                 self.setState(self.state);
             }
             var el = this.refs["root"];
@@ -60,6 +64,7 @@ export class SurveyQuestion extends React.Component<any, any> {
             this.questionBase["react"] = null;
             this.questionBase.renderWidthChangedCallback = null;
             this.questionBase.visibleIndexChangedCallback = null;
+            this.questionBase.readOnlyChangedCallback = null;
         }
         if (this.questionBase.customWidget) {
             el = this.refs["widget"];

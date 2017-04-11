@@ -15,6 +15,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     private isRequiredValue: boolean = false;
     private hasCommentValue: boolean = false;
     private hasOtherValue: boolean = false;
+    private readOnlyValue: boolean = false;
     private textPreProcessor: TextPreProcessor;
     errors: Array<SurveyError> = [];
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
@@ -109,6 +110,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.hasOtherChanged();
     }
     protected hasOtherChanged() { }
+    public get isReadOnly() { return this.readOnly || (this.survey && this.survey.isDisplayMode);}
+    public get readOnly(): boolean { return this.readOnlyValue; }
+    public set readOnly(value: boolean) { 
+        if(this.readOnly == value) return;
+        this.readOnlyValue = value; 
+        this.readOnlyChanged();
+    }
+    protected readOnlyChanged() { }
     protected get no(): string {
         if (this.visibleIndex < 0) return "";
         var startIndex = 1;
@@ -230,4 +239,4 @@ export class Question extends QuestionBase implements IValidatorOwner {
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "commentText", serializationProperty: "locCommentText" },
-    "isRequired:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");
+    "isRequired:boolean", "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

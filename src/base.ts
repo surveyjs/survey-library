@@ -18,6 +18,7 @@ export interface ISurvey extends ISurveyData {
     validateQuestion(name: string): SurveyError;
     processHtml(html: string): string;
     processText(text: string): string;
+    isDisplayMode: boolean;
     isDesignMode: boolean;
     isLoadingFromJson: boolean;
     requiredText: string;

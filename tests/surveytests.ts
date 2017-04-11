@@ -86,6 +86,16 @@ QUnit.test("Do not show errors in display mode", function (assert) {
     survey.nextPage();
     assert.equal(survey.currentPage, survey.pages[1], "Can move into another page");
 });
+QUnit.test("Question is readOnly", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var q1 = <Question>(<Question>survey.pages[0].questions[0]);
+    assert.equal(q1.isReadOnly, false, "check1. question is not readonly");
+    q1.readOnly = true;
+    assert.equal(q1.isReadOnly, true, "check2. question is  readonly now");
+    q1.readOnly = false;
+    survey.mode = "display";
+    assert.equal(q1.isReadOnly, true, "check2. question is  readonly because survey in the display mode");
+});
 
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (assert) {
     var survey = new SurveyModel();

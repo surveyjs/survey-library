@@ -3,10 +3,10 @@
         <tr data-bind="foreach: { data: row, as: 'item' }">
             <td data-bind="text: item.fullTitle, css: question.survey.css.multipletext.itemTitle"></td>
             <td>
-                <!-- ko if: question.survey.isEditMode -->
+                <!-- ko ifnot: question.koIsReadOnly -->
                 <input type="text" style="float:left" data-bind="attr: {size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: question.survey.css.multipletext.itemValue" />
                 <!-- /ko -->
-                <!-- ko if: question.survey.isDisplayMode -->
+                <!-- ko if: question.koIsReadOnly -->
                 <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.survey.css.multipletext.itemValue"></div>
                 <!-- /ko -->
             </td>

@@ -6,7 +6,7 @@
                     <!-- ko foreach: question.columns -->
                     <th data-bind="text: question.getColumnTitle($data), style: { minWidth: question.getColumnWidth($data) }"></th>
                     <!-- /ko -->
-                    <!-- ko if: question.survey.isEditMode -->
+                    <!-- ko ifnot: question.koIsReadOnly -->
                     <th></th>
                     <!-- /ko -->
                 </tr>
@@ -22,7 +22,7 @@
                         <!-- /ko -->
                     </td>
                     <!-- /ko -->
-                    <!-- ko if: question.survey.isEditMode -->
+                    <!-- ko ifnot: question.koIsReadOnly -->
                     <td><input type="button" data-bind="click:question.koRemoveRowClick, css: question.survey.css.matrixdynamic.button, value: question.removeRowText" /></td>
                     <!-- /ko -->
                 </tr>
@@ -30,7 +30,7 @@
             </tbody>
         </table>
     </div>
-    <!-- ko if: question.survey.isEditMode -->
+    <!-- ko ifnot: question.koIsReadOnly -->
     <input type="button" data-bind="click:question.koAddRowClick, css: question.survey.css.matrixdynamic.button, value: question.addRowText" />
     <!-- /ko -->
 </script>

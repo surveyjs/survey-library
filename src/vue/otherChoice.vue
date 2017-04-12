@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input v-if="isEditMode" type="text" :class="css.question.comment" v-model="question.comment"/>
+        <input v-if="!question.isReadOnly" type="text" :class="css.question.comment" v-model="question.comment"/>
         <div v-else :class="css.question.comment">{{question.comment}}</div>
     </div>
 </template>
@@ -15,8 +15,6 @@
     export default class OtherChoice extends Vue {
         @Prop
         question: Question
-        @Prop
-        isEditMode: boolean
         @Prop
         css: Object
     }

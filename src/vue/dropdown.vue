@@ -1,11 +1,11 @@
 <template>
     <div :class="css.dropdown.root">
-        <select v-if="isEditMode" :id="question.inputId" v-model="question.value" :class="css.dropdown.control">
+        <select v-if="!question.isReadOnly" :id="question.inputId" v-model="question.value" :class="css.dropdown.control">
             <option value="">{{question.optionsCaption}}</option>
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>
         <div v-else :text="question.value" :class="css.dropdown.control"></div>
-        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :isEditMode="isEditMode" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :css="css"/>
     </div>
 </template>
 

@@ -13,8 +13,6 @@
         @Prop
         question: QuestionHtmlModel
         @Prop
-        isEditMode: Boolean
-        @Prop
         css: any
     }
     Vue.component("survey-html", Html)

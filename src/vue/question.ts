@@ -7,7 +7,5 @@ export default class Question<T extends QuestionModel> extends Vue {
     @Prop
     question: T
     @Prop
-    isEditMode: Boolean
-    @Prop
     css: any
 }

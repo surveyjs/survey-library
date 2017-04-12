@@ -2,9 +2,7 @@
     <div>
         <h4 v-show="hasTitle" :class="css.pageTitle">{{num + page.processedTitle}}</h4>
         <div v-for="row in rows" v-show="row.visible" :class="css.row">
-            <div v-for="question in row.questions" :class="css.question.root" style="vertical-align:top" :id="question.id" :style="{display: question.visible ? 'inline-block': 'none', marginLeft: getIndentSize(question, question.indent), paddingRight: getIndentSize(question, question.rightIndent), width: question.renderWidth }">
-                <survey-row :row="row" :survey="survey" :css="css"></survey-row>
-            </div>
+            <survey-row :row="row" :survey="survey" :css="css"></survey-row>
         </div>
     </div>
 </template>

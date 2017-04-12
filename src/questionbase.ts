@@ -28,6 +28,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     startWithNewLineChangedCallback: () => void;
     visibilityChangedCallback: () => void;
     visibleIndexChangedCallback: () => void;
+    readOnlyChangedCallback: () => void;    
 
     constructor(public name: string) {
         super();
@@ -46,6 +47,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
         }
     }
     public get isVisible(): boolean { return this.visible || (this.survey && this.survey.isDesignMode); }
+    public get isReadOnly() { return true; }
     public get visibleIndex(): number { return this.visibleIndexValue; }
     public hasErrors(fireCallback: boolean = true): boolean { return false; }
     public get currentErrorCount(): number { return 0; }

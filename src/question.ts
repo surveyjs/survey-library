@@ -117,7 +117,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.readOnlyValue = value; 
         this.readOnlyChanged();
     }
-    protected readOnlyChanged() { }
+    protected readOnlyChanged() { 
+        this.fireCallback(this.readOnlyChangedCallback);
+    }
     protected get no(): string {
         if (this.visibleIndex < 0) return "";
         var startIndex = 1;

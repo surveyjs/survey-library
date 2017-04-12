@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-text">
-    <!-- ko if: question.survey.isEditMode -->
+    <!-- ko ifnot: question.koIsReadOnly -->
     <input data-bind="attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.placeHolder}, value:question.koValue, css: question.survey.css.text"/>
     <!-- /ko -->
-    <!-- ko if: question.survey.isDisplayMode -->
+    <!-- ko if: question.koIsReadOnly -->
     <div data-bind="text:question.koValue, css: question.survey.css.text"></div>
     <!-- /ko -->
 </script>

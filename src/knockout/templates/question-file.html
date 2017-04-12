@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-file">
-    <!-- ko if: question.survey.isEditMode -->
+    <!-- ko ifnot: question.koIsReadOnly -->
     <input type="file" data-bind="attr: {id: question.inputId}, event: {change: question.dochange}">
     <!-- /ko -->
     <div>

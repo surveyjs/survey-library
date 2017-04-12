@@ -110,9 +110,6 @@ export class SurveyQuestion extends React.Component<any, any> {
         }
         return <div ref="widget">{widget}</div>
     }
-    protected shouldComponentUpdate(): boolean {
-        return !this.questionBase.customWidget || !!this.questionBase.customWidget.widgetJson.render;
-    }
     protected renderTitle(): JSX.Element {
         var titleText = this.question.fullTitle;
         return (<h5 className={this.css.question.title}>{titleText}</h5>);

@@ -12,6 +12,7 @@ export interface IMultipleTextData {
     setMultipleTextValue(name: string, value: any);
     getIsRequiredText(): string;
     getLocale(): string;
+    getMarkdownHtml(text: string): string;
 }
 
 export class MultipleTextItemModel extends Base implements IValidatorOwner, ILocalizableOwner {
@@ -59,6 +60,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public getValidatorTitle(): string { return this.title; }
     //ILocalizableOwner
     public getLocale() { return this.data ? this.data.getLocale() : "";}
+    public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
 }
 
 export class QuestionMultipleTextModel extends Question implements IMultipleTextData {

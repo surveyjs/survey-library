@@ -5,8 +5,13 @@ import {ItemValue} from "../src/itemvalue";
 export default QUnit.module("LocalizableString");
 
 class LocalizableOwnerTester implements ILocalizableOwner {
+    public static MarkdownText = "it is a markdown";
     constructor(public locale: string) {}
     public getLocale(): string { return this.locale; }
+    public getMarkdownHtml(text: string): string {
+        if(text.indexOf("markdown") > -1) return LocalizableOwnerTester.MarkdownText;
+        return null;
+    }
 }
 
 class LocalizableObjectTester {
@@ -151,3 +156,28 @@ QUnit.test("Array<ItemValue> localization deserialize/setData", function (assert
     assert.deepEqual(ItemValue.getData(items), serJson, "There is no pos object");
 });
 
+QUnit.test("Localization string markdown test", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var locString = new LocalizableString(owner);
+    locString.text = "val1";
+    assert.equal(locString.hasHtml, false, "There is no markdown");
+    assert.equal(locString.html, "", "html is empty");
+    assert.equal(locString.textOrHtml, "val1", "html is empty");
+    locString.text = "markdown";
+    assert.equal(locString.hasHtml, true, "Markdown is appy");
+    assert.equal(locString.html, LocalizableOwnerTester.MarkdownText, "html is not empty");
+    assert.equal(locString.textOrHtml, LocalizableOwnerTester.MarkdownText, "html is empty");
+    locString.text = "mark";
+    assert.equal(locString.hasHtml, false, "remove markdown");
+    assert.equal(locString.html, "", "html is empty again");
+    assert.equal(locString.textOrHtml, "mark", "html is empty");
+});
+
+QUnit.test("Localization string onRenderedHtmlCallback", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var locString = new LocalizableString(owner);
+    locString.onRenderedHtmlCallback = function(text) { return text + "!";}
+    locString.text = "Hi";
+    assert.equal(locString.textOrHtml, "Hi", "Use just text");
+    assert.equal(locString.renderedHtml, "Hi!", "make sure onRenderedHtmlCallback is called");
+});

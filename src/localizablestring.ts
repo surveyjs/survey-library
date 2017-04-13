@@ -1,10 +1,13 @@
 export interface ILocalizableOwner {
     getLocale(): string;
+    getMarkdownHtml(text: string): string;
 }
 
 export class LocalizableString {
     public static  defaultLocale: string = "default";
     private values = {};
+    private htmlValues = {};
+    public onRenderedHtmlCallback: (html: string) => string;
     constructor (public owner: ILocalizableOwner) {
     }
     public get locale() {return this.owner ? this.owner.getLocale() : ""; }
@@ -19,6 +22,20 @@ export class LocalizableString {
         }
         return res ? res : this.values[keys[0]];
     }
+    public get hasHtml(): boolean { 
+        return this.hasHtmlValue(); 
+    }
+    public get html() {
+        if(!this.hasHtml) return "";
+        return this.getHtmlValue();
+    }
+    public get textOrHtml() {
+        return this.hasHtml ? this.getHtmlValue() : this.text;
+    }
+    public get renderedHtml() {
+        var res = this.textOrHtml;
+        return this.onRenderedHtmlCallback ? this.onRenderedHtmlCallback(res) : res;
+    }
     public set text(value: string) {
         this.setLocaleText(this.locale, value);
     }
@@ -29,6 +46,7 @@ export class LocalizableString {
     }
     public setLocaleText(loc: string, value: string) {
         if(!loc) loc = LocalizableString.defaultLocale;
+        delete this.htmlValues[loc];
         if(!value) {
             if(this.values[loc]) delete this.values[loc];
         } else {
@@ -52,6 +70,7 @@ export class LocalizableString {
     }
     public setJson(value: any) {
         this.values = {};
+        this.htmlValues = {};
         if(!value) return;
         if (typeof value === 'string') {
             this.setLocaleText(null, value);
@@ -61,6 +80,23 @@ export class LocalizableString {
             }
         }
     }
+    private hasHtmlValue(): boolean {
+        if(!this.owner) return false;
+        var text = this.text;
+        if(!text) return false;
+        var loc = this.locale;
+        if(!loc) loc = LocalizableString.defaultLocale;
+        if(!(loc in this.htmlValues)) {
+            this.htmlValues[loc] = this.owner.getMarkdownHtml(text);
+        }
+        return this.htmlValues[loc] ? true : false;
+    }
+    private getHtmlValue() : string {
+        var loc = this.locale;
+        if(!loc) loc = LocalizableString.defaultLocale;
+        return this.htmlValues[loc];
+    }
+
     private deleteValuesEqualsToDefault(defaultValue: string) {
         var keys = Object.keys(this.values);
         for(var i = 0; i < keys.length; i ++) {

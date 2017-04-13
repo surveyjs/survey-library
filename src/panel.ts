@@ -77,6 +77,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.idValue = PanelModelBase.getPanelId();
         this.locTitleValue = new LocalizableString(this);
         var self = this;
+        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
             return self.doSpliceElements(this, start, deleteCount, ...items);
@@ -95,9 +96,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.locTitle.text = newValue;
     }
     public get locTitle(): LocalizableString { return this.locTitleValue; } 
-    public getLocale(): string {
-        return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; 
-    }
+    public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
+    public getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
+
     public get id(): string { return this.idValue; }
     public get isPanel(): boolean { return false; }
     public get questions(): Array<QuestionBase> { 
@@ -280,7 +281,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         return result;
     }
     public get processedTitle() { 
-        var str = this.title;
+        var str = this.locTitle.textOrHtml;
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
         return this.data != null ? this.data.processText(str) : str; 
     }

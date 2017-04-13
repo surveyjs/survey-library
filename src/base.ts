@@ -23,7 +23,7 @@ export interface ISurvey extends ISurveyData {
     isLoadingFromJson: boolean;
     requiredText: string;
     questionStartIndex: string;
-    questionTitleTemplate: string;
+    getQuestionTitleTemplate(): string;
     storeOthersAsComment: boolean;
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
     afterRenderQuestion(question: IQuestion, htmlElement);

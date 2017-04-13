@@ -72,6 +72,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onTextMarkdown: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -123,6 +124,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     //ILocalizableOwner
     public getLocale() { return this.locale; }
+    public getMarkdownHtml(text: string)  { 
+        var options = {text: text, html: null}
+        this.onTextMarkdown.fire(this, options);
+        return options.html; 
+    }
     public getLocString(str: string) { return surveyLocalization.getString(str); }
 
     public get emptySurveyText(): string { return this.getLocString("emptySurvey"); }
@@ -143,6 +149,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public get locCompleteText(): LocalizableString { return this.locCompleteTextValue;}
     public get questionTitleTemplate(): string { return this.locQuestionTitleTemplate.text;}
     public set questionTitleTemplate(value: string) { this.locQuestionTitleTemplate.text = value;}
+    public getQuestionTitleTemplate(): string { return this.locQuestionTitleTemplate.textOrHtml; }
     public get locQuestionTitleTemplate(): LocalizableString { return this.locQuestionTitleTemplateValue; }
 
     public get showPageNumbers(): boolean { return this.showPageNumbersValue; }

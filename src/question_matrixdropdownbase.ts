@@ -18,6 +18,7 @@ export interface IMatrixDropdownData {
     columns: Array<MatrixDropdownColumn>;
     createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     getLocale(): string;
+    getMarkdownHtml(text: string): string;
 }
 
 export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
@@ -64,9 +65,8 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
         if (value < -1 || value > 4) return;
         this.colCountValue = value;
     }
-    public getLocale() : string {
-        return this.locOwner ? this.locOwner.getLocale() : "";
-    }
+    public getLocale() : string { return this.locOwner ? this.locOwner.getLocale() : ""; }
+    public getMarkdownHtml(text: string)  { return this.locOwner ? this.locOwner.getMarkdownHtml(text) : null; }
 }
 
 export class MatrixDropdownCell {
@@ -141,6 +141,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
         return true;
     }
     public getLocale(): string { return this.data ? this.data.getLocale() : "";}
+    public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
     private buildCells() {
         var columns = this.data.columns;
         for (var i = 0; i < columns.length; i++) {

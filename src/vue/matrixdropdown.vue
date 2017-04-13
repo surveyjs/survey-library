@@ -12,7 +12,7 @@
                     <td>{{row.text}}</td>
                     <td v-for="cell in row.cells">
                         <survey-errors :question="question" :css="css"/>
-                        <component :is="'survey-' + cell.question.getType()" :question="cell.question" :isEditMode="isEditMode" :css="css"/>
+                        <component :is="'survey-' + cell.question.getType()" :question="cell.question" :css="css"/>
                     </td>
                 </tr>
             </tbody>

@@ -39,8 +39,12 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll("div > h5:last-of-type")[2].parentNode.style.width === "50%" &&
             document.querySelectorAll("div > h5:last-of-type")[3].parentNode.style.width === "50%"
         );
+        const isCountRight = ClientFunction(() =>
+            document.querySelectorAll("div > h5:last-of-type").length === 6
+        );
 
         assert(await isOneLine());
+        assert(await isCountRight());
     });
 
     test(`change title location`, async t => {

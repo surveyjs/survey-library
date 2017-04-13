@@ -2,13 +2,13 @@
     <div>
         <div :class="css.rating.root">
             <label v-for="(item, index) in question.visibleRateValues" :class="getCss(item)">
-                <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="!isEditMode" @change="change" />
+                <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" />
                 <span v-if="index === 0">{{question.minRateDescription}}</span>
                 <span>{{item.text}}</span>
                 <span v-if="index === question.visibleRateValues.length-1">{{question.maxRateDescription}}</span>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther" :class="css.rating.other" :question="question" :isEditMode="isEditMode" :css="css"/>
+        <survey-other-choice v-show="question.hasOther" :class="css.rating.other" :question="question" :css="css"/>
     </div>
 </template>
 

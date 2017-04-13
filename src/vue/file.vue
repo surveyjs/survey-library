@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input v-if="isEditMode" type="file" :id="question.inputId" @change="doChange"/>
+        <input v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange"/>
         <div>
             <img v-show="question.previewValue" :src="question.value" :height="question.imageHeight" :width="question.imageWidth"/>
         </div>

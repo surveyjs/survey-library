@@ -1,5 +1,5 @@
 function init() {
-    // $.material.init();
+    $.material.init();
 
     var json = { title: "Product Feedback Survey Example", showProgressBar: "top", pages: [
         {questions: [

@@ -16,7 +16,7 @@ export var defaultBootstrapCss = {
     comment: "form-control",
     dropdown: { root: "", control: "form-control" },
     matrix: { root: "table", row: "form-group", label: "radio", itemValue: "form-control" },
-    matrixdropdown: { root: "table" },
+    matrixdropdown: { root: "table", itemValue: "form-group" },
     matrixdynamic: { root: "table", button: "button" },
     multipletext: { root: "table", itemTitle: "", row: "form-group", itemValue: "form-control" },
     radiogroup: { root: "form-inline", item: "radio", label: "", other: "" },

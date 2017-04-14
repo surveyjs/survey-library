@@ -6,6 +6,7 @@ import {JsonObject} from "./jsonobject";
 import {ItemValue} from "./itemvalue";
 import {QuestionFactory} from "./questionfactory";
 import {surveyLocalization} from "./surveyStrings";
+import {LocalizableString} from "./localizablestring";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     private item: ItemValue;
@@ -13,9 +14,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
         super(data, value);
         this.item = item;
     }
-    public get rowName() { return this.name; }
-    public get text() { return this.item.text; }
-    public get locText() { return this.item.locText; }
+    public get rowName(): string { return this.name; }
+    public get text(): string { return this.item.text; }
+    public get locText(): LocalizableString { return this.item.locText; }
 }
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
     private rowsValue: Array<ItemValue>;

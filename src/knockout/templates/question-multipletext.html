@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
     <table data-bind="css: question.survey.css.multipletext.root, foreach: { data:  question.koRows, as: 'row' }">
-        <tr data-bind="foreach: { data: row, as: 'item' }">
+        <tr data-bind="foreach: { data: row, as: 'item' }, css: question.survey.css.multipletext.row">
             <td data-bind="text: item.fullTitle, css: question.survey.css.multipletext.itemTitle"></td>
             <td>
                 <!-- ko ifnot: question.koIsReadOnly -->

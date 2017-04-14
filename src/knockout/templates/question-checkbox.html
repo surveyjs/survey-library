@@ -4,6 +4,7 @@
         <div data-bind="style:{width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: question.survey.css.checkbox.item">
             <label data-bind="css: question.survey.css.checkbox.item">
                 <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: !question.koIsReadOnly()" />
+                <span class="checkbox-material"><span class="check"></span></span>
                 <span data-bind="text: item.text"></span>
             </label>
             <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">

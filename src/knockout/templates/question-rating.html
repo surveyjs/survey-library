@@ -4,9 +4,9 @@
         <label data-bind="css: question.koGetCss($data)">
             <input type="radio" style="display: none;"
                     data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value}, event: { change: question.koChange}, enable: !question.koIsReadOnly()" />
-            <span data-bind="visible: $index() == 0, text: question.minRateDescription"></span>
-            <span data-bind="text: $data.text"></span>
-            <span data-bind="visible: $index() == (question.koVisibleRateValues().length-1), text: question.maxRateDescription"></span>
+            <!-- ko if: $index() == 0 --><!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } --><!-- /ko --><!-- /ko -->
+            <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
+            <!-- ko if: $index() == (question.koVisibleRateValues().length-1) --><!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } --><!-- /ko --><!-- /ko -->
         </label>
         <!-- /ko -->
     </div>

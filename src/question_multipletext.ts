@@ -25,6 +25,8 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     constructor(public name: any = null, title: string = null) {
         super();
         this.locTitleValue = new LocalizableString(this);
+        var self = this;
+        this.locTitleValue.onRenderedHtmlCallback = function(text) {return self.getFullTitle(text); };
         this.title = title;
         this.locPlaceHolderValue = new LocalizableString(this);
     }
@@ -38,10 +40,11 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public get title() { return this.locTitle.text ? this.locTitle.text : this.name; }
     public set title(value: string) { this.locTitle.text = value; }
     public get locTitle() { return this.locTitleValue; }
-    public get fullTitle(): string {
-        var res = this.title;
-        if(this.isRequired && this.data) res = this.data.getIsRequiredText() + ' ' + res;
-        return res;
+    public get fullTitle(): string { return this.getFullTitle(this.locTitle.textOrHtml); }
+    protected getFullTitle(str: string): string {
+        if(!str) str = this.name;
+        if(this.isRequired && this.data) str = this.data.getIsRequiredText() + ' ' + str;
+        return str;
     }
     public get placeHolder(): string { return this.locPlaceHolder.text; }
     public set placeHolder(value: string) { this.locPlaceHolder.text = value; }

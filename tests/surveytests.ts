@@ -1246,6 +1246,61 @@ QUnit.test("Survey Markdown - page title", function (assert) {
     assert.equal(loc.renderedHtml, "Page 1!, q1 is value1", "page.locTitle.renderedHtml, use markdown and text preprocessing");
 });
 
+QUnit.test("Survey Markdown - dropdownmatrix.columns", function (assert) {
+    var survey = new SurveyModel();
+    survey.onTextMarkdown.add(function(survey, options) { 
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    });
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
+    var col1 = q1.addColumn("col1");
+    var col2 = q1.addColumn("col2", "colText2");
+    var col3 = q1.addColumn("col3", "colText3markdown");
+    q1.rows = ["row1", "row2"];
+    page.addQuestion(q1);
+    
+    var loc1 = col1.locTitle;
+    var loc2 = col2.locTitle;
+    var loc3 = col3.locTitle;
+    assert.equal(loc1.renderedHtml, "col1", "render column name");
+    assert.equal(loc2.renderedHtml, "colText2", "render column text");
+    assert.equal(loc3.renderedHtml, "colText3!", "render column text as markdown");
+});
+
+QUnit.test("Survey Markdown - nmatrix.rows", function (assert) {
+    var survey = new SurveyModel();
+    survey.onTextMarkdown.add(function(survey, options) { 
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    });
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixModel("matrixdropdown");
+    q1.columns = [1];
+    q1.rows = ["row1", "row2", "row3"];
+    q1.rows[1].text = "rowText2";
+    q1.rows[2].text = "rowText3markdown";
+    page.addQuestion(q1);
+    
+    var loc1 = q1.visibleRows[0].locText;
+    var loc2 = q1.visibleRows[1].locText;
+    var loc3 = q1.visibleRows[2].locText;
+    assert.equal(loc1.renderedHtml, "row1", "render column name");
+    assert.equal(loc2.renderedHtml, "rowText2", "render column text");
+    assert.equal(loc3.renderedHtml, "rowText3!", "render column text as markdown");
+});
+
+
+QUnit.test("Survey Markdown - survey title", function (assert) {
+    var survey = new SurveyModel();
+    survey.onTextMarkdown.add(function(survey, options) { 
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    });
+    survey.setValue("q1", "value1");
+    var loc = survey.locTitle;
+    survey.title = "Surveymarkdown, q1 is {q1}";
+    assert.equal(survey.processedTitle, "Survey!, q1 is value1", "survey.processedTitle, use markdown and text preprocessing");
+    assert.equal(loc.renderedHtml, "Survey!, q1 is value1", "survey.locTitle.renderedHtml, use markdown and text preprocessing");
+});
+
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

@@ -9,6 +9,7 @@ export class LocalizableString {
     private htmlValues = {};
     public onRenderedHtmlCallback: (html: string) => string;
     constructor (public owner: ILocalizableOwner) {
+        this.onCreating();
     }
     public get locale() {return this.owner ? this.owner.getLocale() : ""; }
     public get text() : string { 
@@ -45,6 +46,7 @@ export class LocalizableString {
         return res ? res : "";
     }
     public setLocaleText(loc: string, value: string) {
+        if(value == this.getLocaleText(loc)) return;
         if(!loc) loc = LocalizableString.defaultLocale;
         delete this.htmlValues[loc];
         if(!value) {
@@ -61,6 +63,7 @@ export class LocalizableString {
                 }
             }
         }
+        this.onChanged();
     }
     public getJson(): any {
         var keys = Object.keys(this.values);
@@ -79,7 +82,10 @@ export class LocalizableString {
                 this.setLocaleText(key, value[key]);
             }
         }
+        this.onChanged();
     }
+    public onChanged() {}
+    protected onCreating() {}
     private hasHtmlValue(): boolean {
         if(!this.owner) return false;
         var text = this.text;

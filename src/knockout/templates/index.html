@@ -3,7 +3,7 @@
 <script type="text/html" id="survey-content">
     <div data-bind="css: css.root, afterRender: koEventAfterRender">
         <div data-bind="visible: (title.length > 0) && showTitle && koState() != 'completed', css: css.header">
-            <h3 data-bind="text:processedTitle"></h3>
+            <h3><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
         </div>
         <!-- ko if: koState() == "running" -->
         <div data-bind="css: css.body">

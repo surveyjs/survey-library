@@ -12,6 +12,8 @@ import {CustomWidgetCollection, QuestionCustomWidget} from "../../src/questionCu
 import {koTemplate} from "../../src/knockout/templateText";
 import {QuestionMatrixDynamic} from "../../src/knockout/koquestion_matrixdynamic";
 import {surveyLocalization} from "../../src/surveyStrings";
+import {QuestionRating} from "../../src/knockout/koquestion_rating";
+import {QuestionRatingModel} from "../../src/question_rating";
 
 export default QUnit.module("koTests");
 
@@ -223,7 +225,7 @@ QUnit.test("koComment property", function (assert) {
 });
 QUnit.test("Load title correctly from JSON", function (assert) {
     var survey = new Survey({ questions: [{ type: "text", name: "question1" }] });
-    assert.equal(survey.pages[0].questions[0]["koTitle"](), "1. question1", "title is getting from name");
+    assert.equal(survey.pages[0].questions[0]["locTitle"]["koRenderedHtml"](), "1. question1", "title is getting from name");
 });
 QUnit.test("koErrors should be empty after prevPage bug#151", function (assert) {
     var survey = new Survey();
@@ -263,6 +265,10 @@ QUnit.test("Localization, otherItem", function (assert) {
     assert.equal(q1["koVisibleChoices"]()[2].text, surveyLocalization.getString("otherItemText"), "use default locale");
     survey.locale = "de";
     assert.notEqual(q1["koVisibleChoices"]()[2].text, defaultText, "use another locale locale");
+});
+
+QUnit.test("Rating items creates correct object", function (assert) {
+    assert.ok(QuestionRatingModel.defaultRateValues[0].locText["koRenderedHtml"], "ItemValue for knockout should be created");
 });
 
 

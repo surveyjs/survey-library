@@ -6,7 +6,7 @@ import {SurveyElement} from "../base";
 export class QuestionImplementor extends QuestionImplementorBase {
     private isUpdating: boolean = false;
     private koDummy: any;
-    koValue: any; koComment: any; koTitle: any; koIsReadOnly: any;
+    koValue: any; koComment: any; koIsReadOnly: any;
     constructor(public question: Question) {
         super(question);
         var self = this;
@@ -19,7 +19,6 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.koDummy = ko.observable(0);
         this.koValue = this.createkoValue();
         this.koComment = ko.observable(this.question.comment);
-        this.koTitle = ko.pureComputed(function () { self.koDummy(); return self.question.fullTitle; });
         this.koErrors(this.question.errors);
         this.koIsReadOnly = ko.observable(this.question.isReadOnly);
         this.koValue.subscribe(function (newValue) {
@@ -30,12 +29,11 @@ export class QuestionImplementor extends QuestionImplementorBase {
         });
         this.question["koValue"] = this.koValue;
         this.question["koComment"] = this.koComment;
-        this.question["koTitle"] = this.koTitle;
         this.question["koIsReadOnly"] = this.koIsReadOnly;
         this.question["koQuestionAfterRender"] = function (el, con) { self.koQuestionAfterRender(el, con); };
     }
     protected updateQuestion() {
-        this.koDummy(this.koDummy() + 1);
+        this.updateKoDummy();
     }
     protected onValueChanged() {
         if (this.isUpdating) return;
@@ -46,7 +44,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.koComment(this.question.comment);
     }
     protected onVisibleIndexChanged() {
-        this.koDummy(this.koDummy() + 1);
+        this.updateKoDummy();
     }
     protected onReadOnlyChanged() {
         this.koIsReadOnly(this.question.isReadOnly);
@@ -70,6 +68,10 @@ export class QuestionImplementor extends QuestionImplementorBase {
     }
     protected getNo(): string {
         return this.question.visibleIndex > -1 ? this.question.visibleIndex + 1 + ". " : "";
+    }
+    protected updateKoDummy() {
+        this.koDummy(this.koDummy() + 1);
+        this.question.locTitle.onChanged();
     }
     protected koQuestionAfterRender(elements, con) {
         var el = SurveyElement.GetFirstNonTextElement(elements);

@@ -181,3 +181,13 @@ QUnit.test("Localization string onRenderedHtmlCallback", function (assert) {
     assert.equal(locString.textOrHtml, "Hi", "Use just text");
     assert.equal(locString.renderedHtml, "Hi!", "make sure onRenderedHtmlCallback is called");
 });
+
+QUnit.test("ItemValue markdown support", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    var json = ["val1", {value: "val2", text: "text2"}, {value: "val3", text: "text3markdown"}];
+    ItemValue.setData(items, json);
+    assert.equal(items[0].locText.renderedHtml, "val1", "renderedHtml for item1");
+    assert.equal(items[1].locText.renderedHtml, "text2", "renderedHtml for item2");
+    assert.equal(items[2].locText.renderedHtml, LocalizableOwnerTester.MarkdownText, "renderedHtml for item3");
+});

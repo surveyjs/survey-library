@@ -5,14 +5,14 @@
                 <tr>
                     <th></th>
                     <!-- ko foreach: question.columns -->
-                    <th data-bind="text: question.getColumnTitle($data), style: { minWidth: question.getColumnWidth($data) }"></th>
+                    <th data-bind="style: { minWidth: question.getColumnWidth($data) }"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></th>
                     <!-- /ko -->
                 </tr>
             </thead>
             <tbody>
                 <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
                 <tr>
-                    <td data-bind="text:row.text"></td>
+                    <td><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                     <!-- ko foreach: row.cells-->
                     <td>
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->

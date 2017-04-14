@@ -84,14 +84,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
 
     constructor(jsonObj: any = null) {
         super();
+        var self = this;
         this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
         this.locCompletedHtmlValue = new LocalizableString(this);
         this.locPagePrevTextValue = new LocalizableString(this);
         this.locPageNextTextValue = new LocalizableString(this);
         this.locCompleteTextValue = new LocalizableString(this);
         this.locQuestionTitleTemplateValue = new LocalizableString(this);
         
-        var self = this;
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
@@ -164,7 +165,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.showQuestionNumbersValue = value;
         this.updateVisibleIndexes();
     };
-    public get processedTitle() { return this.processText(this.title); }
+    public get processedTitle() { return this.processText(this.locTitle.textOrHtml); }
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
         if (value === this.questionTitleLocationValue) return;

@@ -1,7 +1,9 @@
 ﻿<script type="text/html" id="survey-question">
     <div style="vertical-align:top" data-bind="css: question.survey.css.question.root, style: {display: question.koVisible() ? 'inline-block': 'none', marginLeft: question.koMarginLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.survey.questionTitleLocation == 'top', text: question.koTitle(), css: question.survey.css.question.title"></h5>
+        <h5 data-bind="visible: question.survey.questionTitleLocation == 'top', css: question.survey.css.question.title">
+            <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
+        </h5>
         <!-- /ko -->
         <!-- ko template: { name: 'survey-question-errors', data: question } -->
         <!-- /ko -->
@@ -12,7 +14,9 @@
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.survey.questionTitleLocation == 'bottom', text: question.koTitle(), css: question.survey.css.question.title"></h5>
+        <h5 data-bind="visible: question.survey.questionTitleLocation == 'bottom', css: question.survey.css.question.title">
+            <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
+        </h5>
         <!-- /ko -->
     </div>
 </script>

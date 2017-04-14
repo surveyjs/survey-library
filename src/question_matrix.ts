@@ -6,18 +6,26 @@ import {SurveyError} from "./base";
 import {surveyLocalization} from './surveyStrings';
 import {CustomError} from "./error";
 import {QuestionFactory} from "./questionfactory";
+import {LocalizableString} from "./localizablestring";
 
 export interface IMatrixData {
     onMatrixRowChanged(row: MatrixRowModel);
 }
 export class MatrixRowModel extends Base {
     private data: IMatrixData;
+    private item: ItemValue;
     protected rowValue: any; 
 
-    constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
+    constructor(item: ItemValue, public fullName: string, data: IMatrixData, value: any) {
         super();
+        this.item = item;
         this.data = data;
         this.rowValue = value;
+    }
+    public get name(): string { return this.item.value; } 
+    public get text(): string { return this.item.text; } 
+    public get locText(): LocalizableString { 
+        return this.item.locText; 
     }
     public get value() { return this.rowValue; }
     public set value(newValue: any) {
@@ -59,10 +67,10 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         if (!val) val = {};
         for (var i = 0; i < this.rows.length; i++) {
             if (!this.rows[i].value) continue;
-            result.push(this.createMatrixRow(this.rows[i].value, this.rows[i].text, this.name + '_' + this.rows[i].value.toString(), val[this.rows[i].value]));
+            result.push(this.createMatrixRow(this.rows[i], this.name + '_' + this.rows[i].value.toString(), val[this.rows[i].value]));
         }
         if (result.length == 0) {
-            result.push(this.createMatrixRow(null, "", this.name, val));
+            result.push(this.createMatrixRow(new ItemValue(null), this.name, val));
         }
         this.generatedVisibleRows = result;
         return result;
@@ -88,8 +96,8 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         }
         return true;
     }
-    protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
-        return new MatrixRowModel(name, text, fullName, this, value);
+    protected createMatrixRow(item: ItemValue, fullName: string, value: any): MatrixRowModel {
+        return new MatrixRowModel(item, fullName, this, value);
     }
     protected onValueChanged() {
         if (this.isRowChanging || !(this.generatedVisibleRows) || this.generatedVisibleRows.length == 0) return;

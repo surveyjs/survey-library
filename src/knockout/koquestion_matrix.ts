@@ -3,12 +3,13 @@ import {QuestionMatrixModel, MatrixRowModel, IMatrixData} from "../question_matr
 import {QuestionImplementor} from "./koquestion";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
+import {ItemValue} from "../itemvalue";
 
 export class MatrixRow extends MatrixRowModel {
     private isValueUpdating = false;
     koValue: any;
-    constructor(public name: any, public text: string, public fullName: string, data: IMatrixData, value: any) {
-        super(name, text, fullName, data, value);
+    constructor(item: ItemValue, public fullName: string, data: IMatrixData, value: any) {
+        super(item, fullName, data, value);
         this.koValue = ko.observable(this.value);
         var self = this;
         this.koValue.subscribe(function (newValue) {
@@ -27,8 +28,8 @@ export class QuestionMatrix extends QuestionMatrixModel {
         super(name);
         new QuestionImplementor(this);
     }
-    protected createMatrixRow(name: any, text: string, fullName: string, value: any): MatrixRowModel {
-        return new MatrixRow(name, text, fullName, this, value);
+    protected createMatrixRow(item: ItemValue, fullName: string, value: any): MatrixRowModel {
+        return new MatrixRow(item, fullName, this, value);
     }
 }
 

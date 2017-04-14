@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-panel">
 <div>
-    <h4 data-bind="visible: (processedTitle.length > 0), text: processedTitle, css: data.css.pageTitle"></h4>
+    <h4 data-bind="visible: (processedTitle.length > 0), css: data.css.pageTitle"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
     <div data-bind="style: { marginLeft: koInnerMargin }">
     <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
     </div>

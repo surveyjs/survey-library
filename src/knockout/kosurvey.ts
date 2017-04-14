@@ -6,6 +6,9 @@ import {PageModel} from "../page";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {koTemplate, SurveyTemplateText} from "./templateText";
 import {QuestionCustomWidget, CustomWidgetCollection} from "../questionCustomWidgets";
+import {LocalizableString} from "../localizablestring";
+import {ItemValue} from "../itemvalue";
+import {QuestionRatingModel} from "../question_rating";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add((customWidget) => {
     if (customWidget.widgetJson.isDefaultRender) return;
@@ -130,6 +133,16 @@ export class Survey extends SurveyModel {
     }
 }
 
+LocalizableString.prototype["onCreating"] = function () {
+    var self = this;
+    this.koReRender = ko.observable(0);
+    this.koRenderedHtml = ko.pureComputed(function () { self.koReRender(); return self.renderedHtml; });
+};
+
+LocalizableString.prototype["onChanged"] = function () {
+    this.koReRender(this.koReRender() + 1);
+};
+
 ko.components.register('survey', {
     viewModel: {
         createViewModel: function(params, componentInfo) {
@@ -140,3 +153,5 @@ ko.components.register('survey', {
     },
     template: koTemplate
 });
+
+ItemValue.setData(QuestionRatingModel.defaultRateValues, [1, 2, 3, 4, 5]);

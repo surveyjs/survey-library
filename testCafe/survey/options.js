@@ -163,6 +163,7 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll("div"), { text: "Page 1 of 3", visibilityCheck: true});
         const isFirstSpanProgress = ClientFunction(() =>
             document.querySelectorAll("span")[0].innerHTML.indexOf("Page 1 of 3") !== -1
+            || document.querySelectorAll("span")[1].innerHTML.indexOf("Page 1 of 3") !== -1
         );
 
         await show_top_progress_bar();

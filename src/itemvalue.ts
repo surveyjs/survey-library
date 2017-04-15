@@ -53,7 +53,7 @@ export class ItemValue {
     private itemValue: any;
     private locTextValue: LocalizableString;
     constructor(value: any, text: string = null) {
-        this.locTextValue = new LocalizableString(null);
+        this.locTextValue = new LocalizableString(null, true);
         var self = this;
         this.locTextValue.onRenderedHtmlCallback = function(text) { return text ? text : (self.value ? self.value.toString() : null); }
         if(text) this.locText.text = text;

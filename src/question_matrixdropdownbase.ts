@@ -43,7 +43,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     constructor(public name: string, title: string = null) {
         super();
         this.choicesValue = ItemValue.createArray(this);
-        this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.getFullTitle(text); };
         this.locOptionsCaptionValue = new LocalizableString(this);

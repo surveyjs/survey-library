@@ -75,7 +75,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     constructor(public name: string = "") {
         super();
         this.idValue = PanelModelBase.getPanelId();
-        this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRendredTitle(text); };
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };

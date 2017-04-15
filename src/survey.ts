@@ -85,13 +85,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     constructor(jsonObj: any = null) {
         super();
         var self = this;
-        this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
         this.locCompletedHtmlValue = new LocalizableString(this);
         this.locPagePrevTextValue = new LocalizableString(this);
         this.locPageNextTextValue = new LocalizableString(this);
         this.locCompleteTextValue = new LocalizableString(this);
-        this.locQuestionTitleTemplateValue = new LocalizableString(this);
+        this.locQuestionTitleTemplateValue = new LocalizableString(this, true);
         
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };

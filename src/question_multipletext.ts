@@ -24,7 +24,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
 
     constructor(public name: any = null, title: string = null) {
         super();
-        this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
         this.locTitleValue.onRenderedHtmlCallback = function(text) {return self.getFullTitle(text); };
         this.title = title;

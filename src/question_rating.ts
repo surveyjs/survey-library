@@ -15,8 +15,8 @@ export class QuestionRatingModel extends Question {
     constructor(public name: string) {
         super(name);
         this.rates = ItemValue.createArray(this);
-        this.locMinRateDescriptionValue = new LocalizableString(this);
-        this.locMaxRateDescriptionValue = new LocalizableString(this);
+        this.locMinRateDescriptionValue = new LocalizableString(this, true);
+        this.locMaxRateDescriptionValue = new LocalizableString(this, true);
     }
     get rateValues(): Array<any> { return this.rates; }
     set rateValues(newValue: Array<any>) {

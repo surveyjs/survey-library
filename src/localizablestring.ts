@@ -8,7 +8,7 @@ export class LocalizableString {
     private values = {};
     private htmlValues = {};
     public onRenderedHtmlCallback: (html: string) => string;
-    constructor (public owner: ILocalizableOwner) {
+    constructor (public owner: ILocalizableOwner, public useMarkdown: boolean = false) {
         this.onCreating();
     }
     public get locale() {return this.owner ? this.owner.getLocale() : ""; }
@@ -87,7 +87,7 @@ export class LocalizableString {
     public onChanged() {}
     protected onCreating() {}
     private hasHtmlValue(): boolean {
-        if(!this.owner) return false;
+        if(!this.owner || !this.useMarkdown) return false;
         var text = this.text;
         if(!text) return false;
         var loc = this.locale;

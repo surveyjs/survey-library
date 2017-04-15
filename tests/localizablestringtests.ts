@@ -158,7 +158,7 @@ QUnit.test("Array<ItemValue> localization deserialize/setData", function (assert
 
 QUnit.test("Localization string markdown test", function (assert) {
     var owner = new LocalizableOwnerTester("");
-    var locString = new LocalizableString(owner);
+    var locString = new LocalizableString(owner, true);
     locString.text = "val1";
     assert.equal(locString.hasHtml, false, "There is no markdown");
     assert.equal(locString.html, "", "html is empty");
@@ -167,15 +167,15 @@ QUnit.test("Localization string markdown test", function (assert) {
     assert.equal(locString.hasHtml, true, "Markdown is appy");
     assert.equal(locString.html, LocalizableOwnerTester.MarkdownText, "html is not empty");
     assert.equal(locString.textOrHtml, LocalizableOwnerTester.MarkdownText, "html is empty");
-    locString.text = "mark";
+    locString.useMarkdown = false;
     assert.equal(locString.hasHtml, false, "remove markdown");
     assert.equal(locString.html, "", "html is empty again");
-    assert.equal(locString.textOrHtml, "mark", "html is empty");
+    assert.equal(locString.textOrHtml, "markdown", "html is empty");
 });
 
 QUnit.test("Localization string onRenderedHtmlCallback", function (assert) {
     var owner = new LocalizableOwnerTester("");
-    var locString = new LocalizableString(owner);
+    var locString = new LocalizableString(owner, true);
     locString.onRenderedHtmlCallback = function(text) { return text + "!";}
     locString.text = "Hi";
     assert.equal(locString.textOrHtml, "Hi", "Use just text");

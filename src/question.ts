@@ -26,10 +26,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
     constructor(public name: string) {
         super(name);
-        this.locTitleValue = new LocalizableString(this);
+        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
-        this.locCommentTextValue = new LocalizableString(this);
+        this.locCommentTextValue = new LocalizableString(this, true);
     }
     public get hasTitle(): boolean { return true; }
     public get hasInput(): boolean { return true; }

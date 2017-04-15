@@ -25,8 +25,8 @@ export class QuestionSelectBase extends Question {
         super(name);
         this.choicesValues = ItemValue.createArray(this);
         this.choicesByUrl = this.createRestfull();
-        this.locOtherTextValue = new LocalizableString(this);
-        this.locOtherErrorTextValue = new LocalizableString(this);
+        this.locOtherTextValue = new LocalizableString(this, true);
+        this.locOtherErrorTextValue = new LocalizableString(this, true);
         var self = this;
         this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };
     }

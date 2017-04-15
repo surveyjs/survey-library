@@ -92,7 +92,7 @@ QUnit.test("Pre-proccess value for Checkbox", function (assert) {
     page.addQuestion(question);
 
     survey.setValue("checkboxQuestion", "One");
-    assert.equal(question.value, ["One"], "convert value to array");
+    assert.deepEqual(question.value, ["One"], "convert value to array");
 });
 QUnit.test("Matrix Question: visible rows", function (assert) {
     var matrix = new QuestionMatrixModel("q1");

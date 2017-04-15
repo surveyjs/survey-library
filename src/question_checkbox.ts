@@ -10,9 +10,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         if (!val || !Array.isArray(val)) return false;
         return val.indexOf(this.otherItem.value) >= 0;
     }
+    protected valueFromData(val: any): any {
+        if (!val) return val;
+        if(!Array.isArray(val)) return [val];
+        return super.valueFromData(val);
+    }
     protected valueFromDataCore(val: any): any {
-        if (!val || !Array.isArray(val)) return val;
-
         for (var i = 0; i < val.length; i++) {
             if (val[i] == this.otherItem.value) return val;
             if (this.hasUnknownValue(val[i])) {

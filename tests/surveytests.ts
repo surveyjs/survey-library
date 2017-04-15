@@ -1044,6 +1044,18 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
     assert.equal(survey.getQuestionByName("question3").visible, true, "The third question is visible");
 });
 
+QUnit.test("QuestionCheckbox if single value set then convert it to array, #334", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var q1 = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
+    survey.setValue("q1", [1]);
+    assert.deepEqual(survey.getValue("q1"), [1], "survey.getValue returns array");
+    assert.deepEqual(q1.value, [1], "q1.value returns array");
+    survey.setValue("q1", 1);
+    assert.deepEqual(survey.getValue("q1"), 1, "survey.getValue return value");
+    assert.deepEqual(q1.value, [1], "q1.value still returns array");
+});
+
 QUnit.test("visibleIf and page rows", function (assert) {
     var survey = new SurveyModel({
         pages:[

@@ -52,15 +52,6 @@ export class PanelImplementorBase {
     }
 }
 
-export class PageImplementor extends PanelImplementorBase {
-    koNo: any; 
-    constructor(public panel: PanelModelBase) {
-        super(panel);
-        this.koNo = ko.observable("");
-        this.panel["koNo"] = this.koNo;
-    }
-}
-
 export class Panel extends PanelModel {
     koInnerMargin: any;
     constructor(name: string = "") {
@@ -74,7 +65,7 @@ export class Panel extends PanelModel {
     protected createRow(): QuestionRowModel { return new QuestionRow(this); }
     protected onCreating() { }
     protected onNumChanged(value: number) {
-        this["koNo"](value > 0 ? value + ". " : "");
+        this.locTitle.onChanged();
     }
     protected onRenderWidthChanged() {  
         this.koInnerMargin(this.getIndentSize(this.innerIndent));
@@ -93,7 +84,7 @@ export class Panel extends PanelModel {
 export class Page extends PageModel {
     constructor(name: string = "") {
         super(name);
-        new PageImplementor(this);
+        new PanelImplementorBase(this);
         this.onCreating();
     }
     protected createRow(): QuestionRowModel { return new QuestionRow(this); }
@@ -103,7 +94,7 @@ export class Page extends PageModel {
 
     protected onCreating() { }
     protected onNumChanged(value: number) {
-        this["koNo"](value > 0 ? value + ". " : "");
+        this.locTitle.onChanged();
     }
 }
 

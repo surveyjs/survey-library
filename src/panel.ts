@@ -77,7 +77,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.idValue = PanelModelBase.getPanelId();
         this.locTitleValue = new LocalizableString(this);
         var self = this;
-        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
+        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRendredTitle(text); };
         this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
         this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
             return self.doSpliceElements(this, start, deleteCount, ...items);
@@ -281,7 +281,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         return result;
     }
     public get processedTitle() { 
-        var str = this.locTitle.textOrHtml;
+        return this.getRendredTitle(this.locTitle.textOrHtml);
+    }
+    protected getRendredTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
         return this.data != null ? this.data.processText(str) : str; 
     }

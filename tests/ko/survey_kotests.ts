@@ -271,6 +271,19 @@ QUnit.test("Rating items creates correct object", function (assert) {
     assert.ok(QuestionRatingModel.defaultRateValues[0].locText["koRenderedHtml"], "ItemValue for knockout should be created");
 });
 
+QUnit.test("Update page.title correctly with numbers", function (assert) {
+    var survey = new Survey();
+    survey.addPage(createPageWithQuestion("page1"));
+    survey.addPage(createPageWithQuestion("page2"));
+    survey.pages[0].title = "title 1";
+    survey.pages[1].title = "title 2";
+    survey.showPageNumbers = true;
+    survey.currentPageNo = 1;
+    assert.equal(survey.currentPage.locTitle["koRenderedHtml"](), "2. title 2", "It shows page as second");
+    survey.pages[0].visible = false;
+    assert.equal(survey.currentPage.locTitle["koRenderedHtml"](), "1. title 2", "It shows page as first");
+});
+
 
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);

@@ -18,6 +18,13 @@ export class PageModel extends PanelModelBase implements IPage {
         this.numValue = value;
         this.onNumChanged(value);
     }
+    protected getRendredTitle(str: string): string {
+        str = super.getRendredTitle(str);
+        if(this.num > 0) {
+            str = this.num  + ". " + str;
+        }
+        return str;
+    }
     public focusFirstQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
             var question = this.questions[i];

@@ -17,6 +17,8 @@ export class QuestionRatingModel extends Question {
         this.rates = ItemValue.createArray(this);
         this.locMinRateDescriptionValue = new LocalizableString(this, true);
         this.locMaxRateDescriptionValue = new LocalizableString(this, true);
+        this.locMinRateDescriptionValue.onRenderedHtmlCallback = function(text) { return text ? text + " " : text; }
+        this.locMaxRateDescriptionValue.onRenderedHtmlCallback = function(text) { return text ? " " + text : text; }
     }
     get rateValues(): Array<any> { return this.rates; }
     set rateValues(newValue: Array<any>) {

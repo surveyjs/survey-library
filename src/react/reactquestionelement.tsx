@@ -1,10 +1,17 @@
 ﻿import * as React from 'react';
 import {ItemValue} from "../itemvalue";
+import {LocalizableString} from "../localizablestring";
 import {QuestionBase} from '../questionbase';
 import {ISurveyCreator} from "./reactquestion";
-import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 
 export class SurveyElementBase extends React.Component<any, any> {
+    public static renderLocString(locStr: LocalizableString, style: any = null): JSX.Element {
+        if(locStr.hasHtml) {
+            var htmlValue = { __html: locStr.renderedHtml };
+            return <span  style={style} dangerouslySetInnerHTML={htmlValue} />;
+        }
+        return <span style={style}>{locStr.renderedHtml}</span>
+    }
     protected css: any;
     protected rootCss: any;
     protected isDisplayMode: boolean;
@@ -18,6 +25,9 @@ export class SurveyElementBase extends React.Component<any, any> {
         this.css = nextProps.css;
         this.rootCss = nextProps.rootCss;
         this.isDisplayMode = nextProps.isDisplayMode || false;
+    }
+    protected renderLocString(locStr: LocalizableString, style: any = null): JSX.Element {
+        return SurveyElementBase.renderLocString(locStr, style);
     }
 }
 

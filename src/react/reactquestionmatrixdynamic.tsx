@@ -36,7 +36,8 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
             var key = "column" + i;
             var minWidth = this.question.getColumnWidth(column);
             var columnStyle = minWidth ? { minWidth: minWidth } : {};
-            headers.push(<th key={key} style={columnStyle}>{this.question.getColumnTitle(column) }</th>);
+            var columnTitle = this.renderLocString(column.locTitle);
+            headers.push(<th key={key} style={columnStyle}>{columnTitle}</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;

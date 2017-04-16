@@ -90,10 +90,11 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
     protected get inputStyle(): any { return { marginRight: "3px" }; }
     protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
         var id = this.isFirst ? this.question.inputId : null;
+        var text = this.renderLocString(this.item.locText);
         return (<div className={this.css.item} style={divStyle}>
             <label className={this.css.item}>
                 <input type="checkbox" id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
-                    <span>{this.item.text}</span>
+                    {text}
                     </label>
                 {otherItem}
             </div>);

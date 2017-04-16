@@ -19,7 +19,8 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
             var key = "column" + i;
             var minWidth = this.question.getColumnWidth(column);
             var columnStyle = minWidth ? { minWidth: minWidth } : {};
-            headers.push(<th key={key} style={columnStyle}>{this.question.getColumnTitle(column) }</th>);
+            var columnTitle = this.renderLocString(column.locTitle);
+            headers.push(<th key={key} style={columnStyle}>{columnTitle}</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;
@@ -70,7 +71,8 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
             var select = this.renderSelect(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
-        return (<tr><td>{this.row.text}</td>{tds}</tr>);
+        var rowText = this.renderLocString(this.row.locText);
+        return (<tr><td>{rowText}</td>{tds}</tr>);
     }
     protected renderSelect(cell: MatrixDropdownCell): JSX.Element {
         return this.creator.createQuestionElement(cell.question);

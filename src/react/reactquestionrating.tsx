@@ -18,11 +18,11 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         var values = [];
-        var minText = this.question.minRateDescription ? this.question.minRateDescription + " " : "";
-        var maxText = this.question.maxRateDescription ? " " + this.question.maxRateDescription : "";
+        var minText = this.question.minRateDescription ? this.renderLocString(this.question.locMinRateDescription) : null;
+        var maxText = this.question.maxRateDescription ? this.renderLocString(this.question.locMaxRateDescription) : null;
         for (var i = 0; i < this.question.visibleRateValues.length; i++) {
-            var minTextValue = i == 0 ? minText : "";
-            var maxTextValue = i == this.question.visibleRateValues.length - 1 ? maxText : "";
+            var minTextValue = i == 0 ? minText : null;
+            var maxTextValue = i == this.question.visibleRateValues.length - 1 ? maxText : null;
             values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minTextValue, maxTextValue));
         }
         var comment = this.question.hasOther ? this.renderOther() : null;
@@ -33,17 +33,16 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
             </div>
         );
     }
-    protected renderItem(key: string, item: ItemValue, minText: string, maxText: string): JSX.Element {
+    protected renderItem(key: string, item: ItemValue, minText: JSX.Element, maxText: JSX.Element): JSX.Element {
         var isChecked = this.question.value == item.value;
         var className = this.css.item;
         if (isChecked) className += " active";
-        var min = minText ? <span>{minText}</span> : null;
-        var max = maxText ? <span>{maxText}</span> : null;
+        var itemText = this.renderLocString(item.locText);
         return <label key={key} className={className}>
             <input type="radio" style={{ display: "none" }} name={this.question.name} value={item.value} disabled={this.isDisplayMode} checked={this.question.value == item.value} onChange={this.handleOnChange} />
-            {min}
-            <span>{item.text}</span>
-            {max}
+            {minText}
+            {itemText}
+            {maxText}
             </label>;
     }
     protected renderOther(): JSX.Element {

@@ -2,6 +2,7 @@
 import {QuestionBase} from '../questionbase';
 import {Question} from '../question';
 import {SurveyQuestionCommentItem} from './reactquestioncomment';
+import {SurveyElementBase} from "./reactquestionelement";
 
 export interface ISurveyCreator {
     createQuestionElement(question: QuestionBase): JSX.Element;
@@ -116,12 +117,13 @@ export class SurveyQuestion extends React.Component<any, any> {
         return <div ref="widget">{widget}</div>
     }
     protected renderTitle(): JSX.Element {
-        var titleText = this.question.fullTitle;
+        var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
         return (<h5 className={this.css.question.title}>{titleText}</h5>);
     }
     protected renderComment(): JSX.Element {
+        var commentText = SurveyElementBase.renderLocString(this.question.locCommentText);
         return (<div>
-                <div>{this.question.commentText}</div>
+                <div>{commentText}</div>
                 <SurveyQuestionCommentItem  question={this.question} css={this.css} />
             </div>);
     }

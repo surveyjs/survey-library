@@ -3,6 +3,7 @@ import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestioneleme
 import {QuestionMatrixModel} from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
 import {ReactQuestionFactory} from "./reactquestionfactory";
+import {ItemValue} from "../itemvalue";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -16,7 +17,8 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
             var key = "column" + i;
-            headers.push(<th key={key}>{column.text}</th>);
+            var columText = this.renderLocString(column.locText);
+            headers.push(<th key={key}>{columText}</th>);
         }
         var rows = [];
         var visibleRows = this.question.visibleRows;
@@ -64,7 +66,11 @@ export class SurveyQuestionMatrixRow extends SurveyElementBase {
     }
     render(): JSX.Element {
         if (!this.row) return null;
-        var firstTD = this.question.hasRows ? <td>{this.row.text}</td> : null;
+        var firstTD = null;
+        if(this.question.hasRows) {
+            var rowText = this.renderLocString(this.row.locText);
+             firstTD = <td>{rowText}</td>;
+        }
         var tds = [];
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];

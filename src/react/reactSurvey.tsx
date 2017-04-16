@@ -8,6 +8,7 @@ import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {SurveyProgress} from "./reactSurveyProgress";
 import {SurveyPageId} from "../base";
+import {SurveyElementBase} from "./reactquestionelement";
 
 export class Survey extends React.Component<any, any> implements ISurveyCreator {
     public static get cssType(): string { return surveyCss.currentType; }
@@ -74,7 +75,8 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         );
     }
     protected renderTitle(): JSX.Element {
-        return <div className={this.css.header}><h3>{this.survey.processedTitle}</h3></div>;
+        var title = SurveyElementBase.renderLocString(this.survey.locTitle);
+        return <div className={this.css.header}><h3>{title}</h3></div>;
     }
     protected renderPage(): JSX.Element {
         return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;
@@ -182,6 +184,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         }
         if (newProps.onAfterRenderQuestion) {
             this.survey.onAfterRenderQuestion.add((sender, options) => { newProps.onAfterRenderQuestion(sender, options); });
+        }
+        if(newProps.onTextMarkdown) {
+            this.survey.onTextMarkdown.add((sender, options) => { newProps.onTextMarkdown(sender, options); });
         }
     }
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4 v-show="hasTitle" :class="css.pageTitle">{{num + page.processedTitle}}</h4>
+        <h4 v-show="hasTitle" :class="css.pageTitle"><survey-string :locString="page.locTitle"/></h4>
         <div v-for="row in rows" v-show="row.visible" :class="css.row">
             <survey-row :row="row" :survey="survey" :css="css"></survey-row>
         </div>

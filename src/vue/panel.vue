@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h4 v-show="hasTitle" :class="css.pageTitle">{{question.processedTitle}}</h4>
+        <h4 v-show="hasTitle" :class="css.pageTitle"><survey-string :locString="question.locTitle"/></h4>
         <div :style="{ marginLeft: getIndentSize(question, question.innerIndent) }">
             <div v-for="row in rows" v-show="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>

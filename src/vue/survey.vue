@@ -1,6 +1,6 @@
 <template>
     <div :class="css.root">
-        <div v-if="hasTitle" :class="css.header"><h3>{{survey.processedTitle}}</h3></div>
+        <div v-if="hasTitle" :class="css.header"><h3><survey-string :locString="survey.locTitle"/></h3></div>
         <template v-if="survey.state === 'running'">
             <div :class="css.body">
                 <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>

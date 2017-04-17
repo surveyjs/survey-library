@@ -18,7 +18,7 @@
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\"",
     "lint": "tslint ./src/**/*.ts -t verbose"
   },
-  "version": "0.12.8",
+  "version": "0.12.9",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {

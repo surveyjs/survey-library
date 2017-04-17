@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <span>
         <span v-if="locString.hasHtml" v-html="locString.renderedHtml"></span>
         <span v-else>{{locString.renderedHtml}}</span>
-    </div>
+    </span>
 </template>
 
 <script lang="ts">

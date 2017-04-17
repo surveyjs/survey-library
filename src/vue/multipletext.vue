@@ -2,7 +2,7 @@
     <table :class="css.multipletext.root">
         <tr v-for="row in question.getRows()">
             <template v-for="(item, index) in row">
-                <td :class="css.multipletext.itemTitle">{{item.fullTitle}}</td>
+                <td :class="css.multipletext.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
                     <input type="text" v-if="!question.isReadOnly" :class="css.multipletext.itemValue" v-model="item.value" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" />
                     <div v-else style="float:left" :class="css.multipletext.itemValue" :size="question.itemSize">{{item.value}}</div>

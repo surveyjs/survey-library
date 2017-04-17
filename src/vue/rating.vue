@@ -3,9 +3,9 @@
         <div :class="css.rating.root">
             <label v-for="(item, index) in question.visibleRateValues" :class="getCss(item)">
                 <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" />
-                <span v-if="index === 0">{{question.minRateDescription}}</span>
-                <span>{{item.text}}</span>
-                <span v-if="index === question.visibleRateValues.length-1">{{question.maxRateDescription}}</span>
+                <span v-if="index === 0"><survey-string :locString="question.locMinRateDescription"/></span>
+                <survey-string :locString="item.locText"/>
+                <span v-if="index === question.visibleRateValues.length-1"><survey-string :locString="question.locMaxRateDescription"/></span>
             </label>
         </div>
         <survey-other-choice v-show="question.hasOther" :class="css.rating.other" :question="question" :css="css"/>

@@ -3,12 +3,12 @@
         <thead>
             <tr>
                 <th v-show="question.hasRows"></th>
-                <th v-for="column in question.columns">{{column.text}}</th>
+                <th v-for="column in question.columns"><survey-string :locString="column.locText"/></th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(row, rowIndex) in question.visibleRows">
-                <td v-show="question.hasRows">{{row.text}}</td>
+                <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
                 <td v-for="(column, columnIndex) in question.columns">
                     <input type="radio" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
                 </td>

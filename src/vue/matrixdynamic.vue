@@ -3,7 +3,7 @@
         <table :class="css.matrixdynamic.root">
             <thead>
                 <tr>
-                    <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }">{{question.getColumnTitle(column)}}</th>
+                    <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
                     <th v-if="!question.isReadOnly"></th>
                 </tr>
             </thead>

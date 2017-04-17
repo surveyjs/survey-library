@@ -38,14 +38,19 @@ hasFooter: true
         <div class="step row">
             <h2>Professional Open Source library</h2>
             <div class="step-panel">
-                SurveyJS library is a free and open source solution under <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a>. However, professional full-time software developers support it. We have developed software libraries and frameworks since 90th.We know what to do and how to do it. Just look at <a href="https://github.com/surveyjs/surveyjs/tree/master/src">our source code</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/tests">unit tests</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/testCafe">functional tests</a> and <a href="{{ page.pathprefix }}examples">examples</a> to make up your own mind.
+                SurveyJS library is a free and open source solution under <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a>. However, professional full-time software developers support it. We have developed software libraries and frameworks since late 90th.We know what to do and how to do it. You can judge it for yourself by looking at <a href="https://github.com/surveyjs/surveyjs/tree/master/src">our source code</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/tests">unit tests</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/testCafe">functional tests</a> and <a href="{{ page.pathprefix }}examples">examples</a>.
             </div>                    
         </div>
         <div class="step row">
             <h2>A dozen question types</h2>
-            <div class="step-panel">
+            <div class="row">
+                <div class="col-md-4">
+                    <div id="surveyQuestionTypes"></div>
+                </div>
+                <div class="step-panel col-md-8">
                 SurveyJS library has a dozen built-in question types, like <a href="{{ page.pathprefix }}examples/questiontype-text.html">a simple text</a> or <a href="{{ page.pathprefix }}examples/questiontype-matrixdynamic.html">a complex matrix</a> with different input types, and a <a href="{{ page.pathprefix }}examples/questiontype-panel.html">panel (container)</a>. We have all question types you will likely need.
-            </div>                    
+                </div>
+            </div>
         </div>
         <div class="step row">
             <h2>Integrate your favorite JavaScript widgets</h2>
@@ -78,9 +83,14 @@ hasFooter: true
         </div>
         <div class="step row">
             <h2>Survey Flow</h2>
-            <div class="step-panel">
+            <div class="row">
+                <div class="col-md-4">
+                    <div id="surveyFlow"></div>
+                </div>
+                <div class="step-panel col-md-8">
                 The most complex surveys need to change the survey flow. You have to change the questions, panels and pages visibility or skip some pages. SurveyJS provides you with <a  href="{{ page.pathprefix }}examples/condition-kids.html">an easy way to achieve this</a>.
-            </div>                    
+                </div>
+            </div>
         </div>
         <div class="step row">
             <h2>Dynamic questions</h2>
@@ -222,5 +232,27 @@ var surveyDynamic = renderSurvey("Dynamic", { questions: [
      title: { default: "What is your favorite pet?", de: "Was ist dein Lieblingshaustier?"},
    choices: [ { value: "dog", text: { default: "Dog", de: "Hund" } }, {value: "cat", text: { default: "Cat", de: "Katze" }}, {value: "parrot",text: {default: "Parrot", de: "Papagei" } } ],}
    ],completedHtml: { default: "Your favorite pet is <b>{favoritePet}</b>.", de: "Ihr Lieblingstier ist <b>{favoritePet}</b>." }});
+
+var surveyQuestionTypes = renderSurvey("QuestionTypes", { questions: [{ type: "matrixdynamic", addRowText: "Add a new language",
+    columns: [ { name: "Select a language", choices: ["Javascript","Java","Python","CSS","PHP","Ruby", "C++","C","Shell","C#","Objective-C","R","VimL","Go","Perl","CoffeeScript","TeX","Swift","Scala","Emacs List","Haskell","Lua","Clojure","Matlab","Arduino", "Makefile", "Groovy","Puppet","Rust", "PowerShell"], cellType: "dropdown", isRequired: true, hasOther: true, choicesOrder: "asc"},
+      { name: "What is your experience?", choices: ["One year or less", "From one two three years","From three to five years","More then five years"], cellType: "dropdown", isRequired: true}],
+      isRequired: true, name: "languages", rowCount:1, title: "What programming languages do you know?" }]});
+
+surveyQuestionTypes.onValueChanged.add(function(survey, options){
+    var langs = survey.getValue("languages");
+    var res = "Your experience in programming is: <br />";
+    for(var i = 0; i < langs.length; i ++) {
+        var row = langs[i];
+        res += row["Select a language"] + ": " + row["What is your experience?"] + "<br />";
+    }
+    survey.completedHtml = res;
+});    
+
+var surveyFlow = renderSurvey("Flow", {pages: [
+  { elements: [{type: "rating", isRequired: true, maxRateDescription: "Completely satisfied", minRateDescription: "Not Satisfied", name: "satisfaction", title: "How satisfied are you with the Product?"}]},
+  { elements: [{type: "rating", maxRateDescription: "I will recommend", minRateDescription: "Will not recommend", name: "recommend friends", title: "How likely are you to recommend the Product to a friend or co-worker?", visible: false, visibleIf: "{satisfaction} > 3"}]},
+  { elements: [{type: "comment", name: "suggestions", title: "What would make you more satisfied with the Product?", visibleIf: "{satisfaction} > 3"}]},
+  { elements: [{type: "comment", name: "improve", title: "What don't you like in the Product?", visibleIf: "{satisfaction} < 4" }]
+  }], focusFirstQuestionAutomatic: false, completedHtml: "<p><h4>Thank you for the sharing information wiht us!</h4></p><p>Your satisfaction level is: <b>{satisfaction}</b></p>"});
 
 </script>

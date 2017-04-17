@@ -306,9 +306,9 @@ footer.panel-footer {
 
 /*examples*/
 
-.survey-navbar .active > a,
-.survey-navbar .nav > li > a:hover,
-.survey-navbar .nav > li > a:focus{
+.navbar-default.survey-navbar .nav .active > a,
+.navbar-default.survey-navbar .nav > li > a:hover,
+.navbar-default.survey-navbar .nav > li > a:focus {
     color: #1ab394;
     background-color: #f4f4f4;
     border-left: none;

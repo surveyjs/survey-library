@@ -32,6 +32,7 @@
             ]},
             { "name": "Survey", "id": "survey",
               "items": [
+                {"name": "OnComplete handler", "text": "Handle survey 'complete' event", "url": "survey-oncomplete.html"},
                 {"name": "Use cookie", "text": "Run survey one time in a browser", "url": "survey-cookie.html"},
                 {"name": "Questions in one line","text":  "Show several questions in one line", "url": "survey-startwithnewline.html"},
                 {"name": "Custom css", "text": "Use you own css classes", "url": "survey-customcss.html"},

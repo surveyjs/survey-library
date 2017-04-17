@@ -62,6 +62,11 @@
         ]
     },
     { "name": "survey-autonextpage", "title": "Go to the next page automatically", "propertiesFile": "exampleproperties/autonextpage.html" },
+    { "name": "survey-oncomplete", "disablereRun": true, "title": "Handle survey 'complete' event",
+        "includes": [
+            "examplesetups/survey-oncomplete.md"
+        ]
+    },
     { "name": "survey-cookie", "disablereRun": true, "title": "Use cookie to run servey one time in a browser.",
         "includes": [
             "examplesetups/standard.md",

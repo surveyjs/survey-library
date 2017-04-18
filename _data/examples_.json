@@ -115,6 +115,11 @@
             "examplesetups/options.md"
         ]
     },
+    { "name": "survey-markdown-matrix", "title": "Use markdown to render column title in several lines", 
+        "includes": [
+            "examplesetups/markdown-matrix.md"
+        ]
+    },
     { "name": "survey-processtext", "title": "Pre-process question and page titles, and html properties. Use survey properties to change the templates.", "propertiesFile": "exampleproperties/processtext.html" },
     { "name": "survey-startwithnewline", "title": "Show several questions in one line/row.", "propertiesFile": "exampleproperties/startwithnewline.html" },
     { "name": "trigger-complete", "title": "Complete Trigger - finishes the survey.", "propertiesFile": "exampleproperties/completetrigger.html", "dataFile": "surveys/trigger-complete.json" },

@@ -1,0 +1,21 @@
+{
+   questions: [
+    {
+     type: "matrix",
+     name: "factors",
+     title: "Please indicate how important these factors are when deciding on your vacation destination?",
+     columns: [{value: 1, text: "Not <br /> important <br /> 1"}, 
+        2, 3, 4, 5, 6, 
+        {value:7, text: "Very<br /> important <br /> 7"}],
+     rows: [
+      "Indulgent luxuries",
+      "Quality beaches",
+      "Cultural activities",
+      "Unique cuisine",
+      "Interaction with local wildlife",
+      "Nightlife",
+      "Shopping"
+     ]
+  }
+ ]
+}

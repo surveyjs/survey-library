@@ -190,5 +190,10 @@
         "includes": [
             "examplesetups/custom-widget-image-picker.md"
         ]
+    },
+    { "name": "custom-widget-nouislider", "title": "JavaScript Range Slider", "jquery": false,
+        "includes": [
+            "examplesetups/custom-widget-nouislider.md"
+        ]
     }
 ]

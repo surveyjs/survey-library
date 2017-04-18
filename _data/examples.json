@@ -28,7 +28,8 @@
                 { "name": "TagBox", "text" : "Devextreme TagBox", "url": "custom-widget-tagbox.html"},
                 { "name": "ICheckMatrix", "text" : "Matrix with iCheck", "url": "custom-widget-matrix-icheck.html"},
                 { "name": "SortableJS", "text" : "SortableJS", "url": "custom-widget-sortablejs.html"},
-                { "name": "ImagePicker", "text" : "Image Picker", "url": "custom-widget-image-picker.html"}
+                { "name": "ImagePicker", "text" : "Image Picker", "url": "custom-widget-image-picker.html"},
+                { "name": "noUiSlider", "text" : "JavaScript Range Slider", "url": "custom-widget-nouislider.html"}
             ]},
             { "name": "Survey", "id": "survey",
               "items": [

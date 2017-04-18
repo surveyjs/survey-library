@@ -42,6 +42,16 @@ var widget = {
         question.valueChangedCallback = updateHandler;
         updateHandler();
     }
+    {% if page.useknockout %}
+    {% else %}
+        ,
+        willUnmount: function(question, el) {
+            var $select = $(el).find("select").select2();
+            $select.each(function(i,item){
+              $(item).select2("destroy");
+            });
+        } 
+    {% endif %}
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 survey.data = { countries: ["Andorra"] };
@@ -99,6 +109,12 @@ Vue.component(widget.name, {
         }
         vm.question.valueChangedCallback = updateHandler;
         updateHandler();
+    },
+    destroyed: function () {
+        var $select = $(this.$el).select2();
+        $select.each(function(i,item){
+          $(item).select2("destroy");
+        });     
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

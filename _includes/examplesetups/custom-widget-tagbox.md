@@ -31,7 +31,10 @@ var widget = {
         question.valueChangedCallback = function() {
             widget.option("value", question.value);
         }
-    }
+    },
+    willUnmount: function(question, el) {
+        $(el).off().remove();
+    } 
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 ReactDOM.render(<Survey.Survey model={survey}/>, document.getElementById("surveyElement"));
@@ -67,7 +70,10 @@ var widget = {
         question.valueChangedCallback = function() {
             widget.option("value", question.value);
         }
-    }
+    },
+    willUnmount: function(question, el) {
+      $(el).off().remove();
+    } 
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 function onAngularComponentInit() {
@@ -100,7 +106,10 @@ var widget = {
         question.valueChangedCallback = function() {
             widget.option("value", question.value);
         }
-    }
+    },
+     willUnmount: function(question, el) {
+       $(el).off().remove();
+     } 
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 $("#surveyElement").Survey({

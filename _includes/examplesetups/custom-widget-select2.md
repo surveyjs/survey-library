@@ -21,9 +21,11 @@ var widget = {
         var widget = $el.select2({
             theme: "classic"
         });
-        question.choicesChangedCallback = function() {
+        var updateChoices = function() {
             $el.select2({data: question.visibleChoices.map(function(choice) { return { id: choice.value, text: choice.text }; })});
         }
+        question.choicesChangedCallback = updateChoices;
+        updateChoices();
         $el.on('select2:select', function (e) {
             question.value = e.target.value;
         });
@@ -33,6 +35,13 @@ var widget = {
         question.valueChangedCallback = updateHandler;
         updateHandler();
     }
+{% if page.useknockout %}
+{% else %}
+    ,
+    willUnmount: function(question, el) {
+        $(el).find("select").select2("destroy");
+    } 
+{% endif %}
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);
 survey.data = { countries: "Andorra" };
@@ -82,6 +91,9 @@ Vue.component(widget.name, {
         }
         vm.question.valueChangedCallback = updateHandler;
         updateHandler();
+    },
+    destroyed: function () {
+        $(this.$el).select2("destroy");
     }
 })
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

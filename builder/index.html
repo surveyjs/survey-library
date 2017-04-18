@@ -16,6 +16,10 @@ usebootstrap: true
 <link href="{{ site.baseurl }}/css/custom-surveyeditor.css" type="text/css" rel="stylesheet" />
 <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/surveyeditor.js"></script>
 
+<div id="manage" data-bind="template: 'surveys-manage'" style="position: relative;"></div>
+<style>
+    #manage .svd-manage .svd-manage-buttons { top: 0; }
+</style>
 <div id="editor" class="survey-editor"></div>
 <script>
     function getParameterByName(name, url) {
@@ -28,7 +32,8 @@ usebootstrap: true
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-    var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true});
+    var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true, showState: true});
+    ko.applyBindings(new SurveyEditor.SurveysManager("https://dxsurvey.com", "a797f29b53f8455e8b3ef317f8904dac", editor), document.getElementById("manage"));
     var surveyId = getParameterByName("surveyid");
     if(surveyId) {
         editor.loadSurvey(surveyId);

@@ -20,6 +20,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     private locTitleValue: LocalizableString;
     private locPlaceHolderValue: LocalizableString;
     public isRequired: boolean = false;
+    public inputType: string = "text";
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(public name: any = null, title: string = null) {
@@ -204,6 +205,7 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
 }
 
 JsonObject.metaData.addClass("multipletextitem", ["name", "isRequired:boolean", { name: "placeHolder", serializationProperty: "locPlaceHolder"}, 
+    { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
     { name: "title", serializationProperty: "locTitle" }, { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
     function () { return new MultipleTextItemModel(""); });
 

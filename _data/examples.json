@@ -52,7 +52,8 @@
             { "name": "Markdown and Text Processing", "id": "markdown",
               "items": [
                 {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
-                {"name": "Matrix columns markdown", "text": "Render column title in several lines", "url": "survey-markdown-matrix.html"}
+                {"name": "Matrix columns markdown", "text": "Render column title in several lines", "url": "survey-markdown-matrix.html"},
+                {"name": "Radiogroup markdown", "text": "Render images in title and question elements", "url": "survey-markdown-radiogroup.html"}
             ]},
             { "name": "Localization", "id": "localization",
               "items": [

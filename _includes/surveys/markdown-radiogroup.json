@@ -1,0 +1,9 @@
+{ questions: [ 
+    { type: "radiogroup", hasOther: true, isRequired: true, name: "favoritePet",
+     title: "What is your favorite pet ![A parrot]({{ page.pathprefix }}/images/markdown/image_16x16.svg =16x16) ?",
+   choices: [ 
+       { value: "dog", text: "Dog: ![A dog]({{ page.pathprefix }}/images/markdown/dog.svg =14x14)" }, 
+       {value: "cat", text: "Cat: ![A cat]({{ page.pathprefix }}/images/markdown/cat.svg =14x14)"}, 
+       {value: "parrot",text: "Parrot ![A parrot]({{ page.pathprefix }}/images/markdown/parrot.svg =14x14)"} ]}
+   ]
+}

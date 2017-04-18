@@ -50,6 +50,9 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
         this.isFirst = props.isFirst;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
+    protected shouldComponentUpdate(): boolean {
+        return !this.question.customWidget || !!this.question.customWidget.widgetJson.render;
+    }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
         this.item = nextProps.item;

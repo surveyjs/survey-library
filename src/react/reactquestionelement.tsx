@@ -44,7 +44,4 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
         this.questionBase = nextProps.question;
         this.creator = nextProps.creator;
     }
-    protected shouldComponentUpdate(): boolean {
-        return !this.questionBase.customWidget || !!this.questionBase.customWidget.widgetJson.render;
-    }
 }

@@ -2,7 +2,8 @@
 import {QuestionBase} from '../questionbase';
 import {Question} from '../question';
 import {SurveyQuestionCommentItem} from './reactquestioncomment';
-import {SurveyElementBase} from "./reactquestionelement";
+import {SurveyElementBase} from './reactquestionelement';
+import {SurveyCustomWidget} from './custom-widget';
 
 export interface ISurveyCreator {
     createQuestionElement(question: QuestionBase): JSX.Element;
@@ -53,10 +54,6 @@ export class SurveyQuestion extends React.Component<any, any> {
             }
             var el = this.refs["root"];
             if (el && this.questionBase.survey) this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
-            if (this.questionBase.customWidget) {
-                el = this.refs["widget"];
-                if (el) this.questionBase.customWidget.afterRender(this.questionBase, el);
-            }
         }
     }
     componentWillUnmount() {
@@ -66,10 +63,6 @@ export class SurveyQuestion extends React.Component<any, any> {
             this.questionBase.renderWidthChangedCallback = null;
             this.questionBase.visibleIndexChangedCallback = null;
             this.questionBase.readOnlyChangedCallback = null;
-        }
-        if (this.questionBase.customWidget) {
-            el = this.refs["widget"];
-            if (el) this.questionBase.customWidget.willUnmount(this.questionBase, el);
         }
     }
     render(): JSX.Element {
@@ -88,7 +81,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         if (marginLeft) rootStyle["marginLeft"] = marginLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;
         return (
-            <div  ref="root" id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
+            <div ref="root" id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
                 {titleTop}
                 {errors}
                 {questionRender}
@@ -99,22 +92,10 @@ export class SurveyQuestion extends React.Component<any, any> {
     }
     protected renderQuestion(): JSX.Element {
         var customWidget = this.questionBase.customWidget;
-        if (!customWidget) return this.creator.createQuestionElement(this.questionBase);
-        var widget = null;
-
-        if (customWidget.widgetJson.isDefaultRender) {
-            return <div ref="widget">{this.creator.createQuestionElement(this.questionBase)}</div>
+        if (!customWidget) {
+            return this.creator.createQuestionElement(this.questionBase);
         }
-
-        if (customWidget.widgetJson.render) {
-            widget = customWidget.widgetJson.render(this.questionBase);
-        } else {
-            if (customWidget.htmlTemplate) {
-                var htmlValue = { __html: customWidget.htmlTemplate };
-                return (<div ref="widget" dangerouslySetInnerHTML={htmlValue}></div>);
-            }
-        }
-        return <div ref="widget">{widget}</div>
+        return <SurveyCustomWidget creator={this.creator} question={this.questionBase}></SurveyCustomWidget>
     }
     protected renderTitle(): JSX.Element {
         var titleText = SurveyElementBase.renderLocString(this.question.locTitle);

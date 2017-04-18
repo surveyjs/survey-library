@@ -13,11 +13,31 @@ survey.onTextMarkdown.add(function(survey, options){
     options.html = str;
 });
 
+var myCss = { matrix: {root: "table table-striped"}};
 
 {% if page.usereact %}
-ReactDOM.render(<Survey.Survey model={survey} />, document.getElementById("surveyElement"));
+ReactDOM.render(<Survey.Survey model={survey} css={myCss} />, document.getElementById("surveyElement"));
+
+{% elsif page.useknockout%}
+survey.css = myCss;
+
+{% elsif page.useangular%}
+function onAngularComponentInit() {
+    Survey.SurveyNG.render("surveyElement", {
+        model:survey,
+        css: myCss
+    });
+}
+{% include examplesetups/angular-example-component.md %}
+
+{% elsif page.usejquery%}
+$("#surveyElement").Survey({
+    model: survey,
+    css: myCss
+});
 
 {% elsif page.usevue%}
+survey.css = myCss;
 var app = new Vue({
     el: '#surveyElement',
     data: {
@@ -25,20 +45,12 @@ var app = new Vue({
     }
 });
 
-{% elsif page.useangular%}
-function onAngularComponentInit() {
-    Survey.SurveyNG.render("surveyElement", {model:survey});
-}
-{% include examplesetups/angular-example-component.md %}
-
-{% elsif page.usejquery%}
-$("#surveyElement").Survey({model:survey});
-
 {% endif %}
+
 {% endcapture %}
 
 {% include live-example-code.html %}
 
 <div class="jumbotron">
-<p>As you see all string properties can be represented as a json object, where key is a locale. If there is no translation for the selected locale then the 'default' value is used, or the first one, if default doesn't exist as well.</p>
+<p>SurveyJS supports markdown via onTextMarkDown event. You may use any JavaScript markdown library. In this example, we are using <a href="https://github.com/showdownjs/showdown">Showdown markdown</a>. You may use all features that this or other libraries have.</p>
 </div>

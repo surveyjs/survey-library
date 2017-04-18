@@ -1,4 +1,5 @@
-export {QuestionCheckboxModel} from "../../src/question_checkbox";
+export {QuestionCheckboxModel} from '../../src/question_checkbox';
+export {default as SurveyString} from '../../src/vue/string.vue';
 
 // vue
 export * from '../vue/checkbox';

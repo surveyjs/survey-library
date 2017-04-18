@@ -4,7 +4,7 @@
             <template v-for="(item, index) in row">
                 <td :class="css.multipletext.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
-                    <input v-if="!question.isReadOnly"  :type="item.inputType" :class="css.multipletext.itemValue" v-model="item.value" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" />
+                    <input v-if="!question.isReadOnly"  :class="css.multipletext.itemValue" :type="item.inputType" v-model="item.value" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" />
                     <div v-else style="float:left" :class="css.multipletext.itemValue" :size="question.itemSize">{{item.value}}</div>
                 </td>
             <template>

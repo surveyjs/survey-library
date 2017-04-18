@@ -41,13 +41,7 @@
                 {"name": "Work with data", "text": "Get/set data from/to survey", "url": "survey-data.html"},
                 {"name": "Read-only/display mode", "text": "View answers of other people", "url": "survey-displaymode.html"},
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
-                {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
                 {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
-            ]},
-            { "name": "Localization", "id": "localization",
-              "items": [
-                {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
-                {"name": "Multi Languages","text":  "Create a survey with multi languages support", "url": "survey-multilanguages.html"}
             ]},
             { "name": "Conditions and Triggers", "id": "triggers",
               "items": [
@@ -55,6 +49,17 @@
                 {"name": "Visible Trigger", "text": "Show/Hide question(s) on survey running", "url": "trigger-visible.html"},
                 {"name": "Complete Trigger", "text": "Complete the survey from any page", "url": "trigger-complete.html"},
                 {"name": "SetValue Trigger", "text": "On changing the question, change values of other questions", "url": "trigger-setvalue.html"}
+            ]},
+            { "name": "Markdown and Text Processing", "id": "markdown",
+              "items": [
+                {"name": "Pre-process title/html", "text": "Use a simple syntax to customize the text", "url": "survey-processtext.html"},
+                {"name": "Matrix columns markdown", "text": "Render column title in several lines", "url": "survey-markdown-matrix.html"},
+                {"name": "Radiogroup markdown", "text": "Render images in title and question elements", "url": "survey-markdown-radiogroup.html"}
+            ]},
+            { "name": "Localization", "id": "localization",
+              "items": [
+                {"name": "Localization","text":  "Localize your survey", "url": "survey-localization.html"},
+                {"name": "Multi Languages","text":  "Create a survey with multi languages support", "url": "survey-multilanguages.html"}
             ]},
             { "name": "Validation", "id": "validation", 
               "items": [

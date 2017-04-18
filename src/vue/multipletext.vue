@@ -4,10 +4,10 @@
             <template v-for="(item, index) in row">
                 <td :class="css.multipletext.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
-                    <input v-if="!question.isReadOnly"  :class="css.multipletext.itemValue" :type="item.inputType" v-model="item.value" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" />
+                    <input v-if="!question.isReadOnly"  :class="css.multipletext.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" :value="item.value" @change="change(item, $event)"/>
                     <div v-else style="float:left" :class="css.multipletext.itemValue" :size="question.itemSize">{{item.value}}</div>
                 </td>
-            <template>
+            </template>
         </tr>
     </table>
 </template>
@@ -20,6 +20,9 @@
 
     @Component
     export default class MultipleText extends Question<QuestionMultipleTextModel> {
+        change(item, event) {
+            item.value = event.target.value;
+        }
     }
     Vue.component("survey-multipletext", MultipleText)
 </script>

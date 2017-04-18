@@ -5,9 +5,6 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
     }
-    protected shouldComponentUpdate(): boolean {
-        return !!this.questionBase.customWidget.widgetJson.render;
-    }
     componentDidMount() {
         if (this.questionBase) {
             let self = this;

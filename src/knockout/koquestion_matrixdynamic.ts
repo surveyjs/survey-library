@@ -10,12 +10,14 @@ import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
     koRows: any; koRecalc: any;
     koAddRowClick: any; koRemoveRowClick: any; koOverflowX: any;
+    koCanAddRow: any; koCanRemoveRow: any;
     constructor(question: Question) {
         super(question);
         this.koRecalc = ko.observable(0);
         this.koRows = ko.pureComputed(function () {
             this.koRecalc(); return (<QuestionMatrixDynamic>this.question).visibleRows;
         }, this);
+
         this.koOverflowX = ko.pureComputed(function () {
             return (<QuestionMatrixDropdownModelBase>this.question).horizontalScroll ? "scroll": "none";
         }, this);
@@ -23,9 +25,13 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
         var self = this;
         this.koAddRowClick = function () { self.addRow(); }
         this.koRemoveRowClick = function (data) { self.removeRow(data); }
+        this.koCanAddRow = ko.pureComputed(function () { self.koRecalc(); return (<QuestionMatrixDynamic>self.question).canAddRow; });
+        this.koCanRemoveRow = ko.pureComputed(function () { self.koRecalc(); return (<QuestionMatrixDynamic>self.question).canRemoveRow; });
         this.question["koAddRowClick"] = this.koAddRowClick;
         this.question["koRemoveRowClick"] = this.koRemoveRowClick;
         this.question["koOverflowX"] = this.koOverflowX;
+        this.question["koCanAddRow"] = this.koCanAddRow;
+        this.question["koCanRemoveRow"] = this.koCanRemoveRow;
         (<QuestionMatrixDynamic>this.question).rowCountChangedCallback = function () { self.onRowCountChanged(); };
         (<QuestionMatrixDynamic>this.question).columnsChangedCallback = function () { self.onColumnChanged(); };
         (<QuestionMatrixDynamic>this.question).updateCellsCallbak = function () { self.onUpdateCells(); };

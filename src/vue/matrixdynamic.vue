@@ -14,12 +14,12 @@
                         <component :is="'survey-' + cell.question.getType()" :question="cell.question" :css="css"/>
                     </td>
                     <td v-if="!question.isReadOnly">
-                        <input type="button" :class="css.matrixdynamic.button" :value="question.removeRowText" @click="removeRowClick(row)" />
+                        <input type="button" v-if="question.canRemoveRow" :class="css.matrixdynamic.button" :value="question.removeRowText" @click="removeRowClick(row)" />
                     </td>
                 </tr>
             </tbody>
         </table>
-        <input type="button" v-if="!question.isReadOnly" :class="css.matrixdynamic.button" :value="question.addRowText" @click="addRowClick"/>
+        <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="css.matrixdynamic.button" :value="question.addRowText" @click="addRowClick"/>
     </div>
 </template>
 

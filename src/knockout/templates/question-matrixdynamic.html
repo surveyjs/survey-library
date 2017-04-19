@@ -23,14 +23,14 @@
                     </td>
                     <!-- /ko -->
                     <!-- ko ifnot: question.koIsReadOnly -->
-                    <td><input type="button" data-bind="click:question.koRemoveRowClick, css: question.survey.css.matrixdynamic.button, value: question.removeRowText" /></td>
+                    <td><input type="button" data-bind="visible: question.koCanRemoveRow, click:question.koRemoveRowClick, css: question.survey.css.matrixdynamic.button, value: question.removeRowText" /></td>
                     <!-- /ko -->
                 </tr>
                 <!-- /ko -->
             </tbody>
         </table>
     </div>
-    <!-- ko ifnot: question.koIsReadOnly -->
+    <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddRow() -->
     <input type="button" data-bind="click:question.koAddRowClick, css: question.survey.css.matrixdynamic.button, value: question.addRowText" />
     <!-- /ko -->
 </script>

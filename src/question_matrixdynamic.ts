@@ -21,7 +21,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     private rowCountValue: number = 2;
     private locAddRowTextValue: LocalizableString;
     private locRemoveRowTextValue: LocalizableString;
-    public minRowCount = 0;
+    private minRowCountValue = 0;
+    private maxRowCountValue = QuestionMatrixDynamicModel.MaxRowCount;
     public rowCountChangedCallback: () => void;
     constructor(public name: string) {
         super(name);
@@ -31,7 +32,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public getType(): string {
         return "matrixdynamic";
     }
-    public get rowCount() { return this.rowCountValue; }
+    public get rowCount(): number { return this.rowCountValue; }
     public set rowCount(val: number) {
         if (val < 0 || val > QuestionMatrixDynamicModel.MaxRowCount) return;
         this.rowCountValue = val;
@@ -42,13 +43,32 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         }
         this.fireCallback(this.rowCountChangedCallback);
     }
+    public get minRowCount() : number { return this.minRowCountValue; }
+    public set minRowCount(value : number) { 
+        if(value < 0) value = 0;
+        if(value == this.minRowCount || value > this.maxRowCount) return;
+        this.minRowCountValue = value;
+        if(this.rowCount < value) this.rowCount = value;
+    }
+    public get maxRowCount() : number { return this.maxRowCountValue; }
+    public set maxRowCount(value : number) { 
+        if(value <= 0) return;
+        if(value > QuestionMatrixDynamicModel.MaxRowCount) value = QuestionMatrixDynamicModel.MaxRowCount;
+        if(value == this.maxRowCount || value < this.minRowCount) return;
+        this.maxRowCountValue = value;
+        if(this.rowCount > value) this.rowCount = value;
+    }
+    public get canAddRow() : boolean { return this.rowCount < this.maxRowCount; }
+    public get canRemoveRow() : boolean { return this.rowCount > this.minRowCount; }
     public addRow() {
+        if(!this.canAddRow) return;
         if (this.generatedVisibleRows) {
             this.generatedVisibleRows.push(this.createMatrixRow(null));
         }
         this.rowCount++;
     }
     public removeRow(index: number) {
+        if(!this.canRemoveRow) return;
         if (index < 0 || index >= this.rowCount) return;
         if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
             this.generatedVisibleRows.splice(index, 1);
@@ -137,7 +157,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     }
 }
 
-JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 },
+JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 }, { name: "maxRowCount:number", default: QuestionMatrixDynamicModel.MaxRowCount },
         { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
 

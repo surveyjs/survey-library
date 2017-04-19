@@ -18,7 +18,7 @@ export class QuestionCommentModel extends Question {
         return "comment";
     }
     isEmpty(): boolean {
-        return super.isEmpty() || this.value == "";
+        return super.isEmpty() || this.value === "";
     }
 }
 JsonObject.metaData.addClass("comment", [{ name: "cols:number", default: 50 }, { name: "rows:number", default: 4 }, 

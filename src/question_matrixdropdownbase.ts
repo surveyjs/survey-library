@@ -153,7 +153,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     }
     public get isEmpty() {
         var val = this.value;
-        if (!val) return true;
+        if (Base.isValueEmpty(val)) return true;
         for (var key in val) return false;
         return true;
     }

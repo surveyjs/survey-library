@@ -14,7 +14,7 @@ export class QuestionTextModel extends Question {
     public getType(): string {
         return "text";
     }
-    isEmpty(): boolean {  return super.isEmpty() || this.value == ""; }
+    isEmpty(): boolean {  return super.isEmpty() || this.value === ""; }
     supportGoNextPageAutomatic() { return true; }
     public get placeHolder(): string { return this.locPlaceHolder.text; }
     public set placeHolder(value: string) { this.locPlaceHolder.text = value; }

@@ -29,5 +29,5 @@ your_code_here
 
 * browser:
 * browser version:
-* surveyjs platform:
+* surveyjs platform (angular or react or jquery or knockout or vue):
 * surveyjs version:

@@ -40,6 +40,7 @@ function init() {
     Survey.Survey.cssType = "bootstrap";
 
     var model = new Survey.Model(json);
+    window.survey = model;
 
     var app = new Vue({
         el: '#surveyElement',

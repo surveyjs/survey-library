@@ -67,7 +67,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
         );
     }
     protected renderAddRowButton(): JSX.Element {
-        if (this.isDisplayMode) return null;
+        if (this.isDisplayMode || !this.question.canAddRow) return null;
         return <input className={this.css.button} type="button" onClick={this.handleOnRowAddClick} value={this.question.addRowText} />;
     }
 }
@@ -104,7 +104,7 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
             var select = this.renderQuestion(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
-        if (!this.isDisplayMode) {
+        if (!this.isDisplayMode && this.question.canRemoveRow) {
             var removeButton = this.renderButton();
             tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
         }

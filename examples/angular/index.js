@@ -40,6 +40,7 @@ function init() {
     Survey.Survey.cssType = "bootstrap";
 
     var model = new Survey.Model(json);
+    window.survey = model;
 
     function onAngularComponentInit() {
         Survey.SurveyNG.render("surveyElement", {model:model});

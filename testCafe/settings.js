@@ -12,11 +12,22 @@ export const cssTypes = [
     ];
 export const url = 'http://127.0.0.1:8080/examples/';
 
-export const initSurvey = ClientFunction((framework, json, cssType = "standard") => {
+export const initSurvey = ClientFunction((framework, json, cssType = "bootstrap", getWidgetConfig = null) => {
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
     Survey.Survey.cssType = cssType;
+    let widgetConfig;
+
+    if (getWidgetConfig) {
+        widgetConfig = getWidgetConfig(framework);
+        Survey.JsonObject.metaData.addProperty(widgetConfig.questionType, {name: "renderAs", default: "standard", choices: ["standard", widgetConfig.renderAs]});
+    }
 
     var model = new Survey.Model(json);
+
+    if (getWidgetConfig) {
+        Survey.CustomWidgetCollection.Instance.addCustomWidget(widgetConfig.widget);
+    }
+
 
     var surveyComplete = function (model) {
         window.SurveyResult = model.data;

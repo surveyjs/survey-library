@@ -63,6 +63,9 @@ export interface IPage extends IConditionRunner {
 }
 
 export class Base {
+    public static isValueEmpty(value: any) {
+        return !value && value !== 0 && value !== false;
+    }
     public getType(): string {
         throw new Error('This method is abstract');
     }

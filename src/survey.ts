@@ -385,7 +385,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             var question = this.currentPage.questions[i];
             if (!question.visible) continue;
             var value = this.getValue(question.name);
-            if (value) options.data[question.name] = value;
+            if (!Base.isValueEmpty(value)) options.data[question.name] = value;
         }
         this.setIsValidatingOnServer(true);
         this.onServerValidateQuestions(this, options);
@@ -801,7 +801,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (question && (!question.visible || !question.supportGoNextPageAutomatic())) return;
         var questions = this.getCurrentPageQuestions();
         for (var i = 0; i < questions.length; i++) {
-            if (questions[i].hasInput && !this.getValue(questions[i].name)) return;
+            var value = this.getValue(questions[i].name)
+            if (questions[i].hasInput && Base.isValueEmpty(value)) return;
         }
         if (!this.currentPage.hasErrors(true, false)) {
             if (!this.isLastPage) {

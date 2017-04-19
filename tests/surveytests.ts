@@ -107,6 +107,21 @@ QUnit.test("Do not show required error for readOnly questions", function (assert
     q1.readOnly = true;
     assert.equal(page.hasErrors(), false, "There is no errors, the question is readOnly");
 });
+QUnit.test("Do not show required error for value 0 and false, #345", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var page = survey.pages[0];
+    var q1 = <Question>(<Question>page.questions[0]);
+    q1.isRequired = true;
+    assert.equal(page.hasErrors(), true, "There is a required error");
+    survey.setValue("question1", 0)
+    assert.equal(q1.value, 0, "question1.value == 0");
+    assert.equal(page.hasErrors(), false, "There is no errors, the question value is 0");
+    survey.setValue("question1", false)
+    assert.equal(q1.value, false, "question1.value == false");
+    assert.equal(page.hasErrors(), false, "There is no errors, the question value is false");
+    survey.setValue("question1", null)
+    assert.equal(page.hasErrors(), true, "There is a required error, the question value is null");
+});
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (assert) {
     var survey = new SurveyModel();
     assert.equal(survey.progressText, "", "there is pages");

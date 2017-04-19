@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from './jsonobject';
 import {QuestionBase} from './questionbase';
-import {SurveyError, SurveyElement} from "./base";
+import {Base, SurveyError, SurveyElement} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
 import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
@@ -164,7 +164,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     protected setComment(newValue: string) {
         this.setNewComment(newValue);
     }
-    public isEmpty(): boolean { return this.value == null; }
+    public isEmpty(): boolean { return Base.isValueEmpty(this.value); }
     public hasErrors(fireCallback: boolean = true): boolean {
         this.checkForErrors(fireCallback);
         return this.errors.length > 0;

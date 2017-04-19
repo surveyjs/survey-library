@@ -5,7 +5,7 @@ const title = `imagepicker`;
 
 const json = { questions: [
     { type: 'dropdown', name: 'choosepicture', renderAs: 'imagepicker', title: 'What animal would you like to see first ?',
-        choices: [
+        isRequired: true, choices: [
             {value: 'lion', text: 'http://surveyjs.org/images/image-picker/lion.jpg'},
             {value: 'giraffe', text: 'http://surveyjs.org/images/image-picker/giraffe.jpg'},
             {value: 'panda', text: 'http://surveyjs.org/images/image-picker/panda.jpg'},
@@ -85,8 +85,38 @@ frameworks.forEach( (framework) => {
             await initSurvey(framework, json, "bootstrap", getWidgetConfig);
         });
 
-    test(`test`, async t => {
+    test(`check integrity`, async t => {
         await t
-            .hover(`.image_picker_image`)
+            .hover(`li:nth-child(1) .image_picker_image`)
+            .hover(`li:nth-child(2) .image_picker_image`)
+            .hover(`li:nth-child(3) .image_picker_image`)
+            .hover(`li:nth-child(4) .image_picker_image`)
     })
+
+    test(`choose empty`, async t => {
+        const getPosition = ClientFunction(() =>
+            document.documentElement.innerHTML.indexOf('Please answer the question'));
+        let position;
+        let surveyResult;
+
+        await t
+            .click(`input[value=Complete]`);
+
+        position = await getPosition();
+        assert.notEqual(position, -1);
+
+        surveyResult = await getSurveyResult();
+        assert.equal(typeof surveyResult, `undefined`);
+    });
+
+    test(`choose value`, async t => {
+        let surveyResult;
+
+        await t
+            .click(`li:nth-child(2) .image_picker_image`)
+            .click(`input[value=Complete]`);
+
+        surveyResult = await getSurveyResult();
+        assert.equal(surveyResult.choosepicture, 'giraffe');
+    });
 });

@@ -20,10 +20,10 @@ const getWidgetConfig = function(framework) {
     var widget;
 
     if (framework !== 'vue') {
-        var widget = {
+        widget = {
             name: "icheck",
             isDefaultRender: true,
-            isFit : function(question) { return question.getType() === 'matrix'; },
+            isFit : function(question) { return question["renderAs"] === 'icheckmatrix'; },
             afterRender: function(question, el) {
                 $(el).find('input').data({"iCheck": undefined});
                 $(el).find('input').iCheck({
@@ -43,7 +43,7 @@ const getWidgetConfig = function(framework) {
                             $(el).find("input[name='" + row.fullName  + "'][value=" + row.value + "]").iCheck('check');
                         }
                     });
-                }
+                };
                 question.valueChangedCallback = select;
                 select();
             }
@@ -67,7 +67,7 @@ const getWidgetConfig = function(framework) {
                     <tr v-for="(row, rowIndex) in question.visibleRows">
                         <td v-show="question.hasRows">{{ row.text}}</td>
                         <td v-for="(column, columnIndex) in question.columns">
-                            <input type="radio" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="!isEditMode" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
+                            <input type="radio" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
                         </td>
                     </tr>
                 </tbody>
@@ -92,7 +92,7 @@ const getWidgetConfig = function(framework) {
                             $(vm.$el).find("input[name='" + row.fullName  + "'][value=" + row.value + "]").iCheck('check');
                         }
                     });
-                }
+                };
                 vm.question.valueChangedCallback = select;
                 select();
             }
@@ -120,7 +120,7 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll("ins.iCheck-helper").length);
 
         assert.equal(await getCount(), 20);
-    })
+    });
 
     test(`choose empty`, async t => {
         const getPosition = ClientFunction(() =>

@@ -162,7 +162,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`choose value`, async t => {
-        // TODO d&d doesn't work
+        // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
         // let surveyResult;
         //
         // await t
@@ -175,7 +175,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`change priority`, async t => {
-        // TODO d&d doesn't work
+        // TODO d&d doesn't work https://github.com/DevExpress/testcafe/issues/897
         // let surveyResult;
         //
         // await t

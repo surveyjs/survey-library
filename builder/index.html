@@ -33,7 +33,9 @@ usebootstrap: true
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
     var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true, showState: true});
-    ko.applyBindings(new SurveyEditor.SurveysManager("https://dxsurvey.com", "a797f29b53f8455e8b3ef317f8904dac", editor), document.getElementById("manage"));
+    var manager = new SurveyEditor.SurveysManager("https://dxsurvey.com", "a797f29b53f8455e8b3ef317f8904dac", editor);
+    ko.applyBindings(manager, document.getElementById("manage"));
+    editor.toolbarItems(manager.toolbarItem);
     var surveyId = getParameterByName("surveyid");
     if(surveyId) {
         editor.loadSurvey(surveyId);

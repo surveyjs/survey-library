@@ -1,6 +1,6 @@
 markdown: kramdown
 
-surveyjs_version: "0.12.9"
+surveyjs_version: "0.12.10"
 
 include:
   - ".nojekyll"

@@ -12,7 +12,7 @@ export const cssTypes = [
     ];
 export const url = 'http://127.0.0.1:8080/examples/';
 
-export const initSurvey = ClientFunction((framework, json, cssType = "bootstrap", getWidgetConfig = null) => {
+export const initSurvey = ClientFunction((framework, json, cssType = "standard", getWidgetConfig = null) => {
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
     Survey.Survey.cssType = cssType;
     let widgetConfig;

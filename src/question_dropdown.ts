@@ -16,6 +16,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     public getType(): string {
         return "dropdown";
     }
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        this.locOptionsCaption.onChanged();
+    }
     supportGoNextPageAutomatic() { return true; }
 }
 JsonObject.metaData.addClass("dropdown", [{ name: "optionsCaption", serializationProperty: "locOptionsCaption"}],

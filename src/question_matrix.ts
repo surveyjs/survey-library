@@ -75,6 +75,11 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         this.generatedVisibleRows = result;
         return result;
     }
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        ItemValue.NotifyArrayOnLocaleChanged(this.columns);
+        ItemValue.NotifyArrayOnLocaleChanged(this.rows);
+    }
     supportGoNextPageAutomatic() { return this.hasValuesInAllRows(); }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);

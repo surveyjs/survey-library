@@ -49,6 +49,11 @@ export class ItemValue {
         }
         return null;
     }
+    public static NotifyArrayOnLocaleChanged(items: Array<ItemValue>) {
+        for(var i = 0; i < items.length; i ++) {
+            items[i].locText.onChanged();
+        }
+    }
     private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText"];
     private itemValue: any;
     private locTextValue: LocalizableString;

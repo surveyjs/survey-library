@@ -32,6 +32,10 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     public set rows(newValue: Array<any>) {
         ItemValue.setData(this.rowsValue, newValue);
     }
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        ItemValue.NotifyArrayOnLocaleChanged(this.rowsValue);
+    }
     protected generateRows(): Array<MatrixDropdownRowModel> {
         var result = new Array<MatrixDropdownRowModel>();
         if (!this.rows || this.rows.length === 0) return result;

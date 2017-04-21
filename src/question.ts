@@ -48,6 +48,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var res = this.locTitle.textOrHtml;
         return res? res: this.name;
     }
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        this.locTitle.onChanged();
+        this.locCommentText.onChanged();
+    }
     public get processedTitle() { return this.survey != null ? this.survey.processText(this.locTitleHtml) : this.locTitleHtml; }
     public get fullTitle(): string {
         if (this.survey && this.survey.getQuestionTitleTemplate()) {

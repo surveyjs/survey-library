@@ -34,7 +34,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
         this.question["koCanRemoveRow"] = this.koCanRemoveRow;
         (<QuestionMatrixDynamic>this.question).rowCountChangedCallback = function () { self.onRowCountChanged(); };
         (<QuestionMatrixDynamic>this.question).columnsChangedCallback = function () { self.onColumnChanged(); };
-        (<QuestionMatrixDynamic>this.question).updateCellsCallbak = function () { self.onUpdateCells(); };
+        (<QuestionMatrixDynamic>this.question).updateCellsCallback = function () { self.onUpdateCells(); };
     }
     protected onUpdateCells() {
         //Genereate rows again.

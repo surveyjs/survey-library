@@ -84,6 +84,11 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     }
     public getLocale() : string { return this.colOwner ? this.colOwner.getLocale() : ""; }
     public getMarkdownHtml(text: string)  { return this.colOwner ? this.colOwner.getMarkdownHtml(text) : null; }
+    public onLocaleChanged() {
+        this.locTitle.onChanged();
+        this.locOptionsCaption.onChanged();
+        ItemValue.NotifyArrayOnLocaleChanged(this.choices);
+    }
 }
 
 export class MatrixDropdownCell {
@@ -159,6 +164,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     }
     public getLocale(): string { return this.data ? this.data.getLocale() : "";}
     public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
+    public onLocaleChanged() {
+        for(var i = 0; i < this.cells.length; i ++) {
+            this.cells[i].question.onLocaleChanged();
+        }
+    }
     private buildCells() {
         var columns = this.data.columns;
         for (var i = 0; i < columns.length; i++) {
@@ -187,7 +197,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     public columnMinWidth: string = "";
     public horizontalScroll: boolean = false;
     public columnsChangedCallback: () => void;
-    public updateCellsCallbak: () => void;
+    public updateCellsCallback: () => void;
 
     constructor(public name: string) {
         super(name);
@@ -230,24 +240,26 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     public set cellType(newValue: string) {
         if (this.cellType == newValue) return;
         this.cellTypeValue = newValue;
-        this.fireCallback(this.updateCellsCallbak);
+        this.fireCallback(this.updateCellsCallback);
     }
     public get columnColCount(): number { return this.columnColCountValue; }
     public set columnColCount(value: number) {
         if (value < 0 || value > 4) return;
         this.columnColCountValue = value;
-        this.fireCallback(this.updateCellsCallbak);
+        this.fireCallback(this.updateCellsCallback);
     }
     public getRequiredText(): string { return this.survey ? this.survey.requiredText : ""; }
-    //TODO -remove, absolete
-    public getColumnTitle(column: MatrixDropdownColumn): string {
-        var result = column.title;
-        if (column.isRequired && this.survey) {
-            var requireText = this.survey.requiredText;
-            if (requireText) requireText += " ";
-            result = requireText + result;
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        this.locOptionsCaption.onChanged();
+        for(var i = 0; i < this.columns.length; i ++) {
+            this.columns[i].onLocaleChanged();
         }
-        return result;
+        var rows = this.visibleRows;
+        for(var i = 0; i < rows.length; i ++) {
+            rows[i].onLocaleChanged();
+        }
+        this.fireCallback(this.updateCellsCallback);
     }
     public getColumnWidth(column: MatrixDropdownColumn): string {
         return column.minWidth ? column.minWidth : this.columnMinWidth;

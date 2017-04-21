@@ -360,6 +360,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].onLocaleChanged()
         }
+        this.locTitle.onChanged();
     }
 }
 

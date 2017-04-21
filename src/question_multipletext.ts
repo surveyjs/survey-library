@@ -50,6 +50,9 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public get placeHolder(): string { return this.locPlaceHolder.text; }
     public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
     public get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
+    public onLocaleChanged() {
+        this.locTitle.onChanged();
+    }
     public get value() {
         return this.data ? this.data.getMultipleTextValue(this.name) : null;
     }
@@ -89,6 +92,12 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         var item = this.createTextItem(name, title);
         this.items.push(item);
         return item;
+    }
+    public onLocaleChanged() {
+        super.onLocaleChanged();
+        for(var i = 0; i < this.items.length; i ++) {
+            this.items[i].onLocaleChanged();
+        }
     }
     private setItemsOverriddenMethods() {
         var self = this;

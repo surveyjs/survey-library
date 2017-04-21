@@ -255,6 +255,19 @@ QUnit.test("add customwidget item", function (assert) {
     CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function (assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+    q1.choices = [{value: 1, text: {default: "text1", de: "text_de"}}];
+    assert.equal(q1["koVisibleChoices"]()[0].text, "text1", "default locale, text property is 'text1'");
+    assert.equal(q1["koVisibleChoices"]()[0].locText.koRenderedHtml(), "text1", "default locale, locText.koRenderedHtml() is 'text1'");
+    survey.locale = "de";
+    assert.equal(q1["koVisibleChoices"]()[0].text, "text_de", "default locale, text property is 'text_de'");
+    assert.equal(q1["koVisibleChoices"]()[0].locText.koRenderedHtml(), "text_de", "default locale, locText.koRenderedHtml() is 'text_de'");
+    survey.locale = "";
+});
+
 QUnit.test("Localization, otherItem", function (assert) {
     var survey = new Survey();
     var page = survey.addNewPage("page");
@@ -265,6 +278,7 @@ QUnit.test("Localization, otherItem", function (assert) {
     assert.equal(q1["koVisibleChoices"]()[2].text, surveyLocalization.getString("otherItemText"), "use default locale");
     survey.locale = "de";
     assert.notEqual(q1["koVisibleChoices"]()[2].text, defaultText, "use another locale locale");
+    survey.locale = "";
 });
 
 QUnit.test("Rating items creates correct object", function (assert) {

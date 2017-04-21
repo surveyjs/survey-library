@@ -1,4 +1,4 @@
-﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable} from './base';
+﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
@@ -22,6 +22,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     private renderWidthValue: string = "";
     private rightIndentValue: number = 0;
     public indent: number = 0;
+    public localeChanged: Event<(sender: QuestionBase) => any, any> = new Event<(sender: QuestionBase) => any, any>();
     focusCallback: () => void;
     renderWidthChangedCallback: () => void;
     rowVisibilityChangedCallback: () => void;
@@ -105,7 +106,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     }
     public supportGoNextPageAutomatic() { return false; }
     public clearUnusedValues() {}
-    public onLocaleChanged() {}
+    public onLocaleChanged() {
+        this.localeChanged.fire(this, this.getLocale());
+    }
     //ILocalizableOwner
     public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
     public getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }

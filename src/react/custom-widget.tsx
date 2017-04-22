@@ -5,13 +5,18 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
     }
+    localeChangedHandler = (sender) => sender.customWidget.widgetJson.isNeedRender = true;
     componentDidMount() {
         if (this.questionBase) {
             let el = this.refs['root'];
             if (this.questionBase.customWidget) {
                 el = this.refs['widget'];
-                if (!!el) { this.questionBase.customWidget.afterRender(this.questionBase, el); }
+                if (!!el) {
+                    this.questionBase.customWidget.afterRender(this.questionBase, el);
+                    this.questionBase.customWidget.widgetJson.isNeedRender = false;
+                }
             }
+            this.questionBase.localeChanged.add(this.localeChangedHandler);
         }
     }
     componentWillUnmount() {
@@ -20,6 +25,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
             el = this.refs['widget'];
             if (!!el) { this.questionBase.customWidget.willUnmount(this.questionBase, el); }
         }
+        this.questionBase.localeChanged.remove(this.localeChangedHandler);
     }
     render(): JSX.Element {
         if (!this.questionBase || !this.creator) { return null; }

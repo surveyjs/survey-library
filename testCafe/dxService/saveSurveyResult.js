@@ -32,6 +32,7 @@ frameworks.forEach( (framework) => {
         await t
             .click(`input[type=checkbox]`)
             .click(`input[value=Complete]`)
+            .wait(3000)
             .navigateTo(`https://dxsurvey.com/Home/SurveyResults/0edf84f9-14f7-4944-a857-e327e1dceebb`);
 
         assert.equal(oldCount + 1, await getResultsCount());

@@ -6,7 +6,7 @@ import {SurveyModel} from "../src/survey";
 import {QuestionCheckboxModel} from "../src/question_checkbox";
 import {QuestionMatrixModel} from "../src/question_matrix";
 import {MultipleTextItemModel, QuestionMultipleTextModel} from "../src/question_multipletext";
-import {NumericValidator, AnswerCountValidator} from "../src/validator";
+import {NumericValidator, AnswerCountValidator, EmailValidator} from "../src/validator";
 import {QuestionRadiogroupModel} from "../src/question_radiogroup";
 import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
@@ -450,6 +450,20 @@ QUnit.test("Matrixdynamic required column", function (assert) {
     assert.equal(question.hasErrors(), true, "column1 should not be empty. the second row is empty");
     question.value = [{ 'column1': 2 }, { 'column1': 3}];
     assert.equal(question.hasErrors(), false, "column1 should not be empty. all values are set");
+});
+QUnit.test("Matrixdynamic column.validators", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    question.rowCount = 2;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    var rows = question.visibleRows;
+    assert.equal(question.hasErrors(), false, "No errors");
+    question.columns[0].validators.push(new EmailValidator());
+    var rows = question.visibleRows;
+    question.value = [{ 'column1': "aaa" }, {}];    
+    assert.equal(question.hasErrors(), true, "column1 should has valid e-mail");
+    question.value = [{ 'column1': "aaa@aaa.com" }, {}];    
+    assert.equal(question.hasErrors(), false, "column1 has valid e-mail");
 });
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDymanic");

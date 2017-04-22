@@ -12,6 +12,7 @@ import {QuestionCommentModel} from "./question_comment";
 import {ChoicesRestfull} from "./choicesRestfull";
 import {QuestionFactory} from "./questionfactory";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {SurveyValidator} from "./validator";
 
 export interface IMatrixDropdownData {
     onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
@@ -39,6 +40,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     public choicesOrder: string = "none";
     public choicesByUrl: ChoicesRestfull;
     public colOwner: IMatrixColumnOwner = null;
+    public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
     private colCountValue: number = -1;
     constructor(public name: string, title: string = null) {
         super();
@@ -360,6 +362,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         question.isRequired = column.isRequired;
         question.hasOther = column.hasOther;
         question.readOnly = this.readOnly;
+        question.validators = column.validators;
         question.setData(this.survey);
         if (column.hasOther) {
             if (question instanceof QuestionSelectBase) {

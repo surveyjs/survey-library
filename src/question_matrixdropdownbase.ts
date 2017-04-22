@@ -454,7 +454,8 @@ JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", s
         { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] }, "isRequired:boolean", "hasOther:boolean", "minWidth", { name: "placeHolder", serializationProperty: "locPlaceHolder"},
         { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
         { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
-        { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] }],
+        { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
+        { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
         
     function () { return new MatrixDropdownColumn(""); });
 

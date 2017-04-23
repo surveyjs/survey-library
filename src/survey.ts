@@ -547,7 +547,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     protected createNewPage(name: string) { return new PageModel(name); }
     private notifyQuestionOnValueChanged(name: string, newValue: any) {
-        var questions = this.getAllQuestions();
+       var questions = this.getAllQuestions();
         var question = null;
         for (var i: number = 0; i < questions.length; i++) {
             if (questions[i].name != name) continue;
@@ -818,12 +818,16 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         return result;
     }
     public setComment(name: string, newValue: string) {
-        name = name + this.commentPrefix;
+        var commentName = name + this.commentPrefix;
         if (newValue === "" || newValue === null) {
-            delete this.valuesHash[name];
+            delete this.valuesHash[commentName];
         } else {
-            this.valuesHash[name] = newValue;
+            this.valuesHash[commentName] = newValue;
             this.tryGoNextPageAutomatic(name);
+        }
+        var question = this.getQuestionByName(name);
+        if(question) {
+            this.onValueChanged.fire(this, { 'name': commentName, 'question': question, 'value': newValue });
         }
     }
     public clearValue(name: string) {

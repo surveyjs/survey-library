@@ -81,6 +81,25 @@ QUnit.test("Remove Page in design mode", function (assert) {
     assert.equal(survey.PageCount, 1, "One page left");
     assert.equal(survey.currentPage.name, "Page 2", "the second page is  current");
 });
+QUnit.test("Survey.onValueChanged event, #352", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.choices = [1, 2, 3];
+    q1.hasOther = true;
+    var valueChangedCallCounter = 0;
+    survey.onValueChanged.add(function(survey, options){
+        valueChangedCallCounter ++;
+    });
+    assert.equal(valueChangedCallCounter, 0, "Nothing happens");
+    q1.value = 1;
+    assert.equal(valueChangedCallCounter, 1, "Set one value");
+    q1.value = q1.otherItem.value;
+    assert.equal(valueChangedCallCounter, 2, "Set other value");
+    q1.comment = "new comment";
+    assert.equal(valueChangedCallCounter, 3, "Set comment to other value");
+});
+
 QUnit.test("Do not show errors in display mode", function (assert) {
     var survey = twoPageSimplestSurvey();
     (<Question>survey.pages[0].questions[0]).isRequired = true;

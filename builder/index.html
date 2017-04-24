@@ -32,7 +32,7 @@ usebootstrap: true
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
-    var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true, showState: true});
+    var editor = new SurveyEditor.SurveyEditor("editor", {showEmbededSurveyTab: true, showOptions: true, showState: true, generateValidJSON : false});
     var manager = new SurveyEditor.SurveysManager("https://dxsurvey.com", "a797f29b53f8455e8b3ef317f8904dac", editor);
     ko.applyBindings(manager, document.getElementById("manage"));
     editor.toolbarItems.push(manager.toolbarItem);

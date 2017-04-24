@@ -1,0 +1,211 @@
+{
+    "pages": [{
+            "elements": [{
+                    "type": "radiogroup",
+                    "choices": [{
+                            "value": "yes",
+                            "text": {
+                                "default": "Yes",
+                                "de": "Ja"
+                            }
+                        },
+                        {
+                            "value": "no",
+                            "text": {
+                                "default": "No",
+                                "de": "Nein"
+                            }
+                        }
+                    ],
+                    "name": "Were you able to get an appointment when you felt it was needed?",
+                    "title": {
+                        "de": "Waren Sie in der Lage, einen Termin zu bekommen, wenn Sie fühlten, dass es nötig war?",
+                        "default": "Were you able to get an appointment when you felt it was needed?"
+                    }
+                },
+                {
+                    "type": "radiogroup",
+                    "choices": [{
+                            "value": "yes",
+                            "text": {
+                                "default": "Yes",
+                                "de": "Ja"
+                            }
+                        },
+                        {
+                            "value": "no",
+                            "text": {
+                                "default": "No",
+                                "de": "Nein"
+                            }
+                        }
+                    ],
+                    "name": "Were you seen within 15 minutes of your scheduled appointment time?",
+                    "title": {
+                        "de": "Waren Sie innerhalb von 15 Minuten nach Ihrer geplanten Terminzeit gesehen?",
+                        "default": "Were you seen within 15 minutes of your scheduled appointment time?"
+                    }
+                },
+                {
+                    "type": "radiogroup",
+                    "choices": [{
+                            "value": "yes",
+                            "text": {
+                                "default": "Yes",
+                                "de": "Ja"
+                            }
+                        },
+                        {
+                            "value": "no",
+                            "text": {
+                                "default": "No",
+                                "de": "Nein"
+                            }
+                        }
+                    ],
+                    "name": "Were you able to get tests and treatment scheduled in a reasonable timeframe?",
+                    "title": {
+                        "de": "Warst du in der Lage, Tests und Behandlungen in einem angemessenen Zeitrahmen zu planen?",
+                        "default": "Were you able to get tests and treatment scheduled in a reasonable timeframe?"
+                    }
+                }
+            ],
+            "name": "Scheduling / Service Delivery",
+            "title": {
+                "default": "Scheduling / Service Delivery",
+                "de": "Terminierung / Service Lieferung"
+            }
+        },
+        {
+            "elements": [{
+                    "type": "matrix",
+                    "columns": [{
+                            "value": "very poor",
+                            "text": {
+                                "default": "Very Poor",
+                                "de": "Sehr Arm"
+                            }
+                        },
+                        {
+                            "value": "poor",
+                            "text": {
+                                "default": "Poor",
+                                "de": "Arm"
+                            }
+                        },
+                        {
+                            "value": "fair",
+                            "text": {
+                                "default": "Fair",
+                                "de": "Messe"
+                            }
+                        },
+                        {
+                            "value": "good",
+                            "text": {
+                                "default": "Good",
+                                "de": "Gut"
+                            }
+                        },
+                        {
+                            "value": "very good",
+                            "text": {
+                                "default": "Very Good",
+                                "de": "Sehr gut"
+                            }
+                        }
+                    ],
+                    "name": "Care Provider",
+                    "rows": [{
+                            "value": "Friendliness/courtesy of the care provider",
+                            "text": {
+                                "default": "Friendliness/courtesy of the care provider",
+                                "de": "Freundlichkeit / Höflichkeit des Pflegeanbieters"
+                            }
+                        },
+                        {
+                            "value": "Explanations the care provider gave you about your problem or condition",
+                            "text": {
+                                "default": "Explanations the care provider gave you about your problem or condition",
+                                "de": "Erklärungen der Pflegeanbieter gab Ihnen über Ihr Problem oder Bedingung"
+                            }
+                        },
+                        {
+                            "value": "Concern the care provider showed for your questions or worries",
+                            "text": {
+                                "default": "Concern the care provider showed for your questions or worries",
+                                "de": "Sorge der Pflegeanbieter zeigte für Ihre Fragen oder Sorgen"
+                            }
+                        },
+                        {
+                            "value": "Care provider's efforts to include you in decisions about your treatment",
+                            "text": {
+                                "default": "Care provider's efforts to include you in decisions about your treatment",
+                                "de": "Pflegeanbieter Bemühungen um Sie in Entscheidungen über Ihre Behandlung"
+                            }
+                        },
+                        {
+                            "value": "Information the care provider gave you about medications (if any)",
+                            "text": {
+                                "default": "Information the care provider gave you about medications (if any)",
+                                "de": "Informationen der Pflegeanbieter gab Ihnen über Medikamente (falls vorhanden)"
+                            }
+                        },
+                        {
+                            "value": "Instructions the care provider gave you about follow-up care (if any)",
+                            "text": {
+                                "default": "Instructions the care provider gave you about follow-up care (if any)",
+                                "de": "Anleitung der Pflegeanbieter gab Ihnen über Nachsorge (falls vorhanden)"
+                            }
+                        },
+                        {
+                            "value": "Degree to which care provider talked with you using words you could understand",
+                            "text": {
+                                "default": "Degree to which care provider talked with you using words you could understand",
+                                "de": "Grad, zu dem der Pfleger mit Ihnen mit Worten gesprochen hat, die Sie verstehen konnten"
+                            }
+                        },
+                        {
+                            "value": "Amount of time the care provider spent with you",
+                            "text": {
+                                "default": "Amount of time the care provider spent with you",
+                                "de": "Anzahl der Zeit, die der Pfleger mit Ihnen ausgegeben hat"
+                            }
+                        },
+                        {
+                            "value": "Your confidence in this care provider",
+                            "text": {
+                                "default": "Your confidence in this care provider",
+                                "de": "Ihr Vertrauen in diesen Pflegeanbieter"
+                            }
+                        },
+                        {
+                            "value": "Likelihood of your recommending this care provider to others",
+                            "text": {
+                                "default": "Likelihood of your recommending this care provider to others",
+                                "de": "Wahrscheinlichkeit, dass Sie diesen Pflegeanbieter anderen empfehlen"
+                            }
+                        }
+                    ],
+                    "title": {
+                        "default": "CARE PROVIDER - During your visit, your care was provided primarily by a doctor, physician assistant (PA), nurse practitioner (NP), or midwife.  Please answer the following questions with that health care provider in mind.",
+                        "de": "PFLEGEANBIRTER - Während Ihres Besuchs wurde Ihre Betreuung in erster Linie von einem Arzt, Arzt Assistent (AA), Krankenschwester Praktiker (KP) oder Hebamme zur Verfügung gestellt. Bitte beantworten Sie die folgenden Fragen bei diesem Arzt."
+                    }
+                },
+                {
+                    "type": "comment",
+                    "name": "If you have any additional feedback or comments, please provide that here",
+                    "title": {
+                        "de": "Wenn Sie irgendwelche zusätzlichen Rückmeldungen oder Anmerkungen haben, stellen Sie bitte dieses hier zur Verfügung",
+                        "default": "If you have any additional feedback or comments, please provide that here"
+                    }
+                }
+            ],
+            "name": "Quality of Service",
+            "title": {
+                "default": "Quality of Service",
+                "de": "Servicequalität"
+            }
+        }
+    ]
+}

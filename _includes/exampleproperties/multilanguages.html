@@ -1,7 +1,7 @@
 <div class="propertyitem">
     <p>
         <b>Locale: </b> (default is <empty>)
-        <select id="selLocales" style="width:100%" onChange="survey.locale = this.value; survey.render();">
+        <select id="selLocales" style="width:100%" onChange="changeLocale();">
             <option value="">Empty(default)</option>
             <option value="de" selected="selected">de</option>
         </select>
@@ -9,3 +9,12 @@
 survey.render();</code></pre>
     </p>
 </div>
+<script>
+function changeLocale() {
+    if(!!window.survey) {
+        survey.locale = document.getElementById("selLocales").value;
+        survey.render();
+    }
+}
+changeLocale();
+</script>

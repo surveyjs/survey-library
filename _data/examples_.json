@@ -41,6 +41,7 @@
     { "name": "questiontype-text", "title": "Text (type:'text')", "propertiesFile": "exampleproperties/questiontext.html" },
     { "name": "real-devexpresswinformsskins", "title": "DevExpress WinForms Look & Feel Technology" },
     { "name": "real-productfeedback", "title": "Product Feedback survey" },
+    { "name": "real-medical-service", "title": "Medical Service Feedback", "propertiesFile": "exampleproperties/multilanguages.html" },
     { "name": "service-load", "title": "Load survey json from the dxSurvey Service",
         "includes": [
             "examplesetups/service-load.md"

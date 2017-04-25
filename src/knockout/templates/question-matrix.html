@@ -14,7 +14,7 @@
                 <td data-bind="visible: question.hasRows, text:row.text"></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <label data-bind="css: question.survey.css.matrix.label" style="margin: 0;">
+                    <label data-bind="css: question.survey.css.matrix.label, style:{'position': 'absolute'}" style="margin: 0;">
                         <input type="radio" data-bind="css: question.survey.css.matrix.itemValue, attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
                         <span class="circle"></span>
                         <span class="check"></span>

@@ -4,7 +4,7 @@ require "jekyll-redirect-from/generator"
 
 module JekyllRedirectFrom
   # Jekyll classes which should be redirectable
-  CLASSES = [Jekyll::Page, Jekyll::Document, Jekyll::ExamplePage].freeze
+  CLASSES = [Jekyll::Page, Jekyll::Document, Jekyll::ExamplePage, Jekyll::DocPage].freeze
 
   autoload :Context,      "jekyll-redirect-from/context"
   autoload :RedirectPage, "jekyll-redirect-from/redirect_page"

@@ -1,0 +1,14 @@
+---
+layout: default
+pathprefix: ../
+mainmenukey: doc
+hasFooter: true
+---
+
+{% include menu-docs.html %}
+
+<div class="doc-content wrapper wrapper-content">
+{% for include in page.includes %}
+    {% include {{include}} %}
+{% endfor %}    
+</div>

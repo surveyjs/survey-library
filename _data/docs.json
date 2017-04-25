@@ -1,0 +1,14 @@
+{
+    "categories": [
+        { "name": "survey", "title": "Survey" },
+        { "name": "page", "title": "Survey Page" },
+        { "name": "question", "title": "Survey Question" }
+    ],
+    "pages": [
+        { "name": "index", "title": "Documentation", "canonicalUrl": "/docs/" },
+        { "name": "survey-model", "category": "survey", "title": "Survey Model" },
+        { "name": "survey-page", "category": "page", "title": "Page Model" },
+        { "name": "question-text", "category": "question", "title": "Text question model" },
+        { "name": "question-dropdown", "category": "question", "title": "Dropdown question model" }
+    ]
+}

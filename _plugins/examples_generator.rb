@@ -33,7 +33,7 @@ module Jekyll
     end
   end
 
-  class CategoryPageGenerator < Generator
+  class ExamplePagesGenerator < Generator
     safe true
 
     def generate(site)

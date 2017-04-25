@@ -2,6 +2,9 @@ markdown: kramdown
 
 surveyjs_version: "0.12.11"
 
+sass:
+    sass_dir: _sass
+    
 include:
   - ".nojekyll"
 

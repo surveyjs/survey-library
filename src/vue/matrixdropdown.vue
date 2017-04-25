@@ -8,9 +8,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in question.visibleRows">
+                <tr v-for="row in rows">
                     <td>{{row.text}}</td>
-                    <td v-for="cell in row.cells">
+                    <td v-for="cell in row.cells" :class="css.matrixdropdown.itemValue">
                         <survey-errors :question="question" :css="css"/>
                         <component :is="'survey-' + cell.question.getType()" :question="cell.question" :css="css"/>
                     </td>
@@ -25,9 +25,14 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {QuestionMatrixDropdownModel} from '../question_matrixdropdown'
+    import {MatrixDropdownRowModelBase} from '../question_matrixdropdownbase'
 
     @Component
     export default class MatrixDropdown extends Question<QuestionMatrixDropdownModel> {
+      get rows() {
+          return this.question.visibleRows;
+      }
     }
+
     Vue.component("survey-matrixdropdown", MatrixDropdown)
 </script>

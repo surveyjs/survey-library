@@ -7,10 +7,14 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(row, rowIndex) in question.visibleRows">
+            <tr v-for="(row, rowIndex) in question.visibleRows" :class="css.matrix.row">
                 <td v-show="question.hasRows">{{row.text}}</td>
                 <td v-for="(column, columnIndex) in question.columns">
-                    <input type="radio" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
+                    <label :class="css.matrix.label" :style="{'margin': '0', 'position': 'absolute'}">
+                        <input type="radio" :class="css.matrix.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
+                        <span class="circle"></span>
+                        <span class="check"></span>
+                    </label>
                 </td>
             </tr>
         </tbody>

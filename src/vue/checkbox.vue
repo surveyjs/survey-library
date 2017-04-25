@@ -1,8 +1,9 @@
 <template>
     <form :class="css.checkbox.root">
         <div v-for="(item, index) in question.visibleChoices" :class="css.radiogroup.item" :style="{width: colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
-            <label :class="css.radiogroup.item">
+            <label :class="css.checkbox.item">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" />
+                <span class="checkbox-material"><span class="check"></span></span>
                 <span>{{item.text}}</span>
                 <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :css="css"/>
             </label>

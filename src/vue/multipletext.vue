@@ -1,6 +1,6 @@
 <template>
     <table :class="css.multipletext.root">
-        <tr v-for="row in question.getRows()">
+        <tr v-for="row in question.getRows()" :class="css.multipletext.row">
             <template v-for="(item, index) in row">
                 <td :class="css.multipletext.itemTitle">{{item.fullTitle}}</td>
                 <td>

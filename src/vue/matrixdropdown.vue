@@ -25,6 +25,7 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {QuestionMatrixDropdownModel} from '../question_matrixdropdown'
+    import {MatrixDropdownRowModelBase} from '../question_matrixdropdownbase'
 
     @Component
     export default class MatrixDropdown extends Question<QuestionMatrixDropdownModel> {

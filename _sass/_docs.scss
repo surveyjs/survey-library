@@ -1,0 +1,37 @@
+$menu-width: 220px;
+
+.surveyjs-doc-page-wrapper {
+    position: absolute;
+    top: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    .doc-page-container {
+        position: relative;
+        width: 100%;
+        height: calc(100% - 58px);
+
+        .menu-sidebar {
+            position: relative;
+            height: 100%;        
+            background-color: #2f4050;
+            overflow: auto;
+        }
+
+        .doc-content-wrapper {
+            position: absolute;
+            top: 0;
+            left: $menu-width;
+            right: 0;
+            height: 100%;
+
+            .doc-container {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+            }
+        }
+    }
+}

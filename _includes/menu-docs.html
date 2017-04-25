@@ -1,13 +1,13 @@
-<nav class="navbar-default navbar-static-side examplesidebar" role="navigation">
+<nav class="navbar-default navbar-static-side menu-sidebar" role="navigation">
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
         {% for category in site.data.docs.categories %}
             <li {% if category.name == page.doc_category %}class="active"{% endif %}>
                 <a href="#" onclick="doExpand('{{category.name}}')">
                     <span>{{category.title}}</span>
-                    <span id="img{{category.name}}" class="glyphicon pull-right {% if category.name == page.doc_category %}glyphicon-chevron-up{% else %}glyphicon-chevron-down{% endif %}" aria-hidden="true"></span>
+                    <span id="img-{{category.name}}" class="glyphicon pull-right {% if category.name == page.doc_category %}glyphicon-chevron-up{% else %}glyphicon-chevron-down{% endif %}" aria-hidden="true"></span>
                 </a>
-                <ul id="examples{{category.name}}" class="nav nav-second-level"{% if category.name != page.doc_category %}style="display:none"{% endif %}>
+                <ul id="docs-{{category.name}}" class="nav nav-second-level"{% if category.name != page.doc_category %}style="display:none"{% endif %}>
                 {% assign catogory_pages = (site.data.docs.pages | where: "category" , category.name) %}
                 {% for doc_page in catogory_pages %}
                     <li {% if doc_page.name == page.doc_name %}class="active"{% endif %}>
@@ -25,11 +25,11 @@
 
 <script type="text/javascript">
     function doExpand(categoryName) {
-        var ulCategory = document.getElementById("examples" + categoryName);
+        var ulCategory = document.getElementById("docs-" + categoryName);
         if(!ulCategory) return;
         var display = ulCategory.style.display;
         ulCategory.style.display = display == "none" ? "" : "none";
-        var imgCategory = document.getElementById("img" + categoryName);
+        var imgCategory = document.getElementById("img-" + categoryName);
         if(!imgCategory) return;
         imgCategory.className = display == "none" ? "glyphicon pull-right glyphicon-chevron-up" : "glyphicon pull-right glyphicon-chevron-down";
     }

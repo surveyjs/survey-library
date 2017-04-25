@@ -8,7 +8,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in question.visibleRows">
+                <tr v-for="row in rows">
                     <td><survey-string :locString="row.locText"/></td>
                     <td v-for="cell in row.cells">
                         <survey-errors :question="question" :css="css"/>
@@ -28,6 +28,9 @@
 
     @Component
     export default class MatrixDropdown extends Question<QuestionMatrixDropdownModel> {
+        get rows() {
+            return this.question.visibleRows
+        }
     }
     Vue.component("survey-matrixdropdown", MatrixDropdown)
 </script>

@@ -13,6 +13,7 @@ project.json
 /lib_typings
 npm-debug.*
 _site
+.sass-cache
 Gemfile.lock
 /typings
 /src/knockout/template.window.ko.html.ts

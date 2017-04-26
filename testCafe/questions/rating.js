@@ -30,8 +30,7 @@ frameworks.forEach( (framework) => {
     });
 
     test(`choose value`, async t => {
-        const label3 = Selector((index) =>
-            document.querySelectorAll('label'), {text: "3", visibilityCheck: true, timeout: 1000});
+        const label3 = Selector('label').withText('3');
         let surveyResult;
 
         await t

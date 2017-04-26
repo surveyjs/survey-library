@@ -61,7 +61,7 @@
     "sass-loader": "4.1.1",
     "standard-version": "4.0.0",
     "style-loader": "0.13.1",
-    "testcafe": "0.13.0",
+    "testcafe": "0.15.0",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.0.0",
     "tslint": "4.5.1",

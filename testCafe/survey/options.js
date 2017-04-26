@@ -153,8 +153,9 @@ frameworks.forEach( (framework) => {
 
 
     test(`no progress bar`, async t => {
-        const getProgressBar = Selector(() =>
-            document.querySelectorAll("span"), { text: "Page 1 of 3", visibilityCheck: true, timeout: 1000});
+        const getProgressBar = Selector('span')
+                                .withText('Page 1 of 3')
+                                .with({ visibilityCheck: true, timeout: 1000 });
         assert.equal(await getProgressBar(), null);
     });
 

@@ -71,7 +71,17 @@ export class SurveyQuestionMatrixRow extends SurveyElementBase {
             var key = "value" + i;
             var isChecked = this.row.value == column.value;
             var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
-            var td = <td key={key}><input id={inputId} type="radio" name={this.row.fullName} value={column.value} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange}/></td>;
+            var labelStyle = { margin: '0', position: 'absolute' };
+            var td =
+                <td key={key}>
+                    <label className={this.css.label} style={labelStyle}>
+                        <input id={inputId} type="radio" className={this.css.itemValue} name={this.row.fullName}
+                               value={column.value} disabled={this.isDisplayMode} checked={isChecked}
+                               onChange={this.handleOnChange}/>
+                        <span className="circle"></span>
+                        <span className="check"></span>
+                    </label>
+                </td>;
             tds.push(td);
         }
         return (<tr>{firstTD}{tds}</tr>);

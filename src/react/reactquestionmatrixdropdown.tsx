@@ -26,7 +26,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
         var visibleRows = this.question.visibleRows;
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
-            rows.push(<SurveyQuestionMatrixDropdownRow row={row} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDropdownRow key={i} row={row} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll'} : {};
         return (

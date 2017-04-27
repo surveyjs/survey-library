@@ -11,7 +11,7 @@ const json = { questions: [
 const getWidgetConfig = function(framework) {
     var widget;
 
-    if (framework !== 'vue') {
+    if (framework === 'knockout') {
         widget = {
             name: "sortablejs",
             isFit : function(question) { return question["renderAs"] === 'sortablejs'; },
@@ -63,7 +63,157 @@ const getWidgetConfig = function(framework) {
                 });
             }
         }
-    } else {
+    }
+    else if (framework === 'react') {
+        widget = {
+            name: "sortablejs",
+            isFit: function (question) {
+                return question["renderAs"] === 'sortablejs';
+            },
+            render: function (questionBase) {
+                const style = {
+                    border: '1px solid #1ab394',
+                    minHeight: '50px',
+                    width: '100%',
+                    marginTop: '10px'
+                };
+                const itemStyle = {
+                    backgroundColor: '#1ab394',
+                    color: '#fff',
+                    margin: '5px',
+                    padding: '10px'
+                };
+                const containerStyle = {
+                    width: '50%'
+                };
+                let items = questionBase.visibleChoices.map((item, index) => React.createElement(
+                    "div",
+                    { key: index, "data-value": item.value },
+                    React.createElement(
+                        "div",
+                        { style: itemStyle },
+                        item.text
+                    )
+                ));
+
+                return React.createElement(
+                    "div",
+                    { style: containerStyle },
+                    React.createElement(
+                        "div",
+                        { className: "result", style: style },
+                        React.createElement(
+                            "span",
+                            null,
+                            "move items here"
+                        )
+                    ),
+                    React.createElement(
+                        "div",
+                        { className: "source", style: style },
+                        items
+                    )
+                );
+            },
+            afterRender: function (question, el) {
+                question.value = [];
+
+                var resultContainer = document.querySelector(".result");
+                var emptyText = resultContainer.querySelector("span");
+                var sourceContainer = document.querySelector(".source");
+
+                Sortable.create(resultContainer, {
+                    animation: 150,
+                    group: {
+                        name: 'top3',
+                        pull: true,
+                        put: true
+                    },
+                    onSort: function (evt) {
+                        var result = [];
+
+                        if (evt.to.children.length === 1) {
+                            emptyText.style.display = "inline-block";
+                        } else {
+                            emptyText.style.display = "none";
+                            for (var i = 1; i < evt.to.children.length; i++) {
+                                result.push(evt.to.children[i].dataset.value);
+                            }
+                        }
+                        question.value = result;
+                    }
+                });
+                Sortable.create(sourceContainer, {
+                    animation: 150,
+                    group: {
+                        name: 'top3',
+                        pull: true,
+                        put: true
+                    }
+                });
+            }
+        };
+    }
+    else if (framework === 'jquery') {
+        widget = {
+            name: "sortablejs",
+            isFit : function(question) { return question["renderAs"] === 'sortablejs'; },
+            htmlTemplate: `<div></div>`,
+            afterRender: function(question, el) {
+                var $el = $(el);
+                var style = {border: "1px solid #1ab394", width:"100%", minHeight:"50px" }
+                $el.append(`
+        <div style="width:50%">
+          <div class="result">
+            <span>move items here</span>
+          </div>
+          <div class="source" style="margin-top:10px;">
+          </div>
+        </div>
+      `);
+                var $source = $el.find(".source").css(style);
+                var $result = $el.find(".result").css(style);
+                var $emptyText = $result.find("span");
+                question.visibleChoices.forEach(function(choice) {
+                    $source.append(`<div data-value="` + choice.value +  `">
+                               <div style="background-color:#1ab394;color:#fff;margin:5px;padding:10px;">` + choice.text + `</div>
+                             </div>`);
+                });
+
+                Sortable.create($result[0], {
+                    animation: 150,
+                    group: {
+                        name: 'top3',
+                        pull: true,
+                        put: true
+                    },
+                    onSort: function (evt) {
+                        var result = [];
+                        if (evt.to.children.length === 1) {
+                            $emptyText.css({display: "inline-block"});
+                        } else {
+                            $emptyText.css({display: "none"});
+                            for (var i = 1; i < evt.to.children.length; i++) {
+                                result.push(evt.to.children[i].dataset.value)
+                            }
+                        }
+                        question.value = result;
+                    },
+                });
+                Sortable.create($source[0], {
+                    animation: 150,
+                    group: {
+                        name: 'top3',
+                        pull: true,
+                        put: true
+                    }
+                });
+            }
+        }
+    }
+    else if (framework === 'knockout') {
+    }
+    else if (framework === 'vue') {
         widget = {
             name: "sortablejs",
             isFit : function(question) { return question["renderAs"] === 'sortablejs'; }

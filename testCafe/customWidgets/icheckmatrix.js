@@ -19,7 +19,7 @@ const json = { questions: [
 const getWidgetConfig = function(framework) {
     var widget;
 
-    if (framework !== 'vue') {
+    if (framework == 'knockout') {
         widget = {
             name: "icheck",
             isDefaultRender: true,
@@ -48,7 +48,38 @@ const getWidgetConfig = function(framework) {
                 select();
             }
         }
-    } else {
+    }
+    else if (framework === 'react' || framework === 'jquery' || framework === 'angular') {
+        widget = {
+            name: "icheck",
+            isDefaultRender: true,
+            isFit : function(question) { return question.getType() === 'matrix'; },
+            afterRender: function(question, el) {
+                $(el).find('input').data({"iCheck": undefined});
+                $(el).find('input').iCheck({
+                    checkboxClass: 'iradio_square-blue',
+                    radioClass: 'iradio_square-blue'
+                });
+                $(el).find('input').on('ifChecked', function(event) {
+                    question.generatedVisibleRows.forEach(function(row, index, rows) {
+                        if (row.fullName === event.target.name) {
+                            row.value = event.target.value
+                        }
+                    });
+                });
+                var select = function() {
+                    question.generatedVisibleRows.forEach(function(row, index, rows) {
+                        if (row.value) {
+                            $(el).find("input[name='" + row.fullName  + "'][value=" + row.value + "]").iCheck('check');
+                        }
+                    });
+                }
+                question.valueChangedCallback = select;
+                select();
+            }
+        }
+    }
+    else if (framework == 'vue') {
         widget = {
             name: "icheckmatrix",
             isFit : function(question) { return question["renderAs"] === 'icheckmatrix'; }

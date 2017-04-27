@@ -1,0 +1,26 @@
+---
+layout: doc_page
+mainmenukey: doc
+---
+{{ content }}
+<div id="objectProperties">
+      <div data-bind="foreach: items">
+          <div><span data-bind="text: name"></span></div>
+    </div>
+</div>
+
+<script src="{{ site.baseurl }}/js/knockout.js"></script>
+<script>
+    var classes = [
+    {% for classItem in site.data.docs.classes %}{ name: "{{classItem.name}}", parent: "{{classItem.parent}}"},{% endfor %}
+    {name: "", parent: ""}];
+    var pmes = [
+    {% for prop in site.data.docs.pmes %}{ name: "{{prop.name}}", class: "{{prop.class}}", type: "{{prop.type}}"},{% endfor %}
+    {name: "", class: "", type: ""}];
+    
+    var Model = function(className) {
+        this.items = ko.observableArray(pmes);
+};
+ 
+ko.applyBindings(new Model("{{page.classname}}"), document.getElementById("objectProperties"));
+ </script>

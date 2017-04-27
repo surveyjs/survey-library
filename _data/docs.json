@@ -1,14 +1,26 @@
 {
     "categories": [
-        { "name": "survey", "title": "Survey" },
-        { "name": "page", "title": "Survey Page" },
-        { "name": "question", "title": "Survey Question" }
+        { "name": "started", "title": "Gettting started" },
+        { "name": "api", "title": "Survey Objects API" }
     ],
     "pages": [
         { "name": "index", "title": "Documentation", "canonicalUrl": "/docs/" },
-        { "name": "survey-model", "category": "survey", "title": "Survey Model" },
-        { "name": "survey-page", "category": "page", "title": "Page Model" },
-        { "name": "question-text", "category": "question", "title": "Text question model" },
-        { "name": "question-dropdown", "category": "question", "title": "Dropdown question model" }
+        { "name": "gettingstarted", "category": "started", "title": "Getting started" },
+        { "name": "api_survey", "category": "api", "title": "Survey" },
+        { "name": "api_question_dropdown", "category": "api", "title": "Question Dropdown" }
+    ],
+    "classes": [
+        {"name": "Base", "parent": ""},
+        {"name": "Survey", "parent": "Base"},
+        {"name": "QuestionBase", "parent": "Base"},
+        {"name": "Question", "parent":"QuestionBase"},
+        {"name": "QuestionSelectBase", "parent":"Question"},
+        {"name": "QuestionCheckbox", "parent":"QuestionSelectBase"},
+        {"name": "QuestionDropdown", "parent":"QuestionSelectBase"}
+    ],
+
+    "pmes":  [
+        {"name": "title", "class": "Question", "type": "p"},
+        {"name": "choices", "class": "QuestionSelectBase", "type": "p"}
     ]
 }

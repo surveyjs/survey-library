@@ -3,7 +3,6 @@ layout: default
 pathprefix: ../
 mainmenukey: doc
 ---
-
 <div class="surveyjs-doc-page-wrapper">
     <div class="doc-page-container">
 
@@ -12,12 +11,7 @@ mainmenukey: doc
         <div class="doc-content-wrapper">
             <div class="doc-container">
                 <div class="doc-content">
-                    {% include platform-selector.html %}
-                    
-                    {% for include in page.includes %}
-                        {% capture md_include %}{% include {{include}} %}{% endcapture %}
-                        {{ md_include | markdownify }}
-                    {% endfor %}
+                    {{ content }}
                 </div>
             </div>
         </div>

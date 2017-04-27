@@ -1,3 +1,6 @@
+// TODO this example disable, uncomment for enable
+
+/*
 import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
@@ -264,4 +267,4 @@ frameworks.forEach( (framework) => {
             });
         });
     }
-});
+});*/

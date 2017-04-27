@@ -11,11 +11,22 @@ export class ChoicesRestfull extends Base {
     public titleName: string = "";
     public getResultCallback: (items: Array<ItemValue>) => void;
     public error: SurveyError = null;
+    private static itemsResult = {};
+    private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
+        var hash = obj.objHash;
+        var res = ChoicesRestfull.itemsResult[hash];
+        if(!res) return false;
+        if(obj.getResultCallback) {
+            obj.getResultCallback(res);
+        }
+        return true;
+    }
     constructor() {
         super();
     }
     public run() {
         if (!this.url || !this.getResultCallback) return;
+        if(ChoicesRestfull.getCachedItemsResult(this)) return;
         this.error = null;
         var xhr = new XMLHttpRequest();
         xhr.open('GET', this.url);
@@ -61,6 +72,7 @@ export class ChoicesRestfull extends Base {
         } else {
             this.error = new CustomError(surveyLocalization.getString("urlGetChoicesError"));
         }
+        ChoicesRestfull.itemsResult[this.objHash] = items;
         this.getResultCallback(items);
     }
     private onError(status: string, response: string) {
@@ -97,5 +109,6 @@ export class ChoicesRestfull extends Base {
         if (!this.titleName) return null;
         return item[this.titleName];
     }
+    private get objHash() { return this.url + ";" + this.path + ";" + this.valueName + ";" + this.titleName; }
 }
 JsonObject.metaData.addClass("choicesByUrl", ["url", "path", "valueName", "titleName"], function () { return new ChoicesRestfull(); });

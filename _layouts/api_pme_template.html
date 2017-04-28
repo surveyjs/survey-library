@@ -1,0 +1,21 @@
+---
+layout: doc_page
+mainmenukey: doc
+---
+<div id="pmeInfo">
+    <span data-bind="text: name"></span>
+</div>
+
+<script src="{{ site.baseurl }}/js/knockout.js"></script>
+<script>
+    var Model = function(){
+    {% for item in site.data.apidescription %}
+        {% if item.name == page.pmename %}
+            this.name = "{{item.name}}";
+        {% endif %}
+    {% endfor %}
+    };
+    
+
+ko.applyBindings(new Model(), document.getElementById("pmeInfo"));
+ </script>

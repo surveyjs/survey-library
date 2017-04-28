@@ -1056,6 +1056,23 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function (assert
     assert.equal(counter, 2, "nothing happens");
 });
 
+QUnit.test("isRequired test, empty array https://github.com/surveyjs/surveyjs/issues/362", function (assert) {
+    var survey = new SurveyModel({
+        pages: [{
+            name: "page1",
+            questions: [
+                { type: "checkbox", isRequired:true, name: "q1", choices: ["yes", "no"] }]
+        }]
+    });
+
+    var page1 = survey.getPageByName("page1");
+    var q1 = <Question>(<Question>page1.questions[0]);
+    q1.value = [];
+    assert.equal(page1.hasErrors(), true, "There is a required error");
+    q1.value = ["yes"];
+    assert.equal(page1.hasErrors(), false, "There is no required error");
+});
+
 QUnit.test("multiple triger on checkbox stop working.", function (assert) {
     var survey = new SurveyModel({
         pages: [{

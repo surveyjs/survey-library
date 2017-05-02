@@ -64,6 +64,7 @@ export interface IPage extends IConditionRunner {
 
 export class Base {
     public static isValueEmpty(value: any) {
+        if (Array.isArray(value) && value.length === 0) return true;
         return !value && value !== 0 && value !== false;
     }
     public getType(): string {

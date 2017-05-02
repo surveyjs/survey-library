@@ -12,6 +12,9 @@ import {CustomError} from "./error";
 import {CustomWidgetCollection} from './questionCustomWidgets';
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
+/** 
+ * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
+ */
 export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, ILocalizableOwner {
     public surveyId: string = null;
     public surveyPostId: string = null;

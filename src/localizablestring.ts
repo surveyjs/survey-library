@@ -85,6 +85,12 @@ export class LocalizableString {
         this.onChanged();
     }
     public onChanged() {}
+    public get hasNonDefaultLocale(): boolean {
+        var keys = Object.keys(this.values);
+        if(keys.length == 0) return false;
+        if(keys.length > 1) return true;
+        return keys[0] != LocalizableString.defaultLocale;
+    }
     protected onCreating() {}
     private hasHtmlValue(): boolean {
         if(!this.owner || !this.useMarkdown) return false;

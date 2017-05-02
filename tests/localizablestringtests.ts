@@ -191,3 +191,17 @@ QUnit.test("ItemValue markdown support", function (assert) {
     assert.equal(items[1].locText.renderedHtml, "text2", "renderedHtml for item2");
     assert.equal(items[2].locText.renderedHtml, LocalizableOwnerTester.MarkdownText, "renderedHtml for item3");
 });
+
+QUnit.test("Localization string has non default locale, #366", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var locString = new LocalizableString(owner, true);
+    assert.equal(locString.hasNonDefaultLocale, false, "There is no text at all");
+    locString.text = "text1";
+    assert.equal(locString.hasNonDefaultLocale, false, "There is only default text");
+    locString.setLocaleText("fr", "text1-fr");
+    assert.equal(locString.hasNonDefaultLocale, true, "There is default and fr text");
+    locString = new LocalizableString(owner, true);
+    assert.equal(locString.hasNonDefaultLocale, false, "There is no text at all");
+    locString.setLocaleText("fr", "text1-fr");
+    assert.equal(locString.hasNonDefaultLocale, true, "There is fr text");
+});

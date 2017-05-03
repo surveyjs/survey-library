@@ -1,5 +1,14 @@
 ---
 ---
 
+body {
+    font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
 @import "old";
+
+@import "variables";
+@import "menu-top";
+
+@import "home";
 @import "docs";

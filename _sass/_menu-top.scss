@@ -1,0 +1,23 @@
+.menu-top {
+    background-color: $bg-color;
+    border: none;
+
+    &.navbar-default .nav {
+        li {
+            font-size: 15px;
+            font-weight: bold;
+
+            a {
+                padding: 15px 25px;
+            }
+
+            &.active > a,
+            a:hover,
+            a:focus {
+                color: $main-color;
+                background-color: $bg-color;
+                border-left: none;
+            }
+        }
+    }
+}

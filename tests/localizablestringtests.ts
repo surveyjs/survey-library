@@ -122,6 +122,10 @@ QUnit.test("Array<ItemValue> localization", function (assert) {
     items[1].text = "de-text2";
     assert.equal(items[0].text, "de-text1", "Check3, use 'de' text");
     assert.equal(items[1].text, "de-text2", "Check4, use 'de' value");
+    owner.locale = "";
+    assert.equal(items[0].text, "text1", "Check5, use default text");
+    items[0].locText.setLocaleText("", null);
+    assert.equal(items[0].text, "val1", "Check6, use value");
 });
 
 QUnit.test("Array<ItemValue> localization serialize", function (assert) {
@@ -154,6 +158,14 @@ QUnit.test("Array<ItemValue> localization deserialize/setData", function (assert
     var serJson = [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
         {value: "val2", text: "de-text2"}];
     assert.deepEqual(ItemValue.getData(items), serJson, "There is no pos object");
+});
+
+QUnit.test("Array<ItemValue> localization deserialize/setData, no default value", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+    var json = [{value: "val1", text: {"de": "de-text1"}}];
+    ItemValue.setData(items, json);
+    assert.deepEqual(ItemValue.getData(items), json, "There is 'de' serialization");
 });
 
 QUnit.test("Localization string markdown test", function (assert) {
@@ -190,18 +202,4 @@ QUnit.test("ItemValue markdown support", function (assert) {
     assert.equal(items[0].locText.renderedHtml, "val1", "renderedHtml for item1");
     assert.equal(items[1].locText.renderedHtml, "text2", "renderedHtml for item2");
     assert.equal(items[2].locText.renderedHtml, LocalizableOwnerTester.MarkdownText, "renderedHtml for item3");
-});
-
-QUnit.test("Localization string has non default locale, #366", function (assert) {
-    var owner = new LocalizableOwnerTester("");
-    var locString = new LocalizableString(owner, true);
-    assert.equal(locString.hasNonDefaultLocale, false, "There is no text at all");
-    locString.text = "text1";
-    assert.equal(locString.hasNonDefaultLocale, false, "There is only default text");
-    locString.setLocaleText("fr", "text1-fr");
-    assert.equal(locString.hasNonDefaultLocale, true, "There is default and fr text");
-    locString = new LocalizableString(owner, true);
-    assert.equal(locString.hasNonDefaultLocale, false, "There is no text at all");
-    locString.setLocaleText("fr", "text1-fr");
-    assert.equal(locString.hasNonDefaultLocale, true, "There is fr text");
 });

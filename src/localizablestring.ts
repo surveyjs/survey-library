@@ -8,20 +8,25 @@ export class LocalizableString {
     private values = {};
     private htmlValues = {};
     public onRenderedHtmlCallback: (html: string) => string;
+    public onGetTextCallback: (str: string) => string = null;
     constructor (public owner: ILocalizableOwner, public useMarkdown: boolean = false) {
         this.onCreating();
     }
     public get locale() {return this.owner ? this.owner.getLocale() : ""; }
-    public get text() : string { 
-        var keys = Object.keys(this.values);
-        if(keys.length == 0) return "";
+    public get text() : string {
+        var res = this.pureText;
+        if(this.onGetTextCallback) res = this.onGetTextCallback(res);
+        return res;
+    }
+    public get pureText() {
         var loc = this.locale;
         if(!loc) loc = LocalizableString.defaultLocale;
         var res = this.values[loc];
         if(!res && loc !== LocalizableString.defaultLocale) {
             res = this.values[LocalizableString.defaultLocale];
         }
-        return res ? res : this.values[keys[0]];
+        if(!res) res = "";
+        return res;
     }
     public get hasHtml(): boolean { 
         return this.hasHtmlValue(); 
@@ -85,12 +90,6 @@ export class LocalizableString {
         this.onChanged();
     }
     public onChanged() {}
-    public get hasNonDefaultLocale(): boolean {
-        var keys = Object.keys(this.values);
-        if(keys.length == 0) return false;
-        if(keys.length > 1) return true;
-        return keys[0] != LocalizableString.defaultLocale;
-    }
     protected onCreating() {}
     private hasHtmlValue(): boolean {
         if(!this.owner || !this.useMarkdown) return false;

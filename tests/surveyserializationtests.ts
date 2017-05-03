@@ -7,6 +7,7 @@ import {Question} from "../src/question";
 import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDropdownModelBase, MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
+import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("SurveySerialization");
 
@@ -152,4 +153,23 @@ QUnit.test("Survey serialize dropdown.choices localization", function (assert) {
     var json = new JsonObject().toJsonObject(survey);
     var checkedJson = { pages: [ { name: "page1", elements: [ { type: "dropdown",  choices: [ { value: "val1", text: {"default": "text1", "de": "de-text1"}}], name: "question1" } ] }]};
     assert.deepEqual(json, checkedJson, "Jsons should be the same");
+});
+
+QUnit.test("Survey deserialize checkbox.choices localization", function (assert) {
+    //{ pages: [{elements: [], name: "page1"}]}
+    var question = new QuestionCheckboxModel("q1");
+    var jsonObj = new JsonObject();
+    jsonObj.toObject(
+        {type: "checkbox", choices: [ { value: "2", text: {de: "item"} }]}, question);
+    assert.equal((<ItemValue>question.choices[0]).text, "2", "The default locale is 2");
+    assert.equal((<ItemValue>question.choices[0]).locText.getLocaleText("de"), "item", "The de locale is item");
+});
+
+QUnit.test("Survey deserialize/serialize localization survey", function (assert) {
+    var survey = new SurveyModel();
+    var origionalJson = { pages: [{elements: [{type: "checkbox", choices: [ { value: "2", text: {de: "second item"} }], name: "question1"}], name: "page1"}]};
+    new JsonObject().toObject(origionalJson, survey);
+    
+    var newJsonObj = new JsonObject().toJsonObject(survey);
+    assert.deepEqual(newJsonObj, origionalJson, "Two json objects should be equal");
 });

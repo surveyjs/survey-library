@@ -35,8 +35,9 @@ export class ItemValue {
         var result = new Array();
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
-            if (item.hasText) {
-                result.push({ value: item.value, text: item.locText.getJson() });
+            var textJson = item.locText.getJson();
+            if (textJson) {
+                result.push({ value: item.value, text:  textJson});
             } else {
                 result.push(item.value);
             }
@@ -60,7 +61,7 @@ export class ItemValue {
     constructor(value: any, text: string = null) {
         this.locTextValue = new LocalizableString(null, true);
         var self = this;
-        this.locTextValue.onRenderedHtmlCallback = function(text) { return text ? text : (self.value ? self.value.toString() : null); }
+        this.locTextValue.onGetTextCallback = function(text) { return text ? text : (self.value ? self.value.toString() : null); }
         if(text) this.locText.text = text;
         this.value = value;
     }
@@ -79,12 +80,8 @@ export class ItemValue {
             this.text = str.slice(index + 1);
         }
     }
-    public get hasText(): boolean { return this.locText.text ? true : false; }
-    public get text(): string {
-        if (this.hasText) return this.locText.text;
-        if (this.value) return this.value.toString();
-        return null;
-    }
+    public get hasText(): boolean { return this.locText.pureText ? true : false; }
+    public get text(): string { return this.locText.text; }
     public set text(newText: string) {
         this.locText.text = newText;
     }

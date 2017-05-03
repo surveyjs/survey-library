@@ -13,6 +13,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     private surveyValue: ISurvey;
     private conditionRunner: ConditionRunner = null;
     public customWidget: QuestionCustomWidget;
+    public customWidgetData = { isNeedRender: true };
     public visibleIf: string = "";
     private idValue: string;
     private visibleValue: boolean = true;

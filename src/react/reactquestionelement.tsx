@@ -46,7 +46,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
     }
     protected shouldComponentUpdate(): boolean {
         return !this.questionBase.customWidget
-            || !!this.questionBase.customWidget.widgetJson.isNeedRender
+            || !!this.questionBase.customWidgetData.isNeedRender
             || !!this.questionBase.customWidget.widgetJson.render;
     }
 }

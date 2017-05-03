@@ -96,7 +96,7 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
         var text = this.renderLocString(this.item.locText);
         return (<div className={this.css.item} style={divStyle}>
             <label className={this.css.item}>
-                <input type="checkbox" id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
+                <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
                     {text}
                     </label>
                 {otherItem}

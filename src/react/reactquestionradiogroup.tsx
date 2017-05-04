@@ -41,11 +41,11 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         }
         return items;
     }
-    protected get textStyle(): any { return { marginLeft: "3px" }; }
+    protected get textStyle(): any { return { marginLeft: "3px", display: "inline" }; }
     private renderItem(key: string, item: ItemValue, isFirst: boolean): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
-        var divStyle = { marginRight: marginRight };
+        var divStyle = { marginRight: marginRight, marginLeft: '0px' };
         if (itemWidth) {
             divStyle["width"] = itemWidth;
         }
@@ -56,13 +56,17 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean): JSX.Element {
         var id = isFirst ? this.question.inputId : null;
         var itemText = this.renderLocString(item.locText, this.textStyle);
-        return (<div key={key} className={this.css.item} style={divStyle}>
+        return (
+            <div key={key} className={this.css.item} style={divStyle}>
                 <label className={this.css.label}>
-                <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
-                    {itemText}
-                    </label>
+                    <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
+                    <span className="circle"></span>
+                    <span className="check"></span>
+                    <div style={this.textStyle}>{itemText}</div>
+                </label>
                 {otherItem}
-            </div>);
+            </div>
+        );
     }
     protected renderOther(): JSX.Element {
         return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>);

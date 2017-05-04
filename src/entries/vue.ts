@@ -12,6 +12,8 @@ export {surveyCss} from '../defaultCss/cssstandard';
 export {defaultStandardCss} from '../defaultCss/cssstandard';
 // css bootstrap
 export {defaultBootstrapCss} from '../defaultCss/cssbootstrap';
+// css bootstrap + material
+export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 export {VueSurveyModel as Model} from '../vue/surveyModel';
 export {default as Survey} from '../vue/survey.vue';

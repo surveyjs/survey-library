@@ -92,27 +92,154 @@ hasFooter: true
         </div>
     </section>
 
-
-    <div class="steps-header survey-gray">
+    <section class="examples">
         <div class="navy-line"></div>
+        <h1>Survey into your page</h1>
 
-    </div>
+        <div class="steps">
+            <div class="steps-header survey-gray">
+                <div class="navy-line"></div>
+                <span>Add Survey into your page</span>
+            </div>
+            <div class="steps-body row survey-gray">
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>A dozen question types</h1>
+                        <p>
+                            SurveyJS library has a dozen built-in question types, like <a href="{{ page.pathprefix }}examples/questiontype-text.html">a simple text</a> or <a href="{{ page.pathprefix }}examples/questiontype-matrixdynamic.html">a complex matrix</a> with different input types, and a <a href="{{ page.pathprefix }}examples/questiontype-panel.html">panel (container)</a>. We have all question types you will likely need.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
 
-    <div class="steps-body row survey-gray">
-        <div class="step row">
-            <div class="">
-                <p>You may also use our quick-start GitHub repos: <a href="https://github.com/surveyjs/surveyjs_angular_quickstart">angular</a>, <a href="https://github.com/surveyjs/surveyjs_angular_cli">angular-cli</a>, <a href="https://github.com/surveyjs/surveyjs_react_quickstart">react</a> and <a href="https://github.com/surveyjs/surveyjs_vue_quickstart">vue</a>.</p>
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-push-6 col-md-push-6 step-left">
+                        <h1>Integrate your favorite JavaScript widgets</h1>
+                        <p>
+                            Regardless of how many question types a survey library have, there will be always something missing. All survey solutions we have seen, allows using only built-in questions and functionality. SurveyJS gives you an easy way to integrate any JavaScript widget. There are hundreds and thousands different JavaScript widgets on the web. Absolutely the most of them, you may integrate into SurveyJS using our <a href="{{ page.pathprefix }}examples/custom-widget-select2-tagbox.html">Custom Widget support feature</a>. It brings a truly unlimited functionality into the library.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Design and Bootstrap support</h1>
+                        <p>
+                            All professional and commercial survey solutions come with beautiful design. Sometimes you may choose different look and feel. The most commercial survey solutions go further and allow, for example, you even to include your own logo into your own survey. What is a big deal! Will their design match your web site design? You may be lucky if it does. Unfortunately, there is no way they will be able to create a design for all their customers. SurveyJS allows you to <a href="{{ page.pathprefix }}examples/survey-customcss.html">customize every element</a> in the way you need. Additionally it supports Bootstrap. If your website uses bootstrap, just tell SurveyJS to render itself by using your bootstrap styles.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Markdown support</h1>
+                        <p>
+                            Here is another good example when an open and transparent solution beats old and closed systems. SurveyJS supports markdown. However, we do not create just another markdown library; we give you the ability to use any markdown you want. Of course, we could spend another several months of work and after that couple of years to fix all issues. We are sure, at the end, we would have a good our own markdown library, but why should we do something that other people have already done. There are several good markdown libraries, including under a <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a> that you may integrate into SurveyJS with 5-10 lines of code, <a href="{{ page.pathprefix }}examples/survey-markdown-radiogroup.html">just check out the code</a>.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Represent Survey Model as JSON</h1>
+                        <p>
+                            Do you know where a typical survey solution stores your survey model? Unfortunately, it is rhetorical question. You are likely just do not know. SurveyJS is fully transparent in any aspect, including this one.  SurveyJS library uses JSON to load survey model. You may use <a href="{{ page.pathprefix }}builder">WYSIWYG SurveyJS Editor</a> to create the survey, and then copy the created JSON into your web page directly to feed it to the SurveyJS library. Of course, you may store and then load SurveyJS JSON model in SurveyJS service or in your own storage. Survey JSON is readable and you may easily modify it by yourself or simple copy it into SurveyJS Editor and do the needed changes at any time. Finally, nothing to stop you from creating or modifying a SurveyJS Model in the code in run-time. At the end, it is just JavaScript objects.
+                        </p>
+
+                        <h1>Survey Results as JSON</h1>
+                        <p>
+                            As you may imagine, the SurveyJS result is a JSON as well. You may get the JSON result at any time, for example: on survey complete, on page change or value change. You may set to the SurveyJS a previously <a href="{{ page.pathprefix }}examples/survey-data.html">entered result or predefined data</a>. Of course, you may get or set the value of an individual question at any moment as well.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Survey Flow</h1>
+                        <p>
+                            The most complex surveys need to change the survey flow. You have to change the questions, panels and pages visibility or skip some pages. SurveyJS provides you with <a  href="{{ page.pathprefix }}examples/condition-kids.html">an easy way to achieve this</a>.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Dynamic questions</h1>
+                        <p>
+                            In many cases, the survey question models have to be dynamic. The data should come from different services and could not be static. SurveyJS gives you the ability to <a href="{{ page.pathprefix }}examples/questiontype-dropdownrestfull.html">load the data from restful API</a> without writing a single line of code. Of course, you are free to change the survey model in the code, it gives you again an unlimited possibilities.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Localization and Multi-languages support</h1>
+                        <p>
+                            We are not native English speakers ourselves and of course, we fully understand the importance of product localization. Like many other libraries, we are offering the translation of SurveyJS strings to many languages. It is created and supported by the community. However, what about multi languages support in one survey? What happens if you have to run the same survey, for example, for your English and Spanish speaking clients. Should you create two different surveys? SurveyJS has <a href="{{ page.pathprefix }}examples/survey-multilanguages.html">a built-in support for multi-languages</a>. Something, you will unlikely find in the most survey solutions.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
+                        <div class="step-panel">
+                            EXAMPLE
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="step row">
+    </section>
 
-        </div>
-        <div class="step row">
-            <h2>Professional Open Source library</h2>
-            <div class="">
-                SurveyJS library is a free and open source solution under <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a>. However, professional full-time software developers support it. We have developed software libraries and frameworks since late 90th.We know what to do and how to do it. You can judge it for yourself by looking at <a href="https://github.com/surveyjs/surveyjs/tree/master/src">our source code</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/tests">unit tests</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/testCafe">functional tests</a> and <a href="{{ page.pathprefix }}examples">examples</a>.
-            </div>                    
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="steps-body row survey-gray">
+
         <div class="step row">
             <h2>A dozen question types</h2>
             <div class="row">
@@ -120,7 +247,7 @@ hasFooter: true
                     <div id="surveyQuestionTypes"></div>
                 </div>
                 <div class=" col-md-8">
-                SurveyJS library has a dozen built-in question types, like <a href="{{ page.pathprefix }}examples/questiontype-text.html">a simple text</a> or <a href="{{ page.pathprefix }}examples/questiontype-matrixdynamic.html">a complex matrix</a> with different input types, and a <a href="{{ page.pathprefix }}examples/questiontype-panel.html">panel (container)</a>. We have all question types you will likely need.
+
                 </div>
             </div>
         </div>
@@ -131,14 +258,14 @@ hasFooter: true
                     <div id="surveyCustomWidget"></div>
                 </div>
                 <div class="col-md-8">
-                    Regardless of how many question types a survey library have, there will be always something missing. All survey solutions we have seen, allows using only built-in questions and functionality. SurveyJS gives you an easy way to integrate any JavaScript widget. There are hundreds and thousands different JavaScript widgets on the web. Absolutely the most of them, you may integrate into SurveyJS using our <a href="{{ page.pathprefix }}examples/custom-widget-select2-tagbox.html">Custom Widget support feature</a>. It brings a truly unlimited functionality into the library.
+
                 </div>
             </div>
         </div>
         <div class="step row">
             <h2>Design and Bootstrap support</h2>
             <div class="">
-                All professional and commercial survey solutions come with beautiful design. Sometimes you may choose different look and feel. The most commercial survey solutions go further and allow, for example, you even to include your own logo into your own survey. What is a big deal! Will their design match your web site design? You may be lucky if it does. Unfortunately, there is no way they will be able to create a design for all their customers. SurveyJS allows you to <a href="{{ page.pathprefix }}examples/survey-customcss.html">customize every element</a> in the way you need. Additionally it supports Bootstrap. If your website uses bootstrap, just tell SurveyJS to render itself by using your bootstrap styles.
+
             </div>                    
         </div>
         <div class="step row">
@@ -148,7 +275,7 @@ hasFooter: true
                     <div id="surveyMarkdown"></div>
                 </div>
                 <div class="col-md-8">
-                    Here is another good example when an open and transparent solution beats old and closed systems. SurveyJS supports markdown. However, we do not create just another markdown library; we give you the ability to use any markdown you want. Of course, we could spend another several months of work and after that couple of years to fix all issues. We are sure, at the end, we would have a good our own markdown library, but why should we do something that other people have already done. There are several good markdown libraries, including under a <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a> that you may integrate into SurveyJS with 5-10 lines of code, <a href="{{ page.pathprefix }}examples/survey-markdown-radiogroup.html">just check out the code</a>.
+
                 </div>
             </div>
         </div>
@@ -182,7 +309,7 @@ hasFooter: true
                     <div id="surveyDynamic"></div>
                 </div>
                 <div class="col-md-8">
-                    In many cases, the survey question models have to be dynamic. The data should come from different services and could not be static. SurveyJS gives you the ability to <a href="{{ page.pathprefix }}examples/questiontype-dropdownrestfull.html">load the data from restful API</a> without writing a single line of code. Of course, you are free to change the survey model in the code, it gives you again an unlimited possibilities.
+
                 </div>
             </div>
         </div>

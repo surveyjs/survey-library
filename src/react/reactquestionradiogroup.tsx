@@ -41,7 +41,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         }
         return items;
     }
-    protected get textStyle(): any { return { marginLeft: "3px", display: "inline" }; }
+    protected get textStyle(): any { return { marginLeft: "3px", display: "inline", position: 'static' }; }
     private renderItem(key: string, item: ItemValue, isFirst: boolean): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
@@ -62,7 +62,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
                     <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
                     <span className="circle"></span>
                     <span className="check"></span>
-                    <div style={this.textStyle}>{itemText}</div>
+                    {itemText}
                 </label>
                 {otherItem}
             </div>

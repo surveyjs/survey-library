@@ -46,7 +46,7 @@
 
         .mac {
             position: absolute;
-            top: 33px;
+            top: 34px;
             right: 200px;
 
             @media(max-width: 1450px) {
@@ -181,11 +181,6 @@
         }
 
         .steps {
-            .steps-header {
-                font-size: 25px;
-                padding-bottom: 35px;
-                text-align: center;
-            }
             .steps-body {
                 margin: 0;
                 padding-bottom: 60px;
@@ -199,6 +194,11 @@
                 .step-left {
                     padding-right: 62px;
                     text-align: right;
+
+                    p {
+                        max-width: 500px;
+                        margin-left: auto;
+                    }
                 }
                 .step-right {
                     padding-left: 60px;
@@ -208,6 +208,10 @@
                     padding-right: 0;
                     text-align: left;
                     padding-left: 60px;
+
+                    p {
+                        margin-left: 0;
+                    }
                 }
                 .step div[class*="pull"].step-right {
                     padding-left: 5%;
@@ -282,5 +286,11 @@
                 }
             }
         }
+    }
+
+    .more {
+        background-color: $bg-color-light;
+        text-align: center;
+        padding-bottom: 50px;
     }
 }

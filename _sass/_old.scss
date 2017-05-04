@@ -30,13 +30,6 @@ a.navy-link {
   color: #1ab394;
   text-decoration: none;
 }
-.navy-line {
-  width: 60px;
-  height: 1px;
-  margin: 0 auto 0;
-  border-bottom: 2px solid #1ab394;
-  padding-top: 60px;
-}
 
 /*overrides*/
 .nav > li.active {
@@ -85,14 +78,6 @@ a.navy-link {
     margin-right: 0;
 }
 
-a {
-    color: #1ab394;
-}
-
-a:hover {
-    text-decoration: underline;
-    color: #1ab394;
-}
 
 .form-control:focus, .single-line:focus {
     border-color: #e5e6e7 !important;

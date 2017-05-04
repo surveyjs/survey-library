@@ -8,7 +8,7 @@
         position: relative;
 
         .promo-text {
-            padding: 50px 0px 0px 100px;
+            padding: 100px 0px 0px 200px;
 
             .title-main, .title-sub, .title-info {
                 color:  $main-color;
@@ -27,6 +27,7 @@
                 color:  $text-color-light;
                 font-size: 16px;
                 font-weight: 300;
+                line-height: 10px;
 
                 &.first {
                     margin-top: 50px;
@@ -42,7 +43,7 @@
         .mac {
             position: absolute;
             top: 33px;
-            right: 100px;
+            right: 200px;
 
             @media(max-width:1225px) {
                 display: none;
@@ -59,5 +60,26 @@
         color: $text-color-light;
         text-align: center;
         padding: 80px 10px;
+    }
+
+    .integration {
+        background-color: $bg-color;
+        text-align: center;
+
+        h1 {
+            color: $main-color;
+            margin-bottom: 20px;
+        }
+
+        p {
+            line-height: 10px;
+        }
+
+        .frameworks {
+            padding: 50px 0;
+            a {
+                margin: 0 50px;
+            }
+        }
     }
 }

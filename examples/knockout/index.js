@@ -1,28 +1,8 @@
 function init() {
-    $.material.init();
+    //$.material.init();
 
     var json = { title: "Product Feedback Survey Example", showProgressBar: "top", pages: [
         {questions: [
-            { type: "file", title: "Please upload your photo", name: "image", storeDataAsText: true, showPreview: true, imageWidth: 150, maxSize: 102400 },
-            { type: "matrixdropdown", name: "frameworksRate", title: "Please tells us your opinion about JavaScript MVVM frameworks",
-                choices: ["Excelent", "Good", "Average", "Fair", "Poor"],
-                columns: [{ name: "using", title: "Do you use it?", choices: ["Yes", "No"], cellType: "radiogroup" },
-                    { name: "experience", title: "How long do you use it?", choices: [{value: 5, text:"3-5 years"}, {value: 2, text:"1-2 years"}, {value: 1, text:"less then a year"}] },
-                    { name: "strength", title: "What is main strength?", choices: ["Easy", "Compact", "Fast", "Powerfull"], cellType: "checkbox" },
-                    { name: "knowledge", title: "Please describe your experience", cellType:"text" },
-                    { name: "rate", title: "Please rate the framework itself" }],
-                rows: [{ value: "angularv1", text: "angularjs v1.x" },
-                    { value: "angularv2", text: "angularjs v2" },
-                    { value: "knockoutjs" },
-                    { value: "reactjs"}]},
-            {name:"name", type:"text", title: "Please enter your name:", placeHolder:"Jon Snow", isRequired: true},
-            {name:"birthdate", type:"text", inputType:"date", title: "Your birthdate:", isRequired: true},
-            {name:"color", type:"text", inputType:"color", title: "Your favorite color:"},
-            {name:"email", type:"text", inputType:"email", title: "Your e-mail:", placeHolder:"jon.snow@nightwatch.org", isRequired: true, validators: [{type:"email"}]},
-            { type: "checkbox", name: "car", title: "What car are you driving?", isRequired: true,
-                colCount: 4, choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] },
-            { type: "dropdown", name: "car", title: "What car are you driving?", isRequired: true, colCount: 0,
-                choices: ["None", "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"] },
             { type: "matrix", name: "Quality", title: "Please indicate if you agree or disagree with the following statements",
                 columns: [{ value: 1, text: "Strongly Disagree" },
                     { value: 2, text: "Disagree" },
@@ -59,6 +39,7 @@ function init() {
     ]};
 
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
+    //Survey.Survey.cssType = "bootstrapmaterial";
     Survey.Survey.cssType = "bootstrap";
 
     var model = new Survey.Model(json);

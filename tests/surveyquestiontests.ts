@@ -460,9 +460,9 @@ QUnit.test("Matrixdynamic column.validators", function (assert) {
     assert.equal(question.hasErrors(), false, "No errors");
     question.columns[0].validators.push(new EmailValidator());
     var rows = question.visibleRows;
-    question.value = [{ 'column1': "aaa" }, {}];    
+    question.value = [{ 'column1': "aaa" }, {}];
     assert.equal(question.hasErrors(), true, "column1 should has valid e-mail");
-    question.value = [{ 'column1': "aaa@aaa.com" }, {}];    
+    question.value = [{ 'column1': "aaa@aaa.com" }, {}];
     assert.equal(question.hasErrors(), false, "column1 has valid e-mail");
 });
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
@@ -558,7 +558,7 @@ QUnit.test("Matrixdropdown supportGoNextPageAutomatic always false for checkbox"
     question.columns.push(new MatrixDropdownColumn("col3"));
     question.columns.push(new MatrixDropdownColumn("col4"));
     new JsonObject().toObject(json, question);
-    
+
     assert.equal(question.columns.length, 2, "There were two columns");
 });
 
@@ -567,9 +567,9 @@ QUnit.test("Matrixdropdown set columns", function (assert) {
     question.rows = ["row1", "row2"];
     question.columns.push(new MatrixDropdownColumn("col1"));
     question.columns.push(new MatrixDropdownColumn("col2"));
-    
 
-    
+
+
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in rows");
     question.value = { "row1": { "col1": 1, "col2": 11 } };
     assert.equal(question.supportGoNextPageAutomatic(), false, "Checkbox doesn't support gotNextPageAutomatic");

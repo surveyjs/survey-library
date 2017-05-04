@@ -74,9 +74,9 @@ QUnit.test("add questions to list", function (assert) {
 QUnit.test("load nested panel from json", function (assert) {
     var page = new PageModel();
     var jsonObject = new JsonObject();
-    jsonObject.toObject({ "elements":[ 
-        { "type": "text", "name": "q1" }, 
-        {"type": "panel", "elements":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q3" }]}, 
+    jsonObject.toObject({ "elements":[
+        { "type": "text", "name": "q1" },
+        {"type": "panel", "elements":[ { "type": "text", "name": "q1" }, { "type": "text", "name": "q3" }]},
     { "type": "text", "name": "q4" }]}, page);
     assert.equal(page.elements.length, 3, "There are two elements");
     assert.equal(page.questions.length, 4, "There are four questions");

@@ -45,6 +45,6 @@ export class QuestionRatingModel extends Question {
 }
 ItemValue.setData(QuestionRatingModel.defaultRateValues, [1, 2, 3, 4, 5]);
 JsonObject.metaData.addClass("rating", ["hasComment:boolean", { name: "rateValues:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.rateValues); }, onSetValue: function (obj: any, value: any) { obj.rateValues = value; }},
-    {name: "minRateDescription", alternativeName: "mininumRateDescription", serializationProperty: "locMinRateDescription"}, 
+    {name: "minRateDescription", alternativeName: "mininumRateDescription", serializationProperty: "locMinRateDescription"},
     {name: "maxRateDescription", alternativeName: "maximumRateDescription", serializationProperty: "locMaxRateDescription"}], function () { return new QuestionRatingModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("rating", (name) => { return new QuestionRatingModel(name); });

@@ -30,7 +30,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     startWithNewLineChangedCallback: () => void;
     visibilityChangedCallback: () => void;
     visibleIndexChangedCallback: () => void;
-    readOnlyChangedCallback: () => void;    
+    readOnlyChangedCallback: () => void;
 
     constructor(public name: string) {
         super();
@@ -58,7 +58,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public get hasComment(): boolean { return false; }
     public get id(): string { return this.idValue; }
     public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
-    public set startWithNewLine(value: boolean) { 
+    public set startWithNewLine(value: boolean) {
         if(this.startWithNewLine == value) return;
         this.startWithNewLineValue = value;
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();

@@ -33,7 +33,7 @@
         }
 
         doExpand() {
-            this.expanded = !this.expanded;            
+            this.expanded = !this.expanded;
         }
     }
     Vue.component("survey-window", Window)

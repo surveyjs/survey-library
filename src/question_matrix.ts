@@ -14,7 +14,7 @@ export interface IMatrixData {
 export class MatrixRowModel extends Base {
     private data: IMatrixData;
     private item: ItemValue;
-    protected rowValue: any; 
+    protected rowValue: any;
 
     constructor(item: ItemValue, public fullName: string, data: IMatrixData, value: any) {
         super();
@@ -22,10 +22,10 @@ export class MatrixRowModel extends Base {
         this.data = data;
         this.rowValue = value;
     }
-    public get name(): string { return this.item.value; } 
-    public get text(): string { return this.item.text; } 
-    public get locText(): LocalizableString { 
-        return this.item.locText; 
+    public get name(): string { return this.item.value; }
+    public get text(): string { return this.item.text; }
+    public get locText(): LocalizableString {
+        return this.item.locText;
     }
     public get value() { return this.rowValue; }
     public set value(newValue: any) {

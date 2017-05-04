@@ -23,7 +23,7 @@ export interface IMatrixDropdownData {
 }
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
-    getRequiredText(): string;    
+    getRequiredText(): string;
 }
 
 export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
@@ -54,7 +54,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
         if(title) this.title = title;
     }
     public getType() { return "matrixdropdowncolumn" }
-    
+
     public get title(): string { return this.locTitle.text ? this.locTitle.text : this.name; }
     public set title(value: string) { this.locTitle.text = value; }
     public get fullTitle(): string { return this.getFullTitle(this.locTitle.textOrHtml); }
@@ -456,7 +456,7 @@ JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", s
         { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
         { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
         { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
-        
+
     function () { return new MatrixDropdownColumn(""); });
 
 JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn"},

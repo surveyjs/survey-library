@@ -29,7 +29,7 @@ export var spanishSurveyStrings = {
     otherRequiredError: "Por favor agrege la otra estimacion.",
     uploadingFile: "Su archivo se esta subiendo. Por favor espere unos segundos y intente de nuevo.",
     addRow: "Agrege hilera",
-    removeRow: "Retire", 
+    removeRow: "Retire",
     choices_firstItem: "primer articulo",
     choices_secondItem: "segundo articulo",
     choices_thirdItem: "tercer articulo",

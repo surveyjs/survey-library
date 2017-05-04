@@ -84,7 +84,7 @@ var platformOptions = {
 };
 
 module.exports = function (options) {
-    //TODO 
+    //TODO
     options.platformPrefix = options.platform == 'knockout' ? 'ko' : options.platform;
     var packagePath = './packages/survey-' + options.platform + '/';
     var extractCSS = new ExtractTextPlugin({ filename: packagePath + 'survey.css' });
@@ -103,14 +103,14 @@ module.exports = function (options) {
                 rimraf.sync(packagePath + 'typings');
                 fs.createReadStream('./npmREADME.md').pipe(fs.createWriteStream(packagePath + 'README.md'));
             }
-            //TODO someday need to remove		
-            if (options.platform === "knockout") {		
-                if (options.buildType === "prod") {		
-                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');		
-                } else {		
-                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');		
-                }		
-            }		
+            //TODO someday need to remove
+            if (options.platform === "knockout") {
+                if (options.buildType === "prod") {
+                    fs.rename('./packages/survey-knockout/survey.knockout.min.js', './packages/survey-knockout/survey.ko.min.js');
+                } else {
+                    fs.rename('./packages/survey-knockout/survey.knockout.js', './packages/survey-knockout/survey.ko.js');
+                }
+            }
         }
     };
 
@@ -140,7 +140,7 @@ module.exports = function (options) {
         'typings': 'survey.' + options.platformPrefix + '.d.ts',
         'dependencies': platformOptions[options.platform].dependencies
     };
-    
+
     var config = {
         entry: {},
         resolve: {

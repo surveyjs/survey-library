@@ -11,7 +11,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     }
     protected get question(): QuestionFileModel { return this.questionBase as QuestionFileModel; }
     handleOnChange(event) {
-        var src = event.target || event.srcElement; 
+        var src = event.target || event.srcElement;
         if (!window["FileReader"]) return;
         if (!src || !src.files || src.files.length < 1) return;
         this.question.loadFile(src.files[0]);
@@ -28,7 +28,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             <div>
                 {fileInput}
                 {img}
-            </div>           
+            </div>
         );
     }
     protected renderImage(): JSX.Element {

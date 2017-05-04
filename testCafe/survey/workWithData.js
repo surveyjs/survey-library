@@ -67,7 +67,7 @@ frameworks.forEach( (framework) => {
         await t
             .typeText(`div input`, `John Doe`)
             .click(`div input[type=checkbox]`);
-        
+
         assert.notEqual(await getPositionName(), -1);
         assert.notEqual(await getPositionCar(), -1);
     });

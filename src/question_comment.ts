@@ -21,6 +21,6 @@ export class QuestionCommentModel extends Question {
         return super.isEmpty() || this.value === "";
     }
 }
-JsonObject.metaData.addClass("comment", [{ name: "cols:number", default: 50 }, { name: "rows:number", default: 4 }, 
+JsonObject.metaData.addClass("comment", [{ name: "cols:number", default: 50 }, { name: "rows:number", default: 4 },
     {name: "placeHolder", serializationProperty: "locPlaceHolder"}], function () { return new QuestionCommentModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("comment", (name) => { return new QuestionCommentModel(name); });

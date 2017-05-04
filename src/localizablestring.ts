@@ -28,8 +28,8 @@ export class LocalizableString {
         if(!res) res = "";
         return res;
     }
-    public get hasHtml(): boolean { 
-        return this.hasHtmlValue(); 
+    public get hasHtml(): boolean {
+        return this.hasHtmlValue();
     }
     public get html() {
         if(!this.hasHtml) return "";
@@ -113,6 +113,6 @@ export class LocalizableString {
         for(var i = 0; i < keys.length; i ++) {
             if(keys[i] == LocalizableString.defaultLocale) continue;
             if(this.values[keys[i]] == defaultValue) delete this.values[keys[i]];
-        }                
+        }
     }
 }

@@ -20,7 +20,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     private locTitleValue: LocalizableString;
     private locPlaceHolderValue: LocalizableString;
     public isRequired: boolean = false;
-    public inputType: string = "text";
+    private inputTypeValue: string = "text";
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(public name: any = null, title: string = null) {
@@ -38,6 +38,10 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
         this.data = data;
     }
 
+    public get inputType(): string { return this.inputTypeValue; }
+    public set inputType(newValue: string) {
+      this.inputTypeValue = newValue.toLowerCase();
+    }
     public get title() { return this.locTitle.text ? this.locTitle.text : this.name; }
     public set title(value: string) { this.locTitle.text = value; }
     public get locTitle() { return this.locTitleValue; }

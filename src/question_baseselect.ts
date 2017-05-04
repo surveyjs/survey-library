@@ -106,6 +106,7 @@ export class QuestionSelectBase extends Question {
     }
     get choicesOrder(): string { return this.choicesOrderValue; }
     set choicesOrder(newValue: string) {
+        newValue = newValue.toLowerCase();
         if (newValue == this.choicesOrderValue) return;
         this.choicesOrderValue = newValue;
         this.onVisibleChoicesChanged();

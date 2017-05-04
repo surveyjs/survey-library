@@ -5,7 +5,7 @@ import {LocalizableString} from "./localizablestring";
 
 export class QuestionTextModel extends Question {
     public size: number = 25;
-    public inputType: string = "text";
+    private inputTypeValue: string = "text";
     private locPlaceHolderValue: LocalizableString;
     constructor(public name: string) {
         super(name);
@@ -13,6 +13,11 @@ export class QuestionTextModel extends Question {
     }
     public getType(): string {
         return "text";
+    }
+    get inputType(): string { return this.inputTypeValue; }
+    set inputType(type: string) {
+      var value = type.toLowerCase();
+      this.inputTypeValue = (value === "datetime_local") ? "datetime-local" : value;
     }
     isEmpty(): boolean {  return super.isEmpty() || this.value === ""; }
     supportGoNextPageAutomatic() { return true; }

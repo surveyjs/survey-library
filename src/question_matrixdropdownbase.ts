@@ -35,9 +35,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     public isRequired: boolean = false;
     public hasOther: boolean = false;
     public minWidth: string = "";
-    public cellType: string = "default";
-    public inputType: string = "text";
-    public choicesOrder: string = "none";
+    private cellTypeValue: string = "default";
+    private inputTypeValue: string = "text";
+    private choicesOrderValue: string = "none";
     public choicesByUrl: ChoicesRestfull;
     public colOwner: IMatrixColumnOwner = null;
     public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
@@ -55,6 +55,18 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     }
     public getType() { return "matrixdropdowncolumn" }
 
+    public get choicesOrder(): string { return this.choicesOrderValue; }
+    public set choicesOrder(newValue: string) {
+      this.choicesOrderValue = newValue.toLowerCase();
+    }
+    public get inputType(): string { return this.inputTypeValue; }
+    public set inputType(newValue: string) {
+      this.inputTypeValue = newValue.toLowerCase();
+    }
+    public get cellType(): string { return this.cellTypeValue; }
+    public set cellType(newValue: string) {
+        this.cellTypeValue = newValue.toLowerCase();
+    }
     public get title(): string { return this.locTitle.text ? this.locTitle.text : this.name; }
     public set title(value: string) { this.locTitle.text = value; }
     public get fullTitle(): string { return this.getFullTitle(this.locTitle.textOrHtml); }
@@ -240,6 +252,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     public get cellType(): string { return this.cellTypeValue; }
     public set cellType(newValue: string) {
+        newValue = newValue.toLowerCase();
         if (this.cellType == newValue) return;
         this.cellTypeValue = newValue;
         this.fireCallback(this.updateCellsCallback);

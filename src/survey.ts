@@ -30,7 +30,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public showCompletedPage: boolean = true;
     public requiredText: string = "*";
     public questionStartIndex: string = "";
-    public showProgressBar: string = "off";
+    private showProgressBarValue: string = "off";
     public storeOthersAsComment: boolean = true;
     public goNextPageAutomatic: boolean = false;
     public pages: Array<PageModel> = new Array<PageModel>();
@@ -164,18 +164,26 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; };
     public set showQuestionNumbers(value: string) {
+        value = value.toLowerCase();
+        value = (value === "onpage") ? "onPage" : value;
         if (value === this.showQuestionNumbers) return;
         this.showQuestionNumbersValue = value;
         this.updateVisibleIndexes();
     };
+    public get showProgressBar(): string { return this.showProgressBarValue; }
+    public set showProgressBar(newValue: string) {
+      this.showProgressBarValue = newValue.toLowerCase();
+    }
     public get processedTitle() { return this.processText(this.locTitle.textOrHtml); }
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
+        value = value.toLowerCase();
         if (value === this.questionTitleLocationValue) return;
         this.questionTitleLocationValue = value;
     };
     public get mode(): string { return this.modeValue; }
     public set mode(value: string) {
+        value = value.toLowerCase();
         if (value == this.mode) return;
         if (value != "edit" && value != "display") return;
         this.modeValue = value;

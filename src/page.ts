@@ -7,7 +7,7 @@ import {PanelModel, PanelModelBase, QuestionRowModel} from "./panel";
 
 export class PageModel extends PanelModelBase implements IPage {
     private numValue: number = -1;
-    public navigationButtonsVisibility: string = "inherit";
+    private navigationButtonsVisibilityValue: string = "inherit";
     constructor(public name: string = "") {
         super(name);
     }
@@ -17,6 +17,10 @@ export class PageModel extends PanelModelBase implements IPage {
         if (this.numValue == value) return;
         this.numValue = value;
         this.onNumChanged(value);
+    }
+    public get navigationButtonsVisibility(): string { return this.navigationButtonsVisibilityValue; }
+    public set navigationButtonsVisibility(newValue: string) {
+      this.navigationButtonsVisibilityValue = newValue.toLowerCase();
     }
     protected getRendredTitle(str: string): string {
         str = super.getRendredTitle(str);

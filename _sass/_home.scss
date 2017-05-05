@@ -131,7 +131,7 @@
 
             .info {
                 display: inline-block;
-                line-height: initial;
+                line-height: normal;
 
                 &.info-top {
                     vertical-align: top;
@@ -158,7 +158,7 @@
                     @media(min-width:1460px) {
                         &.right {
                             text-align: right;
-                            margin-right: 75px;
+                            margin-right: 90px;
                         }
 
                         &.left {
@@ -176,7 +176,7 @@
                     @media(min-width:1460px) {
                         &.right {
                             text-align: right;
-                            margin-right: 75px;
+                            margin-right: 90px;
                         }
 
                         &.left {
@@ -191,7 +191,7 @@
             }
         }
 
-        @media(max-width:1460px) {
+        @media(max-width:1670px) {
             .content {
                 line-height: 20px;
             }
@@ -289,12 +289,12 @@
                     content: "";
                 }
                 .step div[class*="pull"].step-right:before {
-                    left: initial;
+                    left: auto;
                     right: -8px;
                 }
                 .step div[class*="pull"].step-right:after {
                     right: 0;
-                    left: initial;
+                    left: auto;
                 }
                 .step-panel:after {
                     position: absolute;
@@ -308,7 +308,7 @@
                     border-right:15px solid white;
                 }
                 .step div[class*="pull"] .step-panel:after {
-                    left: initial;
+                    left: auto;
                     right: 53px;
                     border: none;
                     border-top: 15px solid transparent;

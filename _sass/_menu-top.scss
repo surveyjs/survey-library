@@ -22,25 +22,33 @@
             }
         }
 
-        .navbar-brand {
-            width: 220px;
-            background-image: url('/images/brand_back.png');
-            background-size: cover;
-            background-repeat: no-repeat;
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-            text-align: center;
-            text-transform: uppercase;
-        }
+        .navbar-header {
+            display: inline;
 
-        .version-link {
-            line-height: 50px;
-            margin-left: 15px;
-            font-size: 15px;
-            @media (max-width: 780px) {
-                font-size: 10px;
+            .navbar-brand {
+                width: 220px;
+                background-image: url('/images/brand_back.png');
+                background-size: cover;
+                background-repeat: no-repeat;
+                color: white;
+                float: none;
+                display: inline-block;
+                font-size: 20px;
+                font-weight: 700;
+                height: 52px;
+                text-align: center;
+                text-transform: uppercase;
+            }
+
+            .version-link {
+                line-height: 50px;
+                margin-left: 15px;
+                font-size: 15px;
+                @media (max-width: 780px) {
+                    font-size: 10px;
+                }
             }
         }
+
     }
 }

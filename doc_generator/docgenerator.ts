@@ -1,9 +1,12 @@
 import * as ts from "typescript";
 import * as fs from "fs";
+import {JsonObject} from "../src/jsonobject";
+import {SurveyModel} from "../src/survey";
 
 interface DocEntry {
     name?: string,
     className?: string,
+    jsonName?: string,
     fileName?: string,
     documentation?: string,
     type?: string,
@@ -28,6 +31,10 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
     let outputPMEs: DocEntry[] = [];
     let pmesHash = {};
     let curClass: DocEntry = null;
+    let curJsonName: string = null;
+    let jsonObj: JsonObject = new JsonObject();
+    //TODO
+    let dummySurvey: SurveyModel = new SurveyModel(); 
 
     // Visit every sourceFile in the program    
     for (const sourceFile of program.getSourceFiles()) {
@@ -52,7 +59,23 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
             if(isSymbolHasComments(symbol)) {
                 curClass = serializeClass(symbol, node);
                 outputClasses.push(curClass);
-                ts.forEachChild(node, visitClassNode);                
+                curJsonName = null;
+                ts.forEachChild(node, visitClassNode); 
+                if(curJsonName) {
+                    curClass.jsonName = curJsonName;
+                    var properties = JsonObject.metaData.getProperties(curJsonName);
+                    for(var i = 0; i < outputPMEs.length; i ++) {
+                        if(outputPMEs[i].className == curClass.name) {
+                            var propName = outputPMEs[i].name;
+                            for(var j = 0; j < properties.length; j ++) {
+                                if(properties[j].name == propName) {
+                                    outputPMEs[i].isSerialized = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
         else if (node.kind === ts.SyntaxKind.ModuleDeclaration) {
@@ -86,9 +109,24 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
                 pmesHash[fullName] = ser;
                 outputPMEs.push(ser);
             }
+            if(ser && ser.name === "getType") {
+                curJsonName = getJsonTypeName(<ts.FunctionDeclaration>node);
+            }
             if(isSymbolHasComments(symbol)) {
             }
         }
+    }
+    function getJsonTypeName(node : ts.FunctionDeclaration): string {
+        let body = (<ts.FunctionDeclaration>node).getFullText();
+        if(body) {
+            var pos = body.indexOf('return "');
+            if(pos > 0) {
+                body = body.substr(pos + 'return "'.length);
+                pos = body.indexOf('"');
+                return body.substr(0, pos);
+            }
+        }
+        return null;
     }
     function getPMEType(nodeKind: ts.SyntaxKind) {
         if(nodeKind === ts.SyntaxKind.MethodDeclaration) return "method";

@@ -107,27 +107,6 @@ a.navy-link {
         margin-left: 0;
     }
 }
-.navbar.navbar-default .navbar-brand {
-    width: 220px;
-    background-image: url('/images/brand_back.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    color: white;
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    text-transform: uppercase;
-}
-.version-link {
-    line-height: 50px;
-    margin-left: 15px;
-    font-size: 15px;
-}
-@media (max-width: 780px) {
-    .version-link {
-        font-size: 10px;
-    }
-}
 
 .features .panel-footer {
     background-color: #fff;
@@ -159,17 +138,6 @@ a.navy-link {
 @media (max-width: 767px) {
     .features .panel-body {
         height: 105px;
-    }
-}
-
-footer.panel-footer {
-    background-color: #eee;
-    border: none;
-    padding: 20px;
-}
-@media (max-width: 992px) {
-    footer.panel-footer {
-        padding: 20px;
     }
 }
 

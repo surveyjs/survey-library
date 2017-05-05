@@ -2,21 +2,44 @@
     background-color: $bg-color;
     border: none;
 
-    &.navbar-default .nav {
-        li {
-            font-size: 15px;
-            font-weight: bold;
+    &.navbar-default.navbar  {
+        .nav {
+            li {
+                font-size: 15px;
+                font-weight: bold;
 
-            a {
-                padding: 15px 25px;
+                a {
+                    padding: 15px 25px;
+                }
+
+                &.active > a,
+                a:hover,
+                a:focus {
+                    color: $main-color;
+                    background-color: $bg-color;
+                    border-left: none;
+                }
             }
+        }
 
-            &.active > a,
-            a:hover,
-            a:focus {
-                color: $main-color;
-                background-color: $bg-color;
-                border-left: none;
+        .navbar-brand {
+            width: 220px;
+            background-image: url('/images/brand_back.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .version-link {
+            line-height: 50px;
+            margin-left: 15px;
+            font-size: 15px;
+            @media (max-width: 780px) {
+                font-size: 10px;
             }
         }
     }

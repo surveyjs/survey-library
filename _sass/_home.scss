@@ -8,7 +8,7 @@
         position: relative;
 
         .promo-text {
-            padding: 100px 0px 0px 200px;
+            padding: 100px 0px 0px 150px;
 
             .title-main, .title-sub, .title-info {
                 color:  $main-color;
@@ -59,6 +59,17 @@
         }
     }
 
+    .definition, .integration, .options, .examples, .more {
+        padding-left: 150px;
+        padding-right: 150px;
+        text-align: center;
+
+        @media(max-width:1200px) {
+            padding-left: 50px;
+            padding-right: 50px;
+        }
+    }
+
     .definition {
         h1 {
             margin-top: 10px;
@@ -66,13 +77,12 @@
 
         background-color: $main-color;
         color: $text-color-light;
-        text-align: center;
-        padding: 80px 10px;
+        padding-top: 80px;
+        padding-bottom: 80px;
     }
 
     .integration {
         background-color: $bg-color;
-        text-align: center;
 
         h1 {
             color: $main-color;
@@ -85,18 +95,35 @@
 
         .frameworks {
             padding: 50px 0;
+            text-align: left;
+
+            @media(max-width:1600px) {
+                text-align: center;
+            }
+
             a {
-                margin: 0 50px;
+                margin-right: 150px;
+
+                &:last-child {
+                    margin-right: 0;
+                }
+
+                @media(max-width:1600px) {
+                    margin-right: 50px;
+                }
             }
         }
     }
 
     .options {
         background-color: $bg-color-light;
-        text-align: center;
 
         h1 {
             margin-bottom: 50px;
+        }
+
+        .col-lg-4 {
+            padding: 0;
         }
 
         .content {
@@ -105,7 +132,6 @@
             .info {
                 display: inline-block;
                 line-height: initial;
-                max-width: 350px;
 
                 &.info-top {
                     vertical-align: top;
@@ -126,7 +152,19 @@
                     font-size: 20px;
                     font-weight: 600;
                     text-transform: uppercase;
-                    margin-bottom: 10px;
+                    margin-bottom: 20px;
+                    line-height: 10px;
+
+                    @media(min-width:1460px) {
+                        &.right {
+                            text-align: right;
+                            margin-right: 75px;
+                        }
+
+                        &.left {
+                            text-align: left;
+                        }
+                    }
                 }
 
                 .info-description {
@@ -138,6 +176,7 @@
                     @media(min-width:1460px) {
                         &.right {
                             text-align: right;
+                            margin-right: 75px;
                         }
 
                         &.left {
@@ -174,7 +213,6 @@
 
     .examples {
         background-color: $bg-color;
-        text-align: center;
 
         h1 {
             margin-bottom: 50px;
@@ -193,16 +231,17 @@
                 }
                 .step-left {
                     padding-right: 62px;
-                    text-align: right;
+                    text-align: left;
+                    padding-left: 0;
 
                     p {
-                        max-width: 500px;
                         margin-left: auto;
                     }
                 }
                 .step-right {
                     padding-left: 60px;
-                    padding-right: 5%;
+                    padding-right: 0;
+
                 }
                 .step div[class*="push"].step-left {
                     padding-right: 0;
@@ -214,7 +253,7 @@
                     }
                 }
                 .step div[class*="pull"].step-right {
-                    padding-left: 5%;
+                    padding-left: 0;
                     padding-right: 62px;
                     text-align: right;
                 }
@@ -290,7 +329,6 @@
 
     .more {
         background-color: $bg-color-light;
-        text-align: center;
         padding-bottom: 50px;
     }
 }

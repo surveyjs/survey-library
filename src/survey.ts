@@ -365,11 +365,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         return vPages.indexOf(this.currentPage) == vPages.length - 1;
     }
     public doComplete() {
+        let previousCookie = this.hasCookie;
         this.clearUnusedValues();
         this.setCookie();
         this.setCompleted();
         this.onComplete.fire(this, null);
-        if (this.surveyPostId) {
+        if (!previousCookie && this.surveyPostId) {
             this.sendResult();
         }
     }

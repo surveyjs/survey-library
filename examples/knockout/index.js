@@ -1,4 +1,6 @@
 function init() {
+    //$.material.init();
+
     var json = { title: "Product Feedback Survey Example", showProgressBar: "top", pages: [
         {questions: [
             { type: "matrix", name: "Quality", title: "Please indicate if you agree or disagree with the following statements",
@@ -37,6 +39,7 @@ function init() {
     ]};
 
     Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
+    //Survey.Survey.cssType = "bootstrapmaterial";
     Survey.Survey.cssType = "bootstrap";
 
     var model = new Survey.Model(json);

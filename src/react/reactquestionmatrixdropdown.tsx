@@ -69,7 +69,7 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
             var cell = this.row.cells[i];
             var errors = <SurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
             var select = this.renderSelect(cell);
-            tds.push(<td key={"row" + i}>{errors}{select}</td>);
+            tds.push(<td key={"row" + i} className={this.css.itemValue}>{errors}{select}</td>);
         }
         var rowText = this.renderLocString(this.row.locText);
         return (<tr><td>{rowText}</td>{tds}</tr>);

@@ -6,11 +6,11 @@ import {ISurveyCreator} from "./reactquestion";
 
 export class SurveyElementBase extends React.Component<any, any> {
     public static renderLocString(locStr: LocalizableString, style: any = null): JSX.Element {
-        if(locStr.hasHtml) {
-            var htmlValue = { __html: locStr.renderedHtml };
-            return <span  style={style} dangerouslySetInnerHTML={htmlValue} />;
+        if (locStr.hasHtml) {
+            let htmlValue = { __html: locStr.renderedHtml };
+            return <span style={style} dangerouslySetInnerHTML={htmlValue} />;
         }
-        return <span style={style}>{locStr.renderedHtml}</span>
+        return <span style={style}>{locStr.renderedHtml}</span>;
     }
     protected css: any;
     protected rootCss: any;

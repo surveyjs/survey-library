@@ -32,7 +32,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
             tds.push(<td key={"label" + i}><span className={this.css.itemTitle}>{itemTitle}</span></td>);
             tds.push(<td key={"value" + i}>{this.renderItem(item, i == 0)}</td>);
         }
-        return <tr key={key}>{tds}</tr>;
+        return <tr key={key} className={this.css.row}>{tds}</tr>;
     }
     protected renderItem(item: MultipleTextItemModel, isFirst: boolean): JSX.Element {
         var inputId = isFirst ? this.question.inputId : null;

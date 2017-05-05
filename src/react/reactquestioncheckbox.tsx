@@ -94,13 +94,16 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
     protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
         var id = this.isFirst ? this.question.inputId : null;
         var text = this.renderLocString(this.item.locText);
-        return (<div className={this.css.item} style={divStyle}>
-            <label className={this.css.item}>
-                <input type="checkbox" id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
-                    {text}
-                    </label>
+        return (
+            <div className={this.css.item} style={divStyle}>
+                <label className={this.css.item}>
+                    <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
+                    <span className="checkbox-material" style={{"margin-right": "5px"}}><span className="check"></span></span>
+                    <span>{text}</span>
+                </label>
                 {otherItem}
-            </div>);
+            </div>
+        );
     }
     protected renderOther(): JSX.Element {
         return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss}  isDisplayMode={this.isDisplayMode}/></div>);

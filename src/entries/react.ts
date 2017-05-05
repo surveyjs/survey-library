@@ -11,6 +11,8 @@ export * from  './chunks/helpers';
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
 export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
+// css bootstrap + material
+export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 // react
 export {Survey} from "../react/reactSurvey";

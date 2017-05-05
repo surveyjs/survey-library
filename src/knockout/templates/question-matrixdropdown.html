@@ -14,7 +14,7 @@
                 <tr>
                     <td><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                     <!-- ko foreach: row.cells-->
-                    <td>
+                    <td data-bind="css: question.survey.css.matrixdropdown.itemValue">
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->
                         <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->

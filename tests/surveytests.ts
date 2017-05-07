@@ -1119,7 +1119,7 @@ QUnit.test("visibleIf and page rows", function (assert) {
     });
     var page = survey.currentPage;
     assert.equal(page.rows.length, 5);
-    
+
     survey.setValue("component", "app");
     assert.equal(page.rows[1].visible, true);
     assert.equal(page.rows[4].visible, false);
@@ -1208,7 +1208,7 @@ QUnit.test("Survey Localication - matrix.columns", function (assert) {
     var q1 = new QuestionMatrixModel("matrix");
     q1.columns = ["col1"];
     page.addQuestion(q1);
-    
+
     q1.columns[0].text = "text1";
     survey.locale = "de";
     q1.columns[0].text = "de-text1";
@@ -1224,7 +1224,7 @@ QUnit.test("Survey Localication - dropdownmatrix.columns", function (assert) {
     var col1 = q1.addColumn("col1");
     q1.rows = ["row1", "row2"];
     page.addQuestion(q1);
-    
+
     col1.choices = ["val1"];
     col1.title = "title1";
     col1.optionsCaption = "caption1";
@@ -1266,8 +1266,8 @@ QUnit.test("Survey Markdown - dropdown.choices", function (assert) {
     var q1 = new QuestionDropdownModel("q1");
     page.addQuestion(q1);
     q1.choices = [{value: 1, text: "text1"}, {value: 1, text: "text2markdown"}];
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     var loc1 = (<ItemValue>q1.choices[0]).locText;
     var loc2 = (<ItemValue>q1.choices[1]).locText;
@@ -1280,8 +1280,8 @@ QUnit.test("Survey Markdown - question title", function (assert) {
     var page = survey.addNewPage("Page 1");
     var q1 = <Question>page.addNewQuestion("text", "q1");
     var q2 = <Question>page.addNewQuestion("text", "q2");
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     q2.value = "value2";
     var loc = q1.locTitle;
@@ -1299,8 +1299,8 @@ QUnit.test("Survey Markdown - page title", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");
     var q1 = <Question>page.addNewQuestion("text", "q1");
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     q1.value = "value1";
     var loc = page.locTitle;
@@ -1311,8 +1311,8 @@ QUnit.test("Survey Markdown - page title", function (assert) {
 
 QUnit.test("Survey Markdown - dropdownmatrix.columns", function (assert) {
     var survey = new SurveyModel();
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     var page = survey.addNewPage("Page 1");
     var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
@@ -1321,7 +1321,7 @@ QUnit.test("Survey Markdown - dropdownmatrix.columns", function (assert) {
     var col3 = q1.addColumn("col3", "colText3markdown");
     q1.rows = ["row1", "row2"];
     page.addQuestion(q1);
-    
+
     var loc1 = col1.locTitle;
     var loc2 = col2.locTitle;
     var loc3 = col3.locTitle;
@@ -1332,8 +1332,8 @@ QUnit.test("Survey Markdown - dropdownmatrix.columns", function (assert) {
 
 QUnit.test("Survey Markdown - nmatrix.rows", function (assert) {
     var survey = new SurveyModel();
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     var page = survey.addNewPage("Page 1");
     var q1 = new QuestionMatrixModel("matrixdropdown");
@@ -1342,7 +1342,7 @@ QUnit.test("Survey Markdown - nmatrix.rows", function (assert) {
     q1.rows[1].text = "rowText2";
     q1.rows[2].text = "rowText3markdown";
     page.addQuestion(q1);
-    
+
     var loc1 = q1.visibleRows[0].locText;
     var loc2 = q1.visibleRows[1].locText;
     var loc3 = q1.visibleRows[2].locText;
@@ -1354,8 +1354,8 @@ QUnit.test("Survey Markdown - nmatrix.rows", function (assert) {
 
 QUnit.test("Survey Markdown - survey title", function (assert) {
     var survey = new SurveyModel();
-    survey.onTextMarkdown.add(function(survey, options) { 
-        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!") 
+    survey.onTextMarkdown.add(function(survey, options) {
+        if(options.text.indexOf("markdown")> -1) options.html = options.text.replace("markdown", "!")
     });
     survey.setValue("q1", "value1");
     var loc = survey.locTitle;

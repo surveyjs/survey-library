@@ -111,22 +111,22 @@ frameworks.forEach( (framework) => {
     //     const getImageExistance = ClientFunction(() =>
     //         !!document.querySelector('img'));
     //     let surveyResult;
-    
+
     //     await t
     //         .setFilesToUpload(`input[type=file]`, `../resources/big_Dashka.jpg`);
     //     assert.notEqual(await getPosition(), -1);
-    
+
     //     await setOptions('image', { maxSize: 0 });
     //     await t
     //         .setFilesToUpload(`input[type=file]`, `../resources/small_Dashka.jpg`)
     //         .setFilesToUpload(`input[type=file]`, `../resources/big_Dashka.jpg`);
-    
+
     //     assert.equal(await getPosition(), -1);
     //     assert(await getImageExistance());
-    
+
     //     await t
     //         .click(`input[value=Complete]`);
-    
+
     //     surveyResult = await getSurveyResult();
     //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);
     // });

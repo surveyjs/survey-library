@@ -106,8 +106,8 @@ export class ItemValue {
             if(key == "text") {
                 this.locText.setJson(src[key]);
             } else {
-                this[key] = src[key];    
-            }  
+                this[key] = src[key];
+            }
         }
     }
 }

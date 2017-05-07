@@ -26,7 +26,7 @@ export const changeValue = ClientFunction(() => {
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
-        
+
         .page `${url}${framework}`
 
         .beforeEach( async t => {

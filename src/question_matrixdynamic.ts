@@ -44,14 +44,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         this.fireCallback(this.rowCountChangedCallback);
     }
     public get minRowCount() : number { return this.minRowCountValue; }
-    public set minRowCount(value : number) { 
+    public set minRowCount(value : number) {
         if(value < 0) value = 0;
         if(value == this.minRowCount || value > this.maxRowCount) return;
         this.minRowCountValue = value;
         if(this.rowCount < value) this.rowCount = value;
     }
     public get maxRowCount() : number { return this.maxRowCountValue; }
-    public set maxRowCount(value : number) { 
+    public set maxRowCount(value : number) {
         if(value <= 0) return;
         if(value > QuestionMatrixDynamicModel.MaxRowCount) value = QuestionMatrixDynamicModel.MaxRowCount;
         if(value == this.maxRowCount || value < this.minRowCount) return;

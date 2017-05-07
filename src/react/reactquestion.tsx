@@ -31,7 +31,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         this.questionBase = question;
         this.question = question instanceof Question ? question : null;
         var value = this.question ? this.question.value : null;
-        this.state = { 
+        this.state = {
             visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
             visibleIndexValue: -1, isReadOnly : this.questionBase.isReadOnly
         };

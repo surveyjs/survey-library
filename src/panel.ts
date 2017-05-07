@@ -13,7 +13,7 @@ export class QuestionRowModel {
     }
     public elements: Array<IElement> = [];
     //TODO remove after updating react and vue
-    public get questions(): Array<IElement> { return this.elements;} 
+    public get questions(): Array<IElement> { return this.elements;}
     public get visible(): boolean { return this.visibleValue; }
     public set visible(val: boolean) {
         if (val == this.visible) return;
@@ -95,13 +95,13 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     public set title(newValue: string) {
         this.locTitle.text = newValue;
     }
-    public get locTitle(): LocalizableString { return this.locTitleValue; } 
+    public get locTitle(): LocalizableString { return this.locTitleValue; }
     public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
     public getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
 
     public get id(): string { return this.idValue; }
     public get isPanel(): boolean { return false; }
-    public get questions(): Array<QuestionBase> { 
+    public get questions(): Array<QuestionBase> {
         if(!this.isQuestionsReady) {
             this.questionsValue = [];
             for(var i = 0; i < this.elements.length; i ++) {
@@ -109,14 +109,14 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
                 if(el.isPanel) {
                     var qs = (<PanelModel>el).questions;
                     for(var j = 0; j < qs.length; j ++) {
-                        this.questionsValue.push(qs[j]);    
+                        this.questionsValue.push(qs[j]);
                     }
                 } else {
                     this.questionsValue.push(<QuestionBase>el);
                 }
             }
             this.isQuestionsReady = true;
-        } 
+        }
 
         return this.questionsValue;
     }
@@ -161,7 +161,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             if(el.isPanel) {
                 (<PanelModel>el).addQuestionsToList(list, visibleOnly);
             }
-            else { 
+            else {
                 list.push(<IQuestion>el);
             }
         }
@@ -280,12 +280,12 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         }
         return result;
     }
-    public get processedTitle() { 
+    public get processedTitle() {
         return this.getRendredTitle(this.locTitle.textOrHtml);
     }
     protected getRendredTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
-        return this.data != null ? this.data.processText(str) : str; 
+        return this.data != null ? this.data.processText(str) : str;
     }
     public get visible(): boolean { return this.visibleValue; }
     public set visible(value: boolean) {
@@ -364,7 +364,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     }
 }
 
-//export class 
+//export class
 export class PanelModel extends PanelModelBase implements IElement {
     private renderWidthValue: string;
     private rightIndentValue: number;
@@ -378,8 +378,8 @@ export class PanelModel extends PanelModelBase implements IElement {
         super(name);
     }
     public getType(): string { return "panel"; }
-    public setData(newValue: ISurveyData) { 
-        this.data = <ISurvey>newValue; 
+    public setData(newValue: ISurveyData) {
+        this.data = <ISurvey>newValue;
     }
     public get isPanel(): boolean { return true; }
     public get innerIndent(): number { return this.innerIndentValue; }
@@ -395,7 +395,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
     public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
-    public set startWithNewLine(value: boolean) { 
+    public set startWithNewLine(value: boolean) {
         if(this.startWithNewLine == value) return;
         this.startWithNewLineValue = value;
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();

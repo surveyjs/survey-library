@@ -62,6 +62,19 @@ export class SurveyQuestionMultipleTextItem extends SurveyElementBase {
         this.item = nextProps.item;
         this.css = nextProps.css;
     }
+    componentDidMount() {
+        if(this.item) {
+            var self = this;
+            this.item.onValueChangedCallback = function(newValue) {
+                self.setState({ value: newValue|| '' });
+            }
+        }
+    }
+    componentWillUnmount() {
+        if(this.item) {
+            this.item.onValueChangedCallback = null;
+        }
+    }
     render(): JSX.Element {
         if (!this.item) return null;
         var style = { float: "left" };

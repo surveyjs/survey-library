@@ -21,6 +21,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     private locPlaceHolderValue: LocalizableString;
     public isRequired: boolean = false;
     private inputTypeValue: string = "text";
+    onValueChangedCallback: (newValue: any)=>void;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(public name: any = null, title: string = null) {
@@ -66,6 +67,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
         }
     }
     public onValueChanged(newValue: any) {
+        if(this.onValueChangedCallback) this.onValueChangedCallback(newValue);
     }
     //IValidatorOwner
     public getValidatorTitle(): string { return this.title; }

@@ -34,15 +34,15 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public get hasTitle(): boolean { return true; }
     public get hasInput(): boolean { return true; }
     public get inputId(): string { return this.id + "i"; }
-    public get title(): string { 
+    public get title(): string {
         var res = this.locTitle.text;
-        return res ? res : this.name; 
+        return res ? res : this.name;
     }
     public set title(newValue: string) {
         this.locTitle.text = newValue;
         this.fireCallback(this.titleChangedCallback);
     }
-    public get locTitle(): LocalizableString { return this.locTitleValue; } 
+    public get locTitle(): LocalizableString { return this.locTitleValue; }
     public get locCommentText(): LocalizableString { return this.locCommentTextValue; }
     private get locTitleHtml(): string {
         var res = this.locTitle.textOrHtml;
@@ -106,9 +106,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.hasCommentValue = val;
         if (this.hasComment) this.hasOther = false;
     }
-    public get commentText(): string { 
+    public get commentText(): string {
         var res = this.locCommentText.text;
-        return res ? res : surveyLocalization.getString("otherItemText"); 
+        return res ? res : surveyLocalization.getString("otherItemText");
     }
     public set commentText(value: string) {
         this.locCommentText.text = value;
@@ -123,12 +123,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
     protected hasOtherChanged() { }
     public get isReadOnly() { return this.readOnly || (this.survey && this.survey.isDisplayMode);}
     public get readOnly(): boolean { return this.readOnlyValue; }
-    public set readOnly(value: boolean) { 
+    public set readOnly(value: boolean) {
         if(this.readOnly == value) return;
-        this.readOnlyValue = value; 
+        this.readOnlyValue = value;
         this.readOnlyChanged();
     }
-    protected readOnlyChanged() { 
+    protected readOnlyChanged() {
         this.fireCallback(this.readOnlyChangedCallback);
     }
     protected get no(): string {

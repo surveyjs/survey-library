@@ -46,7 +46,7 @@ function init() {
     window.survey = model;
 
     model.render("surveyElement");
-    
+
 }
 
 if(!window["%hammerhead%"]) {

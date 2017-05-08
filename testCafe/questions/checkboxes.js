@@ -20,7 +20,7 @@ const json = {
 
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
-        
+
         .page `${url}${framework}`
 
         .beforeEach( async ctx => {

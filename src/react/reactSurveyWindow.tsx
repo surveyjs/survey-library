@@ -21,7 +21,7 @@ export class SurveyWindow extends Survey {
             {header}
             {body}
             </div>;
-        
+
     }
     protected renderHeader(): JSX.Element {
         var styleA = { width: "100%" };

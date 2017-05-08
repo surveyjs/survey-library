@@ -22,7 +22,7 @@ export class CustomWidgetCollection {
     private widgetsValues: Array<QuestionCustomWidget> = [];
 
     public onCustomWidgetAdded: Event<(customWidget: QuestionCustomWidget) => any, any> = new Event<(customWidget: QuestionCustomWidget) => any, any>();
-        
+
     public get widgets(): Array<QuestionCustomWidget> { return this.widgetsValues; }
     public addCustomWidget(widgetJson: any) {
         var name = widgetJson.name;

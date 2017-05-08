@@ -248,7 +248,7 @@ QUnit.test("ItemValueListOwner deserialization", function (assert) {
 });
 QUnit.test("ItemValueListOwner deserialization, custom property in ItemValue", function (assert) {
     var list = new ItemValueListOwner();
-    
+
     new JsonObject().toObject({ "items": [{ "value": 7, "text": "Item 1", price: 55.5 }, 5, "item", "value1|text1"] }, list);
     assert.equal(list.items.length, 4, "there are 4 items");
     assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
@@ -447,10 +447,10 @@ QUnit.test("Test getPropertyValue and isLocalizable", function (assert) {
     obj.getSerProperty.text = "serProperty_yes";
     obj.locProperty = "loc_no";
     obj.locPropertyGetter.text = "loc_yes";
-    
+
     var property = JsonObject.metaData.findProperty(obj.getType(), "directProp");
     assert.equal(property.getPropertyValue(obj), "dirValue", "dirProperty works correctly");
-    
+
     property = JsonObject.metaData.findProperty(obj.getType(), "getValueProp");
     assert.equal(property.getPropertyValue(obj), "getValue_yes", "getValueProp works correctly");
 

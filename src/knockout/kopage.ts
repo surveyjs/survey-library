@@ -67,7 +67,7 @@ export class Panel extends PanelModel {
     protected onNumChanged(value: number) {
         this.locTitle.onChanged();
     }
-    protected onRenderWidthChanged() {  
+    protected onRenderWidthChanged() {
         this.koInnerMargin(this.getIndentSize(this.innerIndent));
     }
     private getIndentSize(indent: number): string {

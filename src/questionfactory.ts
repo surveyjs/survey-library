@@ -5,14 +5,14 @@ import {surveyLocalization} from "./surveyStrings";
 //TODO replace completely with ElementFactory
 export class QuestionFactory {
     public static Instance: QuestionFactory = new QuestionFactory();
-    public static get DefaultChoices(): string[] { 
+    public static get DefaultChoices(): string[] {
         return ["1|" + surveyLocalization.getString("choices_firstItem"), "2|" + surveyLocalization.getString("choices_secondItem"), "3|" + surveyLocalization.getString("choices_thirdItem")];
     }
-    public static get DefaultColums(): string[] { 
+    public static get DefaultColums(): string[] {
         var colName = surveyLocalization.getString("matrix_column") + " ";
         return [colName + "1", colName + "2", colName + "3"];
     }
-    public static get DefaultRows(): string[] { 
+    public static get DefaultRows(): string[] {
         var rowName = surveyLocalization.getString("matrix_row") + " ";
         return [rowName + "1", rowName + "2"];
     }

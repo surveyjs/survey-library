@@ -4,7 +4,7 @@ import {Question} from "../question";
 
 // Use the Question class as a base class.
 export default class QuestionDateModel extends Question {
-    //Define properties 
+    //Define properties
     public showOtherMonths: boolean = false;
     public selectOtherMonths: boolean = false;
     public showButtonPanel: boolean = false;

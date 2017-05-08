@@ -38,7 +38,7 @@ export class JsonObjectProperty {
         if (this.onSetValue) {
             this.onSetValue(obj, value, jsonConv);
         } else {
-            if(this.serializationProperty) 
+            if(this.serializationProperty)
                 obj[this.serializationProperty].setJson(value);
             else obj[this.name] = value;
         }
@@ -122,7 +122,7 @@ export class JsonMetadataClass {
                 prop.serializationProperty = propInfo.serializationProperty;
                 var s: string;
                 if(prop.serializationProperty && prop.serializationProperty.indexOf("loc") == 0) {
-                    prop.isLocalizable = true;    
+                    prop.isLocalizable = true;
                 }
             }
             if(propInfo.isLocalizable) {

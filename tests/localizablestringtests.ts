@@ -49,7 +49,7 @@ QUnit.test("Simple get/set tests", function (assert) {
     assert.equal(locString.getLocaleText("unkown"), "", "Check4_2.  'unknown' locale, use default");
     owner.locale = "en";
     assert.equal(locString.text, "val2", "Check5. 'en' locale");
-    assert.equal(locString.getLocaleText("en"), "val2", "Check5_2. 'en' locale");    
+    assert.equal(locString.getLocaleText("en"), "val2", "Check5_2. 'en' locale");
 });
 
 QUnit.test("Test set JSON", function (assert) {
@@ -60,12 +60,12 @@ QUnit.test("Test set JSON", function (assert) {
 
     locString.setJson({"default": "val2", "en": "val3"});
     assert.equal(locString.getLocaleText(""), "val2", "Check2");
-    assert.equal(locString.getLocaleText("en"), "val3", "Check3");    
+    assert.equal(locString.getLocaleText("en"), "val3", "Check3");
 
     locString.setJson({"fr": "val5", "en": "val4"});
     assert.equal(locString.getLocaleText(""), "", "Check4");
-    assert.equal(locString.getLocaleText("en"), "val4", "Check5");    
-    assert.equal(locString.getLocaleText("fr"), "val5", "Check6");    
+    assert.equal(locString.getLocaleText("en"), "val4", "Check5");
+    assert.equal(locString.getLocaleText("fr"), "val5", "Check6");
 });
 
 QUnit.test("Test get JSON", function (assert) {
@@ -95,7 +95,7 @@ QUnit.test("Test json deserialization", function (assert) {
     var tester = new LocalizableObjectTester(owner);
     new JsonObject().toObject({ "text": {"default": "val2", "en": "val3"} }, tester);
     assert.equal(tester.locText.getLocaleText(""), "val2", "Check1");
-    assert.equal(tester.locText.getLocaleText("en"), "val3", "Check2");    
+    assert.equal(tester.locText.getLocaleText("en"), "val3", "Check2");
 });
 
 QUnit.test("Test json serialization", function (assert) {
@@ -136,11 +136,11 @@ QUnit.test("Array<ItemValue> localization serialize", function (assert) {
     owner.locale = "de";
     items[0].text = "de-text1";
     items[1].text = "de-text2";
-    assert.deepEqual(ItemValue.getData(items), 
+    assert.deepEqual(ItemValue.getData(items),
         [{value: "val1", text: {"default": "text1", "de": "de-text1"}},
         {value: "val2", text: {"de": "de-text2"}}], "serialize localization");
     items[1].text = "";
-    assert.deepEqual(ItemValue.getData(items), 
+    assert.deepEqual(ItemValue.getData(items),
         [{value: "val1", text: {"default": "text1", "de": "de-text1"}}, "val2"], "serialize localization, with empty text in the second item");
 });
 QUnit.test("Array<ItemValue> localization deserialize/setData", function (assert) {

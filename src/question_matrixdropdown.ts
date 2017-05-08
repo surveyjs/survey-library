@@ -18,6 +18,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     public get text(): string { return this.item.text; }
     public get locText(): LocalizableString { return this.item.locText; }
 }
+/**
+ * A Model for a matrix dropdown question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
+ */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
     private rowsValue: Array<ItemValue>;
 

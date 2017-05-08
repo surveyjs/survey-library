@@ -1,5 +1,9 @@
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
-
+/**
+ * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
+ * It has two main properties: value and text. If text is empty, value is used for displaying.
+ * The text property is localizable and support markdown.
+ */
 export class ItemValue {
     public static Separator = '|';
     public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {

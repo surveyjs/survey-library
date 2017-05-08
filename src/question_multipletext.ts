@@ -70,6 +70,9 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
 }
 
+/**
+ * A Model for a multiple text question.
+ */
 export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
     private colCountValue: number = 1;
     colCountChangedCallback: () => void;

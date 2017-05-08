@@ -3,7 +3,10 @@ import {ItemValue} from "./itemvalue";
 import {JsonObject} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {CustomError} from "./error";
-
+/**
+ * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
+ * The run method call a restfull service and results can be get on getREsultCallback.
+ */
 export class ChoicesRestfull extends Base {
     public url: string = "";
     public path: string = "";

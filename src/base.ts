@@ -61,7 +61,9 @@ export interface IPage extends IConditionRunner {
     visible: boolean;
     onSurveyLoad();
 }
-
+/**
+ * The base class for SurveyJS objects.
+ */
 export class Base {
     public static isValueEmpty(value: any) {
         if (Array.isArray(value) && value.length === 0) return true;

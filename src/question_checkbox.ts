@@ -2,6 +2,9 @@
 import {QuestionFactory} from "./questionfactory";
 import {QuestionCheckboxBase} from "./question_baseselect";
 
+/**
+ * A Model for a checkbox question
+ */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
     constructor(public name: string) {
         super(name);

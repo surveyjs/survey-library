@@ -11,6 +11,9 @@ import {LocalizableString} from "./localizablestring";
 export interface IMatrixData {
     onMatrixRowChanged(row: MatrixRowModel);
 }
+/**
+ * A Model for a simple matrix question. 
+ */
 export class MatrixRowModel extends Base {
     private data: IMatrixData;
     private item: ItemValue;

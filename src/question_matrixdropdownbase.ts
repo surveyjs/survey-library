@@ -183,6 +183,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     }
 }
 
+/**
+ * A base class for matrix dropdown and matrix dynamic questions.
+ */
 export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
     public static  addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
         var colNames = QuestionFactory.DefaultColums;

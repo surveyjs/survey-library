@@ -834,6 +834,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             this.onValueChanged.fire(this, { 'name': commentName, 'question': question, 'value': newValue });
         }
     }
+    /**
+     * Remove the value from the survey result.
+     * @param {string} name The name of the value. Typically it is a question name
+     */
     public clearValue(name: string) {
         this.setValue(name, null);
         this.setComment(name, null);

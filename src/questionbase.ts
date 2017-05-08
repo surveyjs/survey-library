@@ -4,6 +4,10 @@ import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 import {ILocalizableOwner} from "./localizablestring";
 
+/**
+ * A base class for all questions. QuestionBase doesn't have information about title, values, errors and so on.
+ * Those properties are defined in the Question class.
+ */
 export class QuestionBase extends Base implements IQuestion, IConditionRunner, ILocalizableOwner {
     private static questionCounter = 100;
     private static getQuestionId(): string {

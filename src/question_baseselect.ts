@@ -7,6 +7,9 @@ import {CustomError} from "./error";
 import {ChoicesRestfull} from "./choicesRestfull";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * It is a base class for checkbox, dropdown and radiogroup questions.
+ */
 export class QuestionSelectBase extends Question {
     private visibleChoicesCache: Array<ItemValue> = null;
     private commentValue: string;

@@ -4,6 +4,9 @@ import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * A Model for a rating question.
+ */
 export class QuestionRatingModel extends Question {
     static defaultRateValues: ItemValue[] = [];
     private rates: Array<ItemValue>;

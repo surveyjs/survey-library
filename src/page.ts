@@ -4,7 +4,9 @@ import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
 import {PanelModel, PanelModelBase, QuestionRowModel} from "./panel";
-
+/**
+ * The page object. It has elements collection, that contains questions and panels.
+ */
 export class PageModel extends PanelModelBase implements IPage {
     private numValue: number = -1;
     public navigationButtonsVisibility: string = "inherit";

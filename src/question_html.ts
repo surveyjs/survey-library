@@ -3,6 +3,9 @@ import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * A Model for html question. Unlike other questions it doesn't have value and title.
+ */
 export class QuestionHtmlModel extends QuestionBase {
     private locHtmlValue: LocalizableString;
     constructor(public name: string) {

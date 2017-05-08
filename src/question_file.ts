@@ -5,6 +5,9 @@ import {SurveyError} from "./base";
 import {CustomError, ExceedSizeError} from "./error";
 import {surveyLocalization} from "./surveyStrings";
 
+/**
+ * A Model for a file question
+ */
 export class QuestionFileModel extends Question {
     private showPreviewValue: boolean = false;
     private isUploading: boolean = false;

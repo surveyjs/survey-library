@@ -53,6 +53,9 @@ export class QuestionRowModel {
     private calcVisible(): boolean { return this.getVisibleCount() > 0; }
 }
 
+/**
+ * A base class for a Panel and Page objects.
+ */
 export class PanelModelBase extends Base implements IConditionRunner, ILocalizableOwner {
     private static panelCounter = 100;
     private static getPanelId(): string {
@@ -364,7 +367,10 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     }
 }
 
-//export class
+/**
+ * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root. 
+ * It may contain questions and other panels.
+ */
 export class PanelModel extends PanelModelBase implements IElement {
     private renderWidthValue: string;
     private rightIndentValue: number;

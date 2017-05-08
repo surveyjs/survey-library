@@ -1,6 +1,9 @@
 ﻿import {Base} from "./base";
 import {SurveyModel} from "./survey";
 
+/**
+ * A Model for a survey running in the Window.
+ */
 export class SurveyWindowModel extends Base  {
     public static surveyElementName = "windowSurveyJS";
     surveyValue: SurveyModel;

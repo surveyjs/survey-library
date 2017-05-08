@@ -4,6 +4,9 @@ import {QuestionSelectBase} from "./question_baseselect";
 import {surveyLocalization} from "./surveyStrings";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * A Model for a dropdown question
+ */
 export class QuestionDropdownModel extends QuestionSelectBase {
     private locOptionsCaptionValue: LocalizableString;
     constructor(public name: string) {

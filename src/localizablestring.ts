@@ -2,7 +2,10 @@ export interface ILocalizableOwner {
     getLocale(): string;
     getMarkdownHtml(text: string): string;
 }
-
+/**
+ * The class represents the string that supports multi-languages and markdown.
+ * It uses in all objects where support for multi-languages and markdown is required.
+ */
 export class LocalizableString {
     public static  defaultLocale: string = "default";
     private values = {};

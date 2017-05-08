@@ -3,6 +3,9 @@ import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * A Model for a comment question
+ */
 export class QuestionCommentModel extends Question {
     public rows: number = 4;
     public cols: number = 50;

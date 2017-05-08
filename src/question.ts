@@ -7,6 +7,9 @@ import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
+/**
+ * Extends question base class with title, value, errors and other functionality
+ */
 export class Question extends QuestionBase implements IValidatorOwner {
     private locTitleValue: LocalizableString;
     private locCommentTextValue: LocalizableString;

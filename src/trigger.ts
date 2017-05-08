@@ -1,6 +1,11 @@
 ﻿import {Base, HashTable} from "./base";
 import {JsonObject} from "./jsonobject";
 
+/**
+ * A base class for all triggers. 
+ * A trigger calls a method when the expression change the result: from false to true or from true to false.
+ * Please note, it runs only one changing the expression result.
+ */
 export class Trigger extends Base {
     static operatorsValue: HashTable<Function> = null;
     static get operators() {
@@ -48,6 +53,9 @@ export interface ISurveyTriggerOwner {
     setTriggerValue(name: string, value: any, isVariable: boolean);
 }
 
+/**
+ * It extends the Trigger base class and add properties required for SurveyJS classes.
+ */
 export class SurveyTrigger extends Trigger {
     public name: string;
     protected owner: ISurveyTriggerOwner = null;
@@ -59,7 +67,10 @@ export class SurveyTrigger extends Trigger {
     }
     public get isOnNextPage() { return false; }
 }
-
+/**
+ * If expression returns true, it makes questions/pages visible.
+ * Ohterwise it makes them invisible.
+ */
 export class SurveyTriggerVisible extends SurveyTrigger {
     public pages: string[] = [];
     public questions: string[] = [];
@@ -79,6 +90,9 @@ export class SurveyTriggerVisible extends SurveyTrigger {
     protected onItemSuccess(item: any) { item.visible = true; }
     protected onItemFailure(item: any) { item.visible = false; }
 }
+/**
+ * If expression returns true, it completes the survey.
+ */
 export class SurveyTriggerComplete extends SurveyTrigger {
     constructor() {
         super();

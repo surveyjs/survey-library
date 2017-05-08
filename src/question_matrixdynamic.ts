@@ -15,6 +15,10 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
     public get rowName() { return "row" + this.index; }
 }
 
+/**
+ * A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.
+ * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
+ */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
     static MaxRowCount = 100;
     private rowCounter = 0;

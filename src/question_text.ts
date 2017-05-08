@@ -3,6 +3,9 @@ import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
 import {LocalizableString} from "./localizablestring";
 
+/**
+ * A Model for an input text question.
+ */
 export class QuestionTextModel extends Question {
     public size: number = 25;
     public inputType: string = "text";

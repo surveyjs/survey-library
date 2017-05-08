@@ -7,7 +7,9 @@ export class ValidatorResult {
     constructor(public value: any, public error: SurveyError = null) {
     }
 }
-
+/**
+ * Base SurveyJS validator class.
+ */
 export class SurveyValidator extends Base {
     public text: string = "";
     constructor() {
@@ -43,7 +45,9 @@ export class ValidatorRunner {
         return null;
     }
 }
-
+/**
+ * Validate numeric values. 
+ */
 export class NumericValidator extends SurveyValidator {
     constructor(public minValue: number = null, public maxValue: number = null) {
         super();
@@ -79,7 +83,9 @@ export class NumericValidator extends SurveyValidator {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
 }
-
+/**
+ * Validate text values
+ */
 export class TextValidator extends SurveyValidator {
     constructor(public minLength: number = 0, public maxLength: number = 0) {
         super();
@@ -122,7 +128,9 @@ export class AnswerCountValidator extends SurveyValidator {
         return name;
     }
 }
-
+/**
+ * Use it to validate the text by regular expressions.
+ */
 export class RegexValidator extends SurveyValidator {
     constructor(public regex: string = null) {
         super();
@@ -135,6 +143,9 @@ export class RegexValidator extends SurveyValidator {
         return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
     }
 }
+/**
+ * Validate e-mail address in the text input
+ */
 export class EmailValidator extends SurveyValidator {
     private re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     constructor() {

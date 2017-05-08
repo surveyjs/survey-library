@@ -106,6 +106,7 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
                 ser = null;
             }
             if(ser) {
+                if(!ser.parameters) ser.parameters = [];
                 pmesHash[fullName] = ser;
                 outputPMEs.push(ser);
             }
@@ -158,7 +159,9 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
         const firstHeritageClauseType = firstHeritageClause.types[0];
         //const extendsSymbol = this.checker.getSymbolAtLocation(firstHeritageClauseType.expression);
         const extendsType = checker.getTypeAtLocation(firstHeritageClauseType.expression);
-        details.baseType = checker.typeToString(extendsType);
+        if(extendsType) {
+            details.baseType = extendsType.symbol.name;
+        }
         return details;
     }
 

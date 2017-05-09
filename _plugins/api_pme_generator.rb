@@ -17,15 +17,15 @@ module Jekyll
   class ApiDocPageGenerator < Generator
     safe true
     def generate(site)
-      datas = site.data['pmes']
-      datas.each do |data|
-        propName = data['name']
-        dir = site.config['docs_dir'] || 'docs'
-        objName = data['className']
-        name = "#{propName}.html"
-        page = Jekyll::ApiDocPage.new(site, site.source, File.join(dir, objName), name, data)
-        site.pages << page        
-      end
+#      datas = site.data['pmes']
+#      datas.each do |data|
+#        propName = data['name']
+#        dir = site.config['docs_dir'] || 'docs'
+#        objName = data['className']
+#        name = "#{propName}.html"
+#        page = Jekyll::ApiDocPage.new(site, site.source, File.join(dir, objName), name, data)
+#        site.pages << page        
+#      end
     end
   end
 

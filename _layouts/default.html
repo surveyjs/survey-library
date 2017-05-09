@@ -23,25 +23,26 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
         <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.react.js"></script>
         {% elsif page.useknockout%}
-        <script src="{{ site.baseurl }}/js/knockout.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
         <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.ko.js"></script>
         {% elsif page.usejquery%}
         <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.jquery.js"></script>
         {% elsif page.useangular%}
         <!-- The stuff Angular 2 needs -->
-        <script src="{{ site.baseurl }}/js/angular2/zone.min.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/shim.min.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/Reflect.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/Rx.umd.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/angular.core.umd.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/angular.common.umd.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/angular.compiler.umd.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/angular.platform-browser.umd.js"></script>
-        <script src="{{ site.baseurl }}/js/angular2/angular.platform-browser-dynamic.umd.js"></script>
+
+        <script src="{{ site.baseurl }}/JS/angular2/zone.min.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/shim.min.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/Reflect.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/Rx.umd.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/angular.core.umd.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/angular.common.umd.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/angular.compiler.umd.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/angular.platform-browser.umd.js"></script>
+        <script src="{{ site.baseurl }}/JS/angular2/angular.platform-browser-dynamic.umd.js"></script>
 
         <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.angular.js"></script>
         {% elsif page.usevue%}
-        <script src="{{ site.baseurl }}/js/vue.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.3/vue.min.js"></script>
         <script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.vue.js"></script>
         {% endif %}
         <link href="{{ site.baseurl }}/css/prism.css" type="text/css" rel="stylesheet" />

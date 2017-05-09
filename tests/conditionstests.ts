@@ -288,3 +288,12 @@ QUnit.test("Expression Tree to Text", function (assert) {
     parser.parse("'age' >= 21 and ('sex' = 'male' or 'kids' > 1)", node);
     assert.equal(parser.toString(node), "'age' >= 21 and ('sex' = 'male' or 'kids' > 1)");
 });
+QUnit.test("Check non equal, #377", function (assert) {
+    var runner = new ConditionRunner("{var1} != 3");
+    var values = {  };
+    assert.equal(runner.run(values), true, "empty should give true");
+    values = {var1 : 1};
+    assert.equal(runner.run(values), true, "1 != 3");
+    values = {var1 : 3};
+    assert.equal(runner.run(values), false, "3 == 3");
+});

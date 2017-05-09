@@ -7,22 +7,51 @@ export class Condition {
     static get operators() {
         if (Condition.operatorsValue != null) return Condition.operatorsValue;
         Condition.operatorsValue = {
-            empty: function (left, right) { return !left; },
-            notempty: function (left, right) { return !(!left); },
-            equal: function (left, right) { return left == right; },
-            notequal: function (left, right) { return left != right; },
-            contains: function (left, right) { return left && left["indexOf"] && left.indexOf(right) > -1; },
-            notcontains: function (left, right) { return !left || !left["indexOf"] || left.indexOf(right) == -1; },
-            greater: function (left, right) { return left > right; },
-            less: function (left, right) { return left < right; },
-            greaterorequal: function (left, right) { return left >= right; },
-            lessorequal: function (left, right) { return left <= right; }
+            empty: function (left, right) { 
+                if(left == null) return true;
+                return !left; },
+            notempty: function (left, right) { 
+                if(left == null) return false;
+                return !(!left); 
+            },
+            equal: function (left, right) { 
+                if(left == null && right != null || left != null && right == null) return false;
+                if(left == null && right == null) return true;
+                return left == right; 
+            },
+            notequal: function (left, right) { 
+                if(left == null && right != null || left != null && right == null) return true;
+                if(left == null && right == null) return false;
+                return left != right; 
+            },
+            contains: function (left, right) { return (left != null) && left["indexOf"] && left.indexOf(right) > -1; },
+            notcontains: function (left, right) { return (left == null) || !left["indexOf"] || left.indexOf(right) == -1; },
+            greater: function (left, right) { 
+                if(left == null) return false;
+                if(right == null) return true;
+                return left > right; 
+            },
+            less: function (left, right) { 
+                if(right == null) return false;
+                if(left == null) return true;
+                return left < right; 
+            },
+            greaterorequal: function (left, right) { 
+                if(left == null && right != null) return false;
+                if(right == null) return true;
+                return left >= right; 
+            },
+            lessorequal: function (left, right) { 
+                if(left != null && right == null) return false;
+                if(left == null) return true;
+                return left <= right; 
+            }
         };
         return Condition.operatorsValue;
     }
     private opValue: string = "equal";
-    public left: any;
-    public right: any;
+    public left: any = null;
+    public right: any = null;
     public get operator(): string { return this.opValue; }
     public set operator(value: string) {
         if (!value) return;
@@ -33,10 +62,13 @@ export class Condition {
     public perform(left: any = null, right: any = null): boolean {
         if (!left) left = this.left;
         if (!right) right = this.right;
-
+        return this.performExplicit(left, right);
+    }
+    public performExplicit(left: any, right: any) : boolean {
         return Condition.operators[this.operator](this.getPureValue(left), this.getPureValue(right));
     }
     private getPureValue(val: any): any {
+        if(val === undefined) return null;
         if (!val || (typeof val != "string")) return val;
         var str = "";
         if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);
@@ -94,7 +126,6 @@ export class ConditionRunner {
         return onFirstFail;
     }
     private runNodeCondition(value: any): boolean {
-        if (!value) return false;
         if (value["children"]) return this.runNode(value);
         if (value["left"]) return this.runCondition(value);
         return false;
@@ -103,16 +134,18 @@ export class ConditionRunner {
         var left = condition.left;
         var name = this.getValueName(left);
         if (name) {
-            if (!this.processValue.hasValue(name, this.values)) return condition.operator === "empty";
-            left = this.processValue.getValue(name, this.values);
+            left = this.getValueByName(name);
         }
         var right = condition.right;
         name = this.getValueName(right);
         if (name) {
-            if (!this.processValue.hasValue(name, this.values)) return false;
-            right = this.processValue.getValue(name, this.values);
+            right = this.getValueByName(name);
         }
-        return condition.perform(left, right);
+        return condition.performExplicit(left, right);
+    }
+    private getValueByName(name: string) {
+        if (!this.processValue.hasValue(name, this.values)) return null;
+        return this.processValue.getValue(name, this.values);
     }
     private getValueName(nodeValue: any) {
         if (!nodeValue) return null;

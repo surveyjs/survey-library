@@ -49,75 +49,39 @@ var app = new Vue({
     <textarea id="surveyClasses" style="width:100%" rows="20"></textarea>
 </div>
 <script type="text/javascript">
-    var css =  {
-       "root":"",
-       "header":"panel-heading",
-       "body":"panel-body",
-       "footer":"panel-footer",
-       "navigationButton":"button btn-lg",
-       "navigation":{
-          "complete":"",
-          "prev":"",
-          "next":""
-       },
-       "progress":"progress center-block",
-       "progressBar":"progress-bar",
-       "pageTitle":"",
-       "row":"",
-       "question":{
-          "root":"",
-          "title":"",
-          "comment":"form-control",
-          "indent":20
-       },
-       "error":{
-          "root":"alert alert-danger",
-          "icon":"glyphicon glyphicon-exclamation-sign",
-          "item":""
-       },
-       "checkbox":{
-          "root":"form-inline",
-          "item":"checkbox",
-          "other":""
-       },
-       "comment":"form-control",
-       "dropdown":"form-control",
-       "matrix":{
-          "root":"table table-striped"
-       },
-       "matrixdropdown":{
-          "root":"table"
-       },
-       "matrixdynamic":{
-          "root":"table",
-          "button":"button"
-       },
-       "multipletext":{
-          "root":"table",
-          "itemTitle":"",
-          "itemValue":"form-control"
-       },
-       "radiogroup":{
-          "root":"form-inline",
-          "item":"radio",
-          "other":""
-       },
-       "rating":{
-          "root":"btn-group",
-          "item":"btn btn-default"
-       },
-       "text":"form-control",
-       "window":{
-          "root":"modal-content",
-          "body":"modal-body",
-          "header":{
-             "root":"modal-header panel-title",
-             "title":"pull-left",
-             "button":"glyphicon pull-right",
-             "buttonExpanded":"glyphicon pull-right glyphicon-chevron-up",
-             "buttonCollapsed":"glyphicon pull-right glyphicon-chevron-down"
-          }
-       }
+    var css = {
+        root: "",
+        header: "panel-heading",
+        body: "panel-body",
+        footer: "panel-footer",
+        navigationButton: "", navigation: { complete: "", prev: "", next: "" },
+        progress: "progress center-block",
+        progressBar: "progress-bar",
+        pageTitle: "",
+        row: "",
+        question: { root: "", title: "", comment: "form-control", indent: 20 },
+        error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
+        checkbox: { root: "form-inline", item: "checkbox", other: "" },
+        comment: "form-control",
+        dropdown: { root: "", control: "form-control" },
+        matrix: { root: "table" },
+        matrixdropdown: { root: "table" },
+        matrixdynamic: { root: "table", button: "button" },
+        multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
+        radiogroup: { root: "form-inline", item: "radio", label: "", other: "" },
+        rating: { root: "btn-group", item: "btn btn-default" },
+        text: "form-control",
+        window: {
+            root: "modal-content",
+            body: "modal-body",
+            header: {
+                root: "modal-header panel-title",
+                title: "pull-left",
+                button: "glyphicon pull-right",
+                buttonExpanded: "glyphicon pull-right glyphicon-chevron-up",
+                buttonCollapsed: "glyphicon pull-right glyphicon-chevron-down"
+            }
+        }
     };
     document.getElementById('surveyClasses').value = JSON.stringify(css, null, '\t');
 </script>

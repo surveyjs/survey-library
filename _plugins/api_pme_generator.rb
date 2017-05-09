@@ -8,20 +8,21 @@ module Jekyll
       @name = name
       self.process(@name)
       self.read_yaml(File.join(base, '_layouts'), 'api_pme_template.html')
-      self.data['title'] = data['name']
-      self.data['pmename'] = data['name']
+      fullName = "#{data['className']}.#{data['name']}"
+      self.data['title'] = fullName
+      self.data['pmename'] = fullName
     end
   end
 
   class ApiDocPageGenerator < Generator
     safe true
     def generate(site)
-      datas = site.data['apidescription']
+      datas = site.data['pmes']
       datas.each do |data|
-        values = data['name'].split('.')
+        propName = data['name']
         dir = site.config['docs_dir'] || 'docs'
-        objName = values[0]
-        name = "#{values[1]}.html"
+        objName = data['className']
+        name = "#{propName}.html"
         page = Jekyll::ApiDocPage.new(site, site.source, File.join(dir, objName), name, data)
         site.pages << page        
       end

@@ -3,17 +3,82 @@ layout: doc_page
 mainmenukey: doc
 ---
 <div id="pmeInfo">
-    <span data-bind="text: name"></span>
+    <span data-bind="text: propName"></span>
+    <div data-bind="visible: hasDescription">
+        <h5>Description</h5>
+        <span data-bind="text: description"></span>
+    </div>
+    <div data-bind="visible: implementedIn.length > 0">
+        <h5>Implemented in:</h5>
+        <div data-bind="foreach: implementedIn">
+            <a data-bind="attr: {href:url}"><span data-bind="text: name"></span></a>
+        </div>
+    </div>
+    <div data-bind="visible: seeAlso.length > 0">
+        <h5>See also:</h5>
+        <div data-bind="foreach: seeAlso">
+            <a data-bind="attr: {href:url}"><span data-bind="text: name"></span></a>
+        </div>
+    </div>
 </div>
 
 <script src="{{ site.baseurl }}/js/knockout.js"></script>
 <script>
+    var classes = [
+    {% for classItem in site.data.classes %}{ name: "{{classItem.name}}", parent: "{{classItem.baseType}}"},{% endfor %}
+    {name: "", parent: ""}];
+    function getUrl(name) {
+        if(name.indexOf('.') < 0) return "{{ site.baseurl }}/docs/api_" + name.toLowerCase() + ".html";
+        var names = name.split('.');
+         return "{{ site.baseurl }}/docs/" + names[0] + '/' + names[1] + ".html";
+    }
+    function addClasses(list, className) {
+        var found = false;
+        for(var i = 0; i < classes.length; i ++) {
+            if(classes[i].parent == className) {
+                found = true;
+                addClasses(list, classes[i].name);
+            }
+        }
+        if(!found) {
+            list.push({name : className, url: getUrl(className)});
+        }
+    }
+    function updateSeeAlso(seeAlso) {
+        var res = [];
+        if(!seeAlso) return res;
+        for(var i = 0; i < seeAlso.length; i ++) {
+            var name = seeAlso[i];
+            if(!name) continue;
+            res.push({name: name, url: getUrl(name)});
+        }
+        return res;
+    }
     var Model = function(){
-    {% for item in site.data.apidescription %}
-        {% if item.name == page.pmename %}
-            this.name = "{{item.name}}";
+    {% for item in site.data.pmes %}
+        {% assign fullName = item.className | append: '.' | append: item.name %}
+        {% if fullName == page.pmename %}
+            this.name = "{{fullName}}";
+            this.className = "{{item.className}}";
+            this.propName = "{{item.name}}";
+            this.type = "{{item.type}}";
+            {% if item.hasSet == true %}
+            this.isReadOnly = false;
+            {% else %}
+            this.isReadOnly = true;
+            {% endif %}
+            this.description = "{{item.description}}";
+            this.seeAlso = [
+                {% for sItem in item.seeAlso %}
+                    "{{sItem}}",
+                {% endfor %}
+            ""];
         {% endif %}
     {% endfor %}
+        this.hasDescription = (this.description) ? true : false;
+        this.implementedIn = [];
+        addClasses(this.implementedIn, this.className);
+        this.seeAlso = updateSeeAlso(this.seeAlso);
     };
     
 

@@ -1,0 +1,3972 @@
+[
+    {
+        "name": "isValueEmpty",
+        "documentation": "",
+        "type": "(value: any) => boolean",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "Base",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "Base",
+        "pmeType": "method"
+    },
+    {
+        "name": "text",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyValidator",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "validate",
+        "documentation": "",
+        "type": "(value: any, name?: string) => ValidatorResult",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "NumericValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "validate",
+        "documentation": "",
+        "type": "(value: any, name?: string) => ValidatorResult",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "NumericValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "TextValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "validate",
+        "documentation": "",
+        "type": "(value: any, name?: string) => ValidatorResult",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "TextValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "RegexValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "validate",
+        "documentation": "",
+        "type": "(value: any, name?: string) => ValidatorResult",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "RegexValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "EmailValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "validate",
+        "documentation": "",
+        "type": "(value: any, name?: string) => ValidatorResult",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "EmailValidator",
+        "pmeType": "method"
+    },
+    {
+        "name": "defaultLocale",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onRenderedHtmlCallback",
+        "documentation": "",
+        "type": "(html: string) => string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onGetTextCallback",
+        "documentation": "",
+        "type": "(str: string) => string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "locale",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "text",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "pureText",
+        "documentation": "",
+        "type": "any",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasHtml",
+        "documentation": "",
+        "type": "boolean",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "html",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "textOrHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "renderedHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "LocalizableString",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getLocaleText",
+        "documentation": "",
+        "type": "(loc: string) => string",
+        "parameters": [
+            {
+                "name": "loc",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "LocalizableString",
+        "pmeType": "method"
+    },
+    {
+        "name": "setLocaleText",
+        "documentation": "",
+        "type": "(loc: string, value: string) => void",
+        "parameters": [
+            {
+                "name": "loc",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "LocalizableString",
+        "pmeType": "method"
+    },
+    {
+        "name": "getJson",
+        "documentation": "",
+        "type": "() => any",
+        "parameters": [],
+        "className": "LocalizableString",
+        "pmeType": "method"
+    },
+    {
+        "name": "setJson",
+        "documentation": "",
+        "type": "(value: any) => void",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "LocalizableString",
+        "pmeType": "method"
+    },
+    {
+        "name": "onChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "LocalizableString",
+        "pmeType": "method"
+    },
+    {
+        "name": "Separator",
+        "documentation": "",
+        "type": "string",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "createArray",
+        "documentation": "",
+        "type": "(locOwner: ILocalizableOwner) => ItemValue[]",
+        "parameters": [
+            {
+                "name": "locOwner",
+                "documentation": "",
+                "type": "ILocalizableOwner"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "setupArray",
+        "documentation": "",
+        "type": "(items: ItemValue[], locOwner: ILocalizableOwner) => void",
+        "parameters": [
+            {
+                "name": "items",
+                "documentation": "",
+                "type": "ItemValue[]"
+            },
+            {
+                "name": "locOwner",
+                "documentation": "",
+                "type": "ILocalizableOwner"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "setData",
+        "documentation": "",
+        "type": "(items: ItemValue[], values: any[]) => void",
+        "parameters": [
+            {
+                "name": "items",
+                "documentation": "",
+                "type": "ItemValue[]"
+            },
+            {
+                "name": "values",
+                "documentation": "",
+                "type": "any[]"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "getData",
+        "documentation": "",
+        "type": "(items: ItemValue[]) => any",
+        "parameters": [
+            {
+                "name": "items",
+                "documentation": "",
+                "type": "ItemValue[]"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "getItemByValue",
+        "documentation": "",
+        "type": "(items: ItemValue[], val: any) => ItemValue",
+        "parameters": [
+            {
+                "name": "items",
+                "documentation": "",
+                "type": "ItemValue[]"
+            },
+            {
+                "name": "val",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "NotifyArrayOnLocaleChanged",
+        "documentation": "",
+        "type": "(items: ItemValue[]) => void",
+        "parameters": [
+            {
+                "name": "items",
+                "documentation": "",
+                "type": "ItemValue[]"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "locText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "locOwner",
+        "documentation": "",
+        "type": "ILocalizableOwner",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "value",
+        "documentation": "",
+        "type": "any",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "hasText",
+        "documentation": "",
+        "type": "boolean",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "text",
+        "documentation": "",
+        "type": "string",
+        "className": "ItemValue",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "setData",
+        "documentation": "",
+        "type": "(value: any) => void",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "ItemValue",
+        "pmeType": "method"
+    },
+    {
+        "name": "url",
+        "documentation": "",
+        "type": "string",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "path",
+        "documentation": "",
+        "type": "string",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "valueName",
+        "documentation": "",
+        "type": "string",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "titleName",
+        "documentation": "",
+        "type": "string",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getResultCallback",
+        "documentation": "",
+        "type": "(items: ItemValue[]) => void",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "error",
+        "documentation": "",
+        "type": "SurveyError",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "run",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "ChoicesRestfull",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "ChoicesRestfull",
+        "pmeType": "method"
+    },
+    {
+        "name": "isEmpty",
+        "documentation": "",
+        "type": "boolean",
+        "className": "ChoicesRestfull",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "setData",
+        "documentation": "",
+        "type": "(json: any) => void",
+        "parameters": [
+            {
+                "name": "json",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "ChoicesRestfull",
+        "pmeType": "method"
+    },
+    {
+        "name": "clear",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "ChoicesRestfull",
+        "pmeType": "method"
+    },
+    {
+        "name": "customWidget",
+        "documentation": "",
+        "type": "QuestionCustomWidget",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "customWidgetData",
+        "documentation": "",
+        "type": "{ isNeedRender: boolean; }",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "visibleIf",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "width",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "indent",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "localeChanged",
+        "documentation": "",
+        "type": "Event<(sender: QuestionBase) => any, any>",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "isPanel",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "visible",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "isVisible",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isReadOnly",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "visibleIndex",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasErrors",
+        "documentation": "",
+        "type": "(fireCallback?: boolean) => boolean",
+        "parameters": [
+            {
+                "name": "fireCallback",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "currentErrorCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasTitle",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasInput",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasComment",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "id",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "startWithNewLine",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "renderWidth",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "rightIndent",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "focus",
+        "documentation": "",
+        "type": "(onError?: boolean) => void",
+        "parameters": [
+            {
+                "name": "onError",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "survey",
+        "documentation": "",
+        "type": "ISurvey",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "runCondition",
+        "documentation": "",
+        "type": "(values: HashTable<any>) => void",
+        "parameters": [
+            {
+                "name": "values",
+                "documentation": "",
+                "type": "HashTable<any>"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onSurveyValueChanged",
+        "documentation": "",
+        "type": "(newValue: any) => void",
+        "parameters": [
+            {
+                "name": "newValue",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onSurveyLoad",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "setVisibleIndex",
+        "documentation": "",
+        "type": "(value: number) => void",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportGoNextPageAutomatic",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "clearUnusedValues",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "getLocale",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "getMarkdownHtml",
+        "documentation": "",
+        "type": "(text: string) => string",
+        "parameters": [
+            {
+                "name": "text",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "QuestionBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasTitle",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasInput",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "inputId",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "title",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locTitle",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "locCommentText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "processedTitle",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "fullTitle",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "focus",
+        "documentation": "",
+        "type": "(onError?: boolean) => void",
+        "parameters": [
+            {
+                "name": "onError",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportComment",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportOther",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "isRequired",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "hasComment",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "commentText",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "hasOther",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "isReadOnly",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "readOnly",
+        "documentation": "",
+        "type": "boolean",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "value",
+        "documentation": "",
+        "type": "any",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "comment",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "isEmpty",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasErrors",
+        "documentation": "",
+        "type": "(fireCallback?: boolean) => boolean",
+        "parameters": [
+            {
+                "name": "fireCallback",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "currentErrorCount",
+        "documentation": "",
+        "type": "number",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "requiredText",
+        "documentation": "",
+        "type": "string",
+        "className": "Question",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "addError",
+        "documentation": "",
+        "type": "(error: SurveyError) => void",
+        "parameters": [
+            {
+                "name": "error",
+                "documentation": "",
+                "type": "SurveyError"
+            }
+        ],
+        "className": "Question",
+        "pmeType": "method"
+    },
+    {
+        "name": "choicesByUrl",
+        "documentation": "",
+        "type": "ChoicesRestfull",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "storeOthersAsComment",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "otherItem",
+        "documentation": "",
+        "type": "ItemValue",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isOtherSelected",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "otherText",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "otherErrorText",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locOtherText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "locOtherErrorText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "supportComment",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionSelectBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportOther",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionSelectBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionSelectBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "optionsCaption",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionDropdownModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locOptionsCaption",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionDropdownModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionDropdownModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionDropdownModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionCheckboxModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionRadiogroupModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "size",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionTextModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "placeHolder",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionTextModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locPlaceHolder",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionTextModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "rows",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionCommentModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "cols",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionCommentModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "placeHolder",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionCommentModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locPlaceHolder",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionCommentModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionCommentModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "addDefaultColumns",
+        "documentation": "",
+        "type": "(matrix: QuestionMatrixDropdownModelBase) => void",
+        "parameters": [
+            {
+                "name": "matrix",
+                "documentation": "",
+                "type": "QuestionMatrixDropdownModelBase"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "columnMinWidth",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "horizontalScroll",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "columnsChangedCallback",
+        "documentation": "",
+        "type": "() => void",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "updateCellsCallback",
+        "documentation": "",
+        "type": "() => void",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "columns",
+        "documentation": "",
+        "type": "MatrixDropdownColumn[]",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "cellType",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "columnColCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getRequiredText",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "getColumnWidth",
+        "documentation": "",
+        "type": "(column: MatrixDropdownColumn) => string",
+        "parameters": [
+            {
+                "name": "column",
+                "documentation": "",
+                "type": "MatrixDropdownColumn"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "choices",
+        "documentation": "",
+        "type": "any[]",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "optionsCaption",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locOptionsCaption",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "addColumn",
+        "documentation": "",
+        "type": "(name: string, title?: string) => MatrixDropdownColumn",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "title",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "visibleRows",
+        "documentation": "",
+        "type": "MatrixDropdownRowModelBase[]",
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "hasErrors",
+        "documentation": "",
+        "type": "(fireCallback?: boolean) => boolean",
+        "parameters": [
+            {
+                "name": "fireCallback",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "createQuestion",
+        "documentation": "",
+        "type": "(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn) => Question",
+        "parameters": [
+            {
+                "name": "row",
+                "documentation": "",
+                "type": "MatrixDropdownRowModelBase"
+            },
+            {
+                "name": "column",
+                "documentation": "",
+                "type": "MatrixDropdownColumn"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "rows",
+        "documentation": "",
+        "type": "any[]",
+        "className": "QuestionMatrixDropdownModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "rowCountChangedCallback",
+        "documentation": "",
+        "type": "() => void",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "rowCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "minRowCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "maxRowCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "canAddRow",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "canRemoveRow",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "addRow",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "removeRow",
+        "documentation": "",
+        "type": "(index: number) => void",
+        "parameters": [
+            {
+                "name": "index",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "addRowText",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locAddRowText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "removeRowText",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locRemoveRowText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "supportGoNextPageAutomatic",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "cachedVisibleRows",
+        "documentation": "",
+        "type": "MatrixDropdownRowModelBase[]",
+        "className": "QuestionMatrixDynamicModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "name",
+        "documentation": "",
+        "type": "string",
+        "className": "MatrixRowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "text",
+        "documentation": "",
+        "type": "string",
+        "className": "MatrixRowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "locText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "MatrixRowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "value",
+        "documentation": "",
+        "type": "any",
+        "className": "MatrixRowModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "itemSize",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "items",
+        "documentation": "",
+        "type": "MultipleTextItemModel[]",
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "addItem",
+        "documentation": "",
+        "type": "(name: string, title?: string) => MultipleTextItemModel",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "title",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "colCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getRows",
+        "documentation": "",
+        "type": "() => any[]",
+        "parameters": [],
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasErrors",
+        "documentation": "",
+        "type": "(fireCallback?: boolean) => boolean",
+        "parameters": [
+            {
+                "name": "fireCallback",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "QuestionMultipleTextModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "parent",
+        "documentation": "",
+        "type": "PanelModelBase",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "visibleIf",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "visibleIndex",
+        "documentation": "",
+        "type": "number",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "data",
+        "documentation": "",
+        "type": "ISurvey",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "title",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locTitle",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getLocale",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "getMarkdownHtml",
+        "documentation": "",
+        "type": "(text: string) => string",
+        "parameters": [
+            {
+                "name": "text",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "id",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isPanel",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "questions",
+        "documentation": "",
+        "type": "QuestionBase[]",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "elements",
+        "documentation": "",
+        "type": "IElement[]",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "containsElement",
+        "documentation": "",
+        "type": "(element: IElement) => boolean",
+        "parameters": [
+            {
+                "name": "element",
+                "documentation": "",
+                "type": "IElement"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasErrors",
+        "documentation": "",
+        "type": "(fireCallback?: boolean, focuseOnFirstError?: boolean) => boolean",
+        "parameters": [
+            {
+                "name": "fireCallback",
+                "documentation": "",
+                "type": "boolean"
+            },
+            {
+                "name": "focuseOnFirstError",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addQuestionsToList",
+        "documentation": "",
+        "type": "(list: IQuestion[], visibleOnly?: boolean) => void",
+        "parameters": [
+            {
+                "name": "list",
+                "documentation": "",
+                "type": "IQuestion[]"
+            },
+            {
+                "name": "visibleOnly",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "rows",
+        "documentation": "",
+        "type": "QuestionRowModel[]",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isActive",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "onSurveyLoad",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "processedTitle",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "visible",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "isVisible",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModelBase",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getIsPageVisible",
+        "documentation": "",
+        "type": "(exceptionQuestion: IQuestion) => boolean",
+        "parameters": [
+            {
+                "name": "exceptionQuestion",
+                "documentation": "",
+                "type": "IQuestion"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addElement",
+        "documentation": "",
+        "type": "(element: IElement, index?: number) => void",
+        "parameters": [
+            {
+                "name": "element",
+                "documentation": "",
+                "type": "IElement"
+            },
+            {
+                "name": "index",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addQuestion",
+        "documentation": "",
+        "type": "(question: QuestionBase, index?: number) => void",
+        "parameters": [
+            {
+                "name": "question",
+                "documentation": "",
+                "type": "QuestionBase"
+            },
+            {
+                "name": "index",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addPanel",
+        "documentation": "",
+        "type": "(panel: PanelModel, index?: number) => void",
+        "parameters": [
+            {
+                "name": "panel",
+                "documentation": "",
+                "type": "PanelModel"
+            },
+            {
+                "name": "index",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addNewQuestion",
+        "documentation": "",
+        "type": "(questionType: string, name: string) => QuestionBase",
+        "parameters": [
+            {
+                "name": "questionType",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "addNewPanel",
+        "documentation": "",
+        "type": "(name: string) => PanelModel",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "removeElement",
+        "documentation": "",
+        "type": "(element: IElement) => boolean",
+        "parameters": [
+            {
+                "name": "element",
+                "documentation": "",
+                "type": "IElement"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "removeQuestion",
+        "documentation": "",
+        "type": "(question: QuestionBase) => void",
+        "parameters": [
+            {
+                "name": "question",
+                "documentation": "",
+                "type": "QuestionBase"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "runCondition",
+        "documentation": "",
+        "type": "(values: HashTable<any>) => void",
+        "parameters": [
+            {
+                "name": "values",
+                "documentation": "",
+                "type": "HashTable<any>"
+            }
+        ],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "onLocaleChanged",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "PanelModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "width",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "PanelModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "setData",
+        "documentation": "",
+        "type": "(newValue: ISurveyData) => void",
+        "parameters": [
+            {
+                "name": "newValue",
+                "documentation": "",
+                "type": "ISurveyData"
+            }
+        ],
+        "className": "PanelModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "isPanel",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "innerIndent",
+        "documentation": "",
+        "type": "number",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "renderWidth",
+        "documentation": "",
+        "type": "string",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "startWithNewLine",
+        "documentation": "",
+        "type": "boolean",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "rightIndent",
+        "documentation": "",
+        "type": "number",
+        "className": "PanelModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "PageModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "num",
+        "documentation": "",
+        "type": "number",
+        "className": "PageModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "navigationButtonsVisibility",
+        "documentation": "",
+        "type": "string",
+        "className": "PageModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "focusFirstQuestion",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "PageModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "focusFirstErrorQuestion",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "PageModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "scrollToTop",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "PageModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "imageHeight",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "imageWidth",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "storeDataAsText",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "maxSize",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionFileModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "showPreview",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "loadFile",
+        "documentation": "",
+        "type": "(file: File) => void",
+        "parameters": [
+            {
+                "name": "file",
+                "documentation": "",
+                "type": "File"
+            }
+        ],
+        "className": "QuestionFileModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "previewValue",
+        "documentation": "",
+        "type": "any",
+        "className": "QuestionFileModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionHtmlModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "html",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionHtmlModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locHtml",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionHtmlModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "processedHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionHtmlModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionRatingModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportComment",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionRatingModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "supportOther",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "QuestionRatingModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "minRateDescription",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionRatingModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locMinRateDescription",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionRatingModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "maxRateDescription",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionRatingModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locMaxRateDescription",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "QuestionRatingModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "value",
+        "documentation": "",
+        "type": "any",
+        "className": "Trigger",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "operator",
+        "documentation": "",
+        "type": "string",
+        "className": "Trigger",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "check",
+        "documentation": "",
+        "type": "(value: any) => void",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "Trigger",
+        "pmeType": "method"
+    },
+    {
+        "name": "name",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyTrigger",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "setOwner",
+        "documentation": "",
+        "type": "(owner: ISurveyTriggerOwner) => void",
+        "parameters": [
+            {
+                "name": "owner",
+                "documentation": "",
+                "type": "ISurveyTriggerOwner"
+            }
+        ],
+        "className": "SurveyTrigger",
+        "pmeType": "method"
+    },
+    {
+        "name": "isOnNextPage",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyTrigger",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "pages",
+        "documentation": "",
+        "type": "string[]",
+        "className": "SurveyTriggerVisible",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "questions",
+        "documentation": "",
+        "type": "string[]",
+        "className": "SurveyTriggerVisible",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyTriggerVisible",
+        "pmeType": "method"
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyTriggerComplete",
+        "pmeType": "method"
+    },
+    {
+        "name": "isOnNextPage",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyTriggerComplete",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "serviceUrl",
+        "documentation": "",
+        "type": "string",
+        "className": "dxSurveyService",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "loadSurvey",
+        "documentation": "",
+        "type": "(surveyId: string, onLoad: (success: boolean, result: string, response: any) => void) => void",
+        "parameters": [
+            {
+                "name": "surveyId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "onLoad",
+                "documentation": "",
+                "type": "(success: boolean, result: string, response: any) => void"
+            }
+        ],
+        "className": "dxSurveyService",
+        "pmeType": "method"
+    },
+    {
+        "name": "sendResult",
+        "documentation": "",
+        "type": "(postId: string, result: JSON, onSendResult: (success: boolean, response: any) => void, clientId?...",
+        "parameters": [
+            {
+                "name": "postId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "result",
+                "documentation": "",
+                "type": "JSON"
+            },
+            {
+                "name": "onSendResult",
+                "documentation": "",
+                "type": "(success: boolean, response: any) => void"
+            },
+            {
+                "name": "clientId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "isPartialCompleted",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "dxSurveyService",
+        "pmeType": "method"
+    },
+    {
+        "name": "sendFile",
+        "documentation": "",
+        "type": "(postId: string, file: File, onSendFile: (success: boolean, response: any) => void) => void",
+        "parameters": [
+            {
+                "name": "postId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "file",
+                "documentation": "",
+                "type": "File"
+            },
+            {
+                "name": "onSendFile",
+                "documentation": "",
+                "type": "(success: boolean, response: any) => void"
+            }
+        ],
+        "className": "dxSurveyService",
+        "pmeType": "method"
+    },
+    {
+        "name": "getResult",
+        "documentation": "",
+        "type": "(resultId: string, name: string, onGetResult: (success: boolean, data: any, dataList: any[], resp...",
+        "parameters": [
+            {
+                "name": "resultId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "onGetResult",
+                "documentation": "",
+                "type": "(success: boolean, data: any, dataList: any[], response: any) => void"
+            }
+        ],
+        "className": "dxSurveyService",
+        "pmeType": "method"
+    },
+    {
+        "name": "isCompleted",
+        "documentation": "",
+        "type": "(resultId: string, clientId: string, onIsCompleted: (success: boolean, result: string, response: ...",
+        "parameters": [
+            {
+                "name": "resultId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "clientId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "onIsCompleted",
+                "documentation": "",
+                "type": "(success: boolean, result: string, response: any) => void"
+            }
+        ],
+        "className": "dxSurveyService",
+        "pmeType": "method"
+    },
+    {
+        "name": "surveyId",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "surveyPostId",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "clientId",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "cookieName",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "sendResultOnPageNext",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "commentPrefix",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "focusFirstQuestionAutomatic",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showNavigationButtons",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showTitle",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showPageTitles",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showCompletedPage",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "requiredText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "questionStartIndex",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "storeOthersAsComment",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "goNextPageAutomatic",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "pages",
+        "documentation": "",
+        "type": "PageModel[]",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "triggers",
+        "documentation": "",
+        "type": "SurveyTrigger[]",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "clearInvisibleValues",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "onComplete",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onPartialSend",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onCurrentPageChanged",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onValueChanged",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onVisibleChanged",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onPageVisibleChanged",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onQuestionAdded",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onQuestionRemoved",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onPanelAdded",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onPanelRemoved",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onValidateQuestion",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onServerValidateQuestions",
+        "documentation": "",
+        "type": "(sender: SurveyModel, options: any) => any",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onProcessHtml",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onTextMarkdown",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onSendResult",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onGetResult",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onUploadFile",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onAfterRenderSurvey",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onAfterRenderPage",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onAfterRenderQuestion",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "onAfterRenderPanel",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "jsonErrors",
+        "documentation": "",
+        "type": "JsonError[]",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "locale",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getLocale",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getMarkdownHtml",
+        "documentation": "",
+        "type": "(text: string) => any",
+        "parameters": [
+            {
+                "name": "text",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getLocString",
+        "documentation": "",
+        "type": "(str: string) => any",
+        "parameters": [
+            {
+                "name": "str",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "emptySurveyText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "title",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locTitle",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "completedHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locCompletedHtml",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "pagePrevText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locPagePrevText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "pageNextText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locPageNextText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "completeText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "locCompleteText",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "questionTitleTemplate",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getQuestionTitleTemplate",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "locQuestionTitleTemplate",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "showPageNumbers",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showQuestionNumbers",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "showProgressBar",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "processedTitle",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "questionTitleLocation",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "mode",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "data",
+        "documentation": "",
+        "type": "any",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "comments",
+        "documentation": "",
+        "type": "any",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isEmpty",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "PageCount",
+        "documentation": "",
+        "type": "number",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "visiblePageCount",
+        "documentation": "",
+        "type": "number",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "currentPage",
+        "documentation": "",
+        "type": "PageModel",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "currentPageNo",
+        "documentation": "",
+        "type": "number",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "focusFirstQuestion",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "state",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "clear",
+        "documentation": "",
+        "type": "(clearData?: boolean, gotoFirstPage?: boolean) => void",
+        "parameters": [
+            {
+                "name": "clearData",
+                "documentation": "",
+                "type": "boolean"
+            },
+            {
+                "name": "gotoFirstPage",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getProgress",
+        "documentation": "",
+        "type": "() => number",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "isNavigationButtonsShowing",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isEditMode",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isDisplayMode",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isDesignMode",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "setDesignMode",
+        "documentation": "",
+        "type": "(value: boolean) => void",
+        "parameters": [
+            {
+                "name": "value",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasCookie",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "setCookie",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "deleteCookie",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "nextPage",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "prevPage",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "completeLastPage",
+        "documentation": "",
+        "type": "() => boolean",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "isFirstPage",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isLastPage",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "doComplete",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "isValidatingOnServer",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "processedCompletedHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "processedLoadingHtml",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "progressText",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "uploadFile",
+        "documentation": "",
+        "type": "(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any) ...",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "file",
+                "documentation": "",
+                "type": "File"
+            },
+            {
+                "name": "storeDataAsText",
+                "documentation": "",
+                "type": "boolean"
+            },
+            {
+                "name": "uploadingCallback",
+                "documentation": "",
+                "type": "(status: string) => any"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getQuestionByName",
+        "documentation": "",
+        "type": "(name: string, caseInsensitive?: boolean) => IQuestion",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "caseInsensitive",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getQuestionsByNames",
+        "documentation": "",
+        "type": "(names: string[], caseInsensitive?: boolean) => IQuestion[]",
+        "parameters": [
+            {
+                "name": "names",
+                "documentation": "",
+                "type": "string[]"
+            },
+            {
+                "name": "caseInsensitive",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getPageByElement",
+        "documentation": "",
+        "type": "(element: IElement) => PageModel",
+        "parameters": [
+            {
+                "name": "element",
+                "documentation": "",
+                "type": "IElement"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getPageByQuestion",
+        "documentation": "",
+        "type": "(question: IQuestion) => PageModel",
+        "parameters": [
+            {
+                "name": "question",
+                "documentation": "",
+                "type": "IQuestion"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getPageByName",
+        "documentation": "",
+        "type": "(name: string) => PageModel",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getPagesByNames",
+        "documentation": "",
+        "type": "(names: string[]) => PageModel[]",
+        "parameters": [
+            {
+                "name": "names",
+                "documentation": "",
+                "type": "string[]"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getAllQuestions",
+        "documentation": "",
+        "type": "(visibleOnly?: boolean) => IQuestion[]",
+        "parameters": [
+            {
+                "name": "visibleOnly",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "sendResult",
+        "documentation": "",
+        "type": "(postId?: string, clientId?: string, isPartialCompleted?: boolean) => void",
+        "parameters": [
+            {
+                "name": "postId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "clientId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "isPartialCompleted",
+                "documentation": "",
+                "type": "boolean"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getResult",
+        "documentation": "",
+        "type": "(resultId: string, name: string) => void",
+        "parameters": [
+            {
+                "name": "resultId",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "loadSurveyFromService",
+        "documentation": "",
+        "type": "(surveyId?: string) => void",
+        "parameters": [
+            {
+                "name": "surveyId",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "isLoadingFromJson",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "getVariable",
+        "documentation": "",
+        "type": "(name: string) => any",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "setVariable",
+        "documentation": "",
+        "type": "(name: string, newValue: any) => void",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "newValue",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getValue",
+        "documentation": "",
+        "type": "(name: string) => any",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "setValue",
+        "documentation": "",
+        "type": "(name: string, newValue: any) => void",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "newValue",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "getComment",
+        "documentation": "",
+        "type": "(name: string) => string",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "setComment",
+        "documentation": "",
+        "type": "(name: string, newValue: string) => void",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "",
+                "type": "string"
+            },
+            {
+                "name": "newValue",
+                "documentation": "",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "clearValue",
+        "documentation": "Remove the value from the survey result.",
+        "type": "(name: string) => void",
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "The name of the value. Typically it is a question name",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "surveyElementName",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "parameters": []
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "SurveyWindowModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "survey",
+        "documentation": "",
+        "type": "SurveyModel",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isShowing",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "isExpanded",
+        "documentation": "",
+        "type": "boolean",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "title",
+        "documentation": "",
+        "type": "string",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "expand",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyWindowModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "collapse",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "SurveyWindowModel",
+        "pmeType": "method"
+    }
+]

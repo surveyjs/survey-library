@@ -1,0 +1,842 @@
+[
+    {
+        "name": "Base",
+        "documentation": "The base class for SurveyJS objects.",
+        "type": "typeof Base",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "Base",
+                "documentation": ""
+            }
+        ],
+        "baseType": "",
+        "allTypes": [
+            "Base"
+        ]
+    },
+    {
+        "name": "SurveyValidator",
+        "documentation": "Base SurveyJS validator class.",
+        "type": "typeof SurveyValidator",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "SurveyValidator",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "allTypes": [
+            "SurveyValidator",
+            "Base"
+        ]
+    },
+    {
+        "name": "NumericValidator",
+        "documentation": "Validate numeric values. ",
+        "type": "typeof NumericValidator",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "minValue",
+                        "documentation": "",
+                        "type": "number"
+                    },
+                    {
+                        "name": "maxValue",
+                        "documentation": "",
+                        "type": "number"
+                    }
+                ],
+                "returnType": "NumericValidator",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyValidator",
+        "jsonName": "numericvalidator",
+        "allTypes": [
+            "NumericValidator",
+            "SurveyValidator",
+            "Base"
+        ]
+    },
+    {
+        "name": "TextValidator",
+        "documentation": "Validate text values",
+        "type": "typeof TextValidator",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "minLength",
+                        "documentation": "",
+                        "type": "number"
+                    },
+                    {
+                        "name": "maxLength",
+                        "documentation": "",
+                        "type": "number"
+                    }
+                ],
+                "returnType": "TextValidator",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyValidator",
+        "jsonName": "textvalidator",
+        "allTypes": [
+            "TextValidator",
+            "SurveyValidator",
+            "Base"
+        ]
+    },
+    {
+        "name": "RegexValidator",
+        "documentation": "Use it to validate the text by regular expressions.",
+        "type": "typeof RegexValidator",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "regex",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "RegexValidator",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyValidator",
+        "jsonName": "regexvalidator",
+        "allTypes": [
+            "RegexValidator",
+            "SurveyValidator",
+            "Base"
+        ]
+    },
+    {
+        "name": "EmailValidator",
+        "documentation": "Validate e-mail address in the text input",
+        "type": "typeof EmailValidator",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "EmailValidator",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyValidator",
+        "jsonName": "emailvalidator",
+        "allTypes": [
+            "EmailValidator",
+            "SurveyValidator",
+            "Base"
+        ]
+    },
+    {
+        "name": "LocalizableString",
+        "documentation": "The class represents the string that supports multi-languages and markdown.\r\nIt uses in all objects where support for multi-languages and markdown is required.",
+        "type": "typeof LocalizableString",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "owner",
+                        "documentation": "",
+                        "type": "ILocalizableOwner"
+                    },
+                    {
+                        "name": "useMarkdown",
+                        "documentation": "",
+                        "type": "boolean"
+                    }
+                ],
+                "returnType": "LocalizableString",
+                "documentation": ""
+            }
+        ],
+        "baseType": "",
+        "allTypes": [
+            "LocalizableString"
+        ]
+    },
+    {
+        "name": "ItemValue",
+        "documentation": "Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.\r\nIt has two main properties: value and text. If text is empty, value is used for displaying.\r\nThe text property is localizable and support markdown.",
+        "type": "typeof ItemValue",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "value",
+                        "documentation": "",
+                        "type": "any"
+                    },
+                    {
+                        "name": "text",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "ItemValue",
+                "documentation": ""
+            }
+        ],
+        "baseType": "",
+        "jsonName": "itemvalue",
+        "allTypes": [
+            "ItemValue"
+        ]
+    },
+    {
+        "name": "ChoicesRestfull",
+        "documentation": "A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.\r\nThe run method call a restfull service and results can be get on getREsultCallback.",
+        "type": "typeof ChoicesRestfull",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "ChoicesRestfull",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "jsonName": "choicesByUrl",
+        "allTypes": [
+            "ChoicesRestfull",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionBase",
+        "documentation": "A base class for all questions. QuestionBase doesn't have information about title, values, errors and so on.\r\nThose properties are defined in the Question class.",
+        "type": "typeof QuestionBase",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionBase",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "allTypes": [
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "Question",
+        "documentation": "Extends question base class with title, value, errors and other functionality",
+        "type": "typeof Question",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "Question",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionBase",
+        "allTypes": [
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionSelectBase",
+        "documentation": "It is a base class for checkbox, dropdown and radiogroup questions.",
+        "type": "typeof QuestionSelectBase",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionSelectBase",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "allTypes": [
+            "QuestionSelectBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionDropdownModel",
+        "documentation": "A Model for a dropdown question",
+        "type": "typeof QuestionDropdownModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionDropdownModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionSelectBase",
+        "jsonName": "dropdown",
+        "allTypes": [
+            "QuestionDropdownModel",
+            "QuestionSelectBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionCheckboxModel",
+        "documentation": "A Model for a checkbox question",
+        "type": "typeof QuestionCheckboxModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionCheckboxModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionCheckboxBase",
+        "jsonName": "checkbox",
+        "allTypes": [
+            "QuestionCheckboxModel"
+        ]
+    },
+    {
+        "name": "QuestionRadiogroupModel",
+        "documentation": "A Model for a radiogroup question.",
+        "type": "typeof QuestionRadiogroupModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionRadiogroupModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionCheckboxBase",
+        "jsonName": "radiogroup",
+        "allTypes": [
+            "QuestionRadiogroupModel"
+        ]
+    },
+    {
+        "name": "QuestionTextModel",
+        "documentation": "A Model for an input text question.",
+        "type": "typeof QuestionTextModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionTextModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "text",
+        "allTypes": [
+            "QuestionTextModel",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionCommentModel",
+        "documentation": "A Model for a comment question",
+        "type": "typeof QuestionCommentModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionCommentModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "comment",
+        "allTypes": [
+            "QuestionCommentModel",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionMatrixDropdownModelBase",
+        "documentation": "A base class for matrix dropdown and matrix dynamic questions.",
+        "type": "typeof QuestionMatrixDropdownModelBase",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionMatrixDropdownModelBase",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "matrixdropdownbase",
+        "allTypes": [
+            "QuestionMatrixDropdownModelBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionMatrixDropdownModel",
+        "documentation": "A Model for a matrix dropdown question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.",
+        "type": "typeof QuestionMatrixDropdownModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionMatrixDropdownModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionMatrixDropdownModelBase",
+        "jsonName": "matrixdropdown",
+        "allTypes": [
+            "QuestionMatrixDropdownModel",
+            "QuestionMatrixDropdownModelBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionMatrixDynamicModel",
+        "documentation": "A Model for a matrix dymanic question. You may use a dropdown, checkbox, radiogroup, text and comment questions as a cell editors.\r\nAn end-user may dynamically add/remove rows, unlike in matrix dropdown question.",
+        "type": "typeof QuestionMatrixDynamicModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionMatrixDynamicModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionMatrixDropdownModelBase",
+        "jsonName": "matrixdynamic",
+        "allTypes": [
+            "QuestionMatrixDynamicModel",
+            "QuestionMatrixDropdownModelBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "MatrixRowModel",
+        "documentation": "A Model for a simple matrix question. ",
+        "type": "typeof MatrixRowModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "item",
+                        "documentation": "",
+                        "type": "ItemValue"
+                    },
+                    {
+                        "name": "fullName",
+                        "documentation": "",
+                        "type": "string"
+                    },
+                    {
+                        "name": "data",
+                        "documentation": "",
+                        "type": "IMatrixData"
+                    },
+                    {
+                        "name": "value",
+                        "documentation": "",
+                        "type": "any"
+                    }
+                ],
+                "returnType": "MatrixRowModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "allTypes": [
+            "MatrixRowModel",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionMultipleTextModel",
+        "documentation": "A Model for a multiple text question.",
+        "type": "typeof QuestionMultipleTextModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionMultipleTextModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "multipletext",
+        "allTypes": [
+            "QuestionMultipleTextModel",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "PanelModelBase",
+        "documentation": "A base class for a Panel and Page objects.",
+        "type": "typeof PanelModelBase",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "PanelModelBase",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "allTypes": [
+            "PanelModelBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "PanelModel",
+        "documentation": "A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root. \r\nIt may contain questions and other panels.",
+        "type": "typeof PanelModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "PanelModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "PanelModelBase",
+        "jsonName": "panel",
+        "allTypes": [
+            "PanelModel",
+            "PanelModelBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "PageModel",
+        "documentation": "The page object. It has elements collection, that contains questions and panels.",
+        "type": "typeof PageModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "PageModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "PanelModelBase",
+        "jsonName": "page",
+        "allTypes": [
+            "PageModel",
+            "PanelModelBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionFileModel",
+        "documentation": "A Model for a file question",
+        "type": "typeof QuestionFileModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionFileModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "file",
+        "allTypes": [
+            "QuestionFileModel",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionHtmlModel",
+        "documentation": "A Model for html question. Unlike other questions it doesn't have value and title.",
+        "type": "typeof QuestionHtmlModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionHtmlModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionBase",
+        "jsonName": "html",
+        "allTypes": [
+            "QuestionHtmlModel",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "QuestionRatingModel",
+        "documentation": "A Model for a rating question.",
+        "type": "typeof QuestionRatingModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionRatingModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Question",
+        "jsonName": "rating",
+        "allTypes": [
+            "QuestionRatingModel",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
+        "name": "Trigger",
+        "documentation": "A base class for all triggers. \r\nA trigger calls a method when the expression change the result: from false to true or from true to false.\r\nPlease note, it runs only one changing the expression result.",
+        "type": "typeof Trigger",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "Trigger",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "allTypes": [
+            "Trigger",
+            "Base"
+        ]
+    },
+    {
+        "name": "SurveyTrigger",
+        "documentation": "It extends the Trigger base class and add properties required for SurveyJS classes.",
+        "type": "typeof SurveyTrigger",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "SurveyTrigger",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Trigger",
+        "allTypes": [
+            "SurveyTrigger",
+            "Trigger",
+            "Base"
+        ]
+    },
+    {
+        "name": "SurveyTriggerVisible",
+        "documentation": "If expression returns true, it makes questions/pages visible.\r\nOhterwise it makes them invisible.",
+        "type": "typeof SurveyTriggerVisible",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "SurveyTriggerVisible",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyTrigger",
+        "jsonName": "visibletrigger",
+        "allTypes": [
+            "SurveyTriggerVisible",
+            "SurveyTrigger",
+            "Trigger",
+            "Base"
+        ]
+    },
+    {
+        "name": "SurveyTriggerComplete",
+        "documentation": "If expression returns true, it completes the survey.",
+        "type": "typeof SurveyTriggerComplete",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "SurveyTriggerComplete",
+                "documentation": ""
+            }
+        ],
+        "baseType": "SurveyTrigger",
+        "jsonName": "completetrigger",
+        "allTypes": [
+            "SurveyTriggerComplete",
+            "SurveyTrigger",
+            "Trigger",
+            "Base"
+        ]
+    },
+    {
+        "name": "dxSurveyService",
+        "documentation": "The class contains methods to work with www.dxsurvey.com service.",
+        "type": "typeof dxSurveyService",
+        "constructors": [
+            {
+                "parameters": [],
+                "returnType": "dxSurveyService",
+                "documentation": ""
+            }
+        ],
+        "baseType": "",
+        "allTypes": [
+            "dxSurveyService"
+        ]
+    },
+    {
+        "name": "SurveyModel",
+        "documentation": "Survey object contains information about the survey. Pages, Questions, flow logic and etc.",
+        "type": "typeof SurveyModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "jsonObj",
+                        "documentation": "",
+                        "type": "any"
+                    }
+                ],
+                "returnType": "SurveyModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "jsonName": "survey",
+        "allTypes": [
+            "SurveyModel",
+            "Base"
+        ]
+    },
+    {
+        "name": "SurveyWindowModel",
+        "documentation": "A Model for a survey running in the Window.",
+        "type": "typeof SurveyWindowModel",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "jsonObj",
+                        "documentation": "",
+                        "type": "any"
+                    }
+                ],
+                "returnType": "SurveyWindowModel",
+                "documentation": ""
+            }
+        ],
+        "baseType": "Base",
+        "jsonName": "window",
+        "allTypes": [
+            "SurveyWindowModel",
+            "Base"
+        ]
+    }
+]

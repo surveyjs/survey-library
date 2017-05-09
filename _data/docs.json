@@ -5,22 +5,11 @@
     ],
     "pages": [
         { "name": "index", "title": "Documentation", "canonicalUrl": "/docs/" },
-        { "name": "gettingstarted", "category": "started", "title": "Getting started" },
-        { "name": "api_survey", "category": "api", "title": "Survey" },
-        { "name": "api_question_dropdown", "category": "api", "title": "Question Dropdown" }
+        { "name": "gettingstarted", "category": "started", "title": "Getting started" }
     ],
     "classes": [
-        {"name": "Base", "parent": ""},
-        {"name": "Survey", "parent": "Base"},
-        {"name": "QuestionBase", "parent": "Base"},
-        {"name": "Question", "parent":"QuestionBase"},
-        {"name": "QuestionSelectBase", "parent":"Question"},
-        {"name": "QuestionCheckbox", "parent":"QuestionSelectBase"},
-        {"name": "QuestionDropdown", "parent":"QuestionSelectBase"}
-    ],
-
-    "pmes":  [
-        {"name": "title", "class": "Question", "type": "p"},
-        {"name": "choices", "class": "QuestionSelectBase", "type": "p"}
+        {"name": "SurveyModel", "title": "Survey"},
+        {"name": "QuestionCheckboxModel", "title": "Question Checkbox"},
+        {"name": "QuestionDropdownModel", "title": "Question Dropdown"}
     ]
 }

@@ -1,1 +1,0 @@
-To see survey.js documentation, please select item from the menu on the left.

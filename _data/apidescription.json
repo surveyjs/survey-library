@@ -1,6 +1,6 @@
 [
 {"name": "Question.title", "type": "p", "hasSet": true, "returnType": "string",
-"seealso": ["Survey.titleTemplate", "Survey.onMarkdown"],
+"seeAlso": ["Survey.titleTemplate", "Survey.onMarkdown"],
     "description": "Here is the description"
 },
 {"name": "QuestionSelectBase.choices", "class": "QuestionSelectBase", "type": "p"}

@@ -1,0 +1,100 @@
+---
+layout: doc_page
+mainmenukey: doc
+---
+<div id="objectProperties">
+    <p>
+        <span>Type to filter the list: </span><input id="iFilter" type="text" data-bind="textInput: filterString" />
+    </p>
+    <div data-bind="foreach: filteredItems">
+        <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a></div>
+        <div data-bind="visible: koExpanded">
+            <div>
+                <span>It is a </span><span data-bind="text: pmeType"></span><span> It returns: </span><span data-bind="text:type"></span>
+            </div>
+            <div data-bind="visible: hasDocumentation">
+                <span data-bind="text: documentation"></span>
+            </div>
+            <div data-bind="visible: hasParameters">
+                <div data-bind="foreach: parameters">
+                    <div><span>Name: </span><span data-bind="text:name"></span></div>
+                    <div><span>Type: </span><span data-bind="text:type"></span></div>
+                    <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="text:documentation"></span></div>
+                </div>
+            </div>
+            <a data-bind="attr: {href: href}"><span>Show more</span></a>
+        </div>
+    </div>
+</div>
+
+<script src="{{ site.baseurl }}/js/knockout.js"></script>
+<script>
+    var curClass = {
+    {% for classItem in site.data.classes %}{% if classItem.name == page.classname %}
+        {% assign curClass = classItem %}
+        name: "{{classItem.name}}", documentation: "{{classItem.documentation}}"
+    {% endif %}{% endfor %}
+    };
+    var pmes = [
+    {% for prop in site.data.pmes %}{% if curClass.allTypes contains prop.className %}
+    { name: "{{prop.name}}", class: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", documentation: "{{prop.documentation}}", hasSet: "{{prop.hasSet}}", 
+        parameters:  [
+            {% for par in prop.parameters %}
+            { name: "{{par.name}}", documentation: "{{par.documentation}}", type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
+            {% endfor %}        
+        ] }{% if forloop.last == false %},{% endif %} 
+    {% endif %}{% endfor %}];
+    pmes.sort(function(a, b) {
+        if(a.name == b.name) return 0;
+        return a.name < b.name ? -1 : 1;
+    });
+    var ModelItem = function(item) {
+        var self = this;
+        this.name = item.name;
+        this.lowCaseName = this.name.toLowerCase();
+        this.className = item.className;
+        this.type = item.type;
+        this.pmeType = item.pmeType;
+        this.href = item.href;
+        this.documentation = item.documentation;
+        this.hasDocumentation = item.documentation && item.documentation.length > 0;
+        this.parameters = [];
+        if(item.parameters) {
+            this.parameters = item.parameters;
+            for(var i = 0; i < this.parameters.length; i ++) {
+                this.parameters[i].hasDocumentation = this.parameters[i].documentation && this.parameters[i].documentation.length > 0;
+            }
+        }
+        this.hasParameters = this.parameters.length > 0;
+        this.hasSet = item.hasSet == "true";
+        this.isSerialized = item.isSerialized == "true";
+        this.koExpanded = ko.observable(false);
+        this.showHide = function() {
+            self.koExpanded(!self.koExpanded());
+        }
+    }
+    var Model = function(className) {
+        var self = this;
+        this.items = [];
+        for(var i = 0; i < pmes.length; i ++) {
+            if(!pmes[i].name) continue;
+            this.items.push(new ModelItem(pmes[i]));
+        }
+        this.filterString = ko.observable("");
+        this.koDummy = ko.observable(0);
+        this.filteredItems = ko.computed(function() {
+            var dummy = self.koDummy();
+             return ko.utils.arrayFilter(self.items, function(item) {
+                var str = self.filterString();
+                if(!str) return true;
+                str = str.toLowerCase();
+                return (item.lowCaseName.indexOf(str) > -1);
+            });
+        });
+        this.filterString.subscribe(function(newValue) {
+            self.koDummy(self.koDummy() + 1);
+        });
+};
+ 
+ko.applyBindings(new Model("{{page.classname}}"), document.getElementById("objectProperties"));
+ </script>

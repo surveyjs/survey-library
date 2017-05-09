@@ -2,6 +2,19 @@ import * as ts from "typescript";
 import * as fs from "fs";
 import {JsonObject} from "../src/jsonobject";
 import {SurveyModel} from "../src/survey";
+import {QuestionCheckboxModel} from "../src/question_checkbox";
+import {QuestionCommentModel} from "../src/question_comment";
+import {QuestionDropdownModel} from "../src/question_dropdown";
+import {QuestionFileModel} from "../src/question_file";
+import {QuestionHtmlModel} from "../src/question_html";
+import {QuestionMatrixModel} from "../src/question_matrix";
+import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
+import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
+import {QuestionMultipleTextModel} from "../src/question_multipletext";
+import {QuestionRadiogroupModel} from "../src/question_radiogroup";
+import {QuestionTextModel} from "../src/question_text";
+import {PanelModel} from "../src/panel";
+
 
 interface DocEntry {
     name?: string,
@@ -11,6 +24,7 @@ interface DocEntry {
     documentation?: string,
     type?: string,
     baseType?: string,
+    allTypes?: string[],
     constructors?: DocEntry[],
     parameters?: DocEntry[],
     returnType?: string,
@@ -30,24 +44,53 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
     let outputClasses: DocEntry[] = [];
     let outputPMEs: DocEntry[] = [];
     let pmesHash = {};
+    let classesHash = {};
     let curClass: DocEntry = null;
     let curJsonName: string = null;
     let jsonObj: JsonObject = new JsonObject();
     //TODO
-    let dummySurvey: SurveyModel = new SurveyModel(); 
-
+    let dummySurvey = new SurveyModel(); 
+    let dummyCheckbox = new QuestionCheckboxModel("q1");
+    let dummyComment = new QuestionCommentModel("q1");
+    let dummyDropdown = new QuestionDropdownModel("q1");
+    let dummyFile = new QuestionFileModel("q1");
+    let dummyHtml = new QuestionHtmlModel("q1");
+    let dummyMatrix = new QuestionMatrixModel("q1");
+    let dummyMatrixDropdown = new QuestionMatrixDropdownModel("q1");
+    let dummyMatrixDynamic = new QuestionMatrixDynamicModel("q1");
+    let dummyMultipleText = new QuestionMultipleTextModel("q1");
+    let dummyRadiogroup = new QuestionRadiogroupModel("q1");
+    let dummyText = new QuestionTextModel("q1");
+    let panel = new PanelModel("p1");
     // Visit every sourceFile in the program    
     for (const sourceFile of program.getSourceFiles()) {
         // Walk the tree to search for classes
         ts.forEachChild(sourceFile, visit);
     }
-
+    for(var key in classesHash) {
+        setAllParentTypes(key);
+    }
     // print out the doc
     fs.writeFileSync("classes.json", JSON.stringify(outputClasses, undefined, 4));
     fs.writeFileSync("pmes.json", JSON.stringify(outputPMEs, undefined, 4));
 
     return;
 
+    /** set allParentTypes */
+    function setAllParentTypes(className: string) {
+        if(!className) return;
+        var curClass = classesHash[className];
+        if(curClass.allTypes && curClass.allTypes.length > 0) return;
+        curClass.allTypes = [];
+        curClass.allTypes.push(curClass.name);
+        if(!curClass.baseType) return;
+        var baseClass = classesHash[curClass.baseType];
+        if(baseClass) {
+            for(var i = 0; i < baseClass.allTypes.length; i ++) {
+                curClass.allTypes.push(baseClass.allTypes[i]);
+            }
+        }
+    }
     /** visit nodes finding exported classes */    
     function visit(node: ts.Node) {
         // Only consider exported nodes
@@ -58,6 +101,7 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
             let symbol = checker.getSymbolAtLocation((<ts.ClassDeclaration>node).name);
             if(isSymbolHasComments(symbol)) {
                 curClass = serializeClass(symbol, node);
+                classesHash[curClass.name] = curClass;
                 outputClasses.push(curClass);
                 curJsonName = null;
                 ts.forEachChild(node, visitClassNode); 
@@ -154,13 +198,15 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
         details.constructors = constructorType.getConstructSignatures().map(serializeSignature);
 
         //get base class
+        details.baseType = "";
         const classDeclaration = <ts.ClassDeclaration>node;
-        const firstHeritageClause = classDeclaration.heritageClauses[0];
-        const firstHeritageClauseType = firstHeritageClause.types[0];
-        //const extendsSymbol = this.checker.getSymbolAtLocation(firstHeritageClauseType.expression);
-        const extendsType = checker.getTypeAtLocation(firstHeritageClauseType.expression);
-        if(extendsType) {
-            details.baseType = extendsType.symbol.name;
+        if(classDeclaration && classDeclaration.heritageClauses && classDeclaration.heritageClauses.length > 0) {
+            const firstHeritageClause = classDeclaration.heritageClauses[0];
+            const firstHeritageClauseType = firstHeritageClause.types[0];
+            const extendsType = checker.getTypeAtLocation(firstHeritageClauseType.expression);
+            if(extendsType) {
+                details.baseType = extendsType.symbol.name;
+            }
         }
         return details;
     }

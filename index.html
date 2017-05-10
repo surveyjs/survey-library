@@ -1,422 +1,235 @@
 ---
 layout: default
 useknockout: true
+jquery: true
 title: The JavaScript JSON based Survey Library
 mainmenukey: home
-usedxchart: true
 canonicalUrl: /
 hasFooter: true
 ---
 
-{% include promo.html %}
+<div id="steps" class="home">
+    <section class="promo">
+        <div class="promo-text">
+            <div class="title-main">Survey.JS</div>
+            <div class="title-sub">The JavaScript JSON based</div>
+            <div class="title-sub">Survey Library</div>
+            <p class="title-info first">with visual editor and optional service</p>
+            <p class="title-info">for storing and analyzing data.</p>
+        </div>
+        <div class="mac">
+            <img src="../images/mac.png"/>
+        </div>
+    </section>
 
-<section class="features container" id="features">
-    <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
-            <div class="panel-heading"><h3>BOOTSTRAP AND DESIGN</h3></div>
-            <div class="panel-body">
-                Use predefined css classes (standard or bootstrap) and modify them as required your site design.
-            </div>
-            <div class="panel-footer">
-                Show me:
-                <a href="{{ page.pathprefix }}examples/angular/survey-customcss.html">Angular2»</a>
-                <a href="{{ page.pathprefix }}examples/angular/survey-customcss.html">JQuery»</a>
-                <a href="{{ page.pathprefix }}examples/knockout/survey-customcss.html">Knockout»</a>
-                <a href="{{ page.pathprefix }}examples/react/survey-customcss.html">React»</a>
-                <a href="{{ page.pathprefix }}examples/vue/survey-customcss.html">Vue»</a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
-            <div class="panel-heading"><h3>VISUAL SURVEY EDITOR</h3></div>
-            <div class="panel-body">
-                Use the Visual Survey Editor to create, test and then insert a survey into your web page. The editor generates JSON that can be edited in it later, if needed.
-            </div>
-            <div class="panel-footer">
-                Show me:
-                <a href="{{ page.pathprefix }}builder/">Go to Editor»</a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
-            <div class="panel-heading"><h3>FULL CONTROL</h3></div>
-            <div class="panel-body">
-                It's just a Javascript library. That means you have the full control. You may get/set data or send them to the server at any moment. Modify survey on the fly and add new functionality.
-            </div>
-            <div class="panel-footer">
-                Show me:
-                <a href="{{ page.pathprefix }}examples/angular/survey-data.html">Angular2»</a>
-                <a href="{{ page.pathprefix }}examples/angular/survey-data.html">JQuery»</a>
-                <a href="{{ page.pathprefix }}examples/knockout/survey-data.html">Knockout»</a>
-                <a href="{{ page.pathprefix }}examples/react/survey-data.html">React»</a>
-                <a href="{{ page.pathprefix }}examples/vue/survey-data.html">Vue»</a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12 panel">
-            <div class="panel-heading"><h3>SAVE AND ANALYZE DATA</h3></div>
-            <div class="panel-body">
-                If you don't want to deal with saving and then analyzing JSON data, you may use the <a href="http://dxsurvey.com/" target="_blank">dxSurvey Service</a>. It will do it for you.
-            </div>
-            <div class="panel-footer">
-                Show me:
-                <a href="{{ page.pathprefix }}examples/angular/service-result.html">Angular2»</a>
-                <a href="{{ page.pathprefix }}examples/angular/service-result.html">JQuery»</a>
-                <a href="{{ page.pathprefix }}examples/knockout/service-result.html">Knockout»</a>
-                <a href="{{ page.pathprefix }}examples/react/service-result.html">React»</a>
-                <a href="{{ page.pathprefix }}examples/vue/service-result.html">Vue»</a>
-            </div>
-        </div>
-    </div>
-</section>
+    <section class="definition">
+        <h1>Feature rich and open source survey JavaScript library under MIT license</h1>
+        <p>
+            There are huge number of solutions for creating surveys on the web. Regarding of these, SurveyJS team are strongly believe that SurveyJS is the right way to go.
+        </p>
+        <p>Please take several minutes of your time to find out why SurveyJS is the right choice.</p>
+    </section>
 
-<section id="steps" class="steps">
-    <div class="steps-header survey-gray">
+    <section class="integration">
         <div class="navy-line"></div>
-        <span>Add Survey into your page</span>
-    </div>
-    <div class="steps-body row survey-gray">
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
-                <h1>Step 1</h1>
-                <a class="btn btn-primary download-btn btn-lg" role="button" href="https://github.com/surveyjs/surveyjs/releases" target="_blank">
-                    Download survey.js library
-                </a>
-                <a class="btn btn-primary download-btn btn-lg" role="button" href="https://github.com/surveyjs/builds" target="_blank">
-                    or get it from cdn
-                </a>
+        <h1>Integrate a survey into your web page</h1>
+        <p>
+            SurveyJS library has versions for several popular JavaScript frameworks: angular, jQuery, knockout, react
+        </p>
+        <p>
+            and vue. Please follow <a href="{{ page.pathprefix }}integration.html">these simple steps</a> to integrate a survey into your web site or web page.
+        </p>
+        <p>
+            Here you will find plnkr examples: <a href="http://plnkr.co/edit/OJkKlUn1oxzWYtnruXir?p=preview" target="_blank">Angular2</a>, <a href="http://plnkr.co/edit/DH4vJWSBtza7bSCDm2r9?p=preview" target="_blank">jQuery</a>, <a href="http://plnkr.co/edit/JKy5wwiAhaBTMze3fOO0?p=preview" target="_blank">knockout</a>, <a href="http://plnkr.co/edit/qXdeQa6x2FHRg0YrOlPL?p=preview" target="_blank">react</a> and <a href="http://plnkr.co/edit/aTYVAiDvMWOf3zDReayE?p=preview" target="_blank">vue</a>.
+        </p>
+        <p>
+            You may also use our quick-start GitHub repos: <a href="https://github.com/surveyjs/surveyjs_angular_quickstart" target="_blank">angular</a>, <a href="https://github.com/surveyjs/surveyjs_angular_cli" target="_blank">angular-cli</a>, <a href="https://github.com/surveyjs/surveyjs_react_quickstart" target="_blank">react</a> and <a href="https://github.com/surveyjs/surveyjs_vue_quickstart" target="_blank">vue</a>.
+        </p>
+
+        <div class="frameworks">
+            <a href="https://angular.io" target="_blank"><img src="../images/Angular.png"/></a>
+            <a href="https://jquery.com" target="_blank"><img src="../images/jQuery.png"/></a>
+            <a href="http://knockoutjs.com" target="_blank"><img src="../images/Knockout.png"/></a>
+            <a href="https://facebook.github.io/react" target="_blank"><img src="../images/React.png"/></a>
+            <a href="https://vuejs.org" target="_blank"><img src="../images/Vue.png"/></a>
+        </div>
+    </section>
+
+    <section class="options">
+        <div class="navy-line"></div>
+        <h1>Survey Options</h1>
+
+        <div class="row content">
+            <div class="col-lg-4">
+                <div class="info info-top">
+                    <div class="info-title right">
+                        <p>Transparent solution</p>
+                    </div>
+
+                    <div class="info-description right">
+                        <p>
+                            Unlike the most others solutions, <a href="https://www.surveyjs.io/">SurveyJS Project</a> contains of three fully independent parts: run-time SurveyJS library, <a href="http://editor.surveyjs.io/">SurveyJS editor</a> and <a href="https://dxsurvey.com/">SurveyJS service</a> for storing and analyzing results. You may stick with the complete solution or use only a library. You may use <a href="https://dxsurvey.com/">SurveyJS service</a> to store your results there or store them in your own storage. You may freely use <a href="{{ page.pathprefix }}builder">SurveyJS Editor</a> or integrate <a href="http://editor.surveyjs.io/">the Editor</a> into your own web site.
+                        </p>
+                    </div>
+                </div>
             </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
-                <div class="step-panel">
-                    <h2>or install via npm</h2>
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
-                        <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
-                        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
-                        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
-                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
-                    </ul>
-                    <div class="tab-content" data-bind="visible:isAngular">
-                        <pre><code class="language-markup">npm install survey-angular</code></pre>
+            <div class="col-lg-4 info-survey-image">
+                <img src="../images/survey.png"/>
+            </div>
+            <div class="col-lg-4">
+                <div class="info info-bottom">
+                    <div class="info-title left">
+                         <p>Professional</p>
+                        <p>Open Source library</p>
                     </div>
-                    <div class="tab-content" data-bind="visible:isJquery">
-                        <pre><code class="language-markup">npm install survey-jquery</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isKnockout">
-                        <pre><code class="language-markup">npm install survey-knockout</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isReact">
-                        <pre><code class="language-markup">npm install survey-react</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isVue">
-                        <pre><code class="language-markup">npm install survey-vue</code></pre>
+                    <div class="info-description left">
+                        <p>
+                            SurveyJS library is a free and open source solution under <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a>. However, professional full-time software developers support it. We have developed software libraries and frameworks since late 90th.We know what to do and how to do it. You can judge it for yourself by looking at <a href="https://github.com/surveyjs/surveyjs/tree/master/src">our source code</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/tests">unit tests</a>, <a href="https://github.com/surveyjs/surveyjs/tree/master/testCafe">functional tests</a> and <a href="{{ page.pathprefix }}examples">examples</a>.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-push-6 col-md-push-6 step-left">
-                <h1>Step 2</h1>
-                <h4>
-                    Add a link to your platform <a href="https://angular.io/" target="_blank">Angular2</a> or
-                    <a href="https://jquery.com/" target="_blank">JQuery</a> or
-                    <a href="http://knockoutjs.com" target="_blank">KnockoutJS</a> or
-                    <a href="https://facebook.github.io/react/" target="_blank">React</a> or
-                    <a href="https://vuejs.org/" target="_blank">Vue</a>
-                </h4>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
-                <div class="step-panel">
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
-                        <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
-                        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
-                        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
-                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
-                    </ul>
-                    <div class="tab-content" data-bind="visible:isAngular">
-                <pre><code class="language-js">import { Component } from '@angular/core';
-</code></pre>
+    <section class="examples">
+        <div class="navy-line"></div>
+        <h1>Survey into your page</h1>
+
+        <div class="steps">
+            <div class="steps-body row survey-gray">
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>A dozen question types</h1>
+                        <p>
+                            SurveyJS library has a dozen built-in question types, like <a href="{{ page.pathprefix }}examples/questiontype-text.html">a simple text</a> or <a href="{{ page.pathprefix }}examples/questiontype-matrixdynamic.html">a complex matrix</a> with different input types, and a <a href="{{ page.pathprefix }}examples/questiontype-panel.html">panel (container)</a>. We have all question types you will likely need.
+                        </p>
                     </div>
-                    <div class="tab-content" data-bind="visible:isJquery">
-                        <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"&gt;&lt;/script&gt;</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isKnockout">
-                        <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"&gt;&lt;/script&gt;</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isReact">
-                <pre><code class="language-js">import React from 'react';
-import ReactDOM from 'react-dom';
-</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isVue">
-                        <pre><code class="language-markup">&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"&gt;&lt;/script&gt;</code></pre>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="320" src="//jsfiddle.net/surveyjs/71mdgoqh/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
-                <h1>Step 3</h1>
-                <h4>Add link(s) to survey.js</h4>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
-                <div class="step-panel">
-                    <h5>If you are NOT going to use the Bootstrap, add the link to survey css.</h5>
-                    <pre><code class="language-markup">&lt;link href="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.css" type="text/css" rel="stylesheet" /&gt;</code></pre>
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
-                        <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
-                        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
-                        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
-                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
-                    </ul>
-                    <div class="tab-content" data-bind="visible:isAngular">
-                        <h5>Link to the angular2 version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.angular.min.js"&gt;&lt;/script&gt;</code></pre>
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-push-6 col-md-push-6 step-left">
+                        <h1>Integrate your favorite JavaScript widgets</h1>
+                        <p>
+                            Regardless of how many question types a survey library have, there will be always something missing. All survey solutions we have seen, allows using only built-in questions and functionality. SurveyJS gives you an easy way to integrate any JavaScript widget. There are hundreds and thousands different JavaScript widgets on the web. Absolutely the most of them, you may integrate into SurveyJS using our <a href="{{ page.pathprefix }}examples/custom-widget-select2-tagbox.html">Custom Widget support feature</a>. It brings a truly unlimited functionality into the library.
+                        </p>
                     </div>
-                    <div class="tab-content" data-bind="visible:isJquery">
-                        <h5>Link to the jquery version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.jquery.min.js"&gt;&lt;/script&gt;</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isKnockout">
-                        <h5>Link to the knockout version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.ko.min.js"&gt;&lt;/script&gt;</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isReact">
-                        <h5>Link to the react version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.react.min.js"&gt;&lt;/script&gt;</code></pre>
-                    </div>
-                    <div class="tab-content" data-bind="visible:isVue">
-                        <h5>Link to the vue version of the library.</h5>
-                        <pre><code class="language-markup">&lt;script src="https://surveyjs.azureedge.net/{{ site.surveyjs_version }}/survey.vue.min.js"&gt;&lt;/script&gt;</code></pre>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="240" src="//jsfiddle.net/surveyjs/a222qxpx/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
-                <h1>Step 4</h1>
-                <h4>Build JSON using</h4>
-                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}builder/">Visual Survey Editor</a>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
-                <div class="step-panel">
-                    <h4>JSON example<a href="{{ page.pathprefix }}builder/index.html?surveyid=d5220f76-4802-40cf-ad67-61d7e55608e5" target="_blank"> (Load it in Visual Survey Editor now)</a></h4>
-                    <pre><code class="language-js">var surveyJSON = {% include surveys/survey-about.json %}</code></pre>
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Design and Bootstrap support</h1>
+                        <p>
+                            All professional and commercial survey solutions come with beautiful design. Sometimes you may choose different look and feel. The most commercial survey solutions go further and allow, for example, you even to include your own logo into your own survey. What is a big deal! Will their design match your web site design? You may be lucky if it does. Unfortunately, there is no way they will be able to create a design for all their customers. SurveyJS allows you to <a href="{{ page.pathprefix }}examples/survey-customcss.html">customize every element</a> in the way you need. Additionally it supports Bootstrap. If your website uses bootstrap, just tell SurveyJS to render itself by using your bootstrap styles.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="500" src="//jsfiddle.net/surveyjs/khsf8rdg/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
-                <h1>Step 5</h1>
-                <h4>Show Survey on the page</h4>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
-                <div class="step-panel">
-                    <h5>If you are using Bootstrap, tell the library to use the bootstrap css classes.</h5>
-                    <pre><code class="language-js">Survey.Survey.cssType = "bootstrap";</code></pre>
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Markdown support</h1>
+                        <p>
+                            Here is another good example when an open and transparent solution beats old and closed systems. SurveyJS supports markdown. However, we do not create just another markdown library; we give you the ability to use any markdown you want. Of course, we could spend another several months of work and after that couple of years to fix all issues. We are sure, at the end, we would have a good our own markdown library, but why should we do something that other people have already done. There are several good markdown libraries, including under a <a href="https://en.wikipedia.org/wiki/MIT_License">MIT license</a> that you may integrate into SurveyJS with 5-10 lines of code, <a href="{{ page.pathprefix }}examples/survey-markdown-radiogroup.html">just check out the code</a>.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 col-lg-pull-6 col-md-pull-6 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="280" src="//jsfiddle.net/surveyjs/2nvc4to5/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                </div>
 
-                    <ul class="nav nav-tabs">
-                        <li role="presentation" data-bind="css:{active: isAngular}"><a data-bind="click:setAngular">Angular2</a></li>
-                        <li role="presentation" data-bind="css:{active: isJquery}"><a data-bind="click:setJquery">JQuery</a></li>
-                        <li role="presentation" data-bind="css:{active: isKnockout}"><a data-bind="click:setKnockout">Knockout</a></li>
-                        <li role="presentation" data-bind="css:{active: isReact}"><a data-bind="click:setReact">React</a></li>
-                        <li role="presentation" data-bind="css:{active: isVue}"><a data-bind="click:setVue">Vue</a></li>
-                    </ul>
-                    <div class="row tab-content"  data-bind="visible:isAngular">
-                        <div>
-                            <h3>As Survey Window</h3>
-                            <pre><code class="language-markup">&lt;ng-app&gt;&lt;/ng-app&gt;</code></pre>
-                            <pre><code class="language-js">@Component({
-  selector: 'ng-app',
-  template: `&lt;div id='surveyElement'&gt;&lt;/div&gt;`,
-})
-export class AppComponent  {
-  ngOnInit() {
-    var survey = new Survey.Model(surveyJSON);
-    survey.onComplete.add(sendDataToServer);
-    Survey.SurveyWindowNG.render("surveyElement", {model:survey});
-  }
-}
-</code></pre>
-                        </div>
-                        <div>
-                            <h3>Inside your web page</h3>
-                            <pre><code class="language-markup">&lt;ng-app&gt;&lt;/ng-app&gt;</code></pre>
-                            <pre><code class="language-js">@Component({
-  selector: 'ng-app',
-  template: `&lt;div id='surveyElement'&gt;&lt;/div&gt;`,
-})
-export class AppComponent  {
-  ngOnInit() {
-    var survey = new Survey.Model(surveyJSON);
-    survey.onComplete.add(sendDataToServer);
-    Survey.SurveyNG.render("surveyElement", {model:survey});
-  }
-}
-</code></pre>
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Represent Survey Model as JSON</h1>
+                        <p>
+                            Do you know where a typical survey solution stores your survey model? Unfortunately, it is rhetorical question. You are likely just do not know. SurveyJS is fully transparent in any aspect, including this one.  SurveyJS library uses JSON to load survey model. You may use <a href="{{ page.pathprefix }}builder">WYSIWYG SurveyJS Editor</a> to create the survey, and then copy the created JSON into your web page directly to feed it to the SurveyJS library. Of course, you may store and then load SurveyJS JSON model in SurveyJS service or in your own storage. Survey JSON is readable and you may easily modify it by yourself or simple copy it into SurveyJS Editor and do the needed changes at any time. Finally, nothing to stop you from creating or modifying a SurveyJS Model in the code in run-time. At the end, it is just JavaScript objects.
+                        </p>
+
+                        <h1>Survey Results as JSON</h1>
+                        <p>
+                            As you may imagine, the SurveyJS result is a JSON as well. You may get the JSON result at any time, for example: on survey complete, on page change or value change. You may set to the SurveyJS a previously <a href="{{ page.pathprefix }}examples/survey-data.html">entered result or predefined data</a>. Of course, you may get or set the value of an individual question at any moment as well.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="600" src="//jsfiddle.net/surveyjs/khsf8rdg/embedded/js,html,css,result/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
                         </div>
                     </div>
-                    <div class="row tab-content"  data-bind="visible:isJquery">
-                        <div>
-                            <h3>As Survey Window</h3>
-                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
-$("#surveyContainer").SurveyWindow({
-    model:survey,
-    onComplete:sendDataToServer
-});</code></pre>
-                        </div>
-                        <div>
-                            <h3>Inside your web page</h3>
-                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
-                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
-$("#surveyContainer").Survey({
-    model:survey,
-    onComplete:sendDataToServer
-});
-</code></pre>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Survey Flow</h1>
+                        <p>
+                            The most complex surveys need to change the survey flow. You have to change the questions, panels and pages visibility or skip some pages. SurveyJS provides you with <a  href="{{ page.pathprefix }}examples/condition-kids.html">an easy way to achieve this</a>.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
+                        <div class="step-panel">
+                            <iframe width="100%" height="210" src="//jsfiddle.net/surveyjs/o5vhduwz/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
                         </div>
                     </div>
-                    <div class="row tab-content"  data-bind="visible:isKnockout">
-                        <div>
-                            <h3>As Survey Window</h3>
-                            <pre><code class="language-js">var surveyWindow = new Survey.SurveyWindow(surveyJSON);
-surveyWindow.show();
-//Use onComplete event to save the data
-surveyWindow.survey.onComplete.add(sendDataToServer);</code></pre>
-                        </div>
-                        <div>
-                            <h3>Inside your web page</h3>
-                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
-                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON, "surveyContainer");
-//Use onComplete event to save the data
-survey.onComplete.add(sendDataToServer);
-</code></pre>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
+                        <h1>Dynamic questions</h1>
+                        <p>
+                            In many cases, the survey question models have to be dynamic. The data should come from different services and could not be static. SurveyJS gives you the ability to <a href="{{ page.pathprefix }}examples/questiontype-dropdownrestfull.html">load the data from restful API</a> without writing a single line of code. Of course, you are free to change the survey model in the code, it gives you again an unlimited possibilities.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
+                        <div class="step-panel">
+                            <iframe width="100%" height="210" src="//jsfiddle.net/surveyjs/Ljnyaeva/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
                         </div>
                     </div>
-                    <div class="row tab-content"  data-bind="visible:isReact">
-                        <div>
-                            <h3>As Survey Window</h3>
-                            <pre><code class="language-js">ReactDOM.render(
-  &lt;Survey.SurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;,
-  document.getElementById("surveyContainer"));</code></pre>
-                        </div>
-                        <div>
-                            <h3>Inside your web page</h3>
-                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;/div&gt;</code></pre>
-                            <pre><code class="language-js">ReactDOM.render(
-  &lt;Survey.Survey json={surveyJSON} onComplete={sendDataToServer}/&gt;,
-  document.getElementById("surveyContainer"));</code></pre>
-                        </div>
+                </div>
+
+                <div class="step row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
+                        <h1>Localization and Multi-languages support</h1>
+                        <p>
+                            We are not native English speakers ourselves and of course, we fully understand the importance of product localization. Like many other libraries, we are offering the translation of SurveyJS strings to many languages. It is created and supported by the community. However, what about multi languages support in one survey? What happens if you have to run the same survey, for example, for your English and Spanish speaking clients. Should you create two different surveys? SurveyJS has <a href="{{ page.pathprefix }}examples/survey-multilanguages.html">a built-in support for multi-languages</a>. Something, you will unlikely find in the most survey solutions.
+                        </p>
                     </div>
-                    <div class="row tab-content"  data-bind="visible:isVue">
-                        <div>
-                            <h3>As Survey Window</h3>
-                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;survey-window :survey="survey"&gt;&lt;/survey-window&gt;&lt;/div&gt;</code></pre>
-                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
-new Vue({ el: '#surveyContainer', data: { survey: survey } });</code></pre>
-                        </div>
-                        <div>
-                            <h3>Inside your web page</h3>
-                            <pre><code class="language-markup">&lt;div id="surveyContainer"&gt;&lt;survey :survey="survey"&gt;&lt;/survey&gt;&lt;/div&gt;</code></pre>
-                            <pre><code class="language-js">var survey = new Survey.Model(surveyJSON);
-new Vue({ el: '#surveyContainer', data: { survey: survey } });</code></pre>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
+                        <div class="step-panel">
+                            <iframe width="100%" height="330" src="//jsfiddle.net/surveyjs/gvam5j4y/embedded/result,js,html,css/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left col-lg-push-6 col-md-push-6">
-                <h1>Step 6</h1>
-                <h4>Save survey data on the web server.</h4>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right col-lg-pull-6 col-md-pull-6">
-                <div class="step-panel">
-                    <div>
-                        <h3>Your web server</h3>
-                        <pre><code class="language-js">function sendDataToServer(survey) {
-  var resultAsString = JSON.stringify(survey.data);
-  alert(resultAsString); //send Ajax request to your web server.
-}</code></pre>
-                    </div>
-                    <div>
-                        <h3>dxSurvey.com service</h3>
-                        <pre><code class="language-js">//You should get the Guid for storing survey data in dxSurvey.com
-survey.surveyPostId = 'e544a02f-7fff-4ffb-b62d-6a9aa16efd7c';
-//You may call survey.sendResult function as another option. 
-function sendDataToServer(survey) {
-  survey.sendResult('e544a02f-7fff-4ffb-b62d-6a9aa16efd7c');
-}</code></pre>
-                    </div>
-                </div>
+    <section class="more">
+        <div class="navy-line"></div>
+        <h1>Find out even more</h1>
 
-                <div class="jumbotron">
-                    <h3>The survey example</h3>
-                    <div class="surveycontent panel" id="surveyContainer"></div>
-                </div>
-            </div>
-        </div>
-
-        <div class="step row">
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-left">
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12 step-right">
-                <h1>Step 7 (optional)</h1>
-                <p>Get the results of your survey using the <a href="http://dxsurvey.com/" target="_blank">dxSurvey Service</a>.</p>
-                <p>
-                    Share the survey results via direct link. <a href="http://dxsurvey.com/Results/Survey/d5220f76-4802-40cf-ad67-61d7e55608e5" target="_blank">Current Survey Results</a>
-                </p>
-                <a class="btn btn-primary btn-lg" role="button" href="{{ page.pathprefix }}examples/knockout/service-result.html">Show me example</a>
-            </div>
-        </div>
-    </div>
-</section>
-<!--service-result.html-->
-
-
-<script type="text/javascript">
-    Survey.Survey.cssType = "bootstrap";
-    var ViewModel = function() {
-        var self = this;
-        this.platform = ko.observable("jquery");
-
-        this.isAngular = ko.computed(function() { return self.platform() == "angular"; });
-        this.isJquery = ko.computed(function() { return self.platform() == "jquery"; });
-        this.isKnockout = ko.computed(function() { return self.platform() == "knockout"; });
-        this.isReact = ko.computed(function() { return self.platform() == "react"; });
-        this.isVue = ko.computed(function() { return self.platform() == "vue"; });
-
-        this.setAngular = function() {
-            self.platform("angular");
-        };
-        this.setJquery = function() {
-            self.platform("jquery");
-        };
-        this.setKnockout = function() {
-            self.platform("knockout");
-        };
-        this.setReact = function() {
-            self.platform("react");
-        };
-        this.setVue = function() {
-            self.platform("vue");
-        };
-    };
-    ko.applyBindings(new ViewModel(), document.getElementById("steps"));
-
-    var  surveyJSON = {% include surveys/survey-about.json %};
-    var survey = new Survey.Survey(surveyJSON, "surveyContainer");
-    survey.css = {
-        navigationButton: "btn btn-primary"
-    };
-    survey.surveyPostId = 'd2ab6936-6764-4ff1-a5a2-baf0a1d919bd';
-    survey.render();
-
-    var surveyWindow = new Survey.SurveyWindow(surveyJSON);
-    surveyWindow.show();
-    surveyWindow.survey.surveyPostId = 'd2ab6936-6764-4ff1-a5a2-baf0a1d919bd';
-</script>
+        <p>
+            We may continue to talk about SureyJS library functionality, like <a href="{{ page.pathprefix }}examples/survey-displaymode.html">display mode</a> (for reviewing the results), <a href="{{ page.pathprefix }}examples/validators-standard.html">answers validation</a>, <a href="{{ page.pathprefix }}examples/survey-processtext.html">text pre-processing</a>, <a href="{{ page.pathprefix }}examples/survey-customnavigation.html">custom navigation</a> and more.
+        </p>
+        <p>
+            You may look at <a href="{{ page.pathprefix }}examples">our examples</a> and explore them by yourself. If, for some reason, you find that SurveyJS library misses a required functionality,
+        </p>
+        <p>
+            then create <a href="https://github.com/surveyjs/surveyjs/issues">an issue in the SurveyJS GitHub repo</a> and we do our best to assist you.
+        </p>
+    </section>
+</div>

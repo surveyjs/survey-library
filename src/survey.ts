@@ -232,7 +232,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         return result;
     }
     public get isEmpty(): boolean { return this.pages.length == 0; }
-    public get PageCount(): number {
+    /**
+     * depricated, misspelling, use pageCount property
+     */
+    get PageCount(): number { return this.pageCount; }
+    public get pageCount(): number {
         return this.pages.length;
     }
     public get visiblePageCount(): number {

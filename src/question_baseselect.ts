@@ -209,7 +209,9 @@ export class QuestionSelectBase extends Question {
         }
     }
 }
-
+/**
+ * A base class for checkbox and radiogroup questions. It introduced a colCount property.
+ */
 export class QuestionCheckboxBase extends QuestionSelectBase {
     private colCountValue: number = 1;
     colCountChangedCallback: () => void;

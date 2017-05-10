@@ -8,19 +8,19 @@
         { "name": "integration", "category": "started", "title": "Insert survey into your web page/site" }
     ],
     "classes": [
-        {"name": "SurveyModel", "title": "Survey"},
-        {"name": "PageModel", "title": "Page"},
-        {"name": "PanelModel", "title": "Panel"},
-        {"name": "QuestionTextModel", "title": "Question Text"},
-        {"name": "QuestionRadiogroupModel", "title": "Question Radiogroup"},
-        {"name": "QuestionCheckboxModel", "title": "Question Checkbox"},
-        {"name": "QuestionDropdownModel", "title": "Question Dropdown"},
-        {"name": "QuestionCommentModel", "title": "Question Comment"},
-        {"name": "QuestionMatrixModel", "title": "Question Matrix"},
-        {"name": "QuestionMatrixDropdownModel", "title": "Question Matrix Dropdown"},
-        {"name": "QuestionMatrixDynamicModel", "title": "Question Matrix Dynamic"},
-        {"name": "QuestionMultipleTextModel", "title": "Question Multiple Text"},
-        {"name": "QuestionHtmlModel", "title": "Question Html"},
-        {"name": "QuestionFileModel", "title": "Question File"}
+        {"name": "surveymodel", "title": "Survey"},
+        {"name": "pagemodel", "title": "Page"},
+        {"name": "panelmodel", "title": "Panel"},
+        {"name": "questiontextmodel", "title": "Question Text"},
+        {"name": "questionradiogroupmodel", "title": "Question Radiogroup"},
+        {"name": "questioncheckboxmodel", "title": "Question Checkbox"},
+        {"name": "questiondropdownmodel", "title": "Question Dropdown"},
+        {"name": "questioncommentmodel", "title": "Question Comment"},
+        {"name": "questionmatrixmodel", "title": "Question Matrix"},
+        {"name": "questionmatrixdropdownmodel", "title": "Question Matrix Dropdown"},
+        {"name": "questionmatrixdynamicmodel", "title": "Question Matrix Dynamic"},
+        {"name": "questionmultipletextmodel", "title": "Question Multiple Text"},
+        {"name": "questionhtmlmodel", "title": "Question Html"},
+        {"name": "questionfilemodel", "title": "Question File"}
     ]
 }

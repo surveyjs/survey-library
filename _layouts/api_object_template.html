@@ -61,7 +61,7 @@ mainmenukey: doc
     });
     var ModelItem = function(item) {
         this.getClassObj = function(className) {
-            return {name: className, href: "{{ site.baseurl }}/docs/api_" + className + ".html"};
+            return {name: className, href: "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html"};
         }
         var self = this;
         this.name = item.name;

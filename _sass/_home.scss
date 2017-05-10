@@ -259,14 +259,9 @@
                 }
                 .step-panel {
                     background-color: #fff;
-                    padding: 20px;
+                    padding: 20px 20px 0 20px;
                     margin-bottom: 50px;
                     border-radius: 5px;
-                }
-                .step-panel > .tab-content{
-                    border: 1px solid #e7eaec;
-                    border-top: none;
-                    padding: 20px;
                 }
                 .step-right:before {
                     position: absolute;

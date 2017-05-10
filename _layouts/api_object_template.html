@@ -3,44 +3,55 @@ layout: doc_page
 mainmenukey: doc
 ---
 <div id="objectProperties">
+    <h2><span data-bind="text: curClass.name"></span></h2>
+    <p data-bind="visible:classHasDocumentation">
+        <div data-bind="html: curClass.documentation"></div>
+    </p>
     <p>
         <span>Type to filter the list: </span><input id="iFilter" type="text" data-bind="textInput: filterString" />
     </p>
     <div data-bind="foreach: filteredItems">
         <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a></div>
         <div data-bind="visible: koExpanded">
-            <div>
-                <span>It is a </span><span data-bind="text: pmeType"></span><span> It returns: </span><span data-bind="text:type"></span>
-            </div>
-            <div data-bind="visible: hasDocumentation">
-                <span data-bind="text: documentation"></span>
-            </div>
-            <div data-bind="visible: hasParameters">
-                <div data-bind="foreach: parameters">
-                    <div><span>Name: </span><span data-bind="text:name"></span></div>
-                    <div><span>Type: </span><span data-bind="text:type"></span></div>
-                    <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="text:documentation"></span></div>
+            <p>
+                <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
+                <div>
+                    <span>Type: </span><span data-bind="text:type"></span>
                 </div>
-            </div>
-            <a data-bind="attr: {href: href}"><span>Show more</span></a>
+                <div data-bind="visible: hasDocumentation, html: documentation"></div>
+                <div data-bind="visible: hasParameters">
+                    <h5>Parameters:</h5>
+                    <div data-bind="foreach: parameters">
+                        <div><span>Name: </span><span data-bind="text:name"></span><span>, type: </span><span data-bind="text:type"></span></div>
+                        <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
+                    </div>
+                </div>
+                <div>
+                    <span>Implemented in: </span>
+                    <!-- ko foreach: implemetedIn -->
+                    <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
+                    <!-- /ko -->
+                </div>
+                <!--<a data-bind="attr: {href: href}"><span>Show more</span></a>-->
+            </p>
         </div>
     </div>
 </div>
 
-<script src="{{ site.baseurl }}/js/knockout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 <script>
     var curClass = {
     {% for classItem in site.data.classes %}{% if classItem.name == page.classname %}
         {% assign curClass = classItem %}
-        name: "{{classItem.name}}", documentation: "{{classItem.documentation}}"
+        name: "{{classItem.name}}", documentation: {{classItem.documentation | markdownify | jsonify  }}
     {% endif %}{% endfor %}
     };
     var pmes = [
     {% for prop in site.data.pmes %}{% if curClass.allTypes contains prop.className %}
-    { name: "{{prop.name}}", class: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", documentation: "{{prop.documentation}}", hasSet: "{{prop.hasSet}}", 
+    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}", 
         parameters:  [
             {% for par in prop.parameters %}
-            { name: "{{par.name}}", documentation: "{{par.documentation}}", type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
+            { name: "{{par.name}}", documentation: {{par.documentation | markdownify | jsonify}}, type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
             {% endfor %}        
         ] }{% if forloop.last == false %},{% endif %} 
     {% endif %}{% endfor %}];
@@ -49,10 +60,15 @@ mainmenukey: doc
         return a.name < b.name ? -1 : 1;
     });
     var ModelItem = function(item) {
+        this.getClassObj = function(className) {
+            return {name: className, href: "{{ site.baseurl }}/docs/api_" + className + ".html"};
+        }
         var self = this;
         this.name = item.name;
         this.lowCaseName = this.name.toLowerCase();
         this.className = item.className;
+        this.implemetedIn = [];
+        this.implemetedIn.push(this.getClassObj(item.className));
         this.type = item.type;
         this.pmeType = item.pmeType;
         this.href = item.href;
@@ -62,7 +78,11 @@ mainmenukey: doc
         if(item.parameters) {
             this.parameters = item.parameters;
             for(var i = 0; i < this.parameters.length; i ++) {
-                this.parameters[i].hasDocumentation = this.parameters[i].documentation && this.parameters[i].documentation.length > 0;
+                var doc = this.parameters[i].documentation;
+                if(doc) {
+                    doc = doc.replace(/(\r\n|\n|\r)/gm,"");
+                }
+                this.parameters[i].hasDocumentation = doc && doc.length > 0;
             }
         }
         this.hasParameters = this.parameters.length > 0;
@@ -72,13 +92,28 @@ mainmenukey: doc
         this.showHide = function() {
             self.koExpanded(!self.koExpanded());
         }
+        this.addItem = function(item) {
+            if(!this.documentation && item.documentation) {
+                this.documentation = item.documentation;
+            }
+            this.implemetedIn.push(this.getClassObj(item.className));
+        }
     }
     var Model = function(className) {
         var self = this;
+        this.curClass = curClass;
+        this.classHasDocumentation = this.curClass.documentation != "";
         this.items = [];
+        var pmesHash = {};
         for(var i = 0; i < pmes.length; i ++) {
             if(!pmes[i].name) continue;
-            this.items.push(new ModelItem(pmes[i]));
+            if(pmesHash[pmes[i].name]) {
+                pmesHash[pmes[i].name].addItem(pmes[i]);
+            } else {
+                var modelItem = new ModelItem(pmes[i]);
+                this.items.push(modelItem);
+                pmesHash[modelItem.name] = modelItem;
+            }
         }
         this.filterString = ko.observable("");
         this.koDummy = ko.observable(0);

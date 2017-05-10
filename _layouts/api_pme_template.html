@@ -22,7 +22,7 @@ mainmenukey: doc
     </div>
 </div>
 
-<script src="{{ site.baseurl }}/js/knockout.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 <script>
     var classes = [
     {% for classItem in site.data.classes %}{ name: "{{classItem.name}}", parent: "{{classItem.baseType}}"},{% endfor %}

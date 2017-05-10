@@ -1208,6 +1208,15 @@
         "pmeType": "method"
     },
     {
+        "name": "colCount",
+        "documentation": "",
+        "type": "number",
+        "className": "QuestionCheckboxBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
         "name": "optionsCaption",
         "documentation": "",
         "type": "string",
@@ -3345,7 +3354,7 @@
         "parameters": []
     },
     {
-        "name": "PageCount",
+        "name": "pageCount",
         "documentation": "",
         "type": "number",
         "className": "SurveyModel",

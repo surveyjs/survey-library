@@ -282,6 +282,32 @@
         ]
     },
     {
+        "name": "QuestionCheckboxBase",
+        "documentation": "A base class for checkbox and radiogroup questions. It introduced a colCount property.",
+        "type": "typeof QuestionCheckboxBase",
+        "constructors": [
+            {
+                "parameters": [
+                    {
+                        "name": "name",
+                        "documentation": "",
+                        "type": "string"
+                    }
+                ],
+                "returnType": "QuestionCheckboxBase",
+                "documentation": ""
+            }
+        ],
+        "baseType": "QuestionSelectBase",
+        "allTypes": [
+            "QuestionCheckboxBase",
+            "QuestionSelectBase",
+            "Question",
+            "QuestionBase",
+            "Base"
+        ]
+    },
+    {
         "name": "QuestionDropdownModel",
         "documentation": "A Model for a dropdown question",
         "type": "typeof QuestionDropdownModel",
@@ -328,7 +354,12 @@
         "baseType": "QuestionCheckboxBase",
         "jsonName": "checkbox",
         "allTypes": [
-            "QuestionCheckboxModel"
+            "QuestionCheckboxModel",
+            "QuestionCheckboxBase",
+            "QuestionSelectBase",
+            "Question",
+            "QuestionBase",
+            "Base"
         ]
     },
     {
@@ -351,7 +382,12 @@
         "baseType": "QuestionCheckboxBase",
         "jsonName": "radiogroup",
         "allTypes": [
-            "QuestionRadiogroupModel"
+            "QuestionRadiogroupModel",
+            "QuestionCheckboxBase",
+            "QuestionSelectBase",
+            "Question",
+            "QuestionBase",
+            "Base"
         ]
     },
     {

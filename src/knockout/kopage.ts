@@ -53,12 +53,14 @@ export class PanelImplementorBase {
 }
 
 export class Panel extends PanelModel {
-    koInnerMargin: any;
+    koVisible: any; koInnerMargin: any; koRenderWidth: any;
     constructor(name: string = "") {
         super(name);
         new PanelImplementorBase(this);
         this.onCreating();
         var self = this;
+        this.koVisible = ko.observable(this.visible);
+        this.koRenderWidth = ko.observable(this.renderWidth);
         this.renderWidthChangedCallback = function() { self.onRenderWidthChanged(); }
         this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
     }
@@ -68,7 +70,12 @@ export class Panel extends PanelModel {
         this.locTitle.onChanged();
     }
     protected onRenderWidthChanged() {
+        this.koRenderWidth(this.renderWidth);
         this.koInnerMargin(this.getIndentSize(this.innerIndent));
+    }
+    protected onVisibleChanged() {
+        super.onVisibleChanged();
+        this.koVisible(this.visible);
     }
     private getIndentSize(indent: number): string {
         if (indent < 1) return "";

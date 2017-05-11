@@ -66,7 +66,7 @@ To build library yourself:
 	```
 	npm run build_prod
 	```
-	After that you should have the libraries (anlugar, jquery, knockout, react an vue) at 'packages' directory.
+	After that you should have the libraries (angular, jquery, knockout, react and vue) at 'packages' directory.
 
  4. **Run unit tests**
 	```

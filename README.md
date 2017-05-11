@@ -72,7 +72,7 @@ To build library yourself:
 	```
 	karma start
 	```
-	This command will run unit tests usign [Karma](https://karma-runner.github.io/0.13/index.html)
+	This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
 ## Create your own question type.
 Explore the [example](https://github.com/surveyjs/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.

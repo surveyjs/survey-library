@@ -82,9 +82,10 @@
     }
 
     .integration {
-        background-color: $bg-color-light;
+        background-color: $bg-color;
 
         h1 {
+            color: $main-color;
             margin-bottom: 20px;
         }
 
@@ -110,6 +111,102 @@
                 @media(max-width:1600px) {
                     margin-right: 50px;
                 }
+            }
+        }
+    }
+
+    .options {
+        background-color: $bg-color-light;
+
+        h1 {
+            margin-bottom: 50px;
+        }
+
+        .col-lg-4 {
+            padding: 0;
+        }
+
+        .content {
+            line-height: 400px;
+
+            .info {
+                display: inline-block;
+                line-height: normal;
+
+                &.info-top {
+                    vertical-align: top;
+                }
+
+                &.info-bottom {
+                    vertical-align: bottom;
+                }
+
+                .info-image {
+                    width: 50px;
+                    height: 50px;
+                    margin-bottom: 10px;
+                }
+
+                .info-title {
+                    color:  $text-color;
+                    font-size: 20px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    margin-bottom: 20px;
+                    line-height: 10px;
+
+                    @media(min-width:1460px) {
+                        &.right {
+                            text-align: right;
+                            margin-right: 90px;
+                        }
+
+                        &.left {
+                            text-align: left;
+                        }
+                    }
+                }
+
+                .info-description {
+                    color:  $text-color-dark;
+                    font-size: 15px;
+                    font-weight: 300;
+                    margin-bottom: 20px;
+
+                    @media(min-width:1460px) {
+                        &.right {
+                            text-align: right;
+                            margin-right: 90px;
+                        }
+
+                        &.left {
+                            text-align: left;
+                        }
+                    }
+                }
+            }
+
+            .info-survey-image > img {
+                margin-left: -80px;
+            }
+        }
+
+        @media(max-width:1670px) {
+            .content {
+                line-height: 20px;
+            }
+            .info-survey-image {
+                display:none;
+            }
+            .col-lg-4 {
+                width: 50%;
+            }
+        }
+
+        @media(max-width:1200px) {
+            .col-lg-4 {
+                width: 100%;
+                margin-bottom: 40px;
             }
         }
     }

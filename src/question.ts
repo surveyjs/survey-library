@@ -124,14 +124,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.hasOtherChanged();
     }
     protected hasOtherChanged() { }
-    public get isReadOnly() { return this.readOnly || (this.survey && this.survey.isDisplayMode);}
+    public get isReadOnly() { return this.readOnly || (this.survey != null && this.survey.isDisplayMode);}
     public get readOnly(): boolean { return this.readOnlyValue; }
     public set readOnly(value: boolean) {
         if(this.readOnly == value) return;
         this.readOnlyValue = value;
-        this.readOnlyChanged();
+        this.onReadOnlyChanged();
     }
-    protected readOnlyChanged() {
+    onReadOnlyChanged() {
         this.fireCallback(this.readOnlyChangedCallback);
     }
     protected get no(): string {

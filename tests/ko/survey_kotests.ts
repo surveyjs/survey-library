@@ -298,6 +298,17 @@ QUnit.test("Update page.title correctly with numbers", function (assert) {
     assert.equal(survey.currentPage.locTitle["koRenderedHtml"](), "1. title 2", "It shows page as first");
 });
 
+QUnit.test("Survey display mode should set koIsReadonly to true for questions", function (assert) {
+    var survey = new Survey();
+    var page = new Page("page1");
+    survey.addPage(page);
+    var question = new QuestionText("q1");
+    page.addQuestion(question);
+    assert.equal(question["koIsReadOnly"](), false, "by default question is not readonly");
+    survey.mode = "display";
+    assert.equal(question["koIsReadOnly"](), true, "survey in display mode, question is readonly");
+});
+
 
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);

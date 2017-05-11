@@ -52,6 +52,7 @@ export interface IQuestion extends IElement {
     hasTitle: boolean;
     setVisibleIndex(value: number);
     onSurveyValueChanged(newValue: any);
+    onReadOnlyChanged();
     supportGoNextPageAutomatic(): boolean;
     clearUnusedValues();
 }

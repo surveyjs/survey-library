@@ -187,6 +187,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (value == this.mode) return;
         if (value != "edit" && value != "display") return;
         this.modeValue = value;
+        var questions = this.getAllQuestions();
+        for(var i = 0; i < questions.length; i ++) {
+            questions[i].onReadOnlyChanged();
+        }
     }
     public get data(): any {
         var result = {};

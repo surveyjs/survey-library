@@ -13,8 +13,8 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     private static getQuestionId(): string {
         return "sq_" + QuestionBase.questionCounter++;
     }
-    protected data: ISurveyData;
-    private surveyValue: ISurvey;
+    protected data: ISurveyData = null;
+    private surveyValue: ISurvey = null;
     private conditionRunner: ConditionRunner = null;
     public customWidget: QuestionCustomWidget;
     public customWidgetData = { isNeedRender: true };
@@ -113,6 +113,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public clearUnusedValues() {}
     public onLocaleChanged() {
         this.localeChanged.fire(this, this.getLocale());
+    }
+    onReadOnlyChanged() {
+        
     }
     //ILocalizableOwner
     public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }

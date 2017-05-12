@@ -28,7 +28,7 @@ mainmenukey: doc
             <p>
                 <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
                 <div>
-                    <span>Type: </span><span data-bind="text:type"></span>
+                    <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
                 </div>
                 <div data-bind="visible: isSerialized">
                     The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
@@ -115,6 +115,7 @@ mainmenukey: doc
         }
         this.hasParameters = this.parameters.length > 0;
         this.hasSet = item.hasSet == "true";
+        this.propertySet = this.hasSet ? " writable" : " readonly";
         this.isSerialized = item.isSerialized == "true";
         this.koExpanded = ko.observable(false);
         this.showHide = function() {

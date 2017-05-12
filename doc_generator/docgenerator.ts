@@ -30,7 +30,9 @@ interface DocEntry {
     returnType?: string,
     pmeType?: string,
     hasSet? : boolean,
-    isSerialized? : boolean
+    isSerialized? : boolean,
+    defaultValue?: any,
+    serializedChoices?: any[]
 };
 
 /** Generate documentation for all classes in a set of .ts files */
@@ -114,6 +116,8 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
                             for(var j = 0; j < properties.length; j ++) {
                                 if(properties[j].name == propName) {
                                     outputPMEs[i].isSerialized = true;
+                                    if(properties[j].defaultValue) outputPMEs[i].defaultValue = properties[j].defaultValue;
+                                    if(properties[j].choices) outputPMEs[i].serializedChoices = properties[j].choices;
                                     break;
                                 }
                             }
@@ -143,6 +147,7 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
                 fullName = curClass.name + '.' + fullName;
             }
             ser.pmeType = getPMEType(node.kind);
+            if(ser.type.startsWith("Event")) ser.pmeType = "event";
             if(node.kind === ts.SyntaxKind.GetAccessor) ser.hasSet = false;
             if(node.kind === ts.SyntaxKind.SetAccessor) {
                 let serGet = pmesHash[fullName];
@@ -248,8 +253,6 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
         return com && com.length > 0;
     }
 }
-
-
 
 generateDocumentation(process.argv.slice(2), {
     target: ts.ScriptTarget.ES5, module: ts.ModuleKind.CommonJS

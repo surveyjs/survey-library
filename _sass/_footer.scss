@@ -1,0 +1,9 @@
+footer.panel-footer {
+    background-color: #eee;
+    border: none;
+    padding: 20px 20px 20px 150px;
+
+    @media (max-width: 992px) {
+        padding: 20px 20px 20px 100px;
+    }
+}

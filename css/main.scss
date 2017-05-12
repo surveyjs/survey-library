@@ -1,5 +1,37 @@
 ---
 ---
 
+@import "variables";
+
+body {
+    font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans", "Helvetica Neue", Arial, sans-serif;
+
+    a {
+        color: $main-color;
+
+        &:hover {
+            text-decoration: underline;
+            color: $main-color;
+        }
+    }
+
+    .navy-line {
+        width: 60px;
+        margin: 0 auto 0;
+        border-bottom: 2px solid #1ab394;
+        padding-top: 60px;
+    }
+
+    color: $text-color-dark;
+    font-size: 15px;
+}
+
+
 @import "old";
+
+
+@import "menu-top";
+@import "home";
+@import "integration";
 @import "docs";
+@import "footer";

@@ -1,5 +1,5 @@
 {% assign current = page.url | downcase | split: '/' %}
-<nav class="navbar navbar-default survey-gray survey-navbar">
+<nav class="navbar navbar-default menu-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="{{ site.baseurl }}/index.html">Survey.JS</a>
@@ -11,9 +11,10 @@
             <li></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li {% if current[1] == 'examples' or current[1] =='builder'%}class=''{% else %}class='active'{% endif %}><a rel="home" href="{{ site.baseurl }}/index.html" >Home</a></li>
+            <li {% if current[1] == 'examples' or current[1] =='builder' or current[1] =='integration.html'%}class=''{% else %}class='active'{% endif %}><a rel="home" href="{{ site.baseurl }}/index.html" >Home</a></li>
             <li {% if current[1] == 'examples' %}class='active'{% endif %}><a rel="examples" href="{{ site.baseurl }}/examples/jquery/">Examples</a></li>
             <li {% if current[1] == 'builder' %}class='active'{% endif %}><a rel="builder" href="{{ site.baseurl }}/builder/">Survey Editor</a></li>
+            <li {% if current[1] == 'integration.html' %}class='active'{% endif %}><a rel="examples" href="{{ site.baseurl }}/integration.html">Integration</a></li>
             <li><a href="http://surveyjs.io" target="_blank">SurveyJS Project</a></li>
             <li><a href="http://github.com/surveyjs/surveyjs" target="_blank">Source</a></li>
             <li><a href="https://github.com/surveyjs/surveyjs/issues" target="_blank">Issues</a></li>

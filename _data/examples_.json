@@ -206,5 +206,15 @@
         "includes": [
             "examplesetups/custom-widget-nouislider.md"
         ]
+    },
+    {
+        "name": "skin-bootstrap-material", "title": "Bootstrap Material skin", "fiddle": true,
+        "src": {
+            "knockout": "ox5nt4u6",
+            "react": "o6fpdcff",
+            "angular": "h18s304y",
+            "vue": "Ljoz9wht",
+            "jquery": "ta28uz5d"
+        }
     }
 ]

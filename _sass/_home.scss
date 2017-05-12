@@ -95,21 +95,13 @@
 
         .frameworks {
             padding: 50px 0;
-            text-align: left;
-
-            @media(max-width:1600px) {
-                text-align: center;
-            }
+            text-align: center;
 
             a {
                 margin-right: 150px;
 
                 &:last-child {
                     margin-right: 0;
-                }
-
-                @media(max-width:1600px) {
-                    margin-right: 50px;
                 }
             }
         }

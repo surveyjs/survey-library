@@ -7,11 +7,17 @@ mainmenukey: doc
     <p data-bind="visible:classHasDocumentation">
         <div data-bind="html: curClass.documentation"></div>
     </p>
+    <p data-bind="visible: hasBaseTypes">
+        <span>Inherited from the following class(es): </span>
+        <!-- ko foreach: baseTypes -->
+        <a data-bind="attr: {href: href}"><span data-bind="text:name"></span></a><span data-bind="if: ($index() !== ($parent.baseTypes.length - 1))"> -> </span>
+        <!-- /ko -->
+    </p>
     <p>
         <span>Type to filter the list: </span><input id="iFilter" type="text" data-bind="textInput: filterString" />
         <select data-bind="value:showPMETypes">
             <option value="all">Show All</option>
-            <option value="function">Show Functions</option>
+            <option value="property">Show Properties</option>
             <option value="method">Show Methods</option>
             <option value="event">Show Events</option>
         </select>
@@ -33,7 +39,7 @@ mainmenukey: doc
                 <div data-bind="visible: hasSerializedChoices">
                     <span>You may set the following values into this property: </span>
                     <!-- ko foreach: serializedChoices -->
-                    <span data-bind="text:$data"></span><span data-bind="if: ($index() === ($parent.serializedChoices.length - 1))">, </span>
+                    <span data-bind="text:$data"></span><span data-bind="if: ($index() !== ($parent.serializedChoices.length - 1))">, </span>
                     <!-- /ko -->
                 </div>
                 <div data-bind="visible: hasDocumentation, html: documentation"></div>
@@ -61,7 +67,7 @@ mainmenukey: doc
     var curClass = {
     {% for classItem in site.data.classes %}{% if classItem.name == page.classname %}
         {% assign curClass = classItem %}
-        name: "{{classItem.name}}", documentation: {{classItem.documentation | markdownify | jsonify  }}
+        name: "{{classItem.name}}", documentation: {{classItem.documentation | markdownify | jsonify  }}, allTypes: {{classItem.allTypes | jsonify  }}
     {% endif %}{% endfor %}
     };
     var pmes = [
@@ -77,16 +83,16 @@ mainmenukey: doc
         if(a.name == b.name) return 0;
         return a.name < b.name ? -1 : 1;
     });
+    function getClassObj(className) {
+        return {name: className, href: "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html"};
+    }
     var ModelItem = function(item) {
-        this.getClassObj = function(className) {
-            return {name: className, href: "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html"};
-        }
         var self = this;
         this.name = item.name;
         this.lowCaseName = this.name.toLowerCase();
         this.className = item.className;
         this.implemetedIn = [];
-        this.implemetedIn.push(this.getClassObj(item.className));
+        this.implemetedIn.push(getClassObj(item.className));
         this.type = item.type;
         this.pmeType = item.pmeType;
         this.href = item.href;
@@ -118,12 +124,19 @@ mainmenukey: doc
             if(!this.documentation && item.documentation) {
                 this.documentation = item.documentation;
             }
-            this.implemetedIn.push(this.getClassObj(item.className));
+            this.implemetedIn.push(getClassObj(item.className));
         }
     }
     var Model = function(className) {
         var self = this;
         this.curClass = curClass;
+        this.curClass.allTypes.splice(0, 1);
+        this.hasBaseTypes = this.curClass.allTypes.length > 0;
+        this.baseTypes = [];
+        for(var i = 0; i < this.curClass.allTypes.length; i ++) {
+            var className = this.curClass.allTypes[i];
+            this.baseTypes.push(getClassObj(className));
+        }
         this.classHasDocumentation = this.curClass.documentation != "";
         this.items = [];
         var pmesHash = {};

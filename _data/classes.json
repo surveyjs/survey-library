@@ -523,40 +523,28 @@
         ]
     },
     {
-        "name": "MatrixRowModel",
+        "name": "QuestionMatrixModel",
         "documentation": "A Model for a simple matrix question. ",
-        "type": "typeof MatrixRowModel",
+        "type": "typeof QuestionMatrixModel",
         "constructors": [
             {
                 "parameters": [
                     {
-                        "name": "item",
-                        "documentation": "",
-                        "type": "ItemValue"
-                    },
-                    {
-                        "name": "fullName",
+                        "name": "name",
                         "documentation": "",
                         "type": "string"
-                    },
-                    {
-                        "name": "data",
-                        "documentation": "",
-                        "type": "IMatrixData"
-                    },
-                    {
-                        "name": "value",
-                        "documentation": "",
-                        "type": "any"
                     }
                 ],
-                "returnType": "MatrixRowModel",
+                "returnType": "QuestionMatrixModel",
                 "documentation": ""
             }
         ],
-        "baseType": "Base",
+        "baseType": "Question",
+        "jsonName": "matrix",
         "allTypes": [
-            "MatrixRowModel",
+            "QuestionMatrixModel",
+            "Question",
+            "QuestionBase",
             "Base"
         ]
     },

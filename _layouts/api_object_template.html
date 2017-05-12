@@ -9,14 +9,32 @@ mainmenukey: doc
     </p>
     <p>
         <span>Type to filter the list: </span><input id="iFilter" type="text" data-bind="textInput: filterString" />
+        <select data-bind="value:showPMETypes">
+            <option value="all">Show All</option>
+            <option value="function">Show Functions</option>
+            <option value="method">Show Methods</option>
+            <option value="event">Show Events</option>
+        </select>
     </p>
     <div data-bind="foreach: filteredItems">
-        <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a></div>
+        <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a><span>  </span> <span data-bind="text: pmeType"></span></div>
         <div data-bind="visible: koExpanded">
             <p>
                 <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
                 <div>
                     <span>Type: </span><span data-bind="text:type"></span>
+                </div>
+                <div data-bind="visible: isSerialized">
+                    The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
+                </div>
+                <div data-bind="visible: hasDefaultValue">
+                    <span>The default value is: </span><span data-bind="text:defaultValue"></span>
+                </div>
+                <div data-bind="visible: hasSerializedChoices">
+                    <span>You may set the following values into this property: </span>
+                    <!-- ko foreach: serializedChoices -->
+                    <span data-bind="text:$data"></span><span data-bind="if: ($index() === ($parent.serializedChoices.length - 1))">, </span>
+                    <!-- /ko -->
                 </div>
                 <div data-bind="visible: hasDocumentation, html: documentation"></div>
                 <div data-bind="visible: hasParameters">
@@ -48,7 +66,7 @@ mainmenukey: doc
     };
     var pmes = [
     {% for prop in site.data.pmes %}{% if curClass.allTypes contains prop.className %}
-    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}", 
+    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}", 
         parameters:  [
             {% for par in prop.parameters %}
             { name: "{{par.name}}", documentation: {{par.documentation | markdownify | jsonify}}, type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
@@ -74,6 +92,10 @@ mainmenukey: doc
         this.href = item.href;
         this.documentation = item.documentation;
         this.hasDocumentation = item.documentation && item.documentation.length > 0;
+        this.hasDefaultValue = item.defaultValue != undefined;
+        if(this.hasDefaultValue) this.defaultValue = item.defaultValue; else this.defaultValue = null;
+        this.hasSerializedChoices = item.serializedChoices != undefined; 
+        if(this.hasSerializedChoices) this.serializedChoices = item.serializedChoices; else this.serializedChoices = [];
         this.parameters = [];
         if(item.parameters) {
             this.parameters = item.parameters;
@@ -116,10 +138,14 @@ mainmenukey: doc
             }
         }
         this.filterString = ko.observable("");
+        this.showPMETypes = ko.observable("all");
         this.koDummy = ko.observable(0);
         this.filteredItems = ko.computed(function() {
             var dummy = self.koDummy();
              return ko.utils.arrayFilter(self.items, function(item) {
+                if(self.showPMETypes() != "all") {
+                    if(self.showPMETypes() != item.pmeType) return false;
+                }
                 var str = self.filterString();
                 if(!str) return true;
                 str = str.toLowerCase();
@@ -127,6 +153,9 @@ mainmenukey: doc
             });
         });
         this.filterString.subscribe(function(newValue) {
+            self.koDummy(self.koDummy() + 1);
+        });
+        this.showPMETypes.subscribe(function(newValue) {
             self.koDummy(self.koDummy() + 1);
         });
 };

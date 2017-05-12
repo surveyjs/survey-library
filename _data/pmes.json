@@ -624,7 +624,7 @@
         "documentation": "",
         "type": "Event<(sender: QuestionBase) => any, any>",
         "className": "QuestionBase",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -1274,7 +1274,8 @@
         "className": "QuestionTextModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 25
     },
     {
         "name": "getType",
@@ -1310,7 +1311,8 @@
         "className": "QuestionCommentModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 4
     },
     {
         "name": "cols",
@@ -1319,7 +1321,8 @@
         "className": "QuestionCommentModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 50
     },
     {
         "name": "placeHolder",
@@ -1422,7 +1425,15 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "dropdown",
+        "serializedChoices": [
+            "dropdown",
+            "checkbox",
+            "radiogroup",
+            "text",
+            "comment"
+        ]
     },
     {
         "name": "columnColCount",
@@ -1432,7 +1443,14 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "serializedChoices": [
+            0,
+            1,
+            2,
+            3,
+            4
+        ]
     },
     {
         "name": "getRequiredText",
@@ -1604,7 +1622,8 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 2
     },
     {
         "name": "minRowCount",
@@ -1624,7 +1643,8 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 100
     },
     {
         "name": "canAddRow",
@@ -1722,40 +1742,47 @@
         "parameters": []
     },
     {
-        "name": "name",
+        "name": "isAllRowRequired",
         "documentation": "",
-        "type": "string",
-        "className": "MatrixRowModel",
+        "type": "boolean",
+        "className": "QuestionMatrixModel",
+        "pmeType": "property",
+        "parameters": [],
+        "isSerialized": true
+    },
+    {
+        "name": "getType",
+        "documentation": "",
+        "type": "() => string",
+        "parameters": [],
+        "className": "QuestionMatrixModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "hasRows",
+        "documentation": "",
+        "type": "boolean",
+        "className": "QuestionMatrixModel",
         "pmeType": "property",
         "hasSet": false,
         "parameters": []
     },
     {
-        "name": "text",
+        "name": "visibleRows",
         "documentation": "",
-        "type": "string",
-        "className": "MatrixRowModel",
+        "type": "MatrixRowModel[]",
+        "className": "QuestionMatrixModel",
         "pmeType": "property",
         "hasSet": false,
         "parameters": []
     },
     {
-        "name": "locText",
+        "name": "onLocaleChanged",
         "documentation": "",
-        "type": "LocalizableString",
-        "className": "MatrixRowModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
-        "name": "value",
-        "documentation": "",
-        "type": "any",
-        "className": "MatrixRowModel",
-        "pmeType": "property",
-        "hasSet": true,
-        "parameters": []
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMatrixModel",
+        "pmeType": "method"
     },
     {
         "name": "itemSize",
@@ -1764,7 +1791,8 @@
         "className": "QuestionMultipleTextModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 25
     },
     {
         "name": "getType",
@@ -1819,7 +1847,14 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": 1,
+        "serializedChoices": [
+            1,
+            2,
+            3,
+            4
+        ]
     },
     {
         "name": "getRows",
@@ -2258,7 +2293,13 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "serializedChoices": [
+            0,
+            1,
+            2,
+            3
+        ]
     },
     {
         "name": "renderWidth",
@@ -2276,7 +2317,9 @@
         "className": "PanelModel",
         "pmeType": "property",
         "hasSet": true,
-        "parameters": []
+        "parameters": [],
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "rightIndent",
@@ -2312,7 +2355,13 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "inherit",
+        "serializedChoices": [
+            "inherit",
+            "show",
+            "hide"
+        ]
     },
     {
         "name": "focusFirstQuestion",
@@ -2805,7 +2854,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "showNavigationButtons",
@@ -2814,7 +2864,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "showTitle",
@@ -2823,7 +2874,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "showPageTitles",
@@ -2832,7 +2884,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "showCompletedPage",
@@ -2841,7 +2894,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "requiredText",
@@ -2850,7 +2904,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "*"
     },
     {
         "name": "questionStartIndex",
@@ -2868,7 +2923,8 @@
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": true
     },
     {
         "name": "goNextPageAutomatic",
@@ -2911,7 +2967,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2919,7 +2975,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2927,7 +2983,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2935,7 +2991,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2943,7 +2999,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2951,7 +3007,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2959,7 +3015,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2967,7 +3023,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2975,7 +3031,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2983,7 +3039,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -2991,7 +3047,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3007,7 +3063,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3015,7 +3071,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3023,7 +3079,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3031,7 +3087,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3039,7 +3095,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3047,7 +3103,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3055,7 +3111,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3063,7 +3119,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3071,7 +3127,7 @@
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
-        "pmeType": "property",
+        "pmeType": "event",
         "parameters": []
     },
     {
@@ -3098,7 +3154,11 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "serializedChoices": [
+            "",
+            "en"
+        ]
     },
     {
         "name": "getLocale",
@@ -3285,7 +3345,13 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "on",
+        "serializedChoices": [
+            "on",
+            "onPage",
+            "off"
+        ]
     },
     {
         "name": "showProgressBar",
@@ -3295,7 +3361,13 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "off",
+        "serializedChoices": [
+            "off",
+            "top",
+            "bottom"
+        ]
     },
     {
         "name": "processedTitle",
@@ -3314,7 +3386,12 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "top",
+        "serializedChoices": [
+            "top",
+            "bottom"
+        ]
     },
     {
         "name": "mode",
@@ -3324,7 +3401,12 @@
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
-        "isSerialized": true
+        "isSerialized": true,
+        "defaultValue": "edit",
+        "serializedChoices": [
+            "edit",
+            "display"
+        ]
     },
     {
         "name": "data",

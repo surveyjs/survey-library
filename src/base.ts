@@ -28,6 +28,7 @@ export interface ISurvey extends ISurveyData {
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
     afterRenderQuestion(question: IQuestion, htmlElement);
     afterRenderPanel(panel: IElement, htmlElement);
+    matrixRowAdded(question: IQuestion);
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);

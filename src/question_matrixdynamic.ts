@@ -70,6 +70,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
             this.generatedVisibleRows.push(this.createMatrixRow(null));
         }
         this.rowCount++;
+        if(this.survey) this.survey.matrixRowAdded(this);
     }
     public removeRow(index: number) {
         if(!this.canRemoveRow) return;
@@ -156,7 +157,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     private getRowValueByIndex(questionValue: any, index: number): any {
         return index >= 0 && index < questionValue.length ? questionValue[index] : null;
     }
-    protected getRowValue(row: MatrixDropdownRowModelBase, questionValue: any, create: boolean = false): any {
+    protected getRowValueCore(row: MatrixDropdownRowModelBase, questionValue: any, create: boolean = false): any {
         return this.getRowValueByIndex(questionValue, this.generatedVisibleRows.indexOf(row));
     }
 }

@@ -83,6 +83,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public onAfterRenderPanel: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    public onMatrixRowAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     public jsonErrors: Array<JsonError> = null;
 
     constructor(jsonObj: any = null) {
@@ -470,7 +471,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     afterRenderPanel(panel: IElement, htmlElement) {
         this.onAfterRenderPanel.fire(this, { panel: panel, htmlElement: htmlElement });
     }
-
+    matrixRowAdded(question: IQuestion) {
+        this.onMatrixRowAdded.fire(this, {question: question});
+    }
     public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {
         var accept = true;
         this.onUploadFile.fire(this, { name: name, file: file, accept: accept });

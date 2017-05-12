@@ -1351,7 +1351,6 @@ QUnit.test("Survey Markdown - nmatrix.rows", function (assert) {
     assert.equal(loc3.renderedHtml, "rowText3!", "render column text as markdown");
 });
 
-
 QUnit.test("Survey Markdown - survey title", function (assert) {
     var survey = new SurveyModel();
     survey.onTextMarkdown.add(function(survey, options) {
@@ -1362,6 +1361,33 @@ QUnit.test("Survey Markdown - survey title", function (assert) {
     survey.title = "Surveymarkdown, q1 is {q1}";
     assert.equal(survey.processedTitle, "Survey!, q1 is value1", "survey.processedTitle, use markdown and text preprocessing");
     assert.equal(loc.renderedHtml, "Survey!, q1 is value1", "survey.locTitle.renderedHtml, use markdown and text preprocessing");
+});
+
+QUnit.test("onMatrixRowAdded", function (assert) {
+    var survey = new SurveyModel();
+    survey.onMatrixRowAdded.add(function(survey, options) {
+        var q = options.question;
+        var newValue = {};
+        for(var i = q.rowCount - 1; i >= 0; i --) {
+            var rowValue = q.getRowValue(i);
+            if(rowValue && rowValue["col1"]) {
+                newValue["col1"] = rowValue["col1"];
+                q.setRowValue(q.rowCount - 1, newValue);
+                break;
+            }
+        }
+    });
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
+    page.addElement(q1);
+    q1.addColumn("col1");
+    q1.addColumn("col2");
+    q1.addColumn("col3");
+    q1.rowCount = 3;
+    q1.value = [{col1: 1, col2: "1"}, {col1: 2, col2: "2"}];
+    q1.addRow();
+    assert.equal(q1.rowCount, 4, "there are two rows");
+    assert.equal(q1.value[3]["col1"], 2, "get value from previous");
 });
 
 function twoPageSimplestSurvey() {

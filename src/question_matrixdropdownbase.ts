@@ -299,9 +299,23 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.generatedVisibleRows = this.generateRows();
         return this.generatedVisibleRows;
     }
+    public getRowValue(rowIndex: number) {
+        if(rowIndex < 0) return null;
+        var visRows = this.visibleRows;
+        if(rowIndex >= visRows.length) return null;
+        var newValue = this.createNewValue(this.value);
+        return this.getRowValueCore(visRows[rowIndex], newValue);
+    }
+    public setRowValue(rowIndex: number, rowValue: any) {
+        if(rowIndex < 0) return null;
+        var visRows = this.visibleRows;
+        if(rowIndex >= visRows.length) return null;
+        this.onRowChanged(visRows[rowIndex], rowValue);
+        this.onValueChanged();
+    }
     protected generateRows(): Array<MatrixDropdownRowModelBase> { return null; }
     protected createNewValue(curValue: any): any { return !curValue ? {} : curValue; }
-    protected getRowValue(row: MatrixDropdownRowModelBase, questionValue: any, create: boolean = false): any {
+    protected getRowValueCore(row: MatrixDropdownRowModelBase, questionValue: any, create: boolean = false): any {
         var result = questionValue[row.rowName] ? questionValue[row.rowName] : null;
         if (!result && create) {
             result = {};
@@ -319,7 +333,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         var val = this.createNewValue(this.value);
         for (var i = 0; i < this.generatedVisibleRows.length; i++) {
             var row = this.generatedVisibleRows[i];
-            this.generatedVisibleRows[i].value = this.getRowValue(row, val);
+            this.generatedVisibleRows[i].value = this.getRowValueCore(row, val);
         }
         this.isRowChanging = false;
     }
@@ -449,7 +463,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     onRowChanged(row: MatrixDropdownRowModelBase, newRowValue: any) {
         var newValue = this.createNewValue(this.value);
-        var rowValue = this.getRowValue(row, newValue, true);
+        var rowValue = this.getRowValueCore(row, newValue, true);
         for (var key in rowValue) delete rowValue[key];
         if (newRowValue) {
             newRowValue = JSON.parse(JSON.stringify(newRowValue));

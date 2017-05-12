@@ -45,7 +45,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     private renderItem(key: string, item: ItemValue, isFirst: boolean): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
-        var divStyle = { marginRight: marginRight, marginLeft: '0px' };
+        var divStyle = { marginRight: marginRight, marginLeft: '0px', display: 'inline-block'};
         if (itemWidth) {
             divStyle["width"] = itemWidth;
         }

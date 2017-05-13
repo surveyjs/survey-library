@@ -1,5 +1,6 @@
 ﻿import {Base} from "./base";
 import {SurveyModel} from "./survey";
+import {LocalizableString} from "./localizablestring";
 
 /**
  * A Model for a survey running in the Window.
@@ -24,7 +25,7 @@ export class SurveyWindowModel extends Base  {
     public get isExpanded(): boolean { return this.isExpandedValue; }
     public get title(): string { return this.survey.title; }
     public set title(value: string) { this.survey.title = value; }
-    public get locTitle() { return this.survey.locTitle; }
+    public get locTitle(): LocalizableString { return this.survey.locTitle; }
     public expand() {
         this.expandcollapse(true);
     }

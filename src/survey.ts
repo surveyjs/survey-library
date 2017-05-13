@@ -714,14 +714,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (jsonConverter.errors.length > 0) {
             this.jsonErrors = jsonConverter.errors;
         }
-        this.isLoadingFromJsonValue = false;
+        this.runConditions();
+        this.updateVisibleIndexes();
         this.updateProcessedTextValues();
+        this.isLoadingFromJsonValue = false;
         if (this.hasCookie) {
             this.doComplete();
         }
         this.doElementsOnLoad();
-        this.runConditions();
-        this.updateVisibleIndexes();
     }
     protected onBeforeCreating() { }
     protected onCreating() { }

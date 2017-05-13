@@ -122,6 +122,7 @@ export class Survey extends SurveyModel {
         ko.applyBindings(this, this.renderedElement);
     }
     private updateKoCurrentPage() {
+        if(this.isLoadingFromJson) return;
         this.dummyObservable(this.dummyObservable() + 1);
     }
     private updateCurrentPageQuestions() {

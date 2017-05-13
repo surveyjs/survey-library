@@ -2,7 +2,7 @@
     <div style="position: fixed; bottom: 3px; right: 10px;" :class="css.window.root">
         <div :class="css.window.header.root">
             <a href="#" @click="doExpand" style="width:100%">
-                <span style="padding-right:10px" :class="css.window.header.title">{{survey.title}}</span>
+                <span style="padding-right:10px" :class="css.window.header.title"><survey-string :locString="survey.locTitle"/></span>
                 <span aria-hidden="true" :class="expandedCss"></span>
             </a>
         </div>

@@ -10,7 +10,6 @@ export class SurveyWindowModel extends Base  {
     windowElement: HTMLDivElement;
     isShowingValue: boolean;
     isExpandedValue: boolean;
-    titleValue: string;
     templateValue: string;
 
     constructor(jsonObj: any) {
@@ -23,8 +22,9 @@ export class SurveyWindowModel extends Base  {
     public get survey(): SurveyModel { return this.surveyValue; }
     public get isShowing(): boolean { return this.isShowingValue; }
     public get isExpanded(): boolean { return this.isExpandedValue; }
-    public get title(): string { return this.titleValue ? this.titleValue : this.survey.title; }
-    public set title(value: string) { this.titleValue = value; }
+    public get title(): string { return this.survey.title; }
+    public set title(value: string) { this.survey.title = value; }
+    public get locTitle() { return this.survey.locTitle; }
     public expand() {
         this.expandcollapse(true);
     }

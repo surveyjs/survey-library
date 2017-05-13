@@ -12,7 +12,7 @@ export var defaultStandardCss = {
     header: "",
     body: "sv_body",
     footer: "sv_nav",
-    navigationButton: "", navigation: { complete: "", prev:"", next: ""},
+    navigationButton: "", navigation: { complete: "sv_complete_btn", prev:"sv_prev_btn", next: "sv_next_btn"},
     progress: "sv_progress", progressBar: "",
     pageTitle: "sv_p_title",
     row: "sv_row",

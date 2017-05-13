@@ -5,7 +5,7 @@ export var defaultBootstrapMaterialCss = {
     header: "panel-heading",
     body: "panel-body",
     footer: "panel-footer",
-    navigationButton: "", navigation: { complete: "", prev: "", next: "" },
+    navigationButton: "", navigation: { complete: "sv_complete_btn", prev: "sv_prev_btn", next: "sv_next_btn" },
     progress: "progress center-block", progressBar: "progress-bar",
     pageTitle: "",
     row: "",

@@ -26,7 +26,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public width: string = "";
     private renderWidthValue: string = "";
     private rightIndentValue: number = 0;
-    public indent: number = 0;
+    private indentValue: number = 0;
     public localeChanged: Event<(sender: QuestionBase) => any, any> = new Event<(sender: QuestionBase) => any, any>();
     focusCallback: () => void;
     renderWidthChangedCallback: () => void;
@@ -71,6 +71,12 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public set renderWidth(val: string) {
         if (val == this.renderWidth) return;
         this.renderWidthValue = val;
+        this.fireCallback(this.renderWidthChangedCallback);
+    }
+    public get indent(): number { return this.indentValue; }
+    public set indent(val: number) {
+        if (val == this.indent) return;
+        this.indentValue = val;
         this.fireCallback(this.renderWidthChangedCallback);
     }
     public get rightIndent(): number { return this.rightIndentValue; }

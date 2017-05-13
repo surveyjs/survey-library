@@ -2,7 +2,7 @@
 import {QuestionBase} from "../questionbase";
 
 export class QuestionImplementorBase {
-    koVisible: any; koErrors: any; koMarginLeft: any; koPaddingRight: any; koRenderWidth: any; koTemplateName: any;
+    koVisible: any; koErrors: any; koPaddingLeft: any; koPaddingRight: any; koRenderWidth: any; koTemplateName: any;
     constructor(public question: QuestionBase) {
         var self = this;
         question.visibilityChangedCallback = function () { self.onVisibilityChanged(); };
@@ -11,13 +11,13 @@ export class QuestionImplementorBase {
         this.koVisible = ko.observable(this.question.isVisible);
         this.koRenderWidth = ko.observable(this.question.renderWidth);
         this.koErrors = ko.observableArray();
-        this.koMarginLeft = ko.pureComputed(function () { self.koRenderWidth(); return self.getIndentSize(self.question.indent); });
+        this.koPaddingLeft = ko.observable(self.getIndentSize(self.question.indent));
         this.koPaddingRight = ko.observable(self.getIndentSize(self.question.rightIndent));
         this.question["koTemplateName"] = this.koTemplateName;
         this.question["koVisible"] = this.koVisible;
         this.question["koRenderWidth"] = this.koRenderWidth;
         this.question["koErrors"] = this.koErrors;
-        this.question["koMarginLeft"] = this.koMarginLeft;
+        this.question["koPaddingLeft"] = this.koPaddingLeft;
         this.question["koPaddingRight"] = this.koPaddingRight;
         this.question["updateQuestion"] = function () { self.updateQuestion(); }
     }
@@ -27,6 +27,7 @@ export class QuestionImplementorBase {
     }
     protected onRenderWidthChanged() {
         this.koRenderWidth(this.question.renderWidth);
+        this.koPaddingLeft(this.getIndentSize(this.question.indent));
         this.koPaddingRight(this.getIndentSize(this.question.rightIndent));
     }
     private getIndentSize(indent: number): string {

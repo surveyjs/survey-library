@@ -5,6 +5,7 @@ import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {ReactQuestionFactory} from "./reactquestionfactory";
+import {SurveyCustomWidget} from './custom-widget';
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -111,7 +112,11 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
         return (<tr>{tds}</tr>);
     }
     protected renderQuestion(cell: MatrixDropdownCell): JSX.Element {
-        return this.creator.createQuestionElement(cell.question);
+        var customWidget = cell.question.customWidget;
+        if (!customWidget) {
+            return this.creator.createQuestionElement(cell.question);
+        }
+        return <SurveyCustomWidget creator={this.creator} question={cell.question}></SurveyCustomWidget>
     }
     protected renderButton(): JSX.Element {
         return <input className={this.css.button} type="button" onClick={this.handleOnRowRemoveClick} value={this.question.removeRowText} />;

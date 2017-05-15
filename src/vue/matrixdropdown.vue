@@ -12,7 +12,7 @@
                     <td><survey-string :locString="row.locText"/></td>
                     <td v-for="cell in row.cells" :class="css.matrixdropdown.itemValue">
                         <survey-errors :question="question" :css="css"/>
-                        <component :is="'survey-' + cell.question.getType()" :question="cell.question" :css="css"/>
+                        <component :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>
                 </tr>
             </tbody>
@@ -25,12 +25,20 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {QuestionMatrixDropdownModel} from '../question_matrixdropdown'
+    import {Question as QuestionModel} from '../question'
     import {MatrixDropdownRowModelBase} from '../question_matrixdropdownbase'
 
     @Component
     export default class MatrixDropdown extends Question<QuestionMatrixDropdownModel> {
         get rows() {
             return this.question.visibleRows;
+        }
+
+        getWidgetComponentName(element: QuestionModel) {
+            if(element.customWidget) {
+                return element.customWidget.name;
+            }
+            return 'survey-' + element.getType();
         }
     }
 

@@ -305,7 +305,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.isValueChangedInSurvey = false;
     }
     //IValidatorOwner
-    getValidatorTitle(): string { return null; }
+    getValidatorTitle(): string { return this.name; }
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "commentText", serializationProperty: "locCommentText" },

@@ -444,9 +444,10 @@ QUnit.test("Matrixdynamic required column", function (assert) {
     var rows = question.visibleRows;
     assert.equal(question.hasErrors(), false, "No errors");
     question.columns[0].isRequired = true;
-    var rows = question.visibleRows;
+    assert.equal(rows.length, 2, "There are two rows");
     assert.equal(question.hasErrors(), true, "column1 should not be empty. All rows are empty");
     question.value = [{ 'column1': 2 }, {}];
+    assert.equal(rows[0].cells[0].question.value, 2, "The first cell has value 2");
     assert.equal(question.hasErrors(), true, "column1 should not be empty. the second row is empty");
     question.value = [{ 'column1': 2 }, { 'column1': 3}];
     assert.equal(question.hasErrors(), false, "column1 should not be empty. all values are set");
@@ -499,6 +500,20 @@ QUnit.test("Matrixdynamic minRowCount/maxRowCount", function (assert) {
     assert.equal(question.rowCount, 4, "row count is max row count");
     question.addRow();
     assert.equal(question.rowCount, 4, "row count is still max row count");
+});
+QUnit.test("Matrixdynamic do not re-create the rows", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    var firstRowId = question.visibleRows[0].id;
+    question.addRow();
+    assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row adding");
+    question.removeRow(question.rowCount - 1);
+    assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row removing");
+    question.rowCount = 10;
+    assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row count increasing");
+    question.rowCount = 1;
+    assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row count decreasing");
+    question.value = [{"col1": 2}];
+    assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after setting value");
 });
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {

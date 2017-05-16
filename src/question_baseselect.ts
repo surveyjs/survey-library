@@ -177,7 +177,7 @@ export class QuestionSelectBase extends Question {
         }
     }
     private onVisibleChoicesChanged() {
-        if(this.survey && this.survey.isLoadingFromJson) return;
+        if(this.isLoadingFromJson) return;
         this.visibleChoicesCache = null;
         this.fireCallback(this.choicesChangedCallback);
     }

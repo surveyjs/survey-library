@@ -39,11 +39,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public get rowCount(): number { return this.rowCountValue; }
     public set rowCount(val: number) {
         if (val < 0 || val > QuestionMatrixDynamicModel.MaxRowCount) return;
+        var prevValue = this.rowCountValue;
         this.rowCountValue = val;
         if (this.value && this.value.length > val) {
             var qVal = this.value;
             qVal.splice(val);
             this.value = qVal;
+        }
+        if(this.generatedVisibleRows) {
+            this.generatedVisibleRows.splice(val);            
+            for(var i = prevValue; i < val; i ++) {
+                this.generatedVisibleRows.push(this.createMatrixRow(null));
+            }
         }
         this.fireCallback(this.rowCountChangedCallback);
     }
@@ -93,8 +100,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
     public get locRemoveRowText() { return this.locRemoveRowTextValue; }
     public supportGoNextPageAutomatic() {   return false;  }
+    //TODO remove this property, use visibleRows only
     public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
-        if (this.generatedVisibleRows && this.generatedVisibleRows.length == this.rowCount) return this.generatedVisibleRows;
         return this.visibleRows;
     }
     protected onCheckForErrors(errors: Array<SurveyError>) {

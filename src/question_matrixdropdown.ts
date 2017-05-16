@@ -34,6 +34,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     public get rows(): Array<any> { return this.rowsValue; }
     public set rows(newValue: Array<any>) {
         ItemValue.setData(this.rowsValue, newValue);
+        this.generatedVisibleRows = null;
     }
     public onLocaleChanged() {
         super.onLocaleChanged();

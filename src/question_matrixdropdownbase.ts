@@ -13,6 +13,7 @@ import {ChoicesRestfull} from "./choicesRestfull";
 import {QuestionFactory} from "./questionfactory";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {SurveyValidator} from "./validator";
+import {CustomWidgetCollection} from "./questionCustomWidgets";
 
 export interface IMatrixDropdownData {
     onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
@@ -110,6 +111,7 @@ export class MatrixDropdownCell {
     constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
         this.questionValue.setData(row);
+        this.questionValue.customWidget = CustomWidgetCollection.Instance.getCustomWidget(this.questionValue);
     }
     public get question(): Question { return this.questionValue; }
     public get value(): any { return this.question.value; }

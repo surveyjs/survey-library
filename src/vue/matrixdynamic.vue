@@ -11,7 +11,7 @@
                 <tr v-for="row in rows">
                     <td v-for="cell in row.cells">
                         <survey-errors :question="cell.question" :css="css"/>
-                        <component :is="'survey-' + cell.question.getType()" :question="cell.question" :css="css"/>
+                        <component :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>
                     <td v-if="!question.isReadOnly">
                         <input type="button" v-if="question.canRemoveRow" :class="css.matrixdynamic.button" :value="question.removeRowText" @click="removeRowClick(row)" />
@@ -27,6 +27,7 @@
     import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
+    import {Question as QuestionModel} from '../question'
     import {QuestionMatrixDynamicModel} from '../question_matrixdynamic'
     import {MatrixDropdownRowModelBase} from '../question_matrixdropdownbase'
 
@@ -34,6 +35,12 @@
     export default class MatrixDynamic extends Question<QuestionMatrixDynamicModel> {
         get rows() {
             return this.question.visibleRows;
+        }
+        getWidgetComponentName(element: QuestionModel) {
+            if(element.customWidget) {
+                return element.customWidget.name;
+            }
+            return 'survey-' + element.getType();
         }
         removeRowClick(row) {
             var rows = this.question.cachedVisibleRows;

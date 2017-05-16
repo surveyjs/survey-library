@@ -5,6 +5,7 @@ import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {ReactQuestionFactory} from "./reactquestionfactory";
+import {SurveyCustomWidget} from './custom-widget';
 
 export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -75,7 +76,11 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
         return (<tr><td>{rowText}</td>{tds}</tr>);
     }
     protected renderSelect(cell: MatrixDropdownCell): JSX.Element {
-        return this.creator.createQuestionElement(cell.question);
+        var customWidget = cell.question.customWidget;
+        if (!customWidget) {
+            return this.creator.createQuestionElement(cell.question);
+        }
+        return <SurveyCustomWidget creator={this.creator} question={cell.question}></SurveyCustomWidget>
     }
 }
 

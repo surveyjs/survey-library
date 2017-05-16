@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "start": "npm run build_dev && live-server",
     "test": "karma start",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
@@ -49,6 +50,7 @@
     "karma-sourcemap-loader": "0.3.7",
     "karma-webpack": "2.0.2",
     "knockout": "3.4.0",
+    "live-server": "1.2.0",
     "node-sass": "4.4.0",
     "node-uuid": "1.4.7",
     "phantomjs-prebuilt": "2.1.14",

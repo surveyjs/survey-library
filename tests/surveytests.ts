@@ -1363,6 +1363,14 @@ QUnit.test("Survey Markdown - survey title", function (assert) {
     assert.equal(loc.renderedHtml, "Survey!, q1 is value1", "survey.locTitle.renderedHtml, use markdown and text preprocessing");
 });
 
+QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function (assert) {
+    var question = new QuestionRadiogroupModel("q1");
+    question.hasComment = true;
+    question.comment = "comment text";
+    question.clearUnusedValues();
+    assert.equal(question.comment, "comment text");
+});
+
 QUnit.test("onMatrixRowAdded", function (assert) {
     var survey = new SurveyModel();
     survey.onMatrixRowAdded.add(function(survey, options) {

@@ -21,11 +21,13 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     private locPlaceHolderValue: LocalizableString;
     public isRequired: boolean = false;
     private inputTypeValue: string = "text";
+    private nameValue: string;
     onValueChangedCallback: (newValue: any)=>void;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
-    constructor(public name: any = null, title: string = null) {
+    constructor(name: any = null, title: string = null) {
         super();
+        this.nameValue = name;
         this.locTitleValue = new LocalizableString(this, true);
         var self = this;
         this.locTitleValue.onRenderedHtmlCallback = function(text) {return self.getFullTitle(text); };
@@ -34,6 +36,12 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     }
     public getType(): string {
         return "multipletextitem";
+    }
+    public get name(): string { return this.nameValue; }
+    public set name(value: string) {
+        if(this.name === value) return;
+        this.nameValue = value;
+        this.locTitleValue.onChanged();
     }
     setData(data: IMultipleTextData) {
         this.data = data;

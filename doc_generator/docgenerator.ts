@@ -22,6 +22,7 @@ interface DocEntry {
     jsonName?: string,
     fileName?: string,
     documentation?: string,
+    see?: any,
     type?: string,
     baseType?: string,
     allTypes?: string[],
@@ -187,11 +188,24 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
     /** Serialize a symbol into a json object */    
     function serializeSymbol(symbol: ts.Symbol): DocEntry {
         var type = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
-        return {
+        var res = {
             name: symbol.getName(),
             documentation: ts.displayPartsToString(symbol.getDocumentationComment()),
             type: checker.typeToString(type),
         };
+        var jsTags = symbol.getJsDocTags();
+        if(jsTags) {
+            var seeArray = [];
+            for(var i = 0; i < jsTags.length; i ++) {
+                if(jsTags[i].name == "see") {
+                    seeArray.push(jsTags[i].text);
+                }
+            }
+            if(seeArray.length > 0) {
+                res["see"] = seeArray;
+            }
+        }
+        return res;
     }
 
     /** Serialize a class symbol infomration */

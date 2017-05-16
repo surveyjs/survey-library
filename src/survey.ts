@@ -19,16 +19,43 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public surveyId: string = null;
     public surveyPostId: string = null;
     public clientId: string = null;
+    /**
+     * If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.
+     */
     public cookieName: string = null;
     public sendResultOnPageNext: boolean = false;
-
+    /**
+     * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
+     */
     public commentPrefix: string = "-Comment";
+    /**
+     * On showing the next or previous page, a first input is focused, if the property set to true.
+     */
     public focusFirstQuestionAutomatic: boolean = true;
+    /**
+     * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
+     * @see goNextPageAutomatic
+     */
     public showNavigationButtons: boolean = true;
+    /**
+     * Set it to false hide survey title.
+     */
     public showTitle: boolean = true;
+    /**
+     * Set it to false to hide page titles.
+     */
     public showPageTitles: boolean = true;
+    /**
+     * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
+     */
     public showCompletedPage: boolean = true;
+    /**
+     * A char/string that will be rendered in the title required questions.
+     */
     public requiredText: string = "*";
+    /**
+     * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
+     */
     public questionStartIndex: string = "";
     private showProgressBarValue: string = "off";
     public storeOthersAsComment: boolean = true;

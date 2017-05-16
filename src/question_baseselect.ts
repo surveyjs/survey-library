@@ -204,7 +204,7 @@ export class QuestionSelectBase extends Question {
     }
     clearUnusedValues() {
         super.clearUnusedValues();
-        if(!this.isOtherSelected) {
+        if(!this.isOtherSelected && !this.hasComment) {
             this.comment = null;
         }
     }

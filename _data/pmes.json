@@ -612,14 +612,6 @@
         "parameters": []
     },
     {
-        "name": "indent",
-        "documentation": "",
-        "type": "number",
-        "className": "QuestionBase",
-        "pmeType": "property",
-        "parameters": []
-    },
-    {
         "name": "localeChanged",
         "documentation": "",
         "type": "Event<(sender: QuestionBase) => any, any>",
@@ -744,6 +736,15 @@
         "name": "renderWidth",
         "documentation": "",
         "type": "string",
+        "className": "QuestionBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "indent",
+        "documentation": "",
+        "type": "number",
         "className": "QuestionBase",
         "pmeType": "property",
         "hasSet": true,
@@ -1538,6 +1539,39 @@
         "pmeType": "property",
         "hasSet": false,
         "parameters": []
+    },
+    {
+        "name": "getRowValue",
+        "documentation": "",
+        "type": "(rowIndex: number) => any",
+        "parameters": [
+            {
+                "name": "rowIndex",
+                "documentation": "",
+                "type": "number"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
+        "name": "setRowValue",
+        "documentation": "",
+        "type": "(rowIndex: number, rowValue: any) => any",
+        "parameters": [
+            {
+                "name": "rowIndex",
+                "documentation": "",
+                "type": "number"
+            },
+            {
+                "name": "rowValue",
+                "documentation": "",
+                "type": "any"
+            }
+        ],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
     },
     {
         "name": "hasErrors",
@@ -2823,7 +2857,7 @@
     },
     {
         "name": "cookieName",
-        "documentation": "",
+        "documentation": "If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2841,7 +2875,7 @@
     },
     {
         "name": "commentPrefix",
-        "documentation": "",
+        "documentation": "You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2849,7 +2883,7 @@
     },
     {
         "name": "focusFirstQuestionAutomatic",
-        "documentation": "",
+        "documentation": "On showing the next or previous page, a first input is focused, if the property set to true.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2859,8 +2893,12 @@
     },
     {
         "name": "showNavigationButtons",
-        "documentation": "",
+        "documentation": "Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.",
         "type": "boolean",
+        "see": [
+            "goNextPageAutomatic",
+            "showCompletedPage"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2869,7 +2907,7 @@
     },
     {
         "name": "showTitle",
-        "documentation": "",
+        "documentation": "Set it to false hide survey title.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2879,7 +2917,7 @@
     },
     {
         "name": "showPageTitles",
-        "documentation": "",
+        "documentation": "Set it to false to hide page titles.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2889,7 +2927,7 @@
     },
     {
         "name": "showCompletedPage",
-        "documentation": "",
+        "documentation": "On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2899,7 +2937,7 @@
     },
     {
         "name": "requiredText",
-        "documentation": "",
+        "documentation": "A char/string that will be rendered in the title required questions.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2909,7 +2947,7 @@
     },
     {
         "name": "questionStartIndex",
-        "documentation": "",
+        "documentation": "By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3124,6 +3162,14 @@
     },
     {
         "name": "onAfterRenderPanel",
+        "documentation": "",
+        "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "className": "SurveyModel",
+        "pmeType": "event",
+        "parameters": []
+    },
+    {
+        "name": "onMatrixRowAdded",
         "documentation": "",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
@@ -4042,6 +4088,15 @@
         "className": "SurveyWindowModel",
         "pmeType": "property",
         "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "locTitle",
+        "documentation": "",
+        "type": "LocalizableString",
+        "className": "SurveyWindowModel",
+        "pmeType": "property",
+        "hasSet": false,
         "parameters": []
     },
     {

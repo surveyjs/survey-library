@@ -23,41 +23,49 @@ mainmenukey: doc
         </select>
     </p>
     <div data-bind="foreach: filteredItems">
-        <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a><span>  </span> <span data-bind="text: pmeType"></span></div>
-        <div data-bind="visible: koExpanded">
-            <p>
-                <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
-                <div>
-                    <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
-                </div>
-                <div data-bind="visible: isSerialized">
-                    The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
-                </div>
-                <div data-bind="visible: hasDefaultValue">
-                    <span>The default value is: </span><span data-bind="text:defaultValue"></span>
-                </div>
-                <div data-bind="visible: hasSerializedChoices">
-                    <span>You may set the following values into this property: </span>
-                    <!-- ko foreach: serializedChoices -->
-                    <span data-bind="text:$data"></span><span data-bind="if: ($index() !== ($parent.serializedChoices.length - 1))">, </span>
-                    <!-- /ko -->
-                </div>
-                <div data-bind="visible: hasDocumentation, html: documentation"></div>
-                <div data-bind="visible: hasParameters">
-                    <h5>Parameters:</h5>
-                    <div data-bind="foreach: parameters">
-                        <div><span>Name: </span><span data-bind="text:name"></span><span>, type: </span><span data-bind="text:type"></span></div>
-                        <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
+        <div data-bind="attr:{id: name}">
+            <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a><span>  </span> <span data-bind="text: pmeType"></span></div>
+            <div data-bind="visible: koExpanded">
+                <p>
+                    <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
+                    <div>
+                        <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
                     </div>
-                </div>
-                <div>
-                    <span>Implemented in: </span>
-                    <!-- ko foreach: implemetedIn -->
-                    <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
-                    <!-- /ko -->
-                </div>
-                <!--<a data-bind="attr: {href: href}"><span>Show more</span></a>-->
-            </p>
+                    <div data-bind="visible: isSerialized">
+                        The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
+                    </div>
+                    <div data-bind="visible: hasDefaultValue">
+                        <span>The default value is: </span><span data-bind="text:defaultValue"></span>
+                    </div>
+                    <div data-bind="visible: hasSerializedChoices">
+                        <span>You may set the following values into this property: </span>
+                        <!-- ko foreach: serializedChoices -->
+                        <span data-bind="text:$data"></span><span data-bind="if: ($index() !== ($parent.serializedChoices.length - 1))">, </span>
+                        <!-- /ko -->
+                    </div>
+                    <div data-bind="visible: hasDocumentation, html: documentation"></div>
+                    <div data-bind="visible: hasParameters">
+                        <h5>Parameters:</h5>
+                        <div data-bind="foreach: parameters">
+                            <div><span>Name: </span><span data-bind="text:name"></span><span>, type: </span><span data-bind="text:type"></span></div>
+                            <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
+                        </div>
+                    </div>
+                    <div data-bind="visible: seeAlso.length > 0">
+                        <span>See also: </span>
+                        <!-- ko foreach: seeAlso -->
+                        <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
+                        <!-- /ko -->
+                    </div>
+                    <div>
+                        <span>Implemented in: </span>
+                        <!-- ko foreach: implemetedIn -->
+                        <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
+                        <!-- /ko -->
+                    </div>
+                    <!--<a data-bind="attr: {href: href}"><span>Show more</span></a>-->
+                </p>
+            </div>
         </div>
     </div>
 </div>
@@ -72,12 +80,13 @@ mainmenukey: doc
     };
     var pmes = [
     {% for prop in site.data.pmes %}{% if curClass.allTypes contains prop.className %}
-    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}", 
+    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}",  
         parameters:  [
             {% for par in prop.parameters %}
             { name: "{{par.name}}", documentation: {{par.documentation | markdownify | jsonify}}, type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
             {% endfor %}        
-        ] }{% if forloop.last == false %},{% endif %} 
+        ],
+        see:  [{% for par in prop.see %} "{{par}}" {% if forloop.last == false %},{% endif %} {% endfor %}]}{% if forloop.last == false %},{% endif %} 
     {% endif %}{% endfor %}];
     pmes.sort(function(a, b) {
         if(a.name == b.name) return 0;
@@ -85,6 +94,23 @@ mainmenukey: doc
     });
     function getClassObj(className) {
         return {name: className, href: "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html"};
+    }
+    function getLinkObj(name) {
+        if(!name) return {name: "", href: ""};
+        var pos = name.indexOf('.');
+        var href = "";
+        if(pos < 0) {
+            if(name[0] === name[0].toUpperCase()) {
+                href = "{{ site.baseurl }}/docs/api_" + name.toLowerCase() + ".html"
+            } else {
+                href = "#" + name;
+            }
+        } else {
+            var className = name.substr(0, pos);
+            var hash = name.substr(pos + 1);
+            href = "{{ site.baseurl }}/docs/api_" + name.toLowerCase() + ".html#" + hash;
+        }
+        return {name: name, href: href};
     }
     var ModelItem = function(item) {
         var self = this;
@@ -118,6 +144,12 @@ mainmenukey: doc
         this.propertySet = this.hasSet ? " writable" : " readonly";
         this.isSerialized = item.isSerialized == "true";
         this.koExpanded = ko.observable(false);
+        this.seeAlso = [];
+        if(item.see) {
+            for(var i = 0; i < item.see.length; i ++) {
+                this.seeAlso.push(getLinkObj(item.see[i]));
+            }
+        }
         this.showHide = function() {
             self.koExpanded(!self.koExpanded());
         }
@@ -151,12 +183,19 @@ mainmenukey: doc
                 pmesHash[modelItem.name] = modelItem;
             }
         }
+        this.getHashName = function() {
+            var name = window.location.hash;
+            if(!name) return "";
+            return name.substr(1);
+        }
         this.filterString = ko.observable("");
         this.showPMETypes = ko.observable("all");
+        this.hashName = ko.observable(this.getHashName());
         this.koDummy = ko.observable(0);
         this.filteredItems = ko.computed(function() {
             var dummy = self.koDummy();
              return ko.utils.arrayFilter(self.items, function(item) {
+                if(self.hashName() == item.name) return true;
                 if(self.showPMETypes() != "all") {
                     if(self.showPMETypes() != item.pmeType) return false;
                 }
@@ -172,7 +211,30 @@ mainmenukey: doc
         this.showPMETypes.subscribe(function(newValue) {
             self.koDummy(self.koDummy() + 1);
         });
+        this.hashName.subscribe(function(newValue) {
+            self.koDummy(self.koDummy() + 1);
+        });
+        this.hashChanged = function() {
+            this.hashName(this.getHashName());
+            name = this.hashName();
+            if(!name) return;
+            for(var i = 0; i < this.items.length; i ++) {
+                if(this.items[i].name == name) {
+                    this.items[i].koExpanded(true);
+                    break;
+                }
+            }
+        }
+        this.hashChanged();
 };
- 
-ko.applyBindings(new Model("{{page.classname}}"), document.getElementById("objectProperties"));
+
+var curModel = new Model("{{page.classname}}");
+
+ko.applyBindings(curModel, document.getElementById("objectProperties"));
+
+if ("onhashchange" in window) {
+    window.onhashchange = function () {
+        curModel.hashChanged();
+    }
+ }
  </script>

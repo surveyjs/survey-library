@@ -2,6 +2,22 @@
     <div class="row">
         <div {% if page.propertiesFile %}class="col-md-8"{%else%}class="col-md-12"{%endif%}>
             <h3 class="contenttitle">{{ page.title }}</h3>
+            {% if page.fiddle %}
+                <div class="row source-code-container">
+                    {% include platform-selector.html %}
+                    {% if page.usereact %}
+                    <iframe width="100%" height="725" src="//jsfiddle.net/surveyjs/o6fpdcff/embedded/result,js,html,css,resources/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                    {% elsif page.useknockout %}
+                    <iframe width="100%" height="725" src="//jsfiddle.net/surveyjs/ox5nt4u6/embedded/result,js,html,css,resources/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                    {% elsif page.usejquery %}
+                    <iframe width="100%" height="725" src="//jsfiddle.net/surveyjs/ta28uz5d/embedded/result,js,html,css,resources/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                    {% elsif page.useangular %}
+                    <iframe width="100%" height="725" src="//jsfiddle.net/surveyjs/h18s304y/embedded/result,js,html,css,resources/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                    {% elsif page.usevue %}
+                    <iframe width="100%" height="725" src="//jsfiddle.net/surveyjs/Ljoz9wht/embedded/result,js,html,css,resources/?fontColor=333333&accentColor=1ab394&bodyColor=fff&menuColor=fff" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+                    {% endif %}
+                </div>
+            {% else %}
             {% if page.preSurvey %}
             {% include {{page.preSurvey}} %}
             {% endif %}
@@ -38,6 +54,7 @@
         <div class="col-md-4 exampleoptions">
             {% include {{page.propertiesFile}} %}
         </div>
+        {% endif %}
         {% endif %}
     </div>
 </div>

@@ -23,6 +23,7 @@ module Jekyll
       self.data['usedevextreme'] = example['usedevextreme']
       self.data['jquery'] = example['jquery']
       self.data['preSurvey'] = example['preSurvey']
+      self.data['fiddle'] = example['fiddle']
 
       self.data['dataFile'] = example['dataFile'] || "surveys/#{example['name']}.json"
       self.data['title'] = example['title']

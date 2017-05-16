@@ -43,6 +43,12 @@
                 {"name": "Custom Navigation", "text": "Use your own navigation", "url": "survey-customnavigation.html"},
                 {"name": "Go next page automatically", "text": "Go to the next page on answering questions automitically", "url": "survey-autonextpage.html"}
             ]},
+            {
+              "name": "Skins", "id": "skins",
+              "items": [
+                {"name": "Bootstrap Material", "text": "Bootstrap Material skin", "url": "skin-bootstrap-material.html"}
+              ]
+            },
             { "name": "Conditions and Triggers", "id": "triggers",
               "items": [
                 {"name": "VisibleIf", "text": "Create complex conditions to control question visibility", "url": "condition-kids.html"},

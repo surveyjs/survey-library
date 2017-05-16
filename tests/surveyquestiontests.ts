@@ -504,7 +504,10 @@ QUnit.test("Matrixdynamic minRowCount/maxRowCount", function (assert) {
 QUnit.test("Matrixdynamic do not re-create the rows", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDymanic");
     var firstRowId = question.visibleRows[0].id;
+    assert.notOk(firstRowId.indexOf("unde") > -1, "there should not be undefined in the row index");
+    var rowCount = question.visibleRows.length;
     question.addRow();
+    assert.equal(question.visibleRows.length, rowCount + 1, "Add one row");
     assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row adding");
     question.removeRow(question.rowCount - 1);
     assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row removing");
@@ -514,6 +517,19 @@ QUnit.test("Matrixdynamic do not re-create the rows", function (assert) {
     assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after row count decreasing");
     question.value = [{"col1": 2}];
     assert.equal(question.visibleRows[0].id, firstRowId, "The first row is the same after setting value");
+});
+
+QUnit.test("Matrixdynamic change column properties on the fly", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    question.addColumn("col1");
+    var rows = question.visibleRows;
+    assert.equal(rows[0].cells[0].question.getType(), "dropdown", "the default cell type is 'dropdown'");
+    assert.equal((<QuestionDropdownModel>rows[0].cells[0].question).choices.length, question.choices.length, "By use question.choices by default");
+    question.columns[0].choices = [1, 2, 3, 4, 5, 6, 7];
+    assert.equal((<QuestionDropdownModel>rows[0].cells[0].question).choices.length, question.columns[0].choices.length, "Use column choices if set");
+    //Should implement or not?
+    //question.columns[0].cellType = "text";
+    //assert.equal(rows[0].cells[0].question.getType(), "text", "column type changed to 'text'");
 });
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {

@@ -12,7 +12,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
     constructor(public index: number, data: IMatrixDropdownData, value: any) {
         super(data, value);
     }
-    public get rowName() { return "row" + this.index; }
+    public get rowName() { return this.id; }
 }
 
 /**
@@ -73,11 +73,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public get canRemoveRow() : boolean { return this.rowCount > this.minRowCount; }
     public addRow() {
         if(!this.canAddRow) return;
-        if (this.generatedVisibleRows) {
-            this.generatedVisibleRows.push(this.createMatrixRow(null));
-        }
-        this.rowCount++;
-        if(this.survey) this.survey.matrixRowAdded(this);
+        var prevRowCount = this.rowCount;
+        this.rowCount = this.rowCount + 1;
+        if(this.survey && (prevRowCount + 1 == this.rowCount)) this.survey.matrixRowAdded(this);
     }
     public removeRow(index: number) {
         if(!this.canRemoveRow) return;
@@ -91,7 +89,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
             val = this.deleteRowValue(val, null);
             this.value = val;
         }
-        this.rowCount--;
+        this.rowCountValue--;
+        this.fireCallback(this.rowCountChangedCallback);
     }
     public get addRowText() { return this.locAddRowText.text ? this.locAddRowText.text : surveyLocalization.getString("addRow"); }
     public set addRowText(value: string) { this.locAddRowText.text = value; }

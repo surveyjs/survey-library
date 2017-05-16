@@ -457,6 +457,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         var cellType = column.cellType == "default" ? this.cellType : column.cellType;
         var name = this.getQuestionName(row, column);
         var question = this.createCellQuestion(cellType, name);
+        question.setData(this.survey);
         this.setQuestionProperties(question, column);
         return question;
     }

@@ -17,7 +17,7 @@
                     <td data-bind="css: question.survey.css.matrixdropdown.itemValue">
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->
-                        <!-- ko template: { name: $data.question.koTemplateName(), data: $data.question, afterRender: $data.question.koQuestionAfterRender } -->
+                        <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
                         <!-- /ko -->
                     </td>
                     <!-- /ko -->

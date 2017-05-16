@@ -281,6 +281,13 @@ QUnit.test("Localization, otherItem", function (assert) {
     survey.locale = "";
 });
 
+QUnit.test("otherItem, set text, editor: #90", function (assert) {
+    var survey = new Survey({ questions: [{ type: "checkbox", name: "q1", choices: [1, 2], hasOther: true, otherText: "my other" }] });;
+    var q1 = <QuestionCheckbox>survey.pages[0].questions[0];
+    assert.equal(q1.name, "q1", "question load correctly");
+    assert.equal(q1["koVisibleChoices"]()[2].text, "my other", "use otherText");
+});
+
 QUnit.test("Rating items creates correct object", function (assert) {
     assert.ok(QuestionRatingModel.defaultRateValues[0].locText["koRenderedHtml"], "ItemValue for knockout should be created");
 });

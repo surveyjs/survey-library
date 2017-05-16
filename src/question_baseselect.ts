@@ -99,16 +99,16 @@ export class QuestionSelectBase extends Question {
         }
         return true;
     }
-    get choices(): Array<any> { return this.choicesValues; }
-    set choices(newValue: Array<any>) {
+    public get choices(): Array<any> { return this.choicesValues; }
+    public set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValues, newValue);
         this.onVisibleChoicesChanged();
     }
     protected hasOtherChanged() {
         this.onVisibleChoicesChanged();
     }
-    get choicesOrder(): string { return this.choicesOrderValue; }
-    set choicesOrder(newValue: string) {
+    public get choicesOrder(): string { return this.choicesOrderValue; }
+    public set choicesOrder(newValue: string) {
         newValue = newValue.toLowerCase();
         if (newValue == this.choicesOrderValue) return;
         this.choicesOrderValue = newValue;
@@ -154,6 +154,7 @@ export class QuestionSelectBase extends Question {
     protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.survey != null ? this.survey.storeOthersAsComment : true); }
     onSurveyLoad() {
         if (this.choicesByUrl) this.choicesByUrl.run();
+        this.onVisibleChoicesChanged();
     }
     private onLoadChoicesFromUrl(array: Array<ItemValue>) {
         var errorCount = this.errors.length;
@@ -176,6 +177,7 @@ export class QuestionSelectBase extends Question {
         }
     }
     private onVisibleChoicesChanged() {
+        if(this.survey && this.survey.isLoadingFromJson) return;
         this.visibleChoicesCache = null;
         this.fireCallback(this.choicesChangedCallback);
     }

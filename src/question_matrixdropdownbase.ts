@@ -455,13 +455,11 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     protected createQuestionCore(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
         var cellType = column.cellType == "default" ? this.cellType : column.cellType;
-        var name = this.getQuestionName(row, column);
-        var question = this.createCellQuestion(cellType, name);
+        var question = this.createCellQuestion(cellType, column.name);
         question.setData(this.survey);
         this.setQuestionProperties(question, column);
         return question;
     }
-    protected getQuestionName(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): string { return row.rowName + "_" + column.name; }
     protected getColumnChoices(column: MatrixDropdownColumn): Array<any> {
         return column.choices && column.choices.length > 0 ? column.choices : this.choices;
     }

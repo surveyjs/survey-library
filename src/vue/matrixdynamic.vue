@@ -43,7 +43,7 @@
             return 'survey-' + element.getType();
         }
         removeRowClick(row) {
-            var rows = this.question.cachedVisibleRows;
+            var rows = this.question.visibleRows;
             var index = rows.indexOf(row);
             if (index > -1) {
                 this.question.removeRow(index);

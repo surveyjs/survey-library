@@ -18,7 +18,7 @@
                     <td>
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->
-                        <!-- ko template: { name: 'survey-question-' + $data.question.getType(), data: $data.question, as: 'question' } -->
+                        <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: question.koQuestionAfterRender } -->
                         <!-- /ko -->
                     </td>
                     <!-- /ko -->

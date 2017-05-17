@@ -99,10 +99,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
     public get locRemoveRowText() { return this.locRemoveRowTextValue; }
     public supportGoNextPageAutomatic() {   return false;  }
-    //TODO remove this property, use visibleRows only
-    public get cachedVisibleRows(): Array<MatrixDropdownRowModelBase> {
-        return this.visibleRows;
-    }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);
         if (this.hasErrorInRows()) {

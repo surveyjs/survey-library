@@ -12,3 +12,4 @@ import '../../localization/russian';
 import '../../localization/spanish';
 import '../../localization/swedish';
 import '../../localization/turkish';
+import '../../localization/farsi';

@@ -1,0 +1,20 @@
+{
+  "name": "surveyjs",
+  "description": "",
+  "main": "",
+  "authors": [
+    "Mohsen Emami <moh.motamede@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/espadana/surveyjs",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "foundation-sites": "^6.3.1"
+  }
+}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>What Input?</title>
+
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      rel="stylesheet">
+
+    <style>
+      .test-row {
+        margin-top: 50px;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        font-size: 16px;
+      }
+
+      /* indicator */
+      .input-display {
+        border-radius: 3px;
+        display: inline-block;
+        padding: 0 3px;
+        -webkit-transition: all 200ms;
+        transition: all 200ms;
+      }
+
+      [data-whatinput="mouse"] .input-display.-mouse,
+      [data-whatintent="mouse"] .input-intent.-mouse {
+        background-color: #d9edf7;
+        color: #31708f;
+      }
+
+      [data-whatinput="keyboard"] .-keyboard {
+        background-color: #dff0d8;
+        color: #3c763d;
+      }
+
+      [data-whatinput="touch"] .-touch {
+        background-color: #fcf8e3;
+        color: #8a6d3b;
+      }
+
+      /* links */
+      a:focus {
+        position: relative;
+        z-index: 1;
+      }
+
+      [data-whatinput="keyboard"]  a:focus {
+        box-shadow: 0 0 8px 2px rgba(60, 118, 61, 0.6);
+        outline: 2px solid #3c763d;
+      }
+
+      /* form controls */
+      [data-whatinput="mouse"] .form-control:focus {
+        border-color: #31708f;
+        outline: 0;
+        box-shadow:
+          inset 0 1px 1px rgba(0, 0, 0, .075),
+          0 0 8px rgba(49, 112, 143, 0.6);
+      }
+
+      [data-whatinput="keyboard"] .form-control:focus {
+        border-color: #3c763d;
+        outline: 0;
+        box-shadow:
+          inset 0 1px 1px rgba(0, 0, 0, .075),
+          0 0 8px rgba(60, 118, 61, 0.6);
+      }
+
+      [data-whatinput="touch"] .form-control:focus {
+        border-color: #8a6d3b;
+        outline: 0;
+        box-shadow:
+          inset 0 1px 1px rgba(0, 0, 0, .075),
+          0 0 8px rgba(138, 109, 59, 0.6);
+      }
+    </style>
+
+    <!--[if lte IE 8]>
+      <script src="dist/lte-IE8.js"></script>
+    <![endif]-->
+
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="page-header">
+        <h1>What Input?</h1>
+      </div>
+
+      <p class="lead">A global utility for tracking the current input method (<span class="input-display -mouse">mouse</span>, <span class="input-display -keyboard">keyboard</span> or <span class="input-display -touch">touch</span>), as well as the current <em>intent</em> (<span class="input-intent -mouse">mouse</span>).</p>
+
+      <p>Tab, click or tap the links and form controls to see how What Input allows them to be styled differently.</p>
+
+      <div class="well test-row">
+        <div class="row">
+
+          <div class="col-md-6">
+            <div class="list-group">
+              <a class="list-group-item" href="#">Cras justo odio</a>
+              <a class="list-group-item" href="#">Dapibus ac facilisis in</a>
+              <a class="list-group-item" href="#">Morbi leo risus</a>
+              <a class="list-group-item" href="#">Porta ac consectetur ac</a>
+              <a class="list-group-item" href="#">Vestibulum at eros</a>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <form>
+              <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+              </div>
+              <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox"> Check me out
+                </label>
+              </div>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <footer>
+        <p class="pull-right">
+          Check out the project <a href="https://github.com/ten1seven/what-input">on Github</a>.
+        </p>
+
+        <p>
+          Made with <span class="text-danger">&hearts;</span> at <a href="http://viget.com/">Viget</a>.
+        </p>
+      </footer>
+
+    </div>
+
+    <script src="dist/what-input.js"></script>
+
+    <script>
+      var links = document.querySelectorAll('a');
+
+      for (var i = 0, len = links.length; i < len; i++) {
+        links[i].addEventListener('click', function(event) {
+          console.log( '[script test] ' + whatInput.ask() );
+
+          event.preventDefault();
+        });
+      }
+    </script>
+
+  </body>
+</html>

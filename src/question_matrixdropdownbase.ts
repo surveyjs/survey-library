@@ -177,6 +177,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     constructor(data: IMatrixDropdownData, value: any) {
         this.data = data;
         this.value = value;
+        for (var i = 0; i < this.data.columns.length; i++) {
+            if(this.rowValues[this.data.columns[i].name] === undefined) {
+                this.rowValues[this.data.columns[i].name] = null;
+            }
+        }
         this.idValue = MatrixDropdownRowModelBase.getId();
         this.buildCells();
     }
@@ -218,7 +223,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     public get isEmpty() {
         var val = this.value;
         if (Base.isValueEmpty(val)) return true;
-        for (var key in val) return false;
+        for (var key in val) {
+            if (val[key] !== undefined && val[key] !== null) return false;
+        }
         return true;
     }
     public getLocale(): string { return this.data ? this.data.getLocale() : "";}

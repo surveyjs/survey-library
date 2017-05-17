@@ -71,6 +71,9 @@ export class Base {
         if (Array.isArray(value) && value.length === 0) return true;
         return !value && value !== 0 && value !== false;
     }
+    /**
+     * Returns the type of the object as a string as it represents in the json.
+     */
     public getType(): string {
         throw new Error('This method is abstract');
     }

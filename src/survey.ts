@@ -16,16 +16,33 @@ import {ILocalizableOwner, LocalizableString} from "./localizablestring";
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, ILocalizableOwner {
+    /**
+     * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see loadSurveyFromService
+     */
     public surveyId: string = null;
+    /**
+     * Set this property to automatically save the data in the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see onComplete
+     */
     public surveyPostId: string = null;
+    /**
+     * Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.
+     */
     public clientId: string = null;
     /**
      * If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.
      */
     public cookieName: string = null;
+    /**
+     * Set it to true, to save results on completing every page.
+     * @see onPartialSend
+     * @see clientId
+     */
     public sendResultOnPageNext: boolean = false;
     /**
      * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
+     * @see data
      */
     public commentPrefix: string = "-Comment";
     /**
@@ -39,29 +56,58 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public showNavigationButtons: boolean = true;
     /**
      * Set it to false hide survey title.
+     * @see title
      */
     public showTitle: boolean = true;
     /**
      * Set it to false to hide page titles.
+     * @see PageModel.title
      */
     public showPageTitles: boolean = true;
     /**
      * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
+     * @see data
+     * @see onComplete
      */
     public showCompletedPage: boolean = true;
     /**
      * A char/string that will be rendered in the title required questions.
+     * @see QuestionBase.title
      */
     public requiredText: string = "*";
     /**
      * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
+     * @see QuestionBase.title
+     * @see requiredText
      */
     public questionStartIndex: string = "";
     private showProgressBarValue: string = "off";
+    /**
+     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+     * @see commentPrefix
+     */
     public storeOthersAsComment: boolean = true;
+    /**
+     * Set it true if you want to go to the next page without pressing 'Next' button when all questions are anwered.
+    * @see showNavigationButtons 
+     */
     public goNextPageAutomatic: boolean = false;
+    /**
+     * The list of all pages in the survey, including invisible.
+     * @see PageModel
+     * @see visiblePages
+     */
     public pages: Array<PageModel> = new Array<PageModel>();
+    /**
+     * The list of triggers in the survey.
+     * @see SurveyTrigger
+     */
     public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
+    /**
+     * Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+     * @see QuestionBase.visible
+     * @see oncComplete
+     */
     public clearInvisibleValues: boolean = false;
 
     private locTitleValue : LocalizableString;
@@ -88,29 +134,123 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     private isValidatingOnServerValue: boolean = false;
     private modeValue: string = "edit";
     private isDesignModeValue: boolean = false;
-
+    /**
+     * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
+     * @see data
+     * @see clearInvisibleValues
+     * @see completeLastPage
+     * @see surveyPostId
+     */
     public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    /**
+     * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.
+     * @see sendResultOnPageNext
+     */
     public onPartialSend: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    /**
+     * The event is fired when another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
+     * @see currentPage
+     * @see currentPageNo
+     * @see nextPage
+     * @see prevPage
+     * @see completeLastPage
+     */
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
+     * @see setValue
+     */
     public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on changing a question visability.
+     * @see QuestionBase.visibile
+     * @see QuestionBase.visibileIf
+     */
     public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on changing a page visability.
+     * @see PageModel.visibile
+     * @see PageModel.visibileIf
+     */
     public onPageVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on adding a new question into survey.
+     * @see QuestionBase
+     */
     public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on removing a question from survey
+     * @see QuestionBase
+     */
     public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on adding a panel into survey
+     * @see PanelModel
+     */
     public onPanelAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on removing a panel from survey
+     * @see PanelModel
+     */
     public onPanelRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on validating value in a question. There are following properties in options: options.name is a question name, options.value is the current question value and options.error is an empty string. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.
+     */
     public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * Use this event to validate data on your server.
+     */
     public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
+    /**
+     * Use this event to modify the html before rendering, for example html on 'Thank you' page. Options has one parameter: Options.html.
+     * @see completedHtml
+     * @see QuestionHtmlModel.html
+     */
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * Use this event to process the markdown text. 
+     */
     public onTextMarkdown: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event fires when it get response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successful.
+     */
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * Use it to get results after calling the getResult method. It returns a simple analytic from [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see getResult
+     */
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on uploading the file in QuestionFile. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.
+     * @see uploadFile
+     */
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired right after survey is rendered in DOM. options.htmlElement is the root element.
+     */
     public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired right after a page is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.currentPage, options.htmlElement
+     */
     public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired right after a question is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.question, options.htmlElement
+     */
     public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired right after a panel is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.panel, options.htmlElement
+     */
     public onAfterRenderPanel: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on adding a new row in Matrix Dynamic quesiton. Options.question is a matrix question.
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDynamicModel.visibleRows
+     */
     public onMatrixRowAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
+     * @see JsonError
+     */
     public jsonErrors: Array<JsonError> = null;
 
     constructor(jsonObj: any = null) {
@@ -146,6 +286,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.onCreating();
     }
     public getType(): string { return "survey"; }
+    /**
+     * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
+     */
     public get locale(): string { return this.localeValue; }
     public set locale(value: string) {
         this.localeValue = value;
@@ -155,41 +298,78 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
     }
     //ILocalizableOwner
-    public getLocale() { return this.locale; }
+    getLocale() { return this.locale; }
     public getMarkdownHtml(text: string)  {
         var options = {text: text, html: null}
         this.onTextMarkdown.fire(this, options);
         return options.html;
     }
-    public getLocString(str: string) { return surveyLocalization.getString(str); }
-
+    getLocString(str: string) { return surveyLocalization.getString(str); }
+    /**
+     * Returns the text that renders when there is no any visible page and question.
+     */
     public get emptySurveyText(): string { return this.getLocString("emptySurvey"); }
+    /**
+     * Survey title.
+     */
     public get title(): string { return this.locTitle.text; }
     public set title(value: string) { this.locTitle.text = value; }
-    public get locTitle(): LocalizableString { return this.locTitleValue; }
+    get locTitle(): LocalizableString { return this.locTitleValue; }
+    /**
+     * The html that shows on completed ('Thank you') page. Set it to change the default text.
+     * @see showCompletedPage
+     * @see locale
+     */
     public get completedHtml(): string { return this.locCompletedHtml.text;}
     public set completedHtml(value: string) { this.locCompletedHtml.text = value;}
-    public get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    /**
+     * A text that renders on the 'Prev' button. Set it to change the default text.
+     * @see locale
+     */
     public get pagePrevText(): string { return this.locPagePrevText.text ? this.locPagePrevText.text : this.getLocString("pagePrevText"); }
     public set pagePrevText(newValue: string) { this.locPagePrevText.text = newValue; }
-    public get locPagePrevText(): LocalizableString { return this.locPagePrevTextValue;}
+    get locPagePrevText(): LocalizableString { return this.locPagePrevTextValue;}
+    /**
+     * A text that renders on the 'Next' button. Set it to change the default text.
+     * @see locale
+     */
     public get pageNextText(): string { return this.locPageNextText.text ? this.locPageNextText.text : this.getLocString("pageNextText"); }
     public set pageNextText(newValue: string) { this.locPageNextText.text = newValue; }
-    public get locPageNextText(): LocalizableString { return this.locPageNextTextValue;}
+    get locPageNextText(): LocalizableString { return this.locPageNextTextValue;}
+    /**
+     * A text that renders on the 'Complete' button. Set it to change the default text.
+     * @see locale
+     */
     public get completeText(): string { return this.locCompleteText.text ? this.locCompleteText.text : this.getLocString("completeText"); }
     public set completeText(newValue: string) { this.locCompleteText.text = newValue; }
-    public get locCompleteText(): LocalizableString { return this.locCompleteTextValue;}
+    get locCompleteText(): LocalizableString { return this.locCompleteTextValue;}
+    /**
+     * A template for a question title.
+     * @see QuestionModel.title
+     */
     public get questionTitleTemplate(): string { return this.locQuestionTitleTemplate.text;}
     public set questionTitleTemplate(value: string) { this.locQuestionTitleTemplate.text = value;}
+    /**
+     * Returns the question title template
+     * @see questionTitleTemplate
+     * @see QuestionModel.title
+     */
     public getQuestionTitleTemplate(): string { return this.locQuestionTitleTemplate.textOrHtml; }
-    public get locQuestionTitleTemplate(): LocalizableString { return this.locQuestionTitleTemplateValue; }
+    get locQuestionTitleTemplate(): LocalizableString { return this.locQuestionTitleTemplateValue; }
 
+    /**
+     * Set this property to false to turn off the numbering on pages titles.
+     */
     public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
     public set showPageNumbers(value: boolean) {
         if (value === this.showPageNumbers) return;
         this.showPageNumbersValue = value;
         this.updateVisibleIndexes();
     }
+    /**
+     * Set this property to false to turn off the numbering on questions titles.
+     */
     public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; };
     public set showQuestionNumbers(value: string) {
         value = value.toLowerCase();
@@ -198,17 +378,29 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.showQuestionNumbersValue = value;
         this.updateVisibleIndexes();
     };
+    /**
+     * Set this property to "top" to show the progress bar on the bottom or to "bottom" to show it on the bottom.
+     */
     public get showProgressBar(): string { return this.showProgressBarValue; }
     public set showProgressBar(newValue: string) {
       this.showProgressBarValue = newValue.toLowerCase();
     }
+    /**
+     * Returns the text/html that renders as survey title.
+     */
     public get processedTitle() { return this.processText(this.locTitle.textOrHtml); }
+    /**
+     * Set this property to 'bottom' to show question title under the question.
+     */
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
         value = value.toLowerCase();
         if (value === this.questionTitleLocationValue) return;
         this.questionTitleLocationValue = value;
     };
+    /**
+     * Set this mode to 'display' to make the survey read-only. 
+     */
     public get mode(): string { return this.modeValue; }
     public set mode(value: string) {
         value = value.toLowerCase();
@@ -220,15 +412,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             questions[i].onReadOnlyChanged();
         }
     }
+    /**
+     * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }
+     * @see setValue
+     * @see getValue
+     */
     public get data(): any {
         var result = {};
         for (var key in this.valuesHash) {
             result[key] = this.valuesHash[key];
         }
         return result;
-    }
-    protected _setDataValue(data: any, key: string) {
-        this.valuesHash[key] = data[key];
     }
     public set data(data: any) {
         this.valuesHash = {};
@@ -244,6 +438,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.notifyAllQuestionsOnValueChanged();
         this.runConditions();
     }
+    protected _setDataValue(data: any, key: string) {
+        this.valuesHash[key] = data[key];
+    }
+    /**
+     * Returns all comments from the data.
+     * @see data
+     */
     public get comments(): any {
         var result = {};
         for (var key in this.valuesHash) {
@@ -253,6 +454,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return result;
     }
+    /**
+     * Returns the list of visible pages. If all pages are visible then it is the same as pages property.
+     * @see pages
+     * @see PageModel.visible
+     * @see PageModel.visibleIf
+     */
     get visiblePages(): Array<PageModel> {
         if (this.isDesignMode) return this.pages;
         var result = new Array<PageModel>();
@@ -263,17 +470,33 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return result;
     }
+    /**
+     * Returns true if there is no any page in the survey. The survey is empty.
+     */
     public get isEmpty(): boolean { return this.pages.length == 0; }
     /**
      * depricated, misspelling, use pageCount property
      */
     get PageCount(): number { return this.pageCount; }
+    /**
+     * Returns the survey pages count.
+     * @see visiblePageCount
+     * @see pages
+     */
     public get pageCount(): number {
         return this.pages.length;
     }
+    /**
+     * Returns the survey visible pages count
+     * @see pageCount
+     * @see visiblePages
+     */
     public get visiblePageCount(): number {
         return this.visiblePages.length;
     }
+    /**
+     * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.
+     */
     public get currentPage(): PageModel {
         var vPages = this.visiblePages;
         if (this.currentPageValue != null) {
@@ -295,6 +518,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.updateCustomWidgets(value);
         this.currentPageChanged(value, oldValue);
     }
+    /**
+     * The index of the current page in the visible pages array. It starts from 0.
+     */
     public get currentPageNo(): number {
         return this.visiblePages.indexOf(this.currentPage);
     }
@@ -303,17 +529,31 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (value < 0 || value >= this.visiblePages.length) return;
         this.currentPage = this.visiblePages[value];
     }
+    /**
+     * Set the input focuse to the first question with the input.
+     */
     public focusFirstQuestion() {
         if (this.currentPageValue) {
             this.currentPageValue.scrollToTop();
             this.currentPageValue.focusFirstQuestion();
         }
     }
+    /**
+     * Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey, 'running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.
+     */
     public get state(): string {
         if (this.isLoading) return "loading";
         if (this.isCompleted) return "completed";
         return (this.currentPage) ? "running" : "empty"
     }
+    /**
+     * Clear the survey data and state. If the survey has a 'completed' state, it will have a 'running' state.
+     * @param clearData clear the data
+     * @param gotoFirstPage make the first page as a current page.
+     * @see data
+     * @see state
+     * @see currentPage
+     */
     public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
         if (clearData) {
             this.data = null;
@@ -345,11 +585,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
         this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });
     }
+    /**
+     * Returns the progress that a user made by answering on the survey.
+     */
     public getProgress(): number {
         if (this.currentPage == null) return 0;
         var index = this.visiblePages.indexOf(this.currentPage) + 1;
         return Math.ceil((index * 100 / this.visiblePageCount));
     }
+    /**
+     * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
+     */
     public get isNavigationButtonsShowing(): boolean {
         if (this.isDesignMode) return false;
         var page = this.currentPage;
@@ -357,21 +603,56 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         return page.navigationButtonsVisibility == "show" ||
             (page.navigationButtonsVisibility != "hide" && this.showNavigationButtons);
     }
+    /**
+     * Returns true if the survey in the edit mode.
+     * @see mode
+     */
     public get isEditMode(): boolean { return this.mode == "edit"; }
+    /**
+     * Returns true if the survey in the display mode.
+     * @see mode
+     */
     public get isDisplayMode(): boolean { return this.mode == "display"; }
+    /**
+     * Returns true if the survey in the design mode. It is used by SurveyJS Editor
+     * @see setDesignMode 
+     */
     public get isDesignMode(): boolean { return this.isDesignModeValue; }
+    /**
+     * Call it to set the survey into the design mode.
+     * @param value use true to set the survey into the design mode.
+     */
     public setDesignMode(value: boolean) {
         this.isDesignModeValue = value;
     }
+    /**
+     * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
+     * @see cookieName
+     * @see setCookie
+     * @see deleteCookie  
+     * @see state
+     */
     public get hasCookie(): boolean {
         if (!this.cookieName) return false;
         var cookies = document.cookie;
         return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
     }
+    /**
+     * Set the cookie with cookieName in the browser. It is done automatically on survey complete if cookieName is not empty.
+     * @see cookieName
+     * @see hasCookie
+     * @see deleteCookie  
+     */
     public setCookie() {
         if (!this.cookieName) return;
         document.cookie = this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
     }
+    /**
+     * Delete the cookie with cookieName in the browser. 
+     * @see cookieName
+     * @see hasCookie
+     * @see setCookie  
+     */
     public deleteCookie() {
         if (!this.cookieName) return;
         document.cookie = this.cookieName + "=;";

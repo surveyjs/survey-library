@@ -75,23 +75,21 @@ frameworks.forEach( (framework) => {
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
-        assert.deepEqual(surveyResult, {
-            "frameworksRate":{
-                "angularv1":{
-                    "using":"Yes",
-                    "knowledge":"why hello world so hard",
-                    "rate":"Excelent",
-                    "strength":["Fast"],
-                    "experience":"2"
-                },
-                "knockoutjs":{
-                    "knowledge":"it is not 2016",
-                    "rate":"Good",
-                    "strength":["Easy","Powerfull"],
-                    "experience":"5",
-                    "using":"No"
-                }
-            }
+
+        assert.deepEqual(surveyResult.frameworksRate.angularv1, {
+            "using":"Yes",
+            "knowledge":"why hello world so hard",
+            "rate":"Excelent",
+            "strength":["Fast"],
+            "experience":"2"
+        });
+
+        assert.deepEqual(surveyResult.frameworksRate.knockoutjs, {
+            "knowledge":"it is not 2016",
+            "rate":"Good",
+            "strength":["Easy","Powerfull"],
+            "experience":"5",
+            "using":"No"
         });
     });
 });

@@ -460,7 +460,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      * @see PageModel.visible
      * @see PageModel.visibleIf
      */
-    get visiblePages(): Array<PageModel> {
+    public get visiblePages(): Array<PageModel> {
         if (this.isDesignMode) return this.pages;
         var result = new Array<PageModel>();
         for (var i = 0; i < this.pages.length; i++) {
@@ -657,6 +657,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (!this.cookieName) return;
         document.cookie = this.cookieName + "=;";
     }
+    /**
+     * Call it to go to the next page. It returns false, if it is the last page. If there is an error, for example required question is empty, the function returns false as well.
+     * @see isCurrentPageHasErrors
+     * @see prevPage
+     * @see completeLastPage
+     */
     public nextPage(): boolean {
         if (this.isLastPage) return false;
         if (this.isEditMode && this.isCurrentPageHasErrors) return false;
@@ -664,31 +670,57 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.doNextPage();
         return true;
     }
-    get isCurrentPageHasErrors(): boolean {
+    /**
+     * Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.
+     * @see nextPage
+     */
+    public get isCurrentPageHasErrors(): boolean {
         if (this.currentPage == null) return true;
         return this.currentPage.hasErrors(true, true);
     }
+    /**
+     * Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.
+     * @see isFirstPage
+     */
     public prevPage(): boolean {
         if (this.isFirstPage) return false;
         var vPages = this.visiblePages;
         var index = vPages.indexOf(this.currentPage);
         this.currentPage = vPages[index - 1];
     }
+    /**
+     * Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page.
+     * @see isCurrentPageHasErrors
+     * @see nextPage
+     */
     public completeLastPage() : boolean {
         if (this.isEditMode && this.isCurrentPageHasErrors) return false;
         if (this.doServerValidation()) return false;
         this.doComplete();
         return true;
     }
+    /**
+     * Returns true if the current page is the first one.
+     */
     public get isFirstPage(): boolean {
         if (this.currentPage == null) return true;
         return this.visiblePages.indexOf(this.currentPage) == 0;
     }
+    /**
+     * Returns true if the current page is the last one.
+     */
     public get isLastPage(): boolean {
         if (this.currentPage == null) return true;
         var vPages = this.visiblePages;
         return vPages.indexOf(this.currentPage) == vPages.length - 1;
     }
+    /**
+     * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty.
+     * @see cookieName
+     * @see state
+     * @see onComplete
+     * @see surveyPostId
+     */
     public doComplete() {
         let previousCookie = this.hasCookie;
         this.clearUnusedValues();
@@ -699,6 +731,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             this.sendResult();
         }
     }
+    /**
+     * Returns true, if at the current moment the question values on the current page are validating on the server.
+     * @see onServerValidateQuestions
+     */
     public get isValidatingOnServer(): boolean { return this.isValidatingOnServerValue; }
     private setIsValidatingOnServer(val: boolean) {
         if (val == this.isValidatingOnServer) return;
@@ -751,15 +787,25 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     protected setCompleted() {
         this.isCompleted = true;
     }
+    /**
+     * Returns the html for completed 'Thank you' page.
+     * @see completedHtml
+     */
     public get processedCompletedHtml(): string {
         if (this.completedHtml) {
             return this.processHtml(this.completedHtml);
         }
         return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
     }
+    /**
+     * Returns the html that shows on loading the json.
+     */
     public get processedLoadingHtml(): string {
         return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
     }
+    /**
+     * Returns the text for the current progress.
+     */
     public get progressText(): string {
         if (this.currentPage == null) return "";
         var vPages = this.visiblePages;
@@ -782,6 +828,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     matrixRowAdded(question: IQuestion) {
         this.onMatrixRowAdded.fire(this, {question: question});
     }
+    /**
+     * Upload the file into servey
+     * @param name question name
+     * @param file uploading file
+     * @param storeDataAsText set it to true to encode file content into the survey results
+     * @param uploadingCallback a call back function to get the status on uploading the file
+     */
     public uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string)=>any): boolean {
         var accept = true;
         this.onUploadFile.fire(this, { name: name, file: file, accept: accept });
@@ -804,17 +857,31 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     getPage(index: number): PageModel {
         return this.pages[index];
     }
-    addPage(page: PageModel) {
+    /**
+     * Add a page into the survey
+     * @param page
+     * @see addNewPage
+     */
+    public addPage(page: PageModel) {
         if (page == null) return;
         this.pages.push(page);
         this.updateVisibleIndexes();
     }
-    addNewPage(name: string) {
+    /**
+     * Creates a new page and adds it into the survey
+     * @param name a page name
+     * @see addPage
+     */
+    public addNewPage(name: string) {
         var page = this.createNewPage(name);
         this.addPage(page);
         return page;
     }
-    removePage(page: PageModel) {
+    /**
+     * Remove the page from the survey
+     * @param page 
+     */
+    public removePage(page: PageModel) {
         var index = this.pages.indexOf(page);
         if (index < 0) return;
         this.pages.splice(index, 1);
@@ -823,6 +890,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         this.updateVisibleIndexes();
     }
+    /**
+     * Returns a question by its name
+     * @param name a question name
+     * @param caseInsensitive 
+     */
     public getQuestionByName(name: string, caseInsensitive: boolean = false): IQuestion {
         var questions = this.getAllQuestions();
         if (caseInsensitive) name = name.toLowerCase();
@@ -833,6 +905,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return null;
     }
+    /**
+     * Get a list of questions by their names
+     * @param names the array of names
+     * @param caseInsensitive 
+     */
     public getQuestionsByNames(names: string[], caseInsensitive: boolean = false): IQuestion[] {
         var result = [];
         if (!names) return result;
@@ -843,6 +920,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return result;
     }
+    /**
+     * Returns a page on which an element (question or panel) is placed.
+     * @param element Question or Panel
+     */
     public getPageByElement(element: IElement): PageModel {
         for (var i: number = 0; i < this.pages.length; i++) {
             var page = this.pages[i];
@@ -850,15 +931,27 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return null;
     }
+    /**
+     * Returns a page on which a question is located
+     * @param question 
+     */
     public getPageByQuestion(question: IQuestion): PageModel {
         return this.getPageByElement(question);
     }
+    /**
+     * Returns a page by it's name.
+     * @param name 
+     */
     public getPageByName(name: string): PageModel {
         for (var i: number = 0; i < this.pages.length; i++) {
             if (this.pages[i].name == name) return this.pages[i];
         }
         return null;
     }
+    /**
+     * Rertuns a list of pages by their names
+     * @param names a list of pages names
+     */
     public getPagesByNames(names: string[]): PageModel[]{
         var result = [];
         if (!names) return result;
@@ -869,6 +962,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return result;
     }
+    /**
+     * Returns the list of all questions in the survey
+     * @param visibleOnly set it true, if you want to get only visible questions
+     */
     public getAllQuestions(visibleOnly: boolean = false): Array<IQuestion> {
         var result = new Array<IQuestion>();
         for (var i: number = 0; i < this.pages.length; i++) {
@@ -934,6 +1031,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             pages[i].runCondition(this.valuesHash);
         }
     }
+    /**
+     * Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @param postId [dxsurvey.com](http://www.dxsurvey.com) service postId
+     * @param clientId Typically a customer e-mail or an identificator
+     * @param isPartialCompleted Set it to true if the survey is not completed yet and it is an intermediate results
+     * @see surveyPostId
+     * @see clientId
+     */
     public sendResult(postId: string = null, clientId: string = null, isPartialCompleted: boolean = false) {
         if (!this.isEditMode) return;
         if (isPartialCompleted && this.onPartialSend) {
@@ -953,12 +1058,22 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             self.onSendResult.fire(self, { success: success, response: response});
         }, this.clientId, isPartialCompleted);
     }
+    /**
+     * It calls the [dxsurvey.com](http://www.dxsurvey.com) service and on callback fires onGetResult event with all answers that your users made for a question.
+     * @param resultId [dxsurvey.com](http://www.dxsurvey.com) service resultId
+     * @param name The question name
+     * @see onGetResult
+     */
     public getResult(resultId: string, name: string) {
         var self = this;
         new dxSurveyService().getResult(resultId, name, function (success: boolean, data: any, dataList: any[], response: any) {
             self.onGetResult.fire(self, { success: success, data: data, dataList: dataList, response: response });
         });
     }
+    /**
+     * Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
+     */
     public loadSurveyFromService(surveyId: string = null) {
         if (surveyId) {
             this.surveyId = surveyId;
@@ -1012,6 +1127,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
     }
     private isLoadingFromJsonValue = false;
+    /**
+     * Returns true if the survey is loading from Json at the current moment.
+     */
     public get isLoadingFromJson() { return this.isLoadingFromJsonValue; }
     private setJsonObject(jsonObj: any) {
         if (!jsonObj) return;
@@ -1084,10 +1202,21 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             this.clearValue(questions[i].name);
         }
     }
+    /**
+     * Returns a variable value. Variable, unlike values, are not stored in the survey results.
+     * @param name A variable name
+     * @see SetVariable
+     */
     public getVariable(name: string): any {
         if (!name) return null;
         return this.variablesHash[name];
     }
+    /**
+     * Sets a variable value. Variable, unlike values, are not stored in the survey results.
+     * @param name A variable name
+     * @param newValue 
+     * @see GetVariable
+     */
     public setVariable(name: string, newValue: any) {
         if (!name) return;
         this.variablesHash[name] = newValue;
@@ -1101,11 +1230,27 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return value;
     }
+    /**
+     * Returns a question value
+     * @param name A question name
+     * @see data
+     * @see setValue
+     */
     public getValue(name: string): any {
         if (!name || name.length == 0) return null;
         var value = this.valuesHash[name];
         return this.getUnbindValue(value);
     }
+    /**
+     * Sets a question value. It runs all triggers and conditions (visibleIf properties). Goes to the next page if goNextPageAutomatic is true and all questions on the current page are answered correctly.
+     * @param name A question name
+     * @param newValue
+     * @see data
+     * @see getValue
+     * @see PageModel.visibleIf
+     * @see QuestionBase.visibleIf
+     * @see goNextPageAutomatic
+     */
     public setValue(name: string, newValue: any) {
         if (this.isValueEqual(name, newValue)) return;
         if (newValue === "" || newValue === null) {
@@ -1143,11 +1288,22 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             }
         }
     }
+    /**
+     * Returns the comment value
+     * @param name 
+     * @see setComment
+     */
     public getComment(name: string): string {
         var result = this.data[name + this.commentPrefix];
         if (result == null) result = "";
         return result;
     }
+    /**
+     * Set the comment value
+     * @param name 
+     * @param newValue
+     * @see getComment 
+     */
     public setComment(name: string, newValue: string) {
         var commentName = name + this.commentPrefix;
         if (newValue === "" || newValue === null) {

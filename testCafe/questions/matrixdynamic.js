@@ -190,13 +190,7 @@ frameworks.forEach( (framework) => {
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
-        assert.deepEqual(surveyResult, {
-            "frameworksRate":[
-                {
-                    "subject":"Science: Physical Science"
-                }
-            ]}
-        );
+        assert.equal(surveyResult.frameworksRate.length, 1);
     });
 
     test(`add row`, async t => {
@@ -225,18 +219,6 @@ frameworks.forEach( (framework) => {
             .click(`input[value=Complete]`);
 
         surveyResult = await getSurveyResult();
-        assert.deepEqual(surveyResult, {
-            "frameworksRate":[
-                {
-                    "subject":"Science: Physical Science"
-                },
-                {
-                    "subject":"Science: Chemistry"
-                },
-                {
-                    "subject":"Math: Algebra"
-                }
-            ]}
-        );
+        assert.equal(surveyResult.frameworksRate.length, 3);
     });
 });

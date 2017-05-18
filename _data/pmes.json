@@ -15,7 +15,7 @@
     },
     {
         "name": "getType",
-        "documentation": "",
+        "documentation": "Returns the type of the object as a string as it represents in the json.",
         "type": "() => string",
         "parameters": [],
         "className": "Base",
@@ -1149,6 +1149,24 @@
         "parameters": []
     },
     {
+        "name": "choices",
+        "documentation": "",
+        "type": "any[]",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "choicesOrder",
+        "documentation": "",
+        "type": "string",
+        "className": "QuestionSelectBase",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": []
+    },
+    {
         "name": "otherText",
         "documentation": "",
         "type": "string",
@@ -1541,6 +1559,14 @@
         "parameters": []
     },
     {
+        "name": "onSurveyLoad",
+        "documentation": "",
+        "type": "() => void",
+        "parameters": [],
+        "className": "QuestionMatrixDropdownModelBase",
+        "pmeType": "method"
+    },
+    {
         "name": "getRowValue",
         "documentation": "",
         "type": "(rowIndex: number) => any",
@@ -1765,15 +1791,6 @@
         "parameters": [],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "method"
-    },
-    {
-        "name": "cachedVisibleRows",
-        "documentation": "",
-        "type": "MatrixDropdownRowModelBase[]",
-        "className": "QuestionMatrixDynamicModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "isAllRowRequired",
@@ -2831,8 +2848,11 @@
     },
     {
         "name": "surveyId",
-        "documentation": "",
+        "documentation": "Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "string",
+        "see": [
+            "loadSurveyFromService"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2840,8 +2860,11 @@
     },
     {
         "name": "surveyPostId",
-        "documentation": "",
+        "documentation": "Set this property to automatically save the data in the [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "string",
+        "see": [
+            "onComplete"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2849,7 +2872,7 @@
     },
     {
         "name": "clientId",
-        "documentation": "",
+        "documentation": "Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2866,8 +2889,12 @@
     },
     {
         "name": "sendResultOnPageNext",
-        "documentation": "",
+        "documentation": "Set it to true, to save results on completing every page.",
         "type": "boolean",
+        "see": [
+            "onPartialSend",
+            "clientId"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2877,6 +2904,9 @@
         "name": "commentPrefix",
         "documentation": "You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.",
         "type": "string",
+        "see": [
+            "data"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": []
@@ -2896,8 +2926,7 @@
         "documentation": "Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.",
         "type": "boolean",
         "see": [
-            "goNextPageAutomatic",
-            "showCompletedPage"
+            "goNextPageAutomatic"
         ],
         "className": "SurveyModel",
         "pmeType": "property",
@@ -2909,6 +2938,9 @@
         "name": "showTitle",
         "documentation": "Set it to false hide survey title.",
         "type": "boolean",
+        "see": [
+            "title"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2919,6 +2951,9 @@
         "name": "showPageTitles",
         "documentation": "Set it to false to hide page titles.",
         "type": "boolean",
+        "see": [
+            "PageModel.title"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2929,6 +2964,10 @@
         "name": "showCompletedPage",
         "documentation": "On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.",
         "type": "boolean",
+        "see": [
+            "data",
+            "onComplete"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2939,6 +2978,9 @@
         "name": "requiredText",
         "documentation": "A char/string that will be rendered in the title required questions.",
         "type": "string",
+        "see": [
+            "QuestionBase.title"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2949,6 +2991,10 @@
         "name": "questionStartIndex",
         "documentation": "By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.",
         "type": "string",
+        "see": [
+            "QuestionBase.title",
+            "requiredText"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2956,8 +3002,11 @@
     },
     {
         "name": "storeOthersAsComment",
-        "documentation": "",
+        "documentation": "By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as \"question name \" + \"-Comment\". The value itself is \"question name\": \"others\". Set this property to false, to store the entered text directly in the \"question name\" key.",
         "type": "boolean",
+        "see": [
+            "commentPrefix"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2966,8 +3015,11 @@
     },
     {
         "name": "goNextPageAutomatic",
-        "documentation": "",
+        "documentation": "Set it true if you want to go to the next page without pressing 'Next' button when all questions are anwered.",
         "type": "boolean",
+        "see": [
+            "showNavigationButtons "
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2975,8 +3027,12 @@
     },
     {
         "name": "pages",
-        "documentation": "",
+        "documentation": "The list of all pages in the survey, including invisible.",
         "type": "PageModel[]",
+        "see": [
+            "PageModel",
+            "visiblePages"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2984,8 +3040,11 @@
     },
     {
         "name": "triggers",
-        "documentation": "",
+        "documentation": "The list of triggers in the survey.",
         "type": "SurveyTrigger[]",
+        "see": [
+            "SurveyTrigger"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -2993,8 +3052,12 @@
     },
     {
         "name": "clearInvisibleValues",
-        "documentation": "",
+        "documentation": "Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.",
         "type": "boolean",
+        "see": [
+            "QuestionBase.visible",
+            "oncComplete"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": [],
@@ -3002,87 +3065,126 @@
     },
     {
         "name": "onComplete",
-        "documentation": "",
+        "documentation": "The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.",
         "type": "Event<(sender: SurveyModel) => any, any>",
+        "see": [
+            "data",
+            "clearInvisibleValues",
+            "completeLastPage",
+            "surveyPostId"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onPartialSend",
-        "documentation": "",
+        "documentation": "The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.",
         "type": "Event<(sender: SurveyModel) => any, any>",
+        "see": [
+            "sendResultOnPageNext"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onCurrentPageChanged",
-        "documentation": "",
+        "documentation": "The event is fired when another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "currentPage",
+            "currentPageNo",
+            "nextPage",
+            "prevPage",
+            "completeLastPage"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onValueChanged",
-        "documentation": "",
+        "documentation": "The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "setValue"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onVisibleChanged",
-        "documentation": "",
+        "documentation": "The event is fired on changing a question visability.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "QuestionBase.visibile",
+            "QuestionBase.visibileIf"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onPageVisibleChanged",
-        "documentation": "",
+        "documentation": "The event is fired on changing a page visability.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "PageModel.visibile",
+            "PageModel.visibileIf"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onQuestionAdded",
-        "documentation": "",
+        "documentation": "The event is fired on adding a new question into survey.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "QuestionBase"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onQuestionRemoved",
-        "documentation": "",
+        "documentation": "The event is fired on removing a question from survey",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "QuestionBase"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onPanelAdded",
-        "documentation": "",
+        "documentation": "The event is fired on adding a panel into survey",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "PanelModel"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onPanelRemoved",
-        "documentation": "",
+        "documentation": "The event is fired on removing a panel from survey",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "PanelModel"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onValidateQuestion",
-        "documentation": "",
+        "documentation": "The event is fired on validating value in a question. There are following properties in options: options.name is a question name, options.value is the current question value and options.error is an empty string. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3090,7 +3192,7 @@
     },
     {
         "name": "onServerValidateQuestions",
-        "documentation": "",
+        "documentation": "Use this event to validate data on your server.",
         "type": "(sender: SurveyModel, options: any) => any",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3098,15 +3200,19 @@
     },
     {
         "name": "onProcessHtml",
-        "documentation": "",
+        "documentation": "Use this event to modify the html before rendering, for example html on 'Thank you' page. Options has one parameter: Options.html.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "completedHtml",
+            "QuestionHtmlModel.html"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onTextMarkdown",
-        "documentation": "",
+        "documentation": "Use this event to process the markdown text. ",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3114,7 +3220,7 @@
     },
     {
         "name": "onSendResult",
-        "documentation": "",
+        "documentation": "The event fires when it get response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successful.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3122,23 +3228,29 @@
     },
     {
         "name": "onGetResult",
-        "documentation": "",
+        "documentation": "Use it to get results after calling the getResult method. It returns a simple analytic from [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "getResult"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onUploadFile",
-        "documentation": "",
+        "documentation": "The event is fired on uploading the file in QuestionFile. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "uploadFile"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "onAfterRenderSurvey",
-        "documentation": "",
+        "documentation": "The event is fired right after survey is rendered in DOM. options.htmlElement is the root element.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3146,7 +3258,7 @@
     },
     {
         "name": "onAfterRenderPage",
-        "documentation": "",
+        "documentation": "The event is fired right after a page is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.currentPage, options.htmlElement",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3154,7 +3266,7 @@
     },
     {
         "name": "onAfterRenderQuestion",
-        "documentation": "",
+        "documentation": "The event is fired right after a question is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.question, options.htmlElement",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3162,7 +3274,7 @@
     },
     {
         "name": "onAfterRenderPanel",
-        "documentation": "",
+        "documentation": "The event is fired right after a panel is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.panel, options.htmlElement",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
         "className": "SurveyModel",
         "pmeType": "event",
@@ -3170,16 +3282,23 @@
     },
     {
         "name": "onMatrixRowAdded",
-        "documentation": "",
+        "documentation": "The event is fired on adding a new row in Matrix Dynamic quesiton. Options.question is a matrix question.",
         "type": "Event<(sender: SurveyModel, options: any) => any, any>",
+        "see": [
+            "QuestionMatrixDynamicModel",
+            "QuestionMatrixDynamicModel.visibleRows"
+        ],
         "className": "SurveyModel",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "jsonErrors",
-        "documentation": "",
+        "documentation": "The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.",
         "type": "JsonError[]",
+        "see": [
+            "JsonError"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "parameters": []
@@ -3194,7 +3313,7 @@
     },
     {
         "name": "locale",
-        "documentation": "",
+        "documentation": "Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3205,14 +3324,6 @@
             "",
             "en"
         ]
-    },
-    {
-        "name": "getLocale",
-        "documentation": "",
-        "type": "() => string",
-        "parameters": [],
-        "className": "SurveyModel",
-        "pmeType": "method"
     },
     {
         "name": "getMarkdownHtml",
@@ -3229,22 +3340,8 @@
         "pmeType": "method"
     },
     {
-        "name": "getLocString",
-        "documentation": "",
-        "type": "(str: string) => any",
-        "parameters": [
-            {
-                "name": "str",
-                "documentation": "",
-                "type": "string"
-            }
-        ],
-        "className": "SurveyModel",
-        "pmeType": "method"
-    },
-    {
         "name": "emptySurveyText",
-        "documentation": "",
+        "documentation": "Returns the text that renders when there is no any visible page and question.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3253,84 +3350,61 @@
     },
     {
         "name": "title",
-        "documentation": "",
+        "documentation": "Survey title.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locTitle",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "completedHtml",
-        "documentation": "",
+        "documentation": "The html that shows on completed ('Thank you') page. Set it to change the default text.",
         "type": "string",
+        "see": [
+            "showCompletedPage",
+            "locale"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locCompletedHtml",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "pagePrevText",
-        "documentation": "",
+        "documentation": "A text that renders on the 'Prev' button. Set it to change the default text.",
         "type": "string",
+        "see": [
+            "locale"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locPagePrevText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "pageNextText",
-        "documentation": "",
+        "documentation": "A text that renders on the 'Next' button. Set it to change the default text.",
         "type": "string",
+        "see": [
+            "locale"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locPageNextText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "completeText",
-        "documentation": "",
+        "documentation": "A text that renders on the 'Complete' button. Set it to change the default text.",
         "type": "string",
+        "see": [
+            "locale"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
@@ -3338,18 +3412,12 @@
         "isSerialized": true
     },
     {
-        "name": "locCompleteText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "questionTitleTemplate",
-        "documentation": "",
+        "documentation": "A template for a question title.",
         "type": "string",
+        "see": [
+            "QuestionModel.title"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
@@ -3358,24 +3426,19 @@
     },
     {
         "name": "getQuestionTitleTemplate",
-        "documentation": "",
+        "documentation": "Returns the question title template",
         "type": "() => string",
+        "see": [
+            "questionTitleTemplate",
+            "QuestionModel.title"
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
-        "name": "locQuestionTitleTemplate",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "showPageNumbers",
-        "documentation": "",
+        "documentation": "Set this property to false to turn off the numbering on pages titles.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3385,7 +3448,7 @@
     },
     {
         "name": "showQuestionNumbers",
-        "documentation": "",
+        "documentation": "Set this property to false to turn off the numbering on questions titles.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3401,7 +3464,7 @@
     },
     {
         "name": "showProgressBar",
-        "documentation": "",
+        "documentation": "Set this property to \"top\" to show the progress bar on the bottom or to \"bottom\" to show it on the bottom.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3417,7 +3480,7 @@
     },
     {
         "name": "processedTitle",
-        "documentation": "",
+        "documentation": "Returns the text/html that renders as survey title.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3426,7 +3489,7 @@
     },
     {
         "name": "questionTitleLocation",
-        "documentation": "",
+        "documentation": "Set this property to 'bottom' to show question title under the question.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3441,7 +3504,7 @@
     },
     {
         "name": "mode",
-        "documentation": "",
+        "documentation": "Set this mode to 'display' to make the survey read-only. ",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3456,8 +3519,12 @@
     },
     {
         "name": "data",
-        "documentation": "",
+        "documentation": "An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }",
         "type": "any",
+        "see": [
+            "setValue",
+            "getValue"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": true,
@@ -3465,8 +3532,25 @@
     },
     {
         "name": "comments",
-        "documentation": "",
+        "documentation": "Returns all comments from the data.",
         "type": "any",
+        "see": [
+            "data"
+        ],
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "visiblePages",
+        "documentation": "Returns the list of visible pages. If all pages are visible then it is the same as pages property.",
+        "type": "PageModel[]",
+        "see": [
+            "pages",
+            "PageModel.visible",
+            "PageModel.visibleIf"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3474,7 +3558,7 @@
     },
     {
         "name": "isEmpty",
-        "documentation": "",
+        "documentation": "Returns true if there is no any page in the survey. The survey is empty.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3483,8 +3567,12 @@
     },
     {
         "name": "pageCount",
-        "documentation": "",
+        "documentation": "Returns the survey pages count.",
         "type": "number",
+        "see": [
+            "visiblePageCount",
+            "pages"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3492,8 +3580,12 @@
     },
     {
         "name": "visiblePageCount",
-        "documentation": "",
+        "documentation": "Returns the survey visible pages count",
         "type": "number",
+        "see": [
+            "pageCount",
+            "visiblePages"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3501,7 +3593,7 @@
     },
     {
         "name": "currentPage",
-        "documentation": "",
+        "documentation": "Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.",
         "type": "PageModel",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3510,7 +3602,7 @@
     },
     {
         "name": "currentPageNo",
-        "documentation": "",
+        "documentation": "The index of the current page in the visible pages array. It starts from 0.",
         "type": "number",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3519,7 +3611,7 @@
     },
     {
         "name": "focusFirstQuestion",
-        "documentation": "",
+        "documentation": "Set the input focuse to the first question with the input.",
         "type": "() => void",
         "parameters": [],
         "className": "SurveyModel",
@@ -3527,7 +3619,7 @@
     },
     {
         "name": "state",
-        "documentation": "",
+        "documentation": "Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey, 'running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3536,17 +3628,22 @@
     },
     {
         "name": "clear",
-        "documentation": "",
+        "documentation": "Clear the survey data and state. If the survey has a 'completed' state, it will have a 'running' state.",
         "type": "(clearData?: boolean, gotoFirstPage?: boolean) => void",
+        "see": [
+            "data",
+            "state",
+            "currentPage"
+        ],
         "parameters": [
             {
                 "name": "clearData",
-                "documentation": "",
+                "documentation": "clear the data",
                 "type": "boolean"
             },
             {
                 "name": "gotoFirstPage",
-                "documentation": "",
+                "documentation": "make the first page as a current page.",
                 "type": "boolean"
             }
         ],
@@ -3555,7 +3652,7 @@
     },
     {
         "name": "getProgress",
-        "documentation": "",
+        "documentation": "Returns the progress that a user made by answering on the survey.",
         "type": "() => number",
         "parameters": [],
         "className": "SurveyModel",
@@ -3563,7 +3660,7 @@
     },
     {
         "name": "isNavigationButtonsShowing",
-        "documentation": "",
+        "documentation": "Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3572,8 +3669,11 @@
     },
     {
         "name": "isEditMode",
-        "documentation": "",
+        "documentation": "Returns true if the survey in the edit mode.",
         "type": "boolean",
+        "see": [
+            "mode"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3581,8 +3681,11 @@
     },
     {
         "name": "isDisplayMode",
-        "documentation": "",
+        "documentation": "Returns true if the survey in the display mode.",
         "type": "boolean",
+        "see": [
+            "mode"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3590,8 +3693,11 @@
     },
     {
         "name": "isDesignMode",
-        "documentation": "",
+        "documentation": "Returns true if the survey in the design mode. It is used by SurveyJS Editor",
         "type": "boolean",
+        "see": [
+            "setDesignMode "
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3599,12 +3705,12 @@
     },
     {
         "name": "setDesignMode",
-        "documentation": "",
+        "documentation": "Call it to set the survey into the design mode.",
         "type": "(value: boolean) => void",
         "parameters": [
             {
                 "name": "value",
-                "documentation": "",
+                "documentation": "use true to set the survey into the design mode.",
                 "type": "boolean"
             }
         ],
@@ -3613,8 +3719,14 @@
     },
     {
         "name": "hasCookie",
-        "documentation": "",
+        "documentation": "Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.",
         "type": "boolean",
+        "see": [
+            "cookieName",
+            "setCookie",
+            "deleteCookie  ",
+            "state"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3622,47 +3734,81 @@
     },
     {
         "name": "setCookie",
-        "documentation": "",
+        "documentation": "Set the cookie with cookieName in the browser. It is done automatically on survey complete if cookieName is not empty.",
         "type": "() => void",
+        "see": [
+            "cookieName",
+            "hasCookie",
+            "deleteCookie  "
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
         "name": "deleteCookie",
-        "documentation": "",
+        "documentation": "Delete the cookie with cookieName in the browser. ",
         "type": "() => void",
+        "see": [
+            "cookieName",
+            "hasCookie",
+            "setCookie  "
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
         "name": "nextPage",
-        "documentation": "",
+        "documentation": "Call it to go to the next page. It returns false, if it is the last page. If there is an error, for example required question is empty, the function returns false as well.",
         "type": "() => boolean",
+        "see": [
+            "isCurrentPageHasErrors",
+            "prevPage",
+            "completeLastPage"
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
+        "name": "isCurrentPageHasErrors",
+        "documentation": "Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.",
+        "type": "boolean",
+        "see": [
+            "nextPage"
+        ],
+        "className": "SurveyModel",
+        "pmeType": "property",
+        "hasSet": false,
+        "parameters": []
+    },
+    {
         "name": "prevPage",
-        "documentation": "",
+        "documentation": "Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.",
         "type": "() => boolean",
+        "see": [
+            "isFirstPage"
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
         "name": "completeLastPage",
-        "documentation": "",
+        "documentation": "Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page.",
         "type": "() => boolean",
+        "see": [
+            "isCurrentPageHasErrors",
+            "nextPage"
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
         "name": "isFirstPage",
-        "documentation": "",
+        "documentation": "Returns true if the current page is the first one.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3671,7 +3817,7 @@
     },
     {
         "name": "isLastPage",
-        "documentation": "",
+        "documentation": "Returns true if the current page is the last one.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3680,16 +3826,25 @@
     },
     {
         "name": "doComplete",
-        "documentation": "",
+        "documentation": "Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty.",
         "type": "() => void",
+        "see": [
+            "cookieName",
+            "state",
+            "onComplete",
+            "surveyPostId"
+        ],
         "parameters": [],
         "className": "SurveyModel",
         "pmeType": "method"
     },
     {
         "name": "isValidatingOnServer",
-        "documentation": "",
+        "documentation": "Returns true, if at the current moment the question values on the current page are validating on the server.",
         "type": "boolean",
+        "see": [
+            "onServerValidateQuestions"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3697,8 +3852,11 @@
     },
     {
         "name": "processedCompletedHtml",
-        "documentation": "",
+        "documentation": "Returns the html for completed 'Thank you' page.",
         "type": "string",
+        "see": [
+            "completedHtml"
+        ],
         "className": "SurveyModel",
         "pmeType": "property",
         "hasSet": false,
@@ -3706,7 +3864,7 @@
     },
     {
         "name": "processedLoadingHtml",
-        "documentation": "",
+        "documentation": "Returns the html that shows on loading the json.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3715,7 +3873,7 @@
     },
     {
         "name": "progressText",
-        "documentation": "",
+        "documentation": "Returns the text for the current progress.",
         "type": "string",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3724,27 +3882,27 @@
     },
     {
         "name": "uploadFile",
-        "documentation": "",
+        "documentation": "Upload the file into servey",
         "type": "(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any) ...",
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "question name",
                 "type": "string"
             },
             {
                 "name": "file",
-                "documentation": "",
+                "documentation": "uploading file",
                 "type": "File"
             },
             {
                 "name": "storeDataAsText",
-                "documentation": "",
+                "documentation": "set it to true to encode file content into the survey results",
                 "type": "boolean"
             },
             {
                 "name": "uploadingCallback",
-                "documentation": "",
+                "documentation": "a call back function to get the status on uploading the file",
                 "type": "(status: string) => any"
             }
         ],
@@ -3752,13 +3910,61 @@
         "pmeType": "method"
     },
     {
+        "name": "addPage",
+        "documentation": "Add a page into the survey",
+        "type": "(page: PageModel) => void",
+        "see": [
+            "addNewPage"
+        ],
+        "parameters": [
+            {
+                "name": "page",
+                "documentation": "",
+                "type": "PageModel"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "addNewPage",
+        "documentation": "Creates a new page and adds it into the survey",
+        "type": "(name: string) => PageModel",
+        "see": [
+            "addPage"
+        ],
+        "parameters": [
+            {
+                "name": "name",
+                "documentation": "a page name",
+                "type": "string"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
+        "name": "removePage",
+        "documentation": "Remove the page from the survey",
+        "type": "(page: PageModel) => void",
+        "parameters": [
+            {
+                "name": "page",
+                "documentation": "",
+                "type": "PageModel"
+            }
+        ],
+        "className": "SurveyModel",
+        "pmeType": "method"
+    },
+    {
         "name": "getQuestionByName",
-        "documentation": "",
+        "documentation": "Returns a question by its name",
         "type": "(name: string, caseInsensitive?: boolean) => IQuestion",
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "a question name",
                 "type": "string"
             },
             {
@@ -3772,12 +3978,12 @@
     },
     {
         "name": "getQuestionsByNames",
-        "documentation": "",
+        "documentation": "Get a list of questions by their names",
         "type": "(names: string[], caseInsensitive?: boolean) => IQuestion[]",
         "parameters": [
             {
                 "name": "names",
-                "documentation": "",
+                "documentation": "the array of names",
                 "type": "string[]"
             },
             {
@@ -3791,12 +3997,12 @@
     },
     {
         "name": "getPageByElement",
-        "documentation": "",
+        "documentation": "Returns a page on which an element (question or panel) is placed.",
         "type": "(element: IElement) => PageModel",
         "parameters": [
             {
                 "name": "element",
-                "documentation": "",
+                "documentation": "Question or Panel",
                 "type": "IElement"
             }
         ],
@@ -3805,7 +4011,7 @@
     },
     {
         "name": "getPageByQuestion",
-        "documentation": "",
+        "documentation": "Returns a page on which a question is located",
         "type": "(question: IQuestion) => PageModel",
         "parameters": [
             {
@@ -3819,7 +4025,7 @@
     },
     {
         "name": "getPageByName",
-        "documentation": "",
+        "documentation": "Returns a page by it's name.",
         "type": "(name: string) => PageModel",
         "parameters": [
             {
@@ -3833,12 +4039,12 @@
     },
     {
         "name": "getPagesByNames",
-        "documentation": "",
+        "documentation": "Rertuns a list of pages by their names",
         "type": "(names: string[]) => PageModel[]",
         "parameters": [
             {
                 "name": "names",
-                "documentation": "",
+                "documentation": "a list of pages names",
                 "type": "string[]"
             }
         ],
@@ -3847,12 +4053,12 @@
     },
     {
         "name": "getAllQuestions",
-        "documentation": "",
+        "documentation": "Returns the list of all questions in the survey",
         "type": "(visibleOnly?: boolean) => IQuestion[]",
         "parameters": [
             {
                 "name": "visibleOnly",
-                "documentation": "",
+                "documentation": "set it true, if you want to get only visible questions",
                 "type": "boolean"
             }
         ],
@@ -3861,22 +4067,26 @@
     },
     {
         "name": "sendResult",
-        "documentation": "",
+        "documentation": "Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "(postId?: string, clientId?: string, isPartialCompleted?: boolean) => void",
+        "see": [
+            "surveyPostId",
+            "clientId"
+        ],
         "parameters": [
             {
                 "name": "postId",
-                "documentation": "",
+                "documentation": "[dxsurvey.com](http://www.dxsurvey.com) service postId",
                 "type": "string"
             },
             {
                 "name": "clientId",
-                "documentation": "",
+                "documentation": "Typically a customer e-mail or an identificator",
                 "type": "string"
             },
             {
                 "name": "isPartialCompleted",
-                "documentation": "",
+                "documentation": "Set it to true if the survey is not completed yet and it is an intermediate results",
                 "type": "boolean"
             }
         ],
@@ -3885,17 +4095,20 @@
     },
     {
         "name": "getResult",
-        "documentation": "",
+        "documentation": "It calls the [dxsurvey.com](http://www.dxsurvey.com) service and on callback fires onGetResult event with all answers that your users made for a question.",
         "type": "(resultId: string, name: string) => void",
+        "see": [
+            "onGetResult"
+        ],
         "parameters": [
             {
                 "name": "resultId",
-                "documentation": "",
+                "documentation": "[dxsurvey.com](http://www.dxsurvey.com) service resultId",
                 "type": "string"
             },
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "The question name",
                 "type": "string"
             }
         ],
@@ -3904,12 +4117,12 @@
     },
     {
         "name": "loadSurveyFromService",
-        "documentation": "",
+        "documentation": "Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "(surveyId?: string) => void",
         "parameters": [
             {
                 "name": "surveyId",
-                "documentation": "",
+                "documentation": "[dxsurvey.com](http://www.dxsurvey.com) service surveyId",
                 "type": "string"
             }
         ],
@@ -3918,7 +4131,7 @@
     },
     {
         "name": "isLoadingFromJson",
-        "documentation": "",
+        "documentation": "Returns true if the survey is loading from Json at the current moment.",
         "type": "boolean",
         "className": "SurveyModel",
         "pmeType": "property",
@@ -3927,12 +4140,15 @@
     },
     {
         "name": "getVariable",
-        "documentation": "",
+        "documentation": "Returns a variable value. Variable, unlike values, are not stored in the survey results.",
         "type": "(name: string) => any",
+        "see": [
+            "SetVariable"
+        ],
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "A variable name",
                 "type": "string"
             }
         ],
@@ -3941,12 +4157,15 @@
     },
     {
         "name": "setVariable",
-        "documentation": "",
+        "documentation": "Sets a variable value. Variable, unlike values, are not stored in the survey results.",
         "type": "(name: string, newValue: any) => void",
+        "see": [
+            "GetVariable"
+        ],
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "A variable name",
                 "type": "string"
             },
             {
@@ -3960,12 +4179,16 @@
     },
     {
         "name": "getValue",
-        "documentation": "",
+        "documentation": "Returns a question value",
         "type": "(name: string) => any",
+        "see": [
+            "data",
+            "setValue"
+        ],
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "A question name",
                 "type": "string"
             }
         ],
@@ -3974,12 +4197,19 @@
     },
     {
         "name": "setValue",
-        "documentation": "",
+        "documentation": "Sets a question value. It runs all triggers and conditions (visibleIf properties). Goes to the next page if goNextPageAutomatic is true and all questions on the current page are answered correctly.",
         "type": "(name: string, newValue: any) => void",
+        "see": [
+            "data",
+            "getValue",
+            "PageModel.visibleIf",
+            "QuestionBase.visibleIf",
+            "goNextPageAutomatic"
+        ],
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "A question name",
                 "type": "string"
             },
             {
@@ -3993,8 +4223,11 @@
     },
     {
         "name": "getComment",
-        "documentation": "",
+        "documentation": "Returns the comment value",
         "type": "(name: string) => string",
+        "see": [
+            "setComment"
+        ],
         "parameters": [
             {
                 "name": "name",
@@ -4007,8 +4240,11 @@
     },
     {
         "name": "setComment",
-        "documentation": "",
+        "documentation": "Set the comment value",
         "type": "(name: string, newValue: string) => void",
+        "see": [
+            "getComment "
+        ],
         "parameters": [
             {
                 "name": "name",

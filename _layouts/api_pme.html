@@ -27,6 +27,7 @@ mainmenukey: doc
             <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
         </div>
     </div>
+    {{content}}
     <div data-bind="visible: seeAlso.length > 0">
         <span>See also: </span>
         <!-- ko foreach: seeAlso -->
@@ -43,11 +44,9 @@ mainmenukey: doc
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
 <script>
-    {% assign propertyName = File.basename page.path, extn %}
-    {% assign className = "SurveyModel" %}
-
+    var filedd = "{{page.path}}";
     var propertyInfo = {
-    {% for prop in site.data.pmes %}{% if prop.className == className and prop.name == propertyName %}
+    {% for prop in site.data.pmes %}{% assign filePath = 'docs/' | append:  prop.className | append:  '/' | append: prop.name | append:  '.md' %}{% if page.path == filePath %}
      name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}",  
         parameters:  [
             {% for par in prop.parameters %}
@@ -60,7 +59,7 @@ mainmenukey: doc
     function getClassObj(className) {
         return {name: className, href: "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html"};
     }
-    function getLinkObj(name) {
+    function getLinkObj(name, className) {
         if(!name) return {name: "", href: ""};
         var pos = name.indexOf('.');
         var href = "";
@@ -68,7 +67,7 @@ mainmenukey: doc
             if(name[0] === name[0].toUpperCase()) {
                 href = "{{ site.baseurl }}/docs/api_" + name.toLowerCase() + ".html"
             } else {
-                href = "#" + name;
+                href = "{{ site.baseurl }}/docs/api_" + className.toLowerCase() + ".html#" + name;
             }
         } else {
             var className = name.substr(0, pos);
@@ -112,7 +111,7 @@ mainmenukey: doc
         this.seeAlso = [];
         if(item.see) {
             for(var i = 0; i < item.see.length; i ++) {
-                this.seeAlso.push(getLinkObj(item.see[i]));
+                this.seeAlso.push(getLinkObj(item.see[i], item.className));
             }
         }
         this.showHide = function() {

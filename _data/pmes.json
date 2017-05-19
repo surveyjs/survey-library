@@ -1,7 +1,7 @@
 [
     {
         "name": "isValueEmpty",
-        "documentation": "",
+        "documentation": "A static methods that returns true if a value underfined, null, empty string or empty array.",
         "type": "(value: any) => boolean",
         "parameters": [
             {
@@ -581,31 +581,26 @@
     },
     {
         "name": "customWidget",
-        "documentation": "",
+        "documentation": "The link to the custom widget.",
         "type": "QuestionCustomWidget",
         "className": "QuestionBase",
         "pmeType": "property",
         "parameters": []
     },
     {
-        "name": "customWidgetData",
-        "documentation": "",
-        "type": "{ isNeedRender: boolean; }",
-        "className": "QuestionBase",
-        "pmeType": "property",
-        "parameters": []
-    },
-    {
         "name": "visibleIf",
-        "documentation": "",
+        "documentation": "An expression that returns true or false. If it returns a true the Question becomes visible and if it returns false the Panel becomes invisible. The library perform the expression on survey start and on changing a question value. If the property is empty then visible property is used.",
         "type": "string",
+        "see": [
+            "visible"
+        ],
         "className": "QuestionBase",
         "pmeType": "property",
         "parameters": []
     },
     {
         "name": "width",
-        "documentation": "",
+        "documentation": "Use it to set the specific width to the question.",
         "type": "string",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -613,15 +608,18 @@
     },
     {
         "name": "localeChanged",
-        "documentation": "",
+        "documentation": "The event is fired when the survey change it's locale",
         "type": "Event<(sender: QuestionBase) => any, any>",
+        "see": [
+            "SurveyModel.locale"
+        ],
         "className": "QuestionBase",
         "pmeType": "event",
         "parameters": []
     },
     {
         "name": "isPanel",
-        "documentation": "",
+        "documentation": "Always returns false.",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -630,8 +628,11 @@
     },
     {
         "name": "visible",
-        "documentation": "",
+        "documentation": "Use it to get/set the question visibility.",
         "type": "boolean",
+        "see": [
+            "visibleIf"
+        ],
         "className": "QuestionBase",
         "pmeType": "property",
         "hasSet": true,
@@ -639,7 +640,7 @@
     },
     {
         "name": "isVisible",
-        "documentation": "",
+        "documentation": "Returns true if the question is visible or survey is in design mode right now.",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -648,8 +649,13 @@
     },
     {
         "name": "isReadOnly",
-        "documentation": "",
+        "documentation": "Returns true if there is no input in the question. It always returns true for html question or survey is in 'display' mode.",
         "type": "boolean",
+        "see": [
+            "QuestionHtmlModel",
+            "SurveyModel.mode",
+            "Question.readOnly"
+        ],
         "className": "QuestionBase",
         "pmeType": "property",
         "hasSet": false,
@@ -657,7 +663,7 @@
     },
     {
         "name": "visibleIndex",
-        "documentation": "",
+        "documentation": "Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1",
         "type": "number",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -666,12 +672,12 @@
     },
     {
         "name": "hasErrors",
-        "documentation": "",
+        "documentation": "Returns true if there is at least one error on question validation.",
         "type": "(fireCallback?: boolean) => boolean",
         "parameters": [
             {
                 "name": "fireCallback",
-                "documentation": "",
+                "documentation": "set it to true to show error in UI",
                 "type": "boolean"
             }
         ],
@@ -680,7 +686,7 @@
     },
     {
         "name": "currentErrorCount",
-        "documentation": "",
+        "documentation": "Returns the number of erros on validation.",
         "type": "number",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -689,7 +695,7 @@
     },
     {
         "name": "hasTitle",
-        "documentation": "",
+        "documentation": "Returns false if the question doesn't have a title property, for example: QuestionHtmlModel",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -698,7 +704,7 @@
     },
     {
         "name": "hasInput",
-        "documentation": "",
+        "documentation": "Returns false if the question doesn't have an input element, for example: QuestionHtmlModel",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -707,7 +713,7 @@
     },
     {
         "name": "hasComment",
-        "documentation": "",
+        "documentation": "Returns true, if you can have a comment for the question.",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -716,7 +722,7 @@
     },
     {
         "name": "id",
-        "documentation": "",
+        "documentation": "Returns the unique identificator. It is generated automatically.",
         "type": "string",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -725,7 +731,7 @@
     },
     {
         "name": "startWithNewLine",
-        "documentation": "",
+        "documentation": "The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.",
         "type": "boolean",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -734,7 +740,7 @@
     },
     {
         "name": "renderWidth",
-        "documentation": "",
+        "documentation": "The rendered width of the question.",
         "type": "string",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -743,7 +749,7 @@
     },
     {
         "name": "indent",
-        "documentation": "",
+        "documentation": "Set it different from 0 to increase the left padding.",
         "type": "number",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -752,7 +758,7 @@
     },
     {
         "name": "rightIndent",
-        "documentation": "",
+        "documentation": "Set it different from 0 to increase the right padding.",
         "type": "number",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -761,12 +767,12 @@
     },
     {
         "name": "focus",
-        "documentation": "",
+        "documentation": "Focus the question input.",
         "type": "(onError?: boolean) => void",
         "parameters": [
             {
                 "name": "onError",
-                "documentation": "",
+                "documentation": "Focus if there is an error.",
                 "type": "boolean"
             }
         ],
@@ -775,7 +781,7 @@
     },
     {
         "name": "survey",
-        "documentation": "",
+        "documentation": "Returns the survey object.",
         "type": "ISurvey",
         "className": "QuestionBase",
         "pmeType": "property",
@@ -784,12 +790,16 @@
     },
     {
         "name": "runCondition",
-        "documentation": "",
+        "documentation": "Run visibleIf expression. If visibleIf is not empty, then the results of performing the expression (true or false) set to the visible property.",
         "type": "(values: HashTable<any>) => void",
+        "see": [
+            "visible",
+            "visibleIf"
+        ],
         "parameters": [
             {
                 "name": "values",
-                "documentation": "",
+                "documentation": "Typically survey results",
                 "type": "HashTable<any>"
             }
         ],
@@ -858,8 +868,11 @@
     },
     {
         "name": "getLocale",
-        "documentation": "",
+        "documentation": "Returns the current survey locale",
         "type": "() => string",
+        "see": [
+            "SurveyModel.locale"
+        ],
         "parameters": [],
         "className": "QuestionBase",
         "pmeType": "method"
@@ -907,29 +920,14 @@
     },
     {
         "name": "title",
-        "documentation": "",
+        "documentation": "Question title. Use survey questionTitleTemplate property to change the title question is rendered. If it is empty, then question name property is used.",
         "type": "string",
+        "see": [
+            "SurveyModel.questionTitleTemplate"
+        ],
         "className": "Question",
         "pmeType": "property",
         "hasSet": true,
-        "parameters": []
-    },
-    {
-        "name": "locTitle",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "Question",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
-        "name": "locCommentText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "Question",
-        "pmeType": "property",
-        "hasSet": false,
         "parameters": []
     },
     {
@@ -942,7 +940,7 @@
     },
     {
         "name": "processedTitle",
-        "documentation": "",
+        "documentation": "Returns the rendred question title.",
         "type": "string",
         "className": "Question",
         "pmeType": "property",
@@ -951,8 +949,11 @@
     },
     {
         "name": "fullTitle",
-        "documentation": "",
+        "documentation": "Returns the title after processing the question template.",
         "type": "string",
+        "see": [
+            "SurveyModel.questionTitleTemplate"
+        ],
         "className": "Question",
         "pmeType": "property",
         "hasSet": false,
@@ -990,7 +991,7 @@
     },
     {
         "name": "isRequired",
-        "documentation": "",
+        "documentation": "Set this property to true, to make the question a required. If a user doesn't answer the question then a validation error will be generated.",
         "type": "boolean",
         "className": "Question",
         "pmeType": "property",
@@ -1008,7 +1009,7 @@
     },
     {
         "name": "commentText",
-        "documentation": "",
+        "documentation": "Use it to get or set the comment value.",
         "type": "string",
         "className": "Question",
         "pmeType": "property",
@@ -1026,8 +1027,12 @@
     },
     {
         "name": "isReadOnly",
-        "documentation": "",
+        "documentation": "Retuns true if readOnly property is true or survey is in display mode.",
         "type": "boolean",
+        "see": [
+            "SurveyModel.model",
+            "readOnly"
+        ],
         "className": "Question",
         "pmeType": "property",
         "hasSet": false,
@@ -1035,7 +1040,7 @@
     },
     {
         "name": "readOnly",
-        "documentation": "",
+        "documentation": "Set it to true to make a question readonly.\nSet it to true to make the question readonly.",
         "type": "boolean",
         "className": "Question",
         "pmeType": "property",
@@ -1044,8 +1049,12 @@
     },
     {
         "name": "value",
-        "documentation": "",
+        "documentation": "Get/Set the question value.",
         "type": "any",
+        "see": [
+            "SurveyMode.setValue",
+            "SurveyMode.getValue"
+        ],
         "className": "Question",
         "pmeType": "property",
         "hasSet": true,
@@ -1053,7 +1062,7 @@
     },
     {
         "name": "comment",
-        "documentation": "",
+        "documentation": "The question comment value.",
         "type": "string",
         "className": "Question",
         "pmeType": "property",
@@ -1062,7 +1071,7 @@
     },
     {
         "name": "isEmpty",
-        "documentation": "",
+        "documentation": "Returns true if the question value is empty",
         "type": "() => boolean",
         "parameters": [],
         "className": "Question",
@@ -1070,12 +1079,12 @@
     },
     {
         "name": "hasErrors",
-        "documentation": "",
+        "documentation": "Returns true if threre is a validation error(s) in the question. ",
         "type": "(fireCallback?: boolean) => boolean",
         "parameters": [
             {
                 "name": "fireCallback",
-                "documentation": "",
+                "documentation": "set it to true to show an error in UI.",
                 "type": "boolean"
             }
         ],
@@ -1084,7 +1093,7 @@
     },
     {
         "name": "currentErrorCount",
-        "documentation": "",
+        "documentation": "Returns the validation errors count.",
         "type": "number",
         "className": "Question",
         "pmeType": "property",
@@ -1093,8 +1102,11 @@
     },
     {
         "name": "requiredText",
-        "documentation": "",
+        "documentation": "Returns the char/string for a required question.",
         "type": "string",
+        "see": [
+            "SurveyModel.requiredText"
+        ],
         "className": "Question",
         "pmeType": "property",
         "hasSet": false,
@@ -1102,7 +1114,7 @@
     },
     {
         "name": "addError",
-        "documentation": "",
+        "documentation": "Add error into the question error list.",
         "type": "(error: SurveyError) => void",
         "parameters": [
             {
@@ -1116,23 +1128,29 @@
     },
     {
         "name": "choicesByUrl",
-        "documentation": "",
+        "documentation": "Use this property to fill the choices from a restful service.",
         "type": "ChoicesRestfull",
+        "see": [
+            "choices"
+        ],
         "className": "QuestionSelectBase",
         "pmeType": "property",
         "parameters": []
     },
     {
         "name": "storeOthersAsComment",
-        "documentation": "",
+        "documentation": "By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as \"question name \" + \"-Comment\". The value itself is \"question name\": \"others\". Set this property to false, to store the entered text directly in the \"question name\" key.",
         "type": "boolean",
+        "see": [
+            "SurveyModel.storeOthersAsComment"
+        ],
         "className": "QuestionSelectBase",
         "pmeType": "property",
         "parameters": []
     },
     {
         "name": "otherItem",
-        "documentation": "",
+        "documentation": "Returns the other item. By using this property, you may change programmatically it's value and text.",
         "type": "ItemValue",
         "className": "QuestionSelectBase",
         "pmeType": "property",
@@ -1141,7 +1159,7 @@
     },
     {
         "name": "isOtherSelected",
-        "documentation": "",
+        "documentation": "Returns true if a user select the 'other' item.",
         "type": "boolean",
         "className": "QuestionSelectBase",
         "pmeType": "property",
@@ -1150,8 +1168,11 @@
     },
     {
         "name": "choices",
-        "documentation": "",
+        "documentation": "The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.",
         "type": "any[]",
+        "see": [
+            "choicesByUrl"
+        ],
         "className": "QuestionSelectBase",
         "pmeType": "property",
         "hasSet": true,
@@ -1159,7 +1180,7 @@
     },
     {
         "name": "choicesOrder",
-        "documentation": "",
+        "documentation": "Use this property to render items in a specific order.",
         "type": "string",
         "className": "QuestionSelectBase",
         "pmeType": "property",
@@ -1168,7 +1189,7 @@
     },
     {
         "name": "otherText",
-        "documentation": "",
+        "documentation": "Use this property to set the different text for other item.",
         "type": "string",
         "className": "QuestionSelectBase",
         "pmeType": "property",
@@ -1177,7 +1198,7 @@
     },
     {
         "name": "otherErrorText",
-        "documentation": "",
+        "documentation": "The text that shows when the other item is choosed by the other input is empty.",
         "type": "string",
         "className": "QuestionSelectBase",
         "pmeType": "property",
@@ -1185,18 +1206,13 @@
         "parameters": []
     },
     {
-        "name": "locOtherText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionSelectBase",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
-        "name": "locOtherErrorText",
-        "documentation": "",
-        "type": "LocalizableString",
+        "name": "visibleChoices",
+        "documentation": "The list of items as they will be rendered. If needed items are sorted and the other item is added.",
+        "type": "ItemValue[]",
+        "see": [
+            "hasOther",
+            "choicesOrder"
+        ],
         "className": "QuestionSelectBase",
         "pmeType": "property",
         "hasSet": false,
@@ -1228,7 +1244,7 @@
     },
     {
         "name": "colCount",
-        "documentation": "",
+        "documentation": "The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.",
         "type": "number",
         "className": "QuestionCheckboxBase",
         "pmeType": "property",
@@ -1237,22 +1253,13 @@
     },
     {
         "name": "optionsCaption",
-        "documentation": "",
+        "documentation": "Use this property to set the options caption different from the default value. The default value is taken from localization strings.",
         "type": "string",
         "className": "QuestionDropdownModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locOptionsCaption",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionDropdownModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "getType",
@@ -1288,7 +1295,7 @@
     },
     {
         "name": "size",
-        "documentation": "",
+        "documentation": "The text input size",
         "type": "number",
         "className": "QuestionTextModel",
         "pmeType": "property",
@@ -1305,8 +1312,35 @@
         "pmeType": "method"
     },
     {
+        "name": "inputType",
+        "documentation": "Use this property to change the default input type.",
+        "type": "string",
+        "className": "QuestionTextModel",
+        "pmeType": "property",
+        "hasSet": true,
+        "parameters": [],
+        "isSerialized": true,
+        "defaultValue": "text",
+        "serializedChoices": [
+            "color",
+            "date",
+            "datetime",
+            "datetime-local",
+            "email",
+            "month",
+            "number",
+            "password",
+            "range",
+            "tel",
+            "text",
+            "time",
+            "url",
+            "week"
+        ]
+    },
+    {
         "name": "placeHolder",
-        "documentation": "",
+        "documentation": "The input place holder.",
         "type": "string",
         "className": "QuestionTextModel",
         "pmeType": "property",
@@ -1315,17 +1349,8 @@
         "isSerialized": true
     },
     {
-        "name": "locPlaceHolder",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionTextModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "rows",
-        "documentation": "",
+        "documentation": "The html rows attribute.",
         "type": "number",
         "className": "QuestionCommentModel",
         "pmeType": "property",
@@ -1335,7 +1360,7 @@
     },
     {
         "name": "cols",
-        "documentation": "",
+        "documentation": "The html cols attribute.",
         "type": "number",
         "className": "QuestionCommentModel",
         "pmeType": "property",
@@ -1345,22 +1370,13 @@
     },
     {
         "name": "placeHolder",
-        "documentation": "",
+        "documentation": "Use this property to set the input place holder.",
         "type": "string",
         "className": "QuestionCommentModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locPlaceHolder",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionCommentModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "getType",
@@ -1386,7 +1402,7 @@
     },
     {
         "name": "columnMinWidth",
-        "documentation": "",
+        "documentation": "Use this property to set the mimimum column width.",
         "type": "string",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1395,28 +1411,12 @@
     },
     {
         "name": "horizontalScroll",
-        "documentation": "",
+        "documentation": "Set this property to true to show the horizontal scroll.",
         "type": "boolean",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "columnsChangedCallback",
-        "documentation": "",
-        "type": "() => void",
-        "className": "QuestionMatrixDropdownModelBase",
-        "pmeType": "property",
-        "parameters": []
-    },
-    {
-        "name": "updateCellsCallback",
-        "documentation": "",
-        "type": "() => void",
-        "className": "QuestionMatrixDropdownModelBase",
-        "pmeType": "property",
-        "parameters": []
     },
     {
         "name": "getType",
@@ -1428,7 +1428,7 @@
     },
     {
         "name": "columns",
-        "documentation": "",
+        "documentation": "The list of matrix columns.",
         "type": "MatrixDropdownColumn[]",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1438,7 +1438,7 @@
     },
     {
         "name": "cellType",
-        "documentation": "",
+        "documentation": "Use this property to change the default cell type.",
         "type": "string",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1456,7 +1456,7 @@
     },
     {
         "name": "columnColCount",
-        "documentation": "",
+        "documentation": "The default column count for radiogroup and checkbox  cell types.",
         "type": "number",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1489,7 +1489,7 @@
     },
     {
         "name": "getColumnWidth",
-        "documentation": "",
+        "documentation": "Returns the column width.",
         "type": "(column: MatrixDropdownColumn) => string",
         "parameters": [
             {
@@ -1503,7 +1503,7 @@
     },
     {
         "name": "choices",
-        "documentation": "",
+        "documentation": "The default choices for dropdown, checkbox and radiogroup cell types.",
         "type": "any[]",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1513,7 +1513,7 @@
     },
     {
         "name": "optionsCaption",
-        "documentation": "",
+        "documentation": "The default options caption for dropdown cell type.",
         "type": "string",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1551,7 +1551,7 @@
     },
     {
         "name": "visibleRows",
-        "documentation": "",
+        "documentation": "Returns the rows model objects that used during rendering.",
         "type": "MatrixDropdownRowModelBase[]",
         "className": "QuestionMatrixDropdownModelBase",
         "pmeType": "property",
@@ -1568,12 +1568,12 @@
     },
     {
         "name": "getRowValue",
-        "documentation": "",
+        "documentation": "Returns the row value. If the row value is empty, the object is empty: {}. ",
         "type": "(rowIndex: number) => any",
         "parameters": [
             {
                 "name": "rowIndex",
-                "documentation": "",
+                "documentation": "row index from 0 to visible row count - 1.",
                 "type": "number"
             }
         ],
@@ -1582,17 +1582,17 @@
     },
     {
         "name": "setRowValue",
-        "documentation": "",
+        "documentation": "Set the row value.",
         "type": "(rowIndex: number, rowValue: any) => any",
         "parameters": [
             {
                 "name": "rowIndex",
-                "documentation": "",
+                "documentation": "row index from 0 to visible row count - 1.",
                 "type": "number"
             },
             {
                 "name": "rowValue",
-                "documentation": "",
+                "documentation": "an object {\"column name\": columnValue,... }",
                 "type": "any"
             }
         ],
@@ -1642,7 +1642,7 @@
     },
     {
         "name": "rows",
-        "documentation": "",
+        "documentation": "The list of rows. A row has a value and an optional text",
         "type": "any[]",
         "className": "QuestionMatrixDropdownModel",
         "pmeType": "property",
@@ -1659,14 +1659,6 @@
         "pmeType": "method"
     },
     {
-        "name": "rowCountChangedCallback",
-        "documentation": "",
-        "type": "() => void",
-        "className": "QuestionMatrixDynamicModel",
-        "pmeType": "property",
-        "parameters": []
-    },
-    {
         "name": "getType",
         "documentation": "",
         "type": "() => string",
@@ -1676,8 +1668,12 @@
     },
     {
         "name": "rowCount",
-        "documentation": "",
+        "documentation": "The number of rows in the matrix.",
         "type": "number",
+        "see": [
+            "minRowCount",
+            "maxRowCount"
+        ],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": true,
@@ -1687,8 +1683,12 @@
     },
     {
         "name": "minRowCount",
-        "documentation": "",
+        "documentation": "The minimum row count. A user could not delete a row if the rowCount equals to minRowCount",
         "type": "number",
+        "see": [
+            "rowCount",
+            "maxRowCount"
+        ],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": true,
@@ -1697,8 +1697,12 @@
     },
     {
         "name": "maxRowCount",
-        "documentation": "",
+        "documentation": "The minimum row count. A user could not add a row if the rowCount equals to maxRowCount",
         "type": "number",
+        "see": [
+            "rowCount",
+            "minRowCount"
+        ],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": true,
@@ -1708,8 +1712,13 @@
     },
     {
         "name": "canAddRow",
-        "documentation": "",
+        "documentation": "Returns true, if a new row can be added.",
         "type": "boolean",
+        "see": [
+            "maxRowCount",
+            "canRemoveRow",
+            "rowCount"
+        ],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": false,
@@ -1717,8 +1726,13 @@
     },
     {
         "name": "canRemoveRow",
-        "documentation": "",
+        "documentation": "Returns true, if a row can be removed.",
         "type": "boolean",
+        "see": [
+            "minRowCount",
+            "canAddRow",
+            "rowCount"
+        ],
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": false,
@@ -1726,7 +1740,7 @@
     },
     {
         "name": "addRow",
-        "documentation": "",
+        "documentation": "Creates and add a new row.",
         "type": "() => void",
         "parameters": [],
         "className": "QuestionMatrixDynamicModel",
@@ -1734,12 +1748,12 @@
     },
     {
         "name": "removeRow",
-        "documentation": "",
+        "documentation": "Removes a row by it's index.",
         "type": "(index: number) => void",
         "parameters": [
             {
                 "name": "index",
-                "documentation": "",
+                "documentation": "a row index, from 0 to rowCount - 1",
                 "type": "number"
             }
         ],
@@ -1748,41 +1762,23 @@
     },
     {
         "name": "addRowText",
-        "documentation": "",
+        "documentation": "Use this property to change the default value of add row button text.",
         "type": "string",
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locAddRowText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionMatrixDynamicModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "removeRowText",
-        "documentation": "",
+        "documentation": "Use this property to change the default value of remove row button text.",
         "type": "string",
         "className": "QuestionMatrixDynamicModel",
         "pmeType": "property",
         "hasSet": true,
         "parameters": [],
         "isSerialized": true
-    },
-    {
-        "name": "locRemoveRowText",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionMatrixDynamicModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
     },
     {
         "name": "supportGoNextPageAutomatic",
@@ -1794,7 +1790,7 @@
     },
     {
         "name": "isAllRowRequired",
-        "documentation": "",
+        "documentation": "Set this property to true, if you want a user to answer all rows.",
         "type": "boolean",
         "className": "QuestionMatrixModel",
         "pmeType": "property",
@@ -1811,7 +1807,7 @@
     },
     {
         "name": "hasRows",
-        "documentation": "",
+        "documentation": "Returns true, if there is at least one row.",
         "type": "boolean",
         "className": "QuestionMatrixModel",
         "pmeType": "property",
@@ -1820,7 +1816,7 @@
     },
     {
         "name": "visibleRows",
-        "documentation": "",
+        "documentation": "Returns the list of rows as model objects.",
         "type": "MatrixRowModel[]",
         "className": "QuestionMatrixModel",
         "pmeType": "property",
@@ -1837,7 +1833,7 @@
     },
     {
         "name": "itemSize",
-        "documentation": "",
+        "documentation": "The default text input size.",
         "type": "number",
         "className": "QuestionMultipleTextModel",
         "pmeType": "property",
@@ -1855,7 +1851,7 @@
     },
     {
         "name": "items",
-        "documentation": "",
+        "documentation": "The list of input items.",
         "type": "MultipleTextItemModel[]",
         "className": "QuestionMultipleTextModel",
         "pmeType": "property",
@@ -1865,17 +1861,17 @@
     },
     {
         "name": "addItem",
-        "documentation": "",
+        "documentation": "Add a new text item.",
         "type": "(name: string, title?: string) => MultipleTextItemModel",
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "a item name",
                 "type": "string"
             },
             {
                 "name": "title",
-                "documentation": "",
+                "documentation": "a item title (optional)",
                 "type": "string"
             }
         ],
@@ -1892,7 +1888,7 @@
     },
     {
         "name": "colCount",
-        "documentation": "",
+        "documentation": "The number of columns. Items are rendred in one line if the value is 0.",
         "type": "number",
         "className": "QuestionMultipleTextModel",
         "pmeType": "property",
@@ -1909,7 +1905,7 @@
     },
     {
         "name": "getRows",
-        "documentation": "",
+        "documentation": "Returns the list of rendered rows.",
         "type": "() => any[]",
         "parameters": [],
         "className": "QuestionMultipleTextModel",
@@ -1931,7 +1927,7 @@
     },
     {
         "name": "parent",
-        "documentation": "",
+        "documentation": "A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.",
         "type": "PanelModelBase",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -1939,32 +1935,18 @@
     },
     {
         "name": "visibleIf",
-        "documentation": "",
+        "documentation": "An expression that returns true or false. If it returns a true the Panel becomes visible and if it returns false the Panel becomes invisible. The library perform the expression on survey start and on changing a question value. If the property is empty then visible property is used.",
         "type": "string",
+        "see": [
+            "visible"
+        ],
         "className": "PanelModelBase",
         "pmeType": "property",
-        "parameters": []
-    },
-    {
-        "name": "visibleIndex",
-        "documentation": "",
-        "type": "number",
-        "className": "PanelModelBase",
-        "pmeType": "property",
-        "parameters": []
-    },
-    {
-        "name": "data",
-        "documentation": "",
-        "type": "ISurvey",
-        "className": "PanelModelBase",
-        "pmeType": "property",
-        "hasSet": true,
         "parameters": []
     },
     {
         "name": "title",
-        "documentation": "",
+        "documentation": "PanelModel or PageModel title property.",
         "type": "string",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -1972,39 +1954,8 @@
         "parameters": []
     },
     {
-        "name": "locTitle",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "PanelModelBase",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
-        "name": "getLocale",
-        "documentation": "",
-        "type": "() => string",
-        "parameters": [],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
-        "name": "getMarkdownHtml",
-        "documentation": "",
-        "type": "(text: string) => string",
-        "parameters": [
-            {
-                "name": "text",
-                "documentation": "",
-                "type": "string"
-            }
-        ],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
         "name": "id",
-        "documentation": "",
+        "documentation": "A unique element identificator. It is generated automatically.",
         "type": "string",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2013,7 +1964,7 @@
     },
     {
         "name": "isPanel",
-        "documentation": "",
+        "documentation": "Returns true if the current object is Panel. Returns false if the current object is Page (a root Panel).",
         "type": "boolean",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2022,8 +1973,12 @@
     },
     {
         "name": "questions",
-        "documentation": "",
+        "documentation": "Returns the list of all questions located in the Panel/Page, including in the nested Panels.",
         "type": "QuestionBase[]",
+        "see": [
+            "QuestionBase",
+            "elements"
+        ],
         "className": "PanelModelBase",
         "pmeType": "property",
         "hasSet": false,
@@ -2031,7 +1986,7 @@
     },
     {
         "name": "elements",
-        "documentation": "",
+        "documentation": "Returns the list of the elements in the object, Panel/Page. Elements can be questions or panels. The function doesn't return elements in the nested Panels.",
         "type": "IElement[]",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2040,8 +1995,11 @@
     },
     {
         "name": "containsElement",
-        "documentation": "",
+        "documentation": "Returns true if the current element belongs to the Panel/Page. It looks in nestede Panels as well.",
         "type": "(element: IElement) => boolean",
+        "see": [
+            "PanelModel"
+        ],
         "parameters": [
             {
                 "name": "element",
@@ -2054,17 +2012,17 @@
     },
     {
         "name": "hasErrors",
-        "documentation": "",
+        "documentation": "Returns true, if there is an error on this Page or inside the current Panel",
         "type": "(fireCallback?: boolean, focuseOnFirstError?: boolean) => boolean",
         "parameters": [
             {
                 "name": "fireCallback",
-                "documentation": "",
+                "documentation": "set it to true, to show errors in UI",
                 "type": "boolean"
             },
             {
                 "name": "focuseOnFirstError",
-                "documentation": "",
+                "documentation": "set it to true to focuse on the first question that doesn't pass the validation",
                 "type": "boolean"
             }
         ],
@@ -2073,7 +2031,7 @@
     },
     {
         "name": "addQuestionsToList",
-        "documentation": "",
+        "documentation": "Fill list array with the questions.",
         "type": "(list: IQuestion[], visibleOnly?: boolean) => void",
         "parameters": [
             {
@@ -2083,7 +2041,7 @@
             },
             {
                 "name": "visibleOnly",
-                "documentation": "",
+                "documentation": "set it to true to get visible questions only",
                 "type": "boolean"
             }
         ],
@@ -2091,17 +2049,8 @@
         "pmeType": "method"
     },
     {
-        "name": "rows",
-        "documentation": "",
-        "type": "QuestionRowModel[]",
-        "className": "PanelModelBase",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "isActive",
-        "documentation": "",
+        "documentation": "Returns true if the current object is Page and it is the current page.",
         "type": "boolean",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2109,16 +2058,8 @@
         "parameters": []
     },
     {
-        "name": "onSurveyLoad",
-        "documentation": "",
-        "type": "() => void",
-        "parameters": [],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
         "name": "processedTitle",
-        "documentation": "",
+        "documentation": "Returns rendered title text or html.",
         "type": "string",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2127,8 +2068,11 @@
     },
     {
         "name": "visible",
-        "documentation": "",
+        "documentation": "Use it to get/set the object visibility.",
         "type": "boolean",
+        "see": [
+            "visibleIf"
+        ],
         "className": "PanelModelBase",
         "pmeType": "property",
         "hasSet": true,
@@ -2136,7 +2080,7 @@
     },
     {
         "name": "isVisible",
-        "documentation": "",
+        "documentation": "Returns true if object is visible or survey is in design mode right now.",
         "type": "boolean",
         "className": "PanelModelBase",
         "pmeType": "property",
@@ -2144,22 +2088,8 @@
         "parameters": []
     },
     {
-        "name": "getIsPageVisible",
-        "documentation": "",
-        "type": "(exceptionQuestion: IQuestion) => boolean",
-        "parameters": [
-            {
-                "name": "exceptionQuestion",
-                "documentation": "",
-                "type": "IQuestion"
-            }
-        ],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
         "name": "addElement",
-        "documentation": "",
+        "documentation": "Add an elememnt into Panel or Page.",
         "type": "(element: IElement, index?: number) => void",
         "parameters": [
             {
@@ -2169,7 +2099,7 @@
             },
             {
                 "name": "index",
-                "documentation": "",
+                "documentation": "element index in the elements array",
                 "type": "number"
             }
         ],
@@ -2178,7 +2108,7 @@
     },
     {
         "name": "addQuestion",
-        "documentation": "",
+        "documentation": "Add a question into Panel or Page.",
         "type": "(question: QuestionBase, index?: number) => void",
         "parameters": [
             {
@@ -2188,7 +2118,7 @@
             },
             {
                 "name": "index",
-                "documentation": "",
+                "documentation": "element index in the elements array",
                 "type": "number"
             }
         ],
@@ -2197,7 +2127,7 @@
     },
     {
         "name": "addPanel",
-        "documentation": "",
+        "documentation": "Add a panel into Panel or Page.",
         "type": "(panel: PanelModel, index?: number) => void",
         "parameters": [
             {
@@ -2207,7 +2137,7 @@
             },
             {
                 "name": "index",
-                "documentation": "",
+                "documentation": "element index in the elements array",
                 "type": "number"
             }
         ],
@@ -2216,17 +2146,17 @@
     },
     {
         "name": "addNewQuestion",
-        "documentation": "",
+        "documentation": "Creates a new question and adds it into the end of the elements list.",
         "type": "(questionType: string, name: string) => QuestionBase",
         "parameters": [
             {
                 "name": "questionType",
-                "documentation": "",
+                "documentation": "the possible values are: \"text\", \"checkbox\", \"dropdown\", \"matrix\", \"html\", \"matrixdynamic\", \"matrixdropdown\" and so on.",
                 "type": "string"
             },
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "a question name",
                 "type": "string"
             }
         ],
@@ -2235,12 +2165,12 @@
     },
     {
         "name": "addNewPanel",
-        "documentation": "",
+        "documentation": "Creates a new panel and adds it inot the end of the elements list.",
         "type": "(name: string) => PanelModel",
         "parameters": [
             {
                 "name": "name",
-                "documentation": "",
+                "documentation": "a panel name",
                 "type": "string"
             }
         ],
@@ -2249,8 +2179,11 @@
     },
     {
         "name": "removeElement",
-        "documentation": "",
+        "documentation": "Remove an element (Panel or Question) from the elements list.",
         "type": "(element: IElement) => boolean",
+        "see": [
+            "elements"
+        ],
         "parameters": [
             {
                 "name": "element",
@@ -2263,8 +2196,12 @@
     },
     {
         "name": "removeQuestion",
-        "documentation": "",
+        "documentation": "Remove question  from the elements list.",
         "type": "(question: QuestionBase) => void",
+        "see": [
+            "elements",
+            "removeElement"
+        ],
         "parameters": [
             {
                 "name": "question",
@@ -2276,30 +2213,8 @@
         "pmeType": "method"
     },
     {
-        "name": "runCondition",
-        "documentation": "",
-        "type": "(values: HashTable<any>) => void",
-        "parameters": [
-            {
-                "name": "values",
-                "documentation": "",
-                "type": "HashTable<any>"
-            }
-        ],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
-        "name": "onLocaleChanged",
-        "documentation": "",
-        "type": "() => void",
-        "parameters": [],
-        "className": "PanelModelBase",
-        "pmeType": "method"
-    },
-    {
         "name": "width",
-        "documentation": "",
+        "documentation": "The Panel width.",
         "type": "string",
         "className": "PanelModel",
         "pmeType": "property",
@@ -2338,7 +2253,7 @@
     },
     {
         "name": "innerIndent",
-        "documentation": "",
+        "documentation": "The inner indent. Set this property to increase the panel content margin. ",
         "type": "number",
         "className": "PanelModel",
         "pmeType": "property",
@@ -2353,17 +2268,8 @@
         ]
     },
     {
-        "name": "renderWidth",
-        "documentation": "",
-        "type": "string",
-        "className": "PanelModel",
-        "pmeType": "property",
-        "hasSet": true,
-        "parameters": []
-    },
-    {
         "name": "startWithNewLine",
-        "documentation": "",
+        "documentation": "The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.",
         "type": "boolean",
         "className": "PanelModel",
         "pmeType": "property",
@@ -2374,11 +2280,23 @@
     },
     {
         "name": "rightIndent",
-        "documentation": "",
+        "documentation": "The right indent of the Panel.",
         "type": "number",
         "className": "PanelModel",
         "pmeType": "property",
         "hasSet": true,
+        "parameters": []
+    },
+    {
+        "name": "visibleIndex",
+        "documentation": "The visible index of the page. It has values from 0 to visible page count - 1.",
+        "type": "number",
+        "see": [
+            "SurveyModel.visiblePages",
+            "SurveyModel.pages"
+        ],
+        "className": "PageModel",
+        "pmeType": "property",
         "parameters": []
     },
     {
@@ -2400,8 +2318,11 @@
     },
     {
         "name": "navigationButtonsVisibility",
-        "documentation": "",
+        "documentation": "Set this property to \"hide\" to make \"Prev\", \"Next\" and \"Complete\" buttons are invisible for this page. Set this property to \"show\" to make these buttons visible, even if survey showNavigationButtons property is false.",
         "type": "string",
+        "see": [
+            "SurveyMode.showNavigationButtons"
+        ],
         "className": "PageModel",
         "pmeType": "property",
         "hasSet": true,
@@ -2416,7 +2337,7 @@
     },
     {
         "name": "focusFirstQuestion",
-        "documentation": "",
+        "documentation": "Call it to focus the input on the first question",
         "type": "() => void",
         "parameters": [],
         "className": "PageModel",
@@ -2424,7 +2345,7 @@
     },
     {
         "name": "focusFirstErrorQuestion",
-        "documentation": "",
+        "documentation": "Call it to focus the input of the first question that has an error.",
         "type": "() => void",
         "parameters": [],
         "className": "PageModel",
@@ -2432,7 +2353,7 @@
     },
     {
         "name": "scrollToTop",
-        "documentation": "",
+        "documentation": "Call it to scroll to the page top.",
         "type": "() => void",
         "parameters": [],
         "className": "PageModel",
@@ -2440,7 +2361,7 @@
     },
     {
         "name": "imageHeight",
-        "documentation": "",
+        "documentation": "The image height.",
         "type": "string",
         "className": "QuestionFileModel",
         "pmeType": "property",
@@ -2449,7 +2370,7 @@
     },
     {
         "name": "imageWidth",
-        "documentation": "",
+        "documentation": "The image width.",
         "type": "string",
         "className": "QuestionFileModel",
         "pmeType": "property",
@@ -2458,7 +2379,7 @@
     },
     {
         "name": "storeDataAsText",
-        "documentation": "",
+        "documentation": "Set it to true to serialize file content as text.",
         "type": "boolean",
         "className": "QuestionFileModel",
         "pmeType": "property",
@@ -2467,7 +2388,7 @@
     },
     {
         "name": "maxSize",
-        "documentation": "",
+        "documentation": "Use this property to setup the maximum allowed file size.",
         "type": "number",
         "className": "QuestionFileModel",
         "pmeType": "property",
@@ -2484,7 +2405,7 @@
     },
     {
         "name": "showPreview",
-        "documentation": "",
+        "documentation": "Set it to true, to show the preview for the image files.",
         "type": "boolean",
         "className": "QuestionFileModel",
         "pmeType": "property",
@@ -2494,7 +2415,7 @@
     },
     {
         "name": "loadFile",
-        "documentation": "",
+        "documentation": "Load file programmatically.",
         "type": "(file: File) => void",
         "parameters": [
             {
@@ -2533,21 +2454,21 @@
         "isSerialized": true
     },
     {
-        "name": "locHtml",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionHtmlModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "processedHtml",
         "documentation": "",
         "type": "string",
         "className": "QuestionHtmlModel",
         "pmeType": "property",
         "hasSet": false,
+        "parameters": []
+    },
+    {
+        "name": "rateValues",
+        "documentation": "The list of rate items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown. If it is empty the default array [1, 2, 3, 4, 5] is used.",
+        "type": "any[]",
+        "className": "QuestionRatingModel",
+        "pmeType": "property",
+        "hasSet": true,
         "parameters": []
     },
     {
@@ -2576,38 +2497,20 @@
     },
     {
         "name": "minRateDescription",
-        "documentation": "",
+        "documentation": "The description of minimum (first) item.",
         "type": "string",
         "className": "QuestionRatingModel",
         "pmeType": "property",
         "hasSet": true,
-        "parameters": []
-    },
-    {
-        "name": "locMinRateDescription",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionRatingModel",
-        "pmeType": "property",
-        "hasSet": false,
         "parameters": []
     },
     {
         "name": "maxRateDescription",
-        "documentation": "",
+        "documentation": "The description of maximum (last) item.",
         "type": "string",
         "className": "QuestionRatingModel",
         "pmeType": "property",
         "hasSet": true,
-        "parameters": []
-    },
-    {
-        "name": "locMaxRateDescription",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "QuestionRatingModel",
-        "pmeType": "property",
-        "hasSet": false,
         "parameters": []
     },
     {
@@ -2860,7 +2763,7 @@
     },
     {
         "name": "surveyPostId",
-        "documentation": "Set this property to automatically save the data in the [dxsurvey.com](http://www.dxsurvey.com) service.",
+        "documentation": "Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.",
         "type": "string",
         "see": [
             "onComplete"
@@ -2889,7 +2792,7 @@
     },
     {
         "name": "sendResultOnPageNext",
-        "documentation": "Set it to true, to save results on completing every page.",
+        "documentation": "Set it to true, to save results on completing every page. onPartialSend event is fired.",
         "type": "boolean",
         "see": [
             "onPartialSend",
@@ -4292,8 +4195,11 @@
     },
     {
         "name": "survey",
-        "documentation": "",
+        "documentation": "A survey object.",
         "type": "SurveyModel",
+        "see": [
+            "SurveyModel"
+        ],
         "className": "SurveyWindowModel",
         "pmeType": "property",
         "hasSet": false,
@@ -4301,7 +4207,7 @@
     },
     {
         "name": "isShowing",
-        "documentation": "",
+        "documentation": "Returns true if the window is currently showing.",
         "type": "boolean",
         "className": "SurveyWindowModel",
         "pmeType": "property",
@@ -4310,8 +4216,12 @@
     },
     {
         "name": "isExpanded",
-        "documentation": "",
+        "documentation": "Returns true if the window is expanded.",
         "type": "boolean",
+        "see": [
+            "expand",
+            "collapse"
+        ],
         "className": "SurveyWindowModel",
         "pmeType": "property",
         "hasSet": false,
@@ -4319,7 +4229,7 @@
     },
     {
         "name": "title",
-        "documentation": "",
+        "documentation": "The window and survey title.",
         "type": "string",
         "className": "SurveyWindowModel",
         "pmeType": "property",
@@ -4327,17 +4237,8 @@
         "parameters": []
     },
     {
-        "name": "locTitle",
-        "documentation": "",
-        "type": "LocalizableString",
-        "className": "SurveyWindowModel",
-        "pmeType": "property",
-        "hasSet": false,
-        "parameters": []
-    },
-    {
         "name": "expand",
-        "documentation": "",
+        "documentation": "Expand the window to show the survey.",
         "type": "() => void",
         "parameters": [],
         "className": "SurveyWindowModel",
@@ -4345,7 +4246,7 @@
     },
     {
         "name": "collapse",
-        "documentation": "",
+        "documentation": "Collapse the window and show survey title only.",
         "type": "() => void",
         "parameters": [],
         "className": "SurveyWindowModel",

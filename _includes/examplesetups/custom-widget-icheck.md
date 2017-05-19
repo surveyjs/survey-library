@@ -19,7 +19,6 @@ var widget = {
         var select = function() {
           $el.find("input[value=" + question.value + "]").iCheck('check');
         }
-        $el.find('input').data({"iCheck": undefined});
         $el.find('input').iCheck({
           checkboxClass: 'iradio_square-blue',
           radioClass: 'iradio_square-blue'
@@ -29,6 +28,10 @@ var widget = {
         });
         question.valueChangedCallback = select;
         select();
+    },
+    willUnmount: function(question, el) {
+        var $el = $(el);
+        $el.find('input').iCheck('destroy');
     }
 }
 Survey.CustomWidgetCollection.Instance.addCustomWidget(widget);

@@ -63,7 +63,9 @@ mainmenukey: doc
                         <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
                         <!-- /ko -->
                     </div>
-                    <!--<a data-bind="attr: {href: href}"><span>Show more</span></a>-->
+                    <div data-bind="visible: linkToPropertyFile.length > 0">
+                        <a data-bind="attr: {href: linkToPropertyFile}"><span>Show more</span></a>
+                    </div>
                 </p>
             </div>
         </div>
@@ -80,7 +82,14 @@ mainmenukey: doc
     };
     var pmes = [
     {% for prop in site.data.pmes %}{% if curClass.allTypes contains prop.className %}
-    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}",  
+    {% assign checkFileName = 'docs/' | append:  prop.className | append:  '/' | append: prop.name | append:  '.md' %}
+    {% capture hasPropertyFile %}{% file_exists {{ checkFileName }} %}{% endcapture %}
+    {% assign propertyFileName = '' %}
+    {% if hasPropertyFile == "true" %}
+        {% assign propertyFileName = '/docs/' | append:  prop.className | append:  '/' | append: prop.name | append:  '.html' %}
+    {% endif %}
+    { name: "{{prop.name}}", className: "{{prop.className}}", type: "{{prop.type}}", pmeType: "{{prop.pmeType}}", "href": "{{ page.pathprefix }}{{prop.className}}/{{prop.name}}.html", isSerialized: "{{prop.isSerialized}}", defaultValue: {{ prop.defaultValue| jsonify  }},serializedChoices:  {{ prop.serializedChoices| jsonify  }}, documentation: {{ prop.documentation| markdownify | jsonify  }}, hasSet: "{{prop.hasSet}}",
+        linkToPropertyFile: "{{propertyFileName}}",
         parameters:  [
             {% for par in prop.parameters %}
             { name: "{{par.name}}", documentation: {{par.documentation | markdownify | jsonify}}, type: "{{par.type}}" }{% if forloop.last == false %},{% endif %} 
@@ -123,6 +132,7 @@ mainmenukey: doc
         this.pmeType = item.pmeType;
         this.href = item.href;
         this.documentation = item.documentation;
+        this.linkToPropertyFile = item.linkToPropertyFile;
         this.hasDocumentation = item.documentation && item.documentation.length > 0;
         this.hasDefaultValue = item.defaultValue != undefined;
         if(this.hasDefaultValue) this.defaultValue = item.defaultValue; else this.defaultValue = null;

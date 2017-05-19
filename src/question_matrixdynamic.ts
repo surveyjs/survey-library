@@ -27,7 +27,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     private locRemoveRowTextValue: LocalizableString;
     private minRowCountValue = 0;
     private maxRowCountValue = QuestionMatrixDynamicModel.MaxRowCount;
-    public rowCountChangedCallback: () => void;
+    rowCountChangedCallback: () => void;
     constructor(public name: string) {
         super(name);
         this.locAddRowTextValue = new LocalizableString(this);
@@ -36,6 +36,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public getType(): string {
         return "matrixdynamic";
     }
+    /**
+     * The number of rows in the matrix.
+     * @see minRowCount
+     * @see maxRowCount
+     */
     public get rowCount(): number { return this.rowCountValue; }
     public set rowCount(val: number) {
         if (val < 0 || val > QuestionMatrixDynamicModel.MaxRowCount) return;
@@ -54,6 +59,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         }
         this.fireCallback(this.rowCountChangedCallback);
     }
+    /**
+     * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
+     * @see rowCount
+     * @see maxRowCount
+     */
     public get minRowCount() : number { return this.minRowCountValue; }
     public set minRowCount(value : number) {
         if(value < 0) value = 0;
@@ -61,6 +71,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         this.minRowCountValue = value;
         if(this.rowCount < value) this.rowCount = value;
     }
+    /**
+     * The minimum row count. A user could not add a row if the rowCount equals to maxRowCount
+     * @see rowCount
+     * @see minRowCount
+     */
     public get maxRowCount() : number { return this.maxRowCountValue; }
     public set maxRowCount(value : number) {
         if(value <= 0) return;
@@ -69,14 +84,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         this.maxRowCountValue = value;
         if(this.rowCount > value) this.rowCount = value;
     }
+    /**
+     * Returns true, if a new row can be added.
+     * @see maxRowCount
+     * @see canRemoveRow
+     * @see rowCount
+     */
     public get canAddRow() : boolean { return this.rowCount < this.maxRowCount; }
+    /**
+     * Returns true, if a row can be removed.
+     * @see minRowCount
+     * @see canAddRow
+     * @see rowCount
+     */
     public get canRemoveRow() : boolean { return this.rowCount > this.minRowCount; }
+    /**
+     * Creates and add a new row.
+     */
     public addRow() {
         if(!this.canAddRow) return;
         var prevRowCount = this.rowCount;
         this.rowCount = this.rowCount + 1;
         if(this.survey && (prevRowCount + 1 == this.rowCount)) this.survey.matrixRowAdded(this);
     }
+    /**
+     * Removes a row by it's index.
+     * @param index a row index, from 0 to rowCount - 1
+     */
     public removeRow(index: number) {
         if(!this.canRemoveRow) return;
         if (index < 0 || index >= this.rowCount) return;
@@ -92,12 +126,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         this.rowCountValue--;
         this.fireCallback(this.rowCountChangedCallback);
     }
+    /**
+     * Use this property to change the default value of add row button text.
+     */
     public get addRowText() { return this.locAddRowText.text ? this.locAddRowText.text : surveyLocalization.getString("addRow"); }
     public set addRowText(value: string) { this.locAddRowText.text = value; }
-    public get locAddRowText() { return this.locAddRowTextValue; }
+    get locAddRowText() { return this.locAddRowTextValue; }
+    /**
+     * Use this property to change the default value of remove row button text.
+     */
     public get removeRowText() { return this.locRemoveRowText.text ? this.locRemoveRowText.text : surveyLocalization.getString("removeRow"); }
     public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
-    public get locRemoveRowText() { return this.locRemoveRowTextValue; }
+    get locRemoveRowText() { return this.locRemoveRowTextValue; }
     public supportGoNextPageAutomatic() {   return false;  }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);

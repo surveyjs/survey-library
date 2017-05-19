@@ -13,9 +13,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         super(name);
         this.locOptionsCaptionValue = new LocalizableString(this);
     }
+    /**
+     * Use this property to set the options caption different from the default value. The default value is taken from localization strings.
+     */
     public get optionsCaption() { return this.locOptionsCaption.text ? this.locOptionsCaption.text : surveyLocalization.getString("optionsCaption"); }
     public set optionsCaption(newValue: string) { this.locOptionsCaption.text = newValue; }
-    public get locOptionsCaption(): LocalizableString { return this.locOptionsCaptionValue;}
+    get locOptionsCaption(): LocalizableString { return this.locOptionsCaptionValue;}
     public getType(): string {
         return "dropdown";
     }

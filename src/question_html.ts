@@ -17,7 +17,7 @@ export class QuestionHtmlModel extends QuestionBase {
     }
     public get html(): string { return this.locHtml.text; }
     public set html(value: string) { this.locHtml.text = value; }
-    public get locHtml(): LocalizableString { return this.locHtmlValue; }
+    get locHtml(): LocalizableString { return this.locHtmlValue; }
     public get processedHtml() { return this.survey ? this.survey.processHtml(this.html) : this.html; }
 }
 JsonObject.metaData.addClass("html", [{name:"html:html", serializationProperty: "locHtml"}], function () { return new QuestionHtmlModel(""); }, "questionbase");

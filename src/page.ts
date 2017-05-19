@@ -10,6 +10,12 @@ import {PanelModel, PanelModelBase, QuestionRowModel} from "./panel";
 export class PageModel extends PanelModelBase implements IPage {
     private numValue: number = -1;
     private navigationButtonsVisibilityValue: string = "inherit";
+    /**
+     * The visible index of the page. It has values from 0 to visible page count - 1.
+     * @see SurveyModel.visiblePages
+     * @see SurveyModel.pages
+     */
+    public visibleIndex: number = -1;
     constructor(public name: string = "") {
         super(name);
     }
@@ -20,6 +26,10 @@ export class PageModel extends PanelModelBase implements IPage {
         this.numValue = value;
         this.onNumChanged(value);
     }
+    /**
+     * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
+     * @see SurveyMode.showNavigationButtons
+     */
     public get navigationButtonsVisibility(): string { return this.navigationButtonsVisibilityValue; }
     public set navigationButtonsVisibility(newValue: string) {
       this.navigationButtonsVisibilityValue = newValue.toLowerCase();
@@ -31,6 +41,9 @@ export class PageModel extends PanelModelBase implements IPage {
         }
         return str;
     }
+    /** 
+     * Call it to focus the input on the first question
+     */
     public focusFirstQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
             var question = this.questions[i];
@@ -39,6 +52,9 @@ export class PageModel extends PanelModelBase implements IPage {
             break;
         }
     }
+    /**
+     * Call it to focus the input of the first question that has an error.
+     */
     public focusFirstErrorQuestion() {
         for (var i = 0; i < this.questions.length; i++) {
             if (!this.questions[i].visible || this.questions[i].currentErrorCount == 0) continue;
@@ -46,6 +62,9 @@ export class PageModel extends PanelModelBase implements IPage {
             break;
         }
     }
+    /**
+     * Call it to scroll to the page top.
+     */
     public scrollToTop() {
         SurveyElement.ScrollElementToTop(SurveyPageId);
     }

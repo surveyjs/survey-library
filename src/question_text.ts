@@ -7,6 +7,9 @@ import {LocalizableString} from "./localizablestring";
  * A Model for an input text question.
  */
 export class QuestionTextModel extends Question {
+    /**
+     * The text input size
+     */
     public size: number = 25;
     private inputTypeValue: string = "text";
     private locPlaceHolderValue: LocalizableString;
@@ -17,16 +20,22 @@ export class QuestionTextModel extends Question {
     public getType(): string {
         return "text";
     }
-    get inputType(): string { return this.inputTypeValue; }
-    set inputType(type: string) {
+    /**
+     * Use this property to change the default input type.
+     */
+    public get inputType(): string { return this.inputTypeValue; }
+    public set inputType(type: string) {
       var value = type.toLowerCase();
       this.inputTypeValue = (value === "datetime_local") ? "datetime-local" : value;
     }
     isEmpty(): boolean {  return super.isEmpty() || this.value === ""; }
     supportGoNextPageAutomatic() { return true; }
+    /**
+     * The input place holder.
+     */
     public get placeHolder(): string { return this.locPlaceHolder.text; }
     public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
-    public get locPlaceHolder(): LocalizableString {return this.locPlaceHolderValue; }
+    get locPlaceHolder(): LocalizableString {return this.locPlaceHolderValue; }
     protected setNewValue(newValue: any) {
         newValue = this.correctValueType(newValue);
         super.setNewValue(newValue);

@@ -31,6 +31,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     public getType(): string {
         return "matrixdropdown";
     }
+    /**
+     * The list of rows. A row has a value and an optional text
+     */
     public get rows(): Array<any> { return this.rowsValue; }
     public set rows(newValue: Array<any>) {
         ItemValue.setData(this.rowsValue, newValue);

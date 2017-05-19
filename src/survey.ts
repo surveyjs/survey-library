@@ -22,7 +22,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      */
     public surveyId: string = null;
     /**
-     * Set this property to automatically save the data in the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.
      * @see onComplete
      */
     public surveyPostId: string = null;
@@ -35,7 +35,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      */
     public cookieName: string = null;
     /**
-     * Set it to true, to save results on completing every page.
+     * Set it to true, to save results on completing every page. onPartialSend event is fired.
      * @see onPartialSend
      * @see clientId
      */

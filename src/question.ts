@@ -37,6 +37,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public get hasTitle(): boolean { return true; }
     public get hasInput(): boolean { return true; }
     public get inputId(): string { return this.id + "i"; }
+    /** 
+     * Question title. Use survey questionTitleTemplate property to change the title question is rendered. If it is empty, then question name property is used.
+     * @see SurveyModel.questionTitleTemplate
+    */
     public get title(): string {
         var res = this.locTitle.text;
         return res ? res : this.name;
@@ -45,8 +49,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locTitle.text = newValue;
         this.fireCallback(this.titleChangedCallback);
     }
-    public get locTitle(): LocalizableString { return this.locTitleValue; }
-    public get locCommentText(): LocalizableString { return this.locCommentTextValue; }
+    get locTitle(): LocalizableString { return this.locTitleValue; }
+    get locCommentText(): LocalizableString { return this.locCommentTextValue; }
     private get locTitleHtml(): string {
         var res = this.locTitle.textOrHtml;
         return res? res: this.name;
@@ -56,7 +60,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locTitle.onChanged();
         this.locCommentText.onChanged();
     }
+    /**
+     * Returns the rendred question title.
+     */
     public get processedTitle() { return this.survey != null ? this.survey.processText(this.locTitleHtml) : this.locTitleHtml; }
+    /**
+     * Returns the title after processing the question template.
+     * @see SurveyModel.questionTitleTemplate
+     */
     public get fullTitle(): string {
         if (this.survey && this.survey.getQuestionTitleTemplate()) {
             if (!this.textPreProcessor) {
@@ -97,6 +108,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     public supportComment(): boolean { return false; }
     public supportOther(): boolean { return false; }
+    /** 
+     * Set this property to true, to make the question a required. If a user doesn't answer the question then a validation error will be generated.
+     */
     public get isRequired(): boolean { return this.isRequiredValue; }
     public set isRequired(val: boolean) {
         if (this.isRequired == val) return;
@@ -109,6 +123,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.hasCommentValue = val;
         if (this.hasComment) this.hasOther = false;
     }
+    /** 
+     * Use it to get or set the comment value.
+     */
     public get commentText(): string {
         var res = this.locCommentText.text;
         return res ? res : surveyLocalization.getString("otherItemText");
@@ -124,7 +141,18 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.hasOtherChanged();
     }
     protected hasOtherChanged() { }
+    /**
+     * Retuns true if readOnly property is true or survey is in display mode.
+     * @see SurveyModel.model
+     * @see readOnly
+     */
     public get isReadOnly() { return this.readOnly || (this.survey != null && this.survey.isDisplayMode);}
+    /**
+     * Set it to true to make a question readonly.
+     */
+    /**
+     * Set it to true to make the question readonly.
+     */
     public get readOnly(): boolean { return this.readOnlyValue; }
     public set readOnly(value: boolean) {
         if(this.readOnly == value) return;
@@ -151,10 +179,15 @@ export class Question extends QuestionBase implements IValidatorOwner {
         super.onSetData();
         this.onSurveyValueChanged(this.value);
     }
+    private isvalueChangedCallbackFiring: boolean = false;
+    /**
+     * Get/Set the question value.
+     * @see SurveyMode.setValue
+     * @see SurveyMode.getValue
+     */
     public get value(): any {
         return this.valueFromData(this.getValueCore());
     }
-    private isvalueChangedCallbackFiring: boolean = false;
     public set value(newValue: any) {
         this.setNewValue(newValue);
         if (this.isvalueChangedCallbackFiring) return;
@@ -162,6 +195,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.fireCallback(this.valueChangedCallback);
         this.isvalueChangedCallbackFiring = false;
     }
+    /**
+     * The question comment value.
+     */
     public get comment(): string { return this.getComment(); }
     public set comment(newValue: string) {
         if (this.comment == newValue) return;
@@ -172,13 +208,31 @@ export class Question extends QuestionBase implements IValidatorOwner {
     protected setComment(newValue: string) {
         this.setNewComment(newValue);
     }
+    /**
+     * Returns true if the question value is empty
+     */
     public isEmpty(): boolean { return Base.isValueEmpty(this.value); }
+    /**
+     * Returns true if threre is a validation error(s) in the question. 
+     * @param fireCallback set it to true to show an error in UI.
+     */
     public hasErrors(fireCallback: boolean = true): boolean {
         this.checkForErrors(fireCallback);
         return this.errors.length > 0;
     }
+    /**
+     * Returns the validation errors count.
+     */
     public get currentErrorCount(): number { return this.errors.length; }
+    /**
+     * Returns the char/string for a required question.
+     * @see SurveyModel.requiredText
+     */
     public get requiredText(): string { return this.survey != null && this.isRequired ? this.survey.requiredText : ""; }
+    /**
+     * Add error into the question error list.
+     * @param error 
+     */
     public addError(error: SurveyError) {
         this.errors.push(error);
         this.fireCallback(this.errorsChangedCallback);

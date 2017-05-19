@@ -20,7 +20,15 @@ export class QuestionSelectBase extends Question {
     private choicesFromUrl: Array<ItemValue> = null;
     private cachedValueForUrlRequestion: any = null;
     private choicesValues: Array<ItemValue>;
+    /**
+     * Use this property to fill the choices from a restful service.
+     * @see choices
+     */
     public choicesByUrl: ChoicesRestfull;
+    /**
+     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+     * @see SurveyModel.storeOthersAsComment
+     */
     public storeOthersAsComment: boolean = true;
     private choicesOrderValue: string = "none";
     choicesChangedCallback: () => void;
@@ -34,11 +42,16 @@ export class QuestionSelectBase extends Question {
         var self = this;
         this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };
     }
+    /**
+     * Returns the other item. By using this property, you may change programmatically it's value and text.
+     */
     public get otherItem(): ItemValue {
         this.otherItemValue.text = this.otherText ? this.otherText : surveyLocalization.getString("otherItemText");
         return this.otherItemValue;
     }
-
+    /**
+     * Returns true if a user select the 'other' item.
+     */
     public get isOtherSelected(): boolean {
         return this.getStoreOthersAsComment() ? this.getHasOther(this.value) : this.getHasOther(this.cachedValue);
     }
@@ -99,6 +112,10 @@ export class QuestionSelectBase extends Question {
         }
         return true;
     }
+    /**
+     * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
+     * @see choicesByUrl
+     */
     public get choices(): Array<any> { return this.choicesValues; }
     public set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValues, newValue);
@@ -107,6 +124,9 @@ export class QuestionSelectBase extends Question {
     protected hasOtherChanged() {
         this.onVisibleChoicesChanged();
     }
+    /**
+     * Use this property to render items in a specific order.
+     */
     public get choicesOrder(): string { return this.choicesOrderValue; }
     public set choicesOrder(newValue: string) {
         newValue = newValue.toLowerCase();
@@ -114,17 +134,28 @@ export class QuestionSelectBase extends Question {
         this.choicesOrderValue = newValue;
         this.onVisibleChoicesChanged();
     }
+    /**
+     * Use this property to set the different text for other item.
+     */
     public get otherText(): string { return this.locOtherText.text; }
     public set otherText(value: string) {
         this.locOtherText.text = value;
         this.onVisibleChoicesChanged();
     }
+    /**
+     * The text that shows when the other item is choosed by the other input is empty.
+     */
     public get otherErrorText(): string { return this.locOtherErrorText.text; }
     public set otherErrorText(value: string) { this.locOtherErrorText.text = value;  }
-    public get locOtherText(): LocalizableString { return this.locOtherTextValue; }
-    public get locOtherErrorText(): LocalizableString { return this.locOtherErrorTextValue; }
+    get locOtherText(): LocalizableString { return this.locOtherTextValue; }
+    get locOtherErrorText(): LocalizableString { return this.locOtherErrorTextValue; }
 
-    get visibleChoices(): Array<ItemValue> {
+    /**
+     * The list of items as they will be rendered. If needed items are sorted and the other item is added.
+     * @see hasOther
+     * @see choicesOrder
+     */
+    public get visibleChoices(): Array<ItemValue> {
         if (!this.hasOther && this.choicesOrder == "none") return this.activeChoices;
         if(!this.visibleChoicesCache) {
             this.visibleChoicesCache = this.sortVisibleChoices(this.activeChoices.slice());
@@ -220,6 +251,9 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     constructor(public name: string) {
         super(name);
     }
+    /**
+     * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.
+     */
     public get colCount(): number { return this.colCountValue; }
     public set colCount(value: number) {
         if (value < 0 || value > 4) return;

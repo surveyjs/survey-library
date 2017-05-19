@@ -13,6 +13,7 @@ import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionMultipleTextModel} from "../src/question_multipletext";
 import {QuestionRadiogroupModel} from "../src/question_radiogroup";
 import {QuestionTextModel} from "../src/question_text";
+import {SurveyWindowModel} from "../src/surveyWindow"
 import {PanelModel} from "../src/panel";
 
 
@@ -65,6 +66,7 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
     let dummyRadiogroup = new QuestionRadiogroupModel("q1");
     let dummyText = new QuestionTextModel("q1");
     let panel = new PanelModel("p1");
+    let dummrySurveyWindow = new SurveyWindowModel({});
     // Visit every sourceFile in the program    
     for (const sourceFile of program.getSourceFiles()) {
         // Walk the tree to search for classes

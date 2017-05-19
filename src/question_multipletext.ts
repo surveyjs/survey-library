@@ -19,6 +19,10 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     private data: IMultipleTextData;
     private locTitleValue: LocalizableString;
     private locPlaceHolderValue: LocalizableString;
+
+    /** 
+     * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
+     */
     public isRequired: boolean = false;
     private inputTypeValue: string = "text";
     private nameValue: string;
@@ -37,6 +41,9 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public getType(): string {
         return "multipletextitem";
     }
+    /**
+     * The item name. 
+     */
     public get name(): string { return this.nameValue; }
     public set name(value: string) {
         if(this.name === value) return;
@@ -46,26 +53,41 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     setData(data: IMultipleTextData) {
         this.data = data;
     }
-
+    /**
+     * Use this property to change the default input type.
+     */
     public get inputType(): string { return this.inputTypeValue; }
     public set inputType(newValue: string) {
       this.inputTypeValue = newValue.toLowerCase();
     }
+    /**
+     * Item title. If it is empty, the item name is rendered as title. This property supports markdown.
+     * @see name
+     */
     public get title() { return this.locTitle.text ? this.locTitle.text : this.name; }
     public set title(value: string) { this.locTitle.text = value; }
-    public get locTitle() { return this.locTitleValue; }
+    get locTitle() { return this.locTitleValue; }
+    /**
+     * Returns the text or html for rendering the title.
+     */
     public get fullTitle(): string { return this.getFullTitle(this.locTitle.textOrHtml); }
     protected getFullTitle(str: string): string {
         if(!str) str = this.name;
         if(this.isRequired && this.data) str = this.data.getIsRequiredText() + ' ' + str;
         return str;
     }
+    /**
+     * The input place holder.
+     */
     public get placeHolder(): string { return this.locPlaceHolder.text; }
     public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
-    public get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
+    get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
     public onLocaleChanged() {
         this.locTitle.onChanged();
     }
+    /** 
+     * The item value.
+     */
     public get value() {
         return this.data ? this.data.getMultipleTextValue(this.name) : null;
     }
@@ -78,10 +100,10 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
         if(this.onValueChangedCallback) this.onValueChangedCallback(newValue);
     }
     //IValidatorOwner
-    public getValidatorTitle(): string { return this.title; }
+    getValidatorTitle(): string { return this.title; }
     //ILocalizableOwner
-    public getLocale() { return this.data ? this.data.getLocale() : "";}
-    public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
+    getLocale() { return this.data ? this.data.getLocale() : "";}
+    getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
 }
 
 /**
@@ -90,6 +112,9 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
 export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
     private colCountValue: number = 1;
     colCountChangedCallback: () => void;
+    /**
+     * The default text input size.
+     */
     public itemSize: number = 25;
     private itemsValues: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
     constructor(public name: string) {
@@ -99,12 +124,20 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     public getType(): string {
         return "multipletext";
     }
+    /**
+     * The list of input items.
+     */
     public get items(): Array<MultipleTextItemModel> { return this.itemsValues; }
     public set items(value: Array<MultipleTextItemModel>) {
         this.itemsValues = value;
         this.setItemsOverriddenMethods();
         this.fireCallback(this.colCountChangedCallback);
     }
+    /**
+     * Add a new text item.
+     * @param name a item name
+     * @param title a item title (optional)
+     */
     public addItem(name: string, title: string = null): MultipleTextItemModel {
         var item = this.createTextItem(name, title);
         this.items.push(item);
@@ -142,12 +175,18 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         }
         return true;
     }
+    /**
+     * The number of columns. Items are rendred in one line if the value is 0.
+     */
     public get colCount(): number { return this.colCountValue; }
     public set colCount(value: number) {
         if (value < 1 || value > 4) return;
         this.colCountValue = value;
         this.fireCallback(this.colCountChangedCallback);
     }
+    /**
+     * Returns the list of rendered rows.
+     */
     public getRows(): Array<any> {
         var colCount = this.colCount;
         var items = this.items;

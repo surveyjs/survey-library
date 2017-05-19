@@ -12,9 +12,21 @@ export class QuestionFileModel extends Question {
     private showPreviewValue: boolean = false;
     private isUploading: boolean = false;
     previewValueLoadedCallback: () => void;
+    /**
+     * The image height.
+     */
     public imageHeight: string;
+    /**
+     * The image width.
+     */
     public imageWidth: string;
+    /**
+     * Set it to true to serialize file content as text.
+     */
     public storeDataAsText: boolean;
+    /**
+     * Use this property to setup the maximum allowed file size.
+     */
     public maxSize: number;
     constructor(public name: string) {
         super(name);
@@ -22,8 +34,15 @@ export class QuestionFileModel extends Question {
     public getType(): string {
         return "file";
     }
+    /**
+     * Set it to true, to show the preview for the image files.
+     */
     public get showPreview() { return this.showPreviewValue; }
     public set showPreview(value: boolean) { this.showPreviewValue = value; }
+    /**
+     * Load file programmatically.
+     * @param file 
+     */
     public loadFile(file: File) {
         var self = this;
         if (this.survey && !this.survey.uploadFile(this.name, file, this.storeDataAsText, function (status: string) { self.isUploading = status == "uploading";  })) return;

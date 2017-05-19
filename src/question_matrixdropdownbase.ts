@@ -263,10 +263,16 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
     private cellTypeValue: string = "dropdown";
     private columnColCountValue: number = 0;
+    /**
+     * Use this property to set the mimimum column width.
+     */
     public columnMinWidth: string = "";
+    /**
+     * Set this property to true to show the horizontal scroll.
+     */
     public horizontalScroll: boolean = false;
-    public columnsChangedCallback: () => void;
-    public updateCellsCallback: () => void;
+    columnsChangedCallback: () => void;
+    updateCellsCallback: () => void;
 
     constructor(public name: string) {
         super(name);
@@ -277,6 +283,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     public getType(): string {
         return "matrixdropdownbase";
     }
+    /**
+     * The list of matrix columns.
+     */
     public get columns(): Array<MatrixDropdownColumn> { return this.columnsValue; }
     public set columns(value: Array<MatrixDropdownColumn>) {
         this.columnsValue = value;
@@ -307,6 +316,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             return result;
         };
     }
+    /**
+     * Use this property to change the default cell type.
+     */
     public get cellType(): string { return this.cellTypeValue; }
     public set cellType(newValue: string) {
         newValue = newValue.toLowerCase();
@@ -314,6 +326,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.cellTypeValue = newValue;
         this.fireCallback(this.updateCellsCallback);
     }
+    /**
+     * The default column count for radiogroup and checkbox  cell types.
+     */
     public get columnColCount(): number { return this.columnColCountValue; }
     public set columnColCount(value: number) {
         if (value < 0 || value > 4) return;
@@ -344,13 +359,23 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         this.fireCallback(this.updateCellsCallback);
     }
+    /**
+     * Returns the column width.
+     * @param column 
+     */
     public getColumnWidth(column: MatrixDropdownColumn): string {
         return column.minWidth ? column.minWidth : this.columnMinWidth;
     }
+    /**
+     * The default choices for dropdown, checkbox and radiogroup cell types.
+     */
     public get choices(): Array<any> { return this.choicesValue; }
     public set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValue, newValue);
     }
+    /**
+     * The default options caption for dropdown cell type.
+     */
     public get optionsCaption() { return this.locOptionsCaption.text ? this.locOptionsCaption.text : surveyLocalization.getString("optionsCaption"); }
     public set optionsCaption(newValue: string) { this.locOptionsCaption.text = newValue; }
     public get locOptionsCaption() { return this.locOptionsCaptionValue; }
@@ -359,7 +384,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.columnsValue.push(column);
         return column;
     }
-
+    /**
+     * Returns the rows model objects that used during rendering.
+     */
     public get visibleRows(): Array<MatrixDropdownRowModelBase> {
         if(this.isLoadingFromJson) return;
         if(!this.generatedVisibleRows) {
@@ -370,6 +397,10 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     public onSurveyLoad() {
         this.generatedVisibleRows = null;
     }
+    /**
+     * Returns the row value. If the row value is empty, the object is empty: {}. 
+     * @param rowIndex row index from 0 to visible row count - 1.
+     */
     public getRowValue(rowIndex: number) {
         if(rowIndex < 0) return null;
         var visRows = this.visibleRows;
@@ -377,6 +408,11 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         var newValue = this.createNewValue(this.value);
         return this.getRowValueCore(visRows[rowIndex], newValue);
     }
+    /**
+     * Set the row value.
+     * @param rowIndex row index from 0 to visible row count - 1.
+     * @param rowValue an object {"column name": columnValue,... }
+     */
     public setRowValue(rowIndex: number, rowValue: any) {
         if(rowIndex < 0) return null;
         var visRows = this.visibleRows;

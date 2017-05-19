@@ -69,11 +69,17 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     private elementsValue: Array<IElement> = new Array<IElement>();
     private isQuestionsReady: boolean = false;
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
+    /**
+     * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
+     */
     public parent: PanelModelBase = null;
+    /**
+     * An expression that returns true or false. If it returns a true the Panel becomes visible and if it returns false the Panel becomes invisible. The library perform the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+     * @see visible
+     */
     public visibleIf: string = "";
     rowsChangedCallback: () => void;
     private locTitleValue: LocalizableString;
-    public visibleIndex: number = -1;
     private visibleValue: boolean = true;
     constructor(public name: string = "") {
         super();
@@ -86,24 +92,37 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             return self.doSpliceElements(this, start, deleteCount, ...items);
         };
     }
-    public get data(): ISurvey { return this.dataValue; }
-    public set data(value: ISurvey) {
+    get data(): ISurvey { return this.dataValue; }
+    set data(value: ISurvey) {
         if(this.dataValue === value) return;
         this.dataValue = value;
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].setData(value);
         }
     }
+    /**
+     * PanelModel or PageModel title property.
+     */
     public get title(): string { return this.locTitle.text; }
     public set title(newValue: string) {
         this.locTitle.text = newValue;
     }
-    public get locTitle(): LocalizableString { return this.locTitleValue; }
-    public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
-    public getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
-
+    get locTitle(): LocalizableString { return this.locTitleValue; }
+    getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
+    getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
+    /**
+     * A unique element identificator. It is generated automatically.
+     */
     public get id(): string { return this.idValue; }
+    /**
+     * Returns true if the current object is Panel. Returns false if the current object is Page (a root Panel).
+     */
     public get isPanel(): boolean { return false; }
+    /**
+     * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
+     * @see QuestionBase
+     * @see elements
+     */
     public get questions(): Array<QuestionBase> {
         if(!this.isQuestionsReady) {
             this.questionsValue = [];
@@ -127,7 +146,15 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.isQuestionsReady = false;
         if(this.parent) this.parent.markQuestionListDirty();
     }
+    /**
+     * Returns the list of the elements in the object, Panel/Page. Elements can be questions or panels. The function doesn't return elements in the nested Panels.
+     */
     public get elements(): Array<IElement> { return this.elementsValue; }
+    /**
+     * Returns true if the current element belongs to the Panel/Page. It looks in nestede Panels as well.
+     * @param element
+     * @see PanelModel
+     */
     public containsElement(element: IElement): boolean {
         for(var i = 0; i < this.elements.length; i ++) {
             var el: any = this.elements[i];
@@ -138,6 +165,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         }
         return false;
     }
+    /**
+     * Returns true, if there is an error on this Page or inside the current Panel
+     * @param fireCallback set it to true, to show errors in UI
+     * @param focuseOnFirstError set it to true to focuse on the first question that doesn't pass the validation
+     */
     public hasErrors(fireCallback: boolean = true, focuseOnFirstError: boolean = false): boolean {
         var result = false;
         var firstErrorQuestion = null;
@@ -156,6 +188,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         if (firstErrorQuestion) firstErrorQuestion.focus(true);
         return result;
     }
+    /**
+     * Fill list array with the questions.
+     * @param list 
+     * @param visibleOnly set it to true to get visible questions only
+     */
     public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {
         if (visibleOnly && !this.visible) return;
         for (var i = 0; i < this.elements.length; i++) {
@@ -169,12 +206,15 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             }
         }
     }
-    public get rows(): Array<QuestionRowModel> {
+    get rows(): Array<QuestionRowModel> {
         if(!this.rowValues) {
             this.rowValues = this.buildRows();
         }
         return this.rowValues;
     }
+    /**
+     * Returns true if the current object is Page and it is the current page.
+     */
     public get isActive() { return (!this.data) || this.data.currentPage == this.root; }
     protected get root(): PanelModelBase {
         var res = <PanelModelBase>this;
@@ -182,7 +222,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         return res;
     }
     protected createRow(): QuestionRowModel { return new QuestionRowModel(this); }
-    public onSurveyLoad() {
+    onSurveyLoad() {
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].onSurveyLoad();
         }
@@ -283,6 +323,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         }
         return result;
     }
+    /**
+     * Returns rendered title text or html.
+     */
     public get processedTitle() {
         return this.getRendredTitle(this.locTitle.textOrHtml);
     }
@@ -290,6 +333,10 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
         return this.data != null ? this.data.processText(str) : str;
     }
+    /**
+     * Use it to get/set the object visibility.
+     * @see visibleIf
+     */
     public get visible(): boolean { return this.visibleValue; }
     public set visible(value: boolean) {
         if (value === this.visible) return;
@@ -299,8 +346,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     protected onVisibleChanged() {
 
     }
+    /**
+     * Returns true if object is visible or survey is in design mode right now.
+     */
     public get isVisible(): boolean {  return (this.data && this.data.isDesignMode) || this.getIsPageVisible(null); }
-    public getIsPageVisible(exceptionQuestion: IQuestion): boolean {
+    getIsPageVisible(exceptionQuestion: IQuestion): boolean {
         if (!this.visible) return false;
         for (var i = 0; i < this.questions.length; i++) {
             if (this.questions[i] == exceptionQuestion) continue;
@@ -308,6 +358,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         }
         return false;
     }
+    /**
+     * Add an elememnt into Panel or Page.
+     * @param element 
+     * @param index element index in the elements array
+     */
     public addElement(element: IElement, index: number = -1) {
         if (element == null) return;
         if (index < 0 || index >= this.elements.length) {
@@ -316,17 +371,36 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             this.elements.splice(index, 0, element);
         }
     }
+    /**
+     * Add a question into Panel or Page.
+     * @param question 
+     * @param index element index in the elements array
+     */
     public addQuestion(question: QuestionBase, index: number = -1) {
         this.addElement(question, index);
     }
+    /**
+     * Add a panel into Panel or Page.
+     * @param panel 
+     * @param index element index in the elements array
+     */
     public addPanel(panel: PanelModel, index: number = -1) {
         this.addElement(panel, index);
     }
+    /**
+     * Creates a new question and adds it into the end of the elements list.
+     * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
+     * @param name a question name
+     */
     public addNewQuestion(questionType: string, name: string): QuestionBase {
         var question = QuestionFactory.Instance.createQuestion(questionType, name);
         this.addQuestion(question);
         return question;
     }
+    /**
+     * Creates a new panel and adds it inot the end of the elements list.
+     * @param name a panel name
+     */
     public addNewPanel(name: string): PanelModel {
         var panel = this.createNewPanel(name);
         this.addPanel(panel);
@@ -335,6 +409,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     protected createNewPanel(name: string): PanelModel {
         return new PanelModel(name);
     }
+    /**
+     * Remove an element (Panel or Question) from the elements list.
+     * @param element 
+     * @see elements
+     */
     public removeElement(element: IElement): boolean {
         var index = this.elements.indexOf(element);
         if (index < 0) {
@@ -347,10 +426,16 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.elements.splice(index, 1);
         return true;
     }
+    /**
+     * Remove question  from the elements list.
+     * @param question 
+     * @see elements
+     * @see removeElement
+     */
     public removeQuestion(question: QuestionBase) {
         this.removeElement(question);
     }
-    public runCondition(values: HashTable<any>) {
+    runCondition(values: HashTable<any>) {
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].runCondition(values);
         }
@@ -359,7 +444,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.conditionRunner.expression = this.visibleIf;
         this.visible = this.conditionRunner.run(values);
     }
-    public onLocaleChanged() {
+    onLocaleChanged() {
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].onLocaleChanged()
         }
@@ -374,6 +459,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
 export class PanelModel extends PanelModelBase implements IElement {
     private renderWidthValue: string;
     private rightIndentValue: number;
+    /**
+     * The Panel width.
+     */
     public width: string;
     private innerIndentValue: number = 0;
     private startWithNewLineValue: boolean = true;
@@ -388,24 +476,33 @@ export class PanelModel extends PanelModelBase implements IElement {
         this.data = <ISurvey>newValue;
     }
     public get isPanel(): boolean { return true; }
+    /**
+     * The inner indent. Set this property to increase the panel content margin. 
+     */
     public get innerIndent(): number { return this.innerIndentValue; }
     public set innerIndent(val: number) {
         if (val == this.innerIndentValue) return;
         this.innerIndentValue = val;
         if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
-    public get renderWidth(): string { return this.renderWidthValue; }
-    public set renderWidth(val: string) {
+    get renderWidth(): string { return this.renderWidthValue; }
+    set renderWidth(val: string) {
         if (val == this.renderWidth) return;
         this.renderWidthValue = val;
         if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
+    /**
+     * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
+     */
     public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
     public set startWithNewLine(value: boolean) {
         if(this.startWithNewLine == value) return;
         this.startWithNewLineValue = value;
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
+    /**
+     * The right indent of the Panel.
+     */
     public get rightIndent(): number { return this.rightIndentValue; }
     public set rightIndent(val: number) {
         if (val == this.rightIndent) return;

@@ -67,6 +67,10 @@ export interface IPage extends IConditionRunner {
  * The base class for SurveyJS objects.
  */
 export class Base {
+    /**
+     * A static methods that returns true if a value underfined, null, empty string or empty array.
+     * @param value 
+     */
     public static isValueEmpty(value: any) {
         if (Array.isArray(value) && value.length === 0) return true;
         return !value && value !== 0 && value !== false;

@@ -38,7 +38,7 @@ function init() {
         ]}
     ]};
 
-    Survey.defaultBootstrapCss.navigationButton = "button";
+    // Survey.defaultBootstrapCss.navigationButton = "button";
     Survey.Survey.cssType = "foundation";
 
     var model = new Survey.Model(json);

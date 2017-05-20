@@ -10,11 +10,11 @@ export * from  './chunks/helpers';
 // css standard
 export {defaultStandardCss} from "../defaultCss/cssstandard";
 // css bootstrap
-export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
+// export {defaultBootstrapCss} from "../defaultCss/cssbootstrap";
 // css Foundation
 export {defaultFoundationCss} from "../defaultCss/cssfoundation";
 // css bootstrap + material
-export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
+// export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 // react
 export {Survey} from "../react/reactSurvey";

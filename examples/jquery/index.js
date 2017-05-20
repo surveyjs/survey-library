@@ -42,7 +42,7 @@ function init() {
     Survey.Survey.cssType = "foundation";
 
     var model = new Survey.Model(json);
-    model.locale = "fa";
+    // model.locale = "fa";
     window.survey = model;
 
     $("#surveyElement").Survey({model:model});

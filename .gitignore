@@ -9,7 +9,6 @@ tmp/*
 *.cmd
 .tsdrc
 .idea
-/packages/**/*
 /.gitattributes
 project.json
 /lib_typings

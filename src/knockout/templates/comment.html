@@ -1,8 +1,0 @@
-﻿<script type="text/html" id="survey-comment">
-    <!-- ko ifnot: question.koIsReadOnly -->
-    <input data-bind="value: $data.question.koComment, visible: $data.visible, css: question.survey.css.question.comment" />
-    <!-- /ko -->
-    <!-- ko if: question.koIsReadOnly -->
-    <div data-bind="text: $data.question.koComment, visible: $data.visible, css: question.survey.css.question.comment"></div>
-    <!-- /ko -->
-</script>

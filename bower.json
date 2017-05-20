@@ -1,7 +1,7 @@
 {
   "name": "surveyjs",
   "description": "",
-  "main": "",
+  "main": ["./packages/survey-jquery/survey.jquery.min.js", "./packages/survey-jquery/survey.css"],
   "authors": [
     "Mohsen Emami <moh.motamede@gmail.com>"
   ],

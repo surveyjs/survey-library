@@ -86,7 +86,8 @@
 
         h1 {
             color: $main-color;
-            margin-bottom: 20px;
+            margin-top: 16px;
+            margin-bottom: 16px;
         }
 
         p {
@@ -94,7 +95,7 @@
         }
 
         .frameworks {
-            padding: 50px 0;
+            padding: 30px 0 58px 0;
             text-align: center;
 
             a {
@@ -102,6 +103,11 @@
 
                 &:last-child {
                     margin-right: 0;
+                    @media(max-width:1910px) {
+                        img {
+                            margin-top: 20px;
+                        }
+                    }
                 }
             }
         }
@@ -110,6 +116,7 @@
     .options {
         background-color: $bg-color-light;
         padding-top: 50px;
+        padding-bottom: 55px;
 
         .col-lg-4 {
             padding: 0;
@@ -204,13 +211,16 @@
         background-color: $bg-color;
 
         h1 {
-            margin-bottom: 50px;
+            margin-bottom: 18px;
+            margin-top: 0;
+            color: $text-color;
         }
 
         .steps {
             .steps-body {
                 margin: 0;
                 padding-bottom: 60px;
+                color: $text-color-2;
 
                 .step-name {
                     font-size: 25px;

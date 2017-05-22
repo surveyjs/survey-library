@@ -85,9 +85,11 @@ export class SurveyPanel extends React.Component<any, any> {
         for (var i = 0; i < questionRows.length; i++) {
             rows.push(this.createRow(questionRows[i], i));
         }
-        var style = { "marginLeft": this.panel.innerIndent * this.css.question.indent + 'px' };
+        var style = { "paddingLeft": this.panel.innerIndent * this.css.question.indent + 'px' };
+        var rootStyle = {verticalAlign: 'top', display: this.panel.isVisible? 'inline-block': 'none'};
+        if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
         return (
-            <div ref="root">
+            <div ref="root" style={rootStyle}>
                 {title}
                 <div style={style}>
                     {rows}

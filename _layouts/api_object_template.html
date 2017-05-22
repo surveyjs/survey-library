@@ -22,53 +22,77 @@ mainmenukey: doc
             <option value="event">Show Events</option>
         </select>
     </p>
-    <div data-bind="foreach: filteredItems">
-        <div data-bind="attr:{id: name}">
-            <div><a data-bind="click:showHide"><span data-bind="text: name"></span></a><span>  </span> <span data-bind="text: pmeType"></span></div>
-            <div data-bind="visible: koExpanded">
-                <p>
-                    <h4><span data-bind="text: name"></span><span>  </span><span data-bind="text: pmeType"></h4>
-                    <div>
-                        <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
-                    </div>
-                    <div data-bind="visible: isSerialized">
-                        The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
-                    </div>
-                    <div data-bind="visible: hasDefaultValue">
-                        <span>The default value is: </span><span data-bind="text:defaultValue"></span>
-                    </div>
-                    <div data-bind="visible: hasSerializedChoices">
-                        <span>You may set the following values into this property: </span>
-                        <!-- ko foreach: serializedChoices -->
-                        <span data-bind="text:$data"></span><span data-bind="if: ($index() !== ($parent.serializedChoices.length - 1))">, </span>
-                        <!-- /ko -->
-                    </div>
-                    <div data-bind="visible: hasDocumentation, html: documentation"></div>
-                    <div data-bind="visible: hasParameters">
-                        <h5>Parameters:</h5>
-                        <div data-bind="foreach: parameters">
-                            <div><span>Name: </span><span data-bind="text:name"></span><span>, type: </span><span data-bind="text:type"></span></div>
-                            <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
-                        </div>
-                    </div>
-                    <div data-bind="visible: seeAlso.length > 0">
-                        <span>See also: </span>
-                        <!-- ko foreach: seeAlso -->
-                        <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
-                        <!-- /ko -->
-                    </div>
-                    <div>
-                        <span>Implemented in: </span>
-                        <!-- ko foreach: implemetedIn -->
-                        <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
-                        <!-- /ko -->
-                    </div>
-                    <div data-bind="visible: linkToPropertyFile.length > 0">
-                        <a data-bind="attr: {href: linkToPropertyFile}"><span>Show more</span></a>
-                    </div>
-                </p>
-            </div>
-        </div>
+
+    <div class="table-container">
+        <table class="table table-striped">
+            <tbody>
+                <!-- ko foreach: filteredItems -->
+                    <tr data-bind="attr:{id: name}">
+                        <td>
+                            <img data-bind="visible: pmeType =='property'" src='../images/property_12.svg' width='20px' />
+                            <img data-bind="visible: pmeType =='method'" src='../images/method_12.svg' width='20px' />
+                            <img data-bind="visible: pmeType =='event'" src='../images/bell.svg' width='20px' />
+                        </td>
+                        <td>
+                            <a data-bind="click:showHide"><span data-bind="text: name"></span></a>
+                            <span data-bind="text: pmeType"></span>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                            <a href="#" data-bind="click: showHide" title="More Info...">
+                                <span class="glyphicon" data-bind="css: {'glyphicon-chevron-down': !koExpanded(), 'glyphicon-chevron-up': koExpanded}"></span>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr data-bind="visible: koExpanded">
+                        <td style="border-top-style:none"></td>
+                        <td colspan="2" style="border-top-style:none">
+                            <div>
+                                <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
+                            </div>
+                            <div data-bind="visible: isSerialized">
+                                The property is serializable. It is stored in survey json and you can edit it in the SurveyJS Editor.
+                            </div>
+                            <div data-bind="visible: hasDefaultValue">
+                                <span>The default value is: </span><span data-bind="text:defaultValue"></span>
+                            </div>
+                            <div data-bind="visible: hasSerializedChoices">
+                                <span>You may set the following values into this property: </span>
+                                <!-- ko foreach: serializedChoices -->
+                                <span data-bind="text:$data"></span><span data-bind="if: ($index() !== ($parent.serializedChoices.length - 1))">, </span>
+                                <!-- /ko -->
+                            </div>
+                            <div data-bind="visible: hasDocumentation, html: documentation"></div>
+                            <div>
+                                <span>Implemented in: </span>
+                                <!-- ko foreach: implemetedIn -->
+                                <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
+                                <!-- /ko -->
+                            </div>
+                            <div data-bind="visible: linkToPropertyFile.length > 0">
+                                <a data-bind="attr: {href: linkToPropertyFile}"><span>Show more</span></a>
+                            </div>
+                        </td>
+                        <td colspan="2" style="border-top-style:none">
+                            <div data-bind="visible: hasParameters">
+                                <h5>Parameters:</h5>
+                                <div data-bind="foreach: parameters">
+                                    <div><span>Name: </span><span data-bind="text:name"></span><span>, type: </span><span data-bind="text:type"></span></div>
+                                    <div data-bind="visible: hasDocumentation"><span>Documentation: </span><span data-bind="html:documentation"></span></div>
+                                </div>
+                            </div>
+                            <div data-bind="visible: seeAlso.length > 0">
+                                <span>See also: </span>
+                                <!-- ko foreach: seeAlso -->
+                                <a data-bind="attr: {href: href}"><span data-bind="text: name"></span></a>
+                                <!-- /ko -->
+                            </div>
+                        </td>
+                    </tr>
+                <!-- /ko -->
+            </tbody>
+        </table>
     </div>
 </div>
 

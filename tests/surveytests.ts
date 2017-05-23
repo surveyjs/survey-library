@@ -1371,6 +1371,13 @@ QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function (asse
     assert.equal(question.comment, "comment text");
 });
 
+QUnit.test("Create questions from elements array - issue #395", function (assert) {
+    var survey = new SurveyModel({ elements: [ { type: "comment", name: "suggestions", title:"What would make you more satisfied with the Product?", } ]});
+    assert.equal(survey.pages.length, 1);
+    assert.equal(survey.pages[0].questions.length, 1);
+    assert.equal(survey.pages[0].questions[0].name, "suggestions");
+});
+
 QUnit.test("onMatrixRowAdded", function (assert) {
     var survey = new SurveyModel();
     survey.onMatrixRowAdded.add(function(survey, options) {

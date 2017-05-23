@@ -1,8 +1,7 @@
 <template>
     <div>
-        <textarea v-if="!question.isReadOnly" type="text" v-model="question.value" :id="question.inputId" :cols="question.cols"
+        <textarea type="text" :readonly="question.isReadOnly" v-model="question.value" :id="question.inputId" :cols="question.cols"
                   :rows="question.rows" :placeholder="question.placeHolder" :class="css.comment.root"></textarea>
-        <div v-else :text="question.value" :class="css.comment.root"></div>
     </div>
 </template>
 

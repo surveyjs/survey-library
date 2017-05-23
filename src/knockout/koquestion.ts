@@ -15,7 +15,8 @@ export class QuestionImplementor extends QuestionImplementorBase {
         question.errorsChangedCallback = function () { self.onErrorsChanged(); };
         question.titleChangedCallback = function () { self.onVisibleIndexChanged(); };
         question.visibleIndexChangedCallback = function () { self.onVisibleIndexChanged(); };
-        question.readOnlyChangedCallback = function() {self.onReadOnlyChanged();}
+        question.readOnlyChangedCallback = function() {self.onReadOnlyChanged();};
+        question.surveyLoadCallback = function() {self.onSurveyLoad();}
         this.koDummy = ko.observable(0);
         this.koValue = this.createkoValue();
         this.koComment = ko.observable(this.question.comment);
@@ -45,6 +46,9 @@ export class QuestionImplementor extends QuestionImplementorBase {
     }
     protected onVisibleIndexChanged() {
         this.updateKoDummy();
+    }
+    protected onSurveyLoad() {
+        this.onReadOnlyChanged();
     }
     protected onReadOnlyChanged() {
         this.koIsReadOnly(this.question.isReadOnly);

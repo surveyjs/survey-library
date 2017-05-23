@@ -25,10 +25,8 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        if (this.isDisplayMode)
-            return (<div id={this.question.inputId} className={this.css}>{this.question.value}</div>)
         return (
-            <textarea id={this.question.inputId} className={this.css} type="text" value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
+            <textarea id={this.question.inputId} className={this.css} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
         );
     }
 }

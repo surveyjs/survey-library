@@ -184,6 +184,7 @@ export class QuestionSelectBase extends Question {
     }
     protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.survey != null ? this.survey.storeOthersAsComment : true); }
     onSurveyLoad() {
+        super.onSurveyLoad();
         if (this.choicesByUrl) this.choicesByUrl.run();
         this.onVisibleChoicesChanged();
     }

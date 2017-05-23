@@ -49,6 +49,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     visibilityChangedCallback: () => void;
     visibleIndexChangedCallback: () => void;
     readOnlyChangedCallback: () => void;
+    surveyLoadCallback: () => void;
 
     constructor(public name: string) {
         super();
@@ -186,6 +187,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public onSurveyValueChanged(newValue: any) {
     }
     public onSurveyLoad() {
+        this.fireCallback(this.surveyLoadCallback);
     }
     protected get isLoadingFromJson(): boolean { return this.survey && this.survey.isLoadingFromJson; }
     public setVisibleIndex(value: number) {

@@ -395,6 +395,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         return this.generatedVisibleRows;
     }
     public onSurveyLoad() {
+        super.onSurveyLoad();
         this.generatedVisibleRows = null;
     }
     /**

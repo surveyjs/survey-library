@@ -35,4 +35,4 @@ export var italianSurveyStrings = {
     matrix_row: "Riga"
 };
 
-surveyLocalization.locales["de"] = italianSurveyStrings;
+surveyLocalization.locales["it"] = italianSurveyStrings;

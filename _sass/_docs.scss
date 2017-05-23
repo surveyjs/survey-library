@@ -1,44 +1,75 @@
 $menu-width: 220px;
 
 .surveyjs-doc-page-wrapper {
-    position: absolute;
-    top: 50px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
     .doc-page-container {
-        position: relative;
-        width: 100%;
-        height: calc(100% - 58px);
-
         .menu-sidebar {
-            position: relative;
-            height: 100%;        
             background-color: #2f4050;
-            overflow: auto;
         }
 
         .doc-content-wrapper {
-            position: absolute;
-            top: 0;
-            left: $menu-width;
-            right: 0;
-            height: 100%;
+            margin-left: $menu-width;
+            background-color: $bg-color;
+
+            a {
+                font-weight: bold;
+            }
+
+            .doc-page-header {
+                background-color: $bg-color-light;
+                font-size: 30px;
+                padding: 20px 30px;
+                color: $text-color;
+            }
 
             .doc-container {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                padding: 20px;
-                text-align: center;
+                padding: 20px 30px;
 
                 .doc-content {
                     display: inline-block;
                     width: 100%;
-                    max-width: 80%;
                     text-align: left;
+
+                    .table-container {
+                        overflow: auto;
+                        height: 500px;
+
+                        table.table-striped > tbody {
+                            text-align: left;
+
+                            > tr {
+                                height: 40px;
+
+                                &:nth-of-type(4n+1) {
+                                    background-color: $bg-color-light;
+                                }
+                                &:nth-of-type(4n+2) {
+                                    background-color: $bg-color-light;
+                                }
+                                &:nth-of-type(4n+3) {
+                                    background-color: $bg-color;
+                                }
+                                &:nth-of-type(4n+4) {
+                                    background-color: $bg-color;
+                                }
+
+                                > td {
+                                    padding: 0;
+                                    vertical-align: middle;
+
+                                    &:nth-of-type(1) {
+                                        width: 5%;
+                                        padding-left: 15px;
+                                    }
+                                    &:nth-of-type(3) {
+                                        width: 33%;
+                                    }
+                                    &:nth-of-type(4) {
+                                        width: 20%;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

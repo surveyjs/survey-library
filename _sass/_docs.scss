@@ -1,6 +1,14 @@
 $menu-width: 220px;
 
 .surveyjs-doc-page-wrapper {
+    .integration {
+        .navy-line {
+            padding-top: 0;
+        }
+        .steps {
+            padding-top: 0;
+        }
+    }
     .doc-page-container {
         .menu-sidebar {
             background-color: #2f4050;
@@ -29,9 +37,35 @@ $menu-width: 220px;
                     width: 100%;
                     text-align: left;
 
+                    .filter-search {
+                        margin: 20px 0;
+
+                        .search {
+                            width: 200px;
+                            padding: 0 0 3px 0;
+                        }
+
+                        .filter {
+                            width: 200px;
+
+                            +.select2-container--default .select2-selection--single {
+                                border-radius: 0;
+
+                               .select2-selection__arrow {
+                                    background-color: $main-color;
+                                    width: 28px;
+                                    b {
+                                        border-color: $text-color-light transparent;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     .table-container {
                         overflow: auto;
-                        height: 500px;
+                        height: 530px;
+                        border-top: 1px solid $light-border-color;
 
                         table.table-striped > tbody {
                             text-align: left;

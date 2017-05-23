@@ -13,9 +13,9 @@ mainmenukey: doc
         <a data-bind="attr: {href: href}"><span data-bind="text:name"></span></a><span data-bind="if: ($index() !== ($parent.baseTypes.length - 1))"> -> </span>
         <!-- /ko -->
     </p>
-    <p>
-        <span>Type to filter the list: </span><input id="iFilter" type="text" data-bind="textInput: filterString" />
-        <select data-bind="value:showPMETypes">
+    <p class = "filter-search">
+        <span>Type to filter the list: </span><input id="iFilter" class="search" type="text" data-bind="textInput: filterString" />
+        <select class="filter" data-bind="value:showPMETypes">
             <option value="all">Show All</option>
             <option value="property">Show Properties</option>
             <option value="method">Show Methods</option>
@@ -38,8 +38,6 @@ mainmenukey: doc
                             <span data-bind="text: pmeType"></span>
                         </td>
                         <td>
-                        </td>
-                        <td>
                             <a href="#" data-bind="click: showHide" title="More Info...">
                                 <span class="glyphicon" data-bind="css: {'glyphicon-chevron-down': !koExpanded(), 'glyphicon-chevron-up': koExpanded}"></span>
                             </a>
@@ -47,7 +45,7 @@ mainmenukey: doc
                     </tr>
                     <tr data-bind="visible: koExpanded">
                         <td style="border-top-style:none"></td>
-                        <td colspan="2" style="border-top-style:none">
+                        <td style="border-top-style:none">
                             <div>
                                 <span>Type: </span><span data-bind="text:type"></span><span> </span><b><span data-bind="visible: pmeType =='property', text: propertySet"></span></b>
                             </div>
@@ -74,7 +72,7 @@ mainmenukey: doc
                                 <a data-bind="attr: {href: linkToPropertyFile}"><span>Show more</span></a>
                             </div>
                         </td>
-                        <td colspan="2" style="border-top-style:none">
+                        <td style="border-top-style:none">
                             <div data-bind="visible: hasParameters">
                                 <h5>Parameters:</h5>
                                 <div data-bind="foreach: parameters">
@@ -97,7 +95,14 @@ mainmenukey: doc
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
 <script>
+    $('.filter').select2({
+        minimumResultsForSearch: Infinity
+    });
+
     var curClass = {
     {% for classItem in site.data.classes %}{% if classItem.name == page.classname %}
         {% assign curClass = classItem %}

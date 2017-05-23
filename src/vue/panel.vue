@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :style="rootStyle">
         <h4 v-show="hasTitle" :class="css.pageTitle"><survey-string :locString="question.locTitle"/></h4>
         <div :style="{ marginLeft: getIndentSize(question, question.innerIndent) }">
             <div v-for="row in rows" v-show="row.visible" :class="css.row">
@@ -28,6 +28,16 @@
         @Prop
         css: any
 
+        get rootStyle () {
+            var result = {
+                verticalAlign: 'top',
+                display: this.question.isVisible ? 'inline-block': 'none'
+            };
+            if(this.question.renderWidth) {
+                result['width'] = this.question.renderWidth;
+            }
+            return result;
+        }
         get rows () {
             return this.question.rows;
         }

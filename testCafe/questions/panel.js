@@ -92,13 +92,15 @@ frameworks.forEach( (framework) => {
             document.querySelectorAll("div"), { text: "question4", visibilityCheck: true, timeout: 1000});
 
         const getPanelsCountByMargin = ClientFunction(() =>
-            document.querySelectorAll('div[style*="margin-left: 20px"]').length);
+            document.querySelectorAll('div[style*="padding-left: 20px"]').length);
 
         assert(await getTitle1());
         assert(await getTitle2());
         assert(await getTitle3());
         assert(await getTitle4());
 
+        await t
+            .debug();
         assert.equal(await getPanelsCountByMargin(), 2);
     });
 });

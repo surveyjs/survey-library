@@ -99,8 +99,6 @@ frameworks.forEach( (framework) => {
         assert(await getTitle3());
         assert(await getTitle4());
 
-        await t
-            .debug();
         assert.equal(await getPanelsCountByMargin(), 2);
     });
 });

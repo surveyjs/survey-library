@@ -29,6 +29,8 @@ export interface ISurvey extends ISurveyData {
     afterRenderQuestion(question: IQuestion, htmlElement);
     afterRenderPanel(panel: IElement, htmlElement);
     matrixRowAdded(question: IQuestion);
+    matrixCellCreated(question: IQuestion, options: any);
+    matrixCellValueChanged(question: IQuestion, options: any);
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);

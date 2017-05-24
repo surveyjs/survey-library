@@ -55,7 +55,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
         return result;
     }
     protected createMatrixRow(item: ItemValue, value: any): MatrixDropdownRowModel {
-        return new MatrixDropdownRowModel(item.value, item, this, value);
+        var row = new MatrixDropdownRowModel(item.value, item, this, value);
+        this.onMatrixRowCreated(row);
+        return row;
     }
 }
 

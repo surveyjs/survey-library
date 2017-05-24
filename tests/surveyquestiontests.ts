@@ -527,10 +527,46 @@ QUnit.test("Matrixdynamic change column properties on the fly", function (assert
     assert.equal((<QuestionDropdownModel>rows[0].cells[0].question).choices.length, question.choices.length, "By use question.choices by default");
     question.columns[0].choices = [1, 2, 3, 4, 5, 6, 7];
     assert.equal((<QuestionDropdownModel>rows[0].cells[0].question).choices.length, question.columns[0].choices.length, "Use column choices if set");
-    //Should implement or not?
-    //question.columns[0].cellType = "text";
-    //assert.equal(rows[0].cells[0].question.getType(), "text", "column type changed to 'text'");
 });
+
+QUnit.test("Matrixdynamic customize cell editors", function (assert) {
+    /*
+        col2 - invisible if col1 is empty, [item1, item2] - if col1 = 1 and [item3, item4] if col1 = 2
+    */
+    var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.addColumn("col1");
+    matrix.addColumn("col2");
+    matrix.columns[0].choices = [1, 2];
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    survey.pages[0].addQuestion(matrix);
+    survey.onMatrixCellCreated.add(function(survey, options) {
+        if(options.columnName == "col2") {
+            options.cellQuestion.visible = options.rowValue["col1"] ? true : false;
+        }
+    });
+    survey.onMatrixCellValueChanged.add(function(survey, options) {
+        if(options.columnName != "col1") return;
+        var question = options.getCellQuestion("col2");
+        question.visible = options.value ? true : false;
+        if(options.value == 1)  question.choices = ["item1", "item2"];
+        if(options.value == 2)  question.choices = ["item3", "item4"];
+    });
+    matrix.rowCount = 1;
+    var rows = matrix.visibleRows;
+    var q1 = <QuestionDropdownModel>rows[0].cells[0].question;
+    var q2 = <QuestionDropdownModel>rows[0].cells[1].question;
+    assert.equal(q2.visible, false, "col2 is invisible if col1 is empty");
+    q1.value = 1;
+    assert.equal(q2.choices[0].value, "item1", "col1 = 1, col2.choices = ['item1', 'item2']");
+    q1.value = 2;
+    assert.equal(q2.choices[0].value, "item3", "col1 = 2, col2.choices = ['item3', 'item4']");
+    q1.value = null;
+    assert.equal(q2.visible, false, "col2 is invisible if col1 = null");
+    matrix.addRow();
+    assert.equal((<QuestionDropdownModel>rows[1].cells[1].question).visible, false, "row2. col2 is invisible if col1 = null");
+});
+
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");

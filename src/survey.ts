@@ -162,13 +162,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      */
     public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
-     * The event is fired on changing a question visability.
+     * The event is fired on changing a question visibility.
      * @see QuestionBase.visibile
      * @see QuestionBase.visibileIf
      */
     public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
-     * The event is fired on changing a page visability.
+     * The event is fired on changing a page visibility.
      * @see PageModel.visibile
      * @see PageModel.visibileIf
      */
@@ -247,6 +247,31 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      * @see QuestionMatrixDynamicModel.visibleRows
      */
     public onMatrixRowAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired for every cell created in Matrix Dymic and Matrix Dropdown questions.
+     * options.question - the matrix question
+     * options.cell - the matrix cell
+     * options.cellQuestion - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
+     * options.rowValue - the value of the current row. To access the value of paticular column use: options.rowValue["columnValue"]
+     * options.column - the matrix column object
+     * options.columName - the matrix column name
+     * options.row - the matrix row object
+     * @see onMatrixCellValueChanged
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDropdownModel
+     */
+    public onMatrixCellCreated: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired when cell value is changed in Matrix Dymic and Matrix Dropdown questions.
+     * options.columName - the matrix column name
+     * options.value - a new value
+     * options.row - the matrix row object
+     * getCellQuestion(columnName) - the function that returns the cell question by column name.
+     * @see onMatrixRowAdded
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDropdownModel
+     */
+    public onMatrixCellValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
      * @see JsonError
@@ -827,6 +852,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     matrixRowAdded(question: IQuestion) {
         this.onMatrixRowAdded.fire(this, {question: question});
+    }
+    matrixCellCreated(question: IQuestion, options: any) {
+        options.question = question;
+        this.onMatrixCellCreated.fire(this, options);
+    }
+    matrixCellValueChanged(question: IQuestion, options: any) {
+        options.question = question;
+        this.onMatrixCellValueChanged.fire(this, options);
     }
     /**
      * Upload the file into servey

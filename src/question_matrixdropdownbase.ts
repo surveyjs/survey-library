@@ -16,7 +16,7 @@ import {SurveyValidator} from "./validator";
 import {CustomWidgetCollection} from "./questionCustomWidgets";
 
 export interface IMatrixDropdownData {
-    onRowChanged(cell: MatrixDropdownRowModelBase, newRowValue: any);
+    onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any);
     columns: Array<MatrixDropdownColumn>;
     createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     getLocale(): string;
@@ -212,7 +212,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
         } else {
             delete this.rowValues[name];
         }
-        this.data.onRowChanged(this, this.value);
+        this.data.onRowChanged(this, name, this.value);
     }
     public getComment(name: string): string {
         return this.rowComments[name];
@@ -291,6 +291,19 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.columnsValue = value;
         this.overrideColumnsMethods();
         this.fireCallback(this.columnsChangedCallback);
+    }
+    protected onMatrixRowCreated(row : MatrixDropdownRowModelBase) {
+        if(!this.survey) return;
+        var options = {rowValue: row.value, row: row, column: null, columnName: null, cell: null, cellQuestion: null, value: null};
+        for(var i = 0; i < this.columns.length; i ++) {
+            options.column = this.columns[i];
+            options.columnName = options.column.name;
+            var cell = row.cells[i];
+            options.cell = cell;
+            options.cellQuestion = cell.question;
+            options.value = cell.value;
+            this.survey.matrixCellCreated(this, options);
+        }
     }
     private overrideColumnsMethods() {
         var self = this;
@@ -418,7 +431,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if(rowIndex < 0) return null;
         var visRows = this.visibleRows;
         if(rowIndex >= visRows.length) return null;
-        this.onRowChanged(visRows[rowIndex], rowValue);
+        this.onRowChanged(visRows[rowIndex], "", rowValue);
         this.onValueChanged();
     }
     protected generateRows(): Array<MatrixDropdownRowModelBase> { return null; }
@@ -554,7 +567,21 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         delete newValue[row.rowName];
         return Object.keys(newValue).length == 0 ? null : newValue;
     }
-    onRowChanged(row: MatrixDropdownRowModelBase, newRowValue: any) {
+    protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any) {
+        if(!this.survey) return;
+        var self = this;
+        var getQuestion = function(colName) {
+            for(var i = 0; self.columns.length; i ++) {
+                if(self.columns[i].name == colName) {
+                    return row.cells[i].question;
+                }
+            }
+            return null;
+        }
+        var options = {row: row, columnName: columnName, rowValue: rowValue, value: rowValue[columnName], getCellQuestion: getQuestion};
+        this.survey.matrixCellValueChanged(this, options);
+    }
+    onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any) {
         var newValue = this.createNewValue(this.value);
         var rowValue = this.getRowValueCore(row, newValue, true);
         for (var key in rowValue) delete rowValue[key];
@@ -568,6 +595,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.isRowChanging = true;
         this.setNewValue(newValue);
         this.isRowChanging = false;
+        if(columnName) {
+            this.onCellValueChanged(row, columnName, rowValue);
+        }
     }
 }
 

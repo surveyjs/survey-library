@@ -188,6 +188,15 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if(newProps.onTextMarkdown) {
             this.survey.onTextMarkdown.add((sender, options) => { newProps.onTextMarkdown(sender, options); });
         }
+        if(newProps.onMatrixRowAdded) {
+            this.survey.onMatrixRowAdded.add((sender, options) => { newProps.onMatrixRowAdded(sender, options); });
+        }
+        if(newProps.onMatrixCellCreated) {
+            this.survey.onMatrixCellCreated.add((sender, options) => { newProps.onMatrixCellCreated(sender, options); });
+        }
+        if(newProps.onMatrixCellValueChanged) {
+            this.survey.onMatrixCellValueChanged.add((sender, options) => { newProps.onMatrixCellValueChanged(sender, options); });
+        }
     }
 
     //ISurveyCreator

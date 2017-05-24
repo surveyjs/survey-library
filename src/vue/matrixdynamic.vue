@@ -11,7 +11,7 @@
                 <tr v-for="row in rows">
                     <td v-for="cell in row.cells">
                         <survey-errors :question="cell.question" :css="css"/>
-                        <component v-if="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
+                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>
                     <td v-if="!question.isReadOnly">
                         <input type="button" v-if="question.canRemoveRow" :class="css.matrixdynamic.button" :value="question.removeRowText" @click="removeRowClick(row)" />

@@ -12,7 +12,7 @@
                     <td><survey-string :locString="row.locText"/></td>
                     <td v-for="cell in row.cells" :class="css.matrixdropdown.itemValue">
                         <survey-errors :question="question" :css="css"/>
-                        <component v-if="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
+                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>
                 </tr>
             </tbody>

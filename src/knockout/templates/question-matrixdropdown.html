@@ -15,10 +15,12 @@
                     <td><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                     <!-- ko foreach: row.cells-->
                     <td data-bind="css: question.survey.css.matrixdropdown.itemValue">
+                        <div data-bind="visible: $data.question.koVisible">
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->
-                        <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: question.koQuestionAfterRender } -->
+                        <!-- ko template: { name: question.koTemplateName(), data: $data.question, as: 'question', afterRender: $data.question.koQuestionAfterRender } -->
                         <!-- /ko -->
+                        <div>
                     </td>
                     <!-- /ko -->
                 </tr>

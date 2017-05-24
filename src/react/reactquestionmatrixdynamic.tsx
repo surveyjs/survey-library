@@ -112,6 +112,7 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
         return (<tr>{tds}</tr>);
     }
     protected renderQuestion(cell: MatrixDropdownCell): JSX.Element {
+        if(!cell.question.visible) return null;
         var customWidget = cell.question.customWidget;
         if (!customWidget) {
             return this.creator.createQuestionElement(cell.question);

@@ -76,6 +76,7 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
         return (<tr><td>{rowText}</td>{tds}</tr>);
     }
     protected renderSelect(cell: MatrixDropdownCell): JSX.Element {
+        if(!cell.question.visible) return null;
         var customWidget = cell.question.customWidget;
         if (!customWidget) {
             return this.creator.createQuestionElement(cell.question);

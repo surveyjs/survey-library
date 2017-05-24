@@ -16,10 +16,12 @@
                 <tr>
                     <!-- ko foreach: row.cells-->
                     <td>
+                        <div data-bind="visible: $data.question.koVisible">
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->
-                        <!-- ko template: { name: question.koTemplateName(), data: question, as: 'question', afterRender: question.koQuestionAfterRender } -->
+                        <!-- ko template: { name: question.koTemplateName(), data: $data.question, as: 'question', afterRender: $data.question.koQuestionAfterRender } -->
                         <!-- /ko -->
+                        </div>
                     </td>
                     <!-- /ko -->
                     <!-- ko ifnot: question.koIsReadOnly -->

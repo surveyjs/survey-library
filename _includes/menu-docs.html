@@ -2,7 +2,7 @@
     <div class="sidebar-collapse">
         <ul class="nav metismenu" id="side-menu">
         {% for category in site.data.docs.categories %}
-            <li {% if category.name == page.doc_category %}class="active"{% endif %}>
+            <li {% if category.name == page.doc_category %}class="active"{% endif %} class="category-name">
                 <span>{{category.title}}</span>
                 <ul id="docs-{{category.name}}" class="nav nav-second-level">
                 {% assign category_pages = (site.data.docs.pages | where: "category" , category.name) %}

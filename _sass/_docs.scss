@@ -4,6 +4,11 @@ $menu-width: 220px;
     .doc-page-container {
         .menu-sidebar {
             background-color: #2f4050;
+
+            .category-name {
+                color: #a7b1c2;
+                padding: 5px;
+            }
         }
 
         .doc-content-wrapper {

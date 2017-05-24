@@ -1,14 +1,6 @@
 $menu-width: 220px;
 
 .surveyjs-doc-page-wrapper {
-    .integration {
-        .navy-line {
-            padding-top: 0;
-        }
-        .steps {
-            padding-top: 0;
-        }
-    }
     .doc-page-container {
         .menu-sidebar {
             background-color: #2f4050;
@@ -16,7 +8,6 @@ $menu-width: 220px;
 
         .doc-content-wrapper {
             margin-left: $menu-width;
-            background-color: $bg-color;
 
             a {
                 font-weight: bold;
@@ -30,75 +21,87 @@ $menu-width: 220px;
             }
 
             .doc-container {
-                padding: 20px 30px;
-
                 .doc-content {
                     display: inline-block;
                     width: 100%;
                     text-align: left;
 
-                    .filter-search {
-                        margin: 20px 0;
-
-                        .search {
-                            width: 200px;
-                            padding: 0 0 3px 0;
+                    .integration {
+                        padding: 20px 30px;
+                        .navy-line {
+                            padding-top: 0;
                         }
+                        .steps {
+                            padding-top: 0;
+                        }
+                    }
 
-                        .filter {
-                            width: 200px;
+                    .object-properties {
+                        background-color: $bg-color-light;
+                        padding: 20px 30px;
+                        .filter-search {
+                            margin: 20px 0;
 
-                            +.select2-container--default .select2-selection--single {
-                                border-radius: 0;
+                            .search {
+                                width: 200px;
+                                padding: 0 0 3px 0;
+                            }
 
-                               .select2-selection__arrow {
-                                    background-color: $main-color;
-                                    width: 28px;
-                                    b {
-                                        border-color: $text-color-light transparent;
+                            .filter {
+                                width: 200px;
+
+                                +.select2-container--default .select2-selection--single {
+                                    border-radius: 0;
+
+                                    .select2-selection__arrow {
+                                        background-color: $main-color;
+                                        width: 28px;
+                                        b {
+                                            border-color: $text-color-light transparent;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    .table-container {
-                        overflow: auto;
-                        height: 51vh;
-                        border-top: 1px solid $light-border-color;
+                        .table-container {
+                            overflow: auto;
+                            height: 51vh;
+                            border-top: 1px solid $light-border-color;
 
-                        table.table-striped > tbody {
-                            text-align: left;
+                            table.table-striped > tbody {
+                                text-align: left;
 
-                            > tr {
-                                height: 40px;
+                                > tr {
+                                    height: 40px;
 
-                                &:nth-of-type(4n+1) {
-                                    background-color: $bg-color-light;
-                                }
-                                &:nth-of-type(4n+2) {
-                                    background-color: $bg-color-light;
-                                }
-                                &:nth-of-type(4n+3) {
-                                    background-color: $bg-color;
-                                }
-                                &:nth-of-type(4n+4) {
-                                    background-color: $bg-color;
-                                }
-
-                                > td {
-                                    padding: 0;
-                                    vertical-align: middle;
-
-                                    &:nth-of-type(1) {
-                                        width: 5%;
-                                        padding-left: 15px;
+                                    &:nth-of-type(4n+1) {
+                                        background-color: $bg-color-light;
                                     }
-                                    &:nth-of-type(3) {
-                                        width: 33%;
+                                    &:nth-of-type(4n+2) {
+                                        background-color: $bg-color-light;
                                     }
-                                    &:nth-of-type(4) {
-                                        width: 20%;
+                                    &:nth-of-type(4n+3) {
+                                        background-color: $bg-color;
+                                    }
+                                    &:nth-of-type(4n+4) {
+                                        background-color: $bg-color;
+                                    }
+
+                                    > td {
+                                        padding: 0;
+                                        vertical-align: middle;
+
+                                        &:nth-of-type(1) {
+                                            width: 5%;
+                                            padding-left: 15px;
+                                        }
+                                        &:nth-of-type(3) {
+                                            width: 33%;
+                                        }
+                                        &:nth-of-type(4) {
+                                            width: 20%;
+                                        }
                                     }
                                 }
                             }

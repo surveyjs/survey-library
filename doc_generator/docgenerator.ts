@@ -151,7 +151,13 @@ function generateDocumentation(fileNames: string[], options: ts.CompilerOptions)
             }
             ser.pmeType = getPMEType(node.kind);
             if(ser.type.startsWith("Event")) ser.pmeType = "event";
-            if(node.kind === ts.SyntaxKind.GetAccessor) ser.hasSet = false;
+            if(node.kind === ts.SyntaxKind.GetAccessor) {
+                let serSet = pmesHash[fullName];
+                if(serSet) {
+                    ser.hasSet = serSet.hasSet;
+                }
+                else ser.hasSet = false;
+            }
             if(node.kind === ts.SyntaxKind.SetAccessor) {
                 let serGet = pmesHash[fullName];
                 if(serGet) serGet.hasSet = true;

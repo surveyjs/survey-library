@@ -59,7 +59,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     }
     protected renderOther(): JSX.Element {
         var style = { marginTop: "3px" };
-        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>;
+        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss} otherCss={this.css.other} isDisplayMode={this.isDisplayMode}/></div>;
     }
 }
 

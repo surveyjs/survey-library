@@ -69,7 +69,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         );
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>);
+        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} otherCss={this.css.other} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 

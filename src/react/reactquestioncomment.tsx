@@ -34,10 +34,12 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
 export class SurveyQuestionCommentItem extends SurveyElementBase {
     private question: Question;
     private comment: string;
+    private otherCss: string;
     constructor(props: any) {
         super(props);
         this.question = props.question;
         this.comment = this.question.comment;
+        this.otherCss = props.otherCss;
         this.state = { value: this.comment };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
@@ -56,7 +58,8 @@ export class SurveyQuestionCommentItem extends SurveyElementBase {
         if (!this.question) return null;
         if (this.isDisplayMode)
             return (<div className={this.css.question.comment}>{this.comment}</div>);
-        return (<input type="text" className={this.css.question.comment} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
+        var className = this.otherCss ? this.otherCss : this.css.question.comment;
+        return (<input type="text" className={className} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }
 

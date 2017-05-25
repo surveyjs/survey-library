@@ -17,7 +17,9 @@ export class SurveyWindowModel extends Base  {
         super();
         this.surveyValue = this.createSurvey(jsonObj);
         this.surveyValue.showTitle = false;
-        this.windowElement = <HTMLDivElement>document.createElement("div");
+        if ("undefined" !== typeof document) {
+            this.windowElement = <HTMLDivElement>document.createElement("div");
+        }
     }
     public getType() : string { return "window" }
     /**

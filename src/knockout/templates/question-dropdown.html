@@ -6,6 +6,6 @@
     <div data-bind="text:question.koValue, css: question.survey.css.dropdown.control"></div>
     <!-- /ko -->
     <div data-bind="visible: question.hasOther">
-        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }, css: question.survey.css.dropdown.other"></div>
     </div>
 </script>

@@ -5,7 +5,7 @@
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>
         <div v-else :text="question.value" :class="css.dropdown.control"></div>
-        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.radiogroup.other" :question="question" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="css.dropdown.other" :question="question" :css="css"/>
     </div>
 </template>
 

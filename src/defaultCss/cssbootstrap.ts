@@ -15,7 +15,7 @@ export var defaultBootstrapCss = {
 
     checkbox: { root: "form-inline", item: "checkbox", other: "" },
     comment: "form-control",
-    dropdown: { root: "", control: "form-control" },
+    dropdown: { root: "", control: "form-control", other: "" },
     matrix: { root: "table" },
     matrixdropdown: { root: "table" },
     matrixdynamic: { root: "table", button: "button" },

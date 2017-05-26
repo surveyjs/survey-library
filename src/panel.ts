@@ -96,6 +96,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     set data(value: ISurvey) {
         if(this.dataValue === value) return;
         this.dataValue = value;
+        if(value && value.isDesignMode) this.onVisibleChanged();
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].setData(value);
         }
@@ -226,6 +227,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].onSurveyLoad();
         }
+        this.onVisibleChanged();
         if(this.rowsChangedCallback) this.rowsChangedCallback();
     }
     protected get isLoadingFromJson(): boolean { return this.data && this.data.isLoadingFromJson; }

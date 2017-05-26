@@ -1,6 +1,10 @@
 language: node_js
 node_js:
 - '6'
+
+before_install:
+  - stty cols 80
+
 env:
   global:
     secure: orU+oZpgaGeR1IDirCe87msd2HemNCLS+8WgcHccPxLZcc81ZACoTAUg3kA+en0xrJQ6Dm/GP3OOv2Xj30dl7ufzm6dcr0ivgkcq+p0eq38qiO0ZKlW6GwcAU1hfirU7HfRbWipIDyclzDOV5LdLFZ1C6/9BmoBb/Dbjb4dlXURW3SJ+Wl/wFqcIRpZ8gHnXDt80uBF3i+fXi4sh3QRtbUE4iIPlMVPJiOvW6poS2OF0U5fJ9DawE9fIC6jmFzfXSyaU5PLdoZWYuPnlSKQsuOGL419RW8DcmDJnf86i90BCVg1L5lIzNmPS1xYFaJoZbMY1fFeUFJ+i/nlZ+nTRW7G638C4BU7NCtgo5PzN6KbTSimLLe+0xpBRiejGllYcoARRn3PKKeyll29o65PQC690IR8hXchY725kik24RAKkfWRLhfcoV01q7NsweUW8zFvwjmZsXPvvdEDAVTYwJVw1aREMetiCzgsWFDzwEUT5D9f7I83+rfpKEzoVqgCeGUbnl2sbplwIg70pGSKq+gLHxppe5M/tLHQs37JLWML6AXt7YAXy32sNGQF4cMGF7z1Aj6Svfq3rOeZdWADl+HvQYi2GY+BbQiTpeBqobybYLcnonKccgqN4L8WAWKX35jqTcgbQx5wablkQFerzK1thg9/DkNZXHpnERr4QwrY=
@@ -30,7 +34,7 @@ script:
 - npm run build_vue_dev
 - npm run build_vue_prod
 - karma start --single-run
-- http-server &
+- http-server --silent &
 - testcafe chrome testCafe/ --reporter minimal
 #- npm run testcafe_sauce
 - if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then echo "Starting functional tests on SauceLabs..."; npm run testcafe_sauce; fi

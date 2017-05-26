@@ -59,7 +59,7 @@ export class Panel extends PanelModel {
         new PanelImplementorBase(this);
         this.onCreating();
         var self = this;
-        this.koVisible = ko.observable(this.visible);
+        this.koVisible = ko.observable(this.isVisible);
         this.koRenderWidth = ko.observable(this.renderWidth);
         this.renderWidthChangedCallback = function() { self.onRenderWidthChanged(); }
         this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
@@ -75,7 +75,7 @@ export class Panel extends PanelModel {
     }
     protected onVisibleChanged() {
         super.onVisibleChanged();
-        this.koVisible(this.visible);
+        this.koVisible(this.isVisible);
     }
     private getIndentSize(indent: number): string {
         if (indent < 1) return "";

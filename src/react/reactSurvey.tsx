@@ -148,6 +148,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             if (newProps.data) newProps.data[options.name] = options.value;
             if (newProps.onValueChanged) newProps.onValueChanged(sender, options);
         });
+        if(newProps.onVisibleChanged) {
+            this.survey.onVisibleChanged.add((sender) => { newProps.onVisibleChanged(sender); });
+        }
         if (newProps.onComplete) {
             this.survey.onComplete.add((sender) => { newProps.onComplete(sender); });
         }

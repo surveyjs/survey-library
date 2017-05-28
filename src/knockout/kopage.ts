@@ -73,6 +73,10 @@ export class Panel extends PanelModel {
         this.koRenderWidth(this.renderWidth);
         this.koInnerMargin(this.getIndentSize(this.innerIndent));
     }
+    onSurveyLoad() {
+        super.onSurveyLoad();
+        this.koVisible(this.isVisible);
+    }
     protected onVisibleChanged() {
         super.onVisibleChanged();
         this.koVisible(this.isVisible);

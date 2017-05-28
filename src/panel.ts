@@ -227,7 +227,6 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         for(var i = 0; i < this.elements.length; i ++) {
             this.elements[i].onSurveyLoad();
         }
-        this.onVisibleChanged();
         if(this.rowsChangedCallback) this.rowsChangedCallback();
     }
     protected get isLoadingFromJson(): boolean { return this.data && this.data.isLoadingFromJson; }
@@ -343,10 +342,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     public set visible(value: boolean) {
         if (value === this.visible) return;
         this.visibleValue = value;
-        this.onVisibleChanged();
+        if(!this.isLoadingFromJson) this.onVisibleChanged();
     }
     protected onVisibleChanged() {
-
     }
     /**
      * Returns true if object is visible or survey is in design mode right now.

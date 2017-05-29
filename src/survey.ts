@@ -1014,8 +1014,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             if (questions[i].name != name) continue;
             question = questions[i];
             this.doSurveyValueChanged(question, newValue);
+            this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
         }
-        this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
+        if(!question) {
+            this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
+        }
     }
     private notifyAllQuestionsOnValueChanged() {
         var questions = this.getAllQuestions();

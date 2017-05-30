@@ -4,11 +4,11 @@ import {
 
 export var portugeseSurveyStrings = {
 	pagePrevText: "Anterior",
-	pageNextText: "Proximo",
+	pageNextText: "Próximo",
 	completeText: "Completo",
 	otherItemText: "Outros (descrever)",
 	progressText: "Pagina {0} de {1}",
-	emptySurvey: "Sem página visível ou pergunta na pesquisa.",
+	emptySurvey: "Não há página visível ou pergunta na pesquisa.",
 	completingSurvey: "Obrigado por completar a pesquisa!",
 	loadingSurvey: "A pesquisa está carregando...",
 	optionsCaption: "Selecione...",

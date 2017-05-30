@@ -2,7 +2,7 @@ import {
 	surveyLocalization
 } from "../surveyStrings";
 
-export var portugeseSurveyStrings = {
+export var portugueseSurveyStrings = {
 	pagePrevText: "Anterior",
 	pageNextText: "Próximo",
 	completeText: "Completo",
@@ -39,4 +39,4 @@ export var portugeseSurveyStrings = {
 	matrix_row: "Linha"
 };
 
-surveyLocalization.locales["pt"] = portugeseSurveyStrings;
+surveyLocalization.locales["pt"] = portugueseSurveyStrings;

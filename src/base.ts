@@ -7,7 +7,11 @@ export interface ISurveyData {
     getComment(name: string): string;
     setComment(name: string, newValue: string);
 }
-export interface ISurvey extends ISurveyData {
+export interface ITextProcessor {
+    processText(text: string): string;
+    processTextEx(text: string): any;
+}
+export interface ISurvey extends ISurveyData, ITextProcessor {
     currentPage: IPage;
     pageVisibilityChanged(page: IPage, newValue: boolean);
     questionVisibilityChanged(question: IQuestion, newValue: boolean);
@@ -17,7 +21,6 @@ export interface ISurvey extends ISurveyData {
     panelRemoved(panel: IElement);
     validateQuestion(name: string): SurveyError;
     processHtml(html: string): string;
-    processText(text: string): string;
     isDisplayMode: boolean;
     isDesignMode: boolean;
     isLoadingFromJson: boolean;
@@ -58,6 +61,7 @@ export interface IQuestion extends IElement {
     onReadOnlyChanged();
     supportGoNextPageAutomatic(): boolean;
     clearUnusedValues();
+    onAnyValueChanged();
 }
 export interface IPanel extends IElement {
 }

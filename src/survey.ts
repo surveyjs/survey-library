@@ -1323,7 +1323,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             if (!this.isLastPage) {
                 this.nextPage();
             } else {
-                this.doComplete();
+                this.completeLastPage();
             }
         }
     }

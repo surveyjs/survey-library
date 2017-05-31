@@ -98,7 +98,7 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
             <div className={this.css.item} style={divStyle}>
                 <label className={this.css.item}>
                     <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
-                    <span className="checkbox-material" style={{"margin-right": "5px"}}><span className="check"></span></span>
+                    <span className="checkbox-material" style={{"marginRight": "5px"}}><span className="check"></span></span>
                     <span>{text}</span>
                 </label>
                 {otherItem}

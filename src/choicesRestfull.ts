@@ -18,6 +18,7 @@ export class ChoicesRestfull extends Base {
         }
         return true;
     }
+    private lastObjHash: string = "";
     protected processedUrl: string = "";
     protected processedPath: string = "";
     public url: string = "";
@@ -36,6 +37,8 @@ export class ChoicesRestfull extends Base {
             this.getResultCallback([]);
             return;
         }
+        if(this.lastObjHash == this.objHash) return;
+        this.lastObjHash = this.objHash;
         if(ChoicesRestfull.getCachedItemsResult(this)) return;
         this.error = null;
         this.sendRequest();

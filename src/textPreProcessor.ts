@@ -22,7 +22,10 @@ export class TextPreProcessor {
                 continue;
             }
             var value = this.onProcess(name);
-            if (value == null) value = "";
+            if (value == null) {
+                 value = "";
+                 this.hasAllValuesOnLastRunValue = false;
+            }
             text = text.substr(0, item.start) + value + text.substr(item.end + 1);
         }
         return text;

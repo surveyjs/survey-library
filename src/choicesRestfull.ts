@@ -33,7 +33,7 @@ export class ChoicesRestfull extends Base {
         if (!this.url || !this.getResultCallback) return;
         this.processedText(textProcessor);
         if(!this.processedUrl) {
-            this.onLoad(null);
+            this.getResultCallback([]);
             return;
         }
         if(ChoicesRestfull.getCachedItemsResult(this)) return;
@@ -58,7 +58,7 @@ export class ChoicesRestfull extends Base {
     }
     protected sendRequest() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', this.url);
+        xhr.open('GET', this.processedUrl);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         var self = this;
         xhr.onload = function () {

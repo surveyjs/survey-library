@@ -9,7 +9,7 @@ export var portugueseSurveyStrings = {
 	otherItemText: "Outros (descrever)",
 	progressText: "Pagina {0} de {1}",
 	emptySurvey: "Não há página visível ou pergunta na pesquisa.",
-	completingSurvey: "Obrigado por completar a pesquisa!",
+	completingSurvey: "Obrigado por finalizar a pesquisa!",
 	loadingSurvey: "A pesquisa está carregando...",
 	optionsCaption: "Selecione...",
 	requiredError: "Por favor, responda a pergunta.",

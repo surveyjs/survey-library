@@ -5,7 +5,7 @@ import {
 export var portugueseSurveyStrings = {
 	pagePrevText: "Anterior",
 	pageNextText: "Próximo",
-	completeText: "Completo",
+	completeText: "Finalizar",
 	otherItemText: "Outros (descrever)",
 	progressText: "Pagina {0} de {1}",
 	emptySurvey: "Não há página visível ou pergunta na pesquisa.",

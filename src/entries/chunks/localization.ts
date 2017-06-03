@@ -1,3 +1,4 @@
+import '../../localization/arabic';
 import '../../localization/czech';
 import '../../localization/danish';
 import '../../localization/dutch';
@@ -8,6 +9,7 @@ import '../../localization/greek';
 import '../../localization/icelandic';
 import '../../localization/italian';
 import '../../localization/polish';
+import '../../localization/portuguese';
 import '../../localization/romanian';
 import '../../localization/russian';
 import '../../localization/spanish';

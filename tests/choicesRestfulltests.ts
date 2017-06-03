@@ -1,12 +1,16 @@
-﻿import {ChoicesRestfull} from "../src/choicesRestfull";
+﻿import {SurveyModel} from "../src/survey";
+import {Question} from "../src/question";
+import {ChoicesRestfull} from "../src/choicesRestfull";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
-    public runJson(json: any) {
-        this.onLoad(json);
+    protected sendRequest() {
+        if(this.processedUrl.indexOf("countries") > -1) this.onLoad(getCountries());
+        if(this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
+        if(this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
     }
 }
 
@@ -15,18 +19,15 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
         super(name);
     }
     protected createRestfull(): ChoicesRestfull { return new ChoicesRestfullTester(); }
-    public runChoicesByUrl(json: any) {
-        (<ChoicesRestfullTester>this.choicesByUrl).runJson(json);
-    }
 }
 
 QUnit.test("Load countries", function (assert) {
     var test = new ChoicesRestfullTester();
     var items = [];
     test.getResultCallback = function (res: Array<ItemValue>) { items = res; };
-    var json = getCountries();
+    test.url = "allcountries";
     test.path = "RestResponse;result";
-    test.runJson(json);
+    test.run();
     assert.equal(items.length, 5, "there are 5 countries");
     assert.equal(items[0].value, "Afghanistan", "the first country is Afghanistan");
     assert.equal(items[4].value, "American Samoa", "the fifth country is American Samoa");
@@ -36,12 +37,40 @@ QUnit.test("Test dropdown", function (assert) {
     var question = new QuestionDropdownModelTester("q1");
     assert.equal(question.choices.length, 0, "There is no choices by default");
     assert.equal(question.visibleChoices.length, 0, "There is no visible choices by default");
-    var json = getCountries();
+    question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
-    question.runChoicesByUrl(json);
+    question.onSurveyLoad();
     assert.equal(question.choices.length, 0, "Choices do not used");
     assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
+
+QUnit.test("Use variables", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1")
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+    question.choicesByUrl.url = "{state}";
+    question.onSurveyLoad();
+    assert.equal(question.visibleChoices.length, 0, "It is empty");
+    stateQuestion.value = "ca_cities";
+    assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
+    stateQuestion.value = "tx_cities";
+    assert.equal(question.visibleChoices.length, 3, "We have three cities now, TX");
+    stateQuestion.value = "";
+    assert.equal(question.visibleChoices.length, 0, "It is empty again");
+});
+
+function getCACities() {
+    return [
+      "Los Angeles", "San Francisco"
+    ];
+}
+function getTXCities() {
+    return [
+      "Houston", "San Antonio", "Dallas"
+    ];
+}
 
 function getCountries(): any {
     return {

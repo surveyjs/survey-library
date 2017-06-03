@@ -4,10 +4,12 @@
 }
 
 export class TextPreProcessor {
+    private hasAllValuesOnLastRunValue : boolean = false;
     public onProcess: (name: string) => any;
     public onHasValue: (name: string) => boolean;
     constructor() { }
     public process(text: string): string {
+        this.hasAllValuesOnLastRunValue = true;
         if (!text) return text;
         if (!this.onProcess) return text;
         var items = this.getItems(text);
@@ -15,13 +17,20 @@ export class TextPreProcessor {
             var item = items[i];
             var name = this.getName(text.substring(item.start + 1, item.end));
             if (!this.canProcessName(name)) continue;
-            if (this.onHasValue && !this.onHasValue(name)) continue;
+            if (this.onHasValue && !this.onHasValue(name)) {
+                this.hasAllValuesOnLastRunValue = false;
+                continue;
+            }
             var value = this.onProcess(name);
-            if (value == null) value = "";
+            if (value == null) {
+                 value = "";
+                 this.hasAllValuesOnLastRunValue = false;
+            }
             text = text.substr(0, item.start) + value + text.substr(item.end + 1);
         }
         return text;
     }
+    public get hasAllValuesOnLastRun() { return this.hasAllValuesOnLastRunValue; }
     private getItems(text: string): Array<TextPreProcessorItem> {
         var items = [];
         var length = text.length;

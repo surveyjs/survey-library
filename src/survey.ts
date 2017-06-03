@@ -1019,6 +1019,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if(!question) {
             this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
         }
+        for (var i: number = 0; i < questions.length; i++) {
+            questions[i].onAnyValueChanged();
+        }
     }
     private notifyAllQuestionsOnValueChanged() {
         var questions = this.getAllQuestions();
@@ -1320,7 +1323,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             if (!this.isLastPage) {
                 this.nextPage();
             } else {
-                this.doComplete();
+                this.completeLastPage();
             }
         }
     }
@@ -1400,6 +1403,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     processText(text: string): string {
         return this.textPreProcessor.process(text);
+    }
+    processTextEx(text: string): any {
+        var res = {text : this.textPreProcessor.process(text),  hasAllValuesOnLastRun: true};
+        res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
+        return res;
     }
     //ISurveyTriggerOwner
     getObjects(pages: string[], questions: string[]): any[]{

@@ -1,4 +1,4 @@
-﻿import {Base, SurveyError} from "./base";
+﻿import {Base, SurveyError, ITextProcessor} from "./base";
 import {ItemValue} from "./itemvalue";
 import {JsonObject} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
@@ -8,12 +8,6 @@ import {CustomError} from "./error";
  * The run method call a restfull service and results can be get on getREsultCallback.
  */
 export class ChoicesRestfull extends Base {
-    public url: string = "";
-    public path: string = "";
-    public valueName: string = "";
-    public titleName: string = "";
-    public getResultCallback: (items: Array<ItemValue>) => void;
-    public error: SurveyError = null;
     private static itemsResult = {};
     private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
         var hash = obj.objHash;
@@ -24,15 +18,50 @@ export class ChoicesRestfull extends Base {
         }
         return true;
     }
+    private lastObjHash: string = "";
+    protected processedUrl: string = "";
+    protected processedPath: string = "";
+    public url: string = "";
+    public path: string = "";
+    public valueName: string = "";
+    public titleName: string = "";
+    public getResultCallback: (items: Array<ItemValue>) => void;
+    public error: SurveyError = null;
     constructor() {
         super();
     }
-    public run() {
+    public run(textProcessor: ITextProcessor = null) {
         if (!this.url || !this.getResultCallback) return;
+        this.processedText(textProcessor);
+        if(!this.processedUrl) {
+            this.getResultCallback([]);
+            return;
+        }
+        if(this.lastObjHash == this.objHash) return;
+        this.lastObjHash = this.objHash;
         if(ChoicesRestfull.getCachedItemsResult(this)) return;
         this.error = null;
+        this.sendRequest();
+    }
+    private processedText(textProcessor: ITextProcessor) {
+        if(textProcessor) {
+            var pUrl = textProcessor.processTextEx(this.url);
+            var pPath = textProcessor.processTextEx(this.path);
+            if(!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
+                this.processedUrl = "";
+                this.processedPath = "";
+            } else {
+                this.processedUrl = pUrl.text;
+                this.processedPath = pPath.text;
+            }
+        } else {
+            this.processedUrl = this.url;
+            this.processedPath = this.path;
+        }
+    }
+    protected sendRequest() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', this.url);
+        xhr.open('GET', this.processedUrl);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         var self = this;
         xhr.onload = function () {
@@ -84,7 +113,7 @@ export class ChoicesRestfull extends Base {
     }
     private getResultAfterPath(result: any) {
         if (!result) return result;
-        if (!this.path) return result;
+        if (!this.processedPath) return result;
         var pathes = this.getPathes();
         for (var i = 0; i < pathes.length; i++) {
             result = result[pathes[i]];
@@ -94,16 +123,18 @@ export class ChoicesRestfull extends Base {
     }
     private getPathes(): Array<string> {
         var pathes = [];
-        if (this.path.indexOf(';') > -1) {
+        if (this.processedPath.indexOf(';') > -1) {
             pathes = this.path.split(';');
         } else {
-            pathes = this.path.split(',');
+            pathes = this.processedPath.split(',');
         }
-        if (pathes.length == 0) pathes.push(this.path);
+        if (pathes.length == 0) pathes.push(this.processedPath);
         return pathes;
     }
     private getValue(item: any): any {
+        if(!item) return null;
         if (this.valueName) return item[this.valueName];
+        if(!(item instanceof Object)) return item;
         var len = Object.keys(item).length;
         if (len < 1) return null;
         return item[Object.keys(item)[0]];
@@ -112,6 +143,6 @@ export class ChoicesRestfull extends Base {
         if (!this.titleName) return null;
         return item[this.titleName];
     }
-    private get objHash() { return this.url + ";" + this.path + ";" + this.valueName + ";" + this.titleName; }
+    private get objHash() { return this.processedUrl + ";" + this.processedPath + ";" + this.valueName + ";" + this.titleName; }
 }
 JsonObject.metaData.addClass("choicesByUrl", ["url", "path", "valueName", "titleName"], function () { return new ChoicesRestfull(); });

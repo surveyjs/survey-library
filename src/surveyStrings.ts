@@ -1,9 +1,10 @@
 ﻿export var surveyLocalization = {
     currentLocale: "",
+    defaultLocale: "en",
     locales: {},
     getString: function (strName: string) {
-        var loc = this.currentLocale ? this.locales[this.currentLocale] : surveyStrings;
-        if (!loc || !loc[strName]) loc = surveyStrings;
+        var loc = this.currentLocale ? this.locales[this.currentLocale] : this.locales[this.defaultLocale];
+        if (!loc || !loc[strName]) loc = this.locales[this.defaultLocale];
         return loc[strName];
     },
     getLocales: function (): Array<string> {

@@ -26,6 +26,13 @@ QUnit.test("add new localization", function (assert) {
     assert.equal(surveyLocalization.getString("pagePrevText"), "Previous");
     surveyLocalization.currentLocale = "";
 });
+QUnit.test("make german as a default location", function (assert) {
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Previous", "Get English string");
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Zurück", "Get German string");
+    surveyLocalization.defaultLocale = "en";
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Previous", "Get English string again");
+});
 QUnit.test("set german localization", function (assert) {
     var locales = surveyLocalization.getLocales();
     assert.ok(locales.indexOf("en") > -1, "has en");

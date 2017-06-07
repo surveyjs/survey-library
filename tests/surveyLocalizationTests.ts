@@ -66,3 +66,10 @@ QUnit.test("set swedish localization", function (assert) {
     assert.equal(survey.completeText, "Färdig");
     surveyLocalization.currentLocale = "";
 });
+QUnit.test("Supported locales", function (assert) {
+    var localesCounts = surveyLocalization.getLocales().length;
+    surveyLocalization.supportedLocales = ["en", "de"];
+    assert.equal(surveyLocalization.getLocales().length, 2 + 1, "We support only two locales now");
+    surveyLocalization.supportedLocales = null;
+    assert.equal(surveyLocalization.getLocales().length, localesCounts, "Support all locales");
+});

@@ -22,7 +22,7 @@ export class SurveyValidator extends Base {
     protected getDefaultErrorText(name: string): string {
         return "";
     }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         return null;
     }
 }
@@ -34,7 +34,7 @@ export interface IValidatorOwner {
 export class ValidatorRunner {
     public run(owner: IValidatorOwner): SurveyError {
         for (var i = 0; i < owner.validators.length; i++) {
-            var validatorResult = owner.validators[i].validate(owner.value, owner.getValidatorTitle());
+            var validatorResult = owner.validators[i].validate(owner.value, owner.getValidatorTitle(), owner);
             if (validatorResult != null) {
                 if (validatorResult.error) return validatorResult.error;
                 if (validatorResult.value) {
@@ -53,7 +53,7 @@ export class NumericValidator extends SurveyValidator {
         super();
     }
     public getType(): string { return "numericvalidator"; }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         if (!value || !this.isNumber(value)) {
             return new ValidatorResult(null, new RequreNumericError());
         }
@@ -91,7 +91,7 @@ export class TextValidator extends SurveyValidator {
         super();
     }
     public getType(): string { return "textvalidator"; }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         if (this.minLength > 0 && value.length < this.minLength) {
             return new ValidatorResult(null, new CustomError(this.getErrorText(name)));
         }
@@ -113,7 +113,7 @@ export class AnswerCountValidator extends SurveyValidator {
         super();
     }
     public getType(): string { return "answercountvalidator"; }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         if (value == null || value.constructor != Array) return null;
         var count = value.length;
         if (this.minCount && count < this.minCount) {
@@ -136,7 +136,7 @@ export class RegexValidator extends SurveyValidator {
         super();
     }
     public getType(): string { return "regexvalidator"; }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         if (!this.regex || !value) return null;
         var re = new RegExp(this.regex);
         if (re.test(value)) return null;
@@ -152,7 +152,7 @@ export class EmailValidator extends SurveyValidator {
         super();
     }
     public getType(): string { return "emailvalidator"; }
-    public validate(value: any, name: string = null): ValidatorResult {
+    public validate(value: any, name: string = null, owner: IValidatorOwner): ValidatorResult {
         if (!value) return null;
         if (this.re.test(value)) return null;
         return new ValidatorResult(value, new CustomError(this.getErrorText(name)));

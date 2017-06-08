@@ -40,7 +40,17 @@ export class JsonObjectProperty {
         } else {
             if(this.serializationProperty)
                 obj[this.serializationProperty].setJson(value);
-            else obj[this.name] = value;
+            else {
+                if(value && typeof value === "string") {
+                    if(this.type == "number") {
+                        value = parseInt(value);
+                    }
+                    if(this.type == "boolean") {
+                        value = value.toLowerCase() === "true";
+                    }
+                }
+                obj[this.name] = value;
+            }
         }
     }
     public getObjType(objType: string) {
@@ -428,7 +438,12 @@ export class JsonObject {
             value = newObj.newObj;
         }
         if (!newObj.error) {
-            obj[property.name] = value;
+            if(property != null) {
+                property.setValue(obj, value, this);
+            }
+            else {
+                obj[property.name] = value;
+            }
         }
     }
     private isValueArray(value: any): boolean { return value && Array.isArray(value); }

@@ -460,3 +460,15 @@ QUnit.test("Test getPropertyValue and isLocalizable", function (assert) {
     property = JsonObject.metaData.findProperty(obj.getType(), "locProperty");
     assert.equal(property.getPropertyValue(obj), "loc_yes", "getValueProp works correctly");
 });
+QUnit.test("Deserialize number and boolean correctly, bug #439", function (assert) {
+    JsonObject.metaData.addProperty("car", "isUsed:boolean");
+    var truck = new Truck();
+    new JsonObject().toObject({ "type": "truck", "maxWeight": "10", "isUsed": "false" }, truck);
+    assert.equal(truck.maxWeight, 10, "deserialize property as number");
+    truck.maxWeight += 1;
+    assert.equal(truck.maxWeight, 11, "it should becomes 11 now");
+    assert.equal(truck["isUsed"], false, "deserialize property as boolean");
+    truck["isUsed"] = !truck["isUsed"];
+    assert.equal(truck["isUsed"], true, "it should become true");
+    JsonObject.metaData.removeProperty("car", "isUsed");
+});

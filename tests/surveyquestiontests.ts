@@ -424,6 +424,13 @@ QUnit.test("Matrixdynamic value tests after cells generation", function (assert)
     question.value = [{}, { 'column1': 2 }, {}];
     assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
 });
+QUnit.test("Matrixdynamic set text to rowCount property, bug #439", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    new JsonObject().toObject({type: "matrixdynamic", rowCount: "1"}, question);
+    assert.equal(question.rowCount, 1, "Row count should be 1");
+    question.addRow();
+    assert.equal(question.rowCount, 2, "Row count should b 2 now");
+});
 QUnit.test("Matrixdynamic add/remove rows", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDymanic");
     question.rowCount = 3;

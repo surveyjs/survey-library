@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "npm run build_dev && live-server",
+    "start": "npm run build_dev && live-server --port=7777",
     "test": "karma start",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",

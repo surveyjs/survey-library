@@ -22,7 +22,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     public customWidget: QuestionCustomWidget;
     customWidgetData = { isNeedRender: true };
     /**
-     * An expression that returns true or false. If it returns a true the Question becomes visible and if it returns false the Panel becomes invisible. The library perform the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+     * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
      * @see visible
      */
     public visibleIf: string = "";

@@ -74,7 +74,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
      */
     public parent: PanelModelBase = null;
     /**
-     * An expression that returns true or false. If it returns a true the Panel becomes visible and if it returns false the Panel becomes invisible. The library perform the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+     * An expression that returns true or false. If it returns true the Panel becomes visible and if it returns false the Panel becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
      * @see visible
      */
     public visibleIf: string = "";

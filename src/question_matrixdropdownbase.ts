@@ -154,6 +154,14 @@ export class MatrixDropdownCell {
     constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
         this.questionValue.setData(row);
+        JsonObject.metaData.getProperties(column.getType()).forEach(property => {
+            let propertyName = property.name;
+            if(column[propertyName] !== undefined && this.questionValue[propertyName] === undefined) {
+                this.questionValue[propertyName] = column[propertyName];
+            }
+        });
+        Object.keys(column).forEach(key => {
+        });
         this.questionValue.customWidget = CustomWidgetCollection.Instance.getCustomWidget(this.questionValue);
     }
     public get question(): Question { return this.questionValue; }

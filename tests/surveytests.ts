@@ -1436,3 +1436,22 @@ function createPageWithQuestion(name: string) : PageModel {
     page.addNewQuestion("text", "q1");
     return page;
 }
+
+QUnit.test("Pass custom properties to cell question", function (assert) {
+    JsonObject.metaData.addProperty("matrixdropdowncolumn", {
+	  name: "renderAs",
+	  default: "default",
+	  choices: ["default", "select2tagbox"]
+	});
+    var survey = new SurveyModel({ questions: [
+        { type: "matrixdynamic", name: "teachersRate", title: "Please rate your teachers", columnColCount: 1, cellType: "radiogroup",
+            choices: [{value: 1 , text: "Yes"}, {value: 0, text: "No"}],
+            columns: [
+                { name: "subject", cellType:"dropdown", renderAs: "select2tagbox", title: "Select a subject", choices: ["English: American Literature", "World Languages: Japanese"]}, 
+            ]
+        }
+    ]});
+    var q1: QuestionMatrixDynamicModel = <any>survey.getQuestionByName("teachersRate");
+    q1.addRow();
+    assert.equal(q1.visibleRows[0].cells[0].question['renderAs'], "select2tagbox", "custom property should be passed to the question");
+});

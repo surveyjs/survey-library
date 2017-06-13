@@ -24,6 +24,7 @@ import {QuestionRatingModel} from "../src/question_rating";
 import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCustomWidgets";
 import {QuestionSelectBase} from "../src/question_baseselect";
 import {LocalizableString} from "../src/localizablestring";
+import {surveyCss} from "../src/defaultCss/cssstandard";
 
 export default QUnit.module("Survey");
 
@@ -1403,6 +1404,21 @@ QUnit.test("onMatrixRowAdded", function (assert) {
     q1.addRow();
     assert.equal(q1.rowCount, 4, "there are two rows");
     assert.equal(q1.value[3]["col1"], 2, "get value from previous");
+});
+
+QUnit.test("Survey Elements css", function (assert) {
+    var css = surveyCss.getCss();
+    css.question.titleRequired = "required";
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var textQuestion = <QuestionTextModel>page.addNewQuestion("text", "q1");
+    var textCss = textQuestion.cssClasses;
+    assert.equal(textCss.root, "", "text question root class");
+    assert.equal(textCss.title, "sv_q_title", "text question title class");
+    textQuestion.isRequired = true;
+    textCss = textQuestion.cssClasses;
+    assert.equal(textCss.title, "sv_q_title required", "text question title class");
+    css.question.titleRequired = "";
 });
 
 function twoPageSimplestSurvey() {

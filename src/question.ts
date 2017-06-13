@@ -91,6 +91,17 @@ export class Question extends QuestionBase implements IValidatorOwner {
             this.fireCallback(this.focusCallback);
         }
     }
+    protected updateCssClasses(res: any, surveyCss: any) { 
+        super.updateCssClasses(res, surveyCss);
+        if(this.isRequired) {
+            if(surveyCss.question.required) {
+                res.root += " " + surveyCss.question.required;
+            }
+            if(surveyCss.question.titleRequired) {
+                res.title += " " + surveyCss.question.titleRequired;
+            }
+        }
+    }
     protected getFirstInputElementId(): string {
         return this.inputId;
     }

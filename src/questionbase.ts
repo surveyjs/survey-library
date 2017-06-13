@@ -3,6 +3,7 @@ import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 import {ILocalizableOwner} from "./localizablestring";
+import {surveyCss} from "./defaultCss/cssstandard";
 
 /**
  * A base class for all questions. QuestionBase doesn't have information about title, values, errors and so on.
@@ -123,6 +124,15 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
         this.startWithNewLineValue = value;
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
+    public get cssClasses(): any {
+        var surveyCss = this.css;
+        var classes = {root : this.getRootCss(surveyCss), title: surveyCss.question.title, indent: surveyCss.indent, error: {root: surveyCss.error.root, icon: surveyCss.error.icon, item: surveyCss.error.item}};
+        this.updateCssClasses(classes, surveyCss);
+        return classes;
+    }
+    protected getRootCss(classes: any) { return classes.question.root; }
+    protected updateCssClasses(res: any, surveyCss: any) { }
+    private get css(): any { return surveyCss.getCss(); }
     /**
      * The rendered width of the question.
      */

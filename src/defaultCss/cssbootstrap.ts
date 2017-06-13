@@ -10,7 +10,7 @@ export var defaultBootstrapCss = {
     progress: "progress center-block", progressBar: "progress-bar",
     pageTitle: "",
     row: "",
-    question: { root: "", title: "", comment: "form-control", indent: 20 },
+    question: { root: "", title: "", comment: "form-control", required: "", titleRequired: "", indent: 20 },
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
     checkbox: { root: "form-inline", item: "checkbox", other: "" },

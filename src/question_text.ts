@@ -47,6 +47,10 @@ export class QuestionTextModel extends Question {
         }
         return newValue;
     }
+    protected updateCssClasses(res: any, surveyCss: any) { 
+        super.updateCssClasses(res, surveyCss);
+        res.root = surveyCss.text;
+    }
     private isNumber(value): boolean {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }

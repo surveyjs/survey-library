@@ -174,6 +174,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         if (newRowCount <= this.rowCount) return;
         this.rowCountValue = newRowCount;
         if (this.generatedVisibleRows) {
+            this.generatedVisibleRows = null;
             this.generatedVisibleRows = this.visibleRows;
         }
     }

@@ -316,6 +316,19 @@ QUnit.test("Survey display mode should set koIsReadonly to true for questions", 
     assert.equal(question["koIsReadOnly"](), true, "survey in display mode, question is readonly");
 });
 
+QUnit.test("Matrixdynamic adjust rowCount on setting the survey.data with another locale", function (assert) {
+    var survey = new Survey();
+    survey.addNewPage("p1");
+    var question = new QuestionMatrixDynamic("q1");
+    question.rowCount = 0;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    survey.pages[0].addQuestion(question);
+    question.visibleRows; // cache visibleRows
+    survey.data = {"q1": [{}, { 'column1': 2 }, {}]};
+    assert.equal(question.rowCount, 3, "It should be 3 rowCount");
+});
+
 
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);

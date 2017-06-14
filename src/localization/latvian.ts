@@ -10,7 +10,7 @@ export var latvianSurveyStrings = {
     loadingSurvey: "Ielāde no servera...",
     otherItemText: "Cits (lūdzu, aprakstiet!)",
     optionsCaption: "Izvēlēties...",
-    requiredError: Lūdzu, atbildiet uz jautājumu!",
+    requiredError: "Lūdzu, atbildiet uz jautājumu!",
     numericError: "Atbildei ir jābūt skaitlim.",
     textMinLength: "Lūdzu, ievadiet vismaz {0} simbolus.",
     minSelectError: "Lūdzu, izvēlieties vismaz {0} variantu.",

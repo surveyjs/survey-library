@@ -1,15 +1,15 @@
 ﻿<script type="text/html" id="survey-question-radiogroup">
-    <form data-bind="css: question.survey.css.radiogroup.root">
+    <form data-bind="css: question.koCss().root">
         <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <div data-bind="style:{display: 'inline-block', width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px', 'margin-left': '0px'}, css: question.survey.css.radiogroup.item">
-            <label data-bind="css: question.survey.css.radiogroup.label">
+        <div data-bind="style:{display: 'inline-block', width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px', 'margin-left': '0px'}, css: question.koCss().item">
+            <label data-bind="css: question.koCss().label">
                 <input type="radio" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : ''}, checked: question.koValue, enable: !question.koIsReadOnly()" />
                 <span class="circle"></span>
                 <span class="check"></span>
                 <!-- ko template: { name: 'survey-string', data: item.locText } --><!-- /ko -->
             </label>
             <div data-bind="visible: question.hasOther && ($index() == question.koVisibleChoices().length-1)">
-                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: question.survey.css.radiogroup.other"></div>
+                <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: question.koCss().other"></div>
             </div>
         </div>
         <!-- /ko -->

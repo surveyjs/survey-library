@@ -81,7 +81,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         if (paddingLeft) rootStyle["paddingLeft"] = paddingLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;
         return (
-            <div ref="root" id={this.questionBase.id} className={this.css.question.root} style={rootStyle}>
+            <div ref="root" id={this.questionBase.id} className={this.css.question.mainRoot} style={rootStyle}>
                 {titleTop}
                 {errors}
                 {questionRender}

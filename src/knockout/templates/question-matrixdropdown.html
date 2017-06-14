@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-matrixdropdown">
     <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
-        <table data-bind="css: question.survey.css.matrixdropdown.root">
+        <table data-bind="css: question.koCss().root">
             <thead>
                 <tr>
                     <th></th>
@@ -14,7 +14,7 @@
                 <tr>
                     <td><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                     <!-- ko foreach: row.cells-->
-                    <td data-bind="css: question.survey.css.matrixdropdown.itemValue">
+                    <td data-bind="css: question.koCss().itemValue">
                         <div data-bind="visible: $data.question.koVisible">
                         <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
                         <!-- /ko -->

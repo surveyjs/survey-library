@@ -124,6 +124,10 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
         this.startWithNewLineValue = value;
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
+    /**
+     * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
+     * @see SurveyModel.updateQuestionCssClasses
+     */
     public get cssClasses(): any {
         var surveyCss = this.css;
         var classes = { error : {}};

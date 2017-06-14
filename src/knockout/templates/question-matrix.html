@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-matrix">
-    <table data-bind="css: question.survey.css.matrix.root">
+    <table data-bind="css: question.koCss().root">
         <thead>
             <tr>
                 <th data-bind="visible: question.hasRows"></th>
@@ -10,12 +10,12 @@
         </thead>
         <tbody>
             <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
-            <tr data-bind="css: question.survey.css.matrix.row">
+            <tr data-bind="css: question.koCss().row">
                 <td data-bind="visible: question.hasRows"><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <label data-bind="css: question.survey.css.matrix.label, style:{'position': 'absolute'}" style="margin: 0;">
-                        <input type="radio" data-bind="css: question.survey.css.matrix.itemValue, attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
+                    <label data-bind="css: question.koCss().label, style:{'position': 'absolute'}" style="margin: 0;">
+                        <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
                         <span class="circle"></span>
                         <span class="check"></span>
                     </label>

@@ -16,7 +16,7 @@ export var defaultStandardCss = {
     progress: "sv_progress", progressBar: "",
     pageTitle: "sv_p_title",
     row: "sv_row",
-    question: { root: "sv_q", title: "sv_q_title", comment: "", required: "", titleRequired: "", indent: 20 },
+    question: { mainRoot: "sv_q", title: "sv_q_title", comment: "", required: "", titleRequired: "", indent: 20 },
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
     checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },
@@ -25,7 +25,7 @@ export var defaultStandardCss = {
     matrix: { root: "sv_q_matrix" },
     matrixdropdown: { root: "sv_q_matrix" },
     matrixdynamic: { root: "table", button: "" },
-    multipletext: { root: "", itemTitle: "", itemValue: "" },
+    multipletext: { root: "", itemTitle: "", row: "", itemValue: "" },
     radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", label: "", other: "sv_q_other" },
     rating: { root: "sv_q_rating", item: "sv_q_rating_item" },
     text: "",

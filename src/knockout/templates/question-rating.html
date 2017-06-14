@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-rating">
-    <div data-bind="css: question.survey.css.rating.root">
+    <div data-bind="css: question.koCss().root">
         <!-- ko foreach: question.koVisibleRateValues -->
         <label data-bind="css: question.koGetCss($data)">
             <input type="radio" style="display: none;"

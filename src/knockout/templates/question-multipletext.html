@@ -1,13 +1,13 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
-    <table data-bind="css: question.survey.css.multipletext.root, foreach: { data:  question.koRows, as: 'row' }">
-        <tr data-bind="foreach: { data: row, as: 'item' }, css: question.survey.css.multipletext.row">
-            <td data-bind="css: question.survey.css.multipletext.itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
+    <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
+        <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
+            <td data-bind="css: question.koCss().itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
             <td>
                 <!-- ko ifnot: question.koIsReadOnly -->
-                <input style="float:left" data-bind="attr: {type: item.inputType, size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: question.survey.css.multipletext.itemValue" />
+                <input style="float:left" data-bind="attr: {type: item.inputType, size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: question.koCss().itemValue" />
                 <!-- /ko -->
                 <!-- ko if: question.koIsReadOnly -->
-                <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.survey.css.multipletext.itemValue"></div>
+                <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.koCss().itemValue"></div>
                 <!-- /ko -->
             </td>
         </tr>

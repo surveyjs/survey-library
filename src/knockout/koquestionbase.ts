@@ -20,6 +20,7 @@ export class QuestionImplementorBase {
         this.question["koPaddingLeft"] = this.koPaddingLeft;
         this.question["koPaddingRight"] = this.koPaddingRight;
         this.question["updateQuestion"] = function () { self.updateQuestion(); }
+        this.question["koCss"] = ko.pureComputed(function() {return self.question.cssClasses;});
     }
     protected updateQuestion() {  }
     protected onVisibilityChanged() {

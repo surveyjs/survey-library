@@ -226,6 +226,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      */
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
+     * The event is fired before rendering a question. Use it to override the default question css classes. There are two parameters in options: options.question and options.cssClasses
+     */
+    public onUpdateQuestionCssClasses: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
      * The event is fired right after survey is rendered in DOM. options.htmlElement is the root element.
      */
     public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -839,6 +843,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     }
     protected afterRenderSurvey(htmlElement) {
         this.onAfterRenderSurvey.fire(this, { survey: this, htmlElement: htmlElement });
+    }
+    updateQuestionCssClasses(question: IQuestion, cssClasses: any) {
+        this.onUpdateQuestionCssClasses.fire(this, { question: question, cssClasses: cssClasses });
     }
     afterRenderPage(htmlElement) {
         if (this.onAfterRenderPage.isEmpty) return;

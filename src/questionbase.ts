@@ -126,12 +126,37 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     }
     public get cssClasses(): any {
         var surveyCss = this.css;
-        var classes = {root : this.getRootCss(surveyCss), title: surveyCss.question.title, indent: surveyCss.indent, error: {root: surveyCss.error.root, icon: surveyCss.error.icon, item: surveyCss.error.item}};
+        var classes = { error : {}};
+        this.copyCssClasses(classes, surveyCss.question);
+        this.copyCssClasses(classes.error, surveyCss.error);
         this.updateCssClasses(classes, surveyCss);
+        if(this.survey) {
+            this.survey.updateQuestionCssClasses(this, classes);
+        }
         return classes;
     }
     protected getRootCss(classes: any) { return classes.question.root; }
-    protected updateCssClasses(res: any, surveyCss: any) { }
+    protected updateCssClasses(res: any, surveyCss: any) { 
+        var objCss = surveyCss[this.getType()];
+        if (objCss === undefined || objCss === null) return;
+        if (typeof objCss === 'string' || objCss instanceof String) {
+            res.root = objCss;
+        } else {
+            for(var key in objCss) {
+                res[key] = objCss[key];
+            }
+        }
+    }
+    private copyCssClasses(dest: any, source: any) {
+        if(!source) return;
+        if (typeof source === 'string' || source instanceof String) {
+            dest["root"] = source;
+        } else {
+            for(var key in source) {
+                dest[key] = source[key];
+            }
+        }
+    }
     private get css(): any { return surveyCss.getCss(); }
     /**
      * The rendered width of the question.

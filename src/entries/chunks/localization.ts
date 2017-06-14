@@ -8,6 +8,7 @@ import '../../localization/german';
 import '../../localization/greek';
 import '../../localization/icelandic';
 import '../../localization/italian';
+import '../../localization/latvian';
 import '../../localization/polish';
 import '../../localization/portuguese';
 import '../../localization/romanian';

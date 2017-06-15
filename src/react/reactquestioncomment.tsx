@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElementBase, SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionCommentModel} from "../question_comment";
 import {Question} from "../question";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -25,13 +25,14 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         return (
-            <textarea id={this.question.inputId} className={this.css} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
+            <textarea id={this.question.inputId} className={cssClasses.root} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
         );
     }
 }
 
-export class SurveyQuestionCommentItem extends SurveyElementBase {
+export class SurveyQuestionCommentItem extends SurveyElement {
     private question: Question;
     private comment: string;
     private otherCss: string;
@@ -57,8 +58,8 @@ export class SurveyQuestionCommentItem extends SurveyElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         if (this.isDisplayMode)
-            return (<div className={this.css.question.comment}>{this.comment}</div>);
-        var className = this.otherCss ? this.otherCss : this.css.question.comment;
+            return (<div className={this.cssClasses.comment}>{this.comment}</div>);
+        var className = this.otherCss ? this.otherCss : this.cssClasses.comment;
         return (<input type="text" className={className} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
     }
 }

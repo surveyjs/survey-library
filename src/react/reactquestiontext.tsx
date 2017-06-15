@@ -25,10 +25,11 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         if (this.isDisplayMode)
-            return (<div id={this.question.inputId} className={this.css}>{this.question.value}</div>)
+            return (<div id={this.question.inputId} className={cssClasses.root}>{this.question.value}</div>)
         return (
-            <input id={this.question.inputId} className={this.css} type={this.question.inputType} value={this.state.value} size={this.question.size} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />
+            <input id={this.question.inputId} className={cssClasses.root} type={this.question.inputType} value={this.state.value} size={this.question.size} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />
         );
     }
 }

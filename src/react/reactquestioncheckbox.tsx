@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
 import {ItemValue} from "../itemvalue";
@@ -18,26 +18,27 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     protected get question(): QuestionCheckboxModel { return this.questionBase as QuestionCheckboxModel; }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         return (
-            <div className={this.css.root}>
-                {this.getItems() }
+            <div className={cssClasses.root}>
+                {this.getItems(cssClasses) }
             </div>);
     }
-    protected getItems(): Array<any> {
+    protected getItems(cssClasses: any): Array<any> {
         var items = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(this.renderItem(key, item, i == 0));
+            items.push(this.renderItem(key, item, i == 0, cssClasses));
         }
         return items;
     }
     protected get textStyle(): any { return null; }
-    protected renderItem(key: string, item: any, isFirst: boolean): JSX.Element {
-        return <SurveyQuestionCheckboxItem key={key} question={this.question} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
+    protected renderItem(key: string, item: any, isFirst: boolean, cssClasses: any): JSX.Element {
+        return <SurveyQuestionCheckboxItem key={key} question={this.question} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
     }
 }
-export class SurveyQuestionCheckboxItem extends SurveyElementBase {
+export class SurveyQuestionCheckboxItem extends SurveyElement {
     protected question: QuestionCheckboxModel;
     protected item: ItemValue;
     protected textStyle: any;
@@ -95,8 +96,8 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
         var id = this.isFirst ? this.question.inputId : null;
         var text = this.renderLocString(this.item.locText);
         return (
-            <div className={this.css.item} style={divStyle}>
-                <label className={this.css.item}>
+            <div className={this.cssClasses.item} style={divStyle}>
+                <label className={this.cssClasses.item}>
                     <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
                     <span className="checkbox-material" style={{"marginRight": "5px"}}><span className="check"></span></span>
                     <span>{text}</span>
@@ -106,7 +107,7 @@ export class SurveyQuestionCheckboxItem extends SurveyElementBase {
         );
     }
     protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} otherCss={this.css.other} isDisplayMode={this.isDisplayMode}/></div>);
+        return (<div className={this.cssClasses.other}><SurveyQuestionCommentItem  question={this.question} otherCss={this.cssClasses.other} cssClasses={this.cssClasses} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 

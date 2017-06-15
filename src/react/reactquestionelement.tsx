@@ -12,22 +12,28 @@ export class SurveyElementBase extends React.Component<any, any> {
         }
         return <span style={style}>{locStr.renderedHtml}</span>;
     }
-    protected css: any;
-    protected rootCss: any;
     protected isDisplayMode: boolean;
     constructor(props: any) {
         super(props);
-        this.css = props.css;
-        this.rootCss = props.rootCss;
         this.isDisplayMode = props.isDisplayMode || false;
     }
     componentWillReceiveProps(nextProps: any) {
-        this.css = nextProps.css;
-        this.rootCss = nextProps.rootCss;
         this.isDisplayMode = nextProps.isDisplayMode || false;
     }
     protected renderLocString(locStr: LocalizableString, style: any = null): JSX.Element {
         return SurveyElementBase.renderLocString(locStr, style);
+    }
+}
+
+export class SurveyElement extends SurveyElementBase {
+    protected cssClasses: any;
+    constructor(props: any) {
+        super(props);
+        this.cssClasses = props.cssClasses;
+    }
+    componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
+        this.cssClasses = nextProps.cssClasses;
     }
 }
 

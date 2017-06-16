@@ -1,6 +1,6 @@
 <template>
     <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
-        <table :class="css.matrixdynamic.root">
+        <table :class="question.cssClasses.root">
             <thead>
                 <tr>
                     <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
@@ -14,12 +14,12 @@
                         <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>
                     <td v-if="!question.isReadOnly">
-                        <input type="button" v-if="question.canRemoveRow" :class="css.matrixdynamic.button" :value="question.removeRowText" @click="removeRowClick(row)" />
+                        <input type="button" v-if="question.canRemoveRow" :class="question.cssClasses.button" :value="question.removeRowText" @click="removeRowClick(row)" />
                     </td>
                 </tr>
             </tbody>
         </table>
-        <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="css.matrixdynamic.button" :value="question.addRowText" @click="addRowClick"/>
+        <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="question.cssClasses.button" :value="question.addRowText" @click="addRowClick"/>
     </div>
 </template>
 

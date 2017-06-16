@@ -1,6 +1,6 @@
 <template>
     <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
-        <table :class="css.matrixdropdown.root">
+        <table :class="question.cssClasses.root">
             <thead>
                 <tr>
                     <th></th>
@@ -10,7 +10,7 @@
             <tbody>
                 <tr v-for="row in rows">
                     <td><survey-string :locString="row.locText"/></td>
-                    <td v-for="cell in row.cells" :class="css.matrixdropdown.itemValue">
+                    <td v-for="cell in row.cells" :class="question.cssClasses.itemValue">
                         <survey-errors :question="question" :css="css"/>
                         <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
                     </td>

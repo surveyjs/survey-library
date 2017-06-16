@@ -1,8 +1,8 @@
 <template>
-    <div role="alert" v-show="!!question.errors && question.errors.length > 0" :class="css.error.root">
+    <div role="alert" v-show="!!question.errors && question.errors.length > 0" :class="question.cssClasses.root">
         <div v-for="error in question.errors">
-            <span :class="css.error.icon" aria-hidden="true"></span>
-            <span :class="css.error.item">{{error.getText()}}</span>
+            <span :class="question.cssClasses.icon" aria-hidden="true"></span>
+            <span :class="question.cssClasses.item">{{error.getText()}}</span>
         </div>
     </div>
 </template>
@@ -16,8 +16,6 @@
     export default class Errors extends Vue {
         @Prop
         question: QuestionModel
-        @Prop
-        css: any
     }
     Vue.component("survey-errors", Errors)
 </script>

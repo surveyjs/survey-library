@@ -1,11 +1,11 @@
 <template>
-    <table :class="css.multipletext.root">
-        <tr v-for="row in question.getRows()" :class="css.multipletext.row">
+    <table :class="question.cssClasses.root">
+        <tr v-for="row in question.getRows()" :class="question.cssClasses.row">
             <template v-for="(item, index) in row">
-                <td :class="css.multipletext.itemTitle"><survey-string :locString="item.locTitle"/></td>
+                <td :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
-                    <input v-if="!question.isReadOnly"  :class="css.multipletext.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" :value="item.value" @change="change(item, $event)"/>
-                    <div v-else style="float:left" :class="css.multipletext.itemValue" :size="question.itemSize">{{item.value}}</div>
+                    <input v-if="!question.isReadOnly"  :class="question.cssClasses.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" :value="item.value" @change="change(item, $event)"/>
+                    <div v-else style="float:left" :class="question.cssClasses.itemValue" :size="question.itemSize">{{item.value}}</div>
                 </td>
             </template>
         </tr>

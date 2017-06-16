@@ -1,7 +1,7 @@
 <template>
     <div>
-        <input v-if="!question.isReadOnly" type="text" :class="css.question.comment" v-model="question.comment"/>
-        <div v-else :class="css.question.comment">{{question.comment}}</div>
+        <input v-if="!question.isReadOnly" type="text" :class="question.cssClasses.other" v-model="question.comment"/>
+        <div v-else :class="question.cssClasses.other">{{question.comment}}</div>
     </div>
 </template>
 
@@ -15,8 +15,6 @@
     export default class OtherChoice extends Vue {
         @Prop
         question: Question
-        @Prop
-        css: Object
     }
     Vue.component("survey-other-choice", OtherChoice)
 </script>

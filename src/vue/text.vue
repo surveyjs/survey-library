@@ -1,7 +1,7 @@
 <template>
     <div>
-        <input v-if="!question.isReadOnly" :class="css.text" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change"/>
-        <div v-else :class="css.text">{{question.value}}</div>
+        <input v-if="!question.isReadOnly" :class="question.cssClasses.text" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change"/>
+        <div v-else :class="question.cssClasses.text">{{question.value}}</div>
     </div>
 </template>
 

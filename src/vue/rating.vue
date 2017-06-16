@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div :class="css.rating.root">
+        <div :class="question.cssClasses.root">
             <label v-for="(item, index) in question.visibleRateValues" :class="getCss(item)">
                 <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" />
                 <span v-if="index === 0"><survey-string :locString="question.locMinRateDescription"/></span>
@@ -8,7 +8,7 @@
                 <span v-if="index === question.visibleRateValues.length-1"><survey-string :locString="question.locMaxRateDescription"/></span>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther" :class="css.rating.other" :question="question" :css="css"/>
+        <survey-other-choice v-show="question.hasOther" :class="question.cssClasses.other" :question="question" :css="css"/>
     </div>
 </template>
 
@@ -22,7 +22,7 @@
     export default class Rating extends Question<QuestionRatingModel> {
         selection = ''
         getCss(item) {
-            let css = this.css.rating.item;
+            let css = this.question.cssClasses.item;
             if (this.selection == item.value || this.question.value == item.value) {
                 css = css + " active";
             }

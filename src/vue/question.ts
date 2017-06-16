@@ -6,6 +6,4 @@ import {Component, Prop} from 'vue-property-decorator';
 export default class Question<T extends QuestionModel> extends Vue {
     @Prop
     question: T
-    @Prop
-    css: any
 }

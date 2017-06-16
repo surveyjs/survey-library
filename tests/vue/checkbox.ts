@@ -49,7 +49,6 @@ QUnit.test("Survey.Checkbox initialization and values", (assert) => {
 
     const vm = new Checkbox;
     vm.question = question;
-    vm.css = survey.css;
     vm.$mount();
 
     assert.deepEqual(question.value, ["second item"]);
@@ -67,7 +66,6 @@ QUnit.test("Survey.Checkbox question changed", (assert) => {
 
     const vm = new Checkbox;
     vm.question = question1;
-    vm.css = survey.css;
     vm.$mount();
 
     assert.deepEqual(vm.value, ["second item"]);
@@ -82,7 +80,6 @@ QUnit.test("Survey.Checkbox question value in model has been changed", function 
 
     const vm = new Checkbox;
     vm.question = question;
-    vm.css = survey.css;
     vm.$mount();
 
     assert.deepEqual(vm.value, ["second item"]);

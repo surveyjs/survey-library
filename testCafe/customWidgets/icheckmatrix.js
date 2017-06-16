@@ -85,9 +85,9 @@ const getWidgetConfig = function(framework) {
             isFit : function(question) { return question["renderAs"] === 'icheckmatrix'; }
         }
         Vue.component(widget.name, {
-            props: ['question', 'css', 'isEditMode'],
+            props: ['question', 'isEditMode'],
             template:
-            `<table :class="css.matrix.root">
+            `<table :class="question.cssClasses.root">
                 <thead>
                     <tr>
                         <th v-show="question.hasRows"></th>

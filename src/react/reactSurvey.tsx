@@ -204,13 +204,12 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
 
     //ISurveyCreator
     public createQuestionElement(question: QuestionBase): JSX.Element {
-        var questionCss = this.css[question.getType()];
         return ReactQuestionFactory.Instance.createQuestion(question.getType(), {
-            question: question, css: questionCss, rootCss: this.css, isDisplayMode: question.isReadOnly, creator: this
+            question: question, isDisplayMode: question.isReadOnly, creator: this
         });
     }
-    public renderError(key: string, errorText: string): JSX.Element {
-        return <div key={key} className={this.css.error.item}>{errorText}</div>;
+    public renderError(key: string, errorText: string, cssClasses: any): JSX.Element {
+        return <div key={key} className={cssClasses.error.item}>{errorText}</div>;
     }
     public questionTitleLocation(): string { return this.survey.questionTitleLocation; }
 }

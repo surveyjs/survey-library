@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
@@ -31,6 +31,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         var headers = [];
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
@@ -44,14 +45,14 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
         var visibleRows = this.question.visibleRows;
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
-            rows.push(<SurveyQuestionMatrixDynamicRow key={i} row={row} question={this.question} index={i} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDynamicRow key={i} row={row} question={this.question} index={i} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
         var btnDeleteTD = !this.isDisplayMode ? <th></th> : null;
         return (
             <div>
                 <div  style={divStyle}>
-                    <table className={this.css.root}>
+                    <table className={cssClasses.root}>
                         <thead>
                             <tr>
                                 {headers}
@@ -63,17 +64,17 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
                         </tbody>
                     </table>
                 </div>
-                {this.renderAddRowButton() }
+                {this.renderAddRowButton(cssClasses) }
             </div>
         );
     }
-    protected renderAddRowButton(): JSX.Element {
+    protected renderAddRowButton(cssClasses: any): JSX.Element {
         if (this.isDisplayMode || !this.question.canAddRow) return null;
-        return <input className={this.css.button} type="button" onClick={this.handleOnRowAddClick} value={this.question.addRowText} />;
+        return <input className={cssClasses.button} type="button" onClick={this.handleOnRowAddClick} value={this.question.addRowText} />;
     }
 }
 
-export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
+export class SurveyQuestionMatrixDynamicRow extends SurveyElement {
     private row: MatrixDynamicRowModel;
     private question: QuestionMatrixDynamicModel;
     private index: number;
@@ -101,7 +102,7 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <SurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />;
+            var errors = <SurveyQuestionErrors question={cell.question} cssClasses={this.cssClasses} creator={this.creator} />;
             var select = this.renderQuestion(cell);
             tds.push(<td key={"row" + i}>{errors}{select}</td>);
         }
@@ -120,7 +121,7 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyElementBase {
         return <SurveyCustomWidget creator={this.creator} question={cell.question}></SurveyCustomWidget>
     }
     protected renderButton(): JSX.Element {
-        return <input className={this.css.button} type="button" onClick={this.handleOnRowRemoveClick} value={this.question.removeRowText} />;
+        return <input className={this.cssClasses.button} type="button" onClick={this.handleOnRowRemoveClick} value={this.question.removeRowText} />;
     }
 }
 

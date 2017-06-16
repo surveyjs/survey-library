@@ -27,22 +27,23 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         return (
-            <div className={this.css.root}>
-                {this.getItems() }
+            <div className={cssClasses.root}>
+                {this.getItems(cssClasses) }
             </div>);
     }
-    protected getItems(): Array<any> {
+    protected getItems(cssClasses: any): Array<any> {
         var items = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            items.push(this.renderItem(key, item, i == 0));
+            items.push(this.renderItem(key, item, i == 0, cssClasses));
         }
         return items;
     }
     protected get textStyle(): any { return { marginLeft: "3px", display: "inline", position: 'static' }; }
-    private renderItem(key: string, item: ItemValue, isFirst: boolean): JSX.Element {
+    private renderItem(key: string, item: ItemValue, isFirst: boolean, cssClasses: any): JSX.Element {
         var itemWidth = this.question.colCount > 0 ? (100 / this.question.colCount) + "%" : "";
         var marginRight = this.question.colCount == 0 ? "5px" : "0px";
         var divStyle = { marginRight: marginRight, marginLeft: '0px', display: 'inline-block'};
@@ -50,15 +51,15 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
             divStyle["width"] = itemWidth;
         }
         var isChecked = this.question.value == item.value;
-        var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther() : null;
-        return this.renderRadio(key, item, isChecked, divStyle, otherItem, isFirst);
+        var otherItem = (isChecked && item.value === this.question.otherItem.value) ? this.renderOther(cssClasses) : null;
+        return this.renderRadio(key, item, isChecked, divStyle, otherItem, isFirst, cssClasses);
     }
-    protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean): JSX.Element {
+    protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean, cssClasses: any): JSX.Element {
         var id = isFirst ? this.question.inputId : null;
         var itemText = this.renderLocString(item.locText, this.textStyle);
         return (
-            <div key={key} className={this.css.item} style={divStyle}>
-                <label className={this.css.label}>
+            <div key={key} className={cssClasses.item} style={divStyle}>
+                <label className={cssClasses.label}>
                     <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
                     <span className="circle"></span>
                     <span className="check"></span>
@@ -68,8 +69,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
             </div>
         );
     }
-    protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} otherCss={this.css.other} isDisplayMode={this.isDisplayMode}/></div>);
+    protected renderOther(cssClasses: any): JSX.Element {
+        return (<div className={cssClasses.other}><SurveyQuestionCommentItem  question={this.question} otherCss={cssClasses.other} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 

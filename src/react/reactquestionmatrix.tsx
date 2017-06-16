@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixModel} from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -12,6 +12,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     protected get question(): QuestionMatrixModel { return this.questionBase as QuestionMatrixModel; }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         var firstTH = this.question.hasRows ? <th></th> : null;
         var headers = [];
         for (var i = 0; i < this.question.columns.length; i++) {
@@ -25,10 +26,10 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
             var key = "row" + i;
-            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} row={row} isFirst={i == 0} />);
+            rows.push(<SurveyQuestionMatrixRow key={key} question={this.question} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} row={row} isFirst={i == 0} />);
         }
         return (
-            <table className={this.css.root}>
+            <table className={cssClasses.root}>
                 <thead>
                     <tr>
                         {firstTH}
@@ -43,7 +44,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMatrixRow extends SurveyElementBase {
+export class SurveyQuestionMatrixRow extends SurveyElement {
     private question: QuestionMatrixModel;
     private row: MatrixRowModel;
     private isFirst: boolean;
@@ -80,8 +81,8 @@ export class SurveyQuestionMatrixRow extends SurveyElementBase {
             var labelStyle = { margin: '0', position: 'absolute' };
             var td =
                 <td key={key}>
-                    <label className={this.css.label} style={labelStyle}>
-                        <input id={inputId} type="radio" className={this.css.itemValue} name={this.row.fullName}
+                    <label className={this.cssClasses.label} style={labelStyle}>
+                        <input id={inputId} type="radio" className={this.cssClasses.itemValue} name={this.row.fullName}
                                value={column.value} disabled={this.isDisplayMode} checked={isChecked}
                                onChange={this.handleOnChange}/>
                         <span className="circle"></span>

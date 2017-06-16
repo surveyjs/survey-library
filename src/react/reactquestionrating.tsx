@@ -17,25 +17,26 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         var values = [];
         var minText = this.question.minRateDescription ? this.renderLocString(this.question.locMinRateDescription) : null;
         var maxText = this.question.maxRateDescription ? this.renderLocString(this.question.locMaxRateDescription) : null;
         for (var i = 0; i < this.question.visibleRateValues.length; i++) {
             var minTextValue = i == 0 ? minText : null;
             var maxTextValue = i == this.question.visibleRateValues.length - 1 ? maxText : null;
-            values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minTextValue, maxTextValue));
+            values.push(this.renderItem("value" + i, this.question.visibleRateValues[i], minTextValue, maxTextValue, cssClasses));
         }
-        var comment = this.question.hasOther ? this.renderOther() : null;
+        var comment = this.question.hasOther ? this.renderOther(cssClasses) : null;
         return (
-            <div className={this.css.root}>
+            <div className={cssClasses.root}>
                 {values}
                 {comment}
             </div>
         );
     }
-    protected renderItem(key: string, item: ItemValue, minText: JSX.Element, maxText: JSX.Element): JSX.Element {
+    protected renderItem(key: string, item: ItemValue, minText: JSX.Element, maxText: JSX.Element, cssClasses: any): JSX.Element {
         var isChecked = this.question.value == item.value;
-        var className = this.css.item;
+        var className = cssClasses.item;
         if (isChecked) className += " active";
         var itemText = this.renderLocString(item.locText);
         return <label key={key} className={className}>
@@ -45,8 +46,8 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
             {maxText}
             </label>;
     }
-    protected renderOther(): JSX.Element {
-        return (<div className={this.css.other}><SurveyQuestionCommentItem  question={this.question} css={this.rootCss} isDisplayMode={this.isDisplayMode}/></div>);
+    protected renderOther(cssClasses): JSX.Element {
+        return (<div className={cssClasses.other}><SurveyQuestionCommentItem  question={this.question} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode}/></div>);
     }
 }
 ReactQuestionFactory.Instance.registerQuestion("rating", (props) => {

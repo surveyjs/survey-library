@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
@@ -14,6 +14,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     protected get question(): QuestionMatrixDropdownModel { return this.questionBase as QuestionMatrixDropdownModel; }
     render(): JSX.Element {
         if (!this.question) return null;
+        var cssClasses = this.question.cssClasses;
         var headers = [];
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
@@ -27,12 +28,12 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
         var visibleRows = this.question.visibleRows;
         for (var i = 0; i < visibleRows.length; i++) {
             var row = visibleRows[i];
-            rows.push(<SurveyQuestionMatrixDropdownRow key={i} row={row} css={this.css} rootCss={this.rootCss} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
+            rows.push(<SurveyQuestionMatrixDropdownRow key={i} row={row} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll'} : {};
         return (
             <div  style={divStyle}>
-                <table className={this.css.root}>
+                <table className={cssClasses.root}>
                     <thead>
                         <tr>
                             <th></th>
@@ -48,7 +49,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
+export class SurveyQuestionMatrixDropdownRow extends SurveyElement {
     private row: MatrixDropdownRowModel;
     protected creator: ISurveyCreator;
     constructor(props: any) {
@@ -61,16 +62,16 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyElementBase {
     }
     private setProperties(nextProps: any) {
         this.row = nextProps.row;
-        this.creator = nextProps.creator;
+        this.creator = nextProps.creator;        
     }
     render(): JSX.Element {
         if (!this.row) return null;
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <SurveyQuestionErrors question={cell.question} css={this.rootCss} creator={this.creator} />
+            var errors = <SurveyQuestionErrors question={cell.question} cssClasses={this.cssClasses} creator={this.creator} />
             var select = this.renderSelect(cell);
-            tds.push(<td key={"row" + i} className={this.css.itemValue}>{errors}{select}</td>);
+            tds.push(<td key={"row" + i} className={this.cssClasses.itemValue}>{errors}{select}</td>);
         }
         var rowText = this.renderLocString(this.row.locText);
         return (<tr><td>{rowText}</td>{tds}</tr>);

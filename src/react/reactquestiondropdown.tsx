@@ -27,17 +27,18 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     }
     render(): JSX.Element {
         if (!this.question) return null;
-        var comment = this.question.value === this.question.otherItem.value ? this.renderOther() : null;
-        var select = this.renderSelect();
+        var cssClasses = this.question.cssClasses;
+        var comment = this.question.value === this.question.otherItem.value ? this.renderOther(cssClasses) : null;
+        var select = this.renderSelect(cssClasses);
         return (
-            <div className={this.css.root}>
+            <div className={cssClasses.root}>
             {select}
             {comment}
             </div>
         );
     }
-    protected renderSelect(): JSX.Element {
-        if (this.isDisplayMode)  return (<div id={this.question.inputId} className={this.css.control}>{this.question.value}</div>);
+    protected renderSelect(cssClasses: any): JSX.Element {
+        if (this.isDisplayMode)  return (<div id={this.question.inputId} className={cssClasses.control}>{this.question.value}</div>);
         var options = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
@@ -51,15 +52,15 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
             onChange = this.handleOnChange;
         }
         return (
-            <select id={this.question.inputId} className={this.css.control} value={this.state.value} onChange={onChange} onInput={this.handleOnChange}>
+            <select id={this.question.inputId} className={cssClasses.control} value={this.state.value} onChange={onChange} onInput={this.handleOnChange}>
             <option value="">{this.question.optionsCaption}</option>
             {options}
             </select>
         );
     }
-    protected renderOther(): JSX.Element {
+    protected renderOther(cssClasses: any): JSX.Element {
         var style = { marginTop: "3px" };
-        return <div style={style}><SurveyQuestionCommentItem question={this.question} css={this.rootCss} otherCss={this.css.other} isDisplayMode={this.isDisplayMode}/></div>;
+        return <div style={style}><SurveyQuestionCommentItem question={this.question} otherCss={cssClasses.other} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode}/></div>;
     }
 }
 

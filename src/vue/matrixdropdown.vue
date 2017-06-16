@@ -11,8 +11,8 @@
                 <tr v-for="row in rows">
                     <td><survey-string :locString="row.locText"/></td>
                     <td v-for="cell in row.cells" :class="question.cssClasses.itemValue">
-                        <survey-errors :question="question" :css="css"/>
-                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
+                        <survey-errors :question="question"/>
+                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question"/>
                     </td>
                 </tr>
             </tbody>

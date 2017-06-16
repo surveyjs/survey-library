@@ -2,11 +2,11 @@
     <div>
         <div v-for="element in row.elements" :class="css.question.mainRoot" style="vertical-align:top" :id="element.id" :style="{display: element.visible ? 'inline-block': 'none', paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }">
             <h5 v-if="element.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locTitle"/></h5>
-            <survey-errors :question="element" :css="css"/>
+            <survey-errors :question="element"/>
             <component :is="getWidgetComponentName(element)" :question="element"/>
             <div v-show="element.hasComment">
                 <div>{{element.commentText}}</div>
-                <survey-comment :question="element" :css="css"/>
+                <survey-comment :question="element"/>
             </div>
             <h5 v-if="element.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
         </div>

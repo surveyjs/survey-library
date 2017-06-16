@@ -8,7 +8,7 @@
                 <span v-if="index === question.visibleRateValues.length-1"><survey-string :locString="question.locMaxRateDescription"/></span>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther" :class="question.cssClasses.other" :question="question" :css="css"/>
+        <survey-other-choice v-show="question.hasOther" :class="question.cssClasses.other" :question="question"/>
     </div>
 </template>
 

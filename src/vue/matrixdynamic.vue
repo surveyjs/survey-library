@@ -10,8 +10,8 @@
             <tbody>
                 <tr v-for="row in rows">
                     <td v-for="cell in row.cells">
-                        <survey-errors :question="cell.question" :css="css"/>
-                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" :css="css"/>
+                        <survey-errors :question="cell.question" />
+                        <component v-show="question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
                     </td>
                     <td v-if="!question.isReadOnly">
                         <input type="button" v-if="question.canRemoveRow" :class="question.cssClasses.button" :value="question.removeRowText" @click="removeRowClick(row)" />

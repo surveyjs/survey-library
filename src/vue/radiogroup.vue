@@ -8,7 +8,7 @@
                 <survey-string :locString="item.locText"/>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question" :css="css"/>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question"/>
     </form>
 </template>
 

@@ -41,7 +41,7 @@ QUnit.test("set german localization", function (assert) {
 QUnit.test("set german localization", function (assert) {
     var survey = new SurveyModel();
     survey.locale = "de";
-    assert.equal(survey.completeText, "Fertig");
+    assert.equal(survey.completeText, "Absenden");
     surveyLocalization.currentLocale = "";
 });
 QUnit.test("set finnish localization", function (assert) {

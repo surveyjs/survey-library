@@ -3,24 +3,24 @@
 export var germanSurveyStrings = {
     pagePrevText: "Zurück",
     pageNextText: "Weiter",
-    completeText: "Fertig",
+    completeText: "Absenden",
     progressText: "Seite {0} von {1}",
     emptySurvey: "Es gibt keine sichtbare Frage.",
-    completingSurvey: "Vielen Dank für das Ausfüllen des Fragebogens!",
+    completingSurvey: "Vielen Dank für die Beantwortung des Fragebogens!",
     loadingSurvey: "Der Fragebogen wird vom Server geladen...",
     otherItemText: "Benutzerdefinierte Antwort...",
     optionsCaption: "Wählen...",
-    requiredError: "Bitte antworten Sie auf die Frage.",
+    requiredError: "Bitte beantworten Sie diese Frage.",
     numericError: "Der Wert sollte eine Zahl sein.",
-    textMinLength: "Bitte geben Sie mindestens {0} Symbole.",
-    minSelectError: "Bitte wählen Sie mindestens {0} Varianten.",
-    maxSelectError: "Bitte wählen Sie nicht mehr als {0} Varianten.",
-    numericMinMax: "'{0}' sollte gleich oder größer sein als {1} und gleich oder kleiner als {2}",
-    numericMin: "'{0}' sollte gleich oder größer sein als {1}",
-    numericMax: "'{0}' sollte gleich oder kleiner als {1}",
-    invalidEmail: "Bitte geben Sie eine gültige Email-Adresse ein.",
-    exceedMaxSize: "Die Dateigröße soll nicht mehr als {0}.",
-    otherRequiredError: "Bitte geben Sie einen Wert für Ihre benutzerdefinierte Antwort ein."
+    textMinLength: "Bitte geben Sie mindestens {0} Zeichen ein.",
+    minSelectError: "Bitte wählen Sie mindestens {0} Einträge.",
+    maxSelectError: "Bitte wählen Sie nicht mehr als {0} Einträge.",
+    numericMinMax: "'{0}' sollte gleich oder größer sein als {1} und gleich oder kleiner als {2}.",
+    numericMin: "'{0}' sollte gleich oder größer sein als {1}.",
+    numericMax: "'{0}' sollte gleich oder kleiner als {1} sein.",
+    invalidEmail: "Bitte geben Sie eine gültige E-Mail Adresse ein.",
+    exceedMaxSize: "Die Dateigröße darf {0} KB nicht überschreiten.",
+    otherRequiredError: "Bitte geben Sie Ihre benutzerdefinierte Antwort ein."
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

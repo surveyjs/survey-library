@@ -1026,8 +1026,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if(!question) {
             this.onValueChanged.fire(this, { 'name': name, 'question': question, 'value': newValue });
         }
+        this.notifyQuestionsOnAnyValueOrVariableChanged(questions, name);
+    }
+    private notifyQuestionsOnAnyValueOrVariableChanged(questions: Array<IQuestion>, name: string) {
+        if(!questions) {
+            questions = this.getAllQuestions();
+        }
         for (var i: number = 0; i < questions.length; i++) {
-            questions[i].onAnyValueChanged();
+            questions[i].onAnyValueChanged(name);
         }
     }
     private notifyAllQuestionsOnValueChanged() {
@@ -1267,6 +1273,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (!name) return;
         this.variablesHash[name] = newValue;
         this.processedTextValues[name.toLowerCase()] = "variable";
+        this.notifyQuestionsOnAnyValueOrVariableChanged(null, name);
     }
     //ISurvey data
     protected getUnbindValue(value: any): any {

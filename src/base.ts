@@ -62,7 +62,7 @@ export interface IQuestion extends IElement {
     onReadOnlyChanged();
     supportGoNextPageAutomatic(): boolean;
     clearUnusedValues();
-    onAnyValueChanged();
+    onAnyValueChanged(name: string);
 }
 export interface IPanel extends IElement {
 }

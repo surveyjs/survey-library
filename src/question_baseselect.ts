@@ -188,7 +188,8 @@ export class QuestionSelectBase extends Question {
         this.runChoicesByUrl();
         this.onVisibleChoicesChanged();
     }
-    onAnyValueChanged(){
+    onAnyValueChanged(name: string){
+        super.onAnyValueChanged(name);
         this.runChoicesByUrl();
     }
     private runChoicesByUrl() {

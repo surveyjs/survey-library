@@ -329,6 +329,20 @@ QUnit.test("Matrixdynamic adjust rowCount on setting the survey.data with anothe
     assert.equal(question.rowCount, 3, "It should be 3 rowCount");
 });
 
+QUnit.test("Text preprocessing variable and value. Fix the bug#461", function (assert) {
+    var survey = new Survey();
+    survey.addNewPage("p1");
+    survey.setValue("val1", "");
+    survey.setVariable("var1", "");
+    var question = new QuestionText("q1");
+    survey.pages[0].addQuestion(question);
+    question.title = "{var1}{val1}";
+    assert.equal(question.locTitle["koRenderedHtml"](), "1. {val1}", "The title is empty by default");
+    survey.setValue("val1", "[val1]");
+    assert.equal(question.locTitle["koRenderedHtml"](), "1. [val1]", "The val1 is set");
+    survey.setVariable("var1", "[var1]");
+    assert.equal(question.locTitle["koRenderedHtml"](), "1. [var1][val1]", "The var1 and val1 are set");
+});
 
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);

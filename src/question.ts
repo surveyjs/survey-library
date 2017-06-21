@@ -173,6 +173,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
     onReadOnlyChanged() {
         this.fireCallback(this.readOnlyChangedCallback);
     }
+    onAnyValueChanged(name: string) {
+        if(!name) return;
+        var titleValue = this.locTitle.text;
+        if(!titleValue) return;
+        if(titleValue.toLocaleLowerCase().indexOf('{' + name.toLowerCase() + '}') > -1) {
+            this.fireCallback(this.titleChangedCallback);
+        }
+    }
     protected get no(): string {
         if (this.visibleIndex < 0) return "";
         var startIndex = 1;

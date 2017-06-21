@@ -240,7 +240,7 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
         this.localeChanged.fire(this, this.getLocale());
     }
     onReadOnlyChanged() {}
-    onAnyValueChanged(){}
+    onAnyValueChanged(name: string){}
     //ILocalizableOwner
     /**
      * Returns the current survey locale

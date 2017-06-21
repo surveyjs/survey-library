@@ -66,6 +66,7 @@ export class SurveyPanel extends React.Component<any, any> {
         this.survey = props.survey;
         this.creator = props.creator;
         this.css = props.css;
+        this.state = { modelChanged: 0 };
     }
     componentWillReceiveProps(nextProps: any) {
         this.panel = nextProps.panel;
@@ -74,8 +75,13 @@ export class SurveyPanel extends React.Component<any, any> {
         this.css = nextProps.css;
     }
     componentDidMount() {
+        var self = this;
         var el = this.refs["root"];
         if (el && this.survey) this.survey.afterRenderPage(el);
+        this.panel.panelVisibilityChanged = function(panel:Object, visibility:boolean) {
+            self.state.modelChanged = self.state.modelChanged + 1;
+            self.setState(self.state);
+        }
     }
     render(): JSX.Element {
         if (this.panel == null || this.survey == null || this.creator == null) return null;

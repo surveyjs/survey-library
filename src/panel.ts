@@ -343,9 +343,10 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         if (value === this.visible) return;
         this.visibleValue = value;
         if(!this.isLoadingFromJson) this.onVisibleChanged();
+        this.panelVisibilityChanged(<Object>this, this.visible);
     }
-    protected onVisibleChanged() {
-    }
+    public panelVisibilityChanged(panel:Object, visibility:boolean) {}
+    protected onVisibleChanged() {}
     /**
      * Returns true if object is visible or survey is in design mode right now.
      */

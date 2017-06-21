@@ -33,6 +33,19 @@ QUnit.test("Load countries", function (assert) {
     assert.equal(items[4].value, "American Samoa", "the fifth country is American Samoa");
 });
 
+QUnit.test("Load countries, complext valueName property, Issue#459", function (assert) {
+    var test = new ChoicesRestfullTester();
+    var items = [];
+    test.getResultCallback = function (res: Array<ItemValue>) { items = res; };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.valueName = "locName.en";
+    test.run();
+    assert.equal(items.length, 5, "there are 5 countries");
+    assert.equal(items[0].value, "Afghanistan", "the first country is Afghanistan");
+    assert.equal(items[4].value, "American Samoa", "the fifth country is American Samoa");
+});
+
 QUnit.test("Test dropdown", function (assert) {
     var question = new QuestionDropdownModelTester("q1");
     assert.equal(question.choices.length, 0, "There is no choices by default");
@@ -78,22 +91,27 @@ function getCountries(): any {
             "messages": ["More webservices are available at http://www.groupkt.com/post/f2129b88/services.htm", "Total [249] records found."],
             "result": [{
                 "name": "Afghanistan",
+                "locName": {"en": "Afghanistan"},
                 "alpha2_code": "AF",
                 "alpha3_code": "AFG"
             }, {
                 "name": "Åland Islands",
+                "locName": {"en": "Åland Islands"},
                 "alpha2_code": "AX",
                 "alpha3_code": "ALA"
             }, {
                 "name": "Albania",
+                "locName": {"en": "Albania"},
                 "alpha2_code": "AL",
                 "alpha3_code": "ALB"
             }, {
                 "name": "Algeria",
+                "locName": {"en": "Algeria"},
                 "alpha2_code": "DZ",
                 "alpha3_code": "DZA"
             }, {
                 "name": "American Samoa",
+                "locName": {"en": "American Samoa"},
                 "alpha2_code": "AS",
                 "alpha3_code": "ASM"
             }]

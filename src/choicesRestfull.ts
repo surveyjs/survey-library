@@ -133,7 +133,7 @@ export class ChoicesRestfull extends Base {
     }
     private getValue(item: any): any {
         if(!item) return null;
-        if (this.valueName) return item[this.valueName];
+        if (this.valueName) return this.getValueCore(item, this.valueName);
         if(!(item instanceof Object)) return item;
         var len = Object.keys(item).length;
         if (len < 1) return null;
@@ -141,7 +141,17 @@ export class ChoicesRestfull extends Base {
     }
     private getTitle(item: any): any {
         if (!this.titleName) return null;
-        return item[this.titleName];
+        return this.getValueCore(item, this.titleName);
+    }
+    private getValueCore(item: any, property: string): any {
+        if(!item) return null;
+        if(property.indexOf('.') < 0) return item[property];
+        var properties = property.split('.');
+        for(var i = 0; i < properties.length; i ++) {
+            item = item[properties[i]];
+            if(!item) return null;
+        }
+        return item;
     }
     private get objHash() { return this.processedUrl + ";" + this.processedPath + ";" + this.valueName + ";" + this.titleName; }
 }

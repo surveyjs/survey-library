@@ -10,7 +10,7 @@ const setupSurvey = ClientFunction(() => {
         if (!countryName) options.complete();
         //call the ajax method
         $.ajax({
-            url: "http://services.groupkt.com/country/get/all"
+            url: "http://127.0.0.1:8080/testCafe/countriesMock.json"
         }).then(function (data) {
             var found = false;
             var countries = data.RestResponse.result;

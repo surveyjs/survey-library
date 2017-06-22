@@ -10,7 +10,8 @@ const json = {
                 title: "Select the country...",
                 isRequired: true,
                 choicesByUrl: {
-                    url: "http://services.groupkt.com/country/get/all",
+                    //url: "http://services.groupkt.com/country/get/all",
+                    url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
                     path: "RestResponse;result",
                     valueName: "name"
                 }

@@ -54,15 +54,15 @@ export class NumericValidator extends SurveyValidator {
     }
     public getType(): string { return "numericvalidator"; }
     public validate(value: any, name: string = null): ValidatorResult {
-        if (!value || !this.isNumber(value)) {
+        if (!this.isNumber(value)) {
             return new ValidatorResult(null, new RequreNumericError());
         }
         var result = new ValidatorResult(parseFloat(value));
-        if (this.minValue && this.minValue > result.value) {
+        if (this.minValue !== null && this.minValue > result.value) {
             result.error = new CustomError(this.getErrorText(name));
             return result;
         }
-        if (this.maxValue && this.maxValue < result.value) {
+        if (this.maxValue !== null && this.maxValue < result.value) {
             result.error = new CustomError(this.getErrorText(name));
             return result;
         }
@@ -70,10 +70,10 @@ export class NumericValidator extends SurveyValidator {
     }
     protected getDefaultErrorText(name: string) {
         var vName = name ? name : "value";
-        if (this.minValue && this.maxValue) {
+        if (this.minValue !== null && this.maxValue !== null) {
             return surveyLocalization.getString("numericMinMax")["format"](vName, this.minValue, this.maxValue);
         } else {
-            if (this.minValue) {
+            if (this.minValue !== null) {
                 return surveyLocalization.getString("numericMin")["format"](vName, this.minValue);
             }
             return surveyLocalization.getString("numericMax")["format"](vName, this.maxValue);

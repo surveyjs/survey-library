@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {Base, ISurveyData, HashTable} from "./base";
+import {Base, ISurveyData, SurveyError, HashTable} from "./base";
 import {ItemValue} from "./itemvalue";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionSelectBase, QuestionCheckboxBase} from "./question_baseselect";
@@ -17,6 +17,7 @@ import {CustomWidgetCollection} from "./questionCustomWidgets";
 
 export interface IMatrixDropdownData {
     onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any);
+    validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError;
     columns: Array<MatrixDropdownColumn>;
     createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     getLocale(): string;
@@ -154,6 +155,7 @@ export class MatrixDropdownCell {
     constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
         this.questionValue.setData(row);
+        this.questionValue.validateValueCallback = function() { return data.validateCell(row, column.name, row.value); }
         JsonObject.metaData.getProperties(column.getType()).forEach(property => {
             let propertyName = property.name;
             if(column[propertyName] !== undefined && this.questionValue[propertyName] === undefined) {
@@ -588,6 +590,12 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         var options = {row: row, columnName: columnName, rowValue: rowValue, value: rowValue[columnName], getCellQuestion: getQuestion};
         this.survey.matrixCellValueChanged(this, options);
+    }
+    validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError {
+        if(!this.survey) return;
+        var self = this;
+        var options = {row: row, columnName: columnName, rowValue: rowValue, value: rowValue[columnName]};
+        return this.survey.matrixCellValidate(this, options);
     }
     onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any) {
         var newValue = this.createNewValue(this.value);

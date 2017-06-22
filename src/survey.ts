@@ -267,6 +267,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onMatrixCellCreated: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired when cell value is changed in Matrix Dymic and Matrix Dropdown questions.
+     * options.question - the matrix question
      * options.columName - the matrix column name
      * options.value - a new value
      * options.row - the matrix row object
@@ -276,6 +277,18 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      * @see QuestionMatrixDropdownModel
      */
     public onMatrixCellValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+/**
+     * The event is fired when Matrix Dymic and Matrix Dropdown questions validate the cell value.
+     * options.question - the matrix question
+     * options.columName - the matrix column name
+     * options.value - a cell value
+     * options.row - the matrix row object
+     * getCellQuestion(columnName) - the function that returns the cell question by column name.
+     * @see onMatrixRowAdded
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDropdownModel
+     */
+    public onMatrixCellValidate: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
      * @see JsonError
@@ -867,6 +880,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     matrixCellValueChanged(question: IQuestion, options: any) {
         options.question = question;
         this.onMatrixCellValueChanged.fire(this, options);
+    }
+    matrixCellValidate(question: IQuestion, options: any): SurveyError {
+        options.question = question;
+        this.onMatrixCellValidate.fire(this, options);
+        return options.error ? new CustomError(options.error) : null;
     }
     /**
      * Upload the file into servey

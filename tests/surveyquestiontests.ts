@@ -574,6 +574,61 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
     assert.equal((<QuestionDropdownModel>rows[1].cells[1].question).visible, false, "row2. col2 is invisible if col1 = null");
 });
 
+//QUnit.test("Matrixdynamic validate cell values - do not allow to have the same value", function (assert) {
+QUnit.test("Matrixdynamic validate cell values - onMatrixCellValueChanged", function (assert) {    
+    var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.addColumn("col1");
+    var survey = new SurveyModel();  survey.addNewPage("p1");  survey.pages[0].addQuestion(matrix);
+    var cellQuestions = [];
+    survey.onMatrixCellCreated.add(function(survey, options) {
+        cellQuestions.push(options.cellQuestion);
+    });
+    survey.onMatrixCellValidate.add(function(survey, options) {
+        if(options.value == "notallow") {
+            options.error = "This cell is not allow";
+        }
+    });
+    var rows = matrix.visibleRows;
+    assert.equal(cellQuestions.length, 2, "There are 2 cell questions in the array");
+    cellQuestions[0].value = "notallow";
+    matrix.hasErrors(true);
+    assert.equal(cellQuestions[0].errors.length, 1, "There is an error");
+    cellQuestions[0].value = "allow";
+    matrix.hasErrors(true);
+    assert.equal(cellQuestions[0].errors.length, 0, "There is no errors");
+});
+
+QUnit.test("Matrixdynamic validate cell values - do not allow to have the same value", function (assert) {
+    var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.addColumn("col1");
+    var survey = new SurveyModel();  survey.addNewPage("p1");  survey.pages[0].addQuestion(matrix);
+    var cellQuestions = [];
+    survey.onMatrixCellCreated.add(function(survey, options) {
+        cellQuestions.push(options.cellQuestion);
+    });
+    survey.onMatrixCellValueChanged.add(function(survey, options) {
+        //validate value on change
+        options.getCellQuestion("col1").hasErrors(true);
+    });
+    survey.onMatrixCellValidate.add(function(survey, options) {
+        var rows = options.question.visibleRows;
+        for(var i = 0; i < rows.length; i ++) {
+            //we have the same row
+            if(rows[i] === options.row) continue;
+            if(rows[i].value && rows[i].value["col1"] == options.value) {
+                options.error = "You have already select the same value";
+            }
+        }
+    });
+    var rows = matrix.visibleRows;
+    assert.equal(cellQuestions.length, 2, "There are 2 cell questions in the array");
+    cellQuestions[0].value = 1;
+    assert.equal(cellQuestions[1].errors.length, 0, "There is now errors");
+    cellQuestions[1].value = 1;
+    assert.equal(cellQuestions[1].errors.length, 1, "There is an error");
+    cellQuestions[1].value = 2;
+    assert.equal(cellQuestions[1].errors.length, 0, "There no errors again");
+});
 
 QUnit.test("Matrixdropdown different cell types", function (assert) {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");

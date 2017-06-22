@@ -26,6 +26,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
     titleChangedCallback: () => void;
+    validateValueCallback: () => SurveyError;
 
     constructor(public name: string) {
         super(name);
@@ -267,7 +268,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
             }
         }
         if (this.survey && this.errors.length == 0) {
-            var error = this.survey.validateQuestion(this.name);
+            var error = this.fireSurveyValidation();
             if (error) {
                 this.errors.push(error);
             }
@@ -275,6 +276,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
         if (fireCallback && (errorLength != this.errors.length || errorLength > 0)) {
             this.fireCallback(this.errorsChangedCallback);
         }
+    }
+    private fireSurveyValidation(): SurveyError {
+        if(this.validateValueCallback) return this.validateValueCallback();
+        return this.survey ? this.survey.validateQuestion(this.name) : null;
     }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         if (this.hasRequiredError()) {

@@ -35,6 +35,7 @@ export interface ISurvey extends ISurveyData, ITextProcessor {
     matrixRowAdded(question: IQuestion);
     matrixCellCreated(question: IQuestion, options: any);
     matrixCellValueChanged(question: IQuestion, options: any);
+    matrixCellValidate(question: IQuestion, options: any): SurveyError;
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);

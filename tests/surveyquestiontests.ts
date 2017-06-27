@@ -722,3 +722,12 @@ QUnit.test("Text inputType=range", function (assert) {
     question.value = "25";
     assert.strictEqual(question.value, 25, "make it numeric");
 });
+QUnit.test("Text questions spaces is not a valid answer for required", function (assert) {
+    var question = new QuestionTextModel("text");
+    question.isRequired = true;
+    assert.equal(question.hasErrors(), true, "Question is empty");
+    question.value = "  ";
+    assert.equal(question.hasErrors(), true, "spaces is not an answer");
+    question.value = " 1 ";
+    assert.equal(question.hasErrors(), false, "got the answer");
+});

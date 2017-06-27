@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElementBase, SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {SurveyElementBase, ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionCommentModel} from "../question_comment";
 import {Question} from "../question";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -32,7 +32,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionCommentItem extends SurveyElement {
+export class SurveyQuestionCommentItem extends ReactSurveyElement {
     private question: Question;
     private comment: string;
     private otherCss: string;

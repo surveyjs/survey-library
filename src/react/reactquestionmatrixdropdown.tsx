@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDropdownRowModel} from "../question_matrixdropdown";
@@ -49,7 +49,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMatrixDropdownRow extends SurveyElement {
+export class SurveyQuestionMatrixDropdownRow extends ReactSurveyElement {
     private row: MatrixDropdownRowModel;
     protected creator: ISurveyCreator;
     constructor(props: any) {

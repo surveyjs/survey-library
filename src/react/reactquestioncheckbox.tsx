@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {SurveyQuestionCommentItem} from "./reactquestioncomment";
 import {QuestionCheckboxModel} from "../question_checkbox";
 import {ItemValue} from "../itemvalue";
@@ -38,7 +38,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         return <SurveyQuestionCheckboxItem key={key} question={this.question} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} item={item} textStyle={this.textStyle} isFirst={isFirst} />;
     }
 }
-export class SurveyQuestionCheckboxItem extends SurveyElement {
+export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     protected question: QuestionCheckboxModel;
     protected item: ItemValue;
     protected textStyle: any;

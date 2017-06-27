@@ -26,6 +26,7 @@ export class Survey extends SurveyModel {
 
     koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; koIsNavigationButtonsShowing: any; dummyObservable: any; koState: any;
     koProgress: any; koProgressText: any; koAfterRenderPage: any;
+    koCompletedState: any; koCompletedStateText: any; koCompletedStateCss: any;
 
     constructor(jsonObj: any = null, renderedElement: any = null, css: any = null) {
         super(jsonObj);
@@ -91,6 +92,9 @@ export class Survey extends SurveyModel {
         this.koProgressText = ko.computed(function () { self.dummyObservable(); return self.progressText; });
         this.koProgress = ko.computed(function () { self.dummyObservable(); return self.getProgress(); });
         this.koState = ko.computed(function () { self.dummyObservable(); return self.state; });
+        this.koCompletedState = ko.observable("");
+        this.koCompletedStateText = ko.observable("");
+        this.koCompletedStateCss = ko.observable("");
         this.koAfterRenderPage = function (elements, con) {
             var el = SurveyElement.GetFirstNonTextElement(elements);
             if (el) self.afterRenderPage(el);
@@ -110,6 +114,12 @@ export class Survey extends SurveyModel {
     }
     protected onLoadingSurveyFromService() {
         this.render();
+    }
+    protected setCompletedState(value: string, text: string) {
+        super.setCompletedState(value, text);
+        this.koCompletedState(this.completedState);
+        this.koCompletedStateText(this.completedStateText);
+        this.koCompletedStateCss(this.completedState !== "" ? this.css.saveData[this.completedState] : "");
     }
     private applyBinding() {
         if (!this.renderedElement) return;

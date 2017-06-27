@@ -134,6 +134,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     private isValidatingOnServerValue: boolean = false;
     private modeValue: string = "edit";
     private isDesignModeValue: boolean = false;
+    private completedStateValue: string = "";
+    private completedStateTextValue: string = "";
     /**
      * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
      * @see data
@@ -141,7 +143,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      * @see completeLastPage
      * @see surveyPostId
      */
-    public onComplete: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    public onComplete: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.
      * @see sendResultOnPageNext
@@ -588,6 +590,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         if (this.isCompleted) return "completed";
         return (this.currentPage) ? "running" : "empty"
     }
+    public get completedState(): string {return this.completedStateValue; }
+    protected get completedStateText(): string { return this.completedStateTextValue; }
+    protected setCompletedState(value: string, text: string) {
+        this.completedStateValue = value;
+        if(!text) {
+            if(value == "saving") text = this.getLocString("savingData");
+            if(value == "error") text = this.getLocString("savingDataError");
+            if(value == "success") text = this.getLocString("savingDataSuccess");
+        }
+        this.completedStateTextValue = text;
+    }
     /**
      * Clear the survey data and state. If the survey has a 'completed' state, it will have a 'running' state.
      * @param clearData clear the data
@@ -768,7 +781,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.clearUnusedValues();
         this.setCookie();
         this.setCompleted();
-        this.onComplete.fire(this, null);
+        var self = this;
+        var onCompleteOptions = {
+            showDataSaving: function(text: string) {self.setCompletedState("saving", text);},
+            showDataSavingError: function(text: string) {self.setCompletedState("error", text);},
+            showDataSavingSuccess: function(text: string) {self.setCompletedState("success", text);}
+        };
+        this.onComplete.fire(this, onCompleteOptions);
         if (!previousCookie && this.surveyPostId) {
             this.sendResult();
         }

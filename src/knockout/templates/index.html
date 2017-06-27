@@ -19,6 +19,11 @@
         <!-- /ko -->
         <!-- ko if: koState() == "completed" && showCompletedPage -->
         <div data-bind="html: processedCompletedHtml"></div>
+        <div data-bind="visible: koCompletedState() != '', css: css.saveData.root">
+            <div data-bind="css: koCompletedStateCss"><span data-bind="text:koCompletedStateText"></span>
+                <input type="button" data-bind="visible: koCompletedState() == 'error', value: getLocString('saveAgainButton'), click: doComplete, css: css.saveData.saveAgainButton" />
+            </div>
+        </div>
         <!-- /ko -->
         <!-- ko if: koState() == "loading" -->
         <div data-bind="html: processedLoadingHtml"></div>

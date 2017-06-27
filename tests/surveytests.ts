@@ -1429,6 +1429,22 @@ QUnit.test("Survey Elements css", function (assert) {
     css.question.titleRequired = "";
 });
 
+QUnit.test("Use send data to custom server", function (assert) {
+    var survey = twoPageSimplestSurvey();
+    var onCompleteOptions = null;
+    survey.onComplete.add(function(sender, options) {
+        onCompleteOptions = options;
+        options.showDataSaving();
+    });
+    survey.data = {"question1": "sss"};
+    assert.equal(survey.completedState, "", "The complete state is empty");
+    survey.doComplete();
+    assert.equal(survey.completedState, "saving", "The complete state is saving");
+    onCompleteOptions.showDataSavingError();
+    assert.equal(survey.completedState, "error", "The complete state is error");
+    onCompleteOptions.showDataSavingSuccess();
+    assert.equal(survey.completedState, "success", "The complete state is success");
+});
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");
@@ -1463,3 +1479,4 @@ QUnit.test("Pass custom properties to cell question", function (assert) {
     q1.addRow();
     assert.equal(q1.visibleRows[0].cells[0].question['renderAs'], "select2tagbox", "custom property should be passed to the question");
 });
+

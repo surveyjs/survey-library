@@ -56,7 +56,11 @@ export var surveyStrings = {
     removeRow: "Remove",
     choices_Item: "item",
     matrix_column: "Column",
-    matrix_row: "Row"
+    matrix_row: "Row",
+    savingData: "The results are saving on the server...",
+    savingDataError: "An error occurred and we could not save the results.",
+    savingDataSuccess: "The results were saved successfully!",
+    saveAgainButton: "Try again"
 };
 surveyLocalization.locales["en"] = surveyStrings;
 

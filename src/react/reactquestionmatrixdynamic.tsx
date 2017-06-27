@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
@@ -74,7 +74,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMatrixDynamicRow extends SurveyElement {
+export class SurveyQuestionMatrixDynamicRow extends ReactSurveyElement {
     private row: MatrixDynamicRowModel;
     private question: QuestionMatrixDynamicModel;
     private index: number;

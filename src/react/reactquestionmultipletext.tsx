@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMultipleTextModel} from "../question_multipletext";
 import {MultipleTextItemModel} from "../question_multipletext";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -41,7 +41,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMultipleTextItem extends SurveyElement {
+export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
     private item: MultipleTextItemModel;
     private inputId: string;
     constructor(props: any) {

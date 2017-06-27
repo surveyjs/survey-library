@@ -25,7 +25,7 @@ export class SurveyElementBase extends React.Component<any, any> {
     }
 }
 
-export class SurveyElement extends SurveyElementBase {
+export class ReactSurveyElement extends SurveyElementBase {
     protected cssClasses: any;
     constructor(props: any) {
         super(props);

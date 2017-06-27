@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import {SurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionMatrixModel} from "../question_matrix";
 import {MatrixRowModel} from "../question_matrix";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -44,7 +44,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
 }
 
-export class SurveyQuestionMatrixRow extends SurveyElement {
+export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     private question: QuestionMatrixModel;
     private row: MatrixRowModel;
     private isFirst: boolean;

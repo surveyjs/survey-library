@@ -2,7 +2,7 @@
 import {QuestionBase} from '../questionbase';
 import {Question} from '../question';
 import {SurveyQuestionCommentItem} from './reactquestioncomment';
-import {SurveyElementBase, SurveyElement} from './reactquestionelement';
+import {SurveyElementBase, ReactSurveyElement} from './reactquestionelement';
 import {SurveyCustomWidget} from './custom-widget';
 
 export interface ISurveyCreator {
@@ -111,7 +111,7 @@ export class SurveyQuestion extends React.Component<any, any> {
     }
 }
 
-export class SurveyQuestionErrors extends SurveyElement {
+export class SurveyQuestionErrors extends ReactSurveyElement {
     protected question: Question;
     private creator: ISurveyCreator;
     constructor(props: any) {

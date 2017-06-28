@@ -13,7 +13,14 @@
                 <input v-if="survey.isEditMode" type="button" :value="survey.completeText" v-show="survey.isLastPage" :class="getNavBtnClasses('complete')" @click="completeLastPage"/>
             </div>
         </template>
-        <div v-if="hasCompletedPage" v-html="survey.processedCompletedHtml"></div>
+        <div v-if="hasCompletedPage">
+            <div v-html="survey.processedCompletedHtml"></div>
+            <div v-if="survey.completedState != ''" :class="css.saveData.root">
+                <div :class="getCompletedStateClasses()"><span>{{survey.completedStateText}}</span>
+                    <input type="button" v-if="survey.completedState == 'error'" :value="survey.getLocString('saveAgainButton')" @click="doTrySaveAgain" :class="css.saveData.saveAgainButton" />
+                </div>
+            </div>
+        </div>
         <div v-if="survey.state === 'loading'" v-html="survey.processedLoadingHtml"></div>
         <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
     </div>
@@ -58,6 +65,9 @@
             const btnClass = this.css.navigation[btnType];
             return this.css.navigationButton + ' ' + btnClass;
         }
+        getCompletedStateClasses() {
+            return this.css.saveData[this.survey.completedState];
+        }
         prevPage() {
             this.survey.prevPage();
         }
@@ -66,6 +76,9 @@
         }
         completeLastPage() {
             this.survey.completeLastPage();
+        }
+        doTrySaveAgain() {
+            this.survey.doComplete();
         }
     }
 

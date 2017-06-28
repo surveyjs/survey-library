@@ -23,4 +23,8 @@ export class ReactSurveyModel extends SurveyModel {
     protected onLoadingSurveyFromService() {
         this.render();
     }
+    protected setCompletedState(value: string, text: string) {
+        super.setCompletedState(value, text);
+        this.render();
+    }
 }

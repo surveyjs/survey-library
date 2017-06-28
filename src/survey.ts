@@ -591,7 +591,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         return (this.currentPage) ? "running" : "empty"
     }
     public get completedState(): string {return this.completedStateValue; }
-    protected get completedStateText(): string { return this.completedStateTextValue; }
+    get completedStateText(): string { return this.completedStateTextValue; }
     protected setCompletedState(value: string, text: string) {
         this.completedStateValue = value;
         if(!text) {

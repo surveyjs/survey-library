@@ -17,7 +17,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     private isCurrentPageChanged: boolean = false;
     constructor(props: any) {
         super(props);
-
+        this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
         this.updateSurvey(props);
     }
     componentWillReceiveProps(nextProps: any) {
@@ -44,10 +44,23 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     public set css(value: any) {
         this.survey.mergeCss(value, this.css);
     }
+    handleTryAgainClick(event) {
+        this.survey.doComplete();
+    }
     protected renderCompleted(): JSX.Element {
         if(!this.survey.showCompletedPage) return null;
+        var completedState = null;
+        if(this.survey.completedState) {
+            var tryAgainButton = null;
+            if(this.survey.completedState == "error") {
+                var btnText = this.survey.getLocString('saveAgainButton');
+                tryAgainButton = (<input type={"button"} value={btnText} className={this.css.saveData.saveAgainButton} onClick={this.handleTryAgainClick} />);
+            }
+            var css = this.css.saveData[this.survey.completedState];
+            completedState = <div className={this.css.saveData.root}><div className={css}><span>{this.survey.completedStateText}</span>{tryAgainButton}</div></div>;
+        }
         var htmlValue = { __html: this.survey.processedCompletedHtml };
-        return (<div dangerouslySetInnerHTML={htmlValue} />);
+        return (<div><div dangerouslySetInnerHTML={htmlValue} />{completedState}</div>);
     }
     protected renderLoading(): JSX.Element {
         var htmlValue = { __html: this.survey.processedLoadingHtml };
@@ -152,7 +165,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             this.survey.onVisibleChanged.add((sender) => { newProps.onVisibleChanged(sender); });
         }
         if (newProps.onComplete) {
-            this.survey.onComplete.add((sender) => { newProps.onComplete(sender); });
+            this.survey.onComplete.add((sender, options) => { newProps.onComplete(sender, options); });
         }
         if (newProps.onPartialSend) {
             this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });

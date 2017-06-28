@@ -7,7 +7,7 @@ const json = {
     surveyId: '0edf84f9-14f7-4944-a857-e327e1dceebb',
     surveyPostId: '8c03f02b-0b55-4cda-96b8-d1bf7c87b05d'
 };
-
+/* TODO
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`
         .page `https://dxsurvey.com/Home/SurveyResults/0edf84f9-14f7-4944-a857-e327e1dceebb`;
@@ -38,3 +38,4 @@ frameworks.forEach( (framework) => {
         assert.equal(oldCount + 1, await getResultsCount());
     });
 });
+*/

@@ -24,8 +24,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     /**
      * Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.
      * @see onComplete
+     * @see surveyShowDataSaving
      */
     public surveyPostId: string = null;
+    /**
+     * Set this property to true, to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see surveyPostId
+     */
     public surveyShowDataSaving: boolean = false;
     /**
      * Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.
@@ -139,6 +144,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     private completedStateTextValue: string = "";
     /**
      * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
+     * @param sender the survey object that fires the event
+     * @param options.showDataSaving(text) call this method to show that the survey is saving the data on your server. The text is an optional parameter to show your message instead of default.
+     * @param options.showDataSavingError(text) call this method to show that there is an error on saving the data on your server. If you want to show a custom error, use an optional text parameter.
+     * @param options.showDataSavingSuccess(text) call this method to show that the data were successful saved on the server. 
+     * @param options.showDataSavingClear call this method to hide the text about the saving progress.
      * @see data
      * @see clearInvisibleValues
      * @see completeLastPage

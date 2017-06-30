@@ -7,6 +7,12 @@ import {ReactQuestionFactory} from "./reactquestionfactory";
 export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
+        this.state = {colCountChanged: 0};
+        var self = this;
+        this.question.colCountChangedCallback = function () {
+            self.state.colCountChanged = self.state.colCountChanged + 1;
+            self.setState(self.state);
+        }
     }
     protected get question(): QuestionMultipleTextModel { return this.questionBase as QuestionMultipleTextModel; }
     render(): JSX.Element {

@@ -144,11 +144,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     private completedStateTextValue: string = "";
     /**
      * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
-     * @param sender the survey object that fires the event
-     * @param options.showDataSaving(text) call this method to show that the survey is saving the data on your server. The text is an optional parameter to show your message instead of default.
-     * @param options.showDataSavingError(text) call this method to show that there is an error on saving the data on your server. If you want to show a custom error, use an optional text parameter.
-     * @param options.showDataSavingSuccess(text) call this method to show that the data were successful saved on the server. 
-     * @param options.showDataSavingClear call this method to hide the text about the saving progress.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.showDataSaving(text) call this method to show that the survey is saving the data on your server. The text is an optional parameter to show your message instead of default.
+     * <br/> options.showDataSavingError(text) call this method to show that there is an error on saving the data on your server. If you want to show a custom error, use an optional text parameter.
+     * <br/> options.showDataSavingSuccess(text) call this method to show that the data were successful saved on the server. 
+     * <br/> options.showDataSavingClear call this method to hide the text about the saving progress.
      * @see data
      * @see clearInvisibleValues
      * @see completeLastPage
@@ -157,15 +157,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onComplete: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.
-     * @param sender the survey object that fires the event
+     * <br/> sender the survey object that fires the event
      * @see sendResultOnPageNext
      */
     public onPartialSend: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     /**
      * The event is fired when another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
-     * @param sender the survey object that fires the event
-     * @param option.oldCurrentPage the previous current/active page
-     * @param option.newCurrentPage a new current/active page
+     * <br/> sender the survey object that fires the event
+     * <br/> option.oldCurrentPage the previous current/active page
+     * <br/> option.newCurrentPage a new current/active page
      * @see currentPage
      * @see currentPageNo
      * @see nextPage
@@ -175,28 +175,28 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onCurrentPageChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
-     * @param sender the survey object that fires the event
-     * @param options.name the value name that has been changed
-     * @param options.question a question that has the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.name is null.
-     * @param options.value a new value
+     * <br/> sender the survey object that fires the event
+     * <br/> options.name the value name that has been changed
+     * <br/> options.question a question that has the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.name is null.
+     * <br/> options.value a new value
      * @see setValue
      */
     public onValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on changing a question visibility.
-     * @param sender the survey object that fires the event
-     * @param options.question a question which visibility has been changed
-     * @param options.name a question name
-     * @param options.visible a question visible boolean value
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a question which visibility has been changed
+     * <br/> options.name a question name
+     * <br/> options.visible a question visible boolean value
      * @see QuestionBase.visibile
      * @see QuestionBase.visibileIf
      */
     public onVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on changing a page visibility.
-     * @param sender the survey object that fires the event
-     * @param options.page a page  which visibility has been changed
-     * @param options.visible a page visible boolean value
+     * <br/> sender the survey object that fires the event
+     * <br/> options.page a page  which visibility has been changed
+     * <br/> options.visible a page visible boolean value
      * @see PageModel.visibile
      * @see PageModel.visibileIf
      */
@@ -204,153 +204,153 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     /**
      * The event is fired on adding a new question into survey.
      * 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel
-     * @param sender the survey object that fires the event
-     * @param options.question a newly added question object.
-     * @param options.name a question name
-     * @param options.index a index of the question in the container (page or panel)
-     * @param options.parentPanel a container where question is located. It can be page or panel.
-     * @param options.rootPanel typically it is a page.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a newly added question object.
+     * <br/> options.name a question name
+     * <br/> options.index a index of the question in the container (page or panel)
+     * <br/> options.parentPanel a container where question is located. It can be page or panel.
+     * <br/> options.rootPanel typically it is a page.
      * @see QuestionBase
      */
     public onQuestionAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on removing a question from survey
-     * @param sender the survey object that fires the event
-     * @param options.question a removed question object.
-     * @param options.name a question name
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a removed question object.
+     * <br/> options.name a question name
      * @see QuestionBase
      */
     public onQuestionRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on adding a panel into survey
-     * @param sender the survey object that fires the event
-     * @param options.panel a newly added panel object.
-     * @param options.name a panel name
-     * @param options.index a index of the panel in the container (page or panel)
-     * @param options.parentPanel a container where question is located. It can be page or panel.
-     * @param options.rootPanel typically it is a page.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.panel a newly added panel object.
+     * <br/> options.name a panel name
+     * <br/> options.index a index of the panel in the container (page or panel)
+     * <br/> options.parentPanel a container where question is located. It can be page or panel.
+     * <br/> options.rootPanel typically it is a page.
      * @see PanelModel
      */
     public onPanelAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on removing a panel from survey
-     * @param sender the survey object that fires the event
-     * @param options.panel a removed panel object.
-     * @param options.name a panel name
+     * <br/> sender the survey object that fires the event
+     * <br/> options.panel a removed panel object.
+     * <br/> options.name a panel name
      * @see PanelModel
      */
     public onPanelRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on validating value in a question. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.
-     * @param sender the survey object that fires the event
-     * @param options.name a question name
-     * @param options.value the current question value
-     * @param options.error an error string. It is empty by default.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.name a question name
+     * <br/> options.value the current question value
+     * <br/> options.error an error string. It is empty by default.
      * @see onServerValidateQuestions
      */
     public onValidateQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * Use this event to validate data on your server.
-     * @param sender the survey object that fires the event
-     * @param options.data the values of all non-empty questions on the current page. You can get a question value as options.data["myQuestionName"].
-     * @param options.errors set your errors to this object as: options.errors["myQuestionName"] = "Error text";. It will be shown as a question error.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.data the values of all non-empty questions on the current page. You can get a question value as options.data["myQuestionName"].
+     * <br/> options.errors set your errors to this object as: options.errors["myQuestionName"] = "Error text";. It will be shown as a question error.
      * @see onValidateQuestion
      */
     public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
     /**
      * Use this event to modify the html before rendering, for example html on 'Thank you' page. Options has one parameter: options.html.
-     * @param sender the survey object that fires the event
-     * @param options.html an html that you may change before text processing and then rendering.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.html an html that you may change before text processing and then rendering.
      * @see completedHtml
      * @see QuestionHtmlModel.html
      */
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * Use this event to process the markdown text. 
-     * @param sender the survey object that fires the event
-     * @param options.text a text that is going to be rendered
-     * @param options.html a html. It is null by default. Set it and survey will use it instead of options.text
+     * <br/> sender the survey object that fires the event
+     * <br/> options.text a text that is going to be rendered
+     * <br/> options.html a html. It is null by default. Set it and survey will use it instead of options.text
      */
     public onTextMarkdown: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event fires when it get response from the [dxsurvey.com](http://www.dxsurvey.com) service on saving survey results. Use it to find out if the results have been saved successful.
-     * @param sender the survey object that fires the event
-     * @param options.success it is true if the results were sent to the service successful
-     * @param options.response a response from the service
+     * <br/> sender the survey object that fires the event
+     * <br/> options.success it is true if the results were sent to the service successful
+     * <br/> options.response a response from the service
      */
     public onSendResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * Use it to get results after calling the getResult method. It returns a simple analytic from [dxsurvey.com](http://www.dxsurvey.com) service.
-     * @param sender the survey object that fires the event
-     * @param options.success it is true if the results were got from the service successful
-     * @param options.data the object {AnswersCount, QuestionResult : {} }. AnswersCount is the number of posted survey results. QuestionResult is an object with all possible unique answers to the question and number of these answers.
-     * @param options.dataList an array of objects {name, value}, where 'name' is an unique value/answer to the question and value is a number/count of such answers.
-     * @param options.response the server response 
+     * <br/> sender the survey object that fires the event
+     * <br/> options.success it is true if the results were got from the service successful
+     * <br/> options.data the object {AnswersCount, QuestionResult : {} }. AnswersCount is the number of posted survey results. QuestionResult is an object with all possible unique answers to the question and number of these answers.
+     * <br/> options.dataList an array of objects {name, value}, where 'name' is an unique value/answer to the question and value is a number/count of such answers.
+     * <br/> options.response the server response 
      * @see getResult
      */
     public onGetResult: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on uploading the file in QuestionFile. You may use it to change the file name or tells the library do not accept the file. There are three properties in options: options.name, options.file and options.accept.
-     * @param sender the survey object that fires the event
+     * <br/> sender the survey object that fires the event
      * name: name, file: file, accept: accept
-     * @param name the file name
-     * @param file the Javascript File object
-     * @param accept a boolean value, true by default. Set it to false to deny this file to upload
+     * <br/> name the file name
+     * <br/> file the Javascript File object
+     * <br/> accept a boolean value, true by default. Set it to false to deny this file to upload
      * @see uploadFile
      */
     public onUploadFile: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired before rendering a question. Use it to override the default question css classes. 
      * There are two parameters in options: options.question and options.cssClasses
-     * @param sender the survey object that fires the event
-     * @param options.question a question for which you may change the css classes
-     * @param options.cssClasses an object with css classes. For example {root: "table", button: "button"}. You may change them to your own css classes.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a question for which you may change the css classes
+     * <br/> options.cssClasses an object with css classes. For example {root: "table", button: "button"}. You may change them to your own css classes.
      */
     public onUpdateQuestionCssClasses: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired right after survey is rendered in DOM. options.htmlElement is the root element.
-     * @param sender the survey object that fires the event
-     * @param options.htmlElement a root html element binded with the survey object
+     * <br/> sender the survey object that fires the event
+     * <br/> options.htmlElement a root html element binded with the survey object
      */
     public onAfterRenderSurvey: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired right after a page is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.currentPage, options.htmlElement
-     * @param sender the survey object that fires the event
-     * @param options.page a page object for which the event is fired. Typically the current/active page.
-     * @param options.htmlElement an html element binded with the page object
+     * <br/> sender the survey object that fires the event
+     * <br/> options.page a page object for which the event is fired. Typically the current/active page.
+     * <br/> options.htmlElement an html element binded with the page object
      */
     public onAfterRenderPage: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired right after a question is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.question, options.htmlElement
-     * @param sender the survey object that fires the event
-     * @param options.question a question object for which the event is fired
-     * @param options.htmlElement an html element binded with the question object
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a question object for which the event is fired
+     * <br/> options.htmlElement an html element binded with the question object
      */
     public onAfterRenderQuestion: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired right after a panel is rendred in DOM. Use it to modify html elements. There are two parameters in options: options.panel, options.htmlElement
-     * @param sender the survey object that fires the event
-     * @param options.panel a panel object for which the event is fired
-     * @param options.htmlElement an html element binded with the panel object
+     * <br/> sender the survey object that fires the event
+     * <br/> options.panel a panel object for which the event is fired
+     * <br/> options.htmlElement an html element binded with the panel object
      */
     public onAfterRenderPanel: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on adding a new row in Matrix Dynamic quesiton. 
-     * @param sender the survey object that fires the event
-     * @param options.question a matrix question.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a matrix question.
      * @see QuestionMatrixDynamicModel
      * @see QuestionMatrixDynamicModel.visibleRows
      */
     public onMatrixRowAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired for every cell created in Matrix Dymic and Matrix Dropdown questions.
-     * options.question - the matrix question
-     * options.cell - the matrix cell
-     * options.cellQuestion - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
-     * options.rowValue - the value of the current row. To access the value of paticular column use: options.rowValue["columnValue"]
-     * options.column - the matrix column object
-     * options.columName - the matrix column name
-     * options.row - the matrix row object
+     * <br/> options.question - the matrix question
+     * <br/> options.cell - the matrix cell
+     * <br/> options.cellQuestion - the question/editor in the cell. You may customize it, change it's properties, like choices or visible.
+     * <br/> options.rowValue - the value of the current row. To access the value of paticular column use: options.rowValue["columnValue"]
+     * <br/> options.column - the matrix column object
+     * <br/> options.columName - the matrix column name
+     * <br/> options.row - the matrix row object
      * @see onMatrixCellValueChanged
      * @see QuestionMatrixDynamicModel
      * @see QuestionMatrixDropdownModel
@@ -358,11 +358,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onMatrixCellCreated: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired when cell value is changed in Matrix Dymic and Matrix Dropdown questions.
-     * options.question - the matrix question
-     * options.columName - the matrix column name
-     * options.value - a new value
-     * options.row - the matrix row object
-     * getCellQuestion(columnName) - the function that returns the cell question by column name.
+     * <br/> options.question - the matrix question
+     * <br/> options.columName - the matrix column name
+     * <br/> options.value - a new value
+     * <br/> options.row - the matrix row object
+     * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
      * @see onMatrixRowAdded
      * @see QuestionMatrixDynamicModel
      * @see QuestionMatrixDropdownModel
@@ -370,11 +370,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     public onMatrixCellValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
 /**
      * The event is fired when Matrix Dymic and Matrix Dropdown questions validate the cell value.
-     * options.question - the matrix question
-     * options.columName - the matrix column name
-     * options.value - a cell value
-     * options.row - the matrix row object
-     * getCellQuestion(columnName) - the function that returns the cell question by column name.
+     * <br/> options.question - the matrix question
+     * <br/> options.columName - the matrix column name
+     * <br/> options.value - a cell value
+     * <br/> options.row - the matrix row object
+     * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
      * @see onMatrixRowAdded
      * @see QuestionMatrixDynamicModel
      * @see QuestionMatrixDropdownModel

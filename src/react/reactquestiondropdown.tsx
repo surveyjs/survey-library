@@ -38,7 +38,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         );
     }
     protected renderSelect(cssClasses: any): JSX.Element {
-        if (this.isDisplayMode)  return (<div id={this.question.inputId} className={cssClasses.control}>{this.question.value}</div>);
+        if (this.isDisplayMode) { 
+            return (<div id={this.question.inputId} className={cssClasses.control}>{this.question.displayValue}</div>);
+        }
         var options = [];
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];

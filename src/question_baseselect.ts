@@ -165,6 +165,19 @@ export class QuestionSelectBase extends Question {
         }
         return this.visibleChoicesCache;
     }
+    /**
+     * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
+     */
+    public get displayValue(): string {
+        if(this.isEmpty()) return "";
+        if(this.isOtherSelected) return this.locOtherText.textOrHtml;
+        var list = this.visibleChoices;
+        var val = this.value;
+        for(var i = 0; i < list.length; i ++) {
+            if(list[i].value == val) return list[i].locText.textOrHtml;
+        }
+        return val.toString();
+    }
     private get activeChoices(): Array<ItemValue> { return this.choicesFromUrl ? this.choicesFromUrl : this.choices; }
     public supportComment(): boolean { return true; }
     public supportOther(): boolean { return true; }

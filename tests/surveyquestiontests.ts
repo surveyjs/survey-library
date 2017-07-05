@@ -78,6 +78,20 @@ QUnit.test("visibleChoices changes on setting others to true/false", function (a
     question.hasOther = false;
     assert.equal(question.visibleChoices.length, 3, "Remove the others item");
 });
+QUnit.test("displayValue function for selecteBase questions, issue #483", function (assert) {
+    var question = new QuestionSelectBase("dropdownQuestion");
+    question.choices = [{ value: 1, text: "Value 1" }, { value: 2, text: "Value 2" }];
+    question.hasOther = true;
+    assert.equal(question.displayValue, "", "value is null, displayValue is empty");
+    question.value = 1;
+    assert.equal(question.displayValue, "Value 1", "the first value is selected");
+    question.value = 2;
+    assert.equal(question.displayValue, "Value 2", "the second value is selected");
+    question.value = 3;
+    assert.equal(question.displayValue, "3", "there is no value in the list, so show the value");
+    question.value = question.otherItem.value;
+    assert.equal(question.displayValue, question.locOtherText.textOrHtml, "the other is selected");
+});
 QUnit.test("Question Title property", function (assert) {
     var question = new QuestionTextModel("q1");
     assert.equal(question.title, "q1", "get the question name by default");

@@ -411,6 +411,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.updateProcessedTextValues();
         this.onBeforeCreating();
         if (jsonObj) {
+            if (typeof jsonObj === 'string' || jsonObj instanceof String) {
+                jsonObj = JSON.parse(jsonObj as string);
+            }
             this.setJsonObject(jsonObj);
             if (this.surveyId) {
                 this.loadSurveyFromService(this.surveyId);

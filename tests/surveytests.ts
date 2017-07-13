@@ -1480,3 +1480,9 @@ QUnit.test("Pass custom properties to cell question", function (assert) {
     assert.equal(q1.visibleRows[0].cells[0].question['renderAs'], "select2tagbox", "custom property should be passed to the question");
 });
 
+QUnit.test("Pass text as survey json", function (assert) {
+    var survey = new SurveyModel('{ "questions": [ {"type": "text", "name": "q1"}]}');
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.name, "q1", "The survey created from the string");
+});
+

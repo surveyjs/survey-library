@@ -138,6 +138,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public get removeRowText() { return this.locRemoveRowText.text ? this.locRemoveRowText.text : surveyLocalization.getString("removeRow"); }
     public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
     get locRemoveRowText() { return this.locRemoveRowTextValue; }
+    public get displayValue(): any {
+        var values = this.value;
+        if(!values) return values;
+        var rows = this.visibleRows;
+        for(var i = 0; i < rows.length && i < values.length; i ++) {
+            var val = values[i];
+            if(!val) continue;
+            values[i] = this.getRowDisplayValue(rows[i], val);
+        }
+        return values;
+    }
+
     public supportGoNextPageAutomatic() {   return false;  }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);

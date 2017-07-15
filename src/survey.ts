@@ -399,7 +399,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
 
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
-        this.textPreProcessor.onProcess = function (name: string) { return self.getProcessedTextValue(name); };
+        this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
         this.pages.push = function (value) {
             value.data = self;
             return Array.prototype.push.call(this, value);
@@ -524,7 +524,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     /**
      * Returns the text/html that renders as survey title.
      */
-    public get processedTitle() { return this.processText(this.locTitle.textOrHtml); }
+    public get processedTitle() { return this.processText(this.locTitle.textOrHtml, true); }
     /**
      * Set this property to 'bottom' to show question title under the question.
      */
@@ -1360,7 +1360,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         var firstName = new ProcessValue().getFirstName(name);
         return this.processedTextValues[firstName.toLowerCase()];
     }
-    private getProcessedTextValue(name: string): any {
+    private getProcessedTextValue(name: string, returnDisplayValue: boolean): any {
         var firstName = new ProcessValue().getFirstName(name);
         var val = this.processedTextValues[firstName.toLowerCase()];
         if (!val) return null;
@@ -1371,7 +1371,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
             var question = this.getQuestionByName(firstName, true);
             if (!question) return null;
             name = question.name + name.substr(firstName.length);
-            return new ProcessValue().getValue(name, this.valuesHash);
+            var values = this.valuesHash;
+            if(returnDisplayValue) {
+                values = this.getUnbindValue(this.valuesHash);
+                values[firstName] = question.displayValue;
+            }    
+            return new ProcessValue().getValue(name, values);
         }
         if (val == "value") {
             return new ProcessValue().getValue(name, this.valuesHash);
@@ -1451,7 +1456,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         } else {
             newValue = this.getUnbindValue(newValue);
             this.valuesHash[name] = newValue;
-            this.processedTextValues[name.toLowerCase()] = "value";
+            var processedVar = this.processedTextValues[name.toLowerCase()];
+            if(!processedVar) {
+                this.processedTextValues[name.toLowerCase()] = "value";
+            }
         }
         this.notifyQuestionOnValueChanged(name, newValue);
         this.checkTriggers(name, newValue, false);
@@ -1553,10 +1561,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
     processHtml(html: string): string {
         var options = { html: html };
         this.onProcessHtml.fire(this, options);
-        return this.processText(options.html);
+        return this.processText(options.html, true);
     }
-    processText(text: string): string {
-        return this.textPreProcessor.process(text);
+    processText(text: string, returnDisplayValue: boolean): string {
+        return this.textPreProcessor.process(text, returnDisplayValue);
     }
     processTextEx(text: string): any {
         var res = {text : this.textPreProcessor.process(text),  hasAllValuesOnLastRun: true};

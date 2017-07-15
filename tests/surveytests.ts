@@ -1261,6 +1261,62 @@ QUnit.test("Survey Localication - multipletext.items", function (assert) {
     assert.equal(item.placeHolder, "caption1", "Use default text, placeHolder");
 });
 
+QUnit.test("Survey text preprocessing, dropdown/checkbox/radiogroup, issue #499", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.choices = [{value: 1, text: "Item 1"}, {value: 2, text: "Item 2"}];
+    var q2 = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q2");
+    q2.choices = [{value: 3, text: "Item 3"}, {value: 4, text: "Item 4"}]
+    var q3 = <Question>page.addNewQuestion("text", "q3");
+    q3.title = "{q1}-{q2}";
+    assert.equal(q3.locTitle.renderedHtml, "3. -", "There is no values");
+    q1.value  = 1;
+    assert.equal(q3.locTitle.renderedHtml, "3. Item 1-", "Drop down value is set");
+    q2.value = [3, 4];
+    assert.equal(q3.locTitle.renderedHtml, "3. Item 1-Item 3, Item 4", "Drop down value is set");
+});
+
+QUnit.test("Survey text preprocessing, matrix, issue #499", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <QuestionMatrixModel>page.addNewQuestion("matrix", "q1");
+    q1.columns = [{value: 1, text: "Col 1"}, {value: 2, text: "Col 2"}];
+    q1.rows = [{value: "row1", text: "Row 1"}, {value: "row2", text: "Row 2"}];
+    var q2 = <Question>page.addNewQuestion("text", "q2");
+    q2.title = "{q1.row1}";
+    q1.value  = {"row1": 1, "row2": 2};
+    assert.equal(q2.locTitle.renderedHtml, "2. Col 1", "Matrix use text");
+});
+
+QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <QuestionMatrixDropdownModel>page.addNewQuestion("matrixdropdown", "q1");
+    q1.rows = [{value: "row1", text: "Row 1"}, {value: "row2", text: "Row 2"}]; 
+    q1.columns = [];
+    q1.addColumn("col1");
+    q1.columns[0].choices = [{value: 1, text: "Item 1"}, {value: 2, text: "Item 2"}];
+    var q2 = <Question>page.addNewQuestion("text", "q2");
+    q2.title = "{q1.row1.col1}";
+    q1.value  = {"row1": {"col1": 1 } };
+    assert.equal(q2.locTitle.renderedHtml, "2. Item 1", "Dropdown Matrix Column use text");
+});
+
+QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <QuestionMatrixDynamicModel>page.addNewQuestion("matrixdynamic", "q1");
+    q1.rowCount = 2; 
+    q1.columns = [];
+    q1.addColumn("col1");
+    q1.columns[0].choices = [{value: 1, text: "Item 1"}, {value: 2, text: "Item 2"}];
+    var q2 = <Question>page.addNewQuestion("text", "q2");
+    q2.title = "{q1[0].col1}";
+    q1.value  = [{"col1": 1 }, {}];
+    assert.equal(q2.locTitle.renderedHtml, "2. Item 1", "Dropdown Matrix Column use text");
+});
+
 QUnit.test("Survey Markdown - dropdown.choices", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

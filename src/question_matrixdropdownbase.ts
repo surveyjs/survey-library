@@ -454,6 +454,15 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         }
         return result;
     }
+    protected getRowDisplayValue(row: MatrixDropdownRowModelBase, rowValue: any): any {
+        for(var i = 0; i < this.columns.length; i ++) {
+            var column = this.columns[i];
+            if(rowValue[column.name]) {
+                rowValue[column.name] = row.cells[i].question.displayValue;
+            }
+        }
+        return rowValue;
+    }    
     protected onBeforeValueChanged(val: any) {
     }
     protected onValueChanged() {

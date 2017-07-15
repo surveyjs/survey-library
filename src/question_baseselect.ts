@@ -168,15 +168,14 @@ export class QuestionSelectBase extends Question {
     /**
      * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
      */
-    public get displayValue(): string {
+    public get displayValue(): any {
         if(this.isEmpty()) return "";
-        if(this.isOtherSelected) return this.locOtherText.textOrHtml;
-        var list = this.visibleChoices;
-        var val = this.value;
-        for(var i = 0; i < list.length; i ++) {
-            if(list[i].value == val) return list[i].locText.textOrHtml;
-        }
-        return val.toString();
+        return this.getDisplayValue(this.visibleChoices, this.value);
+    }
+    protected getDisplayValue(items: ItemValue[], val: any): any {
+        if(val == this.otherItemValue.value) return this.comment ? this.comment : "";
+        var str = ItemValue.getTextOrHtmlByValue(items, val);
+        return (str == "" && val) ? val : str;
     }
     private get activeChoices(): Array<ItemValue> { return this.choicesFromUrl ? this.choicesFromUrl : this.choices; }
     public supportComment(): boolean { return true; }

@@ -54,6 +54,10 @@ export class ItemValue {
         }
         return null;
     }
+    public static getTextOrHtmlByValue(items: Array<ItemValue>, val: any): string {
+        var item = ItemValue.getItemByValue(items, val);
+        return item !== null ? item.locText.textOrHtml : "";
+    }
     public static NotifyArrayOnLocaleChanged(items: Array<ItemValue>) {
         for(var i = 0; i < items.length; i ++) {
             items[i].locText.onChanged();

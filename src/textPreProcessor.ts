@@ -5,10 +5,10 @@
 
 export class TextPreProcessor {
     private hasAllValuesOnLastRunValue : boolean = false;
-    public onProcess: (name: string) => any;
+    public onProcess: (name: string, returnDisplayValue: boolean) => any;
     public onHasValue: (name: string) => boolean;
     constructor() { }
-    public process(text: string): string {
+    public process(text: string, returnDisplayValue: boolean = false): string {
         this.hasAllValuesOnLastRunValue = true;
         if (!text) return text;
         if (!this.onProcess) return text;
@@ -21,7 +21,7 @@ export class TextPreProcessor {
                 this.hasAllValuesOnLastRunValue = false;
                 continue;
             }
-            var value = this.onProcess(name);
+            var value = this.onProcess(name, returnDisplayValue);
             if (value == null) {
                  value = "";
                  this.hasAllValuesOnLastRunValue = false;

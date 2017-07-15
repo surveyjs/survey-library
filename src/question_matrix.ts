@@ -140,6 +140,14 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         }
         this.isRowChanging = false;
     }
+    public get displayValue(): any {
+        var values = this.value;
+        if(!values) return values;
+        for(var key in values) {
+            values[key] = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
+        }
+        return values;
+    }
     //IMatrixData
     onMatrixRowChanged(row: MatrixRowModel) {
         if (this.isRowChanging) return;

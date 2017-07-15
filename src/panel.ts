@@ -332,7 +332,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     }
     protected getRendredTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
-        return this.data != null ? this.data.processText(str) : str;
+        return this.data != null ? this.data.processText(str, true) : str;
     }
     /**
      * Use it to get/set the object visibility.

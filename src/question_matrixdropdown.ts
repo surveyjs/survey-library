@@ -31,6 +31,19 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     public getType(): string {
         return "matrixdropdown";
     }
+    public get displayValue(): any {
+        var values = this.value;
+        if(!values) return values;
+        var rows = this.visibleRows;
+        for(var i = 0; i < rows.length; i ++) {
+            var rowValue = this.rows[i].value;
+            var val = values[rowValue];
+            if(!val) continue;
+            values[rowValue] = this.getRowDisplayValue(rows[i], val);
+        }
+        return values;
+    }
+
     /**
      * The list of rows. A row has a value and an optional text
      */

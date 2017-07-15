@@ -236,6 +236,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     }
     public supportGoNextPageAutomatic() { return false; }
     public clearUnusedValues() {}
+    public get displayValue(): any {
+        return "";
+    }
     public onLocaleChanged() {
         this.localeChanged.fire(this, this.getLocale());
     }

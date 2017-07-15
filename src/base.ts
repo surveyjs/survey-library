@@ -8,7 +8,7 @@ export interface ISurveyData {
     setComment(name: string, newValue: string);
 }
 export interface ITextProcessor {
-    processText(text: string): string;
+    processText(text: string, returnDisplayValue: boolean): string;
     processTextEx(text: string): any;
 }
 export interface ISurvey extends ISurveyData, ITextProcessor {
@@ -64,6 +64,7 @@ export interface IQuestion extends IElement {
     supportGoNextPageAutomatic(): boolean;
     clearUnusedValues();
     onAnyValueChanged(name: string);
+    displayValue: any;
 }
 export interface IPanel extends IElement {
 }

@@ -211,10 +211,12 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
     protected onSetData() { }
     protected onCreating() { }
     /**
-     * Run visibleIf expression. If visibleIf is not empty, then the results of performing the expression (true or false) set to the visible property.
+     * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.
      * @param values Typically survey results
      * @see visible
      * @see visibleIf
+     * @see readOnly
+     * @see enableIf
      */
     public runCondition(values: HashTable<any>) {
         if (!this.visibleIf) return;

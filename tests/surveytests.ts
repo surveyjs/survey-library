@@ -1057,6 +1057,21 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function (assert
     assert.equal(counter, 2, "nothing happens");
 });
 
+QUnit.test("enableIf for question", function (assert) {
+    var survey = new SurveyModel({
+        pages: [{
+            name: "page1",
+            questions: [
+                { type: "checkbox", name: "q1", choices: ["yes", "no"] },
+                { type: "text", name: "q2", enableIf: "{q1} contains 'yes'" }]
+        }]
+    });
+    var q2 = <Question>survey.getQuestionByName("q2");
+    assert.equal(q2.isReadOnly, true, "It is readonly initially");
+    survey.setValue("q1", ["yes"]);
+    assert.equal(q2.isReadOnly, false, "It is not readonly now");
+});
+
 QUnit.test("isRequired test, empty array https://github.com/surveyjs/surveyjs/issues/362", function (assert) {
     var survey = new SurveyModel({
         pages: [{

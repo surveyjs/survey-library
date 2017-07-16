@@ -1,11 +1,12 @@
 ﻿import {JsonObject} from './jsonobject';
 import {QuestionBase} from './questionbase';
-import {Base, SurveyError, SurveyElement} from "./base";
+import {Base, SurveyError, SurveyElement, HashTable} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
 import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {ConditionRunner} from './conditions';
 
 /**
  * Extends question base class with title, value, errors and other functionality
@@ -20,6 +21,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     private hasOtherValue: boolean = false;
     private readOnlyValue: boolean = false;
     private textPreProcessor: TextPreProcessor;
+    private conditionEnabelRunner: ConditionRunner;
     errors: Array<SurveyError> = [];
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
     valueChangedCallback: () => void;
@@ -27,6 +29,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
     errorsChangedCallback: () => void;
     titleChangedCallback: () => void;
     validateValueCallback: () => SurveyError;
+    /**
+     * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
+     * @see readOnly
+     * @see isReadOnly
+     */
+    public enableIf: string = "";
 
     constructor(public name: string) {
         super(name);
@@ -171,6 +179,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.readOnlyValue = value;
         this.onReadOnlyChanged();
     }
+    public runCondition(values: HashTable<any>) {
+        super.runCondition(values);
+        if (!this.enableIf) return;
+        if (!this.conditionEnabelRunner) this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
+        this.conditionEnabelRunner.expression = this.enableIf;
+        this.readOnly = !this.conditionEnabelRunner.run(values);
+    }
+    
     onReadOnlyChanged() {
         this.fireCallback(this.readOnlyChangedCallback);
     }
@@ -336,5 +352,5 @@ export class Question extends QuestionBase implements IValidatorOwner {
     getValidatorTitle(): string { return null; }
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
-    { name: "commentText", serializationProperty: "locCommentText" },
+    { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression",
     "isRequired:boolean", "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

@@ -1,6 +1,6 @@
 import {surveyLocalization} from "../surveyStrings";
 
-export var simplifiedChinesesurveyStrings = {
+export var simplifiedChineseSurveyStrings = {
     pagePrevText: "上一页",
     pageNextText: "下一页",
     completeText: "提交问卷",

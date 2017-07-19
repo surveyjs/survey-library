@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input v-if="!question.isReadOnly" :class="question.cssClasses.text" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change"/>
+        <input v-if="!question.isReadOnly" :class="question.cssClasses.root" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change"/>
         <div v-else :class="question.cssClasses.text">{{question.value}}</div>
     </div>
 </template>

@@ -132,7 +132,7 @@ module.exports = function (options) {
             'survey.' + options.platformPrefix + '.js',
             'survey.' + options.platformPrefix + '.min.js'
         ],
-        'main': 'survey.' + options.platformPrefix + '.min.js',
+        'main': 'survey.' + options.platformPrefix + '.js',
         'repository': {
             'type': 'git',
             'url': 'https://github.com/surveyjs/surveyjs.git'

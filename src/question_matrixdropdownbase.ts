@@ -377,6 +377,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             this.columns[i].onLocaleChanged();
         }
         var rows = this.visibleRows;
+        if(!rows) return;
         for(var i = 0; i < rows.length; i ++) {
             rows[i].onLocaleChanged();
         }

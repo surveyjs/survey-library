@@ -173,3 +173,8 @@ QUnit.test("Survey deserialize/serialize localization survey", function (assert)
     var newJsonObj = new JsonObject().toJsonObject(survey);
     assert.deepEqual(newJsonObj, origionalJson, "Two json objects should be equal");
 });
+
+QUnit.test("Survey deserialize dynamic matrix with different locale, Issue #507", function (assert) {
+    var survey = new SurveyModel({ pages: [ { name: "p1", elements: [{type: "matrixdropdown", name: "q1", columns: [{ name: "Column 1"}], rows: ["Row 1","Row 2"]}]  } ],  locale: "zh-cn"});
+    assert.equal(survey.getQuestionByName("q1").name, "q1", "Matrix deserialized successful");
+});

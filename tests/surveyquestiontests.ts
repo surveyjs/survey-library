@@ -711,11 +711,42 @@ QUnit.test("Matrixdropdown set columns", function (assert) {
     question.columns.push(new MatrixDropdownColumn("col1"));
     question.columns.push(new MatrixDropdownColumn("col2"));
 
-
-
     assert.equal(question.supportGoNextPageAutomatic(), false, "There is no value in rows");
     question.value = { "row1": { "col1": 1, "col2": 11 } };
     assert.equal(question.supportGoNextPageAutomatic(), false, "Checkbox doesn't support gotNextPageAutomatic");
+});
+
+QUnit.test("Matrixdynamic column.visibleIf ", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDynamic");
+    question.rowCount = 2;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    question.columns.push(new MatrixDropdownColumn("column3"));
+    question.columns[0].choices = [1, 2, 3];
+    question.columns[1].choices = [4, 5];
+    question.columns[2].choices = [7, 8, 9, 10];
+
+    question.columns[1].visibleIf = "{row.column1} = 2";
+    question.columns[2].visibleIf = "{a} = 5";
+
+    var visibleRows = question.visibleRows;
+    var q1 = <QuestionDropdownModel>(visibleRows[0].cells[0].question);
+    var q2 = <QuestionDropdownModel>(visibleRows[0].cells[1].question);
+    var q3 = <QuestionDropdownModel>(visibleRows[0].cells[2].question);
+    
+    var values = {a : 3};
+    question.runCondition(values)
+    assert.equal(q1.visible, true, "1. q1 visibleIf is empty");
+    assert.equal(q2.visible, false, "1. q2 visibleIf depends on column1 - false");
+    assert.equal(q3.visible, false, "1. q3 visibleIf depends on external data - false");
+
+    values = {a : 5};
+    question.runCondition(values);
+    assert.equal(q3.visible, true, "2. q3 visibleIf depends on external data - true");
+    
+    q1.value = 2;
+    question.runCondition(values);
+    assert.equal(q2.visible, true, "3. q2 visibleIf depends on column1 - true");    
 });
 
 QUnit.test("Text inputType=number", function (assert) {

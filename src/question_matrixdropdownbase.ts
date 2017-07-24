@@ -37,6 +37,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     private locPlaceHolderValue: LocalizableString;
     private isRequiredValue: boolean = false;
     private hasOtherValue: boolean = false;
+    private colCountValue: number = -1;
 
     public minWidth: string = "";
     private cellTypeValue: string = "default";
@@ -45,7 +46,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     public choicesByUrl: ChoicesRestfull;
     public colOwner: IMatrixColumnOwner = null;
     public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
-    private colCountValue: number = -1;
+    public visibleIf: string = "";
     constructor(name: string, title: string = null) {
         super();
         this.nameValue = name;
@@ -171,6 +172,9 @@ export class MatrixDropdownCell {
     public set value(value: any) {
         this.question.value = value;
     }
+    public runCondition(values: HashTable<any>) {
+        this.question.runCondition(values);
+    }
 }
 
 export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwner {
@@ -243,6 +247,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     public onLocaleChanged() {
         for(var i = 0; i < this.cells.length; i ++) {
             this.cells[i].question.onLocaleChanged();
+        }
+    }
+    public runCondition(values: HashTable<any>) {
+        values["row"] = this.value;
+        for(var i = 0; i < this.cells.length; i ++) {
+            this.cells[i].runCondition(values);
         }
     }
     private buildCells() {
@@ -368,6 +378,19 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
                 this.setQuestionProperties(row.cells[j].question, column);
                 break;
             }
+        }
+    }
+    public runCondition(values: HashTable<any>) {
+        super.runCondition(values);
+        if(!this.generatedVisibleRows) return;
+        var newValues = null;
+        if (values && values instanceof Object) {
+            //do not return the same object instance!!!
+            newValues = JSON.parse(JSON.stringify(values));
+        }
+        newValues["row"] = {};
+        for(var i = 0; i < this.generatedVisibleRows.length; i ++) {
+            this.generatedVisibleRows[i].runCondition(newValues);
         }
     }
     public onLocaleChanged() {
@@ -550,6 +573,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         question.hasOther = column.hasOther;
         question.readOnly = this.readOnly;
         question.validators = column.validators;
+        question.visibleIf = column.visibleIf;
         if (column.hasOther) {
             if (question instanceof QuestionSelectBase) {
                 (<QuestionSelectBase>question).storeOthersAsComment = false;
@@ -634,8 +658,7 @@ JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", s
         { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
         { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
         { name: "inputType", default: "text", choices: ["color", "date", "datetime", "datetime-local", "email", "month", "number", "password", "range", "tel", "text", "time", "url", "week"] },
-        { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
-
+        "visibleIf:expression", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator" }],
     function () { return new MatrixDropdownColumn(""); });
 
 JsonObject.metaData.addClass("matrixdropdownbase", [{ name: "columns:matrixdropdowncolumns", className: "matrixdropdowncolumn"},

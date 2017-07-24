@@ -201,7 +201,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     }
     public get id(): string { return this.idValue; }
     public get rowName() { return null; }
-    public get value() { return this.rowValues; }
+    public get value(): any { return this.rowValues; }
+    getAllValues() : any { return this.value; }
     public set value(value: any) {
         this.isSettingValue = true;
         this.rowValues = {};
@@ -382,15 +383,18 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     public runCondition(values: HashTable<any>) {
         super.runCondition(values);
+        this.runCellsCondition(values);
+    }
+    private runCellsCondition(values: HashTable<any>) {
         if(!this.generatedVisibleRows || !this.hasVisibleIfColumn) return;
-        var newValues = null;
+        var newValues = {};
         if (values && values instanceof Object) {
-            //do not return the same object instance!!!
             newValues = JSON.parse(JSON.stringify(values));
         }
         newValues["row"] = {};
-        for(var i = 0; i < this.generatedVisibleRows.length; i ++) {
-            this.generatedVisibleRows[i].runCondition(newValues);
+        var rows = this.generatedVisibleRows;
+        for(var i = 0; i < rows.length; i ++) {
+            rows[i].runCondition(newValues);
         }
     }
     private get hasVisibleIfColumn(): boolean {
@@ -444,6 +448,9 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if(this.isLoadingFromJson) return;
         if(!this.generatedVisibleRows) {
             this.generatedVisibleRows = this.generateRows();
+            if(this.survey) {
+                this.runCellsCondition(this.survey.getAllValues());
+            }
         }
         return this.generatedVisibleRows;
     }
@@ -528,10 +535,13 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     private hasErrorInColumns(fireCallback: boolean): boolean {
         if (!this.generatedVisibleRows) return false;
         var res = false;
-        for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
-            for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-                var cells = this.generatedVisibleRows[i].cells;
-                res = cells && cells[colIndex] && cells[colIndex].question && cells[colIndex].question.hasErrors(fireCallback) || res;
+        for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+            var cells = this.generatedVisibleRows[i].cells;
+            if(!cells) continue;
+            for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
+                if(!cells[colIndex]) continue;
+                var question = cells[colIndex].question;
+                res = question && question.visible && question.hasErrors(fireCallback) || res; 
             }
         }
         return res;

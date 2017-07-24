@@ -725,6 +725,7 @@ QUnit.test("Matrixdynamic column.visibleIf ", function (assert) {
     question.columns[0].choices = [1, 2, 3];
     question.columns[1].choices = [4, 5];
     question.columns[2].choices = [7, 8, 9, 10];
+    question.columns[2].isRequired = true;
 
     question.columns[1].visibleIf = "{row.column1} = 2";
     question.columns[2].visibleIf = "{a} = 5";
@@ -739,6 +740,7 @@ QUnit.test("Matrixdynamic column.visibleIf ", function (assert) {
     assert.equal(q1.visible, true, "1. q1 visibleIf is empty");
     assert.equal(q2.visible, false, "1. q2 visibleIf depends on column1 - false");
     assert.equal(q3.visible, false, "1. q3 visibleIf depends on external data - false");
+    assert.equal(question.hasErrors(), false, "1. q3 required column is invisible.")
 
     values = {a : 5};
     question.runCondition(values);

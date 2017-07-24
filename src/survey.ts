@@ -560,6 +560,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         }
         return result;
     }
+    getAllValues() : any { return this.data; }
     public set data(data: any) {
         this.valuesHash = {};
         if (data) {

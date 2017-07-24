@@ -6,6 +6,7 @@ export interface ISurveyData {
     setValue(name: string, newValue: any);
     getComment(name: string): string;
     setComment(name: string, newValue: string);
+    getAllValues(): any;
 }
 export interface ITextProcessor {
     processText(text: string, returnDisplayValue: boolean): string;

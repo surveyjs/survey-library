@@ -105,7 +105,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         if(!this.canAddRow) return;
         var prevRowCount = this.rowCount;
         this.rowCount = this.rowCount + 1;
-        if(this.survey && (prevRowCount + 1 == this.rowCount)) this.survey.matrixRowAdded(this);
+        if(this.survey) {
+            this.runCellsCondition(this.survey.getAllValues());
+            if(prevRowCount + 1 == this.rowCount) this.survey.matrixRowAdded(this);
+        }
     }
     /**
      * Removes a row by it's index.

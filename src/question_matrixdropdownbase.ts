@@ -385,7 +385,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         super.runCondition(values);
         this.runCellsCondition(values);
     }
-    private runCellsCondition(values: HashTable<any>) {
+    protected runCellsCondition(values: HashTable<any>) {
         if(!this.generatedVisibleRows || !this.hasVisibleIfColumn) return;
         var newValues = {};
         if (values && values instanceof Object) {

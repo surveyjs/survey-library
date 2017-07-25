@@ -716,7 +716,7 @@ QUnit.test("Matrixdropdown set columns", function (assert) {
     assert.equal(question.supportGoNextPageAutomatic(), false, "Checkbox doesn't support gotNextPageAutomatic");
 });
 
-QUnit.test("Matrixdynamic column.visibleIf ", function (assert) {
+QUnit.test("Matrixdynamic column.visibleIf", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
     question.rowCount = 2;
     question.columns.push(new MatrixDropdownColumn("column1"));
@@ -750,6 +750,17 @@ QUnit.test("Matrixdynamic column.visibleIf ", function (assert) {
     question.runCondition(values);
     assert.equal(q2.visible, true, "3. q2 visibleIf depends on column1 - true");    
 });
+QUnit.test("Matrixdynamic column.visibleIf, load from json and add item", function (assert) {
+    var survey = new SurveyModel({questions: [{type: "matrixdynamic", rowCount: 1, columns: [{name: "col1", choices: [1, 2]}, {name: "col2", visibleIf: "{row.col1} = 1"}]}]});
+    var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var rows = matrix.visibleRows;
+    var q_0_1 = <QuestionDropdownModel>(rows[0].cells[1].question);
+    assert.equal(q_0_1.visible, false, "Initial the question is invisible");
+    matrix.addRow();
+    var q_1_1 = <QuestionDropdownModel>(rows[1].cells[1].question);
+    assert.equal(q_1_1.visible, false, "Initial the question in the added row is invisible");
+});
+
 
 QUnit.test("Text inputType=number", function (assert) {
     var question = new QuestionTextModel("text");

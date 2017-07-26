@@ -4,6 +4,7 @@ import {LocalizableString} from "./localizablestring";
 import {Question} from "./question";
 import {PanelModel} from "./panel";
 import {JsonObject} from "./jsonobject";
+import {QuestionFactory} from "./questionfactory";
 
 export interface IQuestionPanelDynamicData {
     getPanelItemData(item: QuestionPanelDynamicItem): any;
@@ -39,6 +40,7 @@ export class QuestionPanelDynamicItem implements ISurveyData {
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
     private templateValue: PanelModel = new PanelModel();
     private panelsValue: Array<QuestionPanelDynamicItem> = new Array<QuestionPanelDynamicItem>();
+    private loadingPanelCount: number = 0;
     constructor(public name: string) {
         super(name);
     }
@@ -46,10 +48,20 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return "paneldynamic";
     }
     public get template(): PanelModel { return this.templateValue; }
-    public get elements(): Array<IElement> { return this.template.elements; }
+    public get templateElements(): Array<IElement> { return this.template.elements; }
+    public get templateTitle(): string { return this.template.title; }
+    public set templateTitle(newValue: string) {
+        this.template.title = newValue;
+    }
+    get locTemplateTitle(): LocalizableString { return this.template.locTitle; }
+
     public get panels(): Array<QuestionPanelDynamicItem> { return this.panelsValue; }
-    public get panelCount(): number { return this.panels.length; }
+    public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.panels.length; }
     public set panelCount(val: number) {
+        if(this.isLoadingFromJson) {
+            this.loadingPanelCount = val;
+            return;
+        }
         if(val == this.panels.length) return;
         var curLength = this.panels.length;
         for(var i = curLength; i < val; i ++) {
@@ -61,6 +73,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.panels.push(panel);
         return panel;
     }
+    public onSurveyLoad() {
+        if(this.loadingPanelCount > 0) {
+            this.panelCount = this.loadingPanelCount;
+        }
+        super.onSurveyLoad();
+    }
+
     protected createNewPanel(): PanelModel {
         var panel = this.createNewPanelObject();
         var jObj = new JsonObject();
@@ -94,3 +113,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         qValue[index][name] = val;
     }
 }
+
+JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
+    {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, 
+    {name: "panelCount", default: 0}], function () { return new QuestionPanelDynamicModel(""); }, "question");
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { var q = new QuestionPanelDynamicModel(name); q.template.addNewQuestion("text", "question1"); q.template.addNewQuestion("text", "question2"); return q; });

@@ -220,7 +220,6 @@ QUnit.test("Parse condition from #303", function (assert) {
     var right = node.children[1];
 });
 
-
 QUnit.test("Run one condition", function (assert) {
     var runner = new ConditionRunner("{a} > 5");
     var values = { a: 6 };
@@ -288,6 +287,7 @@ QUnit.test("Expression Tree to Text", function (assert) {
     parser.parse("'age' >= 21 and ('sex' = 'male' or 'kids' > 1)", node);
     assert.equal(parser.toString(node), "'age' >= 21 and ('sex' = 'male' or 'kids' > 1)");
 });
+
 QUnit.test("Check non equal, #377", function (assert) {
     var runner = new ConditionRunner("{var1} != 3");
     var values = {  };
@@ -296,4 +296,24 @@ QUnit.test("Check non equal, #377", function (assert) {
     assert.equal(runner.run(values), true, "1 != 3");
     values = {var1 : 3};
     assert.equal(runner.run(values), false, "3 == 3");
+});
+
+QUnit.test("Condition check for undefined #518", function (assert) {
+    var runner = new ConditionRunner("{var1} == undefined");
+    var values = {  };
+    assert.equal(runner.run(values), true, "undefined should work");
+    values = { var1: undefined };
+    assert.equal(runner.run(values), true, "undefined should work");
+    values = { var1: 'a' };
+    assert.equal(runner.run(values), false, "string is not undefined");
+    // values = { var1: '' };
+    // assert.equal(runner.run(values), false, "empty string is not undefined");
+
+    runner = new ConditionRunner("{var1} != undefined");
+    values = {  };
+    assert.equal(runner.run(values), false, "undefined should work");
+    values = { var1: undefined };
+    assert.equal(runner.run(values), false, "undefined should work");
+    values = { var1: 'a' };
+    assert.equal(runner.run(values), true, "string is not undefined");
 });

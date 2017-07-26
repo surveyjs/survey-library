@@ -77,6 +77,7 @@ export interface IPage extends IConditionRunner {
  * The base class for SurveyJS objects.
  */
 export class Base {
+    public static commentPrefix: string = "-Comment";
     /**
      * A static methods that returns true if a value underfined, null, empty string or empty array.
      * @param value 

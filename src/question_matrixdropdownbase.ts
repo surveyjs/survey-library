@@ -182,7 +182,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     private static getId(): string { return "srow_" + MatrixDropdownRowModelBase.idCounter++; }
     protected data: IMatrixDropdownData;
     private rowValues: HashTable<any> = {};
-    private rowComments: HashTable<any> = {};
     private isSettingValue: boolean = false;
     private idValue: string;
 
@@ -230,10 +229,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
         this.data.onRowChanged(this, name, this.value);
     }
     public getComment(name: string): string {
-        return this.rowComments[name];
+        var result = this.getValue(name + Base.commentPrefix);
+        return result ? result : "";
     }
     public setComment(name: string, newValue: string) {
-        this.rowComments[name] = newValue;
+        this.setValue(name + Base.commentPrefix, newValue);
     }
     public get isEmpty() {
         var val = this.value;

@@ -50,7 +50,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
      * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
      * @see data
      */
-    public commentPrefix: string = "-Comment";
+    public get commentPrefix(): string { return  Base.commentPrefix; }
+    public set commentPrefix(val: string) {Base.commentPrefix = val; }
     /**
      * On showing the next or previous page, a first input is focused, if the property set to true.
      */

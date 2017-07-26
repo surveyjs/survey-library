@@ -68,7 +68,7 @@ export class Condition {
         return Condition.operators[this.operator](this.getPureValue(left), this.getPureValue(right));
     }
     private getPureValue(val: any): any {
-        if(val === undefined) return null;
+        if(val === undefined || val === 'undefined') return null;
         if (!val || (typeof val != "string")) return val;
         var str = "";
         if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);

@@ -43,6 +43,7 @@ export {QuestionHtmlModel} from "../../question_html";
 export {QuestionRadiogroupModel} from "../../question_radiogroup";
 export {QuestionRatingModel} from "../../question_rating";
 export {QuestionTextModel} from "../../question_text";
+export {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from "../../question_paneldynamic";
 export {SurveyModel} from "../../survey";
 export {
     SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible,

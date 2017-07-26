@@ -6,6 +6,7 @@ export * from '../conditionstests';
 export * from '../jsonobjecttests';
 export * from '../surveyLocalizationTests';
 export * from '../surveyquestiontests';
+export * from '../surveypaneldynamictests';
 export * from '../surveyserializationtests';
 export * from '../surveytests';
 export * from '../surveytriggertests';

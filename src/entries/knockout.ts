@@ -36,6 +36,7 @@ export {
     QuestionMatrixDynamicImplementor,
     QuestionMatrixDynamic
 } from "../knockout/koquestion_matrixdynamic";
+export {QuestionPanelDynamic} from "../knockout/koquestion_paneldynamic";
 export {
     MultipleTextItem, QuestionMultipleTextImplementor,
     QuestionMultipleText

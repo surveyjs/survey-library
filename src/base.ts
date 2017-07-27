@@ -12,7 +12,7 @@ export interface ITextProcessor {
     processText(text: string, returnDisplayValue: boolean): string;
     processTextEx(text: string): any;
 }
-export interface ISurvey extends ISurveyData, ITextProcessor {
+export interface ISurvey extends ITextProcessor {
     currentPage: IPage;
     pageVisibilityChanged(page: IPage, newValue: boolean);
     questionVisibilityChanged(question: IQuestion, newValue: boolean);
@@ -27,6 +27,7 @@ export interface ISurvey extends ISurveyData, ITextProcessor {
     isLoadingFromJson: boolean;
     requiredText: string;
     questionStartIndex: string;
+    questionTitleLocation: string;
     getQuestionTitleTemplate(): string;
     storeOthersAsComment: boolean;
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;
@@ -38,14 +39,20 @@ export interface ISurvey extends ISurveyData, ITextProcessor {
     matrixCellValueChanged(question: IQuestion, options: any);
     matrixCellValidate(question: IQuestion, options: any): SurveyError;
 }
+export interface ISurveyImpl {
+    geSurveyData(): ISurveyData;
+    getSurvey(): ISurvey;
+}
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);
 }
-export interface IElement  extends IConditionRunner{
+export interface ISurveyElement {
+    setSurveyImpl(value: ISurveyImpl);
+}
+export interface IElement  extends IConditionRunner, ISurveyElement{
     name: string;
     visible: boolean;
     isVisible: boolean;
-    setData(newValue: ISurveyData);
     rowVisibilityChangedCallback: () => void;
     startWithNewLineChangedCallback: () => void;
     renderWidth: string;
@@ -119,7 +126,11 @@ export class SurveyError {
 
 export var SurveyPageId: string;
 SurveyPageId = "sq_page";
-export class SurveyElement {
+
+export class SurveyElement extends Base implements ISurveyElement {
+    private surveyImplValue: ISurveyImpl;
+    private surveyDataValue: ISurveyData;
+    private surveyValue: ISurvey;
     public static ScrollElementToTop(elementId: string): boolean {
         if (!elementId) return false;
         var el = document.getElementById(elementId);
@@ -144,6 +155,20 @@ export class SurveyElement {
         }
         return false;
     }
+    public setSurveyImpl(value: ISurveyImpl) {
+        this.surveyImplValue = value;
+        if(!this.surveyImplValue) return;
+        this.surveyDataValue = this.surveyImplValue.geSurveyData();
+        this.surveyValue = this.surveyImplValue.getSurvey();
+        this.onSetData();
+    }
+    protected get surveyImpl() { return this.surveyImplValue; }
+    public get data(): ISurveyData { return this.surveyDataValue; }
+    /**
+     * Returns the survey object.
+     */
+    public get survey(): ISurvey { return this.surveyValue; }
+    protected onSetData() { }    
 }
 
 export class Event<T extends Function, Options>  {

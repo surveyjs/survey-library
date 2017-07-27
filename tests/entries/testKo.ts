@@ -13,6 +13,7 @@ export * from '../surveyvalidatortests';
 export * from '../textPreprocessorTests';
 export {Survey} from "../../src/knockout/kosurvey";
 export {QuestionMatrixDynamic} from "../../src/knockout/koquestion_matrixdynamic";
+export {QuestionPanelDynamic} from "../../src/knockout/koquestion_paneldynamic";
 export {QuestionRating} from "../../src/knockout/koquestion_rating";
 export {QuestionComment} from "../../src/knockout/koquestion_comment";
 

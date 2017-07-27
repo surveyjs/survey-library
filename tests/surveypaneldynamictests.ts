@@ -59,6 +59,7 @@ QUnit.test("Load from Json", function (assert) {
     assert.ok(p1.panel, "the panel has been created");
     assert.equal(p1.panel.elements.length, 2, "There are two elements in the copied panel");
     assert.equal(p1.panel.questions[1].name, "q2", "the name of the second question in the copied panel is 'q2'");
+    assert.equal(p1.panel.isVisible, true, "the panel is visible");
 
     question.value = [{q1: "item1_1", q2: "item1_2"}, {q1: "item2_1", q2: "item2_2"}];
     

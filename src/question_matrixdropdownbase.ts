@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {Base, ISurveyData, SurveyError, HashTable} from "./base";
+import {Base, ISurveyData, ISurvey, ISurveyImpl, SurveyError, HashTable} from "./base";
 import {ItemValue} from "./itemvalue";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionSelectBase, QuestionCheckboxBase} from "./question_baseselect";
@@ -22,6 +22,7 @@ export interface IMatrixDropdownData {
     createQuestion(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question;
     getLocale(): string;
     getMarkdownHtml(text: string): string;
+    getSurvey(): ISurvey;
 }
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
@@ -155,7 +156,6 @@ export class MatrixDropdownCell {
     private questionValue: Question;
     constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
-        this.questionValue.setData(row);
         this.questionValue.validateValueCallback = function() { return data.validateCell(row, column.name, row.value); }
         JsonObject.metaData.getProperties(column.getType()).forEach(property => {
             let propertyName = property.name;
@@ -177,7 +177,7 @@ export class MatrixDropdownCell {
     }
 }
 
-export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwner {
+export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     private static idCounter: number = 1;
     private static getId(): string { return "srow_" + MatrixDropdownRowModelBase.idCounter++; }
     protected data: IMatrixDropdownData;
@@ -266,6 +266,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ILocalizableOwne
     protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
         return new MatrixDropdownCell(column, this, this.data);
     }
+    geSurveyData(): ISurveyData { return this; }
+    getSurvey(): ISurvey { return this.data ? this.data.getSurvey() : null; }
 }
 
 /**
@@ -448,8 +450,8 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if(this.isLoadingFromJson) return;
         if(!this.generatedVisibleRows) {
             this.generatedVisibleRows = this.generateRows();
-            if(this.survey) {
-                this.runCellsCondition(this.survey.getAllValues());
+            if(this.data) {
+                this.runCellsCondition(this.data.getAllValues());
             }
         }
         return this.generatedVisibleRows;
@@ -572,7 +574,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     protected createQuestionCore(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn): Question {
         var cellType = column.cellType == "default" ? this.cellType : column.cellType;
         var question = this.createCellQuestion(cellType, column.name);
-        question.setData(this.survey);
+        question.setSurveyImpl(row);
         this.setQuestionProperties(question, column);
         return question;
     }
@@ -665,6 +667,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             this.onCellValueChanged(row, columnName, rowValue);
         }
     }
+    getSurvey(): ISurvey { return this.survey; }
 }
 
 JsonObject.metaData.addClass("matrixdropdowncolumn", ["name", { name: "title", serializationProperty: "locTitle" },

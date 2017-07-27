@@ -41,14 +41,14 @@ export class PanelImplementorBase {
         this.panel["koRows"] = this.koRows;
     }
     protected koQuestionAfterRender(elements, con) {
-        if (!this.panel.data) return;
+        if (!this.panel.survey) return;
         var el = SurveyElement.GetFirstNonTextElement(elements);
-        if (el) this.panel.data.afterRenderQuestion(con, el);
+        if (el) this.panel.survey.afterRenderQuestion(con, el);
     }
     protected koPanelAfterRender(elements, con) {
-        if (!this.panel.data) return;
+        if (!this.panel.survey) return;
         var el = SurveyElement.GetFirstNonTextElement(elements);
-        if (el) this.panel.data.afterRenderPanel(con, el);
+        if (el) this.panel.survey.afterRenderPanel(con, el);
     }
 }
 

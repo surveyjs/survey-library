@@ -1,0 +1,9 @@
+<script type="text/html" id="survey-question-paneldynamic">
+    <!-- ko foreach: { data: question.koPanels } -->    
+        <!-- ko template: { name: 'survey-panel', data: $data.panel, as: 'question' } --><!-- /ko -->
+        <hr>
+    <!-- /ko -->    
+    <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddPanel() -->
+    <input type="button" data-bind="click:question.koAddPanelClick, css: question.koCss().button, value: question.addPanelText" />
+    <!-- /ko -->
+</script>

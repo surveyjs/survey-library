@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-rows">
     <!-- ko foreach: { data: koRows, as: 'row'} -->
-    <div data-bind="visible: row.koVisible, css: panel.data.css.row">
+    <div data-bind="visible: row.koVisible, css: panel.cssClasses.row">
         <!-- ko foreach: { data: row.koElements, as: 'question' , afterRender: row.koAfterRender } -->
             <!-- ko if: question.isPanel -->
             <!-- ko template: { name: 'survey-panel', data: question, afterRender: $parent.panel.koPanelAfterRender } --><!-- /ko -->

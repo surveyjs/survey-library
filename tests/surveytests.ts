@@ -11,7 +11,7 @@ import {JsonObject} from "../src/jsonobject";
 import {QuestionTextModel} from "../src/question_text";
 import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
 import {QuestionMatrixModel} from "../src/question_matrix";
-import {ISurvey} from "../src/base";
+import {ISurvey, ISurveyData} from "../src/base";
 import {ItemValue} from "../src/itemvalue";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionCheckboxModel} from "../src/question_checkbox";
@@ -281,7 +281,7 @@ QUnit.test("Add panel with questions", function (assert) {
     assert.equal(q2.survey, survey, "The survey is set correctly in the question of the nested root");
 });
 QUnit.test("SurveyData interface implementation", function (assert) {
-    var surveyData: ISurvey;
+    var surveyData: ISurveyData;
     surveyData = new SurveyModel();
     assert.equal(surveyData.getValue("test1"), null, "No data");
     assert.equal(surveyData.getValue("test2"), null, "No data");

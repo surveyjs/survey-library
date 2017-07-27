@@ -44,6 +44,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locCommentTextValue = new LocalizableString(this, true);
     }
     public get hasTitle(): boolean { return true; }
+    public get titleLocation() : string { return this.survey ? this.survey.questionTitleLocation : "top"; }
     public get hasInput(): boolean { return true; }
     public get inputId(): string { return this.id + "i"; }
     /** 

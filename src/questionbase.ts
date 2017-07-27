@@ -1,4 +1,4 @@
-﻿import {Base, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event} from './base';
+﻿import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
@@ -9,13 +9,11 @@ import {surveyCss} from "./defaultCss/cssstandard";
  * A base class for all questions. QuestionBase doesn't have information about title, values, errors and so on.
  * Those properties are defined in the Question class.
  */
-export class QuestionBase extends Base implements IQuestion, IConditionRunner, ILocalizableOwner {
+export class QuestionBase extends SurveyElement implements IQuestion, IConditionRunner, ILocalizableOwner {
     private static questionCounter = 100;
     private static getQuestionId(): string {
         return "sq_" + QuestionBase.questionCounter++;
     }
-    protected data: ISurveyData = null;
-    private surveyValue: ISurvey = null;
     private conditionRunner: ConditionRunner = null;
     /**
      * The link to the custom widget.
@@ -194,21 +192,9 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
      * @param onError Focus if there is an error.
      */
     public focus(onError: boolean = false) { }
-    setData(newValue: ISurveyData) {
-        this.data = newValue;
-        if(newValue && newValue["questionAdded"]) {
-            this.surveyValue = <ISurvey>newValue;
-        }
-        this.onSetData();
-    }
-    /**
-     * Returns the survey object.
-     */
-    public get survey(): ISurvey { return this.surveyValue; }
     protected fireCallback(callback: () => void) {
         if (callback) callback();
     }
-    protected onSetData() { }
     protected onCreating() { }
     /**
      * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.
@@ -251,8 +237,8 @@ export class QuestionBase extends Base implements IQuestion, IConditionRunner, I
      * Returns the current survey locale
      * @see SurveyModel.locale
      */
-    public getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
-    public getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
+    public getLocale(): string { return this.survey ? (<ILocalizableOwner><any>this.survey).getLocale() : ""; }
+    public getMarkdownHtml(text: string)  { return this.survey ? (<ILocalizableOwner><any>this.survey).getMarkdownHtml(text) : null; }
 }
 JsonObject.metaData.addClass("questionbase", ["!name", { name: "visible:boolean", default: true }, "visibleIf:expression",
     { name: "width" }, { name: "startWithNewLine:boolean", default: true}, {name: "indent:number", default: 0, choices: [0, 1, 2, 3]}]);

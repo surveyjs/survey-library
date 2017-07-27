@@ -1,15 +1,16 @@
 import {JsonObject} from "./jsonobject";
-import {Base, IPage, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
+import {Base, ISurveyImpl, IPage, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {surveyCss} from "./defaultCss/cssstandard";
 
 export class QuestionRowModel {
     private visibleValue: boolean;
     visibilityChangedCallback: () => void;
     constructor(public panel: PanelModelBase) {
-        this.visibleValue = panel.data && panel.data.isDesignMode;
+        this.visibleValue = panel.survey && panel.survey.isDesignMode;
     }
     public elements: Array<IElement> = [];
     //TODO remove after updating react and vue
@@ -56,13 +57,12 @@ export class QuestionRowModel {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase extends Base implements IConditionRunner, ILocalizableOwner {
+export class PanelModelBase extends SurveyElement implements IConditionRunner, ILocalizableOwner {
     private static panelCounter = 100;
     private static getPanelId(): string {
         return "sp_" + PanelModelBase.panelCounter++;
     }
 
-    private dataValue: ISurvey = null;
     private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
@@ -92,13 +92,11 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
             return self.doSpliceElements(this, start, deleteCount, ...items);
         };
     }
-    get data(): ISurvey { return this.dataValue; }
-    set data(value: ISurvey) {
-        if(this.dataValue === value) return;
-        this.dataValue = value;
-        if(value && value.isDesignMode) this.onVisibleChanged();
+    public setSurveyImpl(value: ISurveyImpl) {
+        super.setSurveyImpl(value);
+        if(this.survey && this.survey.isDesignMode) this.onVisibleChanged();
         for(var i = 0; i < this.elements.length; i ++) {
-            this.elements[i].setData(value);
+            this.elements[i].setSurveyImpl(value);
         }
     }
     /**
@@ -109,8 +107,12 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         this.locTitle.text = newValue;
     }
     get locTitle(): LocalizableString { return this.locTitleValue; }
-    getLocale(): string { return this.data ? (<ILocalizableOwner><any>this.data).getLocale() : ""; }
-    getMarkdownHtml(text: string)  { return this.data ? (<ILocalizableOwner><any>this.data).getMarkdownHtml(text) : null; }
+    getLocale(): string { return this.survey ? (<ILocalizableOwner><any>this.survey).getLocale() : ""; }
+    getMarkdownHtml(text: string)  { return this.survey ? (<ILocalizableOwner><any>this.survey).getMarkdownHtml(text) : null; }
+    public get cssClasses(): any {
+        return this.css;
+    }
+    private get css(): any { return surveyCss.getCss(); }
     /**
      * A unique element identificator. It is generated automatically.
      */
@@ -216,7 +218,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     /**
      * Returns true if the current object is Page and it is the current page.
      */
-    public get isActive() { return (!this.data) || this.data.currentPage == this.root; }
+    public get isActive() { return (!this.survey) || this.survey.currentPage == this.root; }
     protected get root(): PanelModelBase {
         var res = <PanelModelBase>this;
         while(res.parent) res = res.parent;
@@ -229,12 +231,12 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         }
         if(this.rowsChangedCallback) this.rowsChangedCallback();
     }
-    protected get isLoadingFromJson(): boolean { return this.data && this.data.isLoadingFromJson; }
+    protected get isLoadingFromJson(): boolean { return this.survey && this.survey.isLoadingFromJson; }
     protected onRowsChanged() {
         this.rowValues = null;
         if(this.rowsChangedCallback && !this.isLoadingFromJson) this.rowsChangedCallback();
     }
-    private get isDesignMode() { return this.data && this.data.isDesignMode; }
+    private get isDesignMode() { return this.survey && this.survey.isDesignMode; }
     private doOnPushElement(list: Array<IElement>, value: IElement) {
         var result = Array.prototype.push.call(list, value);
         this.markQuestionListDirty();
@@ -263,18 +265,17 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
         return result;
     }
     private onAddElement(element: IElement, index: number) {
+        element.setSurveyImpl(this.surveyImpl);
         if(element.isPanel) {
             var p = <PanelModel>element;
-            p.data = this.data;
             p.parent = this;
-            if(this.data) {
-                this.data.panelAdded(p, index, this, this.root);
+            if(this.survey) {
+                this.survey.panelAdded(p, index, this, this.root);
             }
         } else {
-            if(this.data) {
+            if(this.survey) {
                 var q = <QuestionBase>element;
-                q.setData(this.data);
-                this.data.questionAdded(q, index, this, this.root);
+                this.survey.questionAdded(q, index, this, this.root);
             }
         }
         var self = this;
@@ -283,9 +284,9 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     }
     private onRemoveElement(element: IElement) {
         if(!element.isPanel) {
-            if(this.data) this.data.questionRemoved(<QuestionBase>element);
+            if(this.survey) this.survey.questionRemoved(<QuestionBase>element);
         } else {
-            if(this.data) this.data.panelRemoved(element);
+            if(this.survey) this.survey.panelRemoved(element);
         }
     }
     private onElementVisibilityChanged(element: any) {
@@ -332,7 +333,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     }
     protected getRendredTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
-        return this.data != null ? this.data.processText(str, true) : str;
+        return this.survey != null ? this.survey.processText(str, true) : str;
     }
     /**
      * Use it to get/set the object visibility.
@@ -350,7 +351,7 @@ export class PanelModelBase extends Base implements IConditionRunner, ILocalizab
     /**
      * Returns true if object is visible or survey is in design mode right now.
      */
-    public get isVisible(): boolean {  return (this.data && this.data.isDesignMode) || this.getIsPageVisible(null); }
+    public get isVisible(): boolean {  return (this.survey && this.survey.isDesignMode) || this.getIsPageVisible(null); }
     getIsPageVisible(exceptionQuestion: IQuestion): boolean {
         if (!this.visible) return false;
         for (var i = 0; i < this.questions.length; i++) {
@@ -473,9 +474,6 @@ export class PanelModel extends PanelModelBase implements IElement {
         super(name);
     }
     public getType(): string { return "panel"; }
-    public setData(newValue: ISurveyData) {
-        this.data = <ISurvey>newValue;
-    }
     public get isPanel(): boolean { return true; }
     /**
      * The inner indent. Set this property to increase the panel content margin. 

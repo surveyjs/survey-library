@@ -5,9 +5,10 @@ import {QuestionCheckbox} from "../../src/knockout/koquestion_checkbox";
 import {Question} from "../../src/question";
 import {QuestionMatrix} from "../../src/knockout/koquestion_matrix";
 import {QuestionMatrixDropdown} from "../../src/knockout/koquestion_matrixdropdown";
+import {QuestionPanelDynamic} from "../../src/knockout/koquestion_paneldynamic";
 import {MatrixDropdownColumn} from "../../src/question_matrixdropdownbase";
 import {QuestionMultipleText, MultipleTextItem} from "../../src/knockout/koquestion_multipletext";
-import {Page} from "../../src/knockout/kopage";
+import {Page, QuestionRow} from "../../src/knockout/kopage";
 import {CustomWidgetCollection, QuestionCustomWidget} from "../../src/questionCustomWidgets";
 import {koTemplate} from "../../src/knockout/templateText";
 import {QuestionMatrixDynamic} from "../../src/knockout/koquestion_matrixdynamic";
@@ -342,6 +343,26 @@ QUnit.test("Text preprocessing variable and value. Fix the bug#461", function (a
     assert.equal(question.locTitle["koRenderedHtml"](), "1. [val1]", "The val1 is set");
     survey.setVariable("var1", "[var1]");
     assert.equal(question.locTitle["koRenderedHtml"](), "1. [var1][val1]", "The var1 and val1 are set");
+});
+
+QUnit.test("Load PanelDynamic from Json", function (assert) {
+    var json = { questions: [
+            {type: "paneldynamic", name: "q", panelCount: 3, templateElements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
+        }]};
+    var survey = new Survey(json);
+    var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
+    assert.ok(question, "paneldynamic question is loaded");
+    assert.equal(question.template.elements.length, 2, "template elements are loaded correctly");
+    assert.equal(question.template.elements[1].name, "q2", "the name of the second question is 'q2'");
+    assert.equal(question.panelCount, 3, "panelCount loaded correctly")
+    assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
+    var panel = question["koPanels"]()[0].panel;
+    assert.equal(panel.koVisible(), true, "Panel is visible");
+    assert.equal(panel["koRows"]().length, 2, "Two questions - two rows");
+    var row = <QuestionRow>panel["koRows"]()[0];
+    assert.ok(row, "the first row is created");
+    assert.equal(row.koElements().length, 1, "there is one question in the row");
+    assert.equal(row.koElements()[0].koVisible(), true, "question is visible");
 });
 
 function createPageWithQuestion(name: string): Page {

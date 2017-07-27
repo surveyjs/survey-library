@@ -1,6 +1,6 @@
-import {IElement, Base, ISurveyData, HashTable} from "./base";
+import {IElement, Base, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
 import {surveyLocalization} from "./surveyStrings";
-import {LocalizableString} from "./localizablestring";
+import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {Question} from "./question";
 import {PanelModel} from "./panel";
 import {JsonObject} from "./jsonobject";
@@ -9,15 +9,16 @@ import {QuestionFactory} from "./questionfactory";
 export interface IQuestionPanelDynamicData {
     getPanelItemData(item: QuestionPanelDynamicItem): any;
     setPanelItemData(item: QuestionPanelDynamicItem, name: string, val: any);
+    getSurvey(): ISurvey;
 }
 
-export class QuestionPanelDynamicItem implements ISurveyData {
+export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     private panelValue: PanelModel;
     private data: IQuestionPanelDynamicData;
     constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
         this.data = data;
         this.panelValue = panel;
-        this.panel.setData(this);
+        this.panel.setSurveyImpl(this);
     }
     public get panel(): PanelModel { return this.panelValue; }
     public runCondition(values: HashTable<any>) {
@@ -38,6 +39,8 @@ export class QuestionPanelDynamicItem implements ISurveyData {
         this.setValue(name + Base.commentPrefix, newValue);
     }
     getAllValues() : any { return this.data.getPanelItemData(this); }
+    geSurveyData(): ISurveyData { return this; }
+    getSurvey(): ISurvey { return this.data ? this.data.getSurvey() : null; }
 }
 
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
@@ -49,6 +52,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
     private locAddPanelTextValue: LocalizableString;
     private locRemovePanelTextValue: LocalizableString;
+
+    panelCountChangedCallback: () => void;
 
     constructor(public name: string) {
         super(name);
@@ -87,6 +92,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(val < this.panelCount) this.panels.splice(val, this.panelCount - val);
         this.setValueBasedOnPanelCount();
         this.reRunCondition();
+        this.fireCallback(this.panelCountChangedCallback);
     }
     private setValueBasedOnPanelCount() {
         var value = this.value;
@@ -130,6 +136,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         }
         this.panelsValue = items;
         this.reRunCondition();
+        this.fireCallback(this.panelCountChangedCallback);
     }
     public addPanel(): QuestionPanelDynamicItem {
         if(!this.canAddPanel) return null;
@@ -156,8 +163,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.runPanelsCondition(values);
     }
     private reRunCondition() {
-        if(!this.survey) return;
-        this.runCondition(this.survey.getAllValues());
+        if(!this.data) return;
+        this.runCondition(this.data.getAllValues());
     }
     protected runPanelsCondition(values: HashTable<any>) {
         var newValues = {};
@@ -189,6 +196,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var jObj = new JsonObject();
         var json = jObj.toJsonObject(this.template);
         jObj.toObject(json, panel);
+        panel.onSurveyLoad();
         return panel;
     }   
     protected createNewPanelObject(): PanelModel {
@@ -216,6 +224,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(!qValue[index]) qValue[index] = {};
         qValue[index][name] = val;
     }
+    getSurvey(): ISurvey { return this.survey; }
 }
 
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 

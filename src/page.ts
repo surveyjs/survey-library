@@ -72,8 +72,8 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     protected onVisibleChanged() {
         super.onVisibleChanged();
-        if (this.data != null) {
-            this.data.pageVisibilityChanged(this, this.visible);
+        if (this.survey != null) {
+            this.survey.pageVisibilityChanged(this, this.visible);
         }
     }
 

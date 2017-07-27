@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
+import {Base, ISurvey, ISurveyData, ISurveyImpl, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -15,7 +15,7 @@ import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
-export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, ILocalizableOwner {
+export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyImpl, ISurveyTriggerOwner, ILocalizableOwner {
     /**
      * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
      * @see loadSurveyFromService
@@ -402,7 +402,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
         this.pages.push = function (value) {
-            value.data = self;
+            value.setSurveyImpl(self);
             return Array.prototype.push.call(this, value);
         };
         this.triggers.push = function (value) {
@@ -1573,6 +1573,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyTriggerOwner, I
         res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
         return res;
     }
+    //ISurveyImplementor
+    geSurveyData(): ISurveyData { return this; }
+    getSurvey(): ISurvey { return this; }
     //ISurveyTriggerOwner
     getObjects(pages: string[], questions: string[]): any[]{
         var result = [];

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question">
     <div style="vertical-align:top" data-bind="css: question.koCss().mainRoot, style: {display: question.koVisible() ? 'inline-block': 'none', paddingLeft: question.koPaddingLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.survey.questionTitleLocation == 'top', css: question.koCss().title">
+        <h5 data-bind="visible: question.titleLocation == 'top', css: question.koCss().title">
             <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
         </h5>
         <!-- /ko -->
@@ -14,7 +14,7 @@
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
         <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.survey.questionTitleLocation == 'bottom', css: question.koCss().title">
+        <h5 data-bind="visible: question.titleLocation == 'bottom', css: question.koCss().title">
             <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
         </h5>
         <!-- /ko -->

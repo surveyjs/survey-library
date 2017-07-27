@@ -20,7 +20,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  * An end-user may dynamically add/remove rows, unlike in matrix dropdown question.
  */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase implements IMatrixDropdownData {
-    static MaxRowCount = 100;
+    public static MaxRowCount = 100;
     private rowCounter = 0;
     private rowCountValue: number = 2;
     private locAddRowTextValue: LocalizableString;

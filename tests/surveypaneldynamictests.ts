@@ -16,6 +16,19 @@ QUnit.test("Create panels based on template on setting value", function (assert)
     assert.equal(p1.panel.elements.length, 2, "There are two elements in the first panel");
 });
 
+QUnit.test("Synhronize panelCount and value array length", function (assert) {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 3;
+    assert.equal(question.value.length, 3, "There should be 3 items in the array");
+    question.value = [{}, {q1: "val1"}, {}, {}];
+    assert.equal(question.panelCount, 4, "panelCount is 4 now");
+    question.panelCount = 2;
+    assert.equal(question.value.length, 2, "There should be 2 items in the array");
+    assert.equal(question.value[1]["q1"], "val1", "Do not delete the value in non deleted panels");
+});
+
 QUnit.test("By pass values from question.value into panel values and vice versa", function (assert) {
     var question = new QuestionPanelDynamicModel("q");
     question.template.addNewQuestion("text", "q1");
@@ -52,4 +65,53 @@ QUnit.test("Load from Json", function (assert) {
     assert.equal((<Question>p1.panel.questions[1]).value, "item1_2", "value set correct q2 panel1");
     assert.equal((<Question>p2.panel.questions[0]).value, "item2_1", "value set correct q1 panel2");
     (<Question>p1.panel.questions[0]).value = "newValue";
+});
+
+QUnit.test("Has errors", function (assert) {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    (<Question>question.template.questions[0]).isRequired = true;
+    question.isRequired = true;
+    question.value = [];
+    assert.equal(question.hasErrors(), true, "main question requires a value");
+    question.value = [{q1: "item1_1"}, {}];
+    assert.equal(question.hasErrors(), true, "q1 on the second row is not set");
+    question.value = [{q1: "item1_1"}, {q1: "item2_1"}];
+    assert.equal(question.hasErrors(), false, "There is no errors now");
+});
+
+QUnit.test("Update panels elements on changing template panel", function (assert) {
+    var question = new QuestionPanelDynamicModel("q");
+    question.panelCount = 2;
+    assert.equal(question.panels[0].panel.elements.length, 0, "Initially there is no elements in the copied panel");
+    question.template.addNewQuestion("text", "q1");
+    assert.equal(question.panels[0].panel.elements.length, 1, "Add question into template - add question into copied panels");
+    question.template.removeQuestion(question.template.questions[0]);
+    assert.equal(question.panels[0].panel.elements.length, 0, "Remove question from template - from question from copied panels");
+});
+
+QUnit.test("Support visibleIf and panel variable", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.template.questions[1].visibleIf = "{panel.q1} = 'val'";
+    question.panelCount = 2;
+    assert.equal(question.panels[0].panel.questions[1].visible, false, "q1 is not 'val'");
+    question.value = [{q1: "val"}];
+    assert.equal(question.panels[0].panel.questions[1].visible, true, "q1 is 'val'");
+});
+QUnit.test("remove Panel", function (assert) {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 3;
+    question.value = [{}, {q1: "val1"}, {}];
+    question.removePanel(2);
+    question.removePanel(0);
+    assert.equal(question.value.length, 1, "There should be 1 item in the array");
+    assert.equal(question.panelCount, 1, "panelCount is 1 now");
+    assert.equal(question.value[0]["q1"], "val1", "Do not delete the value in non deleted panels");
 });

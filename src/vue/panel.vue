@@ -45,7 +45,7 @@
             return this.question.title.length > 0
         }
         get survey () {
-            return this.question.data;
+            return this.question.survey;
         }
     }
     Vue.component("survey-panel", Panel)

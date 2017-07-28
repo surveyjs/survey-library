@@ -54,6 +54,8 @@ export var surveyStrings = {
     uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
     addRow: "Add row",
     removeRow: "Remove",
+    addPanel: "Add new",
+    removePanel: "Remove",
     choices_Item: "item",
     matrix_column: "Column",
     matrix_row: "Row",

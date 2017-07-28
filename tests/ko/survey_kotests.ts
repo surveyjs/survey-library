@@ -368,6 +368,8 @@ QUnit.test("Load PanelDynamic from Json", function (assert) {
     
     question.value = [{q1: "item1_1", q2: "item1_2"}, {q1: "item2_1", q2: "item2_2"}, {}];
     assert.equal(<Question>panel.questions[0].koValue(), "item1_1", "knockout question in panel get notification");
+    question.removePanel(0);
+    assert.equal(question["koPanels"]().length, 2, "2 panels, koPanels has been updated");
 });
 
 function createPageWithQuestion(name: string): Page {

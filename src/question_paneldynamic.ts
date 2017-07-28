@@ -129,13 +129,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     public get canAddPanel() : boolean { return this.panelCount < this.maxPanelCount; }
     public get canRemovePanel() : boolean { return this.panelCount > this.minPanelCount; }
-    public get addPanelText() { return this.locAddPanelText.text ? this.locAddPanelText.text : surveyLocalization.getString("addRow"); } //TODO addPanel
+    public get addPanelText() { return this.locAddPanelText.text ? this.locAddPanelText.text : surveyLocalization.getString("addPanel"); } 
     public set addPanelText(value: string) { this.locAddPanelText.text = value; }
     get locAddPanelText() { return this.locAddPanelTextValue; }
     /**
      * Use this property to change the default value of remove row button text.
      */
-    public get removePanelText() { return this.locRemovePanelText.text ? this.locRemovePanelText.text : surveyLocalization.getString("removeRow"); } //TODO rempvePanel
+    public get removePanelText() { return this.locRemovePanelText.text ? this.locRemovePanelText.text : surveyLocalization.getString("removePanel"); } 
     public set removePanelText(value: string) { this.locRemovePanelText.text = value; }
     get locRemovePanelText() { return this.locRemovePanelTextValue; }
 
@@ -161,6 +161,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(!value || !Array.isArray(value) || index >= value.length) return;
         value.splice(index, 1);
         this.value = value;
+        this.fireCallback(this.panelCountChangedCallback);
     }
     public onSurveyLoad() {
         if(this.loadingPanelCount > 0) {
@@ -206,6 +207,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var jObj = new JsonObject();
         var json = jObj.toJsonObject(this.template);
         jObj.toObject(json, panel);
+        panel.renderWidth = "100%";
         panel.onSurveyLoad();
         return panel;
     }   

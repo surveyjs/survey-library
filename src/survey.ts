@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, ISurveyData, ISurveyImpl, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
+import {Base, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -1373,11 +1373,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             var question = this.getQuestionByName(firstName, true);
             if (!question) return null;
             name = question.name + name.substr(firstName.length);
-            var values = this.valuesHash;
-            if(returnDisplayValue) {
-                values = this.getUnbindValue(this.valuesHash);
-                values[firstName] = question.displayValue;
-            }    
+            var values = {};
+            values[firstName] = returnDisplayValue ? question.displayValue : this.getValue(firstName);
             return new ProcessValue().getValue(name, values);
         }
         if (val == "value") {
@@ -1576,6 +1573,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     //ISurveyImplementor
     geSurveyData(): ISurveyData { return this; }
     getSurvey(): ISurvey { return this; }
+    getTextProcessor(): ITextProcessor { return this; }
     //ISurveyTriggerOwner
     getObjects(pages: string[], questions: string[]): any[]{
         var result = [];

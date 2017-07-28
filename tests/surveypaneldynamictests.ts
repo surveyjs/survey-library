@@ -131,3 +131,24 @@ QUnit.test("remove Panel", function (assert) {
     assert.equal(question.panelCount, 1, "panelCount is 1 now");
     assert.equal(question.value[0]["q1"], "val1", "Do not delete the value in non deleted panels");
 });
+QUnit.test("Process text in titles", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var survey_q1 = <Question>page.addNewQuestion("text", "q1");
+    var survey_q2 = <Question>page.addNewQuestion("text", "q2");
+    survey_q2.title = "q1:{q1}";
+    var question = new QuestionPanelDynamicModel("q");
+    page.addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.templateTitle = "q1:{q1}, panel.q1:{panel.q1}";
+    (<Question>question.template.questions[1]).title = "q1:{q1}, panel.q1:{panel.q1}";
+    question.panelCount = 3;
+    survey_q1.value = "val_q1";
+    question.value = [{}, {q1: "val1"}, {}];
+    var panel = question.panels[1].panel;
+    var panel_q2 = <Question>panel.questions[1];
+    assert.equal(survey_q2.locTitle.renderedHtml, "2. q1:val_q1", "process root question title correclty");
+    assert.equal(panel.locTitle.renderedHtml, "q1:val_q1, panel.q1:val1", "process panel title correctly");
+    assert.equal(panel_q2.locTitle.renderedHtml, "q1:val_q1, panel.q1:val1", "process question title correctly");
+});

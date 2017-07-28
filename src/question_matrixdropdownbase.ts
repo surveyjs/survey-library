@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {Base, ISurveyData, ISurvey, ISurveyImpl, SurveyError, HashTable} from "./base";
+import {Base, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, SurveyError, HashTable} from "./base";
 import {ItemValue} from "./itemvalue";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionSelectBase, QuestionCheckboxBase} from "./question_baseselect";
@@ -268,6 +268,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     geSurveyData(): ISurveyData { return this; }
     getSurvey(): ISurvey { return this.data ? this.data.getSurvey() : null; }
+    getTextProcessor(): ITextProcessor { return this.getSurvey(); }
 }
 
 /**

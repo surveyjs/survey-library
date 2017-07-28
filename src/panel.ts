@@ -145,6 +145,13 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
 
         return this.questionsValue;
     }
+    public getQuestionByName(name: string) : QuestionBase {
+        var questions = this.questions;
+        for(var i = 0; i < questions.length; i ++) {
+            if(questions[i].name == name) return questions[i];
+        }
+        return null;
+    }
     private markQuestionListDirty() {
         this.isQuestionsReady = false;
         if(this.parent) this.parent.markQuestionListDirty();
@@ -333,7 +340,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
     }
     protected getRendredTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
-        return this.survey != null ? this.survey.processText(str, true) : str;
+        return this.textProcessor != null ? this.textProcessor.processText(str, true) : str;
     }
     /**
      * Use it to get/set the object visibility.

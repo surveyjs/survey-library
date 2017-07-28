@@ -42,6 +42,7 @@ export interface ISurvey extends ITextProcessor {
 export interface ISurveyImpl {
     geSurveyData(): ISurveyData;
     getSurvey(): ISurvey;
+    getTextProcessor(): ITextProcessor;
 }
 export interface IConditionRunner {
     runCondition(values: HashTable<any>);
@@ -131,6 +132,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     private surveyImplValue: ISurveyImpl;
     private surveyDataValue: ISurveyData;
     private surveyValue: ISurvey;
+    private textProcessorValue: ITextProcessor;
     public static ScrollElementToTop(elementId: string): boolean {
         if (!elementId) return false;
         var el = document.getElementById(elementId);
@@ -160,6 +162,7 @@ export class SurveyElement extends Base implements ISurveyElement {
         if(!this.surveyImplValue) return;
         this.surveyDataValue = this.surveyImplValue.geSurveyData();
         this.surveyValue = this.surveyImplValue.getSurvey();
+        this.textProcessorValue = this.surveyImplValue.getTextProcessor();
         this.onSetData();
     }
     protected get surveyImpl() { return this.surveyImplValue; }
@@ -168,6 +171,7 @@ export class SurveyElement extends Base implements ISurveyElement {
      * Returns the survey object.
      */
     public get survey(): ISurvey { return this.surveyValue; }
+    protected get textProcessor() : ITextProcessor { return this.textProcessorValue; }
     protected onSetData() { }    
 }
 

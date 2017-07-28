@@ -73,7 +73,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     /**
      * Returns the rendred question title.
      */
-    public get processedTitle() { return this.survey != null ? this.survey.processText(this.locTitleHtml, true) : this.locTitleHtml; }
+    public get processedTitle() { return this.textProcessor != null ? this.textProcessor.processText(this.locTitleHtml, true) : this.locTitleHtml; }
     /**
      * Returns the title after processing the question template.
      * @see SurveyModel.questionTitleTemplate

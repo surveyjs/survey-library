@@ -1,6 +1,8 @@
 import {IElement, Base, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {TextPreProcessor} from "./textPreProcessor";
+import {ProcessValue} from "./conditionProcessValue";
 import {Question} from "./question";
 import {PanelModel} from "./panel";
 import {JsonObject} from "./jsonobject";
@@ -12,13 +14,18 @@ export interface IQuestionPanelDynamicData {
     getSurvey(): ISurvey;
 }
 
-export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
+export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, ITextProcessor {
     private panelValue: PanelModel;
     private data: IQuestionPanelDynamicData;
+    private textPreProcessor = new TextPreProcessor();
     constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
         this.data = data;
         this.panelValue = panel;
         this.panel.setSurveyImpl(this);
+        var self = this;
+        this.textPreProcessor = new TextPreProcessor();
+        this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
+        this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
     }
     public get panel(): PanelModel { return this.panelValue; }
     public runCondition(values: HashTable<any>) {
@@ -50,6 +57,32 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     getAllValues() : any { return this.data.getPanelItemData(this); }
     geSurveyData(): ISurveyData { return this; }
     getSurvey(): ISurvey { return this.data ? this.data.getSurvey() : null; }
+    getTextProcessor(): ITextProcessor { return this; }
+    //ITextProcessor 
+    private hasProcessedTextValue(name: string): boolean {
+        var firstName = new ProcessValue().getFirstName(name);
+        return firstName == "panel";
+    }
+    private getProcessedTextValue(name: string, returnDisplayValue: boolean) {
+        //name should start with the panel
+        name = name.replace("panel.", "");
+        var firstName = new ProcessValue().getFirstName(name);
+        var question = <Question>this.panel.getQuestionByName(firstName);
+        if(!question) return null;
+        var values = {};
+        values[firstName] = returnDisplayValue ? question.displayValue : question.value;
+        return new ProcessValue().getValue(name, values);
+    }
+    processText(text: string, returnDisplayValue: boolean): string {
+        text = this.textPreProcessor.process(text, returnDisplayValue);
+        var survey = this.getSurvey();
+        return survey ? survey.processText(text, returnDisplayValue) : text;
+    }
+    processTextEx(text: string): any {
+        text = this.processText(text, true);
+        var survey = this.getSurvey();
+        return survey ? survey.processTextEx(text) : text;
+    }
 }
 
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {

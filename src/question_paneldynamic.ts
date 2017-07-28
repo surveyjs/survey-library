@@ -38,6 +38,15 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     public setComment(name: string, newValue: string) {
         this.setValue(name + Base.commentPrefix, newValue);
     }
+    public onSurveyValueChanged() {
+        var questions = this.panel.questions;
+        var values = this.data.getPanelItemData(this);
+        for(var i = 0; i < questions.length; i ++) {
+            var q = questions[i];
+            q.onSurveyValueChanged(values[q.name]);
+        }
+    }
+
     getAllValues() : any { return this.data.getPanelItemData(this); }
     geSurveyData(): ISurveyData { return this; }
     getSurvey(): ISurvey { return this.data ? this.data.getSurvey() : null; }
@@ -52,6 +61,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
     private locAddPanelTextValue: LocalizableString;
     private locRemovePanelTextValue: LocalizableString;
+    private isValueChangingInternally: boolean;
 
     panelCountChangedCallback: () => void;
 
@@ -203,10 +213,17 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return new PanelModel();
     }
     protected onValueChanged() {
+        if(this.isValueChangingInternally) return;
         var val = this.value;
         var newPanelCount = val && Array.isArray(val) ? val.length : 0;
         if (newPanelCount <= this.panelCount) return;
         this.panelCount = newPanelCount;
+    }
+    public onSurveyValueChanged(newValue: any) {
+        super.onSurveyValueChanged(newValue);
+        for(var i = 0; i < this.panels.length; i ++) {
+            this.panels[i].onSurveyValueChanged();
+        }
     }
     //IQuestionPanelDynamicData 
     getPanelItemData(item: QuestionPanelDynamicItem): any {
@@ -223,6 +240,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(!qValue || !Array.isArray(qValue) || qValue.length <= index) return;
         if(!qValue[index]) qValue[index] = {};
         qValue[index][name] = val;
+        this.isValueChangingInternally = true;
+        this.value = qValue;
+        this.isValueChangingInternally = false;
     }
     getSurvey(): ISurvey { return this.survey; }
 }

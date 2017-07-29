@@ -33,10 +33,7 @@ export class QuestionImplementorBase {
     }
     private getIndentSize(indent: number): string {
         if (indent < 1) return "";
-        if (!this.question["data"]) return "";
-        var css = this.question["data"]["css"];
-        if (!css) return "";
-        return indent * css.question.indent + "px";
+        return indent * this.question.cssClasses.indent + "px";
     }
     private getTemplateName(): string {
         if (this.question.customWidget && !this.question.customWidget.widgetJson.isDefaultRender)

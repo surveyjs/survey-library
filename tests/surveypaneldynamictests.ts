@@ -1,4 +1,5 @@
 import {Question} from "../src/question";
+import {PanelModel} from "../src/panel";
 import {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from "../src/question_paneldynamic";
 import {JsonObject} from "../src/jsonobject";
 import {SurveyModel} from "../src/survey";
@@ -81,6 +82,36 @@ QUnit.test("Load from Json", function (assert) {
     assert.equal((<Question>p1.panel.questions[1]).value, "item1_2", "value set correct q2 panel1");
     assert.equal((<Question>p2.panel.questions[0]).value, "item2_1", "value set correct q1 panel2");
     (<Question>p1.panel.questions[0]).value = "newValue";
+    assert.equal(question.value[0].q1, "newValue", "The value changed correctly");
+});
+
+QUnit.test("Load from Json with nested panel", function (assert) {
+    var json = { questions: [
+            {type: "paneldynamic", name: "q", panelCount: 3, templateElements: [{type: "text", name: "q1"}, { type: "panel", name: "np1", elements: [ {type: "text", name: "q2"}]}]
+        }]};
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    assert.equal(question.template.elements.length, 2, "template elements are loaded correctly");
+    assert.equal(question.template.elements[1].name, "np1", "the name of the second element is 'np1'");
+    assert.equal((<PanelModel>question.template.elements[1]).elements.length, 1, "there is one element in nested panel 'np1'");
+    assert.equal((<PanelModel>question.template.elements[1]).elements[0].name, "q2", "q2 is an element in the 'np1'");
+    assert.equal(question.panelCount, 3, "panelCount loaded correctly")
+    assert.equal(question.panels.length, 3, "There are 3 panels now");
+    var p1 = question.panels[0].panel;
+    var p2 = question.panels[1].panel;
+    assert.ok(p1, "the panel has been created");
+
+    assert.equal(p1.elements.length, 2, "template elements are loaded correctly");
+    assert.equal(p1.elements[1].name, "np1", "the name of the second element is 'np1'");
+    assert.equal((<PanelModel>p1.elements[1]).elements.length, 1, "there is one element in nested panel 'np1'");
+    assert.equal((<PanelModel>p1.elements[1]).elements[0].name, "q2", "q2 is an element in the 'np1'");
+
+    question.value = [{q1: "item1_1", q2: "item1_2"}, {q1: "item2_1", q2: "item2_2"}];
+    
+    assert.equal((<Question>p1.questions[1]).value, "item1_2", "value set correct q2 panel1");
+    assert.equal((<Question>p2.questions[0]).value, "item2_1", "value set correct q1 panel2");
+    (<Question>p1.questions[1]).value = "newValue";
+    assert.equal(question.value[0].q2, "newValue", "The value changed correctly");
 });
 
 QUnit.test("Has errors", function (assert) {

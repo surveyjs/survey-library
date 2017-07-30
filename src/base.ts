@@ -184,7 +184,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     public get survey(): ISurvey { return this.surveyValue; }
     public get isLoadingFromJson() { 
         if(this.survey) return this.survey.isLoadingFromJson;
-        return super["isLoadingFromJson"]; //TODO for some reson compiler does not see isLoadingFromJson.
+        return this["isLoadingFromJsonValue"]; //TODO for some reson compiler does not see public Base.isLoadingFromJson.
     }
     public onSurveyLoad() {}        
     endLoadingFromJson() {

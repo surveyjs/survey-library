@@ -34,6 +34,7 @@ export {SurveyQuestionMultipleText, SurveyQuestionMultipleTextItem} from "../rea
 export {SurveyQuestionRadiogroup} from "../react/reactquestionradiogroup";
 export {SurveyQuestionText} from "../react/reactquestiontext";
 export {SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicRow} from "../react/reactquestionmatrixdynamic";
+export {SurveyQuestionPanelDynamic} from "../react/reactquestionpaneldynamic";
 export {SurveyProgress} from "../react/reactSurveyProgress";
 export {SurveyQuestionRating} from "../react/reactquestionrating";
 export {SurveyWindow} from "../react/reactSurveyWindow";

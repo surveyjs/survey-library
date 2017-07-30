@@ -379,6 +379,9 @@ export class JsonObject {
             properties = JsonObject.metaData.getProperties(obj.getType());
         }
         if (!properties) return;
+        if(obj.startLoadingFromJson) {
+            obj.startLoadingFromJson();
+        }
         for (var key in jsonObj) {
             if (key == JsonObject.typePropertyName) continue;
             if (key == JsonObject.positionPropertyName) {
@@ -391,6 +394,9 @@ export class JsonObject {
                 continue;
             }
             this.valueToObj(jsonObj[key], obj, key, property);
+        }
+        if(obj.endLoadingFromJson) {
+            obj.endLoadingFromJson();
         }
     }
     protected toJsonObjectCore(obj: any, property: JsonObjectProperty): any {

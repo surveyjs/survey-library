@@ -216,7 +216,6 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public onSurveyLoad() {
         this.fireCallback(this.surveyLoadCallback);
     }
-    protected get isLoadingFromJson(): boolean { return this.survey && this.survey.isLoadingFromJson; }
     public setVisibleIndex(value: number) {
         if (this.visibleIndexValue == value) return;
         this.visibleIndexValue = value;

@@ -238,7 +238,6 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         }
         if(this.rowsChangedCallback) this.rowsChangedCallback();
     }
-    protected get isLoadingFromJson(): boolean { return this.survey && this.survey.isLoadingFromJson; }
     protected onRowsChanged() {
         this.rowValues = null;
         if(this.rowsChangedCallback && !this.isLoadingFromJson) this.rowsChangedCallback();

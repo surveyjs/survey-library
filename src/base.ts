@@ -97,11 +97,22 @@ export class Base {
         }
         return !value && value !== 0 && value !== false;
     }
+    protected isLoadingFromJsonValue: boolean = false;
     /**
      * Returns the type of the object as a string as it represents in the json.
      */
     public getType(): string {
         throw new Error('This method is abstract');
+    }
+    /**
+     * Returns true if the object is loading from Json at the current moment.
+     */
+    public get isLoadingFromJson() { return this.isLoadingFromJsonValue; }
+    startLoadingFromJson() {
+        this.isLoadingFromJsonValue = true;
+    }
+    endLoadingFromJson() {
+        this.isLoadingFromJsonValue = false;
     }
     protected isTwoValueEquals(x: any, y: any): boolean {
         if (x === y) return true;
@@ -171,6 +182,17 @@ export class SurveyElement extends Base implements ISurveyElement {
      * Returns the survey object.
      */
     public get survey(): ISurvey { return this.surveyValue; }
+    public get isLoadingFromJson() { 
+        if(this.survey) return this.survey.isLoadingFromJson;
+        return super["isLoadingFromJson"]; //TODO for some reson compiler does not see isLoadingFromJson.
+    }
+    public onSurveyLoad() {}        
+    endLoadingFromJson() {
+        super.endLoadingFromJson();
+        if(!this.survey) {
+            this.onSurveyLoad();
+        }
+    }
     protected get textProcessor() : ITextProcessor { return this.textProcessorValue; }
     protected onSetData() { }    
 }

@@ -1320,24 +1320,20 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             questions[i].setVisibleIndex(showIndex && questions[i].visible && questions[i].hasTitle ? (index++) : -1);
         }
     }
-    private isLoadingFromJsonValue = false;
-    /**
-     * Returns true if the survey is loading from Json at the current moment.
-     */
-    public get isLoadingFromJson() { return this.isLoadingFromJsonValue; }
     private setJsonObject(jsonObj: any) {
         if (!jsonObj) return;
         this.jsonErrors = null;
-        this.isLoadingFromJsonValue = true;
         var jsonConverter = new JsonObject();
         jsonConverter.toObject(jsonObj, this);
         if (jsonConverter.errors.length > 0) {
             this.jsonErrors = jsonConverter.errors;
         }
+    }
+    endLoadingFromJson() {
         this.runConditions();
         this.updateVisibleIndexes();
         this.updateProcessedTextValues();
-        this.isLoadingFromJsonValue = false;
+        super.endLoadingFromJson();
         if (this.hasCookie) {
             this.doComplete();
         }

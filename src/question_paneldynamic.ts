@@ -241,7 +241,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var json = jObj.toJsonObject(this.template);
         jObj.toObject(json, panel);
         panel.renderWidth = "100%";
-        panel.onSurveyLoad();
         return panel;
     }   
     protected createNewPanelObject(): PanelModel {

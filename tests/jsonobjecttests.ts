@@ -1,5 +1,6 @@
 ﻿import {JsonObject, JsonUnknownPropertyError} from "../src/jsonobject";
 import {ItemValue} from "../src/itemvalue";
+import {Base} from "../src/base";
 
 class Car {
     public name: string;
@@ -70,6 +71,29 @@ class CreatingObjectContainer {
     public getType(): string { return "container"; }
 }
 
+class LoadingFromJsonObjBase extends Base {
+    public startLoadingFromJsonCounter: number = 0;
+    public endLoadingFromJsonCounter: number = 0;
+    public name: string;
+    startLoadingFromJson() {
+        super.startLoadingFromJson();
+        this.startLoadingFromJsonCounter ++;
+    }
+    endLoadingFromJson() {
+        super.endLoadingFromJson();
+        this.endLoadingFromJsonCounter ++;
+    }
+}
+
+class LoadingFromJsonObjItem extends LoadingFromJsonObjBase {
+    public getType(): string {return "loadingtestitem"; }
+}
+
+class LoadingFromJsonObj extends LoadingFromJsonObjBase {
+    public items = new Array<LoadingFromJsonObjItem>();
+    public getType(): string {return "loadingtest"; }
+}
+
 JsonObject.metaData.addClass("dealer", ["name", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
     { name: "truck", className: "truck" }, { name: "trucks", className: "truck", visible: false },
@@ -92,6 +116,10 @@ JsonObject.metaData.addClass("LongNamesOwner", [{ name: "items", baseClassName: 
 JsonObject.metaData.addClass("shouldnotcreate", ["A"], function () { return new NonCreatingObject(); });
 JsonObject.metaData.addClass("container", [{ name: "obj", className: "shouldnotcreate" }, { name: "items", className: "shouldnotcreate"}]);
 JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { return new CreatingObject(); });
+
+JsonObject.metaData.addClass("loadingtest", ["name", { name: "items", className: "loadingtestitem"}], function () { return new LoadingFromJsonObj(); });
+JsonObject.metaData.addClass("loadingtestitem", ["name"], function () { return new LoadingFromJsonObjItem(); });
+
 
 class CheckGetPropertyValue {
     public directProp: string;
@@ -471,4 +499,16 @@ QUnit.test("Deserialize number and boolean correctly, bug #439", function (asser
     truck["isUsed"] = !truck["isUsed"];
     assert.equal(truck["isUsed"], true, "it should become true");
     JsonObject.metaData.removeProperty("car", "isUsed");
+});
+
+QUnit.test("Loading test deserialization", function (assert) {
+    var obj = new LoadingFromJsonObj();
+    new JsonObject().toObject({ name: "obj", items: [{ name : "item1" }, { name : "item2" }] }, obj);
+    assert.equal(obj.name, "obj");
+    assert.equal(obj.items.length, 2);
+    assert.equal(obj.items[1].name, "item2");
+    assert.equal(obj.startLoadingFromJsonCounter, 1, "obj: startLoadingFromJson was called one time")
+    assert.equal(obj.endLoadingFromJsonCounter, 1, "obj: endLoadingFromJson was called one time")
+    assert.equal(obj.items[1].startLoadingFromJsonCounter, 1, "item1: startLoadingFromJson was called one time")
+    assert.equal(obj.items[1].endLoadingFromJsonCounter, 1, "item1: endLoadingFromJson was called one time")
 });

@@ -38,7 +38,9 @@ export class VueSurveyModel extends SurveyModel {
     }
     setValue(name: string, newValue: any) {
         super.setValue(name, newValue);
-        this.vueValuesHash[name] = newValue;
+        if(this.vueValuesHash) {
+            this.vueValuesHash[name] = newValue;
+        }
         this.tryGoNextPageAutomatic(name);
     }
 }

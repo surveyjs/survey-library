@@ -63,6 +63,7 @@ export interface IElement  extends IConditionRunner, ISurveyElement{
     isPanel: boolean;
     onSurveyLoad();
     onLocaleChanged();
+    onAnyValueChanged(name: string);
 }
 
 export interface IQuestion extends IElement {
@@ -72,7 +73,6 @@ export interface IQuestion extends IElement {
     onReadOnlyChanged();
     supportGoNextPageAutomatic(): boolean;
     clearUnusedValues();
-    onAnyValueChanged(name: string);
     displayValue: any;
 }
 export interface IPanel extends IElement {

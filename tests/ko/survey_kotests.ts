@@ -407,6 +407,22 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function (assert) {
     assert.equal(row1.koElements()[0].koVisible(), true, "element is visible in nested row is visible");
 });
 
+QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (assert) {
+    var json = { questions: [
+            {type: "paneldynamic", name: "q", panelCount: 3, templateElements: [{type: "text", name: "q1"}, { type: "panel", name: "np1", title: "{panel.q1}", elements: [ {type: "text", name: "q2", title: "{panel.q1}"}]}]
+        }]};
+    var survey = new Survey(json);
+    var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
+    var panel = <Panel>question.panels[0].panel;
+    var pLocTitle = (<Panel>panel.elements[1]).locTitle;
+    var qLocTitle = (<Question>panel.questions[1]).locTitle;
+    assert.equal(qLocTitle["koRenderedHtml"](), "", "q2 title is empty by default");
+    assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
+    question.value = [{q1: "val1"}];
+    assert.equal(qLocTitle["koRenderedHtml"](), "val1", "q2 title is q1.value");
+    assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
+});
+
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);
     page.addNewQuestion("text", "q1");

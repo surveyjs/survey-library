@@ -458,6 +458,16 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         }
         this.locTitle.onChanged();
     }
+    onAnyValueChanged(name: string) {
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].onAnyValueChanged(name);
+        }
+        var titleValue = this.locTitle.text;
+        if(!titleValue) return; 
+        if(titleValue.toLocaleLowerCase().indexOf('{' + name.toLowerCase()) > -1) {
+            this.locTitle.onChanged();
+        }
+    }
 }
 
 /**

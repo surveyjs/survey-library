@@ -15,6 +15,7 @@ export interface IQuestionPanelDynamicData {
 }
 
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, ITextProcessor {
+    public static ItemVariableName = "panel";
     private panelValue: PanelModel;
     private data: IQuestionPanelDynamicData;
     private textPreProcessor = new TextPreProcessor();
@@ -61,11 +62,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
     //ITextProcessor 
     private hasProcessedTextValue(name: string): boolean {
         var firstName = new ProcessValue().getFirstName(name);
-        return firstName == "panel";
+        return firstName == QuestionPanelDynamicItem.ItemVariableName;
     }
     private getProcessedTextValue(name: string, returnDisplayValue: boolean) {
         //name should start with the panel
-        name = name.replace("panel.", "");
+        name = name.replace(QuestionPanelDynamicItem.ItemVariableName + ".", "");
         var firstName = new ProcessValue().getFirstName(name);
         var question = <Question>this.panel.getQuestionByName(firstName);
         if(!question) return null;
@@ -82,6 +83,10 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
         text = this.processText(text, true);
         var survey = this.getSurvey();
         return survey ? survey.processTextEx(text) : text;
+    }
+    onAnyValueChanged(name: string) {
+        this.panel.onAnyValueChanged(name);
+        this.panel.onAnyValueChanged(QuestionPanelDynamicItem.ItemVariableName);
     }
 }
 
@@ -216,8 +221,14 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             newValues = JSON.parse(JSON.stringify(values));
         }
         for(var i = 0; i < this.panels.length; i ++) {
-            newValues["panel"] = this.getPanelItemData(this.panels[i]);
+            newValues[QuestionPanelDynamicItem.ItemVariableName] = this.getPanelItemData(this.panels[i]);
             this.panels[i].runCondition(newValues);
+        }
+    }
+    onAnyValueChanged(name: string) {
+        super.onAnyValueChanged(name);
+        for(var i = 0; i < this.panels.length; i ++) {
+            this.panels[i].onAnyValueChanged(name);
         }
     }
     public hasErrors(fireCallback: boolean = true): boolean {
@@ -284,6 +295,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
     {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount", default: 0},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
-    { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePaelText" }],
+    { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePanelText" }],
     function () { return new QuestionPanelDynamicModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { var q = new QuestionPanelDynamicModel(name); q.template.addNewQuestion("text", "question1"); q.template.addNewQuestion("text", "question2"); return q; });

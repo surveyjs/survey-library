@@ -195,7 +195,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         if(!name) return;
         var titleValue = this.locTitle.text;
         if(!titleValue) return;
-        if(titleValue.toLocaleLowerCase().indexOf('{' + name.toLowerCase() + '}') > -1) {
+        if(titleValue.toLocaleLowerCase().indexOf('{' + name.toLowerCase()) > -1) {
             this.fireCallback(this.titleChangedCallback);
         }
     }

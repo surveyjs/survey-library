@@ -1158,14 +1158,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if(!question) {
             this.onValueChanged.fire(this, { 'name': name, 'question': null, 'value': newValue });
         }
-        this.notifyQuestionsOnAnyValueOrVariableChanged(questions, name);
+        this.notifyElementsOnAnyValueOrVariableChanged(name);
     }
-    private notifyQuestionsOnAnyValueOrVariableChanged(questions: Array<IQuestion>, name: string) {
-        if(!questions) {
-            questions = this.getAllQuestions();
-        }
-        for (var i: number = 0; i < questions.length; i++) {
-            questions[i].onAnyValueChanged(name);
+    private notifyElementsOnAnyValueOrVariableChanged(name: string) {
+        for(var i = 0; i < this.pages.length; i ++) {
+            this.pages[i].onAnyValueChanged(name)
         }
     }
     private notifyAllQuestionsOnValueChanged() {
@@ -1413,7 +1410,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (!name) return;
         this.variablesHash[name] = newValue;
         this.processedTextValues[name.toLowerCase()] = "variable";
-        this.notifyQuestionsOnAnyValueOrVariableChanged(null, name);
+        this.notifyElementsOnAnyValueOrVariableChanged(name);
     }
     //ISurvey data
     protected getUnbindValue(value: any): any {

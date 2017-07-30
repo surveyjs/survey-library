@@ -1,10 +1,12 @@
-import {Question as QuestionModel} from '../question'
+import {SurveyElement} from '../base'
 
 export const helpers = {
     methods: {
-        getIndentSize: function (question: QuestionModel, indent: number): string {
-            if (indent < 1) return "";
-            return indent * this.question.cssClasses.indent + "px";
+        getIndentSize: function (question: SurveyElement, indent: number): string {
+            if (indent < 1 || !question.survey) return "";
+            var css = question.survey["css"];		
+            if (!css) return "";	
+            return indent * css.question.indent + "px";
         }
     }
 };

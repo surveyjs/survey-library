@@ -36,11 +36,8 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     protected addPanel() {
         (<QuestionPanelDynamic>this.question).addPanel();
     }
-    protected removePanel(item: QuestionPanelDynamicItem) {
-        var index = (<QuestionPanelDynamicModel>this.question).panels.indexOf(item);
-        if (index > -1) {
-            (<QuestionPanelDynamic>this.question).removePanel(index);
-        }
+    protected removePanel(val: any) {
+        (<QuestionPanelDynamic>this.question).removePanel(val);
     }
 }
 

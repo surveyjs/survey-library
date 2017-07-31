@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from "../question_paneldynamic";
+import {PanelModel} from "../panel";
 import {SurveyPanel} from "./reactpage";
 import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {surveyCss} from "../defaultCss/cssstandard";
@@ -33,8 +34,8 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         var cssClasses = this.question.cssClasses;
         var panels = [];
         for (var i = 0; i < this.question.panels.length; i++) {
-            var item = this.question.panels[i];
-            panels.push(<SurveyQuestionPanelDynamicItem key={i} item={item} question={this.question} index={i} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
+            var panel = this.question.panels[i];
+            panels.push(<SurveyQuestionPanelDynamicItem key={i} panel={panel} question={this.question} index={i} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var btnDeleteTD = !this.isDisplayMode ? <th></th> : null;
         return (
@@ -52,7 +53,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
-    private item: QuestionPanelDynamicItem;
+    private panel: PanelModel;
     private question: QuestionPanelDynamicModel;
     private index: number;
     protected creator: ISurveyCreator;
@@ -65,7 +66,7 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
         this.setProperties(nextProps);
     }
     private setProperties(nextProps: any) {
-        this.item = nextProps.item;
+        this.panel = nextProps.panel;
         this.question = nextProps.question;
         this.index = nextProps.index;
         this.creator = nextProps.creator;
@@ -75,9 +76,9 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
         this.question.removePanel(this.index);
     }
     render(): JSX.Element {
-        if (!this.item) return null;
+        if (!this.panel) return null;
         this.question.survey
-        var panel = <SurveyPanel key={this.index} panel={this.item.panel} css={surveyCss.getCss()} survey={this.question.survey} creator={this.creator} />;
+        var panel = <SurveyPanel key={this.index} panel={this.panel} css={surveyCss.getCss()} survey={this.question.survey} creator={this.creator} />;
         var removeButton = this.renderButton();
         return (
             <div>

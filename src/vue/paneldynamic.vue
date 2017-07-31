@@ -1,9 +1,9 @@
 <template>
     <div>
-        <div v-for="item in question.panels" :class="css.question.mainRoot">
-            <component :is="survey-panel" :question="item.panel" :css="css"/>
+        <div v-for="panel in question.panels" :class="css.question.mainRoot">
+            <component :is="survey-panel" :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
-                <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.removePanelText" @click="removePanelClick(item)" />
+                <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.removePanelText" @click="removePanelClick(panel)" />
             </div>
             <hr/>
         </div>
@@ -23,11 +23,8 @@
         get panels() {
             return this.question.panels;
         }
-        removePanelClick(item) {
-            var index = this.question.panels.indexOf(item);
-            if (index > -1) {
-                this.question.removePanel(index);
-            }
+        removePanelClick(panel) {
+            this.question.removePanel(panel);
         }
         addPanelClick() {
             this.question.addPanel();

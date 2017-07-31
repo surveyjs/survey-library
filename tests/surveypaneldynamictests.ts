@@ -14,7 +14,7 @@ QUnit.test("Create panels based on template on setting value", function (assert)
 
     assert.equal(question.panels.length, 2, "There are two panels now");
     var p1 = question.panels[0];
-    assert.equal(p1.panel.elements.length, 2, "There are two elements in the first panel");
+    assert.equal(p1.elements.length, 2, "There are two elements in the first panel");
 });
 
 QUnit.test("Synhronize panelCount and value array length", function (assert) {
@@ -39,9 +39,9 @@ QUnit.test("By pass values from question.value into panel values and vice versa"
     assert.equal(question.panels.length, 2, "There are two panels now");
     var p1 = question.panels[0];
     var p2 = question.panels[1];
-    assert.equal((<Question>p1.panel.questions[1]).value, "item1_2", "value set correct q2 panel1");
-    assert.equal((<Question>p2.panel.questions[0]).value, "item2_1", "value set correct q1 panel2");
-    (<Question>p1.panel.questions[0]).value = "newValue";
+    assert.equal((<Question>p1.questions[1]).value, "item1_2", "value set correct q2 panel1");
+    assert.equal((<Question>p2.questions[0]).value, "item2_1", "value set correct q1 panel2");
+    (<Question>p1.questions[0]).value = "newValue";
     assert.equal(question.value[0].q1, "newValue", "The value from question has been assign successful");
 });
 
@@ -55,8 +55,8 @@ QUnit.test("Change values in panels on changing in question.value", function (as
     var p2 = question.panels[1];
     question.value = [{q1: "item1_1", q2: "item1_2"}, {q1: "item2_1", q2: "item2_2"}];
 
-    assert.equal((<Question>p1.panel.questions[1]).value, "item1_2", "value set correct q2 panel1");
-    assert.equal((<Question>p2.panel.questions[0]).value, "item2_1", "value set correct q1 panel2");
+    assert.equal((<Question>p1.questions[1]).value, "item1_2", "value set correct q2 panel1");
+    assert.equal((<Question>p2.questions[0]).value, "item2_1", "value set correct q1 panel2");
 });
 
 
@@ -72,16 +72,16 @@ QUnit.test("Load from Json", function (assert) {
     assert.equal(question.panels.length, 3, "There are 3 panels now");
     var p1 = question.panels[0];
     var p2 = question.panels[1];
-    assert.ok(p1.panel, "the panel has been created");
-    assert.equal(p1.panel.elements.length, 2, "There are two elements in the copied panel");
-    assert.equal(p1.panel.questions[1].name, "q2", "the name of the second question in the copied panel is 'q2'");
-    assert.equal(p1.panel.isVisible, true, "the panel is visible");
+    assert.ok(p1, "the panel has been created");
+    assert.equal(p1.elements.length, 2, "There are two elements in the copied panel");
+    assert.equal(p1.questions[1].name, "q2", "the name of the second question in the copied panel is 'q2'");
+    assert.equal(p1.isVisible, true, "the panel is visible");
 
     question.value = [{q1: "item1_1", q2: "item1_2"}, {q1: "item2_1", q2: "item2_2"}];
     
-    assert.equal((<Question>p1.panel.questions[1]).value, "item1_2", "value set correct q2 panel1");
-    assert.equal((<Question>p2.panel.questions[0]).value, "item2_1", "value set correct q1 panel2");
-    (<Question>p1.panel.questions[0]).value = "newValue";
+    assert.equal((<Question>p1.questions[1]).value, "item1_2", "value set correct q2 panel1");
+    assert.equal((<Question>p2.questions[0]).value, "item2_1", "value set correct q1 panel2");
+    (<Question>p1.questions[0]).value = "newValue";
     assert.equal(question.value[0].q1, "newValue", "The value changed correctly");
 });
 
@@ -97,8 +97,8 @@ QUnit.test("Load from Json with nested panel", function (assert) {
     assert.equal((<PanelModel>question.template.elements[1]).elements[0].name, "q2", "q2 is an element in the 'np1'");
     assert.equal(question.panelCount, 3, "panelCount loaded correctly")
     assert.equal(question.panels.length, 3, "There are 3 panels now");
-    var p1 = question.panels[0].panel;
-    var p2 = question.panels[1].panel;
+    var p1 = question.panels[0];
+    var p2 = question.panels[1];
     assert.ok(p1, "the panel has been created");
 
     assert.equal(p1.elements.length, 2, "template elements are loaded correctly");
@@ -130,11 +130,11 @@ QUnit.test("Has errors", function (assert) {
 QUnit.test("Update panels elements on changing template panel", function (assert) {
     var question = new QuestionPanelDynamicModel("q");
     question.panelCount = 2;
-    assert.equal(question.panels[0].panel.elements.length, 0, "Initially there is no elements in the copied panel");
+    assert.equal(question.panels[0].elements.length, 0, "Initially there is no elements in the copied panel");
     question.template.addNewQuestion("text", "q1");
-    assert.equal(question.panels[0].panel.elements.length, 1, "Add question into template - add question into copied panels");
+    assert.equal(question.panels[0].elements.length, 1, "Add question into template - add question into copied panels");
     question.template.removeQuestion(question.template.questions[0]);
-    assert.equal(question.panels[0].panel.elements.length, 0, "Remove question from template - from question from copied panels");
+    assert.equal(question.panels[0].elements.length, 0, "Remove question from template - from question from copied panels");
 });
 
 QUnit.test("Support visibleIf and panel variable", function (assert) {
@@ -146,9 +146,9 @@ QUnit.test("Support visibleIf and panel variable", function (assert) {
     question.template.addNewQuestion("text", "q2");
     question.template.questions[1].visibleIf = "{panel.q1} = 'val'";
     question.panelCount = 2;
-    assert.equal(question.panels[0].panel.questions[1].visible, false, "q1 is not 'val'");
+    assert.equal(question.panels[0].questions[1].visible, false, "q1 is not 'val'");
     question.value = [{q1: "val"}];
-    assert.equal(question.panels[0].panel.questions[1].visible, true, "q1 is 'val'");
+    assert.equal(question.panels[0].questions[1].visible, true, "q1 is 'val'");
 });
 QUnit.test("remove Panel", function (assert) {
     var question = new QuestionPanelDynamicModel("q");
@@ -177,7 +177,7 @@ QUnit.test("Process text in titles", function (assert) {
     question.panelCount = 3;
     survey_q1.value = "val_q1";
     question.value = [{}, {q1: "val1"}, {}];
-    var panel = question.panels[1].panel;
+    var panel = question.panels[1];
     var panel_q2 = <Question>panel.questions[1];
     assert.equal(survey_q2.locTitle.renderedHtml, "2. q1:val_q1", "process root question title correclty");
     assert.equal(panel.locTitle.renderedHtml, "q1:val_q1, panel.q1:val1", "process panel title correctly");
@@ -193,5 +193,5 @@ QUnit.test("PanelDynamic in design time", function (assert) {
     question.template.addNewQuestion("text", "q2");
     question.panelCount = 2;
     assert.equal(question.panels.length, 1, "Only one panel at design time");
-    assert.equal(question.panels[0].panel.id, question.template.id, "The template panel should be shown");
+    assert.equal(question.panels[0].id, question.template.id, "The template panel should be shown");
 });

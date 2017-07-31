@@ -356,7 +356,7 @@ QUnit.test("Load PanelDynamic from Json", function (assert) {
     assert.equal(question.template.elements[1].name, "q2", "the name of the second question is 'q2'");
     assert.equal(question.panelCount, 3, "panelCount loaded correctly")
     assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
-    var panel = question["koPanels"]()[0].panel;
+    var panel = question["koPanels"]()[0];
     assert.equal(panel.koVisible(), true, "Panel is visible");
     assert.equal(panel["koRows"]().length, 2, "Two questions - two rows");
     var row = <QuestionRow>panel["koRows"]()[0];
@@ -383,7 +383,7 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function (assert) {
     assert.equal(question.template.elements[1].name, "np1", "the name of the second element is 'pn1'");
     assert.equal(question.panelCount, 3, "panelCount loaded correctly")
     assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
-    var panel = question["koPanels"]()[0].panel;
+    var panel = question["koPanels"]()[0];
     assert.equal(panel.elements.length, 2, "panel elements are created correctly");
     var nestedPanel = <Panel>panel.elements[1];
     assert.equal(nestedPanel.name, "np1", "copied panel: the name of the second element is 'pn1'");
@@ -413,7 +413,7 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (asser
         }]};
     var survey = new Survey(json);
     var question = <QuestionPanelDynamic>survey.getAllQuestions()[0];
-    var panel = <Panel>question.panels[0].panel;
+    var panel = <Panel>question.panels[0];
     var pLocTitle = (<Panel>panel.elements[1]).locTitle;
     var qLocTitle = (<Question>panel.questions[1]).locTitle;
     assert.equal(qLocTitle["koRenderedHtml"](), "", "q2 title is empty by default");

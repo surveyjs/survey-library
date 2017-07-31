@@ -93,7 +93,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
     public static MaxPanelCount = 100;
     private templateValue: PanelModel;
-    private panelsValue: Array<QuestionPanelDynamicItem> = new Array<QuestionPanelDynamicItem>();
+    private itemsValue: Array<QuestionPanelDynamicItem> = new Array<QuestionPanelDynamicItem>();
     private loadingPanelCount: number = 0;
     private minPanelCountValue = 0;
     private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
@@ -129,19 +129,26 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     get locTemplateTitle(): LocalizableString { return this.template.locTitle; }
 
-    public get panels(): Array<QuestionPanelDynamicItem> { return this.panelsValue; }
-    public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.panels.length; }
+    protected get items(): Array<QuestionPanelDynamicItem> { return this.itemsValue; }
+    public get panels(): Array<PanelModel> {
+        var res = [];
+        for(var i = 0; i < this.items.length; i ++) {
+            res.push(this.items[i].panel);
+        }
+        return res;
+    }
+    public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.items.length; }
     public set panelCount(val: number) {
         if(val < 0) return;
         if(this.isLoadingFromJson) {
             this.loadingPanelCount = val;
             return;
         }
-        if(val == this.panels.length || this.isDesignMode) return;
+        if(val == this.items.length || this.isDesignMode) return;
         for(let i = this.panelCount; i < val; i ++) {
-            this.panels.push(this.createNewItem());
+            this.items.push(this.createNewItem());
         }
-        if(val < this.panelCount) this.panels.splice(val, this.panelCount - val);
+        if(val < this.panelCount) this.items.splice(val, this.panelCount - val);
         this.setValueBasedOnPanelCount();
         this.reRunCondition();
         this.fireCallback(this.panelCountChangedCallback);
@@ -193,24 +200,32 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
                 items.push(this.createNewItem());
             }
         }
-        this.panelsValue = items;
+        this.itemsValue = items;
         this.reRunCondition();
         this.fireCallback(this.panelCountChangedCallback);
     }
-    public addPanel(): QuestionPanelDynamicItem {
+    public addPanel(): PanelModel {
         if(!this.canAddPanel) return null;
         this.panelCount ++;
-        return this.panels[this.panelCount - 1];
+        return this.items[this.panelCount - 1].panel;
     }
-    public removePanel(index: number) {
+    public removePanel(value: any) {
         if(!this.canRemovePanel) return;
+        var index = this.getPanelIndex(value);
         if(index < 0 || index >= this.panelCount) return;
-        this.panels.splice(index, 1);
+        this.items.splice(index, 1);
         var value = this.value;
         if(!value || !Array.isArray(value) || index >= value.length) return;
         value.splice(index, 1);
         this.value = value;
         this.fireCallback(this.panelCountChangedCallback);
+    }
+    private getPanelIndex(val: any): number {
+        if(!isNaN(parseFloat(val)) && isFinite(val)) return val;
+        for(var i = 0; i < this.items.length; i ++) {
+            if(this.items[i] === val || this.items[i].panel === val) return i;
+        }
+        return -1;
     }
     public onSurveyLoad() {
         if(this.loadingPanelCount > 0) {
@@ -234,15 +249,15 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if (values && values instanceof Object) {
             newValues = JSON.parse(JSON.stringify(values));
         }
-        for(var i = 0; i < this.panels.length; i ++) {
-            newValues[QuestionPanelDynamicItem.ItemVariableName] = this.getPanelItemData(this.panels[i]);
-            this.panels[i].runCondition(newValues);
+        for(var i = 0; i < this.items.length; i ++) {
+            newValues[QuestionPanelDynamicItem.ItemVariableName] = this.getPanelItemData(this.items[i]);
+            this.items[i].runCondition(newValues);
         }
     }
     onAnyValueChanged(name: string) {
         super.onAnyValueChanged(name);
-        for(var i = 0; i < this.panels.length; i ++) {
-            this.panels[i].onAnyValueChanged(name);
+        for(var i = 0; i < this.items.length; i ++) {
+            this.items[i].onAnyValueChanged(name);
         }
     }
     public hasErrors(fireCallback: boolean = true): boolean {
@@ -251,9 +266,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     private hasErrorInPanels(fireCallback: boolean): boolean {
         var res = false;
-        for (var i = 0; i < this.panels.length; i++) {
-            var panel = this.panels[i].panel;
-            res = panel.hasErrors(fireCallback) || res;
+        var panels = this.panels;
+        for (var i = 0; i < panels.length; i++) {
+            res = panels[i].hasErrors(fireCallback) || res;
         }
         return res;
     }
@@ -280,8 +295,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     public onSurveyValueChanged(newValue: any) {
         super.onSurveyValueChanged(newValue);
-        for(var i = 0; i < this.panels.length; i ++) {
-            this.panels[i].onSurveyValueChanged();
+        for(var i = 0; i < this.items.length; i ++) {
+            this.items[i].onSurveyValueChanged();
         }
     }
     protected onSetData() { 
@@ -295,14 +310,14 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     //IQuestionPanelDynamicData 
     getPanelItemData(item: QuestionPanelDynamicItem): any {
-        var index = this.panels.indexOf(item);
+        var index = this.items.indexOf(item);
         if(index < 0) return {};
         var qValue = this.value;
         if(!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
         return qValue[index];
     }
     setPanelItemData(item: QuestionPanelDynamicItem, name: string, val: any) {
-        var index = this.panels.indexOf(item);
+        var index = this.items.indexOf(item);
         if(index < 0) return;
         var qValue = this.value;
         if(!qValue || !Array.isArray(qValue) || qValue.length <= index) return;

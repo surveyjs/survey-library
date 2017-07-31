@@ -18,6 +18,7 @@ export var defaultBootstrapMaterialCss = {
     matrix: { root: "table", row: "form-group", label: "radio-inline", itemValue: "form-control" },
     matrixdropdown: { root: "table", itemValue: "form-group" },
     matrixdynamic: { root: "table", button: "button" },
+    paneldynamic: { root: "", button: "button" },
     multipletext: { root: "table", itemTitle: "", row: "form-group", itemValue: "form-control" },
     radiogroup: { root: "form-inline", item: "radio-inline", label: "radio-inline", other: "" },
     rating: { root: "btn-group", item: "btn btn-default" },

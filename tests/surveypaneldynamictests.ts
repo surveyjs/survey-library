@@ -183,3 +183,15 @@ QUnit.test("Process text in titles", function (assert) {
     assert.equal(panel.locTitle.renderedHtml, "q1:val_q1, panel.q1:val1", "process panel title correctly");
     assert.equal(panel_q2.locTitle.renderedHtml, "q1:val_q1, panel.q1:val1", "process question title correctly");
 });
+QUnit.test("PanelDynamic in design time", function (assert) {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    assert.equal(question.panels.length, 1, "Only one panel at design time");
+    assert.equal(question.panels[0].panel.id, question.template.id, "The template panel should be shown");
+});

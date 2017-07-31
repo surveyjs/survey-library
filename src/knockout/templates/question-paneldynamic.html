@@ -4,7 +4,7 @@
         <!-- ko ifnot: question.koIsReadOnly -->
         <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.removePanelText" />
         <!-- /ko -->
-        <hr>
+        <hr/>
     <!-- /ko -->    
     <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddPanel() -->
     <input type="button" data-bind="click:question.koAddPanelClick, css: question.koCss().button, value: question.addPanelText" />

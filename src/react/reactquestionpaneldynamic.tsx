@@ -41,6 +41,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
             <div>
                 {panels}
                 {this.renderAddRowButton(cssClasses) }
+                <hr/>
             </div>
         );
     }

@@ -7,11 +7,14 @@ import {SurveyElement, IElement} from "../base";
 import {ElementFactory} from "../questionfactory";
 
 export class QuestionRow extends QuestionRowModel {
-    koVisible: any; koElements: any;
+    koVisible: any; koElements: any; koGetType: any; koElementAfterRender: any;
     constructor(public panel: PanelModelBase) {
         super(panel);
         this.koVisible = ko.observable(this.visible);
         this.koElements = ko.observableArray();
+        var self = this;
+        this.koGetType = function(el) { return self.getElementType(el); }
+        this.koElementAfterRender = function(el, con) { return self.elementAfterRender(el, con); }
     }
     public addElement(q: IElement) {
         super.addElement(q);
@@ -21,11 +24,25 @@ export class QuestionRow extends QuestionRowModel {
         this.koVisible(this.visible);
         super.onVisibleChanged();
     }
+    public getElementType(el) {
+        return el.isPanel ? "survey-panel" : "survey-question";
+    }
     public koAfterRender(el, con) {
         for (var i = 0; i < el.length; i++) {
             var tEl = el[i];
             var nName = tEl.nodeName;
             if (nName == "#text") tEl.data = "";
+        }
+    }
+    private elementAfterRender(elements, con) {
+        if (!this.panel || !this.panel.survey) return;
+        var el = SurveyElement.GetFirstNonTextElement(elements);
+        if(!el) return;
+        var element = <IElement>con;
+        if(element.isPanel) {
+            this.panel.survey.afterRenderPanel(con, el);
+        } else {
+            this.panel.survey.afterRenderQuestion(con, el);
         }
     }
 }
@@ -36,29 +53,18 @@ export class PanelImplementorBase {
         var self = this;
         this.koRows = ko.observableArray();
         this.panel.rowsChangedCallback = function() {self.koRows(self.panel.rows); };
-        this.panel["koQuestionAfterRender"] = function (el, con) { self.koQuestionAfterRender(el, con); };
-        this.panel["koPanelAfterRender"] = function (el, con) { self.koPanelAfterRender(el, con); };
         this.panel["koRows"] = this.koRows;
-    }
-    protected koQuestionAfterRender(elements, con) {
-        if (!this.panel.survey) return;
-        var el = SurveyElement.GetFirstNonTextElement(elements);
-        if (el) this.panel.survey.afterRenderQuestion(con, el);
-    }
-    protected koPanelAfterRender(elements, con) {
-        if (!this.panel.survey) return;
-        var el = SurveyElement.GetFirstNonTextElement(elements);
-        if (el) this.panel.survey.afterRenderPanel(con, el);
     }
 }
 
 export class Panel extends PanelModel {
-    koVisible: any; koInnerMargin: any; koRenderWidth: any;
+    koVisible: any; koInnerMargin: any; koRenderWidth: any; koElementType: any;
     constructor(name: string = "") {
         super(name);
         new PanelImplementorBase(this);
         this.onCreating();
         var self = this;
+        this.koElementType = ko.observable("survey-panel");
         this.koVisible = ko.observable(this.isVisible);
         this.koRenderWidth = ko.observable(this.renderWidth);
         this.renderWidthChangedCallback = function() { self.onRenderWidthChanged(); }
@@ -90,7 +96,6 @@ export class Panel extends PanelModel {
     }
 
 }
-
 
 export class Page extends PageModel {
     constructor(name: string = "") {

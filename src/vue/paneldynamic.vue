@@ -5,6 +5,7 @@
             <div v-if="!question.isReadOnly">
                 <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.removePanelText" @click="removePanelClick(item)" />
             </div>
+            <hr/>
         </div>
         <input type="button" v-if="!question.isReadOnly && question.canAddPanel" :class="question.cssClasses.button" :value="question.addPanelText" @click="addPanelClick"/>
     </div>

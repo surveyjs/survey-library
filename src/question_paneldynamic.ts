@@ -92,7 +92,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
 
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
     public static MaxPanelCount = 100;
-    private templateValue: PanelModel = new PanelModel();
+    private templateValue: PanelModel;
     private panelsValue: Array<QuestionPanelDynamicItem> = new Array<QuestionPanelDynamicItem>();
     private loadingPanelCount: number = 0;
     private minPanelCountValue = 0;
@@ -100,13 +100,17 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private locAddPanelTextValue: LocalizableString;
     private locRemovePanelTextValue: LocalizableString;
     private isValueChangingInternally: boolean;
+    private oldTemplateRowsChangedCallback: any;
 
     panelCountChangedCallback: () => void;
 
     constructor(public name: string) {
         super(name);
+        this.templateValue = this.createNewPanelObject();
+        this.template.renderWidth = "100%";
         var self = this;
-        this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); }
+        this.oldTemplateRowsChangedCallback = this.template.rowsChangedCallback;
+        this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); if(self.oldTemplateRowsChangedCallback) self.oldTemplateRowsChangedCallback(); }
         this.locAddPanelTextValue = new LocalizableString(this);
         this.locRemovePanelTextValue = new LocalizableString(this);
     }
@@ -133,7 +137,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             this.loadingPanelCount = val;
             return;
         }
-        if(val == this.panels.length) return;
+        if(val == this.panels.length || this.isDesignMode) return;
         for(let i = this.panelCount; i < val; i ++) {
             this.panels.push(this.createNewItem());
         }
@@ -177,10 +181,17 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public set removePanelText(value: string) { this.locRemovePanelText.text = value; }
     get locRemovePanelText() { return this.locRemovePanelTextValue; }
 
-    public rebuildPanels() {
+    protected rebuildPanels() {
         var items = new Array<QuestionPanelDynamicItem>();
-        for(var i = 0; i  < this.panelCount; i ++) {
-            items.push(this.createNewItem());
+        if(this.isDesignMode) {
+            items.push(new QuestionPanelDynamicItem(this, this.template));
+            if(this.oldTemplateRowsChangedCallback) {
+                this.oldTemplateRowsChangedCallback();
+            }
+        } else {
+            for(var i = 0; i  < this.panelCount; i ++) {
+                items.push(this.createNewItem());
+            }
         }
         this.panelsValue = items;
         this.reRunCondition();
@@ -204,6 +215,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public onSurveyLoad() {
         if(this.loadingPanelCount > 0) {
             this.panelCount = this.loadingPanelCount;
+        }
+        if(this.isDesignMode) {
+            this.rebuildPanels();
         }
         super.onSurveyLoad();
     }
@@ -270,6 +284,15 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             this.panels[i].onSurveyValueChanged();
         }
     }
+    protected onSetData() { 
+        super.onSetData();
+        if(this.isDesignMode) {
+            this.template.setSurveyImpl(this.surveyImpl);
+            if(!this.isLoadingFromJson) {
+                this.rebuildPanels();
+            }
+        }
+    }
     //IQuestionPanelDynamicData 
     getPanelItemData(item: QuestionPanelDynamicItem): any {
         var index = this.panels.indexOf(item);
@@ -293,7 +316,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 }
 
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
-    {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount", default: 0},
+    {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
     { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePanelText" }],
     function () { return new QuestionPanelDynamicModel(""); }, "question");

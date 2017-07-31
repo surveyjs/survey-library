@@ -2,17 +2,20 @@
 import {QuestionBase} from "../questionbase";
 
 export class QuestionImplementorBase {
-    koVisible: any; koErrors: any; koPaddingLeft: any; koPaddingRight: any; koRenderWidth: any; koTemplateName: any;
+    koVisible: any; koErrors: any; koPaddingLeft: any; koPaddingRight: any; koRenderWidth: any; 
+    koTemplateName: any; koElementType: any;
     constructor(public question: QuestionBase) {
         var self = this;
         question.visibilityChangedCallback = function () { self.onVisibilityChanged(); };
         question.renderWidthChangedCallback = function () { self.onRenderWidthChanged(); };
         this.koTemplateName = ko.pureComputed(function () { return self.getTemplateName(); });
+        this.koElementType = ko.observable("survey-question");
         this.koVisible = ko.observable(this.question.isVisible);
         this.koRenderWidth = ko.observable(this.question.renderWidth);
         this.koErrors = ko.observableArray();
         this.koPaddingLeft = ko.observable(self.getIndentSize(self.question.indent));
         this.koPaddingRight = ko.observable(self.getIndentSize(self.question.rightIndent));
+        this.question["koElementType"] = this.koElementType;
         this.question["koTemplateName"] = this.koTemplateName;
         this.question["koVisible"] = this.koVisible;
         this.question["koRenderWidth"] = this.koRenderWidth;

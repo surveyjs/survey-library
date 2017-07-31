@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+import {SurveyElement} from "../base";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
 import {QuestionImplementor} from "./koquestion";
@@ -28,6 +29,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
         this.question["koRemovePanelClick"] = this.koRemovePanelClick;
         this.question["koCanAddPanel"] = this.koCanAddPanel;
         this.question["koCanRemovePanel"] = this.koCanRemovePanel;
+        this.question["koPanelAfterRender"] = function(el, con) { self.panelAfterRender(el, con); };
         (<QuestionPanelDynamic>this.question).panelCountChangedCallback = function () { self.onPanelCountChanged(); };
     }
     protected onPanelCountChanged() {
@@ -39,6 +41,12 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     protected removePanel(val: any) {
         (<QuestionPanelDynamic>this.question).removePanel(val);
     }
+    private panelAfterRender(elements, con) {
+        if(!this.question || !this.question.survey) return;
+        var el = SurveyElement.GetFirstNonTextElement(elements);
+        this.question.survey.afterRenderPanel(con, el);
+    }
+    
 }
 
 export class QuestionPanelDynamic extends QuestionPanelDynamicModel {

@@ -16,7 +16,8 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {default as Question} from './question'
     import {Question as QuestionModel} from '../question'
-    import {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from '../question_paneldynamic'
+    import {PanelModel} from '../panel'
+    import {QuestionPanelDynamicModel} from '../question_paneldynamic'
 
     @Component
     export default class PanelDynamic extends Question<QuestionPanelDynamicModel> {

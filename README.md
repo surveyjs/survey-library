@@ -74,15 +74,12 @@ To build library yourself:
 	```
 	This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
-## Create your own question type.
-Explore the [example](https://github.com/surveyjs/surveyjs/tree/master/src/plugins) of adding a new question type into your survey library.
-
 ## Use 3rd party controls as question widgets.
-Explore the [example](http://surveyjs.org/examples/react/custom-widget-datepicker.html) based on jquery datepicker
+Explore the [example](http://surveyjs.org/examples/react/custom-widget-datepicker) based on jquery datepicker
 
 ## License
 
-MIT license - [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+[MIT license](https://github.com/surveyjs/surveyjs/blob/master/LICENSE)
 
 
 ## Visual Editor

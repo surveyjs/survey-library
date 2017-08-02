@@ -16,6 +16,18 @@ export class dxSurveyService {
         };
         xhr.send();
     }
+    public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string,  response: any) => void) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', dxSurveyService.serviceUrl + '/getSurveyAndIsCompleted?surveyId=' + surveyId + '&clientId=' + clientId);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            var result = JSON.parse(xhr.response);
+            var surveyJson = result ? result.survey : null;
+            var isCompleted = result ? result.isCompleted : null;
+            onLoad(xhr.status == 200, surveyJson, isCompleted, xhr.response);
+        };
+        xhr.send();
+    }
     public sendResult(postId: string, result: JSON, onSendResult: (success: boolean, response: any)=> void, clientId: string = null, isPartialCompleted: boolean = false) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', dxSurveyService.serviceUrl + '/post/');

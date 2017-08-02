@@ -119,6 +119,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
 
     private locTitleValue : LocalizableString;
     private locCompletedHtmlValue : LocalizableString;
+    private locLoadingHtmlValue : LocalizableString;
     private locPagePrevTextValue : LocalizableString;
     private locPageNextTextValue : LocalizableString;
     private locCompleteTextValue : LocalizableString;
@@ -263,6 +264,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * <br/> sender the survey object that fires the event
      * <br/> options.html an html that you may change before text processing and then rendering.
      * @see completedHtml
+     * @see loadingHtml
      * @see QuestionHtmlModel.html
      */
     public onProcessHtml: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -393,6 +395,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
         this.locCompletedHtmlValue = new LocalizableString(this);
+        this.locLoadingHtmlValue = new LocalizableString(this);
         this.locPagePrevTextValue = new LocalizableString(this);
         this.locPageNextTextValue = new LocalizableString(this);
         this.locCompleteTextValue = new LocalizableString(this);
@@ -460,6 +463,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     public get completedHtml(): string { return this.locCompletedHtml.text;}
     public set completedHtml(value: string) { this.locCompletedHtml.text = value;}
     get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    /**
+     * The html that shows on loading survey Json from the dxsurvey.com service.
+     * @see surveyId
+     * @see locale
+     */
+    public get loadingHtml(): string { return this.locLoadingHtml.text;}
+    public set loadingHtml(value: string) { this.locLoadingHtml.text = value;}
+    get locLoadingHtml(): LocalizableString { return this.locLoadingHtmlValue;}
     /**
      * A text that renders on the 'Prev' button. Set it to change the default text.
      * @see locale
@@ -957,6 +968,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * Returns the html that shows on loading the json.
      */
     public get processedLoadingHtml(): string {
+        if (this.loadingHtml) {
+            return this.processHtml(this.loadingHtml);
+        }
         return "<h3>" + this.getLocString("loadingSurvey") + "</h3>";
     }
     /**
@@ -1588,7 +1602,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
 
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
     {name: "title", serializationProperty: "locTitle"}, { name: "focusFirstQuestionAutomatic:boolean", default: true},
-    {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, { name: "pages", className: "page", visible: false },
+    {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, {name: "loadingHtml:html", serializationProperty: "locLoadingHtml"},
+    { name: "pages", className: "page", visible: false },
     { name: "questions", alternativeName: "elements", baseClassName: "question", visible: false, onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     {name: "surveyId", visible: false}, {name: "surveyPostId", visible: false}, {name: "surveyShowDataSaving", visible: false}, "cookieName", "sendResultOnPageNext:boolean",

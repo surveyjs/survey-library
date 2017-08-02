@@ -144,6 +144,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     private surveyDataValue: ISurveyData;
     private surveyValue: ISurvey;
     private textProcessorValue: ITextProcessor;
+    private selectedElementInDesignValue: SurveyElement = this;
     public static ScrollElementToTop(elementId: string): boolean {
         if (!elementId) return false;
         var el = document.getElementById(elementId);
@@ -186,6 +187,10 @@ export class SurveyElement extends Base implements ISurveyElement {
         if(this.survey) return this.survey.isLoadingFromJson;
         return this["isLoadingFromJsonValue"]; //TODO for some reson compiler does not see public Base.isLoadingFromJson.
     }
+    public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return []; }
+    public get selectedElementInDesign(): SurveyElement { return this.selectedElementInDesignValue; }
+    public set selectedElementInDesign(val: SurveyElement) { this.selectedElementInDesignValue = val; }
+
     public onSurveyLoad() {}        
     endLoadingFromJson() {
         super.endLoadingFromJson();

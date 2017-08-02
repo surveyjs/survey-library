@@ -62,4 +62,4 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
 
 JsonObject.metaData.overrideClassCreatore("paneldynamic", function () { return new QuestionPanelDynamic(""); });
 
-QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { var q = new QuestionPanelDynamic(name); q.template.addNewQuestion("text", "question1"); q.template.addNewQuestion("text", "question2"); return q; });
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { return new QuestionPanelDynamic(name); });

@@ -108,6 +108,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         super(name);
         this.templateValue = this.createNewPanelObject();
         this.template.renderWidth = "100%";
+        this.template.selectedElementInDesign = this;
         var self = this;
         this.oldTemplateRowsChangedCallback = this.template.rowsChangedCallback;
         this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); if(self.oldTemplateRowsChangedCallback) self.oldTemplateRowsChangedCallback(); }
@@ -137,6 +138,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         }
         return res;
     }
+    public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return includeHidden ? [this.template] : this.templateElements; }
     public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.items.length; }
     public set panelCount(val: number) {
         if(val < 0) return;
@@ -335,4 +337,4 @@ JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alterna
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
     { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePanelText" }],
     function () { return new QuestionPanelDynamicModel(""); }, "question");
-QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { var q = new QuestionPanelDynamicModel(name); q.template.addNewQuestion("text", "question1"); q.template.addNewQuestion("text", "question2"); return q; });
+QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { return new QuestionPanelDynamicModel(name);  });

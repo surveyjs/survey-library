@@ -160,6 +160,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * Returns the list of the elements in the object, Panel/Page. Elements can be questions or panels. The function doesn't return elements in the nested Panels.
      */
     public get elements(): Array<IElement> { return this.elementsValue; }
+    public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return this.elements; }
     /**
      * Returns true if the current element belongs to the Panel/Page. It looks in nestede Panels as well.
      * @param element

@@ -37,6 +37,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     }
     render(): JSX.Element {
         if (this.survey.state == "completed") return this.renderCompleted();
+        if (this.survey.state == "completedbefore") return this.renderCompletedBefore();
         if (this.survey.state == "loading") return this.renderLoading();
         return this.renderSurvey();
     }
@@ -61,6 +62,10 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         }
         var htmlValue = { __html: this.survey.processedCompletedHtml };
         return (<div><div dangerouslySetInnerHTML={htmlValue} />{completedState}</div>);
+    }
+    protected renderCompletedBefore(): JSX.Element {
+        var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
+        return (<div dangerouslySetInnerHTML={htmlValue} />);
     }
     protected renderLoading(): JSX.Element {
         var htmlValue = { __html: this.survey.processedLoadingHtml };

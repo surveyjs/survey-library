@@ -32,6 +32,7 @@ export var surveyStrings = {
     progressText: "Page {0} of {1}",
     emptySurvey: "There is no visible page or question in the survey.",
     completingSurvey: "Thank you for completing the survey!",
+    completingSurveyBefore: "Our records show that you have already completed this survey.",
     loadingSurvey: "Survey is loading...",
     optionsCaption: "Choose...",
     requiredError: "Please answer the question.",

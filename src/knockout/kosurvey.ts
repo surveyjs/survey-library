@@ -70,11 +70,11 @@ export class Survey extends SurveyModel {
         survey.onRendered.fire(self, {});
         survey.afterRenderSurvey(element);
     }
-    public loadSurveyFromService(surveyId: string = null, renderedElement: any = null) {
+    public loadSurveyFromService(surveyId: string = null, clientId: string = null, renderedElement: any = null) {
         if (renderedElement) {
             this.renderedElement = renderedElement;
         }
-        super.loadSurveyFromService(surveyId);
+        super.loadSurveyFromService(surveyId, clientId);
     }
     protected setCompleted() {
         super.setCompleted();

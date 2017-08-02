@@ -119,6 +119,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
 
     private locTitleValue : LocalizableString;
     private locCompletedHtmlValue : LocalizableString;
+    private locCompletedBeforeHtmlValue : LocalizableString;
     private locLoadingHtmlValue : LocalizableString;
     private locPagePrevTextValue : LocalizableString;
     private locPageNextTextValue : LocalizableString;
@@ -136,6 +137,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     private questionTitleLocationValue: string = "top";
     private localeValue: string = "";
     private isCompleted: boolean = false;
+    private isCompletedBefore: boolean = false;
     private isLoading: boolean = false;
     private processedTextValues: HashTable<any> = {};
     private textPreProcessor: TextPreProcessor;
@@ -395,6 +397,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
         this.locCompletedHtmlValue = new LocalizableString(this);
+        this.locCompletedBeforeHtmlValue = new LocalizableString(this);
         this.locLoadingHtmlValue = new LocalizableString(this);
         this.locPagePrevTextValue = new LocalizableString(this);
         this.locPageNextTextValue = new LocalizableString(this);
@@ -418,9 +421,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             if (typeof jsonObj === 'string' || jsonObj instanceof String) {
                 jsonObj = JSON.parse(jsonObj as string);
             }
+            if(jsonObj && jsonObj.clientId) {
+                this.clientId = jsonObj.clientId;
+            }
             this.setJsonObject(jsonObj);
             if (this.surveyId) {
-                this.loadSurveyFromService(this.surveyId);
+                this.loadSurveyFromService(this.surveyId, this.clientId);
             }
         }
         this.onCreating();
@@ -463,6 +469,14 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     public get completedHtml(): string { return this.locCompletedHtml.text;}
     public set completedHtml(value: string) { this.locCompletedHtml.text = value;}
     get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    /**
+     * The html that shows if the end user has already completed the survey.
+     * @see clientId
+     * @see locale
+     */
+    public get completedBeforeHtml(): string { return this.locCompletedBeforeHtml.text;}
+    public set completedBeforeHtml(value: string) { this.locCompletedBeforeHtml.text = value;}
+    get locCompletedBeforeHtml(): LocalizableString { return this.locCompletedBeforeHtmlValue;}
     /**
      * The html that shows on loading survey Json from the dxsurvey.com service.
      * @see surveyId
@@ -693,6 +707,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     public get state(): string {
         if (this.isLoading) return "loading";
         if (this.isCompleted) return "completed";
+        if (this.isCompletedBefore) return "completedbefore";
         return (this.currentPage) ? "running" : "empty"
     }
     public get completedState(): string {return this.completedStateValue; }
@@ -720,6 +735,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             this.variablesHash = {};
         }
         this.isCompleted = false;
+        this.isCompletedBefore = false;
+        this.isLoading = false;
         if (gotoFirstPage && this.visiblePageCount > 0) {
             this.currentPage = this.visiblePages[0];
         }
@@ -965,6 +982,16 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
     }
     /**
+     * Returns the html showing that the user has already completed the survey
+     * @see completedHtml
+     */
+    public get processedCompletedBeforeHtml(): string {
+        if (this.completedBeforeHtml) {
+            return this.processHtml(this.completedBeforeHtml);
+        }
+        return "<h3>" + this.getLocString("completingSurveyBefore") + "</h3>";
+    }
+    /**
      * Returns the html that shows on loading the json.
      */
     public get processedLoadingHtml(): string {
@@ -1030,10 +1057,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         }
         return true;
     }
+    protected createSurveyService() : dxSurveyService {
+        return new dxSurveyService();
+    }
     protected uploadFileCore(name: string, file: File, uploadingCallback: (status: string) => any) {
         var self = this;
         if (uploadingCallback) uploadingCallback("uploading");
-        new dxSurveyService().sendFile(this.surveyPostId, file, function (success: boolean, response: any) {
+        this.createSurveyService().sendFile(this.surveyPostId, file, function (success: boolean, response: any) {
             if (uploadingCallback) uploadingCallback(success ? "success" : "error");
             if (success) {
                 self.setValue(name, response);
@@ -1252,7 +1282,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if(this.surveyShowDataSaving) {
             this.setCompletedState("saving", "");
         }
-        new dxSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
+        this.createSurveyService().sendResult(postId, this.data, function (success: boolean, response: any) {
             if(self.surveyShowDataSaving) {
                 if(success) {
                     self.setCompletedState("success", "");
@@ -1271,29 +1301,48 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public getResult(resultId: string, name: string) {
         var self = this;
-        new dxSurveyService().getResult(resultId, name, function (success: boolean, data: any, dataList: any[], response: any) {
+        this.createSurveyService().getResult(resultId, name, function (success: boolean, data: any, dataList: any[], response: any) {
             self.onGetResult.fire(self, { success: success, data: data, dataList: dataList, response: response });
         });
     }
     /**
-     * Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * Loads the survey Json from the [dxsurvey.com](http://www.dxsurvey.com) service. If clientId is not null and user has already completed the survey, the survey will go into "completedbefore" state.
      * @param surveyId [dxsurvey.com](http://www.dxsurvey.com) service surveyId
+     * @param clientId indentificator for a user, for example e-mail or unique customer id in your web application. 
+     * @see state
      */
-    public loadSurveyFromService(surveyId: string = null) {
+    public loadSurveyFromService(surveyId: string = null, cliendId: string = null) {
         if (surveyId) {
             this.surveyId = surveyId;
+        }
+        if(cliendId) {
+            this.clientId = cliendId;
         }
         var self = this;
         this.isLoading = true;
         this.onLoadingSurveyFromService();
-        new dxSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
-            self.isLoading = false;
-            if (success && result) {
-                self.setJsonObject(result);
-                self.notifyAllQuestionsOnValueChanged();
-                self.onLoadSurveyFromService();
-            }
-        });
+        if(cliendId) {
+            this.createSurveyService().getSurveyJsonAndIsCompleted(this.surveyId, this.clientId, function (success: boolean, json: string, isCompleted: string, response: any) {
+                self.isLoading = false;
+                if (success) {
+                    self.isCompletedBefore = isCompleted == "completed";
+                    self.loadSurveyFromServiceJson(json);
+                }
+            });
+        } else {
+            this.createSurveyService().loadSurvey(this.surveyId, function (success: boolean, result: string, response: any) {
+                self.isLoading = false;
+                if (success) {
+                    self.loadSurveyFromServiceJson(result);
+                }
+            });
+        }
+    }
+    private loadSurveyFromServiceJson(json: any) {
+        if(!json) return;
+        this.setJsonObject(json);
+        this.notifyAllQuestionsOnValueChanged();
+        this.onLoadSurveyFromService();
     }
     protected onLoadingSurveyFromService() {
     }
@@ -1598,12 +1647,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     }
 }
 
-//Make localizable: completedHtml, pagePrevText, pageNextText, completeText
-
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
     {name: "title", serializationProperty: "locTitle"}, { name: "focusFirstQuestionAutomatic:boolean", default: true},
-    {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, {name: "loadingHtml:html", serializationProperty: "locLoadingHtml"},
-    { name: "pages", className: "page", visible: false },
+    {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, {name: "completedBeforeHtml:html", serializationProperty: "locCompletedBeforeHtml"},
+    {name: "loadingHtml:html", serializationProperty: "locLoadingHtml"}, { name: "pages", className: "page", visible: false },
     { name: "questions", alternativeName: "elements", baseClassName: "question", visible: false, onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     {name: "surveyId", visible: false}, {name: "surveyPostId", visible: false}, {name: "surveyShowDataSaving", visible: false}, "cookieName", "sendResultOnPageNext:boolean",

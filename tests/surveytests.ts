@@ -25,6 +25,7 @@ import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCusto
 import {QuestionSelectBase} from "../src/question_baseselect";
 import {LocalizableString} from "../src/localizablestring";
 import {surveyCss} from "../src/defaultCss/cssstandard";
+import {dxSurveyService} from "../src/dxSurveyService";
 
 export default QUnit.module("Survey");
 
@@ -1516,21 +1517,6 @@ QUnit.test("Use send data to custom server", function (assert) {
     onCompleteOptions.showDataSavingSuccess();
     assert.equal(survey.completedState, "success", "The complete state is success");
 });
-function twoPageSimplestSurvey() {
-    var survey = new SurveyModel();
-    var page = survey.addNewPage("Page 1");
-    page.addNewQuestion("text", "question1");
-    page.addNewQuestion("text", "question2");
-    page = survey.addNewPage("Page 2");
-    page.addNewQuestion("text", "question3");
-    page.addNewQuestion("text", "question4");
-    return survey;
-}
-function createPageWithQuestion(name: string) : PageModel {
-    var page = new PageModel(name);
-    page.addNewQuestion("text", "q1");
-    return page;
-}
 
 QUnit.test("Pass custom properties to cell question", function (assert) {
     JsonObject.metaData.addProperty("matrixdropdowncolumn", {
@@ -1557,3 +1543,44 @@ QUnit.test("Pass text as survey json", function (assert) {
     assert.equal(q1.name, "q1", "The survey created from the string");
 });
 
+QUnit.test("surveyId + clientId", function (assert) {
+    var json = { "questions": [ {"type": "text", "name": "q1"}]};
+    class dxSurveyServiceTester extends dxSurveyService {
+        public getSurveyJsonAndIsCompleted(surveyId: string, clientId: string, onLoad: (success: boolean, surveyJson: any, result: string,  response: any) => void) {
+            if(onLoad) {
+                onLoad(true, json, clientId, "");
+            }
+        };
+    }
+    class SurveyTester extends SurveyModel {
+        protected createSurveyService() : dxSurveyService {
+            return new dxSurveyServiceTester();
+        }
+    }
+    var survey = new SurveyTester({surveyId: "surveyDummyId", clientId: "no"});
+    assert.equal(survey.state, "running", "The survey is running");
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.name, "q1", "The survey created from the string");
+    
+    survey = new SurveyTester({surveyId: "surveyDummyId", clientId: "completed"});
+    assert.equal(survey.state, "completedbefore", "The survey was completed before");
+    var q1 = survey.getQuestionByName("q1");
+    assert.equal(q1.name, "q1", "The survey created from the string");
+});
+
+
+function twoPageSimplestSurvey() {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    page.addNewQuestion("text", "question1");
+    page.addNewQuestion("text", "question2");
+    page = survey.addNewPage("Page 2");
+    page.addNewQuestion("text", "question3");
+    page.addNewQuestion("text", "question4");
+    return survey;
+}
+function createPageWithQuestion(name: string) : PageModel {
+    var page = new PageModel(name);
+    page.addNewQuestion("text", "q1");
+    return page;
+}

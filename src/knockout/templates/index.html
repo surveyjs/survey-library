@@ -25,6 +25,9 @@
             </div>
         </div>
         <!-- /ko -->
+        <!-- ko if: koState() == "completedbefore" -->
+        <div data-bind="html: processedCompletedBeforeHtml"></div>
+        <!-- /ko -->
         <!-- ko if: koState() == "loading" -->
         <div data-bind="html: processedLoadingHtml"></div>
         <!-- /ko -->

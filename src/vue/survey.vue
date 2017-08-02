@@ -21,6 +21,7 @@
                 </div>
             </div>
         </div>
+        <div v-if="survey.state === 'completedbefore'" v-html="survey.processedCompletedBeforeHtml"></div>
         <div v-if="survey.state === 'loading'" v-html="survey.processedLoadingHtml"></div>
         <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
     </div>

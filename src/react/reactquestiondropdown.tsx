@@ -45,7 +45,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         for (var i = 0; i < this.question.visibleChoices.length; i++) {
             var item = this.question.visibleChoices[i];
             var key = "item" + i;
-            var option = <option key={key} value={item.value} selected={this.state.value == item.value}>{item.text}</option>;
+            var option = <option key={key} value={item.value}>{item.text}</option>;
             options.push(option);
         }
 

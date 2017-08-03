@@ -195,3 +195,18 @@ QUnit.test("PanelDynamic in design time", function (assert) {
     assert.equal(question.panels.length, 1, "Only one panel at design time");
     assert.equal(question.panels[0].id, question.template.id, "The template panel should be shown");
 });
+
+/* Think about this-
+QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    assert.equal(survey.getPageByQuestion(question.template.questions[0]).name, "p", "Template question page is found");
+    assert.equal(survey.getPageByQuestion(question.panels[0].questions[0]).name, "p", "Nested question page is found");
+});
+*/

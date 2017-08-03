@@ -63,13 +63,13 @@ export class ItemValue {
             items[i].locText.onChanged();
         }
     }
-    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText"];
+    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText", "isValueEmpty"];
     private itemValue: any;
     private locTextValue: LocalizableString;
     constructor(value: any, text: string = null) {
         this.locTextValue = new LocalizableString(null, true);
         var self = this;
-        this.locTextValue.onGetTextCallback = function(text) { return text ? text : (self.value ? self.value.toString() : null); }
+        this.locTextValue.onGetTextCallback = function(text) { return text ? text : (!self.isValueEmpty ? self.value.toString() : null); }
         if(text) this.locText.text = text;
         this.value = value;
     }
@@ -106,7 +106,8 @@ export class ItemValue {
             this.value = value;
         }
     }
-    private  isObjItemValue(obj: any) { return typeof (obj.getType) !== 'undefined' && obj.getType() == 'itemvalue'}
+    private get isValueEmpty() { return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false; }
+    private  isObjItemValue(obj: any) { return typeof (obj.getType) !== 'undefined' && obj.getType() == 'itemvalue';}
     private copyAttributes(src: any, exceptons: Array<string>) {
         for (var key in src) {
             if ((typeof src[key] == 'function')) continue;

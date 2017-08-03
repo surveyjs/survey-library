@@ -127,6 +127,13 @@ QUnit.test("Array<ItemValue> localization", function (assert) {
     items[0].locText.setLocaleText("", null);
     assert.equal(items[0].text, "val1", "Check6, use value");
 });
+QUnit.test("ItemValue.value = 0, #538", function (assert) {
+    var owner = new LocalizableOwnerTester("");
+    var items = ItemValue.createArray(owner);
+
+    items.push(new ItemValue(0));
+    assert.equal(items[0].locText.textOrHtml, "0", "value 0, text should be '0'")
+});
 
 QUnit.test("Array<ItemValue> localization serialize", function (assert) {
     var owner = new LocalizableOwnerTester("");

@@ -761,7 +761,6 @@ QUnit.test("Matrixdynamic column.visibleIf, load from json and add item", functi
     assert.equal(q_1_1.visible, false, "Initial the question in the added row is invisible");
 });
 
-
 QUnit.test("Text inputType=number", function (assert) {
     var question = new QuestionTextModel("text");
     question.inputType = "number";

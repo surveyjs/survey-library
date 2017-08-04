@@ -41,7 +41,7 @@ export class SurveyPage extends React.Component<any, any> {
             <div ref="root">
                 {title}
                 {rows}
-                </div>
+            </div>
         );
     }
     protected createRow(row: QuestionRowModel, index: number): JSX.Element {
@@ -79,6 +79,11 @@ export class SurveyPanel extends React.Component<any, any> {
         var el = this.refs["root"];
         if (el && this.survey) this.survey.afterRenderPage(el);
         this.panel.panelVisibilityChanged = function(panel:Object, visibility:boolean) {
+            self.state.modelChanged = self.state.modelChanged + 1;
+            self.setState(self.state);
+        }
+
+        this.panel.renderWidthChangedCallback = function() {
             self.state.modelChanged = self.state.modelChanged + 1;
             self.setState(self.state);
         }

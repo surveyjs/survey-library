@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="panel in question.panels" :class="css.question.mainRoot">
-            <component :is="survey-panel" :question="panel" :css="css"/>
+            <survey-panel :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
                 <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.removePanelText" @click="removePanelClick(panel)" />
             </div>
@@ -21,9 +21,6 @@
 
     @Component
     export default class PanelDynamic extends Question<QuestionPanelDynamicModel> {
-        get panels() {
-            return this.question.panels;
-        }
         removePanelClick(panel) {
             this.question.removePanel(panel);
         }

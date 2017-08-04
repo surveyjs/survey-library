@@ -232,6 +232,25 @@ QUnit.test("PanelDynamic, question no", function (assert) {
     assert.equal(question2.visibleIndex, 4, "onSurvey, panelQuestion1 is invisible - question2.visibleIndex");
 });
 
+QUnit.test("PanelDynamic, question no", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    assert.equal(panel.renderMode, "list", "list is a default mode");
+    panel.panelCount = 2;
+    assert.equal(panel.currentIndex, -1, "list mode doesn't support currentIndex");
+    assert.equal(panel.currentPanel, null, "list mode doesn't support currentPanel");
+    panel.renderMode = "progressTop";
+    assert.equal(panel.currentIndex, 0, "list mode doesn't support currentIndex");
+    assert.equal(panel.currentPanel.id, panel.panels[0].id, "list mode doesn't support currentPanel");
+    assert.equal(panel.isPrevButtonShowing, false, "currentIndex = 0, prevButton is hidden");
+    assert.equal(panel.isNextButtonShowing, true, "currentIndex = 0, nextButton is visible");
+    panel.currentIndex ++;
+    assert.equal(panel.isPrevButtonShowing, true, "currentIndex = 1, prevButton is visible");
+    assert.equal(panel.isNextButtonShowing, false, "currentIndex = 1, nextButton is hidden");
+});
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

@@ -48,7 +48,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     }
     protected renderAddRowButton(cssClasses: any): JSX.Element {
         if (this.isDisplayMode || !this.question.canAddPanel) return null;
-        return <input className={cssClasses.button} type="button" onClick={this.handleOnPanelAddClick} value={this.question.addPanelText} />;
+        return <input className={cssClasses.button} type="button" onClick={this.handleOnPanelAddClick} value={this.question.panelAddText} />;
     }
 }
 
@@ -89,7 +89,7 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
     }
     protected renderButton(): JSX.Element {
         if(this.isDisplayMode || !this.question.canRemovePanel) return null;        
-        return <input className={this.cssClasses.button} type="button" onClick={this.handleOnPanelRemoveClick} value={this.question.removePanelText} />;
+        return <input className={this.cssClasses.button} type="button" onClick={this.handleOnPanelRemoveClick} value={this.question.panelRemoveText} />;
     }
 }
 

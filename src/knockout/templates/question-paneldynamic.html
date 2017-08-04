@@ -2,11 +2,11 @@
     <!-- ko foreach: { data: question.koPanels } -->    
         <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } --><!-- /ko -->
         <!-- ko ifnot: question.koIsReadOnly -->
-        <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.removePanelText" />
+        <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText" />
         <!-- /ko -->
         <hr/>
     <!-- /ko -->    
     <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddPanel() -->
-    <input type="button" data-bind="click:question.koAddPanelClick, css: question.koCss().button, value: question.addPanelText" />
+    <input type="button" data-bind="click:question.koAddPanelClick, css: question.koCss().button, value: question.panelAddText" />
     <!-- /ko -->
 </script>

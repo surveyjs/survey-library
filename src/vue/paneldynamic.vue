@@ -3,11 +3,11 @@
         <div v-for="panel in question.panels" :class="css.question.mainRoot">
             <survey-panel :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
-                <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.removePanelText" @click="removePanelClick(panel)" />
+                <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.panelRemoveText" @click="removePanelClick(panel)" />
             </div>
             <hr/>
         </div>
-        <input type="button" v-if="!question.isReadOnly && question.canAddPanel" :class="question.cssClasses.button" :value="question.addPanelText" @click="addPanelClick"/>
+        <input type="button" v-if="!question.isReadOnly && question.canAddPanel" :class="question.cssClasses.button" :value="question.panelAddText" @click="addPanelClick"/>
     </div>
 </template>
 

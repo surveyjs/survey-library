@@ -220,10 +220,11 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public onSurveyLoad() {
         this.fireCallback(this.surveyLoadCallback);
     }
-    public setVisibleIndex(value: number) {
-        if (this.visibleIndexValue == value) return;
+    public setVisibleIndex(value: number): number {
+        if (this.visibleIndexValue == value) return 1;
         this.visibleIndexValue = value;
         this.fireCallback(this.visibleIndexChangedCallback);
+        return 1;
     }
     public supportGoNextPageAutomatic() { return false; }
     public clearUnusedValues() {}

@@ -195,6 +195,42 @@ QUnit.test("PanelDynamic in design time", function (assert) {
     assert.equal(question.panels.length, 1, "Only one panel at design time");
     assert.equal(question.panels[0].id, question.template.id, "The template panel should be shown");
 });
+QUnit.test("PanelDynamic, question no", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question1 = <Question>page.addNewQuestion("text", "q1");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    var panelQuestion1 = <Question>panel.panels[0].questions[0];
+    var panelQuestion2 = <Question>panel.panels[1].questions[1];
+    var question2 = <Question>page.addNewQuestion("text", "q2");
+    assert.equal(panel.showQuestionNumbers, "off", "off is the default value");
+    assert.equal(question1.visibleIndex, 0, "off - question1.visibleIndex");
+    assert.equal(panel.visibleIndex, 1, "off - panel.visibleIndex");
+    assert.equal(panelQuestion1.visibleIndex, -1, "off - panelQuestion1.visibleIndex");
+    assert.equal(panelQuestion2.visibleIndex, -1, "off - panelQuestion2.visibleIndex");
+    assert.equal(question2.visibleIndex, 2, "off - question2.visibleIndex");
+
+    panel.showQuestionNumbers = "onPanel";
+    assert.equal(question1.visibleIndex, 0, "onPanel - question1.visibleIndex");
+    assert.equal(panel.visibleIndex, 1, "onPanel - panel.visibleIndex");
+    assert.equal(panelQuestion1.visibleIndex, 0, "onPanel - panelQuestion1.visibleIndex");
+    assert.equal(panelQuestion2.visibleIndex, 1, "onPanel - panelQuestion2.visibleIndex");
+    assert.equal(question2.visibleIndex, 2, "onPanel - question2.visibleIndex");
+
+    panel.showQuestionNumbers = "onSurvey";
+    assert.equal(question1.visibleIndex, 0, "onSurvey - question1.visibleIndex");
+    assert.equal(panel.visibleIndex, -1, "onSurvey - panel.visibleIndex");
+    assert.equal(panelQuestion1.visibleIndex, 1, "onSurvey - panelQuestion1.visibleIndex");
+    assert.equal(panelQuestion2.visibleIndex, 4, "onSurvey - panelQuestion2.visibleIndex");
+    assert.equal(question2.visibleIndex, 5, "onSurvey - question2.visibleIndex");
+
+    panelQuestion1.visible = false;
+    assert.equal(panelQuestion2.visibleIndex, 3, "onSurvey, panelQuestion1 is invisible - panelQuestion2.visibleIndex");
+    assert.equal(question2.visibleIndex, 4, "onSurvey, panelQuestion1 is invisible - question2.visibleIndex");
+});
 
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {

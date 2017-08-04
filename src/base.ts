@@ -68,7 +68,7 @@ export interface IElement  extends IConditionRunner, ISurveyElement{
 
 export interface IQuestion extends IElement {
     hasTitle: boolean;
-    setVisibleIndex(value: number);
+    setVisibleIndex(value: number): number;
     onSurveyValueChanged(newValue: any);
     onReadOnlyChanged();
     supportGoNextPageAutomatic(): boolean;
@@ -177,6 +177,19 @@ export class SurveyElement extends Base implements ISurveyElement {
         this.textProcessorValue = this.surveyImplValue.getTextProcessor();
         this.onSetData();
     }
+    public static setVisibleIndex(questions: Array<IQuestion>, index: number, showIndex: boolean): number {
+        var startIndex = index;
+        for(var i = 0; i < questions.length; i ++) {
+            var q = questions[i];
+            if(!showIndex || !q.visible || !q.hasTitle) {
+                q.setVisibleIndex(-1);
+            } else {
+                index += q.setVisibleIndex(index);
+            }
+        }
+        return index - startIndex;
+    }
+    
     protected get surveyImpl() { return this.surveyImplValue; }
     public get data(): ISurveyData { return this.surveyDataValue; }
     /**

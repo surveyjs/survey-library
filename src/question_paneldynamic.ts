@@ -1,4 +1,4 @@
-import {IElement, Base, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
+import {IElement, Base, SurveyElement, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -54,6 +54,9 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
             q.onSurveyValueChanged(values[q.name]);
         }
     }
+    public setVisibleIndex(index: number, showIndex: boolean): number {
+        return SurveyElement.setVisibleIndex(this.panel.questions, index, showIndex);
+    }
 
     getAllValues() : any { return this.data.getPanelItemData(this); }
     geSurveyData(): ISurveyData { return this; }
@@ -101,6 +104,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private locRemovePanelTextValue: LocalizableString;
     private isValueChangingInternally: boolean;
     private oldTemplateRowsChangedCallback: any;
+    private showQuestionNumbersValue: string = "off"; //onPanel, onSurvey
 
     panelCountChangedCallback: () => void;
 
@@ -177,6 +181,25 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(value == this.maxPanelCount || value < this.minPanelCount) return;
         this.maxPanelCountValue = value;
         if(this.panelCount > value) this.panelCount = value;
+    }
+    public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; }
+    public set showQuestionNumbers(val: string) { 
+        this.showQuestionNumbersValue = val; 
+        if(!this.isLoadingFromJson && this.survey) {
+            //TODO
+            this.survey.questionVisibilityChanged(this, this.visible);
+        }
+    }
+    public setVisibleIndex(value: number): number {
+        var startIndex = this.showQuestionNumbers == "onSurvey" ? value: 0;
+        for(var i = 0; i < this.items.length; i ++) {
+            var counter = this.items[i].setVisibleIndex(startIndex, this.showQuestionNumbers != "off");
+            if(this.showQuestionNumbers == "onSurvey") {
+                startIndex += counter;
+            }
+        }
+        super.setVisibleIndex(this.showQuestionNumbers != "onSurvey" ? value: -1);
+        return this.showQuestionNumbers != "onSurvey" ? 1 : startIndex - value;
     }
     public get canAddPanel() : boolean { return this.panelCount < this.maxPanelCount; }
     public get canRemovePanel() : boolean { return this.panelCount > this.minPanelCount; }
@@ -335,6 +358,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
     {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
-    { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePanelText" }],
+    { name: "addPanelText", serializationProperty: "locAddPanelText" }, { name: "removePanelText", serializationProperty: "locRemovePanelText" },
+    { name: "showQuestionNumbers", default: "off", choices: ["off", "onPanel", "onSurvey"] }],
     function () { return new QuestionPanelDynamicModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { return new QuestionPanelDynamicModel(name);  });

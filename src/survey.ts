@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
+import {Base, ISurvey, SurveyElement, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -1375,10 +1375,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         }
     }
     private updateQuestionVisibleIndexes(questions: IQuestion[], showIndex: boolean) {
-        var index = 0;
-        for (var i = 0; i < questions.length; i++) {
-            questions[i].setVisibleIndex(showIndex && questions[i].visible && questions[i].hasTitle ? (index++) : -1);
-        }
+        SurveyElement.setVisibleIndex(questions, 0, showIndex);
     }
     private setJsonObject(jsonObj: any) {
         if (!jsonObj) return;

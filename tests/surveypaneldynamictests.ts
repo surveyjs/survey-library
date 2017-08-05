@@ -250,6 +250,10 @@ QUnit.test("PanelDynamic, question no", function (assert) {
     panel.currentIndex ++;
     assert.equal(panel.isPrevButtonShowing, true, "currentIndex = 1, prevButton is visible");
     assert.equal(panel.isNextButtonShowing, false, "currentIndex = 1, nextButton is hidden");
+    panel.addPanel();
+    assert.equal(panel.currentIndex, 2, "The last added panel is current");
+    panel.removePanel(2);
+    assert.equal(panel.currentIndex, 1, "The last  panel is removed");
 });
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {

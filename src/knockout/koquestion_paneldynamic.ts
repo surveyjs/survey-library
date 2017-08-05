@@ -11,7 +11,11 @@ import {Panel} from "./kopage";
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     koPanels: any; koRecalc: any;
     koAddPanelClick: any; koRemovePanelClick: any; 
+    koPrevPanelClick: any; koNextPanelClick: any; 
     koCanAddPanel: any; koCanRemovePanel: any;
+    koPanel: any; koIsList: any; koIsProgressTop: any; koIsProgressBottom: any; 
+    koIsNextButton: any; koIsPrevButton: any; koIsRange: any;
+    koRangeValue: any; koRangeMax: any;
     constructor(question: Question) {
         super(question);
         this.koRecalc = ko.observable(0);
@@ -23,23 +27,63 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
         var self = this;
         this.koAddPanelClick = function () { self.addPanel(); }
         this.koRemovePanelClick = function (data) { self.removePanel(data); }
+        this.koPrevPanelClick = function() {(<QuestionPanelDynamic>self.question).currentIndex --;};
+        this.koNextPanelClick = function() {(<QuestionPanelDynamic>self.question).currentIndex ++;};
+
         this.koCanAddPanel = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).canAddPanel; });
         this.koCanRemovePanel = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).canRemovePanel; });
+        this.koIsPrevButton = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isPrevButtonShowing; }); 
+        this.koIsNextButton = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isNextButtonShowing; }); 
+        this.koIsRange = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isRangeShowing; }); 
+        this.koPanel = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).currentPanel }); 
+        this.koIsList = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isRenderModeList; }); 
+        this.koIsProgressTop = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isProgressTopShowing }); 
+        this.koIsProgressBottom = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).isProgressBottomShowing }); 
+
+        this.koRangeValue = ko.observable((<QuestionPanelDynamic>self.question).currentIndex);
+        this.koRangeValue.subscribe(function(newValue) { (<QuestionPanelDynamic>self.question).currentIndex = newValue; });
+        this.koRangeMax = ko.pureComputed(function () { self.koRecalc(); return (<QuestionPanelDynamic>self.question).panelCount - 1; }); 
+        
         this.question["koAddPanelClick"] = this.koAddPanelClick;
         this.question["koRemovePanelClick"] = this.koRemovePanelClick;
+        this.question["koPrevPanelClick"] = this.koPrevPanelClick;
+        this.question["koNextPanelClick"] = this.koNextPanelClick;
         this.question["koCanAddPanel"] = this.koCanAddPanel;
         this.question["koCanRemovePanel"] = this.koCanRemovePanel;
+        this.question["koPanel"] = this.koPanel;
+        this.question["koIsList"] = this.koIsList;
+        this.question["koIsProgressTop"] = this.koIsProgressTop;
+        this.question["koIsProgressBottom"] = this.koIsProgressBottom;
+        this.question["koIsPrevButton"] = this.koIsPrevButton;
+        this.question["koIsNextButton"] = this.koIsNextButton;
+        this.question["koIsRange"] = this.koIsRange;
+        this.question["koRangeValue"] = this.koRangeValue;
+        this.question["koRangeMax"] = this.koRangeMax;
+        
         this.question["koPanelAfterRender"] = function(el, con) { self.panelAfterRender(el, con); };
         (<QuestionPanelDynamic>this.question).panelCountChangedCallback = function () { self.onPanelCountChanged(); };
+        (<QuestionPanelDynamic>this.question).renderModeChangedCallback = function() {self.onRenderModeChanged(); };
+        (<QuestionPanelDynamic>this.question).currentIndexChangedCallback = function() {self.onCurrentIndexChanged(); };
     }
     protected onPanelCountChanged() {
+        this.onCurrentIndexChanged();
+    }
+    protected onRenderModeChanged() {
+        this.onCurrentIndexChanged();
+    }
+    protected onCurrentIndexChanged() {
         this.koRecalc(this.koRecalc() + 1);
+        this.koRangeValue((<QuestionPanelDynamic>this.question).currentIndex);
     }
     protected addPanel() {
         (<QuestionPanelDynamic>this.question).addPanel();
     }
     protected removePanel(val: any) {
-        (<QuestionPanelDynamic>this.question).removePanel(val);
+        var q = <QuestionPanelDynamic>this.question;
+        if(!q.isRenderModeList) {
+            val = q.currentPanel;
+        }
+        q.removePanel(val);
     }
     private panelAfterRender(elements, con) {
         if(!this.question || !this.question.survey) return;

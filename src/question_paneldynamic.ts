@@ -108,6 +108,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private oldTemplateRowsChangedCallback: any;
     private renderModeValue: string = "list"; //progressTop, progressBottom, progressTopBottom
     private showQuestionNumbersValue: string = "off"; //onPanel, onSurvey
+    private showRangeInProgressValue: boolean = true;
     private currentIndexValue: number = -1;
 
     renderModeChangedCallback: () => void;
@@ -151,11 +152,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return res;
     }
     public get currentIndex(): number {
-        if(this.renderMode == "list") return -1;
+        if(this.isRenderModeList) return -1;
         if(this.currentIndexValue < 0 && this.panelCount > 0) {
             this.currentIndexValue = 0;
         }
-        if(this.currentIndexValue  > this.panelCount) {
+        if(this.currentIndexValue  >= this.panelCount) {
             this.currentIndexValue = this.panelCount - 1;
         }
         return this.currentIndexValue;
@@ -189,7 +190,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public get isProgressBottomShowing(): boolean { return this.renderMode == "progressBottom" || this.renderMode == "progressTopBottom"; }
     public get isPrevButtonShowing(): boolean { return this.currentIndex > 0; }
     public get isNextButtonShowing(): boolean { return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1; }
-    public get isRangeShowing(): boolean { return this.currentIndex >= 0 && this.panelCount > 1; }
+    public get isRangeShowing(): boolean { return this.showRangeInProgress && (this.currentIndex >= 0 && this.panelCount > 1); }
     public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return includeHidden ? [this.template] : this.templateElements; }
     public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.items.length; }
     public set panelCount(val: number) {
@@ -238,11 +239,17 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             this.survey.questionVisibilityChanged(this, this.visible);
         }
     }
+    public get showRangeInProgress(): boolean { return this.showRangeInProgressValue; }
+    public set showRangeInProgress(val: boolean) {
+        this.showRangeInProgressValue = val;
+        this.fireCallback(this.currentIndexChangedCallback);
+    }
     public get renderMode(): string { return this.renderModeValue; }
     public set renderMode(val: string) {
         this.renderModeValue = val;
         this.fireCallback(this.renderModeChangedCallback);
     }
+    public get isRenderModeList() { return this.renderMode == "list"; }
     public setVisibleIndex(value: number): number {
         var startIndex = this.showQuestionNumbers == "onSurvey" ? value: 0;
         for(var i = 0; i < this.items.length; i ++) {
@@ -254,8 +261,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         super.setVisibleIndex(this.showQuestionNumbers != "onSurvey" ? value: -1);
         return this.showQuestionNumbers != "onSurvey" ? 1 : startIndex - value;
     }
-    public get canAddPanel() : boolean { return this.panelCount < this.maxPanelCount; }
-    public get canRemovePanel() : boolean { return this.panelCount > this.minPanelCount; }
+    public get canAddPanel() : boolean { return !this.isReadOnly && (this.panelCount < this.maxPanelCount); }
+    public get canRemovePanel() : boolean { return !this.isReadOnly && (this.panelCount > this.minPanelCount); }
 
     protected rebuildPanels() {
         var items = new Array<QuestionPanelDynamicItem>();
@@ -276,6 +283,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public addPanel(): PanelModel {
         if(!this.canAddPanel) return null;
         this.panelCount ++;
+        if(!this.isRenderModeList) {
+            this.currentIndex = this.panelCount - 1;
+        }
         return this.items[this.panelCount - 1].panel;
     }
     public removePanel(value: any) {
@@ -404,7 +414,7 @@ JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alterna
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
     { name: "panelAddText", serializationProperty: "locPanelAddText" }, { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
     { name: "panelPrevText", serializationProperty: "locPanelPrevText" }, { name: "panelNextText", serializationProperty: "locPanelNextText" },
-    { name: "showQuestionNumbers", default: "off", choices: ["off", "onPanel", "onSurvey"] },
+    { name: "showQuestionNumbers", default: "off", choices: ["off", "onPanel", "onSurvey"] }, { name: "showRangeInProgress", default: true},
     { name: "renderMode", default: "list", choices: ["list", "progressTop", "progressBottom", "progressTopBottom"]}],
     function () { return new QuestionPanelDynamicModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("paneldynamic", (name) => { return new QuestionPanelDynamicModel(name);  });

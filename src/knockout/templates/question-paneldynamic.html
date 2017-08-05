@@ -1,12 +1,20 @@
 <script type="text/html" id="survey-question-paneldynamic">
-    <!-- ko foreach: { data: question.koPanels } -->    
-        <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } --><!-- /ko -->
-        <!-- ko ifnot: question.koIsReadOnly -->
-        <input type="button" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText" />
-        <!-- /ko -->
-        <hr/>
-    <!-- /ko -->    
-    <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddPanel() -->
-    <input type="button" data-bind="click:question.koAddPanelClick, css: question.koCss().button, value: question.panelAddText" />
+    <!-- ko if: question.koIsList() -->
+        <!-- ko foreach: { data: question.koPanels } -->    
+            <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } --><!-- /ko -->
+            <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText" />
+            <hr/>
+        <!-- /ko -->    
+        <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button, value: question.panelAddText" />
+    <!-- /ko -->
+    <!-- ko ifnot: question.koIsList()  --> 
+        <div data-bind="visible:question.koIsProgressTop">
+            <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} --><!-- /ko -->
+        </div>
+        <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } --><!-- /ko -->
+        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText" />
+        <div data-bind="visible:question.koIsProgressBottom">
+            <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} --><!-- /ko -->
+        </div>
     <!-- /ko -->
 </script>

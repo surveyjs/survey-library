@@ -232,7 +232,7 @@ QUnit.test("PanelDynamic, question no", function (assert) {
     assert.equal(question2.visibleIndex, 4, "onSurvey, panelQuestion1 is invisible - question2.visibleIndex");
 });
 
-QUnit.test("PanelDynamic, question no", function (assert) {
+QUnit.test("PanelDynamic, renderMode", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
@@ -254,6 +254,19 @@ QUnit.test("PanelDynamic, question no", function (assert) {
     assert.equal(panel.currentIndex, 2, "The last added panel is current");
     panel.removePanel(2);
     assert.equal(panel.currentIndex, 1, "The last  panel is removed");
+});
+QUnit.test("PanelDynamic, renderMode is not list + hasError", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
+    (<Question>panel.template.addNewQuestion("text", "panelq1")).isRequired = true;
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    panel.renderMode = "progressTop";
+    panel.currentIndex = 1;
+    assert.equal(panel.currentIndex, 1, "go to the second panel");
+    panel.hasErrors(true);
+    assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
 });
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {

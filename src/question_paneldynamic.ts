@@ -347,7 +347,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var res = false;
         var panels = this.panels;
         for (var i = 0; i < panels.length; i++) {
-            res = panels[i].hasErrors(fireCallback) || res;
+            var pnlError = panels[i].hasErrors(fireCallback);
+            if(!this.isRenderModeList && pnlError && !res) { 
+                this.currentIndex = i;
+            }
+            res = pnlError || res;
         }
         return res;
     }

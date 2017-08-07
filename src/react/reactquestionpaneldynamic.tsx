@@ -69,7 +69,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
                 {panels}
                 {navBottom}
                 {btnAdd}
-                <hr/>
             </div>
         );
     }

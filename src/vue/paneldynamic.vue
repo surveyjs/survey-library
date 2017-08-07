@@ -1,13 +1,15 @@
 <template>
     <div>
-        <div v-for="panel in question.panels" :class="css.question.mainRoot">
+        <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" :css="css"/>
+        <div v-for="panel in renderedPanels" :class="css.question.mainRoot">
             <survey-panel :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
                 <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.panelRemoveText" @click="removePanelClick(panel)" />
             </div>
             <hr/>
         </div>
-        <input type="button" v-if="!question.isReadOnly && question.canAddPanel" :class="question.cssClasses.button" :value="question.panelAddText" @click="addPanelClick"/>
+        <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" :css="css"/>
+        <input type="button" v-if="question.isRenderModeList && question.canAddPanel" :class="question.cssClasses.button" :value="question.panelAddText" @click="addPanelClick"/>
     </div>
 </template>
 
@@ -21,6 +23,14 @@
 
     @Component
     export default class PanelDynamic extends Question<QuestionPanelDynamicModel> {
+        get renderedPanels() {
+            if(this.question.isRenderModeList) return this.question.panels;
+            var panels = [];
+            if(this.question.currentPanel) {
+                panels.push(this.question.currentPanel);
+            }
+            return panels;
+        }
         removePanelClick(panel) {
             this.question.removePanel(panel);
         }

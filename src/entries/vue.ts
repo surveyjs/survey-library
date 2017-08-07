@@ -34,6 +34,7 @@ export {default as Errors} from '../vue/errors.vue';
 export {default as Html} from '../vue/html.vue';
 export {default as MatrixDynamic} from '../vue/matrixdynamic.vue';
 export {default as PanelDynamic} from '../vue/paneldynamic.vue';
+export {default as PanelDynamicProgress} from '../vue/paneldynamicprogress.vue';
 export {default as Progress} from '../vue/progress.vue';
 export {default as Panel} from '../vue/panel.vue';
 export {default as Row} from '../vue/row.vue';

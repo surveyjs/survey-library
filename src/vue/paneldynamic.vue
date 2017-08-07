@@ -1,6 +1,6 @@
 <template>
     <div>
-        <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" :css="css"/>
+        <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" />
         <div v-for="panel in renderedPanels" :class="css.question.mainRoot">
             <survey-panel :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
@@ -8,7 +8,7 @@
             </div>
             <hr/>
         </div>
-        <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" :css="css"/>
+        <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" />
         <input type="button" v-if="question.isRenderModeList && question.canAddPanel" :class="question.cssClasses.button" :value="question.panelAddText" @click="addPanelClick"/>
     </div>
 </template>

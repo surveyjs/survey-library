@@ -591,7 +591,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.valuesHash = {};
         if (data) {
             for (var key in data) {
-                this._setDataValue(data, key);
+                this.setDataValueCore(this.valuesHash, key, data[key]);
                 this.checkTriggers(key, data[key], false);
                 if (!this.processedTextValues[key.toLowerCase()]) {
                     this.processedTextValues[key.toLowerCase()] = "value";
@@ -601,8 +601,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.notifyAllQuestionsOnValueChanged();
         this.runConditions();
     }
-    protected _setDataValue(data: any, key: string) {
-        this.valuesHash[key] = data[key];
+    protected setDataValueCore(valuesHash: any, key: string, value: any) {
+        valuesHash[key] = value;
     }
     /**
      * Returns all comments from the data.
@@ -1507,7 +1507,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             delete this.valuesHash[name];
         } else {
             newValue = this.getUnbindValue(newValue);
-            this.valuesHash[name] = newValue;
+            this.setDataValueCore(this.valuesHash, name, newValue);
             var processedVar = this.processedTextValues[name.toLowerCase()];
             if(!processedVar) {
                 this.processedTextValues[name.toLowerCase()] = "value";
@@ -1562,7 +1562,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (newValue === "" || newValue === null) {
             delete this.valuesHash[commentName];
         } else {
-            this.valuesHash[commentName] = newValue;
+            this.setDataValueCore(this.valuesHash, commentName, newValue);
             this.tryGoNextPageAutomatic(name);
         }
         var question = this.getQuestionByName(name);

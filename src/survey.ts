@@ -1190,7 +1190,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         return result;
     }
     protected createNewPage(name: string) { return new PageModel(name); }
-    private notifyQuestionOnValueChanged(name: string, newValue: any) {
+    protected notifyQuestionOnValueChanged(name: string, newValue: any) {
        var questions = this.getAllQuestions();
         var question = null;
         for (var i: number = 0; i < questions.length; i++) {

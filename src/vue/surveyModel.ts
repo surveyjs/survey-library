@@ -3,19 +3,22 @@ import {SurveyModel} from "../survey";
 import {surveyCss} from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
-    private vueValuesHash: {[index: string]: any} = {};
+    private vueValuesHash: {[index: string]: any};
     renderCallback: () => void;
     constructor(jsonObj: any = null) {
         super(jsonObj);
-        this.getAllQuestions().forEach(question => this.vueValuesHash[question.name] = undefined);
+        this.createValueHash();
     }
     public render() {
         if (this.renderCallback) {
             this.renderCallback();
         }
     }
+    endLoadingFromJson() { 
+        this.createValueHash();
+        super.endLoadingFromJson();
+    }
     protected onLoadSurveyFromService() {
-        this.getAllQuestions().forEach(question => Vue.set(this.vueValuesHash, question.name, undefined));
         this.render();
     }
     protected onLoadingSurveyFromService() {
@@ -36,11 +39,15 @@ export class VueSurveyModel extends SurveyModel {
         var value = this.vueValuesHash ? this.vueValuesHash[name] : null;
         return super.getUnbindValue(value);
     }
-    setValue(name: string, newValue: any) {
-        super.setValue(name, newValue);
+    protected notifyQuestionOnValueChanged(name: string, newValue: any) {
         if(this.vueValuesHash) {
             this.vueValuesHash[name] = newValue;
         }
-        this.tryGoNextPageAutomatic(name);
+        super.notifyQuestionOnValueChanged(name, newValue);
+    }
+    private createValueHash() {
+        if(this.vueValuesHash) return;
+        this.vueValuesHash = {};
+        this.getAllQuestions().forEach(question => this.vueValuesHash[question.name] = undefined);
     }
 }

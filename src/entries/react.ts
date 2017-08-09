@@ -38,8 +38,7 @@ export {SurveyQuestionPanelDynamic} from "../react/reactquestionpaneldynamic";
 export {SurveyProgress} from "../react/reactSurveyProgress";
 export {SurveyQuestionRating} from "../react/reactquestionrating";
 export {SurveyWindow} from "../react/reactSurveyWindow";
-export {ReactQuestionFactory} from "../react/reactquestionfactory"; // TODO need to remove someday
-export {ReactQuestionFactory as QuestionFactory} from "../react/reactquestionfactory";
+export {ReactQuestionFactory} from "../react/reactquestionfactory";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

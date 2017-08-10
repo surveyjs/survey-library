@@ -50,7 +50,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
         this.questionBase = nextProps.question;
         this.creator = nextProps.creator;
     }
-    protected shouldComponentUpdate(): boolean {
+    public shouldComponentUpdate(): boolean {
         return !this.questionBase.customWidget
             || !!this.questionBase.customWidgetData.isNeedRender
             || !!this.questionBase.customWidget.widgetJson.render;

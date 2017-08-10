@@ -51,7 +51,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         this.isFirst = props.isFirst;
         this.handleOnChange = this.handleOnChange.bind(this);
     }
-    protected shouldComponentUpdate(): boolean {
+    public shouldComponentUpdate(): boolean {
         return !this.question.customWidget || !!this.question.customWidgetData.isNeedRender || !!this.question.customWidget.widgetJson.render;
     }
     componentWillReceiveProps(nextProps: any) {

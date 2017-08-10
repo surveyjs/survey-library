@@ -12,14 +12,17 @@ To find out more about the library go
 * and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
 
 You can try plnkr examples at:
-* Angular2 http://plnkr.co/edit/OJkKlUn1oxzWYtnruXir?p=preview
-* jQuery http://plnkr.co/edit/DH4vJWSBtza7bSCDm2r9?p=preview
-* Knockout http://plnkr.co/edit/JKy5wwiAhaBTMze3fOO0?p=preview
-* React http://plnkr.co/edit/qXdeQa6x2FHRg0YrOlPL?p=preview
-* Vue http://plnkr.co/edit/aTYVAiDvMWOf3zDReayE?p=preview
+* [Angular2](http://plnkr.co/edit/OJkKlUn1oxzWYtnruXir?p=preview) 
+* [jQuery](http://plnkr.co/edit/DH4vJWSBtza7bSCDm2r9?p=preview)
+* [Knockout](http://plnkr.co/edit/JKy5wwiAhaBTMze3fOO0?p=preview)
+* [React](http://plnkr.co/edit/qXdeQa6x2FHRg0YrOlPL?p=preview)
+* [Vue](http://plnkr.co/edit/aTYVAiDvMWOf3zDReayE?p=preview)
 
-or use quickstart repos
-[Angular 2](https://github.com/surveyjs/surveyjs_angular_quickstart), [Angular CLI](https://github.com/surveyjs/surveyjs_angular_cli), [React](https://github.com/surveyjs/surveyjs_react_quickstart), [Vue](https://github.com/surveyjs/surveyjs_vue_quickstart)
+or use quickstart repos:
+* [Angular 2](https://github.com/surveyjs/surveyjs_angular_quickstart)
+* [Angular CLI](https://github.com/surveyjs/surveyjs_angular_cli)
+* [React](https://github.com/surveyjs/surveyjs_react_quickstart)
+* [Vue](https://github.com/surveyjs/surveyjs_vue_quickstart)
 
 Install the library using npm.
 

@@ -18,6 +18,9 @@ You can try plnkr examples at:
 * React http://plnkr.co/edit/qXdeQa6x2FHRg0YrOlPL?p=preview
 * Vue http://plnkr.co/edit/aTYVAiDvMWOf3zDReayE?p=preview
 
+or use quickstart repos
+[Angular 2](https://github.com/surveyjs/surveyjs_angular_quickstart), [Angular CLI](https://github.com/surveyjs/surveyjs_angular_cli), [React](https://github.com/surveyjs/surveyjs_react_quickstart), [Vue](https://github.com/surveyjs/surveyjs_vue_quickstart)
+
 Install the library using npm.
 
 Angular2 version:

@@ -46,7 +46,7 @@
             var rows = this.question.visibleRows;
             var index = rows.indexOf(row);
             if (index > -1) {
-                this.question.removeRow(index);
+                this.question.removeRowUI(index);
             }
         }
         addRowClick() {

@@ -56,7 +56,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
         var rows = (<QuestionMatrixDynamic>this.question).visibleRows;
         var index = rows.indexOf(row);
         if (index > -1) {
-            (<QuestionMatrixDynamic>this.question).removeRow(index);
+            (<QuestionMatrixDynamic>this.question).removeRowUI(index);
         }
     }
 }

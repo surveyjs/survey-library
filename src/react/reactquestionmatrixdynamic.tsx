@@ -95,7 +95,7 @@ export class SurveyQuestionMatrixDynamicRow extends ReactSurveyElement {
         this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
     }
     handleOnRowRemoveClick(event) {
-        this.question.removeRow(this.index);
+        this.question.removeRowUI(this.index);
     }
     render(): JSX.Element {
         if (!this.row) return null;

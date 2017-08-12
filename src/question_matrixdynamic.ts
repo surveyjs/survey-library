@@ -23,13 +23,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public static MaxRowCount = 100;
     private rowCounter = 0;
     private rowCountValue: number = 2;
+    private locConfirmDeleteTextValue: LocalizableString;
     private locAddRowTextValue: LocalizableString;
     private locRemoveRowTextValue: LocalizableString;
     private minRowCountValue = 0;
     private maxRowCountValue = QuestionMatrixDynamicModel.MaxRowCount;
     rowCountChangedCallback: () => void;
+
+    /**
+     * Set it to true, to show a confirmation dialog on removing a row
+     * @see ConfirmDeleteText
+     */
+    public confirmDelete: boolean = false;
     constructor(public name: string) {
         super(name);
+        this.locConfirmDeleteTextValue = new LocalizableString(this);
         this.locAddRowTextValue = new LocalizableString(this);
         this.locRemoveRowTextValue = new LocalizableString(this);
     }
@@ -113,6 +121,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         }
     }
     /**
+     * Removes a row by it's index. If confirmDelete is true, show a confirmation dialog
+     * @param index a row index, from 0 to rowCount - 1
+     * @see removeRow
+     * @see confirmDelete
+     */
+    public removeRowUI(value: any) {
+        if(!this.confirmDelete || confirm(this.ConfirmDeleteText)) {
+            this.removeRow(value);
+        }
+    }
+    /**
      * Removes a row by it's index.
      * @param index a row index, from 0 to rowCount - 1
      */
@@ -131,6 +150,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         this.rowCountValue--;
         this.fireCallback(this.rowCountChangedCallback);
     }
+    /**
+     * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
+     */
+    public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
+    public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
+    get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
     /**
      * Use this property to change the default value of add row button text.
      */
@@ -225,7 +250,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
 }
 
 JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 }, { name: "maxRowCount:number", default: QuestionMatrixDynamicModel.MaxRowCount },
-        { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
+    {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
+    { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
 
 QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => { var q = new QuestionMatrixDynamicModel(name); q.choices = [1, 2, 3, 4, 5]; QuestionMatrixDropdownModelBase.addDefaultColumns(q); return q; });

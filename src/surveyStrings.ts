@@ -53,6 +53,7 @@ export var surveyStrings = {
     exceedMaxSize: "The file size should not exceed {0}.",
     otherRequiredError: "Please enter the other value.",
     uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
+    confirmDelete: "Do you want to delete the record?",
     addRow: "Add row",
     removeRow: "Remove",
     addPanel: "Add new",

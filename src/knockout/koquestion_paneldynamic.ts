@@ -83,7 +83,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
         if(!q.isRenderModeList) {
             val = q.currentPanel;
         }
-        q.removePanel(val);
+        q.removePanelUI(val);
     }
     private panelAfterRender(elements, con) {
         if(!this.question || !this.question.survey) return;

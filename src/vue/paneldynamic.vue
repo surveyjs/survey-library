@@ -32,7 +32,7 @@
             return panels;
         }
         removePanelClick(panel) {
-            this.question.removePanel(panel);
+            this.question.removePanelUI(panel);
         }
         addPanelClick() {
             this.question.addPanel();

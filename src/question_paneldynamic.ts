@@ -104,6 +104,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private loadingPanelCount: number = 0;
     private minPanelCountValue = 0;
     private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
+    private locConfirmDeleteTextValue: LocalizableString;
     private locPanelAddTextValue: LocalizableString;
     private locPanelRemoveTextValue: LocalizableString;
     private locPanelPrevTextValue : LocalizableString;
@@ -119,6 +120,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     panelCountChangedCallback: () => void;
     currentIndexChangedCallback: () => void;
 
+    public confirmDelete: boolean = false;
+
     constructor(public name: string) {
         super(name);
         this.templateValue = this.createNewPanelObject();
@@ -127,6 +130,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var self = this;
         this.oldTemplateRowsChangedCallback = this.template.rowsChangedCallback;
         this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); if(self.oldTemplateRowsChangedCallback) self.oldTemplateRowsChangedCallback(); }
+        this.locConfirmDeleteTextValue = new LocalizableString(this);
         this.locPanelAddTextValue = new LocalizableString(this);
         this.locPanelRemoveTextValue = new LocalizableString(this);
         this.locPanelPrevTextValue = new LocalizableString(this);
@@ -176,6 +180,10 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return this.panels[index];
     }
     
+    public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
+    public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
+    get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+
     public get panelPrevText(): string { return this.locPanelPrevText.text ? this.locPanelPrevText.text : surveyLocalization.getString("pagePrevText"); }
     public set panelPrevText(newValue: string) { this.locPanelPrevText.text = newValue; }
     get locPanelPrevText(): LocalizableString { return this.locPanelPrevTextValue;}
@@ -291,6 +299,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             this.currentIndex = this.panelCount - 1;
         }
         return this.items[this.panelCount - 1].panel;
+    }
+    public removePanelUI(value: any) {
+        if(!this.confirmDelete || confirm(this.ConfirmDeleteText)) {
+            this.removePanel(value);
+        }
     }
     public removePanel(value: any) {
         if(!this.canRemovePanel) return;
@@ -423,6 +436,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
     {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
+    {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
     { name: "panelAddText", serializationProperty: "locPanelAddText" }, { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
     { name: "panelPrevText", serializationProperty: "locPanelPrevText" }, { name: "panelNextText", serializationProperty: "locPanelNextText" },
     { name: "showQuestionNumbers", default: "off", choices: ["off", "onPanel", "onSurvey"] }, { name: "showRangeInProgress", default: true},

@@ -115,7 +115,7 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
         this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
     }
     handleOnPanelRemoveClick(event) {
-        this.question.removePanel(this.index);
+        this.question.removePanelUI(this.index);
     }
     render(): JSX.Element {
         if (!this.panel) return null;

@@ -150,6 +150,18 @@ QUnit.test("Support visibleIf and panel variable", function (assert) {
     question.value = [{q1: "val"}];
     assert.equal(question.panels[0].questions[1].visible, true, "q1 is 'val'");
 });
+QUnit.test("Support panelIndex variable", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.templateTitle = "{panelIndex}. test";
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    assert.equal(question.panels[0].processedTitle, "1. test", "panelIndex = 1 for the first panel");
+    assert.equal(question.panels[1].processedTitle, "2. test", "panelIndex = 2 for the second panel");
+});
 QUnit.test("remove Panel", function (assert) {
     var question = new QuestionPanelDynamicModel("q");
     question.template.addNewQuestion("text", "q1");

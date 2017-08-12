@@ -9,6 +9,7 @@ import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 
 export interface IQuestionPanelDynamicData {
+    getItemIndex(item: QuestionPanelDynamicItem): number;
     getPanelItemData(item: QuestionPanelDynamicItem): any;
     setPanelItemData(item: QuestionPanelDynamicItem, name: string, val: any);
     getSurvey(): ISurvey;
@@ -16,6 +17,7 @@ export interface IQuestionPanelDynamicData {
 
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, ITextProcessor {
     public static ItemVariableName = "panel";
+    public static IndexVariableName = "panelIndex";
     private panelValue: PanelModel;
     private data: IQuestionPanelDynamicData;
     private textPreProcessor = new TextPreProcessor();
@@ -64,10 +66,12 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
     getTextProcessor(): ITextProcessor { return this; }
     //ITextProcessor 
     private hasProcessedTextValue(name: string): boolean {
+        if(name == QuestionPanelDynamicItem.IndexVariableName) return true;
         var firstName = new ProcessValue().getFirstName(name);
         return firstName == QuestionPanelDynamicItem.ItemVariableName;
     }
     private getProcessedTextValue(name: string, returnDisplayValue: boolean) {
+        if(name == QuestionPanelDynamicItem.IndexVariableName) return this.data.getItemIndex(this) + 1;
         //name should start with the panel
         name = name.replace(QuestionPanelDynamicItem.ItemVariableName + ".", "");
         var firstName = new ProcessValue().getFirstName(name);
@@ -392,6 +396,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         }
     }
     //IQuestionPanelDynamicData 
+    getItemIndex(item: QuestionPanelDynamicItem): number {
+        return this.items.indexOf(item);
+    }
     getPanelItemData(item: QuestionPanelDynamicItem): any {
         var index = this.items.indexOf(item);
         if(index < 0) return {};

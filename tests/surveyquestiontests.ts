@@ -487,6 +487,21 @@ QUnit.test("Matrixdynamic column.validators", function (assert) {
     question.value = [{ 'column1': "aaa@aaa.com" }, {}];
     assert.equal(question.hasErrors(), false, "column1 has valid e-mail");
 });
+QUnit.test("Matrixdynamic duplicationError", function (assert) {
+    var question = new QuestionMatrixDynamicModel("matrixDymanic");
+    question.rowCount = 2;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    question.keyName = "column1";
+    var rows = question.visibleRows;
+    assert.equal(question.hasErrors(), false, "No errors");
+    question.value = [{ 'column1': "val1" }, {}];
+    assert.equal(question.hasErrors(), false, "There is no errors, row[0].column1=val1");
+    question.value = [{ 'column1': "val1" }, { 'column1': "val1" }];
+    assert.equal(question.hasErrors(), true, "There is the error, row[0].column1=val1 and row[1].column2=val1");
+    question.value = [{ 'column1': "val1" }, { 'column1': "val2" }];
+    assert.equal(question.hasErrors(), false, "There is no errors, row[0].column1=val1 and row[1].column2=val2");
+});
 QUnit.test("Matrixdynamic hasOther column", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDymanic");
     question.choices = [1, 2, 3];

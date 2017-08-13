@@ -1,10 +1,10 @@
 ﻿import {QuestionMatrixDropdownModelBase,
-    MatrixDropdownRowModelBase, IMatrixDropdownData
+    MatrixDropdownRowModelBase, IMatrixDropdownData, MatrixDropdownColumn
 } from "./question_matrixdropdownbase";
 import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
 import {surveyLocalization} from "./surveyStrings";
-import {SurveyError} from "./base";
+import {Base, SurveyError} from "./base";
 import {CustomError} from "./error";
 import {LocalizableString} from "./localizablestring";
 
@@ -24,6 +24,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     private rowCounter = 0;
     private rowCountValue: number = 2;
     private locConfirmDeleteTextValue: LocalizableString;
+    private locKeyDuplicationErrorValue: LocalizableString;    
     private locAddRowTextValue: LocalizableString;
     private locRemoveRowTextValue: LocalizableString;
     private minRowCountValue = 0;
@@ -35,9 +36,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
      * @see ConfirmDeleteText
      */
     public confirmDelete: boolean = false;
+    /**
+     * Set it to a column name and the library shows duplication error, if there are same values in different rows in the column.
+     * @see keyDuplicationError
+     */
+    public keyName: string = "";
     constructor(public name: string) {
         super(name);
         this.locConfirmDeleteTextValue = new LocalizableString(this);
+        this.locKeyDuplicationErrorValue = new LocalizableString(this);
         this.locAddRowTextValue = new LocalizableString(this);
         this.locRemoveRowTextValue = new LocalizableString(this);
     }
@@ -156,6 +163,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
     public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
     get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+
+    /**
+     * The duplication value error text. Set it to show the text different from the default.
+     * @see keyName
+     */
+    public get keyDuplicationError() { return this.locKeyDuplicationError.text ? this.locKeyDuplicationError.text : surveyLocalization.getString("keyDuplicationError"); } 
+    public set keyDuplicationError(value: string) { this.locKeyDuplicationError.text = value; }
+    get locKeyDuplicationError() { return this.locKeyDuplicationErrorValue; }
     /**
      * Use this property to change the default value of add row button text.
      */
@@ -187,6 +202,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
             errors.push(new CustomError(surveyLocalization.getString("minRowCountError")["format"](this.minRowCount)));
         }
     }
+    public hasErrors(fireCallback: boolean = true): boolean {
+        var prevValue = super.hasErrors(fireCallback)
+        return  this.isValueDuplicated() || prevValue;
+    }
     private hasErrorInRows(): boolean {
         if (this.minRowCount <= 0 || !this.generatedVisibleRows) return false;
         var res = false;
@@ -196,6 +215,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
             if (!row.isEmpty) setRowCount++;
         }
         return setRowCount < this.minRowCount;
+    }
+    private isValueDuplicated(): boolean {
+        if (!this.keyName || !this.generatedVisibleRows) return false;
+        var column = this.getColumnName(this.keyName);
+        if(!column) return false;
+        var keyValues = [];
+        var res = false;
+        for(var i = 0; i < this.generatedVisibleRows.length; i ++) {
+            res = this.isValueDuplicatedInRow(this.generatedVisibleRows[i], column, keyValues) || res;
+        }
+        return res;
+    }
+    private isValueDuplicatedInRow(row: MatrixDropdownRowModelBase, column: MatrixDropdownColumn, keyValues: Array<any>): boolean {
+        var question = row.getQuestionByColumn(column);
+        if(!question || question.isEmpty()) return false;
+        var value = question.value;
+        for(var i = 0; i < keyValues.length; i ++) {
+            if(value == keyValues[i]) {
+                question.addError(new CustomError(this.keyDuplicationError));
+                return true;
+            }
+        }
+        keyValues.push(value);
+        return false;
     }
     protected generateRows(): Array<MatrixDynamicRowModel> {
         var result = new Array<MatrixDynamicRowModel>();
@@ -250,6 +293,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
 }
 
 JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 }, { name: "maxRowCount:number", default: QuestionMatrixDynamicModel.MaxRowCount },
+    {name: "keyName"}, { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError" },
     {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
     { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");

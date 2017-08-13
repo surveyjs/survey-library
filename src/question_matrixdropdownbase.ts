@@ -243,6 +243,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
         }
         return true;
     }
+    public getQuestionByColumn(column: MatrixDropdownColumn) {
+        for(var i = 0; i < this.cells.length; i ++) {
+            if(this.cells[i].column == column) return this.cells[i].question;
+        }
+        return null;
+    }
     public getLocale(): string { return this.data ? this.data.getLocale() : "";}
     public getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }
     public onLocaleChanged() {
@@ -418,6 +424,16 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             rows[i].onLocaleChanged();
         }
         this.fireCallback(this.updateCellsCallback);
+    }
+    /**
+     * Returns the column by it's name. Retuns null if a column with this name doesn't exist.
+     * @param column 
+     */
+    public getColumnName(columnName: string): MatrixDropdownColumn {
+        for(var i = 0; i < this.columns.length; i++) {
+            if(this.columns[i].name == columnName) return this.columns[i];
+        }
+        return null;
     }
     /**
      * Returns the column width.

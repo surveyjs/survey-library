@@ -54,6 +54,7 @@ export var surveyStrings = {
     otherRequiredError: "Please enter the other value.",
     uploadingFile: "Your file is uploading. Please wait several seconds and try again.",
     confirmDelete: "Do you want to delete the record?",
+    keyDuplicationText: "This value should be unique.",
     addRow: "Add row",
     removeRow: "Remove",
     addPanel: "Add new",

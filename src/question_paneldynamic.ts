@@ -7,6 +7,7 @@ import {Question} from "./question";
 import {PanelModel} from "./panel";
 import {JsonObject} from "./jsonobject";
 import {QuestionFactory} from "./questionfactory";
+import {CustomError} from "./error";
 
 export interface IQuestionPanelDynamicData {
     getItemIndex(item: QuestionPanelDynamicItem): number;
@@ -105,6 +106,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private minPanelCountValue = 0;
     private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
     private locConfirmDeleteTextValue: LocalizableString;
+    private locKeyDuplicationErrorValue: LocalizableString;    
     private locPanelAddTextValue: LocalizableString;
     private locPanelRemoveTextValue: LocalizableString;
     private locPanelPrevTextValue : LocalizableString;
@@ -121,6 +123,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     currentIndexChangedCallback: () => void;
 
     public confirmDelete: boolean = false;
+    public keyName: string = "";
 
     constructor(public name: string) {
         super(name);
@@ -130,6 +133,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var self = this;
         this.oldTemplateRowsChangedCallback = this.template.rowsChangedCallback;
         this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); if(self.oldTemplateRowsChangedCallback) self.oldTemplateRowsChangedCallback(); }
+        this.locKeyDuplicationErrorValue = new LocalizableString(this);
         this.locConfirmDeleteTextValue = new LocalizableString(this);
         this.locPanelAddTextValue = new LocalizableString(this);
         this.locPanelRemoveTextValue = new LocalizableString(this);
@@ -183,6 +187,9 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
     public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
     get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+    public get keyDuplicationError() { return this.locKeyDuplicationError.text ? this.locKeyDuplicationError.text : surveyLocalization.getString("keyDuplicationError"); } 
+    public set keyDuplicationError(value: string) { this.locKeyDuplicationError.text = value; }
+    get locKeyDuplicationError() { return this.locKeyDuplicationErrorValue; }
 
     public get panelPrevText(): string { return this.locPanelPrevText.text ? this.locPanelPrevText.text : surveyLocalization.getString("pagePrevText"); }
     public set panelPrevText(newValue: string) { this.locPanelPrevText.text = newValue; }
@@ -363,14 +370,30 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private hasErrorInPanels(fireCallback: boolean): boolean {
         var res = false;
         var panels = this.panels;
+        var keyValues = [];
         for (var i = 0; i < panels.length; i++) {
             var pnlError = panels[i].hasErrors(fireCallback);
+            pnlError = this.isValueDuplicated(panels[i], keyValues) || pnlError;
             if(!this.isRenderModeList && pnlError && !res) { 
                 this.currentIndex = i;
             }
             res = pnlError || res;
         }
         return res;
+    }
+    private isValueDuplicated(panel: PanelModel, keyValues: Array<any>): boolean {
+        if(!this.keyName) return false;
+        var question = <Question>panel.getQuestionByName(this.keyName);
+        if(!question || question.isEmpty()) return false;
+        var value = question.value;
+        for(var i = 0; i < keyValues.length; i ++) {
+            if(value == keyValues[i]) {
+                question.addError(new CustomError(this.keyDuplicationError));
+                return true;
+            }
+        }
+        keyValues.push(value);
+        return false;
     }
     protected createNewItem(): QuestionPanelDynamicItem {
         return new QuestionPanelDynamicItem(this, this.createNewPanel());
@@ -436,6 +459,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
     {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
+    {name: "keyName"}, { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError" },
     {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
     { name: "panelAddText", serializationProperty: "locPanelAddText" }, { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
     { name: "panelPrevText", serializationProperty: "locPanelPrevText" }, { name: "panelNextText", serializationProperty: "locPanelNextText" },

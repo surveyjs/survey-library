@@ -161,18 +161,19 @@ frameworks.forEach( (framework) => {
         assert.equal(otherChoice.textContent.trim(), 'Other');
     });
 
-    // TODO: TC selects wrong item
-    // test(`choose other`, async t => {
-    //     const getOtherInput = Selector(() => document.querySelectorAll("input")[12]);
+    test(`choose other`, async t => {
+        const getOtherInput = Selector(() =>
+            document.querySelectorAll("div:nth-child(12) input")[1]);
+        let surveyResult;
 
-    //     await setOptions('car', { hasOther: true, otherText: "Other" });
-    //     await t
-    //         .click(`input[value=other]`)
-    //         .typeText(getOtherInput, 'Zaporozec');
-    //         .click(`input[value=Complete]`);
+        await setOptions('car', { hasOther: true });
+        await t
+            .click(`div:nth-child(12) label input`)
+            .typeText(getOtherInput, 'Zaporozec')
+            .click(`input[value=Complete]`);
 
-    //     let surveyResult = await getSurveyResult();
-    //     assert.equal(surveyResult.car, 'other');
-    //     assert.equal(surveyResult['car-Comment'], 'Zaporozec');
-    // });
+        surveyResult = await getSurveyResult();
+        assert.equal(surveyResult.car, 'other');
+        assert.equal(surveyResult['car-Comment'], 'Zaporozec');
+    });
 });

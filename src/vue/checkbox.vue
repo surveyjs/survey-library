@@ -5,9 +5,9 @@
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" />
                 <span class="checkbox-material"><span class="check"></span></span>
                 <survey-string :locString="item.locText"/>
-                <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question" />
             </label>
         </div>
+        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question" />
     </form>
 </template>
 

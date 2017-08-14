@@ -183,7 +183,7 @@ frameworks.forEach( (framework) => {
 
     test(`choose other`, async t => {
         const getOtherInput = Selector(() =>
-            document.querySelectorAll("div:nth-child(12) input")[1]);
+            document.querySelectorAll("input[type=text]")[0]);
         let surveyResult;
 
         await setOptions('car', { hasOther: true });

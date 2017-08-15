@@ -35,6 +35,7 @@ export var surveyStrings = {
     completingSurveyBefore: "Our records show that you have already completed this survey.",
     loadingSurvey: "Survey is loading...",
     optionsCaption: "Choose...",
+    value: "value",
     requiredError: "Please answer the question.",
     requiredInAllRowsError: "Please answer questions in all rows.",
     numericError: "The value should be numeric.",

@@ -69,7 +69,7 @@ export class NumericValidator extends SurveyValidator {
         return (typeof value === 'number') ? null : result;
     }
     protected getDefaultErrorText(name: string) {
-        var vName = name ? name : "value";
+        var vName = name ? name : surveyLocalization.getString("value");
         if (this.minValue !== null && this.maxValue !== null) {
             return surveyLocalization.getString("numericMinMax")["format"](vName, this.minValue, this.maxValue);
         } else {

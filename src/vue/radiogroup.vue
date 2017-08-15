@@ -6,9 +6,9 @@
                 <span class="circle"></span>
                 <span class="check"></span>
                 <survey-string :locString="item.locText"/>
+                <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :class="question.cssClasses.other" :question="question"/>
             </label>
         </div>
-        <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question"/>
     </form>
 </template>
 
@@ -24,6 +24,9 @@
         get colWidth() {
             var colCount = this.question.colCount;
             return colCount > 0 ? (100 / colCount) + '%' : "";
+        }
+        get choicesCount() {
+            return this.question.visibleChoices.length - 1;
         }
     }
     Vue.component("survey-radiogroup", Radiogroup)

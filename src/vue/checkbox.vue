@@ -5,7 +5,7 @@
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" />
                 <span class="checkbox-material"><span class="check"></span></span>
                 <survey-string :locString="item.locText"/>
-                <survey-other-choice v-show="question.hasOther && question.isOtherSelected" :class="question.cssClasses.other" :question="question" />
+                <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :class="question.cssClasses.other" :question="question" />
             </label>
         </div>
     </form>
@@ -28,6 +28,9 @@
         get colWidth() {
             var colCount = this.question.colCount;
             return colCount > 0 ? (100 / colCount) + '%' : "";
+        }
+        get choicesCount() {
+            return this.question.visibleChoices.length - 1;
         }
     }
     Vue.component("survey-checkbox", Checkbox)

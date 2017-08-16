@@ -1,0 +1,1 @@
+node docGenerator.js ..\src\entries\chunks\model.ts

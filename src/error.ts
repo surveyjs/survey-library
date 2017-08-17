@@ -2,11 +2,11 @@
 import {SurveyError} from "./base";
 
 export class AnswerRequiredError extends SurveyError {
-    constructor()  {
+    constructor(public customErrorText: string = null)  {
         super();
     }
     public getText(): string {
-        return surveyLocalization.getString("requiredError");
+        return this.customErrorText ? this.customErrorText : surveyLocalization.getString("requiredError");
     }
 }
 export class RequreNumericError extends SurveyError {

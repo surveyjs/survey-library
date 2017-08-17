@@ -14,6 +14,7 @@ import {ConditionRunner} from './conditions';
 export class Question extends QuestionBase implements IValidatorOwner {
     private locTitleValue: LocalizableString;
     private locCommentTextValue: LocalizableString;
+    private locRequiredErrorTextValue: LocalizableString;
     private questionValue: any;
     private questionComment: string;
     private isRequiredValue: boolean = false;
@@ -38,10 +39,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
     constructor(public name: string) {
         super(name);
-        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
+        this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
         this.locCommentTextValue = new LocalizableString(this, true);
+        this.locRequiredErrorTextValue = new LocalizableString(this);
     }
     public get hasTitle(): boolean { return true; }
     public get titleLocation() : string { return this.survey ? this.survey.questionTitleLocation : "top"; }
@@ -60,6 +62,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.fireCallback(this.titleChangedCallback);
     }
     get locTitle(): LocalizableString { return this.locTitleValue; }
+    /**
+     * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+     */
+    public get requiredErrorText(): string { return this.locRequiredErrorText.text ? this.locRequiredErrorText.text : ""; }
+    public set requiredErrorText(newValue: string) { this.locRequiredErrorText.text = newValue; }
+    get locRequiredErrorText(): LocalizableString { return this.locRequiredErrorTextValue; }
     get locCommentText(): LocalizableString { return this.locCommentTextValue; }
     private get locTitleHtml(): string {
         var res = this.locTitle.textOrHtml;
@@ -304,7 +312,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     protected onCheckForErrors(errors: Array<SurveyError>) {
         if (this.hasRequiredError()) {
-            this.errors.push(new AnswerRequiredError());
+            this.errors.push(new AnswerRequiredError(this.requiredErrorText));
         }
     }
     protected hasRequiredError(): boolean {
@@ -354,4 +362,5 @@ export class Question extends QuestionBase implements IValidatorOwner {
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression",
-    "isRequired:boolean", "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");
+    "isRequired:boolean", { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
+    "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

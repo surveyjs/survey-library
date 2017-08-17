@@ -803,3 +803,11 @@ QUnit.test("Text questions spaces is not a valid answer for required", function 
     question.value = " 1 ";
     assert.equal(question.hasErrors(), false, "got the answer");
 });
+QUnit.test("Custom text in required error", function (assert) {
+    var question = new QuestionTextModel("text");
+    question.requiredErrorText = "Custom required error";
+    question.isRequired = true;
+    assert.equal(question.hasErrors(), true, "Question is empty");
+    assert.equal(question.errors.length, 1, "There is one error");
+    assert.equal(question.errors[0].getText(), "Custom required error", "there is a custom errror text");
+});

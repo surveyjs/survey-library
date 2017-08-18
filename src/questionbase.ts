@@ -4,6 +4,7 @@ import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
 import {ILocalizableOwner} from "./localizablestring";
 import {surveyCss} from "./defaultCss/cssstandard";
+import {CustomWidgetCollection} from './questionCustomWidgets';
 
 /**
  * A base class for all questions. QuestionBase doesn't have information about title, values, errors and so on.
@@ -15,10 +16,8 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
         return "sq_" + QuestionBase.questionCounter++;
     }
     private conditionRunner: ConditionRunner = null;
-    /**
-     * The link to the custom widget.
-     */
-    public customWidget: QuestionCustomWidget;
+    private isCustomWidgetRequested: boolean = false;
+    private customWidgetValue: QuestionCustomWidget;
     customWidgetData = { isNeedRender: true };
     /**
      * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
@@ -117,6 +116,19 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      * Returns the unique identificator. It is generated automatically.
      */
     public get id(): string { return this.idValue; }
+    /**
+     * The link to the custom widget.
+     */
+    public get customWidget(): QuestionCustomWidget { 
+        if(!this.isCustomWidgetRequested && !this.customWidgetValue) {
+            this.isCustomWidgetRequested = true;    
+            this.updateCustomWidget();
+        }
+        return this.customWidgetValue; 
+    }
+    public updateCustomWidget() {
+        this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
+    }
     /**
      * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
      */

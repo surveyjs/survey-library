@@ -64,6 +64,7 @@ export interface IElement  extends IConditionRunner, ISurveyElement{
     onSurveyLoad();
     onLocaleChanged();
     onAnyValueChanged(name: string);
+    updateCustomWidgets();
 }
 
 export interface IQuestion extends IElement {
@@ -203,6 +204,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return []; }
     public get selectedElementInDesign(): SurveyElement { return this.selectedElementInDesignValue; }
     public set selectedElementInDesign(val: SurveyElement) { this.selectedElementInDesignValue = val; }
+    public updateCustomWidgets() { }
 
     public onSurveyLoad() {}        
     endLoadingFromJson() {

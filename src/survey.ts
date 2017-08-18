@@ -9,7 +9,6 @@ import {JsonError} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
-import {CustomWidgetCollection} from './questionCustomWidgets';
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 
 /**
@@ -678,7 +677,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (value == this.currentPageValue) return;
         var oldValue = this.currentPageValue;
         this.currentPageValue = value;
-        this.updateCustomWidgets(value);
+        if(value) value.updateCustomWidgets();
         this.currentPageChanged(value, oldValue);
     }
     /**
@@ -755,9 +754,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     }
     protected updateCustomWidgets(page: PageModel) {
         if (!page) return;
-        for (var i = 0; i < page.questions.length; i++) {
-            page.questions[i].customWidget = CustomWidgetCollection.Instance.getCustomWidget(page.questions[i]);
-        }
+        page.updateCustomWidgets();
     }
     protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
         this.onCurrentPageChanged.fire(this, { 'oldCurrentPage': oldValue, 'newCurrentPage': newValue });

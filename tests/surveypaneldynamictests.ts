@@ -3,6 +3,7 @@ import {PanelModel} from "../src/panel";
 import {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from "../src/question_paneldynamic";
 import {JsonObject} from "../src/jsonobject";
 import {SurveyModel} from "../src/survey";
+import {CustomWidgetCollection, QuestionCustomWidget} from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -296,6 +297,22 @@ QUnit.test("PanelDynamic, keyName + hasError", function (assert) {
     (<Question>panel.panels[1].questions[0]).value = "val2";
     assert.equal(panel.hasErrors(true), false, "There is no error panel[0].q1 = val1 and panel[1].q1 = val2");
 });
+QUnit.test("assign customWidgets to questions in dynamic panel", function (assert) {
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "customWidget", isFit: (question) => { return question.name == "panelq2"; } });
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    assert.equal(panel.panels[0].questions[0].customWidget, null, "panel0, there is no custom widget for this question");
+    assert.equal(panel.panels[0].questions[1].customWidget.name, "customWidget", "panel0, has the custom widget");
+    assert.equal(panel.panels[1].questions[0].customWidget, null, "panel1, there is no custom widget for this question");
+    assert.equal(panel.panels[1].questions[1].customWidget.name, "customWidget", "panel1, has the custom widget");
+    CustomWidgetCollection.Instance.clear();
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

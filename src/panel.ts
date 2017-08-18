@@ -227,6 +227,12 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * Returns true if the current object is Page and it is the current page.
      */
     public get isActive() { return (!this.survey) || this.survey.currentPage == this.root; }
+    public updateCustomWidgets() { 
+        for(var i = 0; i < this.elements.length; i ++) {
+            this.elements[i].updateCustomWidgets();
+        }
+    }
+
     protected get root(): PanelModelBase {
         var res = <PanelModelBase>this;
         while(res.parent) res = res.parent;

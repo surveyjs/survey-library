@@ -26,6 +26,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
         this.data = data;
         this.panelValue = panel;
         this.panel.setSurveyImpl(this);
+        this.panel.updateCustomWidgets();
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
@@ -282,7 +283,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     }
     public get canAddPanel() : boolean { return !this.isReadOnly && (this.panelCount < this.maxPanelCount); }
     public get canRemovePanel() : boolean { return !this.isReadOnly && (this.panelCount > this.minPanelCount); }
-
     protected rebuildPanels() {
         var items = new Array<QuestionPanelDynamicItem>();
         if(this.isDesignMode) {

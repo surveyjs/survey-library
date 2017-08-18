@@ -165,7 +165,7 @@ export class MatrixDropdownCell {
         });
         Object.keys(column).forEach(key => {
         });
-        this.questionValue.customWidget = CustomWidgetCollection.Instance.getCustomWidget(this.questionValue);
+        this.questionValue.updateCustomWidget();
     }
     public get question(): Question { return this.questionValue; }
     public get value(): any { return this.question.value; }

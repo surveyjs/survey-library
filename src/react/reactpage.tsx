@@ -75,18 +75,17 @@ export class SurveyPanel extends React.Component<any, any> {
         this.css = nextProps.css;
     }
     componentDidMount() {
-        var self = this;
-        var el = this.refs["root"];
-        if (el && this.survey) this.survey.afterRenderPage(el);
-        this.panel.panelVisibilityChanged = function(panel:Object, visibility:boolean) {
+        let self = this;
+        let el = this.refs['root'];
+        if (el && this.survey) { this.survey.afterRenderPanel(this.panel, el); }
+        this.panel.panelVisibilityChanged = function(panel: Object, visibility: boolean) {
             self.state.modelChanged = self.state.modelChanged + 1;
             self.setState(self.state);
-        }
-
+        };
         this.panel.renderWidthChangedCallback = function() {
             self.state.modelChanged = self.state.modelChanged + 1;
             self.setState(self.state);
-        }
+        };
     }
     render(): JSX.Element {
         if (this.panel == null || this.survey == null || this.creator == null) return null;

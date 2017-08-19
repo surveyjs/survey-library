@@ -551,6 +551,20 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         var errosInColumns = this.hasErrorInColumns(fireCallback);
         return super.hasErrors(fireCallback) || errosInColumns;
     }
+    public getAllErrors(): Array<SurveyError> { 
+        var result = super.getAllErrors();
+        var rows = this.generatedVisibleRows;
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            for(var j = 0; j < row.cells.length; j ++) {
+                var errors = row.cells[j].question.getAllErrors();
+                if(errors && errors.length > 0) {
+                    result = result.concat(errors);
+                }
+            }
+        }
+        return result; 
+    }
     private hasErrorInColumns(fireCallback: boolean): boolean {
         if (!this.generatedVisibleRows) return false;
         var res = false;

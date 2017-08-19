@@ -197,13 +197,15 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (asse
     assert.equal(mText.supportGoNextPageAutomatic(), true, "Both text inputs are set");
 });
 
-QUnit.test("Validators for text question", function (assert) {
+QUnit.test("Validators for text question + getAllErrors", function (assert) {
     var mText = new QuestionTextModel("");
     assert.equal(mText.hasErrors(), false, "There is no error by default");
     mText.validators.push(new NumericValidator(10, 20));
     assert.equal(mText.hasErrors(), false, "There is no error since the value is empty");
+    assert.equal(mText.getAllErrors().length, 0, "There is no error at all");
     mText.value = "ss";
     assert.equal(mText.hasErrors(), true, "The value should be numeric");
+    assert.equal(mText.getAllErrors().length, 1, "There is an error");
     mText.value = 25;
     assert.equal(mText.hasErrors(), true, "The value should be between 10 and 20");
     mText.value = "15";
@@ -214,9 +216,11 @@ QUnit.test("Validators for multiple text question", function (assert) {
     var mText = new QuestionMultipleTextModel("q1");
     mText.items.push(new MultipleTextItemModel("t1"));
     assert.equal(mText.hasErrors(), false, "There is no error by default");
+    assert.equal(mText.getAllErrors().length, 0, "There is no error at all");
     mText.items[0].validators.push(new NumericValidator(10, 20));
     mText.value = { t1: "ss" };
     assert.equal(mText.hasErrors(), true, "The value should be numeric");
+    assert.equal(mText.getAllErrors().length, 1, "There is error in one item");
     mText.value = { t1: 25 };
     assert.equal(mText.hasErrors(), true, "The value should be between 10 and 20");
     assert.equal(mText.errors[0].getText().indexOf("t1") >= 0, true, "Error contains information about item name");
@@ -467,11 +471,14 @@ QUnit.test("Matrixdynamic required column", function (assert) {
     question.columns[0].isRequired = true;
     assert.equal(rows.length, 2, "There are two rows");
     assert.equal(question.hasErrors(), true, "column1 should not be empty. All rows are empty");
+    assert.equal(question.getAllErrors().length, 2, "There are totally two errors");
     question.value = [{ 'column1': 2 }, {}];
     assert.equal(rows[0].cells[0].question.value, 2, "The first cell has value 2");
     assert.equal(question.hasErrors(), true, "column1 should not be empty. the second row is empty");
+    assert.equal(question.getAllErrors().length, 1, "There are totally one errors");    
     question.value = [{ 'column1': 2 }, { 'column1': 3}];
     assert.equal(question.hasErrors(), false, "column1 should not be empty. all values are set");
+    assert.equal(question.getAllErrors().length, 0, "There are totally no errors");    
 });
 QUnit.test("Matrixdynamic column.validators", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDymanic");

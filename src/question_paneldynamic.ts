@@ -1,4 +1,4 @@
-import {IElement, Base, SurveyElement, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
+import {IElement, Base, SurveyElement, SurveyError, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -366,6 +366,19 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public hasErrors(fireCallback: boolean = true): boolean {
         var errosInPanels = this.hasErrorInPanels(fireCallback);
         return super.hasErrors(fireCallback) || errosInPanels;
+    }
+    public getAllErrors(): Array<SurveyError> { 
+        var result = super.getAllErrors();
+        for (var i = 0; i < this.panels.length; i++) {
+            var questions = this.panels[i].questions;
+            for(var j = 0; j < questions.length; j ++) {
+                var errors = questions[j].getAllErrors();
+                if(errors && errors.length > 0) {
+                    result = result.concat(errors);
+                }
+            }
+        }
+        return result; 
     }
     private hasErrorInPanels(fireCallback: boolean): boolean {
         var res = false;

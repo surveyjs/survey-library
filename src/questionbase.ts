@@ -1,4 +1,4 @@
-﻿import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event} from './base';
+﻿import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event, SurveyError} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
@@ -116,6 +116,10 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      * Returns the unique identificator. It is generated automatically.
      */
     public get id(): string { return this.idValue; }
+    /**
+     * Returns the list of errors that has in the question. For example, isRequired error.
+     */
+    public getAllErrors(): Array<SurveyError> { return []; }
     /**
      * The link to the custom widget.
      */

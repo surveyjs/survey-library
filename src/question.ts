@@ -73,6 +73,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var res = this.locTitle.textOrHtml;
         return res? res: this.name;
     }
+    public getAllErrors(): Array<SurveyError> { return this.errors.slice(); }
     public onLocaleChanged() {
         super.onLocaleChanged();
         this.locTitle.onChanged();

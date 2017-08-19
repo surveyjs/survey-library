@@ -281,7 +281,7 @@ QUnit.test("PanelDynamic, renderMode is not list + hasError", function (assert) 
     panel.hasErrors(true);
     assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
 });
-QUnit.test("PanelDynamic, keyName + hasError", function (assert) {
+QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var panel = <QuestionPanelDynamicModel>page.addNewQuestion("paneldynamic", "panel");
@@ -289,13 +289,16 @@ QUnit.test("PanelDynamic, keyName + hasError", function (assert) {
     panel.template.addNewQuestion("text", "panelq2");
     panel.panelCount = 2;
     panel.keyName = "panelq1";
-    assert.equal(panel.hasErrors(true), false, "There is not errors");
+    assert.equal(panel.hasErrors(true), false, "There is no errors");
     (<Question>panel.panels[0].questions[0]).value = "val1";
-    assert.equal(panel.hasErrors(true), false, "There is not errors panel[0].q1 = val1");
+    assert.equal(panel.hasErrors(true), false, "There is no errors panel[0].q1 = val1");
     (<Question>panel.panels[1].questions[0]).value = "val1";
     assert.equal(panel.hasErrors(true), true, "There is the error panel[0].q1 = val1 and panel[1].q1 = val1");
+    assert.equal(panel.errors.length, 0, "There is no errors in the panel question itself");
+    assert.equal(panel.getAllErrors().length, 1, "There is errors in question inside the panel");
     (<Question>panel.panels[1].questions[0]).value = "val2";
     assert.equal(panel.hasErrors(true), false, "There is no error panel[0].q1 = val1 and panel[1].q1 = val2");
+    assert.equal(panel.getAllErrors().length, 0, "There is no errors in question inside the panel");
 });
 QUnit.test("assign customWidgets to questions in dynamic panel", function (assert) {
     CustomWidgetCollection.Instance.clear();

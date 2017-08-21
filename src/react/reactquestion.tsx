@@ -109,7 +109,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         return <h5 className={cssClasses.title}>{titleText}</h5>;
     }
     protected renderDescription(cssClasses: any): JSX.Element {
-        if(!this.question.hasDescription) return null;
+        if(!this.questionBase.hasDescription) return null;
         var descriptionText = SurveyElementBase.renderLocString(this.question.locDescription);
         return <div className={cssClasses.description}>{descriptionText}</div>;
     }

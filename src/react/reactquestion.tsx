@@ -9,6 +9,7 @@ export interface ISurveyCreator {
     createQuestionElement(question: QuestionBase): JSX.Element;
     renderError(key: string, errorText: string, cssClasses: any): JSX.Element;
     questionTitleLocation(): string;
+    questionErrorLocation(): string;
 }
 
 export class SurveyQuestion extends React.Component<any, any> {
@@ -72,6 +73,8 @@ export class SurveyQuestion extends React.Component<any, any> {
         var titleBottom = this.creator.questionTitleLocation() == "bottom" ? title : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment(cssClasses) : null;
         var errors = this.renderErrors(cssClasses);
+        var errorsTop = this.creator.questionErrorLocation() == "top" ? errors : null;
+        var errorsBottom = this.creator.questionErrorLocation() == "bottom" ? errors : null;
         var paddingLeft = (this.questionBase.indent > 0) ? this.questionBase.indent * cssClasses.indent + "px" : null;
         var paddingRight = (this.questionBase.rightIndent > 0) ? this.questionBase.rightIndent * cssClasses.indent + "px" : null;
         var rootStyle = { display: 'inline-block', verticalAlign: 'top' };
@@ -81,9 +84,10 @@ export class SurveyQuestion extends React.Component<any, any> {
         return (
             <div ref="root" id={this.questionBase.id} className={cssClasses.mainRoot} style={rootStyle}>
                 {titleTop}
-                {errors}
+                {errorsTop}
                 {questionRender}
                 {comment}
+                {errorsBottom}
                 {titleBottom}
             </div>
         );

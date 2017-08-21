@@ -230,4 +230,5 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         return <div key={key} className={cssClasses.error.item}>{errorText}</div>;
     }
     public questionTitleLocation(): string { return this.survey.questionTitleLocation; }
+    public questionErrorLocation(): string { return this.survey.questionErrorLocation; }
 }

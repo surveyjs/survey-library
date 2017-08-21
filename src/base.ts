@@ -28,6 +28,7 @@ export interface ISurvey extends ITextProcessor {
     requiredText: string;
     questionStartIndex: string;
     questionTitleLocation: string;
+    questionErrorLocation: string;
     getQuestionTitleTemplate(): string;
     storeOthersAsComment: boolean;
     uploadFile(name: string, file: File, storeDataAsText: boolean, uploadingCallback: (status: string) => any): boolean;

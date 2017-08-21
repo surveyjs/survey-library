@@ -47,6 +47,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     public get hasTitle(): boolean { return true; }
     public get titleLocation() : string { return this.survey ? this.survey.questionTitleLocation : "top"; }
+    public get errorLocation() : string { return this.survey ? this.survey.questionErrorLocation : "top"; }
     public get hasInput(): boolean { return true; }
     public get inputId(): string { return this.id + "i"; }
     /** 

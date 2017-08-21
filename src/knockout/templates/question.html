@@ -5,14 +5,13 @@
             <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
         </h5>
         <!-- /ko -->
-        <!-- ko template: { name: 'survey-question-errors', data: question } -->
-        <!-- /ko -->
-        <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
-        <!-- /ko -->
+        <!-- ko if: question.errorLocation == 'top' --><!-- ko template: { name: 'survey-question-errors', data: question } --><!-- /ko --><!-- /ko -->
+        <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } --><!-- /ko -->
         <div data-bind="visible: question.hasComment">
             <div data-bind="text:question.commentText"></div>
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
+        <!-- ko if: question.errorLocation == 'bottom' --><!-- ko template: { name: 'survey-question-errors', data: question } --><!-- /ko --><!-- /ko -->
         <!-- ko if: question.hasTitle -->
         <h5 data-bind="visible: question.titleLocation == 'bottom', css: question.koCss().title">
             <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->

@@ -66,6 +66,7 @@ QUnit.test("Load from Json", function (assert) {
             {type: "paneldynamic", name: "q", panelCount: 3, templateElements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
         }]};
     var survey = new SurveyModel(json);
+    assert.equal(survey.jsonErrors == null || survey.jsonErrors.length == 0, true, "There should not be any errors");
     var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
     assert.equal(question.template.elements.length, 2, "template elements are loaded correctly");
     assert.equal(question.template.elements[1].name, "q2", "the name of the second question is 'q2'");

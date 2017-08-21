@@ -134,6 +134,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     private showPageNumbersValue: boolean = false;
     private showQuestionNumbersValue: string = "on";
     private questionTitleLocationValue: string = "top";
+    private questionErrorLocationValue: string = "top";
     private localeValue: string = "";
     private isCompleted: boolean = false;
     private isCompletedBefore: boolean = false;
@@ -556,8 +557,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
     public set questionTitleLocation(value: string) {
         value = value.toLowerCase();
-        if (value === this.questionTitleLocationValue) return;
         this.questionTitleLocationValue = value;
+    };
+    /**
+     * Set this property to 'bottom' to show question error(s) under the question.
+     */
+    public get questionErrorLocation(): string { return this.questionErrorLocationValue; };
+    public set questionErrorLocation(value: string) {
+        value = value.toLowerCase();
+        this.questionErrorLocationValue = value;
     };
     /**
      * Set this mode to 'display' to make the survey read-only. 
@@ -1652,6 +1660,7 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "showPageTitles:boolean", default: true }, { name: "showCompletedPage:boolean", default: true },
     "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
     { name: "questionTitleLocation", default: "top", choices: ["top", "bottom"] },
+    { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
     { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
     { name: "mode", default: "edit", choices: ["edit", "display"] },
     { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",

@@ -105,6 +105,10 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      */
     public get hasTitle(): boolean { return false; }
     /**
+     * Returns false if the question doesn't have a description property, for example: QuestionHtmlModel, or description property is empty.
+     */
+    public get hasDescription(): boolean { return false; }
+    /**
      * Returns false if the question doesn't have an input element, for example: QuestionHtmlModel
      */
     public get hasInput(): boolean { return false; }

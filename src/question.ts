@@ -13,6 +13,7 @@ import {ConditionRunner} from './conditions';
  */
 export class Question extends QuestionBase implements IValidatorOwner {
     private locTitleValue: LocalizableString;
+    private locDescriptionValue: LocalizableString;
     private locCommentTextValue: LocalizableString;
     private locRequiredErrorTextValue: LocalizableString;
     private questionValue: any;
@@ -42,10 +43,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var self = this;
         this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
+        this.locDescriptionValue = new LocalizableString(this, true);
         this.locCommentTextValue = new LocalizableString(this, true);
         this.locRequiredErrorTextValue = new LocalizableString(this);
     }
     public get hasTitle(): boolean { return true; }
+    public get hasDescription(): boolean { return this.description != ""; }
     public get titleLocation() : string { return this.survey ? this.survey.questionTitleLocation : "top"; }
     public get errorLocation() : string { return this.survey ? this.survey.questionErrorLocation : "top"; }
     public get hasInput(): boolean { return true; }
@@ -63,6 +66,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.fireCallback(this.titleChangedCallback);
     }
     get locTitle(): LocalizableString { return this.locTitleValue; }
+    public get description(): string { return this.locDescription.text ? this.locDescription.text : ""; }
+    public set description(newValue:  string) { this.locDescription.text = newValue; }
+    get locDescription(): LocalizableString { return this.locDescriptionValue; }
     /**
      * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
      */
@@ -363,6 +369,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     getValidatorTitle(): string { return null; }
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
+    { name: "description:text", serializationProperty: "locDescription" }, 
     { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression",
     "isRequired:boolean", { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

@@ -2,6 +2,7 @@
     <div>
         <div v-for="element in row.elements" :class="css.question.mainRoot" style="vertical-align:top" :id="element.id" :style="{display: element.visible ? 'inline-block': 'none', paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }">
             <h5 v-if="element.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locDescription"/></div>
             <survey-errors v-if="survey.questionErrorLocation === 'top'" :question="element"/>
             <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
             <div v-show="element.hasComment">
@@ -10,6 +11,7 @@
             </div>
             <survey-errors v-if="survey.questionErrorLocation === 'bottom'" :question="element"/>
             <h5 v-if="element.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
         </div>
     </div>
 </template>

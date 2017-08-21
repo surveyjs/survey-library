@@ -101,7 +101,13 @@ export class SurveyQuestion extends React.Component<any, any> {
     }
     protected renderTitle(cssClasses: any): JSX.Element {
         var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
-        return (<h5 className={cssClasses.title}>{titleText}</h5>);
+        var title = <h5 className={cssClasses.title}>{titleText}</h5>;
+        var description = null;
+        if(this.question.hasDescription) {
+            var descriptionText = SurveyElementBase.renderLocString(this.question.locDescription);
+            description = <div className={cssClasses.description}>{descriptionText}</div>;
+        }
+        return (<div>{title}{description}</div>);
     }
     protected renderComment(cssClasses: any): JSX.Element {
         var commentText = SurveyElementBase.renderLocString(this.question.locCommentText);

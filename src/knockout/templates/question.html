@@ -1,9 +1,7 @@
 ﻿<script type="text/html" id="survey-question">
     <div style="vertical-align:top" data-bind="css: question.koCss().mainRoot, style: {display: question.koVisible() ? 'inline-block': 'none', paddingLeft: question.koPaddingLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
-        <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.titleLocation == 'top', css: question.koCss().title">
-            <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
-        </h5>
+        <!-- ko if: question.hasTitle && question.titleLocation == 'top' -->
+            <!--ko template: { name: 'survey-question-title', data: question  } --><!-- /ko -->
         <!-- /ko -->
         <!-- ko if: question.errorLocation == 'top' --><!-- ko template: { name: 'survey-question-errors', data: question } --><!-- /ko --><!-- /ko -->
         <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } --><!-- /ko -->
@@ -12,10 +10,8 @@
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
         </div>
         <!-- ko if: question.errorLocation == 'bottom' --><!-- ko template: { name: 'survey-question-errors', data: question } --><!-- /ko --><!-- /ko -->
-        <!-- ko if: question.hasTitle -->
-        <h5 data-bind="visible: question.titleLocation == 'bottom', css: question.koCss().title">
-            <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
-        </h5>
+        <!-- ko if: question.hasTitle && question.titleLocation == 'bottom' -->
+            <!--ko template: { name: 'survey-question-title', data: question  } --><!-- /ko -->
         <!-- /ko -->
     </div>
 </script>

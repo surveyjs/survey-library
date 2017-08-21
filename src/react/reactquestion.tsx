@@ -69,8 +69,11 @@ export class SurveyQuestion extends React.Component<any, any> {
         var cssClasses = this.questionBase.cssClasses;
         var questionRender = this.renderQuestion();
         var title = this.questionBase.hasTitle ? this.renderTitle(cssClasses) : null;
+        var description = this.renderDescription(cssClasses);
         var titleTop = this.creator.questionTitleLocation() == "top" ? title : null;
         var titleBottom = this.creator.questionTitleLocation() == "bottom" ? title : null;
+        var descriptionTop = this.creator.questionTitleLocation() == "top" ? description : null;
+        var descriptionBottom = this.creator.questionTitleLocation() == "bottom" ? description : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment(cssClasses) : null;
         var errors = this.renderErrors(cssClasses);
         var errorsTop = this.creator.questionErrorLocation() == "top" ? errors : null;
@@ -84,11 +87,13 @@ export class SurveyQuestion extends React.Component<any, any> {
         return (
             <div ref="root" id={this.questionBase.id} className={cssClasses.mainRoot} style={rootStyle}>
                 {titleTop}
+                {descriptionTop}
                 {errorsTop}
                 {questionRender}
                 {comment}
                 {errorsBottom}
                 {titleBottom}
+                {descriptionBottom}
             </div>
         );
     }
@@ -101,13 +106,12 @@ export class SurveyQuestion extends React.Component<any, any> {
     }
     protected renderTitle(cssClasses: any): JSX.Element {
         var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
-        var title = <h5 className={cssClasses.title}>{titleText}</h5>;
-        var description = null;
-        if(this.question.hasDescription) {
-            var descriptionText = SurveyElementBase.renderLocString(this.question.locDescription);
-            description = <div className={cssClasses.description}>{descriptionText}</div>;
-        }
-        return (<div>{title}{description}</div>);
+        return <h5 className={cssClasses.title}>{titleText}</h5>;
+    }
+    protected renderDescription(cssClasses: any): JSX.Element {
+        if(!this.question.hasDescription) return null;
+        var descriptionText = SurveyElementBase.renderLocString(this.question.locDescription);
+        return <div className={cssClasses.description}>{descriptionText}</div>;
     }
     protected renderComment(cssClasses: any): JSX.Element {
         var commentText = SurveyElementBase.renderLocString(this.question.locCommentText);

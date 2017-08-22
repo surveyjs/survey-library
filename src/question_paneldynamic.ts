@@ -200,7 +200,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return res;
     }
     /**
-     * The index of current active dynamica panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns -1, otherwise it returns a value from 0 to panelCount - 1.
+     * The index of current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns -1, otherwise it returns a value from 0 to panelCount - 1.
      * @see currentPanel
      * @see panels
      * @see panelCount
@@ -222,7 +222,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.fireCallback(this.currentIndexChangedCallback);
     }
     /**
-     * The current active dynamica panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.
+     * The current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.
      * @see currenIndex
      * @see panels
      * @see panelCount

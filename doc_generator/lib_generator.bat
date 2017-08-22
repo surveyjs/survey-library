@@ -1,1 +1,1 @@
-node docGenerator.js ..\src\entries\chunks\model.ts
+node lib_docGenerator.js ..\src\entries\chunks\model.ts

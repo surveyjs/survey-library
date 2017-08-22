@@ -16,7 +16,7 @@ export var defaultStandardCss = {
     progress: "sv_progress", progressBar: "",
     pageTitle: "sv_p_title",
     row: "sv_row",
-    question: { mainRoot: "sv_q", title: "sv_q_title", description: "", comment: "", required: "", titleRequired: "", indent: 20 },
+    question: { mainRoot: "sv_q", title: "sv_q_title", description: "sv_q_description", comment: "", required: "", titleRequired: "", indent: 20 },
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
     checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },

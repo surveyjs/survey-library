@@ -99,6 +99,10 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
     }
 }
 
+/**
+ * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
+ * An end-user may dynamically add/remove panels, unless you forbidden this.
+ */
 export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
     public static MaxPanelCount = 100;
     private templateValue: PanelModel;
@@ -123,7 +127,15 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     panelCountChangedCallback: () => void;
     currentIndexChangedCallback: () => void;
 
+    /**
+     * Set it to true, to show a confirmation dialog on removing a panel
+     * @see ConfirmDeleteText
+     */
     public confirmDelete: boolean = false;
+    /**
+     * Set it to a question name used in the template panel and the library shows duplication error, if there are same values in different panels of this question.
+     * @see keyDuplicationError
+     */
     public keyName: string = "";
 
     constructor(public name: string) {
@@ -148,8 +160,26 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public getType(): string {
         return "paneldynamic";
     }
+    /**
+     * The template Panel. This panel is used as a template on creatign dynamic panels
+     * @see  templateElements
+     * @see templateTitle
+     * @see panelCount
+     */
     public get template(): PanelModel { return this.templateValue; }
+    /**
+     * The template Panel elements, questions and panels.
+     * @see  templateElements
+     * @see template
+     * @see panelCount
+     */
     public get templateElements(): Array<IElement> { return this.template.elements; }
+    /**
+     * The template Panel title property.
+     * @see  templateElements
+     * @see template
+     * @see panelCount
+     */
     public get templateTitle(): string { return this.template.title; }
     public set templateTitle(newValue: string) {
         this.template.title = newValue;
@@ -157,6 +187,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     get locTemplateTitle(): LocalizableString { return this.template.locTitle; }
 
     protected get items(): Array<QuestionPanelDynamicItem> { return this.itemsValue; }
+    /**
+     * The array of dynamic panels created based on panel template
+     * @see template
+     * @see panelCount
+     */
     public get panels(): Array<PanelModel> {
         var res = [];
         for(var i = 0; i < this.items.length; i ++) {
@@ -164,6 +199,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         }
         return res;
     }
+    /**
+     * The index of current active dynamica panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns -1, otherwise it returns a value from 0 to panelCount - 1.
+     * @see currentPanel
+     * @see panels
+     * @see panelCount
+     * @see renderMode
+     */
     public get currentIndex(): number {
         if(this.isRenderModeList) return -1;
         if(this.currentIndexValue < 0 && this.panelCount > 0) {
@@ -179,39 +221,96 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.currentIndexValue = val;
         this.fireCallback(this.currentIndexChangedCallback);
     }
+    /**
+     * The current active dynamica panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.
+     * @see currenIndex
+     * @see panels
+     * @see panelCount
+     * @see renderMode
+     */
     public get currentPanel(): PanelModel {
         var index = this.currentIndex;
         if(index < 0 || index >= this.panels.length) return null;
         return this.panels[index];
     }
-    
-    public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
-    public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
+    /**
+     * Use this property to change the default text showing in the confirmation delete dialog on removing a panel.
+     */
+    public get confirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
+    public set confirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
     get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+    /**
+     * The duplication value error text. Set it to show the text different from the default.
+     * @see keyName
+     */
     public get keyDuplicationError() { return this.locKeyDuplicationError.text ? this.locKeyDuplicationError.text : surveyLocalization.getString("keyDuplicationError"); } 
     public set keyDuplicationError(value: string) { this.locKeyDuplicationError.text = value; }
     get locKeyDuplicationError() { return this.locKeyDuplicationErrorValue; }
-
+    /**
+     * Use this property to change the default previous button text. Previous button shows the previous panel, change the currentPanel, when the renderMode doesn't equal to "list".
+     * @see currentPanel
+     * @see currentIndex
+     * @see renderMode
+     */
     public get panelPrevText(): string { return this.locPanelPrevText.text ? this.locPanelPrevText.text : surveyLocalization.getString("pagePrevText"); }
     public set panelPrevText(newValue: string) { this.locPanelPrevText.text = newValue; }
     get locPanelPrevText(): LocalizableString { return this.locPanelPrevTextValue;}
+    /**
+     * Use this property to change the default next button text. Next button shows the next panel, change the currentPanel, when the renderMode doesn't equal to "list".
+     * @see currentPanel
+     * @see currentIndex
+     * @see renderMode
+     */
     public get panelNextText(): string { return this.locPanelNextText.text ? this.locPanelNextText.text : surveyLocalization.getString("pageNextText"); }
     public set panelNextText(newValue: string) { this.locPanelNextText.text = newValue; }
     get locPanelNextText(): LocalizableString { return this.locPanelNextTextValue;}
-
+    /**
+     * Use this property to change the default value of add panel button text.
+     */
     public get panelAddText() { return this.locPanelAddText.text ? this.locPanelAddText.text : surveyLocalization.getString("addPanel"); } 
     public set panelAddText(value: string) { this.locPanelAddText.text = value; }
     get locPanelAddText() { return this.locPanelAddTextValue; }
+    /**
+     * Use this property to change the default value of remove panel button text.
+     */
     public get panelRemoveText() { return this.locPanelRemoveText.text ? this.locPanelRemoveText.text : surveyLocalization.getString("removePanel"); } 
     public set panelRemoveText(value: string) { this.locPanelRemoveText.text = value; }
     get locPanelRemoveText() { return this.locPanelRemoveTextValue; }
-
+    /**
+     * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
+     */
     public get isProgressTopShowing(): boolean { return this.renderMode == "progressTop" || this.renderMode == "progressTopBottom"; }
+    /**
+     * Returns true when the renderMode equals to "progressBottom" or "progressTopBottom"
+     */
     public get isProgressBottomShowing(): boolean { return this.renderMode == "progressBottom" || this.renderMode == "progressTopBottom"; }
+    /**
+     * Returns true when currentIndex is more than 0.
+     * @see currenIndex
+     * @see currenPanel
+     */
     public get isPrevButtonShowing(): boolean { return this.currentIndex > 0; }
+    /**
+     * Returns true when currentIndex is more than or equal 0 and less then panelCount - 1.
+     * @see currenIndex
+     * @see currenPanel
+     * @see panelCount
+     */
     public get isNextButtonShowing(): boolean { return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1; }
+    /**
+     * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and panelCount is >= 2.
+     */
     public get isRangeShowing(): boolean { return this.showRangeInProgress && (this.currentIndex >= 0 && this.panelCount > 1); }
     public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return includeHidden ? [this.template] : this.templateElements; }
+    /**
+     * Use this property to get/set the number of dynamic panels.
+     * @see template
+     * @see minPanelCount
+     * @see maxPanelCount
+     * @see addPanel
+     * @see removePanel
+     * @see removePanelUI
+     */
     public get panelCount(): number { return this.isLoadingFromJson ? this.loadingPanelCount : this.items.length; }
     public set panelCount(val: number) {
         if(val < 0) return;
@@ -236,6 +335,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         if(value.length > this.panelCount) value.splice(this.panelCount, value.length - this.panelCount);
         this.value = value;
     }
+    /**
+     * The minimum panel count. A user could not delete a panel if the panelCount equals to minPanelCount
+     * @see panelCount
+     * @see maxPanelCount
+     */
     public get minPanelCount() : number { return this.minPanelCountValue; }
     public set minPanelCount(value : number) {
         if(value < 0) value = 0;
@@ -243,6 +347,11 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.minPanelCountValue = value;
         if(this.panelCount < value) this.panelCount = value;
     }
+    /**
+     * The maximum panel count. A user could not add a panel if the panelCount equals to maxPanelCount
+     * @see panelCount
+     * @see minPanelCount
+     */
     public get maxPanelCount() : number { return this.maxPanelCountValue; }
     public set maxPanelCount(value : number) {
         if(value <= 0) return;
@@ -251,6 +360,10 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.maxPanelCountValue = value;
         if(this.panelCount > value) this.panelCount = value;
     }
+    /**
+     * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
+     * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
+     */
     public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; }
     public set showQuestionNumbers(val: string) { 
         this.showQuestionNumbersValue = val; 
@@ -259,16 +372,28 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
             this.survey.questionVisibilityChanged(this, this.visible);
         }
     }
+    /**
+     * Shows the range from 1 to panelCount when renderMode doesn't equal to "list". Set to false to hide this element.
+     * @see panelCount
+     * @see renderMode
+     */
     public get showRangeInProgress(): boolean { return this.showRangeInProgressValue; }
     public set showRangeInProgress(val: boolean) {
         this.showRangeInProgressValue = val;
         this.fireCallback(this.currentIndexChangedCallback);
     }
+    /**
+     * By default the property equals to "list" and all dynamic panels are rendered one by one on the page. You may change it to: "progressTop", "progressBottom" or "progressTopBottom" to render only one dynamic panel at once. The progress and navigation elements can be rendred on top, bottom or both.
+     */
     public get renderMode(): string { return this.renderModeValue; }
     public set renderMode(val: string) {
         this.renderModeValue = val;
         this.fireCallback(this.renderModeChangedCallback);
     }
+    /**
+     * Returns true when renderMode equals to "list".
+     * @renderMode
+     */
     public get isRenderModeList() { return this.renderMode == "list"; }
     public setVisibleIndex(value: number): number {
         var startIndex = this.showQuestionNumbers == "onSurvey" ? value: 0;
@@ -281,7 +406,19 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         super.setVisibleIndex(this.showQuestionNumbers != "onSurvey" ? value: -1);
         return this.showQuestionNumbers != "onSurvey" ? 1 : startIndex - value;
     }
+    /**
+     * Returns true when an end user may add a new panel. The question is not read only and panelCount less than maxPanelCount
+     * @see isReadOnly
+     * @see panelCount
+     * @see maxPanelCount
+     */
     public get canAddPanel() : boolean { return !this.isReadOnly && (this.panelCount < this.maxPanelCount); }
+    /**
+     * Returns true when an end user may remove a panel. The question is not read only and panelCount is more than minPanelCount
+     * @see isReadOnly
+     * @see panelCount
+     * @see minPanelCount
+     */
     public get canRemovePanel() : boolean { return !this.isReadOnly && (this.panelCount > this.minPanelCount); }
     protected rebuildPanels() {
         var items = new Array<QuestionPanelDynamicItem>();
@@ -299,6 +436,12 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.reRunCondition();
         this.fireCallback(this.panelCountChangedCallback);
     }
+    /**
+     * Add a new dynamic panel based on the template Panel.
+     * @see template
+     * @see panelCount
+     * @see panels
+     */
     public addPanel(): PanelModel {
         if(!this.canAddPanel) return null;
         this.panelCount ++;
@@ -307,11 +450,25 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         }
         return this.items[this.panelCount - 1].panel;
     }
+    /**
+     * Call removePanel function. If confirmDelete set to true, it shows the confirmation dialog first.
+     * @param value a panel or panel index
+     * @see removePanel
+     * @see confirmDelete
+     * @see confirmDeleteText
+     */
     public removePanelUI(value: any) {
-        if(!this.confirmDelete || confirm(this.ConfirmDeleteText)) {
+        if(!this.confirmDelete || confirm(this.confirmDeleteText)) {
             this.removePanel(value);
         }
     }
+    /**
+     * Removes a dynamic panel from the panels array. Do nothing is caRemovePanel returns false.
+     * @param value a panel or panel index
+     * @see panels
+     * @see canRemovePanel
+     * @see template
+     */
     public removePanel(value: any) {
         if(!this.canRemovePanel) return;
         var index = this.getPanelIndex(value);
@@ -473,7 +630,7 @@ JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alterna
     {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
     {name: "keyName"}, { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError" },
-    {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
+    {name: "confirmDelete:boolean"}, { name: "confirmDeleteText", serializationProperty: "locConfirmDeleteText" },
     { name: "panelAddText", serializationProperty: "locPanelAddText" }, { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
     { name: "panelPrevText", serializationProperty: "locPanelPrevText" }, { name: "panelNextText", serializationProperty: "locPanelNextText" },
     { name: "showQuestionNumbers", default: "off", choices: ["off", "onPanel", "onSurvey"] }, { name: "showRangeInProgress", default: true},

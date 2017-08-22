@@ -66,6 +66,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.fireCallback(this.titleChangedCallback);
     }
     get locTitle(): LocalizableString { return this.locTitleValue; }
+    /**
+     * Question description. It renders under question title by using smaller font. Unlike the title, description can be empty.
+     * @see title
+     */
     public get description(): string { return this.locDescription.text ? this.locDescription.text : ""; }
     public set description(newValue:  string) { this.locDescription.text = newValue; }
     get locDescription(): LocalizableString { return this.locDescriptionValue; }
@@ -80,6 +84,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var res = this.locTitle.textOrHtml;
         return res? res: this.name;
     }
+    /**
+     * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
+     */
     public getAllErrors(): Array<SurveyError> { return this.errors.slice(); }
     public onLocaleChanged() {
         super.onLocaleChanged();

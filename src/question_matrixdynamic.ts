@@ -87,7 +87,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         if(this.rowCount < value) this.rowCount = value;
     }
     /**
-     * The minimum row count. A user could not add a row if the rowCount equals to maxRowCount
+     * The maximum row count. A user could not add a row if the rowCount equals to maxRowCount
      * @see rowCount
      * @see minRowCount
      */
@@ -134,7 +134,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
      * @see confirmDelete
      */
     public removeRowUI(value: any) {
-        if(!this.confirmDelete || confirm(this.ConfirmDeleteText)) {
+        if(!this.confirmDelete || confirm(this.confirmDeleteText)) {
             this.removeRow(value);
         }
     }
@@ -160,8 +160,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     /**
      * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
      */
-    public get ConfirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
-    public set ConfirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
+    public get confirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
+    public set confirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
     get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
 
     /**
@@ -294,7 +294,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
 
 JsonObject.metaData.addClass("matrixdynamic", [{ name: "rowCount:number", default: 2 }, { name: "minRowCount:number", default: 0 }, { name: "maxRowCount:number", default: QuestionMatrixDynamicModel.MaxRowCount },
     {name: "keyName"}, { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError" },
-    {name: "confirmDelete:boolean"}, { name: "ConfirmDeleteText", serializationProperty: "locConfirmDeleteText" },
+    {name: "confirmDelete:boolean"}, { name: "confirmDeleteText", serializationProperty: "locConfirmDeleteText" },
     { name: "addRowText", serializationProperty: "locAddRowText" }, { name: "removeRowText", serializationProperty: "locRemoveRowText" }],
     function () { return new QuestionMatrixDynamicModel(""); }, "matrixdropdownbase");
 

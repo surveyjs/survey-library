@@ -38,7 +38,7 @@ var platformOptions = {
             }
         },
         keywords: ['react', 'react-component'],
-        dependencies: { 'react': '^15.0.1', 'react-dom': '^15.0.1' }
+        peerDependencies: { 'react': '^15.0.1', 'react-dom': '^15.0.1' }
     },
     'knockout': {
         externals: {
@@ -50,7 +50,7 @@ var platformOptions = {
             }
         },
         keywords: ['knockout'],
-        dependencies: {'knockout': '^3.4.0'}
+        peerDependencies: {'knockout': '^3.4.0'}
     },
     'jquery': {
         externals: {
@@ -62,12 +62,12 @@ var platformOptions = {
             }
         },
         keywords: ['jquery', 'jquery-plugin'],
-        dependencies: { 'jquery': '>=1.12.4', '@types/react': '15.0.21' }
+        peerDependencies: { 'jquery': '>=1.12.4', '@types/react': '15.0.21' }
     },
     'angular': {
         externals: {},
         keywords: ['angular', 'angular-component'],
-        dependencies: { '@types/react': '15.0.21' }
+        peerDependencies: { '@types/react': '15.0.21' }
     },
     'vue': {
         externals: {
@@ -79,7 +79,7 @@ var platformOptions = {
             }
         },
         keywords: ['vue'],
-        dependencies: { 'vue': "^2.1.10" }
+        peerDependencies: { 'vue': "^2.1.10" }
     }
 };
 
@@ -137,9 +137,15 @@ module.exports = function (options) {
             'type': 'git',
             'url': 'https://github.com/surveyjs/surveyjs.git'
         },
-        'typings': 'survey.' + options.platformPrefix + '.d.ts',
-        'dependencies': platformOptions[options.platform].dependencies
+        'typings': 'survey.' + options.platformPrefix + '.d.ts'
     };
+
+    if(!!platformOptions[options.platform].dependencies) {
+        packagePlatformJson.dependencies = platformOptions[options.platform].dependencies;
+    }
+    if(!!platformOptions[options.platform].peerDependencies) {
+        packagePlatformJson.peerDependencies = platformOptions[options.platform].peerDependencies;
+    }
 
     var config = {
         entry: {},

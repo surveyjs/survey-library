@@ -7,7 +7,7 @@
 [![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 To find out more about the library go
-* to the [surveyjs.org site](https://surveyjs.io/Library)
+* to the [SurveyJS Library Site](https://surveyjs.io/Library)
 * explore the live [Examples](https://www.surveyjs.io/Examples/Library)
 * and build a survey JSON using [Visual Editor](https://www.surveyjs.io/Editor/Editor/)
 

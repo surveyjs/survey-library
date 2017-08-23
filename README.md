@@ -7,9 +7,9 @@
 [![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 To find out more about the library go
-* to the [surveyjs.org site](http://surveyjs.org)
-* explore the live [Examples](http://surveyjs.org/examples/)
-* and build a survey JSON using [Visual Editor](http://surveyjs.org/builder/)
+* to the [surveyjs.org site](https://surveyjs.io/Library)
+* explore the live [Examples](https://www.surveyjs.io/Examples/Library)
+* and build a survey JSON using [Visual Editor](https://www.surveyjs.io/Editor/Editor/)
 
 You can try plnkr examples at:
 * [Angular2](http://plnkr.co/edit/OJkKlUn1oxzWYtnruXir?p=preview) 
@@ -80,14 +80,11 @@ To build library yourself:
 	```
 	This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
-## Use 3rd party controls as question widgets.
-Explore the [example](http://surveyjs.org/examples/react/custom-widget-datepicker) based on jquery datepicker
-
 ## License
 
 [MIT license](https://github.com/surveyjs/surveyjs/blob/master/LICENSE)
 
 
 ## Visual Editor
-Visual Editor [site](http://editor.surveyjs.io)
+Visual Editor [site](https://www.surveyjs.io/Editor/)
 Visual Editor sources are [here](https://github.com/surveyjs/editor)

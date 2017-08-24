@@ -6,10 +6,10 @@ const title = `imagepicker`;
 const json = { questions: [
     { type: 'dropdown', name: 'choosepicture', renderAs: 'imagepicker', title: 'What animal would you like to see first ?',
         isRequired: true, choices: [
-            {value: 'lion', text: 'http://surveyjs.org/images/image-picker/lion.jpg'},
-            {value: 'giraffe', text: 'http://surveyjs.org/images/image-picker/giraffe.jpg'},
-            {value: 'panda', text: 'http://surveyjs.org/images/image-picker/panda.jpg'},
-            {value: 'camel', text: 'http://surveyjs.org/images/image-picker/camel.jpg'}
+            {value: 'lion', text: 'https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg'},
+            {value: 'giraffe', text: 'https://surveyjs.io/Content/Images/examples/giraffe.jpg'},
+            {value: 'panda', text: 'https://surveyjs.io/Content/Images/examples/panda.jpg'},
+            {value: 'camel', text: 'https://surveyjs.io/Content/Images/examples/camel.jpg'}
         ]
     }
 ]};

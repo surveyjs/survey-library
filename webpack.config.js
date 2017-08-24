@@ -11,13 +11,13 @@ var fs = require('fs');
 
 var banner = [
     "surveyjs - Survey JavaScript library v" + packageJson.version,
-    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.org/",
+    "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.io/",
     "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = ["Type definitions for Survey JavaScript library v" + packageJson.version,
-    "Project: http://surveyjs.org/",
+    "Project: http://surveyjs.io/",
     "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
     ""].join("\n");
 
@@ -124,7 +124,7 @@ module.exports = function (options) {
             'Bootstrap',
             'Library'
         ].concat(platformOptions[options.platform].keywords),
-        'homepage': 'https://surveyjs.org/',
+        'homepage': 'https://surveyjs.io/',
         'license': 'MIT',
         'files': [
             'survey.css',

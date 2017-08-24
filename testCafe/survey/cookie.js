@@ -37,7 +37,7 @@ frameworks.forEach( (framework) => {
             .click(`input[value=Complete]`);
 
         await t
-            .navigateTo(`http://surveyjs.org`)
+            .navigateTo(`http://surveyjs.io`)
             .navigateTo(url + framework);
         await initSurvey(framework, json);
 

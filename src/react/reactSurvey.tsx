@@ -206,6 +206,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if (newProps.onAfterRenderQuestion) {
             this.survey.onAfterRenderQuestion.add((sender, options) => { newProps.onAfterRenderQuestion(sender, options); });
         }
+        if (newProps.onAfterRenderPanel) {
+            this.survey.onAfterRenderPanel.add((sender, options) => { newProps.onAfterRenderPanel(sender, options); });
+        }
         if(newProps.onTextMarkdown) {
             this.survey.onTextMarkdown.add((sender, options) => { newProps.onTextMarkdown(sender, options); });
         }

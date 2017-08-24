@@ -16,7 +16,7 @@ export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 // react
 export {Survey} from "../react/reactSurvey";
-export {ReactSurveyModel} from "../react/reactsurveymodel"; // TODO need to remove someday
+export {ReactSurveyModel} from "../react/reactsurveymodel"; 
 export {ReactSurveyModel as Model} from "../react/reactsurveymodel";
 export {SurveyNavigationBase} from "../react/reactSurveyNavigationBase";
 export {SurveyNavigation} from "../react/reactSurveyNavigation";

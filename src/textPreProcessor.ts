@@ -59,7 +59,6 @@ export class TextPreProcessor {
         if (!name) return false;
         for (var i = 0; i < name.length; i++) {
             var ch = name[i];
-            //TODO
             if (ch == ' ' || ch == '-' || ch == '&') return false;
         }
         return true;

@@ -368,7 +368,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public set showQuestionNumbers(val: string) { 
         this.showQuestionNumbersValue = val; 
         if(!this.isLoadingFromJson && this.survey) {
-            //TODO
             this.survey.questionVisibilityChanged(this, this.visible);
         }
     }

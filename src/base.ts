@@ -200,7 +200,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     public get survey(): ISurvey { return this.surveyValue; }
     public get isLoadingFromJson() { 
         if(this.survey) return this.survey.isLoadingFromJson;
-        return this["isLoadingFromJsonValue"]; //TODO for some reson compiler does not see public Base.isLoadingFromJson.
+        return this.isLoadingFromJsonValue;
     }
     public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return []; }
     public get selectedElementInDesign(): SurveyElement { return this.selectedElementInDesignValue; }

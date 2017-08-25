@@ -212,6 +212,13 @@ QUnit.test("Validators for text question + getAllErrors", function (assert) {
     assert.equal(mText.hasErrors(), false, "The value is fine now.");
     assert.equal(mText.value, 15, "Convert to numeric");
 });
+QUnit.test("Numeric validation and with 0, Bug #462", function (assert) {
+    var mText = new QuestionTextModel("");
+    mText.validators.push(new NumericValidator(1, 100));
+    mText.value = 0;
+    assert.equal(mText.hasErrors(), true, "0 is less then 1");
+});
+
 QUnit.test("Validators for multiple text question", function (assert) {
     var mText = new QuestionMultipleTextModel("q1");
     mText.items.push(new MultipleTextItemModel("t1"));

@@ -305,7 +305,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var errorLength = this.errors ? this.errors.length : 0;
         this.errors = [];
         this.onCheckForErrors(this.errors);
-        if (this.errors.length == 0 && this.value) {
+        if (this.errors.length == 0 && !this.isEmpty()) {
             var error = this.runValidators();
             if (error) {
                 this.errors.push(error);

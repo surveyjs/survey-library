@@ -112,7 +112,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     /**
      * Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
      * @see QuestionBase.visible
-     * @see oncComplete
+     * @see onComplete
      */
     public clearInvisibleValues: boolean = false;
 

@@ -99,7 +99,10 @@ export class Base {
         }
         return !value && value !== 0 && value !== false;
     }
+
+    private propertyHash = {};
     protected isLoadingFromJsonValue: boolean = false;
+    public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
     /**
      * Returns the type of the object as a string as it represents in the json.
      */
@@ -115,6 +118,18 @@ export class Base {
     }
     endLoadingFromJson() {
         this.isLoadingFromJsonValue = false;
+    }
+    public getPropertyValue(name: string): any { return this.propertyHash[name]; }
+    public setPropertyValue(name: string, val: any) { 
+        var oldValue = this.propertyHash[name];
+        this.propertyHash[name] = val;
+        if(!this.isTwoValueEquals(oldValue, val)) {
+            this.propertyValueChanged(name, oldValue, val);
+        }
+    }
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+        if(this.isLoadingFromJson) return;
+        this.onPropertyChanged.fire(this, {name: name, oldValue: oldValue, newValue: newValue});
     }
     protected isTwoValueEquals(x: any, y: any): boolean {
         if (x === y) return true;

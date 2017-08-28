@@ -1,4 +1,4 @@
-﻿import {Event} from "../src/base";
+﻿import {Base, Event} from "../src/base";
 import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("Base");
@@ -89,7 +89,6 @@ QUnit.test("ItemValue.getData()", function (assert) {
     ItemValue.setData(items, [{ value: 7, text: "Item 1" }, 5, "item"]);
     assert.deepEqual(data, [{ value: 7, text: "Item 1" }, 5, "item"], "convert some items to simple values");
 });
-
 QUnit.test("ItemValue.getItemByValue()", function (assert) {
     var items = new Array<ItemValue>();
     items.push(new ItemValue(7, "Item 1"));
@@ -101,4 +100,28 @@ QUnit.test("ItemValue.getItemByValue()", function (assert) {
     assert.equal(item["custom"], 'mydata', "get custom data correctly");
     item = ItemValue.getItemByValue(items, 55);
     assert.equal(item, null, "there is no item by this value");
+});
+
+class BaseTester extends Base {
+    public get value1(): number { return this.getPropertyValue("value1"); }
+    public set value1(val: number) { this.setPropertyValue("value1", val); }
+}
+
+QUnit.test("Base changed value", function (assert) {
+    var base = new BaseTester();
+    var counter = 0;
+    var propertyName;
+    var oldValue, newValue;
+    base.onPropertyChanged.add(function (sender, options) {
+        counter ++;
+        propertyName = options.name;
+        oldValue = options.oldValue;
+        newValue = options.newValue;
+    });
+    base.value1 = 5;
+    assert.equal(base.value1, 5, "It has been assign correctly");
+    assert.equal(counter, 1, "event called one time");
+    assert.equal(propertyName, "value1", "value1 has been changed");
+    assert.notOk(oldValue, "oldValue is underfined");
+    assert.equal(newValue, 5, "newValue is 5");
 });

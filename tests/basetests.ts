@@ -107,7 +107,7 @@ class BaseTester extends Base {
         super();
         var self = this;
         this.createNewArray("items", 
-            function(newItem){newItem.owner = self;}, 
+            function(newItem){newItem.isNew = true;}, 
             function(deletedItem){deletedItem.isDeleted = true;});
     }
     public get value1(): number { return this.getPropertyValue("value1"); }
@@ -144,15 +144,15 @@ QUnit.test("Base array propety value, push/splice/pop", function (assert) {
     });
     base.items.push({value: 1});
     assert.equal(base.items.length, 1, "There is one item");
-    assert.equal(base.items[0].owner, base, "Owner property is set to base")
+    assert.equal(base.items[0].isNew, true, "isNew property is set")
     assert.equal(counter, 1, "event called one time");
     assert.equal(propertyName, "items", "items has been changed");
     var item = base.items[0];
     base.items.splice(0, 1, {value: 2}, {value: 3});
     assert.equal(base.items.length, 2, "There are two items");
     assert.equal(item.isDeleted, true, "First Item is deleted")
-    assert.equal(base.items[0].owner, base, "Item1, Owner property is set to base")
-    assert.equal(base.items[0].owner, base, "Item2, Owner property is set to base")
+    assert.equal(base.items[0].isNew, true, "Item1, isNew property is set")
+    assert.equal(base.items[1].isNew, true, "Item2, isNew property is set")
     assert.equal(counter, 2, "event called two times");
     assert.equal(propertyName, "items", "items has been changed");
 
@@ -163,4 +163,24 @@ QUnit.test("Base array propety value, push/splice/pop", function (assert) {
     assert.equal(item.isDeleted, true, "Item is deleted")
     assert.equal(counter, 4, "event called 4 times, pop is called two times");
     assert.equal(propertyName, "items", "items has been changed");
+});
+QUnit.test("Base array propety value, set value", function (assert) {
+    var base = new BaseTester();
+    var counter = 0;
+    var propertyName;
+    base.onPropertyChanged.add(function (sender, options) {
+        counter ++;
+        propertyName = options.name;
+    });
+    base.setPropertyValue("items", [{value1: 1}, {value2: 2}]);
+    assert.equal(base.items.length, 2, "There are two items");
+    assert.equal(base.items[0].isNew, true, "first item, isNew property is set")
+    assert.equal(base.items[1].isNew, true, "second item, isNew property is set")
+    assert.equal(counter, 1, "event called one time");
+    assert.equal(propertyName, "items", "items has been changed");
+
+    base.items.push({value: 3});
+    assert.equal(base.items.length, 3, "There are 3 items");
+    assert.equal(base.items[2].isNew, true, "The third  item, isNew property is set")
+    assert.equal(counter, 2, "event called two time");
 });

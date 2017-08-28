@@ -101,6 +101,7 @@ export class Base {
     }
 
     private propertyHash = {};
+    private arrayOnPush = {};
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
     /**
@@ -131,9 +132,15 @@ export class Base {
      */
     public setPropertyValue(name: string, val: any) { 
         var oldValue = this.propertyHash[name];
-        this.propertyHash[name] = val;
-        if(!this.isTwoValueEquals(oldValue, val)) {
-            this.propertyValueChanged(name, oldValue, val);
+        if(oldValue && Array.isArray(oldValue)) {
+            if(this.isTwoValueEquals(oldValue, val)) return;
+            this.setArray(oldValue, val, this.arrayOnPush[name]);
+            this.propertyValueChanged(name, oldValue, oldValue);
+        } else {
+            this.propertyHash[name] = val;
+            if(!this.isTwoValueEquals(oldValue, val)) {
+                this.propertyValueChanged(name, oldValue, val);
+            }
         }
     }
     protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
@@ -143,6 +150,7 @@ export class Base {
     protected createNewArray(name: string, onPush: any = null, onRemove: any = null): Array<any> {
         var newArray = new Array<any>();
         this.propertyHash[name] = newArray;
+        this.arrayOnPush[name] = onPush;
         var self = this;
         newArray.push = function (value): number { 
             var result = Array.prototype.push.call(newArray, value);
@@ -181,6 +189,13 @@ export class Base {
          };
         
         return newArray;
+    }
+    protected setArray(src: any[], dest: any[], onPush: any) {
+        src.length = 0;
+        for(var i = 0; i < dest.length; i ++) {
+            Array.prototype.push.call(src, dest[i]);
+            if(onPush) onPush(src[i]);
+        }
     }
     protected isTwoValueEquals(x: any, y: any): boolean {
         if (x === y) return true;

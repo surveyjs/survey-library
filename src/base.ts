@@ -119,7 +119,16 @@ export class Base {
     endLoadingFromJson() {
         this.isLoadingFromJsonValue = false;
     }
+    /**
+     * Returns the property value by name
+     * @param name property name
+     */
     public getPropertyValue(name: string): any { return this.propertyHash[name]; }
+    /**
+     * set property value
+     * @param name property name
+     * @param val new property value
+     */
     public setPropertyValue(name: string, val: any) { 
         var oldValue = this.propertyHash[name];
         this.propertyHash[name] = val;
@@ -130,6 +139,48 @@ export class Base {
     protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
         if(this.isLoadingFromJson) return;
         this.onPropertyChanged.fire(this, {name: name, oldValue: oldValue, newValue: newValue});
+    }
+    protected createNewArray(name: string, onPush: any = null, onRemove: any = null): Array<any> {
+        var newArray = new Array<any>();
+        this.propertyHash[name] = newArray;
+        var self = this;
+        newArray.push = function (value): number { 
+            var result = Array.prototype.push.call(newArray, value);
+            if(onPush) onPush(value);
+            self.propertyValueChanged(name, newArray, newArray);
+            return result;
+        };
+        newArray.pop = function (): number { 
+            var result = Array.prototype.pop.call(newArray);
+            if(onRemove) onRemove(result);
+            self.propertyValueChanged(name, newArray, newArray);
+            return result;
+        };
+        newArray.splice = function (start?: number, deleteCount?: number, ...items: any[]): any[] {
+            if(!start) start = 0;
+            if(!deleteCount) deleteCount = 0;
+            var deletedItems = [];
+            for(var i = 0; i < deleteCount; i ++) {
+                if(i + start >= newArray.length) continue;
+                deletedItems.push(newArray[i + start]);
+            }
+            var result = Array.prototype.splice.call(newArray, start, deleteCount, ... items);
+            if(!items) items = [];
+            if(onRemove) {
+                for(var i = 0; i < deletedItems.length; i ++) {
+                    onRemove(deletedItems[i])
+                }
+            }
+            if(onPush) {
+                for(var i = 0; i < items.length; i ++) {
+                    onPush(items[i], start + i);
+                }
+            }
+            self.propertyValueChanged(name, newArray, newArray);
+            return result;
+         };
+        
+        return newArray;
     }
     protected isTwoValueEquals(x: any, y: any): boolean {
         if (x === y) return true;

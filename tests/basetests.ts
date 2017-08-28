@@ -103,11 +103,19 @@ QUnit.test("ItemValue.getItemByValue()", function (assert) {
 });
 
 class BaseTester extends Base {
+    constructor() {
+        super();
+        var self = this;
+        this.createNewArray("items", 
+            function(newItem){newItem.owner = self;}, 
+            function(deletedItem){deletedItem.isDeleted = true;});
+    }
     public get value1(): number { return this.getPropertyValue("value1"); }
     public set value1(val: number) { this.setPropertyValue("value1", val); }
+    public get items(): Array<any> { return this.getPropertyValue("items"); }
 }
 
-QUnit.test("Base changed value", function (assert) {
+QUnit.test("Base simple propety value", function (assert) {
     var base = new BaseTester();
     var counter = 0;
     var propertyName;
@@ -124,4 +132,35 @@ QUnit.test("Base changed value", function (assert) {
     assert.equal(propertyName, "value1", "value1 has been changed");
     assert.notOk(oldValue, "oldValue is underfined");
     assert.equal(newValue, 5, "newValue is 5");
+});
+
+QUnit.test("Base array propety value, push/splice/pop", function (assert) {
+    var base = new BaseTester();
+    var counter = 0;
+    var propertyName;
+    base.onPropertyChanged.add(function (sender, options) {
+        counter ++;
+        propertyName = options.name;
+    });
+    base.items.push({value: 1});
+    assert.equal(base.items.length, 1, "There is one item");
+    assert.equal(base.items[0].owner, base, "Owner property is set to base")
+    assert.equal(counter, 1, "event called one time");
+    assert.equal(propertyName, "items", "items has been changed");
+    var item = base.items[0];
+    base.items.splice(0, 1, {value: 2}, {value: 3});
+    assert.equal(base.items.length, 2, "There are two items");
+    assert.equal(item.isDeleted, true, "First Item is deleted")
+    assert.equal(base.items[0].owner, base, "Item1, Owner property is set to base")
+    assert.equal(base.items[0].owner, base, "Item2, Owner property is set to base")
+    assert.equal(counter, 2, "event called two times");
+    assert.equal(propertyName, "items", "items has been changed");
+
+    item = base.items[0];
+    base.items.pop();
+    base.items.pop();
+    assert.equal(base.items.length, 0, "There is no items");
+    assert.equal(item.isDeleted, true, "Item is deleted")
+    assert.equal(counter, 4, "event called 4 times, pop is called two times");
+    assert.equal(propertyName, "items", "items has been changed");
 });

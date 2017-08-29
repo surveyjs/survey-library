@@ -1,5 +1,6 @@
 ﻿import {Base, Event} from "../src/base";
 import {ItemValue} from "../src/itemvalue";
+import {ILocalizableOwner, LocalizableString} from "../src/localizablestring";
 
 export default QUnit.module("Base");
 
@@ -102,17 +103,22 @@ QUnit.test("ItemValue.getItemByValue()", function (assert) {
     assert.equal(item, null, "there is no item by this value");
 });
 
-class BaseTester extends Base {
+class BaseTester extends Base implements ILocalizableOwner {
     constructor() {
         super();
         var self = this;
         this.createNewArray("items", 
             function(newItem){newItem.isNew = true;}, 
             function(deletedItem){deletedItem.isDeleted = true;});
+        this.createLocalizableString("title", this);
     }
     public get value1(): number { return this.getPropertyValue("value1", 1); }
     public set value1(val: number) { this.setPropertyValue("value1", val); }
     public get items(): Array<any> { return this.getPropertyValue("items"); }
+    public get title(): string { return this.getLocalizableStringText("title", "default"); }
+    public set title(val: string) { this.setLocalizableStringText("title", val); }
+    getLocale(): string { return "en"; }
+    getMarkdownHtml(text: string): string { return text; }
 }
 
 QUnit.test("Base simple propety value", function (assert) {
@@ -133,6 +139,26 @@ QUnit.test("Base simple propety value", function (assert) {
     assert.equal(propertyName, "value1", "value1 has been changed");
     assert.notOk(oldValue, "oldValue is underfined");
     assert.equal(newValue, 5, "newValue is 5");
+});
+
+QUnit.test("Base localizable string", function (assert) {
+    var base = new BaseTester();
+    var counter = 0;
+    var propertyName;
+    var oldValue, newValue;
+    base.onPropertyChanged.add(function (sender, options) {
+        counter ++;
+        propertyName = options.name;
+        oldValue = options.oldValue;
+        newValue = options.newValue;
+    });
+    assert.equal(base.title, "default", "Use the default value");
+    base.title = "value1";
+    assert.equal(base.title, "value1", "It has been assign correctly");
+    assert.equal(counter, 1, "event called one time");
+    assert.equal(propertyName, "title", "title has been changed");
+    assert.notOk(oldValue, "oldValue is underfined");
+    assert.equal(newValue, "value1", "newValue is value1");
 });
 
 QUnit.test("Base array propety value, push/splice/pop", function (assert) {

@@ -16,134 +16,25 @@ import {ILocalizableOwner, LocalizableString} from "./localizablestring";
  */
 export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyImpl, ISurveyTriggerOwner, ILocalizableOwner {
     /**
-     * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
-     * @see loadSurveyFromService
-     */
-    public surveyId: string = null;
-    /**
-     * Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.
-     * @see onComplete
-     * @see surveyShowDataSaving
-     */
-    public surveyPostId: string = null;
-    /**
-     * Set this property to true, to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
-     * @see surveyPostId
-     */
-    public surveyShowDataSaving: boolean = false;
-    /**
-     * Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.
-     */
-    public clientId: string = null;
-    /**
-     * If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.
-     */
-    public cookieName: string = null;
-    /**
-     * Set it to true, to save results on completing every page. onPartialSend event is fired.
-     * @see onPartialSend
-     * @see clientId
-     */
-    public sendResultOnPageNext: boolean = false;
-    /**
      * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
      * @see data
      */
     public get commentPrefix(): string { return  Base.commentPrefix; }
     public set commentPrefix(val: string) {Base.commentPrefix = val; }
-    /**
-     * On showing the next or previous page, a first input is focused, if the property set to true.
-     */
-    public focusFirstQuestionAutomatic: boolean = true;
-    /**
-     * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
-     * @see goNextPageAutomatic
-     */
-    public showNavigationButtons: boolean = true;
-    /**
-     * Set it to false hide survey title.
-     * @see title
-     */
-    public showTitle: boolean = true;
-    /**
-     * Set it to false to hide page titles.
-     * @see PageModel.title
-     */
-    public showPageTitles: boolean = true;
-    /**
-     * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
-     * @see data
-     * @see onComplete
-     */
-    public showCompletedPage: boolean = true;
-    /**
-     * A char/string that will be rendered in the title required questions.
-     * @see QuestionBase.title
-     */
-    public requiredText: string = "*";
-    /**
-     * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
-     * @see QuestionBase.title
-     * @see requiredText
-     */
-    public questionStartIndex: string = "";
-    private showProgressBarValue: string = "off";
-    /**
-     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
-     * @see commentPrefix
-     */
-    public storeOthersAsComment: boolean = true;
-    /**
-     * Set it true if you want to go to the next page without pressing 'Next' button when all questions are anwered.
-    * @see showNavigationButtons 
-     */
-    public goNextPageAutomatic: boolean = false;
-    /**
-     * The list of all pages in the survey, including invisible.
-     * @see PageModel
-     * @see visiblePages
-     */
-    public pages: Array<PageModel> = new Array<PageModel>();
-    /**
-     * The list of triggers in the survey.
-     * @see SurveyTrigger
-     */
-    public triggers: Array<SurveyTrigger> = new Array<SurveyTrigger>();
-    /**
-     * Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
-     * @see QuestionBase.visible
-     * @see onComplete
-     */
-    public clearInvisibleValues: boolean = false;
-
-    private locTitleValue : LocalizableString;
-    private locCompletedHtmlValue : LocalizableString;
-    private locCompletedBeforeHtmlValue : LocalizableString;
-    private locLoadingHtmlValue : LocalizableString;
-    private locPagePrevTextValue : LocalizableString;
-    private locPageNextTextValue : LocalizableString;
-    private locCompleteTextValue : LocalizableString;
-    private locQuestionTitleTemplateValue: LocalizableString;
-
+   
+    private pagesValue: Array<PageModel>;
+    private triggersValue: Array<SurveyTrigger>;
     private currentPageValue: PageModel = null;
     private valuesHash: HashTable<any> = {};
     private variablesHash: HashTable<any> = {};
-    private pagePrevTextValue: string;
-    private pageNextTextValue: string;
-    private completeTextValue: string;
-    private showPageNumbersValue: boolean = false;
-    private showQuestionNumbersValue: string = "on";
-    private questionTitleLocationValue: string = "top";
-    private questionErrorLocationValue: string = "top";
+
     private localeValue: string = "";
+    
     private isCompleted: boolean = false;
     private isCompletedBefore: boolean = false;
     private isLoading: boolean = false;
     private processedTextValues: HashTable<any> = {};
     private textPreProcessor: TextPreProcessor;
-    private isValidatingOnServerValue: boolean = false;
-    private modeValue: string = "edit";
-    private isDesignModeValue: boolean = false;
     private completedStateValue: string = "";
     private completedStateTextValue: string = "";
     /**
@@ -373,7 +264,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see QuestionMatrixDropdownModel
      */
     public onMatrixCellValueChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
-/**
+    /**
      * The event is fired when Matrix Dymic and Matrix Dropdown questions validate the cell value.
      * <br/> options.question - the matrix question
      * <br/> options.columName - the matrix column name
@@ -394,27 +285,21 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     constructor(jsonObj: any = null) {
         super();
         var self = this;
-        this.locTitleValue = new LocalizableString(this, true);
-        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
-        this.locCompletedHtmlValue = new LocalizableString(this);
-        this.locCompletedBeforeHtmlValue = new LocalizableString(this);
-        this.locLoadingHtmlValue = new LocalizableString(this);
-        this.locPagePrevTextValue = new LocalizableString(this);
-        this.locPageNextTextValue = new LocalizableString(this);
-        this.locCompleteTextValue = new LocalizableString(this);
-        this.locQuestionTitleTemplateValue = new LocalizableString(this, true);
+        var locTitleValue = this.createLocalizableString("title", this, true);
+        locTitleValue.onRenderedHtmlCallback = function(text) { return self.processedTitle; };
+        this.createLocalizableString("completedHtml", this);
+        this.createLocalizableString("completedBeforeHtml", this);
+        this.createLocalizableString("loadingHtml", this);
+        this.createLocalizableString("pagePrev", this);
+        this.createLocalizableString("pageNext", this);
+        this.createLocalizableString("complete", this);
+        this.createLocalizableString("questionTitleTemplate", this, true);
 
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
-        this.pages.push = function (value) {
-            value.setSurveyImpl(self);
-            return Array.prototype.push.call(this, value);
-        };
-        this.triggers.push = function (value) {
-            value.setOwner(self);
-            return Array.prototype.push.call(this, value);
-        };
+        this.pagesValue = this.createNewArray("pages", function(value){ value.setSurveyImpl(self); });
+        this.triggersValue = this.createNewArray("triggers", function(value){ value.setOwner(self); });
         this.updateProcessedTextValues();
         this.onBeforeCreating();
         if (jsonObj) {
@@ -433,11 +318,122 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     }
     public getType(): string { return "survey"; }
     /**
+     * The list of all pages in the survey, including invisible.
+     * @see PageModel
+     * @see visiblePages
+     */
+    public get pages(): Array<PageModel> { return this.pagesValue; }
+    /**
+     * The list of triggers in the survey.
+     * @see SurveyTrigger
+     */
+    public get triggers(): Array<SurveyTrigger> { return this.triggersValue; }
+    /**
+     * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see loadSurveyFromService
+     */
+    public get surveyId(): string { return this.getPropertyValue("surveyId", ""); }
+    public set surveyId(val: string) { this.setPropertyValue("surveyId", val); }
+    /**
+     * Set this property to automatically save the data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see onComplete
+     * @see surveyShowDataSaving
+     */
+    public get surveyPostId(): string { return this.getPropertyValue("surveyPostId", ""); }
+    public set surveyPostId(val: string) { this.setPropertyValue("surveyPostId", val); }
+    /**
+     * Use this property as indentificator for a user, for example e-mail or unique customer id in your web application. If you are loading survey or posting survey results  from/to [dxsurvey.com](http://www.dxsurvey.com) service, then the library do not allow to run the same survey the second time. On the second run, the user will see the 'Thank you' page.
+     */
+    public get clientId(): string { return this.getPropertyValue("clientId", ""); }
+    public set clientId(val: string) { this.setPropertyValue("clientId", val); }
+    /**
+     * If the property is not empty, before starting to run the survey, the library checkes if the cookie with this name exists. If it is true, the survey goes to complete mode and an user sees the 'Thank you' page. On completing the survey the cookie with this name is created.
+     */
+    public get cookieName(): string { return this.getPropertyValue("cookieName", ""); }
+    public set cookieName(val: string) { this.setPropertyValue("cookieName", val); }
+    /**
+     * Set it to true, to save results on completing every page. onPartialSend event is fired.
+     * @see onPartialSend
+     * @see clientId
+     */
+    public get sendResultOnPageNext(): boolean { return this.getPropertyValue("sendResultOnPageNext", false); }
+    public set sendResultOnPageNext(val: boolean) { this.setPropertyValue("sendResultOnPageNext", val); }
+    /**
+     * Set this property to true, to show the progress on saving/sending data into the [dxsurvey.com](http://www.dxsurvey.com) service.
+     * @see surveyPostId
+     */
+    public get surveyShowDataSaving(): boolean { return this.getPropertyValue("surveyShowDataSaving", false); }
+    public set surveyShowDataSaving(val: boolean) { this.setPropertyValue("surveyShowDataSaving", val); }
+    /**
+     * On showing the next or previous page, a first input is focused, if the property set to true.
+     */
+    public get focusFirstQuestionAutomatic(): boolean { return this.getPropertyValue("focusFirstQuestionAutomatic", true); }
+    public set focusFirstQuestionAutomatic(val: boolean) { this.setPropertyValue("focusFirstQuestionAutomatic", val); }
+    /**
+     * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
+     * @see goNextPageAutomatic
+     */
+    public get showNavigationButtons(): boolean { return this.getPropertyValue("showNavigationButtons", true); }
+    public set showNavigationButtons(val: boolean) { this.setPropertyValue("showNavigationButtons", val); }
+    /**
+     * Set it to false hide survey title.
+     * @see title
+     */
+    public get showTitle(): boolean { return this.getPropertyValue("showTitle", true); }
+    public set showTitle(val: boolean) { this.setPropertyValue("showTitle", val); }
+    /**
+     * Set it to false to hide page titles.
+     * @see PageModel.title
+     */
+    public get showPageTitles(): boolean { return this.getPropertyValue("showPageTitles", true); }
+    public set showPageTitles(val: boolean) { this.setPropertyValue("showPageTitles", val); }
+    /**
+     * On finishing the survey the 'Thank you', page on complete, is shown. Set the property to false, to hide the 'Thank you' page.
+     * @see data
+     * @see onComplete
+     */
+    public get showCompletedPage(): boolean { return this.getPropertyValue("showCompletedPage", true); }
+    public set showCompletedPage(val: boolean) { this.setPropertyValue("showCompletedPage", val); }
+    /**
+     * A char/string that will be rendered in the title required questions.
+     * @see QuestionBase.title
+     */
+    public get requiredText(): string { return this.getPropertyValue("requiredText", "*"); }
+    public set requiredText(val: string) { this.setPropertyValue("requiredText", val); }
+    /**
+     * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
+     * @see QuestionBase.title
+     * @see requiredText
+     */
+    public get questionStartIndex(): string { return this.getPropertyValue("questionStartIndex", ""); }
+    public set questionStartIndex(val: string) { this.setPropertyValue("questionStartIndex", val); };
+    /**
+     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+     * @see commentPrefix
+     */
+    public get storeOthersAsComment(): boolean { return this.getPropertyValue("storeOthersAsComment", true); }
+    public set storeOthersAsComment(val: boolean) { this.setPropertyValue("storeOthersAsComment", val); }
+    /**
+     * Set it true if you want to go to the next page without pressing 'Next' button when all questions are anwered.
+    * @see showNavigationButtons 
+     */
+    public get goNextPageAutomatic(): boolean { return this.getPropertyValue("goNextPageAutomatic", false); }
+    public set goNextPageAutomatic(val: boolean) { this.setPropertyValue("goNextPageAutomatic", val); }
+    /**
+     * Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+     * @see QuestionBase.visible
+     * @see onComplete
+     */
+    public get clearInvisibleValues(): boolean { return this.getPropertyValue("clearInvisibleValues", false); }
+    public set clearInvisibleValues(val: boolean) { this.setPropertyValue("clearInvisibleValues", val); }
+
+    /**
      * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
      */
     public get locale(): string { return this.localeValue; }
     public set locale(value: string) {
         this.localeValue = value;
+        this.setPropertyValue("locale", value);
         surveyLocalization.currentLocale = value;
         for(var i = 0; i < this.pages.length; i ++) {
             this.pages[i].onLocaleChanged();
@@ -458,94 +454,94 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     /**
      * Survey title.
      */
-    public get title(): string { return this.locTitle.text; }
-    public set title(value: string) { this.locTitle.text = value; }
-    get locTitle(): LocalizableString { return this.locTitleValue; }
+    public get title(): string { return this.getLocalizableStringText("title"); }
+    public set title(value: string) { this.setLocalizableStringText("title", value); }
+    get locTitle(): LocalizableString { return this.getLocalizableString("title"); }
     /**
      * The html that shows on completed ('Thank you') page. Set it to change the default text.
      * @see showCompletedPage
      * @see locale
      */
-    public get completedHtml(): string { return this.locCompletedHtml.text;}
-    public set completedHtml(value: string) { this.locCompletedHtml.text = value;}
-    get locCompletedHtml(): LocalizableString { return this.locCompletedHtmlValue;}
+    public get completedHtml(): string { return this.getLocalizableStringText("completedHtml");}
+    public set completedHtml(value: string) { this.setLocalizableStringText("completedHtml", value);}
+    get locCompletedHtml(): LocalizableString { return this.getLocalizableString("completedHtml"); }
     /**
      * The html that shows if the end user has already completed the survey.
      * @see clientId
      * @see locale
      */
-    public get completedBeforeHtml(): string { return this.locCompletedBeforeHtml.text;}
-    public set completedBeforeHtml(value: string) { this.locCompletedBeforeHtml.text = value;}
-    get locCompletedBeforeHtml(): LocalizableString { return this.locCompletedBeforeHtmlValue;}
+    public get completedBeforeHtml(): string { return this.getLocalizableStringText("completedBeforeHtml");}
+    public set completedBeforeHtml(value: string) { this.getLocalizableStringText("completedBeforeHtml", value);}
+    get locCompletedBeforeHtml(): LocalizableString { return this.getLocalizableString("completedHtml");}
     /**
      * The html that shows on loading survey Json from the dxsurvey.com service.
      * @see surveyId
      * @see locale
      */
-    public get loadingHtml(): string { return this.locLoadingHtml.text;}
-    public set loadingHtml(value: string) { this.locLoadingHtml.text = value;}
-    get locLoadingHtml(): LocalizableString { return this.locLoadingHtmlValue;}
+    public get loadingHtml(): string { return this.getLocalizableStringText("loadingHtml");}
+    public set loadingHtml(value: string) { this.setLocalizableStringText("loadingHtml", value);}
+    get locLoadingHtml(): LocalizableString { return this.getLocalizableString("loadingHtml");}
     /**
      * A text that renders on the 'Prev' button. Set it to change the default text.
      * @see locale
      */
-    public get pagePrevText(): string { return this.locPagePrevText.text ? this.locPagePrevText.text : this.getLocString("pagePrevText"); }
-    public set pagePrevText(newValue: string) { this.locPagePrevText.text = newValue; }
-    get locPagePrevText(): LocalizableString { return this.locPagePrevTextValue;}
+    public get pagePrevText(): string { return this.getLocalizableStringText("pagePrev", this.getLocString("pagePrevText")); }
+    public set pagePrevText(newValue: string) { this.setLocalizableStringText("pagePrev", newValue); }
+    get locPagePrevText(): LocalizableString { return this.getLocalizableString("pagePrev");}
     /**
      * A text that renders on the 'Next' button. Set it to change the default text.
      * @see locale
      */
-    public get pageNextText(): string { return this.locPageNextText.text ? this.locPageNextText.text : this.getLocString("pageNextText"); }
-    public set pageNextText(newValue: string) { this.locPageNextText.text = newValue; }
-    get locPageNextText(): LocalizableString { return this.locPageNextTextValue;}
+    public get pageNextText(): string { return this.getLocalizableStringText("pageNext", this.getLocString("pageNextText")); }
+    public set pageNextText(newValue: string) { this.getLocalizableStringText("pageNext", newValue); }
+    get locPageNextText(): LocalizableString { return this.getLocalizableString("pageNext");}
     /**
      * A text that renders on the 'Complete' button. Set it to change the default text.
      * @see locale
      */
-    public get completeText(): string { return this.locCompleteText.text ? this.locCompleteText.text : this.getLocString("completeText"); }
-    public set completeText(newValue: string) { this.locCompleteText.text = newValue; }
-    get locCompleteText(): LocalizableString { return this.locCompleteTextValue;}
+    public get completeText(): string { return this.getLocalizableStringText("complete", this.getLocString("completeText")); }
+    public set completeText(newValue: string) { this.setLocalizableStringText("complete",  newValue); }
+    get locCompleteText(): LocalizableString { return this.getLocalizableString("complete") ;}
     /**
      * A template for a question title.
      * @see QuestionModel.title
      */
-    public get questionTitleTemplate(): string { return this.locQuestionTitleTemplate.text;}
-    public set questionTitleTemplate(value: string) { this.locQuestionTitleTemplate.text = value;}
+    public get questionTitleTemplate(): string { return this.getLocalizableStringText("questionTitleTemplate");}
+    public set questionTitleTemplate(value: string) { this.setLocalizableStringText("questionTitleTemplate", value);}
     /**
      * Returns the question title template
      * @see questionTitleTemplate
      * @see QuestionModel.title
      */
     public getQuestionTitleTemplate(): string { return this.locQuestionTitleTemplate.textOrHtml; }
-    get locQuestionTitleTemplate(): LocalizableString { return this.locQuestionTitleTemplateValue; }
+    get locQuestionTitleTemplate(): LocalizableString { return this.getLocalizableString("questionTitleTemplate"); }
 
     /**
      * Set this property to false to turn off the numbering on pages titles.
      */
-    public get showPageNumbers(): boolean { return this.showPageNumbersValue; }
+    public get showPageNumbers(): boolean { return this.getPropertyValue("showPageNumbers", false); }
     public set showPageNumbers(value: boolean) {
         if (value === this.showPageNumbers) return;
-        this.showPageNumbersValue = value;
+        this.setPropertyValue("showPageNumbers", value);
         this.updateVisibleIndexes();
     }
     /**
      * Set this property to false to turn off the numbering on questions titles.
      */
-    public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; };
+    public get showQuestionNumbers(): string { return this.getPropertyValue("showQuestionNumbers", "on"); };
     public set showQuestionNumbers(value: string) {
         value = value.toLowerCase();
         value = (value === "onpage") ? "onPage" : value;
         if (value === this.showQuestionNumbers) return;
-        this.showQuestionNumbersValue = value;
+        this.setPropertyValue("showQuestionNumbers", value);
         this.updateVisibleIndexes();
     };
     /**
      * Set this property to "top" to show the progress bar on the bottom or to "bottom" to show it on the bottom.
      */
-    public get showProgressBar(): string { return this.showProgressBarValue; }
+    public get showProgressBar(): string { return this.getPropertyValue("showProgressBar", "off"); }
     public set showProgressBar(newValue: string) {
-      this.showProgressBarValue = newValue.toLowerCase();
+      this.setPropertyValue("showProgressBar", newValue.toLowerCase());
     }
     /**
      * Returns the text/html that renders as survey title.
@@ -554,28 +550,26 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     /**
      * Set this property to 'bottom' to show question title under the question.
      */
-    public get questionTitleLocation(): string { return this.questionTitleLocationValue; };
+    public get questionTitleLocation(): string { return this.getPropertyValue("questionTitleLocation", "top"); };
     public set questionTitleLocation(value: string) {
-        value = value.toLowerCase();
-        this.questionTitleLocationValue = value;
+        this.setPropertyValue("questionTitleLocation", value.toLowerCase());
     };
     /**
      * Set this property to 'bottom' to show question error(s) under the question.
      */
-    public get questionErrorLocation(): string { return this.questionErrorLocationValue; };
+    public get questionErrorLocation(): string { return this.getPropertyValue("questionErrorLocation", "top"); };
     public set questionErrorLocation(value: string) {
-        value = value.toLowerCase();
-        this.questionErrorLocationValue = value;
+        this.setPropertyValue("questionErrorLocation", value.toLowerCase());
     };
     /**
      * Set this mode to 'display' to make the survey read-only. 
      */
-    public get mode(): string { return this.modeValue; }
+    public get mode(): string { return this.getPropertyValue("mode", "edit"); }
     public set mode(value: string) {
         value = value.toLowerCase();
         if (value == this.mode) return;
         if (value != "edit" && value != "display") return;
-        this.modeValue = value;
+        this.setPropertyValue("mode", value)
         var questions = this.getAllQuestions();
         for(var i = 0; i < questions.length; i ++) {
             questions[i].onReadOnlyChanged();
@@ -799,13 +793,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * Returns true if the survey in the design mode. It is used by SurveyJS Editor
      * @see setDesignMode 
      */
-    public get isDesignMode(): boolean { return this.isDesignModeValue; }
+    public get isDesignMode(): boolean { return this.getPropertyValue("isDesignMode", false); }
     /**
      * Call it to set the survey into the design mode.
      * @param value use true to set the survey into the design mode.
      */
     public setDesignMode(value: boolean) {
-        this.isDesignModeValue = value;
+        this.setPropertyValue("isDesignMode", value);
     }
     /**
      * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
@@ -924,10 +918,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * Returns true, if at the current moment the question values on the current page are validating on the server.
      * @see onServerValidateQuestions
      */
-    public get isValidatingOnServer(): boolean { return this.isValidatingOnServerValue; }
+    public get isValidatingOnServer(): boolean { return this.getPropertyValue("isValidatingOnServer", false); }
     private setIsValidatingOnServer(val: boolean) {
         if (val == this.isValidatingOnServer) return;
-        this.isValidatingOnServerValue = val;
+        this.setPropertyValue("isValidatingOnServer", val);
         this.onIsValidatingOnServerChanged();
     }
     protected onIsValidatingOnServerChanged() { }

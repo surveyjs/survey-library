@@ -1,4 +1,6 @@
-﻿export interface HashTable<T> {
+﻿import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+
+export interface HashTable<T> {
     [key: string]: T;
 }
 export interface ISurveyData {
@@ -101,6 +103,7 @@ export class Base {
     }
 
     private propertyHash = {};
+    private localizableStrings = {};
     private arrayOnPush = {};
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
@@ -150,6 +153,28 @@ export class Base {
     protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
         if(this.isLoadingFromJson) return;
         this.onPropertyChanged.fire(this, {name: name, oldValue: oldValue, newValue: newValue});
+    }
+    protected createLocalizableString(name: string, owner: ILocalizableOwner, useMarkDown: boolean = false): LocalizableString {
+        var locStr = new LocalizableString(owner, useMarkDown);
+        this.localizableStrings[name] = locStr;
+        return locStr;
+    }
+    protected getLocalizableString(name: string): LocalizableString {
+        return this.localizableStrings[name];
+    }
+    protected getLocalizableStringText(name: string, defaultStr: string = ""): string {
+        var locStr = this.getLocalizableString(name);
+        if(!locStr) return "";
+        var res = locStr.text;
+        return res ? res : defaultStr;
+    }
+    protected setLocalizableStringText(name: string, value: string) {
+        var locStr = this.getLocalizableString(name);
+        if(!locStr) return;
+        var oldValue = locStr.text;
+        if(oldValue === value) return;
+        locStr.text = value;
+        this.propertyValueChanged(name, oldValue, value);
     }
     protected createNewArray(name: string, onPush: any = null, onRemove: any = null): Array<any> {
         var newArray = new Array<any>();

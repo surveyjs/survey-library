@@ -471,7 +471,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see locale
      */
     public get completedBeforeHtml(): string { return this.getLocalizableStringText("completedBeforeHtml");}
-    public set completedBeforeHtml(value: string) { this.getLocalizableStringText("completedBeforeHtml", value);}
+    public set completedBeforeHtml(value: string) { this.setLocalizableStringText("completedBeforeHtml", value);}
     get locCompletedBeforeHtml(): LocalizableString { return this.getLocalizableString("completedHtml");}
     /**
      * The html that shows on loading survey Json from the dxsurvey.com service.
@@ -493,7 +493,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see locale
      */
     public get pageNextText(): string { return this.getLocalizableStringText("pageNext", this.getLocString("pageNextText")); }
-    public set pageNextText(newValue: string) { this.getLocalizableStringText("pageNext", newValue); }
+    public set pageNextText(newValue: string) { this.setLocalizableStringText("pageNext", newValue); }
     get locPageNextText(): LocalizableString { return this.getLocalizableString("pageNext");}
     /**
      * A text that renders on the 'Complete' button. Set it to change the default text.

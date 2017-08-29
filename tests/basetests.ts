@@ -110,7 +110,7 @@ class BaseTester extends Base {
             function(newItem){newItem.isNew = true;}, 
             function(deletedItem){deletedItem.isDeleted = true;});
     }
-    public get value1(): number { return this.getPropertyValue("value1"); }
+    public get value1(): number { return this.getPropertyValue("value1", 1); }
     public set value1(val: number) { this.setPropertyValue("value1", val); }
     public get items(): Array<any> { return this.getPropertyValue("items"); }
 }
@@ -126,6 +126,7 @@ QUnit.test("Base simple propety value", function (assert) {
         oldValue = options.oldValue;
         newValue = options.newValue;
     });
+    assert.equal(base.value1, 1, "Use the default value");
     base.value1 = 5;
     assert.equal(base.value1, 5, "It has been assign correctly");
     assert.equal(counter, 1, "event called one time");

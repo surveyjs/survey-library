@@ -124,7 +124,11 @@ export class Base {
      * Returns the property value by name
      * @param name property name
      */
-    public getPropertyValue(name: string): any { return this.propertyHash[name]; }
+    public getPropertyValue(name: string, defaultValue: any = null): any { 
+        var res = this.propertyHash[name];
+        if(Base.isValueEmpty(res) && defaultValue != null) return defaultValue;
+        return res; 
+    }
     /**
      * set property value
      * @param name property name

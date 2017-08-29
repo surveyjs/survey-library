@@ -117,9 +117,10 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      */
     public get hasComment(): boolean { return false; }
     /**
-     * Returns the unique identificator. It is generated automatically.
+     * The unique identificator. It is generated automatically. 
      */
     public get id(): string { return this.idValue; }
+    public set id(val: string) { this.idValue = val; }
     /**
      * Returns the list of errors that has in the question. For example, isRequired error.
      */

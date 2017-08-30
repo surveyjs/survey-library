@@ -371,3 +371,12 @@ QUnit.test("Run sum function", function (assert) {
     values.var1 = 1;
     assert.equal(runner.run(values), false, "false, 1 + 3 == 5");
 });
+
+QUnit.test("Run age function", function (assert) {
+    var runner = new ConditionRunner("age({bithday}) >= 21");
+    var values = { bithday: new Date(1974, 1, 1)};
+    assert.equal(runner.run(values), true, "true, bithday of 1974 >= 21");
+    var curDate = new Date(Date.now());
+    values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
+    assert.equal(runner.run(values), false, "false, the person is 10 years old");
+});

@@ -56,7 +56,7 @@ export class FunctionOperand extends Operand {
     public operandToString() {
         var res = this.origionalValue + "("
         for(var i = 0; i < this.parameters.length; i ++) {
-            if(i > 0) res += " ,";
+            if(i > 0) res += ", ";
             res += this.parameters[i].operandToString();
         }
         return res;

@@ -32,3 +32,12 @@ function sum(params: any[]): any {
     return res;
 }
 FunctionFactory.Instance.register("sum", sum);
+
+function age(params: any[]): any {
+    if(params.length < 1) return -1;
+    var birthDay = new Date(params[0]);
+    var ageDifMs = Date.now() - birthDay.getTime();
+    var ageDate = new Date(ageDifMs); // miliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+FunctionFactory.Instance.register("age", age);

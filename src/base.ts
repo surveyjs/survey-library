@@ -132,6 +132,9 @@ export class Base {
         if(Base.isValueEmpty(res) && defaultValue != null) return defaultValue;
         return res; 
     }
+    protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
+        propertiesHash[name] = val;
+    }
     /**
      * set property value
      * @param name property name
@@ -144,7 +147,7 @@ export class Base {
             this.setArray(oldValue, val, this.arrayOnPush[name]);
             this.propertyValueChanged(name, oldValue, oldValue);
         } else {
-            this.propertyHash[name] = val;
+            this.setPropertyValueCore(this.propertyHash, name, val);
             if(!this.isTwoValueEquals(oldValue, val)) {
                 this.propertyValueChanged(name, oldValue, val);
             }

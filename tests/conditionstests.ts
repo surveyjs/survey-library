@@ -182,6 +182,54 @@ QUnit.test("Condition: a and (b or c)", function (assert) {
     assert.equal(right.children[1].right.origionalValue, 3);
 });
 
+QUnit.test("Condition: function without parameters", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("currentYear() = 2000", node);
+    assert.equal(node.children.length, 1);
+    assert.equal(node.children[0].left.origionalValue, "currentYear");
+    assert.equal(node.children[0].left.parameters.length, 0, "function without parameters");
+    assert.equal(node.children[0].operator, "equal");
+    assert.equal(node.children[0].right.origionalValue, 2000);
+    assert.equal(node.connective, "and");
+});
+QUnit.test("Condition: function with parameters", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("concat('a', {b},3) = 'ac'", node);
+    assert.equal(node.children.length, 1);
+    var left = node.children[0].left;
+    assert.equal(left.origionalValue, "concat");
+    assert.equal(left.parameters.length, 3, "function with 3 parameters");
+    assert.equal(left.parameters[0].origionalValue, "a", "the first parameter");
+    assert.equal(left.parameters[1].origionalValue, "{b}", "the second parameter");
+    assert.equal(left.parameters[2].origionalValue, 3, "the third parameter");
+    assert.equal(node.children[0].operator, "equal");
+    assert.equal(node.children[0].right.origionalValue, "ac");
+    assert.equal(node.connective, "and");
+});
+QUnit.test("Condition: nested functions", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("sum(2, mult(2,3), 4) = 'ac'", node);
+    assert.equal(node.children.length, 1);
+    var left = node.children[0].left;
+    assert.equal(left.origionalValue, "sum");
+    assert.equal(left.parameters.length, 3, "function with 3 parameters");
+    assert.equal(left.parameters[0].origionalValue, 2, "the first parameter");
+    
+    var param = left.parameters[1];
+    assert.equal(param.origionalValue, "mult");
+    assert.equal(param.parameters.length, 2, "function with 2 parameters");
+    assert.equal(param.parameters[0].origionalValue, 2, "the first parameter");
+    assert.equal(param.parameters[1].origionalValue, 3, "the second parameter");
+
+    assert.equal(left.parameters[2].origionalValue, 4, "the third parameter");
+    assert.equal(node.children[0].operator, "equal");
+    assert.equal(node.children[0].right.origionalValue, "ac");
+    assert.equal(node.connective, "and");
+});
+
 QUnit.test("Condition: (a and b) or (c and d)", function (assert) {
     var parser = new ConditionsParser();
     var node = new ConditionNode();

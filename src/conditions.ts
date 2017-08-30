@@ -4,13 +4,12 @@ import {ProcessValue} from "./conditionProcessValue";
 
 export class Operand {
     constructor(public origionalValue: any) {
-
     }
     public getValue(processValue: ProcessValue) {
         var val = this.origionalValue;
         if(val === undefined || val === 'undefined') return null;
         if (!val || (typeof val != "string")) return val;
-        val = this.removeBrackets(val);
+        val = this.removeQuotes(val);
         if(processValue) {
             var name = this.getValueName(val);
             if(name){
@@ -25,10 +24,10 @@ export class Operand {
         if (val && !this.isNumeric(val)) val = "'" + val + "'";
         return val;
     }
-    private removeBrackets(val: string): string {
-        if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);
+    private removeQuotes(val: string): string {
+        if (val.length > 0 && (val[0] == "'" || val[0] == '"')) val = val.substr(1);
         var len = val.length;
-        if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"'))  val = val.substr(0, len - 1);
+        if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"')) val = val.substr(0, len - 1);
         return val;
     }
     private getValueName(val: any) {
@@ -41,7 +40,27 @@ export class Operand {
         return isFinite(val);
     }
 }
-
+export class FunctionOperand extends Operand {
+    public parameters: Array<Operand> = new Array<Operand>();
+    constructor(public origionalValue: any) {
+        super(origionalValue);
+    }
+    public getValue(processValue: ProcessValue) {
+        var paramValues = [];
+        for(var i = 0; i < this.parameters.length; i ++) {
+            paramValues.push(this.parameters[i].getValue(processValue));
+        }
+        return paramValues.length * 100 + 1;
+    }
+    public operandToString() {
+        var res = this.origionalValue + "("
+        for(var i = 0; i < this.parameters.length; i ++) {
+            if(i > 0) res += " ,";
+            res += this.parameters[i].operandToString();
+        }
+        return res;
+    }
+}
 export class Condition {
     static operatorsValue: HashTable<Function> = null;
     static get operators() {

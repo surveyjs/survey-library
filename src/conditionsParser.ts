@@ -1,4 +1,4 @@
-﻿import {Operand, Condition, ConditionNode} from "./conditions";
+﻿import {Condition, ConditionNode, Operand, FunctionOperand} from "./conditions";
 
 export class ConditionsParser {
     private text: string;
@@ -81,14 +81,17 @@ export class ConditionsParser {
         if(expRes == 1) return true;
         var left = this.readString();
         if (!left) return false;
+        var params = this.readParameters();
         var op = this.readOperator();
         if (!op) return false;
         var c = new Condition();
-        c.left = new Operand(left); c.operator = op;
+        c.left = this.createOperand(left, params);
+        c.operator = op;
         if (!this.isNoRightOperation(op)) {
             var right = this.readString();
             if (!right) return false;
-            c.right = new Operand(right);
+            params = this.readParameters();
+            c.right = this.createOperand(right, params);
         }
         this.addCondition(c);
         return true;
@@ -118,11 +121,14 @@ export class ConditionsParser {
     private isQuotes(c: string): boolean {
         return c == "'" || c == '"'
     }
+    private isComma(c: string): boolean { return c == ','; }
     private isOperatorChar(c: string): boolean {
         return c == '>' || c == '<' || c == '=' || c == '!';
     }
+    private isOpenBracket(c: string): boolean { return c == '(';}
+    private isCloseBracket(c: string): boolean { return c == ')';}
     private isBrackets(c: string): boolean {
-        return c == '(' || c == ')';
+        return this.isOpenBracket(c) || this.isCloseBracket(c);
     }
     private readString(): string {
         this.skip();
@@ -139,7 +145,7 @@ export class ConditionsParser {
             }
             if (!hasQuotes) {
                 if (isFirstOpCh != this.isOperatorChar(this.ch)) break;
-                if (this.isBrackets(this.ch)) break;
+                if (this.isBrackets(this.ch) || this.isComma(this.ch)) break;
             }
             this.at++;
         }
@@ -153,6 +159,26 @@ export class ConditionsParser {
             }
         }
         return res;
+    }
+    private createOperand(str: string, params: Array<Operand>) {
+        if(!params) return new Operand(str);
+        var res = new FunctionOperand(str);
+        res.parameters = params;
+        return res;
+    }
+    private readParameters(): Array<Operand> {
+        if(!this.isOpenBracket(this.ch)) return null;
+        var params = [];
+        while (this.at < this.length && !this.isCloseBracket(this.ch)) {
+            this.at++;
+            var str = this.readString();
+            if(str) {
+                var newParams = this.readParameters();
+                params.push(this.createOperand(str, newParams));
+            }
+        }
+        this.at++;
+        return params;
     }
     private isNoRightOperation(op: string) {
         return op == "empty" || op == "notempty";

@@ -24,4 +24,7 @@ export class VueSurveyModel extends SurveyModel {
     protected setDataValueCore(valuesHash: any, key: string, value: any) {
         Vue.set(valuesHash, key, value);
     }
+    protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
+        Vue.set(propertiesHash, name, val);
+    }
 }

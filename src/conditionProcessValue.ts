@@ -1,6 +1,7 @@
 ﻿import {HashTable} from './base';
 
 export class ProcessValue {
+    public values: HashTable<any> = null;    
     constructor() { }
     public getFirstName(text: string): string {
         if (!text) return text;
@@ -12,11 +13,13 @@ export class ProcessValue {
         }
         return res;
     }
-    public hasValue(text: string, values: HashTable<any>): boolean {
+    public hasValue(text: string, values: HashTable<any> = null): boolean {
+        if(!values) values = this.values;
         var res = this.getValueCore(text, values);
         return res.hasValue;
     }
-    public getValue(text: string, values: HashTable<any>): any {
+    public getValue(text: string, values: HashTable<any> = null): any {
+        if(!values) values = this.values;
         var res = this.getValueCore(text, values);
         return res.value;
     }

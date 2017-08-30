@@ -1,48 +1,48 @@
 ﻿import {ConditionsParser} from "../src/conditionsParser";
-import {Condition, ConditionNode, ConditionRunner} from "../src/conditions";
+import {Operand, Condition, ConditionNode, ConditionRunner} from "../src/conditions";
 
 export default QUnit.module("Conditions");
 
 QUnit.test("Condition", function (assert) {
     var op = new Condition();
-    op.right = 5;
-    op.left = 5; assert.equal(op.perform(), true, "equal: 5 == 5");
-    op.left = 3; assert.equal(op.perform(), false, "equal: 3 != 5");
+    op.right = new Operand(5);
+    op.left = new Operand(5); assert.equal(op.perform(), true, "equal: 5 == 5");
+    op.left = new Operand(3); assert.equal(op.perform(), false, "equal: 3 != 5");
     op.operator = "notequal";
-    op.left = 5; assert.equal(op.perform(), false, "notequal: 5 == 5");
-    op.left = 3; assert.equal(op.perform(), true, "notequal: 3 != 5");
+    op.left = new Operand(5); assert.equal(op.perform(), false, "notequal: 5 == 5");
+    op.left = new Operand(3); assert.equal(op.perform(), true, "notequal: 3 != 5");
     op.operator = "empty";
     op.left = null; assert.equal(op.perform(), true, "empty: null");
-    op.left = 1; assert.equal(op.perform(), false, "empty: 1");
+    op.left = new Operand(1); assert.equal(op.perform(), false, "empty: 1");
     op.operator = "notempty";
     op.left = null; assert.equal(op.perform(), false, "notempty: null");
-    op.left = 1; assert.equal(op.perform(), true, "notempty: 1");
+    op.left = new Operand(1); assert.equal(op.perform(), true, "notempty: 1");
     op.operator = "contains";
-    op.right = 3;
-    op.left = [1, 2, 3, 4, 5]; assert.equal(op.perform(), true, "contains: 3 from [1, 2, 3, 4, 5]");
-    op.left = [1, 2, 4, 5]; assert.equal(op.perform(), false, "contains: 3 from [1, 2, 4, 5]");
+    op.right = new Operand(3);
+    op.left = new Operand([1, 2, 3, 4, 5]); assert.equal(op.perform(), true, "contains: 3 from [1, 2, 3, 4, 5]");
+    op.left = new Operand([1, 2, 4, 5]); assert.equal(op.perform(), false, "contains: 3 from [1, 2, 4, 5]");
     op.operator = "notcontains";
-    op.left = [1, 2, 3, 4, 5]; assert.equal(op.perform(), false, "notcontains: 3 from [1, 2, 3, 4, 5]");
-    op.left = [1, 2, 4, 5]; assert.equal(op.perform(), true, "notcontains: 3 from [1, 2,  4, 5]");
+    op.left = new Operand([1, 2, 3, 4, 5]); assert.equal(op.perform(), false, "notcontains: 3 from [1, 2, 3, 4, 5]");
+    op.left = new Operand([1, 2, 4, 5]); assert.equal(op.perform(), true, "notcontains: 3 from [1, 2,  4, 5]");
     op.operator = "greater";
-    op.right = 4;
-    op.left = 5; assert.equal(op.perform(), true, "greater: 5 > 4");
-    op.left = 3; assert.equal(op.perform(), false, "greater: 3 > 4");
+    op.right = new Operand(4);
+    op.left = new Operand(5); assert.equal(op.perform(), true, "greater: 5 > 4");
+    op.left = new Operand(3); assert.equal(op.perform(), false, "greater: 3 > 4");
     op.operator = "less";
-    op.left = 5; assert.equal(op.perform(), false, "less: 5 < 4");
-    op.left = 3; assert.equal(op.perform(), true, "less: 3 < 4");
+    op.left = new Operand(5); assert.equal(op.perform(), false, "less: 5 < 4");
+    op.left = new Operand(3); assert.equal(op.perform(), true, "less: 3 < 4");
     op.operator = "greaterorequal";
-    op.left = 4; assert.equal(op.perform(), true, "orequal: 4 >= 4");
-    op.left = 3; assert.equal(op.perform(), false, "orequal: 3 >= 4");
+    op.left = new Operand(4); assert.equal(op.perform(), true, "orequal: 4 >= 4");
+    op.left = new Operand(3); assert.equal(op.perform(), false, "orequal: 3 >= 4");
     op.operator = "lessorequal";
-    op.left = 5; assert.equal(op.perform(), false, "lessorequal: 4 <= 5");
-    op.left = 4; assert.equal(op.perform(), true, "less: 4 <= 4");
+    op.left = new Operand(5); assert.equal(op.perform(), false, "lessorequal: 4 <= 5");
+    op.left = new Operand(4); assert.equal(op.perform(), true, "less: 4 <= 4");
 });
 
 QUnit.test("Condition with quotes", function (assert) {
     var op = new Condition();
-    op.left = "yes";
-    op.right = "'yes'";
+    op.left = new Operand("yes");
+    op.right = new Operand("'yes'");
     assert.equal(op.perform(), true, "equal: yes == 'yes'");
 });
 
@@ -89,9 +89,9 @@ QUnit.test("Condition: on item", function (assert) {
     var node = new ConditionNode();
     parser.parse("'a' > 2", node);
     assert.equal(node.children.length, 1);
-    assert.equal(node.children[0].left, "a");
+    assert.equal(node.children[0].left.origionalValue, "a");
     assert.equal(node.children[0].operator, "greater");
-    assert.equal(node.children[0].right, 2);
+    assert.equal(node.children[0].right.origionalValue, 2);
     assert.equal(node.connective, "and");
 });
 
@@ -107,9 +107,9 @@ QUnit.test("Condition: on item - no spaces", function (assert) {
     var node = new ConditionNode();
     parser.parse("5>2", node);
     assert.equal(node.children.length, 1);
-    assert.equal(node.children[0].left, "5");
+    assert.equal(node.children[0].left.origionalValue, "5");
     assert.equal(node.children[0].operator, "greater");
-    assert.equal(node.children[0].right, 2);
+    assert.equal(node.children[0].right.origionalValue, 2);
     assert.equal(node.connective, "and");
 });
 
@@ -118,9 +118,9 @@ QUnit.test("Condition: on item - string value and name has spaces", function (as
     var node = new ConditionNode();
     parser.parse("'my question'<>'this first value'", node);
     assert.equal(node.children.length, 1);
-    assert.equal(node.children[0].left, "my question");
+    assert.equal(node.children[0].left.origionalValue, "my question");
     assert.equal(node.children[0].operator, "notequal");
-    assert.equal(node.children[0].right, "this first value");
+    assert.equal(node.children[0].right.origionalValue, "this first value");
     assert.equal(node.connective, "and");
 });
 
@@ -130,12 +130,12 @@ QUnit.test("Condition: two items or", function (assert) {
     parser.parse("'a' = 1 or 'b' = 2", node);
     assert.equal(node.children.length, 2);
     assert.equal(node.connective, "or");
-    assert.equal(node.children[0].left, "a");
+    assert.equal(node.children[0].left.origionalValue, "a");
     assert.equal(node.children[0].operator, "equal");
-    assert.equal(node.children[0].right, 1);
-    assert.equal(node.children[1].left, "b");
+    assert.equal(node.children[0].right.origionalValue, 1);
+    assert.equal(node.children[1].left.origionalValue, "b");
     assert.equal(node.children[1].operator, "equal");
-    assert.equal(node.children[1].right, 2);
+    assert.equal(node.children[1].right.origionalValue, 2);
 });
 
 QUnit.test("Condition: a and b or c", function (assert) {
@@ -147,18 +147,18 @@ QUnit.test("Condition: a and b or c", function (assert) {
     var left = node.children[0];
     assert.equal(left.children.length, 2);
     assert.equal(left.connective, "and");
-    assert.equal(left.children[0].left, "a");
+    assert.equal(left.children[0].left.origionalValue, "a");
     assert.equal(left.children[0].operator, "equal");
-    assert.equal(left.children[0].right, 1);
-    assert.equal(left.children[1].left, "b");
+    assert.equal(left.children[0].right.origionalValue, 1);
+    assert.equal(left.children[1].left.origionalValue, "b");
     assert.equal(left.children[1].operator, "equal");
-    assert.equal(left.children[1].right, 2);
+    assert.equal(left.children[1].right.origionalValue, 2);
     var right = node.children[1];
     assert.equal(right.children.length, 1);
     assert.equal(right.connective, "and");
-    assert.equal(right.children[0].left, "c");
+    assert.equal(right.children[0].left.origionalValue, "c");
     assert.equal(right.children[0].operator, "equal");
-    assert.equal(right.children[0].right, 3);
+    assert.equal(right.children[0].right.origionalValue, 3);
 });
 
 QUnit.test("Condition: a and (b or c)", function (assert) {
@@ -168,18 +168,18 @@ QUnit.test("Condition: a and (b or c)", function (assert) {
     assert.equal(node.children.length, 2);
     assert.equal(node.connective, "and");
     var left = node.children[0];
-    assert.equal(left.left, "a");
+    assert.equal(left.left.origionalValue, "a");
     assert.equal(left.operator, "equal");
-    assert.equal(left.right, 1);
+    assert.equal(left.right.origionalValue, 1);
     var right = node.children[1];
     assert.equal(right.children.length, 2);
     assert.equal(right.connective, "or");
-    assert.equal(right.children[0].left, "b");
+    assert.equal(right.children[0].left.origionalValue, "b");
     assert.equal(right.children[0].operator, "equal");
-    assert.equal(right.children[0].right, 2);
-    assert.equal(right.children[1].left, "c");
+    assert.equal(right.children[0].right.origionalValue, 2);
+    assert.equal(right.children[1].left.origionalValue, "c");
     assert.equal(right.children[1].operator, "equal");
-    assert.equal(right.children[1].right, 3);
+    assert.equal(right.children[1].right.origionalValue, 3);
 });
 
 QUnit.test("Condition: (a and b) or (c and d)", function (assert) {
@@ -192,22 +192,22 @@ QUnit.test("Condition: (a and b) or (c and d)", function (assert) {
 
     assert.equal(left.children.length, 2);
     assert.equal(left.connective, "and");
-    assert.equal(left.children[0].left, "a");
+    assert.equal(left.children[0].left.origionalValue, "a");
     assert.equal(left.children[0].operator, "equal");
-    assert.equal(left.children[0].right, 1);
-    assert.equal(left.children[1].left, "b");
+    assert.equal(left.children[0].right.origionalValue, 1);
+    assert.equal(left.children[1].left.origionalValue, "b");
     assert.equal(left.children[1].operator, "equal");
-    assert.equal(left.children[1].right, 2);
+    assert.equal(left.children[1].right.origionalValue, 2);
 
     var right = node.children[1];
     assert.equal(right.children.length, 2);
     assert.equal(right.connective, "or");
-    assert.equal(right.children[0].left, "c");
+    assert.equal(right.children[0].left.origionalValue, "c");
     assert.equal(right.children[0].operator, "equal");
-    assert.equal(right.children[0].right, 3);
-    assert.equal(right.children[1].left, "d");
+    assert.equal(right.children[0].right.origionalValue, 3);
+    assert.equal(right.children[1].left.origionalValue, "d");
     assert.equal(right.children[1].operator, "equal");
-    assert.equal(right.children[1].right, 4);
+    assert.equal(right.children[1].right.origionalValue, 4);
 });
 
 QUnit.test("Parse condition from #303", function (assert) {

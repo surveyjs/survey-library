@@ -2,6 +2,46 @@
 import {ConditionsParser} from './conditionsParser';
 import {ProcessValue} from "./conditionProcessValue";
 
+export class Operand {
+    constructor(public origionalValue: any) {
+
+    }
+    public getValue(processValue: ProcessValue) {
+        var val = this.origionalValue;
+        if(val === undefined || val === 'undefined') return null;
+        if (!val || (typeof val != "string")) return val;
+        val = this.removeBrackets(val);
+        if(processValue) {
+            var name = this.getValueName(val);
+            if(name){
+                if(!processValue.hasValue(name)) return null;
+                return processValue.getValue(name);
+            }
+        }
+        return val;
+    }
+    public operandToString() {
+        var val = this.origionalValue;
+        if (val && !this.isNumeric(val)) val = "'" + val + "'";
+        return val;
+    }
+    private removeBrackets(val: string): string {
+        if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);
+        var len = val.length;
+        if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"'))  val = val.substr(0, len - 1);
+        return val;
+    }
+    private getValueName(val: any) {
+        if (val.length < 3 || val[0] != '{' || val[val.length - 1] != '}') return null;
+        return val.substr(1, val.length - 2);
+    }
+    private isNumeric(value: string): boolean {
+        var val = parseFloat(value);
+        if (isNaN(val)) return false;
+        return isFinite(val);
+    }
+}
+
 export class Condition {
     static operatorsValue: HashTable<Function> = null;
     static get operators() {
@@ -50,8 +90,12 @@ export class Condition {
         return Condition.operatorsValue;
     }
     private opValue: string = "equal";
-    public left: any = null;
-    public right: any = null;
+    private leftValue: Operand = null;
+    private rightValue: Operand = null;
+    public get left(): Operand { return this.leftValue; }
+    public set left(val: Operand) { this.leftValue = val; }
+    public get right(): Operand { return this.rightValue; }
+    public set right(val: Operand) { this.rightValue = val; }
     public get operator(): string { return this.opValue; }
     public set operator(value: string) {
         if (!value) return;
@@ -59,22 +103,15 @@ export class Condition {
         if (!Condition.operators[value]) return;
         this.opValue = value;
     }
-    public perform(left: any = null, right: any = null): boolean {
+    public perform(left: any = null, right: any = null, processValue: ProcessValue = null): boolean {
         if (!left) left = this.left;
         if (!right) right = this.right;
-        return this.performExplicit(left, right);
+        return this.performExplicit(left, right, processValue);
     }
-    public performExplicit(left: any, right: any) : boolean {
-        return Condition.operators[this.operator](this.getPureValue(left), this.getPureValue(right));
-    }
-    private getPureValue(val: any): any {
-        if(val === undefined || val === 'undefined') return null;
-        if (!val || (typeof val != "string")) return val;
-        var str = "";
-        if (val.length > 0 && (val[0] == "'" || val[0] == '"'))  val = val.substr(1);
-        var len = val.length;
-        if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"'))  val = val.substr(0, len - 1);
-        return val;
+    public performExplicit(left: any, right: any, processValue: ProcessValue) : boolean {
+        var leftValue = left ? left.getValue(processValue) : null;
+        var rightValue = right ? right.getValue(processValue) : null;
+        return Condition.operators[this.operator](leftValue, rightValue);
     }
 }
 export class ConditionNode {
@@ -100,7 +137,6 @@ export class ConditionRunner {
     private expressionValue: string;
     private processValue: ProcessValue;
     private root: ConditionNode;
-    private values: HashTable<any>;
     public constructor(expression: string) {
         this.root = new ConditionNode();
         this.expression = expression;
@@ -113,7 +149,7 @@ export class ConditionRunner {
         new ConditionsParser().parse(this.expressionValue, this.root);
     }
     public run(values: HashTable<any>): boolean {
-        this.values = values;
+        this.processValue.values = values;
         return this.runNode(this.root);
     }
     private runNode(node: ConditionNode): boolean {
@@ -131,26 +167,6 @@ export class ConditionRunner {
         return false;
     }
     private runCondition(condition: Condition): boolean {
-        var left = condition.left;
-        var name = this.getValueName(left);
-        if (name) {
-            left = this.getValueByName(name);
-        }
-        var right = condition.right;
-        name = this.getValueName(right);
-        if (name) {
-            right = this.getValueByName(name);
-        }
-        return condition.performExplicit(left, right);
-    }
-    private getValueByName(name: string) {
-        if (!this.processValue.hasValue(name, this.values)) return null;
-        return this.processValue.getValue(name, this.values);
-    }
-    private getValueName(nodeValue: any) {
-        if (!nodeValue) return null;
-        if (typeof nodeValue !== 'string') return null;
-        if (nodeValue.length < 3 || nodeValue[0] != '{' || nodeValue[nodeValue.length - 1] != '}') return null;
-        return nodeValue.substr(1, nodeValue.length - 2);
+        return condition.performExplicit(condition.left, condition.right, this.processValue);
     }
 }

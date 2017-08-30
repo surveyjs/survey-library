@@ -1,4 +1,4 @@
-﻿import {Condition, ConditionNode} from "./conditions";
+﻿import {Operand, Condition, ConditionNode} from "./conditions";
 
 export class ConditionsParser {
     private text: string;
@@ -43,12 +43,10 @@ export class ConditionsParser {
     }
     private conditionToString(condition: Condition): string {
         if (!condition.right || !condition.operator) return "";
-        var left = condition.left;
-        if (left && !this.isNumeric(left)) left = "'" + left + "'";
+        var left = condition.left.operandToString();
         var res = left + ' ' + this.operationToString(condition.operator);
         if (this.isNoRightOperation(condition.operator)) return res;
-        var right = condition.right;
-        if (right && !this.isNumeric(right)) right = "'" + right + "'";
+        var right = condition.right.operandToString();
         return res + ' ' + right;
     }
     private operationToString(op: string): string {
@@ -59,11 +57,6 @@ export class ConditionsParser {
         if (op == "greaterorequal") return ">=";
         if (op == "lessorequal") return "<=";
         return op;
-    }
-    private isNumeric(value: string): boolean {
-        var val = parseFloat(value);
-        if (isNaN(val)) return false;
-        return isFinite(val);
     }
     private parseText(): boolean {
         this.node = this.root;
@@ -91,11 +84,11 @@ export class ConditionsParser {
         var op = this.readOperator();
         if (!op) return false;
         var c = new Condition();
-        c.left = left; c.operator = op;
+        c.left = new Operand(left); c.operator = op;
         if (!this.isNoRightOperation(op)) {
             var right = this.readString();
             if (!right) return false;
-            c.right = right;
+            c.right = new Operand(right);
         }
         this.addCondition(c);
         return true;

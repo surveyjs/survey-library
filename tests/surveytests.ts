@@ -1543,6 +1543,14 @@ QUnit.test("Pass text as survey json", function (assert) {
     assert.equal(q1.name, "q1", "The survey created from the string");
 });
 
+QUnit.test("Clear value if empty array is set, Bug #608", function (assert) {
+    var survey = new SurveyModel();
+    survey.setValue("q1", ["1"]);
+    assert.deepEqual(survey.data, {"q1": ["1"]}, "The array is set");
+    survey.setValue("q1", []);
+    assert.deepEqual(survey.data, {}, "The value with empty array is removed");
+});    
+
 QUnit.test("surveyId + clientId", function (assert) {
     var json = { "questions": [ {"type": "text", "name": "q1"}]};
     class dxSurveyServiceTester extends dxSurveyService {

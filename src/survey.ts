@@ -1502,7 +1502,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public setValue(name: string, newValue: any) {
         if (this.isValueEqual(name, newValue)) return;
-        if (newValue === "" || newValue === null) {
+        if (Base.isValueEmpty(newValue)) {
             delete this.valuesHash[name];
         } else {
             newValue = this.getUnbindValue(newValue);

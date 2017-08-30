@@ -427,7 +427,7 @@ QUnit.test("Matrixdynamic cells tests", function (assert) {
     visibleRows[1].cells[1].value = null;
     assert.deepEqual(question.value, null, "set to null if all cells are null");
 });
-QUnit.test("Matrixdynamic make the question empty on null cell value", function (assert) {
+QUnit.test("Matrixdynamic make the question empty on null cell value, Bug #608", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
     question.rowCount = 3;
     question.columns.push(new MatrixDropdownColumn("column1"));

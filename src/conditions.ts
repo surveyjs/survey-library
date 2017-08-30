@@ -1,5 +1,6 @@
 ﻿import {HashTable} from './base';
 import {ConditionsParser} from './conditionsParser';
+import {FunctionFactory} from "./functionsfactory";
 import {ProcessValue} from "./conditionProcessValue";
 
 export class Operand {
@@ -50,7 +51,7 @@ export class FunctionOperand extends Operand {
         for(var i = 0; i < this.parameters.length; i ++) {
             paramValues.push(this.parameters[i].getValue(processValue));
         }
-        return paramValues.length * 100 + 1;
+        return FunctionFactory.Instance.run(this.origionalValue, paramValues);
     }
     public operandToString() {
         var res = this.origionalValue + "("

@@ -354,8 +354,6 @@ QUnit.test("Condition check for undefined #518", function (assert) {
     assert.equal(runner.run(values), true, "undefined should work");
     values = { var1: 'a' };
     assert.equal(runner.run(values), false, "string is not undefined");
-    // values = { var1: '' };
-    // assert.equal(runner.run(values), false, "empty string is not undefined");
 
     runner = new ConditionRunner("{var1} != undefined");
     values = {  };
@@ -364,4 +362,12 @@ QUnit.test("Condition check for undefined #518", function (assert) {
     assert.equal(runner.run(values), false, "undefined should work");
     values = { var1: 'a' };
     assert.equal(runner.run(values), true, "string is not undefined");
+});
+
+QUnit.test("Run sum function", function (assert) {
+    var runner = new ConditionRunner("sum({var1},{var2}) == 5");
+    var values = { var1: 2, var2: 3};
+    assert.equal(runner.run(values), true, "true, 2 + 3 == 5");
+    values.var1 = 1;
+    assert.equal(runner.run(values), false, "false, 1 + 3 == 5");
 });

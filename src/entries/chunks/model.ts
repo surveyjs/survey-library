@@ -12,6 +12,7 @@ export {Base, Event, SurveyError, ISurvey} from "../../base";
 export {ItemValue} from "../../itemvalue";
 export {ILocalizableOwner, LocalizableString} from "../../localizablestring";
 export {ChoicesRestfull} from "../../choicesRestfull";
+export {FunctionFactory} from "../../functionsfactory";
 export {Condition, ConditionNode, ConditionRunner} from "../../conditions";
 export {ConditionsParser} from "../../conditionsParser";
 export {ProcessValue} from "../../conditionProcessValue";

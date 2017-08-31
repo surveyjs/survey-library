@@ -33,6 +33,7 @@ export {SurveyQuestionFile} from "../react/reactquestionfile";
 export {SurveyQuestionMultipleText, SurveyQuestionMultipleTextItem} from "../react/reactquestionmultipletext";
 export {SurveyQuestionRadiogroup} from "../react/reactquestionradiogroup";
 export {SurveyQuestionText} from "../react/reactquestiontext";
+export {SurveyQuestionBoolean} from "../react/reactquestionboolean";
 export {SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicRow} from "../react/reactquestionmatrixdynamic";
 export {SurveyQuestionPanelDynamic} from "../react/reactquestionpaneldynamic";
 export {SurveyProgress} from "../react/reactSurveyProgress";

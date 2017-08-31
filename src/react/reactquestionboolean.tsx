@@ -29,7 +29,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             <div className={cssClasses.item}>
                 <label className={cssClasses.item}>
                     <input ref="check" type="checkbox" value={this.question.checkedValue} id={this.question.inputId}  disabled={this.isDisplayMode} checked={this.question.checkedValue} onChange={this.handleOnChange} />
-                    <span className="checkbox-material" style={{"marginRight": "5px"}}><span className="check"></span></span>
+                    <span className="checkbox-material" style={{"marginRight": "3px"}}><span className="check"></span></span>
                     <span>{text}</span>
                 </label>
             </div>);

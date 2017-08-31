@@ -99,7 +99,7 @@ export class SurveyPanel extends React.Component<any, any> {
         var rootStyle = {verticalAlign: 'top', display: this.panel.isVisible? 'inline-block': 'none'};
         if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
         return (
-            <div ref="root" style={rootStyle}>
+            <div ref="root" className={this.css.panel.container} style={rootStyle}>
                 {title}
                 <div style={style}>
                     {rows}
@@ -114,7 +114,7 @@ export class SurveyPanel extends React.Component<any, any> {
     protected renderTitle(): JSX.Element {
         if (!this.panel.title) return null;
         var text = SurveyElementBase.renderLocString(this.panel.locTitle);
-        return (<h4 className={this.css.pageTitle}>{text}</h4>);
+        return (<h4 className={this.css.panel.title}>{text}</h4>);
     }
 }
 

@@ -17,6 +17,7 @@ export var defaultStandardCss = {
     pageTitle: "sv_p_title",
     row: "sv_row",
     question: { mainRoot: "sv_q", title: "sv_q_title", description: "sv_q_description", comment: "", required: "", titleRequired: "", indent: 20 },
+    panel: {title: "sv_p_title", container: ""},
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
     checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },

@@ -11,6 +11,7 @@ export var defaultBootstrapCss = {
     pageTitle: "",
     row: "",
     question: { mainRoot: "", title: "", description: "small", comment: "form-control", required: "", titleRequired: "", indent: 20 },
+    panel: {title: "", container: ""},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
     checkbox: { root: "form-inline", item: "checkbox", other: "" },

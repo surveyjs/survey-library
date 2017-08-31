@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-panel">
 <div style="vertical-align:top" data-bind="style:{display: question.koVisible() ? 'inline-block': 'none', width: koRenderWidth}, attr: {id: id}">
-    <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.pageTitle"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
-    <div data-bind="style: { paddingLeft: koInnerMargin }">
+    <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
+    <div data-bind="css: cssClasses.panel.container, style: { paddingLeft: koInnerMargin }">
     <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
     </div>
 </div>

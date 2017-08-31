@@ -10,6 +10,7 @@ export var defaultBootstrapMaterialCss = {
     pageTitle: "",
     row: "",
     question: { mainRoot: "form-group", title: "", description: "small", comment: "form-control", required: "", titleRequired: "", indent: 20 },
+    panel: {title: "", container: ""},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
     checkbox: { root: "form-inline", item: "checkbox", other: "" },

@@ -8,15 +8,18 @@ import {LocalizableString} from "./localizablestring";
  * A Model for a boolean question.
  */
 export class QuestionBooleanModel extends Question {
-    private locCheckCaptionValue: LocalizableString;
+    private locLabelValue: LocalizableString;
     
     constructor(public name: string) {
         super(name);
-        this.locCheckCaptionValue = new LocalizableString(this, true);
+        this.locLabelValue = new LocalizableString(this, true);
     }
     public getType(): string {
         return "boolean";
     }
+    /**
+     * Returns true if the question check will be rendered in indeterminate mode. value is empty.
+     */
     public get isIndeterminate(): boolean { return this.isEmpty(); }
     public get hasTitle(): boolean { return this.showTitle; }
     supportGoNextPageAutomatic() { return true; }
@@ -24,6 +27,11 @@ export class QuestionBooleanModel extends Question {
         super.onSetData();
         this.updateValueWithDefaults();
     }
+    /**
+     * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
+     * @see valueTrue
+     * @see valueFalse
+     */
     public get checkedValue() : any {
         if(this.isEmpty()) return null;
         return this.value == this.getValueTrue();
@@ -35,22 +43,39 @@ export class QuestionBooleanModel extends Question {
             this.value = val == true ? this.getValueTrue() : this.getValueFalse();
         }
     }
+    /**
+     * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
+     */
     public get defaultValue(): string { return this.getPropertyValue("defaultValue", "indeterminate");}
     public set defaultValue(val: string) {
         this.setPropertyValue("defaultValue", val);
         this.updateValueWithDefaults();
     }
-    public get checkCaption(): string { return this.locCheckCaption.text ? this.locCheckCaption.text : ""; }
-    public set checkCaption(newValue:  string) { this.locCheckCaption.text = newValue; }
-    get locCheckCaption(): LocalizableString { return this.locCheckCaptionValue; }
-    get locDisplayCheckCaption(): LocalizableString { 
-        if(this.locCheckCaption.text) return this.locCheckCaption;
-        return this.showTitle ? this.locCheckCaption : this.locTitle;
-     }
+    /**
+     * The checkbox label. If it is empty and showTitle is false then title is rendered
+     * @see showTitle
+     * @see title
+     */
+    public get label(): string { return this.locLabel.text ? this.locLabel.text : ""; }
+    public set label(newValue:  string) { this.locLabel.text = newValue; }
+    get locLabel(): LocalizableString { return this.locLabelValue; }
+    get locDisplayLabel(): LocalizableString { 
+        if(this.locLabel.text) return this.locLabel;
+        return this.showTitle ? this.locLabel : this.locTitle;
+    }
+    /**
+     * Set this property to true to show the question title. It is hidden by default.
+     */
     public get showTitle(): boolean { return this.getPropertyValue("showTitle"); }
     public set showTitle(val: boolean) { this.setPropertyValue("showTitle", val); }
+    /**
+     * Set this property, if you want to have a different value from true when check is set.
+     */
     public get valueTrue(): any { return this.getPropertyValue("valueTrue");}
     public set valueTrue(val: any) { this.setPropertyValue("valueTrue", val);}
+    /**
+     * Set this property, if you want to have a different value from false when check is unset.
+     */
     public get valueFalse(): any { return this.getPropertyValue("valueFalse");}
     public set valueFalse(val: any) { this.setPropertyValue("valueFalse", val);}
     private getValueTrue(): any { return this.valueTrue ? this.valueTrue : true; }
@@ -63,7 +88,7 @@ export class QuestionBooleanModel extends Question {
 }
 
 JsonObject.metaData.addClass("boolean", [{ name: "defaultValue", default: "indeterminate", choices: ["indeterminate", "false", "true"] },
-    { name: "checkCaption:text", serializationProperty: "locCheckCaption" }, 
+    { name: "label:text", serializationProperty: "locLabel" }, 
     "showTitle:boolean", "valueTrue", "valueFalse"], function () { return new QuestionBooleanModel(""); }, "question");
 
 QuestionFactory.Instance.registerQuestion("boolean", (name) => { return new QuestionBooleanModel(name); });

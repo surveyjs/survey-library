@@ -24,7 +24,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         var cssClasses = this.question.cssClasses;
-        var text = this.renderLocString(this.question.locDisplayCheckCaption);
+        var text = this.renderLocString(this.question.locDisplayLabel);
         return (
             <div className={cssClasses.item}>
                 <label className={cssClasses.item}>

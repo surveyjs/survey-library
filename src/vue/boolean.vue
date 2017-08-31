@@ -3,7 +3,7 @@
         <label :class="question.cssClasses.item">
             <input type="checkbox" :name="question.name" :value="question.checkedValue" v-model="question.checkedValue" :id="question.inputId"  :indeterminate.prop="question.isIndeterminate" :disabled="question.isReadOnly" />
             <span class="checkbox-material" style="margin-right: 3px"><span class="check"></span></span>
-            <survey-string :locString="question.locDisplayCheckCaption"/>
+            <survey-string :locString="question.locDisplayLabel"/>
         </label>
     </form>
 </template>

@@ -3,7 +3,7 @@
         <label data-bind="css: question.koCss().item">
             <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId}, checked: question.koCheckedValue, surveyProp: {indeterminate: question.koIndeterminate}, enable: !question.koIsReadOnly()" />
             <span class="checkbox-material" style="margin-right: 3px"><span class="check"></span></span>
-            <!-- ko template: { name: 'survey-string', data: locDisplayCheckCaption } --><!-- /ko -->
+            <!-- ko template: { name: 'survey-string', data: locDisplayLabel } --><!-- /ko -->
         </label>
     </form>
 </script>

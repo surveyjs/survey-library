@@ -166,3 +166,15 @@ ko.components.register('survey', {
 });
 
 ItemValue.setData(QuestionRatingModel.defaultRateValues, [1, 2, 3, 4, 5]);
+
+ko.bindingHandlers['surveyProp'] = {
+    update: function(element, valueAccessor, allBindingsAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor()) || {};
+        for (var propName in value) {
+            if (typeof propName == "string") {
+                var propValue = ko.utils.unwrapObservable(value[propName]);
+                element[propName] = propValue;
+            }
+        }
+    }
+};

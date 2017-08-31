@@ -13,6 +13,7 @@ export var defaultBootstrapMaterialCss = {
     panel: {title: "", container: ""},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
+    boolean: { root: "form-inline", item: "checkbox"},
     checkbox: { root: "form-inline", item: "checkbox", other: "" },
     comment: "form-control",
     dropdown: { root: "", control: "form-control", other: "" },

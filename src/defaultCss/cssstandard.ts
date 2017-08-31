@@ -20,6 +20,7 @@ export var defaultStandardCss = {
     panel: {title: "sv_p_title", container: ""},
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
+    boolean: { root: "sv_qcbc", item: "sv_q_checkbox"},
     checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },
     comment: "",
     dropdown: { root: "", control: "", other: "sv_q_other" },

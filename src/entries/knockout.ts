@@ -44,6 +44,7 @@ export {
 export {QuestionRadiogroup} from "../knockout/koquestion_radiogroup";
 export {QuestionRating} from "../knockout/koquestion_rating";
 export {QuestionText} from "../knockout/koquestion_text";
+export {QuestionBoolean} from "../knockout/koquestion_boolean";
 export {SurveyWindow} from "../knockout/koSurveyWindow";
 export {SurveyTemplateText} from "../knockout/templateText";
 

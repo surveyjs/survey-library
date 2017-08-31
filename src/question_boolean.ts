@@ -27,6 +27,10 @@ export class QuestionBooleanModel extends Question {
         super.onSetData();
         this.updateValueWithDefaults();
     }
+    public onSurveyLoad() {
+        super.onSurveyLoad();
+        this.updateValueWithDefaults();
+    }
     /**
      * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
      * @see valueTrue
@@ -81,9 +85,11 @@ export class QuestionBooleanModel extends Question {
     private getValueTrue(): any { return this.valueTrue ? this.valueTrue : true; }
     private getValueFalse(): any { return this.valueFalse ? this.valueFalse : false; }
     private updateValueWithDefaults() {
-        if(!this.isEmpty()) return;
-        if(this.defaultValue == "true") this.value = this.getValueTrue();
-        else if(this.defaultValue == "false") this.value = this.getValueFalse();
+        if(this.isLoadingFromJson) return;
+        if(!this.isEmpty() && !this.isDesignMode) return;
+        if(this.defaultValue == "true") this.checkedValue = true;
+        if(this.defaultValue == "false") this.checkedValue = false;
+        if(this.defaultValue == "indeterminate") this.value = null;
     }
 }
 

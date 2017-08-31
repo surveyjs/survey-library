@@ -20,6 +20,9 @@ export class QuestionBooleanImplementor extends QuestionImplementor {
     protected setkoValue(newValue: any) {
         super.setkoValue(newValue);
         this.koIndeterminate((<QuestionBoolean>this.question).isIndeterminate);
+        if(this.koCheckedValue() != (<QuestionBoolean>this.question).checkedValue) {
+            this.koCheckedValue((<QuestionBoolean>this.question).checkedValue);
+        }
     }
     protected updateCheckedValue(newValue: any) {
         (<QuestionBoolean>this.question).checkedValue = newValue;

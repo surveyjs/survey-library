@@ -178,3 +178,14 @@ QUnit.test("Survey deserialize dynamic matrix with different locale, Issue #507"
     var survey = new SurveyModel({ pages: [ { name: "p1", elements: [{type: "matrixdropdown", name: "q1", columns: [{ name: "Column 1"}], rows: ["Row 1","Row 2"]}]  } ],  locale: "zh-cn"});
     assert.equal(survey.getQuestionByName("q1").name, "q1", "Matrix deserialized successful");
 });
+
+QUnit.test("Survey checkbox.choices serialize/deserialize custom properties", function (assert) {
+    var question = new QuestionCheckboxModel("q1");
+    var jsonObj = new JsonObject();
+    var originalJson = {name: "q1", choices: [ { value: "2", imageLink: "link to image" }]};
+    jsonObj.toObject(originalJson, question);
+    assert.equal((<ItemValue>question.choices[0]).text, "2", "The default locale is 2");
+    assert.equal((<ItemValue>question.choices[0])["imageLink"], "link to image", "Custom property is deserialized");
+    var json = jsonObj.toJsonObject(question);
+    assert.deepEqual(json, originalJson, "Custom property has serialized correctly");
+});

@@ -38,13 +38,7 @@ export class ItemValue {
     public static getData(items: Array<ItemValue>): any {
         var result = new Array();
         for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var textJson = item.locText.getJson();
-            if (textJson) {
-                result.push({ value: item.value, text:  textJson});
-            } else {
-                result.push(item.value);
-            }
+            result.push(items[i].getData());
         }
         return result;
     }
@@ -63,7 +57,7 @@ export class ItemValue {
             items[i].locText.onChanged();
         }
     }
-    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText", "isValueEmpty"];
+    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText", "isValueEmpty", "locTextValue"];
     private itemValue: any;
     private locTextValue: LocalizableString;
     constructor(value: any, text: string = null) {
@@ -93,6 +87,19 @@ export class ItemValue {
     public set text(newText: string) {
         this.locText.text = newText;
     }
+    public getData(): any {
+        var customAttributes = this.getCustomAttributes();
+        var textJson = this.locText.getJson();
+        if(!customAttributes && !textJson) return this.value;
+        var result = {value: this.value};
+        if(textJson) result["text"] = textJson;
+        if(customAttributes) {
+            for(var key in customAttributes) {
+                result[key] = customAttributes[key];
+            }
+        }
+        return result;
+    }
     public setData(value: any) {
         if (typeof (value.value) !== 'undefined') {
             var exception = null;
@@ -118,5 +125,14 @@ export class ItemValue {
                 this[key] = src[key];
             }
         }
+    }
+    private getCustomAttributes(): any {
+        var result = null;
+        for (var key in this) {
+            if ((typeof this[key] == 'function') || ItemValue.itemValueProp.indexOf(key) > -1 || key == "itemValue") continue;
+            if(result == null) result = {};
+            result[key] = this[key];
+        }
+        return result;
     }
 }

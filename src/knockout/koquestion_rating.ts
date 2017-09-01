@@ -17,7 +17,8 @@ class QuestionRatingImplementor extends QuestionImplementor {
         (<QuestionRating>this.question).rateValuesChangedCallback = function () { self.onRateValuesChanged(); };
         this.question["koGetCss"] = function (val) {
             var css = (<QuestionRating>self.question).itemCss;
-            return self.question["koValue"]() == val.value ? css + " active" : css; };
+            var selected = (<QuestionRating>self.question).selectedCss;
+            return self.question["koValue"]() == val.value ? css + " " + selected : css; };
     }
     protected onRateValuesChanged() {
         this.koVisibleRateValues(this.getValues());
@@ -33,6 +34,7 @@ export class QuestionRating extends QuestionRatingModel {
     }
     protected onSetData() {
         this.itemCss = this.data["css"].rating.item;
+        this.selectedCss = this.data["css"].rating.selected;
     }
 }
 

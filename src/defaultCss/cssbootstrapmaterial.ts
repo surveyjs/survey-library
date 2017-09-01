@@ -23,7 +23,7 @@ export var defaultBootstrapMaterialCss = {
     paneldynamic: { root: "", button: "button" },
     multipletext: { root: "table", itemTitle: "", row: "form-group", itemValue: "form-control" },
     radiogroup: { root: "form-inline", item: "radio-inline", label: "radio-inline", other: "" },
-    rating: { root: "btn-group", item: "btn btn-default" },
+    rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
     text: "form-control",
     saveData: {root: "", saving: "alert alert-info", error: "alert alert-danger", success: "alert alert-success", saveAgainButton: ""},
     window: {

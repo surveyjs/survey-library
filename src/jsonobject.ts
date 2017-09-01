@@ -3,6 +3,7 @@
 export class JsonObjectProperty {
     private typeValue: string = null;
     private choicesValue: Array<any> = null;
+    private isRequiredValue: boolean = false;
     private choicesfunc: () => Array<any> = null;
     public className: string = null;
     public alternativeName: string = null;
@@ -16,10 +17,12 @@ export class JsonObjectProperty {
     public onGetValue: (obj: any) => any = null;
     public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
 
-    constructor(public name: string) {
+    constructor(public name: string, isRequired: boolean = false) {
+        this.isRequiredValue = isRequired;
     }
     public get type(): string { return this.typeValue ? this.typeValue : "string"; }
     public set type(value: string) { this.typeValue = value; }
+    public get isRequired() { return this.isRequiredValue; }
     public get hasToUseGetValue() { return this.onGetValue || this.serializationProperty; }
     public isDefaultValue(value: any): boolean {
         return (this.defaultValue) ? (this.defaultValue == value) : !(value);
@@ -99,8 +102,9 @@ export class JsonMetadataClass {
             propertyType = propertyName.substring(typeIndex + 1);
             propertyName = propertyName.substring(0, typeIndex);
         }
+        var isRequired = this.getIsPropertyNameRequired(propertyName);
         propertyName = this.getPropertyName(propertyName);
-        var prop = new JsonObjectProperty(propertyName);
+        var prop = new JsonObjectProperty(propertyName, isRequired);
         if (propertyType) {
             prop.type = propertyType;
         }
@@ -153,8 +157,11 @@ export class JsonMetadataClass {
         }
         return prop;
     }
+    private getIsPropertyNameRequired(propertyName: string): boolean {
+        return propertyName.length > 0 && propertyName[0] == JsonMetadataClass.requiredSymbol;
+    }
     private getPropertyName(propertyName: string): string {
-        if (propertyName.length == 0 || propertyName[0] != JsonMetadataClass.requiredSymbol) return propertyName;
+        if (!this.getIsPropertyNameRequired(propertyName)) return propertyName;
         propertyName = propertyName.slice(1);
         this.makePropertyRequired(propertyName);
         return propertyName;

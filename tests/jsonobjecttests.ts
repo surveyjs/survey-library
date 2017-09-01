@@ -179,6 +179,10 @@ QUnit.test("Serialize object with it's type", function (assert) {
     var jsObj = new JsonObject().toJsonObject(dealer);
     assert.equal(JSON.stringify(jsObj), "{\"car\":{\"type\":\"truck\",\"maxWeight\":10000}}", "serialize object with it's type");
 });
+QUnit.test("Check isRequired property", function (assert) {
+    assert.equal(JsonObject.metaData.findProperty("sport", "maxSpeed").isRequired, true, "maxSpeed is required property");
+    assert.equal(JsonObject.metaData.findProperty("truck", "maxWeight").isRequired, false, "maxWeight is not required property");
+});    
 QUnit.test("Serialize arrays with serializable objects", function (assert) {
     var dealer = new Dealer();
     var truck = new Truck();

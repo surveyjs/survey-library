@@ -28,6 +28,7 @@ class QuestionRatingImplementor extends QuestionImplementor {
 
 export class QuestionRating extends QuestionRatingModel {
     public itemCss: string;
+    public selectedCss: string;
     constructor(public name: string) {
         super(name);
         new QuestionRatingImplementor(this);

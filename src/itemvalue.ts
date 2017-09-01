@@ -1,4 +1,6 @@
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {JsonObject} from "./jsonobject";
+
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
  * It has two main properties: value and text. If text is empty, value is used for displaying.
@@ -57,7 +59,7 @@ export class ItemValue {
             items[i].locText.onChanged();
         }
     }
-    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText", "isValueEmpty", "locTextValue"];
+    private static itemValueProp = [ "text", "value", "hasText", "locOwner", "locText", "isValueEmpty", "locTextValue", "pos"];
     private itemValue: any;
     private locTextValue: LocalizableString;
     constructor(value: any, text: string = null) {
@@ -136,3 +138,5 @@ export class ItemValue {
         return result;
     }
 }
+
+JsonObject.metaData.addClass("itemvalue", ["!value", {name: "text", onGetValue: function (obj: any) { return obj.locText.pureText; }}]);

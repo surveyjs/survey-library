@@ -37,7 +37,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     protected renderItem(key: string, item: ItemValue, minText: JSX.Element, maxText: JSX.Element, cssClasses: any): JSX.Element {
         var isChecked = this.question.value == item.value;
         var className = cssClasses.item;
-        if (isChecked) className += " active";
+        if (isChecked) className += " " + cssClasses.selected;
         var itemText = this.renderLocString(item.locText);
         return <label key={key} className={className}>
             <input type="radio" style={{ display: "none" }} name={this.question.name} value={item.value} disabled={this.isDisplayMode} checked={this.question.value == item.value} onChange={this.handleOnChange} />

@@ -24,7 +24,7 @@
         getCss(item) {
             let css = this.question.cssClasses.item;
             if (this.selection == item.value || this.question.value == item.value) {
-                css = css + " active";
+                css = css + " " + this.question.cssClasses.selected;
             }
             return css;
         }

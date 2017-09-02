@@ -94,7 +94,7 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
     public getType(): string {return "loadingtest"; }
 }
 
-JsonObject.metaData.addClass("dealer", ["name", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
+JsonObject.metaData.addClass("dealer", ["name:string", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
     { name: "truck", className: "truck" }, { name: "trucks", className: "truck", visible: false },
     { name: "changeNameOnSet", onSetValue: function (obj: any, value: any, jsonConv: JsonObject) { obj.name = value; } }]);
@@ -515,4 +515,28 @@ QUnit.test("Loading test deserialization", function (assert) {
     assert.equal(obj.endLoadingFromJsonCounter, 1, "obj: endLoadingFromJson was called one time")
     assert.equal(obj.items[1].startLoadingFromJsonCounter, 1, "item1: startLoadingFromJson was called one time")
     assert.equal(obj.items[1].endLoadingFromJsonCounter, 1, "item1: endLoadingFromJson was called one time")
+});
+
+QUnit.test("Override type property in a successor class", function (assert) {
+    var property = JsonObject.metaData.findProperty("fast", "name");
+    assert.equal(property.type, "string", "The default type");
+    function findProperty() {
+        property = null;
+        var properties = JsonObject.metaData.getProperties("fast");
+        for(var i = 0; i < properties.length; i ++) {
+            if(properties[i].name == "name") {
+                property = properties[i];
+                break;
+            }
+        }
+    }   
+    findProperty();
+    assert.equal(property.type, "string", "The default type");
+    JsonObject.metaData.addProperty("fast", "name:text");
+    property = JsonObject.metaData.findProperty("fast", "name");
+    assert.equal(property.type, "text", "The type is text for fast car");
+    property = JsonObject.metaData.findProperty("car", "name");
+    assert.equal(property.type, "string", "The type is string for car");
+    findProperty();
+    assert.equal(property.type, "text", "The type is text for fast car, getProperties");
 });

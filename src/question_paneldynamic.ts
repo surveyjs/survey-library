@@ -90,8 +90,13 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IText
     }
     processTextEx(text: string): any {
         text = this.processText(text, true);
-        var survey = this.getSurvey();
-        return survey ? survey.processTextEx(text) : text;
+        var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
+        var res = {hasAllValuesOnLastRun: true, text : text};
+        if(this.getSurvey()) {
+            res =  this.getSurvey().processTextEx(text);
+        }
+        res.hasAllValuesOnLastRun = res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
+        return res;
     }
     onAnyValueChanged(name: string) {
         this.panel.onAnyValueChanged(name);

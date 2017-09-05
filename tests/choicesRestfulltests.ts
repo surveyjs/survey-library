@@ -2,6 +2,8 @@
 import {Question} from "../src/question";
 import {ChoicesRestfull} from "../src/choicesRestfull";
 import {QuestionDropdownModel} from "../src/question_dropdown";
+import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
+import {QuestionMatrixDropdownModelBase} from "../src/question_matrixdropdownbase";
 import {ItemValue} from "../src/itemvalue";
 
 export default QUnit.module("choicesRestfull");
@@ -19,6 +21,16 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
         super(name);
     }
     protected createRestfull(): ChoicesRestfull { return new ChoicesRestfullTester(); }
+}
+
+class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
+    constructor(name: string) {
+        super(name);
+    }
+    protected createCellQuestion(questionType: string, name: string): Question {
+        if(questionType == "dropdown") return new QuestionDropdownModelTester(name);
+        return super.createCellQuestion(questionType, name);
+    }
 }
 
 QUnit.test("Load countries", function (assert) {
@@ -73,6 +85,27 @@ QUnit.test("Use variables", function (assert) {
     stateQuestion.value = "";
     assert.equal(question.visibleChoices.length, 0, "It is empty again");
 });
+
+QUnit.test("Cascad dropdown in matrix dynamic", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1")
+    var question = new QuestionMatrixDynamicModelTester("q1");
+    question.rowCount = 2;
+    question.addColumn("state");
+    var dropdownColumn = question.addColumn("city");
+    dropdownColumn.choicesByUrl.url = "{row.state}";
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    var rows = question.visibleRows;
+    var cellDropdown = <QuestionDropdownModel>rows[0].cells[1].question;
+    assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty");
+    rows[0].cells[0].question.value = "ca_cities";
+    assert.equal(cellDropdown.visibleChoices.length, 2, "We have two cities now, CA");
+    rows[0].cells[0].question.value = "tx_cities";
+    assert.equal(cellDropdown.visibleChoices.length, 3, "We have three cities now, TX");
+    rows[0].cells[0].question.value = "";
+    assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty again");
+}); 
 
 function getCACities() {
     return [

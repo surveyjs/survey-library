@@ -205,7 +205,10 @@ export class QuestionSelectBase extends Question {
         this.runChoicesByUrl();
     }
     private runChoicesByUrl() {
-        if (this.choicesByUrl) this.choicesByUrl.run(this.survey);
+        if (this.choicesByUrl) {
+            var processor = this.surveyImpl ?  this.surveyImpl.getTextProcessor() : this.survey;
+             this.choicesByUrl.run(processor);
+        }
     }
     private onLoadChoicesFromUrl(array: Array<ItemValue>) {
         var errorCount = this.errors.length;

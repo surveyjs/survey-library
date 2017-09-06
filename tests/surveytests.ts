@@ -1576,6 +1576,16 @@ QUnit.test("surveyId + clientId", function (assert) {
     assert.equal(q1.name, "q1", "The survey created from the string");
 });
 
+QUnit.test("Question description and text processing, variable, Bug #632", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    var question = <Question>survey.pages[0].addNewQuestion("text", "q1");
+    question.title = "{var1}";
+    question.description = "{var1}";
+    survey.setVariable("var1", "It is var1");
+    assert.equal(question.locTitle.renderedHtml, "1. It is var1", "Title: Variable is applied");
+    assert.equal(question.locDescription.renderedHtml, "It is var1", "Decription: Variable is applied");
+});
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

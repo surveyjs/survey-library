@@ -44,6 +44,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locTitleValue = new LocalizableString(this, true);
         this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
         this.locDescriptionValue = new LocalizableString(this, true);
+        this.locDescriptionValue.onRenderedHtmlCallback = function(html) { return self.getProcessedHtml(html); }
         this.locCommentTextValue = new LocalizableString(this, true);
         this.locRequiredErrorTextValue = new LocalizableString(this);
     }
@@ -93,10 +94,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locTitle.onChanged();
         this.locCommentText.onChanged();
     }
+    protected getProcessedHtml(html: string): string {
+        if(!html || !this.textProcessor) return html;
+        return this.textProcessor.processText(html, true);
+    }
     /**
      * Returns the rendred question title.
      */
-    public get processedTitle() { return this.textProcessor != null ? this.textProcessor.processText(this.locTitleHtml, true) : this.locTitleHtml; }
+    public get processedTitle() { return this.getProcessedHtml(this.locTitleHtml); }
     /**
      * Returns the title after processing the question template.
      * @see SurveyModel.questionTitleTemplate

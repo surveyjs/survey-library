@@ -6,7 +6,11 @@ import {SurveyElementBase} from "./reactquestionelement";
 export class SurveyWindow extends Survey {
     constructor(props: any) {
         super(props);
+        this.updateSurvey(props);
         this.handleOnExpanded = this.handleOnExpanded.bind(this);
+    }
+    componentWillReceiveProps(nextProps: any) {
+        this.updateSurvey(nextProps);
     }
     handleOnExpanded(event) {
         this.state.expanded = !this.state.expanded;

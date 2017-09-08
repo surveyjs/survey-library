@@ -6,7 +6,12 @@ import {ReactQuestionFactory} from "./reactquestionfactory";
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
+        this.state = { value: this.question.checkedValue };
         this.handleOnChange = this.handleOnChange.bind(this);
+    }
+    componentWillReceiveProps(nextProps: any) {
+        super.componentWillReceiveProps(nextProps);
+        this.state.value =  this.question.checkedValue;
     }
     protected get question(): QuestionBooleanModel { return this.questionBase as QuestionBooleanModel; }
     handleOnChange(event) {
@@ -14,10 +19,16 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         this.setState({ value: this.question.checkedValue });
     }
     componentDidMount() {
-        if(!this.question || !this.question.isIndeterminate) return;
+        this.updateIndeterminate();
+    }
+    componentDidUpdate() {
+        this.updateIndeterminate();
+    }
+    private updateIndeterminate() {
+        if(!this.question) return;
         var el = this.refs["check"];
         if (el) {
-            el["indeterminate"] = true;
+            el["indeterminate"] = this.question.isIndeterminate;
         }
     }
     

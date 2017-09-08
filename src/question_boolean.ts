@@ -86,7 +86,7 @@ export class QuestionBooleanModel extends Question {
     private getValueFalse(): any { return this.valueFalse ? this.valueFalse : false; }
     private updateValueWithDefaults() {
         if(this.isLoadingFromJson) return;
-        if(!this.isEmpty() && !this.isDesignMode) return;
+        if(!this.isEmpty()) return;
         if(this.defaultValue == "true") this.checkedValue = true;
         if(this.defaultValue == "false") this.checkedValue = false;
         if(this.defaultValue == "indeterminate") this.value = null;

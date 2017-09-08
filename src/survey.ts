@@ -472,7 +472,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public get completedBeforeHtml(): string { return this.getLocalizableStringText("completedBeforeHtml");}
     public set completedBeforeHtml(value: string) { this.setLocalizableStringText("completedBeforeHtml", value);}
-    get locCompletedBeforeHtml(): LocalizableString { return this.getLocalizableString("completedHtml");}
+    get locCompletedBeforeHtml(): LocalizableString { return this.getLocalizableString("completedBeforeHtml");}
     /**
      * The html that shows on loading survey Json from the dxsurvey.com service.
      * @see surveyId
@@ -526,7 +526,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.updateVisibleIndexes();
     }
     /**
-     * Set this property to false to turn off the numbering on questions titles.
+     * Set this property to "off" to turn off the numbering on questions titles or "onpage" to start numbering on every page. The default value is "on".
      */
     public get showQuestionNumbers(): string { return this.getPropertyValue("showQuestionNumbers", "on"); };
     public set showQuestionNumbers(value: string) {
@@ -1644,7 +1644,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
 }
 
 JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { return surveyLocalization.getLocales() } },
-    {name: "title", serializationProperty: "locTitle"}, { name: "focusFirstQuestionAutomatic:boolean", default: true},
+    {name: "title:text", serializationProperty: "locTitle"}, { name: "focusFirstQuestionAutomatic:boolean", default: true},
     {name: "completedHtml:html", serializationProperty: "locCompletedHtml"}, {name: "completedBeforeHtml:html", serializationProperty: "locCompletedBeforeHtml"},
     {name: "loadingHtml:html", serializationProperty: "locLoadingHtml"}, { name: "pages", className: "page", visible: false },
     { name: "questions", alternativeName: "elements", baseClassName: "question", visible: false, onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },

@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import {QuestionBooleanModel} from "../question_boolean";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";

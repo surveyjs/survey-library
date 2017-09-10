@@ -10,6 +10,7 @@ export class Operand {
         var val = this.origionalValue;
         if(val === undefined || val === 'undefined') return null;
         if (!val || (typeof val != "string")) return val;
+        if(this.isBoolean(val)) return val.toLowerCase() == "true";
         val = this.removeQuotes(val);
         if(processValue) {
             var name = this.getValueName(val);
@@ -22,7 +23,7 @@ export class Operand {
     }
     public operandToString() {
         var val = this.origionalValue;
-        if (val && !this.isNumeric(val)) val = "'" + val + "'";
+        if (val && (!this.isNumeric(val) && !this.isBoolean(val))) val = "'" + val + "'";
         return val;
     }
     private removeQuotes(val: string): string {
@@ -34,6 +35,9 @@ export class Operand {
     private getValueName(val: any) {
         if (val.length < 3 || val[0] != '{' || val[val.length - 1] != '}') return null;
         return val.substr(1, val.length - 2);
+    }
+    private isBoolean(value: string) : boolean {
+        return value && (value.toLowerCase() === "true" || value.toLowerCase() === "false");
     }
     private isNumeric(value: string): boolean {
         var val = parseFloat(value);
@@ -130,6 +134,7 @@ export class Condition {
     }
     public performExplicit(left: any, right: any, processValue: ProcessValue) : boolean {
         var leftValue = left ? left.getValue(processValue) : null;
+        if(!right && (leftValue === true || leftValue === false)) return leftValue;
         var rightValue = right ? right.getValue(processValue) : null;
         return Condition.operators[this.operator](leftValue, rightValue);
     }

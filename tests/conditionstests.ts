@@ -380,3 +380,29 @@ QUnit.test("Run age function", function (assert) {
     values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
     assert.equal(runner.run(values), false, "false, the person is 10 years old");
 });
+
+QUnit.test("Support true/false constants, #643", function (assert) {
+    var runner = new ConditionRunner("true && {year} >= 21");
+    var values = { year: 22 };
+    assert.equal(runner.run(values), true, "true, true && 22 >= 21");
+    values = { year: 20 };
+    assert.equal(runner.run(values), false, "false, true && 20 >= 21");
+
+    runner = new ConditionRunner("true or {year} >= 21");
+    values = { year: 22 };
+    assert.equal(runner.run(values), true, "true, true or 22 >= 21");
+    values = { year: 20 };
+    assert.equal(runner.run(values), true, "true, true or 20 >= 21");
+    
+    runner = new ConditionRunner("false && {year} >= 21");
+    values = { year: 22 };
+    assert.equal(runner.run(values), false, "false, false && 22 >= 21");
+    values = { year: 20 };
+    assert.equal(runner.run(values), false, "false, false && 20 >= 21");
+
+    runner = new ConditionRunner("false or {year} >= 21");
+    values = { year: 22 };
+    assert.equal(runner.run(values), true, "true, false or 22 >= 21");
+    values = { year: 20 };
+    assert.equal(runner.run(values), false, "false, false or 20 >= 21");
+});

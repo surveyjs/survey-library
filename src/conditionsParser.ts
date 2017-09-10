@@ -1,6 +1,7 @@
 ﻿import {Condition, ConditionNode, Operand, FunctionOperand} from "./conditions";
 
 export class ConditionsParser {
+    private static constants = ["true", "false"];
     private text: string;
     private root: ConditionNode;
     private expressionNodes: Array<ConditionNode>;
@@ -81,6 +82,12 @@ export class ConditionsParser {
         if(expRes == 1) return true;
         var left = this.readString();
         if (!left) return false;
+        if(this.isConstant(left)) {
+            var c = new Condition();
+            c.left = this.createOperand(left, null);
+            this.addCondition(c);
+            return true;
+        } 
         var params = this.readParameters();
         var op = this.readOperator();
         if (!op) return false;
@@ -182,6 +189,11 @@ export class ConditionsParser {
     }
     private isNoRightOperation(op: string) {
         return op == "empty" || op == "notempty";
+    }
+    private isConstant(str: string): boolean {
+        if(!str) return false;
+        str = str.toLowerCase();
+        return ConditionsParser.constants.indexOf(str) > -1;
     }
     private readOperator(): string {
         var op = this.readString();

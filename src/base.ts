@@ -85,6 +85,57 @@ export interface IPage extends IConditionRunner {
     visible: boolean;
     onSurveyLoad();
 }
+export class CustomPropertiesCollection {
+    private static properties = {};
+    private static parentClasses = {};
+    public static addProperty(className: string, property: any) {
+        var props = CustomPropertiesCollection.properties;
+        if(!props[className]) {
+            props[className] = [];
+        }
+        props[className].push(property);
+    }
+    public static removeProperty(className: string, propertyName: string) {
+        var props = CustomPropertiesCollection.properties;
+        if(!props[className]) return;
+        var properties =  props[className];
+        for(var i = 0; i < properties.length; i ++) {
+            if(properties[i].name == propertyName) {
+                props[className].splice(i, 1);
+                break;
+            }
+        }
+    }
+    public static addClass(className: string, parentClassName: string) {
+        CustomPropertiesCollection.parentClasses[className] = parentClassName;
+    }
+    public static createProperties(obj: Base) {
+        CustomPropertiesCollection.createPropertiesCore(obj, obj.getType());
+    }
+    private static createPropertiesCore(obj: Base, className: string) {
+        var props = CustomPropertiesCollection.properties;
+        if(props[className]) {
+            CustomPropertiesCollection.createPropertiesInObj(obj, props[className]);
+        }
+        var parentClass = CustomPropertiesCollection.parentClasses[className];
+        if(parentClass) {
+            CustomPropertiesCollection.createPropertiesCore(obj, parentClass);
+        }
+    }
+    private static createPropertiesInObj(obj: Base, properties: any[]) {
+        for(var i = 0; i < properties.length; i ++) {
+            CustomPropertiesCollection.createPropertyInObj(obj, properties[i]);
+        }
+    }
+    private static createPropertyInObj(obj: Base, prop: any) {
+        if(obj[prop.name]) return;
+        var desc = {
+            get: function() { return obj.getPropertyValue(prop.name, prop.defaultValue); }, 
+            set : function(v: any) { obj.setPropertyValue(prop.name, v); }
+        };
+        Object.defineProperty(obj, prop.name, desc);
+    }
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -107,12 +158,13 @@ export class Base {
     private arrayOnPush = {};
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
+    public constructor() {
+        CustomPropertiesCollection.createProperties(this);
+    }
     /**
      * Returns the type of the object as a string as it represents in the json.
      */
-    public getType(): string {
-        throw new Error('This method is abstract');
-    }
+    public getType(): string { return "base"; }
     /**
      * Returns true if the object is loading from Json at the current moment.
      */

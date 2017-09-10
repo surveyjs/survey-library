@@ -2,26 +2,44 @@
 import {ItemValue} from "../src/itemvalue";
 import {Base} from "../src/base";
 
-class Car {
+class Car extends Base {
+    constructor() {
+        super();
+    }
     public name: string;
     public getType(): string { return "car"; }
 }
 class FastCar extends Car {
+    constructor() {
+        super();
+    }
     public getType(): string { return "fast"; }
 }
 class BigCar extends Car {
+    constructor() {
+        super();
+    }
     public getType(): string { return "big"; }
 }
 class SportCar extends FastCar {
+    constructor() {
+        super();
+    }
     public maxSpeed: number;
     public getType(): string { return "sport"; }
 }
 class Truck extends BigCar {
+    constructor() {
+        super();
+    }
     public maxWeight: number;
     public getType(): string { return "truck"; }
 }
 
-class Dealer {
+class Dealer extends Base {
+    constructor() {
+        super();
+    }
     public name: string;
     public unserializedName: string;
     public cars = new Array<Car>();
@@ -539,4 +557,14 @@ QUnit.test("Override type property in a successor class", function (assert) {
     assert.equal(property.type, "string", "The type is string for car");
     findProperty();
     assert.equal(property.type, "text", "The type is text for fast car, getProperties");
+});
+
+QUnit.test("Set default value to the custom property", function (assert) {
+    JsonObject.metaData.addProperty("car", {name: "isUsed:boolean", default: true});
+    JsonObject.metaData.addProperty("car", {name: "tag:number", default: 0});    
+    var truck = new Truck();
+    assert.equal(truck["isUsed"], true, "the default boolean value is set");
+    assert.equal(truck["tag"], 0, "the default numeric value is set");
+    JsonObject.metaData.removeProperty("car", "isUsed");
+    JsonObject.metaData.removeProperty("car", "tag");
 });

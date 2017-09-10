@@ -48,6 +48,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.locCommentTextValue = new LocalizableString(this, true);
         this.locRequiredErrorTextValue = new LocalizableString(this);
     }
+    public getType(): string { return "question"; }
     public get hasTitle(): boolean { return true; }
     public get hasDescription(): boolean { return this.description != ""; }
     public get titleLocation() : string { return this.survey ? this.survey.questionTitleLocation : "top"; }

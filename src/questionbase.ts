@@ -54,6 +54,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
         this.idValue = QuestionBase.getQuestionId();
         this.onCreating();
     }
+    public getType(): string { return "questionbase"; }
     /**
      * Always returns false.
      */

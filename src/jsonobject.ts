@@ -1,4 +1,4 @@
-﻿import {HashTable} from './base';
+﻿import {HashTable, Base, CustomPropertiesCollection} from './base';
 
 export class JsonObjectProperty {
     private typeValue: string = null;
@@ -25,7 +25,7 @@ export class JsonObjectProperty {
     public get isRequired() { return this.isRequiredValue; }
     public get hasToUseGetValue() { return this.onGetValue || this.serializationProperty; }
     public isDefaultValue(value: any): boolean {
-        return (this.defaultValue) ? (this.defaultValue == value) : !(value);
+        return (!Base.isValueEmpty(this.defaultValue)) ? (this.defaultValue == value) : !(value);
     }
     public getValue(obj: any): any {
         if (this.onGetValue) return this.onGetValue(obj);
@@ -112,7 +112,7 @@ export class JsonMetadataClass {
             if (propInfo.type) {
                 prop.type = propInfo.type;
             }
-            if (propInfo.default) {
+            if (!Base.isValueEmpty(propInfo.default)) {
                 prop.defaultValue = propInfo.default;
             }
             if(propInfo.visible === false) {
@@ -182,6 +182,7 @@ export class JsonMetadata {
         var metaDataClass = new JsonMetadataClass(name, properties, creator, parentName);
         this.classes[name] = metaDataClass;
         if (parentName) {
+            CustomPropertiesCollection.addClass(name, parentName);
             var children = this.childrenClasses[parentName];
             if (!children) {
                 this.childrenClasses[parentName] = [];
@@ -238,6 +239,7 @@ export class JsonMetadata {
         if (property) {
             this.addPropertyToClass(metaDataClass, property);
             this.emptyClassPropertiesHash(metaDataClass);
+            CustomPropertiesCollection.addProperty(className, property);
         }
     }
     public removeProperty(className: string, propertyName: string) {
@@ -247,6 +249,7 @@ export class JsonMetadata {
         if (property) {
             this.removePropertyFromClass(metaDataClass, property);
             this.emptyClassPropertiesHash(metaDataClass);
+                CustomPropertiesCollection.removeProperty(className, propertyName);
         }
     }
     private addPropertyToClass(metaDataClass: JsonMetadataClass, property: JsonObjectProperty) {

@@ -29,6 +29,7 @@ export class Trigger extends Base {
     constructor() {
         super();
     }
+    public getType(): string { return "triggerbase"; }
     public get operator(): string { return this.opValue; }
     public set operator(value: string) {
         if (!value) return;

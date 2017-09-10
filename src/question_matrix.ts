@@ -12,13 +12,12 @@ export interface IMatrixData {
     onMatrixRowChanged(row: MatrixRowModel);
 }
 
-export class MatrixRowModel extends Base {
+export class MatrixRowModel {
     private data: IMatrixData;
     private item: ItemValue;
     protected rowValue: any;
 
     constructor(item: ItemValue, public fullName: string, data: IMatrixData, value: any) {
-        super();
         this.item = item;
         this.data = data;
         this.rowValue = value;

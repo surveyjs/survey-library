@@ -328,6 +328,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see SurveyTrigger
      */
     public get triggers(): Array<SurveyTrigger> { return this.triggersValue; }
+    public set triggers(val: Array<SurveyTrigger>) { this.setPropertyValue("triggers", val); }
     /**
      * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
      * @see loadSurveyFromService

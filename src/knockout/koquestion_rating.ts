@@ -15,6 +15,11 @@ class QuestionRatingImplementor extends QuestionImplementor {
         this.koChange = function (val) { self.koValue(val.itemValue); };
         this.question["koChange"] = this.koChange;
         (<QuestionRating>this.question).rateValuesChangedCallback = function () { self.onRateValuesChanged(); };
+        (<QuestionRating>this.question).onPropertyChanged.add(function(sender, options){
+            if(options.name == "rateMin" || options.name == "rateMax" || options.name == "rateStep") {
+                self.onRateValuesChanged();
+            }
+        });
         this.question["koGetCss"] = function (val) {
             var css = (<QuestionRating>self.question).itemCss;
             var selected = (<QuestionRating>self.question).selectedCss;

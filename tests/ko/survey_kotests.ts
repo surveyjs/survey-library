@@ -289,10 +289,6 @@ QUnit.test("otherItem, set text, editor: #90", function (assert) {
     assert.equal(q1["koVisibleChoices"]()[2].text, "my other", "use otherText");
 });
 
-QUnit.test("Rating items creates correct object", function (assert) {
-    assert.ok(QuestionRatingModel.defaultRateValues[0].locText["koRenderedHtml"], "ItemValue for knockout should be created");
-});
-
 QUnit.test("Update page.title correctly with numbers", function (assert) {
     var survey = new Survey();
     survey.addPage(createPageWithQuestion("page1"));

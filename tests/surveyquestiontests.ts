@@ -12,6 +12,7 @@ import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
 import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
+import {QuestionRatingModel} from "../src/question_rating";
 import {QuestionBooleanModel} from "../src/question_boolean";
 import {JsonObject} from "../src/jsonobject";
 import {ItemValue} from "../src/itemvalue";
@@ -876,4 +877,23 @@ QUnit.test("Boolean question defaultValue", function (assert) {
     survey.addNewPage("p1");
     survey.pages[0].addQuestion(question);
     assert.deepEqual(survey.data, {"bool": false}, "add question into survey");
+});
+
+QUnit.test("Rating question, visibleRateValues property", function (assert) {
+    var rate = new QuestionRatingModel("q1");
+    assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
+    rate.rateMin = 6;
+    assert.equal(rate.rateMin, 4, "the min is max - step");
+    rate.rateMin = 2;
+    rate.rateMax = 1;
+    assert.equal(rate.rateMax, 3, "the min is min + step");
+    rate.rateMin = 2;
+    rate.rateMax = 7;
+    rate.rateStep = 10;
+    assert.equal(rate.rateStep, 5, "the step is max - min");
+    rate.rateStep = 2;
+    rate.rateMax = 200;
+    assert.equal(rate.visibleRateValues.length, QuestionRatingModel.MaximumRateValueCount, "Values can be more than MaximumRateValueCount.");
+    rate.rateValues = [1, 2, 3];
+    assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });

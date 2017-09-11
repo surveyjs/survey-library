@@ -72,7 +72,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
      * <br/> sender the survey object that fires the event
      * <br/> options.name the value name that has been changed
-     * <br/> options.question a question that has the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.name is null.
+     * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
      * <br/> options.value a new value
      * @see setValue
      */

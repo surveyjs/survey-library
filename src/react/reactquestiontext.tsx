@@ -1,4 +1,5 @@
 ﻿import * as React from 'react';
+import {Base} from "../base";
 import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionTextModel} from "../question_text";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -14,14 +15,14 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
     protected get question(): QuestionTextModel { return this.questionBase as QuestionTextModel; }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
-        this.state = { value: this.question.value || '' };
+        this.state = { value: this.getValue(this.question.value)};
     }
     handleOnChange(event) {
-        this.setState({ value: event.target.value });
+        this.setState({ value: this.getValue(event.target.value) });
     }
     handleOnBlur(event) {
         this.question.value = event.target.value;
-        this.setState({ value: this.question.value || '' });
+        this.setState({ value: this.getValue(this.question.value) });
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -31,6 +32,10 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         return (
             <input id={this.question.inputId} className={cssClasses.root} type={this.question.inputType} value={this.state.value} size={this.question.size} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />
         );
+    }
+    private getValue(val: any) : any {
+        if(Base.isValueEmpty(val)) return "";
+        return val;
     }
 }
 

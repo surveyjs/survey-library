@@ -17,6 +17,7 @@ export interface ITextProcessor {
 export interface ISurvey extends ITextProcessor {
     currentPage: IPage;
     pageVisibilityChanged(page: IPage, newValue: boolean);
+    panelVisibilityChanged(panel: IPanel, newValue: boolean);
     questionVisibilityChanged(question: IQuestion, newValue: boolean);
     questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any);
     panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any);

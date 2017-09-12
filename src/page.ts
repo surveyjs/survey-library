@@ -76,7 +76,6 @@ export class PageModel extends PanelModelBase implements IPage {
             this.survey.pageVisibilityChanged(this, this.visible);
         }
     }
-
 }
 
 JsonObject.metaData.addClass("page", [{ name: "navigationButtonsVisibility", default: "inherit", choices: ["inherit", "show", "hide"] }],

@@ -532,8 +532,12 @@ export class PanelModel extends PanelModelBase implements IElement {
         if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
     }
     protected onVisibleChanged() {
+        super.onVisibleChanged();
         if(this.rowVisibilityChangedCallback) this.rowVisibilityChangedCallback();
-    }
+        if (this.survey != null) {
+            this.survey.panelVisibilityChanged(this, this.visible);
+        }
+     }
 }
 
 JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },

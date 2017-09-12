@@ -175,7 +175,12 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if (newProps.onPartialSend) {
             this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });
         }
-        this.survey.onPageVisibleChanged.add((sender, options) => { if (newProps.onPageVisibleChanged) newProps.onPageVisibleChanged(sender, options); });
+        if (newProps.onPageVisibleChanged) {
+            this.survey.onPageVisibleChanged.add((sender, options) => {  newProps.onPageVisibleChanged(sender, options); });
+        }
+        if (newProps.onPanelVisibleChanged) {
+            this.survey.onPanelVisibleChanged.add((sender, options) => { newProps.onPanelVisibleChanged(sender, options); });
+        }
         if (newProps.onServerValidateQuestions) {
             this.survey.onServerValidateQuestions = newProps.onServerValidateQuestions;
         }

@@ -1,5 +1,5 @@
 ﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, SurveyElement, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
+import {Base, ISurvey, SurveyElement, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IPanel, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -96,6 +96,15 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see PageModel.visibileIf
      */
     public onPageVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired on changing a panel visibility.
+     * <br/> sender the survey object that fires the event
+     * <br/> options.panel a panel which visibility has been changed
+     * <br/> options.visible a panel visible boolean value
+     * @see PanelModel.visibile
+     * @see PanelModel.visibileIf
+     */
+    public onPanelVisibleChanged: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The event is fired on adding a new question into survey.
      * 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel
@@ -1586,6 +1595,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     pageVisibilityChanged(page: IPage, newValue: boolean) {
         this.updateVisibleIndexes();
         this.onPageVisibleChanged.fire(this, { 'page': page, 'visible': newValue });
+    }
+    panelVisibilityChanged(panel: IPanel, newValue: boolean) {
+        this.updateVisibleIndexes();
+        this.onPanelVisibleChanged.fire(this, { 'panel': panel, 'visible': newValue });
     }
     questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any) {
         this.updateVisibleIndexes();

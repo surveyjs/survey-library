@@ -5,14 +5,20 @@ import {QuestionDropdownModel} from "../src/question_dropdown";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionMatrixDropdownModelBase} from "../src/question_matrixdropdownbase";
 import {ItemValue} from "../src/itemvalue";
+import {JsonObject} from "../src/jsonobject";
 
 export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
+    public noCaching: boolean = false;
     protected sendRequest() {
         if(this.processedUrl.indexOf("countries") > -1) this.onLoad(getCountries());
         if(this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
         if(this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
+    }
+    protected useChangedItemsResults() : boolean {
+        if(this.noCaching) return false;
+        return super.useChangedItemsResults();
     }
 }
 
@@ -106,6 +112,21 @@ QUnit.test("Cascad dropdown in matrix dynamic", function (assert) {
     rows[0].cells[0].question.value = "";
     assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty again");
 }); 
+
+QUnit.test("Load countries, custom properties, #615", function (assert) {
+    var test = new ChoicesRestfullTester();
+    test.noCaching = true;
+    var items = [];
+    JsonObject.metaData.addProperty("itemvalue", "alpha2_code");
+    test.getResultCallback = function (res: Array<ItemValue>) { items = res; };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.run();
+    assert.equal(items.length, 5, "there are 5 countries");
+    assert.equal(items[0]["alpha2_code"], "AF", "the first alpha2_code is AF");
+    assert.equal(items[4]["alpha2_code"], "AS", "the fifth alpha2_code is AS");
+    JsonObject.metaData.removeProperty("itemvalue", "alpha2_code");
+});
 
 function getCACities() {
     return [

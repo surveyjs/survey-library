@@ -1,6 +1,6 @@
 ﻿import {Base, SurveyError, ITextProcessor} from "./base";
 import {ItemValue} from "./itemvalue";
-import {JsonObject} from "./jsonobject";
+import {JsonObject, JsonObjectProperty} from "./jsonobject";
 import {surveyLocalization} from "./surveyStrings";
 import {CustomError} from "./error";
 /**
@@ -39,9 +39,12 @@ export class ChoicesRestfull extends Base {
         }
         if(this.lastObjHash == this.objHash) return;
         this.lastObjHash = this.objHash;
-        if(ChoicesRestfull.getCachedItemsResult(this)) return;
+        if(this.useChangedItemsResults()) return;
         this.error = null;
         this.sendRequest();
+    }
+    protected useChangedItemsResults() : boolean {
+        return ChoicesRestfull.getCachedItemsResult(this);
     }
     private processedText(textProcessor: ITextProcessor) {
         if(textProcessor) {
@@ -93,19 +96,34 @@ export class ChoicesRestfull extends Base {
     protected onLoad(result: any) {
         var items = [];
         result = this.getResultAfterPath(result);
+        var properties = JsonObject.metaData.getProperties("itemvalue");
+
         if (result && result["length"]) {
             for (var i = 0; i < result.length; i++) {
                 var itemValue = result[i];
                 if (!itemValue) continue;
                 var value = this.getValue(itemValue);
                 var title = this.getTitle(itemValue);
-                items.push(new ItemValue(value, title));
+                var item = new ItemValue(value, title);
+                this.setCustomProperties(item, itemValue, properties);
+                items.push(item);
             }
         } else {
             this.error = new CustomError(surveyLocalization.getString("urlGetChoicesError"));
         }
         ChoicesRestfull.itemsResult[this.objHash] = items;
         this.getResultCallback(items);
+    }
+    private setCustomProperties(item: ItemValue, itemValue: any, properties: Array<JsonObjectProperty>) {
+        if(properties.length <= 2) return;
+        for(var i = 0; i < properties.length; i ++) {
+            var prop = properties[i];
+            if(prop.name == "value" || prop.name == "text") continue;
+            var val = this.getValueCore(itemValue, prop.name);
+            if(val) {
+                item[prop.name] = val;
+            }
+        }
     }
     private onError(status: string, response: string) {
         this.error = new CustomError(surveyLocalization.getString("urlRequestError")["format"](status, response));
@@ -140,8 +158,8 @@ export class ChoicesRestfull extends Base {
         return item[Object.keys(item)[0]];
     }
     private getTitle(item: any): any {
-        if (!this.titleName) return null;
-        return this.getValueCore(item, this.titleName);
+        var title = this.titleName ? this.titleName : "title";
+        return this.getValueCore(item, title);
     }
     private getValueCore(item: any, property: string): any {
         if(!item) return null;

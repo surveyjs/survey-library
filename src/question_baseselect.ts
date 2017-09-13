@@ -18,7 +18,7 @@ export class QuestionSelectBase extends Question {
     private locOtherErrorTextValue: LocalizableString;
     protected cachedValue: any;
     private choicesFromUrl: Array<ItemValue> = null;
-    private cachedValueForUrlRequestion: any = null;
+    private cachedValueForUrlRequests: any = null;
     private choicesValues: Array<ItemValue>;
     /**
      * Use this property to fill the choices from a restful service.
@@ -79,7 +79,7 @@ export class QuestionSelectBase extends Question {
         }
     }
     protected setNewValue(newValue: any) {
-        if (newValue) this.cachedValueForUrlRequestion = newValue;
+        if (newValue) this.cachedValueForUrlRequests = newValue;
         super.setNewValue(newValue);
     }
     protected valueFromData(val: any): any {
@@ -226,8 +226,8 @@ export class QuestionSelectBase extends Question {
         }
         this.choicesFromUrl = newChoices;
         this.onVisibleChoicesChanged();
-        if (this.cachedValueForUrlRequestion) {
-            this.value = this.cachedValueForUrlRequestion;
+        if (this.cachedValueForUrlRequests) {
+            this.value = this.cachedValueForUrlRequests;
         }
     }
     private onVisibleChoicesChanged() {

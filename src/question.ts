@@ -76,7 +76,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
      * Use it to get or set the comment value.
      */
     public get commentText(): string { return this.getLocalizableStringText("commentText", surveyLocalization.getString("otherItemText")); }
-    public set commentText(val: string) { this.getLocalizableStringText("commentText", val) }
+    public set commentText(val: string) { this.setLocalizableStringText("commentText", val) }
     get locCommentText(): LocalizableString { return this.getLocalizableString("commentText"); }
     private get locTitleHtml(): string {
         var res = this.locTitle.textOrHtml;

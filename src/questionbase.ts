@@ -20,22 +20,6 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     private customWidgetValue: QuestionCustomWidget;
     customWidgetData = { isNeedRender: true };
     /**
-     * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
-     * @see visible
-     */
-    public visibleIf: string = "";
-    private idValue: string;
-    private visibleValue: boolean = true;
-    private startWithNewLineValue: boolean = true;
-    private visibleIndexValue: number = -1;
-    /**
-     * Use it to set the specific width to the question.
-     */
-    public width: string = "";
-    private renderWidthValue: string = "";
-    private rightIndentValue: number = 0;
-    private indentValue: number = 0;
-    /**
      * The event is fired when the survey change it's locale
      * @see SurveyModel.locale
      */
@@ -51,7 +35,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
 
     constructor(public name: string) {
         super();
-        this.idValue = QuestionBase.getQuestionId();
+        this.id = QuestionBase.getQuestionId();
         this.onCreating();
     }
     public getType(): string { return "questionbase"; }
@@ -63,16 +47,22 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      * Use it to get/set the question visibility.
      * @see visibleIf
      */
-    public get visible(): boolean { return this.visibleValue; }
+    public get visible(): boolean { return this.getPropertyValue("visible", true); }
     public set visible(val: boolean) {
         if (val == this.visible) return;
-        this.visibleValue = val;
+        this.setPropertyValue("visible", val);
         this.fireCallback(this.visibilityChangedCallback);
         this.fireCallback(this.rowVisibilityChangedCallback);
         if (this.survey) {
             this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
         }
     }
+    /**
+     * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+     * @see visible
+     */
+    public get visibleIf(): string { return this.getPropertyValue("visibleIf", ""); }
+    public set visibleIf(val: string) { this.setPropertyValue("visibleIf", val); }
     /**
      * Returns true if the question is visible or survey is in design mode right now.
      */
@@ -91,7 +81,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     /**
      * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
      */
-    public get visibleIndex(): number { return this.visibleIndexValue; }
+    public get visibleIndex(): number { return this.getPropertyValue("visibleIndex", -1); }
     /**
      * Returns true if there is at least one error on question validation.
      * @param fireCallback set it to true to show error in UI
@@ -120,8 +110,8 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     /**
      * The unique identificator. It is generated automatically. 
      */
-    public get id(): string { return this.idValue; }
-    public set id(val: string) { this.idValue = val; }
+    public get id(): string { return this.getPropertyValue("id"); }
+    public set id(val: string) { this.setPropertyValue("id", val); }
     /**
      * Returns the list of errors that has in the question. For example, isRequired error.
      */
@@ -142,10 +132,10 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     /**
      * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
      */
-    public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
-    public set startWithNewLine(value: boolean) {
-        if(this.startWithNewLine == value) return;
-        this.startWithNewLineValue = value;
+    public get startWithNewLine(): boolean { return this.getPropertyValue("startWithNewLine", true); }
+    public set startWithNewLine(val: boolean) {
+        if(this.startWithNewLine == val) return;
+        this.setPropertyValue("startWithNewLine", val);
         if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
     /**
@@ -187,30 +177,35 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     }
     private get css(): any { return surveyCss.getCss(); }
     /**
+     * Use it to set the specific width to the question.
+     */
+    public get width() : string { return this.getPropertyValue("width", ""); }
+    public set width(val: string) { this.setPropertyValue("width", val); }
+    /**
      * The rendered width of the question.
      */
-    public get renderWidth(): string { return this.renderWidthValue; }
+    public get renderWidth(): string { return this.getPropertyValue("renderWidth", ""); }
     public set renderWidth(val: string) {
         if (val == this.renderWidth) return;
-        this.renderWidthValue = val;
+        this.setPropertyValue("renderWidth", val);
         this.fireCallback(this.renderWidthChangedCallback);
     }
     /**
      * Set it different from 0 to increase the left padding.
      */
-    public get indent(): number { return this.indentValue; }
+    public get indent(): number { return this.getPropertyValue("indent", 0); }
     public set indent(val: number) {
         if (val == this.indent) return;
-        this.indentValue = val;
+        this.setPropertyValue("indent", val);
         this.fireCallback(this.renderWidthChangedCallback);
     }
     /**
      * Set it different from 0 to increase the right padding.
      */
-    public get rightIndent(): number { return this.rightIndentValue; }
+    public get rightIndent(): number { return this.getPropertyValue("rightIndent", 0); }
     public set rightIndent(val: number) {
         if (val == this.rightIndent) return;
-        this.rightIndentValue = val;
+        this.setPropertyValue("rightIndent", val);
         this.fireCallback(this.renderWidthChangedCallback);
     }
     /**
@@ -242,9 +237,9 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public onSurveyLoad() {
         this.fireCallback(this.surveyLoadCallback);
     }
-    public setVisibleIndex(value: number): number {
-        if (this.visibleIndexValue == value) return 1;
-        this.visibleIndexValue = value;
+    public setVisibleIndex(val: number): number {
+        if (this.visibleIndex == val) return 1;
+        this.setPropertyValue("visibleIndex", val);
         this.fireCallback(this.visibleIndexChangedCallback);
         return 1;
     }

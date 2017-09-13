@@ -12,20 +12,12 @@ import {ConditionRunner} from './conditions';
  * Extends question base class with title, value, errors and other functionality
  */
 export class Question extends QuestionBase implements IValidatorOwner {
-    private locTitleValue: LocalizableString;
-    private locDescriptionValue: LocalizableString;
-    private locCommentTextValue: LocalizableString;
-    private locRequiredErrorTextValue: LocalizableString;
     private questionValue: any;
     private questionComment: string;
-    private isRequiredValue: boolean = false;
-    private hasCommentValue: boolean = false;
-    private hasOtherValue: boolean = false;
-    private readOnlyValue: boolean = false;
     private textPreProcessor: TextPreProcessor;
     private conditionEnabelRunner: ConditionRunner;
-    errors: Array<SurveyError> = [];
-    validators: Array<SurveyValidator> = new Array<SurveyValidator>();
+    private errorsValue: Array<SurveyError> = [];
+    private validatorsValue: Array<SurveyValidator> = [];
     valueChangedCallback: () => void;
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
@@ -41,12 +33,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
     constructor(public name: string) {
         super(name);
         var self = this;
-        this.locTitleValue = new LocalizableString(this, true);
-        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
-        this.locDescriptionValue = new LocalizableString(this, true);
-        this.locDescriptionValue.onRenderedHtmlCallback = function(html) { return self.getProcessedHtml(html); }
-        this.locCommentTextValue = new LocalizableString(this, true);
-        this.locRequiredErrorTextValue = new LocalizableString(this);
+        var locTitleValue = this.createLocalizableString("title", this, true);
+        locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
+        var locDescriptionValue = this.createLocalizableString("description", this, true);
+        locDescriptionValue.onRenderedHtmlCallback = function(html) { return self.getProcessedHtml(html); }
+        this.createLocalizableString("commentText", this, true);
+        this.createLocalizableString("requiredErrorText", this);
     }
     public getType(): string { return "question"; }
     public get hasTitle(): boolean { return true; }
@@ -60,28 +52,32 @@ export class Question extends QuestionBase implements IValidatorOwner {
      * @see SurveyModel.questionTitleTemplate
     */
     public get title(): string {
-        var res = this.locTitle.text;
-        return res ? res : this.name;
+        return this.getLocalizableStringText("title", this.name);
     }
-    public set title(newValue: string) {
-        this.locTitle.text = newValue;
+    public set title(val: string) {
+        this.setLocalizableStringText("title", val);
         this.fireCallback(this.titleChangedCallback);
     }
-    get locTitle(): LocalizableString { return this.locTitleValue; }
+    get locTitle(): LocalizableString { return this.getLocalizableString("title"); }
     /**
      * Question description. It renders under question title by using smaller font. Unlike the title, description can be empty.
      * @see title
      */
-    public get description(): string { return this.locDescription.text ? this.locDescription.text : ""; }
-    public set description(newValue:  string) { this.locDescription.text = newValue; }
-    get locDescription(): LocalizableString { return this.locDescriptionValue; }
+    public get description(): string { return this.getLocalizableStringText("description"); }
+    public set description(val:  string) { this.setLocalizableStringText("description", val); }
+    get locDescription(): LocalizableString { return this.getLocalizableString("description"); }
     /**
      * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
      */
-    public get requiredErrorText(): string { return this.locRequiredErrorText.text ? this.locRequiredErrorText.text : ""; }
-    public set requiredErrorText(newValue: string) { this.locRequiredErrorText.text = newValue; }
-    get locRequiredErrorText(): LocalizableString { return this.locRequiredErrorTextValue; }
-    get locCommentText(): LocalizableString { return this.locCommentTextValue; }
+    public get requiredErrorText(): string { return this.getLocalizableStringText("requiredErrorText"); }
+    public set requiredErrorText(val: string) { this.setLocalizableStringText("requiredErrorText", val); }
+    get locRequiredErrorText(): LocalizableString { return this.getLocalizableString("requiredErrorText"); }
+    /** 
+     * Use it to get or set the comment value.
+     */
+    public get commentText(): string { return this.getLocalizableStringText("commentText", surveyLocalization.getString("otherItemText")); }
+    public set commentText(val: string) { this.getLocalizableStringText("commentText", val) }
+    get locCommentText(): LocalizableString { return this.getLocalizableString("commentText"); }
     private get locTitleHtml(): string {
         var res = this.locTitle.textOrHtml;
         return res? res: this.name;
@@ -93,6 +89,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public onLocaleChanged() {
         super.onLocaleChanged();
         this.locTitle.onChanged();
+        this.locDescription.onChanged();
         this.locCommentText.onChanged();
     }
     protected getProcessedHtml(html: string): string {
@@ -161,32 +158,22 @@ export class Question extends QuestionBase implements IValidatorOwner {
     /** 
      * Set this property to true, to make the question a required. If a user doesn't answer the question then a validation error will be generated.
      */
-    public get isRequired(): boolean { return this.isRequiredValue; }
+    public get isRequired(): boolean { return this.getPropertyValue("isRequired", false); }
     public set isRequired(val: boolean) {
         if (this.isRequired == val) return;
-        this.isRequiredValue = val;
+        this.setPropertyValue("isRequired", val);
         this.fireCallback(this.titleChangedCallback);
     }
-    public get hasComment(): boolean { return this.hasCommentValue; }
+    public get hasComment(): boolean { return this.getPropertyValue("hasComment", false); }
     public set hasComment(val: boolean) {
         if (!this.supportComment()) return;
-        this.hasCommentValue = val;
+        this.setPropertyValue("hasComment", val);
         if (this.hasComment) this.hasOther = false;
     }
-    /** 
-     * Use it to get or set the comment value.
-     */
-    public get commentText(): string {
-        var res = this.locCommentText.text;
-        return res ? res : surveyLocalization.getString("otherItemText");
-    }
-    public set commentText(value: string) {
-        this.locCommentText.text = value;
-    }
-    public get hasOther(): boolean { return this.hasOtherValue; }
+    public get hasOther(): boolean { return this.getPropertyValue("hasOther", false); }
     public set hasOther(val: boolean) {
         if (!this.supportOther() || this.hasOther == val) return;
-        this.hasOtherValue = val;
+        this.setPropertyValue("hasOther", val);
         if (this.hasOther) this.hasComment = false;
         this.hasOtherChanged();
     }
@@ -203,10 +190,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
     /**
      * Set it to true to make the question readonly.
      */
-    public get readOnly(): boolean { return this.readOnlyValue; }
-    public set readOnly(value: boolean) {
-        if(this.readOnly == value) return;
-        this.readOnlyValue = value;
+    public get readOnly(): boolean { return this.getPropertyValue("readOnly", false); }
+    public set readOnly(val: boolean) {
+        if(this.readOnly == val) return;
+        this.setPropertyValue("readOnly", val);
         this.onReadOnlyChanged();
     }
     public runCondition(values: HashTable<any>) {
@@ -282,6 +269,17 @@ export class Question extends QuestionBase implements IValidatorOwner {
      * Returns true if the question value is empty
      */
     public isEmpty(): boolean { return Base.isValueEmpty(this.value); }
+    /**
+     * The list of question validators.
+     */
+    public get validators(): Array<SurveyValidator> { return this.validatorsValue; }
+    public set validators(val: Array<SurveyValidator>) { this.validatorsValue = val; }
+    /**
+     * The list of errors. It is created by callig hasErrors functions
+     * @see hasErrors
+     */
+    public get errors(): Array<SurveyError> { return this.errorsValue; }
+    public set errors(val: Array<SurveyError>) { this.errorsValue = val; }
     /**
      * Returns true if threre is a validation error(s) in the question. 
      * @param fireCallback set it to true to show an error in UI.

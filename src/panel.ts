@@ -36,13 +36,16 @@ export class QuestionRowModel {
         var visCount = this.getVisibleCount();
         if (visCount == 0) return;
         var counter = 0;
-        for (var i = 0; i < this.elements.length; i++)
+        for (var i = 0; i < this.elements.length; i++) {
             if (this.elements[i].isVisible) {
                 var q = this.elements[i];
                 q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + '%';
                 q.rightIndent = counter < visCount - 1 ? 1 : 0;
                 counter++;
+            } else {
+                this.elements[i].renderWidth = "";
             }
+        }
     }
     private getVisibleCount(): number {
         var res = 0;

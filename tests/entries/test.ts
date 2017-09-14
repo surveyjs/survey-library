@@ -13,6 +13,7 @@ export * from '../surveytriggertests';
 export * from '../surveyvalidatortests';
 export * from '../textPreprocessorTests';
 export * from '../lowercasetests';
+export * from '../elementslayouttests';
 
 // localization
 import '../../src/localization/russian';

@@ -159,6 +159,7 @@ export class Base {
     private arrayOnPush = {};
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
+    setPropertyValueCoreHandler: (propertiesHash: any, name: string, val: any) => void;
     public constructor() {
         CustomPropertiesCollection.createProperties(this);
     }
@@ -186,7 +187,8 @@ export class Base {
         return res; 
     }
     protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
-        propertiesHash[name] = val;
+        if(this.setPropertyValueCoreHandler) this.setPropertyValueCoreHandler(propertiesHash, name, val);
+        else propertiesHash[name] = val;
     }
     /**
      * set property value

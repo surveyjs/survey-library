@@ -248,6 +248,16 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public onMatrixRowAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
+     * The event is fired on adding a new row in Matrix Dynamic quesiton. 
+     * <br/> sender the survey object that fires the event
+     * <br/> options.question a matrix question.
+     * <br/> options.rowIndex a removed row index.
+     * <br/> options.row a removed row object.
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDynamicModel.visibleRows
+     */
+    public onMatrixRowRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
      * The event is fired for every cell created in Matrix Dymic and Matrix Dropdown questions.
      * <br/> options.question - the matrix question
      * <br/> options.cell - the matrix cell
@@ -256,7 +266,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * <br/> options.column - the matrix column object
      * <br/> options.columName - the matrix column name
      * <br/> options.row - the matrix row object
-     * @see onMatrixCellValueChanged
+     * @see onMatrixRowAdded
      * @see QuestionMatrixDynamicModel
      * @see QuestionMatrixDropdownModel
      */
@@ -1036,6 +1046,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     }
     matrixRowAdded(question: IQuestion) {
         this.onMatrixRowAdded.fire(this, {question: question});
+    }
+    matrixRowRemoved(question: IQuestion, rowIndex: number, row: any) {
+        this.onMatrixRowRemoved.fire(this, {question: question, rowIndex: rowIndex, row: row});
     }
     matrixCellCreated(question: IQuestion, options: any) {
         options.question = question;

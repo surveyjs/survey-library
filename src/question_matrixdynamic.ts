@@ -145,6 +145,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public removeRow(index: number) {
         if(!this.canRemoveRow) return;
         if (index < 0 || index >= this.rowCount) return;
+        if(this.survey) {
+            var row = this.generatedVisibleRows ? this.generatedVisibleRows[index] : null;
+            this.survey.matrixRowRemoved(this, index, row);
+        }
         if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
             this.generatedVisibleRows.splice(index, 1);
         }

@@ -14,8 +14,6 @@ export class QuestionSelectBase extends Question {
     private visibleChoicesCache: Array<ItemValue> = null;
     private commentValue: string;
     private otherItemValue: ItemValue = new ItemValue("other", surveyLocalization.getString("otherItemText"));
-    private locOtherTextValue: LocalizableString;
-    private locOtherErrorTextValue: LocalizableString;
     protected cachedValue: any;
     private choicesFromUrl: Array<ItemValue> = null;
     private cachedValueForUrlRequests: any = null;
@@ -25,21 +23,16 @@ export class QuestionSelectBase extends Question {
      * @see choices
      */
     public choicesByUrl: ChoicesRestfull;
-    /**
-     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
-     * @see SurveyModel.storeOthersAsComment
-     */
-    public storeOthersAsComment: boolean = true;
-    private choicesOrderValue: string = "none";
     choicesChangedCallback: () => void;
     constructor(name: string) {
         super(name);
-        this.choicesValues = ItemValue.createArray(this);
-        this.choicesByUrl = this.createRestfull();
-        this.locOtherTextValue = new LocalizableString(this, true);
-        this.locOtherErrorTextValue = new LocalizableString(this, true);
-        this.otherItemValue.locOwner = this;
         var self = this;
+        this.choicesValues = this.createNewArray("choices", function(item){ item.locOwner = self;});
+        this.choicesByUrl = this.createRestfull();
+        this.createLocalizableString("otherText", this, true);
+        this.createLocalizableString("otherErrorText", this, true);
+        this.otherItemValue.locOwner = this;
+
         this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) { self.onLoadChoicesFromUrl(items) };
     }
     /**
@@ -119,36 +112,43 @@ export class QuestionSelectBase extends Question {
     public get choices(): Array<any> { return this.choicesValues; }
     public set choices(newValue: Array<any>) {
         ItemValue.setData(this.choicesValues, newValue);
+        this.propertyValueChanged("choices", this.choicesValues, this.choicesValues);
         this.onVisibleChoicesChanged();
     }
+    /**
+     * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+     * @see SurveyModel.storeOthersAsComment
+     */
+    public get storeOthersAsComment(): boolean { return this.getPropertyValue("storeOthersAsComment", true); }
+    public set storeOthersAsComment(val: boolean) { this.setPropertyValue("storeOthersAsComment", val); }
     protected hasOtherChanged() {
         this.onVisibleChoicesChanged();
     }
     /**
      * Use this property to render items in a specific order.
      */
-    public get choicesOrder(): string { return this.choicesOrderValue; }
-    public set choicesOrder(newValue: string) {
-        newValue = newValue.toLowerCase();
-        if (newValue == this.choicesOrderValue) return;
-        this.choicesOrderValue = newValue;
+    public get choicesOrder(): string { return this.getPropertyValue("choicesOrder", "none"); }
+    public set choicesOrder(val: string) {
+        val = val.toLowerCase();
+        if (val == this.choicesOrder) return;
+        this.setPropertyValue("choicesOrder", val);
         this.onVisibleChoicesChanged();
     }
     /**
      * Use this property to set the different text for other item.
      */
-    public get otherText(): string { return this.locOtherText.text; }
-    public set otherText(value: string) {
-        this.locOtherText.text = value;
+    public get otherText(): string { return this.getLocalizableStringText("otherText"); }
+    public set otherText(val: string) {
+        this.setLocalizableStringText("otherText", val);
         this.onVisibleChoicesChanged();
     }
+    get locOtherText(): LocalizableString { return this.getLocalizableString("otherText"); }
     /**
      * The text that shows when the other item is choosed by the other input is empty.
      */
-    public get otherErrorText(): string { return this.locOtherErrorText.text; }
-    public set otherErrorText(value: string) { this.locOtherErrorText.text = value;  }
-    get locOtherText(): LocalizableString { return this.locOtherTextValue; }
-    get locOtherErrorText(): LocalizableString { return this.locOtherErrorTextValue; }
+    public get otherErrorText(): string { return this.getLocalizableStringText("otherErrorText"); }
+    public set otherErrorText(val: string) { this.setLocalizableStringText("otherErrorText", val);  }
+    get locOtherErrorText(): LocalizableString { return this.getLocalizableString("otherErrorText"); }
 
     /**
      * The list of items as they will be rendered. If needed items are sorted and the other item is added.

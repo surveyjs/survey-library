@@ -17,7 +17,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     private textPreProcessor: TextPreProcessor;
     private conditionEnabelRunner: ConditionRunner;
     private errorsValue: Array<SurveyError> = [];
-    private validatorsValue: Array<SurveyValidator> = [];
+    private validatorsValue: Array<SurveyValidator> = this.createNewArray("validators");
     valueChangedCallback: () => void;
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
@@ -273,7 +273,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
      * The list of question validators.
      */
     public get validators(): Array<SurveyValidator> { return this.validatorsValue; }
-    public set validators(val: Array<SurveyValidator>) { this.validatorsValue = val; }
+    public set validators(val: Array<SurveyValidator>) { this.setPropertyValue("validators", val); }
     /**
      * The list of errors. It is created by callig hasErrors functions
      * @see hasErrors

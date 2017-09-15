@@ -236,7 +236,7 @@ export class Base {
     }
     protected createNewArray(name: string, onPush: any = null, onRemove: any = null): Array<any> {
         var newArray = new Array<any>();
-        this.propertyHash[name] = newArray;
+        this.setPropertyValueCore(this.propertyHash, name, newArray);
         this.arrayOnPush[name] = onPush;
         var self = this;
         newArray.push = function (value): number { 

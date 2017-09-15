@@ -509,6 +509,8 @@ QUnit.test("Matrixdynamic column.validators", function (assert) {
     var rows = question.visibleRows;
     assert.equal(question.hasErrors(), false, "No errors");
     question.columns[0].validators.push(new EmailValidator());
+    question.rowCount = 0;
+    question.rowCount = 2;
     var rows = question.visibleRows;
     question.value = [{ 'column1': "aaa" }, {}];
     assert.equal(question.hasErrors(), true, "column1 should has valid e-mail");

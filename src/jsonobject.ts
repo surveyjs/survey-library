@@ -508,6 +508,7 @@ export class JsonObject {
     }
     private valueToArray(value: Array<any>, obj: any, key: any, property: JsonObjectProperty) {
         if(obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
+        if(!obj[key]) obj[key] = [];
         for (var i = 0; i < value.length; i++) {
             var newValue = this.createNewObj(value[i], property);
             if (newValue.newObj) {

@@ -1615,6 +1615,15 @@ QUnit.test("Set defaultValue on loading from JSON, on adding into survey and on 
     q3.defaultValue = "his_name";
     assert.equal(survey.getValue("q3"), "her_name", "the value doesn't changed, since it was not empty");
 });
+QUnit.test("matrixdynamic.defaultValue - check the complex property", function (assert) {
+    var survey = new SurveyModel({ questions: [
+        { type: "matrixdynamic", name: "matrix", 
+            columns: [{ name: "col1" }, {name: "col2"} ],
+            defaultValue: [{col1: 1, col2: 2}, {col1: 3, col2: 4}]
+        }
+    ]});
+    assert.deepEqual(survey.getValue("matrix"), [{col1: 1, col2: 2}, {col1: 3, col2: 4}], "set complex defaultValue correctly");
+});
 
 
 function twoPageSimplestSurvey() {

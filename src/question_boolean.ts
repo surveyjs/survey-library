@@ -23,14 +23,6 @@ export class QuestionBooleanModel extends Question {
     public get isIndeterminate(): boolean { return this.isEmpty(); }
     public get hasTitle(): boolean { return this.showTitle; }
     supportGoNextPageAutomatic() { return true; }
-    protected onSetData() {
-        super.onSetData();
-        this.updateValueWithDefaults();
-    }
-    public onSurveyLoad() {
-        super.onSurveyLoad();
-        this.updateValueWithDefaults();
-    }
     /**
      * Get/set question value in 3 modes: indeterminate (value is empty), true (check is set) and false (check is unset).
      * @see valueTrue
@@ -50,8 +42,8 @@ export class QuestionBooleanModel extends Question {
     /**
      * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
      */
-    public get defaultValue(): string { return this.getPropertyValue("defaultValue", "indeterminate");}
-    public set defaultValue(val: string) {
+    public get defaultValue(): any { return this.getPropertyValue("defaultValue", "indeterminate"); }
+    public set defaultValue(val: any) {
         this.setPropertyValue("defaultValue", val);
         this.updateValueWithDefaults();
     }
@@ -84,9 +76,7 @@ export class QuestionBooleanModel extends Question {
     public set valueFalse(val: any) { this.setPropertyValue("valueFalse", val);}
     private getValueTrue(): any { return this.valueTrue ? this.valueTrue : true; }
     private getValueFalse(): any { return this.valueFalse ? this.valueFalse : false; }
-    private updateValueWithDefaults() {
-        if(this.isLoadingFromJson) return;
-        if(!this.isEmpty()) return;
+    protected setDefaultValue() {
         if(this.defaultValue == "true") this.checkedValue = true;
         if(this.defaultValue == "false") this.checkedValue = false;
         if(this.defaultValue == "indeterminate") this.value = null;

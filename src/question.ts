@@ -228,9 +228,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         if (isNumeric) return (this.visibleIndex + startIndex).toString();
         return String.fromCharCode(str.charCodeAt(0) + this.visibleIndex);
     }
+    public onSurveyLoad() {
+        super.onSurveyLoad();
+        this.updateValueWithDefaults();
+    }
     protected onSetData() {
         super.onSetData();
         this.onSurveyValueChanged(this.value);
+        this.updateValueWithDefaults();
     }
     private isvalueChangedCallbackFiring: boolean = false;
     /**
@@ -251,7 +256,22 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public get displayValue(): any {
         return this.value;
     }
-
+    /**
+     * Set the default value to the question. It will be assign to the question on loading the survey from JSON or adding a question to the survey or on setting this property of the value is empty.
+     */
+    public get defaultValue(): any { return this.getPropertyValue("defaultValue"); }
+    public set defaultValue(val: any) {
+        this.setPropertyValue("defaultValue", val);
+        this.updateValueWithDefaults();
+    }
+    protected updateValueWithDefaults() {
+        if(this.isLoadingFromJson || Base.isValueEmpty(this.defaultValue) || !this.isEmpty()) return;
+        this.setDefaultValue();
+    }
+    protected setDefaultValue() {
+        this.value = this.defaultValue;
+    }
+    
     /**
      * The question comment value.
      */
@@ -381,6 +401,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }, 
-    { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression",
+    { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression", "defaultValue:value",
     "isRequired:boolean", { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

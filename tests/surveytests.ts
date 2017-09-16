@@ -1602,6 +1602,21 @@ QUnit.test("Question description and text processing, variable, Bug #632", funct
     assert.equal(question.locDescription.renderedHtml, "It is var1", "Decription: Variable is applied");
 });
 
+QUnit.test("Set defaultValue on loading from JSON, on adding into survey and on setting defaultValue property", function (assert) {
+    var survey = new SurveyModel({questions:[ {type:"text", name: "q1", defaultValue: "your_name"}]});
+    assert.equal(survey.getValue("q1"), "your_name", "on loading from JSON");
+    var q2 = new QuestionTextModel("q2");
+    q2.defaultValue = "my_name";
+    survey.pages[0].addElement(q2);
+    assert.equal(survey.getValue("q2"), "my_name", "on adding question into suvey");
+    var q3 = <Question>survey.pages[0].addNewQuestion("text", "q3");
+    q3.defaultValue = "her_name";
+    assert.equal(survey.getValue("q3"), "her_name", "on setting the default value");
+    q3.defaultValue = "his_name";
+    assert.equal(survey.getValue("q3"), "her_name", "the value doesn't changed, since it was not empty");
+});
+
+
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

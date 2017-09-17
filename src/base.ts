@@ -280,6 +280,7 @@ export class Base {
     }
     protected setArray(src: any[], dest: any[], onPush: any) {
         src.length = 0;
+        if(!dest) return;
         for(var i = 0; i < dest.length; i ++) {
             Array.prototype.push.call(src, dest[i]);
             if(onPush) onPush(src[i]);

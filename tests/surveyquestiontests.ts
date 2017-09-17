@@ -899,7 +899,7 @@ QUnit.test("Rating question, visibleRateValues property", function (assert) {
     rate.rateValues = [1, 2, 3];
     assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
-QUnit.test("defaultValue proeprty as array", function (assert) {
+QUnit.test("defaultValue propeprty as array", function (assert) {
     var question = new QuestionCheckboxModel("q1");
     assert.notOk(question.defaultValue, "It is empty by default");
     question.defaultValue = [1];

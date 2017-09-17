@@ -1615,6 +1615,18 @@ QUnit.test("Set defaultValue on loading from JSON, on adding into survey and on 
     q3.defaultValue = "his_name";
     assert.equal(survey.getValue("q3"), "her_name", "the value doesn't changed, since it was not empty");
 });
+QUnit.test("Set defaultValue in design-time", function (assert) {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p1");
+    var q1 = new QuestionTextModel("q1");
+    survey.pages[0].addElement(q1);
+    assert.notOk(q1.defaultValue, "There is no default value");
+    q1.defaultValue = "my_name";
+    assert.equal(survey.getValue("q1"), "my_name", "the value is set");
+    q1.defaultValue = null;
+    assert.notOk(survey.getValue("q1"),"the value is reset");
+});
 QUnit.test("matrixdynamic.defaultValue - check the complex property", function (assert) {
     var survey = new SurveyModel({ questions: [
         { type: "matrixdynamic", name: "matrix", 

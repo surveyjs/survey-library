@@ -265,7 +265,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.updateValueWithDefaults();
     }
     protected updateValueWithDefaults() {
-        if(this.isLoadingFromJson || Base.isValueEmpty(this.defaultValue)) return;
+        if(this.isLoadingFromJson || (!this.isDesignMode && Base.isValueEmpty(this.defaultValue))) return;
         if(!this.isDesignMode && !this.isEmpty()) return;
         this.setDefaultValue();
     }

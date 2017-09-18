@@ -416,7 +416,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         return question;
     }
     /**
-     * Creates a new panel and adds it inot the end of the elements list.
+     * Creates a new panel and adds it into the end of the elements list.
      * @param name a panel name
      */
     public addNewPanel(name: string): PanelModel {

@@ -317,7 +317,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
-        this.pagesValue = this.createNewArray("pages", function(value){ value.setSurveyImpl(self); });
+        this.pagesValue = this.createNewArray("pages", function(value){ self.onPageAdded(value); });
         this.triggersValue = this.createNewArray("triggers", function(value){ value.setOwner(self); });
         this.updateProcessedTextValues();
         this.onBeforeCreating();
@@ -1106,11 +1106,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.updateVisibleIndexes();
     }
     /**
-     * Creates a new page and adds it into the survey
+     * Creates a new page and adds it into the survey. Genarates a new name if the name parameter is not set.
      * @param name a page name
      * @see addPage
      */
-    public addNewPage(name: string) {
+    public addNewPage(name: string = null) {
         var page = this.createNewPage(name);
         this.addPage(page);
         return page;
@@ -1546,6 +1546,17 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
     }
+    private onPageAdded(page: PageModel) {
+        page.setSurveyImpl(this);
+        if(!page.name) page.name = this.generateNewName(this.pages, "page");
+    }
+    private generateNewName(elements: Array<any>, baseName: string): string {
+        var keys = {};
+        for(var i = 0; i < elements.length; i ++) keys[elements[i]["name"]] = true;
+        var index = 1;
+        while(keys[baseName + index]) index ++;
+        return baseName + index;
+    }
     protected tryGoNextPageAutomatic(name: string) {
         if (!this.goNextPageAutomatic || !this.currentPage) return;
         var question = this.getQuestionByName(name);
@@ -1616,6 +1627,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any) {
         this.updateVisibleIndexes();
         this.addQuestionToProcessedTextValues(question);
+        if(!question.name) question.name = this.generateNewName(this.getAllQuestions(), "question");
         this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel });
     }
     questionRemoved(question: IQuestion) {

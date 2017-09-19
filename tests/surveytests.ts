@@ -6,7 +6,7 @@ import {Question} from "../src/question";
 import {QuestionHtmlModel} from "../src/question_html";
 import {SurveyTriggerVisible, SurveyTriggerComplete, SurveyTriggerSetValue} from "../src/trigger";
 import {surveyLocalization} from "../src/surveyStrings";
-import {EmailValidator} from "../src/validator";
+import {EmailValidator, NumericValidator} from "../src/validator";
 import {JsonObject} from "../src/jsonobject";
 import {QuestionTextModel} from "../src/question_text";
 import {QuestionMultipleTextModel, MultipleTextItemModel} from "../src/question_multipletext";
@@ -1635,6 +1635,35 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function (
         }
     ]});
     assert.deepEqual(survey.getValue("matrix"), [{col1: 1, col2: 2}, {col1: 3, col2: 4}], "set complex defaultValue correctly");
+});
+
+QUnit.test("Dublicate errors", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    var q = <QuestionTextModel>survey.pages[0].addNewQuestion("text", "q1");
+    q.validators.push(new NumericValidator(0, 25));
+    var valueChangedCounter = 0;
+    survey.onValueChanged.add(function(s, options){
+        valueChangedCounter ++;
+        options.question.hasErrors(true);
+    });
+    assert.equal(q.errors.length, 0, "There is no errors so far");
+    q.value = "26";
+    assert.equal(q.errors.length, 1, "There should be one error");
+    assert.equal(valueChangedCounter, 1, "on value changed called one time");
+    assert.equal(q.value, 26, "the value is 26");
+});
+
+
+QUnit.test("Auto generate names for question/panel/page", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage();
+    assert.equal(survey.pages[0].name, "page1", "the first name is page1");
+    survey.addNewPage();
+    assert.equal(survey.pages[1].name, "page2", "the second name is page2");
+    survey.pages[0].name = "newpage"
+    survey.addNewPage();
+    assert.equal(survey.pages[2].name, "page1", "the third name is page1 again");
 });
 
 

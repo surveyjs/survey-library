@@ -231,23 +231,14 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         }
         return null;
     }
-    public hasErrors(fireCallback: boolean = true): boolean {
-        var res = super.hasErrors(fireCallback);
-        if(!res) res = this.hasErrorInItems(fireCallback);
-        return res;
-    }
-    protected hasErrorInItems(fireCallback: boolean): boolean {
+    protected onCheckForErrors(errors: Array<SurveyError>) {
+        super.onCheckForErrors(errors);
         for(var i = 0; i < this.items.length; i ++) {
             var item = this.items[i];
             if(item.isRequired && !item.value) {
-                this.errors.push(new AnswerRequiredError());
-                if(fireCallback) {
-                    this.fireCallback(this.errorsChangedCallback);
-                }
-                return true;
+                errors.push(new AnswerRequiredError());
             }
         }
-        return false;
     }
     //IMultipleTextData
     getMultipleTextValue(name: string) {

@@ -333,6 +333,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
         if (this.errors.length == 0 && !this.isEmpty()) {
             var error = this.runValidators();
             if (error) {
+                //validators may change the question value.
+                this.errors = [];
                 this.errors.push(error);
             }
         }

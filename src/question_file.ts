@@ -69,7 +69,7 @@ export class QuestionFileModel extends Question {
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);
         if (this.isUploading) {
-            this.errors.push(new CustomError(surveyLocalization.getString("uploadingFile")));
+            errors.push(new CustomError(surveyLocalization.getString("uploadingFile")));
         }
     }
     private checkFileForErrors(file: File): boolean {

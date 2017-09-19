@@ -103,7 +103,7 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     protected onCheckForErrors(errors: Array<SurveyError>) {
         super.onCheckForErrors(errors);
         if (this.hasErrorInRows()) {
-            this.errors.push(new CustomError(surveyLocalization.getString("requiredInAllRowsError")));
+            errors.push(new CustomError(surveyLocalization.getString("requiredInAllRowsError")));
         }
     }
     private hasErrorInRows(): boolean {

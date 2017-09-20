@@ -158,6 +158,10 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         this.locPanelPrevTextValue = new LocalizableString(this);
         this.locPanelNextTextValue = new LocalizableString(this);
     }
+    public setSurveyImpl(value: ISurveyImpl) {
+        super.setSurveyImpl(value);
+        this.template.setSurveyImpl(this.surveyImpl);
+    }
     private templateOnRowsChanged() {
         if(this.isLoadingFromJson) return;
         this.rebuildPanels();

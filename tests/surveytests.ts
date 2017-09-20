@@ -1654,18 +1654,30 @@ QUnit.test("Dublicate errors", function (assert) {
     assert.equal(q.value, 26, "the value is 26");
 });
 
-
 QUnit.test("Auto generate names for question/panel/page", function (assert) {
     var survey = new SurveyModel();
-    survey.addNewPage();
+    var page1 = survey.addNewPage();
     assert.equal(survey.pages[0].name, "page1", "the first name is page1");
-    survey.addNewPage();
+    var page2 = survey.addNewPage();
     assert.equal(survey.pages[1].name, "page2", "the second name is page2");
     survey.pages[0].name = "newpage"
-    survey.addNewPage();
+    var page3 = survey.addNewPage();
     assert.equal(survey.pages[2].name, "page1", "the third name is page1 again");
-});
 
+    page1.addNewQuestion("text");
+    page1.addNewQuestion("text");
+    page3.addNewQuestion("text");
+    assert.equal(survey.getAllQuestions()[0].name, "question1", "the first name is question1");
+    assert.equal(survey.getAllQuestions()[1].name, "question2", "the second name is question2");
+    assert.equal(survey.getAllQuestions()[2].name, "question3", "the third name is question3");
+
+    var panel1 = page1.addNewPanel();
+    var panel2 = panel1.addNewPanel();
+    var panel3 = page2.addNewPanel();
+    assert.equal(panel1.name, "panel1", "the first name is panel1");
+    assert.equal(panel2.name, "panel2", "the second name is panel2");
+    assert.equal(panel3.name, "panel3", "the third name is panel3");
+});
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

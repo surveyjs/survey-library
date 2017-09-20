@@ -1,5 +1,5 @@
 import {JsonObject} from "./jsonobject";
-import {Base, ISurveyImpl, IPage, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
+import {Base, ISurveyImpl, IPage, IPanel, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
@@ -207,19 +207,37 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * @param list 
      * @param visibleOnly set it to true to get visible questions only
      */
-    public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false) {
+    public addQuestionsToList(list: Array<IQuestion>, visibleOnly: boolean = false, includingDesignTime: boolean = false) {
+        this.addElementsToList(list, visibleOnly, includingDesignTime, false);
+    }
+    /**
+     * Fill list array with the panels.
+     * @param list 
+     */
+    public addPanelsIntoList(list: Array<IPanel>, visibleOnly: boolean = false, includingDesignTime: boolean = false) {
+        this.addElementsToList(list, visibleOnly, includingDesignTime, true);
+    }
+    private addElementsToList(list: Array<IElement>, visibleOnly: boolean, includingDesignTime: boolean, isPanel: boolean) {
         if (visibleOnly && !this.visible) return;
-        for (var i = 0; i < this.elements.length; i++) {
-            var el = this.elements[i];
+        this.addElementsToListCore(list, this.elements, visibleOnly, includingDesignTime, isPanel);
+    }   
+    private addElementsToListCore(list: Array<IElement>, elements: Array<IElement>, visibleOnly: boolean, includingDesignTime: boolean, isPanel: boolean) {
+        for (var i = 0; i < elements.length; i++) {
+            var el = elements[i];
             if (visibleOnly && !el.visible) continue;
+            if(isPanel && el.isPanel || !isPanel && !el.isPanel) {
+                list.push(el);
+            }
             if(el.isPanel) {
-                (<PanelModel>el).addQuestionsToList(list, visibleOnly);
+                (<PanelModel>el).addElementsToListCore(list, (<PanelModel>el).elements, visibleOnly, includingDesignTime, isPanel);
             }
             else {
-                list.push(<IQuestion>el);
+                if(includingDesignTime) {
+                    this.addElementsToListCore(list, (<SurveyElement><any>el).getElementsInDesign(false), visibleOnly, includingDesignTime, isPanel);
+                }
             }
         }
-    }
+    }    
     get rows(): Array<QuestionRowModel> {
         if(!this.rowValues) {
             this.rowValues = this.buildRows();
@@ -410,7 +428,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
      * @param name a question name
      */
-    public addNewQuestion(questionType: string, name: string): QuestionBase {
+    public addNewQuestion(questionType: string, name: string = null): QuestionBase {
         var question = QuestionFactory.Instance.createQuestion(questionType, name);
         this.addQuestion(question);
         return question;
@@ -419,7 +437,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * Creates a new panel and adds it into the end of the elements list.
      * @param name a panel name
      */
-    public addNewPanel(name: string): PanelModel {
+    public addNewPanel(name: string = null): PanelModel {
         var panel = this.createNewPanel(name);
         this.addPanel(panel);
         return panel;
@@ -484,7 +502,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root. 
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase implements IElement {
+export class PanelModel extends PanelModelBase implements IPanel {
     private renderWidthValue: string;
     private rightIndentValue: number;
     /**

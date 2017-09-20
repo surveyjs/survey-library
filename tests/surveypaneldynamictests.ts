@@ -317,6 +317,19 @@ QUnit.test("assign customWidgets to questions in dynamic panel", function (asser
     CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("Auto generate names", function (assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage();
+    var panel = <QuestionPanelDynamicModel>page1.addNewQuestion("paneldynamic");
+    var q2 = panel.template.addNewQuestion("text");
+    var p1 = panel.template.addNewPanel();
+    var q3 = page1.addNewQuestion("text");
+
+    assert.equal(p1.name, "panel1", "the first name for panel is panel1");
+    assert.equal(q2.name, "question2", "the second name for question is question2");
+    assert.equal(q3.name, "question3", "the third name for question is question3");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

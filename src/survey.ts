@@ -1204,10 +1204,20 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * Returns the list of all questions in the survey
      * @param visibleOnly set it true, if you want to get only visible questions
      */
-    public getAllQuestions(visibleOnly: boolean = false): Array<IQuestion> {
+    public getAllQuestions(visibleOnly: boolean = false, includingDesignTime: boolean = false): Array<IQuestion> {
         var result = new Array<IQuestion>();
         for (var i: number = 0; i < this.pages.length; i++) {
-            this.pages[i].addQuestionsToList(result, visibleOnly);
+            this.pages[i].addQuestionsToList(result, visibleOnly, includingDesignTime);
+        }
+        return result;
+    }
+    /**
+     * Returns the list of all panels in the survey
+     */
+    public getAllPanels(visibleOnly: boolean = false, includingDesignTime: boolean = false): Array<IPanel> {
+        var result = new Array<IPanel>();
+        for (var i: number = 0; i < this.pages.length; i++) {
+            this.pages[i].addPanelsIntoList(result, visibleOnly, includingDesignTime);
         }
         return result;
     }
@@ -1625,9 +1635,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.onPanelVisibleChanged.fire(this, { 'panel': panel, 'visible': newValue });
     }
     questionAdded(question: IQuestion, index: number, parentPanel: any, rootPanel: any) {
+        if(!question.name) question.name = this.generateNewName(this.getAllQuestions(false, true), "question");
         this.updateVisibleIndexes();
         this.addQuestionToProcessedTextValues(question);
-        if(!question.name) question.name = this.generateNewName(this.getAllQuestions(), "question");
         this.onQuestionAdded.fire(this, { 'question': question, 'name': question.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel });
     }
     questionRemoved(question: IQuestion) {
@@ -1635,6 +1645,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.onQuestionRemoved.fire(this, { 'question': question, 'name': question.name });
     }
     panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
+        if(!panel.name) panel.name = this.generateNewName(this.getAllPanels(false, true), "panel");
         this.updateVisibleIndexes();
         this.onPanelAdded.fire(this, { 'panel': panel, 'name': panel.name, 'index': index, 'parentPanel': parentPanel, 'rootPanel': rootPanel });
     }

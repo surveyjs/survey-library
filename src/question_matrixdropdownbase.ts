@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {Question} from "./question";
-import {Base, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, SurveyError, HashTable} from "./base";
+import {Base, CustomPropertiesCollection, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, SurveyError, HashTable} from "./base";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ProcessValue} from "./conditionProcessValue";
 import {ItemValue} from "./itemvalue";
@@ -159,9 +159,9 @@ export class MatrixDropdownCell {
     constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
         this.questionValue.validateValueCallback = function() { return data.validateCell(row, column.name, row.value); }
-        JsonObject.metaData.getProperties(column.getType()).forEach(property => {
+        CustomPropertiesCollection.getProperties(column.getType()).forEach(property => {
             let propertyName = property.name;
-            if(column[propertyName] !== undefined && this.questionValue[propertyName] === undefined) {
+            if(column[propertyName] !== undefined && this.questionValue.getPropertyValue(propertyName, null) == null) {
                 this.questionValue[propertyName] = column[propertyName];
             }
         });

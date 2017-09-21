@@ -1161,6 +1161,26 @@ QUnit.test("assign customWidgets to questions", function (assert) {
     assert.equal((<Question>survey.getQuestionByName("question5")).customWidget.name, "second", "has the second custom widget");
     CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("assign customWidgets to matrix dynamic cell question", function (assert) {
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({ name: "first", isFit: (question) => { return question["renderAs"] === 'testwidget'; } });
+    JsonObject.metaData.addProperty("matrixdropdowncolumn", "renderAs");
+    JsonObject.metaData.addProperty("dropdown", { name: "renderAs", default: "standard", choices: ["standard", "chosen"] });
+    
+    var survey = new SurveyModel( {questions: [{type: "matrixdynamic", name: "Grid", 
+        columns: [
+            { name: "Type", cellType: "dropdown", renderAs: "testwidget" },
+            { name: "Quantity", cellType: "text", inputType: "number" }
+        ]}]});
+    var q = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var rows = q.visibleRows;
+    assert.equal(rows[0].cells[0].question.customWidget.name, "first", "the first cell has custom widget");
+    assert.equal(rows[0].cells[1].question.customWidget, null, "the second cell has no custom widget");
+    
+    JsonObject.metaData.removeProperty("matrixdropdowncolumn", "renderAs");
+    JsonObject.metaData.removeProperty("dropdown", "renderAs");
+    CustomWidgetCollection.Instance.clear();
+});
 QUnit.test("Set 0 value for text inputType=number from survey. Bug #267", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

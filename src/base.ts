@@ -111,6 +111,20 @@ export class CustomPropertiesCollection {
     public static addClass(className: string, parentClassName: string) {
         CustomPropertiesCollection.parentClasses[className] = parentClassName;
     }
+    public static getProperties(className: string) : Array<any> {
+        var res = [];
+        var props = CustomPropertiesCollection.properties;
+        while(className) {
+            var properties =  props[className];
+            if(properties) {
+                for(var i = 0; i < properties.length; i ++) {
+                    res.push(properties[i]);
+                }
+            }
+            className = CustomPropertiesCollection.parentClasses[className];
+        }
+        return res;
+    }
     public static createProperties(obj: Base) {
         CustomPropertiesCollection.createPropertiesCore(obj, obj.getType());
     }

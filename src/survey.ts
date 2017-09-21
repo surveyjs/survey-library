@@ -444,8 +444,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see QuestionBase.visible
      * @see onComplete
      */
-    public get clearInvisibleValues(): boolean { return this.getPropertyValue("clearInvisibleValues", false); }
-    public set clearInvisibleValues(val: boolean) { this.setPropertyValue("clearInvisibleValues", val); }
+    public get clearInvisibleValues(): any { return this.getPropertyValue("clearInvisibleValues", "none"); }
+    public set clearInvisibleValues(val: any) {
+        if(val === true) val = "onComplete";
+        if(val === false) val = "none"; 
+        this.setPropertyValue("clearInvisibleValues", val); 
+    }
 
     /**
      * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
@@ -1472,7 +1476,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         for (var i: number = 0; i < questions.length; i++) {
             questions[i].clearUnusedValues();
         }
-        if (this.clearInvisibleValues) {
+        if (this.clearInvisibleValues == "onComplete") {
             this.clearInvisibleQuestionValues();
         }
     }
@@ -1625,6 +1629,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.updateVisibleIndexes();
         this.onVisibleChanged.fire(this, { 'question': question, 'name': question.name, 'visible': newValue });
         this.checkPageVisibility(question, !newValue);
+        if(question && !question.visible && this.clearInvisibleValues == "onHidden") {
+            this.clearValue(question.name);
+        }
     }
     pageVisibilityChanged(page: IPage, newValue: boolean) {
         this.updateVisibleIndexes();
@@ -1707,7 +1714,8 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
     { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
     { name: "mode", default: "edit", choices: ["edit", "display"] },
-    { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", "clearInvisibleValues:boolean",
+    { name: "storeOthersAsComment:boolean", default: true }, "goNextPageAutomatic:boolean", 
+    { name: "clearInvisibleValues", default: "none", choices: ["none", "onComplete", "onHidden"] },
     { name: "pagePrevText", serializationProperty: "locPagePrevText"},
     { name: "pageNextText", serializationProperty: "locPageNextText"},
     { name: "completeText", serializationProperty: "locCompleteText"},

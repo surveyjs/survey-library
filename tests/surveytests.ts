@@ -1699,6 +1699,31 @@ QUnit.test("Auto generate names for question/panel/page", function (assert) {
     assert.equal(panel3.name, "panel3", "the third name is panel3");
 });
 
+QUnit.test("clearInvisibleValues", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage();
+    var question = <Question>page.addNewQuestion("text");
+    assert.equal(survey.clearInvisibleValues, "none", "the default value");
+    survey.clearInvisibleValues = true; 
+    assert.equal(survey.clearInvisibleValues, "onComplete", "true is onComplete");
+    survey.clearInvisibleValues = false; 
+    assert.equal(survey.clearInvisibleValues, "none", "false is none");
+    question.value = "val";
+    question.visible = false;
+    assert.equal(question.value, "val", "none - nothing happened");
+    question.visible = true;
+    survey.clearInvisibleValues = "onHidden";
+    question.visible = false;
+    assert.notOk(question.value, "onHidden - clear the value");
+    question.visible = true;
+    question.value = "val";
+    survey.clearInvisibleValues = "onComplete";
+    question.visible = false;
+    assert.equal(question.value, "val", "onComplete - nothing happened");
+    survey.doComplete();
+    assert.notOk(question.value, "onComplete - clear on complete");
+});
+
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

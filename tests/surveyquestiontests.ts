@@ -441,6 +441,23 @@ QUnit.test("Matrixdynamic make the question empty on null cell value, Bug #608",
     assert.deepEqual(question.value, null, "Clear the question value if all cells are empty");
 });
 
+QUnit.test("Matrixdynamic set null value, Bug Editor #156", function (assert) {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage();
+    var question = new QuestionMatrixDynamicModel("matrixDynamic");
+    question.rowCount = 3;
+    question.columns.push(new MatrixDropdownColumn("column1"));
+    question.columns.push(new MatrixDropdownColumn("column2"));
+    survey.pages[0].addQuestion(question);
+    /*
+    question.value = null;
+    assert.deepEqual(question.value, [{}, {}, {}], "Set null value correctly");
+    */
+    var visibleRows = question.visibleRows;
+    assert.equal(visibleRows.length, 3, "There shoud be 3 rows");
+});
+
 QUnit.test("Matrixdropdown value tests after cells generation", function (assert) {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
     question.rows = ["row1", "row2", "row3"];

@@ -230,12 +230,16 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     public onSurveyLoad() {
         super.onSurveyLoad();
-        this.updateValueWithDefaults();
+        if(this.defaultValue) {
+            this.updateValueWithDefaults();
+        }
     }
     protected onSetData() {
         super.onSetData();
         this.onSurveyValueChanged(this.value);
-        this.updateValueWithDefaults();
+        if(this.defaultValue) {        
+            this.updateValueWithDefaults();
+        }
     }
     private isvalueChangedCallbackFiring: boolean = false;
     /**

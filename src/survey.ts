@@ -440,7 +440,9 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     public get goNextPageAutomatic(): boolean { return this.getPropertyValue("goNextPageAutomatic", false); }
     public set goNextPageAutomatic(val: boolean) { this.setPropertyValue("goNextPageAutomatic", val); }
     /**
-     * Set it to true, to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+     * Set it to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+     * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
+     * </br> The default value is 'none'.
      * @see QuestionBase.visible
      * @see onComplete
      */

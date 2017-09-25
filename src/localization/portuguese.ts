@@ -10,8 +10,10 @@ export var portugueseSurveyStrings = {
 	progressText: "Pagina {0} de {1}",
 	emptySurvey: "Não há página visível ou pergunta na pesquisa.",
 	completingSurvey: "Obrigado por finalizar a pesquisa!",
+	completingSurveyBefore: "Nossos registros mostram que você já finalizou a pesquisa.",
 	loadingSurvey: "A pesquisa está carregando...",
 	optionsCaption: "Selecione...",
+	value: "valor",
 	requiredError: "Por favor, responda a pergunta.",
 	requiredInAllRowsError: "Por favor, responda as perguntas em todas as linhas.",
 	numericError: "O valor deve ser numérico.",
@@ -32,11 +34,15 @@ export var portugueseSurveyStrings = {
 	uploadingFile: "Seu arquivo está sendo carregado. Por favor, aguarde alguns segundos e tente novamente.",
 	addRow: "Adicionar linha",
 	removeRow: "Remover linha",
-	choices_firstItem: "primeiro item",
-	choices_secondItem: "segundo item",
-	choices_thirdItem: "terceiro item",
+	addPanel: "Adicionar novo",
+	removePanel: "Remover",
+	choices_Item: "item",
 	matrix_column: "Coluna",
-	matrix_row: "Linha"
+	matrix_row: "Linha",
+	savingData: "Os resultados esto sendo salvos no servidor...",
+	savingDataError: "Ocorreu um erro e não foi possível salvar os resultados.",
+	savingDataSuccess: "Os resultados foram salvos com sucesso!",
+	saveAgainButton: "Tente novamente"
 };
 
 surveyLocalization.locales["pt"] = portugueseSurveyStrings;

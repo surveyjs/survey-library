@@ -75,7 +75,7 @@ frameworks.forEach( (framework) => {
             .typeText(await getTextInputByIndex(1), `10`, {replace: true})
             .typeText(await getTextarea(), `0123456789`)
             .click(`input[value="Complete"]`)
-            .hover(getError(`Please enter at least 20 symbols.`, 0));
+            .hover(getError(`Please enter at least 20 characters.`, 0));
 
         await t
             .typeText(await getTextarea(), `01234567890123456789`, {replace: true})

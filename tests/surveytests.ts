@@ -709,7 +709,7 @@ QUnit.test("Value trigger test", function (assert) {
 });
 QUnit.test("String format", function (assert) {
     var strResult = surveyLocalization.getString("textMinLength")["format"](10);
-    assert.equal(strResult, "Please enter at least 10 symbols.", "The format string is working");
+    assert.equal(strResult, "Please enter at least 10 characters.", "The format string is working");
 });
 QUnit.test("Serialize email validator", function (assert) {
     var validator = new EmailValidator();

@@ -28,6 +28,11 @@
         @Prop
         css: any
 
+        mounted() {
+            if(this.question.survey) {
+                this.question.survey.afterRenderPanel(this.question, this.$el);
+            }
+        }
         get rootStyle () {
             var result = {
                 verticalAlign: 'top',

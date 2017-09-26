@@ -28,6 +28,11 @@
         @Prop
         css: Object
 
+        mounted() {
+            if(this.page.survey) {
+                this.page.survey.afterRenderPage(this.$el);
+            }
+        }
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

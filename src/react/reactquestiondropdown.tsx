@@ -12,6 +12,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         var self = this;
         this.question.choicesChangedCallback = function () {
             self.state.choicesChanged = self.state.choicesChanged + 1;
+            self.state.value = self.question.value;
             self.setState(self.state);
         };
         this.handleOnChange = this.handleOnChange.bind(this);

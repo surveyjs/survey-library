@@ -224,10 +224,10 @@ export class QuestionSelectBase extends Question {
             ItemValue.setData(newChoices, array);
         }
         this.choicesFromUrl = newChoices;
-        this.onVisibleChoicesChanged();
         if (this.cachedValueForUrlRequests) {
             this.value = this.cachedValueForUrlRequests;
         }
+        this.onVisibleChoicesChanged();
     }
     private onVisibleChoicesChanged() {
         if(this.isLoadingFromJson) return;

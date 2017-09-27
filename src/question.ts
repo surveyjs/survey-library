@@ -1,6 +1,7 @@
-﻿import {JsonObject} from './jsonobject';
+﻿import {HashTable} from "./helpers";
+import {JsonObject} from './jsonobject';
 import {QuestionBase} from './questionbase';
-import {Base, SurveyError, SurveyElement, HashTable} from "./base";
+import {Base, SurveyError, SurveyElement} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {AnswerRequiredError} from "./error";
 import {SurveyValidator, IValidatorOwner, ValidatorRunner} from "./validator";
@@ -269,7 +270,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.updateValueWithDefaults();
     }
     protected updateValueWithDefaults() {
-        if(this.isLoadingFromJson || (!this.isDesignMode && Base.isValueEmpty(this.defaultValue))) return;
+        if(this.isLoadingFromJson || (!this.isDesignMode && this.isValueEmpty(this.defaultValue))) return;
         if(!this.isDesignMode && !this.isEmpty()) return;
         this.setDefaultValue();
     }
@@ -293,7 +294,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     /**
      * Returns true if the question value is empty
      */
-    public isEmpty(): boolean { return Base.isValueEmpty(this.value); }
+    public isEmpty(): boolean { return this.isValueEmpty(this.value); }
     /**
      * The list of question validators.
      */

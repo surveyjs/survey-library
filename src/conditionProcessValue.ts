@@ -1,4 +1,4 @@
-﻿import {HashTable} from './base';
+﻿import {HashTable} from './helpers';
 
 export class ProcessValue {
     public values: HashTable<any> = null;    

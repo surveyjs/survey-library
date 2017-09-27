@@ -1,4 +1,5 @@
 ﻿import * as React from 'react';
+import {Helpers} from "../helpers";
 import {Base} from "../base";
 import {SurveyQuestionElementBase} from "./reactquestionelement";
 import {QuestionTextModel} from "../question_text";
@@ -34,7 +35,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         );
     }
     private getValue(val: any) : any {
-        if(Base.isValueEmpty(val)) return "";
+        if(Helpers.isValueEmpty(val)) return "";
         return val;
     }
 }

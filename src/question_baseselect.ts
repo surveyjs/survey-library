@@ -27,7 +27,7 @@ export class QuestionSelectBase extends Question {
     constructor(name: string) {
         super(name);
         var self = this;
-        this.choicesValues = this.createNewArray("choices", function(item){ item.locOwner = self;});
+        this.choicesValues = this.createItemValues("choices");
         this.choicesByUrl = this.createRestfull();
         this.createLocalizableString("otherText", this, true);
         this.createLocalizableString("otherErrorText", this, true);
@@ -111,8 +111,7 @@ export class QuestionSelectBase extends Question {
      */
     public get choices(): Array<any> { return this.choicesValues; }
     public set choices(newValue: Array<any>) {
-        ItemValue.setData(this.choicesValues, newValue);
-        this.propertyValueChanged("choices", this.choicesValues, this.choicesValues);
+        this.setPropertyValue("choices", newValue);
         this.onVisibleChoicesChanged();
     }
     /**

@@ -1,5 +1,6 @@
-﻿import {JsonObject} from "./jsonobject";
-import {Base, ISurvey, SurveyElement, ISurveyData, ISurveyImpl, ITextProcessor, HashTable, IQuestion, IPanel, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
+﻿import {HashTable} from "./helpers";
+import {JsonObject} from "./jsonobject";
+import {Base, ISurvey, SurveyElement, ISurveyData, ISurveyImpl, ITextProcessor, IQuestion, IPanel, IElement, IConditionRunner, IPage, SurveyError, Event} from "./base";
 import {ISurveyTriggerOwner, SurveyTrigger} from "./trigger";
 import {PageModel} from "./page";
 import {TextPreProcessor} from "./textPreProcessor";
@@ -959,7 +960,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             var question = this.currentPage.questions[i];
             if (!question.visible) continue;
             var value = this.getValue(question.name);
-            if (!Base.isValueEmpty(value)) options.data[question.name] = value;
+            if (!this.isValueEmpty(value)) options.data[question.name] = value;
         }
         this.setIsValidatingOnServer(true);
         this.onServerValidateQuestions(this, options);
@@ -1541,7 +1542,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public setValue(name: string, newValue: any) {
         if (this.isValueEqual(name, newValue)) return;
-        if (Base.isValueEmpty(newValue)) {
+        if (this.isValueEmpty(newValue)) {
             delete this.valuesHash[name];
         } else {
             newValue = this.getUnbindValue(newValue);
@@ -1580,7 +1581,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         var questions = this.getCurrentPageQuestions();
         for (var i = 0; i < questions.length; i++) {
             var value = this.getValue(questions[i].name)
-            if (questions[i].hasInput && Base.isValueEmpty(value)) return;
+            if (questions[i].hasInput && this.isValueEmpty(value)) return;
         }
         if (!this.currentPage.hasErrors(true, false)) {
             if (!this.isLastPage) {

@@ -1,4 +1,4 @@
-﻿import {HashTable, Base, CustomPropertiesCollection} from './base';
+﻿import {Helpers, HashTable} from "./helpers"
 
 export class JsonObjectProperty {
     private typeValue: string = null;
@@ -25,7 +25,7 @@ export class JsonObjectProperty {
     public get isRequired() { return this.isRequiredValue; }
     public get hasToUseGetValue() { return this.onGetValue || this.serializationProperty; }
     public isDefaultValue(value: any): boolean {
-        return (!Base.isValueEmpty(this.defaultValue)) ? (this.defaultValue == value) : !(value);
+        return (!Helpers.isValueEmpty(this.defaultValue)) ? (this.defaultValue == value) : !(value);
     }
     public getValue(obj: any): any {
         if (this.onGetValue) return this.onGetValue(obj);
@@ -73,6 +73,73 @@ export class JsonObjectProperty {
         this.choicesfunc = valueFunc;
     }
 }
+export class CustomPropertiesCollection {
+    private static properties = {};
+    private static parentClasses = {};
+    public static addProperty(className: string, property: any) {
+        var props = CustomPropertiesCollection.properties;
+        if(!props[className]) {
+            props[className] = [];
+        }
+        props[className].push(property);
+    }
+    public static removeProperty(className: string, propertyName: string) {
+        var props = CustomPropertiesCollection.properties;
+        if(!props[className]) return;
+        var properties =  props[className];
+        for(var i = 0; i < properties.length; i ++) {
+            if(properties[i].name == propertyName) {
+                props[className].splice(i, 1);
+                break;
+            }
+        }
+    }
+    public static addClass(className: string, parentClassName: string) {
+        CustomPropertiesCollection.parentClasses[className] = parentClassName;
+    }
+    public static getProperties(className: string) : Array<any> {
+        var res = [];
+        var props = CustomPropertiesCollection.properties;
+        while(className) {
+            var properties =  props[className];
+            if(properties) {
+                for(var i = 0; i < properties.length; i ++) {
+                    res.push(properties[i]);
+                }
+            }
+            className = CustomPropertiesCollection.parentClasses[className];
+        }
+        return res;
+    }
+    public static createProperties(obj: any) {
+        if(!obj || !obj.getType) return;
+        CustomPropertiesCollection.createPropertiesCore(obj, obj.getType());
+    }
+    private static createPropertiesCore(obj: any, className: string) {
+        var props = CustomPropertiesCollection.properties;
+        if(props[className]) {
+            CustomPropertiesCollection.createPropertiesInObj(obj, props[className]);
+        }
+        var parentClass = CustomPropertiesCollection.parentClasses[className];
+        if(parentClass) {
+            CustomPropertiesCollection.createPropertiesCore(obj, parentClass);
+        }
+    }
+    private static createPropertiesInObj(obj: any, properties: any[]) {
+        for(var i = 0; i < properties.length; i ++) {
+            CustomPropertiesCollection.createPropertyInObj(obj, properties[i]);
+        }
+    }
+    private static createPropertyInObj(obj: any, prop: any) {
+        if(obj[prop.name]) return;
+        var desc = {
+            get: function() { return obj.getPropertyValue(prop.name, prop.defaultValue); }, 
+            set : function(v: any) { obj.setPropertyValue(prop.name, v); }
+        };
+        Object.defineProperty(obj, prop.name, desc);
+    }
+}
+
 export class JsonMetadataClass {
     static requiredSymbol = '!';
     static typeSymbol = ':';
@@ -112,7 +179,7 @@ export class JsonMetadataClass {
             if (propInfo.type) {
                 prop.type = propInfo.type;
             }
-            if (!Base.isValueEmpty(propInfo.default)) {
+            if (!Helpers.isValueEmpty(propInfo.default)) {
                 prop.defaultValue = propInfo.default;
             }
             if(propInfo.visible === false) {

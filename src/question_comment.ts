@@ -7,25 +7,26 @@ import {LocalizableString} from "./localizablestring";
  * A Model for a comment question
  */
 export class QuestionCommentModel extends Question {
-    /**
-     * The html rows attribute.
-     */
-    public rows: number = 4;
-    /**
-     * The html cols attribute.
-     */
-    public cols: number = 50;
-    private locPlaceHolderValue: LocalizableString;
     constructor(public name: string) {
         super(name);
-        this.locPlaceHolderValue = new LocalizableString(this);
+        this.createLocalizableString("placeHolder", this);
     }
     /**
      * Use this property to set the input place holder.
      */
-    public get placeHolder(): string { return this.locPlaceHolder.text; }
-    public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
-    get locPlaceHolder(): LocalizableString {return this.locPlaceHolderValue; }
+    public get placeHolder(): string { return this.getLocalizableStringText("placeHolder");  }
+    public set placeHolder(val: string) { this.setLocalizableStringText("placeHolder", val); }
+    get locPlaceHolder(): LocalizableString {return this.getLocalizableString("placeHolder"); }
+    /**
+     * The html rows attribute.
+     */
+    public get rows(): number { return this.getPropertyValue("rows", 4); }
+    public set rows(val: number) { this.setPropertyValue("rows", val); }
+    /**
+     * The html cols attribute.
+     */
+    public get cols(): number { return this.getPropertyValue("cols", 50); }
+    public set cols(val: number) { this.setPropertyValue("cols", val); }
     public getType(): string {
         return "comment";
     }

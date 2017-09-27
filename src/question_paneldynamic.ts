@@ -1,4 +1,5 @@
-import {IElement, Base, SurveyElement, SurveyError, ISurveyData, ISurvey, ISurveyImpl, HashTable, ITextProcessor} from "./base";
+import {HashTable} from "./helpers";
+import {IElement, Base, SurveyElement, SurveyError, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {TextPreProcessor} from "./textPreProcessor";

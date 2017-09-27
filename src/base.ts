@@ -1,8 +1,8 @@
 ﻿import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {HashTable, Helpers} from "./helpers";
+import {ItemValue} from "./itemvalue";
+import {CustomPropertiesCollection} from "./jsonobject";
 
-export interface HashTable<T> {
-    [key: string]: T;
-}
 export interface ISurveyData {
     getValue(name: string): any;
     setValue(name: string, newValue: any);
@@ -88,71 +88,6 @@ export interface IPage extends IConditionRunner {
     visible: boolean;
     onSurveyLoad();
 }
-export class CustomPropertiesCollection {
-    private static properties = {};
-    private static parentClasses = {};
-    public static addProperty(className: string, property: any) {
-        var props = CustomPropertiesCollection.properties;
-        if(!props[className]) {
-            props[className] = [];
-        }
-        props[className].push(property);
-    }
-    public static removeProperty(className: string, propertyName: string) {
-        var props = CustomPropertiesCollection.properties;
-        if(!props[className]) return;
-        var properties =  props[className];
-        for(var i = 0; i < properties.length; i ++) {
-            if(properties[i].name == propertyName) {
-                props[className].splice(i, 1);
-                break;
-            }
-        }
-    }
-    public static addClass(className: string, parentClassName: string) {
-        CustomPropertiesCollection.parentClasses[className] = parentClassName;
-    }
-    public static getProperties(className: string) : Array<any> {
-        var res = [];
-        var props = CustomPropertiesCollection.properties;
-        while(className) {
-            var properties =  props[className];
-            if(properties) {
-                for(var i = 0; i < properties.length; i ++) {
-                    res.push(properties[i]);
-                }
-            }
-            className = CustomPropertiesCollection.parentClasses[className];
-        }
-        return res;
-    }
-    public static createProperties(obj: Base) {
-        CustomPropertiesCollection.createPropertiesCore(obj, obj.getType());
-    }
-    private static createPropertiesCore(obj: Base, className: string) {
-        var props = CustomPropertiesCollection.properties;
-        if(props[className]) {
-            CustomPropertiesCollection.createPropertiesInObj(obj, props[className]);
-        }
-        var parentClass = CustomPropertiesCollection.parentClasses[className];
-        if(parentClass) {
-            CustomPropertiesCollection.createPropertiesCore(obj, parentClass);
-        }
-    }
-    private static createPropertiesInObj(obj: Base, properties: any[]) {
-        for(var i = 0; i < properties.length; i ++) {
-            CustomPropertiesCollection.createPropertyInObj(obj, properties[i]);
-        }
-    }
-    private static createPropertyInObj(obj: Base, prop: any) {
-        if(obj[prop.name]) return;
-        var desc = {
-            get: function() { return obj.getPropertyValue(prop.name, prop.defaultValue); }, 
-            set : function(v: any) { obj.setPropertyValue(prop.name, v); }
-        };
-        Object.defineProperty(obj, prop.name, desc);
-    }
-}
 /**
  * The base class for SurveyJS objects.
  */
@@ -162,17 +97,13 @@ export class Base {
      * A static methods that returns true if a value underfined, null, empty string or empty array.
      * @param value 
      */
-    public static isValueEmpty(value: any) {
-        if (Array.isArray(value) && value.length === 0) return true;
-        if(value && (typeof value === 'string' || value instanceof String)) {
-            value = value.trim();
-        }
-        return !value && value !== 0 && value !== false;
+    public isValueEmpty(value: any) {
+        return Helpers.isValueEmpty(value);
     }
 
     private propertyHash = {};
     private localizableStrings = {};
-    private arrayOnPush = {};
+    private arraysInfo = {};
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
     setPropertyValueCoreHandler: (propertiesHash: any, name: string, val: any) => void;
@@ -199,7 +130,7 @@ export class Base {
      */
     public getPropertyValue(name: string, defaultValue: any = null): any { 
         var res = this.propertyHash[name];
-        if(Base.isValueEmpty(res) && defaultValue != null) return defaultValue;
+        if(this.isValueEmpty(res) && defaultValue != null) return defaultValue;
         return res; 
     }
     protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
@@ -215,7 +146,8 @@ export class Base {
         var oldValue = this.propertyHash[name];
         if(oldValue && Array.isArray(oldValue)) {
             if(this.isTwoValueEquals(oldValue, val)) return;
-            this.setArray(oldValue, val, this.arrayOnPush[name]);
+            var arrayInfo = this.arraysInfo[name];
+            this.setArray(oldValue, val, arrayInfo ? arrayInfo.isItemValues : false, arrayInfo ? arrayInfo.onPush : null);
             this.propertyValueChanged(name, oldValue, oldValue);
         } else {
             this.setPropertyValueCore(this.propertyHash, name, val);
@@ -250,10 +182,16 @@ export class Base {
         locStr.text = value;
         this.propertyValueChanged(name, oldValue, value);
     }
+    protected createItemValues(name: string): Array<any> {
+        var self = this;
+        var result = this.createNewArray(name, function(item) { item.locOwner = self;} );
+        this.arraysInfo[name].isItemValues = true;
+        return result;
+    }
     protected createNewArray(name: string, onPush: any = null, onRemove: any = null): Array<any> {
         var newArray = new Array<any>();
         this.setPropertyValueCore(this.propertyHash, name, newArray);
-        this.arrayOnPush[name] = onPush;
+        this.arraysInfo[name] = { onPush: onPush, isItemValues : false };
         var self = this;
         newArray.push = function (value): number { 
             var result = Array.prototype.push.call(newArray, value);
@@ -293,11 +231,18 @@ export class Base {
         
         return newArray;
     }
-    protected setArray(src: any[], dest: any[], onPush: any) {
+    protected setArray(src: any[], dest: any[], isItemValues: boolean, onPush: any) {
         src.length = 0;
         if(!dest) return;
         for(var i = 0; i < dest.length; i ++) {
-            Array.prototype.push.call(src, dest[i]);
+            if(isItemValues) {
+                var item = dest[i];
+                item = new ItemValue(null);
+                item.setData(dest[i]);
+                Array.prototype.push.call(src, item);
+            } else {
+                Array.prototype.push.call(src, dest[i]);
+            }
             if(onPush) onPush(src[i]);
         }
     }

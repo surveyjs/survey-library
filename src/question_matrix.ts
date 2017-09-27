@@ -45,10 +45,6 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     private rowsValue: Array<ItemValue>;
     private isRowChanging = false;
     private generatedVisibleRows: Array<MatrixRowModel>;
-    /**
-     * Set this property to true, if you want a user to answer all rows.
-     */
-    public isAllRowRequired: boolean = false;
     constructor(public name: string) {
         super(name);
         this.columnsValue = ItemValue.createArray(this);
@@ -57,6 +53,11 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     public getType(): string {
         return "matrix";
     }
+    /**
+     * Set this property to true, if you want a user to answer all rows.
+     */
+    public get isAllRowRequired(): boolean { return this.getPropertyValue("isAllRowRequired", false); }
+    public set isAllRowRequired(val: boolean) { this.setPropertyValue("isAllRowRequired", val); }
     /**
      * Returns true, if there is at least one row.
      */

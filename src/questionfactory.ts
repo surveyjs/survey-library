@@ -1,5 +1,6 @@
-﻿import {QuestionBase} from './questionbase';
-import {IElement, HashTable} from "./base";
+﻿import {HashTable} from "./helpers";
+import {QuestionBase} from './questionbase';
+import {IElement} from "./base";
 import {surveyLocalization} from "./surveyStrings";
 
 //TODO replace completely with ElementFactory

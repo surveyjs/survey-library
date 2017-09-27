@@ -1,4 +1,5 @@
-﻿import {Base, HashTable} from "./base";
+﻿import {HashTable} from "./helpers";
+import {Base} from "./base";
 import {JsonObject} from "./jsonobject";
 
 /**

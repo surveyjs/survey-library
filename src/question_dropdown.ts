@@ -8,17 +8,16 @@ import {LocalizableString} from "./localizablestring";
  * A Model for a dropdown question
  */
 export class QuestionDropdownModel extends QuestionSelectBase {
-    private locOptionsCaptionValue: LocalizableString;
     constructor(public name: string) {
         super(name);
-        this.locOptionsCaptionValue = new LocalizableString(this);
+        this.createLocalizableString("optionsCaption", this);
     }
     /**
      * Use this property to set the options caption different from the default value. The default value is taken from localization strings.
      */
-    public get optionsCaption() { return this.locOptionsCaption.text ? this.locOptionsCaption.text : surveyLocalization.getString("optionsCaption"); }
-    public set optionsCaption(newValue: string) { this.locOptionsCaption.text = newValue; }
-    get locOptionsCaption(): LocalizableString { return this.locOptionsCaptionValue;}
+    public get optionsCaption() { return this.getLocalizableStringText("optionsCaption", surveyLocalization.getString("optionsCaption")); }
+    public set optionsCaption(val: string) { this.setLocalizableStringText("optionsCaption", val); }
+    get locOptionsCaption(): LocalizableString { return this.getLocalizableString("optionsCaption"); }
     public getType(): string {
         return "dropdown";
     }

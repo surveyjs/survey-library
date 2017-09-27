@@ -8,11 +8,10 @@ import {LocalizableString} from "./localizablestring";
  * A Model for a boolean question.
  */
 export class QuestionBooleanModel extends Question {
-    private locLabelValue: LocalizableString;
     
     constructor(public name: string) {
         super(name);
-        this.locLabelValue = new LocalizableString(this, true);
+        this.createLocalizableString("label", this, true);
     }
     public getType(): string {
         return "boolean";
@@ -33,7 +32,7 @@ export class QuestionBooleanModel extends Question {
         return this.value == this.getValueTrue();
     }
     public set checkedValue(val: any) {
-        if(Base.isValueEmpty(val)) {
+        if(this.isValueEmpty(val)) {
             this.value = null;
         } else {
             this.value = val == true ? this.getValueTrue() : this.getValueFalse();
@@ -52,9 +51,9 @@ export class QuestionBooleanModel extends Question {
      * @see showTitle
      * @see title
      */
-    public get label(): string { return this.locLabel.text ? this.locLabel.text : ""; }
-    public set label(newValue:  string) { this.locLabel.text = newValue; }
-    get locLabel(): LocalizableString { return this.locLabelValue; }
+    public get label(): string { return this.getLocalizableStringText("label"); }
+    public set label(val:  string) { this.setLocalizableStringText("label", val); }
+    get locLabel(): LocalizableString { return this.getLocalizableString("label"); }
     get locDisplayLabel(): LocalizableString { 
         if(this.locLabel.text) return this.locLabel;
         return this.showTitle ? this.locLabel : this.locTitle;

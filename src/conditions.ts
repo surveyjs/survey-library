@@ -1,4 +1,4 @@
-﻿import {HashTable} from './base';
+﻿import {HashTable} from './helpers';
 import {ConditionsParser} from './conditionsParser';
 import {FunctionFactory} from "./functionsfactory";
 import {ProcessValue} from "./conditionProcessValue";

@@ -1,6 +1,7 @@
-﻿import {JsonObject} from "./jsonobject";
+﻿import {JsonObject, CustomPropertiesCollection} from "./jsonobject";
 import {Question} from "./question";
-import {Base, CustomPropertiesCollection, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, SurveyError, HashTable} from "./base";
+import {HashTable, Helpers} from "./helpers";
+import {Base, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, SurveyError} from "./base";
 import {TextPreProcessor} from "./textPreProcessor";
 import {ProcessValue} from "./conditionProcessValue";
 import {ItemValue} from "./itemvalue";
@@ -250,7 +251,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     public get isEmpty() {
         var val = this.value;
-        if (Base.isValueEmpty(val)) return true;
+        if (Helpers.isValueEmpty(val)) return true;
         for (var key in val) {
             if (val[key] !== undefined && val[key] !== null) return false;
         }
@@ -728,7 +729,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if (newRowValue) {
             newRowValue = JSON.parse(JSON.stringify(newRowValue));
             for (var key in newRowValue) {
-                if(!Base.isValueEmpty(newRowValue[key])) {
+                if(!this.isValueEmpty(newRowValue[key])) {
                     rowValue[key] = newRowValue[key];
                 }
             }

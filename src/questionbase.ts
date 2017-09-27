@@ -1,4 +1,5 @@
-﻿import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, HashTable, Event, SurveyError} from './base';
+﻿import {HashTable} from "./helpers";
+import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, Event, SurveyError} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';

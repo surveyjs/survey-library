@@ -4,12 +4,13 @@ import "../../main.scss";
 export let Version: string;
 Version = `${process.env.VERSION}`;
 
+export {Helpers} from "../../helpers";
 export {
     AnswerCountValidator, EmailValidator, NumericValidator, RegexValidator,
     SurveyValidator, TextValidator, ValidatorResult, ValidatorRunner
 } from "../../validator";
-export {Base, Event, SurveyError, ISurvey} from "../../base";
 export {ItemValue} from "../../itemvalue";
+export {Base, Event, SurveyError, ISurvey} from "../../base";
 export {ILocalizableOwner, LocalizableString} from "../../localizablestring";
 export {ChoicesRestfull} from "../../choicesRestfull";
 export {FunctionFactory} from "../../functionsfactory";

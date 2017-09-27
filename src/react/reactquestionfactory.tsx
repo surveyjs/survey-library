@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {HashTable} from "../base";
+import {HashTable} from "../helpers";
 
 export class ReactQuestionFactory {
     public static Instance: ReactQuestionFactory = new ReactQuestionFactory();

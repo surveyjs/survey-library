@@ -1,5 +1,6 @@
 import {JsonObject} from "./jsonobject";
-import {Base, ISurveyImpl, IPage, IPanel, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, HashTable, SurveyElement, SurveyPageId} from "./base";
+import {HashTable} from "./helpers";
+import {Base, ISurveyImpl, IPage, IPanel, IConditionRunner, ISurvey, ISurveyData, IElement, IQuestion, SurveyElement, SurveyPageId} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";

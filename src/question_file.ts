@@ -9,25 +9,8 @@ import {surveyLocalization} from "./surveyStrings";
  * A Model for a file question
  */
 export class QuestionFileModel extends Question {
-    private showPreviewValue: boolean = false;
     private isUploading: boolean = false;
     previewValueLoadedCallback: () => void;
-    /**
-     * The image height.
-     */
-    public imageHeight: string;
-    /**
-     * The image width.
-     */
-    public imageWidth: string;
-    /**
-     * Set it to true to serialize file content as text.
-     */
-    public storeDataAsText: boolean;
-    /**
-     * Use this property to setup the maximum allowed file size.
-     */
-    public maxSize: number;
     constructor(public name: string) {
         super(name);
     }
@@ -37,8 +20,28 @@ export class QuestionFileModel extends Question {
     /**
      * Set it to true, to show the preview for the image files.
      */
-    public get showPreview() { return this.showPreviewValue; }
-    public set showPreview(value: boolean) { this.showPreviewValue = value; }
+    public get showPreview() { return this.getPropertyValue("showPreview", false); }
+    public set showPreview(val: boolean) { this.setPropertyValue("showPreview", val) }
+    /**
+     * The image height.
+     */
+    public get imageHeight(): string { return this.getPropertyValue("imageHeight"); }
+    public set imageHeight(val: string) { this.setPropertyValue("imageHeight", val); }
+    /**
+     * The image width.
+     */
+    public get imageWidth(): string { return this.getPropertyValue("imageWidth"); }
+    public set imageWidth(val: string) { this.setPropertyValue("imageWidth", val); }
+    /**
+     * Set it to true to serialize file content as text.
+     */
+    public get storeDataAsText(): boolean { return this.getPropertyValue("storeDataAsText", false); }
+    public set storeDataAsText(val: boolean) { this.setPropertyValue("storeDataAsText", val); }
+    /**
+     * Use this property to setup the maximum allowed file size.
+     */
+    public get maxSize(): number { return this.getPropertyValue("maxSize", 0); }
+    public set maxSize(val: number) { this.setPropertyValue("maxSize", val); }
     /**
      * Load file programmatically.
      * @param file 

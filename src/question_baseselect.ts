@@ -191,7 +191,6 @@ export class QuestionSelectBase extends Question {
     public onLocaleChanged() {
         super.onLocaleChanged();
         this.onVisibleChoicesChanged();
-        ItemValue.NotifyArrayOnLocaleChanged(this.visibleChoices);
     }
     protected getStoreOthersAsComment() { return this.storeOthersAsComment && (this.survey != null ? this.survey.storeOthersAsComment : true); }
     onSurveyLoad() {

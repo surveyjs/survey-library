@@ -250,6 +250,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
         return "";
     }
     public onLocaleChanged() {
+        super.onLocaleChanged();
         this.localeChanged.fire(this, this.getLocale());
     }
     onReadOnlyChanged() {}

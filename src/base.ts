@@ -124,6 +124,19 @@ export class Base {
     endLoadingFromJson() {
         this.isLoadingFromJsonValue = false;
     }
+    public onLocaleChanged() {
+        for(let key in this.arraysInfo) {
+            let item = this.arraysInfo[key];
+            if(item && item.isItemValues) {
+                var arr = this.getPropertyValue(key);
+                if(arr) ItemValue.NotifyArrayOnLocaleChanged(arr);
+            }
+        }
+        for(let key in this.localizableStrings) {
+            let item = this.getLocalizableString(key);
+            if(item) item.onChanged();
+        }
+     }
     /**
      * Returns the property value by name
      * @param name property name

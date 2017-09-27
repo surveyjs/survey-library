@@ -26,7 +26,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
 
     constructor(public name: string) {
         super(name);
-        this.rowsValue = ItemValue.createArray(this);
+        this.rowsValue = this.createItemValues("rows");
     }
     public getType(): string {
         return "matrixdropdown";
@@ -48,13 +48,14 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      * The list of rows. A row has a value and an optional text
      */
     public get rows(): Array<any> { return this.rowsValue; }
-    public set rows(newValue: Array<any>) {
-        ItemValue.setData(this.rowsValue, newValue);
-        this.generatedVisibleRows = null;
+    public set rows(val: Array<any>) {
+        this.setPropertyValue("rows", val);
     }
-    public onLocaleChanged() {
-        super.onLocaleChanged();
-        ItemValue.NotifyArrayOnLocaleChanged(this.rowsValue);
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+        super.propertyValueChanged(name, oldValue, newValue);
+        if(name == "rows" && !this.isLoadingFromJson) {
+            this.generatedVisibleRows = null;
+        }
     }
     protected generateRows(): Array<MatrixDropdownRowModel> {
         var result = new Array<MatrixDropdownRowModel>();

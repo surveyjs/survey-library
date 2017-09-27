@@ -34,66 +34,44 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
 }
 
 export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
-    private nameValue: string;
     private choicesValue: Array<ItemValue>;
-    private locTitleValue: LocalizableString;
-    private locOptionsCaptionValue: LocalizableString;
-    private locPlaceHolderValue: LocalizableString;
-    private isRequiredValue: boolean = false;
-    private hasOtherValue: boolean = false;
-    private colCountValue: number = -1;
-
-    public minWidth: string = "";
-    private cellTypeValue: string = "default";
-    private inputTypeValue: string = "text";
-    private choicesOrderValue: string = "none";
     public choicesByUrl: ChoicesRestfull;
     public colOwner: IMatrixColumnOwner = null;
     public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
-    public visibleIf: string = "";
     constructor(name: string, title: string = null) {
         super();
-        this.nameValue = name;
-        this.choicesValue = ItemValue.createArray(this);
-        this.locTitleValue = new LocalizableString(this, true);
+        this.name = name;
+        this.choicesValue = this.createItemValues("choices");
         var self = this;
-        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.getFullTitle(text); };
-        this.locOptionsCaptionValue = new LocalizableString(this);
-        this.locPlaceHolderValue = new LocalizableString(this);
+        var locTitleValue = this.createLocalizableString("title", this, true);
+        locTitleValue.onRenderedHtmlCallback = function(text) { return self.getFullTitle(text); };
+        this.createLocalizableString("optionsCaption", this);
+        this.createLocalizableString("placeHolder", this);
         this.choicesByUrl = new ChoicesRestfull();
         if(title) this.title = title;
     }
     public getType() { return "matrixdropdowncolumn" }
-    public get name() { return this.nameValue; }
-    public set name(value: string) {
-        if(value == this.name) return;
-        this.nameValue = value;
-        this.onPropertiesChanged();
-    }
+    public get name() { return this.getPropertyValue("name"); }
+    public set name(val: string) { this.setPropertyValue("name", val); }
 
-    public get choicesOrder(): string { return this.choicesOrderValue; }
-    public set choicesOrder(newValue: string) {
-        newValue = newValue.toLocaleLowerCase();
-        if(this.choicesOrder == newValue) return;
-        this.choicesOrderValue = newValue;
-        this.onPropertiesChanged();
+    public get choicesOrder(): string { return this.getPropertyValue("choicesOrder", "none"); }
+    public set choicesOrder(val: string) {
+        val = val.toLocaleLowerCase();
+        this.setPropertyValue("choicesOrder", val);
     }
-    public get inputType(): string { return this.inputTypeValue; }
-    public set inputType(newValue: string) {
-        newValue = newValue.toLocaleLowerCase();
-        if(this.inputTypeValue == newValue) return;
-        this.inputTypeValue = newValue;
-        this.onPropertiesChanged();
+    public get inputType(): string { return this.getPropertyValue("inputType", "text"); }
+    public set inputType(val: string) {
+        val = val.toLocaleLowerCase();
+        this.setPropertyValue("inputType", val);
     }
-    public get cellType(): string { return this.cellTypeValue; }
-    public set cellType(newValue: string) {
-        newValue = newValue.toLocaleLowerCase();
-        if(this.cellTypeValue == newValue) return;
-        this.cellTypeValue = newValue;
-        this.onPropertiesChanged();
+    public get cellType(): string { return this.getPropertyValue("cellType", "default"); }
+    public set cellType(val: string) {
+        val = val.toLocaleLowerCase();
+        this.setPropertyValue("cellType", val);
     }
-    public get title(): string { return this.locTitle.text ? this.locTitle.text : this.name; }
-    public set title(value: string) { this.locTitle.text = value; }
+    public get title(): string { return this.getLocalizableStringText("title", this.name); }
+    public set title(val: string) { this.setLocalizableStringText("title", val); }
+    public get locTitle() { return this.getLocalizableString("title"); }
     public get fullTitle(): string { return this.getFullTitle(this.locTitle.textOrHtml); }
     public getFullTitle(str: string): string {
         if(!str) str = this.name;
@@ -104,52 +82,34 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
         }
         return str;
     }
-    public get locTitle() { return this.locTitleValue; }
-    public get optionsCaption(): string { return this.locOptionsCaption.text;}
-    public set optionsCaption(value: string){ 
-        this.locOptionsCaption.text = value;
-        this.onPropertiesChanged();
-    }
-    public get locOptionsCaption(): LocalizableString { return this.locOptionsCaptionValue; }
-    public get placeHolder(): string { return this.locPlaceHolder.text; }
-    public set placeHolder(value: string) { 
-        this.locPlaceHolder.text = value; 
-        this.onPropertiesChanged();
-    }
-    public get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
+    public get optionsCaption(): string { return this.getLocalizableStringText("optionsCaption"); }
+    public set optionsCaption(val: string) { this.setLocalizableStringText("optionsCaption", val);}
+    public get locOptionsCaption(): LocalizableString { return this.getLocalizableString("optionsCaption"); }
+    public get placeHolder(): string { return this.getLocalizableStringText("placeHolder"); }
+    public set placeHolder(val: string) { this.setLocalizableStringText("placeHolder", val); }
+    public get locPlaceHolder(): LocalizableString { return this.getLocalizableString("placeHolder"); }
 
     public get choices(): Array<any> { return this.choicesValue; }
-    public set choices(newValue: Array<any>) {
-        ItemValue.setData(this.choicesValue, newValue);
-        this.onPropertiesChanged();
+    public set choices(newValue: Array<any>) {  this.setPropertyValue("choices", newValue); }
+    public get colCount(): number { return this.getPropertyValue("colCount", -1); }
+    public set colCount(val: number) {
+        if (val < -1 || val > 4) return;
+        this.setPropertyValue("colCount", val);
     }
-    public get colCount(): number { return this.colCountValue; }
-    public set colCount(value: number) {
-        if (value < -1 || value > 4) return;
-        this.colCountValue = value;
-        this.onPropertiesChanged();
-    }
-    public get isRequired(): boolean { return this.isRequiredValue; }
-    public set isRequired(value: boolean) {
-        if(this.isRequired == value) return;
-        this.isRequiredValue = value;
-        this.onPropertiesChanged();
-    }
-    public get hasOther(): boolean { return this.hasOtherValue; }
-    public set hasOther(value: boolean) {
-        if(this.hasOther == value) return;
-        this.hasOtherValue = value;
-        this.onPropertiesChanged();
-    }
+    public get isRequired(): boolean { return this.getPropertyValue("isRequired", false); }
+    public set isRequired(val: boolean) { this.setPropertyValue("isRequired", val); }
+    public get hasOther(): boolean { return this.getPropertyValue("hasOther", false); }
+    public set hasOther(val: boolean) { this.setPropertyValue("hasOther", val); }
+    public get minWidth(): string { return this.getPropertyValue("minWidth", ""); }
+    public set minWidth(val: string) { this.setPropertyValue("minWidth", val); }
+    public get visibleIf(): string { return this.getPropertyValue("visibleIf", ""); }
+    public set visibleIf(val: string) { this.setPropertyValue("visibleIf", val); }
+    
     public getLocale() : string { return this.colOwner ? this.colOwner.getLocale() : ""; }
     public getMarkdownHtml(text: string)  { return this.colOwner ? this.colOwner.getMarkdownHtml(text) : null; }
-    public onLocaleChanged() {
-        this.locTitle.onChanged();
-        this.locOptionsCaption.onChanged();
-        ItemValue.NotifyArrayOnLocaleChanged(this.choices);
-    }
-    protected onPropertiesChanged() {
-        if(this.colOwner != null) {
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+        super.propertyValueChanged(name, oldValue, newValue);
+        if(this.colOwner != null && !this.isLoadingFromJson) {
             this.colOwner.onColumnPropertiesChanged(this);
         }
     }
@@ -321,29 +281,19 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         for(var i = 0; i < colNames.length; i ++)
             matrix.addColumn(colNames[i]);
     }
-    private columnsValue: Array<MatrixDropdownColumn> = [];
+    private columnsValue: Array<MatrixDropdownColumn>;
     private choicesValue: Array<ItemValue>;
-    private locOptionsCaptionValue: LocalizableString;
     private isRowChanging = false;
     protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
-    private cellTypeValue: string = "dropdown";
-    private columnColCountValue: number = 0;
-    /**
-     * Use this property to set the mimimum column width.
-     */
-    public columnMinWidth: string = "";
-    /**
-     * Set this property to true to show the horizontal scroll.
-     */
-    public horizontalScroll: boolean = false;
     columnsChangedCallback: () => void;
     updateCellsCallback: () => void;
 
     constructor(public name: string) {
         super(name);
-        this.choicesValue = ItemValue.createArray(this);
-        this.locOptionsCaptionValue = new LocalizableString(this);
-        this.overrideColumnsMethods();
+        var self = this;
+        this.columnsValue = this.createNewArray("columns", function(item) {item.colOwner = self;} );
+        this.choicesValue = this.createItemValues("choices");
+        this.createLocalizableString("optionsCaption", this);
     }
     public getType(): string {
         return "matrixdropdownbase";
@@ -353,10 +303,16 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
      */
     public get columns(): Array<MatrixDropdownColumn> { return this.columnsValue; }
     public set columns(value: Array<MatrixDropdownColumn>) {
-        this.columnsValue = value;
-        this.overrideColumnsMethods();
-        this.fireCallback(this.columnsChangedCallback);
+        this.setPropertyValue("columns", value);
     }
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+        super.propertyValueChanged(name, oldValue, newValue);
+        if(name == "columns" && !this.isLoadingFromJson) {
+            this.generatedVisibleRows = null;
+            this.fireCallback(this.columnsChangedCallback);
+        }
+    }
+    
     protected onMatrixRowCreated(row : MatrixDropdownRowModelBase) {
         if(!this.survey) return;
         var options = {rowValue: row.value, row: row, column: null, columnName: null, cell: null, cellQuestion: null, value: null};
@@ -370,49 +326,36 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             this.survey.matrixCellCreated(this, options);
         }
     }
-    private overrideColumnsMethods() {
-        var self = this;
-        this.columnsValue.push = function (value) {
-            var result = Array.prototype.push.call(this, value);
-            self.generatedVisibleRows = null;
-            value.colOwner = self;
-            if (self.data != null) {
-                self.fireCallback(self.columnsChangedCallback);
-            }
-            return result;
-        };
-        this.columnsValue.splice = function (start?: number, deleteCount?: number, ...items: MatrixDropdownColumn[]): MatrixDropdownColumn[] {
-            var result = Array.prototype.splice.call(this, start, deleteCount, ... items);
-            self.generatedVisibleRows = null;
-            if(!items) items = [];
-            for(var i = 0; i < items.length; i ++) {
-                items[i].colOwner = self;
-            }
-            if (self.data != null) {
-                self.fireCallback(self.columnsChangedCallback);
-            }
-            return result;
-        };
-    }
     /**
      * Use this property to change the default cell type.
      */
-    public get cellType(): string { return this.cellTypeValue; }
-    public set cellType(newValue: string) {
-        newValue = newValue.toLowerCase();
-        if (this.cellType == newValue) return;
-        this.cellTypeValue = newValue;
+    public get cellType(): string { return this.getPropertyValue("cellType", "dropdown"); }
+    public set cellType(val: string) {
+        val = val.toLowerCase();
+        if (this.cellType == val) return;
+        this.setPropertyValue("cellType", val);
         this.fireCallback(this.updateCellsCallback);
     }
     /**
      * The default column count for radiogroup and checkbox  cell types.
      */
-    public get columnColCount(): number { return this.columnColCountValue; }
+    public get columnColCount(): number { return this.getPropertyValue("columnColCount", 0); }
     public set columnColCount(value: number) {
         if (value < 0 || value > 4) return;
-        this.columnColCountValue = value;
+        this.setPropertyValue("columnColCount", value);        
         this.fireCallback(this.updateCellsCallback);
     }
+    /**
+     * Use this property to set the mimimum column width.
+     */
+    public get columnMinWidth(): string { return this.getPropertyValue("columnMinWidth", ""); }
+    public set columnMinWidth(val: string) { this.setPropertyValue("columnMinWidth", val); }
+    /**
+     * Set this property to true to show the horizontal scroll.
+     */
+    public get horizontalScroll(): boolean { return this.getPropertyValue("horizontalScroll", false); }
+    public set horizontalScroll(val: boolean) { this.setPropertyValue("horizontalScroll", val); }
+    
     public getRequiredText(): string { return this.survey ? this.survey.requiredText : ""; }
     onColumnPropertiesChanged(column: MatrixDropdownColumn) {
         if(!this.generatedVisibleRows) return;
@@ -449,7 +392,6 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     public onLocaleChanged() {
         super.onLocaleChanged();
-        this.locOptionsCaption.onChanged();
         for(var i = 0; i < this.columns.length; i ++) {
             this.columns[i].onLocaleChanged();
         }
@@ -481,15 +423,15 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
      * The default choices for dropdown, checkbox and radiogroup cell types.
      */
     public get choices(): Array<any> { return this.choicesValue; }
-    public set choices(newValue: Array<any>) {
-        ItemValue.setData(this.choicesValue, newValue);
+    public set choices(val: Array<any>) {
+        this.setPropertyValue("choices", val);
     }
     /**
      * The default options caption for dropdown cell type.
      */
-    public get optionsCaption() { return this.locOptionsCaption.text ? this.locOptionsCaption.text : surveyLocalization.getString("optionsCaption"); }
-    public set optionsCaption(newValue: string) { this.locOptionsCaption.text = newValue; }
-    public get locOptionsCaption() { return this.locOptionsCaptionValue; }
+    public get optionsCaption() { return this.getLocalizableStringText("optionsCaption",  surveyLocalization.getString("optionsCaption")); }
+    public set optionsCaption(val: string) { this.setLocalizableStringText("optionsCaption", val); }
+    public get locOptionsCaption() { return this.getLocalizableString("optionsCaption"); }
     public addColumn(name: string, title: string = null): MatrixDropdownColumn {
         var column = new MatrixDropdownColumn(name, title);
         this.columnsValue.push(column);

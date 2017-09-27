@@ -47,8 +47,8 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     private generatedVisibleRows: Array<MatrixRowModel>;
     constructor(public name: string) {
         super(name);
-        this.columnsValue = ItemValue.createArray(this);
-        this.rowsValue = ItemValue.createArray(this);
+        this.columnsValue = this.createItemValues("columns");
+        this.rowsValue = this.createItemValues("rows");
     }
     public getType(): string {
         return "matrix";
@@ -69,14 +69,14 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
      */
     get columns(): Array<any> { return this.columnsValue; }
     set columns(newValue: Array<any>) {
-        ItemValue.setData(this.columnsValue, newValue);
+        this.setPropertyValue("columns", newValue);
     }
     /**
      * The list of rows. A row has a value and an optional text
      */
     get rows(): Array<any> { return this.rowsValue; }
     set rows(newValue: Array<any>) {
-        ItemValue.setData(this.rowsValue, newValue);
+        this.setPropertyValue("rows", newValue);
     }
     /**
      * Returns the list of rows as model objects.
@@ -94,11 +94,6 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
         }
         this.generatedVisibleRows = result;
         return result;
-    }
-    public onLocaleChanged() {
-        super.onLocaleChanged();
-        ItemValue.NotifyArrayOnLocaleChanged(this.columns);
-        ItemValue.NotifyArrayOnLocaleChanged(this.rows);
     }
     supportGoNextPageAutomatic() { return this.hasValuesInAllRows(); }
     protected onCheckForErrors(errors: Array<SurveyError>) {

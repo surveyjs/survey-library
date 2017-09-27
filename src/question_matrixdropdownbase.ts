@@ -312,7 +312,6 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
             this.fireCallback(this.columnsChangedCallback);
         }
     }
-    
     protected onMatrixRowCreated(row : MatrixDropdownRowModelBase) {
         if(!this.survey) return;
         var options = {rowValue: row.value, row: row, column: null, columnName: null, cell: null, cellQuestion: null, value: null};

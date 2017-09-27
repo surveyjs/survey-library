@@ -7,15 +7,9 @@ import {LocalizableString} from "./localizablestring";
  * A Model for an input text question.
  */
 export class QuestionTextModel extends Question {
-    /**
-     * The text input size
-     */
-    public size: number = 25;
-    private inputTypeValue: string = "text";
-    private locPlaceHolderValue: LocalizableString;
     constructor(public name: string) {
         super(name);
-        this.locPlaceHolderValue = new LocalizableString(this);
+        this.createLocalizableString("placeHolder", this);
     }
     public getType(): string {
         return "text";
@@ -23,19 +17,25 @@ export class QuestionTextModel extends Question {
     /**
      * Use this property to change the default input type.
      */
-    public get inputType(): string { return this.inputTypeValue; }
-    public set inputType(type: string) {
-      var value = type.toLowerCase();
-      this.inputTypeValue = (value === "datetime_local") ? "datetime-local" : value;
+    public get inputType(): string { return this.getPropertyValue("inputType", "text"); }
+    public set inputType(val: string) {
+        val = val.toLowerCase();
+        if(val == "datetime_local") val = "datetime-local";
+        this.setPropertyValue("inputType", val.toLowerCase());
     }
+    /**
+     * The text input size
+     */
+    public get size(): number { return this.getPropertyValue("size", 25); }
+    public set size(val: number) { this.setPropertyValue("size", val); }
     isEmpty(): boolean {  return super.isEmpty() || this.value === ""; }
     supportGoNextPageAutomatic() { return true; }
     /**
      * The input place holder.
      */
-    public get placeHolder(): string { return this.locPlaceHolder.text; }
-    public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
-    get locPlaceHolder(): LocalizableString {return this.locPlaceHolderValue; }
+    public get placeHolder(): string { return this.getLocalizableStringText("placeHolder"); }
+    public set placeHolder(val: string) { this.setLocalizableStringText("placeHolder", val); }
+    get locPlaceHolder(): LocalizableString { return this.getLocalizableString("placeHolder"); }
     protected setNewValue(newValue: any) {
         newValue = this.correctValueType(newValue);
         super.setNewValue(newValue);

@@ -17,26 +17,18 @@ export interface IMultipleTextData {
 
 export class MultipleTextItemModel extends Base implements IValidatorOwner, ILocalizableOwner {
     private data: IMultipleTextData;
-    private locTitleValue: LocalizableString;
-    private locPlaceHolderValue: LocalizableString;
 
-    /** 
-     * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
-     */
-    public isRequired: boolean = false;
-    private inputTypeValue: string = "text";
-    private nameValue: string;
     onValueChangedCallback: (newValue: any)=>void;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(name: any = null, title: string = null) {
         super();
-        this.nameValue = name;
-        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
-        this.locTitleValue.onRenderedHtmlCallback = function(text) {return self.getFullTitle(text); };
+        this.name = name;
+        var locTitleValue = this.createLocalizableString("title", this, true);
+        locTitleValue.onRenderedHtmlCallback = function(text) {return self.getFullTitle(text); };
         this.title = title;
-        this.locPlaceHolderValue = new LocalizableString(this);
+        this.createLocalizableString("placeHolder", this);
     }
     public getType(): string {
         return "multipletextitem";
@@ -44,29 +36,35 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     /**
      * The item name. 
      */
-    public get name(): string { return this.nameValue; }
-    public set name(value: string) {
-        if(this.name === value) return;
-        this.nameValue = value;
-        this.locTitleValue.onChanged();
+    public get name(): string { return this.getPropertyValue("name"); }
+    public set name(val: string) {
+        this.setPropertyValue("name", val);
+        if(this.locTitle) {
+            this.locTitle.onChanged();
+        }
     }
     setData(data: IMultipleTextData) {
         this.data = data;
     }
+    /** 
+     * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
+     */
+    public get isRequired(): boolean { return this.getPropertyValue("isRequired", false); }
+    public set isRequired(val: boolean) { this.setPropertyValue("isRequired", val); }
     /**
      * Use this property to change the default input type.
      */
-    public get inputType(): string { return this.inputTypeValue; }
-    public set inputType(newValue: string) {
-      this.inputTypeValue = newValue.toLowerCase();
+    public get inputType(): string { return this.getPropertyValue("inputType", "text"); }
+    public set inputType(val: string) {
+      this.setPropertyValue("inputType", val.toLowerCase());
     }
     /**
      * Item title. If it is empty, the item name is rendered as title. This property supports markdown.
      * @see name
      */
-    public get title() { return this.locTitle.text ? this.locTitle.text : this.name; }
-    public set title(value: string) { this.locTitle.text = value; }
-    get locTitle() { return this.locTitleValue; }
+    public get title() { return this.getLocalizableStringText("title", this.name); }
+    public set title(val: string) { this.setLocalizableStringText("title", val); }
+    get locTitle() { return this.getLocalizableString("title"); }
     /**
      * Returns the text or html for rendering the title.
      */
@@ -79,12 +77,9 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     /**
      * The input place holder.
      */
-    public get placeHolder(): string { return this.locPlaceHolder.text; }
-    public set placeHolder(value: string) { this.locPlaceHolder.text = value; }
-    get locPlaceHolder(): LocalizableString { return this.locPlaceHolderValue; }
-    public onLocaleChanged() {
-        this.locTitle.onChanged();
-    }
+    public get placeHolder(): string { return this.getLocalizableStringText("placeHolder"); }
+    public set placeHolder(val: string) { this.setLocalizableStringText("placeHolder", val); }
+    get locPlaceHolder(): LocalizableString { return this.getLocalizableString("placeHolder"); }
     /** 
      * The item value.
      */
@@ -110,16 +105,12 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
  * A Model for a multiple text question.
  */
 export class QuestionMultipleTextModel extends Question implements IMultipleTextData {
-    private colCountValue: number = 1;
     colCountChangedCallback: () => void;
-    /**
-     * The default text input size.
-     */
-    public itemSize: number = 25;
     private itemsValues: Array<MultipleTextItemModel> = new Array<MultipleTextItemModel>();
     constructor(public name: string) {
         super(name);
-        this.setItemsOverriddenMethods();
+        var self = this;
+        this.itemsValues = this.createNewArray("items", function(item) { item.setData(self); });
     }
     public getType(): string {
         return "multipletext";
@@ -128,10 +119,13 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
      * The list of input items.
      */
     public get items(): Array<MultipleTextItemModel> { return this.itemsValues; }
-    public set items(value: Array<MultipleTextItemModel>) {
-        this.itemsValues = value;
-        this.setItemsOverriddenMethods();
-        this.fireCallback(this.colCountChangedCallback);
+    public set items(val: Array<MultipleTextItemModel>) { this.setPropertyValue("items", val); }
+    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+        super.propertyValueChanged(name, oldValue, newValue);
+        if(this.isLoadingFromJson) return;
+        if(name == "items" || name == "colCount") {
+            this.fireCallback(this.colCountChangedCallback);
+        }
     }
     /**
      * Add a new text item.
@@ -149,26 +143,6 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
             this.items[i].onLocaleChanged();
         }
     }
-    private setItemsOverriddenMethods() {
-        var self = this;
-        this.itemsValues.push = function (value) {
-            value.setData(self);
-            var result = Array.prototype.push.call(this, value);
-            self.fireCallback(self.colCountChangedCallback);
-            return result;
-        };
-        this.itemsValues.splice = function (start?: number, deleteCount?: number, ...items: MultipleTextItemModel[]): MultipleTextItemModel[] {
-            if(!start) start = 0;
-            if(!deleteCount) deleteCount = 0;
-            var result = Array.prototype.splice.call(self.itemsValues, start, deleteCount, ... items);
-            if(!items) items = [];
-            for(var i = 0; i < items.length; i ++) {
-                items[i].setData(self);
-            }
-            self.fireCallback(self.colCountChangedCallback);
-            return result;
-        };
-    }
     supportGoNextPageAutomatic() {
         for (var i = 0; i < this.items.length; i++) {
             if (!this.items[i].value) return false;
@@ -178,12 +152,16 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     /**
      * The number of columns. Items are rendred in one line if the value is 0.
      */
-    public get colCount(): number { return this.colCountValue; }
-    public set colCount(value: number) {
-        if (value < 1 || value > 4) return;
-        this.colCountValue = value;
-        this.fireCallback(this.colCountChangedCallback);
+    public get colCount(): number { return this.getPropertyValue("colCount", 1); }
+    public set colCount(val: number) {
+        if (val < 1 || val > 4) return;
+        this.setPropertyValue("colCount", val);
     }
+    /**
+     * The default text input size.
+     */
+    public get itemSize(): number { return this.getPropertyValue("itemSize", 25) } 
+    public set itemSize(val: number) { this.setPropertyValue("itemSize", val); } 
     /**
      * Returns the list of rendered rows.
      */

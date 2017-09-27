@@ -114,35 +114,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     private templateValue: PanelModel;
     private itemsValue: Array<QuestionPanelDynamicItem> = new Array<QuestionPanelDynamicItem>();
     private loadingPanelCount: number = 0;
-    private minPanelCountValue = 0;
-    private maxPanelCountValue = QuestionPanelDynamicModel.MaxPanelCount;
-    private locConfirmDeleteTextValue: LocalizableString;
-    private locKeyDuplicationErrorValue: LocalizableString;    
-    private locPanelAddTextValue: LocalizableString;
-    private locPanelRemoveTextValue: LocalizableString;
-    private locPanelPrevTextValue : LocalizableString;
-    private locPanelNextTextValue : LocalizableString;
     private isValueChangingInternally: boolean;
     private oldTemplateRowsChangedCallback: any;
-    private renderModeValue: string = "list"; //progressTop, progressBottom, progressTopBottom
-    private showQuestionNumbersValue: string = "off"; //onPanel, onSurvey
-    private showRangeInProgressValue: boolean = true;
     private currentIndexValue: number = -1;
-
+    
     renderModeChangedCallback: () => void;
     panelCountChangedCallback: () => void;
     currentIndexChangedCallback: () => void;
-
-    /**
-     * Set it to true, to show a confirmation dialog on removing a panel
-     * @see ConfirmDeleteText
-     */
-    public confirmDelete: boolean = false;
-    /**
-     * Set it to a question name used in the template panel and the library shows duplication error, if there are same values in different panels of this question.
-     * @see keyDuplicationError
-     */
-    public keyName: string = "";
 
     constructor(public name: string) {
         super(name);
@@ -152,12 +130,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var self = this;
         this.oldTemplateRowsChangedCallback = this.template.rowsChangedCallback;
         this.template.rowsChangedCallback = function() { self.templateOnRowsChanged(); if(self.oldTemplateRowsChangedCallback) self.oldTemplateRowsChangedCallback(); }
-        this.locKeyDuplicationErrorValue = new LocalizableString(this);
-        this.locConfirmDeleteTextValue = new LocalizableString(this);
-        this.locPanelAddTextValue = new LocalizableString(this);
-        this.locPanelRemoveTextValue = new LocalizableString(this);
-        this.locPanelPrevTextValue = new LocalizableString(this);
-        this.locPanelNextTextValue = new LocalizableString(this);
+
+        this.createLocalizableString("confirmDeleteText", this);
+        this.createLocalizableString("keyDuplicationError", this);
+        this.createLocalizableString("panelAddText", this);
+        this.createLocalizableString("panelRemoveText", this);
+        this.createLocalizableString("panelPrevText", this);
+        this.createLocalizableString("panelNextText", this);
     }
     public setSurveyImpl(value: ISurveyImpl) {
         super.setSurveyImpl(value);
@@ -244,48 +223,60 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         return this.panels[index];
     }
     /**
+     * Set it to true, to show a confirmation dialog on removing a panel
+     * @see ConfirmDeleteText
+     */
+    public get confirmDelete(): boolean { return this.getPropertyValue("confirmDelete", false); }
+    public set confirmDelete(val: boolean) { this.setPropertyValue("confirmDelete", val); }
+    /**
+     * Set it to a question name used in the template panel and the library shows duplication error, if there are same values in different panels of this question.
+     * @see keyDuplicationError
+     */
+    public get keyName(): string { return this.getPropertyValue("keyName", ""); }
+    public set keyName(val: string) { this.setPropertyValue("keyName", val); }
+    /**
      * Use this property to change the default text showing in the confirmation delete dialog on removing a panel.
      */
-    public get confirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
-    public set confirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
-    get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+    public get confirmDeleteText() { return this.getLocalizableStringText("confirmDeleteText", surveyLocalization.getString("confirmDelete")); } 
+    public set confirmDeleteText(val: string) { this.setLocalizableStringText("confirmDeleteText", val); }
+    get locConfirmDeleteText(): LocalizableString { return this.getLocalizableString("confirmDeleteText"); }
     /**
      * The duplication value error text. Set it to show the text different from the default.
      * @see keyName
      */
-    public get keyDuplicationError() { return this.locKeyDuplicationError.text ? this.locKeyDuplicationError.text : surveyLocalization.getString("keyDuplicationError"); } 
-    public set keyDuplicationError(value: string) { this.locKeyDuplicationError.text = value; }
-    get locKeyDuplicationError() { return this.locKeyDuplicationErrorValue; }
+    public get keyDuplicationError() { return this.getLocalizableStringText("keyDuplicationError", surveyLocalization.getString("keyDuplicationError")); } 
+    public set keyDuplicationError(val: string) { this.setLocalizableStringText("keyDuplicationError", val); }
+    get locKeyDuplicationError(): LocalizableString { return this.getLocalizableString("keyDuplicationError"); }
     /**
      * Use this property to change the default previous button text. Previous button shows the previous panel, change the currentPanel, when the renderMode doesn't equal to "list".
      * @see currentPanel
      * @see currentIndex
      * @see renderMode
      */
-    public get panelPrevText(): string { return this.locPanelPrevText.text ? this.locPanelPrevText.text : surveyLocalization.getString("pagePrevText"); }
-    public set panelPrevText(newValue: string) { this.locPanelPrevText.text = newValue; }
-    get locPanelPrevText(): LocalizableString { return this.locPanelPrevTextValue;}
+    public get panelPrevText(): string { return this.getLocalizableStringText("panelPrevText", surveyLocalization.getString("pagePrevText")); }
+    public set panelPrevText(val: string) { this.setLocalizableStringText("panelPrevText", val); }
+    get locPanelPrevText(): LocalizableString { return this.getLocalizableString("panelPrevText");}
     /**
      * Use this property to change the default next button text. Next button shows the next panel, change the currentPanel, when the renderMode doesn't equal to "list".
      * @see currentPanel
      * @see currentIndex
      * @see renderMode
      */
-    public get panelNextText(): string { return this.locPanelNextText.text ? this.locPanelNextText.text : surveyLocalization.getString("pageNextText"); }
-    public set panelNextText(newValue: string) { this.locPanelNextText.text = newValue; }
-    get locPanelNextText(): LocalizableString { return this.locPanelNextTextValue;}
+    public get panelNextText(): string { return this.getLocalizableStringText("panelNextText", surveyLocalization.getString("pageNextText")); }
+    public set panelNextText(val: string) { this.setLocalizableStringText("panelNextText", val); }
+    get locPanelNextText(): LocalizableString { return this.getLocalizableString("panelNextText");}
     /**
      * Use this property to change the default value of add panel button text.
      */
-    public get panelAddText() { return this.locPanelAddText.text ? this.locPanelAddText.text : surveyLocalization.getString("addPanel"); } 
-    public set panelAddText(value: string) { this.locPanelAddText.text = value; }
-    get locPanelAddText() { return this.locPanelAddTextValue; }
+    public get panelAddText() { return this.getLocalizableStringText("panelAddText", surveyLocalization.getString("addPanel")); } 
+    public set panelAddText(value: string) { this.setLocalizableStringText("panelAddText", value); }
+    get locPanelAddText(): LocalizableString { return this.getLocalizableString("panelAddText");; }
     /**
      * Use this property to change the default value of remove panel button text.
      */
-    public get panelRemoveText() { return this.locPanelRemoveText.text ? this.locPanelRemoveText.text : surveyLocalization.getString("removePanel"); } 
-    public set panelRemoveText(value: string) { this.locPanelRemoveText.text = value; }
-    get locPanelRemoveText() { return this.locPanelRemoveTextValue; }
+    public get panelRemoveText() { return this.getLocalizableStringText("panelRemoveText", surveyLocalization.getString("removePanel")); } 
+    public set panelRemoveText(val: string) { this.setLocalizableStringText("panelRemoveText", val); }
+    get locPanelRemoveText(): LocalizableString { return this.getLocalizableString("panelRemoveText"); }
     /**
      * Returns true when the renderMode equals to "progressTop" or "progressTopBottom"
      */
@@ -350,33 +341,33 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
      * @see panelCount
      * @see maxPanelCount
      */
-    public get minPanelCount() : number { return this.minPanelCountValue; }
-    public set minPanelCount(value : number) {
-        if(value < 0) value = 0;
-        if(value == this.minPanelCount || value > this.maxPanelCount) return;
-        this.minPanelCountValue = value;
-        if(this.panelCount < value) this.panelCount = value;
+    public get minPanelCount() : number { return this.getPropertyValue("minPanelCount", 0); }
+    public set minPanelCount(val : number) {
+        if(val < 0) val = 0;
+        if(val == this.minPanelCount || val > this.maxPanelCount) return;
+        this.setPropertyValue("minPanelCount", val);
+        if(this.panelCount < val) this.panelCount = val;
     }
     /**
      * The maximum panel count. A user could not add a panel if the panelCount equals to maxPanelCount
      * @see panelCount
      * @see minPanelCount
      */
-    public get maxPanelCount() : number { return this.maxPanelCountValue; }
-    public set maxPanelCount(value : number) {
-        if(value <= 0) return;
-        if(value > QuestionPanelDynamicModel.MaxPanelCount) value = QuestionPanelDynamicModel.MaxPanelCount;
-        if(value == this.maxPanelCount || value < this.minPanelCount) return;
-        this.maxPanelCountValue = value;
-        if(this.panelCount > value) this.panelCount = value;
+    public get maxPanelCount() : number { return this.getPropertyValue("maxPanelCount", QuestionPanelDynamicModel.MaxPanelCount); }
+    public set maxPanelCount(val : number) {
+        if(val <= 0) return;
+        if(val > QuestionPanelDynamicModel.MaxPanelCount) val = QuestionPanelDynamicModel.MaxPanelCount;
+        if(val == this.maxPanelCount || val < this.minPanelCount) return;
+        this.setPropertyValue("maxPanelCount", val);
+        if(this.panelCount > val) this.panelCount = val;
     }
     /**
      * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
      * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
      */
-    public get showQuestionNumbers(): string { return this.showQuestionNumbersValue; }
+    public get showQuestionNumbers(): string { return this.getPropertyValue("showQuestionNumbers", "off"); }
     public set showQuestionNumbers(val: string) { 
-        this.showQuestionNumbersValue = val; 
+        this.setPropertyValue("showQuestionNumbers", val);
         if(!this.isLoadingFromJson && this.survey) {
             this.survey.questionVisibilityChanged(this, this.visible);
         }
@@ -386,17 +377,17 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
      * @see panelCount
      * @see renderMode
      */
-    public get showRangeInProgress(): boolean { return this.showRangeInProgressValue; }
+    public get showRangeInProgress(): boolean { return this.getPropertyValue("showRangeInProgress", true); }
     public set showRangeInProgress(val: boolean) {
-        this.showRangeInProgressValue = val;
+        this.setPropertyValue("showRangeInProgress", val);
         this.fireCallback(this.currentIndexChangedCallback);
     }
     /**
      * By default the property equals to "list" and all dynamic panels are rendered one by one on the page. You may change it to: "progressTop", "progressBottom" or "progressTopBottom" to render only one dynamic panel at once. The progress and navigation elements can be rendred on top, bottom or both.
      */
-    public get renderMode(): string { return this.renderModeValue; }
+    public get renderMode(): string { return this.getPropertyValue("renderMode", "list"); }
     public set renderMode(val: string) {
-        this.renderModeValue = val;
+        this.setPropertyValue("renderMode", val);
         this.fireCallback(this.renderModeChangedCallback);
     }
     /**

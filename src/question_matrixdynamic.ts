@@ -23,34 +23,30 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     public static MaxRowCount = 100;
     private rowCounter = 0;
     private rowCountValue: number = 2;
-    private locConfirmDeleteTextValue: LocalizableString;
-    private locKeyDuplicationErrorValue: LocalizableString;    
-    private locAddRowTextValue: LocalizableString;
-    private locRemoveRowTextValue: LocalizableString;
-    private minRowCountValue = 0;
-    private maxRowCountValue = QuestionMatrixDynamicModel.MaxRowCount;
     rowCountChangedCallback: () => void;
 
-    /**
-     * Set it to true, to show a confirmation dialog on removing a row
-     * @see ConfirmDeleteText
-     */
-    public confirmDelete: boolean = false;
-    /**
-     * Set it to a column name and the library shows duplication error, if there are same values in different rows in the column.
-     * @see keyDuplicationError
-     */
-    public keyName: string = "";
     constructor(public name: string) {
         super(name);
-        this.locConfirmDeleteTextValue = new LocalizableString(this);
-        this.locKeyDuplicationErrorValue = new LocalizableString(this);
-        this.locAddRowTextValue = new LocalizableString(this);
-        this.locRemoveRowTextValue = new LocalizableString(this);
+        this.createLocalizableString("confirmDeleteText", this);
+        this.createLocalizableString("keyDuplicationError", this);
+        this.createLocalizableString("addRowText", this);
+        this.createLocalizableString("removeRowText", this);
     }
     public getType(): string {
         return "matrixdynamic";
     }
+    /**
+     * Set it to true, to show a confirmation dialog on removing a row
+     * @see ConfirmDeleteText
+     */
+    public get confirmDelete(): boolean { return this.getPropertyValue("confirmDelete", false); }
+    public set confirmDelete(val: boolean) { this.setPropertyValue("confirmDelete", val); }
+    /**
+     * Set it to a column name and the library shows duplication error, if there are same values in different rows in the column.
+     * @see keyDuplicationError
+     */
+    public get keyName(): string { return this.getPropertyValue("keyName", ""); }
+    public set keyName(val: string) { this.setPropertyValue("keyName", val); }
     /**
      * The number of rows in the matrix.
      * @see minRowCount
@@ -66,6 +62,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
             qVal.splice(val);
             this.value = qVal;
         }
+        if(this.isLoadingFromJson) return;
         if(this.generatedVisibleRows) {
             this.generatedVisibleRows.splice(val);            
             for(var i = prevValue; i < val; i ++) {
@@ -79,25 +76,25 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
      * @see rowCount
      * @see maxRowCount
      */
-    public get minRowCount() : number { return this.minRowCountValue; }
-    public set minRowCount(value : number) {
-        if(value < 0) value = 0;
-        if(value == this.minRowCount || value > this.maxRowCount) return;
-        this.minRowCountValue = value;
-        if(this.rowCount < value) this.rowCount = value;
+    public get minRowCount() : number { return this.getPropertyValue("minRowCount", 0); }
+    public set minRowCount(val : number) {
+        if(val < 0) val = 0;
+        if(val == this.minRowCount || val > this.maxRowCount) return;
+        this.setPropertyValue("minRowCount", val);
+        if(this.rowCount < val) this.rowCount = val;
     }
     /**
      * The maximum row count. A user could not add a row if the rowCount equals to maxRowCount
      * @see rowCount
      * @see minRowCount
      */
-    public get maxRowCount() : number { return this.maxRowCountValue; }
-    public set maxRowCount(value : number) {
-        if(value <= 0) return;
-        if(value > QuestionMatrixDynamicModel.MaxRowCount) value = QuestionMatrixDynamicModel.MaxRowCount;
-        if(value == this.maxRowCount || value < this.minRowCount) return;
-        this.maxRowCountValue = value;
-        if(this.rowCount > value) this.rowCount = value;
+    public get maxRowCount() : number { return this.getPropertyValue("maxRowCount", QuestionMatrixDynamicModel.MaxRowCount); }
+    public set maxRowCount(val : number) {
+        if(val <= 0) return;
+        if(val > QuestionMatrixDynamicModel.MaxRowCount) val = QuestionMatrixDynamicModel.MaxRowCount;
+        if(val == this.maxRowCount || val < this.minRowCount) return;
+        this.setPropertyValue("maxRowCount", val);
+        if(this.rowCount > val) this.rowCount = val;
     }
     /**
      * Returns true, if a new row can be added.
@@ -164,29 +161,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
     /**
      * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
      */
-    public get confirmDeleteText() { return this.locConfirmDeleteText.text ? this.locConfirmDeleteText.text : surveyLocalization.getString("confirmDelete"); } 
-    public set confirmDeleteText(value: string) { this.locConfirmDeleteText.text = value; }
-    get locConfirmDeleteText() { return this.locConfirmDeleteTextValue; }
+    public get confirmDeleteText() { return this.getLocalizableStringText("confirmDeleteText", surveyLocalization.getString("confirmDelete")); } 
+    public set confirmDeleteText(val: string) { this.setLocalizableStringText("confirmDeleteText", val); }
+    get locConfirmDeleteText() { return this.getLocalizableString("confirmDeleteText"); }
 
     /**
      * The duplication value error text. Set it to show the text different from the default.
      * @see keyName
      */
-    public get keyDuplicationError() { return this.locKeyDuplicationError.text ? this.locKeyDuplicationError.text : surveyLocalization.getString("keyDuplicationError"); } 
-    public set keyDuplicationError(value: string) { this.locKeyDuplicationError.text = value; }
-    get locKeyDuplicationError() { return this.locKeyDuplicationErrorValue; }
+    public get keyDuplicationError() { return this.getLocalizableStringText("keyDuplicationError", surveyLocalization.getString("keyDuplicationError")); } 
+    public set keyDuplicationError(val: string) { this.setLocalizableStringText("keyDuplicationError", val); }
+    get locKeyDuplicationError() { return this.getLocalizableString("keyDuplicationError"); }
     /**
      * Use this property to change the default value of add row button text.
      */
-    public get addRowText() { return this.locAddRowText.text ? this.locAddRowText.text : surveyLocalization.getString("addRow"); }
-    public set addRowText(value: string) { this.locAddRowText.text = value; }
-    get locAddRowText() { return this.locAddRowTextValue; }
+    public get addRowText() { return this.getLocalizableStringText("addRowText", surveyLocalization.getString("addRow")); }
+    public set addRowText(val: string) { this.setLocalizableStringText("addRowText", val); }
+    get locAddRowText() { return this.getLocalizableString("addRowText"); }
     /**
      * Use this property to change the default value of remove row button text.
      */
-    public get removeRowText() { return this.locRemoveRowText.text ? this.locRemoveRowText.text : surveyLocalization.getString("removeRow"); }
-    public set removeRowText(value: string) { this.locRemoveRowText.text = value; }
-    get locRemoveRowText() { return this.locRemoveRowTextValue; }
+    public get removeRowText() { return this.getLocalizableStringText("removeRowText", surveyLocalization.getString("removeRow")); }
+    public set removeRowText(val: string) { this.getLocalizableStringText("removeRowText",  val); }
+    get locRemoveRowText() { return this.getLocalizableString("removeRowText"); }
     public get displayValue(): any {
         var values = this.value;
         if(!values) return values;

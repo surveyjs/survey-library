@@ -111,6 +111,8 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
         super(name);
         var self = this;
         this.itemsValues = this.createNewArray("items", function(item) { item.setData(self); });
+        this.registerFunctionOnPropertyValueChanged("items", function() {self.fireCallback(self.colCountChangedCallback);});
+        this.registerFunctionOnPropertyValueChanged("colCount", function() {self.fireCallback(self.colCountChangedCallback);});
     }
     public getType(): string {
         return "multipletext";
@@ -120,13 +122,6 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
      */
     public get items(): Array<MultipleTextItemModel> { return this.itemsValues; }
     public set items(val: Array<MultipleTextItemModel>) { this.setPropertyValue("items", val); }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-        super.propertyValueChanged(name, oldValue, newValue);
-        if(this.isLoadingFromJson) return;
-        if(name == "items" || name == "colCount") {
-            this.fireCallback(this.colCountChangedCallback);
-        }
-    }
     /**
      * Add a new text item.
      * @param name a item name

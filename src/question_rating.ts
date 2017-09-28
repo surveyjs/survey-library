@@ -16,6 +16,9 @@ export class QuestionRatingModel extends Question {
     constructor(public name: string) {
         super(name);
         this.rates = this.createItemValues("rates");
+        var self = this;
+        this.registerFunctionOnPropertyValueChanged("rates", function() {self.fireCallback(self.rateValuesChangedCallback);});
+        
         var locMinRateDescriptionValue = this.createLocalizableString("minRateDescription", this, true);
         var locMaxRateDescriptionValue = this.createLocalizableString("maxRateDescription", this, true);
         locMinRateDescriptionValue.onRenderedHtmlCallback = function(text) { return text ? text + " " : text; }
@@ -30,12 +33,6 @@ export class QuestionRatingModel extends Question {
     public get rateValues(): Array<any> { return this.rates; }
     public set rateValues(val: Array<any>) {
         this.setPropertyValue("rates", val);
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-        super.propertyValueChanged(name, oldValue, newValue);
-        if(name == "rates" && !this.isLoadingFromJson) {
-            this.fireCallback(this.rateValuesChangedCallback);
-        }
     }
     /**
      * This property is used to generate rate values if rateValues array is empty. It is the first value in the rating. The default value is 1.

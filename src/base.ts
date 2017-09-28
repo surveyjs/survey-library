@@ -104,6 +104,7 @@ export class Base {
     private propertyHash = {};
     private localizableStrings = {};
     private arraysInfo = {};
+    private onPropChangeFunctions = [];
     protected isLoadingFromJsonValue: boolean = false;
     public onPropertyChanged: Event<(sender: Base, options: any) => any, any> = new Event<(sender: Base, options: any) => any, any>();
     setPropertyValueCoreHandler: (propertiesHash: any, name: string, val: any) => void;
@@ -172,6 +173,17 @@ export class Base {
     protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
         if(this.isLoadingFromJson) return;
         this.onPropertyChanged.fire(this, {name: name, oldValue: oldValue, newValue: newValue});
+        for(var i = 0; i < this.onPropChangeFunctions.length; i ++) {
+            if(this.onPropChangeFunctions[i].name == name) this.onPropChangeFunctions[i].func();
+        }
+    }
+    /**
+     * Register a function that will be called on a property chagned
+     * @param name the property name
+     * @param func the function wiht no parameters
+     */
+    public registerFunctionOnPropertyValueChanged(name: string, func: any) {
+        this.onPropChangeFunctions.push({name: name, func: func});
     }
     protected createLocalizableString(name: string, owner: ILocalizableOwner, useMarkDown: boolean = false): LocalizableString {
         var locStr = new LocalizableString(owner, useMarkDown);

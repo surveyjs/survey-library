@@ -27,6 +27,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     constructor(public name: string) {
         super(name);
         this.rowsValue = this.createItemValues("rows");
+        var self = this;
+        this.registerFunctionOnPropertyValueChanged("rows", function() {self.generatedVisibleRows = null;});
     }
     public getType(): string {
         return "matrixdropdown";
@@ -50,12 +52,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     public get rows(): Array<any> { return this.rowsValue; }
     public set rows(val: Array<any>) {
         this.setPropertyValue("rows", val);
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-        super.propertyValueChanged(name, oldValue, newValue);
-        if(name == "rows" && !this.isLoadingFromJson) {
-            this.generatedVisibleRows = null;
-        }
     }
     protected generateRows(): Array<MatrixDropdownRowModel> {
         var result = new Array<MatrixDropdownRowModel>();

@@ -294,6 +294,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.columnsValue = this.createNewArray("columns", function(item) {item.colOwner = self;} );
         this.choicesValue = this.createItemValues("choices");
         this.createLocalizableString("optionsCaption", this);
+        this.registerFunctionOnPropertyValueChanged("columns", function() {self.generatedVisibleRows = null; self.fireCallback(self.columnsChangedCallback); });
     }
     public getType(): string {
         return "matrixdropdownbase";
@@ -304,13 +305,6 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     public get columns(): Array<MatrixDropdownColumn> { return this.columnsValue; }
     public set columns(value: Array<MatrixDropdownColumn>) {
         this.setPropertyValue("columns", value);
-    }
-    protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-        super.propertyValueChanged(name, oldValue, newValue);
-        if(name == "columns" && !this.isLoadingFromJson) {
-            this.generatedVisibleRows = null;
-            this.fireCallback(this.columnsChangedCallback);
-        }
     }
     protected onMatrixRowCreated(row : MatrixDropdownRowModelBase) {
         if(!this.survey) return;

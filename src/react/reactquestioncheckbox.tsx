@@ -97,7 +97,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         var text = this.renderLocString(this.item.locText);
         return (
             <div className={this.cssClasses.item} style={divStyle}>
-                <label className={this.cssClasses.item}>
+                <label className={this.cssClasses.label}>
                     <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
                     <span className="checkbox-material" style={{"marginRight": "5px"}}><span className="check"></span></span>
                     <span>{text}</span>

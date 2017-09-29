@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {SurveyModel} from "../survey";
+import {PageModel} from "../page";
 import {IQuestion, IElement} from "../base";
 import {surveyCss} from "../defaultCss/cssstandard";
 

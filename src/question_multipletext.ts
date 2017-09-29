@@ -117,6 +117,10 @@ export class QuestionMultipleTextModel extends Question implements IMultipleText
     public getType(): string {
         return "multipletext";
     }
+    endLoadingFromJson() {
+        super.endLoadingFromJson();
+        this.fireCallback(this.colCountChangedCallback);
+    }
     /**
      * The list of input items.
      */

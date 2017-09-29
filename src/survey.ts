@@ -1563,7 +1563,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
     }
-    private onPageAdded(page: PageModel) {
+    protected onPageAdded(page: PageModel) {
         page.setSurveyImpl(this);
         if(!page.name) page.name = this.generateNewName(this.pages, "page");
     }

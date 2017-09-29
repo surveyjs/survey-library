@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import {SurveyModel} from "../survey";
-import {IQuestion} from "../base";
+import {IQuestion, IElement} from "../base";
 import {surveyCss} from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
@@ -35,4 +35,18 @@ export class VueSurveyModel extends SurveyModel {
         };
         super.questionAdded(question, index, parentPanel, rootPanel);
     }
+    protected onPageAdded(page: PageModel) {
+        var p: any; p = page;
+        p.setPropertyValueCoreHandler = function(propertiesHash: any, name: string, val: any) {
+            Vue.set(propertiesHash, name, val);
+        };
+        super.onPageAdded(page);
+    }
+    panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
+        var p: any; p = panel;
+        p.setPropertyValueCoreHandler = function(propertiesHash: any, name: string, val: any) {
+            Vue.set(propertiesHash, name, val);
+        };
+        super.panelAdded(panel, index, parentPanel, rootPanel);
+    }        
 }

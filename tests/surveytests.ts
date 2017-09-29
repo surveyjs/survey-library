@@ -1723,6 +1723,14 @@ QUnit.test("clearInvisibleValues", function (assert) {
     survey.doComplete();
     assert.notOk(question.value, "onComplete - clear on complete");
 });
+QUnit.test("required text can be empty: Bug #693", function (assert) {
+    var survey = new SurveyModel();
+    assert.equal(survey.requiredText, "*", "The default value is '*'");
+    survey.requiredText = "";
+    assert.equal(survey.requiredText, "", "The value is empty string");
+    survey.requiredText = null;
+    assert.equal(survey.requiredText, "*", "The value is again default");
+});    
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

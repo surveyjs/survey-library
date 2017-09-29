@@ -95,8 +95,11 @@ export class Base {
      * A static methods that returns true if a value underfined, null, empty string or empty array.
      * @param value 
      */
-    public isValueEmpty(value: any) {
+    public isValueEmpty(value: any): boolean {
         return Helpers.isValueEmpty(value);
+    }
+    protected IsPropertyEmpty(value: any): boolean {
+        return value !== "" && this.isValueEmpty(value);
     }
 
     private propertyHash = {};
@@ -142,7 +145,7 @@ export class Base {
      */
     public getPropertyValue(name: string, defaultValue: any = null): any { 
         var res = this.propertyHash[name];
-        if(this.isValueEmpty(res) && defaultValue != null) return defaultValue;
+        if(this.IsPropertyEmpty(res) && defaultValue != null) return defaultValue;
         return res; 
     }
     protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {

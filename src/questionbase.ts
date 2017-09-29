@@ -26,12 +26,6 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      */
     public localeChanged: Event<(sender: QuestionBase) => any, any> = new Event<(sender: QuestionBase) => any, any>();
     focusCallback: () => void;
-    renderWidthChangedCallback: () => void;
-    rowVisibilityChangedCallback: () => void;
-    startWithNewLineChangedCallback: () => void;
-    visibilityChangedCallback: () => void;
-    visibleIndexChangedCallback: () => void;
-    readOnlyChangedCallback: () => void;
     surveyLoadCallback: () => void;
 
     constructor(public name: string) {
@@ -52,8 +46,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public set visible(val: boolean) {
         if (val == this.visible) return;
         this.setPropertyValue("visible", val);
-        this.fireCallback(this.visibilityChangedCallback);
-        this.fireCallback(this.rowVisibilityChangedCallback);
+        this.setPropertyValue("isVisible", this.isVisible);
         if (this.survey) {
             this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
         }
@@ -137,7 +130,6 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public set startWithNewLine(val: boolean) {
         if(this.startWithNewLine == val) return;
         this.setPropertyValue("startWithNewLine", val);
-        if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
     }
     /**
      * Returns all css classes that used for rendering the question. You may use survey.updateQuestionCssClasses event to override css classes for a question.
@@ -186,29 +178,17 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
      * The rendered width of the question.
      */
     public get renderWidth(): string { return this.getPropertyValue("renderWidth", ""); }
-    public set renderWidth(val: string) {
-        if (val == this.renderWidth) return;
-        this.setPropertyValue("renderWidth", val);
-        this.fireCallback(this.renderWidthChangedCallback);
-    }
+    public set renderWidth(val: string) { this.setPropertyValue("renderWidth", val); }
     /**
      * Set it different from 0 to increase the left padding.
      */
     public get indent(): number { return this.getPropertyValue("indent", 0); }
-    public set indent(val: number) {
-        if (val == this.indent) return;
-        this.setPropertyValue("indent", val);
-        this.fireCallback(this.renderWidthChangedCallback);
-    }
+    public set indent(val: number) { this.setPropertyValue("indent", val); }
     /**
      * Set it different from 0 to increase the right padding.
      */
     public get rightIndent(): number { return this.getPropertyValue("rightIndent", 0); }
-    public set rightIndent(val: number) {
-        if (val == this.rightIndent) return;
-        this.setPropertyValue("rightIndent", val);
-        this.fireCallback(this.renderWidthChangedCallback);
-    }
+    public set rightIndent(val: number) { this.setPropertyValue("rightIndent", val); }
     /**
      * Focus the question input.
      * @param onError Focus if there is an error.
@@ -241,7 +221,6 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     public setVisibleIndex(val: number): number {
         if (this.visibleIndex == val) return 1;
         this.setPropertyValue("visibleIndex", val);
-        this.fireCallback(this.visibleIndexChangedCallback);
         return 1;
     }
     public supportGoNextPageAutomatic() { return false; }

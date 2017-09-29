@@ -9,31 +9,30 @@ import {PanelModel, PanelModelBase, QuestionRowModel} from "./panel";
  * The page object. It has elements collection, that contains questions and panels.
  */
 export class PageModel extends PanelModelBase implements IPage {
-    private numValue: number = -1;
-    private navigationButtonsVisibilityValue: string = "inherit";
+    constructor(public name: string = "") {
+        super(name);
+    }
+    public getType(): string { return "page"; }
     /**
      * The visible index of the page. It has values from 0 to visible page count - 1.
      * @see SurveyModel.visiblePages
      * @see SurveyModel.pages
      */
-    public visibleIndex: number = -1;
-    constructor(public name: string = "") {
-        super(name);
-    }
-    public getType(): string { return "page"; }
-    public get num() { return this.numValue; }
-    public set num(value: number) {
-        if (this.numValue == value) return;
-        this.numValue = value;
-        this.onNumChanged(value);
+    public get visibleIndex(): number{ return this.getPropertyValue("visibleIndex", -1); }
+    public set visibleIndex(val : number) { this.setPropertyValue("visibleIndex", val); }
+    public get num() { return this.getPropertyValue("num", -1); }
+    public set num(val: number) {
+        if (this.num == val) return;
+        this.setPropertyValue("num", val);
+        this.onNumChanged(val);
     }
     /**
      * Set this property to "hide" to make "Prev", "Next" and "Complete" buttons are invisible for this page. Set this property to "show" to make these buttons visible, even if survey showNavigationButtons property is false.
      * @see SurveyMode.showNavigationButtons
      */
-    public get navigationButtonsVisibility(): string { return this.navigationButtonsVisibilityValue; }
-    public set navigationButtonsVisibility(newValue: string) {
-      this.navigationButtonsVisibilityValue = newValue.toLowerCase();
+    public get navigationButtonsVisibility(): string { return this.getPropertyValue("navigationButtonsVisibility", "inherit"); }
+    public set navigationButtonsVisibility(val: string) {
+        this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
     }
     protected getRendredTitle(str: string): string {
         str = super.getRendredTitle(str);

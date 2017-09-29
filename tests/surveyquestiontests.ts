@@ -281,8 +281,8 @@ QUnit.test("Question callbacks test", function (assert) {
     var visibleIndexChanged = 0;
     question.valueChangedCallback = function () { valueChanged++ };
     question.commentChangedCallback = function () { commentChanged++ };
-    question.visibilityChangedCallback = function () { visibleChanged++ };
-    question.visibleIndexChangedCallback = function () { visibleIndexChanged++ };
+    question.registerFunctionOnPropertyValueChanged("visible", function () { visibleChanged++ });
+    question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {visibleIndexChanged++});
     question.value = "test";
     question.comment = "comment";
     question.visible = false;

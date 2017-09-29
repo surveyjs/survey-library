@@ -38,29 +38,26 @@ export class SurveyQuestion extends React.Component<any, any> {
         if (this.questionBase) {
             var self = this;
             this.questionBase["react"] = self;
-            this.questionBase.renderWidthChangedCallback = function () {
-                self.state.renderWidth = self.state.renderWidth + 1;
-                self.setState(self.state);
-            }
-            this.questionBase.visibleIndexChangedCallback = function() {
-                self.state.visibleIndexValue = self.questionBase.visibleIndex;
-                self.setState(self.state);
-            }
-            this.questionBase.readOnlyChangedCallback = function() {
-                self.state.isReadOnly = self.questionBase.isReadOnly;
-                self.setState(self.state);
-            }
+            this.questionBase.registerFunctionOnPropertiesValueChanged(["renderWidth", "indent", "rightIndent"],  function () {
+                    self.state.renderWidth = self.state.renderWidth + 1;
+                    self.setState(self.state);
+                    }, "react");
+            this.questionBase.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
+                    self.state.visibleIndexValue = self.questionBase.visibleIndex;
+                    self.setState(self.state);
+                }, "react");
+            this.questionBase.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
+                    self.state.isReadOnly = self.questionBase.isReadOnly;
+                    self.setState(self.state);
+                }, "react");
             var el = this.refs["root"];
             if (el && this.questionBase.survey) this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
         }
     }
     componentWillUnmount() {
-        var el = this.refs["root"];
         if (this.questionBase) {
             this.questionBase["react"] = null;
-            this.questionBase.renderWidthChangedCallback = null;
-            this.questionBase.visibleIndexChangedCallback = null;
-            this.questionBase.readOnlyChangedCallback = null;
+            this.questionBase.unRegisterFunctionOnPropertiesValueChanged(["visibleIndex", "renderWidth", "indent", "rightIndent, isReadOnly"], "react");
         }
     }
     render(): JSX.Element {

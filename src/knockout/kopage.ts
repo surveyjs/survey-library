@@ -67,7 +67,7 @@ export class Panel extends PanelModel {
         this.koElementType = ko.observable("survey-panel");
         this.koVisible = ko.observable(this.isVisible);
         this.koRenderWidth = ko.observable(this.renderWidth);
-        this.renderWidthChangedCallback = function() { self.onRenderWidthChanged(); }
+        this.registerFunctionOnPropertiesValueChanged(["renderWidth", "innerIndent", "rightIndent"], function () { self.onRenderWidthChanged(); });
         this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
     }
     protected createRow(): QuestionRowModel { return new QuestionRow(this); }
@@ -79,8 +79,8 @@ export class Panel extends PanelModel {
         this.koRenderWidth(this.renderWidth);
         this.koInnerMargin(this.getIndentSize(this.innerIndent));
     }
-    onSurveyLoad() {
-        super.onSurveyLoad();
+    endLoadingFromJson() {
+        super.endLoadingFromJson();
         this.koVisible(this.isVisible);
     }
     protected onVisibleChanged() {

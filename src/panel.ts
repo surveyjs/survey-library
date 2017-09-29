@@ -70,31 +70,19 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
     private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
-    private elementsValue: Array<IElement> = new Array<IElement>();
+    private elementsValue: Array<IElement>;
     private isQuestionsReady: boolean = false;
     private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
-    /**
-     * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
-     */
-    public parent: PanelModelBase = null;
-    /**
-     * An expression that returns true or false. If it returns true the Panel becomes visible and if it returns false the Panel becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
-     * @see visible
-     */
-    public visibleIf: string = "";
     rowsChangedCallback: () => void;
-    private locTitleValue: LocalizableString;
-    private visibleValue: boolean = true;
+
     constructor(public name: string = "") {
         super();
+        this.elementsValue = this.createNewArray("elements", function(item) {self.onAddElement(item, self.elementsValue.length);}, function(item) { self.onRemoveElement(item);} );
+        this.registerFunctionOnPropertyValueChanged("elements", function() {self.markQuestionListDirty(); self.onRowsChanged();});
         this.idValue = PanelModelBase.getPanelId();
-        this.locTitleValue = new LocalizableString(this, true);
         var self = this;
-        this.locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRendredTitle(text); };
-        this.elementsValue.push = function (value): number { return self.doOnPushElement(this, value); };
-        this.elementsValue.splice = function (start?: number, deleteCount?: number, ...items: QuestionBase[]): QuestionBase[] {
-            return self.doSpliceElements(this, start, deleteCount, ...items);
-        };
+        var locTitleValue = this.createLocalizableString("title", this, true);
+        locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRendredTitle(text); };
     }
     public setSurveyImpl(value: ISurveyImpl) {
         super.setSurveyImpl(value);
@@ -103,16 +91,30 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
             this.elements[i].setSurveyImpl(value);
         }
     }
+    endLoadingFromJson() {
+        super.endLoadingFromJson();
+        this.markQuestionListDirty(); 
+        this.onRowsChanged();
+    }
     /**
      * PanelModel or PageModel title property.
      */
-    public get title(): string { return this.locTitle.text; }
-    public set title(newValue: string) {
-        this.locTitle.text = newValue;
-    }
-    get locTitle(): LocalizableString { return this.locTitleValue; }
+    public get title(): string { return this.getLocalizableStringText("title"); }
+    public set title(val: string) { this.setLocalizableStringText("title", val); }
+    get locTitle(): LocalizableString { return this.getLocalizableString("title"); }
     getLocale(): string { return this.survey ? (<ILocalizableOwner><any>this.survey).getLocale() : ""; }
     getMarkdownHtml(text: string)  { return this.survey ? (<ILocalizableOwner><any>this.survey).getMarkdownHtml(text) : null; }
+    /**
+     * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
+     */
+    public get parent(): PanelModelBase { return this.getPropertyValue("parent", null); }
+    public set parent(val: PanelModelBase) { this.setPropertyValue("parent", val); }
+    /**
+     * An expression that returns true or false. If it returns true the Panel becomes visible and if it returns false the Panel becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
+     * @see visible
+     */
+    public get visibleIf(): string { return this.getPropertyValue("visibleIf", ""); }
+    public set visibleIf(val: string) { this.setPropertyValue("visibleIf", val); }
     public get cssClasses(): any {
         return this.css;
     }
@@ -272,33 +274,6 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         if(this.rowsChangedCallback && !this.isLoadingFromJson) this.rowsChangedCallback();
     }
     private get isDesignMode() { return this.survey && this.survey.isDesignMode; }
-    private doOnPushElement(list: Array<IElement>, value: IElement) {
-        var result = Array.prototype.push.call(list, value);
-        this.markQuestionListDirty();
-        this.onAddElement(value, list.length);
-        this.onRowsChanged();
-        return result;
-    }
-    private doSpliceElements(list: Array<IElement>, start?: number, deleteCount?: number, ...items: IElement[]) {
-        if(!start) start = 0;
-        if(!deleteCount) deleteCount = 0;
-        var deletedQuestions = [];
-        for(var i = 0; i < deleteCount; i ++) {
-            if(i + start >= list.length) continue;
-            deletedQuestions.push(list[i + start]);
-        }
-        var result = Array.prototype.splice.call(list, start, deleteCount, ... items);
-        this.markQuestionListDirty();
-        if(!items) items = [];
-        for(var i = 0; i < deletedQuestions.length; i ++) {
-            this.onRemoveElement(deletedQuestions[i])
-        }
-        for(var i = 0; i < items.length; i ++) {
-            this.onAddElement(items[i], start + i);
-        }
-        this.onRowsChanged();
-        return result;
-    }
     private onAddElement(element: IElement, index: number) {
         element.setSurveyImpl(this.surveyImpl);
         if(element.isPanel) {
@@ -314,10 +289,11 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
             }
         }
         var self = this;
-        element.rowVisibilityChangedCallback = function () { self.onElementVisibilityChanged(element); }
-        element.startWithNewLineChangedCallback = function () { self.onElementStartWithNewLineChanged(element); }
+        (<Base><any>element).registerFunctionOnPropertiesValueChanged(["visible", "isVisible"], function () { self.onElementVisibilityChanged(element); }, this.id);
+        (<Base><any>element).registerFunctionOnPropertyValueChanged("startWithNewLine", function () { self.onElementStartWithNewLineChanged(element); }, this.id);
     }
     private onRemoveElement(element: IElement) {
+        (<Base><any>element).unRegisterFunctionOnPropertiesValueChanged(["visible", "isVisible", "startWithNewLine"], this.id);
         if(!element.isPanel) {
             if(this.survey) this.survey.questionRemoved(<QuestionBase>element);
         } else {
@@ -374,15 +350,16 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * Use it to get/set the object visibility.
      * @see visibleIf
      */
-    public get visible(): boolean { return this.visibleValue; }
+    public get visible(): boolean { return this.getPropertyValue("visible", true); }
     public set visible(value: boolean) {
         if (value === this.visible) return;
-        this.visibleValue = value;
+        this.setPropertyValue("visible", value);
+        this.setPropertyValue("isVisible", this.isVisible);
         if(!this.isLoadingFromJson) this.onVisibleChanged();
-        this.panelVisibilityChanged(<Object>this, this.visible);
     }
-    public panelVisibilityChanged(panel:Object, visibility:boolean) {}
-    protected onVisibleChanged() {}
+    protected onVisibleChanged() {
+        this.setPropertyValue("isVisible", this.isVisible);
+    }
     /**
      * Returns true if object is visible or survey is in design mode right now.
      */
@@ -504,58 +481,36 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
  * It may contain questions and other panels.
  */
 export class PanelModel extends PanelModelBase implements IPanel {
-    private renderWidthValue: string;
-    private rightIndentValue: number;
-    /**
-     * The Panel width.
-     */
-    public width: string;
-    private innerIndentValue: number = 0;
-    private startWithNewLineValue: boolean = true;
-    renderWidthChangedCallback: () => void;
-    rowVisibilityChangedCallback: () => void;
-    startWithNewLineChangedCallback: () => void;
     constructor(public name: string = "") {
         super(name);
     }
     public getType(): string { return "panel"; }
     public get isPanel(): boolean { return true; }
     /**
+     * The Panel width.
+     */
+    public get width(): string { return this.getPropertyValue("width"); }
+    public set width(val: string) { this.setPropertyValue("width", val); }
+    /**
      * The inner indent. Set this property to increase the panel content margin. 
      */
-    public get innerIndent(): number { return this.innerIndentValue; }
-    public set innerIndent(val: number) {
-        if (val == this.innerIndentValue) return;
-        this.innerIndentValue = val;
-        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
-    }
-    get renderWidth(): string { return this.renderWidthValue; }
-    set renderWidth(val: string) {
-        if (val == this.renderWidth) return;
-        this.renderWidthValue = val;
-        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
-    }
+    public get innerIndent(): number { return this.getPropertyValue("innerIndent", 0); }
+    public set innerIndent(val: number) { this.setPropertyValue("innerIndent", val); }
+    get renderWidth(): string { return this.getPropertyValue("renderWidth"); }
+    set renderWidth(val: string) { this.setPropertyValue("renderWidth", val); }
     /**
      * The Panel renders on the new line if the property is true. If the property is false, the panel tries to render on the same line/row with a previous question/panel.
      */
-    public get startWithNewLine(): boolean { return this.startWithNewLineValue; }
-    public set startWithNewLine(value: boolean) {
-        if(this.startWithNewLine == value) return;
-        this.startWithNewLineValue = value;
-        if(this.startWithNewLineChangedCallback) this.startWithNewLineChangedCallback();
-    }
+    public get startWithNewLine(): boolean { return this.getPropertyValue("startWithNewLine", true); }
+    public set startWithNewLine(value: boolean) { this.setPropertyValue("startWithNewLine", value); }
     /**
      * The right indent of the Panel.
      */
-    public get rightIndent(): number { return this.rightIndentValue; }
-    public set rightIndent(val: number) {
-        if (val == this.rightIndent) return;
-        this.rightIndentValue = val;
-        if(this.renderWidthChangedCallback) this.renderWidthChangedCallback();
-    }
+    public get rightIndent(): number { return this.getPropertyValue("rightIndent", 0); }
+    public set rightIndent(val: number) { this.setPropertyValue("rightIndent", val); }
     protected onVisibleChanged() {
         super.onVisibleChanged();
-        if(this.rowVisibilityChangedCallback) this.rowVisibilityChangedCallback();
+        this.setPropertyValue("isVisible", this.isVisible);
         if (this.survey != null) {
             this.survey.panelVisibilityChanged(this, this.visible);
         }

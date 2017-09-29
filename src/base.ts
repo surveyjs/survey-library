@@ -60,8 +60,6 @@ export interface IElement  extends IConditionRunner, ISurveyElement{
     name: string;
     visible: boolean;
     isVisible: boolean;
-    rowVisibilityChangedCallback: () => void;
-    startWithNewLineChangedCallback: () => void;
     renderWidth: string;
     width: string;
     rightIndent: number;
@@ -178,12 +176,57 @@ export class Base {
         }
     }
     /**
-     * Register a function that will be called on a property chagned
+     * Register a function that will be called on a property value changed.
      * @param name the property name
-     * @param func the function wiht no parameters
+     * @param func the function with no parameters that will be called on property changed.
+     * @param key an optional parameter. If there is already a registered function for this property witht the same key, it will be overwritten.
      */
-    public registerFunctionOnPropertyValueChanged(name: string, func: any) {
-        this.onPropChangeFunctions.push({name: name, func: func});
+    public registerFunctionOnPropertyValueChanged(name: string, func: any, key: string = null) {
+        if(key) {
+            for(var i = 0; i < this.onPropChangeFunctions.length; i ++) {
+                var item = this.onPropChangeFunctions[i];
+                if(item.name == name && item.key == key) {
+                    item.func = func;
+                    return;
+                }
+            }
+        }
+        this.onPropChangeFunctions.push({name: name, func: func, key: key});
+    }
+    /**
+     * Register a function that will be called on a property value changed from the names list.
+     * @param names the list of properties names
+     * @param func the function with no parameters that will be called on property changed.
+     * @param key an optional parameter. If there is already a registered function for this property witht the same key, it will be overwritten.
+     */
+    public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null) {
+        for(var i = 0; i < names.length; i ++) {
+            this.registerFunctionOnPropertyValueChanged(names[i], func, key);
+        }
+    }
+    /**
+     * Unregister notification on property value changed
+     * @param name the property name
+     * @param key the key with which you have registered the notification for this property. It can be null.
+     */
+    public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null) {
+        for(var i = 0; i < this.onPropChangeFunctions.length; i ++) {
+            var item = this.onPropChangeFunctions[i];
+            if(item.name == name && item.key == key) {
+                this.onPropChangeFunctions.splice(i, 1);
+                return;
+            }
+        }
+    }
+    /**
+     * Unregister notification on property value changed for all properties in the names list.
+     * @param names the list of properties names
+     * @param key the key with which you have registered the notification for this property. It can be null.
+     */
+    public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null) {
+        for(var i = 0; i < names.length; i ++) {
+            this.unRegisterFunctionOnPropertyValueChanged(names[i], key);
+        }
     }
     protected createLocalizableString(name: string, owner: ILocalizableOwner, useMarkDown: boolean = false): LocalizableString {
         var locStr = new LocalizableString(owner, useMarkDown);
@@ -233,16 +276,11 @@ export class Base {
         newArray.splice = function (start?: number, deleteCount?: number, ...items: any[]): any[] {
             if(!start) start = 0;
             if(!deleteCount) deleteCount = 0;
-            var deletedItems = [];
-            for(var i = 0; i < deleteCount; i ++) {
-                if(i + start >= newArray.length) continue;
-                deletedItems.push(newArray[i + start]);
-            }
             var result = Array.prototype.splice.call(newArray, start, deleteCount, ... items);
             if(!items) items = [];
-            if(onRemove) {
-                for(var i = 0; i < deletedItems.length; i ++) {
-                    onRemove(deletedItems[i])
+            if(onRemove && result) {
+                for(var i = 0; i < result.length; i ++) {
+                    onRemove(result[i])
                 }
             }
             if(onPush) {

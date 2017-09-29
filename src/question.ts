@@ -200,7 +200,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     
     onReadOnlyChanged() {
-        this.fireCallback(this.readOnlyChangedCallback);
+        this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
     onAnyValueChanged(name: string) {
         if(!name) return;

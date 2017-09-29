@@ -14,8 +14,8 @@ export class QuestionImplementor extends QuestionImplementorBase {
         question.commentChangedCallback = function () { self.onCommentChanged(); };
         question.errorsChangedCallback = function () { self.onErrorsChanged(); };
         question.titleChangedCallback = function () { self.onVisibleIndexChanged(); };
-        question.visibleIndexChangedCallback = function () { self.onVisibleIndexChanged(); };
-        question.readOnlyChangedCallback = function() {self.onReadOnlyChanged();};
+        question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {self.onVisibleIndexChanged();});
+        question.registerFunctionOnPropertyValueChanged("isReadOnly", function() {self.onReadOnlyChanged();});
         question.surveyLoadCallback = function() {self.onSurveyLoad();}
         this.koDummy = ko.observable(0);
         this.koValue = this.createkoValue();

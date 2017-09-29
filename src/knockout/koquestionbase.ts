@@ -6,8 +6,8 @@ export class QuestionImplementorBase {
     koTemplateName: any; koElementType: any;
     constructor(public question: QuestionBase) {
         var self = this;
-        question.visibilityChangedCallback = function () { self.onVisibilityChanged(); };
-        question.renderWidthChangedCallback = function () { self.onRenderWidthChanged(); };
+        question.registerFunctionOnPropertyValueChanged("visible", function () { self.onVisibilityChanged(); });
+        question.registerFunctionOnPropertiesValueChanged(["renderWidth", "indent", "rightIndent"], function () { self.onRenderWidthChanged(); });
         this.koTemplateName = ko.pureComputed(function () { return self.getTemplateName(); });
         this.koElementType = ko.observable("survey-question");
         this.koVisible = ko.observable(this.question.isVisible);

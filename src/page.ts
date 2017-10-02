@@ -34,8 +34,8 @@ export class PageModel extends PanelModelBase implements IPage {
     public set navigationButtonsVisibility(val: string) {
         this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
     }
-    protected getRendredTitle(str: string): string {
-        str = super.getRendredTitle(str);
+    protected getRenderedTitle(str: string): string {
+        str = super.getRenderedTitle(str);
         if(this.num > 0) {
             str = this.num  + ". " + str;
         }

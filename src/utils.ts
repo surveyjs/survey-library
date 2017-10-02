@@ -40,7 +40,12 @@ function compareVersions(a, b) {
     return segmentsA.length - segmentsB.length;
 }
 
+function isMobile() {
+    return (typeof window.orientation !== 'undefined')
+}
+
 export {
     browser,
-    compareVersions
+    compareVersions,
+    isMobile
 }

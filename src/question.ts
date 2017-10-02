@@ -37,7 +37,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         var locTitleValue = this.createLocalizableString("title", this, true);
         locTitleValue.onRenderedHtmlCallback = function(text) { return self.fullTitle; };
         var locDescriptionValue = this.createLocalizableString("description", this, true);
-        locDescriptionValue.onRenderedHtmlCallback = function(html) { return self.getProcessedHtml(html); }
+        locDescriptionValue.onGetTextCallback = function(html) { return self.getProcessedHtml(html); }
         this.createLocalizableString("commentText", this, true);
         this.createLocalizableString("requiredErrorText", this);
     }

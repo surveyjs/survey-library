@@ -82,7 +82,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         this.idValue = PanelModelBase.getPanelId();
         var self = this;
         var locTitleValue = this.createLocalizableString("title", this, true);
-        locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRendredTitle(text); };
+        locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRenderedTitle(text); };
     }
     public setSurveyImpl(value: ISurveyImpl) {
         super.setSurveyImpl(value);
@@ -340,9 +340,9 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * Returns rendered title text or html.
      */
     public get processedTitle() {
-        return this.getRendredTitle(this.locTitle.textOrHtml);
+        return this.getRenderedTitle(this.locTitle.textOrHtml);
     }
-    protected getRendredTitle(str: string): string {
+    protected getRenderedTitle(str: string): string {
         if(!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
         return this.textProcessor != null ? this.textProcessor.processText(str, true) : str;
     }

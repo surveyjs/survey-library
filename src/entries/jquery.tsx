@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {SurveyModel} from "../survey";
 import {Survey} from "../react/reactSurvey";
 import {SurveyWindow} from "../react/reactSurveyWindow";
 import jQuery from 'jquery';
@@ -25,5 +26,7 @@ jQuery["fn"].extend({
         );
     }
 });
+
+SurveyModel.platform = "jquery";
 
 export * from "./react";

@@ -176,3 +176,4 @@ ko.bindingHandlers['surveyProp'] = {
         }
     }
 };
+SurveyModel.platform = "knockout";

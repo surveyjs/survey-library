@@ -16,6 +16,8 @@ import {ILocalizableOwner, LocalizableString} from "./localizablestring";
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyImpl, ISurveyTriggerOwner, ILocalizableOwner {
+    public static platform: string = "unknown";
+    public get platformName(): string { return SurveyModel.platform; }
     /**
      * You may show comments input for the most of questions. The entered text in the comment input will be saved as 'question name' + 'commentPrefix'.
      * @see data

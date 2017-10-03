@@ -28,3 +28,5 @@ export class ReactSurveyModel extends SurveyModel {
         this.render();
     }
 }
+
+SurveyModel.platform = "react";

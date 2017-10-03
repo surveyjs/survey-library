@@ -51,3 +51,5 @@ export class VueSurveyModel extends SurveyModel {
         super.panelAdded(panel, index, parentPanel, rootPanel);
     }        
 }
+
+SurveyModel.platform = "vue";

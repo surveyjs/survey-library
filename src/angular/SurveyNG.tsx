@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import {SurveyModel} from "../survey";
 import {Survey} from "../react/reactSurvey";
 import {SurveyWindow} from "../react/reactSurveyWindow";
 
@@ -16,3 +17,5 @@ export class SurveyWindowNG {
         ReactDOM.render(<SurveyWindow {...props} />, element);
     }
 }
+
+SurveyModel.platform = "angular";

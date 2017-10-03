@@ -591,7 +591,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.setPropertyValue("questionErrorLocation", value.toLowerCase());
     };
     /**
-     * Set this mode to 'display' to make the survey read-only. 
+     * Set this mode to 'display' to make the survey read-only. The default value is 'edit'. 
      */
     public get mode(): string { return this.getPropertyValue("mode", "edit"); }
     public set mode(value: string) {

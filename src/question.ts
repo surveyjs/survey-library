@@ -24,12 +24,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     errorsChangedCallback: () => void;
     titleChangedCallback: () => void;
     validateValueCallback: () => SurveyError;
-    /**
-     * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
-     * @see readOnly
-     * @see isReadOnly
-     */
-    public enableIf: string = "";
 
     constructor(public name: string) {
         super(name);
@@ -191,6 +185,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.setPropertyValue("readOnly", val);
         this.onReadOnlyChanged();
     }
+    /**
+     * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
+     * @see readOnly
+     * @see isReadOnly
+     */
+    public get enableIf(): string { return this.getPropertyValue("enableIf", ""); }
+    public set enableIf(val: string) { this.setPropertyValue("enableIf", val); }
+    
     public runCondition(values: HashTable<any>) {
         super.runCondition(values);
         if (!this.enableIf) return;

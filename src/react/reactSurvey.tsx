@@ -130,7 +130,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         //set the first page
         var dummy = this.survey.currentPage;
 
-        this.state = { pageIndexChange: 0, isCompleted: false, modelChanged: 0 };
+        this.setState({ pageIndexChange: 0, isCompleted: false, modelChanged: 0 });
         this.setSurveyEvents(newProps);
     }
     protected setSurveyEvents(newProps: any) {

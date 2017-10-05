@@ -48,7 +48,7 @@ export class SurveyWindow extends Survey {
     protected updateSurvey(newProps: any) {
         super.updateSurvey(newProps);
         var hasExpanded = newProps["expanded"] ? newProps.expanded : false;
-        this.state = { expanded: hasExpanded, hidden: false };
+        this.setState({ expanded: hasExpanded, hidden: false });
         var self = this;
         this.survey.onComplete.add(function (s: SurveyModel) {
             self.state.hidden = true;

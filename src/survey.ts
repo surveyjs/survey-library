@@ -11,11 +11,13 @@ import {surveyLocalization} from "./surveyStrings";
 import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
+import {StylesManager} from "./stylesmanager";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyImpl, ISurveyTriggerOwner, ILocalizableOwner {
+    private static stylesManager = new StylesManager();
     public static platform: string = "unknown";
     public get platformName(): string { return SurveyModel.platform; }
     /**

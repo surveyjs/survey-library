@@ -19,20 +19,24 @@ export class SurveyQuestion extends React.Component<any, any> {
     constructor(props: any) {
         super(props);
         this.setQuestion(props.question);
+        this.state = this.getState();
         this.creator = props.creator;
     }
     componentWillReceiveProps(nextProps: any) {
         this.creator = nextProps.creator;
         this.setQuestion(nextProps.question);
+        this.setState(this.getState());
     }
     private setQuestion(question) {
         this.questionBase = question;
         this.question = question instanceof Question ? question : null;
+    }
+    private getState() {
         var value = this.question ? this.question.value : null;
-        this.setState({
+        return {
             visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
             visibleIndexValue: -1, isReadOnly : this.questionBase.isReadOnly
-        });
+        };
     }
     componentDidMount() {
         if (this.questionBase) {
@@ -128,10 +132,12 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
     constructor(props: any) {
         super(props);
         this.setQuestion(props.question);
+        this.state = this.getState()
         this.creator = props.creator;
     }
     componentWillReceiveProps(nextProps: any) {
         this.setQuestion(nextProps.question);
+        this.setState(this.getState());
         this.creator = nextProps.creator;
     }
     private setQuestion(question) {
@@ -139,11 +145,12 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
         if (this.question) {
             var self = this;
             this.question.errorsChangedCallback = function () {
-                self.state.error = self.state.error + 1;
-                self.setState(self.state);
+                self.setState(this.getState(self.state));
             }
         }
-        this.setState({ error: 0 });
+    }
+    private getState(prevState = null) {
+        return !prevState ? { error: 0 } : { error: prevState.error + 1 };
     }
     render(): JSX.Element {
         if (!this.question || this.question.errors.length == 0) return null;

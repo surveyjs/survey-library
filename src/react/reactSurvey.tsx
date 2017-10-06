@@ -18,9 +18,11 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     constructor(props: any) {
         super(props);
         this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
+        this.state = this.getState();
         this.updateSurvey(props);
     }
     componentWillReceiveProps(nextProps: any) {
+        this.setState(this.getState());
         this.updateSurvey(nextProps);
     }
     componentDidUpdate() {
@@ -108,7 +110,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     protected renderEmptySurvey(): JSX.Element {
         return (<span>{this.survey.emptySurveyText}</span>);
     }
-
+    
     protected updateSurvey(newProps: any) {
         if (newProps) {
             if (newProps.model) {
@@ -130,9 +132,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         //set the first page
         var dummy = this.survey.currentPage;
 
-        this.setState({ pageIndexChange: 0, isCompleted: false, modelChanged: 0 });
         this.setSurveyEvents(newProps);
     }
+    private getState() { return { pageIndexChange: 0, isCompleted: false, modelChanged: 0 }; }
     protected setSurveyEvents(newProps: any) {
         var self = this;
         this.survey.renderCallback = function () {

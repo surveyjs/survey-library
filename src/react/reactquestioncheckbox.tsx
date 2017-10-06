@@ -98,7 +98,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         return (
             <div className={this.cssClasses.item} style={divStyle}>
                 <label className={this.cssClasses.label}>
-                    <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} />
+                    <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
                     <span className="checkbox-material" style={{"marginRight": "5px"}}><span className="check"></span></span>
                     <span>{text}</span>
                 </label>

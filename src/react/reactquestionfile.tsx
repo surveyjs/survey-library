@@ -22,7 +22,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         var img = this.renderImage();
         var fileInput = null;
         if (!this.isDisplayMode) {
-            fileInput = <input id={this.question.inputId} type="file" onChange={this.handleOnChange}/>;
+            fileInput = <input id={this.question.inputId} type="file" onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>;
         }
         return (
             <div>

@@ -59,7 +59,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
                 panels.push(<SurveyQuestionPanelDynamicItem key={this.question.currentIndex} panel={panel} question={this.question} index={this.question.currentIndex} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
             }
         }
-        var btnDeleteTD = !this.isDisplayMode ? <th></th> : null;
+        var btnDeleteTD = !this.isDisplayMode ? <td></td> : null;
         var btnAdd = this.question.isRenderModeList ? this.renderAddRowButton(cssClasses, {marginTop: "5px"}) : null;
         var navTop = this.question.isProgressTopShowing ? this.renderNavigator(cssClasses) : null;
         var navBottom = this.question.isProgressBottomShowing ? this.renderNavigator(cssClasses) : null;

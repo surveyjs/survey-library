@@ -48,7 +48,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
             rows.push(<SurveyQuestionMatrixDynamicRow key={i} row={row} question={this.question} index={i} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} creator={this.creator} />);
         }
         var divStyle = this.question.horizontalScroll ? { overflowX: 'scroll' } : {};
-        var btnDeleteTD = !this.isDisplayMode ? <th></th> : null;
+        var btnDeleteTD = !this.isDisplayMode ? <td></td> : null;
         return (
             <div>
                 <div  style={divStyle}>

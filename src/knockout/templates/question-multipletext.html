@@ -4,7 +4,7 @@
             <td data-bind="css: question.koCss().itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
             <td>
                 <!-- ko ifnot: question.koIsReadOnly -->
-                <input style="float:left" data-bind="attr: {type: item.inputType, size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder}, value: item.koValue, css: question.koCss().itemValue" />
+                <input style="float:left" data-bind="attr: {type: item.inputType, size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder, 'aria-label': question.locTitle.renderedHtml}, value: item.koValue, css: question.koCss().itemValue" />
                 <!-- /ko -->
                 <!-- ko if: question.koIsReadOnly -->
                 <div style="float:left" data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.koCss().itemValue"></div>

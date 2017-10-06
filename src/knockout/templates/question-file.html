@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-file">
     <!-- ko ifnot: question.koIsReadOnly -->
-    <input type="file" data-bind="attr: {id: question.inputId}, event: {change: question.dochange}">
+    <input type="file" data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, event: {change: question.dochange}">
     <!-- /ko -->
     <div>
-        <img data-bind="attr: { src: question.koData, height: question.imageHeight, width: question.imageWidth }, visible: question.koHasValue">
+        <img data-bind="attr: { src: question.koData, height: question.imageHeight, width: question.imageWidth }, visible: question.koHasValue" alt="File preview">
     </div>
 </script>

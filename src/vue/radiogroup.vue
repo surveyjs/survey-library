@@ -2,7 +2,7 @@
     <form :class="question.cssClasses.root">
         <div v-for="(item, index) in question.visibleChoices" :class="question.cssClasses.item" :style="{'display': 'inline-block', 'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px', 'margin-left': '0px'}">
             <label :class="question.cssClasses.label">
-                <input type="radio" :name="question.name" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" />
+                <input type="radio" :name="question.name" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml"/>
                 <span class="circle"></span>
                 <span class="check"></span>
                 <survey-string :locString="item.locText"/>

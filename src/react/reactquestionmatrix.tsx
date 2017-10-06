@@ -13,7 +13,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     render(): JSX.Element {
         if (!this.question) return null;
         var cssClasses = this.question.cssClasses;
-        var firstTH = this.question.hasRows ? <th></th> : null;
+        var firstTH = this.question.hasRows ? <td></td> : null;
         var headers = [];
         for (var i = 0; i < this.question.columns.length; i++) {
             var column = this.question.columns[i];
@@ -84,7 +84,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                     <label className={this.cssClasses.label} style={labelStyle}>
                         <input id={inputId} type="radio" className={this.cssClasses.itemValue} name={this.row.fullName}
                                value={column.value} disabled={this.isDisplayMode} checked={isChecked}
-                               onChange={this.handleOnChange}/>
+                               onChange={this.handleOnChange}
+                               aria-label={this.question.locTitle.renderedHtml}/>
                         <span className="circle"></span>
                         <span className="check"></span>
                     </label>

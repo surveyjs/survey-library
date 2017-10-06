@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
     <!-- ko ifnot: question.koIsReadOnly -->
-    <select data-bind="attr: {id: question.inputId}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: question.koCss().control"></select>
+    <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: question.koCss().control"></select>
     <!-- /ko -->
     <!-- ko if: question.koIsReadOnly -->
     <div data-bind="text:question.displayValue, css: question.koCss().control"></div>

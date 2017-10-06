@@ -31,7 +31,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         if (this.isDisplayMode)
             return (<div id={this.question.inputId} className={cssClasses.root}>{this.question.value}</div>)
         return (
-            <input id={this.question.inputId} className={cssClasses.root} type={this.question.inputType} value={this.state.value} size={this.question.size} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />
+            <input id={this.question.inputId} className={cssClasses.root} type={this.question.inputType} value={this.state.value} size={this.question.size} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
         );
     }
     private getValue(val: any) : any {

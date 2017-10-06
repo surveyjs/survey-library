@@ -36,7 +36,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
                 <table className={cssClasses.root}>
                     <thead>
                         <tr>
-                            <th></th>
+                            <td></td>
                             {headers}
                         </tr>
                     </thead>

@@ -3,7 +3,7 @@
         <table :class="question.cssClasses.root">
             <thead>
                 <tr>
-                    <th></th>
+                    <td></td>
                     <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
                 </tr>
             </thead>

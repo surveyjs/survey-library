@@ -21,7 +21,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
         var tableRows = this.question.getRows();
         var rows = [];
         for (var i = 0; i < tableRows.length; i++) {
-            rows.push(this.renderRow("item" + i, tableRows[i], cssClasses));
+            rows.push(this.renderRow(i, tableRows[i], cssClasses));
         }
         return (
             <table className={cssClasses.root}>
@@ -31,18 +31,19 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
             </table>
         );
     }
-    protected renderRow(key: string, items: Array<MultipleTextItemModel>, cssClasses: any) {
+    protected renderRow(rowIndex, items: Array<MultipleTextItemModel>, cssClasses: any) {
+        var key: string = 'item' + rowIndex;
         var tds = [];
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
             var itemTitle = this.renderLocString(item.locTitle);
-            tds.push(<td key={"label" + i}><span className={cssClasses.itemTitle}>{itemTitle}</span></td>);
-            tds.push(<td key={"value" + i}>{this.renderItem(item, i == 0, cssClasses)}</td>);
+            tds.push(<td key={'label' + i}><span className={cssClasses.itemTitle}>{itemTitle}</span></td>);
+            tds.push(<td key={'value' + i}>{this.renderItem(item, rowIndex === 0 && i === 0, cssClasses)}</td>);
         }
         return <tr key={key} className={cssClasses.row}>{tds}</tr>;
     }
     protected renderItem(item: MultipleTextItemModel, isFirst: boolean, cssClasses: any): JSX.Element {
-        var inputId = isFirst ? this.question.inputId : null;
+        let inputId = isFirst ? this.question.inputId : null;
         return <SurveyQuestionMultipleTextItem item={item}  cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} inputId={inputId} />;
     }
 }
@@ -85,7 +86,7 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
         if (!this.item) return null;
         var style = { float: "left" };
         if (this.isDisplayMode) return (<div id={this.inputId} className={this.cssClasses.itemValue} style={style}>{this.item.value}</div>);
-        return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} style={style} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} />);
+        return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} style={style} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
     }
     protected get mainClassName(): string { return ""; }
 }

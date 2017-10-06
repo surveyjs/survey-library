@@ -27,7 +27,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         if (!this.question) return null;
         var cssClasses = this.question.cssClasses;
         return (
-            <textarea id={this.question.inputId} className={cssClasses.root} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} />
+            <textarea id={this.question.inputId} className={cssClasses.root} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} aria-label={this.question.locTitle.renderedHtml}/>
         );
     }
 }
@@ -60,7 +60,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         if (this.isDisplayMode)
             return (<div className={this.cssClasses.comment}>{this.comment}</div>);
         var className = this.otherCss ? this.otherCss : this.cssClasses.comment;
-        return (<input type="text" className={className} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} />);
+        return (<input type="text" className={className} value={this.state.value} onChange={this.handleOnChange} onBlur={this.handleOnBlur} aria-label={this.question.locTitle.renderedHtml}/>);
     }
 }
 

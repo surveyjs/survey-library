@@ -60,7 +60,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         return (
             <div key={key} className={cssClasses.item} style={divStyle}>
                 <label className={cssClasses.label}>
-                    <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} />
+                    <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
                     <span className="circle"></span>
                     <span className="check"></span>
                     {itemText}

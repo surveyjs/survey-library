@@ -1,8 +1,8 @@
 <template>
     <div>
-        <input v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange"/>
+        <input v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml"/>
         <div>
-            <img v-show="question.previewValue" :src="question.value" :height="question.imageHeight" :width="question.imageWidth"/>
+            <img v-show="question.previewValue" :src="question.value" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
         </div>
     </div>
 </template>

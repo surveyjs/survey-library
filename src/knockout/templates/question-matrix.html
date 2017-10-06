@@ -2,7 +2,7 @@
     <table data-bind="css: question.koCss().root">
         <thead>
             <tr>
-                <th data-bind="visible: question.hasRows"></th>
+                <td data-bind="visible: question.hasRows"></td>
                 <!-- ko foreach: question.columns -->
                 <th><!-- ko template: { name: 'survey-string', data: locText } --><!-- /ko --></th>
                 <!-- /ko -->
@@ -15,7 +15,7 @@
                 <!-- ko foreach: question.columns -->
                 <td>
                     <label data-bind="css: question.koCss().label, style:{'position': 'absolute'}" style="margin: 0;">
-                        <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
+                        <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
                         <span class="circle"></span>
                         <span class="check"></span>
                     </label>

@@ -7,21 +7,21 @@ import {ReactQuestionFactory} from "./reactquestionfactory";
 export class SurveyQuestionComment extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.state = { value: this.question.value || '' };
+        this.state = { value: this.getStateValue() };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }
     protected get question(): QuestionCommentModel { return this.questionBase as QuestionCommentModel; }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
-        this.setState({ value: this.question.value || '' });
+        this.setState({ value: this.getStateValue() });
     }
     handleOnChange(event) {
         this.setState({ value: event.target.value });
     }
     handleOnBlur(event) {
         this.question.value = event.target.value;
-        this.setState({ value: this.question.value || '' });
+        this.setState({ value: this.getStateValue() });
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -30,6 +30,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
             <textarea id={this.question.inputId} className={cssClasses.root} type="text" readOnly={this.isDisplayMode} value={this.state.value} placeholder={this.question.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} cols={this.question.cols} rows={this.question.rows} aria-label={this.question.locTitle.renderedHtml}/>
         );
     }
+    private getStateValue(): any { return !this.question.isEmpty() ? this.question.value: ''; }
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {

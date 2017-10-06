@@ -32,9 +32,10 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (!this.question) return null;
+        var val = !this.question.isEmpty() ? this.question.value: '';
         return (
             <div id={this.getDivId()}>
-                <input className={this.css} id={this.getDateId()} type="text" value={this.question.value || ''} onChange={this.handleOnChange} />
+                <input className={this.css} id={this.getDateId()} type="text" value={val} onChange={this.handleOnChange} />
             </div>
         );
     }

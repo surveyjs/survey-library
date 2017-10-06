@@ -9,7 +9,7 @@ import {ReactQuestionFactory} from "./reactquestionfactory";
 export class SurveyQuestionText extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.state = { value: this.question.value || '' };
+        this.state = { value: this.getValue(this.question.value) };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }

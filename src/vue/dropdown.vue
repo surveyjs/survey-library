@@ -18,7 +18,7 @@
     @Component
     export default class Dropdown extends Question<QuestionDropdownModel> {
         get value() {
-            return this.question.value || '';
+            return !this.question.isEmpty() ?  this.question.value : '';
         }
         set value(newVal) {
             this.question.value = newVal === '' ? undefined : newVal;

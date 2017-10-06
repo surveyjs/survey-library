@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import {ReactSurveyElement, SurveyQuestionElementBase} from "./reactquestionelement";
+import {Helpers} from "../helpers";
 import {QuestionMultipleTextModel} from "../question_multipletext";
 import {MultipleTextItemModel} from "../question_multipletext";
 import {ReactQuestionFactory} from "./reactquestionfactory";
@@ -55,7 +56,7 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
         super(props);
         this.item = props.item;
         this.inputId = props.inputId;
-        this.state = { value: this.item.value || '' };
+        this.state = { value: this.getValue(this.item.value) };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
     }
@@ -73,7 +74,7 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
         if(this.item) {
             var self = this;
             this.item.onValueChangedCallback = function(newValue) {
-                self.setState({ value: newValue|| '' });
+                self.setState({ value: this.getValue(newValue) });
             }
         }
     }
@@ -89,6 +90,10 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
         return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} style={style} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
     }
     protected get mainClassName(): string { return ""; }
+    private getValue(val: any) : any {
+        if(Helpers.isValueEmpty(val)) return "";
+        return val;
+    }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("multipletext", (props) => {

@@ -8,7 +8,7 @@ import {browser, compareVersions, isMobile} from "../utils";
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
-        this.state = { value: this.question.value || '', choicesChanged: 0 };
+        this.state = { value: this.getStateValue(), choicesChanged: 0 };
         var self = this;
         this.question.choicesChangedCallback = function () {
             self.state.choicesChanged = self.state.choicesChanged + 1;
@@ -20,11 +20,11 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     protected get question(): QuestionDropdownModel { return this.questionBase as QuestionDropdownModel; }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
-        this.setState({value: this.question.value || ''});
+        this.setState({value: this.getStateValue()});
     }
     handleOnChange(event) {
         this.question.value = event.target.value;
-        this.setState({ value: this.question.value || '' });
+        this.setState({ value: this.getStateValue() });
     }
     render(): JSX.Element {
         if (!this.question) return null;
@@ -65,6 +65,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
         var style = { marginTop: "3px" };
         return <div style={style}><SurveyQuestionCommentItem question={this.question} otherCss={cssClasses.other} cssClasses={cssClasses} isDisplayMode={this.isDisplayMode}/></div>;
     }
+    private getStateValue(): any { return !this.question.isEmpty() ? this.question.value: ''; }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("dropdown", (props) => {

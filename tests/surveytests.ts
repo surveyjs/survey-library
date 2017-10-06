@@ -1731,6 +1731,13 @@ QUnit.test("required text can be empty: Bug #693", function (assert) {
     survey.requiredText = null;
     assert.equal(survey.requiredText, "*", "The value is again default");
 });    
+QUnit.test("Set 0 value into survey.data", function (assert) {
+    var survey = new SurveyModel();
+    var p = survey.addNewPage();
+    var q = <QuestionTextModel>p.addNewQuestion("text", "q1");
+    survey.data = {q1: 0};
+    assert.equal(q.value, 0, "0 value is set");
+});    
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

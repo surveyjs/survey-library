@@ -714,6 +714,7 @@ QUnit.test("Matrixdropdown different cell types", function (assert) {
     question.columns.push(new MatrixDropdownColumn("radiogroup"));
     question.columns.push(new MatrixDropdownColumn("text"));
     question.columns.push(new MatrixDropdownColumn("comment"));
+    question.columns.push(new MatrixDropdownColumn("boolean"));
 
     for (var i = 0; i < question.columns.length; i++) {
         question.columns[i].cellType = question.columns[i].name;
@@ -726,6 +727,33 @@ QUnit.test("Matrixdropdown different cell types", function (assert) {
         assert.equal(row.cells[i].question.getType(), col.name, "Expected " + col.name + ", but was" + row.cells[i].question.getType());
     }
 });
+QUnit.test("Matrixdropdown boolean cellType", function (assert) {
+    var question = new QuestionMatrixDropdownModel("matrixDropdown");
+
+    question.columns.push(new MatrixDropdownColumn("col1"));
+    question.columns.push(new MatrixDropdownColumn("col2"));
+    question.cellType = "boolean";
+
+    question.rows = ["row1"];
+    var visibleRows = question.visibleRows;
+    visibleRows[0].cells[0].question.value = true;
+    visibleRows[0].cells[1].question.value = false;
+    assert.deepEqual(question.value, {row1: {col1: true, col2: false}}, "Boolean field set value correctly");
+});
+QUnit.test("Matrixdropdown booleanDefaultValue", function (assert) {
+    var question = new QuestionMatrixDropdownModel("matrixDropdown");
+
+    question.columns.push(new MatrixDropdownColumn("col1"));
+    question.columns.push(new MatrixDropdownColumn("col2"));
+    question.cellType = "boolean";
+    question.columns[0].booleanDefaultValue = "true";
+    question.columns[1].booleanDefaultValue = "false";
+
+    question.rows = ["row1"];
+    var visibleRows = question.visibleRows;
+    assert.deepEqual(question.value, {row1: {col1: true, col2: false}}, "Boolean field set value correctly");
+});
+
 QUnit.test("Matrixdropdown isRequiredInAllRows", function (assert) {
     var question = new QuestionMatrixDynamicModel("matrix");
     question.rowCount = 2;

@@ -13,6 +13,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
     constructor(public name: string, item: ItemValue, data: IMatrixDropdownData, value: any) {
         super(data, value);
         this.item = item;
+        this.buildCells();
     }
     public get rowName(): string { return this.name; }
     public get text(): string { return this.item.text; }

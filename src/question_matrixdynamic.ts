@@ -11,6 +11,7 @@ import {LocalizableString} from "./localizablestring";
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
     constructor(public index: number, data: IMatrixDropdownData, value: any) {
         super(data, value);
+        this.buildCells();
     }
     public get rowName() { return this.id; }
 }

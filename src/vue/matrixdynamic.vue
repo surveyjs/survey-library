@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
-                    <th v-if="!question.isReadOnly"></th>
+                    <td v-if="!question.isReadOnly"></td>
                 </tr>
             </thead>
             <tbody>

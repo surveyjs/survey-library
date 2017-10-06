@@ -2,7 +2,7 @@
     <table :class="question.cssClasses.root">
         <thead>
             <tr>
-                <th v-show="question.hasRows"></th>
+                <td v-show="question.hasRows"></td>
                 <th v-for="column in question.columns"><survey-string :locString="column.locText"/></th>
             </tr>
         </thead>
@@ -11,7 +11,7 @@
                 <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
                 <td v-for="(column, columnIndex) in question.columns">
                     <label :class="question.cssClasses.label" :style="{'margin': '0', 'position': 'absolute'}">
-                        <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''"/>
+                        <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''" v-bind:aria-label="question.locTitle.renderedHtml"/>
                         <span class="circle"></span>
                         <span class="check"></span>
                     </label>

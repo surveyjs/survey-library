@@ -1,6 +1,6 @@
 <template>
     <div :class="question.cssClasses.root">
-        <select v-if="!question.isReadOnly" :id="question.inputId" v-model="value" :class="question.cssClasses.control">
+        <select v-if="!question.isReadOnly" :id="question.inputId" v-model="value" :class="question.cssClasses.control" v-bind:aria-label="question.locTitle.renderedHtml">
             <option value=''>{{question.optionsCaption}}</option>
             <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
         </select>

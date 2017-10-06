@@ -67,7 +67,6 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         return "sp_" + PanelModelBase.panelCounter++;
     }
 
-    private idValue: string;
     private rowValues: Array<QuestionRowModel> = null;
     private conditionRunner: ConditionRunner = null;
     private elementsValue: Array<IElement>;
@@ -79,7 +78,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         super();
         this.elementsValue = this.createNewArray("elements", function(item) {self.onAddElement(item, self.elementsValue.length);}, function(item) { self.onRemoveElement(item);} );
         this.registerFunctionOnPropertyValueChanged("elements", function() {self.markQuestionListDirty(); self.onRowsChanged();});
-        this.idValue = PanelModelBase.getPanelId();
+        this.id = PanelModelBase.getPanelId();
         var self = this;
         var locTitleValue = this.createLocalizableString("title", this, true);
         locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRenderedTitle(text); };
@@ -122,7 +121,8 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
     /**
      * A unique element identificator. It is generated automatically.
      */
-    public get id(): string { return this.idValue; }
+    public get id(): string { return this.getPropertyValue("id"); }
+    public set id(val: string) { this.setPropertyValue("id", val); }
     /**
      * Returns true if the current object is Panel. Returns false if the current object is Page (a root Panel).
      */

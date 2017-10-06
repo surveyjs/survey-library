@@ -14,7 +14,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     protected get question(): QuestionCommentModel { return this.questionBase as QuestionCommentModel; }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
-        this.state = { value: this.question.value || '' };
+        this.setState({ value: this.question.value || '' });
     }
     handleOnChange(event) {
         this.setState({ value: event.target.value });

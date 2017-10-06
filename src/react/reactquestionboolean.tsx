@@ -11,7 +11,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
-        this.state.value =  this.question.checkedValue;
+        this.setState({value :  this.question.checkedValue});
     }
     protected get question(): QuestionBooleanModel { return this.questionBase as QuestionBooleanModel; }
     handleOnChange(event) {

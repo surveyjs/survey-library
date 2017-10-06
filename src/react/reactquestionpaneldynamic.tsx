@@ -19,7 +19,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     }
     private setProperties(nextProps: any) {
         var self = this;
-        this.state = { panelCounter: 0 };
+        this.setState({ panelCounter: 0 });
         this.question.panelCountChangedCallback = function () { self.updateQuestionRendering(); };
         this.question.currentIndexChangedCallback = function () { self.updateQuestionRendering(); };
         this.question.renderModeChangedCallback = function () { self.updateQuestionRendering(); };

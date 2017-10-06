@@ -29,10 +29,10 @@ export class SurveyQuestion extends React.Component<any, any> {
         this.questionBase = question;
         this.question = question instanceof Question ? question : null;
         var value = this.question ? this.question.value : null;
-        this.state = {
+        this.setState({
             visible: this.questionBase.visible, value: value, error: 0, renderWidth: 0,
             visibleIndexValue: -1, isReadOnly : this.questionBase.isReadOnly
-        };
+        });
     }
     componentDidMount() {
         if (this.questionBase) {
@@ -143,7 +143,7 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
                 self.setState(self.state);
             }
         }
-        this.state = { error: 0 };
+        this.setState({ error: 0 });
     }
     render(): JSX.Element {
         if (!this.question || this.question.errors.length == 0) return null;

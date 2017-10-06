@@ -19,7 +19,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     }
     private setProperties(nextProps: any) {
         var self = this;
-        this.state = { rowCounter: 0 };
+        this.setState({ rowCounter: 0 });
         this.question.rowCountChangedCallback = function () {
             self.state.rowCounter = self.state.rowCounter + 1;
             self.setState(self.state);

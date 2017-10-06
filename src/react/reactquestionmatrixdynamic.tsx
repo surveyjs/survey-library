@@ -11,6 +11,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     constructor(props: any) {
         super(props);
         this.setProperties(props);
+        this.state = this.getState()
     }
     protected get question(): QuestionMatrixDynamicModel { return this.questionBase as QuestionMatrixDynamicModel; }
     componentWillReceiveProps(nextProps: any) {
@@ -18,13 +19,14 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
         this.setProperties(nextProps);
     }
     private setProperties(nextProps: any) {
-        var self = this;
         this.setState({ rowCounter: 0 });
-        this.question.rowCountChangedCallback = function () {
-            self.state.rowCounter = self.state.rowCounter + 1;
-            self.setState(self.state);
+        this.question.rowCountChangedCallback = () => {
+            this.setState(this.getState(this.state));
         };
         this.handleOnRowAddClick = this.handleOnRowAddClick.bind(this);
+    }
+    private getState(prevState = null) {
+        return {rowCounter: !prevState ? 0 : prevState.rowCounter + 1};
     }
     handleOnRowAddClick(event) {
         this.question.addRow();

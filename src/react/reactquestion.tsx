@@ -143,9 +143,8 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
     private setQuestion(question) {
         this.question = question instanceof Question ? question : null;
         if (this.question) {
-            var self = this;
-            this.question.errorsChangedCallback = function () {
-                self.setState(this.getState(self.state));
+            this.question.errorsChangedCallback = () => {
+                this.setState(this.getState(this.state));
             }
         }
     }

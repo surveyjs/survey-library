@@ -671,6 +671,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if(this.isMatrixValueEmpty(oldValue)) oldValue = null;
         var newValue = this.createNewValue(this.value);
         var rowValue = this.getRowValueCore(row, newValue, true);
+        if(!rowValue) rowValue = {};
         for (var key in rowValue) delete rowValue[key];
         if (newRowValue) {
             newRowValue = JSON.parse(JSON.stringify(newRowValue));

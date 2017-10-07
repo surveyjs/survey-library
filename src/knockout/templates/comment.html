@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-comment">
     <!-- ko ifnot: question.koIsReadOnly -->
-    <input data-bind="value: $data.question.koComment, visible: $data.visible, css: question.koCss().comment, attr: { 'aria-label': $data.question.locTitle.renderedHtml }" />
+    <input data-bind="value: $data.question.koComment, visible: $data.visible, css: question.koCss().comment, attr: { 'aria-label': !!question.locTitle && question.locTitle.renderedHtml }" />
     <!-- /ko -->
     <!-- ko if: question.koIsReadOnly -->
     <div data-bind="text: $data.question.koComment, visible: $data.visible, css: question.koCss().comment"></div>

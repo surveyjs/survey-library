@@ -290,6 +290,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
         return index >= 0 && index < questionValue.length ? questionValue[index] : null;
     }
     protected getRowValueCore(row: MatrixDropdownRowModelBase, questionValue: any, create: boolean = false): any {
+        if(!this.generatedVisibleRows) return {};
         return this.getRowValueByIndex(questionValue, this.generatedVisibleRows.indexOf(row));
     }
 }

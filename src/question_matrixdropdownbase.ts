@@ -668,7 +668,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
     }
     onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any) {
         var oldValue = this.createNewValue(this.value);
-        if(oldValue && Object.keys(oldValue).length == 0) oldValue = null;
+        if(this.isMatrixValueEmpty(oldValue)) oldValue = null;
         var newValue = this.createNewValue(this.value);
         var rowValue = this.getRowValueCore(row, newValue, true);
         for (var key in rowValue) delete rowValue[key];
@@ -690,6 +690,16 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         if(columnName) {
             this.onCellValueChanged(row, columnName, rowValue);
         }
+    }
+    private isMatrixValueEmpty(val) {
+        if(!val) return;
+        if(Array.isArray(val)) {
+            for(var i = 0; i < val.length; i ++) {
+                if(Object.keys(val[i]).length > 0) return false;
+            }
+            return true;
+        }
+        return Object.keys(val).length == 0;
     }
     getSurvey(): ISurvey { return this.survey; }
 }

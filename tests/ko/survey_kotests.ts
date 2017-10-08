@@ -419,6 +419,15 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function (asser
     assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });
 
+QUnit.test("Load rating from JSON, bug# https://github.com/surveyjs/editor/issues/171", function (assert) {
+    var json = { questions: [ {type: "rating", name: "q", rateMax: 8, rateMin : 2, rateStep: 2 }]};
+    var survey = new Survey(json);
+
+    var question = <QuestionRating>survey.getAllQuestions()[0];
+    assert.equal(question["koVisibleRateValues"]().length, 4, "There are 4 items: 2, 4, 6, 8");
+    
+});
+
 function createPageWithQuestion(name: string): Page {
     var page = new Page(name);
     page.addNewQuestion("text", "q1");

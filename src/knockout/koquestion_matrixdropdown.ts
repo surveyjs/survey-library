@@ -1,13 +1,33 @@
-﻿import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
-import {QuestionMatrixDropdownModelBase} from "../question_matrixdropdownbase";
+﻿import {SurveyElement} from "../base";
+import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
+import {QuestionMatrixDropdownModelBase, MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
+import {Question} from "../question";
 import {QuestionImplementor} from "./koquestion";
+
+export class QuestionMatrixBaseImplementor extends QuestionImplementor {
+    koCellAfterRender: any;
+    constructor(question: Question) {
+        super(question);
+        var self = this;
+        this.koCellAfterRender = function(el, con)  { return self.cellAfterRender(el, con); }
+        this.question["koCellAfterRender"] = this.koCellAfterRender;
+    }
+    private cellAfterRender(elements, con) {
+        if(!this.question.survey) return;
+        var el = SurveyElement.GetFirstNonTextElement(elements);
+        if(!el) return;
+        var cell = <MatrixDropdownCell>con;
+        var options = { cell: cell, cellQuestion: cell.question, htmlElement: el, row: cell.row, column: cell.column }; 
+        this.question.survey.matrixAfterCellRender(this.question, options);
+    }
+}
 
 export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     constructor(public name: string) {
         super(name);
-        new QuestionImplementor(this);
+        new QuestionMatrixBaseImplementor(this);
     }
 }
 

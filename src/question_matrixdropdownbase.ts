@@ -123,7 +123,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
 
 export class MatrixDropdownCell {
     private questionValue: Question;
-    constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, data: IMatrixDropdownData) {
+    constructor(public column: MatrixDropdownColumn, public row: MatrixDropdownRowModelBase, public data: IMatrixDropdownData) {
         this.questionValue = data.createQuestion(this.row, this.column);
         this.questionValue.validateValueCallback = function() { return data.validateCell(row, column.name, row.value); }
         CustomPropertiesCollection.getProperties(column.getType()).forEach(property => {

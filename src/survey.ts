@@ -277,6 +277,19 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public onMatrixCellCreated: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
+     * The event is fired for every cell after is has been rendered in DOM.
+     * <br/> options.question - the matrix question
+     * <br/> options.cell - the matrix cell
+     * <br/> options.cellQuestion - the question/editor in the cell. 
+     * <br/> options.htmlElement a html element binded with the cellQuestion object
+     * <br/> options.column - the matrix column object
+     * <br/> options.row - the matrix row object
+     * @see onMatrixCellCreated
+     * @see QuestionMatrixDynamicModel
+     * @see QuestionMatrixDropdownModel
+     */
+    public onMatrixAfterCellRender: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
      * The event is fired when cell value is changed in Matrix Dymic and Matrix Dropdown questions.
      * <br/> options.question - the matrix question
      * <br/> options.columName - the matrix column name
@@ -1064,6 +1077,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     matrixCellCreated(question: IQuestion, options: any) {
         options.question = question;
         this.onMatrixCellCreated.fire(this, options);
+    }
+    matrixAfterCellRender(question: IQuestion, options: any) {
+        options.question = question;
+        this.onMatrixAfterCellRender.fire(this, options);
     }
     matrixCellValueChanged(question: IQuestion, options: any) {
         options.question = question;

@@ -5,7 +5,8 @@ import {ISurveyCreator, SurveyQuestionErrors} from "./reactquestion";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 import {MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {ReactQuestionFactory} from "./reactquestionfactory";
-import {SurveyCustomWidget} from './custom-widget';
+import {SurveyCustomWidget} from "./custom-widget";
+import {SurveyQuestionMatrixDropdownCell} from "./reactquestionmatrixdropdown";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     constructor(props: any) {
@@ -104,23 +105,14 @@ export class SurveyQuestionMatrixDynamicRow extends ReactSurveyElement {
         var tds = [];
         for (var i = 0; i < this.row.cells.length; i++) {
             var cell = this.row.cells[i];
-            var errors = <SurveyQuestionErrors question={cell.question} cssClasses={this.cssClasses} creator={this.creator} />;
-            var select = this.renderQuestion(cell);
-            tds.push(<td key={"row" + i}>{errors}{select}</td>);
+            var cellElement = <SurveyQuestionMatrixDropdownCell key={"row" + i} cssClasses={this.cssClasses} cell={cell} creator={this.creator} />
+            tds.push(cellElement);
         }
         if (!this.isDisplayMode && this.question.canRemoveRow) {
             var removeButton = this.renderButton();
             tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
         }
         return (<tr>{tds}</tr>);
-    }
-    protected renderQuestion(cell: MatrixDropdownCell): JSX.Element {
-        if(!cell.question.visible) return null;
-        var customWidget = cell.question.customWidget;
-        if (!customWidget) {
-            return this.creator.createQuestionElement(cell.question);
-        }
-        return <SurveyCustomWidget creator={this.creator} question={cell.question}></SurveyCustomWidget>
     }
     protected renderButton(): JSX.Element {
         return <input className={this.cssClasses.button} type="button" onClick={this.handleOnRowRemoveClick} value={this.question.removeRowText} />;

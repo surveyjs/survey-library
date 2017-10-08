@@ -2,12 +2,13 @@
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
 import {QuestionImplementor} from "./koquestion";
+import {QuestionMatrixBaseImplementor} from "./koquestion_matrixdropdown";
 import {QuestionMatrixDynamicModel} from "../question_matrixdynamic";
 import {Question} from "../question";
 import {QuestionMatrixDropdownModelBase} from "../question_matrixdropdownbase";
 import {MatrixDynamicRowModel} from "../question_matrixdynamic";
 
-export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
+export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {
     koRows: any; koRecalc: any;
     koAddRowClick: any; koRemoveRowClick: any; koOverflowX: any;
     koCanAddRow: any; koCanRemoveRow: any;
@@ -62,6 +63,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionImplementor {
 }
 
 export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
+    koCellAfterRender: any;
     constructor(public name: string) {
         super(name);
         new QuestionMatrixDynamicImplementor(this);

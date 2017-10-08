@@ -225,6 +225,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if(newProps.onMatrixCellCreated) {
             this.survey.onMatrixCellCreated.add((sender, options) => { newProps.onMatrixCellCreated(sender, options); });
         }
+        if(newProps.onMatrixAfterCellRender) {
+            this.survey.onMatrixAfterCellRender.add((sender, options) => { newProps.onMatrixAfterCellRender(sender, options); });
+        }
         if(newProps.onMatrixCellValueChanged) {
             this.survey.onMatrixCellValueChanged.add((sender, options) => { newProps.onMatrixCellValueChanged(sender, options); });
         }

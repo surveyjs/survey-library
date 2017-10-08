@@ -14,15 +14,9 @@
                 <tr>
                     <td><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                     <!-- ko foreach: row.cells-->
-                    <td data-bind="css: question.koCss().itemValue">
-                        <div data-bind="visible: $data.question.koVisible">
-                        <!-- ko template: { name: 'survey-question-errors', data: $data.question } -->
+                        <!-- ko template: { name: 'survey-matrixcell', data: $data, as: "cell", afterRender: $data.data.koCellAfterRender } -->
                         <!-- /ko -->
-                        <!-- ko template: { name: question.koTemplateName(), data: $data.question, as: 'question', afterRender: $data.question.koQuestionAfterRender } -->
                         <!-- /ko -->
-                        </div>
-                    </td>
-                    <!-- /ko -->
                 </tr>
                 <!-- /ko -->
             </tbody>

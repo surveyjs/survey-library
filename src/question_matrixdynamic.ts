@@ -183,7 +183,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase 
      * Use this property to change the default value of remove row button text.
      */
     public get removeRowText() { return this.getLocalizableStringText("removeRowText", surveyLocalization.getString("removeRow")); }
-    public set removeRowText(val: string) { this.getLocalizableStringText("removeRowText",  val); }
+    public set removeRowText(val: string) { this.setLocalizableStringText("removeRowText",  val); }
     get locRemoveRowText() { return this.getLocalizableString("removeRowText"); }
     public get displayValue(): any {
         var values = this.value;

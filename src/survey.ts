@@ -909,9 +909,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.currentPage = vPages[index - 1];
     }
     /**
-     * Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page.
+     * Call it to complete the survey, if the current page is the last one. It returns false if there is an error on the page. If there is no errors on the page, it calls doComplete and returns true.
      * @see isCurrentPageHasErrors
      * @see nextPage
+     * @see doComplete
      */
     public completeLastPage() : boolean {
         if (this.isEditMode && this.isCurrentPageHasErrors) return false;
@@ -935,11 +936,12 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         return vPages.indexOf(this.currentPage) == vPages.length - 1;
     }
     /**
-     * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty.
+     * Call it to complete the survey. It writes cookie if cookieName property is not empty, set the survey into 'completed' state, fire onComplete event and sendResult into [dxsurvey.com](http://www.dxsurvey.com) service if surveyPostId property is not empty. It doesn't perform any validation, unlike completeLastPage function. 
      * @see cookieName
      * @see state
      * @see onComplete
      * @see surveyPostId
+     * @see completeLastPage
      */
     public doComplete() {
         let previousCookie = this.hasCookie;

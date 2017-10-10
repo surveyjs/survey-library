@@ -81,7 +81,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         var errorsBottom = this.creator.questionErrorLocation() == "bottom" ? errors : null;
         var paddingLeft = (this.questionBase.indent > 0) ? this.questionBase.indent * cssClasses.indent + "px" : null;
         var paddingRight = (this.questionBase.rightIndent > 0) ? this.questionBase.rightIndent * cssClasses.indent + "px" : null;
-        var rootStyle = { display: 'inline-block', verticalAlign: 'top' };
+        let rootStyle = { };
         if (this.questionBase.renderWidth) rootStyle["width"] = this.questionBase.renderWidth;
         if (paddingLeft) rootStyle["paddingLeft"] = paddingLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;

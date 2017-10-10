@@ -1,5 +1,6 @@
 ﻿<script type="text/html" id="survey-question">
-    <div style="vertical-align:top" data-bind="css: question.koCss().mainRoot, style: {display: question.koVisible() ? 'inline-block': 'none', paddingLeft: question.koPaddingLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
+    <!-- ko if: question.koVisible -->
+    <div data-bind="css: question.koCss().mainRoot, style: { paddingLeft: question.koPaddingLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
         <!-- ko if: question.hasTitle && question.titleLocation == 'top' -->
             <!--ko template: { name: 'survey-question-title', data: question  } --><!-- /ko -->
         <!-- /ko -->
@@ -14,4 +15,5 @@
             <!--ko template: { name: 'survey-question-title', data: question  } --><!-- /ko -->
         <!-- /ko -->
     </div>
+    <!-- /ko -->
 </script>

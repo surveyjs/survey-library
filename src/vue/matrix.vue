@@ -10,7 +10,7 @@
             <tr v-for="(row, rowIndex) in question.visibleRows" :class="question.cssClasses.row">
                 <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
                 <td v-for="(column, columnIndex) in question.columns">
-                    <label :class="question.cssClasses.label" :style="{'margin': '0', 'position': 'absolute'}">
+                    <label :class="question.cssClasses.label">
                         <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''" v-bind:aria-label="question.locTitle.renderedHtml"/>
                         <span class="circle"></span>
                         <span class="check"></span>

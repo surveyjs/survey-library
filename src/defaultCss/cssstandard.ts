@@ -24,7 +24,7 @@ export var defaultStandardCss = {
     checkbox: { root: "sv_qcbc sv_qcbx", item: "sv_q_checkbox", other: "sv_q_other" },
     comment: "",
     dropdown: { root: "", control: "", other: "sv_q_other" },
-    matrix: { root: "sv_q_matrix" },
+    matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
     matrixdropdown: { root: "sv_q_matrix" },
     matrixdynamic: { root: "table", button: "" },
     paneldynamic: { root: "", button: "" },

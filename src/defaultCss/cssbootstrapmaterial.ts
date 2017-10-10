@@ -17,7 +17,7 @@ export var defaultBootstrapMaterialCss = {
     checkbox: { root: "sv_qcbx form-inline", item: "checkbox", other: "" },
     comment: "form-control",
     dropdown: { root: "", control: "form-control", other: "" },
-    matrix: { root: "table", row: "form-group", label: "radio-inline", itemValue: "form-control" },
+    matrix: { root: "table", row: "form-group", label: "sv_q_m_label radio-inline", itemValue: "form-control" },
     matrixdropdown: { root: "table", itemValue: "form-group" },
     matrixdynamic: { root: "table", button: "button" },
     paneldynamic: { root: "", button: "button" },

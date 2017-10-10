@@ -14,7 +14,7 @@
                 <td data-bind="visible: question.hasRows"><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
                 <!-- ko foreach: question.columns -->
                 <td>
-                    <label data-bind="css: question.koCss().label, style:{'position': 'absolute'}" style="margin: 0;">
+                    <label data-bind="css: question.koCss().label">
                         <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
                         <span class="circle"></span>
                         <span class="check"></span>

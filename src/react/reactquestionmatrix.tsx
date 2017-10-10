@@ -88,6 +88,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                                aria-label={this.question.locTitle.renderedHtml}/>
                         <span className="circle"></span>
                         <span className="check"></span>
+                        <span style={{ 'display': 'none' }}>{this.question.locTitle.renderedHtml}</span>
                     </label>
                 </td>;
             tds.push(td);

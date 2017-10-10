@@ -7,7 +7,8 @@ export class StylesManager {
         '.sv_p_container': 'display: inline-block; vertical-align: top;',
         '.sv_qbln .checkbox-material': 'margin-right: 3px;',
         '.sv_qcbx .checkbox-material': 'margin-right: 5px;',
-        '.sv_qstn label.sv_q_m_label': 'position: absolute; margin: 0;'
+        '.sv_qstn label.sv_q_m_label': 'position: absolute; margin: 0;',
+        '.sv_q_mt_item_value': 'float: left;'
     };
 
     findSheet() {

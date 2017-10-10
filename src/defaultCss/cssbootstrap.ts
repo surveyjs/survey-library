@@ -22,7 +22,7 @@ export var defaultBootstrapCss = {
     matrixdropdown: { root: "table" },
     matrixdynamic: { root: "table", button: "button" },
     paneldynamic: { root: "", button: "button" },
-    multipletext: { root: "table", itemTitle: "", itemValue: "form-control" },
+    multipletext: { root: "table", itemTitle: "", itemValue: "sv_q_mt_item_value form-control" },
     radiogroup: { root: "form-inline", item: "radio", label: "", other: "" },
     rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
     text: "form-control",

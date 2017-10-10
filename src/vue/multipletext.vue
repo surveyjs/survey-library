@@ -4,8 +4,8 @@
             <template v-for="(item, index) in row">
                 <td :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
-                    <input v-if="!question.isReadOnly"  :class="question.cssClasses.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" style="float:left" :value="item.value" @change="change(item, $event)" v-bind:aria-label="question.locTitle.renderedHtml"/>
-                    <div v-else style="float:left" :class="question.cssClasses.itemValue" :size="question.itemSize">{{item.value}}</div>
+                    <input v-if="!question.isReadOnly" :class="question.cssClasses.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :id="index === 0 ? question.inputId : ''" :value="item.value" @change="change(item, $event)" v-bind:aria-label="question.locTitle.renderedHtml"/>
+                    <div v-else :class="question.cssClasses.itemValue" :size="question.itemSize">{{item.value}}</div>
                 </td>
             </template>
         </tr>

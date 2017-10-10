@@ -28,7 +28,7 @@ export var defaultStandardCss = {
     matrixdropdown: { root: "sv_q_matrix" },
     matrixdynamic: { root: "table", button: "" },
     paneldynamic: { root: "", button: "" },
-    multipletext: { root: "", itemTitle: "", row: "", itemValue: "" },
+    multipletext: { root: "", itemTitle: "", row: "", itemValue: "sv_q_mt_item_value" },
     radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", label: "", other: "sv_q_other" },
     rating: { root: "sv_q_rating", item: "sv_q_rating_item", selected: "active" },
     text: "",

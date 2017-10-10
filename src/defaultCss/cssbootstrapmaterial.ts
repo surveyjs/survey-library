@@ -13,8 +13,8 @@ export var defaultBootstrapMaterialCss = {
     panel: {title: "", container: "sv_p_container"},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
-    boolean: { root: "form-inline", item: "checkbox"},
-    checkbox: { root: "form-inline", item: "checkbox", other: "" },
+    boolean: { root: "sv_qbln form-inline", item: "checkbox"},
+    checkbox: { root: "sv_qcbx form-inline", item: "checkbox", other: "" },
     comment: "form-control",
     dropdown: { root: "", control: "form-control", other: "" },
     matrix: { root: "table", row: "form-group", label: "radio-inline", itemValue: "form-control" },

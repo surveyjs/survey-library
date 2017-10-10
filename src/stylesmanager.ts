@@ -4,8 +4,10 @@ export class StylesManager {
     private static SurveyJSStylesSheetId = "surveyjs";
     public static Styles: {[key: string]: string} = {
         //'h5.sq-title label': 'font-weight: inherit;'
-        '.sv_qstn': 'display: "inline-block"; verticalAlign: "top";',
-        '.sv_p_container': 'display: "inline-block"; verticalAlign: "top";'
+        '.sv_qstn': 'display: inline-block; vertical-align: top;',
+        '.sv_p_container': 'display: inline-block; vertical-align: top;',
+        '.sv_qbln .checkbox-material': 'margin-right: 3px;',
+        '.sv_qcbx .checkbox-material': 'margin-right: 5px;'
     };
 
     findSheet() {

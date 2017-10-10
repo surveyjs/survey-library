@@ -20,8 +20,8 @@ export var defaultStandardCss = {
     panel: { title: "sv_p_title", container: "sv_p_container" },
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
-    boolean: { root: "sv_qcbc", item: "sv_q_checkbox"},
-    checkbox: { root: "sv_qcbc", item: "sv_q_checkbox", other: "sv_q_other" },
+    boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox"},
+    checkbox: { root: "sv_qcbc sv_qcbx", item: "sv_q_checkbox", other: "sv_q_other" },
     comment: "",
     dropdown: { root: "", control: "", other: "sv_q_other" },
     matrix: { root: "sv_q_matrix" },

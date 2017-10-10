@@ -9,7 +9,7 @@ export var defaultBootstrapMaterialCss = {
     progress: "progress center-block", progressBar: "progress-bar",
     pageTitle: "",
     row: "",
-    question: { mainRoot: "sv_q form-group", title: "", description: "small", comment: "form-control", required: "", titleRequired: "", indent: 20 },
+    question: { mainRoot: "sv_qstn form-group", title: "", description: "small", comment: "form-control", required: "", titleRequired: "", indent: 20 },
     panel: {title: "", container: "sv_p_container"},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 

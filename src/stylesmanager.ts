@@ -4,7 +4,7 @@ export class StylesManager {
     private static SurveyJSStylesSheetId = "surveyjs";
     public static Styles: {[key: string]: string} = {
         //'h5.sq-title label': 'font-weight: inherit;'
-        '.sv_q': 'display: "inline-block"; verticalAlign: "top";',
+        '.sv_qstn': 'display: "inline-block"; verticalAlign: "top";',
         '.sv_p_container': 'display: "inline-block"; verticalAlign: "top";'
     };
 

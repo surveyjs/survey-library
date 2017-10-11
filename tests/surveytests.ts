@@ -1527,7 +1527,7 @@ QUnit.test("Survey Elements css", function (assert) {
     var checkCss = checkQuestion.cssClasses;
     assert.equal(textCss.root, "", "text question root class");
     assert.equal(textCss.title, "sv_q_title", "text question title class");
-    assert.equal(checkCss.root, "sv_qcbc", "checkbox question root class");
+    assert.equal(checkCss.root, "sv_qcbc sv_qcbx", "checkbox question root class");
     assert.equal(checkCss.item, "sv_q_checkbox", "checkbox question title class");
     assert.equal(checkCss.newItem, "hereIam", "checkbox question onUpdateQuestionCssClasses event called correctly");
     textQuestion.isRequired = true;

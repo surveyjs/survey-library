@@ -2,7 +2,7 @@
     <form :class="question.cssClasses.root">
         <label :class="question.cssClasses.item">
             <input type="checkbox" :name="question.name" :value="question.checkedValue" v-model="question.checkedValue" :id="question.inputId"  :indeterminate.prop="question.isIndeterminate" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml"/>
-            <span class="checkbox-material" style="margin-right: 3px"><span class="check"></span></span>
+            <span class="checkbox-material"><span class="check"></span></span>
             <survey-string :locString="question.locDisplayLabel"/>
         </label>
     </form>

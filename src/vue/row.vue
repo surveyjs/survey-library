@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-for="element in row.elements" :key="element.idValue" :class="css.question.mainRoot" style="vertical-align:top" :id="element.id" :style="{display: element.visible ? 'inline-block': 'none', paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }">
+        <div v-if="element.visible" v-for="element in row.elements" :key="element.idValue" :class="css.question.mainRoot" :id="element.id" :style="{ paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }">
             <survey-element :element="element" :survey="survey" :css="css" />
         </div>
     </div>

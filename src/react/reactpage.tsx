@@ -90,6 +90,7 @@ export class SurveyPanel extends React.Component<any, any> {
     }
     render(): JSX.Element {
         if (this.panel == null || this.survey == null || this.creator == null) return null;
+        if (!this.panel.isVisible) return null;
         var title = this.renderTitle();
         var rows = [];
         var questionRows = this.panel.rows;
@@ -97,7 +98,7 @@ export class SurveyPanel extends React.Component<any, any> {
             rows.push(this.createRow(questionRows[i], i));
         }
         var style = { "paddingLeft": this.panel.innerIndent * this.css.question.indent + 'px' };
-        var rootStyle = {verticalAlign: 'top', display: this.panel.isVisible? 'inline-block': 'none'};
+        var rootStyle = { };
         if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
         return (
             <div ref="root" className={this.css.panel.container} style={rootStyle}>

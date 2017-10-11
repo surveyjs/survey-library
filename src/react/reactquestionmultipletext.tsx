@@ -85,12 +85,11 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
     }
     render(): JSX.Element {
         if (!this.item) return null;
-        var style = { float: "left" };
-        if (this.isDisplayMode) return (<div id={this.inputId} className={this.cssClasses.itemValue} style={style}>{this.item.value}</div>);
-        return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} style={style} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
+        if (this.isDisplayMode) return (<div id={this.inputId} className={this.cssClasses.itemValue}>{this.item.value}</div>);
+        return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
     }
     protected get mainClassName(): string { return ""; }
-    private getValue(val: any) : any {
+    private getValue(val: any): any {
         if(Helpers.isValueEmpty(val)) return "";
         return val;
     }

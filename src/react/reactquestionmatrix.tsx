@@ -70,7 +70,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         var firstTD = null;
         if(this.question.hasRows) {
             var rowText = this.renderLocString(this.row.locText);
-             firstTD = <td>{rowText}</td>;
+            firstTD = <td>{rowText}</td>;
         }
         var tds = [];
         for (var i = 0; i < this.question.columns.length; i++) {
@@ -78,16 +78,16 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
             var key = "value" + i;
             var isChecked = this.row.value == column.value;
             var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
-            var labelStyle = { margin: '0', position: 'absolute' };
             var td =
                 <td key={key}>
-                    <label className={this.cssClasses.label} style={labelStyle}>
+                    <label className={this.cssClasses.label}>
                         <input id={inputId} type="radio" className={this.cssClasses.itemValue} name={this.row.fullName}
                                value={column.value} disabled={this.isDisplayMode} checked={isChecked}
                                onChange={this.handleOnChange}
                                aria-label={this.question.locTitle.renderedHtml}/>
                         <span className="circle"></span>
                         <span className="check"></span>
+                        <span style={{ 'display': 'none' }}>{this.question.locTitle.renderedHtml}</span>
                     </label>
                 </td>;
             tds.push(td);

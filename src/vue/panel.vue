@@ -1,7 +1,7 @@
 <template>
-    <div :style="rootStyle">
+    <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
         <h4 v-show="hasTitle" :class="css.panel.title"><survey-string :locString="question.locTitle"/></h4>
-        <div :class="css.panel.container" :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }">
+        <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }">
             <div v-for="row in rows" v-show="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
@@ -34,10 +34,7 @@
             }
         }
         get rootStyle () {
-            var result = {
-                verticalAlign: 'top',
-                display: this.question.isVisible ? 'inline-block': 'none'
-            };
+            var result = { };
             if(this.question.renderWidth) {
                 result['width'] = this.question.renderWidth;
             }

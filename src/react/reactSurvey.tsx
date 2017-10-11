@@ -7,7 +7,6 @@ import {ISurveyCreator} from "./reactquestion";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {SurveyProgress} from "./reactSurveyProgress";
-import {SurveyPageId} from "../base";
 import {SurveyElementBase} from "./reactquestionelement";
 
 export class Survey extends React.Component<any, any> implements ISurveyCreator {
@@ -76,6 +75,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     protected renderSurvey(): JSX.Element {
         var title = this.survey.title && this.survey.showTitle ? this.renderTitle() : null;
         var currentPage = this.survey.currentPage ? this.renderPage() : null;
+        var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
         var topProgress = this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
         var bottomProgress = this.survey.showProgressBar == "bottom" ? this.renderProgress(false) : null;
         var buttons = (currentPage && this.survey.isNavigationButtonsShowing) ? this.renderNavigation() : null;
@@ -85,7 +85,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         return (
             <div ref="root" className={this.css.root}>
                 {title}
-                <div id={SurveyPageId} className={this.css.body}>
+                <div id={pageId} className={this.css.body}>
                     {topProgress}
                     {currentPage}
                     {bottomProgress}

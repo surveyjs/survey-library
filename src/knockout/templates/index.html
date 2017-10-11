@@ -8,7 +8,7 @@
         <!-- ko if: koState() == "running" -->
         <div data-bind="css: css.body">
             <div data-bind="visible: showProgressBar =='top', template: 'survey-progress'"></div>
-            <div id="sq_page" data-bind="template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
+            <div data-bind="attr: { id: koCurrentPage().id }, template: { name: 'survey-page', data: koCurrentPage, afterRender: koAfterRenderPage }"></div>
             <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: 'survey-progress'"></div>
         </div>
         <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">

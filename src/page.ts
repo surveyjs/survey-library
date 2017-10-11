@@ -1,6 +1,6 @@
 ﻿import {JsonObject} from "./jsonobject";
 import {HashTable} from "./helpers";
-import {Base, IPage, IConditionRunner, ISurvey, IElement, IQuestion, SurveyElement, SurveyPageId} from "./base";
+import {Base, IPage, IConditionRunner, ISurvey, IElement, IQuestion, SurveyElement} from "./base";
 import {QuestionBase} from "./questionbase";
 import {ConditionRunner} from "./conditions";
 import {QuestionFactory} from "./questionfactory";
@@ -66,7 +66,7 @@ export class PageModel extends PanelModelBase implements IPage {
      * Call it to scroll to the page top.
      */
     public scrollToTop() {
-        SurveyElement.ScrollElementToTop(SurveyPageId);
+        SurveyElement.ScrollElementToTop(this.id);
     }
     protected onNumChanged(value: number) {
     }

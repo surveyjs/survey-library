@@ -335,9 +335,6 @@ export class SurveyError {
     }
 }
 
-export var SurveyPageId: string;
-SurveyPageId = "sq_page";
-
 export class SurveyElement extends Base implements ISurveyElement {
     private surveyImplValue: ISurveyImpl;
     private surveyDataValue: ISurveyData;

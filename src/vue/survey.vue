@@ -4,7 +4,7 @@
         <template v-if="survey.state === 'running'">
             <div :class="css.body">
                 <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>
-                <survey-page id="sq-page" :survey="survey" :page="survey.currentPage" :css="css" />
+                <survey-page :id="survey.currentPage.id" :survey="survey" :page="survey.currentPage" :css="css" />
                 <survey-progress style="margin-top:10px" v-if="survey.showProgressBar =='bottom'" :survey="survey" :css="css"/>
             </div>
             <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">

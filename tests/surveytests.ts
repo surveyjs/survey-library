@@ -1161,6 +1161,25 @@ QUnit.test("assign customWidgets to questions", function (assert) {
     assert.equal((<Question>survey.getQuestionByName("question5")).customWidget.name, "second", "has the second custom widget");
     CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("customWidgets activation types changed", function (assert) {
+    CustomWidgetCollection.Instance.clear();
+    var lastActivatedBy = "";
+    var customWidgetJSON = { 
+        name: "widget1", 
+        isFit: (question) => { return question.name == "question2"; },
+        activatedByChanged: (activatedBy) => {
+            lastActivatedBy = activatedBy;
+        }
+    }
+    CustomWidgetCollection.Instance.addCustomWidget(customWidgetJSON);
+    assert.equal(lastActivatedBy, "property", "activatedBy set to 'property' by default");
+    CustomWidgetCollection.Instance.setActivatedBy("widget1", "type");
+    assert.equal(lastActivatedBy, "type", "activatedBy set to 'type'");
+    CustomWidgetCollection.Instance.setActivatedBy("widget1", "customtype");
+    assert.equal(lastActivatedBy, "customtype", "activatedBy set to 'customtype'");
+    CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("assign customWidgets to matrix dynamic cell question", function (assert) {
     CustomWidgetCollection.Instance.clear();
     CustomWidgetCollection.Instance.addCustomWidget({ name: "first", isFit: (question) => { return question["renderAs"] === 'testwidget'; } });

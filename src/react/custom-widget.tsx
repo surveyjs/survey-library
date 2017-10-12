@@ -41,7 +41,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
 
         let customWidget = this.questionBase.customWidget;
 
-        if (customWidget.widgetJson.isDefaultRender) {
+        if (customWidget.isDefaultRender) {
             return <div ref='widget'>{this.creator.createQuestionElement(this.questionBase)}</div>;
         }
 

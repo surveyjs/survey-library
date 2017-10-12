@@ -15,6 +15,7 @@ export class QuestionCustomWidget {
         if (this.widgetJson.isFit) return this.widgetJson.isFit(question);
         return false;
     }
+    public get isDefaultRender() : boolean { return this.widgetJson.isDefaultRender; }
 }
 
 export class CustomWidgetCollection {

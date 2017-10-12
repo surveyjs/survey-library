@@ -23,7 +23,7 @@
     import {helpers} from './helpers'
 
     @Component
-    export default class SuveyElement extends Vue {
+    export default class SurveyElement extends Vue {
         @Prop
         css: any
         @Prop
@@ -33,7 +33,7 @@
         
         getWidgetComponentName(element: QuestionModel) {
             if(element.customWidget) {
-                return element.customWidget.name;
+                return "survey-customwidget";
             }
             return 'survey-' + element.getType();
         }
@@ -43,5 +43,5 @@
             }
         }
     }
-    Vue.component("survey-element", SuveyElement)
+    Vue.component("survey-element", SurveyElement)
 </script>

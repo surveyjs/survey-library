@@ -159,6 +159,6 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
             var key = "error" + i;
             errors.push(this.creator.renderError(key, errorText, this.cssClasses));
         }
-        return (<div className={this.cssClasses.error.root}>{errors}</div>);
+        return (<div role="alert" className={this.cssClasses.error.root}>{errors}</div>);
     }
 }

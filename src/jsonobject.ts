@@ -283,7 +283,19 @@ export class JsonMetadata {
     public createClass(name: string): any {
         var metaDataClass = this.findClass(name);
         if (!metaDataClass) return null;
-        return metaDataClass.creator();
+        if(metaDataClass.creator) return metaDataClass.creator();
+        var parentName = metaDataClass.parentName;
+        while(parentName) {
+            metaDataClass = this.findClass(parentName);
+            if (!metaDataClass) return null;
+            parentName = metaDataClass.parentName;
+            if(metaDataClass.creator) {
+                var res = metaDataClass.creator();
+                res.customType = name;
+                return res;
+            }
+        }
+        return null;
     }
     public getChildrenClasses(name: string, canBeCreated: boolean = false): Array<JsonMetadataClass> {
         var result = [];

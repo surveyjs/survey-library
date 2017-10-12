@@ -138,6 +138,7 @@ JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { retur
 JsonObject.metaData.addClass("loadingtest", ["name", { name: "items", className: "loadingtestitem"}], function () { return new LoadingFromJsonObj(); });
 JsonObject.metaData.addClass("loadingtestitem", ["name"], function () { return new LoadingFromJsonObjItem(); });
 
+JsonObject.metaData.addClass("customtruck", [], null, "truck");
 
 class CheckGetPropertyValue {
     public directProp: string;
@@ -384,7 +385,7 @@ QUnit.test("Deserialization - required property error", function (assert) {
 });
 QUnit.test("Deserialization - required property error", function (assert) {
     var children = JsonObject.metaData.getChildrenClasses("car");
-    assert.equal(children.length, 4, "There are 4 children classes");
+    assert.equal(children.length, 5, "There are 5 children classes");
     children = JsonObject.metaData.getChildrenClasses("car", true);
     assert.equal(children.length, 3, "There are 3 children classes that can be created.");
 });
@@ -567,4 +568,15 @@ QUnit.test("Set default value to the custom property", function (assert) {
     assert.equal(truck["tag"], 0, "the default numeric value is set");
     JsonObject.metaData.removeProperty("car", "isUsed");
     JsonObject.metaData.removeProperty("car", "tag");
+});
+
+QUnit.test("Create  object with virtual type by using parent constructor", function (assert) {
+    var dealer = new Dealer();
+    var jsonObj = new JsonObject();
+    jsonObj.toObject({ "cars": [{ "type": "customtruck", "maxWeight": 10000 }] }, dealer);
+    assert.equal(dealer.cars.length, 1, "can only one object deserialized");
+    var truck = <Truck>dealer.cars[0];
+    assert.equal(truck.maxWeight, 10000, "maxWait is desiarilized");
+    assert.equal(truck.getType(), "truck", "type is truck");
+    assert.equal(truck["customType"], "customtruck", "customType is added");
 });

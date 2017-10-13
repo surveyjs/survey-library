@@ -17,6 +17,10 @@ export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 export {VueSurveyModel as Model} from '../vue/surveyModel';
 export {default as Survey} from '../vue/survey.vue';
+export {default as CustomWidget} from '../vue/customwidget.vue';
+export {default as SurveyString} from '../vue/string.vue';
+export {default as SurveyElement} from '../vue/element.vue';
+export {default as MatrixCell} from '../vue/matrixcell.vue';
 export {default as Window} from '../vue/window.vue';
 export {default as Page} from '../vue/page.vue';
 export {default as Radiogroup} from '../vue/radiogroup.vue';
@@ -39,7 +43,3 @@ export {default as PanelDynamicProgress} from '../vue/paneldynamicprogress.vue';
 export {default as Progress} from '../vue/progress.vue';
 export {default as Panel} from '../vue/panel.vue';
 export {default as Row} from '../vue/row.vue';
-export {default as SurveyElement} from '../vue/element.vue';
-export {default as CustomWidget} from '../vue/customWidget.vue';
-export {default as SurveyString} from '../vue/string.vue';
-export {default as MatrixCell} from '../vue/matrixcell.vue';

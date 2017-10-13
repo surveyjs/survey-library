@@ -138,7 +138,8 @@ JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function () { retur
 JsonObject.metaData.addClass("loadingtest", ["name", { name: "items", className: "loadingtestitem"}], function () { return new LoadingFromJsonObj(); });
 JsonObject.metaData.addClass("loadingtestitem", ["name"], function () { return new LoadingFromJsonObjItem(); });
 
-JsonObject.metaData.addClass("customtruck", [], null, "truck");
+JsonObject.metaData.addClass("customtruck", ["description"], null, "truck");
+JsonObject.metaData.addProperty("customtruck", {name: "isCustom:boolean", default: true});
 
 class CheckGetPropertyValue {
     public directProp: string;
@@ -573,10 +574,11 @@ QUnit.test("Set default value to the custom property", function (assert) {
 QUnit.test("Create  object with virtual type by using parent constructor", function (assert) {
     var dealer = new Dealer();
     var jsonObj = new JsonObject();
-    jsonObj.toObject({ "cars": [{ "type": "customtruck", "maxWeight": 10000 }] }, dealer);
+    jsonObj.toObject({ "cars": [{ "type": "customtruck", "maxWeight": 10000, "description": "some text" }] }, dealer);
     assert.equal(dealer.cars.length, 1, "can only one object deserialized");
     var truck = <Truck>dealer.cars[0];
-    assert.equal(truck.maxWeight, 10000, "maxWait is desiarilized");
-    assert.equal(truck.getType(), "truck", "type is truck");
-    assert.equal(truck["customType"], "customtruck", "customType is added");
+    assert.equal(truck.maxWeight, 10000, "maxWeight is deserialized");
+    assert.equal(truck["description"], "some text", "added property is deserialized");
+    assert.equal(truck["isCustom"], true, "added property created if it is default");
+    assert.equal(truck.getType(), "customtruck", "type is truck");
 });

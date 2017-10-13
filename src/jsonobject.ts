@@ -289,13 +289,16 @@ export class JsonMetadata {
             metaDataClass = this.findClass(parentName);
             if (!metaDataClass) return null;
             parentName = metaDataClass.parentName;
-            if(metaDataClass.creator) {
-                var res = metaDataClass.creator();
-                res.customType = name;
-                return res;
-            }
+            if(metaDataClass.creator) return this.createCustomType(name, metaDataClass.creator);
         }
         return null;
+    }
+    private createCustomType(name: string, creator: any): any {
+        var res = creator();
+        res.customTypeName = name;
+        res.getType = function() { return res.customTypeName; };
+        CustomPropertiesCollection.createProperties(res);
+        return res;
     }
     public getChildrenClasses(name: string, canBeCreated: boolean = false): Array<JsonMetadataClass> {
         var result = [];

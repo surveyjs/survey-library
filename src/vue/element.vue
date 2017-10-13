@@ -35,7 +35,7 @@
             if(element.customWidget) {
                 return "survey-customwidget";
             }
-            return 'survey-' + element.getType();
+            return 'survey-' + element.getTemplate();
         }
         mounted() {
             if(this.survey && !this.element.isPanel) {

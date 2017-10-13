@@ -41,6 +41,6 @@ export class QuestionImplementorBase {
     private getTemplateName(): string {
         if (this.question.customWidget && !this.question.customWidget.widgetJson.isDefaultRender)
             return "survey-widget-" + this.question.customWidget.name;
-        return "survey-question-" + this.question.getType();
+        return "survey-question-" + this.question.getTemplate();
     }
 }

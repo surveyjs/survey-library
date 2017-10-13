@@ -63,7 +63,7 @@ export class Survey extends SurveyModel {
         }
         element = this.renderedElement;
         if (!element) return;
-        element.innerHTML = this.getTemplate();
+        element.innerHTML = this.getHtmlTemplate();
         self.applyBinding();
     }
     public koEventAfterRender(element, survey) {
@@ -81,7 +81,7 @@ export class Survey extends SurveyModel {
         this.updateKoCurrentPage();
     }
     protected createNewPage(name: string) { return new Page(name); }
-    protected getTemplate(): string { return koTemplate; }
+    protected getHtmlTemplate(): string { return koTemplate; }
     protected onBeforeCreating() {
         var self = this;
         this.dummyObservable = ko.observable(0);

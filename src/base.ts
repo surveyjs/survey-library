@@ -118,6 +118,11 @@ export class Base {
      */
     public getType(): string { return "base"; }
     /**
+     * Returns the element template name without prefix. Typically it equals to getType() 
+     * @see getType
+     */
+    public getTemplate(): string { return this.getType(); }
+    /**
      * Returns true if the object is loading from Json at the current moment.
      */
     public get isLoadingFromJson() { return this.isLoadingFromJsonValue; }

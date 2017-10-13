@@ -580,5 +580,6 @@ QUnit.test("Create  object with virtual type by using parent constructor", funct
     assert.equal(truck.maxWeight, 10000, "maxWeight is deserialized");
     assert.equal(truck["description"], "some text", "added property is deserialized");
     assert.equal(truck["isCustom"], true, "added property created if it is default");
-    assert.equal(truck.getType(), "customtruck", "type is truck");
+    assert.equal(truck.getType(), "customtruck", "type is customtruck");
+    assert.equal(truck.getTemplate(), "truck", "template is truck");
 });

@@ -31,7 +31,7 @@
         }
         get componentName(): string {
             if(this.hasVueComponent) return this.question.customWidget.name;
-            return "survey-" + this.question.getType();
+            return "survey-" + this.question.getTemplate();
         }
         mounted() {
             this.question.customWidget.afterRender(this.question, this.$el);

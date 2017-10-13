@@ -296,7 +296,9 @@ export class JsonMetadata {
     private createCustomType(name: string, creator: any): any {
         var res = creator();
         res.customTypeName = name;
+        res.customTemplateName = res.getTemplate ? res.getTemplate() : res.getType();
         res.getType = function() { return res.customTypeName; };
+        res.getTemplate = function() { return res.customTemplateName; };
         CustomPropertiesCollection.createProperties(res);
         return res;
     }

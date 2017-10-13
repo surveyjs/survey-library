@@ -39,7 +39,7 @@
         }
         mounted() {
             if(this.survey && !this.element.isPanel) {
-                this.survey.afterRenderQuestion(<any>this.element, this.$el);
+                this.survey.afterRenderQuestion(<IQuestion>this.element, this.$el);
             }
         }
     }

@@ -29,6 +29,7 @@ export class QuestionSelectBase extends Question {
         var self = this;
         this.choicesValues = this.createItemValues("choices");
         this.choicesByUrl = this.createRestfull();
+        this.choicesByUrl.owner = this;
         this.createLocalizableString("otherText", this, true);
         this.createLocalizableString("otherErrorText", this, true);
         this.otherItemValue.locOwner = this;
@@ -285,7 +286,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 JsonObject.metaData.addClass("selectbase", ["hasComment:boolean", "hasOther:boolean",
     { name: "choices:itemvalues", onGetValue: function (obj: any) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj: any, value: any) { obj.choices = value; }},
     { name: "choicesOrder", default: "none", choices: ["none", "asc", "desc", "random"] },
-    { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.isEmpty ? null : obj.choicesByUrl; }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
+    { name: "choicesByUrl:restfull", className: "ChoicesRestfull", onGetValue: function (obj: any) { return obj.choicesByUrl.getData(); }, onSetValue: function (obj: any, value: any) { obj.choicesByUrl.setData(value); } },
     { name: "otherText", serializationProperty: "locOtherText" }, {name: "otherErrorText", serializationProperty: "locOtherErrorText"},
     { name: "storeOthersAsComment:boolean", default: true}], null, "question");
 

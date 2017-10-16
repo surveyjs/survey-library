@@ -39,6 +39,22 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
     }
 }
 
+class QuestionDropdownImageTester extends QuestionDropdownModel {
+    constructor(name: string) {
+        super(name);
+    }
+    protected createRestfull(): ChoicesRestfull { 
+        var res = new ChoicesRestfullTester(); 
+        res.noCaching = true;
+        return res;
+    }
+    public getType(): string { return "dropdown_image"; }
+}
+
+JsonObject.metaData.addClass("dropdown_image", [], function () { return new QuestionDropdownImageTester(""); }, "dropdown");
+JsonObject.metaData.addClass("imageitemvalues_choicesrest", ["alpha3_code", "customProperty"], null, "itemvalue");
+JsonObject.metaData.addClass("imagepicker_choicesrest", [{name: "choices:imageitemvalues_choicesrest", onGetValue: function (obj) { return ItemValue.getData(obj.choices); }, onSetValue: function (obj, value) { obj.choices = value; }}], null, "dropdown_image");
+
 QUnit.test("Load countries", function (assert) {
     var test = new ChoicesRestfullTester();
     var items = [];
@@ -127,6 +143,34 @@ QUnit.test("Load countries, custom properties, #615", function (assert) {
     assert.equal(items[4]["alpha2_code"], "AS", "the fifth alpha2_code is AS");
     JsonObject.metaData.removeProperty("itemvalue", "alpha2_code");
 });
+
+QUnit.test("Load countries, custom itemvalue class", function (assert) {
+    var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass("imagepicker_choicesrest");
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.choicesByUrl["customPropertyName"] = "alpha2_code";
+    question.onSurveyLoad();
+    assert.equal(question.choices.length, 0, "Choices do not used");
+    assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
+    assert.equal(question.visibleChoices[0]["alpha3_code"], "AFG", "Custom property is set");
+    assert.equal(question.visibleChoices[0]["customProperty"], "AF", "Custom property is set via propertyName is set");
+});
+
+QUnit.test("choicesByUrl + custom itemvalue class, save/load to/from json", function (assert) {
+    var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass("imagepicker_choicesrest");
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.choicesByUrl["customPropertyName"] = "alpha2_code";
+    question.name = "q";
+    var savedJson = new JsonObject().toJsonObject(question);
+    var json = { name: "q", choicesByUrl: { url: "allcountries", path: "RestResponse;result", customPropertyName: "alpha2_code" } };
+    assert.deepEqual(savedJson, json, "choicesByUrl + custom itemvalue class restore correctly");
+
+    var loadedQuestion = <QuestionDropdownImageTester>JsonObject.metaData.createClass("imagepicker_choicesrest");
+    new JsonObject().toObject(json, loadedQuestion);
+    assert.equal(loadedQuestion.choicesByUrl["customPropertyName"], "alpha2_code", "Restore customproperty correctly from json");
+});
+
 
 function getCACities() {
     return [

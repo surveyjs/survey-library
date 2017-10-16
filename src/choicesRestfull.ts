@@ -21,12 +21,9 @@ export class ChoicesRestfull extends Base {
     private lastObjHash: string = "";
     protected processedUrl: string = "";
     protected processedPath: string = "";
-    public url: string = "";
-    public path: string = "";
-    public valueName: string = "";
-    public titleName: string = "";
     public getResultCallback: (items: Array<ItemValue>) => void;
     public error: SurveyError = null;
+    public owner: Base;
     constructor() {
         super();
     }
@@ -80,24 +77,74 @@ export class ChoicesRestfull extends Base {
     public get isEmpty(): boolean {
         return !this.url && !this.path && !this.valueName && !this.titleName;
     }
+    public getCustomPropertiesNames(): Array<string> {
+        var properties = this.getCustomProperties();
+        var res = new Array<string>();
+        for(var i = 0; i < properties.length; i ++) {
+            res.push(this.getCustomPropertyName(properties[i].name));
+        }
+        return res;
+    }
+    private getCustomPropertyName(propertyName: string): string { return propertyName + "Name"; }
+    private getCustomProperties() : Array<JsonObjectProperty> {
+        var properties = JsonObject.metaData.getProperties(this.itemValueType);
+        var res = [];
+        for(var i = 0; i < properties.length; i ++) {
+            if(properties[i].name == "value" || properties[i].name == "text") continue;
+            res.push(properties[i]);
+        }
+        return res;
+    }
     public setData(json: any) {
         this.clear();
         if (json.url) this.url = json.url;
         if (json.path) this.path = json.path;
         if (json.valueName) this.valueName = json.valueName;
         if (json.titleName) this.titleName = json.titleName;
+        var properties = this.getCustomPropertiesNames();
+        for(var i = 0; i < properties.length; i ++) {
+            if(json[properties[i]]) this[properties[i]] = json[properties[i]];
+        }
+    }
+    public getData(): any {
+        if(this.isEmpty) return null;
+        var res = {};
+        if(this.url) res["url"] = this.url;
+        if(this.path) res["path"] = this.path;
+        if(this.valueName) res["valueName"] = this.valueName;
+        if(this.titleName) res["titleName"] = this.titleName;
+        var properties = this.getCustomPropertiesNames();
+        for(var i = 0; i < properties.length; i ++) {
+            if(this[properties[i]]) res[properties[i]] = this[properties[i]];
+        }
+        return res;
+    }
+    public get url(): string { return this.getPropertyValue("url", ""); };
+    public set url(val: string) { this.setPropertyValue("url", val); };
+    public get path(): string { return this.getPropertyValue("path", ""); }
+    public set path(val: string) { this.setPropertyValue("path", val); }
+    public get valueName(): string { return this.getPropertyValue("valueName", ""); };
+    public set valueName(val: string) { this.setPropertyValue("valueName", val); };
+    public get titleName(): string { return this.getPropertyValue("titleName", ""); };
+    public set titleName(val: string) { this.setPropertyValue("titleName", val); };
+    public get itemValueType(): string { 
+        if(!this.owner) return "itemvalue";
+        var prop = JsonObject.metaData.findProperty(this.owner.getType(), "choices");
+        return prop ? prop.type : "itemvalue";
     }
     public clear() {
         this.url = "";
         this.path = "";
         this.valueName = "";
         this.titleName = "";
+        var properties = this.getCustomPropertiesNames();
+        for(var i = 0; i < properties.length; i ++) {
+            if(this[properties[i]]) this[properties[i]] = "";
+        }
     }
     protected onLoad(result: any) {
         var items = [];
         result = this.getResultAfterPath(result);
-        var properties = JsonObject.metaData.getProperties("itemvalue");
-
         if (result && result["length"]) {
             for (var i = 0; i < result.length; i++) {
                 var itemValue = result[i];
@@ -105,7 +152,7 @@ export class ChoicesRestfull extends Base {
                 var value = this.getValue(itemValue);
                 var title = this.getTitle(itemValue);
                 var item = new ItemValue(value, title);
-                this.setCustomProperties(item, itemValue, properties);
+                this.setCustomProperties(item, itemValue);
                 items.push(item);
             }
         } else {
@@ -114,16 +161,20 @@ export class ChoicesRestfull extends Base {
         ChoicesRestfull.itemsResult[this.objHash] = items;
         this.getResultCallback(items);
     }
-    private setCustomProperties(item: ItemValue, itemValue: any, properties: Array<JsonObjectProperty>) {
-        if(properties.length <= 2) return;
+    private setCustomProperties(item: ItemValue, itemValue: any) {
+        var properties = this.getCustomProperties();
         for(var i = 0; i < properties.length; i ++) {
             var prop = properties[i];
-            if(prop.name == "value" || prop.name == "text") continue;
-            var val = this.getValueCore(itemValue, prop.name);
-            if(val) {
+            var val = this.getValueCore(itemValue, this.getPropertyBinding(prop.name));
+            if(!this.isValueEmpty(val)) {
                 item[prop.name] = val;
             }
         }
+    }
+    private getPropertyBinding(propertyName: string) {
+        if(this[this.getCustomPropertyName(propertyName)]) return this[this.getCustomPropertyName(propertyName)];
+        if(this[propertyName]) return this[propertyName];
+        return propertyName;
     }
     private onError(status: string, response: string) {
         this.error = new CustomError(surveyLocalization.getString("urlRequestError")["format"](status, response));

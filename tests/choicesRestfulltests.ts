@@ -186,6 +186,7 @@ QUnit.test("choicesByUrl + clear value if it doesn't exists any more, #1", funct
     question.onSurveyLoad();
     assert.equal(question.value, "Algeria", "Value should not be changed, before choices were empty and value exists");
     question.value = "Algeria1";
+    question.onSurveyLoad();
     assert.equal(question.value, "Algeria1", "Value should not be changed, the value doesn't exists in choices before as well");
 });
 

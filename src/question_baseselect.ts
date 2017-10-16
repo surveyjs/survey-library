@@ -73,7 +73,7 @@ export class QuestionSelectBase extends Question {
         }
     }
     protected setNewValue(newValue: any) {
-        if (newValue) this.cachedValueForUrlRequests = newValue;
+        this.cachedValueForUrlRequests = newValue;
         super.setNewValue(newValue);
     }
     protected valueFromData(val: any): any {
@@ -206,7 +206,7 @@ export class QuestionSelectBase extends Question {
     private runChoicesByUrl() {
         if (this.choicesByUrl) {
             var processor = this.surveyImpl ?  this.surveyImpl.getTextProcessor() : this.survey;
-             this.choicesByUrl.run(processor);
+            this.choicesByUrl.run(processor);
         }
     }
     private onLoadChoicesFromUrl(array: Array<ItemValue>) {

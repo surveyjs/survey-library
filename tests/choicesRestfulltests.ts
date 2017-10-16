@@ -2,6 +2,7 @@
 import {Question} from "../src/question";
 import {ChoicesRestfull} from "../src/choicesRestfull";
 import {QuestionDropdownModel} from "../src/question_dropdown";
+import {QuestionCheckboxModel} from "../src/question_checkbox";
 import {QuestionMatrixDynamicModel} from "../src/question_matrixdynamic";
 import {QuestionMatrixDropdownModelBase} from "../src/question_matrixdropdownbase";
 import {ItemValue} from "../src/itemvalue";
@@ -23,6 +24,12 @@ class ChoicesRestfullTester extends ChoicesRestfull {
 }
 
 class QuestionDropdownModelTester extends QuestionDropdownModel {
+    constructor(name: string) {
+        super(name);
+    }
+    protected createRestfull(): ChoicesRestfull { return new ChoicesRestfullTester(); }
+}
+class QuestionCheckboxModelTester extends QuestionCheckboxModel {
     constructor(name: string) {
         super(name);
     }
@@ -171,6 +178,36 @@ QUnit.test("choicesByUrl + custom itemvalue class, save/load to/from json", func
     assert.equal(loadedQuestion.choicesByUrl["customPropertyName"], "alpha2_code", "Restore customproperty correctly from json");
 });
 
+QUnit.test("choicesByUrl + clear value if it doesn't exists any more, #1", function (assert) {
+    var question = new QuestionDropdownModelTester("q1");
+    question.value = "Algeria";
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.equal(question.value, "Algeria", "Value should not be changed, before choices were empty and value exists");
+    question.value = "Algeria1";
+    assert.equal(question.value, "Algeria1", "Value should not be changed, the value doesn't exists in choices before as well");
+});
+
+QUnit.test("choicesByUrl + clear value if it doesn't exists any more, #2", function (assert) {
+    var question = new QuestionDropdownModelTester("q1");
+    question.choices = ["USA", "UK"];
+    question.value = "UK";
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.notOk(question.value,  "Value is empty, it existed before and it doesn't exists now");
+});
+
+QUnit.test("choicesByUrl + checkbox + clear value if it doesn't exists any more", function (assert) {
+    var question = new QuestionCheckboxModelTester("q1");
+    question.choices = ["USA", "UK"];
+    question.value = ["UK", "Algeria", "UnknownCountry"];
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.deepEqual(question.value, ["Algeria", "UnknownCountry"],  "Remove 'UK' and leave the value that exists in the new and doesn't exists in the old");
+});
 
 function getCACities() {
     return [

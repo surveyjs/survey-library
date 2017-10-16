@@ -219,15 +219,45 @@ export class QuestionSelectBase extends Question {
             this.fireCallback(this.errorsChangedCallback);
         }
         var newChoices = null;
+        var cachedValues = this.createCachedValueForUrlRequests(this.cachedValueForUrlRequests);
         if (array && array.length > 0) {
             newChoices = new Array<ItemValue>();
             ItemValue.setData(newChoices, array);
         }
         this.choicesFromUrl = newChoices;
-        if (this.cachedValueForUrlRequests) {
-            this.value = this.cachedValueForUrlRequests;
+        if(newChoices) {
+            var newValue = this.updateCachedValueForUrlRequests(cachedValues);
+            if (newValue) {
+                this.value = newValue.value;
+            }
         }
         this.onVisibleChoicesChanged();
+    }
+    private createCachedValueForUrlRequests(val: any): any {
+        if(this.isValueEmpty(val)) return null;
+        if(Array.isArray(val)) {
+            var res = [];
+            for(var i = 0; i < val.length; i ++) {
+                res.push(this.createCachedValueForUrlRequests(val[i]));
+            }
+            return res;
+        }
+        return { value: val, isExists: !this.hasUnknownValue(val) };
+    }
+    private updateCachedValueForUrlRequests(val: any): any {
+        if(this.isValueEmpty(val)) return null;
+        if(Array.isArray(val)) {
+            var res = [];
+            for(var i = 0; i < val.length; i ++) {
+                var updatedValue = this.updateCachedValueForUrlRequests(val[i]);
+                if(updatedValue && !this.isValueEmpty(updatedValue.value)) {
+                    res.push(updatedValue.value); 
+                }
+            }
+            return {value: res};
+        }
+        var value = val.isExists && this.hasUnknownValue(val.value) ? null : val.value;
+        return {value: value};
     }
     private onVisibleChoicesChanged() {
         if(this.isLoadingFromJson) return;

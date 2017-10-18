@@ -45,17 +45,15 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     }
     protected renderItem(item: MultipleTextItemModel, isFirst: boolean, cssClasses: any): JSX.Element {
         let inputId = isFirst ? this.question.inputId : null;
-        return <SurveyQuestionMultipleTextItem item={item}  cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} inputId={inputId} />;
+        return <SurveyQuestionMultipleTextItem item={item}  cssClasses={cssClasses} isDisplayMode={this.isDisplayMode} />;
     }
 }
 
 export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
     private item: MultipleTextItemModel;
-    private inputId: string;
     constructor(props: any) {
         super(props);
         this.item = props.item;
-        this.inputId = props.inputId;
         this.state = { value: this.getValue(this.item.value) };
         this.handleOnChange = this.handleOnChange.bind(this);
         this.handleOnBlur = this.handleOnBlur.bind(this);
@@ -73,20 +71,20 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
     componentDidMount() {
         if(this.item) {
             var self = this;
-            this.item.onValueChangedCallback = function(newValue) {
+            this.item.valueChangedCallback = function(newValue) {
                 self.setState({ value: this.getValue(newValue) });
             }
         }
     }
     componentWillUnmount() {
         if(this.item) {
-            this.item.onValueChangedCallback = null;
+            this.item.valueChangedCallback = null;
         }
     }
     render(): JSX.Element {
         if (!this.item) return null;
-        if (this.isDisplayMode) return (<div id={this.inputId} className={this.cssClasses.itemValue}>{this.item.value}</div>);
-        return (<input id={this.inputId} className={this.cssClasses.itemValue}  type={this.item.inputType} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
+        if (this.isDisplayMode) return (<div id={this.item.id} className={this.cssClasses.itemValue}>{this.item.value}</div>);
+        return (<input id={this.item.id} className={this.cssClasses.itemValue}  type={this.item.inputType} value={this.state.value} placeholder={this.item.placeHolder} onBlur={this.handleOnBlur} onChange={this.handleOnChange} aria-label={this.item.locTitle.renderedHtml}/>);
     }
     protected get mainClassName(): string { return ""; }
     private getValue(val: any): any {

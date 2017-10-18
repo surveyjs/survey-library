@@ -16,9 +16,14 @@ export interface IMultipleTextData {
 }
 
 export class MultipleTextItemModel extends Base implements IValidatorOwner, ILocalizableOwner {
+    private static itemCounter = 100;
+    private static getItemId(): string {
+        return "sp_" + MultipleTextItemModel.itemCounter++;
+    }
     private data: IMultipleTextData;
+    private idValue: string = MultipleTextItemModel.getItemId();
 
-    onValueChangedCallback: (newValue: any)=>void;
+    valueChangedCallback: (newValue: any)=>void;
     validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
     constructor(name: any = null, title: string = null) {
@@ -33,6 +38,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     public getType(): string {
         return "multipletextitem";
     }
+    public get id(): string { return this.idValue; }
     /**
      * The item name. 
      */
@@ -92,7 +98,7 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
         }
     }
     public onValueChanged(newValue: any) {
-        if(this.onValueChangedCallback) this.onValueChangedCallback(newValue);
+        if(this.valueChangedCallback) this.valueChangedCallback(newValue);
     }
     //IValidatorOwner
     getValidatorTitle(): string { return this.title; }

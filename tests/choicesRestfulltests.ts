@@ -207,7 +207,7 @@ QUnit.test("choicesByUrl + checkbox + clear value if it doesn't exists any more"
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    assert.deepEqual(question.value, ["Algeria", "UnknownCountry"],  "Remove 'UK' and leave the value that exists in the new and doesn't exists in the old");
+    assert.deepEqual(question.value, ["Algeria", "UnknownCountry"],  "Remove 'UK' and leave the value that exists in the new or doesn't exists in the old");
 });
 
 function getCACities() {

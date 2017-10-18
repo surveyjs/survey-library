@@ -35,6 +35,7 @@ export {PanelModel, PanelModelBase, QuestionRowModel} from "../../panel";
 export {PageModel} from "../../page";
 export {Question} from "../../question";
 export {QuestionBase} from "../../questionbase";
+export {QuestionEmptyModel} from "../../question_empty";
 export {QuestionCheckboxBase, QuestionSelectBase} from "../../question_baseselect";
 export {QuestionCheckboxModel} from "../../question_checkbox";
 export {QuestionCommentModel} from "../../question_comment";

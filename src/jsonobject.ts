@@ -146,6 +146,9 @@ export class JsonMetadataClass {
     properties: Array<JsonObjectProperty> = null;
     requiredProperties: Array<string> = null;
     constructor(public name: string, properties: Array<any>, public creator: () => any = null, public parentName: string = null) {
+        if(parentName) {
+            CustomPropertiesCollection.addClass(name, parentName);
+        }
         this.properties = new Array<JsonObjectProperty>();
         for (var i = 0; i < properties.length; i++) {
             var prop = this.createProperty(properties[i]);
@@ -249,7 +252,6 @@ export class JsonMetadata {
         var metaDataClass = new JsonMetadataClass(name, properties, creator, parentName);
         this.classes[name] = metaDataClass;
         if (parentName) {
-            CustomPropertiesCollection.addClass(name, parentName);
             var children = this.childrenClasses[parentName];
             if (!children) {
                 this.childrenClasses[parentName] = [];
@@ -316,14 +318,22 @@ export class JsonMetadata {
         }
         return properties;
     }
-    public addProperty(className: string, propertyInfo: any) {
+    public addProperties(className: string, propertiesInfos: Array<any>) {
         var metaDataClass = this.findClass(className);
+        for(var i = 0; i < propertiesInfos.length; i ++) {
+            this.addCustomPropertyCore(this.findClass(className), propertiesInfos[i]);
+        }
+    }
+    public addProperty(className: string, propertyInfo: any) {
+        this.addCustomPropertyCore(this.findClass(className), propertyInfo);
+    }
+    private addCustomPropertyCore(metaDataClass: JsonMetadataClass, propertyInfo: any) {
         if (!metaDataClass) return;
         var property = metaDataClass.createProperty(propertyInfo);
         if (property) {
             this.addPropertyToClass(metaDataClass, property);
             this.emptyClassPropertiesHash(metaDataClass);
-            CustomPropertiesCollection.addProperty(className, property);
+            CustomPropertiesCollection.addProperty(metaDataClass.name, property);
         }
     }
     public removeProperty(className: string, propertyName: string) {

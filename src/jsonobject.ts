@@ -131,7 +131,7 @@ export class CustomPropertiesCollection {
         }
     }
     private static createPropertyInObj(obj: any, prop: any) {
-        if(obj[prop.name]) return;
+        if(obj[prop.name] || obj.hasOwnProperty(prop.name)) return;
         var desc = {
             get: function() { return obj.getPropertyValue(prop.name, prop.defaultValue); }, 
             set : function(v: any) { obj.setPropertyValue(prop.name, v); }
@@ -321,7 +321,7 @@ export class JsonMetadata {
     public addProperties(className: string, propertiesInfos: Array<any>) {
         var metaDataClass = this.findClass(className);
         for(var i = 0; i < propertiesInfos.length; i ++) {
-            this.addCustomPropertyCore(this.findClass(className), propertiesInfos[i]);
+            this.addCustomPropertyCore(metaDataClass, propertiesInfos[i]);
         }
     }
     public addProperty(className: string, propertyInfo: any) {

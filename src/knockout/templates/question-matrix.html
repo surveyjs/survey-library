@@ -18,7 +18,7 @@
                         <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
                         <span class="circle"></span>
                         <span class="check"></span>
-                        <span style="display: 'none';" data-bind="text: question.locTitle.renderedHtml"></span>
+                        <span style="display: none" data-bind="text: $data.locText.text"></span>
                     </label>
                 </td>
                 <!-- /ko -->

@@ -21,6 +21,9 @@ QUnit.test("Condition", function (assert) {
     op.right = new Operand(3);
     op.left = new Operand([1, 2, 3, 4, 5]); assert.equal(op.perform(), true, "contains: 3 from [1, 2, 3, 4, 5]");
     op.left = new Operand([1, 2, 4, 5]); assert.equal(op.perform(), false, "contains: 3 from [1, 2, 4, 5]");
+    op.operator = "*=";
+    op.left = new Operand([1, 2, 3, 4, 5]); assert.equal(op.perform(), true, "contains: 3 from [1, 2, 3, 4, 5]");
+    op.left = new Operand([1, 2, 4, 5]); assert.equal(op.perform(), false, "contains: 3 from [1, 2, 4, 5]");
     op.operator = "notcontains";
     op.left = new Operand([1, 2, 3, 4, 5]); assert.equal(op.perform(), false, "notcontains: 3 from [1, 2, 3, 4, 5]");
     op.left = new Operand([1, 2, 4, 5]); assert.equal(op.perform(), true, "notcontains: 3 from [1, 2,  4, 5]");

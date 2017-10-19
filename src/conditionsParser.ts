@@ -205,7 +205,7 @@ export class ConditionsParser {
         if (op == '<=' || op == '=<') op = "lessorequal";
         if (op == '=' || op == '==') op = "equal";
         if (op == '<>' || op == '!=') op = "notequal";
-        if (op == 'contain') op = "contains";
+        if (op == 'contain' || op == '*=') op = "contains";
         if (op == 'notcontain') op = "notcontains";
         return op;
     }

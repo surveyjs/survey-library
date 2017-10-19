@@ -53,3 +53,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+notifications:
+  email:
+    recipients:
+      - andrew.telnov@gmail.com

@@ -402,6 +402,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
     //IValidatorOwner
     getValidatorTitle(): string { return null; }
+    get validatedValue(): any { return this.value; }
+    set validatedValue(val: any) { this.value = val; }
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }, 

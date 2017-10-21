@@ -52,6 +52,7 @@ export class QuestionSelectBase extends Question {
     protected getHasOther(val: any): boolean {
         return val == this.otherItem.value;
     }
+    get validatedValue(): any {  return this.valueToDataCore(this.value); }
     protected createRestfull(): ChoicesRestfull { return new ChoicesRestfull(); }
     protected getComment(): string {
         if (this.getStoreOthersAsComment()) return super.getComment();

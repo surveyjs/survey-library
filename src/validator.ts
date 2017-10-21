@@ -28,17 +28,17 @@ export class SurveyValidator extends Base {
 }
 export interface IValidatorOwner {
     validators: Array<SurveyValidator>;
-    value: any;
+    validatedValue: any;
     getValidatorTitle(): string;
 }
 export class ValidatorRunner {
     public run(owner: IValidatorOwner): SurveyError {
         for (var i = 0; i < owner.validators.length; i++) {
-            var validatorResult = owner.validators[i].validate(owner.value, owner.getValidatorTitle());
+            var validatorResult = owner.validators[i].validate(owner.validatedValue, owner.getValidatorTitle());
             if (validatorResult != null) {
                 if (validatorResult.error) return validatorResult.error;
                 if (validatorResult.value) {
-                    owner.value = validatorResult.value;
+                    owner.validatedValue = validatorResult.value;
                 }
             }
         }
@@ -139,6 +139,15 @@ export class RegexValidator extends SurveyValidator {
     public validate(value: any, name: string = null): ValidatorResult {
         if (!this.regex || !value) return null;
         var re = new RegExp(this.regex);
+        if(Array.isArray(value)) {
+            for(var i = 0; i < value.length; i ++) {
+                var res = this.hasError(re, value[i], name);
+                if(res) return res;
+            }
+        }
+        return this.hasError(re, value, name);;
+    }
+    private hasError(re: RegExp, value: any, name: string): ValidatorResult {
         if (re.test(value)) return null;
         return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
     }

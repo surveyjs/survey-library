@@ -102,6 +102,8 @@ export class MultipleTextItemModel extends Base implements IValidatorOwner, ILoc
     }
     //IValidatorOwner
     getValidatorTitle(): string { return this.title; }
+    get validatedValue(): any { return this.value; }
+    set validatedValue(val: any) { this.value = val; }
     //ILocalizableOwner
     getLocale() { return this.data ? this.data.getLocale() : "";}
     getMarkdownHtml(text: string)  { return this.data ? this.data.getMarkdownHtml(text) : null; }

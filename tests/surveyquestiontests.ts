@@ -6,7 +6,7 @@ import {SurveyModel} from "../src/survey";
 import {QuestionCheckboxModel} from "../src/question_checkbox";
 import {QuestionMatrixModel} from "../src/question_matrix";
 import {MultipleTextItemModel, QuestionMultipleTextModel} from "../src/question_multipletext";
-import {NumericValidator, AnswerCountValidator, EmailValidator} from "../src/validator";
+import {NumericValidator, AnswerCountValidator, EmailValidator, RegexValidator} from "../src/validator";
 import {QuestionRadiogroupModel} from "../src/question_radiogroup";
 import {QuestionMatrixDropdownModel} from "../src/question_matrixdropdown";
 import {MatrixDropdownColumn} from "../src/question_matrixdropdownbase";
@@ -251,6 +251,37 @@ QUnit.test("Validators for array value question", function (assert) {
     assert.equal(question.hasErrors(), true, "It should be less then 3 items");
     question.value = ["item1", "item3"];
     assert.equal(question.hasErrors(), false, "There is two items in value");
+});
+QUnit.test("Validators for other values - dropdown, Bug #722", function (assert) {
+    var question = new QuestionDropdownModel("q1");
+    question.choices = ["1", "2", "3", "4", "5"];
+    question.hasOther = true;
+    question.value = "1";
+    assert.equal(question.hasErrors(), false, "There is no validators");
+    question.validators.push(new RegexValidator("[0-9]+"));
+    assert.equal(question.hasErrors(), false, "There is no error, 1 is fine");
+    question.value = question.otherItem.value;
+    question.comment = "aaa";
+    assert.equal(question.hasErrors(), true, "The comment doesn't math the regex");
+    question.comment = "222";
+    assert.equal(question.hasErrors(), false, "The comment math the regex");
+});
+QUnit.test("Validators for other values - checkbox, Bug #722", function (assert) {
+    var question = new QuestionCheckboxModel("q1");
+    question.choices = ["1", "2", "3", "4", "5"];
+    question.hasOther = true;
+    question.value = ["1", "2", question.otherItem.value];
+    question.comment = "33";
+    assert.equal(question.isOtherSelected, true, "Other is selected");
+    question.validators.push(new RegexValidator("[0-9]+"));
+    question.validators.push(new AnswerCountValidator(2, 3));
+    assert.equal(question.hasErrors(), false, "validation pass correctly");
+    question.comment = "aaa";
+    assert.equal(question.hasErrors(), true, "'aaa' is not a number");
+    question.comment = "11";
+    assert.equal(question.hasErrors(), false, "it is fine again");
+    question.value = [question.otherItem.value];
+    assert.equal(question.hasErrors(), true, "There should be at least 2 values selected");
 });
 QUnit.test("Show errors if others value is selected, but not entered", function (assert) {
     var radio = new QuestionRadiogroupModel("q1");

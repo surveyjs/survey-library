@@ -1,21 +1,23 @@
 ﻿import {Helpers, HashTable} from "./helpers"
 
 export class JsonObjectProperty {
+    private static mergableValues = ["typeValue", "choicesValue", "readOnlyValue", "visibleValue", "isLocalizableValue", "className", 
+        "alternativeName", "classNamePart", "baseClassName", "defaultValue", "serializationProperty", "onGetValue", "onSetValue"];
     private typeValue: string = null;
     private choicesValue: Array<any> = null;
     private isRequiredValue: boolean = false;
+    private readOnlyValue = null;
+    private visibleValue = null;
+    private isLocalizableValue = null;
     private choicesfunc: () => Array<any> = null;
     public className: string = null;
     public alternativeName: string = null;
     public classNamePart: string = null;
     public baseClassName: string = null;
     public defaultValue: any = null;
-    public readOnly: boolean = false;
-    public visible: boolean = true;
-    public isLocalizable: boolean = false;
     public serializationProperty: string = null;
     public onGetValue: (obj: any) => any = null;
-    public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
+    public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
 
     constructor(public name: string, isRequired: boolean = false) {
         this.isRequiredValue = isRequired;
@@ -72,6 +74,23 @@ export class JsonObjectProperty {
         this.choicesValue = value;
         this.choicesfunc = valueFunc;
     }
+    public get readOnly(): boolean { return this.readOnlyValue != null ? this.readOnlyValue :  false; }
+    public set readOnly(val: boolean) { this.readOnlyValue = val; }
+    public get visible(): boolean { return this.visibleValue != null ? this.visibleValue : true; }
+    public set visible(val: boolean) { this.visibleValue = val; }
+    public get isLocalizable(): boolean { return this.isLocalizableValue != null ? this.isLocalizableValue : false; }
+    public set isLocalizable(val: boolean) { this.isLocalizableValue = val; }
+    public mergeWith(prop: JsonObjectProperty) {
+        var valuesNames = JsonObjectProperty.mergableValues;
+        for(var i = 0; i < valuesNames.length; i ++) {
+            this.mergeValue(prop, valuesNames[i]);
+        }
+     }
+     private mergeValue(prop: JsonObjectProperty, valueName: string) {
+         if(this[valueName] == null && prop[valueName] != null) {
+             this[valueName] = prop[valueName];
+         }
+     }
 }
 export class CustomPropertiesCollection {
     private static properties = {};
@@ -402,6 +421,7 @@ export class JsonMetadata {
         if (index < 0) {
             list.push(property)
         } else {
+            property.mergeWith(list[index]);
             list[index] = property;
         }
     }

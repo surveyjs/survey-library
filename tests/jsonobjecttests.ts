@@ -115,7 +115,7 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
 JsonObject.metaData.addClass("dealer", ["name:string", "dummyname", "car", "cars", "stringArray", { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
     { name: "truck", className: "truck" }, { name: "trucks", className: "truck", visible: false },
-    { name: "changeNameOnSet", onSetValue: function (obj: any, value: any, jsonConv: JsonObject) { obj.name = value; } }]);
+    { name: "changeNameOnSet", onSetValue: function (obj: any, value: any, jsonConv: JsonObject) { obj.name = value; } }], function() {return new Dealer();});
 
 JsonObject.metaData.addClass("fast", [], function () { return new FastCar(); }, "car");
 JsonObject.metaData.addClass("big", [], null, "car");
@@ -140,6 +140,9 @@ JsonObject.metaData.addClass("loadingtestitem", ["name"], function () { return n
 
 JsonObject.metaData.addClass("customtruck", ["description"], null, "truck");
 JsonObject.metaData.addProperty("customtruck", {name: "isCustom:boolean", default: true});
+
+JsonObject.metaData.addClass("customdealer", [{name: "defaultValue", visible: false}], null, "dealer");
+
 
 class CheckGetPropertyValue {
     public directProp: string;
@@ -582,4 +585,15 @@ QUnit.test("Create  object with virtual type by using parent constructor", funct
     assert.equal(truck["isCustom"], true, "added property created if it is default");
     assert.equal(truck.getType(), "customtruck", "type is customtruck");
     assert.equal(truck.getTemplate(), "truck", "template is truck");
+});
+
+QUnit.test("Custom class - do not serialize invisible properties with default value", function (assert) {
+    var dealer = <Dealer>JsonObject.metaData.createClass("customdealer");
+    assert.ok(dealer, "The object is created");
+    assert.equal(dealer.getType(), "customdealer", "type is customdealer");
+    assert.equal(dealer.getTemplate(), "dealer", "template is dealer");
+    dealer.name = "mydealer";
+    var jsonObj = new JsonObject();
+    var json = jsonObj.toJsonObject(dealer);
+    assert.deepEqual(json, {name: "mydealer"}, "property with default value is not serialized");
 });

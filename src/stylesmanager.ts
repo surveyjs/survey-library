@@ -39,6 +39,8 @@ export class StylesManager {
     }
 
     public initializeStyles() {
-        Object.keys(StylesManager.Styles).forEach(selector => this.sheet.addRule(selector, StylesManager.Styles[selector]));
+        Object.keys(StylesManager.Styles).forEach(selector =>
+            this.sheet.insertRule(selector + '{ ' + StylesManager.Styles[selector] + ' }', 0
+        ));
     }
 }

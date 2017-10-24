@@ -76,6 +76,15 @@ QUnit.test("Full survey deserialize with one question bypass pages object", func
     survey.setValue("textQuestion", "newValue");
     assert.equal((<Question>survey.pages[0].questions[0]).value, "newValue", "data interface is working");
 });
+QUnit.test("Full survey deserialize with one element bypass pages object", function (assert) {
+    var survey = new SurveyModel();
+    new JsonObject().toObject(
+        {
+            elements: [{ "type": "text", "name": "textQuestion", "isRequired": "true" }, { "type": "checkbox", "name": "checkboxQuestion", "isRequired": "true", "choices": ["red", "white"] }]
+        }, survey);
+    survey.setValue("textQuestion", "newValue");
+    assert.equal((<Question>survey.pages[0].elements[0]).value, "newValue", "data interface is working");
+});
 QUnit.test("Serialize survey data", function (assert) {
     var survey = new SurveyModel();
     survey.setValue("question1", "value1");

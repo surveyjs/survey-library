@@ -409,3 +409,9 @@ QUnit.test("Support true/false constants, #643", function (assert) {
     values = { year: 20 };
     assert.equal(runner.run(values), false, "false, false or 20 >= 21");
 });
+
+QUnit.test("true/false as string, bug#729", function (assert) {
+    var runner = new ConditionRunner("{isTrue} = 'true'");
+    var values = { isTrue: 'true' };
+    assert.equal(runner.run(values), true, "true, 'true' = 'true'");
+});    

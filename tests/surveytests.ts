@@ -1057,7 +1057,20 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function (assert
     survey.setValue("q1", []);
     assert.equal(counter, 2, "nothing happens");
 });
-
+QUnit.test("visibleIf, bug#729", function (assert) {
+    var survey = new SurveyModel({ 
+        questions: [
+          {choices:[{"value":"true","text":"Yes"},{"value":"false","text":"No"}],"type":"radiogroup","name":"q1"},
+          { type: "text", name: "q2", visibleIf: "{q1} = 'true'" } 
+    ]});
+    var q1 = <Question>survey.getQuestionByName("q1");
+    var q2 = survey.getQuestionByName("q2");
+    assert.equal(q2.visible, false, "q2 is not visible by default");
+    q1.value = "true";
+    assert.equal(q2.visible, true, "q2 should be visible now");
+    q1.value = "false";
+    assert.equal(q2.visible, false, "q2 should be invisible again");
+});
 QUnit.test("enableIf for question", function (assert) {
     var survey = new SurveyModel({
         pages: [{

@@ -130,7 +130,9 @@ export class ChoicesRestfull extends Base {
     public get itemValueType(): string { 
         if(!this.owner) return "itemvalue";
         var prop = JsonObject.metaData.findProperty(this.owner.getType(), "choices");
-        return prop ? prop.type : "itemvalue";
+        if(!prop) return "itemvalue";
+        if(prop.type == "itemvalues") return "itemvalue";
+        return prop.type;
     }
     public clear() {
         this.url = "";

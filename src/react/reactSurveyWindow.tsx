@@ -20,11 +20,11 @@ export class SurveyWindow extends Survey {
         if (this.state.hidden) return null;
         var header = this.renderHeader();
         var body = this.state.expanded ? this.renderBody() : null;
-        var style = { position: "fixed", bottom: "3px", right: "10px" };
+        let style: React.CSSProperties  = { position: "fixed", bottom: 3, right: 10 };
         return <div className={this.css.window.root} style={style}>
             {header}
             {body}
-            </div>;
+        </div>;
 
     }
     protected renderHeader(): JSX.Element {

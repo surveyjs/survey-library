@@ -415,3 +415,20 @@ QUnit.test("true/false as string, bug#729", function (assert) {
     var values = { isTrue: 'true' };
     assert.equal(runner.run(values), true, "true, 'true' = 'true'");
 });    
+QUnit.test("Override functions: make equal works as contains", function (assert) {
+    var eqFunc = Condition.getOperator("equal");
+    var containsFunc = Condition.getOperator("contains");
+    var newFunc = function(left: any, right: any) {
+        if(Array.isArray(left) && !Array.isArray(right)) {
+            return containsFunc(left, right);
+        }
+        return eqFunc(left, right);
+    }
+    Condition.setOperator("equal", newFunc);
+    var runner = new ConditionRunner("{checkquestion} = 3");
+    var values = { checkquestion: [1, 2] };
+    assert.equal(runner.run(values), false, "There is no 3 value");
+    values = { checkquestion: [1, 2, 3] };
+    assert.equal(runner.run(values), true, "There is 3 value");
+    Condition.setOperator("equal", eqFunc);
+});    

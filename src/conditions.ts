@@ -54,6 +54,11 @@ export class Operand {
             res.isSimple = true;
             return res;
         }
+        if(this.isNumeric(val)) {
+            res.isSimple = true;
+            res.value = parseFloat(val);
+            return res;
+        }
         if(this.isBoolean(val)) {
             res.value = val.toLowerCase() == "true";
             res.isSimple = true;
@@ -129,6 +134,12 @@ export class Condition {
             }
         };
         return Condition.operatorsValue;
+    }
+    public static getOperator(opName: string): any {
+        return Condition.operators[opName];
+    }
+    public static setOperator(opName: string, func: (left: any, right: any) => boolean) {
+        Condition.operators[opName] = func;
     }
     private opValue: string = "equal";
     private leftValue: Operand = null;

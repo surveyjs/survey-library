@@ -2,7 +2,7 @@
     <div>
         <div :class="question.cssClasses.root">
             <label v-for="(item, index) in question.visibleRateValues" :class="getCss(item)">
-                <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" v-bind:aria-label="question.locTitle.renderedHtml"/>
+                <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" v-bind:aria-label="item.locText.text"/>
                 <span v-if="index === 0"><survey-string :locString="question.locMinRateDescription"/></span>
                 <survey-string :locString="item.locText"/>
                 <span v-if="index === question.visibleRateValues.length-1"><survey-string :locString="question.locMaxRateDescription"/></span>

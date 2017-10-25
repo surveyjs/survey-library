@@ -16,7 +16,6 @@ export class QuestionImplementor extends QuestionImplementorBase {
         question.titleChangedCallback = function () { self.onVisibleIndexChanged(); };
         question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {self.onVisibleIndexChanged();});
         question.registerFunctionOnPropertyValueChanged("isReadOnly", function() {self.onReadOnlyChanged();});
-        question.surveyLoadCallback = function() {self.onSurveyLoad();}
         this.koDummy = ko.observable(0);
         this.koValue = this.createkoValue();
         this.koComment = ko.observable(this.question.comment);
@@ -48,6 +47,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
         this.updateKoDummy();
     }
     protected onSurveyLoad() {
+        super.onSurveyLoad();
         this.onReadOnlyChanged();
     }
     protected onReadOnlyChanged() {

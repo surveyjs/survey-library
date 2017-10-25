@@ -341,6 +341,20 @@ QUnit.test("Text preprocessing variable and value. Fix the bug#461", function (a
     assert.equal(question.locTitle["koRenderedHtml"](), "1. [var1][val1]", "The var1 and val1 are set");
 });
 
+QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function (assert) {
+    var json = { questions: [
+            {type: "panel", name: "panel", elements: [{type: "text", name: "q1"}, {type: "text", name: "q2", visibleIf: "{q1}=a", startWithNewLine: false}]
+        }]};
+    var survey = new Survey(json);
+    var panel = survey.getAllPanels()[0];
+    var koRows = panel["koRows"];
+    var row = koRows()[0];
+
+    assert.ok(row, "row is created");
+    assert.equal(koRows().length, 1, "There are 1 row in the panel");
+    assert.equal(survey.getQuestionByName("q2")["koVisible"](), false, "The question is invisible");
+});
+
 QUnit.test("Load PanelDynamic from Json", function (assert) {
     var json = { questions: [
             {type: "paneldynamic", name: "q", panelCount: 3, templateElements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]

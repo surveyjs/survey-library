@@ -7,9 +7,8 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     }
     localeChangedHandler = (sender) => sender.customWidgetData.isNeedRender = true;
     private _afterRender() {
-        let el = this.refs['root'];
         if (this.questionBase.customWidget) {
-            el = this.refs['widget'];
+            let el = this.refs['widget'];
             if (!!el) {
                 this.questionBase.customWidget.afterRender(this.questionBase, el);
                 this.questionBase.customWidgetData.isNeedRender = false;
@@ -28,9 +27,8 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
         }
     }
     componentWillUnmount() {
-        let el = this.refs['root'];
         if (this.questionBase.customWidget) {
-            el = this.refs['widget'];
+            let el = this.refs['widget'];
             if (!!el) { this.questionBase.customWidget.willUnmount(this.questionBase, el); }
         }
         this.questionBase.localeChanged.remove(this.localeChangedHandler);

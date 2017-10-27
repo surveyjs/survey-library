@@ -1,7 +1,7 @@
 ﻿<div style="position: fixed; bottom: 3px; right: 10px;" data-bind="css: css.window.root">
     <div data-bind="css: css.window.header.root">
         <a href="#" data-bind="click:doExpand" style="width:100%">
-            <span style="padding-right:10px" data-bind="css: css.window.header.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></span>
+            <span style="padding-right:10px" data-bind="css: css.window.header.title, text: locTitle.koRenderedHtml"></span>
             <span aria-hidden="true" data-bind="css: koExpandedCss"></span>
         </a>
     </div>

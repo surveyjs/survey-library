@@ -79,13 +79,12 @@ const initSurvey = ClientFunction((framework) => {
         window.runSurvey = runSurvey;
     } else if (framework === "react") {
         function runSurvey() {
-            var clientId = document.getElementById('clientId').value;
             var survey = new Survey.Model({
                 surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
-                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68',
-                clientId: clientId
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
             });
-             document.getElementById("clientIdContainer").style.display = "none";
+            survey.clientId = document.getElementById('clientId').value;
+            document.getElementById("clientIdContainer").style.display = "none";
             survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
             ReactDOM.render(React.createElement(Survey.Survey, { model: survey, onComplete: surveyComplete, onSendResult: surveySendResult }), document.getElementById("surveyElement"));
         }
@@ -108,12 +107,11 @@ const initSurvey = ClientFunction((framework) => {
         window.runSurvey = runSurvey;
     } else if (framework === "jquery") {
         function runSurvey() {
-            var clientId = document.getElementById('clientId').value;
             var survey = new Survey.Model({
                 surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
-                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68',
-                clientId: clientId
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
             });
+            survey.clientId = document.getElementById('clientId').value;
             document.getElementById("clientIdContainer").style.display = "none";
             survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
 

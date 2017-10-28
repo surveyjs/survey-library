@@ -125,6 +125,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         }
         if (newProps) {
             for(var key in newProps) {
+                if(key == "model" || key == "children") continue;
                 if(key == "css") {
                     this.survey.mergeCss(newProps.css, this.css);
                     continue;

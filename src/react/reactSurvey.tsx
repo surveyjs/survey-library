@@ -124,9 +124,20 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
             this.survey = new ReactSurveyModel();
         }
         if (newProps) {
-            if (newProps.clientId) this.survey.clientId = newProps.clientId;
-            if (newProps.data) this.survey.data = newProps.data;
-            if (newProps.css) this.survey.mergeCss(newProps.css, this.css);
+            for(var key in newProps) {
+                if(key == "css") {
+                    this.survey.mergeCss(newProps.css, this.css);
+                    continue;
+                }
+                if(key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
+                    var func = newProps[key];
+                    this.survey[key].add((sender, options) => {
+                        func(sender, options);
+                    });
+                } else {
+                    this.survey[key] = newProps[key];
+                }
+            }
         }
 
         //set the first page
@@ -167,21 +178,6 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         this.survey.onValueChanged.add((sender, options) => {
             if (newProps.data) newProps.data[options.name] = options.value;
         });
-        for(var key in newProps) {
-            if(key == "css") {
-                this.css = newProps[key];
-                continue;
-            }
-            if(!this.survey[key]) continue;
-            if(key.indexOf("on") == 0 && this.survey[key].add) {
-                var func = newProps[key];
-                this.survey[key].add((sender, options) => {
-                    func(sender, options);
-                });
-            } else {
-                this.survey[key] = newProps[key];
-            }
-        }
     }
 
     //ISurveyCreator

@@ -371,7 +371,7 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         this.runCellsCondition(values);
     }
     protected runCellsCondition(values: HashTable<any>) {
-        if(!this.generatedVisibleRows || !this.hasVisibleIfColumn) return;
+        if(!this.generatedVisibleRows) return;
         var newValues = {};
         if (values && values instanceof Object) {
             newValues = JSON.parse(JSON.stringify(values));
@@ -381,12 +381,6 @@ export class QuestionMatrixDropdownModelBase extends Question implements IMatrix
         for(var i = 0; i < rows.length; i ++) {
             rows[i].runCondition(newValues);
         }
-    }
-    private get hasVisibleIfColumn(): boolean {
-        for(var i = 0; i < this.columns.length; i ++) {
-            if(this.columns[i].visibleIf) return true;
-        }
-        return false;
     }
     public onLocaleChanged() {
         super.onLocaleChanged();

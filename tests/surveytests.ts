@@ -1086,6 +1086,39 @@ QUnit.test("enableIf for question", function (assert) {
     assert.equal(q2.isReadOnly, false, "It is not readonly now");
 });
 
+QUnit.test("enableIf for matrix questions, Bug#736", function (assert) {
+    var survey = new SurveyModel({questions: [
+        { type: "matrixdropdown", name: "q1", 
+            columns: [{ name: "using", choices: ["Yes", "No"], cellType: "radiogroup" }],
+            rows: [{ value: "angularv1" }]},
+        { type: "matrixdropdown", name: "q2",
+            columns: [{ name: "using", choices: ["Yes", "No"], cellType: "radiogroup" }],
+            rows: [{ value: "angularv2" }, { value: "angularv4" } ]}
+        ]});
+    var qVisible = null; var qEnable = null;
+    survey.onMatrixCellCreated.add(function(survey, options){
+        if(options.row.rowName == "angularv2" && options.columnName == "using") {
+            qVisible = options.cellQuestion;
+            qVisible.visibleIf = "{q1.angularv1.using} = 'Yes'";
+        }
+        if(options.row.rowName == "angularv4" && options.columnName == "using") {
+            qEnable = options.cellQuestion;
+            qEnable.enableIf = "{q1.angularv1.using} = 'Yes'";
+        }
+    });
+    var q1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q2");
+    var rows1 = q1.visibleRows; 
+    var rows2 = q2.visibleRows;
+    assert.ok(qVisible, "visibleIf is set");
+    assert.ok(qEnable, "enableIf is set");
+    assert.equal(qVisible.visible, false, "The question is invisible on start");
+    assert.equal(qEnable.readOnly, true, "The question is readOnly on start");
+    rows1[0].cells[0].question.value = "Yes";
+    assert.equal(qVisible.visible, true, "The question is visible now");
+    assert.equal(qEnable.readOnly, false, "The question is enabled now");
+});
+
 QUnit.test("isRequired test, empty array https://github.com/surveyjs/surveyjs/issues/362", function (assert) {
     var survey = new SurveyModel({
         pages: [{

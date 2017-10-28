@@ -166,70 +166,21 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
         if (!newProps) return;
         this.survey.onValueChanged.add((sender, options) => {
             if (newProps.data) newProps.data[options.name] = options.value;
-            if (newProps.onValueChanged) newProps.onValueChanged(sender, options);
         });
-        if(newProps.onVisibleChanged) {
-            this.survey.onVisibleChanged.add((sender, options) => { newProps.onVisibleChanged(sender, options); });
-        }
-        if (newProps.onComplete) {
-            this.survey.onComplete.add((sender, options) => { newProps.onComplete(sender, options); });
-        }
-        if (newProps.onPartialSend) {
-            this.survey.onPartialSend.add((sender) => { newProps.onPartialSend(sender); });
-        }
-        if (newProps.onPageVisibleChanged) {
-            this.survey.onPageVisibleChanged.add((sender, options) => {  newProps.onPageVisibleChanged(sender, options); });
-        }
-        if (newProps.onPanelVisibleChanged) {
-            this.survey.onPanelVisibleChanged.add((sender, options) => { newProps.onPanelVisibleChanged(sender, options); });
-        }
-        if (newProps.onServerValidateQuestions) {
-            this.survey.onServerValidateQuestions = newProps.onServerValidateQuestions;
-        }
-        if (newProps.onQuestionAdded) {
-            this.survey.onQuestionAdded.add((sender, options) => { newProps.onQuestionAdded(sender, options); });
-        }
-        if (newProps.onQuestionRemoved) {
-            this.survey.onQuestionRemoved.add((sender, options) => { newProps.onQuestionRemoved(sender, options); });
-        }
-        if (newProps.onValidateQuestion) {
-            this.survey.onValidateQuestion.add((sender, options) => { newProps.onValidateQuestion(sender, options); });
-        }
-        if (newProps.onSendResult) {
-            this.survey.onSendResult.add((sender, options) => { newProps.onSendResult(sender, options); });
-        }
-        if (newProps.onGetResult) {
-            this.survey.onGetResult.add((sender, options) => { newProps.onGetResult(sender, options); });
-        }
-        if (newProps.onProcessHtml) {
-            this.survey.onProcessHtml.add((sender, options) => { newProps.onProcessHtml(sender, options); });
-        }
-        if (newProps.onAfterRenderSurvey) {
-            this.survey.onAfterRenderSurvey.add((sender, options) => { newProps.onAfterRenderSurvey(sender, options); });
-        }
-        if (newProps.onAfterRenderPage) {
-            this.survey.onAfterRenderPage.add((sender, options) => { newProps.onAfterRenderPage(sender, options); });
-        }
-        if (newProps.onAfterRenderQuestion) {
-            this.survey.onAfterRenderQuestion.add((sender, options) => { newProps.onAfterRenderQuestion(sender, options); });
-        }
-        if (newProps.onAfterRenderPanel) {
-            this.survey.onAfterRenderPanel.add((sender, options) => { newProps.onAfterRenderPanel(sender, options); });
-        }
-        if(newProps.onTextMarkdown) {
-            this.survey.onTextMarkdown.add((sender, options) => { newProps.onTextMarkdown(sender, options); });
-        }
-        if(newProps.onMatrixRowAdded) {
-            this.survey.onMatrixRowAdded.add((sender, options) => { newProps.onMatrixRowAdded(sender, options); });
-        }
-        if(newProps.onMatrixCellCreated) {
-            this.survey.onMatrixCellCreated.add((sender, options) => { newProps.onMatrixCellCreated(sender, options); });
-        }
-        if(newProps.onMatrixAfterCellRender) {
-            this.survey.onMatrixAfterCellRender.add((sender, options) => { newProps.onMatrixAfterCellRender(sender, options); });
-        }
-        if(newProps.onMatrixCellValueChanged) {
-            this.survey.onMatrixCellValueChanged.add((sender, options) => { newProps.onMatrixCellValueChanged(sender, options); });
+        for(var key in newProps) {
+            if(key == "css") {
+                this.css = newProps[key];
+                continue;
+            }
+            if(!this.survey[key]) continue;
+            if(key.indexOf("on") == 0 && this.survey[key].add) {
+                var func = newProps[key];
+                this.survey[key].add((sender, options) => {
+                    func(sender, options);
+                });
+            } else {
+                this.survey[key] = newProps[key];
+            }
         }
     }
 

@@ -173,10 +173,7 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
                 state.value = options.value;
                 options.question.react.setState(state);
             }
-        });
-        if (!newProps) return;
-        this.survey.onValueChanged.add((sender, options) => {
-            if (newProps.data) newProps.data[options.name] = options.value;
+            if (newProps && newProps.data) newProps.data[options.name] = options.value;
         });
     }
 

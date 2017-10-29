@@ -81,9 +81,9 @@ const initSurvey = ClientFunction((framework) => {
         function runSurvey() {
             var survey = new Survey.Model({
                 surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
-                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68',
+                clientId: document.getElementById('clientId').value
             });
-            survey.clientId = document.getElementById('clientId').value;
             document.getElementById("clientIdContainer").style.display = "none";
             survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
             ReactDOM.render(React.createElement(Survey.Survey, { model: survey, onComplete: surveyComplete, onSendResult: surveySendResult }), document.getElementById("surveyElement"));
@@ -109,9 +109,9 @@ const initSurvey = ClientFunction((framework) => {
         function runSurvey() {
             var survey = new Survey.Model({
                 surveyId: 'e7866476-e901-4ab7-9f38-574416387f73',
-                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68'
+                surveyPostId: 'df2a04fb-ce9b-44a6-a6a7-6183ac555a68',
+                clientId: document.getElementById('clientId').value
             });
-            survey.clientId = document.getElementById('clientId').value;
             document.getElementById("clientIdContainer").style.display = "none";
             survey.sendResultOnPageNext = document.getElementById('sendResultOnPageNext').checked;
 

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import {SurveyModel} from "../survey";
+import {SurveyWindowModel} from "../surveyWindow";
 import {PageModel} from "../page";
 import {IQuestion, IElement} from "../base";
 import {surveyCss} from "../defaultCss/cssstandard";
@@ -50,6 +51,15 @@ export class VueSurveyModel extends SurveyModel {
         };
         super.panelAdded(panel, index, parentPanel, rootPanel);
     }        
+}
+
+export class VueSurveyWindowModel extends SurveyWindowModel {
+    constructor(jsonObj: any, initialModel: SurveyModel = null) {
+        super(jsonObj, initialModel);
+    }        
+    protected createSurvey(jsonObj: any): SurveyModel {
+        return new VueSurveyModel(jsonObj)
+    }
 }
 
 SurveyModel.platform = "vue";

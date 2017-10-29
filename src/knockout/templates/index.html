@@ -12,7 +12,7 @@
             <div style="margin-top:10px" data-bind="visible: showProgressBar =='bottom', template: 'survey-progress'"></div>
         </div>
         <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
-            <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage(), css: cssNavigationPrev" />
+            <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && showPrevButton, css: cssNavigationPrev" />
             <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: cssNavigationNext" />
             <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete" />
         </div>

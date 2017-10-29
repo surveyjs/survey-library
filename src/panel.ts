@@ -432,8 +432,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         var index = this.elements.indexOf(element);
         if (index < 0) {
             for(var i = 0; i < this.elements.length; i ++) {
-                var el = this.elements[i];
-                if(el.isPanel && (<PanelModelBase>(<any>el)).removeElement(element)) return true;
+                if(this.elements[i].removeElement(element)) return true;
             }
             return false;
         }

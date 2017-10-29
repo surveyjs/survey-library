@@ -131,10 +131,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
                     continue;
                 }
                 if(key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
-                    var func = newProps[key];
-                    this.survey[key].add((sender, options) => {
-                        func(sender, options);
-                    });
+                    let funcBody = newProps[key];
+                    let func = function(sender, options) { funcBody(sender, options); };
+                    this.survey[key].add(func);
                 } else {
                     this.survey[key] = newProps[key];
                 }

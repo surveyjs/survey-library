@@ -56,7 +56,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public onComplete: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
-     * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.
+     * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermediate results, for example, if your survey is large enough.
      * <br/> sender the survey object that fires the event
      * @see sendResultOnPageNext
      */

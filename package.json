@@ -17,6 +17,7 @@
     "build_jquery_prod": "webpack --env.buildType prod --env.platform jquery",
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\"",
+    "doc_gen": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docgenerator.ts src/entries/chunks/model.ts ",
     "lint": "tslint ./src/**/*.ts -t verbose"
   },
   "version": "0.12.35",
@@ -66,6 +67,7 @@
     "testcafe": "0.15.0",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.3.4",
+    "ts-node": "3.3.0",
     "tslint": "4.5.1",
     "typescript": "2.3.2",
     "val-loader": "0.5.0",

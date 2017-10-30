@@ -28,3 +28,4 @@ Gemfile.lock
 /Startup.cs
 /project.lock.json
 /hosting.ini
+/doc_generator/*.json

@@ -50,8 +50,8 @@ export function generateDocumentation(fileNames: string[], options: ts.CompilerO
         setAllParentTypes(key);
     }
     // print out the doc
-    fs.writeFileSync("classes.json", JSON.stringify(outputClasses, undefined, 4));
-    fs.writeFileSync("pmes.json", JSON.stringify(outputPMEs, undefined, 4));
+    fs.writeFileSync(process.cwd() + "/doc_generator/classes.json", JSON.stringify(outputClasses, undefined, 4));
+    fs.writeFileSync(process.cwd() + "/doc_generator/pmes.json", JSON.stringify(outputPMEs, undefined, 4));
 
     return;
 
@@ -137,7 +137,7 @@ export function generateDocumentation(fileNames: string[], options: ts.CompilerO
                 fullName = curClass.name + '.' + fullName;
             }
             ser.pmeType = getPMEType(node.kind);
-            if(ser.type.startsWith("Event")) ser.pmeType = "event";
+            if(ser.type.indexOf("Event") === 0) ser.pmeType = "event";
             if(node.kind === ts.SyntaxKind.GetAccessor) {
                 let serSet = pmesHash[fullName];
                 if(serSet) {
@@ -255,7 +255,7 @@ export function generateDocumentation(fileNames: string[], options: ts.CompilerO
 
     /** True if this is visible outside this file, false otherwise */
     function isNodeExported(node: ts.Node): boolean {
-        return (node.flags & ts.NodeFlags.Export) !== 0 || (node.parent && node.parent.kind === ts.SyntaxKind.SourceFile);
+        return (node.flags & ts.NodeFlags["Export"]) !== 0 || (node.parent && node.parent.kind === ts.SyntaxKind.SourceFile);
     }
     function isPMENodeExported(node: ts.Node): boolean {
         let modifier = ts.getCombinedModifierFlags(node);

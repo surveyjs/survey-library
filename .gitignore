@@ -29,3 +29,4 @@ Gemfile.lock
 /project.lock.json
 /hosting.ini
 /doc_generator/*.json
+*.env

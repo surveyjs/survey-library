@@ -62,12 +62,12 @@ var platformOptions = {
             }
         },
         keywords: ['jquery', 'jquery-plugin'],
-        dependencies: { 'jquery': '>=1.12.4', '@types/react': '15.0.21' }
+        dependencies: { 'jquery': '>=1.12.4', '@types/react': '^15.0.21' }
     },
     'angular': {
         externals: {},
         keywords: ['angular', 'angular-component'],
-        dependencies: { '@types/react': '15.0.21' }
+        dependencies: { '@types/react': '^15.0.21' }
     },
     'vue': {
         externals: {

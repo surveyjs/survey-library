@@ -1,2 +1,0 @@
-tsc lib_docgenerator --m commonjs --target ES5
-tsc editor_docgenerator --m commonjs --target ES5

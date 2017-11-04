@@ -176,6 +176,16 @@ QUnit.test("remove Panel", function (assert) {
     assert.equal(question.panelCount, 1, "panelCount is 1 now");
     assert.equal(question.value[0]["q1"], "val1", "Do not delete the value in non deleted panels");
 });
+QUnit.test("remove Panel Question from Page, Bug#184, in editor repo", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    page.addElement(question);
+    var q = question.template.addNewQuestion("text", "q1");
+    assert.equal(question.template.elements.length, 1, "There is one element");
+    page.removeElement(q);
+    assert.equal(question.template.elements.length, 0, "Template panel is empty");
+});
 QUnit.test("Process text in titles", function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");

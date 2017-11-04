@@ -1,4 +1,4 @@
-import * as doc from "./docgenerator";
+import * as doc from "surveyjs-doc-generator";
 import * as ts from "typescript";
 import {JsonObject} from "../src/jsonobject";
 

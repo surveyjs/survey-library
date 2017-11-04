@@ -149,6 +149,10 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     public getType(): string {
         return "paneldynamic";
     }
+    public removeElement(element: IElement): boolean {
+        return this.template.removeElement(element);
+    }
+    
     /**
      * The template Panel. This panel is used as a template on creatign dynamic panels
      * @see  templateElements

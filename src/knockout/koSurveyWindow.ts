@@ -13,32 +13,29 @@ export class SurveyWindow extends SurveyWindowModel {
         this.koExpanded = ko.observable(false);
         this.koExpandedCss = ko.observable(this.getButtonCss());
         var self = this;
+        this.expandedChangedCallback = function() { self.koExpanded(self.isExpanded); self.koExpandedCss(self.getButtonCss()); }
+        this.showingChangedCallback = function() { self.doShowingChanged(); }
         this.doExpand = function () { self.changeExpanded(); }
-        this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); self.koExpandedCss(self.getButtonCss()) });
+        this.survey.onComplete.add((sender: SurveyModel) => { self.onComplete(); });
     }
     protected createSurvey(jsonObj: any): SurveyModel {
         return new Survey(jsonObj)
     }
-    protected expandcollapse(value: boolean) {
-        super.expandcollapse(value);
-        this.koExpanded(this.isExpandedValue);
-    }
     protected get template(): string { return this.templateValue ? this.templateValue : this.getDefaultTemplate(); }
     protected set template(value: string) { this.templateValue = value; }
-    public show() {
-        this.windowElement.innerHTML = this.template;
-        ko.cleanNode(this.windowElement);
-        ko.applyBindings(this, this.windowElement);
-        document.body.appendChild(this.windowElement);
-        (<Survey>this.survey).render(SurveyWindow.surveyElementName);
-        this.isShowingValue = true;
+    protected doShowingChanged() {
+        if(this.isShowing) {
+            this.windowElement.innerHTML = this.template;
+            ko.cleanNode(this.windowElement);
+            ko.applyBindings(this, this.windowElement);
+            document.body.appendChild(this.windowElement);
+            (<Survey>this.survey).render(SurveyWindow.surveyElementName);
+        } else {
+            document.body.removeChild(this.windowElement);
+            this.windowElement.innerHTML = "";
+        }
     }
     protected getDefaultTemplate(): string { return koTemplate }
-    public hide() {
-        document.body.removeChild(this.windowElement);
-        this.windowElement.innerHTML = "";
-        this.isShowingValue = false;
-    }
     public get css(): any { return this.survey["css"]; }
     private changeExpanded() {
         this.expandcollapse(!this.isExpanded);

@@ -16,6 +16,7 @@ export {defaultBootstrapCss} from '../defaultCss/cssbootstrap';
 export {defaultBootstrapMaterialCss} from "../defaultCss/cssbootstrapmaterial";
 
 export {VueSurveyModel as Model} from '../vue/surveyModel';
+export {VueSurveyWindowModel as WindowModel} from '../vue/surveyModel';
 export {default as Survey} from '../vue/survey.vue';
 export {default as CustomWidget} from '../vue/customwidget.vue';
 export {default as SurveyString} from '../vue/string.vue';

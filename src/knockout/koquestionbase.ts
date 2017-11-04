@@ -8,6 +8,7 @@ export class QuestionImplementorBase {
         var self = this;
         question.registerFunctionOnPropertyValueChanged("visible", function () { self.onVisibilityChanged(); });
         question.registerFunctionOnPropertiesValueChanged(["renderWidth", "indent", "rightIndent"], function () { self.onRenderWidthChanged(); });
+        question.surveyLoadCallback = function() {self.onSurveyLoad();}
         this.koTemplateName = ko.pureComputed(function () { return self.getTemplateName(); });
         this.koElementType = ko.observable("survey-question");
         this.koVisible = ko.observable(this.question.isVisible);
@@ -26,6 +27,9 @@ export class QuestionImplementorBase {
         this.question["koCss"] = ko.pureComputed(function() {return self.question.cssClasses;});
     }
     protected updateQuestion() {  }
+    protected onSurveyLoad() {
+        this.onVisibilityChanged();
+    }
     protected onVisibilityChanged() {
         this.koVisible(this.question.isVisible);
     }

@@ -56,7 +56,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public onComplete: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
-     * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermidiate results, for example, if your survey is large enough.
+     * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermediate results, for example, if your survey is large enough.
      * <br/> sender the survey object that fires the event
      * @see sendResultOnPageNext
      */
@@ -410,9 +410,16 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     /**
      * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
      * @see goNextPageAutomatic
+     * @see showPrevButton
      */
     public get showNavigationButtons(): boolean { return this.getPropertyValue("showNavigationButtons", true); }
     public set showNavigationButtons(val: boolean) { this.setPropertyValue("showNavigationButtons", val); }
+    /**
+     * Set it to false to hide the 'Prev' to disable for end-users go back to their answers.
+     * @see showNavigationButtons
+     */
+    public get showPrevButton(): boolean { return this.getPropertyValue("showPrevButton", true); }
+    public set showPrevButton(val: boolean) { this.setPropertyValue("showPrevButton", val); }
     /**
      * Set it to false hide survey title.
      * @see title
@@ -1733,7 +1740,7 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "questions", alternativeName: "elements", baseClassName: "question", visible: false, onGetValue: function (obj) { return null; }, onSetValue: function (obj, value, jsonConverter) { var page = obj.addNewPage(""); jsonConverter.toObject({ questions: value }, page); } },
     { name: "triggers:triggers", baseClassName: "surveytrigger", classNamePart: "trigger" },
     {name: "surveyId", visible: false}, {name: "surveyPostId", visible: false}, {name: "surveyShowDataSaving", visible: false}, "cookieName", "sendResultOnPageNext:boolean",
-    { name: "showNavigationButtons:boolean", default: true }, { name: "showTitle:boolean", default: true },
+    { name: "showNavigationButtons:boolean", default: true }, { name: "showPrevButton:boolean", default: true }, { name: "showTitle:boolean", default: true },
     { name: "showPageTitles:boolean", default: true }, { name: "showCompletedPage:boolean", default: true },
     "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
     { name: "questionTitleLocation", default: "top", choices: ["top", "bottom"] },

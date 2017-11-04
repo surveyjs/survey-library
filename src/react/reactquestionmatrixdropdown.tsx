@@ -83,6 +83,11 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
     constructor(props: any) {
         super(props);
         this.setProperties(props);
+        if(this.cell && this.cell.question) {
+            var q = this.cell.question;
+            this.state = {isReadOnly: q.isReadOnly, visible: q.visible};
+        }
+        
     }
     componentWillReceiveProps(nextProps: any) {
         super.componentWillReceiveProps(nextProps);
@@ -98,6 +103,22 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
             var options = { cell: this.cell, cellQuestion: this.cell.question, htmlElement: el, row: this.cell.row, column: this.cell.column }; 
             this.cell.question.survey.matrixAfterCellRender(this.cell.question, options);
         } 
+        if(this.cell && this.cell.question) {
+            var self = this;
+            this.cell.question.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
+                self.state.isReadOnly = self.cell.question.isReadOnly;
+                self.setState(self.state);
+            }, "react");
+            this.cell.question.registerFunctionOnPropertyValueChanged("visible", function() {
+                self.state.visible = self.cell.question.visible;
+                self.setState(self.state);
+            }, "react");
+        }
+    }
+    componentWillUnmount() {
+        if (this.cell && this.cell.question) {
+            this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["visible", "isReadOnly"], "react");
+        }
     }
     render(): JSX.Element {
         if (!this.cell) return null;

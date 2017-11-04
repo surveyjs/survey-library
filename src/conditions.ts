@@ -7,16 +7,15 @@ export class Operand {
     constructor(public origionalValue: any) {
     }
     public getValue(processValue: ProcessValue) {
-        var val = this.origionalValue;
-        if(val === undefined || val === 'undefined') return null;
-        if (!val || (typeof val != "string")) return val;
-        if(this.isBoolean(val)) return val.toLowerCase() == "true";
-        val = this.removeQuotes(val);
+        var res = this.getSimpleValue(this.origionalValue);
+        if(res.isSimple) return res.value;
+        var val = this.removeQuotes(this.origionalValue);
         if(processValue) {
             var name = this.getValueName(val);
             if(name){
                 if(!processValue.hasValue(name)) return null;
-                return processValue.getValue(name);
+                val = processValue.getValue(name);
+                return this.getSimpleValue(val).value;
             }
         }
         return val;
@@ -43,6 +42,29 @@ export class Operand {
         var val = parseFloat(value);
         if (isNaN(val)) return false;
         return isFinite(val);
+    }
+    private getSimpleValue(val: any): any {
+        var res = {isSimple: false, value: val};
+        if(val === undefined || val === 'undefined') {
+            res.value = null;
+            res.isSimple = true;
+            return res;
+        }
+        if (!val || (typeof val != "string")) {
+            res.isSimple = true;
+            return res;
+        }
+        if(this.isNumeric(val)) {
+            res.isSimple = true;
+            res.value = parseFloat(val);
+            return res;
+        }
+        if(this.isBoolean(val)) {
+            res.value = val.toLowerCase() == "true";
+            res.isSimple = true;
+            return res;
+        }
+        return res;
     }
 }
 export class FunctionOperand extends Operand {
@@ -112,6 +134,12 @@ export class Condition {
             }
         };
         return Condition.operatorsValue;
+    }
+    public static getOperator(opName: string): any {
+        return Condition.operators[opName];
+    }
+    public static setOperator(opName: string, func: (left: any, right: any) => boolean) {
+        Condition.operators[opName] = func;
     }
     private opValue: string = "equal";
     private leftValue: Operand = null;

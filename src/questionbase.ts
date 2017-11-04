@@ -1,5 +1,5 @@
 ﻿import {HashTable} from "./helpers";
-import {Base, SurveyElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, Event, SurveyError} from './base';
+import {Base, SurveyElement, IElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, Event, SurveyError} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
@@ -223,6 +223,7 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
         this.setPropertyValue("visibleIndex", val);
         return 1;
     }
+    public removeElement(element: IElement): boolean { return false; }
     public supportGoNextPageAutomatic() { return false; }
     public clearUnusedValues() {}
     public get displayValue(): any {

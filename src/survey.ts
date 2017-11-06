@@ -1753,16 +1753,44 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     /**
      * Returns the time in seconds end-user spends on the survey
      * @see startTimer
-     * @see Page.timeSpent
+     * @see PageModel.timeSpent
      */
     public get timeSpent() { return this.getPropertyValue("timeSpent", 0); }
+    /**
+     * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.  
+     * @see startTimer
+     * @see maxTimeToFinishPage
+     */
+    public get maxTimeToFinish(): number { return this.getPropertyValue("maxTimeToFinish", 0); }
+    public set maxTimeToFinish(val: number) { this.setPropertyValue("maxTimeToFinish", val); }
+    /**
+     * The maximum time in seconds that end-user has to complete a page in the survey. If the value is 0 or less, the end-user has unlimited time. You may override this value for every page.  
+     * @see startTimer
+     * @see maxTimeToFinish
+     * @see PageModel.maxTimeToFinish
+     */
+    public get maxTimeToFinishPage(): number { return this.getPropertyValue("maxTimeToFinishPage", 0); }
+    public set maxTimeToFinishPage(val: number) { this.setPropertyValue("maxTimeToFinishPage", val); }
     protected doTimer() {
-         this.setTimeSpent(this.timeSpent + 1);
-         var page = this.currentPage;
-         if(page) {
-             page.timeSpent = page.timeSpent + 1;
-         }
-         this.onTimer.fire(this, {});
+        this.setTimeSpent(this.timeSpent + 1);
+        var page = this.currentPage;
+        if(page) {
+            page.timeSpent = page.timeSpent + 1;
+        }
+        this.onTimer.fire(this, {});
+        if(this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
+            this.completeLastPage();
+        }
+        if(page) {
+            var pageLimit = page.maxTimeToFinish > 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
+            if(pageLimit > 0 && pageLimit == page.timeSpent) {
+                if(this.isLastPage) {
+                    this.completeLastPage();
+                } else {
+                    this.nextPage();
+                }
+            }  
+        }
     }
     private setTimeSpent(val: number) { this.setPropertyValue("timeSpent", val); }
     //ISurveyImplementor
@@ -1805,4 +1833,5 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "pagePrevText", serializationProperty: "locPagePrevText"},
     { name: "pageNextText", serializationProperty: "locPageNextText"},
     { name: "completeText", serializationProperty: "locCompleteText"},
-    { name: "requiredText", default: "*" }, "questionStartIndex", {name: "questionTitleTemplate", serializationProperty: "locQuestionTitleTemplate"}]);
+    { name: "requiredText", default: "*" }, "questionStartIndex", {name: "questionTitleTemplate", serializationProperty: "locQuestionTitleTemplate"},
+    { name: "maxTimeToFinish:number", default: 0}, { name: "maxTimeToFinishPage:number", default: 0}]);

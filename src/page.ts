@@ -73,6 +73,13 @@ export class PageModel extends PanelModelBase implements IPage {
      */
     public get timeSpent(): number { return this.getPropertyValue("timeSpent", 0); }
     public set timeSpent(val: number) { this.setPropertyValue("timeSpent", val); }
+    /**
+     * The maximum time in seconds that end-user has to complete the page. If the value is 0 or less, the end-user has unlimited number of time to finish the page.  
+     * @see startTimer
+     * @see SurveyModel.maxTimeToFinishPage
+     */
+    public get maxTimeToFinish(): number { return this.getPropertyValue("maxTimeToFinish", 0); }
+    public set maxTimeToFinish(val: number) { this.setPropertyValue("maxTimeToFinish", val); }    
     protected onNumChanged(value: number) {
     }
     protected onVisibleChanged() {

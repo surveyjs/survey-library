@@ -14,6 +14,7 @@ export * from '../surveyvalidatortests';
 export * from '../textPreprocessorTests';
 export * from '../lowercasetests';
 export * from '../elementslayouttests';
+export * from '../surveytimertests';
 
 // localization
 import '../../src/localization/russian';

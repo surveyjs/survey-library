@@ -68,6 +68,11 @@ export class PageModel extends PanelModelBase implements IPage {
     public scrollToTop() {
         SurveyElement.ScrollElementToTop(this.id);
     }
+    /**
+     * Time in seconds end-user spent on this page
+     */
+    public get timeSpent(): number { return this.getPropertyValue("timeSpent", 0); }
+    public set timeSpent(val: number) { this.setPropertyValue("timeSpent", val); }
     protected onNumChanged(value: number) {
     }
     protected onVisibleChanged() {

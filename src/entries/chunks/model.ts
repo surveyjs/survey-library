@@ -48,6 +48,7 @@ export {QuestionRatingModel} from "../../question_rating";
 export {QuestionTextModel} from "../../question_text";
 export {QuestionBooleanModel} from "../../question_boolean";
 export {QuestionPanelDynamicModel, QuestionPanelDynamicItem} from "../../question_paneldynamic";
+export {SurveyTimer} from '../../surveytimer';
 export {SurveyModel} from "../../survey";
 export {
     SurveyTrigger, SurveyTriggerComplete, SurveyTriggerSetValue, SurveyTriggerVisible,

@@ -12,6 +12,7 @@ import {QuestionBase} from "./questionbase";
 import {CustomError} from "./error";
 import {ILocalizableOwner, LocalizableString} from "./localizablestring";
 import {StylesManager} from "./stylesmanager";
+import {SurveyTimer} from "./surveytimer";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -42,6 +43,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     private textPreProcessor: TextPreProcessor;
     private completedStateValue: string = "";
     private completedStateTextValue: string = "";
+
+    private timerStarted: boolean = false;
     /**
      * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
      * <br/> sender the survey object that fires the event
@@ -313,6 +316,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see QuestionMatrixDropdownModel
      */
     public onMatrixCellValidate: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
+     * The event is fired every second if the method startTimer has been called.
+     * @see startTimer
+     * @see timeSpent
+     * @see Page.timeSpent
+     */
+    public onTimer: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
     /**
      * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
      * @see JsonError
@@ -786,6 +796,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             this.data = null;
             this.variablesHash = {};
         }
+        this.setTimeSpent(0);
+        for(var i = 0; i < this.pages.length; i ++) {
+            this.pages[i].timeSpent = 0;
+        }
         this.isCompleted = false;
         this.isCompletedBefore = false;
         this.isLoading = false;
@@ -952,6 +966,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public doComplete() {
         let previousCookie = this.hasCookie;
+        this.stopTimer();
         this.clearUnusedValues();
         this.setCookie();
         this.setCompleted();
@@ -1712,6 +1727,44 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
         return res;
     }
+    private timerFunc = null;
+    /**
+     * Call this method to start timer that will calculate how much time end-user spends on the survey or on pages
+     * @see stopTimer
+     * @see timeSpent
+     */
+    public startTimer() {
+        if(this.timerStarted) return;
+        var self = this;
+        this.timerFunc = function() {self.doTimer();};
+        this.timerStarted = true;
+        SurveyTimer.instance.start(this.timerFunc);
+    }
+    /**
+     * Stop the timer.
+     * @see startTimer
+     * @see timeSpent
+     */
+    public stopTimer() {
+        if(!this.timerStarted) return;
+        this.timerStarted = false;
+        SurveyTimer.instance.stop(this.timerFunc);
+    }
+    /**
+     * Returns the time in seconds end-user spends on the survey
+     * @see startTimer
+     * @see Page.timeSpent
+     */
+    public get timeSpent() { return this.getPropertyValue("timeSpent", 0); }
+    protected doTimer() {
+         this.setTimeSpent(this.timeSpent + 1);
+         var page = this.currentPage;
+         if(page) {
+             page.timeSpent = page.timeSpent + 1;
+         }
+         this.onTimer.fire(this, {});
+    }
+    private setTimeSpent(val: number) { this.setPropertyValue("timeSpent", val); }
     //ISurveyImplementor
     geSurveyData(): ISurveyData { return this; }
     getSurvey(): ISurvey { return this; }

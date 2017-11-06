@@ -94,4 +94,7 @@ To build library yourself:
 
 ## Visual Editor
 Visual Editor [site](https://www.surveyjs.io/Editor/)
+
 Visual Editor sources are [here](https://github.com/surveyjs/editor)
+
+[Try it right now!](https://www.surveyjs.io/Editor/Editor/)

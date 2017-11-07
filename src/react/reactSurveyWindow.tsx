@@ -28,22 +28,22 @@ export class SurveyWindow extends Survey {
 
     }
     protected renderHeader(): JSX.Element {
-        var styleA = { width: "100%" };
+        var styleA = { width: '100%', cursor: 'pointer' };
         var styleTitle = { paddingRight: "10px" };
         var glyphClassName = this.window.isExpanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
         glyphClassName = "glyphicon pull-right " + glyphClassName;
         var title = SurveyElementBase.renderLocString(this.survey.locTitle);
         return <div className={this.css.window.header.root}>
-            <a href="#" onClick={this.handleOnExpanded} style={styleA}>
+            <span onClick={this.handleOnExpanded} style={styleA}>
                 <span className={this.css.window.header.title} style={styleTitle}>{title}</span>
                 <span className={glyphClassName} aria-hidden="true"></span>
-            </a>
+            </span>
         </div>;
     }
     protected renderBody(): JSX.Element {
         return <div className={this.css.window.body}>
-        {this.renderSurvey() }
-            </div>
+                    {this.renderSurvey() }
+                </div>;
     }
     protected updateSurvey(newProps: any) {
         if(!newProps) newProps = {};

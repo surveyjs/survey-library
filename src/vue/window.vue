@@ -1,13 +1,13 @@
 <template>
     <div v-show="surveyWindow.isShowing" style="position: fixed; bottom: 3px; right: 10px;" :class="css.window.root">
         <div :class="css.window.header.root">
-            <a href="#" @click="doExpand" style="width:100%">
+            <span @click="doExpand" style="width: 100%; cursor: pointer;">
                 <span style="padding-right:10px" :class="css.window.header.title"><survey-string :locString="windowSurvey.locTitle"/></span>
                 <span aria-hidden="true" :class="expandedCss"></span>
-            </a>
+            </span>
         </div>
         <div v-show="isExpanded" :class="css.window.body">
-            <survey :survey="windowSurvey">
+            <survey :survey="windowSurvey"></survey>
         </div>
     </div>
 </template>
@@ -38,7 +38,7 @@
             this.surveyWindow.isShowing = true;
             
             var self = this;
-            this.surveyWindow.survey.onComplete.add(function(survey, options){
+            this.surveyWindow.survey.onComplete.add(function(survey, options) {
                 Vue.set(self.surveyWindow, "isShowing", false);
             });
         }

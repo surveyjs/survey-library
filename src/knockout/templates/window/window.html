@@ -1,9 +1,9 @@
 ﻿<div style="position: fixed; bottom: 3px; right: 10px;" data-bind="css: css.window.root">
     <div data-bind="css: css.window.header.root">
-        <a href="#" data-bind="click:doExpand" style="width:100%">
+        <span data-bind="click:doExpand" style="width: 100%; cursor: pointer;">
             <span style="padding-right:10px" data-bind="css: css.window.header.title, text: locTitle.koRenderedHtml"></span>
             <span aria-hidden="true" data-bind="css: koExpandedCss"></span>
-        </a>
+        </span>
     </div>
     <div data-bind="visible:koExpanded, css: css.window.body">
         <div id="windowSurveyJS"></div>

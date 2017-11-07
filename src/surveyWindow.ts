@@ -7,7 +7,7 @@ import {LocalizableString} from "./localizablestring";
  */
 export class SurveyWindowModel extends Base  {
     public static surveyElementName = "windowSurveyJS";
-    private isExpandedValue: boolean;
+    private isExpandedValue: boolean = false;
     private isShowingValue: boolean;
     surveyValue: SurveyModel;
     windowElement: HTMLDivElement;

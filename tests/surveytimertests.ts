@@ -108,6 +108,23 @@ QUnit.test("Complete pages by timer", function (assert) {
     assert.equal(survey.state, "completed", "The survey is completed");
 });    
 
+QUnit.test("Showing prev button", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    survey.addNewPage("p2");
+    survey.addNewPage("p3");
+    survey.pages[0].addNewQuestion("text");
+    survey.pages[1].addNewQuestion("text");
+    survey.pages[2].addNewQuestion("text");
+    survey.maxTimeToFinishPage = 10;
+    survey.pages[1].maxTimeToFinish = -1;
+    assert.equal(survey.isShowPrevButton, false, "First page");
+    survey.nextPage();
+    assert.equal(survey.isShowPrevButton, false, "maxTimeToFinishPage is working");
+    survey.nextPage();
+    assert.equal(survey.isShowPrevButton, true, "maxTimeToFinishPage is override");
+});    
+
 function doTimer(count: number) {
     for(var i = 0; i < count; i ++) {
         SurveyTimer.instance.doTimer();

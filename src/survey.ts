@@ -948,6 +948,16 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (this.currentPage == null) return true;
         return this.visiblePages.indexOf(this.currentPage) == 0;
     }
+    public get isShowPrevButton() : boolean {
+        if(this.isFirstPage || !this.showPrevButton) return false;
+        if(this.maxTimeToFinish > 0) return false;
+        var page = this.visiblePages[this.currentPageNo - 1];
+        var pageLimit = 0;
+        if(page) {
+            var pageLimit = page.maxTimeToFinish != 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
+        }
+        return pageLimit <= 0;
+    }
     /**
      * Returns true if the current page is the last one.
      */
@@ -1782,7 +1792,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
             this.completeLastPage();
         }
         if(page) {
-            var pageLimit = page.maxTimeToFinish > 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
+            var pageLimit = page.maxTimeToFinish != 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
             if(pageLimit > 0 && pageLimit == page.timeSpent) {
                 if(this.isLastPage) {
                     this.completeLastPage();

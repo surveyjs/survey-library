@@ -109,7 +109,15 @@ export class ConditionsParser {
             res.parameters = params;
             return res;
         }
-        return new Operand(str);
+        var operator = this.readOperandOperator();
+        if(!operator) return new Operand(str);
+        var expr = new ExpressionOperand();
+        expr.left = new Operand(str);
+        expr.operator = operator;
+        var right = this.readOperand();
+        if(!right) return null;
+        expr.right = right;
+        return expr;
     }
     private readExpression(): number {
         this.skip();
@@ -138,7 +146,7 @@ export class ConditionsParser {
     }
     private isComma(c: string): boolean { return c == ','; }
     private isOperatorChar(c: string): boolean {
-        return c == '>' || c == '<' || c == '=' || c == '!';
+        return c == '>' || c == '<' || c == '=' || c == '!' || c == '+' || c == '-' || c == '*' || c == '/';
     }
     private isOpenBracket(c: string): boolean { return c == '(';}
     private isCloseBracket(c: string): boolean { return c == ')';}
@@ -150,6 +158,7 @@ export class ConditionsParser {
         if (this.at >= this.length) return null;
         var start = this.at;
         var hasQuotes = this.isQuotes(this.ch);
+        var hasBraces = this.ch == '{';
         if (hasQuotes) this.at++;
         var isFirstOpCh = this.isOperatorChar(this.ch);
         while (this.at < this.length) {
@@ -159,7 +168,7 @@ export class ConditionsParser {
                 break;
             }
             if (!hasQuotes) {
-                if (isFirstOpCh != this.isOperatorChar(this.ch)) break;
+                if ((!hasBraces || this.ch != '-') && isFirstOpCh != this.isOperatorChar(this.ch)) break;
                 if (this.isBrackets(this.ch) || this.isComma(this.ch)) break;
             }
             this.at++;
@@ -175,25 +184,27 @@ export class ConditionsParser {
         }
         return res;
     }
-    private createOperand(str: string, params: Array<Operand>) {
-        if(!params) return new Operand(str);
-        var res = new FunctionOperand(str);
-        res.parameters = params;
-        return res;
-    }
     private readParameters(): Array<Operand> {
         if(!this.isOpenBracket(this.ch)) return null;
         var params = [];
         while (this.at < this.length && !this.isCloseBracket(this.ch)) {
             this.at++;
-            var str = this.readString();
-            if(str) {
-                var newParams = this.readParameters();
-                params.push(this.createOperand(str, newParams));
+            var operand = this.readOperand();
+            if(operand) {
+                params.push(operand);
             }
         }
         this.at++;
         return params;
+    }
+    private readOperandOperator(): string {
+        this.skip();
+        if(this.ch == '+' || this.ch == '-' || this.ch == '*' || this.ch == '/') {
+            var res = this.ch;
+            this.at++;
+            return res;
+        }
+        return null;
     }
     private isNoRightOperation(op: string) {
         return op == "empty" || op == "notempty";

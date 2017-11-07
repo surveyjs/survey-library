@@ -93,10 +93,26 @@ export class ExpressionOperand extends Operand {
     public left: Operand;
     public right: Operand;
     public operator: string;
-    constructor(public origionalValue: any) {
-        super(origionalValue);
+    constructor() {
+        super(null);
     }
     public getValue(processValue: ProcessValue): any {
+        if(!this.left || !this.right) return null;
+        var l = this.left.getValue(processValue);
+        var r = this.right.getValue(processValue);
+        if(this.operator == '+') {
+            return  l + r;
+        }
+        if(this.operator == '-') {
+            return  l - r;
+        }
+        if(this.operator == '*') {
+            return  l * r;
+        }
+        if(this.operator == '*') {
+            if(!r) return null;
+            return  l / r;
+        }
         return null;
     }
     public operandToString() {

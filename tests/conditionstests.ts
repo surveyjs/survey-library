@@ -279,7 +279,6 @@ QUnit.test("Run one condition", function (assert) {
     assert.equal(runner.run(values), false, "5 > 5");
     var values2 = { b: 5 };
     assert.equal(runner.run(values2), false, "undefined > 5");
-
 });
 
 QUnit.test("Run complex condition", function (assert) {
@@ -436,10 +435,9 @@ QUnit.test("Override functions: make equal works as contains", function (assert)
     assert.equal(runner.run(values), true, "There is 3 value");
     Condition.setOperator("equal", eqFunc);
 });    
-/*
 QUnit.test("ExpressionOperand: Simple Parser", function (assert) {
     var parser = new ConditionsParser();
-    var node = new ConditionNode();
+        var node = new ConditionNode();
     parser.parse("4+1>2", node);
     assert.equal(node.children.length, 1);
     var left = <ExpressionOperand>(node.children[0].left);
@@ -450,4 +448,10 @@ QUnit.test("ExpressionOperand: Simple Parser", function (assert) {
     assert.equal(node.children[0].right.origionalValue, 2);
     assert.equal(node.connective, "and");
 });
-*/
+QUnit.test("ExpressionOperand: Run one condition", function (assert) {
+    var runner = new ConditionRunner("{a} - 1 > 5");
+    var values = { a: 7 };
+    assert.equal(runner.run(values), true, "6 > 5");
+    values = { a: 6 };
+    assert.equal(runner.run(values), false, "5 > 5");
+});

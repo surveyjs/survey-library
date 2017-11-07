@@ -6,7 +6,7 @@ import {ProcessValue} from "./conditionProcessValue";
 export class Operand {
     constructor(public origionalValue: any) {
     }
-    public getValue(processValue: ProcessValue) {
+    public getValue(processValue: ProcessValue): any {
         var res = this.getSimpleValue(this.origionalValue);
         if(res.isSimple) return res.value;
         var val = this.removeQuotes(this.origionalValue);
@@ -20,9 +20,10 @@ export class Operand {
         }
         return val;
     }
-    public operandToString() {
+    public get isBoolean() { return this.isBooleanValue(this.origionalValue); }
+    public operandToString(): any {
         var val = this.origionalValue;
-        if (val && (!this.isNumeric(val) && !this.isBoolean(val))) val = "'" + val + "'";
+        if (val && (!this.isNumeric(val) && !this.isBooleanValue(val))) val = "'" + val + "'";
         return val;
     }
     private removeQuotes(val: string): string {
@@ -35,7 +36,7 @@ export class Operand {
         if (val.length < 3 || val[0] != '{' || val[val.length - 1] != '}') return null;
         return val.substr(1, val.length - 2);
     }
-    private isBoolean(value: string) : boolean {
+    private isBooleanValue(value: string) : boolean {
         return value && (value.toLowerCase() === "true" || value.toLowerCase() === "false");
     }
     private isNumeric(value: string): boolean {
@@ -59,7 +60,7 @@ export class Operand {
             res.value = parseFloat(val);
             return res;
         }
-        if(this.isBoolean(val)) {
+        if(this.isBooleanValue(val)) {
             res.value = val.toLowerCase() == "true";
             res.isSimple = true;
             return res;
@@ -85,6 +86,23 @@ export class FunctionOperand extends Operand {
             if(i > 0) res += ", ";
             res += this.parameters[i].operandToString();
         }
+        return res;
+    }
+}
+export class ExpressionOperand extends Operand {
+    public left: Operand;
+    public right: Operand;
+    public operator: string;
+    constructor(public origionalValue: any) {
+        super(origionalValue);
+    }
+    public getValue(processValue: ProcessValue): any {
+        return null;
+    }
+    public operandToString() {
+        var res = this.left ? this.left.operandToString() : "";
+        res += ' ' + this.operator + ' ';
+        if(this.right) res += this.right.operandToString();
         return res;
     }
 }
@@ -140,6 +158,11 @@ export class Condition {
     }
     public static setOperator(opName: string, func: (left: any, right: any) => boolean) {
         Condition.operators[opName] = func;
+    }
+    public static isCorrectOperator(opName: string): boolean {
+        if(!opName) return false;
+        opName = opName.toLowerCase();
+        return Condition.operatorsValue[opName] != undefined;
     }
     private opValue: string = "equal";
     private leftValue: Operand = null;

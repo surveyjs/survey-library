@@ -1,7 +1,6 @@
-﻿import {Condition, ConditionNode, Operand, FunctionOperand} from "./conditions";
+﻿import {Condition, ConditionNode, Operand, FunctionOperand, ExpressionOperand} from "./conditions";
 
 export class ConditionsParser {
-    private static constants = ["true", "false"];
     private text: string;
     private root: ConditionNode;
     private expressionNodes: Array<ConditionNode>;
@@ -80,28 +79,37 @@ export class ConditionsParser {
         var expRes = this.readExpression();
         if (expRes < 0) return false;
         if(expRes == 1) return true;
-        var left = this.readString();
+        var left = this.readOperand();
         if (!left) return false;
-        if(this.isConstant(left)) {
+        var op = this.readOperator();
+        if(!op) {
+            if(!left.isBoolean) return false;
             var c = new Condition();
-            c.left = this.createOperand(left, null);
+            c.left = left;
             this.addCondition(c);
             return true;
-        } 
-        var params = this.readParameters();
-        var op = this.readOperator();
-        if (!op) return false;
+        }
         var c = new Condition();
-        c.left = this.createOperand(left, params);
+        c.left = left;
         c.operator = op;
         if (!this.isNoRightOperation(op)) {
-            var right = this.readString();
+            var right = this.readOperand();
             if (!right) return false;
-            params = this.readParameters();
-            c.right = this.createOperand(right, params);
+            c.right = right;
         }
         this.addCondition(c);
         return true;
+    }
+    private readOperand(): Operand {
+        var str = this.readString();
+        if (!str) return null;
+        var params = this.readParameters();
+        if(params) {
+            var res = new FunctionOperand(str);
+            res.parameters = params;
+            return res;
+        }
+        return new Operand(str);
     }
     private readExpression(): number {
         this.skip();
@@ -190,12 +198,9 @@ export class ConditionsParser {
     private isNoRightOperation(op: string) {
         return op == "empty" || op == "notempty";
     }
-    private isConstant(str: string): boolean {
-        if(!str) return false;
-        str = str.toLowerCase();
-        return ConditionsParser.constants.indexOf(str) > -1;
-    }
     private readOperator(): string {
+        this.skip();
+        var curAt = this.at;
         var op = this.readString();
         if (!op) return null;
         op = op.toLowerCase();
@@ -207,7 +212,9 @@ export class ConditionsParser {
         if (op == '<>' || op == '!=') op = "notequal";
         if (op == 'contain' || op == '*=') op = "contains";
         if (op == 'notcontain') op = "notcontains";
-        return op;
+        if(Condition.isCorrectOperator(op)) return op;
+        this.at = curAt;
+        return null;
     }
     private readConnective(): string {
         var con = this.readString();

@@ -1,5 +1,5 @@
 ﻿import {ConditionsParser} from "../src/conditionsParser";
-import {Operand, Condition, ConditionNode, ConditionRunner} from "../src/conditions";
+import {Operand, Condition, ConditionNode, ConditionRunner, ExpressionOperand} from "../src/conditions";
 
 export default QUnit.module("Conditions");
 
@@ -409,11 +409,15 @@ QUnit.test("Support true/false constants, #643", function (assert) {
     values = { year: 20 };
     assert.equal(runner.run(values), false, "false, false or 20 >= 21");
 });
-
 QUnit.test("true/false as string, bug#729", function (assert) {
     var runner = new ConditionRunner("{isTrue} = 'true'");
     var values = { isTrue: 'true' };
     assert.equal(runner.run(values), true, "true, 'true' = 'true'");
+});    
+QUnit.test("true/false as constant in the left", function (assert) {
+    var runner = new ConditionRunner("true = {isTrue}");
+    var values = { isTrue: 'false' };
+    assert.equal(runner.run(values), false, "false, true = false");
 });    
 QUnit.test("Override functions: make equal works as contains", function (assert) {
     var eqFunc = Condition.getOperator("equal");
@@ -432,3 +436,18 @@ QUnit.test("Override functions: make equal works as contains", function (assert)
     assert.equal(runner.run(values), true, "There is 3 value");
     Condition.setOperator("equal", eqFunc);
 });    
+/*
+QUnit.test("ExpressionOperand: Simple Parser", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("4+1>2", node);
+    assert.equal(node.children.length, 1);
+    var left = <ExpressionOperand>(node.children[0].left);
+    assert.equal(left.left.origionalValue, "4");
+    assert.equal(left.right.origionalValue, "1");
+    assert.equal(left.operator, "+");
+    assert.equal(node.children[0].operator, "greater");
+    assert.equal(node.children[0].right.origionalValue, 2);
+    assert.equal(node.connective, "and");
+});
+*/

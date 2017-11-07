@@ -178,7 +178,7 @@ export class Condition {
     public static isCorrectOperator(opName: string): boolean {
         if(!opName) return false;
         opName = opName.toLowerCase();
-        return Condition.operatorsValue[opName] != undefined;
+        return Condition.operators[opName] != undefined;
     }
     private opValue: string = "equal";
     private leftValue: Operand = null;

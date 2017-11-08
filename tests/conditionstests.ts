@@ -455,7 +455,54 @@ QUnit.test("ExpressionOperand: Simple expression", function (assert) {
     values = { a: 6 };
     assert.equal(runner.run(values), false, "5 > 5");
 });
-/*
+QUnit.test("ExpressionOperand: parser, 1 + 2 + 3", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("1 + 2 - 3 >= 10", node);
+    assert.equal(node.children.length, 1);
+    var left = <ExpressionOperand>(node.children[0].left);
+    var leftLeft = <ExpressionOperand>(left.left);
+    assert.equal(leftLeft.left.origionalValue, 1);
+    assert.equal(leftLeft.right.origionalValue, 2);
+    assert.equal(leftLeft.operator, "+");
+    assert.equal(left.operator, "-");
+    assert.equal(left.right.origionalValue, 3);
+    assert.equal(node.children[0].operator, "greaterorequal");
+    assert.equal(node.children[0].right.origionalValue, 10);
+    assert.equal(node.connective, "and");
+});
+QUnit.test("ExpressionOperand: parser, 1 + 2 * 3", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("1 + 2 * 3 >= 10", node);
+    assert.equal(node.children.length, 1);
+    var left = <ExpressionOperand>(node.children[0].left);
+    var leftRight = <ExpressionOperand>(left.right);
+    assert.equal(left.left.origionalValue, 1);
+    assert.equal(left.operator, "+");
+    assert.equal(leftRight.left.origionalValue, 2);
+    assert.equal(leftRight.right.origionalValue, 3);
+    assert.equal(leftRight.operator, "*");
+    assert.equal(node.children[0].operator, "greaterorequal");
+    assert.equal(node.children[0].right.origionalValue, 10);
+    assert.equal(node.connective, "and");
+});
+QUnit.test("ExpressionOperand: parser, 3 *(1 + 2)", function (assert) {
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    parser.parse("3 *(1 + 2) >= 10", node);
+    assert.equal(node.children.length, 1);
+    var left = <ExpressionOperand>(node.children[0].left);
+    var leftRight = <ExpressionOperand>(left.right);
+    assert.equal(left.left.origionalValue, 3);
+    assert.equal(left.operator, "*");
+    assert.equal(leftRight.left.origionalValue, 1);
+    assert.equal(leftRight.right.origionalValue, 2);
+    assert.equal(leftRight.operator, "+");
+    assert.equal(node.children[0].operator, "greaterorequal");
+    assert.equal(node.children[0].right.origionalValue, 10);
+    assert.equal(node.connective, "and");
+});
 QUnit.test("ExpressionOperand: brackets parser", function (assert) {
     var parser = new ConditionsParser();
     var node = new ConditionNode();
@@ -465,8 +512,9 @@ QUnit.test("ExpressionOperand: brackets parser", function (assert) {
     var leftLeft = <ExpressionOperand>(left.left);
     assert.equal(leftLeft.left.origionalValue, "{a}");
     assert.equal(leftLeft.right.origionalValue, "{b}");
-    assert.equal(left.operator, "+");
+    assert.equal(leftLeft.operator, "+");
     assert.equal(left.right.origionalValue, 2);
+    assert.equal(left.operator, "*");
     assert.equal(node.children[0].operator, "greaterorequal");
     assert.equal(node.children[0].right.origionalValue, 10);
     assert.equal(node.connective, "and");
@@ -476,4 +524,10 @@ QUnit.test("ExpressionOperand: brackets", function (assert) {
     var values = { a: 1, b: 3 };
     assert.equal(runner.run(values), false, "(1 + 3) * 2 >= 10");
 });
-*/
+QUnit.test("ExpressionOperand: brackets 2", function (assert) {
+    var runner = new ConditionRunner("({a} + {b} + {c}) / 3 >= 3");
+    var values = { a: 1, b: 3, c: 2 };
+    assert.equal(runner.run(values), false, "(1 + 3 + 2) / 3 >= 3");
+    values.c  =  5;
+    assert.equal(runner.run(values), true, "(1 + 3 + 4) / 3 >= 3");
+});

@@ -109,7 +109,7 @@ export class ExpressionOperand extends Operand {
         if(this.operator == '*') {
             return  l * r;
         }
-        if(this.operator == '*') {
+        if(this.operator == '/') {
             if(!r) return null;
             return  l / r;
         }

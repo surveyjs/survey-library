@@ -16,48 +16,7 @@ export class ConditionsParser {
         var res = this.parseText();
         return res;
     }
-    public toString(root: ConditionNode): string {
-        this.root = root;
-        return this.nodeToString(root);
-    }
-    private toStringCore(value: any): string {
-        if (!value) return "";
-        if (value["children"]) return this.nodeToString(value);
-        if (value["left"]) return this.conditionToString(value);
-        return "";
-    }
-    private nodeToString(node: ConditionNode): string {
-        if (node.isEmpty) return "";
-        var res = "";
-        for (var i = 0; i < node.children.length; i++) {
-            var nodeText = this.toStringCore(node.children[i]);
-            if (nodeText) {
-                if (res) res += ' ' + node.connective + ' ';
-                res += nodeText;
-            }
-        }
-        if (node != this.root && node.children.length > 1) {
-            res = '(' + res + ')';
-        }
-        return res;
-    }
-    private conditionToString(condition: Condition): string {
-        if (!condition.right || !condition.operator) return "";
-        var left = condition.left.operandToString();
-        var res = left + ' ' + this.operationToString(condition.operator);
-        if (this.isNoRightOperation(condition.operator)) return res;
-        var right = condition.right.operandToString();
-        return res + ' ' + right;
-    }
-    private operationToString(op: string): string {
-        if (op == "equal") return "=";
-        if (op == "notequal") return "!=";
-        if (op == "greater") return ">";
-        if (op == "less") return "<";
-        if (op == "greaterorequal") return ">=";
-        if (op == "lessorequal") return "<=";
-        return op;
-    }
+    public toString(root: ConditionNode): string { return root.toString(); }
     private parseText(): boolean {
         this.node = this.root;
         this.expressionNodes = [];
@@ -92,7 +51,7 @@ export class ConditionsParser {
         var c = new Condition();
         c.left = left;
         c.operator = op;
-        if (!this.isNoRightOperation(op)) {
+        if (!Condition.isNoRightOperation(op)) {
             var right = this.readOperand();
             if (!right) return false;
             c.right = right;
@@ -205,9 +164,6 @@ export class ConditionsParser {
             return res;
         }
         return null;
-    }
-    private isNoRightOperation(op: string) {
-        return op == "empty" || op == "notempty";
     }
     private readOperator(): string {
         this.skip();

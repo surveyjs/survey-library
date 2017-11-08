@@ -21,7 +21,7 @@ export class Operand {
         return val;
     }
     public get isBoolean() { return this.isBooleanValue(this.origionalValue); }
-    public operandToString(): any {
+    public toString(): string {
         var val = this.origionalValue;
         if (val && (!this.isNumeric(val) && !this.isBooleanValue(val))) val = "'" + val + "'";
         return val;
@@ -80,11 +80,11 @@ export class FunctionOperand extends Operand {
         }
         return FunctionFactory.Instance.run(this.origionalValue, paramValues);
     }
-    public operandToString() {
+    public toString() {
         var res = this.origionalValue + "("
         for(var i = 0; i < this.parameters.length; i ++) {
             if(i > 0) res += ", ";
-            res += this.parameters[i].operandToString();
+            res += this.parameters[i].toString();
         }
         return res;
     }
@@ -115,10 +115,10 @@ export class ExpressionOperand extends Operand {
         }
         return null;
     }
-    public operandToString() {
-        var res = this.left ? this.left.operandToString() : "";
+    public toString() {
+        var res = this.left ? this.left.toString() : "";
         res += ' ' + this.operator + ' ';
-        if(this.right) res += this.right.operandToString();
+        if(this.right) res += this.right.toString();
         return res;
     }
 }
@@ -180,6 +180,9 @@ export class Condition {
         opName = opName.toLowerCase();
         return Condition.operators[opName] != undefined;
     }
+    public static isNoRightOperation(op: string) {
+        return op == "empty" || op == "notempty";
+    }
     private opValue: string = "equal";
     private leftValue: Operand = null;
     private rightValue: Operand = null;
@@ -205,6 +208,24 @@ export class Condition {
         var rightValue = right ? right.getValue(processValue) : null;
         return Condition.operators[this.operator](leftValue, rightValue);
     }
+    public toString(): string {
+        if (!this.right || !this.operator) return "";
+        var left = this.left.toString();
+        var res = left + ' ' + this.operationToString();
+        if (Condition.isNoRightOperation(this.operator)) return res;
+        var right = this.right.toString();
+        return res + ' ' + right;
+    }
+    private operationToString(): string {
+        var op = this.operator;
+        if (op == "equal") return "=";
+        if (op == "notequal") return "!=";
+        if (op == "greater") return ">";
+        if (op == "less") return "<";
+        if (op == "greaterorequal") return ">=";
+        if (op == "lessorequal") return "<=";
+        return op;
+    }
 }
 export class ConditionNode {
     private connectiveValue: string = "and";
@@ -223,6 +244,22 @@ export class ConditionNode {
     public clear() {
         this.children = [];
         this.connective = "and";
+    }
+    public toString() : string {
+        if (this.isEmpty) return "";
+        var res = "";
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+            var nodeText = child.toString();
+            if(child.children && child.children.length > 0) {
+                nodeText = '(' + nodeText + ')';
+            }
+            if (nodeText) {
+                if (res) res += ' ' + this.connective + ' ';
+                res += nodeText;
+            }
+        }
+        return res;
     }
 }
 export class ConditionRunner {

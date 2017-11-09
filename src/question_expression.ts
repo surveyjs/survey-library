@@ -37,6 +37,31 @@ export class QuestionExpressionModel extends Question {
         this.value = this.expressionRunner.run(values);
         this.expressionIsRunning = false;
     }
+    public get displayValue(): any {
+        var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
+        if(this.isValueEmpty(val)) return "";
+        var str = this.getValueAsStr(val);
+        if(!this.format) return str;
+        return this.format["format"](str);
+    }
+    public get displayStyle(): string { return this.getPropertyValue("displayStyle", "none"); }
+    public set displayStyle(val: string) {this.setPropertyValue("displayStyle", val);}
+    public get currency(): string { return this.getPropertyValue("currency", ""); }
+    public set currency(val: string) { this.setPropertyValue("currency", val); }
+    public get useGrouping(): boolean { return this.getPropertyValue("useGrouping", true); }
+    public set useGrouping(val: boolean) { this.setPropertyValue("useGrouping", val); }
+    protected getValueAsStr(val: any): string {
+        if(this.displayStyle != "none" && !isNaN(parseFloat(val)) && isFinite(val)) {
+            var locale = this.getLocale();
+            if(!locale) locale = "en";
+            var options = {style: this.displayStyle, currency: this.currency, useGrouping: this.useGrouping};
+            if(!options.currency) options.currency = "USD";
+            return val.toLocaleString(locale, options);
+        }
+        return val.toString();
+    }
 }
-JsonObject.metaData.addClass("expression", ["expression:expression", {name:"format", serializationProperty: "locFormat"}], function () { return new QuestionExpressionModel(""); }, "question");
+JsonObject.metaData.addClass("expression", ["expression:expression", {name:"format", serializationProperty: "locFormat"},
+    {name: "displayStyle", default: "decimal", choices: ["none", "decimal", "currency", "percent"]},
+    {name: "currency"}, {name: "useGrouping:boolean", default: true}], function () { return new QuestionExpressionModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("expression", (name) => { return new QuestionExpressionModel(name); });

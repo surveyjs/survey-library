@@ -26,6 +26,38 @@ QUnit.test("Simple calculation", function (assert) {
     assert.equal(expression.value, 3, "q1 = 1 and q2 = 2");
 });
 
+QUnit.test("Display text + format", function (assert) {
+    var survey = createSurveyWith3Questions();
+    var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion("expression", "exp");
+    assert.notOk(expression.value, "expression is empty");
+    expression.expression = "{q1} + {q2}";
+    survey.data = {q1: 1, q2: 3}
+    assert.equal(expression.value, 4, "q1 = 1 and q2 = 2");
+    assert.equal(expression.displayValue, "4", "format is empty");
+    expression.format = "{0} $";
+    assert.equal(expression.displayValue, "4 $", "format is {0} $");
+});
+QUnit.test("Display text + defaltValue", function (assert) {
+    var survey = createSurveyWith3Questions();
+    var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion("expression", "exp");
+    assert.notOk(expression.value, "expression is empty");
+    expression.expression = "{q1} + {q2}";
+    expression.defaultValue = 0;
+    assert.equal(expression.value, 0, "use default value");
+    survey.data = {q1: 1, q2: 3}
+    assert.equal(expression.value, 4, "do not use default value");
+});
+/* Can't run them on Karma :(
+QUnit.test("Display text + displayStyle", function (assert) {
+    var survey = createSurveyWith3Questions();
+    var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion("expression", "exp");
+    assert.notOk(expression.value, "expression is empty");
+    expression.expression = "{q1} + {q2}";
+    survey.data = {q1: 1, q2: 3}
+    expression.displayStyle = "currency";
+    assert.equal(expression.displayValue, "$4.00", "format is empty");
+});
+*/
 function createSurveyWith3Questions(): SurveyModel {
     var survey = new SurveyModel();
     var page = survey.addNewPage();

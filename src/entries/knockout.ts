@@ -46,6 +46,7 @@ export {QuestionRating} from "../knockout/koquestion_rating";
 export {QuestionText} from "../knockout/koquestion_text";
 export {QuestionBoolean} from "../knockout/koquestion_boolean";
 export {QuestionEmpty} from "../knockout/koquestion_empty";
+export {QuestionExpression} from "../knockout/koquestion_expression";
 export {SurveyWindow} from "../knockout/koSurveyWindow";
 export {SurveyTemplateText} from "../knockout/templateText";
 

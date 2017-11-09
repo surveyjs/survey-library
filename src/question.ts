@@ -407,6 +407,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
 }
 JsonObject.metaData.addClass("question", [{ name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }, 
-    { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:expression", "defaultValue:value",
+    { name: "commentText", serializationProperty: "locCommentText" }, "enableIf:condition", "defaultValue:value",
     "isRequired:boolean", { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     "readOnly:boolean", { name: "validators:validators", baseClassName: "surveyvalidator", classNamePart: "validator"}], null, "questionbase");

@@ -39,6 +39,7 @@ export {SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicRow} from "../re
 export {SurveyQuestionPanelDynamic} from "../react/reactquestionpaneldynamic";
 export {SurveyProgress} from "../react/reactSurveyProgress";
 export {SurveyQuestionRating} from "../react/reactquestionrating";
+export {SurveyQuestionExpression} from "../react/reactquestionexpression";
 export {SurveyWindow} from "../react/reactSurveyWindow";
 export {ReactQuestionFactory} from "../react/reactquestionfactory";
 

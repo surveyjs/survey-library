@@ -32,6 +32,7 @@ export var defaultStandardCss = {
     radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", label: "", other: "sv_q_other" },
     rating: { root: "sv_q_rating", item: "sv_q_rating_item", selected: "active" },
     text: "",
+    expression: "",
     saveData: {root: "", saving: "", error: "", success: "", saveAgainButton: ""},
     window: {
         root: "sv_window", body: "sv_window_content",

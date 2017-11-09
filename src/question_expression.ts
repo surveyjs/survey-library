@@ -46,8 +46,11 @@ export class QuestionExpressionModel extends Question {
     }
     public get displayStyle(): string { return this.getPropertyValue("displayStyle", "none"); }
     public set displayStyle(val: string) {this.setPropertyValue("displayStyle", val);}
-    public get currency(): string { return this.getPropertyValue("currency", ""); }
-    public set currency(val: string) { this.setPropertyValue("currency", val); }
+    public get currency(): string { return this.getPropertyValue("currency", "USD"); }
+    public set currency(val: string) { 
+        if(getCurrecyCodes().indexOf(val) < 0) return;
+        this.setPropertyValue("currency", val); 
+    }
     public get useGrouping(): boolean { return this.getPropertyValue("useGrouping", true); }
     public set useGrouping(val: boolean) { this.setPropertyValue("useGrouping", val); }
     protected getValueAsStr(val: any): string {
@@ -55,13 +58,24 @@ export class QuestionExpressionModel extends Question {
             var locale = this.getLocale();
             if(!locale) locale = "en";
             var options = {style: this.displayStyle, currency: this.currency, useGrouping: this.useGrouping};
-            if(!options.currency) options.currency = "USD";
             return val.toLocaleString(locale, options);
         }
         return val.toString();
     }
 }
+
+function getCurrecyCodes(): Array<string> {
+    return ["AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BOV","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHE","CHF","CHW","CLF","CLP","CNY",
+    "COP","COU","CRC","CUC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","GBP","GEL","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","INR","IQD",
+    "IRR","ISK","JMD","JOD","JPY","KES","KGS","KHR","KMF","KPW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRO","MUR","MVR","MWK","MXN","MXV","MYR","MZN",
+    "NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLL","SOS","SRD","SSP","STD","SVC","SYP","SZL",
+    "THB","TJS","TMT","TND","TOP","TRY","TTD","TWD","TZS","UAH","UGX","USD","USN","UYI","UYU","UZS","VEF","VND","VUV","WST","XAF","XAG","XAU","XBA","XBB","XBC","XBD","XCD","XDR","XOF","XPD","XPF","XPT","XSU",
+    "XTS","XUA","XXX","YER","ZAR","ZAR","ZMW","ZWL"];
+}
+
 JsonObject.metaData.addClass("expression", ["expression:expression", {name:"format", serializationProperty: "locFormat"},
     {name: "displayStyle", default: "decimal", choices: ["none", "decimal", "currency", "percent"]},
-    {name: "currency"}, {name: "useGrouping:boolean", default: true}], function () { return new QuestionExpressionModel(""); }, "question");
+    {name: "currency", choices: () => { return getCurrecyCodes() }, default: "USD"}, {name: "useGrouping:boolean", default: true},
+    {name:"commentText", visible: false}, {name:"enableIf", visible: false}, {name:"isRequired", visible: false}, 
+    {name:"readOnly", visible: false}, {name:"requiredErrorText", visible: false}, {name:"validators", visible: false}], function () { return new QuestionExpressionModel(""); }, "question");
 QuestionFactory.Instance.registerQuestion("expression", (name) => { return new QuestionExpressionModel(name); });

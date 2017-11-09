@@ -26,6 +26,7 @@ export var defaultBootstrapCss = {
     radiogroup: { root: "form-inline", item: "radio", label: "", other: "" },
     rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
     text: "form-control",
+    expression: "form-control",
     saveData: {root: "", saving: "alert alert-info", error: "alert alert-danger", success: "alert alert-success", saveAgainButton: ""},
     window: {
         root: "modal-content", body: "modal-body",

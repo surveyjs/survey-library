@@ -535,3 +535,8 @@ QUnit.test("ExpressionRunner: (1+2)*3", function (assert) {
     var runner = new ExpressionRunner("(1+2)*3");
     assert.equal(runner.run({}), 9, "(1+2)*3 is 9");
 });
+QUnit.test("ExpressionRunner: sumInArray", function (assert) {
+    var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
+    var values = {a: [{val1: 10}, {val2: 10}, {val1: 20}]}
+    assert.equal(runner.run(values), 30, "10 + 20");
+});

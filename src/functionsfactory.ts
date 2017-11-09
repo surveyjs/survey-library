@@ -33,6 +33,23 @@ function sum(params: any[]): any {
 }
 FunctionFactory.Instance.register("sum", sum);
 
+function sumInArray(params: any[]): any {
+    if(params.length != 2) return 0;
+    var arr = params[0];
+    if(!Array.isArray(arr)) return;
+    var name = params[1];
+    if (typeof name !== 'string' && !(name instanceof String)) return 0;
+    var res = 0;
+    for(var i = 0; i < arr.length; i ++) {
+        var item = arr[i];
+        if(item && item[<string>name]) {
+            res += item[<string>name];
+        }
+    }
+    return res;
+}
+FunctionFactory.Instance.register("sumInArray", sumInArray);
+
 function age(params: any[]): any {
     if(params.length < 1) return -1;
     var birthDay = new Date(params[0]);

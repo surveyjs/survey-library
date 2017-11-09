@@ -262,6 +262,26 @@ export class ConditionNode {
         return res;
     }
 }
+export class ExpressionRunner {
+    private expressionValue: string;
+    private processValue: ProcessValue;
+    private operand: Operand;
+    public constructor(expression: string) {
+        this.expression = expression;
+        this.processValue = new ProcessValue();
+    }
+    public get expression(): string { return this.expressionValue; }
+    public set expression(value: string) {
+        if (this.expression == value) return;
+        this.expressionValue = value;
+        this.operand = new ConditionsParser().parseExpression(this.expressionValue);
+    }
+    public run(values: HashTable<any>): any {
+        if(!this.operand) return null;
+        this.processValue.values = values;
+        return this.operand.getValue(this.processValue);
+    }
+}
 export class ConditionRunner {
     private expressionValue: string;
     private processValue: ProcessValue;

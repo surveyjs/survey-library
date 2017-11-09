@@ -1,5 +1,5 @@
 ﻿import {ConditionsParser} from "../src/conditionsParser";
-import {Operand, Condition, ConditionNode, ConditionRunner, ExpressionOperand} from "../src/conditions";
+import {Operand, Condition, ConditionNode, ConditionRunner, ExpressionOperand, ExpressionRunner} from "../src/conditions";
 
 export default QUnit.module("Conditions");
 
@@ -530,4 +530,8 @@ QUnit.test("ExpressionOperand: brackets 2", function (assert) {
     assert.equal(runner.run(values), false, "(1 + 3 + 2) / 3 >= 3");
     values.c  =  5;
     assert.equal(runner.run(values), true, "(1 + 3 + 4) / 3 >= 3");
+});
+QUnit.test("ExpressionRunner: (1+2)*3", function (assert) {
+    var runner = new ExpressionRunner("(1+2)*3");
+    assert.equal(runner.run({}), 9, "(1+2)*3 is 9");
 });

@@ -8,19 +8,25 @@ export class ConditionsParser {
     private at: number;
     private length: number;
     public parse(text: string, root: ConditionNode): boolean {
+        this.setProperties(text, root);
+        return this.parseText();
+    }
+    public parseExpression(text: string): Operand {
+        this.setProperties(text, new ConditionNode());
+        return this.readExpressionOperand();
+    }
+    private setProperties(text: string, root: ConditionNode) {
         this.text = text;
-        this.root = root;
-        this.root.clear();
         this.at = 0;
         this.length = this.text.length;
-        var res = this.parseText();
-        return res;
-    }
-    public toString(root: ConditionNode): string { return root.toString(); }
-    private parseText(): boolean {
+        this.root = root;
+        this.root.clear();
         this.node = this.root;
         this.expressionNodes = [];
         this.expressionNodes.push(this.node);
+    }
+    public toString(root: ConditionNode): string { return root.toString(); }
+    private parseText(): boolean {
         var res = this.readConditions();
         return res && this.at >= this.length;
     }

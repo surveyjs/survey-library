@@ -19,10 +19,9 @@
 
     @Component
     export default class Checkbox extends Question<QuestionCheckboxModel> {
-        innerValue = null;
         get value() {
             if(this.innerValue === null) {
-                this.innerValue = !this.question.isEmpty() ?  this.question.value : [];
+                this.innerValue = !this.question.isEmpty() ? this.question.value : [];
             }
             return this.innerValue;
         }

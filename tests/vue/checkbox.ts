@@ -70,7 +70,9 @@ QUnit.test("Survey.Checkbox question changed", (assert) => {
 
     assert.deepEqual(vm.value, ["second item"]);
     vm.question = question2;
-    assert.deepEqual(vm.value, ["item1"]);
+    Vue.nextTick(() => {
+        assert.deepEqual(vm.value, ["item1"]);
+    });
 });
 
 QUnit.test("Survey.Checkbox question value in model has been changed", function (assert) {
@@ -85,5 +87,7 @@ QUnit.test("Survey.Checkbox question value in model has been changed", function 
     assert.deepEqual(vm.value, ["second item"]);
 
     question.value = ["third item", "other"];
-    assert.deepEqual(vm.value, ["third item", "other"]);
+    Vue.nextTick(() => {
+        assert.deepEqual(vm.value, ["third item", "other"]);
+    });
 });

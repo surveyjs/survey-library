@@ -1,5 +1,5 @@
 <template>
-    <div>:class="question.cssClasses.text">{{question.displayValue}}</div>
+    <div :class="question.cssClasses.text">{{question.displayValue}}</div>
 </template>
 
 <script lang="ts">
@@ -10,9 +10,6 @@
 
     @Component
     export default class Expression extends Question<QuestionExpressionModel> {
-        change(event) {
-            this.question.value = event.target.value;
-        }
     }
     Vue.component("survey-expression", Expression)
 </script>

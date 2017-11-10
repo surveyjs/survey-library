@@ -19,11 +19,16 @@
 
     @Component
     export default class Checkbox extends Question<QuestionCheckboxModel> {
+        innerValue = null;
         get value() {
-            return !this.question.isEmpty() ?  this.question.value : [];
+            if(this.innerValue === null) {
+                this.innerValue = !this.question.isEmpty() ?  this.question.value : [];
+            }
+            return this.innerValue;
         }
         set value(newVal) {
             this.question.value = newVal;
+            this.innerValue = newVal;
         }
         get colWidth() {
             var colCount = this.question.colCount;

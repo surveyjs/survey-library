@@ -55,19 +55,20 @@ export interface IConditionRunner {
     runCondition(values: HashTable<any>);
 }
 export interface ISurveyElement {
+    name: string;
     setSurveyImpl(value: ISurveyImpl);
+    onSurveyLoad();
 }
 export interface IElement  extends IConditionRunner, ISurveyElement{
-    name: string;
     visible: boolean;
     isVisible: boolean;
+    parent: IPanel;
     renderWidth: string;
     width: string;
     rightIndent: number;
     startWithNewLine: boolean;
     isPanel: boolean;
     removeElement(el: IElement): boolean;
-    onSurveyLoad();
     onLocaleChanged();
     onAnyValueChanged(name: string);
     updateCustomWidgets();
@@ -82,11 +83,9 @@ export interface IQuestion extends IElement {
     clearUnusedValues();
     displayValue: any;
 }
-export interface IPanel extends IElement {
+export interface IPanel extends ISurveyElement {
 }
-export interface IPage extends IConditionRunner {
-    visible: boolean;
-    onSurveyLoad();
+export interface IPage extends ISurveyElement, IConditionRunner {
 }
 /**
  * The base class for SurveyJS objects.
@@ -371,14 +370,6 @@ export class SurveyElement extends Base implements ISurveyElement {
         }
         return false;
     }
-    public setSurveyImpl(value: ISurveyImpl) {
-        this.surveyImplValue = value;
-        if(!this.surveyImplValue) return;
-        this.surveyDataValue = this.surveyImplValue.geSurveyData();
-        this.surveyValue = this.surveyImplValue.getSurvey();
-        this.textProcessorValue = this.surveyImplValue.getTextProcessor();
-        this.onSetData();
-    }
     public static setVisibleIndex(questions: Array<IQuestion>, index: number, showIndex: boolean): number {
         var startIndex = index;
         for(var i = 0; i < questions.length; i ++) {
@@ -391,7 +382,17 @@ export class SurveyElement extends Base implements ISurveyElement {
         }
         return index - startIndex;
     }
-    
+    constructor(public name: string) {
+        super();
+    }
+    public setSurveyImpl(value: ISurveyImpl) {
+        this.surveyImplValue = value;
+        if(!this.surveyImplValue) return;
+        this.surveyDataValue = this.surveyImplValue.geSurveyData();
+        this.surveyValue = this.surveyImplValue.getSurvey();
+        this.textProcessorValue = this.surveyImplValue.getTextProcessor();
+        this.onSetData();
+    }
     protected get surveyImpl() { return this.surveyImplValue; }
     public get data(): ISurveyData { return this.surveyDataValue; }
     /**

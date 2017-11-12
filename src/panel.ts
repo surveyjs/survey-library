@@ -61,7 +61,7 @@ export class QuestionRowModel {
 /**
  * A base class for a Panel and Page objects.
  */
-export class PanelModelBase extends SurveyElement implements IConditionRunner, ILocalizableOwner {
+export class PanelModelBase extends SurveyElement implements IPanel, IConditionRunner, ILocalizableOwner {
     private static panelCounter = 100;
     private static getPanelId(): string {
         return "sp_" + PanelModelBase.panelCounter++;
@@ -75,7 +75,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
     rowsChangedCallback: () => void;
 
     constructor(public name: string = "") {
-        super();
+        super(name);
         this.elementsValue = this.createNewArray("elements", function(item) {self.onAddElement(item, self.elementsValue.length);}, function(item) { self.onRemoveElement(item);} );
         this.registerFunctionOnPropertyValueChanged("elements", function() {self.markQuestionListDirty(); self.onRowsChanged();});
         this.id = PanelModelBase.getPanelId();
@@ -218,7 +218,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
      * @param list 
      */
     public addPanelsIntoList(list: Array<IPanel>, visibleOnly: boolean = false, includingDesignTime: boolean = false) {
-        this.addElementsToList(list, visibleOnly, includingDesignTime, true);
+        this.addElementsToList(<Array<IElement>>list, visibleOnly, includingDesignTime, true);
     }
     private addElementsToList(list: Array<IElement>, visibleOnly: boolean, includingDesignTime: boolean, isPanel: boolean) {
         if (visibleOnly && !this.visible) return;
@@ -276,9 +276,9 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
     private get isDesignMode() { return this.survey && this.survey.isDesignMode; }
     private onAddElement(element: IElement, index: number) {
         element.setSurveyImpl(this.surveyImpl);
+        element.parent = this;
         if(element.isPanel) {
             var p = <PanelModel>element;
-            p.parent = this;
             if(this.survey) {
                 this.survey.panelAdded(p, index, this, this.root);
             }
@@ -293,6 +293,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
         (<Base><any>element).registerFunctionOnPropertyValueChanged("startWithNewLine", function () { self.onElementStartWithNewLineChanged(element); }, this.id);
     }
     private onRemoveElement(element: IElement) {
+        element.parent = null;
         (<Base><any>element).unRegisterFunctionOnPropertiesValueChanged(["visible", "isVisible", "startWithNewLine"], this.id);
         if(!element.isPanel) {
             if(this.survey) this.survey.questionRemoved(<QuestionBase>element);
@@ -479,7 +480,7 @@ export class PanelModelBase extends SurveyElement implements IConditionRunner, I
  * A container element, similar to the Page objects. However, unlike the Page, Panel can't be a root. 
  * It may contain questions and other panels.
  */
-export class PanelModel extends PanelModelBase implements IPanel {
+export class PanelModel extends PanelModelBase implements IElement {
     constructor(public name: string = "") {
         super(name);
     }

@@ -1,5 +1,5 @@
 ﻿import {HashTable} from "./helpers";
-import {Base, SurveyElement, IElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, Event, SurveyError} from './base';
+import {Base, SurveyElement, IElement, IQuestion, IConditionRunner, ISurveyData, ISurvey, Event, SurveyError, IPanel} from './base';
 import {QuestionCustomWidget} from './questionCustomWidgets';
 import {JsonObject} from './jsonobject';
 import {ConditionRunner} from './conditions';
@@ -29,11 +29,16 @@ export class QuestionBase extends SurveyElement implements IQuestion, ICondition
     surveyLoadCallback: () => void;
 
     constructor(public name: string) {
-        super();
+        super(name);
         this.id = QuestionBase.getQuestionId();
         this.onCreating();
     }
     public getType(): string { return "questionbase"; }
+    /**
+     * A parent element. It can be panel or page.
+     */
+    public get parent(): IPanel { return this.getPropertyValue("parent", null); }
+    public set parent(val: IPanel) { this.setPropertyValue("parent", val); }
     /**
      * Always returns false.
      */

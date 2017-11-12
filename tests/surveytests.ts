@@ -1803,6 +1803,18 @@ QUnit.test("Set 0 value into survey.data", function (assert) {
     survey.data = {q1: 0};
     assert.equal(q.value, 0, "0 value is set");
 });    
+QUnit.test("Parent property in question", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var panel = page.addNewPanel("panel");
+    var panel2 = panel.addNewPanel("panel2");
+    var q = panel2.addNewQuestion("text");
+    assert.equal(q.parent.name, "panel2");
+    panel2.removeElement(q);
+    assert.notOk(q.parent);
+    panel.addElement(q);
+    assert.equal(q.parent.name, "panel");
+});    
 
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();

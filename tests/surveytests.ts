@@ -1816,6 +1816,27 @@ QUnit.test("Parent property in question", function (assert) {
     assert.equal(q.parent.name, "panel");
 });    
 
+QUnit.test("Define questionTitleLocation on Panel/Page level", function (assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var panel = page.addNewPanel("panel");
+    var panel2 = panel.addNewPanel("panel2");
+    var q = <Question>panel2.addNewQuestion("text");
+    assert.equal(q.titleLocation, "top", "get from survey");
+    panel2.questionTitleLocation = "bottom";
+    assert.equal(q.titleLocation, "bottom", "get from panel 2");
+    panel2.questionTitleLocation = "default";
+    assert.equal(q.titleLocation, "top", "get from survey");
+    panel.questionTitleLocation = "bottom";
+    assert.equal(q.titleLocation, "bottom", "get from panel");
+    panel.questionTitleLocation = "default";
+    assert.equal(q.titleLocation, "top", "get from survey");
+    page.questionTitleLocation = "bottom";
+    assert.equal(q.titleLocation, "bottom", "get from page");
+    page.questionTitleLocation = "default";
+    assert.equal(q.titleLocation, "top", "get from survey");
+});    
+
 function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
     var page = survey.addNewPage("Page 1");

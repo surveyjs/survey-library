@@ -84,6 +84,7 @@ export interface IQuestion extends IElement {
     displayValue: any;
 }
 export interface IPanel extends ISurveyElement {
+    getQuestionTitleLocation(): string;
 }
 export interface IPage extends ISurveyElement, IConditionRunner {
 }

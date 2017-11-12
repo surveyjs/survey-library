@@ -218,7 +218,7 @@ export class PanelModelBase extends SurveyElement implements IPanel, IConditionR
      * @param list 
      */
     public addPanelsIntoList(list: Array<IPanel>, visibleOnly: boolean = false, includingDesignTime: boolean = false) {
-        this.addElementsToList(<Array<IElement>>list, visibleOnly, includingDesignTime, true);
+        this.addElementsToList(<Array<IElement>>(<Array<any>>list), visibleOnly, includingDesignTime, true);
     }
     private addElementsToList(list: Array<IElement>, visibleOnly: boolean, includingDesignTime: boolean, isPanel: boolean) {
         if (visibleOnly && !this.visible) return;
@@ -256,7 +256,19 @@ export class PanelModelBase extends SurveyElement implements IPanel, IConditionR
             this.elements[i].updateCustomWidgets();
         }
     }
-
+    /**
+     * Set this property different from "default" to set the specific question title location for this panel/page.
+     * @see SurveyModel.questionTitleLocation
+     */
+    public get questionTitleLocation(): string { return this.getPropertyValue("questionTitleLocation", "default"); };
+    public set questionTitleLocation(value: string) {
+        this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    };
+    getQuestionTitleLocation(): string {
+        if(this.questionTitleLocation != "default") return this.questionTitleLocation;
+        if(this.parent) return this.parent.getQuestionTitleLocation();
+        return this.survey ? this.survey.questionTitleLocation : "top";
+    }
     protected get root(): PanelModelBase {
         var res = <PanelModelBase>this;
         while(res.parent) res = res.parent;
@@ -519,4 +531,5 @@ export class PanelModel extends PanelModelBase implements IElement {
 
 JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
     { name: "startWithNewLine:boolean", default: true}, { name: "visible:boolean", default: true }, "visibleIf:condition", 
+    { name: "questionTitleLocation", default: "default", choices: ["default", "top", "bottom"] },
     { name: "title:text", serializationProperty: "locTitle" }, {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); });

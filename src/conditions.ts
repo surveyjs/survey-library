@@ -40,6 +40,7 @@ export class Operand {
         return value && (value.toLowerCase() === "true" || value.toLowerCase() === "false");
     }
     private isNumeric(value: string): boolean {
+        if(value && (value.indexOf('-') > -1 || value.indexOf('+') > 1 || value.indexOf('*') > -1 || value.indexOf('/') > -1)) return false;
         var val = parseFloat(value);
         if (isNaN(val)) return false;
         return isFinite(val);

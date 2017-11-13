@@ -168,7 +168,7 @@ export class PanelModelBase extends SurveyElement implements IPanel, IConditionR
     public get elements(): Array<IElement> { return this.elementsValue; }
     public getElementsInDesign(includeHidden: boolean = false): Array<IElement> { return this.elements; }
     /**
-     * Returns true if the current element belongs to the Panel/Page. It looks in nestede Panels as well.
+     * Returns true if the current element belongs to the Panel/Page. It looks in nested Panels as well.
      * @param element
      * @see PanelModel
      */

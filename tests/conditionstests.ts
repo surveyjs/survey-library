@@ -418,6 +418,13 @@ QUnit.test("true/false as constant in the left", function (assert) {
     var values = { isTrue: 'false' };
     assert.equal(runner.run(values), false, "false, true = false");
 });    
+QUnit.test("Constant string with dash (-) doens't work correctly", function (assert) {
+    var runner = new ConditionRunner("{a} = '01-01-2018'");
+    var values = { a: '01-01' };
+    assert.equal(runner.run(values), false, "'01-01' = '01-01-2018'");
+    values.a =  '01-01-2018';
+    assert.equal(runner.run(values), true, "'01-01-2018' = '01-01-2018'");
+});    
 QUnit.test("Override functions: make equal works as contains", function (assert) {
     var eqFunc = Condition.getOperator("equal");
     var containsFunc = Condition.getOperator("contains");

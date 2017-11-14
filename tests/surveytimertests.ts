@@ -123,8 +123,33 @@ QUnit.test("Showing prev button", function (assert) {
     assert.equal(survey.isShowPrevButton, false, "maxTimeToFinishPage is working");
     survey.nextPage();
     assert.equal(survey.isShowPrevButton, true, "maxTimeToFinishPage is override");
-});    
+});
 
+QUnit.test("Showing prev button, showTimerInfo='all'", function (assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    survey.addNewPage("p2");
+    survey.pages[0].addNewQuestion("text");
+    survey.pages[1].addNewQuestion("text");
+    assert.equal(survey.timerInfoText, "You have spent 0 sec on this page and 0 sec in total.", "Timer is not started");
+    survey.startTimer();
+    assert.equal(survey.timerInfoText, "You have spent 0 sec on this page and 0 sec in total.", "Timer just started");
+    doTimer(62);
+    assert.equal(survey.timerInfoText, "You have spent 1 min 2 sec on this page and 1 min 2 sec in total.", "62 sec passed");
+    survey.nextPage();
+    doTimer(3);
+    assert.equal(survey.timerInfoText, "You have spent 3 sec on this page and 1 min 5 sec in total.", "next page 65 sec passed");
+    survey.maxTimeToFinish = 120;
+    assert.equal(survey.timerInfoText, "You have spent 3 sec on this page. You have spent 1 min 5 sec of 2 min in total.", "survey limit, next page 65 sec passed");
+    survey.maxTimeToFinishPage = 60;
+    assert.equal(survey.timerInfoText, "You have spent 3 sec of 1 min on this page and 1 min 5 sec of 2 min in total.", "survey and page limit, next page 65 sec passed");
+    survey.maxTimeToFinish = 0;
+    assert.equal(survey.timerInfoText, "You have spent 3 sec of 1 min on this page. You have spent 1 min 5 sec in total.", "page limit, next page 65 sec passed");
+    survey.onTimerPanelInfoText.add(function(survey, options){
+        options.text = survey.timeSpent;
+    });
+    assert.equal(survey.timerInfoText, "65", "use onTimerPanelInfoText event.");
+});    
 function doTimer(count: number) {
     for(var i = 0; i < count; i ++) {
         SurveyTimer.instance.doTimer();

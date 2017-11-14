@@ -27,6 +27,7 @@ export class Survey extends SurveyModel {
     koCurrentPage: any; koIsFirstPage: any; koIsLastPage: any; koIsNavigationButtonsShowing: any; dummyObservable: any; koState: any;
     koProgress: any; koProgressText: any; koAfterRenderPage: any;
     koCompletedState: any; koCompletedStateText: any; koCompletedStateCss: any;
+    koTimerInfoText: any;
 
     constructor(jsonObj: any = null, renderedElement: any = null, css: any = null) {
         super(jsonObj);
@@ -37,6 +38,9 @@ export class Survey extends SurveyModel {
             this.renderedElement = renderedElement;
         }
         if (typeof ko === 'undefined') throw new Error('knockoutjs library is not loaded.');
+        var self = this;
+        this.registerFunctionOnPropertyValueChanged("timeSpent", function() {self.onTimeSpentChanged();});
+        
         this.render(renderedElement);
     }
     public get cssNavigationComplete() { return this.getNavigationCss(this.css.navigationButton, this.css.navigation.complete); }
@@ -64,6 +68,9 @@ export class Survey extends SurveyModel {
         element = this.renderedElement;
         if (!element) return;
         element.innerHTML = this.getHtmlTemplate();
+        if(self.showTimerPanel != "none") {
+            self.startTimer();
+        }
         self.applyBinding();
     }
     public koEventAfterRender(element, survey) {
@@ -95,6 +102,7 @@ export class Survey extends SurveyModel {
         this.koCompletedState = ko.observable("");
         this.koCompletedStateText = ko.observable("");
         this.koCompletedStateCss = ko.observable("");
+        this.koTimerInfoText = ko.observable(this.timerInfoText);
         this.koAfterRenderPage = function (elements, con) {
             var el = SurveyElement.GetFirstNonTextElement(elements);
             if (el) self.afterRenderPage(el);
@@ -120,6 +128,9 @@ export class Survey extends SurveyModel {
         this.koCompletedState(this.completedState);
         this.koCompletedStateText(this.completedStateText);
         this.koCompletedStateCss(this.completedState !== "" ? this.css.saveData[this.completedState] : "");
+    }
+    protected onTimeSpentChanged() {
+        this.koTimerInfoText(this.timerInfoText);
     }
     private applyBinding() {
         if (!this.renderedElement) return;

@@ -2,7 +2,7 @@ import {Event} from "./base";
 
 export var surveyTimerFunctions = {
     setInterval: function(func: () => any): number {
-        return window.setInterval(func(), 1000);
+        return window.setInterval(func, 1000);
     },
     clearInterval: function(timerId: number) {
         window.clearInterval(timerId);

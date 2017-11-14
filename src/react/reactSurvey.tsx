@@ -7,6 +7,7 @@ import {ISurveyCreator} from "./reactquestion";
 import {ReactQuestionFactory} from "./reactquestionfactory";
 import {surveyCss} from "../defaultCss/cssstandard";
 import {SurveyProgress} from "./reactSurveyProgress";
+import {SurveyTimerPanel} from "./reacttimerpanel";
 import {SurveyElementBase} from "./reactquestionelement";
 
 export class Survey extends React.Component<any, any> implements ISurveyCreator {
@@ -35,6 +36,14 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     componentDidMount() {
         var el = this.refs["root"];
         if (el && this.survey) this.survey.doAfterRenderSurvey(el);
+        if(this.survey && this.survey.showTimerPanel != "all") {
+            this.survey.startTimer();
+        }
+    }
+    componentWillUnmount() {
+        if(this.survey) {
+            this.survey.stopTimer();
+        }
     }
     render(): JSX.Element {
         if (this.survey.state == "completed") return this.renderCompleted();
@@ -87,7 +96,9 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
                 {title}
                 <div id={pageId} className={this.css.body}>
                     {topProgress}
+                    {this.renderTimerPanel("top")}
                     {currentPage}
+                    {this.renderTimerPanel("bottom")}
                     {bottomProgress}
                 </div>
                 {buttons}
@@ -97,6 +108,10 @@ export class Survey extends React.Component<any, any> implements ISurveyCreator 
     protected renderTitle(): JSX.Element {
         var title = SurveyElementBase.renderLocString(this.survey.locTitle);
         return <div className={this.css.header}><h3>{title}</h3></div>;
+    }
+    protected renderTimerPanel(location: string) {
+        if(this.survey.showTimerPanel != location) return null;
+        return <SurveyTimerPanel survey={this.survey} css={this.css}/>
     }
     protected renderPage(): JSX.Element {
         return <SurveyPage survey={this.survey} page={this.survey.currentPage} css={this.css} creator={this} />;

@@ -12,13 +12,17 @@ export class QuestionCustomWidget {
         if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
     }
     public isFit(question: IQuestion): boolean {
-        if (this.widgetJson.isFit) return this.widgetJson.isFit(question);
+        if (this.isLibraryLoaded() && this.widgetJson.isFit) return this.widgetJson.isFit(question);
         return false;
     }
     public activatedByChanged(activatedBy: string) {
-        if(this.widgetJson.activatedByChanged) {
+        if(this.isLibraryLoaded() && this.widgetJson.activatedByChanged) {
             this.widgetJson.activatedByChanged(activatedBy);
         }
+    }
+    private isLibraryLoaded(): boolean {
+        if(this.widgetJson.widgetIsLoaded) return this.widgetJson.widgetIsLoaded() == true;
+        return true;
     }
     public get isDefaultRender() : boolean { return this.widgetJson.isDefaultRender; }
 }

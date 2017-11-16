@@ -1,16 +1,21 @@
 <template>
     <div>
-        <h5 v-if="element.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top' || survey.questionTitleLocation === 'left'"><survey-string :locString="element.locTitle"/></h5>
-        <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locDescription"/></div>
-        <survey-errors v-if="survey.questionErrorLocation === 'top'" :question="element"/>
-        <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
-        <div v-show="element.hasComment">
-            <div>{{element.commentText}}</div>
-            <survey-other-choice :commentClass="css.comment" :question="element"/>
+        <div v-show="element.titleLocation === 'top' || element.titleLocation === 'left'" :class="element.titleLocation === 'left' ? 'title-left' : ''">
+            <h5 v-if="element.hasTitle" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="css.question.description"><survey-string :locString="element.locDescription"/></div>
         </div>
-        <survey-errors v-if="survey.questionErrorLocation === 'bottom'" :question="element"/>
-        <h5 v-if="element.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
-        <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
+
+        <div :class="element.titleLocation === 'left' ? 'content-left' : ''">
+            <survey-errors v-if="survey.questionErrorLocation === 'top'" :question="element"/>
+            <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
+            <div v-show="element.hasComment">
+                <div>{{element.commentText}}</div>
+                <survey-other-choice :commentClass="css.comment" :question="element"/>
+            </div>
+            <survey-errors v-if="survey.questionErrorLocation === 'bottom'" :question="element"/>
+            <h5 v-if="element.hasTitle" v-show="element.titleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="css.question.description" v-show="element.titleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
+        </div>
     </div>
 </template>
 

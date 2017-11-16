@@ -53,6 +53,9 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     public getType(): string {
         return "matrix";
     }
+    public get isAllowTitleLeft(): boolean {
+        return false;
+    }
     /**
      * Set this property to true, if you want a user to answer all rows.
      */

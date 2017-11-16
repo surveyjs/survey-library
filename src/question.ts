@@ -19,7 +19,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     private conditionEnabelRunner: ConditionRunner;
     private errorsValue: Array<SurveyError> = [];
     private validatorsValue: Array<SurveyValidator> = this.createNewArray("validators");
-    protected isDisallowTitleLeft: Boolean = false;
     valueChangedCallback: () => void;
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
@@ -36,6 +35,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.createLocalizableString("commentText", this, true);
         this.createLocalizableString("requiredErrorText", this);
     }
+    /**
+     * Returns true if the question have a title in the left
+     */
+    public get isAllowTitleLeft(): boolean { return true; }
     public getType(): string { return "question"; }
     public get hasTitle(): boolean { return true; }
     public get hasDescription(): boolean { return this.description != ""; }
@@ -47,7 +50,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
             location = this.survey.questionTitleLocation            
         }
 
-        if (location === "left" && this.isDisallowTitleLeft) location = "top";
+        if (location === "left" && !this.isAllowTitleLeft) location = "top";
 
         return location; 
     }

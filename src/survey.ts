@@ -760,12 +760,21 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.currentPage = this.visiblePages[value];
     }
     /**
-     * Set the input focuse to the first question with the input.
+     * Set the input focus to the first question with the input.
      */
     public focusFirstQuestion() {
-        if (this.currentPageValue) {
-            this.currentPageValue.scrollToTop();
-            this.currentPageValue.focusFirstQuestion();
+        var page = this.currentPage;
+        if (page) {
+            page.scrollToTop();
+            page.focusFirstQuestion();
+        }
+    }
+    scrollToTopOnPageChange() {
+        var page = this.currentPage;
+        if(!page) return;
+        page.scrollToTop();
+        if(this.focusFirstQuestionAutomatic) {
+            page.focusFirstQuestion();
         }
     }
     /**

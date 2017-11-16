@@ -529,7 +529,9 @@ export class PanelModel extends PanelModelBase implements IElement {
      }
 }
 
-JsonObject.metaData.addClass("panel", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
-    { name: "startWithNewLine:boolean", default: true}, { name: "visible:boolean", default: true }, "visibleIf:condition", 
-    { name: "questionTitleLocation", default: "default", choices: ["default", "top", "bottom"] },
-    { name: "title:text", serializationProperty: "locTitle" }, {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); });
+JsonObject.metaData.addClass("panelbase", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
+{ name: "visible:boolean", default: true }, "visibleIf:condition", 
+{ name: "questionTitleLocation", default: "default", choices: ["default", "top", "bottom"] },
+{ name: "title:text", serializationProperty: "locTitle" }], function () { return new PanelModelBase(); });
+
+JsonObject.metaData.addClass("panel", [ { name: "startWithNewLine:boolean", default: true}, {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); }, "panelbase");

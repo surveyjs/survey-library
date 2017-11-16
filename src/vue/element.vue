@@ -1,7 +1,7 @@
 <template>
     <div>
-        <h5 v-if="element.hasTitle" :class="css.question.title" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locTitle"/></h5>
-        <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locDescription"/></div>
+        <h5 v-if="element.hasTitle" :class="element.cssClasses.title" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locTitle"/></h5>
+        <div v-if="element.hasDescription" :class="element.cssClasses.description" v-show="survey.questionTitleLocation === 'top'"><survey-string :locString="element.locDescription"/></div>
         <survey-errors v-if="survey.questionErrorLocation === 'top'" :question="element"/>
         <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
         <div v-show="element.hasComment">
@@ -9,8 +9,8 @@
             <survey-comment :question="element"/>
         </div>
         <survey-errors v-if="survey.questionErrorLocation === 'bottom'" :question="element"/>
-        <h5 v-if="element.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
-        <div v-if="element.hasDescription" :class="css.question.description" v-show="survey.questionTitleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
+        <h5 v-if="element.hasTitle" v-show="survey.questionTitleLocation === 'bottom'" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
+        <div v-if="element.hasDescription" :class="element.cssClasses.description" v-show="survey.questionTitleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
     </div>
 </template>
 

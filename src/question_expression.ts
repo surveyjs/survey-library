@@ -24,9 +24,16 @@ export class QuestionExpressionModel extends Question {
         );
     }
     public getType(): string {  return "expression";  }
+    /**
+     * Use this property to display the value in your own format. Make sure you have "{0}" substring in your string, to display the actual value.
+     */
     public get format(): string { return this.getLocalizableStringText("format", ""); }
     public set format(val: string) { this.setLocalizableStringText("format", val); }
     get locFormat(): LocalizableString { return this.getLocalizableString("format"); }
+    /**
+     * The Expression that used to calculate the question value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}. 
+     * <br/>Example: "({quantity} * {price}) * (100 - {discount}) / 100"
+     */
     public get expression(): string { return this.getPropertyValue("expression", ""); }
     public set expression(val: string) { this.setPropertyValue("expression", val); }
     public runCondition(values: HashTable<any>) {
@@ -44,8 +51,16 @@ export class QuestionExpressionModel extends Question {
         if(!this.format) return str;
         return this.format["format"](str);
     }
+    /**
+     * You may set this property to "decimal", "currency" or "percent". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
+     * @see currency
+     */
     public get displayStyle(): string { return this.getPropertyValue("displayStyle", "none"); }
     public set displayStyle(val: string) {this.setPropertyValue("displayStyle", val);}
+    /**
+     * Use it to display the value in the currency differen from USD. The displayStype should be set to "currency".
+     * @see displayStyle
+     */
     public get currency(): string { return this.getPropertyValue("currency", "USD"); }
     public set currency(val: string) { 
         if(getCurrecyCodes().indexOf(val) < 0) return;

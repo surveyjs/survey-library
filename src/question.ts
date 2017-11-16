@@ -19,6 +19,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     private conditionEnabelRunner: ConditionRunner;
     private errorsValue: Array<SurveyError> = [];
     private validatorsValue: Array<SurveyValidator> = this.createNewArray("validators");
+    protected isDisallowTitleLeft: Boolean = false;
     valueChangedCallback: () => void;
     commentChangedCallback: () => void;
     errorsChangedCallback: () => void;
@@ -38,9 +39,17 @@ export class Question extends QuestionBase implements IValidatorOwner {
     public getType(): string { return "question"; }
     public get hasTitle(): boolean { return true; }
     public get hasDescription(): boolean { return this.description != ""; }
-    public get titleLocation() : string { 
-        if(this.parent) return this.parent.getQuestionTitleLocation();
-        return this.survey ? this.survey.questionTitleLocation : "top"; 
+    public get titleLocation() : string {
+        var location = "top";
+        if (this.parent) {
+            location = this.parent.getQuestionTitleLocation()
+        } else if (this.survey) {
+            location = this.survey.questionTitleLocation            
+        }
+
+        if (location === "left" && this.isDisallowTitleLeft) location = "top";
+
+        return location; 
     }
     public get errorLocation() : string { return this.survey ? this.survey.questionErrorLocation : "top"; }
     public get hasInput(): boolean { return true; }

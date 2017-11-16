@@ -281,6 +281,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
  * A base class for matrix dropdown and matrix dynamic questions.
  */
 export class QuestionMatrixDropdownModelBase extends Question implements IMatrixDropdownData {
+    isDisallowTitleLeft = true;
+
     public static  addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
         var colNames = QuestionFactory.DefaultColums;
         for(var i = 0; i < colNames.length; i ++)

@@ -71,10 +71,13 @@ export class SurveyQuestion extends React.Component<any, any> {
         var questionRender = this.renderQuestion();
         var title = this.questionBase.hasTitle ? this.renderTitle(cssClasses) : null;
         var description = this.renderDescription(cssClasses);
-        var titleTop = this.creator.questionTitleLocation() == "top" ? title : null;
-        var titleBottom = this.creator.questionTitleLocation() == "bottom" ? title : null;
-        var descriptionTop = this.creator.questionTitleLocation() == "top" ? description : null;
-        var descriptionBottom = this.creator.questionTitleLocation() == "bottom" ? description : null;
+        var titleTop = this.question.titleLocation == "top" ? title : null;
+        var titleBottom = this.question.titleLocation == "bottom" ? title : null;
+        var titleLeft = this.question.titleLocation == "left" ? title : null;
+        var titleLeftClass = this.question.titleLocation === 'left' ? "title-left" : null;
+        var contentLeftClass = this.question.titleLocation === 'left' ? "content-left" : null;
+        var descriptionTop = this.question.titleLocation == "top" ? description : null;
+        var descriptionBottom = this.question.titleLocation == "bottom" ? description : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment(cssClasses) : null;
         var errors = this.renderErrors(cssClasses);
         var errorsTop = this.creator.questionErrorLocation() == "top" ? errors : null;
@@ -85,16 +88,23 @@ export class SurveyQuestion extends React.Component<any, any> {
         if (this.questionBase.renderWidth) rootStyle["width"] = this.questionBase.renderWidth;
         if (paddingLeft) rootStyle["paddingLeft"] = paddingLeft;
         if (paddingRight) rootStyle["paddingRight"] = paddingRight;
+
         return (
             <div ref="root" id={this.questionBase.id} className={cssClasses.mainRoot} style={rootStyle}>
-                {titleTop}
-                {descriptionTop}
-                {errorsTop}
-                {questionRender}
-                {comment}
-                {errorsBottom}
-                {titleBottom}
-                {descriptionBottom}
+                <div className={titleLeftClass}>
+                    {titleTop}
+                    {titleLeft}
+                    {descriptionTop}
+                </div>
+                
+                <div className={contentLeftClass}>
+                    {errorsTop}
+                    {questionRender}
+                    {comment}
+                    {errorsBottom}
+                    {titleBottom}
+                    {descriptionBottom}
+                </div>
             </div>
         );
     }
@@ -117,9 +127,9 @@ export class SurveyQuestion extends React.Component<any, any> {
     protected renderComment(cssClasses: any): JSX.Element {
         var commentText = SurveyElementBase.renderLocString(this.question.locCommentText);
         return (<div>
-                <div>{commentText}</div>
-                <SurveyQuestionCommentItem  question={this.question} cssClasses={cssClasses} />
-            </div>);
+            <div>{commentText}</div>
+            <SurveyQuestionCommentItem  question={this.question} cssClasses={cssClasses} />
+        </div>);
     }
     protected renderErrors(cssClasses: any): JSX.Element {
         return <SurveyQuestionErrors question={this.question} cssClasses={cssClasses} creator={this.creator} />

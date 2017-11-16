@@ -1,6 +1,6 @@
 <template>
     <div>
-        <input v-if="!question.isReadOnly" type="text" :class="question.cssClasses.other" v-model="question.comment" v-bind:aria-label="question.locTitle.renderedHtml"/>
+        <input v-if="!question.isReadOnly" type="text" :class="question.cssClasses.other || commentClass" v-model="question.comment" v-bind:aria-label="question.locTitle.renderedHtml"/>
         <div v-else :class="question.cssClasses.other">{{question.comment}}</div>
     </div>
 </template>
@@ -15,6 +15,8 @@
     export default class OtherChoice extends Vue {
         @Prop
         question: Question
+        @Prop
+        commentClass: any
     }
     Vue.component("survey-other-choice", OtherChoice)
 </script>

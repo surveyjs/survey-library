@@ -8,7 +8,9 @@ export class StylesManager {
         '.sv_qbln .checkbox-material': 'margin-right: 3px;',
         '.sv_qcbx .checkbox-material': 'margin-right: 5px;',
         '.sv_qstn label.sv_q_m_label': 'position: absolute; margin: 0;',
-        '.sv_q_mt_item_value': 'float: left;'
+        '.sv_q_mt_item_value': 'float: left;',
+        '.sv_qstn .title-left': 'float: left; margin-right: 15px;',
+        '.sv_qstn .content-left': 'overflow: hidden'
     };
 
     findSheet() {

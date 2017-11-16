@@ -153,6 +153,13 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public onPanelRemoved: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
+     * The event is fired on adding a page into survey
+     * <br/> sender the survey object that fires the event
+     * <br/> options.page a newly added panel object.
+     * @see PanelModel
+     */
+    public onPageAdded: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    /**
      * The event is fired on validating value in a question. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.
      * <br/> sender the survey object that fires the event
      * <br/> options.name a question name
@@ -350,7 +357,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.textPreProcessor = new TextPreProcessor();
         this.textPreProcessor.onHasValue = function (name: string) { return self.hasProcessedTextValue(name); };
         this.textPreProcessor.onProcess = function (name: string, returnDisplayValue: boolean) { return self.getProcessedTextValue(name, returnDisplayValue); };
-        this.pagesValue = this.createNewArray("pages", function(value){ self.onPageAdded(value); });
+        this.pagesValue = this.createNewArray("pages", function(value){ self.doOnPageAdded(value); });
         this.triggersValue = this.createNewArray("triggers", function(value){ value.setOwner(self); });
         this.updateProcessedTextValues();
         this.onBeforeCreating();
@@ -1628,9 +1635,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if (newValue === null || oldValue === null) return newValue === oldValue;
         return this.isTwoValueEquals(newValue, oldValue);
     }
-    protected onPageAdded(page: PageModel) {
+    protected doOnPageAdded(page: PageModel) {
         page.setSurveyImpl(this);
         if(!page.name) page.name = this.generateNewName(this.pages, "page");
+        var options = {page: page};
+        this.onPageAdded.fire(this, options);
     }
     private generateNewName(elements: Array<any>, baseName: string): string {
         var keys = {};

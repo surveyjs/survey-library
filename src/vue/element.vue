@@ -1,8 +1,8 @@
 <template>
     <div>
         <div v-show="element.titleLocation === 'top' || element.titleLocation === 'left'" :class="element.titleLocation === 'left' ? 'title-left' : ''">
-            <h5 v-if="element.hasTitle" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
-            <div v-if="element.hasDescription" :class="css.question.description"><survey-string :locString="element.locDescription"/></div>
+            <h5 v-if="element.hasTitle" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
         </div>
 
         <div :class="element.titleLocation === 'left' ? 'content-left' : ''">
@@ -13,8 +13,8 @@
                 <survey-other-choice :commentClass="css.comment" :question="element"/>
             </div>
             <survey-errors v-if="survey.questionErrorLocation === 'bottom'" :question="element"/>
-            <h5 v-if="element.hasTitle" v-show="element.titleLocation === 'bottom'" :class="css.question.title"><survey-string :locString="element.locTitle"/></h5>
-            <div v-if="element.hasDescription" :class="css.question.description" v-show="element.titleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
+            <h5 v-if="element.hasTitle" v-show="element.titleLocation === 'bottom'" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
+            <div v-if="element.hasDescription" :class="element.cssClasses.description" v-show="element.titleLocation === 'bottom'"><survey-string :locString="element.locDescription"/></div>
         </div>
     </div>
 </template>

@@ -19,6 +19,7 @@ export {Survey} from "../react/reactSurvey";
 export {ReactSurveyModel, ReactWindowModel} from "../react/reactsurveymodel"; 
 export {ReactSurveyModel as Model, ReactWindowModel as WindowModel} from "../react/reactsurveymodel";
 export {SurveyNavigationBase} from "../react/reactSurveyNavigationBase";
+export {SurveyTimerPanel} from "../react/reacttimerpanel";
 export {SurveyNavigation} from "../react/reactSurveyNavigation";
 export {SurveyPage, SurveyRow} from "../react/reactpage";
 export {SurveyQuestion, SurveyQuestionErrors} from "../react/reactquestion";

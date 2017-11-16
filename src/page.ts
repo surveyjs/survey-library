@@ -91,4 +91,4 @@ export class PageModel extends PanelModelBase implements IPage {
 }
 
 JsonObject.metaData.addClass("page", [{ name: "navigationButtonsVisibility", default: "inherit", choices: ["inherit", "show", "hide"] }],
-    function () { return new PageModel(); }, "panel");
+    function () { return new PageModel(); }, "panelbase");

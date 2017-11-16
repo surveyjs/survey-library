@@ -66,6 +66,14 @@ export var surveyStrings = {
     savingData: "The results are saving on the server...",
     savingDataError: "An error occurred and we could not save the results.",
     savingDataSuccess: "The results were saved successfully!",
-    saveAgainButton: "Try again"
+    saveAgainButton: "Try again",
+    timerMin: "min",
+    timerSec: "sec",
+    timerSpentAll: "You have spent {0} on this page and {1} in total.",
+    timerSpentPage: "You have spent {0} on this page.",
+    timerSpentSurvey: "You have spent {0} in total.",
+    timerLimitAll: "You have spent {0} of {1} on this page and {2} of {3} in total.",
+    timerLimitPage: "You have spent {0} of {1} on this page.",
+    timerLimitSurvey: "You have spent {0} of {1} in total."
 };
 surveyLocalization.locales["en"] = surveyStrings;

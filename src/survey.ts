@@ -44,7 +44,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
     private completedStateValue: string = "";
     private completedStateTextValue: string = "";
 
-    private timerStarted: boolean = false;
+    private isTimerStarted: boolean = false;
     /**
      * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
      * <br/> sender the survey object that fires the event
@@ -323,6 +323,11 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see Page.timeSpent
      */
     public onTimer: Event<(sender: SurveyModel) => any, any> = new Event<(sender: SurveyModel) => any, any>();
+    /**
+     * The event is fired before displaying a new information in the Timer Panel. Use it to change the default text.
+     * <br/> options.text - the timer panel info text.
+     */
+    public onTimerPanelInfoText: Event<(sender: SurveyModel, options: any) => any, any> = new Event<(sender: SurveyModel, options: any) => any, any>();
     /**
      * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
      * @see JsonError
@@ -755,12 +760,21 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         this.currentPage = this.visiblePages[value];
     }
     /**
-     * Set the input focuse to the first question with the input.
+     * Set the input focus to the first question with the input.
      */
     public focusFirstQuestion() {
-        if (this.currentPageValue) {
-            this.currentPageValue.scrollToTop();
-            this.currentPageValue.focusFirstQuestion();
+        var page = this.currentPage;
+        if (page) {
+            page.scrollToTop();
+            page.focusFirstQuestion();
+        }
+    }
+    scrollToTopOnPageChange() {
+        var page = this.currentPage;
+        if(!page) return;
+        page.scrollToTop();
+        if(this.focusFirstQuestionAutomatic) {
+            page.focusFirstQuestion();
         }
     }
     /**
@@ -952,11 +966,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         if(this.isFirstPage || !this.showPrevButton) return false;
         if(this.maxTimeToFinish > 0) return false;
         var page = this.visiblePages[this.currentPageNo - 1];
-        var pageLimit = 0;
-        if(page) {
-            var pageLimit = page.maxTimeToFinish != 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
-        }
-        return pageLimit <= 0;
+        return this.getPageMaxTimeToFinish(page) <= 0;
     }
     /**
      * Returns true if the current page is the last one.
@@ -1737,6 +1747,72 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
         res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
         return res;
     }
+    /**
+     * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.
+     * If the value doesn't equal 'none' then survey calls startTimer() method on survey rendering.
+     * @see showTimerPanelMode
+     * @see startTimer
+     * @see stopTimer
+     */
+    public get showTimerPanel(): string { return this.getPropertyValue("showTimerPanel", "none"); }
+    public set showTimerPanel(val: string) { 
+        this.setPropertyValue("showTimerPanel", val); 
+    }
+    public get isTimerPanelShowingOnTop() { return this.isTimerStarted && this.showTimerPanel == "top"; }
+    public get isTimerPanelShowingOnBottom() { return this.isTimerStarted && this.showTimerPanel == "bottom"; }
+    /**
+     * Set this property to 'page' or 'survey' to show the timer information for page or survey only.
+     * Use onTimerPanelInfoText event to change the default text.
+     * @see showTimerPanel
+     * @see onTimerPanelInfoText
+     */
+    public get showTimerPanelMode() : string { return this.getPropertyValue("showTimerPanelMode", "all"); }
+    public set showTimerPanelMode(val : string) { this.getPropertyValue("showTimerPanelMode", val); }
+    public get timerInfoText() : string {
+        var options = {text: this.getTimerInfoText()};
+        this.onTimerPanelInfoText.fire(this, options);
+        return options.text;
+    }
+    private getTimerInfoText() {
+        var page = this.currentPage;
+        if(!page) return "";
+        var pageSpent = this.getDisplayTime(page.timeSpent);
+        var surveySpent = this.getDisplayTime(this.timeSpent);
+        var pageLimitSec = this.getPageMaxTimeToFinish(page);
+        var pageLimit = this.getDisplayTime(pageLimitSec);
+        var surveyLimit = this.getDisplayTime(this.maxTimeToFinish);
+        if(this.showTimerPanelMode == "page") return this.getTimerInfoPageText(page, pageSpent, pageLimit);
+        if(this.showTimerPanelMode == "survey") return this.getTimerInfoSurveyText(surveySpent, surveyLimit);
+        if(this.showTimerPanelMode == "all") {
+            if(pageLimitSec <= 0 && this.maxTimeToFinish <= 0) {
+                return this.getLocString("timerSpentAll")["format"](pageSpent, surveySpent);
+            }
+            if(pageLimitSec > 0 && this.maxTimeToFinish > 0) {
+                return this.getLocString("timerLimitAll")["format"](pageSpent, pageLimit, surveySpent, surveyLimit);
+            }
+            let pageText = this.getTimerInfoPageText(page, pageSpent, pageLimit);
+            let surveyText = this.getTimerInfoSurveyText(surveySpent, surveyLimit);
+            return pageText + ' ' + surveyText;
+        }
+        return "";
+    }
+    private getTimerInfoPageText(page: PageModel, pageSpent: string, pageLimit: string): string {
+        return this.getPageMaxTimeToFinish(page) > 0 ? this.getLocString("timerLimitPage")["format"](pageSpent, pageLimit) : this.getLocString("timerSpentPage")["format"](pageSpent, pageLimit);
+    }
+    private getTimerInfoSurveyText(surveySpent: string, surveyLimit: string): string {
+        return this.maxTimeToFinish > 0 ? this.getLocString("timerLimitSurvey")["format"](surveySpent, surveyLimit) : this.getLocString("timerSpentSurvey")["format"](surveySpent, surveyLimit);
+    }
+    private getDisplayTime(val: number): string {
+        var min = Math.floor(val / 60);
+        var sec = val % 60;
+        var res = "";
+        if(min > 0) {
+            res += min + ' ' + this.getLocString("timerMin");
+        }
+        if(res && sec == 0)  return res;
+        if(res) res += ' ';
+        return res + sec + ' ' + this.getLocString("timerSec");
+    }
     private timerFunc = null;
     /**
      * Call this method to start timer that will calculate how much time end-user spends on the survey or on pages
@@ -1744,10 +1820,10 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see timeSpent
      */
     public startTimer() {
-        if(this.timerStarted) return;
+        if(this.isTimerStarted || this.isDesignMode) return;
         var self = this;
         this.timerFunc = function() {self.doTimer();};
-        this.timerStarted = true;
+        this.isTimerStarted = true;
         SurveyTimer.instance.start(this.timerFunc);
     }
     /**
@@ -1756,8 +1832,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see timeSpent
      */
     public stopTimer() {
-        if(!this.timerStarted) return;
-        this.timerStarted = false;
+        if(!this.isTimerStarted) return;
+        this.isTimerStarted = false;
         SurveyTimer.instance.stop(this.timerFunc);
     }
     /**
@@ -1781,18 +1857,22 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public get maxTimeToFinishPage(): number { return this.getPropertyValue("maxTimeToFinishPage", 0); }
     public set maxTimeToFinishPage(val: number) { this.setPropertyValue("maxTimeToFinishPage", val); }
+    private getPageMaxTimeToFinish(page: PageModel) { 
+        if(!page || page.maxTimeToFinish < 0) return 0;
+        return page.maxTimeToFinish > 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage; 
+    }
     protected doTimer() {
-        this.setTimeSpent(this.timeSpent + 1);
         var page = this.currentPage;
         if(page) {
             page.timeSpent = page.timeSpent + 1;
         }
+        this.setTimeSpent(this.timeSpent + 1);
         this.onTimer.fire(this, {});
         if(this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
             this.completeLastPage();
         }
         if(page) {
-            var pageLimit = page.maxTimeToFinish != 0 ? page.maxTimeToFinish : this.maxTimeToFinishPage;
+            var pageLimit = this.getPageMaxTimeToFinish(page);
             if(pageLimit > 0 && pageLimit == page.timeSpent) {
                 if(this.isLastPage) {
                     this.completeLastPage();
@@ -1844,4 +1924,5 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "pageNextText", serializationProperty: "locPageNextText"},
     { name: "completeText", serializationProperty: "locCompleteText"},
     { name: "requiredText", default: "*" }, "questionStartIndex", {name: "questionTitleTemplate", serializationProperty: "locQuestionTitleTemplate"},
-    { name: "maxTimeToFinish:number", default: 0}, { name: "maxTimeToFinishPage:number", default: 0}]);
+    { name: "maxTimeToFinish:number", default: 0}, { name: "maxTimeToFinishPage:number", default: 0},
+    { name: "showTimerPanel", default: "none", choices: ["none", "top", "bottom"]}, {name: "showTimerPanelMode", default: "all", choices: ["all", "page", "survey"]}]);

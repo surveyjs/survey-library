@@ -4,7 +4,9 @@
         <template v-if="survey.state === 'running'">
             <div :class="css.body">
                 <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>
+                <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css"/>
                 <survey-page :id="survey.currentPage.id" :survey="survey" :page="survey.currentPage" :css="css" />
+                <survey-timerpanel v-if="survey.isTimerPanelShowingOnBottom" :survey="survey" :css="css"/>
                 <survey-progress style="margin-top:10px" v-if="survey.showProgressBar =='bottom'" :survey="survey" :css="css"/>
             </div>
             <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
@@ -48,8 +50,12 @@
 
         mounted() {
             this.survey.renderCallback = this.forceUpdate;
+            if(this.survey.showTimerPanel != "none") {
+                this.survey.startTimer();
+            }
         }
         beforeDestroy() {
+            this.survey.stopTimer();
             this.survey.renderCallback = undefined;
         }
 

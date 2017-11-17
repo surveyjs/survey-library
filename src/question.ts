@@ -36,7 +36,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
         this.createLocalizableString("requiredErrorText", this);
     }
     /**
-     * Returns true if the question have a title in the left
+     * Returns true if the question may have a title located on the left
      */
     public get isAllowTitleLeft(): boolean { return true; }
     public getType(): string { return "question"; }

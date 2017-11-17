@@ -621,7 +621,8 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      */
     public get processedTitle() { return this.processText(this.locTitle.textOrHtml, true); }
     /**
-     * Set this property to 'bottom' to show question title under the question.
+     * Set this property to 'bottom' or 'left' to show question title under the question or on the left.
+     * <br/><b>Note:</b> Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed on the top.
      */
     public get questionTitleLocation(): string { return this.getPropertyValue("questionTitleLocation", "top"); };
     public set questionTitleLocation(value: string) {
@@ -1923,7 +1924,7 @@ JsonObject.metaData.addClass("survey", [{ name: "locale", choices: () => { retur
     { name: "showNavigationButtons:boolean", default: true }, { name: "showPrevButton:boolean", default: true }, { name: "showTitle:boolean", default: true },
     { name: "showPageTitles:boolean", default: true }, { name: "showCompletedPage:boolean", default: true },
     "showPageNumbers:boolean", { name: "showQuestionNumbers", default: "on", choices: ["on", "onPage", "off"] },
-    { name: "questionTitleLocation", default: "top", choices: ["top", "bottom"] },
+    { name: "questionTitleLocation", default: "top", choices: ["top", "bottom", "left"] },
     { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
     { name: "showProgressBar", default: "off", choices: ["off", "top", "bottom"] },
     { name: "mode", default: "edit", choices: ["edit", "display"] },

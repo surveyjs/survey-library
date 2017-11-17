@@ -30,7 +30,7 @@
     "@types/knockout": "3.4.39",
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
-    "@types/react": "15.0.35",
+    "@types/react": "^15.0.35",
     "@types/react-dom": "15.5.0",
     "ajv": "4.11.2",
     "babel-core": "6.22.1",

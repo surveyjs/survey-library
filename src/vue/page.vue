@@ -33,6 +33,12 @@
                 this.page.survey.afterRenderPage(this.$el);
             }
         }
+        updated() {
+            var self = this;
+            this.$nextTick(function () {
+                self.survey.scrollToTopOnPageChange();
+            });
+        }        
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }

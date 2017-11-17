@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-show="element.titleLocation === 'top' || element.titleLocation === 'left'" :class="element.titleLocation === 'left' ? 'title-left' : ''">
+        <div v-if="element.titleLocation === 'top' || element.titleLocation === 'left'" :class="element.titleLocation === 'left' ? 'title-left' : ''">
             <h5 v-if="element.hasTitle" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
             <div v-if="element.hasDescription" :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
         </div>
@@ -8,7 +8,7 @@
         <div :class="element.titleLocation === 'left' ? 'content-left' : ''">
             <survey-errors v-if="survey.questionErrorLocation === 'top'" :question="element"/>
             <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
-            <div v-show="element.hasComment">
+            <div v-if="element.hasComment">
                 <div>{{element.commentText}}</div>
                 <survey-other-choice :commentClass="css.comment" :question="element"/>
             </div>

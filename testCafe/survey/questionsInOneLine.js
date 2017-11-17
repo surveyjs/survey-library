@@ -1,10 +1,10 @@
 import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
 import {Selector, ClientFunction} from 'testcafe';
 const assert = require('assert');
-const title = `questionsInOneLine`;
+const title = `questionsInOneLine and titles location`;
 
-const changeTitleLocation = ClientFunction(() => {
-    survey.questionTitleLocation = 'top';
+const changeTitleLocation = ClientFunction((location) => {
+    survey.questionTitleLocation = location;
     survey.render();
 });
 
@@ -62,8 +62,28 @@ frameworks.forEach( (framework) => {
 
         assert(await isInputAboveHeader());
 
-        await changeTitleLocation();
+        await changeTitleLocation("top");
 
         assert(await isHeaderAboveInput());
+    });
+
+    test(`change title location left`, async t => {
+        const isInputAboveHeader = ClientFunction(() => {
+            var h5 = document.querySelectorAll('h5:first-of-type')[2],
+                input = h5.parentNode.parentNode.querySelector('input');
+                return h5.getBoundingClientRect().left === input.getBoundingClientRect().left;
+        });
+
+        const isHeaderToTheLeftOfInput = ClientFunction(() => {
+            var h5 = document.querySelectorAll('h5:last-of-type')[2],
+                input = h5.parentNode.parentNode.querySelector('input');
+            return h5.getBoundingClientRect().left < input.getBoundingClientRect().left;
+        });
+
+        assert(await isInputAboveHeader());
+
+        await changeTitleLocation("left");
+
+        assert(await isHeaderToTheLeftOfInput());
     });
 });

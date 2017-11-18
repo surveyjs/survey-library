@@ -1777,7 +1777,7 @@ export class SurveyModel extends Base implements ISurvey, ISurveyData, ISurveyIm
      * @see onTimerPanelInfoText
      */
     public get showTimerPanelMode() : string { return this.getPropertyValue("showTimerPanelMode", "all"); }
-    public set showTimerPanelMode(val : string) { this.getPropertyValue("showTimerPanelMode", val); }
+    public set showTimerPanelMode(val : string) { this.setPropertyValue("showTimerPanelMode", val); }
     public get timerInfoText() : string {
         var options = {text: this.getTimerInfoText()};
         this.onTimerPanelInfoText.fire(this, options);

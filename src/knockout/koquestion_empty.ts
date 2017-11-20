@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import {QuestionEmptyModel} from "../question_empty";
 import {JsonObject} from "../jsonobject";
 import {QuestionImplementor} from "./koquestion";

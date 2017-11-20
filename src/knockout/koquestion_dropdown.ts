@@ -1,4 +1,5 @@
-﻿import {QuestionDropdownModel} from "../question_dropdown";
+﻿import * as ko from "knockout";
+import {QuestionDropdownModel} from "../question_dropdown";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
 import {QuestionSelectBaseImplementor} from "./koquestion_baseselect";

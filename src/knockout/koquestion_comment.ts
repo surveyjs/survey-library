@@ -1,4 +1,5 @@
-﻿import {JsonObject} from "../jsonobject";
+﻿import * as ko from "knockout";
+import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
 import {QuestionCommentModel} from "../question_comment";
 import {QuestionImplementor} from "./koquestion";

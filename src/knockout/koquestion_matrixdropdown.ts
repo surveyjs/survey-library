@@ -1,4 +1,5 @@
-﻿import {SurveyElement} from "../base";
+﻿import * as ko from "knockout";
+import {SurveyElement} from "../base";
 import {QuestionMatrixDropdownModel} from "../question_matrixdropdown";
 import {QuestionMatrixDropdownModelBase, MatrixDropdownCell} from "../question_matrixdropdownbase";
 import {JsonObject} from "../jsonobject";

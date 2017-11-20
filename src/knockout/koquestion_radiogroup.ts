@@ -1,4 +1,5 @@
-﻿import {QuestionRadiogroupModel} from "../question_radiogroup";
+﻿import * as ko from "knockout";
+import {QuestionRadiogroupModel} from "../question_radiogroup";
 import {JsonObject} from "../jsonobject";
 import {QuestionFactory} from "../questionfactory";
 import {QuestionCheckboxBaseImplementor} from "./koquestion_baseselect";

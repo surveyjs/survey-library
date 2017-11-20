@@ -9,6 +9,9 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
         super(name);
         new QuestionCheckboxBaseImplementor(this);
     }
+    get itemClass() {
+        return this.cssClasses.item + (this.colCount === 0 ? " sv_q_radiogroup_inline": "");
+    }
 }
 
 JsonObject.metaData.overrideClassCreatore("radiogroup", function () { return new QuestionRadiogroup(""); });

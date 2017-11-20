@@ -11,7 +11,9 @@ export class StylesManager {
         '.sv_q_mt_item_value': 'float: left;',
         '.sv_qstn .title-left': 'float: left; margin-right: 15px;',
         '.sv_qstn .title-left h5': 'margin-top: 4px;',
-        '.sv_qstn .content-left': 'overflow: hidden'
+        '.sv_qstn .content-left': 'overflow: hidden',
+        '.sv_q_radiogroup_inline .sv_q_radiogroup_other': 'display: inline-block; height: 20px; margin-top: -5px;',
+        '.sv_q_checkbox_inline .sv_q_checkbox_other': 'display: inline-block; height: 20px; margin-top: -5px;'
     };
 
     findSheet() {

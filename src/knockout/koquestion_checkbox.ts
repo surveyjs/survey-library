@@ -25,6 +25,9 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
         super(name);
         new QuestionCheckboxImplementor(this);
     }
+    get itemClass() {
+        return this.cssClasses.item + (this.colCount === 0 ? " sv_q_checkbox_inline": "");
+    }
 }
 
 JsonObject.metaData.overrideClassCreatore("checkbox", function () { return new QuestionCheckbox(""); });

@@ -1,6 +1,6 @@
 <template>
     <form :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :class="question.cssClasses.item" :style="{'display': 'inline-block', width: colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="itemClass" :style="{'display': 'inline-block', width: colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="question.cssClasses.label">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml"/>
                 <span class="checkbox-material"><span class="check"></span></span>
@@ -35,6 +35,9 @@
         }
         get choicesCount() {
             return this.question.visibleChoices.length - 1;
+        }
+        get itemClass() {
+            return this.question.cssClasses.item + (this.question.colCount === 0 ? " sv_q_checkbox_inline": "");
         }
     }
     Vue.component("survey-checkbox", Checkbox)

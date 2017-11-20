@@ -95,8 +95,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     protected renderCheckbox(isChecked: boolean, divStyle: any, otherItem: JSX.Element): JSX.Element {
         var id = this.isFirst ? this.question.inputId : null;
         var text = this.renderLocString(this.item.locText);
+        let itemClass = this.cssClasses.item + (this.question.colCount === 0 ? " sv_q_checkbox_inline": "");
         return (
-            <div className={this.cssClasses.item} style={divStyle}>
+            <div className={itemClass} style={divStyle}>
                 <label className={this.cssClasses.label}>
                     <input type="checkbox" value={this.item.value} id={id} style={this.inputStyle} disabled={this.isDisplayMode} checked={isChecked} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
                     <span className="checkbox-material"><span className="check"></span></span>

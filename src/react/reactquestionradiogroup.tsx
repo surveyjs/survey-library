@@ -57,8 +57,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     protected renderRadio(key: string, item: ItemValue, isChecked: boolean, divStyle: any, otherItem: JSX.Element, isFirst: boolean, cssClasses: any): JSX.Element {
         var id = isFirst ? this.question.inputId : null;
         var itemText = this.renderLocString(item.locText, this.textStyle);
+        let itemClass = cssClasses.item + (this.question.colCount === 0 ? " sv_q_radiogroup_inline": "");
         return (
-            <div key={key} className={cssClasses.item} style={divStyle}>
+            <div key={key} className={itemClass} style={divStyle}>
                 <label className={cssClasses.label}>
                     <input id={id} type="radio" name={this.question.name + "_" + this.questionBase.id} checked={isChecked} value={item.value} disabled={this.isDisplayMode} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
                     <span className="circle"></span>

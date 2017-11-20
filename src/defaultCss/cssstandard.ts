@@ -21,7 +21,7 @@ export var defaultStandardCss = {
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
     boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox"},
-    checkbox: { root: "sv_qcbc sv_qcbx", item: "sv_q_checkbox", other: "sv_q_other" },
+    checkbox: { root: "sv_qcbc sv_qcbx", item: "sv_q_checkbox", other: "sv_q_other sv_q_checkbox_other" },
     comment: "",
     dropdown: { root: "", control: "", other: "sv_q_other" },
     matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
@@ -29,7 +29,7 @@ export var defaultStandardCss = {
     matrixdynamic: { root: "table", button: "" },
     paneldynamic: { root: "", button: "" },
     multipletext: { root: "", itemTitle: "", row: "", itemValue: "sv_q_mt_item_value" },
-    radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", label: "", other: "sv_q_other" },
+    radiogroup: { root: "sv_qcbc", item: "sv_q_radiogroup", label: "", other: "sv_q_other sv_q_radiogroup_other" },
     rating: { root: "sv_q_rating", item: "sv_q_rating_item", selected: "active" },
     text: "",
     expression: "",

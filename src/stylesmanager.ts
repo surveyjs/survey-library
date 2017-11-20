@@ -10,6 +10,7 @@ export class StylesManager {
         '.sv_qstn label.sv_q_m_label': 'position: absolute; margin: 0;',
         '.sv_q_mt_item_value': 'float: left;',
         '.sv_qstn .title-left': 'float: left; margin-right: 15px;',
+        '.sv_qstn .title-left h5': 'margin-top: 4px;',
         '.sv_qstn .content-left': 'overflow: hidden'
     };
 

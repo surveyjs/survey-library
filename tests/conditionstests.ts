@@ -425,6 +425,14 @@ QUnit.test("Constant string with dash (-) doens't work correctly", function (ass
     values.a =  '01-01-2018';
     assert.equal(runner.run(values), true, "'01-01-2018' = '01-01-2018'");
 });    
+QUnit.test("Bug with contains, bug#781", function (assert) {
+    var runner = new ConditionRunner("{ResultaatSelectie} contains '1'");
+    var values = { ResultaatSelectie: ['1'] };
+    assert.equal(runner.run(values), true, "['1'] contains '1'");
+    values = { ResultaatSelectie: ['2'] };
+    assert.equal(runner.run(values), false, "['2'] contains '1'");
+});    
+
 QUnit.test("Override functions: make equal works as contains", function (assert) {
     var eqFunc = Condition.getOperator("equal");
     var containsFunc = Condition.getOperator("contains");

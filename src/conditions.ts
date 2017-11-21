@@ -145,8 +145,20 @@ export class Condition {
                 if(left == null && right == null) return false;
                 return left != right; 
             },
-            contains: function (left, right) { return (left != null) && left["indexOf"] && left.indexOf(right) > -1; },
-            notcontains: function (left, right) { return (left == null) || !left["indexOf"] || left.indexOf(right) == -1; },
+            contains: function (left, right) { 
+                if(!left || !left.length) return false;
+                for(var i = 0; i < left.length; i ++) {
+                    if(left[i] == right) return true;
+                }
+                return false;
+            },
+            notcontains: function (left, right) { 
+                if(!left || !left.length) return true;
+                for(var i = 0; i < left.length; i ++) {
+                    if(left[i] == right) return false;
+                }
+                return true;
+            },
             greater: function (left, right) { 
                 if(left == null) return false;
                 if(right == null) return true;

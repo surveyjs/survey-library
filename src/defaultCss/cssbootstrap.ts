@@ -2,9 +2,9 @@
 
 export var defaultBootstrapCss = {
     root: "",
-    header: "panel-heading",
-    body: "panel-body",
-    footer: "panel-footer",
+    header: "panel-heading card-heading",
+    body: "panel-body card-body",
+    footer: "panel-footer card-footer",
     navigationButton: "",
     navigation: { complete: "sv_complete_btn", prev: "sv_prev_btn", next: "sv_next_btn" },
     progress: "progress center-block", progressBar: "progress-bar",
@@ -14,8 +14,8 @@ export var defaultBootstrapCss = {
     panel: {title: "", container: "sv_p_container"},
     error: { root: "alert alert-danger", icon: "glyphicon glyphicon-exclamation-sign", item: "" },
 
-    boolean: { root: "sv_qbln form-inline", item: "checkbox"},
-    checkbox: { root: "sv_qcbx form-inline", item: "checkbox", other: "sv_q_checkbox_other" },
+    boolean: { root: "sv_qbln form-inline", item: "checkbox form-check"},
+    checkbox: { root: "sv_qcbx form-inline", item: "checkbox form-check", other: "sv_q_checkbox_other" },
     comment: "form-control",
     dropdown: { root: "", control: "form-control", other: "" },
     matrix: { root: "table", label: "sv_q_m_label" },
@@ -23,7 +23,7 @@ export var defaultBootstrapCss = {
     matrixdynamic: { root: "table", button: "button" },
     paneldynamic: { root: "", button: "button" },
     multipletext: { root: "table", itemTitle: "", itemValue: "sv_q_mt_item_value form-control" },
-    radiogroup: { root: "form-inline", item: "radio", label: "", other: "sv_q_radiogroup_other" },
+    radiogroup: { root: "form-inline", item: "radio form-check", label: "", other: "sv_q_radiogroup_other" },
     rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
     text: "form-control",
     expression: "form-control",

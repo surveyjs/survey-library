@@ -14,10 +14,10 @@ export var defaultStandardCss = {
     footer: "sv_nav",
     navigationButton: "", navigation: { complete: "sv_complete_btn", prev:"sv_prev_btn", next: "sv_next_btn"},
     progress: "sv_progress", progressBar: "",
-    pageTitle: "sv_p_title",
+    pageTitle: "sv_p_title", pageDescription: "",
     row: "sv_row",
     question: { mainRoot: "sv_q sv_qstn", title: "sv_q_title", description: "sv_q_description", comment: "", required: "", titleRequired: "", indent: 20 },
-    panel: { title: "sv_p_title", container: "sv_p_container" },
+    panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
     error: { root: "sv_q_erbox", icon: "", item: "" },
 
     boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox"},

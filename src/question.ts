@@ -96,10 +96,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
      * Returns a copy of question errors survey. For some questions like matrix and panel dynamic it includes the errors of nested questions.
      */
     public getAllErrors(): Array<SurveyError> { return this.errors.slice(); }
-    protected getProcessedHtml(html: string): string {
-        if(!html || !this.textProcessor) return html;
-        return this.textProcessor.processText(html, true);
-    }
     /**
      * Returns the rendred question title.
      */

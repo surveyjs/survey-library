@@ -2,6 +2,9 @@
 <!-- ko if: question.koVisible -->
 <div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
     <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
+    <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
+        <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+    </div>
     <div data-bind="style: { paddingLeft: koInnerMargin }">
     <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
     </div>

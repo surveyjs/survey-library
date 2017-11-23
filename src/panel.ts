@@ -82,6 +82,8 @@ export class PanelModelBase extends SurveyElement implements IPanel, IConditionR
         var self = this;
         var locTitleValue = this.createLocalizableString("title", this, true);
         locTitleValue.onRenderedHtmlCallback = function(text) { return self.getRenderedTitle(text); };
+        var locDescriptionValue = this.createLocalizableString("description", this, true);
+        locDescriptionValue.onGetTextCallback = function(html) { return self.getProcessedHtml(html); }
     }
     public setSurveyImpl(value: ISurveyImpl) {
         super.setSurveyImpl(value);
@@ -97,10 +99,20 @@ export class PanelModelBase extends SurveyElement implements IPanel, IConditionR
     }
     /**
      * PanelModel or PageModel title property.
+     * @description
      */
     public get title(): string { return this.getLocalizableStringText("title"); }
     public set title(val: string) { this.setLocalizableStringText("title", val); }
     get locTitle(): LocalizableString { return this.getLocalizableString("title"); }
+    /**
+     * PanelModel or PageModel description property. It renders under title by using smaller font. Unlike the title, description can be empty.
+     * @see title
+     */
+    public get description(): string { return this.getLocalizableStringText("description"); }
+    public set description(val:  string) { this.setLocalizableStringText("description", val); }
+    get locDescription(): LocalizableString { return this.getLocalizableString("description"); }
+    public get hasDescription(): boolean { return this.description != ""; }
+    
     getLocale(): string { return this.survey ? (<ILocalizableOwner><any>this.survey).getLocale() : ""; }
     getMarkdownHtml(text: string)  { return this.survey ? (<ILocalizableOwner><any>this.survey).getMarkdownHtml(text) : null; }
     /**
@@ -532,6 +544,7 @@ export class PanelModel extends PanelModelBase implements IElement {
 JsonObject.metaData.addClass("panelbase", ["name",  { name: "elements", alternativeName: "questions", baseClassName: "question", visible: false },
 { name: "visible:boolean", default: true }, "visibleIf:condition", 
 { name: "questionTitleLocation", default: "default", choices: ["default", "top", "bottom", "left"] },
-{ name: "title:text", serializationProperty: "locTitle" }], function () { return new PanelModelBase(); });
+{ name: "title:text", serializationProperty: "locTitle" },
+{ name: "description:text", serializationProperty: "locDescription" }], function () { return new PanelModelBase(); });
 
 JsonObject.metaData.addClass("panel", [ { name: "startWithNewLine:boolean", default: true}, {name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3]}], function () { return new PanelModel(); }, "panelbase");

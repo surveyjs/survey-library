@@ -417,6 +417,10 @@ export class SurveyElement extends Base implements ISurveyElement {
         }
     }
     protected get textProcessor() : ITextProcessor { return this.textProcessorValue; }
+    protected getProcessedHtml(html: string): string {
+        if(!html || !this.textProcessor) return html;
+        return this.textProcessor.processText(html, true);
+    }
     protected onSetData() { }    
 }
 

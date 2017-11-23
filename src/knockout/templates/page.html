@@ -1,6 +1,9 @@
 ﻿<script type="text/html" id="survey-page">
 <div>
     <h4 data-bind="visible: (processedTitle.length > 0) && data.showPageTitles, css: data.css.pageTitle"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
+    <div data-bind="visible: hasDescription, css: data.css.pageDescription">
+        <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+    </div>
     <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
 </div>
 </script>

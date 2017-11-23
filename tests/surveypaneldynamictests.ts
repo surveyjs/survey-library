@@ -340,7 +340,7 @@ QUnit.test("Auto generate names", function (assert) {
     assert.equal(q3.name, "question3", "the third name for question is question3");
 });
 
-QUnit.test("Set data for loaded panel, #784", function (assert) {
+QUnit.test("Set data for loaded panel after clearing the survey data, bug#784", function (assert) {
     var json = { questions: [
         {type: "paneldynamic", name: "q", panelCount: 1, templateElements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
     }]};

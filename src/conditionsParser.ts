@@ -182,9 +182,10 @@ export class ConditionsParser {
         var hasBraces = this.ch == '{';
         if (hasQuotes) this.at++;
         var isFirstOpCh = this.isOperatorChar(this.ch);
+        var isPrevEspape = false;
         while (this.at < this.length) {
             if (!hasQuotes && this.isSpace(this.ch)) break;
-            if (this.isQuotes(this.ch)) {
+            if (this.isQuotes(this.ch) && !isPrevEspape) {
                 if (hasQuotes) this.at++;
                 break;
             }
@@ -192,6 +193,7 @@ export class ConditionsParser {
                 if ((!hasBraces || this.ch != '-') && isFirstOpCh != this.isOperatorChar(this.ch)) break;
                 if (this.isBrackets(this.ch) || this.isComma(this.ch)) break;
             }
+            isPrevEspape = this.ch === '\\';
             this.at++;
         }
         if (this.at <= start) return null;

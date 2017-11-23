@@ -432,6 +432,11 @@ QUnit.test("Bug with contains, bug#781", function (assert) {
     values = { ResultaatSelectie: ['2'] };
     assert.equal(runner.run(values), false, "['2'] contains '1'");
 });    
+QUnit.test("Escape quotes, bug#786", function (assert) {
+    var runner = new ConditionRunner("{text} = 'I\\'m here'");
+    var values = { text: "I'm here" };
+    assert.equal(runner.run(values), true, "text equals I'm here");
+});    
 
 QUnit.test("Override functions: make equal works as contains", function (assert) {
     var eqFunc = Condition.getOperator("equal");

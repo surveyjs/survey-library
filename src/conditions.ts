@@ -9,7 +9,7 @@ export class Operand {
     public getValue(processValue: ProcessValue): any {
         var res = this.getSimpleValue(this.origionalValue);
         if(res.isSimple) return res.value;
-        var val = this.removeQuotes(this.origionalValue);
+        var val = this.removeQuotesAndEscapes(this.origionalValue);
         if(processValue) {
             var name = this.getValueName(val);
             if(name){
@@ -26,10 +26,14 @@ export class Operand {
         if (val && (!this.isNumeric(val) && !this.isBooleanValue(val))) val = "'" + val + "'";
         return val;
     }
-    private removeQuotes(val: string): string {
+    private removeQuotesAndEscapes(val: string): string {
         if (val.length > 0 && (val[0] == "'" || val[0] == '"')) val = val.substr(1);
         var len = val.length;
         if (len > 0 && (val[len - 1] == "'" || val[len - 1] == '"')) val = val.substr(0, len - 1);
+        if(val) {
+            val = val.replace("\\'", "'");
+            val = val.replace('\\"', '"');
+        }
         return val;
     }
     private getValueName(val: any) {

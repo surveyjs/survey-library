@@ -76,6 +76,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         var titleLeft = (this.question && this.question.titleLocation == "left") ? title : null;
         var titleLeftClass = (this.question && this.question.titleLocation === 'left') ? "title-left" : null;
         var contentLeftClass = (this.question && this.question.titleLocation === 'left') ? "content-left" : null;
+        var descriptionLeft = (this.question && this.question.titleLocation == "left") ? description : null;
         var descriptionTop = (this.question && this.question.titleLocation == "top") ? description : null;
         var descriptionBottom = (this.question && this.question.titleLocation == "bottom") ? description : null;
         var comment = (this.question && this.question.hasComment) ? this.renderComment(cssClasses) : null;
@@ -93,8 +94,9 @@ export class SurveyQuestion extends React.Component<any, any> {
             <div ref="root" id={this.questionBase.id} className={cssClasses.mainRoot} style={rootStyle}>
                 <div className={titleLeftClass}>
                     {titleTop}
-                    {titleLeft}
                     {descriptionTop}
+                    {titleLeft}
+                    {descriptionLeft}
                 </div>
                 
                 <div className={contentLeftClass}>

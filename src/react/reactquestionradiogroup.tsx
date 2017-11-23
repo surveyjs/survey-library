@@ -29,9 +29,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         if (!this.question) return null;
         var cssClasses = this.question.cssClasses;
         return (
-            <div className={cssClasses.root}>
+            <form className={cssClasses.root}>
                 {this.getItems(cssClasses) }
-            </div>);
+            </form>);
     }
     protected getItems(cssClasses: any): Array<any> {
         var items = [];

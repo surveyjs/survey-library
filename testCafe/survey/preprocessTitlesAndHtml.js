@@ -43,14 +43,18 @@ frameworks.forEach( (framework) => {
             document.documentElement.innerHTML.indexOf(
                 "<p></p><h4>Thank you for sharing this information with us.</h4><p></p><p>Your name is: <b>wombat</b></p>" +
                 "<p>Your email is: <b>wombat@mail.mail</b></p><p>This is what is on your mind:</p><p>fresh grasses</p>"));
+        const getFirstInput = Selector(() =>
+            document.querySelectorAll("h4 ~ div input[type=text]")[0]);
+        const getSecondInput = Selector(() =>
+            document.querySelectorAll("h4 ~ div input[type=text]")[1]);
 
         await t
             .hover(getFirstTitle)
             .hover(getSecondTitle);
 
         await t
-            .typeText(`h4 + div input[type=text]`, `wombat`)
-            .typeText(`h4 + div + div input[type=text]`, `wombat@mail.mail`)
+            .typeText(getFirstInput, `wombat`)
+            .typeText(getSecondInput, `wombat@mail.mail`)
             .click(`input[value="Next"]`);
 
         await t

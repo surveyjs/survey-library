@@ -37,13 +37,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
         var cssClasses = this.question.cssClasses;
         var text = this.renderLocString(this.question.locDisplayLabel);
         return (
-            <div className={cssClasses.item}>
+            <form className={cssClasses.item}>
                 <label className={cssClasses.item}>
                     <input ref="check" type="checkbox" value={this.question.checkedValue} id={this.question.inputId}  disabled={this.isDisplayMode} checked={this.question.checkedValue} onChange={this.handleOnChange} aria-label={this.question.locTitle.renderedHtml}/>
                     <span className="checkbox-material"><span className="check"></span></span>
                     <span>{text}</span>
                 </label>
-            </div>);
+            </form>);
     }
 }
 

@@ -174,10 +174,18 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
      * @see panelCount
      */
     public get templateTitle(): string { return this.template.title; }
-    public set templateTitle(newValue: string) {
-        this.template.title = newValue;
-    }
+    public set templateTitle(newValue: string) { this.template.title = newValue; }
     get locTemplateTitle(): LocalizableString { return this.template.locTitle; }
+    /**
+     * The template Panel description property.
+     * @see  templateElements
+     * @see template
+     * @see panelCount
+     * @see templateTitle
+     */
+    public get templateDescription(): string { return this.template.description; }
+    public set templateDescription(newValue: string) { this.template.description = newValue; }
+    get locTemplateDescription(): LocalizableString { return this.template.locDescription; }
 
     protected get items(): Array<QuestionPanelDynamicItem> { return this.itemsValue; }
     /**
@@ -637,7 +645,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
 }
 
 JsonObject.metaData.addClass("paneldynamic", [{name: "templateElements", alternativeName: "questions", visible: false}, 
-    {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
+    {name: "templateTitle:text", serializationProperty: "locTemplateTitle"}, {name: "templateDescription:text", serializationProperty: "locTemplateDescription"},
+    {name: "panelCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]},
     { name: "minPanelCount:number", default: 0 }, { name: "maxPanelCount:number", default: QuestionPanelDynamicModel.MaxPanelCount },
     {name: "keyName"}, { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError" },
     {name: "confirmDelete:boolean"}, { name: "confirmDeleteText", serializationProperty: "locConfirmDeleteText" },

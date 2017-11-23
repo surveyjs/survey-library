@@ -1,6 +1,7 @@
 <template>
     <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
         <h4 v-show="hasTitle" :class="css.panel.title"><survey-string :locString="question.locTitle"/></h4>
+        <div v-show="hasDescription" :class="css.panel.description"><survey-string :locString="page.locDescription"/></div>
         <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }">
             <div v-for="row in rows" v-show="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>

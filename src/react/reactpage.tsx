@@ -32,6 +32,7 @@ export class SurveyPage extends React.Component<any, any> {
     render(): JSX.Element {
         if (this.page == null || this.survey == null || this.creator == null) return null;
         var title = this.renderTitle();
+        var description = this.renderDescription();
         var rows = [];
         var questionRows = this.page.rows;
         for (var i = 0; i < questionRows.length; i++) {
@@ -40,6 +41,7 @@ export class SurveyPage extends React.Component<any, any> {
         return (
             <div ref="root">
                 {title}
+                {description}
                 {rows}
             </div>
         );
@@ -52,6 +54,11 @@ export class SurveyPage extends React.Component<any, any> {
         if (!this.page.title || !this.survey.showPageTitles) return null;
         var text = SurveyElementBase.renderLocString(this.page.locTitle);
         return (<h4 className={this.css.pageTitle}>{text}</h4>);
+    }
+    protected renderDescription(): JSX.Element {
+        if (!this.page.description || !this.survey.showPageTitles) return null;
+        var text = SurveyElementBase.renderLocString(this.page.locDescription);
+        return (<div className={this.css.pageDescription}>{text}</div>);
     }
 }
 
@@ -92,6 +99,7 @@ export class SurveyPanel extends React.Component<any, any> {
         if (this.panel == null || this.survey == null || this.creator == null) return null;
         if (!this.panel.isVisible) return null;
         var title = this.renderTitle();
+        var description = this.renderDescription();
         var rows = [];
         var questionRows = this.panel.rows;
         for (var i = 0; i < questionRows.length; i++) {
@@ -103,6 +111,7 @@ export class SurveyPanel extends React.Component<any, any> {
         return (
             <div ref="root" className={this.css.panel.container} style={rootStyle}>
                 {title}
+                {description}
                 <div style={style}>
                     {rows}
                 </div>
@@ -117,6 +126,11 @@ export class SurveyPanel extends React.Component<any, any> {
         if (!this.panel.title) return null;
         var text = SurveyElementBase.renderLocString(this.panel.locTitle);
         return (<h4 className={this.css.panel.title}>{text}</h4>);
+    }
+    protected renderDescription(): JSX.Element {
+        if (!this.panel.description) return null;
+        var text = SurveyElementBase.renderLocString(this.panel.locDescription);
+        return (<div className={this.css.panel.description}>{text}</div>);
     }
 }
 

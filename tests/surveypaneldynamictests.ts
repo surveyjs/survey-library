@@ -340,6 +340,20 @@ QUnit.test("Auto generate names", function (assert) {
     assert.equal(q3.name, "question3", "the third name for question is question3");
 });
 
+QUnit.test("Set data for loaded panel, #784", function (assert) {
+    var json = { questions: [
+        {type: "paneldynamic", name: "q", panelCount: 1, templateElements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
+    }]};
+    var survey = new SurveyModel(json);
+    //clear data
+    survey.data = {};
+    var dymamicPanel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    var q1 = <Question>dymamicPanel.panels[0].questions[0];
+    q1.value = "test";
+    assert.equal(q1.value, "test", "question keep the value");
+    assert.deepEqual(survey.data, {q: [{q1: "test"}]}, "value set into survey");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

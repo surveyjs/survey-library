@@ -620,7 +620,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
         var index = this.items.indexOf(item);
         if(index < 0) return;
         var qValue = this.value;
-        if(!qValue || !Array.isArray(qValue) || qValue.length <= index) return;
+        if(!qValue) {
+             qValue = [];
+             for(var i = 0; i < this.items.length; i ++) {
+                 qValue.push({});
+             }
+        }
+        if(!Array.isArray(qValue) || qValue.length <= index) return;
         if(!qValue[index]) qValue[index] = {};
         qValue[index][name] = val;
         this.isValueChangingInternally = true;

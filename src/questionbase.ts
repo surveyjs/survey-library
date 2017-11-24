@@ -9,7 +9,8 @@ import {
   ISurvey,
   Event,
   SurveyError,
-  IPanel
+  IPanel,
+  IPage
 } from "./base";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { JsonObject } from "./jsonobject";
@@ -59,6 +60,15 @@ export class QuestionBase extends SurveyElement
   }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
+  }
+  /**
+   * Get/set the page where the question is located.
+   */
+  public get page(): IPage {
+    return this.getPage(this.parent);
+  }
+  public set page(val: IPage) {
+    this.setPage(this.parent, val);
   }
   /**
    * Always returns false.

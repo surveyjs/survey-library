@@ -2818,6 +2818,29 @@ QUnit.test("Parent property in question", function(assert) {
   panel.addElement(q);
   assert.equal(q.parent.name, "panel");
 });
+QUnit.test("Page property in question", function(assert) {
+  var survey = new SurveyModel();
+  var page1 = survey.addNewPage("p1");
+  var page2 = survey.addNewPage("p2");
+  var panel = page1.addNewPanel("panel");
+  var panel2 = panel.addNewPanel("panel2");
+  var q = panel2.addNewQuestion("text");
+  assert.ok(
+    page1.questions.indexOf(q) > -1,
+    "The question is in the first page"
+  );
+  assert.equal(q.page.name, page1.name, "The page is set correctly");
+  q.page = page2;
+  assert.ok(
+    page2.questions.indexOf(q) > -1,
+    "The question is in the second page"
+  );
+  assert.notOk(
+    page1.questions.indexOf(q) > -1,
+    "The question is not in the first page"
+  );
+  assert.equal(q.page.name, page2.name, "The page was changed");
+});
 
 QUnit.test("Define questionTitleLocation on Panel/Page level", function(
   assert

@@ -23,6 +23,9 @@ export class PageModel extends PanelModelBase implements IPage {
   public getType(): string {
     return "page";
   }
+  public toString(): string {
+    return this.name;
+  }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
    * @see SurveyModel.visiblePages

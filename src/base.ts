@@ -68,6 +68,7 @@ export interface ISurveyElement {
   name: string;
   setSurveyImpl(value: ISurveyImpl);
   onSurveyLoad();
+  getType(): string;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -93,10 +94,19 @@ export interface IQuestion extends IElement {
   clearUnusedValues();
   displayValue: any;
 }
-export interface IPanel extends ISurveyElement {
-  getQuestionTitleLocation(): string;
+export interface IParentElement {
+  addElement(element: IElement, index: number);
+  removeElement(element: IElement): boolean;
 }
-export interface IPage extends ISurveyElement, IConditionRunner {}
+
+export interface IPanel extends ISurveyElement, IParentElement {
+  getQuestionTitleLocation(): string;
+  parent: IPanel;
+}
+export interface IPage
+  extends ISurveyElement,
+    IParentElement,
+    IConditionRunner {}
 /**
  * The base class for SurveyJS objects.
  */
@@ -515,6 +525,19 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.textProcessor.processText(html, true);
   }
   protected onSetData() {}
+  protected getPage(parent: IPanel): IPage {
+    while (parent && parent.parent) parent = parent.parent;
+    if (parent && parent.getType() == "page") return <IPage>(<any>parent);
+    return null;
+  }
+  protected setPage(parent: IPanel, val: IPage) {
+    var oldPage = this.getPage(parent);
+    if (oldPage === val) return;
+    if (parent) parent.removeElement(<IElement>(<any>this));
+    if (val) {
+      val.addElement(<IElement>(<any>this), -1);
+    }
+  }
 }
 
 export class Event<T extends Function, Options> {

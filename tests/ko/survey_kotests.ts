@@ -642,9 +642,8 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   var row = <QuestionRow>panel["koRows"]()[0];
   assert.ok(row, "the first row is created");
   assert.equal(row.koElements().length, 1, "there is one question in the row");
-  assert.equal(row.koElements()[0].koVisible(), true, "question is visible") <
-    Question >
-    panel.questions[0].koValue("val1");
+  assert.equal(row.koElements()[0].koVisible(), true, "question is visible");
+  <Question>panel.questions[0].koValue("val1");
   assert.deepEqual(
     question.value,
     [{ q1: "val1" }, {}, {}],

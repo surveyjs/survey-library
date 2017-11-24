@@ -1,4 +1,4 @@
-import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
+﻿import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 
@@ -52,6 +52,7 @@ class Dealer extends Base {
   }
   public name: string;
   public unserializedName: string;
+  public definedNonSerializable: string;
   public cars = new Array<Car>();
   public stringArray: Array<string> = [];
   public defaultValue: string = "default";
@@ -156,6 +157,7 @@ JsonObject.metaData.addClass(
     { name: "cars", baseClassName: "car", visible: false },
     { name: "truck", className: "truck" },
     { name: "trucks", className: "truck", visible: false },
+    { name: "definedNonSerializable", isSerializable: false },
     {
       name: "changeNameOnSet",
       onSetValue: function(obj: any, value: any, jsonConv: JsonObject) {
@@ -312,7 +314,7 @@ export default QUnit.module("JsonSerializationTests");
 QUnit.test("Metadata for non inherited class", function(assert) {
   assert.equal(
     JsonObject.metaData.getProperties("dealer").length,
-    9,
+    10,
     "Flat properties list"
   );
   assert.equal(
@@ -909,6 +911,18 @@ QUnit.test("Add a new number property with default value", function(assert) {
   );
 
   JsonObject.metaData.removeProperty("car", "tag");
+});
+
+QUnit.test("A non serializable property", function(assert) {
+  var dealer = new Dealer();
+  new JsonObject().toObject({ truck: { maxWeight: 10000 } }, dealer);
+  dealer.definedNonSerializable = "some value";
+  var jsObj = new JsonObject().toJsonObject(dealer);
+  assert.deepEqual(
+    jsObj,
+    { truck: { maxWeight: 10000 } },
+    "definedNonSerializable property is not serialized"
+  );
 });
 
 QUnit.test("Get property and readonly", function(assert) {

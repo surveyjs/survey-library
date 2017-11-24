@@ -6,6 +6,7 @@ export class JsonObjectProperty {
     "choicesValue",
     "readOnlyValue",
     "visibleValue",
+    "isSerializable",
     "isLocalizableValue",
     "className",
     "alternativeName",
@@ -23,6 +24,7 @@ export class JsonObjectProperty {
   private visibleValue = null;
   private isLocalizableValue = null;
   private choicesfunc: () => Array<any> = null;
+  public isSerializable: boolean = true;
   public className: string = null;
   public alternativeName: string = null;
   public classNamePart: string = null;
@@ -252,6 +254,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.default)) {
         prop.defaultValue = propInfo.default;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isSerializable)) {
+        prop.isSerializable = propInfo.isSerializable;
       }
       if (propInfo.visible === false) {
         prop.visible = false;
@@ -667,6 +672,7 @@ export class JsonObject {
     return result;
   }
   protected valueToJson(obj: any, result: any, property: JsonObjectProperty) {
+    if (property.isSerializable === false) return;
     var value = property.getValue(obj);
     if (value === undefined || value === null) return;
     if (property.isDefaultValue(value)) return;

@@ -1,87 +1,93 @@
-import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
-import {ClientFunction} from 'testcafe';
-const assert = require('assert');
-const title = `dropdown_restfull`;
+import {
+  frameworks,
+  url,
+  setOptions,
+  initSurvey,
+  getSurveyResult,
+} from '../settings'
+import { ClientFunction } from 'testcafe'
+const assert = require('assert')
+const title = `dropdown_restfull`
 
 const json = {
-            questions: [{
-                type: "dropdown",
-                name: "country",
-                title: "Select the country...",
-                isRequired: true,
-                choicesByUrl: {
-                    //url: "http://services.groupkt.com/country/get/all",
-                    url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
-                    path: "RestResponse;result",
-                    valueName: "name"
-                }
-            }]
-        };
+  questions: [
+    {
+      type: 'dropdown',
+      name: 'country',
+      title: 'Select the country...',
+      isRequired: true,
+      choicesByUrl: {
+        //url: "http://services.groupkt.com/country/get/all",
+        url: 'http://127.0.0.1:8080/testCafe/countriesMock.json',
+        path: 'RestResponse;result',
+        valueName: 'name',
+      },
+    },
+  ],
+}
 
 export const changeValue = ClientFunction(() => {
-    var q = survey.getQuestionByName('country');
-    q.choicesByUrl.valueName = 'alpha2_code';
-    q.choicesByUrl.titleName = 'name';
-    q.choicesByUrl.run();
-});
+  var q = survey.getQuestionByName('country')
+  q.choicesByUrl.valueName = 'alpha2_code'
+  q.choicesByUrl.titleName = 'name'
+  q.choicesByUrl.run()
+})
 
-frameworks.forEach( (framework) => {
-    fixture `${framework} ${title}`
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json)
+    }
+  )
 
-        .page `${url}${framework}`
+  test(`choose empty`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf('Please answer the question')
+    )
+    let position
+    let surveyResult
 
-        .beforeEach( async t => {
-            await initSurvey(framework, json);
-        });
+    await t.wait(1000).click(`input[value=Complete]`)
 
-    test(`choose empty`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf('Please answer the question'));
-        let position;
-        let surveyResult;
+    position = await getPosition()
+    assert.notEqual(position, -1)
 
-        await t
-            .wait(1000)
-            .click(`input[value=Complete]`);
+    surveyResult = await getSurveyResult()
+    assert.equal(typeof surveyResult, `undefined`)
+  })
 
-        position = await getPosition();
-        assert.notEqual(position, -1);
+  test(`choose value`, async t => {
+    let surveyResult
 
-        surveyResult = await getSurveyResult();
-        assert.equal(typeof surveyResult, `undefined`);
-    });
+    await t
+      .wait(1000)
+      .click(`select`)
+      .click(`option[value=Cuba]`)
+      .click(`input[value=Complete]`)
 
-    test(`choose value`, async t => {
-        let surveyResult;
+    surveyResult = await getSurveyResult()
+    assert.equal(surveyResult.country, 'Cuba')
+  })
 
-        await t
-            .wait(1000)
-            .click(`select`)
-            .click(`option[value=Cuba]`)
-            .click(`input[value=Complete]`);
+  test(`change "value" in the returned json`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf('Cuba')
+    )
+    let position
+    let surveyResult
 
-        surveyResult = await getSurveyResult();
-        assert.equal(surveyResult.country, 'Cuba');
-    });
+    await t.wait(1000)
+    await changeValue()
 
-    test(`change "value" in the returned json`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf('Cuba'));
-        let position;
-        let surveyResult;
+    position = await getPosition()
+    assert.notEqual(position, -1)
 
-        await t.wait(1000);
-        await changeValue();
+    await t
+      .click(`select`)
+      .click(`option[value=CU]`)
+      .click(`input[value=Complete]`)
 
-        position = await getPosition();
-        assert.notEqual(position, -1);
-
-        await t
-            .click(`select`)
-            .click(`option[value=CU]`)
-            .click(`input[value=Complete]`);
-
-        surveyResult = await getSurveyResult();
-        assert.equal(surveyResult.country, 'CU');
-    });
-});
+    surveyResult = await getSurveyResult()
+    assert.equal(surveyResult.country, 'CU')
+  })
+})

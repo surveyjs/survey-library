@@ -1,85 +1,92 @@
-import * as React from 'react';
-import {Survey} from "./reactSurvey";
-import {ReactSurveyModel, ReactWindowModel} from "./reactsurveymodel";
-import {SurveyModel} from "../survey";
-import {SurveyElementBase} from "./reactquestionelement";
+import * as React from 'react'
+import { Survey } from './reactSurvey'
+import { ReactSurveyModel, ReactWindowModel } from './reactsurveymodel'
+import { SurveyModel } from '../survey'
+import { SurveyElementBase } from './reactquestionelement'
 
 export class SurveyWindow extends Survey {
-    protected window: ReactWindowModel;
-    constructor(props: any) {
-        super(props);
-        this.handleOnExpanded = this.handleOnExpanded.bind(this);
+  protected window: ReactWindowModel
+  constructor(props: any) {
+    super(props)
+    this.handleOnExpanded = this.handleOnExpanded.bind(this)
+  }
+  componentWillReceiveProps(nextProps: any) {
+    this.updateSurvey(nextProps)
+  }
+  handleOnExpanded(event) {
+    this.window.isExpanded = !this.window.isExpanded
+  }
+  render(): JSX.Element {
+    if (!this.window.isShowing) return null
+    var header = this.renderHeader()
+    var body = this.window.isExpanded ? this.renderBody() : null
+    let style: React.CSSProperties = { position: 'fixed', bottom: 3, right: 10 }
+    return (
+      <div className={this.css.window.root} style={style}>
+        {header}
+        {body}
+      </div>
+    )
+  }
+  protected renderHeader(): JSX.Element {
+    var styleA = { width: '100%', cursor: 'pointer' }
+    var styleTitle = { paddingRight: '10px' }
+    var glyphClassName = this.window.isExpanded
+      ? this.css.window.header.buttonCollapsed
+      : this.css.window.header.buttonExpanded
+    glyphClassName = 'glyphicon pull-right ' + glyphClassName
+    var title = SurveyElementBase.renderLocString(this.survey.locTitle)
+    return (
+      <div className={this.css.window.header.root}>
+        <span onClick={this.handleOnExpanded} style={styleA}>
+          <span className={this.css.window.header.title} style={styleTitle}>
+            {title}
+          </span>
+          <span className={glyphClassName} aria-hidden="true" />
+        </span>
+      </div>
+    )
+  }
+  protected renderBody(): JSX.Element {
+    return <div className={this.css.window.body}>{this.renderSurvey()}</div>
+  }
+  protected updateSurvey(newProps: any) {
+    if (!newProps) newProps = {}
+    if (newProps.window) {
+      this.window = newProps.window
+    } else {
+      if (newProps.json) {
+        this.window = new ReactWindowModel(newProps.json)
+      } else {
+        if (newProps.model) {
+          this.window = new ReactWindowModel(null, newProps.model)
+        }
+      }
     }
-    componentWillReceiveProps(nextProps: any) {
-        this.updateSurvey(nextProps);
+    if (!this.window) {
+      this.window = new ReactWindowModel()
     }
-    handleOnExpanded(event) {
-        this.window.isExpanded = !this.window.isExpanded;
-    }
-    render(): JSX.Element {
-        if (!this.window.isShowing) return null;
-        var header = this.renderHeader();
-        var body = this.window.isExpanded ? this.renderBody() : null;
-        let style: React.CSSProperties  = { position: "fixed", bottom: 3, right: 10 };
-        return <div className={this.css.window.root} style={style}>
-            {header}
-            {body}
-        </div>;
 
-    }
-    protected renderHeader(): JSX.Element {
-        var styleA = { width: '100%', cursor: 'pointer' };
-        var styleTitle = { paddingRight: "10px" };
-        var glyphClassName = this.window.isExpanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
-        glyphClassName = "glyphicon pull-right " + glyphClassName;
-        var title = SurveyElementBase.renderLocString(this.survey.locTitle);
-        return <div className={this.css.window.header.root}>
-            <span onClick={this.handleOnExpanded} style={styleA}>
-                <span className={this.css.window.header.title} style={styleTitle}>{title}</span>
-                <span className={glyphClassName} aria-hidden="true"></span>
-            </span>
-        </div>;
-    }
-    protected renderBody(): JSX.Element {
-        return <div className={this.css.window.body}>
-                    {this.renderSurvey() }
-                </div>;
-    }
-    protected updateSurvey(newProps: any) {
-        if(!newProps) newProps = {};
-        if (newProps.window) {
-            this.window = newProps.window;
-        } else {
-            if (newProps.json) {
-                this.window = new ReactWindowModel(newProps.json);
-            }
-            else {
-                if(newProps.model) {
-                    this.window = new ReactWindowModel(null, newProps.model);
-                }
-            }
-        }
-        if(!this.window) {
-            this.window = new ReactWindowModel();
-        }
+    newProps.model = this.window.survey
+    if (newProps.expanded || newProps.isExpanded) this.window.expand()
+    this.window.isShowing = true
 
-        newProps.model = this.window.survey;
-        if(newProps.expanded || newProps.isExpanded) this.window.expand();
-        this.window.isShowing = true;
-        
-        super.updateSurvey(newProps);
-        this.setState({ expanded: this.window.isExpanded, isShowing: this.window.isShowing });
-        var self = this;
-        this.window.expandedChangedCallback = function() {
-            self.state.expanded = self.window.isExpanded;
-            self.setState(self.state);
-        }
-        this.window.showingChangedCallback = function() {
-            self.state.isShowing = self.window.isShowing;
-            self.setState(self.state);
-        }
-        this.survey.onComplete.add(function (s: SurveyModel) {
-            self.window.hide();
-        });
+    super.updateSurvey(newProps)
+    this.setState({
+      expanded: this.window.isExpanded,
+      isShowing: this.window.isShowing,
+    })
+    var self = this
+    this.window.expandedChangedCallback = function() {
+      self.state.expanded = self.window.isExpanded
+      self.setState(self.state)
     }
+    this.window.showingChangedCallback = function() {
+      self.state.isShowing = self.window.isShowing
+      self.setState(self.state)
+    }
+    this.survey.onComplete.add(function(s: SurveyModel) {
+      self.window.hide()
+    })
+  }
 }

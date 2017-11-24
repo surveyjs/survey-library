@@ -1,230 +1,299 @@
-import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
-import {Selector, ClientFunction} from 'testcafe';
-const assert = require('assert');
-const title = `options`;
+import {
+  frameworks,
+  url,
+  setOptions,
+  initSurvey,
+  getSurveyResult,
+} from '../settings'
+import { Selector, ClientFunction } from 'testcafe'
+const assert = require('assert')
+const title = `options`
 
 const change_question_required_text = ClientFunction(() => {
-    survey.requiredText = "😱";
-    survey.render();
-});
+  survey.requiredText = '😱'
+  survey.render()
+})
 
 const set_question_numbers_on_page = ClientFunction(() => {
-    survey.showQuestionNumbers = "onPage";
-    survey.render();
-});
+  survey.showQuestionNumbers = 'onPage'
+  survey.render()
+})
 
 const set_question_numbers_off = ClientFunction(() => {
-    survey.showQuestionNumbers = "off";
-    survey.render();
-});
+  survey.showQuestionNumbers = 'off'
+  survey.render()
+})
 
 const hide_survey_title = ClientFunction(() => {
-    survey.showTitle = false;
-    survey.render();
-});
+  survey.showTitle = false
+  survey.render()
+})
 
 const hide_page_title = ClientFunction(() => {
-    survey.showPageTitles = false;
-    survey.render();
-});
+  survey.showPageTitles = false
+  survey.render()
+})
 
 const show_page_numbers = ClientFunction(() => {
-    survey.showPageNumbers = true;
-    survey.render();
-});
+  survey.showPageNumbers = true
+  survey.render()
+})
 
 const show_top_progress_bar = ClientFunction(() => {
-    survey.showProgressBar = "top";
-    survey.render();
-});
+  survey.showProgressBar = 'top'
+  survey.render()
+})
 
 const show_bottom_progress_bar = ClientFunction(() => {
-    survey.showProgressBar = "bottom";
-    survey.render();
-});
+  survey.showProgressBar = 'bottom'
+  survey.render()
+})
 
 const set_completed_html = ClientFunction(() => {
-    survey.completedHtml = "<h1>Wombat</h1>";
-    survey.render();
-});
+  survey.completedHtml = '<h1>Wombat</h1>'
+  survey.render()
+})
 
 const json = {
-    title: "Software developer survey.",
-    pages: [
-        { title: "What operating system do you use?",
-            questions: [
-                {type:"checkbox", name:"opSystem", title: "OS", hasOther: true, isRequired: true,
-                    choices:["Windows", "Linux", "Macintosh OSX"]}
-            ]
+  title: 'Software developer survey.',
+  pages: [
+    {
+      title: 'What operating system do you use?',
+      questions: [
+        {
+          type: 'checkbox',
+          name: 'opSystem',
+          title: 'OS',
+          hasOther: true,
+          isRequired: true,
+          choices: ['Windows', 'Linux', 'Macintosh OSX'],
         },
-        {   title: "What language(s) are you currently using?",
-            questions: [
-                {type:"checkbox", name:"langs",title:"Plese select from the list",
-                    colCount: 4, isRequired: true,
-                    choices:["Javascript", "Java", "Python", "CSS", "PHP", "Ruby", "C++", "C",
-                        "Shell", "C#", "Objective-C", "R", "VimL", "Go", "Perl", "CoffeeScript",
-                        "TeX", "Swift", "Scala", "Emacs List", "Haskell", "Lua", "Clojure",
-                        "Matlab", "Arduino", "Makefile", "Groovy", "Puppet", "Rust", "PowerShell"]
-                }
-            ]},
-        { title: "Please enter your name and e-mail",
-            questions: [
-                {type: "text", name: "name", title: "Name:"},
-                {type: "text", name: "email", title: "Your e-mail"}]
-        }
-    ]
-};
+      ],
+    },
+    {
+      title: 'What language(s) are you currently using?',
+      questions: [
+        {
+          type: 'checkbox',
+          name: 'langs',
+          title: 'Plese select from the list',
+          colCount: 4,
+          isRequired: true,
+          choices: [
+            'Javascript',
+            'Java',
+            'Python',
+            'CSS',
+            'PHP',
+            'Ruby',
+            'C++',
+            'C',
+            'Shell',
+            'C#',
+            'Objective-C',
+            'R',
+            'VimL',
+            'Go',
+            'Perl',
+            'CoffeeScript',
+            'TeX',
+            'Swift',
+            'Scala',
+            'Emacs List',
+            'Haskell',
+            'Lua',
+            'Clojure',
+            'Matlab',
+            'Arduino',
+            'Makefile',
+            'Groovy',
+            'Puppet',
+            'Rust',
+            'PowerShell',
+          ],
+        },
+      ],
+    },
+    {
+      title: 'Please enter your name and e-mail',
+      questions: [
+        { type: 'text', name: 'name', title: 'Name:' },
+        { type: 'text', name: 'email', title: 'Your e-mail' },
+      ],
+    },
+  ],
+}
 
-frameworks.forEach( (framework) => {
-    fixture `${framework} ${title}`
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json)
+    }
+  )
 
-        .page `${url}${framework}`
+  test(`change question required text`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf('😱')
+    )
 
-        .beforeEach( async t => {
-            await initSurvey(framework, json);
-        });
+    await change_question_required_text()
 
-    test(`change question required text`, async t => {
-        const getPosition = ClientFunction(() => document.documentElement.innerHTML.indexOf("😱"));
+    assert.notEqual(await getPosition(), -1)
+  })
 
-        await change_question_required_text();
+  test(`set question numbers on page`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf(
+        '1. * Plese select from the list'
+      )
+    )
 
-        assert.notEqual(await getPosition(), -1);
-    });
+    await t.click(`input[type=checkbox]`).click(`input[value="Next"]`)
 
-    test(`set question numbers on page`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("1. * Plese select from the list"));
+    await set_question_numbers_on_page()
 
-        await t
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`);
+    assert.notEqual(await getPosition(), -1)
+  })
 
-        await set_question_numbers_on_page();
+  test(`set question numbers off`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf(
+        '1. * Plese select from the list'
+      )
+    )
 
-        assert.notEqual(await getPosition(), -1);
-    });
+    await set_question_numbers_off()
 
-    test(`set question numbers off`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("1. * Plese select from the list"));
+    assert.equal(await getPosition(), -1)
+  })
 
-        await set_question_numbers_off();
+  test(`hide survey title`, async t => {
+    const getTitle = Selector(() => document.querySelectorAll('h3'), {
+      text: 'Software developer survey.',
+      visibilityCheck: true,
+      timeout: 1000,
+    })
 
-        assert.equal(await getPosition(), -1);
-    });
+    await hide_survey_title()
 
-    test(`hide survey title`, async t => {
-        const getTitle = Selector(() =>
-            document.querySelectorAll("h3"), { text: "Software developer survey.", visibilityCheck: true, timeout: 1000});
+    assert.equal(await getTitle(), null)
+  })
 
-        await hide_survey_title();
+  test(`hide page title`, async t => {
+    const getTitle = Selector(() => document.querySelectorAll('h4'), {
+      text: 'What operating system do you use?',
+      visibilityCheck: true,
+      timeout: 1000,
+    })
 
-        assert.equal(await getTitle(), null);
-    });
+    await hide_page_title()
 
-    test(`hide page title`, async t => {
-        const getTitle = Selector(() =>
-            document.querySelectorAll("h4"), {
-                text: "What operating system do you use?",
-                visibilityCheck: true,
-                timeout: 1000
-            });
+    assert.equal(await getTitle(), null)
+  })
 
-        await hide_page_title();
+  test(`show page numbers`, async t => {
+    const getPositionPage1 = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf(
+        '1. What operating system do you use?'
+      )
+    )
+    const getPositionPage2 = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf(
+        '2. What language(s) are you currently using?'
+      )
+    )
 
-        assert.equal(await getTitle(), null);
-    });
+    await show_page_numbers()
+    assert.notEqual(await getPositionPage1(), -1)
 
-    test(`show page numbers`, async t => {
-        const getPositionPage1 = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("1. What operating system do you use?"));
-        const getPositionPage2 = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("2. What language(s) are you currently using?"));
+    await t.click(`input[type=checkbox]`).click(`input[value="Next"]`)
+    assert.notEqual(await getPositionPage2(), -1)
+  })
 
-        await show_page_numbers();
-        assert.notEqual(await getPositionPage1(), -1);
+  test(`no progress bar`, async t => {
+    const getProgressBar = Selector('span')
+      .withText('Page 1 of 3')
+      .with({ visibilityCheck: true, timeout: 1000 })
+    assert.equal(await getProgressBar(), null)
+  })
 
-        await t
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`);
-        assert.notEqual(await getPositionPage2(), -1);
-    });
+  test(`show top progress bar`, async t => {
+    const getProgressBar = Selector(() => document.querySelectorAll('div'), {
+      text: 'Page 1 of 3',
+      visibilityCheck: true,
+    })
+    const isFirstSpanProgress = ClientFunction(
+      () =>
+        document
+          .querySelector('[role=progressbar] span')
+          .innerHTML.indexOf('Page 1 of 3') !== -1
+    )
 
+    await show_top_progress_bar()
 
-    test(`no progress bar`, async t => {
-        const getProgressBar = Selector('span')
-                                .withText('Page 1 of 3')
-                                .with({ visibilityCheck: true, timeout: 1000 });
-        assert.equal(await getProgressBar(), null);
-    });
+    assert.notEqual(await getProgressBar(), null)
+    assert(await isFirstSpanProgress())
+  })
 
-    test(`show top progress bar`, async t => {
-        const getProgressBar = Selector(() =>
-            document.querySelectorAll("div"), { text: "Page 1 of 3", visibilityCheck: true});
-        const isFirstSpanProgress = ClientFunction(() =>
-            document.querySelector("[role=progressbar] span").innerHTML.indexOf("Page 1 of 3") !== -1
-        );
+  test(`show bottom progress bar`, async t => {
+    const getProgressBar = Selector(() => document.querySelectorAll('div'), {
+      text: 'Page 1 of 3',
+      visibilityCheck: true,
+    })
+    const isLastSpanProgress = ClientFunction(() => {
+      var spans = document.querySelectorAll('span')
+      return spans[spans.length - 1].innerHTML.indexOf('Page 1 of 3') !== -1
+    })
 
-        await show_top_progress_bar();
+    await show_bottom_progress_bar()
 
-        assert.notEqual(await getProgressBar(), null);
-        assert(await isFirstSpanProgress());
-    });
+    assert.notEqual(await getProgressBar(), null)
+    assert(await isLastSpanProgress())
+  })
 
-    test(`show bottom progress bar`, async t => {
-        const getProgressBar = Selector(() =>
-            document.querySelectorAll("div"), { text: "Page 1 of 3", visibilityCheck: true});
-        const isLastSpanProgress = ClientFunction(() => {
-            var spans = document.querySelectorAll("span");
-            return spans[spans.length - 1].innerHTML.indexOf("Page 1 of 3") !== -1;
-        });
+  test(`check progress bar page 2`, async t => {
+    const getProgressBar = Selector(() => document.querySelectorAll('div'), {
+      text: 'Page 2 of 3',
+      visibilityCheck: true,
+    })
 
-        await show_bottom_progress_bar();
+    await show_top_progress_bar()
+    await t.click(`input[type=checkbox]`).click(`input[value="Next"]`)
 
-        assert.notEqual(await getProgressBar(), null);
-        assert(await isLastSpanProgress());
-    });
+    assert.notEqual(await getProgressBar(), null)
+  })
 
-    test(`check progress bar page 2`, async t => {
-        const getProgressBar = Selector(() =>
-            document.querySelectorAll("div"), { text: "Page 2 of 3", visibilityCheck: true});
+  test(`set completed html`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf('Wombat')
+    )
 
-        await show_top_progress_bar();
-        await t
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`);
+    await set_completed_html()
+    await t
+      .click(`input[type=checkbox]`)
+      .click(`input[value="Next"]`)
+      .click(`input[type=checkbox]`)
+      .click(`input[value="Next"]`)
+      .click(`input[value="Complete"]`)
 
-        assert.notEqual(await getProgressBar(), null);
-    });
+    assert.notEqual(await getPosition(), -1)
+  })
 
-    test(`set completed html`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("Wombat"));
+  test(`check previous`, async t => {
+    const getPosition = ClientFunction(() =>
+      document.documentElement.innerHTML.indexOf(
+        'What operating system do you use?'
+      )
+    )
 
-        await set_completed_html();
-        await t
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`)
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`)
-            .click(`input[value="Complete"]`);
+    await t
+      .click(`input[type=checkbox]`)
+      .click(`input[value="Next"]`)
+      .click(`input[type=checkbox]`)
+      .click(`input[value="Next"]`)
+      .click(`input[value="Previous"]`)
+      .click(`input[value="Previous"]`)
 
-        assert.notEqual(await getPosition(), -1);
-    });
-
-    test(`check previous`, async t => {
-        const getPosition = ClientFunction(() =>
-            document.documentElement.innerHTML.indexOf("What operating system do you use?"));
-
-        await t
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`)
-            .click(`input[type=checkbox]`)
-            .click(`input[value="Next"]`)
-            .click(`input[value="Previous"]`)
-            .click(`input[value="Previous"]`);
-
-        assert.notEqual(await getPosition(), -1);
-    });
-});
+    assert.notEqual(await getPosition(), -1)
+  })
+})

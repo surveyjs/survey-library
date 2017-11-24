@@ -1,40 +1,57 @@
-import {frameworks, url, setOptions, initSurvey, getSurveyResult} from "../settings";
-import {Selector, ClientFunction} from 'testcafe';
-const assert = require('assert');
-const title = `multipletext`;
+import {
+  frameworks,
+  url,
+  setOptions,
+  initSurvey,
+  getSurveyResult,
+} from '../settings'
+import { Selector, ClientFunction } from 'testcafe'
+const assert = require('assert')
+const title = `multipletext`
 
 const json = {
-            questions: [{
-                    type: "multipletext", name: "pricelimit", title: "What is the... ", colCount: 2,
-                    items: [{name: "mostamount", title: "Most amount you would every pay for a product like ours"},
-                        {name: "leastamount", title: "The least amount you would feel comfortable paying"}]
-            }]
-        };
+  questions: [
+    {
+      type: 'multipletext',
+      name: 'pricelimit',
+      title: 'What is the... ',
+      colCount: 2,
+      items: [
+        {
+          name: 'mostamount',
+          title: 'Most amount you would every pay for a product like ours',
+        },
+        {
+          name: 'leastamount',
+          title: 'The least amount you would feel comfortable paying',
+        },
+      ],
+    },
+  ],
+}
 
-frameworks.forEach( (framework) => {
-    fixture `${framework} ${title}`
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json)
+    }
+  )
 
-        .page `${url}${framework}`
+  test(`fill text fields`, async t => {
+    let surveyResult
 
-        .beforeEach( async t => {
-            await initSurvey(framework, json);
-        });
+    await t
+      .typeText(`tr > td:nth-child(2) input`, `All my money`)
+      .typeText(`tr > td:nth-child(4) input`, `Zero`)
+      .click(`input[value=Complete]`)
 
-    test(`fill text fields`, async t => {
-        let surveyResult;
+    surveyResult = await getSurveyResult()
 
-        await t
-            .typeText(`tr > td:nth-child(2) input`, `All my money`)
-            .typeText(`tr > td:nth-child(4) input`, `Zero`)
-            .click(`input[value=Complete]`);
-
-        surveyResult = await getSurveyResult();
-
-        assert.deepEqual(surveyResult, {
-            "pricelimit": {
-                "mostamount": "All my money",
-                "leastamount":"Zero"
-            }
-        });
-    });
-});
+    assert.deepEqual(surveyResult, {
+      pricelimit: {
+        mostamount: 'All my money',
+        leastamount: 'Zero',
+      },
+    })
+  })
+})

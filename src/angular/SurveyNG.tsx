@@ -1,21 +1,27 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import {SurveyModel} from "../survey";
-import {Survey} from "../react/reactSurvey";
-import {SurveyWindow} from "../react/reactSurveyWindow";
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
+import { SurveyModel } from '../survey'
+import { Survey } from '../react/reactSurvey'
+import { SurveyWindow } from '../react/reactSurveyWindow'
 
 export class SurveyNG {
-    public static render(elementId: string | Element, props) {
-        var element: Element = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
-        ReactDOM.render(<Survey {...props} />, element);
-    }
+  public static render(elementId: string | Element, props) {
+    var element: Element =
+      typeof elementId === 'string'
+        ? document.getElementById(elementId)
+        : elementId
+    ReactDOM.render(<Survey {...props} />, element)
+  }
 }
 
 export class SurveyWindowNG {
-    public static render(elementId: string | Element, props) {
-        var element: Element = typeof elementId === 'string' ? document.getElementById(elementId) : elementId;
-        ReactDOM.render(<SurveyWindow {...props} />, element);
-    }
+  public static render(elementId: string | Element, props) {
+    var element: Element =
+      typeof elementId === 'string'
+        ? document.getElementById(elementId)
+        : elementId
+    ReactDOM.render(<SurveyWindow {...props} />, element)
+  }
 }
 
-SurveyModel.platform = "angular";
+SurveyModel.platform = 'angular'

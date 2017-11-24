@@ -1,44 +1,44 @@
-import * as React from 'react'
-import { SurveyModel } from '../survey'
-import { SurveyWindowModel } from '../surveyWindow'
+import * as React from "react";
+import { SurveyModel } from "../survey";
+import { SurveyWindowModel } from "../surveyWindow";
 
 export class ReactSurveyModel extends SurveyModel {
-  renderCallback: () => void
+  renderCallback: () => void;
   constructor(jsonObj: any = null) {
-    super(jsonObj)
+    super(jsonObj);
   }
   public render() {
     if (this.renderCallback) {
-      this.renderCallback()
+      this.renderCallback();
     }
   }
   public mergeCss(src: any, dest: any) {
-    this.mergeValues(src, dest)
+    this.mergeValues(src, dest);
   }
   public doAfterRenderSurvey(el) {
-    this.afterRenderSurvey(el)
+    this.afterRenderSurvey(el);
   }
   protected onLoadSurveyFromService() {
-    this.render()
+    this.render();
   }
   protected onLoadingSurveyFromService() {
-    this.render()
+    this.render();
   }
   protected setCompletedState(value: string, text: string) {
-    super.setCompletedState(value, text)
-    this.render()
+    super.setCompletedState(value, text);
+    this.render();
   }
 }
 
 export class ReactWindowModel extends SurveyWindowModel {
-  renderCallback: () => void
+  renderCallback: () => void;
   constructor(jsonObj: any = null, model: ReactSurveyModel = null) {
-    super(jsonObj, model)
+    super(jsonObj, model);
   }
   //public get reactSurvey(): ReactSurveyModel { return <ReactSurveyModel>this.survey; }
   protected createSurvey(jsonObj: any): SurveyModel {
-    return new ReactSurveyModel(jsonObj)
+    return new ReactSurveyModel(jsonObj);
   }
 }
 
-SurveyModel.platform = 'react'
+SurveyModel.platform = "react";

@@ -3,119 +3,119 @@ import {
   url,
   setOptions,
   initSurvey,
-  getSurveyResult,
-} from '../settings'
-import { Selector, ClientFunction } from 'testcafe'
-const assert = require('assert')
-const title = `panel`
+  getSurveyResult
+} from "../settings";
+import { Selector, ClientFunction } from "testcafe";
+const assert = require("assert");
+const title = `panel`;
 
 var json = {
   pages: [
     {
-      name: 'page1',
+      name: "page1",
       elements: [
         {
-          type: 'comment',
-          name: 'question1',
+          type: "comment",
+          name: "question1"
         },
         {
-          type: 'panel',
+          type: "panel",
           elements: [
             {
-              type: 'checkbox',
+              type: "checkbox",
               choices: [
                 {
-                  value: '1',
-                  text: 'first item',
+                  value: "1",
+                  text: "first item"
                 },
                 {
-                  value: '2',
-                  text: 'second item',
+                  value: "2",
+                  text: "second item"
                 },
                 {
-                  value: '3',
-                  text: 'third item',
-                },
+                  value: "3",
+                  text: "third item"
+                }
               ],
-              name: 'question2',
+              name: "question2"
             },
             {
-              type: 'panel',
+              type: "panel",
               elements: [
                 {
-                  type: 'dropdown',
+                  type: "dropdown",
                   choices: [
                     {
-                      value: '1',
-                      text: 'first item',
+                      value: "1",
+                      text: "first item"
                     },
                     {
-                      value: '2',
-                      text: 'second item',
+                      value: "2",
+                      text: "second item"
                     },
                     {
-                      value: '3',
-                      text: 'third item',
-                    },
+                      value: "3",
+                      text: "third item"
+                    }
                   ],
-                  name: 'question3',
+                  name: "question3"
                 },
                 {
-                  type: 'rating',
-                  name: 'question4',
-                },
+                  type: "rating",
+                  name: "question4"
+                }
               ],
               innerIndent: 1,
-              name: 'panel2',
-            },
+              name: "panel2"
+            }
           ],
           innerIndent: 1,
-          name: 'panel1',
-        },
-      ],
-    },
-  ],
-}
+          name: "panel1"
+        }
+      ]
+    }
+  ]
+};
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json)
+      await initSurvey(framework, json);
     }
-  )
+  );
 
   test(`titles and margins`, async t => {
-    let surveyResult
-    const getTitle1 = Selector(() => document.querySelectorAll('div'), {
-      text: 'question1',
+    let surveyResult;
+    const getTitle1 = Selector(() => document.querySelectorAll("div"), {
+      text: "question1",
       visibilityCheck: true,
-      timeout: 1000,
-    })
-    const getTitle2 = Selector(() => document.querySelectorAll('div'), {
-      text: 'question2',
+      timeout: 1000
+    });
+    const getTitle2 = Selector(() => document.querySelectorAll("div"), {
+      text: "question2",
       visibilityCheck: true,
-      timeout: 1000,
-    })
-    const getTitle3 = Selector(() => document.querySelectorAll('div'), {
-      text: 'question3',
+      timeout: 1000
+    });
+    const getTitle3 = Selector(() => document.querySelectorAll("div"), {
+      text: "question3",
       visibilityCheck: true,
-      timeout: 1000,
-    })
-    const getTitle4 = Selector(() => document.querySelectorAll('div'), {
-      text: 'question4',
+      timeout: 1000
+    });
+    const getTitle4 = Selector(() => document.querySelectorAll("div"), {
+      text: "question4",
       visibilityCheck: true,
-      timeout: 1000,
-    })
+      timeout: 1000
+    });
 
     const getPanelsCountByMargin = ClientFunction(
       () => document.querySelectorAll('div[style*="padding-left: 20px"]').length
-    )
+    );
 
-    assert(await getTitle1())
-    assert(await getTitle2())
-    assert(await getTitle3())
-    assert(await getTitle4())
+    assert(await getTitle1());
+    assert(await getTitle2());
+    assert(await getTitle3());
+    assert(await getTitle4());
 
-    assert.equal(await getPanelsCountByMargin(), 2)
-  })
-})
+    assert.equal(await getPanelsCountByMargin(), 2);
+  });
+});

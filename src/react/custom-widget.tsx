@@ -1,67 +1,68 @@
-import * as React from 'react'
-import { SurveyQuestionElementBase } from './reactquestionelement'
+import * as React from "react";
+import { SurveyQuestionElementBase } from "./reactquestionelement";
 
 export class SurveyCustomWidget extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
+    super(props);
   }
-  localeChangedHandler = sender => (sender.customWidgetData.isNeedRender = true)
+  localeChangedHandler = sender =>
+    (sender.customWidgetData.isNeedRender = true);
   private _afterRender() {
     if (this.questionBase.customWidget) {
-      let el = this.refs['widget']
+      let el = this.refs["widget"];
       if (!!el) {
-        this.questionBase.customWidget.afterRender(this.questionBase, el)
-        this.questionBase.customWidgetData.isNeedRender = false
+        this.questionBase.customWidget.afterRender(this.questionBase, el);
+        this.questionBase.customWidgetData.isNeedRender = false;
       }
     }
   }
   componentDidMount() {
     if (this.questionBase) {
-      this._afterRender()
-      this.questionBase.localeChanged.add(this.localeChangedHandler)
+      this._afterRender();
+      this.questionBase.localeChanged.add(this.localeChangedHandler);
     }
   }
   componentDidUpdate() {
     if (this.questionBase) {
-      this._afterRender()
+      this._afterRender();
     }
   }
   componentWillUnmount() {
     if (this.questionBase.customWidget) {
-      let el = this.refs['widget']
+      let el = this.refs["widget"];
       if (!!el) {
-        this.questionBase.customWidget.willUnmount(this.questionBase, el)
+        this.questionBase.customWidget.willUnmount(this.questionBase, el);
       }
     }
-    this.questionBase.localeChanged.remove(this.localeChangedHandler)
+    this.questionBase.localeChanged.remove(this.localeChangedHandler);
   }
   render(): JSX.Element {
     if (!this.questionBase || !this.creator) {
-      return null
+      return null;
     }
     if (!this.questionBase.visible) {
-      return null
+      return null;
     }
 
-    let customWidget = this.questionBase.customWidget
+    let customWidget = this.questionBase.customWidget;
 
     if (customWidget.isDefaultRender) {
       return (
         <div ref="widget">
           {this.creator.createQuestionElement(this.questionBase)}
         </div>
-      )
+      );
     }
 
-    let widget = null
+    let widget = null;
     if (customWidget.widgetJson.render) {
-      widget = customWidget.widgetJson.render(this.questionBase)
+      widget = customWidget.widgetJson.render(this.questionBase);
     } else {
       if (customWidget.htmlTemplate) {
-        let htmlValue = { __html: customWidget.htmlTemplate }
-        return <div ref="widget" dangerouslySetInnerHTML={htmlValue} />
+        let htmlValue = { __html: customWidget.htmlTemplate };
+        return <div ref="widget" dangerouslySetInnerHTML={htmlValue} />;
       }
     }
-    return <div ref="widget">{widget}</div>
+    return <div ref="widget">{widget}</div>;
   }
 }

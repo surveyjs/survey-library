@@ -1,75 +1,75 @@
-import { HashTable } from './helpers'
-import { QuestionBase } from './questionbase'
-import { IElement } from './base'
-import { surveyLocalization } from './surveyStrings'
+import { HashTable } from "./helpers";
+import { QuestionBase } from "./questionbase";
+import { IElement } from "./base";
+import { surveyLocalization } from "./surveyStrings";
 
 //TODO replace completely with ElementFactory
 export class QuestionFactory {
-  public static Instance: QuestionFactory = new QuestionFactory()
+  public static Instance: QuestionFactory = new QuestionFactory();
   public static get DefaultChoices(): string[] {
     return [
-      surveyLocalization.getString('choices_Item') + '1',
-      surveyLocalization.getString('choices_Item') + '2',
-      surveyLocalization.getString('choices_Item') + '3',
-    ]
+      surveyLocalization.getString("choices_Item") + "1",
+      surveyLocalization.getString("choices_Item") + "2",
+      surveyLocalization.getString("choices_Item") + "3"
+    ];
   }
   public static get DefaultColums(): string[] {
-    var colName = surveyLocalization.getString('matrix_column') + ' '
-    return [colName + '1', colName + '2', colName + '3']
+    var colName = surveyLocalization.getString("matrix_column") + " ";
+    return [colName + "1", colName + "2", colName + "3"];
   }
   public static get DefaultRows(): string[] {
-    var rowName = surveyLocalization.getString('matrix_row') + ' '
-    return [rowName + '1', rowName + '2']
+    var rowName = surveyLocalization.getString("matrix_row") + " ";
+    return [rowName + "1", rowName + "2"];
   }
-  private creatorHash: HashTable<(name: string) => QuestionBase> = {}
+  private creatorHash: HashTable<(name: string) => QuestionBase> = {};
 
   public registerQuestion(
     questionType: string,
     questionCreator: (name: string) => QuestionBase
   ) {
-    this.creatorHash[questionType] = questionCreator
+    this.creatorHash[questionType] = questionCreator;
   }
   public clear() {
-    this.creatorHash = {}
+    this.creatorHash = {};
   }
   public getAllTypes(): Array<string> {
-    var result = new Array<string>()
+    var result = new Array<string>();
     for (var key in this.creatorHash) {
-      result.push(key)
+      result.push(key);
     }
-    return result.sort()
+    return result.sort();
   }
   public createQuestion(questionType: string, name: string): QuestionBase {
-    var creator = this.creatorHash[questionType]
-    if (creator == null) return null
-    return creator(name)
+    var creator = this.creatorHash[questionType];
+    if (creator == null) return null;
+    return creator(name);
   }
 }
 
 export class ElementFactory {
-  public static Instance: ElementFactory = new ElementFactory()
-  private creatorHash: HashTable<(name: string) => IElement> = {}
+  public static Instance: ElementFactory = new ElementFactory();
+  private creatorHash: HashTable<(name: string) => IElement> = {};
 
   public registerElement(
     elementType: string,
     elementCreator: (name: string) => IElement
   ) {
-    this.creatorHash[elementType] = elementCreator
+    this.creatorHash[elementType] = elementCreator;
   }
   public clear() {
-    this.creatorHash = {}
+    this.creatorHash = {};
   }
   public getAllTypes(): Array<string> {
-    var result = QuestionFactory.Instance.getAllTypes()
+    var result = QuestionFactory.Instance.getAllTypes();
     for (var key in this.creatorHash) {
-      result.push(key)
+      result.push(key);
     }
-    return result.sort()
+    return result.sort();
   }
   public createElement(elementType: string, name: string): IElement {
-    var creator = this.creatorHash[elementType]
+    var creator = this.creatorHash[elementType];
     if (creator == null)
-      return QuestionFactory.Instance.createQuestion(elementType, name)
-    return creator(name)
+      return QuestionFactory.Instance.createQuestion(elementType, name);
+    return creator(name);
   }
 }

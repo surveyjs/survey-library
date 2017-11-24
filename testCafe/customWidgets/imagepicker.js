@@ -4,182 +4,182 @@ import {
   setOptions,
   initSurvey,
   addExternalDependencies,
-  getSurveyResult,
-} from '../settings'
-import { Selector, ClientFunction } from 'testcafe'
-const assert = require('assert')
-const title = `imagepicker`
+  getSurveyResult
+} from "../settings";
+import { Selector, ClientFunction } from "testcafe";
+const assert = require("assert");
+const title = `imagepicker`;
 
 const json = {
   questions: [
     {
-      type: 'dropdown',
-      name: 'choosepicture',
-      renderAs: 'imagepicker',
-      title: 'What animal would you like to see first ?',
+      type: "dropdown",
+      name: "choosepicture",
+      renderAs: "imagepicker",
+      title: "What animal would you like to see first ?",
       isRequired: true,
       choices: [
         {
-          value: 'lion',
+          value: "lion",
           text:
-            'https://www.surveyjs.io/Content/Images/examples/image-picker/lion.jpg',
+            "https://www.surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
         },
         {
-          value: 'giraffe',
+          value: "giraffe",
           text:
-            'https://www.surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg',
+            "https://www.surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
         },
         {
-          value: 'panda',
+          value: "panda",
           text:
-            'https://www.surveyjs.io/Content/Images/examples/image-picker/panda.jpg',
+            "https://www.surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
         },
         {
-          value: 'camel',
+          value: "camel",
           text:
-            'https://www.surveyjs.io/Content/Images/examples/image-picker/camel.jpg',
-        },
-      ],
-    },
-  ],
-}
+            "https://www.surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+        }
+      ]
+    }
+  ]
+};
 
 const getWidgetConfig = function(framework) {
-  var widget
+  var widget;
 
-  if (framework === 'knockout') {
+  if (framework === "knockout") {
     widget = {
-      name: 'imagepicker',
+      name: "imagepicker",
       isFit: function(question) {
-        return question['renderAs'] === 'imagepicker'
+        return question["renderAs"] === "imagepicker";
       },
       isDefaultRender: true,
       afterRender: function(question, el) {
-        var $el = $(el)
+        var $el = $(el);
 
-        var options = $el.find('option')
+        var options = $el.find("option");
         for (var i = 1; i < options.length; i++) {
-          options[i].dataset['imgSrc'] = options[i].text
+          options[i].dataset["imgSrc"] = options[i].text;
         }
         $el.imagepicker({
           hide_select: true,
           show_label: false,
           selected: function(opts) {
-            question.value = opts.picker.select[0].value
-          },
-        })
-      },
-    }
+            question.value = opts.picker.select[0].value;
+          }
+        });
+      }
+    };
   } else if (
-    framework === 'react' ||
-    framework === 'jquery' ||
-    framework === 'angular'
+    framework === "react" ||
+    framework === "jquery" ||
+    framework === "angular"
   ) {
     widget = {
-      name: 'imagepicker',
+      name: "imagepicker",
       isFit: function(question) {
-        return question['renderAs'] === 'imagepicker'
+        return question["renderAs"] === "imagepicker";
       },
       isDefaultRender: true,
       afterRender: function(question, el) {
-        var $el = $(el).find('select')
+        var $el = $(el).find("select");
 
-        var options = $el.find('option')
+        var options = $el.find("option");
         for (var i = 1; i < options.length; i++) {
-          options[i].dataset['imgSrc'] = options[i].text
+          options[i].dataset["imgSrc"] = options[i].text;
         }
         $el.imagepicker({
           hide_select: true,
           show_label: false,
           selected: function(opts) {
-            question.value = opts.picker.select[0].value
-          },
-        })
+            question.value = opts.picker.select[0].value;
+          }
+        });
       },
       willUnmount: function(question, el) {
-        var $el = $(el).find('select')
-        $el.data('picker').destroy()
-      },
-    }
-  } else if (framework === 'vue') {
+        var $el = $(el).find("select");
+        $el.data("picker").destroy();
+      }
+    };
+  } else if (framework === "vue") {
     var widget = {
-      name: 'imagepicker',
+      name: "imagepicker",
       isFit: function(question) {
-        return question['renderAs'] === 'imagepicker'
-      },
-    }
+        return question["renderAs"] === "imagepicker";
+      }
+    };
 
     Vue.component(widget.name, {
-      props: ['question', 'css', 'isEditMode'],
+      props: ["question", "css", "isEditMode"],
       template: `
                 <select :id="question.inputId" v-model="question.value">
                     <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{ item.text}}</option>
                 </select>
             `,
       mounted: function() {
-        var vm = this
-        var $el = $(vm.$el)
-        var options = $el.find('option')
+        var vm = this;
+        var $el = $(vm.$el);
+        var options = $el.find("option");
         for (var i = 0; i < options.length; i++) {
-          options[i].dataset['imgSrc'] = options[i].text
+          options[i].dataset["imgSrc"] = options[i].text;
         }
         $el.imagepicker({
           hide_select: true,
           show_label: false,
           selected: function(opts) {
-            vm.question.value = opts.picker.select[0].value
-          },
-        })
-      },
-    })
+            vm.question.value = opts.picker.select[0].value;
+          }
+        });
+      }
+    });
   }
 
   return {
     widget: widget,
-    questionType: 'dropdown',
-    renderAs: 'imagepicker',
-  }
-}
+    questionType: "dropdown",
+    renderAs: "imagepicker"
+  };
+};
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${
     framework
   }/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json, 'bootstrap', getWidgetConfig)
-  })
+    await initSurvey(framework, json, "bootstrap", getWidgetConfig);
+  });
 
   test(`check integrity`, async t => {
     await t
       .hover(`li:nth-child(1) .image_picker_image`)
       .hover(`li:nth-child(2) .image_picker_image`)
       .hover(`li:nth-child(3) .image_picker_image`)
-      .hover(`li:nth-child(4) .image_picker_image`)
-  })
+      .hover(`li:nth-child(4) .image_picker_image`);
+  });
 
   test(`choose empty`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf('Please answer the question')
-    )
-    let position
-    let surveyResult
+      document.documentElement.innerHTML.indexOf("Please answer the question")
+    );
+    let position;
+    let surveyResult;
 
-    await t.click(`input[value=Complete]`)
+    await t.click(`input[value=Complete]`);
 
-    position = await getPosition()
-    assert.notEqual(position, -1)
+    position = await getPosition();
+    assert.notEqual(position, -1);
 
-    surveyResult = await getSurveyResult()
-    assert.equal(typeof surveyResult, `undefined`)
-  })
+    surveyResult = await getSurveyResult();
+    assert.equal(typeof surveyResult, `undefined`);
+  });
 
   test(`choose value`, async t => {
-    let surveyResult
+    let surveyResult;
 
     await t
       .click(`li:nth-child(2) .image_picker_image`)
-      .click(`input[value=Complete]`)
+      .click(`input[value=Complete]`);
 
-    surveyResult = await getSurveyResult()
-    assert.equal(surveyResult.choosepicture, 'giraffe')
-  })
-})
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.choosepicture, "giraffe");
+  });
+});

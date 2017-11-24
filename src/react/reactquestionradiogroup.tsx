@@ -1,48 +1,48 @@
-import * as React from 'react'
-import { SurveyQuestionElementBase } from './reactquestionelement'
-import { QuestionRadiogroupModel } from '../question_radiogroup'
-import { ItemValue } from '../itemvalue'
-import { SurveyQuestionCommentItem } from './reactquestioncomment'
-import { ReactQuestionFactory } from './reactquestionfactory'
+import * as React from "react";
+import { SurveyQuestionElementBase } from "./reactquestionelement";
+import { QuestionRadiogroupModel } from "../question_radiogroup";
+import { ItemValue } from "../itemvalue";
+import { SurveyQuestionCommentItem } from "./reactquestioncomment";
+import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
-    this.state = { choicesChanged: 0 }
-    var self = this
+    super(props);
+    this.state = { choicesChanged: 0 };
+    var self = this;
     this.question.choicesChangedCallback = function() {
-      self.state.choicesChanged = self.state.choicesChanged + 1
-      self.setState(self.state)
-    }
-    this.handleOnChange = this.handleOnChange.bind(this)
+      self.state.choicesChanged = self.state.choicesChanged + 1;
+      self.setState(self.state);
+    };
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionRadiogroupModel {
-    return this.questionBase as QuestionRadiogroupModel
+    return this.questionBase as QuestionRadiogroupModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.handleOnChange = this.handleOnChange.bind(this)
+    super.componentWillReceiveProps(nextProps);
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event) {
-    this.question.value = event.target.value
-    this.setState({ value: this.question.value })
+    this.question.value = event.target.value;
+    this.setState({ value: this.question.value });
   }
   render(): JSX.Element {
-    if (!this.question) return null
-    var cssClasses = this.question.cssClasses
-    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>
+    if (!this.question) return null;
+    var cssClasses = this.question.cssClasses;
+    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>;
   }
   protected getItems(cssClasses: any): Array<any> {
-    var items = []
+    var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i]
-      var key = 'item' + i
-      items.push(this.renderItem(key, item, i == 0, cssClasses))
+      var item = this.question.visibleChoices[i];
+      var key = "item" + i;
+      items.push(this.renderItem(key, item, i == 0, cssClasses));
     }
-    return items
+    return items;
   }
   protected get textStyle(): any {
-    return { marginLeft: '3px', display: 'inline', position: 'static' }
+    return { marginLeft: "3px", display: "inline", position: "static" };
   }
   private renderItem(
     key: string,
@@ -51,21 +51,21 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     cssClasses: any
   ): JSX.Element {
     var itemWidth =
-      this.question.colCount > 0 ? 100 / this.question.colCount + '%' : ''
-    var marginRight = this.question.colCount == 0 ? '5px' : '0px'
+      this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
+    var marginRight = this.question.colCount == 0 ? "5px" : "0px";
     var divStyle = {
       marginRight: marginRight,
-      marginLeft: '0px',
-      display: 'inline-block',
-    }
+      marginLeft: "0px",
+      display: "inline-block"
+    };
     if (itemWidth) {
-      divStyle['width'] = itemWidth
+      divStyle["width"] = itemWidth;
     }
-    var isChecked = this.question.value == item.value
+    var isChecked = this.question.value == item.value;
     var otherItem =
       isChecked && item.value === this.question.otherItem.value
         ? this.renderOther(cssClasses)
-        : null
+        : null;
     return this.renderRadio(
       key,
       item,
@@ -74,7 +74,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       otherItem,
       isFirst,
       cssClasses
-    )
+    );
   }
   protected renderRadio(
     key: string,
@@ -85,18 +85,18 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var id = isFirst ? this.question.inputId : null
-    var itemText = this.renderLocString(item.locText, this.textStyle)
+    var id = isFirst ? this.question.inputId : null;
+    var itemText = this.renderLocString(item.locText, this.textStyle);
     let itemClass =
       cssClasses.item +
-      (this.question.colCount === 0 ? ' sv_q_radiogroup_inline' : '')
+      (this.question.colCount === 0 ? " sv_q_radiogroup_inline" : "");
     return (
       <div key={key} className={itemClass} style={divStyle}>
         <label className={cssClasses.label}>
           <input
             id={id}
             type="radio"
-            name={this.question.name + '_' + this.questionBase.id}
+            name={this.question.name + "_" + this.questionBase.id}
             checked={isChecked}
             value={item.value}
             disabled={this.isDisplayMode}
@@ -109,7 +109,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         </label>
         {otherItem}
       </div>
-    )
+    );
   }
   protected renderOther(cssClasses: any): JSX.Element {
     return (
@@ -121,10 +121,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           isDisplayMode={this.isDisplayMode}
         />
       </div>
-    )
+    );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion('radiogroup', props => {
-  return React.createElement(SurveyQuestionRadiogroup, props)
-})
+ReactQuestionFactory.Instance.registerQuestion("radiogroup", props => {
+  return React.createElement(SurveyQuestionRadiogroup, props);
+});

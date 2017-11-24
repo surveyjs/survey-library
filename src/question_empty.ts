@@ -1,23 +1,23 @@
-import { JsonObject } from './jsonobject'
-import { Question } from './question'
+import { JsonObject } from "./jsonobject";
+import { Question } from "./question";
 
 /**
  * A Model for an question that renders empty "div" tag. It used as a base class for some custom widgets
  */
 export class QuestionEmptyModel extends Question {
   constructor(public name: string) {
-    super(name)
+    super(name);
   }
   public getType(): string {
-    return 'empty'
+    return "empty";
   }
 }
 
 JsonObject.metaData.addClass(
-  'empty',
+  "empty",
   [],
   function() {
-    return new QuestionEmptyModel('')
+    return new QuestionEmptyModel("");
   },
-  'question'
-)
+  "question"
+);

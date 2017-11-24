@@ -1,33 +1,33 @@
-import { JsonObject } from './jsonobject'
-import { QuestionFactory } from './questionfactory'
-import { QuestionCheckboxBase } from './question_baseselect'
+import { JsonObject } from "./jsonobject";
+import { QuestionFactory } from "./questionfactory";
+import { QuestionCheckboxBase } from "./question_baseselect";
 
 /**
  * A Model for a radiogroup question.
  */
 export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   constructor(public name: string) {
-    super(name)
+    super(name);
   }
   public getType(): string {
-    return 'radiogroup'
+    return "radiogroup";
   }
   supportGoNextPageAutomatic() {
-    return true
+    return true;
   }
 }
 
 JsonObject.metaData.addClass(
-  'radiogroup',
+  "radiogroup",
   [],
   function() {
-    return new QuestionRadiogroupModel('')
+    return new QuestionRadiogroupModel("");
   },
-  'checkboxbase'
-)
+  "checkboxbase"
+);
 
-QuestionFactory.Instance.registerQuestion('radiogroup', name => {
-  var q = new QuestionRadiogroupModel(name)
-  q.choices = QuestionFactory.DefaultChoices
-  return q
-})
+QuestionFactory.Instance.registerQuestion("radiogroup", name => {
+  var q = new QuestionRadiogroupModel(name);
+  q.choices = QuestionFactory.DefaultChoices;
+  return q;
+});

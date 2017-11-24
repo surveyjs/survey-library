@@ -1,129 +1,130 @@
-import * as ko from 'knockout'
-import { SurveyModel } from '../survey'
-import { IPage, IQuestion, Event, SurveyElement } from '../base'
-import { Page } from './kopage'
-import { PageModel } from '../page'
-import { surveyCss } from '../defaultCss/cssstandard'
-import { koTemplate, SurveyTemplateText } from './templateText'
+import * as ko from "knockout";
+import { SurveyModel } from "../survey";
+import { IPage, IQuestion, Event, SurveyElement } from "../base";
+import { Page } from "./kopage";
+import { PageModel } from "../page";
+import { surveyCss } from "../defaultCss/cssstandard";
+import { koTemplate, SurveyTemplateText } from "./templateText";
 import {
   QuestionCustomWidget,
-  CustomWidgetCollection,
-} from '../questionCustomWidgets'
-import { LocalizableString } from '../localizablestring'
-import { ItemValue } from '../itemvalue'
-import { QuestionRatingModel } from '../question_rating'
+  CustomWidgetCollection
+} from "../questionCustomWidgets";
+import { LocalizableString } from "../localizablestring";
+import { ItemValue } from "../itemvalue";
+import { QuestionRatingModel } from "../question_rating";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
-  if (customWidget.widgetJson.isDefaultRender) return
+  if (customWidget.widgetJson.isDefaultRender) return;
   if (!customWidget.htmlTemplate)
-    customWidget.htmlTemplate = "<div>'htmlTemplate' attribute is missed.</div>"
+    customWidget.htmlTemplate =
+      "<div>'htmlTemplate' attribute is missed.</div>";
   new SurveyTemplateText().replaceText(
     customWidget.htmlTemplate,
-    'widget',
+    "widget",
     customWidget.name
-  )
-})
+  );
+});
 
 export class Survey extends SurveyModel {
   public static get cssType(): string {
-    return surveyCss.currentType
+    return surveyCss.currentType;
   }
   public static set cssType(value: string) {
-    surveyCss.currentType = value
+    surveyCss.currentType = value;
   }
-  private renderedElement: HTMLElement
+  private renderedElement: HTMLElement;
   //TODO remove it, since there is onAfterRenderSurvey
   public onRendered: Event<(sender: SurveyModel) => any, any> = new Event<
     (sender: SurveyModel) => any,
     any
-  >()
-  private isFirstRender: boolean = true
+  >();
+  private isFirstRender: boolean = true;
 
-  koCurrentPage: any
-  koIsFirstPage: any
-  koIsLastPage: any
-  koIsNavigationButtonsShowing: any
-  dummyObservable: any
-  koState: any
-  koProgress: any
-  koProgressText: any
-  koAfterRenderPage: any
-  koCompletedState: any
-  koCompletedStateText: any
-  koCompletedStateCss: any
-  koTimerInfoText: any
+  koCurrentPage: any;
+  koIsFirstPage: any;
+  koIsLastPage: any;
+  koIsNavigationButtonsShowing: any;
+  dummyObservable: any;
+  koState: any;
+  koProgress: any;
+  koProgressText: any;
+  koAfterRenderPage: any;
+  koCompletedState: any;
+  koCompletedStateText: any;
+  koCompletedStateCss: any;
+  koTimerInfoText: any;
 
   constructor(
     jsonObj: any = null,
     renderedElement: any = null,
     css: any = null
   ) {
-    super(jsonObj)
+    super(jsonObj);
     if (css) {
-      this.css = css
+      this.css = css;
     }
     if (renderedElement) {
-      this.renderedElement = renderedElement
+      this.renderedElement = renderedElement;
     }
-    if (typeof ko === 'undefined')
-      throw new Error('knockoutjs library is not loaded.')
-    var self = this
-    this.registerFunctionOnPropertyValueChanged('timeSpent', function() {
-      self.onTimeSpentChanged()
-    })
+    if (typeof ko === "undefined")
+      throw new Error("knockoutjs library is not loaded.");
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("timeSpent", function() {
+      self.onTimeSpentChanged();
+    });
 
-    this.render(renderedElement)
+    this.render(renderedElement);
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
       this.css.navigationButton,
       this.css.navigation.complete
-    )
+    );
   }
   public get cssNavigationPrev() {
     return this.getNavigationCss(
       this.css.navigationButton,
       this.css.navigation.prev
-    )
+    );
   }
   public get cssNavigationNext() {
     return this.getNavigationCss(
       this.css.navigationButton,
       this.css.navigation.next
-    )
+    );
   }
   private getNavigationCss(main: string, btn: string) {
-    var res = ''
-    if (main) res = main
-    if (btn) res += ' ' + btn
-    return res
+    var res = "";
+    if (main) res = main;
+    if (btn) res += " " + btn;
+    return res;
   }
   public get css(): any {
-    return surveyCss.getCss()
+    return surveyCss.getCss();
   }
   public set css(value: any) {
-    this.mergeValues(value, this.css)
+    this.mergeValues(value, this.css);
   }
   public render(element: any = null) {
-    this.updateCustomWidgets(this.currentPage)
-    var self = this
-    if (element && typeof element == 'string') {
-      element = document.getElementById(element)
+    this.updateCustomWidgets(this.currentPage);
+    var self = this;
+    if (element && typeof element == "string") {
+      element = document.getElementById(element);
     }
     if (element) {
-      this.renderedElement = element
+      this.renderedElement = element;
     }
-    element = this.renderedElement
-    if (!element) return
-    element.innerHTML = this.getHtmlTemplate()
-    if (self.showTimerPanel != 'none') {
-      self.startTimer()
+    element = this.renderedElement;
+    if (!element) return;
+    element.innerHTML = this.getHtmlTemplate();
+    if (self.showTimerPanel != "none") {
+      self.startTimer();
     }
-    self.applyBinding()
+    self.applyBinding();
   }
   public koEventAfterRender(element, survey) {
-    survey.onRendered.fire(self, {})
-    survey.afterRenderSurvey(element)
+    survey.onRendered.fire(self, {});
+    survey.afterRenderSurvey(element);
   }
   public loadSurveyFromService(
     surveyId: string = null,
@@ -131,142 +132,142 @@ export class Survey extends SurveyModel {
     renderedElement: any = null
   ) {
     if (renderedElement) {
-      this.renderedElement = renderedElement
+      this.renderedElement = renderedElement;
     }
-    super.loadSurveyFromService(surveyId, clientId)
+    super.loadSurveyFromService(surveyId, clientId);
   }
   protected setCompleted() {
-    super.setCompleted()
-    this.updateKoCurrentPage()
+    super.setCompleted();
+    this.updateKoCurrentPage();
   }
   protected createNewPage(name: string) {
-    return new Page(name)
+    return new Page(name);
   }
   protected getHtmlTemplate(): string {
-    return koTemplate
+    return koTemplate;
   }
   protected onBeforeCreating() {
-    var self = this
-    this.dummyObservable = ko.observable(0)
+    var self = this;
+    this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.computed(function() {
-      self.dummyObservable()
-      return self.currentPage
-    })
+      self.dummyObservable();
+      return self.currentPage;
+    });
     this.koIsNavigationButtonsShowing = ko.computed(function() {
-      self.dummyObservable()
-      return self.isNavigationButtonsShowing
-    })
+      self.dummyObservable();
+      return self.isNavigationButtonsShowing;
+    });
     this.koIsFirstPage = ko.computed(function() {
-      self.dummyObservable()
-      return self.isFirstPage
-    })
+      self.dummyObservable();
+      return self.isFirstPage;
+    });
     this.koIsLastPage = ko.computed(function() {
-      self.dummyObservable()
-      return self.isLastPage
-    })
+      self.dummyObservable();
+      return self.isLastPage;
+    });
     this.koProgressText = ko.computed(function() {
-      self.dummyObservable()
-      return self.progressText
-    })
+      self.dummyObservable();
+      return self.progressText;
+    });
     this.koProgress = ko.computed(function() {
-      self.dummyObservable()
-      return self.getProgress()
-    })
+      self.dummyObservable();
+      return self.getProgress();
+    });
     this.koState = ko.computed(function() {
-      self.dummyObservable()
-      return self.state
-    })
-    this.koCompletedState = ko.observable('')
-    this.koCompletedStateText = ko.observable('')
-    this.koCompletedStateCss = ko.observable('')
-    this.koTimerInfoText = ko.observable(this.timerInfoText)
+      self.dummyObservable();
+      return self.state;
+    });
+    this.koCompletedState = ko.observable("");
+    this.koCompletedStateText = ko.observable("");
+    this.koCompletedStateCss = ko.observable("");
+    this.koTimerInfoText = ko.observable(this.timerInfoText);
     this.koAfterRenderPage = function(elements, con) {
-      var el = SurveyElement.GetFirstNonTextElement(elements)
-      if (el) self.afterRenderPage(el)
-    }
+      var el = SurveyElement.GetFirstNonTextElement(elements);
+      if (el) self.afterRenderPage(el);
+    };
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
-    this.updateKoCurrentPage()
-    super.currentPageChanged(newValue, oldValue)
-    if (!this.isDesignMode) this.scrollToTopOnPageChange()
+    this.updateKoCurrentPage();
+    super.currentPageChanged(newValue, oldValue);
+    if (!this.isDesignMode) this.scrollToTopOnPageChange();
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {
-    super.pageVisibilityChanged(page, newValue)
-    this.updateKoCurrentPage()
+    super.pageVisibilityChanged(page, newValue);
+    this.updateKoCurrentPage();
   }
   protected onLoadSurveyFromService() {
-    this.render()
+    this.render();
   }
   protected onLoadingSurveyFromService() {
-    this.render()
+    this.render();
   }
   protected setCompletedState(value: string, text: string) {
-    super.setCompletedState(value, text)
-    this.koCompletedState(this.completedState)
-    this.koCompletedStateText(this.completedStateText)
+    super.setCompletedState(value, text);
+    this.koCompletedState(this.completedState);
+    this.koCompletedStateText(this.completedStateText);
     this.koCompletedStateCss(
-      this.completedState !== '' ? this.css.saveData[this.completedState] : ''
-    )
+      this.completedState !== "" ? this.css.saveData[this.completedState] : ""
+    );
   }
   protected onTimeSpentChanged() {
-    this.koTimerInfoText(this.timerInfoText)
+    this.koTimerInfoText(this.timerInfoText);
   }
   private applyBinding() {
-    if (!this.renderedElement) return
-    this.updateKoCurrentPage()
-    ko.cleanNode(this.renderedElement)
+    if (!this.renderedElement) return;
+    this.updateKoCurrentPage();
+    ko.cleanNode(this.renderedElement);
     if (!this.isFirstRender) {
-      this.updateCurrentPageQuestions()
+      this.updateCurrentPageQuestions();
     }
-    this.isFirstRender = false
-    ko.applyBindings(this, this.renderedElement)
+    this.isFirstRender = false;
+    ko.applyBindings(this, this.renderedElement);
   }
   private updateKoCurrentPage() {
-    if (this.isLoadingFromJson) return
-    this.dummyObservable(this.dummyObservable() + 1)
+    if (this.isLoadingFromJson) return;
+    this.dummyObservable(this.dummyObservable() + 1);
   }
   private updateCurrentPageQuestions() {
-    var questions = this.currentPage ? this.currentPage.questions : []
+    var questions = this.currentPage ? this.currentPage.questions : [];
     for (var i = 0; i < questions.length; i++) {
-      var q = questions[i]
-      if (q.visible) q['updateQuestion']()
+      var q = questions[i];
+      if (q.visible) q["updateQuestion"]();
     }
   }
 }
 
-LocalizableString.prototype['onCreating'] = function() {
-  var self = this
-  this.koReRender = ko.observable(0)
+LocalizableString.prototype["onCreating"] = function() {
+  var self = this;
+  this.koReRender = ko.observable(0);
   this.koRenderedHtml = ko.pureComputed(function() {
-    self.koReRender()
-    return self.renderedHtml
-  })
-}
+    self.koReRender();
+    return self.renderedHtml;
+  });
+};
 
-LocalizableString.prototype['onChanged'] = function() {
-  this.koReRender(this.koReRender() + 1)
-}
+LocalizableString.prototype["onChanged"] = function() {
+  this.koReRender(this.koReRender() + 1);
+};
 
-ko.components.register('survey', {
+ko.components.register("survey", {
   viewModel: {
     createViewModel: function(params, componentInfo) {
-      var survey: Survey = ko.unwrap(params.survey)
-      survey.render()
-      return params.survey
-    },
-  },
-  template: koTemplate,
-})
-
-ko.bindingHandlers['surveyProp'] = {
-  update: function(element, valueAccessor, allBindingsAccessor) {
-    var value = ko.utils.unwrapObservable(valueAccessor()) || {}
-    for (var propName in value) {
-      if (typeof propName == 'string') {
-        var propValue = ko.utils.unwrapObservable(value[propName])
-        element[propName] = propValue
-      }
+      var survey: Survey = ko.unwrap(params.survey);
+      survey.render();
+      return params.survey;
     }
   },
-}
-SurveyModel.platform = 'knockout'
+  template: koTemplate
+});
+
+ko.bindingHandlers["surveyProp"] = {
+  update: function(element, valueAccessor, allBindingsAccessor) {
+    var value = ko.utils.unwrapObservable(valueAccessor()) || {};
+    for (var propName in value) {
+      if (typeof propName == "string") {
+        var propValue = ko.utils.unwrapObservable(value[propName]);
+        element[propName] = propValue;
+      }
+    }
+  }
+};
+SurveyModel.platform = "knockout";

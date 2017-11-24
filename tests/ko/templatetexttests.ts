@@ -1,49 +1,49 @@
-import { SurveyTemplateText } from '../../src/knockout/templateText'
+import { SurveyTemplateText } from "../../src/knockout/templateText";
 
-export default QUnit.module('Template Text')
+export default QUnit.module("Template Text");
 
 class SurveyTemplateTextTest extends SurveyTemplateText {
   constructor(public template: string) {
-    super()
+    super();
   }
   protected get text(): string {
-    return this.template
+    return this.template;
   }
   protected set text(value: string) {
-    this.template = value
+    this.template = value;
   }
 }
 
-QUnit.test('Replace the page', function(assert) {
+QUnit.test("Replace the page", function(assert) {
   var template = new SurveyTemplateTextTest(
     '<script type="text/ html" id="survey-page">Test1</script>'
-  )
-  template.replaceText('MyTest', 'page')
+  );
+  template.replaceText("MyTest", "page");
   assert.equal(
     template.template,
     '<script type="text/ html" id="survey-page">MyTest</script>',
-    'the template page replaced correctly'
-  )
-})
-QUnit.test('Replace the question', function(assert) {
+    "the template page replaced correctly"
+  );
+});
+QUnit.test("Replace the question", function(assert) {
   var template = new SurveyTemplateTextTest(
     '<script type="text/ html" id="survey-question">Test1</script>'
-  )
-  template.replaceText('MyTest', 'question')
+  );
+  template.replaceText("MyTest", "question");
   assert.equal(
     template.template,
     '<script type="text/ html" id="survey-question">MyTest</script>',
-    'the template question replaced correctly'
-  )
-})
-QUnit.test('Replace the rating question', function(assert) {
+    "the template question replaced correctly"
+  );
+});
+QUnit.test("Replace the rating question", function(assert) {
   var template = new SurveyTemplateTextTest(
     '<script type="text/ html" id="survey-question-rating">Test1</script>'
-  )
-  template.replaceText('MyTest', 'question', 'rating')
+  );
+  template.replaceText("MyTest", "question", "rating");
   assert.equal(
     template.template,
     '<script type="text/ html" id="survey-question-rating">MyTest</script>',
-    'the template question replaced correctly'
-  )
-})
+    "the template question replaced correctly"
+  );
+});

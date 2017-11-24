@@ -3,16 +3,16 @@ import {
   url,
   setOptions,
   initSurvey,
-  getSurveyResult,
-} from '../settings'
-import { Selector, ClientFunction } from 'testcafe'
-const assert = require('assert')
-const title = `saveSurveyResult`
+  getSurveyResult
+} from "../settings";
+import { Selector, ClientFunction } from "testcafe";
+const assert = require("assert");
+const title = `saveSurveyResult`;
 
 const json = {
-  surveyId: '0edf84f9-14f7-4944-a857-e327e1dceebb',
-  surveyPostId: '8c03f02b-0b55-4cda-96b8-d1bf7c87b05d',
-}
+  surveyId: "0edf84f9-14f7-4944-a857-e327e1dceebb",
+  surveyPostId: "8c03f02b-0b55-4cda-96b8-d1bf7c87b05d"
+};
 /* TODO
 frameworks.forEach( (framework) => {
     fixture `${framework} ${title}`

@@ -1,46 +1,46 @@
-import * as React from 'react'
+import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from './reactquestionelement'
-import { QuestionBooleanModel } from '../question_boolean'
-import { ReactQuestionFactory } from './reactquestionfactory'
+  SurveyQuestionElementBase
+} from "./reactquestionelement";
+import { QuestionBooleanModel } from "../question_boolean";
+import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
-    this.state = { value: this.question.checkedValue }
-    this.handleOnChange = this.handleOnChange.bind(this)
+    super(props);
+    this.state = { value: this.question.checkedValue };
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.setState({ value: this.question.checkedValue })
+    super.componentWillReceiveProps(nextProps);
+    this.setState({ value: this.question.checkedValue });
   }
   protected get question(): QuestionBooleanModel {
-    return this.questionBase as QuestionBooleanModel
+    return this.questionBase as QuestionBooleanModel;
   }
   handleOnChange(event) {
-    this.question.checkedValue = event.target.checked
-    this.setState({ value: this.question.checkedValue })
+    this.question.checkedValue = event.target.checked;
+    this.setState({ value: this.question.checkedValue });
   }
   componentDidMount() {
-    this.updateIndeterminate()
+    this.updateIndeterminate();
   }
   componentDidUpdate() {
-    this.updateIndeterminate()
+    this.updateIndeterminate();
   }
   private updateIndeterminate() {
-    if (!this.question) return
-    var el = this.refs['check']
+    if (!this.question) return;
+    var el = this.refs["check"];
     if (el) {
-      el['indeterminate'] = this.question.isIndeterminate
+      el["indeterminate"] = this.question.isIndeterminate;
     }
   }
 
   render(): JSX.Element {
-    if (!this.question) return null
-    var cssClasses = this.question.cssClasses
-    var text = this.renderLocString(this.question.locDisplayLabel)
+    if (!this.question) return null;
+    var cssClasses = this.question.cssClasses;
+    var text = this.renderLocString(this.question.locDisplayLabel);
     return (
       <form className={cssClasses.item}>
         <label className={cssClasses.item}>
@@ -60,10 +60,10 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           <span>{text}</span>
         </label>
       </form>
-    )
+    );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion('boolean', props => {
-  return React.createElement(SurveyQuestionBoolean, props)
-})
+ReactQuestionFactory.Instance.registerQuestion("boolean", props => {
+  return React.createElement(SurveyQuestionBoolean, props);
+});

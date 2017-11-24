@@ -4,139 +4,139 @@ import {
   setOptions,
   initSurvey,
   addExternalDependencies,
-  getSurveyResult,
-} from '../settings'
-import { Selector, ClientFunction } from 'testcafe'
-const assert = require('assert')
-const title = `icheckmatrix`
+  getSurveyResult
+} from "../settings";
+import { Selector, ClientFunction } from "testcafe";
+const assert = require("assert");
+const title = `icheckmatrix`;
 
 const json = {
   questions: [
     {
-      type: 'matrix',
-      renderAs: 'icheckmatrix',
+      type: "matrix",
+      renderAs: "icheckmatrix",
       isRequired: true,
-      name: 'Quality',
+      name: "Quality",
       title:
-        'Please indicate if you agree or disagree with the following statements',
+        "Please indicate if you agree or disagree with the following statements",
       columns: [
-        { value: 1, text: 'Strongly Disagree' },
-        { value: 2, text: 'Disagree' },
-        { value: 3, text: 'Neutral' },
-        { value: 4, text: 'Agree' },
-        { value: 5, text: 'Strongly Agree' },
+        { value: 1, text: "Strongly Disagree" },
+        { value: 2, text: "Disagree" },
+        { value: 3, text: "Neutral" },
+        { value: 4, text: "Agree" },
+        { value: 5, text: "Strongly Agree" }
       ],
       rows: [
-        { value: 'affordable', text: 'Product is affordable' },
-        { value: 'does what it claims', text: 'Product does what it claims' },
+        { value: "affordable", text: "Product is affordable" },
+        { value: "does what it claims", text: "Product does what it claims" },
         {
-          value: 'better then others',
-          text: 'Product is better than other products on the market',
+          value: "better then others",
+          text: "Product is better than other products on the market"
         },
-        { value: 'easy to use', text: 'Product is easy to use' },
-      ],
-    },
-  ],
-}
+        { value: "easy to use", text: "Product is easy to use" }
+      ]
+    }
+  ]
+};
 
 const getWidgetConfig = function(framework) {
-  var widget
+  var widget;
 
-  if (framework == 'knockout') {
+  if (framework == "knockout") {
     widget = {
-      name: 'icheck',
+      name: "icheck",
       isDefaultRender: true,
       isFit: function(question) {
-        return question['renderAs'] === 'icheckmatrix'
+        return question["renderAs"] === "icheckmatrix";
       },
       afterRender: function(question, el) {
         $(el)
-          .find('input')
-          .data({ iCheck: undefined })
+          .find("input")
+          .data({ iCheck: undefined });
         $(el)
-          .find('input')
+          .find("input")
           .iCheck({
-            checkboxClass: 'iradio_square-blue',
-            radioClass: 'iradio_square-blue',
-          })
+            checkboxClass: "iradio_square-blue",
+            radioClass: "iradio_square-blue"
+          });
         $(el)
-          .find('input')
-          .on('ifChecked', function(event) {
+          .find("input")
+          .on("ifChecked", function(event) {
             question.generatedVisibleRows.forEach(function(row, index, rows) {
               if (row.fullName === event.target.name) {
-                row.value = event.target.value
+                row.value = event.target.value;
               }
-            })
-          })
+            });
+          });
         var select = function() {
           question.generatedVisibleRows.forEach(function(row, index, rows) {
             if (row.value) {
               $(el)
                 .find(
-                  "input[name='" + row.fullName + "'][value=" + row.value + ']'
+                  "input[name='" + row.fullName + "'][value=" + row.value + "]"
                 )
-                .iCheck('check')
+                .iCheck("check");
             }
-          })
-        }
-        question.valueChangedCallback = select
-        select()
-      },
-    }
+          });
+        };
+        question.valueChangedCallback = select;
+        select();
+      }
+    };
   } else if (
-    framework === 'react' ||
-    framework === 'jquery' ||
-    framework === 'angular'
+    framework === "react" ||
+    framework === "jquery" ||
+    framework === "angular"
   ) {
     widget = {
-      name: 'icheck',
+      name: "icheck",
       isDefaultRender: true,
       isFit: function(question) {
-        return question.getType() === 'matrix'
+        return question.getType() === "matrix";
       },
       afterRender: function(question, el) {
         $(el)
-          .find('input')
-          .data({ iCheck: undefined })
+          .find("input")
+          .data({ iCheck: undefined });
         $(el)
-          .find('input')
+          .find("input")
           .iCheck({
-            checkboxClass: 'iradio_square-blue',
-            radioClass: 'iradio_square-blue',
-          })
+            checkboxClass: "iradio_square-blue",
+            radioClass: "iradio_square-blue"
+          });
         $(el)
-          .find('input')
-          .on('ifChecked', function(event) {
+          .find("input")
+          .on("ifChecked", function(event) {
             question.generatedVisibleRows.forEach(function(row, index, rows) {
               if (row.fullName === event.target.name) {
-                row.value = event.target.value
+                row.value = event.target.value;
               }
-            })
-          })
+            });
+          });
         var select = function() {
           question.generatedVisibleRows.forEach(function(row, index, rows) {
             if (row.value) {
               $(el)
                 .find(
-                  "input[name='" + row.fullName + "'][value=" + row.value + ']'
+                  "input[name='" + row.fullName + "'][value=" + row.value + "]"
                 )
-                .iCheck('check')
+                .iCheck("check");
             }
-          })
-        }
-        question.valueChangedCallback = select
-        select()
-      },
-    }
-  } else if (framework == 'vue') {
+          });
+        };
+        question.valueChangedCallback = select;
+        select();
+      }
+    };
+  } else if (framework == "vue") {
     widget = {
-      name: 'icheckmatrix',
+      name: "icheckmatrix",
       isFit: function(question) {
-        return question['renderAs'] === 'icheckmatrix'
-      },
-    }
+        return question["renderAs"] === "icheckmatrix";
+      }
+    };
     Vue.component(widget.name, {
-      props: ['question', 'isEditMode'],
+      props: ["question", "isEditMode"],
       template: `<table :class="question.cssClasses.root">
                 <thead>
                     <tr>
@@ -154,94 +154,94 @@ const getWidgetConfig = function(framework) {
                 </tbody>
             </table>`,
       mounted: function() {
-        var vm = this
+        var vm = this;
         $(vm.$el)
-          .find('input')
+          .find("input")
           .iCheck({
-            checkboxClass: 'iradio_square-blue',
-            radioClass: 'iradio_square-blue',
-            increaseArea: '20%', // optional
-          })
+            checkboxClass: "iradio_square-blue",
+            radioClass: "iradio_square-blue",
+            increaseArea: "20%" // optional
+          });
         $(vm.$el)
-          .find('input')
-          .on('ifChecked', function(event) {
+          .find("input")
+          .on("ifChecked", function(event) {
             vm.question.generatedVisibleRows.forEach(function(
               row,
               index,
               rows
             ) {
               if (row.fullName === event.target.name) {
-                row.value = event.target.value
+                row.value = event.target.value;
               }
-            })
-          })
+            });
+          });
         var select = function() {
           vm.question.generatedVisibleRows.forEach(function(row, index, rows) {
             if (row.value) {
               $(vm.$el)
                 .find(
-                  "input[name='" + row.fullName + "'][value=" + row.value + ']'
+                  "input[name='" + row.fullName + "'][value=" + row.value + "]"
                 )
-                .iCheck('check')
+                .iCheck("check");
             }
-          })
-        }
-        vm.question.valueChangedCallback = select
-        select()
-      },
-    })
+          });
+        };
+        vm.question.valueChangedCallback = select;
+        select();
+      }
+    });
   }
 
   return {
     widget: widget,
-    questionType: 'matrix',
-    renderAs: 'icheckmatrix',
-  }
-}
+    questionType: "matrix",
+    renderAs: "icheckmatrix"
+  };
+};
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${
     framework
   }/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json, 'bootstrap', getWidgetConfig)
-  })
+    await initSurvey(framework, json, "bootstrap", getWidgetConfig);
+  });
 
   test(`check integrity`, async t => {
     const getCount = ClientFunction(
-      () => document.querySelectorAll('ins.iCheck-helper').length
-    )
+      () => document.querySelectorAll("ins.iCheck-helper").length
+    );
 
-    assert.equal(await getCount(), 20)
-  })
+    assert.equal(await getCount(), 20);
+  });
 
   test(`choose empty`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf('Please answer the question')
-    )
-    let position
-    let surveyResult
+      document.documentElement.innerHTML.indexOf("Please answer the question")
+    );
+    let position;
+    let surveyResult;
 
-    await t.click(`input[value=Complete]`)
+    await t.click(`input[value=Complete]`);
 
-    position = await getPosition()
-    assert.notEqual(position, -1)
+    position = await getPosition();
+    assert.notEqual(position, -1);
 
-    surveyResult = await getSurveyResult()
-    assert.equal(typeof surveyResult, `undefined`)
-  })
+    surveyResult = await getSurveyResult();
+    assert.equal(typeof surveyResult, `undefined`);
+  });
 
   test(`choose value`, async t => {
-    let surveyResult
+    let surveyResult;
 
     await t
       .click(`table tr:nth-child(1) td:nth-child(3) ins`)
       .click(`table tr:nth-child(2) td:nth-child(4) ins`)
-      .click(`input[value=Complete]`)
+      .click(`input[value=Complete]`);
 
-    surveyResult = await getSurveyResult()
+    surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.Quality, {
-      affordable: '2',
-      'does what it claims': '3',
-    })
-  })
-})
+      affordable: "2",
+      "does what it claims": "3"
+    });
+  });
+});

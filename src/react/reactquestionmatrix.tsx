@@ -1,36 +1,36 @@
-import * as React from 'react'
+import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from './reactquestionelement'
-import { QuestionMatrixModel } from '../question_matrix'
-import { MatrixRowModel } from '../question_matrix'
-import { ReactQuestionFactory } from './reactquestionfactory'
-import { ItemValue } from '../itemvalue'
+  SurveyQuestionElementBase
+} from "./reactquestionelement";
+import { QuestionMatrixModel } from "../question_matrix";
+import { MatrixRowModel } from "../question_matrix";
+import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
+    super(props);
   }
   protected get question(): QuestionMatrixModel {
-    return this.questionBase as QuestionMatrixModel
+    return this.questionBase as QuestionMatrixModel;
   }
   render(): JSX.Element {
-    if (!this.question) return null
-    var cssClasses = this.question.cssClasses
-    var firstTH = this.question.hasRows ? <td /> : null
-    var headers = []
+    if (!this.question) return null;
+    var cssClasses = this.question.cssClasses;
+    var firstTH = this.question.hasRows ? <td /> : null;
+    var headers = [];
     for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i]
-      var key = 'column' + i
-      var columText = this.renderLocString(column.locText)
-      headers.push(<th key={key}>{columText}</th>)
+      var column = this.question.columns[i];
+      var key = "column" + i;
+      var columText = this.renderLocString(column.locText);
+      headers.push(<th key={key}>{columText}</th>);
     }
-    var rows = []
-    var visibleRows = this.question.visibleRows
+    var rows = [];
+    var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
-      var row = visibleRows[i]
-      var key = 'row' + i
+      var row = visibleRows[i];
+      var key = "row" + i;
       rows.push(
         <SurveyQuestionMatrixRow
           key={key}
@@ -40,7 +40,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           row={row}
           isFirst={i == 0}
         />
-      )
+      );
     }
     return (
       <table className={cssClasses.root}>
@@ -52,44 +52,44 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         </thead>
         <tbody>{rows}</tbody>
       </table>
-    )
+    );
   }
 }
 
 export class SurveyQuestionMatrixRow extends ReactSurveyElement {
-  private question: QuestionMatrixModel
-  private row: MatrixRowModel
-  private isFirst: boolean
+  private question: QuestionMatrixModel;
+  private row: MatrixRowModel;
+  private isFirst: boolean;
   constructor(props: any) {
-    super(props)
-    this.question = props.question
-    this.row = props.row
-    this.isFirst = props.isFirst
-    this.handleOnChange = this.handleOnChange.bind(this)
+    super(props);
+    this.question = props.question;
+    this.row = props.row;
+    this.isFirst = props.isFirst;
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event) {
-    this.row.value = event.target.value
-    this.setState({ value: this.row.value })
+    this.row.value = event.target.value;
+    this.setState({ value: this.row.value });
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.question = nextProps.question
-    this.row = nextProps.row
-    this.isFirst = nextProps.isFirst
+    super.componentWillReceiveProps(nextProps);
+    this.question = nextProps.question;
+    this.row = nextProps.row;
+    this.isFirst = nextProps.isFirst;
   }
   render(): JSX.Element {
-    if (!this.row) return null
-    var firstTD = null
+    if (!this.row) return null;
+    var firstTD = null;
     if (this.question.hasRows) {
-      var rowText = this.renderLocString(this.row.locText)
-      firstTD = <td>{rowText}</td>
+      var rowText = this.renderLocString(this.row.locText);
+      firstTD = <td>{rowText}</td>;
     }
-    var tds = []
+    var tds = [];
     for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i]
-      var key = 'value' + i
-      var isChecked = this.row.value == column.value
-      var inputId = this.isFirst && i == 0 ? this.question.inputId : null
+      var column = this.question.columns[i];
+      var key = "value" + i;
+      var isChecked = this.row.value == column.value;
+      var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
       var td = (
         <td key={key}>
           <label className={this.cssClasses.label}>
@@ -106,23 +106,23 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
             />
             <span className="circle" />
             <span className="check" />
-            <span style={{ display: 'none' }}>
+            <span style={{ display: "none" }}>
               {this.question.locTitle.renderedHtml}
             </span>
           </label>
         </td>
-      )
-      tds.push(td)
+      );
+      tds.push(td);
     }
     return (
       <tr>
         {firstTD}
         {tds}
       </tr>
-    )
+    );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion('matrix', props => {
-  return React.createElement(SurveyQuestionMatrix, props)
-})
+ReactQuestionFactory.Instance.registerQuestion("matrix", props => {
+  return React.createElement(SurveyQuestionMatrix, props);
+});

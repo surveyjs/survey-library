@@ -1,33 +1,33 @@
-import * as ko from 'knockout'
-import { QuestionTextModel } from '../question_text'
-import { JsonObject } from '../jsonobject'
-import { QuestionFactory } from '../questionfactory'
-import { QuestionImplementor } from './koquestion'
-import { Question } from '../question'
+import * as ko from "knockout";
+import { QuestionTextModel } from "../question_text";
+import { JsonObject } from "../jsonobject";
+import { QuestionFactory } from "../questionfactory";
+import { QuestionImplementor } from "./koquestion";
+import { Question } from "../question";
 
 export class QuestionTextImplementor extends QuestionImplementor {
   constructor(public question: Question) {
-    super(question)
+    super(question);
   }
   protected updateValue(newValue: any) {
-    super.updateValue(newValue)
+    super.updateValue(newValue);
     if (newValue !== this.question.value) {
-      this.koValue(this.question.value)
+      this.koValue(this.question.value);
     }
   }
 }
 
 export class QuestionText extends QuestionTextModel {
   constructor(public name: string) {
-    super(name)
-    new QuestionTextImplementor(this)
+    super(name);
+    new QuestionTextImplementor(this);
   }
 }
 
-JsonObject.metaData.overrideClassCreatore('text', function() {
-  return new QuestionText('')
-})
+JsonObject.metaData.overrideClassCreatore("text", function() {
+  return new QuestionText("");
+});
 
-QuestionFactory.Instance.registerQuestion('text', name => {
-  return new QuestionText(name)
-})
+QuestionFactory.Instance.registerQuestion("text", name => {
+  return new QuestionText(name);
+});

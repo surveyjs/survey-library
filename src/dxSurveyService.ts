@@ -2,24 +2,24 @@
  * The class contains methods to work with www.dxsurvey.com service.
  */
 export class dxSurveyService {
-  public static serviceUrl: string = 'https://dxsurveyapi.azurewebsites.net/api/Survey'
+  public static serviceUrl: string = "https://dxsurveyapi.azurewebsites.net/api/Survey";
   //public static serviceUrl: string = "http://localhost:50488/api/Survey";
   constructor() {}
   public loadSurvey(
     surveyId: string,
     onLoad: (success: boolean, result: string, response: any) => void
   ) {
-    var xhr = new XMLHttpRequest()
+    var xhr = new XMLHttpRequest();
     xhr.open(
-      'GET',
-      dxSurveyService.serviceUrl + '/getSurvey?surveyId=' + surveyId
-    )
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+      "GET",
+      dxSurveyService.serviceUrl + "/getSurvey?surveyId=" + surveyId
+    );
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onload = function() {
-      var result = JSON.parse(xhr.response)
-      onLoad(xhr.status == 200, result, xhr.response)
-    }
-    xhr.send()
+      var result = JSON.parse(xhr.response);
+      onLoad(xhr.status == 200, result, xhr.response);
+    };
+    xhr.send();
   }
   public getSurveyJsonAndIsCompleted(
     surveyId: string,
@@ -31,23 +31,23 @@ export class dxSurveyService {
       response: any
     ) => void
   ) {
-    var xhr = new XMLHttpRequest()
+    var xhr = new XMLHttpRequest();
     xhr.open(
-      'GET',
+      "GET",
       dxSurveyService.serviceUrl +
-        '/getSurveyAndIsCompleted?surveyId=' +
+        "/getSurveyAndIsCompleted?surveyId=" +
         surveyId +
-        '&clientId=' +
+        "&clientId=" +
         clientId
-    )
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    );
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.onload = function() {
-      var result = JSON.parse(xhr.response)
-      var surveyJson = result ? result.survey : null
-      var isCompleted = result ? result.isCompleted : null
-      onLoad(xhr.status == 200, surveyJson, isCompleted, xhr.response)
-    }
-    xhr.send()
+      var result = JSON.parse(xhr.response);
+      var surveyJson = result ? result.survey : null;
+      var isCompleted = result ? result.isCompleted : null;
+      onLoad(xhr.status == 200, surveyJson, isCompleted, xhr.response);
+    };
+    xhr.send();
   }
   public sendResult(
     postId: string,
@@ -56,35 +56,35 @@ export class dxSurveyService {
     clientId: string = null,
     isPartialCompleted: boolean = false
   ) {
-    var xhr = new XMLHttpRequest()
-    xhr.open('POST', dxSurveyService.serviceUrl + '/post/')
-    xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8')
-    var data = { postId: postId, surveyResult: JSON.stringify(result) }
-    if (clientId) data['clientId'] = clientId
-    if (isPartialCompleted) data['isPartialCompleted'] = true
-    var dataStringify: string = JSON.stringify(data)
-    var self = this
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", dxSurveyService.serviceUrl + "/post/");
+    xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
+    var data = { postId: postId, surveyResult: JSON.stringify(result) };
+    if (clientId) data["clientId"] = clientId;
+    if (isPartialCompleted) data["isPartialCompleted"] = true;
+    var dataStringify: string = JSON.stringify(data);
+    var self = this;
     xhr.onload = xhr.onerror = function() {
-      if (!onSendResult) return
-      onSendResult(xhr.status == 200, xhr.response)
-    }
-    xhr.send(dataStringify)
+      if (!onSendResult) return;
+      onSendResult(xhr.status == 200, xhr.response);
+    };
+    xhr.send(dataStringify);
   }
   public sendFile(
     postId: string,
     file: File,
     onSendFile: (success: boolean, response: any) => void
   ) {
-    var xhr = new XMLHttpRequest()
+    var xhr = new XMLHttpRequest();
     xhr.onload = xhr.onerror = function() {
-      if (!onSendFile) return
-      onSendFile(xhr.status == 200, JSON.parse(xhr.response))
-    }
-    xhr.open('POST', dxSurveyService.serviceUrl + '/upload/', true)
-    var formData = new FormData()
-    formData.append('file', file)
-    formData.append('postId', postId)
-    xhr.send(formData)
+      if (!onSendFile) return;
+      onSendFile(xhr.status == 200, JSON.parse(xhr.response));
+    };
+    xhr.open("POST", dxSurveyService.serviceUrl + "/upload/", true);
+    var formData = new FormData();
+    formData.append("file", file);
+    formData.append("postId", postId);
+    xhr.send(formData);
   }
   public getResult(
     resultId: string,
@@ -96,43 +96,43 @@ export class dxSurveyService {
       response: any
     ) => void
   ) {
-    var xhr = new XMLHttpRequest()
-    var data = 'resultId=' + resultId + '&name=' + name
-    xhr.open('GET', dxSurveyService.serviceUrl + '/getResult?' + data)
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    var self = this
+    var xhr = new XMLHttpRequest();
+    var data = "resultId=" + resultId + "&name=" + name;
+    xhr.open("GET", dxSurveyService.serviceUrl + "/getResult?" + data);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var self = this;
     xhr.onload = function() {
-      var result = null
-      var list = null
+      var result = null;
+      var list = null;
       if (xhr.status == 200) {
-        result = JSON.parse(xhr.response)
-        list = []
+        result = JSON.parse(xhr.response);
+        list = [];
         for (var key in result.QuestionResult) {
-          var el = { name: key, value: result.QuestionResult[key] }
-          list.push(el)
+          var el = { name: key, value: result.QuestionResult[key] };
+          list.push(el);
         }
       }
-      onGetResult(xhr.status == 200, result, list, xhr.response)
-    }
-    xhr.send()
+      onGetResult(xhr.status == 200, result, list, xhr.response);
+    };
+    xhr.send();
   }
   public isCompleted(
     resultId: string,
     clientId: string,
     onIsCompleted: (success: boolean, result: string, response: any) => void
   ) {
-    var xhr = new XMLHttpRequest()
-    var data = 'resultId=' + resultId + '&clientId=' + clientId
-    xhr.open('GET', dxSurveyService.serviceUrl + '/isCompleted?' + data)
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    var self = this
+    var xhr = new XMLHttpRequest();
+    var data = "resultId=" + resultId + "&clientId=" + clientId;
+    xhr.open("GET", dxSurveyService.serviceUrl + "/isCompleted?" + data);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var self = this;
     xhr.onload = function() {
-      var result = null
+      var result = null;
       if (xhr.status == 200) {
-        result = JSON.parse(xhr.response)
+        result = JSON.parse(xhr.response);
       }
-      onIsCompleted(xhr.status == 200, result, xhr.response)
-    }
-    xhr.send()
+      onIsCompleted(xhr.status == 200, result, xhr.response);
+    };
+    xhr.send();
   }
 }

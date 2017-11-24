@@ -1,42 +1,42 @@
-import * as React from 'react'
+import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from './reactquestionelement'
-import { SurveyQuestionCommentItem } from './reactquestioncomment'
-import { QuestionCheckboxModel } from '../question_checkbox'
-import { ItemValue } from '../itemvalue'
-import { ReactQuestionFactory } from './reactquestionfactory'
+  SurveyQuestionElementBase
+} from "./reactquestionelement";
+import { SurveyQuestionCommentItem } from "./reactquestioncomment";
+import { QuestionCheckboxModel } from "../question_checkbox";
+import { ItemValue } from "../itemvalue";
+import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
-    this.state = { choicesChanged: 0 }
-    var self = this
+    super(props);
+    this.state = { choicesChanged: 0 };
+    var self = this;
     this.question.choicesChangedCallback = function() {
-      self.state.choicesChanged = self.state.choicesChanged + 1
-      self.setState(self.state)
-    }
+      self.state.choicesChanged = self.state.choicesChanged + 1;
+      self.setState(self.state);
+    };
   }
   protected get question(): QuestionCheckboxModel {
-    return this.questionBase as QuestionCheckboxModel
+    return this.questionBase as QuestionCheckboxModel;
   }
   render(): JSX.Element {
-    if (!this.question) return null
-    var cssClasses = this.question.cssClasses
-    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>
+    if (!this.question) return null;
+    var cssClasses = this.question.cssClasses;
+    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>;
   }
   protected getItems(cssClasses: any): Array<any> {
-    var items = []
+    var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
-      var item = this.question.visibleChoices[i]
-      var key = 'item' + i
-      items.push(this.renderItem(key, item, i == 0, cssClasses))
+      var item = this.question.visibleChoices[i];
+      var key = "item" + i;
+      items.push(this.renderItem(key, item, i == 0, cssClasses));
     }
-    return items
+    return items;
   }
   protected get textStyle(): any {
-    return null
+    return null;
   }
   protected renderItem(
     key: string,
@@ -54,86 +54,86 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         textStyle={this.textStyle}
         isFirst={isFirst}
       />
-    )
+    );
   }
 }
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
-  protected question: QuestionCheckboxModel
-  protected item: ItemValue
-  protected textStyle: any
-  protected isFirst: any
+  protected question: QuestionCheckboxModel;
+  protected item: ItemValue;
+  protected textStyle: any;
+  protected isFirst: any;
   constructor(props: any) {
-    super(props)
-    this.item = props.item
-    this.question = props.question
-    this.textStyle = props.textStyle
-    this.isFirst = props.isFirst
-    this.handleOnChange = this.handleOnChange.bind(this)
+    super(props);
+    this.item = props.item;
+    this.question = props.question;
+    this.textStyle = props.textStyle;
+    this.isFirst = props.isFirst;
+    this.handleOnChange = this.handleOnChange.bind(this);
   }
   public shouldComponentUpdate(): boolean {
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
       !!this.question.customWidget.widgetJson.render
-    )
+    );
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.item = nextProps.item
-    this.textStyle = nextProps.textStyle
-    this.question = nextProps.question
-    this.isFirst = nextProps.isFirst
+    super.componentWillReceiveProps(nextProps);
+    this.item = nextProps.item;
+    this.textStyle = nextProps.textStyle;
+    this.question = nextProps.question;
+    this.isFirst = nextProps.isFirst;
   }
   handleOnChange(event) {
-    var newValue = this.question.value
+    var newValue = this.question.value;
     if (!newValue) {
-      newValue = []
+      newValue = [];
     }
-    var index = newValue.indexOf(this.item.value)
+    var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
       if (index < 0) {
-        newValue.push(this.item.value)
+        newValue.push(this.item.value);
       }
     } else {
       if (index > -1) {
-        newValue.splice(index, 1)
+        newValue.splice(index, 1);
       }
     }
-    this.question.value = newValue
-    this.setState({ value: this.question.value })
+    this.question.value = newValue;
+    this.setState({ value: this.question.value });
   }
   render(): JSX.Element {
-    if (!this.item || !this.question) return null
+    if (!this.item || !this.question) return null;
     var itemWidth =
-      this.question.colCount > 0 ? 100 / this.question.colCount + '%' : ''
-    var marginRight = this.question.colCount == 0 ? '5px' : '0px'
-    var divStyle = { marginRight: marginRight, display: 'inline-block' }
+      this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
+    var marginRight = this.question.colCount == 0 ? "5px" : "0px";
+    var divStyle = { marginRight: marginRight, display: "inline-block" };
     if (itemWidth) {
-      divStyle['width'] = itemWidth
+      divStyle["width"] = itemWidth;
     }
     var isChecked =
       (this.question.value &&
         this.question.value.indexOf(this.item.value) > -1) ||
-      false
+      false;
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
-        : null
-    return this.renderCheckbox(isChecked, divStyle, otherItem)
+        : null;
+    return this.renderCheckbox(isChecked, divStyle, otherItem);
   }
   protected get inputStyle(): any {
-    return { marginRight: '3px' }
+    return { marginRight: "3px" };
   }
   protected renderCheckbox(
     isChecked: boolean,
     divStyle: any,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.isFirst ? this.question.inputId : null
-    var text = this.renderLocString(this.item.locText)
+    var id = this.isFirst ? this.question.inputId : null;
+    var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +
-      (this.question.colCount === 0 ? ' sv_q_checkbox_inline' : '')
+      (this.question.colCount === 0 ? " sv_q_checkbox_inline" : "");
     return (
       <div className={itemClass} style={divStyle}>
         <label className={this.cssClasses.label}>
@@ -154,7 +154,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         </label>
         {otherItem}
       </div>
-    )
+    );
   }
   protected renderOther(): JSX.Element {
     return (
@@ -166,10 +166,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           isDisplayMode={this.isDisplayMode}
         />
       </div>
-    )
+    );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion('checkbox', props => {
-  return React.createElement(SurveyQuestionCheckbox, props)
-})
+ReactQuestionFactory.Instance.registerQuestion("checkbox", props => {
+  return React.createElement(SurveyQuestionCheckbox, props);
+});

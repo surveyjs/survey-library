@@ -1,65 +1,65 @@
-import { Question } from './question'
-import { JsonObject } from './jsonobject'
-import { QuestionFactory } from './questionfactory'
-import { LocalizableString } from './localizablestring'
+import { Question } from "./question";
+import { JsonObject } from "./jsonobject";
+import { QuestionFactory } from "./questionfactory";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * A Model for a comment question
  */
 export class QuestionCommentModel extends Question {
   constructor(public name: string) {
-    super(name)
-    this.createLocalizableString('placeHolder', this)
+    super(name);
+    this.createLocalizableString("placeHolder", this);
   }
   /**
    * Use this property to set the input place holder.
    */
   public get placeHolder(): string {
-    return this.getLocalizableStringText('placeHolder')
+    return this.getLocalizableStringText("placeHolder");
   }
   public set placeHolder(val: string) {
-    this.setLocalizableStringText('placeHolder', val)
+    this.setLocalizableStringText("placeHolder", val);
   }
   get locPlaceHolder(): LocalizableString {
-    return this.getLocalizableString('placeHolder')
+    return this.getLocalizableString("placeHolder");
   }
   /**
    * The html rows attribute.
    */
   public get rows(): number {
-    return this.getPropertyValue('rows', 4)
+    return this.getPropertyValue("rows", 4);
   }
   public set rows(val: number) {
-    this.setPropertyValue('rows', val)
+    this.setPropertyValue("rows", val);
   }
   /**
    * The html cols attribute.
    */
   public get cols(): number {
-    return this.getPropertyValue('cols', 50)
+    return this.getPropertyValue("cols", 50);
   }
   public set cols(val: number) {
-    this.setPropertyValue('cols', val)
+    this.setPropertyValue("cols", val);
   }
   public getType(): string {
-    return 'comment'
+    return "comment";
   }
   isEmpty(): boolean {
-    return super.isEmpty() || this.value === ''
+    return super.isEmpty() || this.value === "";
   }
 }
 JsonObject.metaData.addClass(
-  'comment',
+  "comment",
   [
-    { name: 'cols:number', default: 50 },
-    { name: 'rows:number', default: 4 },
-    { name: 'placeHolder', serializationProperty: 'locPlaceHolder' },
+    { name: "cols:number", default: 50 },
+    { name: "rows:number", default: 4 },
+    { name: "placeHolder", serializationProperty: "locPlaceHolder" }
   ],
   function() {
-    return new QuestionCommentModel('')
+    return new QuestionCommentModel("");
   },
-  'question'
-)
-QuestionFactory.Instance.registerQuestion('comment', name => {
-  return new QuestionCommentModel(name)
-})
+  "question"
+);
+QuestionFactory.Instance.registerQuestion("comment", name => {
+  return new QuestionCommentModel(name);
+});

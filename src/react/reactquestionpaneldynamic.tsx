@@ -1,70 +1,70 @@
-import * as React from 'react'
+import * as React from "react";
 import {
   ReactSurveyElement,
-  SurveyQuestionElementBase,
-} from './reactquestionelement'
+  SurveyQuestionElementBase
+} from "./reactquestionelement";
 import {
   QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem,
-} from '../question_paneldynamic'
-import { PanelModel } from '../panel'
-import { SurveyPanel } from './reactpage'
-import { ISurveyCreator, SurveyQuestionErrors } from './reactquestion'
-import { surveyCss } from '../defaultCss/cssstandard'
-import { ReactQuestionFactory } from './reactquestionfactory'
+  QuestionPanelDynamicItem
+} from "../question_paneldynamic";
+import { PanelModel } from "../panel";
+import { SurveyPanel } from "./reactpage";
+import { ISurveyCreator, SurveyQuestionErrors } from "./reactquestion";
+import { surveyCss } from "../defaultCss/cssstandard";
+import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
-    super(props)
-    this.setProperties(props)
+    super(props);
+    this.setProperties(props);
   }
   protected get question(): QuestionPanelDynamicModel {
-    return this.questionBase as QuestionPanelDynamicModel
+    return this.questionBase as QuestionPanelDynamicModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.setProperties(nextProps)
+    super.componentWillReceiveProps(nextProps);
+    this.setProperties(nextProps);
   }
   private setProperties(nextProps: any) {
-    var self = this
-    this.setState({ panelCounter: 0 })
+    var self = this;
+    this.setState({ panelCounter: 0 });
     this.question.panelCountChangedCallback = function() {
-      self.updateQuestionRendering()
-    }
+      self.updateQuestionRendering();
+    };
     this.question.currentIndexChangedCallback = function() {
-      self.updateQuestionRendering()
-    }
+      self.updateQuestionRendering();
+    };
     this.question.renderModeChangedCallback = function() {
-      self.updateQuestionRendering()
-    }
-    this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this)
-    this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this)
-    this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this)
-    this.handleOnRangeChange = this.handleOnRangeChange.bind(this)
+      self.updateQuestionRendering();
+    };
+    this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this);
+    this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this);
+    this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this);
+    this.handleOnRangeChange = this.handleOnRangeChange.bind(this);
   }
   private updateQuestionRendering() {
-    this.state.panelCounter = this.state.panelCounter + 1
-    this.setState(this.state)
+    this.state.panelCounter = this.state.panelCounter + 1;
+    this.setState(this.state);
   }
   handleOnPanelAddClick(event) {
-    this.question.addPanel()
+    this.question.addPanel();
   }
   handleOnPanelPrevClick(event) {
-    this.question.currentIndex--
+    this.question.currentIndex--;
   }
   handleOnPanelNextClick(event) {
-    this.question.currentIndex++
+    this.question.currentIndex++;
   }
   handleOnRangeChange(event) {
-    this.question.currentIndex = event.target.value
+    this.question.currentIndex = event.target.value;
   }
   render(): JSX.Element {
-    if (!this.question) return null
-    var cssClasses = this.question.cssClasses
-    var panels = []
+    if (!this.question) return null;
+    var cssClasses = this.question.cssClasses;
+    var panels = [];
     if (this.question.isRenderModeList) {
       for (var i = 0; i < this.question.panels.length; i++) {
-        var panel = this.question.panels[i]
+        var panel = this.question.panels[i];
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={i}
@@ -75,11 +75,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
             isDisplayMode={this.isDisplayMode}
             creator={this.creator}
           />
-        )
+        );
       }
     } else {
       if (this.question.currentPanel != null) {
-        var panel = this.question.currentPanel
+        var panel = this.question.currentPanel;
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={this.question.currentIndex}
@@ -90,19 +90,19 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
             isDisplayMode={this.isDisplayMode}
             creator={this.creator}
           />
-        )
+        );
       }
     }
-    var btnDeleteTD = !this.isDisplayMode ? <td /> : null
+    var btnDeleteTD = !this.isDisplayMode ? <td /> : null;
     var btnAdd = this.question.isRenderModeList
-      ? this.renderAddRowButton(cssClasses, { marginTop: '5px' })
-      : null
+      ? this.renderAddRowButton(cssClasses, { marginTop: "5px" })
+      : null;
     var navTop = this.question.isProgressTopShowing
       ? this.renderNavigator(cssClasses)
-      : null
+      : null;
     var navBottom = this.question.isProgressBottomShowing
       ? this.renderNavigator(cssClasses)
-      : null
+      : null;
     return (
       <div>
         {navTop}
@@ -110,11 +110,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         {navBottom}
         {btnAdd}
       </div>
-    )
+    );
   }
   protected renderNavigator(cssClasses: any): JSX.Element {
-    var style = { float: 'left', margin: '5px' }
-    var range = this.question.isRangeShowing ? this.renderRange(style) : null
+    var style = { float: "left", margin: "5px" };
+    var range = this.question.isRangeShowing ? this.renderRange(style) : null;
     var btnPrev = this.question.isPrevButtonShowing
       ? this.renderButton(
           this.question.panelPrevText,
@@ -122,7 +122,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           style,
           this.handleOnPanelPrevClick
         )
-      : null
+      : null;
     var btnNext = this.question.isNextButtonShowing
       ? this.renderButton(
           this.question.panelNextText,
@@ -130,8 +130,8 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           style,
           this.handleOnPanelNextClick
         )
-      : null
-    var btnAdd = this.renderAddRowButton(cssClasses, style)
+      : null;
+    var btnAdd = this.renderAddRowButton(cssClasses, style);
     return (
       <div>
         {range}
@@ -139,11 +139,11 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         {btnNext}
         {btnAdd}
       </div>
-    )
+    );
   }
   protected renderRange(style: any): JSX.Element {
-    var updatedStyle = { width: '25%' } //TODO 25%.
-    for (var attr in style) updatedStyle[attr] = style[attr]
+    var updatedStyle = { width: "25%" }; //TODO 25%.
+    for (var attr in style) updatedStyle[attr] = style[attr];
     return (
       <input
         style={updatedStyle}
@@ -153,16 +153,16 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         max={this.question.panelCount - 1}
         value={this.question.currentIndex}
       />
-    )
+    );
   }
   protected renderAddRowButton(cssClasses: any, style: any): JSX.Element {
-    if (!this.question.canAddPanel) return null
+    if (!this.question.canAddPanel) return null;
     return this.renderButton(
       this.question.panelAddText,
       cssClasses,
       style,
       this.handleOnPanelAddClick
-    )
+    );
   }
   protected renderButton(
     text: string,
@@ -178,36 +178,36 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         onClick={onClick}
         value={text}
       />
-    )
+    );
   }
 }
 
 export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
-  private panel: PanelModel
-  private question: QuestionPanelDynamicModel
-  private index: number
-  protected creator: ISurveyCreator
+  private panel: PanelModel;
+  private question: QuestionPanelDynamicModel;
+  private index: number;
+  protected creator: ISurveyCreator;
   constructor(props: any) {
-    super(props)
-    this.setProperties(props)
+    super(props);
+    this.setProperties(props);
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps)
-    this.setProperties(nextProps)
+    super.componentWillReceiveProps(nextProps);
+    this.setProperties(nextProps);
   }
   private setProperties(nextProps: any) {
-    this.panel = nextProps.panel
-    this.question = nextProps.question
-    this.index = nextProps.index
-    this.creator = nextProps.creator
-    this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this)
+    this.panel = nextProps.panel;
+    this.question = nextProps.question;
+    this.index = nextProps.index;
+    this.creator = nextProps.creator;
+    this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
   }
   handleOnPanelRemoveClick(event) {
-    this.question.removePanelUI(this.index)
+    this.question.removePanelUI(this.index);
   }
   render(): JSX.Element {
-    if (!this.panel) return null
-    this.question.survey
+    if (!this.panel) return null;
+    this.question.survey;
     var panel = (
       <SurveyPanel
         key={this.index}
@@ -216,24 +216,24 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
         survey={this.question.survey}
         creator={this.creator}
       />
-    )
+    );
     var hr =
       this.question.isRenderModeList &&
       this.index < this.question.panelCount - 1 ? (
         <hr />
-      ) : null
-    var removeButton = this.renderButton()
+      ) : null;
+    var removeButton = this.renderButton();
     return (
       <div>
         {panel}
         {removeButton}
         {hr}
       </div>
-    )
+    );
   }
   protected renderButton(): JSX.Element {
-    if (!this.question.canRemovePanel) return null
-    var style = { marginTop: '5px' }
+    if (!this.question.canRemovePanel) return null;
+    var style = { marginTop: "5px" };
     return (
       <input
         className={this.cssClasses.button}
@@ -242,10 +242,10 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
         onClick={this.handleOnPanelRemoveClick}
         value={this.question.panelRemoveText}
       />
-    )
+    );
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion('paneldynamic', props => {
-  return React.createElement(SurveyQuestionPanelDynamic, props)
-})
+ReactQuestionFactory.Instance.registerQuestion("paneldynamic", props => {
+  return React.createElement(SurveyQuestionPanelDynamic, props);
+});

@@ -11,7 +11,7 @@ import {
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, JsonObjectProperty } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import {
   QuestionMultipleTextModel,
@@ -2863,6 +2863,17 @@ QUnit.test("Define questionTitleLocation on Panel/Page level", function(
   assert.equal(q.titleLocation, "bottom", "get from page");
   page.questionTitleLocation = "default";
   assert.equal(q.titleLocation, "top", "get from survey");
+});
+
+QUnit.test("Question property.page getChoices", function(assert) {
+  var property = JsonObject.metaData.findProperty("questionbase", "page");
+  assert.ok(property, "page property is here");
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.addNewPage("p3");
+  var q = survey.pages[0].addNewQuestion("text", "q1");
+  assert.equal(property.getChoices(q).length, 3, "There are 3 pages");
 });
 
 function twoPageSimplestSurvey() {

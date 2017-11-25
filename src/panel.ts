@@ -675,6 +675,15 @@ export class PanelModel extends PanelModelBase implements IElement {
     return true;
   }
   /**
+   * Get/set the page where the panel is located.
+   */
+  public get page(): IPage {
+    return this.getPage(this.parent);
+  }
+  public set page(val: IPage) {
+    this.setPage(this.parent, val);
+  }
+  /**
    * The Panel width.
    */
   public get width(): string {
@@ -754,7 +763,15 @@ JsonObject.metaData.addClass(
   "panel",
   [
     { name: "startWithNewLine:boolean", default: true },
-    { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] }
+    { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
+    {
+      name: "page",
+      isSerializable: false,
+      choices: function(obj) {
+        var survey = obj ? obj.survey : null;
+        return survey ? survey.pages : [];
+      }
+    }
   ],
   function() {
     return new PanelModel();

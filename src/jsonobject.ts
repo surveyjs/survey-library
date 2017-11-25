@@ -23,7 +23,7 @@ export class JsonObjectProperty {
   private readOnlyValue = null;
   private visibleValue = null;
   private isLocalizableValue = null;
-  private choicesfunc: () => Array<any> = null;
+  private choicesfunc: (obj: any) => Array<any> = null;
   public isSerializable: boolean = true;
   public className: string = null;
   public alternativeName: string = null;
@@ -96,8 +96,11 @@ export class JsonObjectProperty {
       : className;
   }
   public get choices(): Array<any> {
+    return this.getChoices(null);
+  }
+  public getChoices(obj: any): Array<any> {
     if (this.choicesValue != null) return this.choicesValue;
-    if (this.choicesfunc != null) return this.choicesfunc();
+    if (this.choicesfunc != null) return this.choicesfunc(obj);
     return null;
   }
   public setChoices(value: Array<any>, valueFunc: () => Array<any>) {

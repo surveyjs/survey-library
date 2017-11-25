@@ -355,5 +355,13 @@ JsonObject.metaData.addClass("questionbase", [
   "visibleIf:condition",
   { name: "width" },
   { name: "startWithNewLine:boolean", default: true },
-  { name: "indent:number", default: 0, choices: [0, 1, 2, 3] }
+  { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
+  {
+    name: "page",
+    isSerializable: false,
+    choices: function(obj) {
+      var survey = obj ? obj.survey : null;
+      return survey ? survey.pages : [];
+    }
+  }
 ]);

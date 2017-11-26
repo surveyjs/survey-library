@@ -39,8 +39,8 @@ export class Survey extends React.Component<any, any>
   componentDidMount() {
     var el = this.refs["root"];
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
-    if (this.survey && this.survey.showTimerPanel != "all") {
-      this.survey.startTimer();
+    if (this.survey) {
+      this.survey.startTimerFromUI();
     }
   }
   componentWillUnmount() {

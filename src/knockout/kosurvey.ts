@@ -117,9 +117,7 @@ export class Survey extends SurveyModel {
     element = this.renderedElement;
     if (!element) return;
     element.innerHTML = this.getHtmlTemplate();
-    if (self.showTimerPanel != "none") {
-      self.startTimer();
-    }
+    self.startTimerFromUI();
     self.applyBinding();
   }
   public koEventAfterRender(element, survey) {

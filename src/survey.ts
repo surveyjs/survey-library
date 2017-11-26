@@ -62,6 +62,7 @@ export class SurveyModel extends Base
   private localeValue: string = "";
 
   private isCompleted: boolean = false;
+  private isStartedState: boolean = false;
   private isCompletedBefore: boolean = false;
   private isLoading: boolean = false;
   private processedTextValues: HashTable<any> = {};
@@ -86,6 +87,15 @@ export class SurveyModel extends Base
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired after the survey changed it's state from "starting" to "running". The "starting" state means that survey shows the started page.
+   * The firstPageIsStarted property should be set to the true, if you want to have the started page in your survey. The end-user should click on the "Start" button to start the survey.
+   * @see firstPageIsStarted
+   */
+  public onStarted: Event<(sender: SurveyModel) => any, any> = new Event<
+    (sender: SurveyModel) => any,
+    any
+  >();
   /**
    * The event is fired on clicking 'Next' page if sendResultOnPageNext is set to true. You may use it to save the intermediate results, for example, if your survey is large enough.
    * <br/> sender the survey object that fires the event
@@ -490,6 +500,13 @@ export class SurveyModel extends Base
     this.triggersValue = this.createNewArray("triggers", function(value) {
       value.setOwner(self);
     });
+
+    this.registerFunctionOnPropertyValueChanged(
+      "firstPageIsStarted",
+      function() {
+        self.onFirstPageIsStartedChanged();
+      }
+    );
     this.updateProcessedTextValues();
     this.onBeforeCreating();
     if (jsonObj) {
@@ -1025,6 +1042,15 @@ export class SurveyModel extends Base
     return this.visiblePages.length;
   }
   /**
+   * Returns the started Page. firstPageIsStarted property should be equals to true
+   * @see firstPageIsStarted
+   */
+  public get startedPage(): PageModel {
+    return this.firstPageIsStarted && this.pages.length > 0
+      ? this.pages[0]
+      : null;
+  }
+  /**
    * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.
    */
   public get currentPage(): PageModel {
@@ -1084,6 +1110,7 @@ export class SurveyModel extends Base
     if (this.isLoading) return "loading";
     if (this.isCompleted) return "completed";
     if (this.isCompletedBefore) return "completedbefore";
+    if (this.isStartedState && this.startedPage) return "starting";
     return this.currentPage ? "running" : "empty";
   }
   public get completedState(): string {
@@ -1121,6 +1148,7 @@ export class SurveyModel extends Base
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
+    this.isStartedState = this.firstPageIsStarted;
     if (gotoFirstPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
@@ -1271,6 +1299,22 @@ export class SurveyModel extends Base
     this.doComplete();
     return true;
   }
+  public get firstPageIsStarted(): boolean {
+    return this.getPropertyValue("firstPageIsStarted", false);
+  }
+  public set firstPageIsStarted(val: boolean) {
+    this.setPropertyValue("firstPageIsStarted", val);
+  }
+  isPageStarted(page: IPage): boolean {
+    return (
+      this.firstPageIsStarted && this.pages.length > 0 && this.pages[0] === page
+    );
+  }
+  protected onFirstPageIsStartedChanged() {
+    if (this.pages.length == 0) return;
+    this.isStartedState = this.firstPageIsStarted;
+    this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
+  }
   /**
    * Returns true if the current page is the first one.
    */
@@ -1325,6 +1369,16 @@ export class SurveyModel extends Base
     if (!previousCookie && this.surveyPostId) {
       this.sendResult();
     }
+  }
+  /**
+   * Start the survey. Change the mode from "starting" to "running". You need to call it, if there is a started page in your survey, otherwise it does nothing.
+   * @see firstPageIsStarted
+   */
+  public start() {
+    if (!this.firstPageIsStarted) return;
+    this.isStartedState = false;
+    this.startTimerFromUI();
+    this.onStarted.fire(this, {});
   }
   /**
    * Returns true, if at the current moment the question values on the current page are validating on the server.
@@ -1927,6 +1981,7 @@ export class SurveyModel extends Base
     }
   }
   endLoadingFromJson() {
+    this.isStartedState = this.firstPageIsStarted;
     this.runConditions();
     this.updateVisibleIndexes();
     this.updateProcessedTextValues();
@@ -2361,6 +2416,11 @@ export class SurveyModel extends Base
     this.isTimerStarted = true;
     SurveyTimer.instance.start(this.timerFunc);
   }
+  startTimerFromUI() {
+    if (this.showTimerPanel != "none" && this.state === "running") {
+      this.startTimer();
+    }
+  }
   /**
    * Stop the timer.
    * @see startTimer
@@ -2537,6 +2597,7 @@ JsonObject.metaData.addClass("survey", [
     name: "questionTitleTemplate",
     serializationProperty: "locQuestionTitleTemplate"
   },
+  { name: "firstPageIsStarted:boolean", default: false },
   { name: "maxTimeToFinish:number", default: 0 },
   { name: "maxTimeToFinishPage:number", default: 0 },
   {

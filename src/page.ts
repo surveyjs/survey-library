@@ -37,6 +37,16 @@ export class PageModel extends PanelModelBase implements IPage {
   public set visibleIndex(val: number) {
     this.setPropertyValue("visibleIndex", val);
   }
+  /**
+   * Returns true, if the page is started page in the survey. It can be shown on the start only and the end-user could not comeback to it after it passed it.
+   */
+  public get isStarted() : boolean {
+    return this.survey && this.survey.isPageStarted(this);
+  }
+  getIsPageVisible(exceptionQuestion: IQuestion): boolean {
+    if(this.isStarted) return false;
+    return super.getIsPageVisible(exceptionQuestion);
+  }    
   public get num() {
     return this.getPropertyValue("num", -1);
   }

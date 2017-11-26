@@ -30,72 +30,73 @@
 </template>
 
 <script lang="ts">
-    import Vue from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
-    import {surveyCss} from "../defaultCss/cssstandard"
-    import {VueSurveyModel as SurveyModel} from './surveyModel'
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { surveyCss } from "../defaultCss/cssstandard";
+import { VueSurveyModel as SurveyModel } from "./surveyModel";
 
-    @Component
-    export default class Survey extends Vue {
-        @Prop
-        survey: SurveyModel
+@Component
+export default class Survey extends Vue {
+  @Prop survey: SurveyModel;
 
-        forceUpdate() {
-            this.$forceUpdate();
-        }
+  forceUpdate() {
+    this.$forceUpdate();
+  }
 
-        constructor () {
-            super();
-        }
+  constructor() {
+    super();
+  }
 
-        mounted() {
-            this.survey.renderCallback = this.forceUpdate;
-            if(this.survey.showTimerPanel != "none") {
-                this.survey.startTimer();
-            }
-        }
-        beforeDestroy() {
-            this.survey.stopTimer();
-            this.survey.renderCallback = undefined;
-        }
+  mounted() {
+    this.survey.renderCallback = this.forceUpdate;
+    this.survey.startTimerFromUI();
+  }
+  beforeDestroy() {
+    this.survey.stopTimer();
+    this.survey.renderCallback = undefined;
+  }
 
-        get hasTitle () {
-            return !!this.survey.title && this.survey.showTitle;
-        }
-        get hasCompletedPage() {
-            return this.survey.showCompletedPage && this.survey.state === 'completed';
-        }
-        get css () {
-            return this.survey.css;
-        }
-        getNavBtnClasses(btnType) {
-            const btnClass = this.css.navigation[btnType];
-            return this.css.navigationButton + ' ' + btnClass;
-        }
-        getCompletedStateClasses() {
-            return this.css.saveData[this.survey.completedState];
-        }
-        prevPage() {
-            this.survey.prevPage();
-        }
-        nextPage() {
-            this.survey.nextPage();
-        }
-        completeLastPage() {
-            this.survey.completeLastPage();
-        }
-        doTrySaveAgain() {
-            this.survey.doComplete();
-        }
-    }
+  get hasTitle() {
+    return !!this.survey.title && this.survey.showTitle;
+  }
+  get hasCompletedPage() {
+    return this.survey.showCompletedPage && this.survey.state === "completed";
+  }
+  get css() {
+    return this.survey.css;
+  }
+  getNavBtnClasses(btnType) {
+    const btnClass = this.css.navigation[btnType];
+    return this.css.navigationButton + " " + btnClass;
+  }
+  getCompletedStateClasses() {
+    return this.css.saveData[this.survey.completedState];
+  }
+  prevPage() {
+    this.survey.prevPage();
+  }
+  nextPage() {
+    this.survey.nextPage();
+  }
+  completeLastPage() {
+    this.survey.completeLastPage();
+  }
+  doTrySaveAgain() {
+    this.survey.doComplete();
+  }
+}
 
-    // TODO: make this functionality available via surveyCss in all examples
-    Object.defineProperty(Survey, 'cssType', {
-        get: function() { return surveyCss.currentType; },
-        set: function(newType) { surveyCss.currentType = newType; },
-        enumerable: true,
-        configurable: false
-    });
+// TODO: make this functionality available via surveyCss in all examples
+Object.defineProperty(Survey, "cssType", {
+  get: function() {
+    return surveyCss.currentType;
+  },
+  set: function(newType) {
+    surveyCss.currentType = newType;
+  },
+  enumerable: true,
+  configurable: false
+});
 
-    Vue.component("survey", Survey)
+Vue.component("survey", Survey);
 </script>

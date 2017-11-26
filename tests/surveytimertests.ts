@@ -198,6 +198,22 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
   });
   assert.equal(survey.timerInfoText, "65", "use onTimerPanelInfoText event.");
 });
+
+QUnit.test("Start timer automatically if there is the start page", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.addNewPage("p2");
+  survey.pages[0].addNewQuestion("text");
+  survey.pages[1].addNewQuestion("text");
+  survey.firstPageIsStarted = true;
+  survey.showTimerPanel = "top";
+  survey.start();
+  doTimer(3);
+  assert.equal(survey.timeSpent, 3, "Timer was started");
+});
+
 function doTimer(count: number) {
   for (var i = 0; i < count; i++) {
     SurveyTimer.instance.doTimer();

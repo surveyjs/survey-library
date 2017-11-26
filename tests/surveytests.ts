@@ -2876,6 +2876,62 @@ QUnit.test("Question property.page getChoices", function(assert) {
   assert.equal(property.getChoices(q).length, 3, "There are 3 pages");
 });
 
+QUnit.test("firstPageIsStarted = true", function(assert) {
+  var survey = new SurveyModel();
+  for (var i = 0; i < 3; i++) {
+    let page = survey.addNewPage("p" + i + 1);
+    page.addNewQuestion("text");
+  }
+  assert.equal(survey.visiblePages.length, 3, "There are 3 visible pages");
+  assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
+  assert.equal(survey.state, "running", "Survey is running");
+  survey.firstPageIsStarted = true;
+  assert.equal(survey.pages[0].isVisible, false, "The first page is invisible");
+  assert.equal(survey.visiblePages.length, 2, "There are 2 visible pages");
+  assert.equal(survey.state, "starting", "Survey is showing the start page");
+  survey.firstPageIsStarted = false;
+  assert.equal(survey.visiblePages.length, 3, "There are 3 visible pages");
+  assert.equal(survey.pages[0].isVisible, true, "The first page is visible");
+  assert.equal(survey.state, "running", "Survey is running");
+  survey.firstPageIsStarted = true;
+});
+
+QUnit.test("firstPageIsStarted = true, load from JSON, the flow", function(
+  assert
+) {
+  var json = {
+    firstPageIsStarted: true,
+    pages: [
+      { name: "start", elements: [{ type: "text", name: "q1" }] },
+      { name: "page1", elements: [{ type: "text", name: "q2" }] }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var startCounter = 0;
+  survey.onStarted.add(function(sender) {
+    startCounter++;
+  });
+  assert.equal(survey.pages[0].isVisible, false, "The first page is invisible");
+  assert.equal(survey.visiblePages.length, 1, "There is one visible page");
+  assert.equal(survey.state, "starting", "Survey is showing the start page");
+  assert.equal(startCounter, 0, "onStarted event was not called yet");
+  survey.start();
+  assert.equal(startCounter, 1, "onStarted event was called one time");
+  assert.equal(survey.state, "running", "Survey is running");
+  assert.equal(survey.currentPage.name, "page1", "The page1 is current");
+  survey.prevPage();
+  assert.equal(
+    survey.currentPage.name,
+    "page1",
+    "Could not come back to the start page"
+  );
+  assert.equal(survey.state, "running", "Survey is running");
+  survey.doComplete();
+  survey.clear();
+  assert.equal(survey.state, "starting", "Survey is showing the start page");
+  assert.equal(startCounter, 1, "onStarted event was called one time total");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

@@ -9,6 +9,7 @@ import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase } from "./reactquestionelement";
+import { PageModel } from "../page";
 
 export class Survey extends React.Component<any, any>
   implements ISurveyCreator {
@@ -53,6 +54,7 @@ export class Survey extends React.Component<any, any>
     if (this.survey.state == "completedbefore")
       return this.renderCompletedBefore();
     if (this.survey.state == "loading") return this.renderLoading();
+    if (this.survey.state == "starting") return this.renderStartPage();
     return this.renderSurvey();
   }
   public get css(): any {
@@ -106,10 +108,27 @@ export class Survey extends React.Component<any, any>
     var htmlValue = { __html: this.survey.processedLoadingHtml };
     return <div dangerouslySetInnerHTML={htmlValue} />;
   }
+  protected renderStartPage(): JSX.Element {
+    var startedPage = this.survey.startedPage
+      ? this.renderPage(this.survey.startedPage)
+      : null;
+    var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
+    var startButton = this.renderNavigation();
+    return (
+      <div ref="root" className={this.css.root}>
+        <div id={pageId} className={this.css.body}>
+          {startedPage}
+        </div>
+        {startButton}
+      </div>
+    );
+  }
   protected renderSurvey(): JSX.Element {
     var title =
       this.survey.title && this.survey.showTitle ? this.renderTitle() : null;
-    var currentPage = this.survey.currentPage ? this.renderPage() : null;
+    var currentPage = this.survey.currentPage
+      ? this.renderPage(this.survey.currentPage)
+      : null;
     var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
     var topProgress =
       this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
@@ -117,10 +136,7 @@ export class Survey extends React.Component<any, any>
       this.survey.showProgressBar == "bottom"
         ? this.renderProgress(false)
         : null;
-    var buttons =
-      currentPage && this.survey.isNavigationButtonsShowing
-        ? this.renderNavigation()
-        : null;
+    var buttons = currentPage ? this.renderNavigation() : null;
     if (!currentPage) {
       currentPage = this.renderEmptySurvey();
     }
@@ -150,11 +166,11 @@ export class Survey extends React.Component<any, any>
     if (this.survey.showTimerPanel != location) return null;
     return <SurveyTimerPanel survey={this.survey} css={this.css} />;
   }
-  protected renderPage(): JSX.Element {
+  protected renderPage(page: PageModel): JSX.Element {
     return (
       <SurveyPage
         survey={this.survey}
-        page={this.survey.currentPage}
+        page={page}
         css={this.css}
         creator={this}
       />

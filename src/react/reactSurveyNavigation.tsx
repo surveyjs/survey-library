@@ -8,6 +8,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.handlePrevClick = this.handlePrevClick.bind(this);
     this.handleNextClick = this.handleNextClick.bind(this);
     this.handleCompleteClick = this.handleCompleteClick.bind(this);
+    this.handleStartClick = this.handleStartClick.bind(this);
   }
   handlePrevClick(event) {
     this.survey.prevPage();
@@ -18,33 +19,46 @@ export class SurveyNavigation extends SurveyNavigationBase {
   handleCompleteClick(event) {
     this.survey.completeLastPage();
   }
+  handleStartClick(event) {
+    this.survey.start();
+  }
   render(): JSX.Element {
     if (!this.survey || !this.survey.isNavigationButtonsShowing) return null;
+    var isStartedPage = this.survey.state === "starting";
     var prevButton =
-      !this.survey.isFirstPage && this.survey.isShowPrevButton
+      !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton
         ? this.renderButton(
             this.handlePrevClick,
             this.survey.pagePrevText,
             this.css.navigation.prev
           )
         : null;
-    var nextButton = !this.survey.isLastPage
-      ? this.renderButton(
-          this.handleNextClick,
-          this.survey.pageNextText,
-          this.css.navigation.next
-        )
-      : null;
+    var nextButton =
+      !isStartedPage && !this.survey.isLastPage
+        ? this.renderButton(
+            this.handleNextClick,
+            this.survey.pageNextText,
+            this.css.navigation.next
+          )
+        : null;
     var completeButton =
-      this.survey.isLastPage && this.survey.isEditMode
+      !isStartedPage && this.survey.isLastPage && this.survey.isEditMode
         ? this.renderButton(
             this.handleCompleteClick,
             this.survey.completeText,
             this.css.navigation.complete
           )
         : null;
+    var startButton = isStartedPage
+      ? this.renderButton(
+          this.handleStartClick,
+          this.survey.startSurveyText,
+          this.css.navigationButton.start
+        )
+      : null;
     return (
       <div className={this.css.footer}>
+        {startButton}
         {prevButton}
         {nextButton}
         {completeButton}

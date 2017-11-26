@@ -28,6 +28,10 @@ export class ReactSurveyModel extends SurveyModel {
     super.setCompletedState(value, text);
     this.render();
   }
+  public start() {
+    super.start();
+    this.render();
+  }
 }
 
 export class ReactWindowModel extends SurveyWindowModel {

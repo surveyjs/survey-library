@@ -1,6 +1,14 @@
 <template>
     <div :class="css.root">
         <div v-if="hasTitle" :class="css.header"><h3><survey-string :locString="survey.locTitle"/></h3></div>
+        <template v-if="survey.state === 'starting'">
+            <div :class="css.body">
+                <survey-page :id="survey.startedPage.id" :survey="survey" :page="survey.startedPage" :css="css" />
+            </div>
+            <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
+                <input type="button" :value="survey.startSurveyText" :class="getNavBtnClasses('start')" @click="start"/>
+            </div>
+        </template>
         <template v-if="survey.state === 'running'">
             <div :class="css.body">
                 <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>

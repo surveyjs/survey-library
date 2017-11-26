@@ -1130,7 +1130,12 @@ export class SurveyModel extends Base
     if (this.isLoading) return "loading";
     if (this.isCompleted) return "completed";
     if (this.isCompletedBefore) return "completedbefore";
-    if (!this.isDesignMode && this.isStartedState && this.startedPage)
+    if (
+      !this.isDesignMode &&
+      this.isEditMode &&
+      this.isStartedState &&
+      this.startedPage
+    )
       return "starting";
     return this.currentPage ? "running" : "empty";
   }

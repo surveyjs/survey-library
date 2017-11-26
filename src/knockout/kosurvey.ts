@@ -87,6 +87,12 @@ export class Survey extends SurveyModel {
       this.css.navigation.prev
     );
   }
+  public get cssNavigationStart() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.start
+    );
+  }
   public get cssNavigationNext() {
     return this.getNavigationCss(
       this.css.navigationButton,
@@ -136,6 +142,10 @@ export class Survey extends SurveyModel {
   }
   protected setCompleted() {
     super.setCompleted();
+    this.updateKoCurrentPage();
+  }
+  public start() {
+    super.start();
     this.updateKoCurrentPage();
   }
   protected createNewPage(name: string) {

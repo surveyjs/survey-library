@@ -16,7 +16,8 @@ export var defaultStandardCss = {
   navigation: {
     complete: "sv_complete_btn",
     prev: "sv_prev_btn",
-    next: "sv_next_btn"
+    next: "sv_next_btn",
+    start: "sv_start_btn"
   },
   progress: "sv_progress",
   progressBar: "",

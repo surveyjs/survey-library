@@ -479,6 +479,7 @@ export class SurveyModel extends Base
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
+    this.createLocalizableString("startSurvey", this);
     this.createLocalizableString("pagePrev", this);
     this.createLocalizableString("pageNext", this);
     this.createLocalizableString("complete", this);
@@ -809,6 +810,24 @@ export class SurveyModel extends Base
     return this.getLocalizableString("loadingHtml");
   }
   /**
+   * A text that renders on the 'Start' button. Set it to change the default text.
+   * The start button is shown on the started page. You have to set firstPageIsStarted property to true, to have the started page.
+   * @see firstPageIsStarted
+   * @see locale
+   */
+  public get startSurveyText(): string {
+    return this.getLocalizableStringText(
+      "startSurvey",
+      this.getLocString("startSurveyText")
+    );
+  }
+  public set startSurveyText(newValue: string) {
+    this.setLocalizableStringText("startSurvey", newValue);
+  }
+  get locStartSurveyText(): LocalizableString {
+    return this.getLocalizableString("startSurvey");
+  }
+  /**
    * A text that renders on the 'Prev' button. Set it to change the default text.
    * @see locale
    */
@@ -1104,13 +1123,15 @@ export class SurveyModel extends Base
     }
   }
   /**
-   * Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey, 'running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.
+   * Returns the current survey state: 'loading' - loading from the json, 'completed' - a user has completed the survey,
+   * 'starting' - the started page is showing, running' - a user answers a questions right now, 'empty' - there is nothing to show in the current survey.
    */
   public get state(): string {
     if (this.isLoading) return "loading";
     if (this.isCompleted) return "completed";
     if (this.isCompletedBefore) return "completedbefore";
-    if (this.isStartedState && this.startedPage) return "starting";
+    if (!this.isDesignMode && this.isStartedState && this.startedPage)
+      return "starting";
     return this.currentPage ? "running" : "empty";
   }
   public get completedState(): string {
@@ -2588,6 +2609,7 @@ JsonObject.metaData.addClass("survey", [
     default: "none",
     choices: ["none", "onComplete", "onHidden"]
   },
+  { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
   { name: "completeText", serializationProperty: "locCompleteText" },

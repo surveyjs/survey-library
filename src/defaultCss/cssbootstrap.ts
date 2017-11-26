@@ -9,7 +9,8 @@ export var defaultBootstrapCss = {
   navigation: {
     complete: "sv_complete_btn",
     prev: "sv_prev_btn",
-    next: "sv_next_btn"
+    next: "sv_next_btn",
+    start: "sv_start_btn"
   },
   progress: "progress center-block",
   progressBar: "progress-bar",

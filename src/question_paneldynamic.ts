@@ -14,7 +14,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { TextPreProcessor } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { Question } from "./question";
-import { PanelModel } from "./panel";
+import { PanelModel, PanelModelBase } from "./panel";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { CustomError } from "./error";
@@ -607,6 +607,7 @@ export class QuestionPanelDynamicModel extends Question
       if (this.oldTemplateRowsChangedCallback) {
         this.oldTemplateRowsChangedCallback();
       }
+      this.rebuildTemplateRowsInElements(this.template.elements);
     } else {
       for (var i = 0; i < this.panelCount; i++) {
         items.push(this.createNewItem());
@@ -615,6 +616,14 @@ export class QuestionPanelDynamicModel extends Question
     this.itemsValue = items;
     this.reRunCondition();
     this.fireCallback(this.panelCountChangedCallback);
+  }
+  private rebuildTemplateRowsInElements(elements: Array<IElement>) {
+    for (var i = 0; i < elements.length; i++) {
+      if (!elements[i].isPanel) continue;
+      var panel = <PanelModelBase>(<any>elements[i]);
+      if (panel.rowsChangedCallback) panel.rowsChangedCallback();
+      this.rebuildTemplateRowsInElements(panel.elements);
+    }
   }
   /**
    * Add a new dynamic panel based on the template Panel.

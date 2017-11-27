@@ -786,6 +786,76 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
   assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });
 
+export class DesignerSurveyTester extends Survey {
+  constructor(
+    jsonObj: any = null,
+    renderedElement: any = null,
+    css: any = null
+  ) {
+    super(jsonObj, renderedElement, css);
+  }
+  protected onBeforeCreating() {
+    super.onBeforeCreating();
+    this.setDesignMode(true);
+  }
+}
+
+QUnit.test(
+  "Questions are not rendered in Panel inside Dynamic Panel in Editor, editor bug #216",
+  function(assert) {
+    var survey = new DesignerSurveyTester({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              templateElements: [
+                {
+                  type: "panel",
+                  elements: [
+                    {
+                      type: "text",
+                      name: "question2"
+                    }
+                  ],
+                  name: "panel1"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    var dynamicPanel = <QuestionPanelDynamic>survey.getQuestionByName(
+      "question1"
+    );
+    assert.ok(dynamicPanel, "Dynamic panel is here");
+    assert.equal(
+      dynamicPanel.panels.length,
+      1,
+      "At design-time there should be one panel"
+    );
+    var templatePanel = dynamicPanel.panels[0];
+    assert.ok(templatePanel, "template panel is here");
+    var panel = <Panel>templatePanel.elements[0];
+    assert.ok(panel, "panel is here");
+    assert.equal(panel.elements.length, 1, "There is one element in the panel");
+    var rows = panel["koRows"]();
+    assert.ok(rows, "panel rows are here");
+    assert.equal(rows.length, 1, "There is one element in the rows");
+    var row1 = rows[0];
+    assert.equal(
+      row1.koElements().length,
+      1,
+      "there is one element in the row"
+    );
+    assert.equal(row1.koElements()[0].koVisible(), true, "element is visible");
+    assert.equal(row1.koElements()[0].name, "question2", "It is our question");
+  }
+);
+
 QUnit.test(
   "Load rating from JSON, bug# https://github.com/surveyjs/editor/issues/171",
   function(assert) {

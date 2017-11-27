@@ -232,20 +232,17 @@ export class Survey extends React.Component<any, any>
   protected setSurveyEvents(newProps: any) {
     var self = this;
     this.survey.renderCallback = function() {
-      self.state.modelChanged = self.state.modelChanged + 1;
-      self.setState(self.state);
+      self.setState({ modelChanged: self.state.modelChanged + 1 });
     };
     this.survey.onComplete.add(sender => {
-      self.state.isCompleted = true;
-      self.setState(self.state);
+      self.setState({ isCompleted: true });
     });
     this.survey.onPartialSend.add(sender => {
       self.setState(self.state);
     });
     this.survey.onCurrentPageChanged.add((sender, options) => {
       self.isCurrentPageChanged = true;
-      self.state.pageIndexChange = self.state.pageIndexChange + 1;
-      self.setState(self.state);
+      self.setState({ pageIndexChange: self.state.pageIndexChange + 1 });
       if (newProps && newProps.onCurrentPageChanged)
         newProps.onCurrentPageChanged(sender, options);
     });

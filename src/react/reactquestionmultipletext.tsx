@@ -14,8 +14,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     this.state = { colCountChanged: 0 };
     var self = this;
     this.question.colCountChangedCallback = function() {
-      self.state.colCountChanged = self.state.colCountChanged + 1;
-      self.setState(self.state);
+      self.setState({ colCountChanged: self.state.colCountChanged + 1 });
     };
   }
   protected get question(): QuestionMultipleTextModel {

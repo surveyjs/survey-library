@@ -11,8 +11,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     this.state = { choicesChanged: 0 };
     var self = this;
     this.question.choicesChangedCallback = function() {
-      self.state.choicesChanged = self.state.choicesChanged + 1;
-      self.setState(self.state);
+      self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
     this.handleOnChange = this.handleOnChange.bind(this);
   }

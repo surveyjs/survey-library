@@ -145,16 +145,14 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
       this.cell.question.registerFunctionOnPropertyValueChanged(
         "isReadOnly",
         function() {
-          self.state.isReadOnly = self.cell.question.isReadOnly;
-          self.setState(self.state);
+          self.setState({ isReadOnly: self.cell.question.isReadOnly });
         },
         "react"
       );
       this.cell.question.registerFunctionOnPropertyValueChanged(
         "visible",
         function() {
-          self.state.visible = self.cell.question.visible;
-          self.setState(self.state);
+          self.setState({ visible: self.cell.question.visible });
         },
         "react"
       );

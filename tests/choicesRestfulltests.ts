@@ -17,6 +17,8 @@ class ChoicesRestfullTester extends ChoicesRestfull {
       this.onLoad(getCountries());
     if (this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
     if (this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
+    if (this.processedUrl.indexOf("xml") > -1)
+      this.onLoad(this.parseResponse(getXmlResponse()));
   }
   protected useChangedItemsResults(): boolean {
     if (this.noCaching) return false;
@@ -116,6 +118,27 @@ QUnit.test("Load countries", function(assert) {
     items[4].value,
     "American Samoa",
     "the fifth country is American Samoa"
+  );
+});
+
+// This test cann't be runned under nodejs due to the lack of DOMParser support in the nodejs
+QUnit.skip("Load from xml", function(assert) {
+  var test = new ChoicesRestfullTester();
+  var items = [];
+  test.getResultCallback = function(res: Array<ItemValue>) {
+    items = res;
+  };
+  test.url = "xml";
+  test.path = "NSurveyDataSource;XmlDataSource;XmlAnswers;XmlAnswer";
+  test.valueName = "AnswerValue";
+  test.titleName = "AnswerDescription";
+  test.run();
+  assert.equal(items.length, 6, "there are 6 items");
+  assert.equal(items[0].value, "", "the item is empty");
+  assert.equal(
+    items[5].text,
+    "Optimizes Work Processes",
+    "the sixth item text is 'Optimizes Work Processes'"
   );
 });
 
@@ -389,4 +412,38 @@ function getCountries(): any {
       ]
     }
   };
+}
+
+function getXmlResponse(): any {
+  return `<?xml version="1.0" standalone="yes"?>
+  <NSurveyDataSource xmlns="http://www.nsurvey.org/NSurveyDataSource.xsd">
+    <XmlDataSource>
+      <XmlAnswers>
+        <XmlAnswer>
+          <AnswerValue></AnswerValue>
+          <AnswerDescription>[Select Competencies]</AnswerDescription>
+        </XmlAnswer>
+        <XmlAnswer>
+          <AnswerValue>1</AnswerValue>
+          <AnswerDescription>Decision Quality</AnswerDescription>
+        </XmlAnswer>
+        <XmlAnswer>
+          <AnswerValue>2</AnswerValue>
+          <AnswerDescription>Customer Focus</AnswerDescription>
+        </XmlAnswer>
+        <XmlAnswer>
+          <AnswerValue>3</AnswerValue>
+          <AnswerDescription>Situational Agility</AnswerDescription>
+        </XmlAnswer>
+        <XmlAnswer>
+          <AnswerValue>4</AnswerValue>
+          <AnswerDescription>Communication Effectively</AnswerDescription>
+        </XmlAnswer>
+        <XmlAnswer>
+          <AnswerValue>5</AnswerValue>
+          <AnswerDescription>Optimizes Work Processes</AnswerDescription>
+        </XmlAnswer>
+      </XmlAnswers>
+    </XmlDataSource>
+  </NSurveyDataSource>`;
 }

@@ -3,6 +3,44 @@ import { ItemValue } from "./itemvalue";
 import { JsonObject, JsonObjectProperty } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
+
+class XmlParser {
+  private parser = new DOMParser();
+  public assignValue(target: any, name: string, value: any) {
+    if (Array.isArray(target[name])) {
+      target[name].push(value);
+    } else if (target[name] !== undefined) {
+      target[name] = [target[name]].concat(value);
+    } else if (
+      typeof value === "object" &&
+      Object.keys(value).length === 1 &&
+      Object.keys(value)[0] === name
+    ) {
+      target[name] = value[name];
+    } else {
+      target[name] = value;
+    }
+  }
+  public xml2Json(xmlNode: any, result: any) {
+    if (xmlNode.children && xmlNode.children.length > 0) {
+      for (let i = 0; i < xmlNode.children.length; i++) {
+        let childNode = xmlNode.children[i];
+        let childObject = {};
+        this.xml2Json(childNode, childObject);
+        this.assignValue(result, childNode.nodeName, childObject);
+      }
+    } else {
+      this.assignValue(result, xmlNode.nodeName, xmlNode.textContent);
+    }
+  }
+  public parseXmlString(xmlString: string) {
+    let xmlRoot = this.parser.parseFromString(xmlString, "text/xml");
+    let json = {};
+    this.xml2Json(xmlRoot, json);
+    return json;
+  }
+}
+
 /**
  * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
  * The run method call a restfull service and results can be get on getREsultCallback.
@@ -59,14 +97,28 @@ export class ChoicesRestfull extends Base {
       this.processedPath = this.path;
     }
   }
+  protected parseResponse(response) {
+    let parsedResponse;
+    if (
+      !!response &&
+      typeof response.indexOf === "function" &&
+      response.indexOf("<") === 0
+    ) {
+      var parser = new XmlParser();
+      parsedResponse = parser.parseXmlString(response);
+    } else {
+      parsedResponse = JSON.parse(response);
+    }
+    return parsedResponse;
+  }
   protected sendRequest() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     xhr.onload = function() {
-      if (xhr.status == 200) {
-        self.onLoad(JSON.parse(xhr.response));
+      if (xhr.status === 200) {
+        self.onLoad(self.parseResponse(xhr.response));
       } else {
         self.onError(xhr.statusText, xhr.responseText);
       }
@@ -94,7 +146,7 @@ export class ChoicesRestfull extends Base {
     var properties = JsonObject.metaData.getProperties(this.itemValueType);
     var res = [];
     for (var i = 0; i < properties.length; i++) {
-      if (properties[i].name == "value" || properties[i].name == "text")
+      if (properties[i].name === "value" || properties[i].name === "text")
         continue;
       res.push(properties[i]);
     }

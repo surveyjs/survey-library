@@ -62,7 +62,11 @@ export var defaultBootstrapMaterialCss = {
     label: "radio-inline",
     other: "sv_q_radiogroup_other"
   },
-  rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
+  rating: {
+    root: "btn-group",
+    item: "btn btn-default btn-secondary",
+    selected: "active"
+  },
   text: "form-control",
   expression: "form-control",
   saveData: {

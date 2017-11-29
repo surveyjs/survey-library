@@ -11,7 +11,7 @@ export class QuestionImplementorBase {
   koElementType: any;
   constructor(public question: QuestionBase) {
     var self = this;
-    question.registerFunctionOnPropertyValueChanged("visible", function() {
+    question.registerFunctionOnPropertyValueChanged("isVisible", function() {
       self.onVisibilityChanged();
     });
     question.registerFunctionOnPropertiesValueChanged(

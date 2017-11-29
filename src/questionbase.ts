@@ -7,6 +7,7 @@ import {
   IConditionRunner,
   ISurveyData,
   ISurvey,
+  ISurveyImpl,
   Event,
   SurveyError,
   IPanel,
@@ -52,6 +53,10 @@ export class QuestionBase extends SurveyElement
   public getType(): string {
     return "questionbase";
   }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    if (this.survey && this.survey.isDesignMode) this.onVisibleChanged();
+  }
   /**
    * A parent element. It can be panel or page.
    */
@@ -86,10 +91,13 @@ export class QuestionBase extends SurveyElement
   public set visible(val: boolean) {
     if (val == this.visible) return;
     this.setPropertyValue("visible", val);
-    this.setPropertyValue("isVisible", this.isVisible);
+    this.onVisibleChanged();
     if (this.survey) {
       this.survey.questionVisibilityChanged(<IQuestion>this, this.visible);
     }
+  }
+  protected onVisibleChanged() {
+    this.setPropertyValue("isVisible", this.isVisible);
   }
   /**
    * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.

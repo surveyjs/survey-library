@@ -21,6 +21,7 @@ import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynam
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionRatingModel } from "../../src/question_rating";
+import { JsonObject } from "../../src/jsonobject";
 
 export default QUnit.module("koTests");
 
@@ -840,6 +841,43 @@ QUnit.test(
     var templatePanel = dynamicPanel.panels[0];
     assert.ok(templatePanel, "template panel is here");
     var panel = <Panel>templatePanel.elements[0];
+    assert.ok(panel, "panel is here");
+    assert.equal(panel.elements.length, 1, "There is one element in the panel");
+    var rows = panel["koRows"]();
+    assert.ok(rows, "panel rows are here");
+    assert.equal(rows.length, 1, "There is one element in the rows");
+    var row1 = rows[0];
+    assert.equal(
+      row1.koElements().length,
+      1,
+      "there is one element in the row"
+    );
+    assert.equal(row1.koElements()[0].koVisible(), true, "element is visible");
+    assert.equal(row1.koElements()[0].name, "question2", "It is our question");
+  }
+);
+
+QUnit.test(
+  "Add invisible question in Panel from JSON in Editor, editor bug #218",
+  function(assert) {
+    var survey = new DesignerSurveyTester();
+    var page = survey.addNewPage("page1");
+    var json = {
+      type: "panel",
+      elements: [
+        {
+          type: "text",
+          name: "question2",
+          visible: false
+        }
+      ],
+      name: "panel1"
+    };
+    var newElement = JsonObject.metaData.createClass("panel");
+    new JsonObject().toObject(json, newElement);
+    page.addElement(newElement);
+
+    var panel = <Panel>survey.pages[0].elements[0];
     assert.ok(panel, "panel is here");
     assert.equal(panel.elements.length, 1, "There is one element in the panel");
     var rows = panel["koRows"]();

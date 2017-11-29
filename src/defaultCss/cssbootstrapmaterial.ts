@@ -12,7 +12,7 @@ export var defaultBootstrapMaterialCss = {
     next: "sv_next_btn",
     start: "sv_start_btn"
   },
-  progress: "progress center-block",
+  progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
   pageTitle: "",
   pageDescription: "small",

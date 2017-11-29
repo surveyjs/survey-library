@@ -82,12 +82,10 @@ export class SurveyWindow extends Survey {
     });
     var self = this;
     this.window.expandedChangedCallback = function() {
-      self.state.expanded = self.window.isExpanded;
-      self.setState(self.state);
+      self.setState({ expanded: self.window.isExpanded });
     };
     this.window.showingChangedCallback = function() {
-      self.state.isShowing = self.window.isShowing;
-      self.setState(self.state);
+      self.setState({ isShowing: self.window.isShowing });
     };
     this.survey.onComplete.add(function(s: SurveyModel) {
       self.window.hide();

@@ -14,8 +14,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     this.state = { choicesChanged: 0 };
     var self = this;
     this.question.choicesChangedCallback = function() {
-      self.state.choicesChanged = self.state.choicesChanged + 1;
-      self.setState(self.state);
+      self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
   }
   protected get question(): QuestionCheckboxModel {

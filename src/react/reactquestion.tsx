@@ -49,24 +49,21 @@ export class SurveyQuestion extends React.Component<any, any> {
       this.questionBase.registerFunctionOnPropertiesValueChanged(
         ["renderWidth", "indent", "rightIndent"],
         function() {
-          self.state.renderWidth = self.state.renderWidth + 1;
-          self.setState(self.state);
+          self.setState({ renderWidth: self.state.renderWidth + 1 });
         },
         "react"
       );
       this.questionBase.registerFunctionOnPropertyValueChanged(
         "visibleIndex",
         function() {
-          self.state.visibleIndexValue = self.questionBase.visibleIndex;
-          self.setState(self.state);
+          self.setState({ visibleIndexValue: self.questionBase.visibleIndex });
         },
         "react"
       );
       this.questionBase.registerFunctionOnPropertyValueChanged(
         "isReadOnly",
         function() {
-          self.state.isReadOnly = self.questionBase.isReadOnly;
-          self.setState(self.state);
+          self.setState({ isReadOnly: self.questionBase.isReadOnly });
         },
         "react"
       );
@@ -94,11 +91,11 @@ export class SurveyQuestion extends React.Component<any, any> {
       : null;
     var description = this.renderDescription(cssClasses);
     var titleTop =
-      this.question && this.question.titleLocation == "top" ? title : null;
+      this.question && this.question.titleLocation === "top" ? title : null;
     var titleBottom =
-      this.question && this.question.titleLocation == "bottom" ? title : null;
+      this.question && this.question.titleLocation === "bottom" ? title : null;
     var titleLeft =
-      this.question && this.question.titleLocation == "left" ? title : null;
+      this.question && this.question.titleLocation === "left" ? title : null;
     var titleLeftClass =
       this.question && this.question.titleLocation === "left"
         ? "title-left"
@@ -108,15 +105,15 @@ export class SurveyQuestion extends React.Component<any, any> {
         ? "content-left"
         : null;
     var descriptionLeft =
-      this.question && this.question.titleLocation == "left"
+      this.question && this.question.titleLocation === "left"
         ? description
         : null;
     var descriptionTop =
-      this.question && this.question.titleLocation == "top"
+      this.question && this.question.titleLocation === "top"
         ? description
         : null;
     var descriptionBottom =
-      this.question && this.question.titleLocation == "bottom"
+      this.question && this.question.titleLocation === "bottom"
         ? description
         : null;
     var comment =
@@ -125,9 +122,9 @@ export class SurveyQuestion extends React.Component<any, any> {
         : null;
     var errors = this.renderErrors(cssClasses);
     var errorsTop =
-      this.creator.questionErrorLocation() == "top" ? errors : null;
+      this.creator.questionErrorLocation() === "top" ? errors : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() == "bottom" ? errors : null;
+      this.creator.questionErrorLocation() === "bottom" ? errors : null;
     var paddingLeft =
       this.questionBase.indent > 0
         ? this.questionBase.indent * cssClasses.indent + "px"

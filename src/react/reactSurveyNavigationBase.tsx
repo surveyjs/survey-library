@@ -19,8 +19,7 @@ export class SurveyNavigationBase extends React.Component<any, any> {
     if (this.survey) {
       var self = this;
       this.updateStateFunction = function() {
-        self.state.update = self.state.update + 1;
-        self.setState(self.state);
+        self.setState({ update: self.state.update + 1 });
       };
       this.survey.onPageVisibleChanged.add(this.updateStateFunction);
     }

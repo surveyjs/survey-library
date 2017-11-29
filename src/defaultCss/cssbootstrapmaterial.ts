@@ -12,7 +12,7 @@ export var defaultBootstrapMaterialCss = {
     next: "sv_next_btn",
     start: "sv_start_btn"
   },
-  progress: "progress center-block",
+  progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
   pageTitle: "",
   pageDescription: "small",
@@ -62,7 +62,11 @@ export var defaultBootstrapMaterialCss = {
     label: "radio-inline",
     other: "sv_q_radiogroup_other"
   },
-  rating: { root: "btn-group", item: "btn btn-default", selected: "active" },
+  rating: {
+    root: "btn-group",
+    item: "btn btn-default btn-secondary",
+    selected: "active"
+  },
   text: "form-control",
   expression: "form-control",
   saveData: {

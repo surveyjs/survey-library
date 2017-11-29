@@ -20,8 +20,7 @@ export class SurveyTimerPanel extends React.Component<any, any> {
       this.survey.registerFunctionOnPropertyValueChanged(
         "timeSpent",
         function() {
-          self.state.timeSpent = self.survey.timeSpent;
-          self.setState(self.state);
+          self.setState({ timeSpent: self.survey.timeSpent });
         },
         "timerPanel"
       );

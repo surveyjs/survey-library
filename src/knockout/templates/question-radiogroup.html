@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-radiogroup">
-    <form data-bind="css: question.koCss().root">
+    <fieldset data-bind="css: question.koCss().root">
         <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
         <div data-bind="style:{display: 'inline-block', width: question.koWidth, 'margin-right': question.colCount == 0 ? '5px': '0px'}, css: question.itemClass">
             <label data-bind="css: question.koCss().label">
@@ -17,5 +17,6 @@
             <!-- /ko -->
         </div>
         <!-- /ko -->
-    </form>
+        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
+    </fieldset>
 </script>

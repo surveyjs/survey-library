@@ -20,7 +20,8 @@ export class StylesManager {
     ".form-inline .sv_q_checkbox_inline:not(:first-child)":
       "margin-left: 1em; height: 1.5em;",
     ".form-inline .sv_q_radiogroup_inline:not(:first-child)":
-      "margin-left: 1em; height: 1.5em;"
+      "margin-left: 1em; height: 1.5em;",
+    ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;"
   };
 
   findSheet() {

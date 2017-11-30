@@ -29,14 +29,21 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>;
+    return (
+      <fieldset className={cssClasses.root}>
+        {this.getItems(cssClasses)}
+        <legend style={{ display: "none" }}>
+          {this.question.locTitle.renderedHtml}
+        </legend>
+      </fieldset>
+    );
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i == 0, cssClasses));
+      items.push(this.renderItem(key, item, i === 0, cssClasses));
     }
     return items;
   }

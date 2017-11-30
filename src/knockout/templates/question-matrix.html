@@ -1,31 +1,41 @@
 ﻿<script type="text/html" id="survey-question-matrix">
-    <table data-bind="css: question.koCss().root">
-        <thead>
-            <tr>
-                <td data-bind="visible: question.hasRows"></td>
-                <!-- ko foreach: question.columns -->
-                <th><!-- ko template: { name: 'survey-string', data: locText } --><!-- /ko --></th>
+    <fieldset>
+        <table data-bind="css: question.koCss().root">
+            <thead>
+                <tr>
+                    <td data-bind="visible: question.hasRows"></td>
+                    <!-- ko foreach: question.columns -->
+                    <th>
+                        <!-- ko template: { name: 'survey-string', data: locText } -->
+                        <!-- /ko -->
+                    </th>
+                    <!-- /ko -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
+                <tr data-bind="css: question.koCss().row">
+                    <td data-bind="visible: question.hasRows">
+                        <!-- ko template: { name: 'survey-string', data: row.locText } -->
+                        <!-- /ko -->
+                    </td>
+                    <!-- ko foreach: question.columns -->
+                    <td>
+                        <label data-bind="css: question.koCss().label">
+                            <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()"
+                            />
+                            <span class="circle"></span>
+                            <span class="check"></span>
+                            <span style="display: none" data-bind="text: $data.locText.text"></span>
+                        </label>
+                    </td>
+                    <!-- /ko -->
+                </tr>
                 <!-- /ko -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- ko foreach: { data: question.visibleRows, as: 'row' } -->
-            <tr data-bind="css: question.koCss().row">
-                <td data-bind="visible: question.hasRows"><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></td>
-                <!-- ko foreach: question.columns -->
-                <td>
-                    <label data-bind="css: question.koCss().label">
-                        <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()" />
-                        <span class="circle"></span>
-                        <span class="check"></span>
-                        <span style="display: none" data-bind="text: $data.locText.text"></span>
-                    </label>
-                </td>
-                <!-- /ko -->
-            </tr>
-            <!-- /ko -->
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
+    </fieldset>
 </script>
 <script type="text/html" id="survey-text">
     <span data-bind="text:$data.renderedHtml"></span>

@@ -137,6 +137,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       <div className={itemClass} style={divStyle}>
         <label className={this.cssClasses.label}>
           <input
+            className={this.cssClasses.itemControl}
             type="checkbox"
             value={this.item.value}
             id={id}
@@ -149,7 +150,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           <span className="checkbox-material">
             <span className="check" />
           </span>
-          <span>{text}</span>
+          <span className={this.cssClasses.controlLabel}>{text}</span>
         </label>
         {otherItem}
       </div>

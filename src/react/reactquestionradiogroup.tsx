@@ -51,10 +51,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   ): JSX.Element {
     var itemWidth =
       this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var marginRight = this.question.colCount == 0 ? "5px" : "0px";
+    var marginRight = this.question.colCount === 0 ? "5px" : "0px";
     var divStyle = {
       marginRight: marginRight,
-      marginLeft: "0px",
       display: "inline-block"
     };
     if (itemWidth) {
@@ -93,6 +92,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       <div key={key} className={itemClass} style={divStyle}>
         <label className={cssClasses.label}>
           <input
+            className={cssClasses.itemControl}
             id={id}
             type="radio"
             name={this.question.name + "_" + this.questionBase.id}
@@ -104,7 +104,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           />
           <span className="circle" />
           <span className="check" />
-          {itemText}
+          <span className={cssClasses.controlLabel}>{itemText}</span>
         </label>
         {otherItem}
       </div>

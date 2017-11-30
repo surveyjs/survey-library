@@ -40,6 +40,8 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
+    itemControl: "",
+    controlLabel: "",
     other: "sv_q_other sv_q_checkbox_other"
   },
   comment: "",
@@ -58,6 +60,8 @@ export var defaultStandardCss = {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
     label: "",
+    itemControl: "",
+    controlLabel: "",
     other: "sv_q_other sv_q_radiogroup_other"
   },
   rating: { root: "sv_q_rating", item: "sv_q_rating_item", selected: "active" },

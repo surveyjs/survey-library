@@ -23,7 +23,14 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>;
+    return (
+      <fieldset className={cssClasses.root}>
+        {this.getItems(cssClasses)}
+        <legend style={{ display: "none" }}>
+          {this.question.locTitle.renderedHtml}
+        </legend>
+      </fieldset>
+    );
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
@@ -137,6 +144,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       <div className={itemClass} style={divStyle}>
         <label className={this.cssClasses.label}>
           <input
+            className={this.cssClasses.itemControl}
             type="checkbox"
             value={this.item.value}
             id={id}
@@ -149,7 +157,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           <span className="checkbox-material">
             <span className="check" />
           </span>
-          <span>{text}</span>
+          <span className={this.cssClasses.controlLabel}>{text}</span>
         </label>
         {otherItem}
       </div>

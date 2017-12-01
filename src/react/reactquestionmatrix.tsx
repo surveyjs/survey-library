@@ -43,15 +43,20 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       );
     }
     return (
-      <table className={cssClasses.root}>
-        <thead>
-          <tr>
-            {firstTH}
-            {headers}
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
+      <fieldset>
+        <table className={cssClasses.root}>
+          <thead>
+            <tr>
+              {firstTH}
+              {headers}
+            </tr>
+          </thead>
+          <tbody>{rows}</tbody>
+        </table>
+        <legend style={{ display: "none" }}>
+          {this.question.locTitle.renderedHtml}
+        </legend>
+      </fieldset>
     );
   }
 }
@@ -88,8 +93,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     for (var i = 0; i < this.question.columns.length; i++) {
       var column = this.question.columns[i];
       var key = "value" + i;
-      var isChecked = this.row.value == column.value;
-      var inputId = this.isFirst && i == 0 ? this.question.inputId : null;
+      var isChecked = this.row.value === column.value;
+      var inputId = this.isFirst && i === 0 ? this.question.inputId : null;
       var td = (
         <td key={key}>
           <label className={this.cssClasses.label}>

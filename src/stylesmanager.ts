@@ -16,7 +16,12 @@ export class StylesManager {
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other":
       "display: inline-block; height: 20px; margin-top: -5px;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other":
-      "display: inline-block; height: 20px; margin-top: -5px;"
+      "display: inline-block; height: 20px; margin-top: -5px;",
+    ".form-inline .sv_q_checkbox_inline:not(:first-child)":
+      "margin-left: 1em; height: 1.5em;",
+    ".form-inline .sv_q_radiogroup_inline:not(:first-child)":
+      "margin-left: 1em; height: 1.5em;",
+    ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;"
   };
 
   findSheet() {

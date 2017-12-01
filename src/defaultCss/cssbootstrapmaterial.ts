@@ -37,6 +37,8 @@ export var defaultBootstrapMaterialCss = {
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
+    itemControl: "form-check-input",
+    controlLabel: "form-check-label",
     other: "sv_q_checkbox_other"
   },
   comment: "form-control",
@@ -60,6 +62,8 @@ export var defaultBootstrapMaterialCss = {
     root: "form-inline",
     item: "radio-inline",
     label: "radio-inline",
+    itemControl: "form-check-input",
+    controlLabel: "form-check-label",
     other: "sv_q_radiogroup_other"
   },
   rating: {

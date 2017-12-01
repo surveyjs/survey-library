@@ -29,14 +29,21 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    return <form className={cssClasses.root}>{this.getItems(cssClasses)}</form>;
+    return (
+      <fieldset className={cssClasses.root}>
+        {this.getItems(cssClasses)}
+        <legend style={{ display: "none" }}>
+          {this.question.locTitle.renderedHtml}
+        </legend>
+      </fieldset>
+    );
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i == 0, cssClasses));
+      items.push(this.renderItem(key, item, i === 0, cssClasses));
     }
     return items;
   }
@@ -51,10 +58,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   ): JSX.Element {
     var itemWidth =
       this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var marginRight = this.question.colCount == 0 ? "5px" : "0px";
+    var marginRight = this.question.colCount === 0 ? "5px" : "0px";
     var divStyle = {
       marginRight: marginRight,
-      marginLeft: "0px",
       display: "inline-block"
     };
     if (itemWidth) {
@@ -93,6 +99,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       <div key={key} className={itemClass} style={divStyle}>
         <label className={cssClasses.label}>
           <input
+            className={cssClasses.itemControl}
             id={id}
             type="radio"
             name={this.question.name + "_" + this.questionBase.id}
@@ -104,7 +111,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           />
           <span className="circle" />
           <span className="check" />
-          {itemText}
+          <span className={cssClasses.controlLabel}>{itemText}</span>
         </label>
         {otherItem}
       </div>

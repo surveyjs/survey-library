@@ -467,11 +467,13 @@ export class QuestionPanelDynamicModel extends Question
    * @see removePanelUI
    */
   public get panelCount(): number {
-    return this.isLoadingFromJson ? this.loadingPanelCount : this.items.length;
+    return this.isLoadingFromJson || this.isDesignMode
+      ? this.loadingPanelCount
+      : this.items.length;
   }
   public set panelCount(val: number) {
     if (val < 0) return;
-    if (this.isLoadingFromJson) {
+    if (this.isLoadingFromJson || this.isDesignMode) {
       this.loadingPanelCount = val;
       return;
     }

@@ -705,6 +705,29 @@ QUnit.test(
   }
 );
 
+QUnit.test("Set panel count to 0, bug#228", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "q",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  var dymamicPanel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  assert.equal(dymamicPanel.panelCount, 0, "The default panel count is 0");
+  dymamicPanel.panelCount = 1;
+  assert.equal(dymamicPanel.panelCount, 1, "There is one panel");
+  dymamicPanel.panelCount = 0;
+  assert.equal(dymamicPanel.panelCount, 0, "There is no panels");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

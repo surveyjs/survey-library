@@ -2850,19 +2850,23 @@ QUnit.test("Define questionTitleLocation on Panel/Page level", function(
   var panel = page.addNewPanel("panel");
   var panel2 = panel.addNewPanel("panel2");
   var q = <Question>panel2.addNewQuestion("text");
-  assert.equal(q.titleLocation, "top", "get from survey");
+  assert.equal(q.getTitleLocation(), "top", "get from survey");
   panel2.questionTitleLocation = "bottom";
-  assert.equal(q.titleLocation, "bottom", "get from panel 2");
+  assert.equal(q.getTitleLocation(), "bottom", "get from panel 2");
   panel2.questionTitleLocation = "default";
-  assert.equal(q.titleLocation, "top", "get from survey");
+  assert.equal(q.getTitleLocation(), "top", "get from survey");
   panel.questionTitleLocation = "bottom";
-  assert.equal(q.titleLocation, "bottom", "get from panel");
+  assert.equal(q.getTitleLocation(), "bottom", "get from panel");
   panel.questionTitleLocation = "default";
-  assert.equal(q.titleLocation, "top", "get from survey");
+  assert.equal(q.getTitleLocation(), "top", "get from survey");
   page.questionTitleLocation = "bottom";
-  assert.equal(q.titleLocation, "bottom", "get from page");
+  assert.equal(q.getTitleLocation(), "bottom", "get from page");
   page.questionTitleLocation = "default";
-  assert.equal(q.titleLocation, "top", "get from survey");
+  assert.equal(q.getTitleLocation(), "top", "get from survey");
+  q.titleLocation = "bottom";
+  assert.equal(q.getTitleLocation(), "bottom", "get from question");
+  q.titleLocation = "default";
+  assert.equal(q.getTitleLocation(), "top", "get from survey again");
 });
 
 QUnit.test("Question property.page getChoices", function(assert) {

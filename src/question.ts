@@ -60,7 +60,24 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public get hasDescription(): boolean {
     return this.description != "";
   }
+  /**
+   * Set this property different from "default" to set the specific question title location for this panel/page.
+   * @see SurveyModel.questionTitleLocation
+   */
   public get titleLocation(): string {
+    return this.getPropertyValue("questionTitleLocation", "default");
+  }
+  public set titleLocation(value: string) {
+    this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+  }
+  /**
+   * Return the title location based on question titleLocation property and QuestionTitleLocation of it's parents
+   * @see titleLocation
+   * @see PanelModelBase.QuestionTitleLocation
+   * @see SurveyModel.QuestionTitleLocation
+   */
+  public getTitleLocation(): string {
+    if (this.titleLocation !== "default") return this.titleLocation;
     var location = "top";
     if (this.parent) {
       location = this.parent.getQuestionTitleLocation();
@@ -71,6 +88,20 @@ export class Question extends QuestionBase implements IValidatorOwner {
     if (location === "left" && !this.isAllowTitleLeft) location = "top";
 
     return location;
+  }
+  get hasTitleOnLeft(): boolean {
+    return this.hasTitle && this.getTitleLocation() == "left";
+  }
+  get hasTitleOnTop(): boolean {
+    return this.hasTitle && this.getTitleLocation() == "top";
+  }
+  get hasTitleOnBottom(): boolean {
+    return this.hasTitle && this.getTitleLocation() == "bottom";
+  }
+  get hasTitleOnLeftTop(): boolean {
+    if (!this.hasTitle) return false;
+    var location = this.getTitleLocation();
+    return location == "left" || location == "top";
   }
   public get errorLocation(): string {
     return this.survey ? this.survey.questionErrorLocation : "top";

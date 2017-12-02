@@ -191,6 +191,9 @@ export class QuestionPanelDynamicModel extends Question
   public getType(): string {
     return "paneldynamic";
   }
+  public get isAllowTitleLeft(): boolean {
+    return false;
+  }
   public removeElement(element: IElement): boolean {
     return this.template.removeElement(element);
   }

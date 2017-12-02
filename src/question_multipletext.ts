@@ -172,6 +172,9 @@ export class QuestionMultipleTextModel extends Question
   public getType(): string {
     return "multipletext";
   }
+  public get isAllowTitleLeft(): boolean {
+    return false;
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.fireCallback(this.colCountChangedCallback);

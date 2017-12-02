@@ -109,7 +109,7 @@ export class Panel extends PanelModel {
   private getIndentSize(indent: number): string {
     if (indent < 1) return "";
     if (!this.data) return "";
-    var css = this.data["css"];
+    var css = this.survey["css"];
     if (!css) return "";
     return indent * css.question.indent + "px";
   }

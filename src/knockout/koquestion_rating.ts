@@ -45,8 +45,11 @@ export class QuestionRating extends QuestionRatingModel {
     new QuestionRatingImplementor(this);
   }
   protected onSetData() {
-    this.itemCss = this.data["css"].rating.item;
-    this.selectedCss = this.data["css"].rating.selected;
+    var css = this.survey ? this.survey["css"] : null;
+    if (css && css.rating) {
+      this.itemCss = css.rating.item;
+      this.selectedCss = css.rating.selected;
+    }
   }
 }
 

@@ -586,6 +586,11 @@ JsonObject.metaData.addClass(
       name: "validators:validators",
       baseClassName: "surveyvalidator",
       classNamePart: "validator"
+    },
+    {
+      name: "titleLocation",
+      default: "default",
+      choices: ["default", "top", "bottom", "left"]
     }
   ],
   null,

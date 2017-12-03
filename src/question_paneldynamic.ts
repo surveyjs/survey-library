@@ -111,11 +111,17 @@ export class QuestionPanelDynamicItem
     name = name.replace(QuestionPanelDynamicItem.ItemVariableName + ".", "");
     var firstName = new ProcessValue().getFirstName(name);
     var question = <Question>this.panel.getQuestionByName(firstName);
-    if (!question) return null;
     var values = {};
-    values[firstName] = returnDisplayValue
-      ? question.displayValue
-      : question.value;
+    if (question) {
+      values[firstName] = returnDisplayValue
+        ? question.displayValue
+        : question.value;
+    } else {
+      var allValues = this.getAllValues();
+      if (allValues) {
+        values[firstName] = allValues[firstName];
+      }
+    }
     return new ProcessValue().getValue(name, values);
   }
   processText(text: string, returnDisplayValue: boolean): string {

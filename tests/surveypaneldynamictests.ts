@@ -400,6 +400,24 @@ QUnit.test("Process text in titles", function(assert) {
     "process question title correctly"
   );
 });
+QUnit.test(
+  "Process text in titles, variable that has name different from questions, bug#802",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    page.addQuestion(question);
+    question.templateTitle = "panel.q1:{panel.q1}, panel.name:{panel.name}";
+    question.value = [{ q1: "q1Value", name: "nameValue" }, {}];
+    var panel = question.panels[0];
+    assert.equal(
+      panel.locTitle.renderedHtml,
+      "panel.q1:q1Value, panel.name:nameValue",
+      "process panel title correctly"
+    );
+  }
+);
 QUnit.test("PanelDynamic in design time", function(assert) {
   var survey = new SurveyModel();
   survey.setDesignMode(true);

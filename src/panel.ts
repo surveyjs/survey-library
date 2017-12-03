@@ -91,6 +91,7 @@ export class PanelModelBase extends SurveyElement
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
   rowsChangedCallback: () => void;
+  onGetQuestionTitleLocation: () => string;
 
   constructor(public name: string = "") {
     super(name);
@@ -404,6 +405,8 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
   }
   getQuestionTitleLocation(): string {
+    if (this.onGetQuestionTitleLocation)
+      return this.onGetQuestionTitleLocation();
     if (this.questionTitleLocation != "default")
       return this.questionTitleLocation;
     if (this.parent) return this.parent.getQuestionTitleLocation();

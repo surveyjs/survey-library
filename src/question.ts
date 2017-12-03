@@ -77,6 +77,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
    * @see SurveyModel.QuestionTitleLocation
    */
   public getTitleLocation(): string {
+    var location = this.getTitleLocationCore();
+    if (location === "left" && !this.isAllowTitleLeft) location = "top";
+    return location;
+  }
+  protected getTitleLocationCore(): string {
     if (this.titleLocation !== "default") return this.titleLocation;
     var location = "top";
     if (this.parent) {
@@ -84,9 +89,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     } else if (this.survey) {
       location = this.survey.questionTitleLocation;
     }
-
-    if (location === "left" && !this.isAllowTitleLeft) location = "top";
-
     return location;
   }
   get hasTitleOnLeft(): boolean {

@@ -705,7 +705,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Set panel count to 0, bug#228", function(assert) {
+QUnit.test("Set panel count to 0, Editor bug#228", function(assert) {
   var json = {
     questions: [
       {
@@ -726,6 +726,43 @@ QUnit.test("Set panel count to 0, bug#228", function(assert) {
   assert.equal(dymamicPanel.panelCount, 1, "There is one panel");
   dymamicPanel.panelCount = 0;
   assert.equal(dymamicPanel.panelCount, 0, "There is no panels");
+});
+
+QUnit.test("PanelDynamic, question.getTitleLocation(), bug#800", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var panel = <QuestionPanelDynamicModel>page.addNewQuestion(
+    "paneldynamic",
+    "panel"
+  );
+  panel.template.addNewQuestion("text", "panelq1");
+
+  panel.panelCount = 2;
+  var p = panel.panels[0];
+  var q = <Question>p.questions[0];
+
+  assert.equal(q.getTitleLocation(), "top", "it is top by default");
+
+  page.questionTitleLocation = "left";
+
+  assert.equal(
+    p.getQuestionTitleLocation(),
+    "left",
+    "it is left based on survey.questionTitleLocation"
+  );
+  assert.equal(
+    q.getTitleLocation(),
+    "left",
+    "it is left based on survey.questionTitleLocation"
+  );
+  panel.templateTitleLocation = "bottom";
+  assert.equal(
+    q.getTitleLocation(),
+    "bottom",
+    "it is bottom, based on templateTitleLocation"
+  );
 });
 
 /* Think about this-

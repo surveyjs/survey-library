@@ -162,7 +162,7 @@ export class QuestionPanelDynamicModel extends Question
 
   constructor(public name: string) {
     super(name);
-    this.templateValue = this.createNewPanelObject();
+    this.templateValue = this.createAndSetupNewPanelObject();
     this.template.renderWidth = "100%";
     this.template.selectedElementInDesign = this;
     var self = this;
@@ -532,6 +532,17 @@ export class QuestionPanelDynamicModel extends Question
     if (this.panelCount > val) this.panelCount = val;
   }
   /**
+   * Set this property different from "default" to set the specific question title location for the template questions.
+   * @see SurveyModel.questionTitleLocation
+   * @see PanelModelBase.questionTitleLocation
+   */
+  public get templateTitleLocation(): string {
+    return this.getPropertyValue("templateTitleLocation", "default");
+  }
+  public set templateTitleLocation(value: string) {
+    this.setPropertyValue("templateTitleLocation", value.toLowerCase());
+  }
+  /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
    */
@@ -765,12 +776,25 @@ export class QuestionPanelDynamicModel extends Question
     return new QuestionPanelDynamicItem(this, this.createNewPanel());
   }
   protected createNewPanel(): PanelModel {
-    var panel = this.createNewPanelObject();
+    var panel = this.createAndSetupNewPanelObject();
     var jObj = new JsonObject();
     var json = jObj.toJsonObject(this.template);
     jObj.toObject(json, panel);
     panel.renderWidth = "100%";
     return panel;
+  }
+  protected createAndSetupNewPanelObject(): PanelModel {
+    var panel = this.createNewPanelObject();
+    var self = this;
+    panel.onGetQuestionTitleLocation = function() {
+      return self.getTemplateQuestionTitleLocation();
+    };
+    return panel;
+  }
+  private getTemplateQuestionTitleLocation() {
+    return this.templateTitleLocation != "default"
+      ? this.templateTitleLocation
+      : this.getTitleLocationCore();
   }
   protected createNewPanelObject(): PanelModel {
     return new PanelModel();
@@ -873,6 +897,11 @@ JsonObject.metaData.addClass(
       name: "renderMode",
       default: "list",
       choices: ["list", "progressTop", "progressBottom", "progressTopBottom"]
+    },
+    {
+      name: "templateTitleLocation",
+      default: "default",
+      choices: ["default", "top", "bottom", "left"]
     }
   ],
   function() {

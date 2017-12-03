@@ -765,6 +765,30 @@ QUnit.test("PanelDynamic, question.getTitleLocation(), bug#800", function(
   );
 });
 
+QUnit.test("PanelDynamic, canAddPanel/canRemovePanel", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var panel = <QuestionPanelDynamicModel>page.addNewQuestion(
+    "paneldynamic",
+    "panel"
+  );
+
+  assert.equal(panel.canAddPanel, true, "By default you can add panel");
+  assert.equal(panel.canRemovePanel, false, "There is no panels");
+  panel.panelCount = 2;
+  assert.equal(panel.canRemovePanel, true, "You can remove now");
+  survey.setDesignMode(true);
+  assert.equal(panel.canAddPanel, false, "You can't add in design mode");
+  assert.equal(panel.canRemovePanel, false, "You can't delete in design mode");
+  survey.setDesignMode(false);
+  assert.equal(panel.canAddPanel, true, "You can add in run-time mode");
+  assert.equal(panel.canRemovePanel, true, "You can delete in run-time mode");
+  panel.allowAddPanel = false;
+  panel.allowRemovePanel = false;
+  assert.equal(panel.canAddPanel, false, "allowAddPanel = false");
+  assert.equal(panel.canRemovePanel, false, "allowRemovePanel = false");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

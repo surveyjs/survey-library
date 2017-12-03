@@ -532,6 +532,26 @@ export class QuestionPanelDynamicModel extends Question
     if (this.panelCount > val) this.panelCount = val;
   }
   /**
+   * Set this property to false to hide the 'Add New' button
+   * @see allowRemovePanel
+   */
+  public get allowAddPanel(): boolean {
+    return this.getPropertyValue("allowAddPanel", true);
+  }
+  public set allowAddPanel(val: boolean) {
+    this.setPropertyValue("allowAddPanel", val);
+  }
+  /**
+   * Set this property to false to hide the 'Remove' button
+   * @see allowAddPanel
+   */
+  public get allowRemovePanel(): boolean {
+    return this.getPropertyValue("allowRemovePanel", true);
+  }
+  public set allowRemovePanel(val: boolean) {
+    this.setPropertyValue("allowRemovePanel", val);
+  }
+  /**
    * Set this property different from "default" to set the specific question title location for the template questions.
    * @see SurveyModel.questionTitleLocation
    * @see PanelModelBase.questionTitleLocation
@@ -605,7 +625,12 @@ export class QuestionPanelDynamicModel extends Question
    * @see maxPanelCount
    */
   public get canAddPanel(): boolean {
-    return !this.isReadOnly && this.panelCount < this.maxPanelCount;
+    if (this.survey && this.survey.isDesignMode) return false;
+    return (
+      this.allowAddPanel &&
+      !this.isReadOnly &&
+      this.panelCount < this.maxPanelCount
+    );
   }
   /**
    * Returns true when an end user may remove a panel. The question is not read only and panelCount is more than minPanelCount
@@ -614,7 +639,12 @@ export class QuestionPanelDynamicModel extends Question
    * @see minPanelCount
    */
   public get canRemovePanel(): boolean {
-    return !this.isReadOnly && this.panelCount > this.minPanelCount;
+    if (this.survey && this.survey.isDesignMode) return false;
+    return (
+      this.allowRemovePanel &&
+      !this.isReadOnly &&
+      this.panelCount > this.minPanelCount
+    );
   }
   protected rebuildPanels() {
     var items = new Array<QuestionPanelDynamicItem>();
@@ -863,6 +893,8 @@ JsonObject.metaData.addClass(
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription"
     },
+    { name: "allowAddPanel:boolean", default: true },
+    { name: "allowRemovePanel:boolean", default: true },
     {
       name: "panelCount:number",
       default: 0,

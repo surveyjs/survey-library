@@ -217,16 +217,19 @@ export class ConditionsParser {
     var isFirstOpCh = this.isOperatorChar(this.ch);
     var isPrevEspape = false;
     while (this.at < this.length) {
+      if (hasBraces) {
+        var isBrace = this.ch == "}";
+        this.at++;
+        if (isBrace) break;
+        else continue;
+      }
       if (!hasQuotes && this.isSpace(this.ch)) break;
       if (this.isQuotes(this.ch) && !isPrevEspape) {
         if (hasQuotes) this.at++;
         break;
       }
       if (!hasQuotes) {
-        if (
-          (!hasBraces || this.ch != "-") &&
-          isFirstOpCh != this.isOperatorChar(this.ch)
-        )
+        if (this.ch != "-" && isFirstOpCh != this.isOperatorChar(this.ch))
           break;
         if (this.isBrackets(this.ch) || this.isComma(this.ch)) break;
       }

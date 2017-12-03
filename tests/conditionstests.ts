@@ -523,6 +523,15 @@ QUnit.test("Escape quotes, bug#786", function(assert) {
   var values = { text: "I'm here" };
   assert.equal(runner.run(values), true, "text equals I'm here");
 });
+QUnit.test("Allow differnt symbols in variable name, bug#803", function(
+  assert
+) {
+  var runner = new ConditionRunner("{complex name #$%?dd} = 1");
+  var values = { "complex name #$%?dd": 1 };
+  assert.equal(runner.run(values), true, "1= 1");
+  values = { "complex name #$%?dd": 2 };
+  assert.equal(runner.run(values), false, "2 <> 1");
+});
 
 QUnit.test("Override functions: make equal works as contains", function(
   assert

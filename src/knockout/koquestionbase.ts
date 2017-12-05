@@ -49,6 +49,12 @@ export class QuestionImplementorBase {
     this.question["koCss"] = ko.pureComputed(function() {
       return self.question.cssClasses;
     });
+    this.question["koRootClass"] = ko.pureComputed(function() {
+      if (self.question.survey.questionTitleLocation === "left") {
+        return self.question.cssClasses.mainRoot + " sv_qstn_left";
+      }
+      return self.question.cssClasses.mainRoot;
+    });
   }
   protected updateQuestion() {}
   protected onSurveyLoad() {

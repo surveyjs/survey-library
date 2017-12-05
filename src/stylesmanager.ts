@@ -10,8 +10,8 @@ export class StylesManager {
     ".sv_qstn .radio label": "justify-content: left;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
     ".sv_q_mt_item_value": "float: left;",
+    ".sv_qstn.sv_qstn_left": "margin-top: 10px",
     ".sv_qstn .title-left": "float: left; margin-right: 15px;",
-    ".sv_qstn .title-left h5": "margin-top: 4px;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other":
       "display: inline-block; height: 20px; margin-top: -5px;",

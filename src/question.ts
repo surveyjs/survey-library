@@ -376,6 +376,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.fireCallback(this.valueChangedCallback);
     this.isvalueChangedCallbackFiring = false;
   }
+  public clearValue() {
+    this.value = null;
+  }
   public get displayValue(): any {
     return this.value;
   }

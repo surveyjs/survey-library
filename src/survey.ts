@@ -2244,7 +2244,7 @@ export class SurveyModel extends Base
       !question.visible &&
       this.clearInvisibleValues == "onHidden"
     ) {
-      this.clearValue(question.name);
+      question.clearValue();
     }
   }
   pageVisibilityChanged(page: IPage, newValue: boolean) {

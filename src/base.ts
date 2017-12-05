@@ -95,6 +95,7 @@ export interface IQuestion extends IElement {
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues();
   displayValue: any;
+  clearValue();
 }
 export interface IParentElement {
   addElement(element: IElement, index: number);

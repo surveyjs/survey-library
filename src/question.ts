@@ -378,6 +378,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   public clearValue() {
     this.value = null;
+    this.comment = null;
+  }
+  public clearValueIfInvisible() {
+    if (this.isVisible) return;
+    this.clearValue();
   }
   public get displayValue(): any {
     return this.value;

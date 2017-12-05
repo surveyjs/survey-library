@@ -336,6 +336,7 @@ export class QuestionBase extends SurveyElement
     return "";
   }
   public clearValue() {}
+  public clearValueIfInvisible() {}
   public onLocaleChanged() {
     super.onLocaleChanged();
     this.localeChanged.fire(this, this.getLocale());

@@ -807,34 +807,63 @@ QUnit.test("PanelDynamic, canAddPanel/canRemovePanel", function(assert) {
   assert.equal(panel.canRemovePanel, false, "allowRemovePanel = false");
 });
 
-QUnit.test("PanelDynamic, survey.clearInvisibleValues, bug#806", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.clearInvisibleValues = "onHidden";
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>page.addNewQuestion(
-    "paneldynamic",
-    "panel"
-  );
-  var q1 = <Question>panel.template.addNewQuestion("text", "panelq1");
-  var q2 = <Question>panel.template.addNewQuestion("text", "panelq2");
-  q2.visibleIf = "{panel.panelq1} = 'a'";
+QUnit.test(
+  "PanelDynamic, survey.clearInvisibleValues='onHidden', bug#806",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onHidden";
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion(
+      "paneldynamic",
+      "panel"
+    );
+    var q1 = <Question>panel.template.addNewQuestion("text", "panelq1");
+    var q2 = <Question>panel.template.addNewQuestion("text", "panelq2");
+    q2.visibleIf = "{panel.panelq1} = 'a'";
 
-  panel.panelCount = 2;
-  var p = panel.panels[0];
-  var rq1 = <Question>p.questions[0];
-  var rq2 = <Question>p.questions[1];
+    panel.panelCount = 2;
+    var p = panel.panels[0];
+    var rq1 = <Question>p.questions[0];
+    var rq2 = <Question>p.questions[1];
 
-  assert.equal(rq2.isVisible, false, "the question is invisible");
-  rq1.value = "a";
-  assert.equal(rq2.isVisible, true, "the question is visible");
-  rq2.value = "b";
-  assert.equal(rq2.isEmpty(), false, "the value is set");
-  rq1.value = "c";
-  assert.equal(rq2.isVisible, false, "the question is invisible again");
-  assert.equal(rq2.isEmpty(), true, "the question is empty");
-});
+    assert.equal(rq2.isVisible, false, "the question is invisible");
+    rq1.value = "a";
+    assert.equal(rq2.isVisible, true, "the question is visible");
+    rq2.value = "b";
+    assert.equal(rq2.isEmpty(), false, "the value is set");
+    rq1.value = "c";
+    assert.equal(rq2.isVisible, false, "the question is invisible again");
+    assert.equal(rq2.isEmpty(), true, "the question is empty");
+  }
+);
+
+QUnit.test(
+  "PanelDynamic, survey.clearInvisibleValues='onComplete', bug#806",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onComplete";
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>page.addNewQuestion(
+      "paneldynamic",
+      "panel"
+    );
+    var q1 = <Question>panel.template.addNewQuestion("text", "panelq1");
+
+    panel.panelCount = 2;
+    var p = panel.panels[0];
+    var rq1 = <Question>p.questions[0];
+
+    rq1.value = "a";
+    rq1.visible = false;
+    assert.deepEqual(
+      survey.data,
+      { panel: [{ panelq1: "a" }, {}] },
+      "The value is here"
+    );
+    survey.doComplete();
+    assert.deepEqual(survey.data, { panel: [{}, {}] }, "The value is gone");
+  }
+);
 
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {

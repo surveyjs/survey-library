@@ -96,6 +96,7 @@ export interface IQuestion extends IElement {
   clearUnusedValues();
   displayValue: any;
   clearValue();
+  clearValueIfInvisible();
 }
 export interface IParentElement {
   addElement(element: IElement, index: number);

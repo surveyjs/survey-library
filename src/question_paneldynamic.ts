@@ -767,6 +767,15 @@ export class QuestionPanelDynamicModel extends Question
     var errosInPanels = this.hasErrorInPanels(fireCallback);
     return super.hasErrors(fireCallback) || errosInPanels;
   }
+  public clearValueIfInvisible() {
+    super.clearValueIfInvisible();
+    for (var i = 0; i < this.panels.length; i++) {
+      var questions = this.panels[i].questions;
+      for (var j = 0; j < questions.length; j++) {
+        questions[j].clearValueIfInvisible();
+      }
+    }
+  }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
     for (var i = 0; i < this.panels.length; i++) {
@@ -880,7 +889,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     if (!Array.isArray(qValue) || qValue.length <= index) return;
     if (!qValue[index]) qValue[index] = {};
-    qValue[index][name] = val;
+    if (!this.isValueEmpty(val)) {
+      qValue[index][name] = val;
+    } else {
+      delete qValue[index][name];
+    }
     this.isValueChangingInternally = true;
     this.value = qValue;
     this.isValueChangingInternally = false;

@@ -44,6 +44,11 @@ export class QuestionMatrix extends QuestionMatrixModel {
   ): MatrixRowModel {
     return new MatrixRow(item, fullName, this, value);
   }
+  public getItemCss(row, column) {
+    var isChecked = row.koValue() == column.value;
+    let itemClass = this["koCss"]().label + (isChecked ? " checked" : "");
+    return itemClass;
+  }
 }
 
 JsonObject.metaData.overrideClassCreatore("matrix", function() {

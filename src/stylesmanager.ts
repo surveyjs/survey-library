@@ -6,22 +6,21 @@ export class StylesManager {
     ".sv_p_container": "display: inline-block; vertical-align: top;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
-    ".sv_qcbx .checkbox label": "justify-content: left;",
-    ".sv_qstn .radio label": "justify-content: left;",
+    ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
+    ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
     ".sv_q_mt_item_value": "float: left;",
-    ".sv_qstn.sv_qstn_left": "margin-top: 10px",
-    ".sv_qstn .title-left": "float: left; margin-right: 15px;",
+    ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
+    ".sv_qstn .title-left": "float: left; margin-right: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
-    ".sv_q_radiogroup_inline .sv_q_radiogroup_other":
-      "display: inline-block; height: 20px; margin-top: -5px;",
-    ".sv_q_checkbox_inline .sv_q_checkbox_other":
-      "display: inline-block; height: 20px; margin-top: -5px;",
-    ".form-inline .sv_q_checkbox_inline:not(:first-child)":
-      "margin-left: 1em; height: 1.5em;",
+    ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
+    ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
+    ".sv_q_checkbox_inline, .sv_q_radiogroup_inline": "line-height: 2.5em;",
+    ".form-inline .sv_q_checkbox_inline:not(:first-child)": "margin-left: 1em;",
     ".form-inline .sv_q_radiogroup_inline:not(:first-child)":
-      "margin-left: 1em; height: 1.5em;",
-    ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;"
+      "margin-left: 1em;",
+    ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
+    "fieldset.form-inline": "display: inline-block;"
   };
 
   findSheet() {

@@ -51,7 +51,7 @@ function sumInArray(params: any[]): any {
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function age(params: any[]): any {
-  if (params.length < 1) return -1;
+  if (!params && params.length < 1) return -1;
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
   var ageDate = new Date(ageDifMs); // miliseconds from epoch

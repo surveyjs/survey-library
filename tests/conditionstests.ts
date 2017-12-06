@@ -523,6 +523,13 @@ QUnit.test("Escape quotes, bug#786", function(assert) {
   var values = { text: "I'm here" };
   assert.equal(runner.run(values), true, "text equals I'm here");
 });
+QUnit.test("Support equals and notequals, #781", function(assert) {
+  var runner = new ConditionRunner("{a} equals 1");
+  var values = { a: 1 };
+  assert.equal(runner.run(values), true, "1 equals 1");
+  values = { a: 2 };
+  assert.equal(runner.run(values), false, "2 equals 1");
+});
 QUnit.test("Allow differnt symbols in variable name, bug#803", function(
   assert
 ) {

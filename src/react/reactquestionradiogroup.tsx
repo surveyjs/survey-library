@@ -95,6 +95,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     let itemClass =
       cssClasses.item +
       (this.question.colCount === 0 ? " sv_q_radiogroup_inline" : "");
+
+    if (isChecked) itemClass += " checked";
+
     return (
       <div key={key} className={itemClass} style={divStyle}>
         <label className={cssClasses.label}>

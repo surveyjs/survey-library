@@ -140,6 +140,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     let itemClass =
       this.cssClasses.item +
       (this.question.colCount === 0 ? " sv_q_checkbox_inline" : "");
+
+    if (isChecked) itemClass += " checked";
+
     return (
       <div className={itemClass} style={divStyle}>
         <label className={this.cssClasses.label}>

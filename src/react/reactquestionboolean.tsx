@@ -41,9 +41,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     var text = this.renderLocString(this.question.locDisplayLabel);
+
+    let isChecked = this.question.checkedValue;
+    let itemClass = cssClasses.item + (isChecked ? " checked" : "");
+
     return (
-      <form className={cssClasses.item}>
-        <label className={cssClasses.item}>
+      <form className={itemClass}>
+        <label>
           <input
             ref="check"
             type="checkbox"

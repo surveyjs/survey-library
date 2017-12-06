@@ -1315,6 +1315,40 @@ QUnit.test("test goNextPageAutomatic property", function(assert) {
   dropDownQ.comment = "other value";
   assert.equal(survey.state, "completed", "complete the survey");
 });
+QUnit.test("test goNextPageAutomatic property - 'autogonext' - go next page automatically but do not submit", function(assert) {
+  var survey = twoPageSimplestSurvey();
+
+  var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion(
+    "dropdown",
+    "question5"
+  );
+  dropDownQ.choices = [1, 2, 3];
+  dropDownQ.hasOther = true;
+  survey.goNextPageAutomatic = "autogonext";
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[0].name,
+    "the first page is default page"
+  );
+  survey.setValue("question1", 1);
+  survey.setValue("question2", 2);
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[1].name,
+    "go to the second page automatically"
+  );
+  (<Question>survey.currentPage.questions[0]).value = "3";
+  (<Question>survey.currentPage.questions[1]).value = "4";
+  dropDownQ.value = dropDownQ.otherItem.value;
+  assert.equal(
+    survey.currentPage.name,
+    survey.pages[1].name,
+    "stay on the second page"
+  );
+  assert.notEqual(survey.state, "completed", "survey is still running");
+  dropDownQ.comment = "other value";
+  assert.notEqual(survey.state, "completed", "survey is still running");
+});
 QUnit.test("test goNextPageAutomatic after errors", function(assert) {
   var survey = twoPageSimplestSurvey();
 

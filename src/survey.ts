@@ -698,13 +698,16 @@ export class SurveyModel extends Base
     this.setPropertyValue("storeOthersAsComment", val);
   }
   /**
-   * Set it true if you want to go to the next page without pressing 'Next' button when all questions are anwered.
+   * Set it to the one of the following constants if you want to go to the next page without pressing 'Next' button when all questions are anwered.
+   * true - go next page and submit automatically
+   * "autogonext" - go next page automatically but do not submit
+   * false - do not go next page and not submit automatically
    * @see showNavigationButtons
    */
-  public get goNextPageAutomatic(): boolean {
+  public get goNextPageAutomatic(): boolean | "autogonext" {
     return this.getPropertyValue("goNextPageAutomatic", false);
   }
-  public set goNextPageAutomatic(val: boolean) {
+  public set goNextPageAutomatic(val: boolean | "autogonext") {
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
@@ -2185,7 +2188,9 @@ export class SurveyModel extends Base
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        this.completeLastPage();
+        if (this.goNextPageAutomatic === true) {
+          this.completeLastPage();
+        }
       }
     }
   }

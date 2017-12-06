@@ -93,11 +93,13 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     for (var i = 0; i < this.question.columns.length; i++) {
       var column = this.question.columns[i];
       var key = "value" + i;
-      var isChecked = this.row.value === column.value;
+      var isChecked = this.row.value == column.value;
+      let itemClass = this.cssClasses.label + (isChecked ? " checked" : "");
       var inputId = this.isFirst && i === 0 ? this.question.inputId : null;
+
       var td = (
         <td key={key}>
-          <label className={this.cssClasses.label}>
+          <label className={itemClass}>
             <input
               id={inputId}
               type="radio"

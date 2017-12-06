@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-boolean">
     <form data-bind="css: question.koCss().root">
-        <label data-bind="css: question.koCss().item">
+        <label data-bind="css: question.getItemCss()">
             <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, checked: question.koCheckedValue, surveyProp: {indeterminate: question.koIndeterminate}, enable: !question.koIsReadOnly()" />
             <span class="checkbox-material"><span class="check"></span></span>
             <!-- ko template: { name: 'survey-string', data: locDisplayLabel } --><!-- /ko -->

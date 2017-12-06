@@ -45,6 +45,11 @@ export class QuestionBoolean extends QuestionBooleanModel {
     super(name);
     new QuestionBooleanImplementor(this);
   }
+  public getItemCss(row, column) {
+    let isChecked = this["koCheckedValue"]();
+    let itemClass = this["koCss"]().item + (isChecked ? " checked" : "");
+    return itemClass;
+  }
 }
 
 JsonObject.metaData.overrideClassCreatore("boolean", function() {

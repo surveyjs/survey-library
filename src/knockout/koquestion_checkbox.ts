@@ -27,11 +27,15 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     super(name);
     new QuestionCheckboxImplementor(this);
   }
-  get itemClass() {
-    return (
+  getItemClass(item) {
+    var isChecked = this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1;
+    var itemClass =
       this.cssClasses.item +
-      (this.colCount === 0 ? " sv_q_checkbox_inline" : "")
-    );
+      (this.colCount === 0 ? " sv_q_checkbox_inline" : "");
+
+    if (isChecked) itemClass += " checked";
+
+    return itemClass;
   }
 }
 

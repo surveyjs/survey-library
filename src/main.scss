@@ -52,6 +52,9 @@
 
 .sv_main {
   width: 100%;
+  font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
 }
 .sv_body {
   margin-bottom: 10px;
@@ -90,7 +93,9 @@
 }
 .sv_q_title {
   width: 100%;
-  margin: 0.5em 0;
+  margin: 0;
+  font-size: 1em;
+  font-weight: 500;
 }
 .sv_q_description {
   font-size: small;
@@ -127,6 +132,7 @@
 
 .sv_q_rating {
   display: inline-block;
+  line-height: 2.3em;
 }
 
 .sv_q_rating > :first-child {
@@ -140,9 +146,7 @@
 }
 
 .sv_q_rating_item {
-  margin-left: -1px;
-  padding: 6px 12px;
-  margin-bottom: 0px;
+  padding: 0.4em 0.75em;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;

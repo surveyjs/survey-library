@@ -1,6 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :class="itemClass" :style="{'display': 'inline-block', 'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="getItemClass(item)" :style="{'display': 'inline-block', 'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
             <label :class="question.cssClasses.label">
                 <input type="radio" :name="question.name" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span class="circle"></span>
@@ -29,8 +29,10 @@
         get choicesCount() {
             return this.question.visibleChoices.length - 1;
         }
-        get itemClass() {
-            return this.question.cssClasses.item + (this.question.colCount === 0 ? " sv_q_radiogroup_inline": "");
+        getItemClass(item) {
+            var itemClass = this.question.cssClasses.item + (this.question.colCount === 0 ? " sv_q_radiogroup_inline": "");
+            if (item.value === this.question.value) itemClass += " checked";
+            return itemClass;
         }
     }
     Vue.component("survey-radiogroup", Radiogroup)

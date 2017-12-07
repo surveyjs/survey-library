@@ -257,7 +257,7 @@ frameworks.forEach(framework => {
 
     await t
       .click(`fieldset div:nth-child(2) label input`)
-      .click(`fieldset div:nth-child(2) label input`);
+      .click(`fieldset div:nth-child(3) label input`);
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), true);

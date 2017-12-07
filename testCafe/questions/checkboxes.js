@@ -244,4 +244,22 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
+
+  test(`checked class`, async t => {
+    const isCheckedClassExistsByIndex = ClientFunction(index =>
+      document
+        .querySelector(`fieldset div:nth-child(${index})`)
+        .classList.contains("checked")
+    );
+
+    assert.equal(await isCheckedClassExistsByIndex(2), false);
+    assert.equal(await isCheckedClassExistsByIndex(3), false);
+
+    await t
+      .click(`fieldset div:nth-child(2) label input`)
+      .click(`fieldset div:nth-child(2) label input`);
+
+    assert.equal(await isCheckedClassExistsByIndex(2), true);
+    assert.equal(await isCheckedClassExistsByIndex(3), true);
+  });
 });

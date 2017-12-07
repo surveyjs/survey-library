@@ -45,10 +45,12 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("imageWidth", val);
   }
   /**
-   * Set it to true to serialize file content as text.
+   * Set it to false if you do not want to serialize file content as text in the survey.data.
+   * In this case, you have to write the code onUploadFile event to store the file content.
+   * @see SurveyModel.onUploadFile
    */
   public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText", false);
+    return this.getPropertyValue("storeDataAsText", true);
   }
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
@@ -128,7 +130,7 @@ JsonObject.metaData.addClass(
     "showPreview:boolean",
     "imageHeight",
     "imageWidth",
-    "storeDataAsText:boolean",
+    { name: "storeDataAsText:boolean", default: true },
     "maxSize:number"
   ],
   function() {

@@ -102,4 +102,25 @@ frameworks.forEach(framework => {
       "easy to use": "5"
     });
   });
+
+  test(`checked class`, async t => {
+    const isCheckedClassExistsByIndex = ClientFunction(index =>
+      document
+        .querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`)
+        .classList.contains("checked")
+    );
+
+    assert.equal(await isCheckedClassExistsByIndex(2), false);
+    assert.equal(await isCheckedClassExistsByIndex(3), false);
+
+    await t.click(`input[name="Quality_affordable"][value="2"]`);
+
+    assert.equal(await isCheckedClassExistsByIndex(2), true);
+    assert.equal(await isCheckedClassExistsByIndex(3), false);
+
+    await t.click(`input[name="Quality_affordable"][value="3"]`);
+
+    assert.equal(await isCheckedClassExistsByIndex(2), false);
+    assert.equal(await isCheckedClassExistsByIndex(3), true);
+  });
 });

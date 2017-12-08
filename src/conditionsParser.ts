@@ -3,7 +3,8 @@ import {
   ConditionNode,
   Operand,
   FunctionOperand,
-  ExpressionOperand
+  ExpressionOperand,
+  ConditionOperand
 } from "./conditions";
 
 export class ConditionsParser {
@@ -247,12 +248,31 @@ export class ConditionsParser {
     }
     return res;
   }
+  private readParameter(): Operand {
+    var openedBrackets = 0;
+    var startIndex = this.at;
+    while (this.at < this.length) {
+      if (this.isOpenBracket(this.ch)) openedBrackets++;
+      if (this.isCloseBracket(this.ch)) openedBrackets--;
+      if (openedBrackets < 0) break;
+      if (openedBrackets === 0 && this.ch === ",") break;
+      this.at++;
+    }
+    var paramStr = this.text.substring(startIndex, this.at);
+    if (!paramStr) return null;
+    var parser = new ConditionsParser();
+    var node = new ConditionNode();
+    if (parser.parse(paramStr, node)) {
+      return new ConditionOperand(node);
+    }
+    return parser.parseExpression(paramStr);
+  }
   private readParameters(): Array<Operand> {
     if (!this.isOpenBracket(this.ch)) return null;
     var params = [];
     while (this.at < this.length && !this.isCloseBracket(this.ch)) {
       this.at++;
-      var operand = this.readOperand();
+      var operand = this.readParameter(); //this.readExpressionOperand();
       if (operand) {
         params.push(operand);
       }

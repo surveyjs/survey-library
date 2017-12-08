@@ -50,6 +50,12 @@ function sumInArray(params: any[]): any {
 }
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
+function iif(params: any[]): any {
+  if (!params && params.length !== 3) return "";
+  return params[0] ? params[1] : params[2];
+}
+FunctionFactory.Instance.register("iif", iif);
+
 function age(params: any[]): any {
   if (!params && params.length < 1) return -1;
   var birthDay = new Date(params[0]);

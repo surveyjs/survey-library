@@ -141,6 +141,44 @@ export class ExpressionOperand extends Operand {
     return res;
   }
 }
+export class ConditionOperand extends Operand {
+  public root: ConditionNode;
+  private processValue: ProcessValue;
+  constructor(root: ConditionNode = null) {
+    super(null);
+    if (root) this.root = root;
+  }
+  public getValue(processValue: ProcessValue): any {
+    if (!this.root) return false;
+    this.processValue = processValue;
+    return this.runNode(this.root);
+  }
+  public toString(): string {
+    return this.root ? this.root.toString() : "";
+  }
+  private runNode(node: ConditionNode): boolean {
+    var onFirstFail = node.connective == "and";
+    for (var i = 0; i < node.children.length; i++) {
+      var res = this.runNodeCondition(node.children[i]);
+      if (!res && onFirstFail) return false;
+      if (res && !onFirstFail) return true;
+    }
+    return onFirstFail;
+  }
+  private runNodeCondition(value: any): boolean {
+    if (value["children"]) return this.runNode(value);
+    if (value["left"]) return this.runCondition(value);
+    return false;
+  }
+  private runCondition(condition: Condition): boolean {
+    return condition.performExplicit(
+      condition.left,
+      condition.right,
+      this.processValue
+    );
+  }
+}
+
 export class Condition {
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
@@ -345,12 +383,10 @@ export class ExpressionRunner {
 }
 export class ConditionRunner {
   private expressionValue: string;
-  private processValue: ProcessValue;
   private root: ConditionNode;
   public constructor(expression: string) {
     this.root = new ConditionNode();
     this.expression = expression;
-    this.processValue = new ProcessValue();
   }
   public get expression(): string {
     return this.expressionValue;
@@ -361,28 +397,9 @@ export class ConditionRunner {
     new ConditionsParser().parse(this.expressionValue, this.root);
   }
   public run(values: HashTable<any>): boolean {
-    this.processValue.values = values;
-    return this.runNode(this.root);
-  }
-  private runNode(node: ConditionNode): boolean {
-    var onFirstFail = node.connective == "and";
-    for (var i = 0; i < node.children.length; i++) {
-      var res = this.runNodeCondition(node.children[i]);
-      if (!res && onFirstFail) return false;
-      if (res && !onFirstFail) return true;
-    }
-    return onFirstFail;
-  }
-  private runNodeCondition(value: any): boolean {
-    if (value["children"]) return this.runNode(value);
-    if (value["left"]) return this.runCondition(value);
-    return false;
-  }
-  private runCondition(condition: Condition): boolean {
-    return condition.performExplicit(
-      condition.left,
-      condition.right,
-      this.processValue
-    );
+    var condition = new ConditionOperand(this.root);
+    var processValue = new ProcessValue();
+    processValue.values = values;
+    return <boolean>condition.getValue(processValue);
   }
 }

@@ -668,3 +668,29 @@ QUnit.test("ExpressionRunner: sumInArray", function(assert) {
   var values = { a: [{ val1: 10 }, { val2: 10 }, { val1: 20 }] };
   assert.equal(runner.run(values), 30, "10 + 20");
 });
+QUnit.test("ExpressionRunner, iif simple", function(assert) {
+  var runner = new ExpressionRunner("iif({a}, 'high', 'low')");
+  var values = { a: true };
+  assert.equal(runner.run(values), "high", "true");
+  values.a = false;
+  assert.equal(runner.run(values), "low", "false");
+});
+QUnit.test("ExpressionRunner, iif with expression", function(assert) {
+  var runner = new ExpressionRunner("iif({a} + {b} > 20, 'high', 'low')");
+  var values = { a: 10, b: 20 };
+  assert.equal(runner.run(values), "high", "10 + 20 > 20");
+  values.b = 5;
+  assert.equal(runner.run(values), "low", "10 + 5 < 20");
+});
+
+QUnit.test("ExpressionRunner, iif nested using", function(assert) {
+  var runner = new ExpressionRunner(
+    "iif({a} + {b} > 20, 'high', iif({a} + {b} > 10, 'medium', 'low'))"
+  );
+  var values = { a: 10, b: 20 };
+  assert.equal(runner.run(values), "high", "10 + 20 > 20");
+  values.b = 5;
+  assert.equal(runner.run(values), "medium", "10 + 5 > 10 && 10 + 5 < 20");
+  values.a = 1;
+  assert.equal(runner.run(values), "low", "1 + 5 < 10");
+});

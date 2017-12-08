@@ -64,7 +64,14 @@ export var defaultStandardCss = {
     controlLabel: "",
     other: "sv_q_other sv_q_radiogroup_other"
   },
-  rating: { root: "sv_q_rating", item: "sv_q_rating_item", selected: "active" },
+  rating: {
+    root: "sv_q_rating",
+    item: "sv_q_rating_item",
+    selected: "active",
+    minText: "sv_q_rating_min_text",
+    itemText: "sv_q_rating_item_text",
+    maxText: "sv_q_rating_max_text"
+  },
   text: "",
   expression: "",
   saveData: {

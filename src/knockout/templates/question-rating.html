@@ -2,11 +2,26 @@
     <div data-bind="css: question.koCss().root">
         <!-- ko foreach: question.koVisibleRateValues -->
         <label data-bind="css: question.koGetCss($data)">
-            <input type="radio" style="display: none;"
-                    data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value, 'aria-label': $data.locText.text}, event: { change: question.koChange}, enable: !question.koIsReadOnly()" />
-            <!-- ko if: $index() == 0 --><!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } --><!-- /ko --><!-- /ko -->
-            <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
-            <!-- ko if: $index() == (question.koVisibleRateValues().length-1) --><!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } --><!-- /ko --><!-- /ko -->
+            <input type="radio" style="display: none;" data-bind="attr: {name: question.name, id: question.name + $index(), value: $data.value, 'aria-label': $data.locText.text}, event: { change: question.koChange}, enable: !question.koIsReadOnly()"
+            />
+            <!-- ko if: $index() == 0 -->
+            <span data-bind="css: question.koCss().minText">
+                <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
+                <!-- /ko -->
+            </span>
+            <!-- /ko -->
+
+            <span data-bind="css: question.koCss().itemText">
+                <!-- ko template: { name: 'survey-string', data: $data.locText } -->
+                <!-- /ko -->
+            </span>
+
+            <!-- ko if: $index() == (question.koVisibleRateValues().length-1) -->
+            <span data-bind="css: question.koCss().maxText">
+                <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
+                <!-- /ko -->
+            </span>
+            <!-- /ko -->
         </label>
         <!-- /ko -->
     </div>

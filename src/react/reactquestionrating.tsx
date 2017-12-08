@@ -72,9 +72,9 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           onChange={this.handleOnChange}
           aria-label={item.locText.text}
         />
-        {minText}
-        {itemText}
-        {maxText}
+        <span className={cssClasses.minText}>{minText}</span>
+        <span className={cssClasses.itemText}>{itemText}</span>
+        <span className={cssClasses.maxText}>{maxText}</span>
       </label>
     );
   }

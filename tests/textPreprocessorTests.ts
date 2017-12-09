@@ -1,12 +1,16 @@
-import { TextPreProcessor } from "../src/textPreProcessor";
+import {
+  TextPreProcessor,
+  TextPreProcessorValue
+} from "../src/textPreProcessor";
 import { ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("TextPreprocessorTests");
 
 QUnit.test("Replace simple names", function(assert) {
   var processor = new TextPreProcessor();
-  processor.onProcess = function(name) {
-    return "aaa" + name;
+  processor.onProcess = function(textValue: TextPreProcessorValue) {
+    textValue.isExists = true;
+    textValue.value = "aaa" + textValue.name;
   };
   var result = processor.process("test1 {111} test2");
   assert.equal(result, "test1 aaa111 test2", "in the middle");
@@ -30,11 +34,11 @@ QUnit.test("Replace simple names", function(assert) {
 
 QUnit.test("onHasValue event", function(assert) {
   var processor = new TextPreProcessor();
-  processor.onProcess = function(name) {
-    return "Andrew";
-  };
-  processor.onHasValue = function(name) {
-    return name == "myname";
+  processor.onProcess = function(textValue: TextPreProcessorValue) {
+    textValue.isExists = textValue.name == "myname";
+    if (textValue.isExists) {
+      textValue.value = "Andrew";
+    }
   };
   var result = processor.process("test1 {name} test2");
   assert.equal(

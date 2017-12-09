@@ -66,6 +66,9 @@ export class QuestionBase extends SurveyElement
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
   }
+  public getValueName(): string {
+    return this.name;
+  }
   /**
    * Get/set the page where the question is located.
    */

@@ -5,7 +5,7 @@ import { Base, SurveyError, SurveyElement } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { TextPreProcessor } from "./textPreProcessor";
+import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 
@@ -44,6 +44,15 @@ export class Question extends QuestionBase implements IValidatorOwner {
     };
     this.createLocalizableString("commentText", this, true);
     this.createLocalizableString("requiredErrorText", this);
+  }
+  public getValueName(): string {
+    return this.valueName ? this.valueName : this.name;
+  }
+  public get valueName(): string {
+    return this.getPropertyValue("valueName", "");
+  }
+  public set valueName(val: string) {
+    this.setPropertyValue("valueName", val);
   }
   /**
    * Returns true if the question may have a title located on the left
@@ -193,11 +202,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
       if (!this.textPreProcessor) {
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
-        this.textPreProcessor.onHasValue = function(name: string) {
-          return self.canProcessedTextValues(name.toLowerCase());
-        };
-        this.textPreProcessor.onProcess = function(name: string) {
-          return self.getProcessedTextValue(name);
+        this.textPreProcessor.onProcess = function(
+          textValue: TextPreProcessorValue
+        ) {
+          self.getProcessedTextValue(textValue);
         };
       }
       return this.textPreProcessor.process(
@@ -236,14 +244,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
   protected getFirstErrorInputElementId(): string {
     return this.getFirstInputElementId();
   }
-  protected canProcessedTextValues(name: string): boolean {
-    return name == "no" || name == "title" || name == "require";
-  }
-  protected getProcessedTextValue(name: string): any {
-    if (name == "no") return this.no;
-    if (name == "title") return this.processedTitle;
-    if (name == "require") return this.requiredText;
-    return null;
+  protected getProcessedTextValue(textValue: TextPreProcessorValue) {
+    var name = textValue.name.toLocaleLowerCase();
+    textValue.isExists = name == "no" || name == "title" || name == "require";
+    if (name == "no") textValue.value = this.no;
+    if (name == "title") textValue.value = this.processedTitle;
+    if (name == "require") textValue.value = this.requiredText;
   }
   public supportComment(): boolean {
     return false;
@@ -423,7 +429,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   protected getComment(): string {
     return this.data != null
-      ? this.data.getComment(this.name)
+      ? this.data.getComment(this.getValueName())
       : this.questionComment;
   }
   protected setComment(newValue: string) {
@@ -538,12 +544,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   private getValueCore() {
     return this.data != null
-      ? this.data.getValue(this.name)
+      ? this.data.getValue(this.getValueName())
       : this.questionValue;
   }
   private setValueCore(newValue: any) {
     if (this.data != null) {
-      this.data.setValue(this.name, newValue);
+      this.data.setValue(this.getValueName(), newValue);
     } else {
       this.questionValue = newValue;
     }
@@ -557,7 +563,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   protected onValueChanged() {}
   protected setNewComment(newValue: string) {
     if (this.data != null) {
-      this.data.setComment(this.name, newValue);
+      this.data.setComment(this.getValueName(), newValue);
     } else this.questionComment = newValue;
   }
   //IQuestion

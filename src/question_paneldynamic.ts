@@ -11,7 +11,7 @@ import {
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { TextPreProcessor } from "./textPreProcessor";
+import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { Question } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -32,7 +32,7 @@ export class QuestionPanelDynamicItem
   public static IndexVariableName = "panelIndex";
   private panelValue: PanelModel;
   private data: IQuestionPanelDynamicData;
-  private textPreProcessor = new TextPreProcessor();
+  private textPreProcessor;
   constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
     this.data = data;
     this.panelValue = panel;
@@ -40,14 +40,10 @@ export class QuestionPanelDynamicItem
     this.panel.updateCustomWidgets();
     var self = this;
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onHasValue = function(name: string) {
-      return self.hasProcessedTextValue(name);
-    };
     this.textPreProcessor.onProcess = function(
-      name: string,
-      returnDisplayValue: boolean
+      textValue: TextPreProcessorValue
     ) {
-      return self.getProcessedTextValue(name, returnDisplayValue);
+      self.getProcessedTextValue(textValue);
     };
   }
   public get panel(): PanelModel {
@@ -99,21 +95,25 @@ export class QuestionPanelDynamicItem
     return this;
   }
   //ITextProcessor
-  private hasProcessedTextValue(name: string): boolean {
-    if (name == QuestionPanelDynamicItem.IndexVariableName) return true;
-    var firstName = new ProcessValue().getFirstName(name);
-    return firstName == QuestionPanelDynamicItem.ItemVariableName;
-  }
-  private getProcessedTextValue(name: string, returnDisplayValue: boolean) {
-    if (name == QuestionPanelDynamicItem.IndexVariableName)
-      return this.data.getItemIndex(this) + 1;
+  private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
+      textValue.isExists = true;
+      textValue.value = this.data.getItemIndex(this) + 1;
+      return;
+    }
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    textValue.isExists = firstName == QuestionPanelDynamicItem.ItemVariableName;
+    if (!textValue) return;
     //name should start with the panel
-    name = name.replace(QuestionPanelDynamicItem.ItemVariableName + ".", "");
-    var firstName = new ProcessValue().getFirstName(name);
+    textValue.name = textValue.name.replace(
+      QuestionPanelDynamicItem.ItemVariableName + ".",
+      ""
+    );
+    var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = <Question>this.panel.getQuestionByName(firstName);
     var values = {};
     if (question) {
-      values[firstName] = returnDisplayValue
+      values[firstName] = textValue.returnDisplayValue
         ? question.displayValue
         : question.value;
     } else {
@@ -122,7 +122,7 @@ export class QuestionPanelDynamicItem
         values[firstName] = allValues[firstName];
       }
     }
-    return new ProcessValue().getValue(name, values);
+    textValue.value = new ProcessValue().getValue(textValue.name, values);
   }
   processText(text: string, returnDisplayValue: boolean): string {
     text = this.textPreProcessor.process(text, returnDisplayValue);

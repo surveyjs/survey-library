@@ -9,7 +9,7 @@ import {
   ITextProcessor,
   SurveyError
 } from "./base";
-import { TextPreProcessor } from "./textPreProcessor";
+import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
@@ -253,7 +253,7 @@ export class MatrixDropdownRowModelBase
   private rowValues: HashTable<any> = {};
   private isSettingValue: boolean = false;
   private idValue: string;
-  private textPreProcessor = new TextPreProcessor();
+  private textPreProcessor;
 
   public cells: Array<MatrixDropdownCell> = [];
 
@@ -262,14 +262,10 @@ export class MatrixDropdownRowModelBase
     this.value = value;
     this.textPreProcessor = new TextPreProcessor();
     var self = this;
-    this.textPreProcessor.onHasValue = function(name: string) {
-      return self.hasProcessedTextValue(name);
-    };
     this.textPreProcessor.onProcess = function(
-      name: string,
-      returnDisplayValue: boolean
+      textValue: TextPreProcessorValue
     ) {
-      return self.getProcessedTextValue(name, returnDisplayValue);
+      self.getProcessedTextValue(textValue);
     };
     for (var i = 0; i < this.data.columns.length; i++) {
       if (this.rowValues[this.data.columns[i].name] === undefined) {
@@ -379,14 +375,13 @@ export class MatrixDropdownRowModelBase
     return this.data ? this.data.getSurvey() : null;
   }
   //ITextProcessor
-  private hasProcessedTextValue(name: string): boolean {
-    var firstName = new ProcessValue().getFirstName(name);
-    return firstName == "row";
-  }
-  private getProcessedTextValue(name: string, returnDisplayValue: boolean) {
+  private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    var firstName = new ProcessValue().getFirstName(textValue.name);
+    textValue.isExists = firstName == "row";
+    if (!textValue.isExists) return;
     //name should start with the row
     var values = { row: this.value };
-    return new ProcessValue().getValue(name, values);
+    textValue.value = new ProcessValue().getValue(textValue.name, values);
   }
   getTextProcessor(): ITextProcessor {
     return this;

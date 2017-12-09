@@ -17,7 +17,7 @@ import {
 } from "./base";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { PageModel } from "./page";
-import { TextPreProcessor } from "./textPreProcessor";
+import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
 import { JsonError } from "./jsonobject";
@@ -65,7 +65,6 @@ export class SurveyModel extends Base
   private isStartedState: boolean = false;
   private isCompletedBefore: boolean = false;
   private isLoading: boolean = false;
-  private processedTextValues: HashTable<any> = {};
   private textPreProcessor: TextPreProcessor;
   private completedStateValue: string = "";
   private completedStateTextValue: string = "";
@@ -486,14 +485,10 @@ export class SurveyModel extends Base
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onHasValue = function(name: string) {
-      return self.hasProcessedTextValue(name);
-    };
     this.textPreProcessor.onProcess = function(
-      name: string,
-      returnDisplayValue: boolean
+      textValue: TextPreProcessorValue
     ) {
-      return self.getProcessedTextValue(name, returnDisplayValue);
+      self.getProcessedTextValue(textValue);
     };
     this.pagesValue = this.createNewArray("pages", function(value) {
       self.doOnPageAdded(value);
@@ -508,7 +503,6 @@ export class SurveyModel extends Base
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.updateProcessedTextValues();
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -995,9 +989,6 @@ export class SurveyModel extends Base
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
         this.checkTriggers(key, data[key], false);
-        if (!this.processedTextValues[key.toLowerCase()]) {
-          this.processedTextValues[key.toLowerCase()] = "value";
-        }
       }
     }
     this.notifyAllQuestionsOnValueChanged();
@@ -1436,8 +1427,9 @@ export class SurveyModel extends Base
     for (var i = 0; i < this.currentPage.questions.length; i++) {
       var question = this.currentPage.questions[i];
       if (!question.visible) continue;
-      var value = this.getValue(question.name);
-      if (!this.isValueEmpty(value)) options.data[question.name] = value;
+      var value = this.getValue(question.getValueName());
+      if (!this.isValueEmpty(value))
+        options.data[question.getValueName()] = value;
     }
     this.setIsValidatingOnServer(true);
     this.onServerValidateQuestions(this, options);
@@ -1651,6 +1643,7 @@ export class SurveyModel extends Base
    * Returns a question by its name
    * @param name a question name
    * @param caseInsensitive
+   * @see getQuestionByValueName
    */
   public getQuestionByName(
     name: string,
@@ -1662,6 +1655,26 @@ export class SurveyModel extends Base
       var questionName = questions[i].name;
       if (caseInsensitive) questionName = questionName.toLowerCase();
       if (questionName == name) return questions[i];
+    }
+    return null;
+  }
+  /**
+   * Returns a question by its value name
+   * @param valueName a question name
+   * @param caseInsensitive
+   * @see getQuestionByName
+   * @see Question.valueName
+   */
+  public getQuestionByValueName(
+    valueName: string,
+    caseInsensitive: boolean = false
+  ): IQuestion {
+    var questions = this.getAllQuestions();
+    if (caseInsensitive) valueName = valueName.toLowerCase();
+    for (var i: number = 0; i < questions.length; i++) {
+      var questionValueName = questions[i].getValueName();
+      if (caseInsensitive) questionValueName = questionValueName.toLowerCase();
+      if (questionValueName == valueName) return questions[i];
     }
     return null;
   }
@@ -1759,27 +1772,27 @@ export class SurveyModel extends Base
   protected createNewPage(name: string) {
     return new PageModel(name);
   }
-  protected notifyQuestionOnValueChanged(name: string, newValue: any) {
+  protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     var questions = this.getAllQuestions();
     var question = null;
     for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].name != name) continue;
+      if (questions[i].getValueName() != valueName) continue;
       question = questions[i];
       this.doSurveyValueChanged(question, newValue);
       this.onValueChanged.fire(this, {
-        name: name,
+        name: valueName,
         question: question,
         value: newValue
       });
     }
     if (!question) {
       this.onValueChanged.fire(this, {
-        name: name,
+        name: valueName,
         question: null,
         value: newValue
       });
     }
-    this.notifyElementsOnAnyValueOrVariableChanged(name);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
     for (var i = 0; i < this.pages.length; i++) {
@@ -1789,7 +1802,10 @@ export class SurveyModel extends Base
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      this.doSurveyValueChanged(questions[i], this.getValue(questions[i].name));
+      this.doSurveyValueChanged(
+        questions[i],
+        this.getValue(questions[i].getValueName())
+      );
     }
   }
   protected doSurveyValueChanged(question: IQuestion, newValue: any) {
@@ -1799,8 +1815,8 @@ export class SurveyModel extends Base
     var questions = this.getCurrentPageQuestions();
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      var value = this.getValue(question.name);
-      this.checkTriggers(question.name, value, true);
+      var value = this.getValue(question.getValueName());
+      this.checkTriggers(question.getValueName(), value, true);
     }
   }
   private getCurrentPageQuestions(): Array<QuestionBase> {
@@ -2013,7 +2029,6 @@ export class SurveyModel extends Base
     this.isStartedState = this.firstPageIsStarted;
     this.runConditions();
     this.updateVisibleIndexes();
-    this.updateProcessedTextValues();
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.doComplete();
@@ -2022,53 +2037,42 @@ export class SurveyModel extends Base
   }
   protected onBeforeCreating() {}
   protected onCreating() {}
-  private updateProcessedTextValues() {
-    this.processedTextValues = {};
-    var self = this;
-    this.processedTextValues["pageno"] = function(name) {
-      return self.currentPage != null
-        ? self.visiblePages.indexOf(self.currentPage) + 1
-        : 0;
-    };
-    this.processedTextValues["pagecount"] = function(name) {
-      return self.visiblePageCount;
-    };
-    var questions = this.getAllQuestions();
-    for (var i = 0; i < questions.length; i++) {
-      this.addQuestionToProcessedTextValues(questions[i]);
+  private getProcessedTextValue(textValue: TextPreProcessorValue): any {
+    var name = textValue.name.toLocaleLowerCase();
+    if (name === "pageno") {
+      textValue.isExists = true;
+      var page = this.currentPage;
+      textValue.value = page != null ? this.visiblePages.indexOf(page) + 1 : 0;
+      return;
     }
-  }
-  private addQuestionToProcessedTextValues(question: IQuestion) {
-    this.processedTextValues[question.name.toLowerCase()] = "question";
-  }
-  private hasProcessedTextValue(name: string): boolean {
-    var firstName = new ProcessValue().getFirstName(name);
-    return this.processedTextValues[firstName.toLowerCase()];
-  }
-  private getProcessedTextValue(
-    name: string,
-    returnDisplayValue: boolean
-  ): any {
-    var firstName = new ProcessValue().getFirstName(name);
-    var val = this.processedTextValues[firstName.toLowerCase()];
-    if (!val) return null;
-    if (val == "variable") {
-      return this.getVariable(name.toLowerCase());
+    if (name === "pagecount") {
+      textValue.isExists = true;
+      textValue.value = this.visiblePageCount;
+      return;
     }
-    if (val == "question") {
-      var question = this.getQuestionByName(firstName, true);
-      if (!question) return null;
-      name = question.name + name.substr(firstName.length);
+    var firstName = new ProcessValue().getFirstName(name);
+    var variable = this.getVariable(name);
+    if (variable !== undefined) {
+      textValue.isExists = true;
+      textValue.value = variable;
+      return;
+    }
+    var question = this.getQuestionByValueName(firstName, true);
+    if (question) {
+      textValue.isExists = true;
+      name = question.getValueName() + name.substr(firstName.length);
       var values = {};
-      values[firstName] = returnDisplayValue
+      values[firstName] = textValue.returnDisplayValue
         ? question.displayValue
         : this.getValue(firstName);
-      return new ProcessValue().getValue(name, values);
+      textValue.value = new ProcessValue().getValue(name, values);
+      return;
     }
-    if (val == "value") {
-      return new ProcessValue().getValue(name, this.valuesHash);
+    var value = this.getValue(textValue.name);
+    if (value !== undefined) {
+      textValue.isExists = true;
+      textValue.value = value;
     }
-    return val(name);
   }
   private clearUnusedValues() {
     var questions = this.getAllQuestions();
@@ -2103,7 +2107,6 @@ export class SurveyModel extends Base
   public setVariable(name: string, newValue: any) {
     if (!name) return;
     this.variablesHash[name] = newValue;
-    this.processedTextValues[name.toLowerCase()] = "variable";
     this.notifyElementsOnAnyValueOrVariableChanged(name);
   }
   //ISurvey data
@@ -2142,10 +2145,6 @@ export class SurveyModel extends Base
     } else {
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
-      var processedVar = this.processedTextValues[name.toLowerCase()];
-      if (!processedVar) {
-        this.processedTextValues[name.toLowerCase()] = "value";
-      }
     }
     this.notifyQuestionOnValueChanged(name, newValue);
     this.checkTriggers(name, newValue, false);
@@ -2181,7 +2180,7 @@ export class SurveyModel extends Base
       return;
     var questions = this.getCurrentPageQuestions();
     for (var i = 0; i < questions.length; i++) {
-      var value = this.getValue(questions[i].name);
+      var value = this.getValue(questions[i].getValueName());
       if (questions[i].hasInput && this.isValueEmpty(value)) return;
     }
     if (!this.currentPage.hasErrors(true, false)) {
@@ -2271,7 +2270,6 @@ export class SurveyModel extends Base
         "question"
       );
     this.updateVisibleIndexes();
-    this.addQuestionToProcessedTextValues(question);
     this.onQuestionAdded.fire(this, {
       question: question,
       name: question.name,

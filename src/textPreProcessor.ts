@@ -3,10 +3,17 @@ export class TextPreProcessorItem {
   public end: number;
 }
 
+export class TextPreProcessorValue {
+  constructor(public name: string, public returnDisplayValue: boolean) {
+    this.isExists = false;
+  }
+  public value: any;
+  public isExists: boolean;
+}
+
 export class TextPreProcessor {
   private hasAllValuesOnLastRunValue: boolean = false;
-  public onProcess: (name: string, returnDisplayValue: boolean) => any;
-  public onHasValue: (name: string) => boolean;
+  public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor() {}
   public process(text: string, returnDisplayValue: boolean = false): string {
     this.hasAllValuesOnLastRunValue = true;
@@ -17,16 +24,20 @@ export class TextPreProcessor {
       var item = items[i];
       var name = this.getName(text.substring(item.start + 1, item.end));
       if (!this.canProcessName(name)) continue;
-      if (this.onHasValue && !this.onHasValue(name)) {
+      var textValue = new TextPreProcessorValue(name, returnDisplayValue);
+      this.onProcess(textValue);
+      if (!textValue.isExists) {
         this.hasAllValuesOnLastRunValue = false;
         continue;
       }
-      var value = this.onProcess(name, returnDisplayValue);
-      if (value == null) {
-        value = "";
+      if (textValue.value == null) {
+        textValue.value = "";
         this.hasAllValuesOnLastRunValue = false;
       }
-      text = text.substr(0, item.start) + value + text.substr(item.end + 1);
+      text =
+        text.substr(0, item.start) +
+        textValue.value +
+        text.substr(item.end + 1);
     }
     return text;
   }

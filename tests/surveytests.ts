@@ -1315,40 +1315,43 @@ QUnit.test("test goNextPageAutomatic property", function(assert) {
   dropDownQ.comment = "other value";
   assert.equal(survey.state, "completed", "complete the survey");
 });
-QUnit.test("test goNextPageAutomatic property - 'autogonext' - go next page automatically but do not submit", function(assert) {
-  var survey = twoPageSimplestSurvey();
+QUnit.test(
+  "test goNextPageAutomatic property - 'autogonext' - go next page automatically but do not submit",
+  function(assert) {
+    var survey = twoPageSimplestSurvey();
 
-  var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion(
-    "dropdown",
-    "question5"
-  );
-  dropDownQ.choices = [1, 2, 3];
-  dropDownQ.hasOther = true;
-  survey.goNextPageAutomatic = "autogonext";
-  assert.equal(
-    survey.currentPage.name,
-    survey.pages[0].name,
-    "the first page is default page"
-  );
-  survey.setValue("question1", 1);
-  survey.setValue("question2", 2);
-  assert.equal(
-    survey.currentPage.name,
-    survey.pages[1].name,
-    "go to the second page automatically"
-  );
-  (<Question>survey.currentPage.questions[0]).value = "3";
-  (<Question>survey.currentPage.questions[1]).value = "4";
-  dropDownQ.value = dropDownQ.otherItem.value;
-  assert.equal(
-    survey.currentPage.name,
-    survey.pages[1].name,
-    "stay on the second page"
-  );
-  assert.notEqual(survey.state, "completed", "survey is still running");
-  dropDownQ.comment = "other value";
-  assert.notEqual(survey.state, "completed", "survey is still running");
-});
+    var dropDownQ = <QuestionDropdownModel>survey.pages[1].addNewQuestion(
+      "dropdown",
+      "question5"
+    );
+    dropDownQ.choices = [1, 2, 3];
+    dropDownQ.hasOther = true;
+    survey.goNextPageAutomatic = "autogonext";
+    assert.equal(
+      survey.currentPage.name,
+      survey.pages[0].name,
+      "the first page is default page"
+    );
+    survey.setValue("question1", 1);
+    survey.setValue("question2", 2);
+    assert.equal(
+      survey.currentPage.name,
+      survey.pages[1].name,
+      "go to the second page automatically"
+    );
+    (<Question>survey.currentPage.questions[0]).value = "3";
+    (<Question>survey.currentPage.questions[1]).value = "4";
+    dropDownQ.value = dropDownQ.otherItem.value;
+    assert.equal(
+      survey.currentPage.name,
+      survey.pages[1].name,
+      "stay on the second page"
+    );
+    assert.notEqual(survey.state, "completed", "survey is still running");
+    dropDownQ.comment = "other value";
+    assert.notEqual(survey.state, "completed", "survey is still running");
+  }
+);
 QUnit.test("test goNextPageAutomatic after errors", function(assert) {
   var survey = twoPageSimplestSurvey();
 
@@ -2969,6 +2972,57 @@ QUnit.test("firstPageIsStarted = true, load from JSON, the flow", function(
   assert.equal(survey.state, "starting", "Survey is showing the start page");
   assert.equal(startCounter, 1, "onStarted event was called one time total");
 });
+
+QUnit.test("question.valueName property", function(assert) {
+  var survey = new SurveyModel();
+  survey.data = { val: "val1" };
+  var page = survey.addNewPage("p1");
+  var question = <Question>page.addNewQuestion("text", "q1");
+  question.valueName = "val";
+  assert.equal(question.value, "val1", "The value is taken by using valueName");
+});
+QUnit.test("pre process title, with question.valueName", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <Question>page.addNewQuestion("text", "q1");
+  question.valueName = "name";
+  survey.data = { name: "John" };
+  survey.title = "Hello {name}";
+  assert.equal(
+    survey.processedTitle,
+    "Hello John",
+    "process survey title correctly"
+  );
+});
+
+QUnit.test(
+  "Survey text preprocessing, dropdown/checkbox/radiogroup, with question.valueName",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.valueName = "name1";
+    q1.choices = [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }];
+    var q2 = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q2");
+    q2.valueName = "name2";
+    q2.choices = [{ value: 3, text: "Item 3" }, { value: 4, text: "Item 4" }];
+    var q3 = <Question>page.addNewQuestion("text", "q3");
+    q3.title = "{name1}-{name2}";
+    assert.equal(q3.locTitle.renderedHtml, "3. -", "There is no values");
+    q1.value = 1;
+    assert.equal(
+      q3.locTitle.renderedHtml,
+      "3. Item 1-",
+      "Drop down value is set"
+    );
+    q2.value = [3, 4];
+    assert.equal(
+      q3.locTitle.renderedHtml,
+      "3. Item 1-Item 3, Item 4",
+      "Drop down value is set"
+    );
+  }
+);
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

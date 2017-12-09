@@ -318,6 +318,31 @@ QUnit.test("Support visibleIf and panel variable", function(assert) {
   question.value = [{ q1: "val" }];
   assert.equal(question.panels[0].questions[1].visible, true, "q1 is 'val'");
 });
+QUnit.test("Support visibleIf and panel variable, question.valueName", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p");
+  var question = new QuestionPanelDynamicModel("q");
+  survey.pages[0].addQuestion(question);
+  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+    "panelQ1";
+  question.template.addNewQuestion("text", "q2");
+  question.template.questions[1].visibleIf = "{panel.panelQ1} = 'val'";
+  question.panelCount = 2;
+  assert.equal(
+    question.panels[0].questions[1].visible,
+    false,
+    "panelQ1 is not 'val'"
+  );
+  question.value = [{ panelQ1: "val" }];
+  assert.equal(
+    question.panels[0].questions[1].visible,
+    true,
+    "panelQ1 is 'val'"
+  );
+});
+
 QUnit.test("Support panelIndex variable", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");
@@ -418,6 +443,29 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Process text in titles, get correct value, question.valueName",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var survey_qName = <Question>page.addNewQuestion("text", "name");
+    var question = new QuestionPanelDynamicModel("q");
+    page.addQuestion(question);
+    (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+      "name";
+    question.templateTitle = "survey.name:{name}, panel.name:{panel.name}";
+    question.panelCount = 3;
+    survey_qName.value = "surveyName";
+    question.value = [{}, { name: "panel1Name" }, {}];
+    var panel = question.panels[1];
+    assert.equal(
+      panel.locTitle.renderedHtml,
+      "survey.name:surveyName, panel.name:panel1Name",
+      "process panel title correctly"
+    );
+  }
+);
+
 QUnit.test("PanelDynamic in design time", function(assert) {
   var survey = new SurveyModel();
   survey.setDesignMode(true);

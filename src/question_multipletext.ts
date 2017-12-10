@@ -1,6 +1,13 @@
-import { Base } from "./base";
+import {
+  Base,
+  ISurveyData,
+  ISurveyImpl,
+  ISurvey,
+  ITextProcessor
+} from "./base";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { Question } from "./question";
+import { QuestionTextModel } from "./question_text";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./base";
@@ -8,6 +15,9 @@ import { AnswerRequiredError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 
 export interface IMultipleTextData {
+  getSurvey(): ISurvey;
+  getTextProcessor(): ITextProcessor;
+  getAllValues(): any;
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any);
   getIsRequiredText(): string;
@@ -16,103 +26,96 @@ export interface IMultipleTextData {
 }
 
 export class MultipleTextItemModel extends Base
-  implements IValidatorOwner, ILocalizableOwner {
-  private static itemCounter = 100;
-  private static getItemId(): string {
-    return "sp_" + MultipleTextItemModel.itemCounter++;
-  }
+  implements IValidatorOwner, ISurveyData, ISurveyImpl {
+  private editorValue: QuestionTextModel;
   private data: IMultipleTextData;
-  private idValue: string = MultipleTextItemModel.getItemId();
 
   valueChangedCallback: (newValue: any) => void;
   validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
   constructor(name: any = null, title: string = null) {
     super();
-    var self = this;
-    this.name = name;
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.getFullTitle(text);
-    };
-    this.title = title;
-    this.createLocalizableString("placeHolder", this);
+    this.editorValue = this.createEditor(name);
+    this.editor.titleLocation = "left";
+    if (title) {
+      this.title = title;
+    }
   }
   public getType(): string {
     return "multipletextitem";
   }
   public get id(): string {
-    return this.idValue;
+    return this.editor.id;
   }
   /**
    * The item name.
    */
   public get name(): string {
-    return this.getPropertyValue("name");
+    return this.editor.name;
   }
   public set name(val: string) {
-    this.setPropertyValue("name", val);
-    if (this.locTitle) {
-      this.locTitle.onChanged();
-    }
+    this.editor.name = val;
+  }
+  public get editor(): QuestionTextModel {
+    return this.editorValue;
+  }
+  protected createEditor(name: string): QuestionTextModel {
+    return new QuestionTextModel(name);
   }
   setData(data: IMultipleTextData) {
     this.data = data;
+    if (data) {
+      this.editor.setSurveyImpl(this);
+    }
   }
   /**
    * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
    */
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.editor.isRequired;
   }
   public set isRequired(val: boolean) {
-    this.setPropertyValue("isRequired", val);
+    this.editor.isRequired = val;
   }
   /**
    * Use this property to change the default input type.
    */
   public get inputType(): string {
-    return this.getPropertyValue("inputType", "text");
+    return this.editor.inputType;
   }
   public set inputType(val: string) {
-    this.setPropertyValue("inputType", val.toLowerCase());
+    this.editor.inputType = val;
   }
   /**
    * Item title. If it is empty, the item name is rendered as title. This property supports markdown.
    * @see name
    */
-  public get title() {
-    return this.getLocalizableStringText("title", this.name);
+  public get title(): string {
+    return this.editor.title;
   }
   public set title(val: string) {
-    this.setLocalizableStringText("title", val);
+    this.editor.title = val;
   }
   get locTitle() {
-    return this.getLocalizableString("title");
+    return this.editor.locTitle;
   }
   /**
    * Returns the text or html for rendering the title.
    */
   public get fullTitle(): string {
-    return this.getFullTitle(this.locTitle.textOrHtml);
-  }
-  protected getFullTitle(str: string): string {
-    if (!str) str = this.name;
-    if (this.isRequired && this.data)
-      str = this.data.getIsRequiredText() + " " + str;
-    return str;
+    return this.editor.fullTitle;
   }
   /**
    * The input place holder.
    */
   public get placeHolder(): string {
-    return this.getLocalizableStringText("placeHolder");
+    return this.editor.placeHolder;
   }
   public set placeHolder(val: string) {
-    this.setLocalizableStringText("placeHolder", val);
+    this.editor.placeHolder = val;
   }
   get locPlaceHolder(): LocalizableString {
-    return this.getLocalizableString("placeHolder");
+    return this.editor.locPlaceHolder;
   }
   /**
    * The item value.
@@ -128,6 +131,34 @@ export class MultipleTextItemModel extends Base
   public onValueChanged(newValue: any) {
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);
   }
+  //ISurveyImpl
+  geSurveyData(): ISurveyData {
+    return this;
+  }
+  getSurvey(): ISurvey {
+    return this.data ? this.data.getSurvey() : null;
+  }
+  getTextProcessor(): ITextProcessor {
+    return this.data ? this.data.getTextProcessor() : null;
+  }
+  //ISurveyData
+  getValue(name: string): any {
+    if (!this.data) return null;
+    return this.data.getMultipleTextValue(name);
+  }
+  setValue(name: string, value: any) {
+    if (this.data) {
+      this.data.setMultipleTextValue(name, value);
+    }
+  }
+  getComment(name: string): string {
+    return null;
+  }
+  setComment(name: string, newValue: string) {}
+  getAllValues(): any {
+    if (this.data) return this.data.getAllValues();
+    return this.value;
+  }
   //IValidatorOwner
   getValidatorTitle(): string {
     return this.title;
@@ -137,13 +168,6 @@ export class MultipleTextItemModel extends Base
   }
   set validatedValue(val: any) {
     this.value = val;
-  }
-  //ILocalizableOwner
-  getLocale() {
-    return this.data ? this.data.getLocale() : "";
-  }
-  getMarkdownHtml(text: string) {
-    return this.data ? this.data.getMarkdownHtml(text) : null;
   }
 }
 
@@ -171,6 +195,12 @@ export class QuestionMultipleTextModel extends Question
   }
   public getType(): string {
     return "multipletext";
+  }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].setData(this);
+    }
   }
   public get isAllowTitleLeft(): boolean {
     return false;
@@ -299,6 +329,15 @@ export class QuestionMultipleTextModel extends Question
     newValue[name] = value;
     this.setNewValue(newValue);
     this.isMultipleItemValueChanging = false;
+  }
+  getSurvey(): ISurvey {
+    return this.survey;
+  }
+  getTextProcessor(): ITextProcessor {
+    return this.textProcessor;
+  }
+  getAllValues() {
+    return this.data ? this.data.getAllValues() : null;
   }
   getIsRequiredText(): string {
     return this.survey ? this.survey.requiredText : "";

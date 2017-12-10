@@ -336,6 +336,33 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function(
     "set the value from the text item"
   );
 });
+QUnit.test(
+  "Multiple Text Question: get/set values and properties via question text",
+  function(assert) {
+    var mText = new QuestionMultipleTextModel("q1");
+    mText.items.push(new MultipleTextItemModel("text1"));
+    mText.items.push(new MultipleTextItemModel("text2"));
+    mText.value = { text1: "val1" };
+    assert.ok(mText.items[0].editor, "question has been created");
+    assert.equal(
+      mText.items[0].editor.value,
+      "val1",
+      "the value is set correctly from the mText"
+    );
+    mText.items[0].editor.value = "newValue";
+    assert.deepEqual(
+      mText.value,
+      { text1: "newValue" },
+      "can set the value from question"
+    );
+    mText.items[0].title = "my title";
+    assert.equal(
+      mText.items[0].editor.title,
+      "my title",
+      "Title was set correctly"
+    );
+  }
+);
 QUnit.test("Multiple Text Question: support goNextPageAutomatic", function(
   assert
 ) {

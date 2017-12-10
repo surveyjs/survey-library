@@ -3,7 +3,9 @@ import {
   QuestionMultipleTextModel,
   MultipleTextItemModel
 } from "../question_multipletext";
+import { QuestionTextModel } from "../question_text";
 import { QuestionImplementor } from "./koquestion";
+import { QuestionText } from "./koquestion_text";
 import { Question } from "../question";
 import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
@@ -20,6 +22,9 @@ export class MultipleTextItem extends MultipleTextItemModel {
         self.value = newValue;
       }
     });
+  }
+  protected createEditor(name: string): QuestionTextModel {
+    return new QuestionText(name);
   }
   onValueChanged(newValue: any) {
     this.isKOValueUpdating = true;

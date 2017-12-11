@@ -9,7 +9,7 @@ export var surveyCss = {
 
 export var defaultStandardCss = {
   root: "sv_main",
-  header: "",
+  header: "sv_header",
   body: "sv_body",
   footer: "sv_nav",
   navigationButton: "",
@@ -21,6 +21,12 @@ export var defaultStandardCss = {
   },
   progress: "sv_progress",
   progressBar: "",
+  page: {
+    root: "sv_p_root",
+    title: "",
+    description: ""
+  },
+  // TODO: move to the page object
   pageTitle: "sv_p_title",
   pageDescription: "",
   row: "sv_row",

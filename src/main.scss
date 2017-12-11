@@ -239,8 +239,39 @@ $font-size: 14px;
           margin: 0.5em 0;
         }
 
-        .sv_qstn {
+        .sv_q {
           padding-bottom: 1em;
+          box-sizing: border-box;
+
+          input[type="text"],
+          input[type="date"] {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid $header-background-color;
+            font-size: 1em;
+          }
+
+          input[type="date"] {
+            padding: 0.42em 0.5em;
+          }
+
+          input[type="radio"],
+          input[type="checkbox"] {
+            margin: 0;
+            margin-top: 0.55em;
+            margin-right: 0.55em;
+            width: 1.5em;
+            height: 1.5em;
+            vertical-align: top;
+            font-size: 1em;
+          }
+          .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
+            margin-left: 2em;
+          }
+
+          input {
+            padding: 0.6em 0.5em;
+          }
         }
       }
     }

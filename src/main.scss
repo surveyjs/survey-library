@@ -175,3 +175,29 @@
   clip: rect(0px, 0px, 0px, 0px);
   pointer-events: none;
 }
+
+$header-background-color: #d3d3d3;
+$body-container-background-color: #e7e7e7;
+$body-background-color: white;
+$header-height: 275px;
+
+.sv_main {
+  position: relative;
+  background-color: $body-container-background-color;
+
+  .sv_custom_header {
+    position: absolute;
+    width: 100%;
+    height: $header-height;
+    background-color: $header-background-color;
+  }
+  .sv_container {
+    max-width: 80%;
+    margin: auto;
+    position: relative;
+
+    .sv_body {
+      background-color: $body-background-color;
+    }
+  }
+}

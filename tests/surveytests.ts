@@ -2808,7 +2808,7 @@ QUnit.test("clearInvisibleValues", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage();
   var question = <Question>page.addNewQuestion("text");
-  assert.equal(survey.clearInvisibleValues, "none", "the default value");
+  assert.equal(survey.clearInvisibleValues, "onComplete", "the default value");
   survey.clearInvisibleValues = true;
   assert.equal(survey.clearInvisibleValues, "onComplete", "true is onComplete");
   survey.clearInvisibleValues = false;

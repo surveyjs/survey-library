@@ -43,6 +43,9 @@
         get hasTitle () {
             return !!this.page.title && this.survey.showPageTitles;
         }
+        get hasDescription () {
+            return !!this.page.description;
+        }
         get num () {
             return this.page.num > 0 ? this.page.num + ". " : "";
         }

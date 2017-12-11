@@ -47,6 +47,9 @@
         get hasTitle() {
             return this.question.title.length > 0
         }
+        get hasDescription () {
+            return !!this.question.description;
+        }
         get survey () {
             return this.question.survey;
         }

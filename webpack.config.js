@@ -110,20 +110,6 @@ module.exports = function(options) {
           .createReadStream("./npmREADME.md")
           .pipe(fs.createWriteStream(packagePath + "README.md"));
       }
-      //TODO someday need to remove
-      if (options.platform === "knockout") {
-        if (options.buildType === "prod") {
-          fs.rename(
-            "./packages/survey-knockout/survey.knockout.min.js",
-            "./packages/survey-knockout/survey.ko.min.js"
-          );
-        } else {
-          fs.rename(
-            "./packages/survey-knockout/survey.knockout.js",
-            "./packages/survey-knockout/survey.ko.js"
-          );
-        }
-      }
     }
   };
 
@@ -258,10 +244,9 @@ module.exports = function(options) {
     ]);
   }
 
-  config.entry["survey." + options.platform] = path.resolve(
-    __dirname,
-    "./src/entries/" + options.platform
-  );
+  config.entry[
+    "survey." + (options.platform == "knockout" ? "ko" : options.platform)
+  ] = path.resolve(__dirname, "./src/entries/" + options.platform);
 
   return config;
 };

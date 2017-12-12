@@ -36,8 +36,6 @@ export class QuestionPanelDynamicItem
   constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
     this.data = data;
     this.panelValue = panel;
-    this.panel.setSurveyImpl(this);
-    this.panel.updateCustomWidgets();
     var self = this;
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = function(
@@ -45,6 +43,8 @@ export class QuestionPanelDynamicItem
     ) {
       self.getProcessedTextValue(textValue);
     };
+    this.panel.setSurveyImpl(this);
+    this.panel.updateCustomWidgets();
   }
   public get panel(): PanelModel {
     return this.panelValue;

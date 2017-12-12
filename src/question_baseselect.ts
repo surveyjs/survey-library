@@ -1,6 +1,6 @@
 import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
-import { SurveyError } from "./base";
+import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
@@ -230,6 +230,10 @@ export class QuestionSelectBase extends Question {
     }
     errors.push(new CustomError(text));
   }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    this.runChoicesByUrl();
+  }
   public onLocaleChanged() {
     super.onLocaleChanged();
     this.onVisibleChoicesChanged();
@@ -250,12 +254,13 @@ export class QuestionSelectBase extends Question {
     this.runChoicesByUrl();
   }
   private runChoicesByUrl() {
-    if (this.choicesByUrl) {
-      var processor = this.surveyImpl
-        ? this.surveyImpl.getTextProcessor()
-        : this.survey;
-      this.choicesByUrl.run(processor);
-    }
+    if (!this.choicesByUrl || this.isLoadingFromJson) return;
+    var processor = this.surveyImpl
+      ? this.surveyImpl.getTextProcessor()
+      : this.textProcessor;
+    if (!processor) processor = this.survey;
+    if (!processor) return;
+    this.choicesByUrl.run(processor);
   }
   private onLoadChoicesFromUrl(array: Array<ItemValue>) {
     var errorCount = this.errors.length;

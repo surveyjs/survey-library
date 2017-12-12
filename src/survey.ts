@@ -705,14 +705,15 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Set it to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+   * Set it to 'none' to include the invisible values into the survey data.
    * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
-   * </br> The default value is 'none'.
+   * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
+   * </br> The default value is 'onComplete'.
    * @see QuestionBase.visible
    * @see onComplete
    */
   public get clearInvisibleValues(): any {
-    return this.getPropertyValue("clearInvisibleValues", "none");
+    return this.getPropertyValue("clearInvisibleValues", "onComplete");
   }
   public set clearInvisibleValues(val: any) {
     if (val === true) val = "onComplete";
@@ -2613,7 +2614,7 @@ JsonObject.metaData.addClass("survey", [
   "goNextPageAutomatic:boolean",
   {
     name: "clearInvisibleValues",
-    default: "none",
+    default: "onComplete",
     choices: ["none", "onComplete", "onHidden"]
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },

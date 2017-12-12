@@ -1,9 +1,11 @@
+import { ITextProcessor } from "../src/base";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestfull } from "../src/choicesRestfull";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { JsonObject } from "../src/jsonobject";
@@ -26,12 +28,26 @@ class ChoicesRestfullTester extends ChoicesRestfull {
   }
 }
 
+class TextProcessorTester implements ITextProcessor {
+  processText(text: string, returnDisplayValue: boolean): string {
+    return text;
+  }
+  processTextEx(text: string): any {
+    return { text: text, hasAllValuesOnLastRun: true };
+  }
+}
+
 class QuestionDropdownModelTester extends QuestionDropdownModel {
   constructor(name: string) {
     super(name);
   }
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfullTester();
+  }
+  processor: ITextProcessor;
+  protected get textProcessor(): ITextProcessor {
+    if (!this.processor) this.processor = new TextProcessorTester();
+    return this.processor;
   }
 }
 class QuestionCheckboxModelTester extends QuestionCheckboxModel {
@@ -40,6 +56,11 @@ class QuestionCheckboxModelTester extends QuestionCheckboxModel {
   }
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfullTester();
+  }
+  processor: ITextProcessor;
+  protected get textProcessor(): ITextProcessor {
+    if (!this.processor) this.processor = new TextProcessorTester();
+    return this.processor;
   }
 }
 
@@ -51,6 +72,11 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
     if (questionType == "dropdown")
       return new QuestionDropdownModelTester(name);
     return super.createCellQuestion(questionType, name);
+  }
+  processor: ITextProcessor;
+  protected get textProcessor(): ITextProcessor {
+    if (!this.processor) this.processor = new TextProcessorTester();
+    return this.processor;
   }
 }
 
@@ -65,6 +91,11 @@ class QuestionDropdownImageTester extends QuestionDropdownModel {
   }
   public getType(): string {
     return "dropdown_image";
+  }
+  processor: ITextProcessor;
+  protected get textProcessor(): ITextProcessor {
+    if (!this.processor) this.processor = new TextProcessorTester();
+    return this.processor;
   }
 }
 
@@ -230,6 +261,29 @@ QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {
   );
   rows[0].cells[0].question.value = "";
   assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty again");
+});
+
+QUnit.test("Cascad dropdown in panel dynamic", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("1");
+  var question = new QuestionPanelDynamicModel("panel");
+  question.template.addNewQuestion("text", "state");
+  var dropDown = new QuestionDropdownModelTester("q1");
+  dropDown.choicesByUrl.url = "{panel.state}";
+  question.template.addQuestion(dropDown);
+  page.addElement(question);
+  question.panelCount = 1;
+
+  var qState = <Question>question.panels[0].questions[0];
+  var qCity = <QuestionDropdownModelTester>question.panels[0].questions[1];
+
+  assert.equal(qCity.visibleChoices.length, 0, "It is empty");
+  qState.value = "ca_cities";
+  assert.equal(qCity.visibleChoices.length, 2, "We have two cities now, CA");
+  qState.value = "tx_cities";
+  assert.equal(qCity.visibleChoices.length, 3, "We have three cities now, TX");
+  qState.value = "";
+  assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
 });
 
 QUnit.test("Load countries, custom properties, #615", function(assert) {

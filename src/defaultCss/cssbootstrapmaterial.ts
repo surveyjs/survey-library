@@ -33,7 +33,7 @@ export var defaultBootstrapMaterialCss = {
     item: ""
   },
 
-  boolean: { root: "sv_qbln form-inline", item: "checkbox" },
+  boolean: { root: "sv_qbln form-inline checkbox", item: "" },
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",

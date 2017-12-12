@@ -71,7 +71,7 @@ export class QuestionPanelDynamicItem
     var values = this.data.getPanelItemData(this);
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
-      q.onSurveyValueChanged(values[q.name]);
+      q.onSurveyValueChanged(values[q.getValueName()]);
     }
   }
   public setVisibleIndex(index: number, showIndex: boolean): number {

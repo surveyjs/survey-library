@@ -246,6 +246,13 @@ export class PanelModelBase extends SurveyElement
     }
     return null;
   }
+  public getQuestionByValueName(valueName: string): QuestionBase {
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].getValueName() == valueName) return questions[i];
+    }
+    return null;
+  }
   private markQuestionListDirty() {
     this.isQuestionsReady = false;
     if (this.parent) this.parent.markQuestionListDirty();

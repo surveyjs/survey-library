@@ -1,4 +1,11 @@
-﻿.sv_window {
+﻿@mixin svg-icon($icon-size) {
+  content: "";
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: $icon-size / 2;
+}
+
+.sv_window {
   position: fixed;
   bottom: 3px;
   right: 10px;
@@ -289,19 +296,28 @@ $font-size: 14px;
             padding: 0.6em 0.5em;
             color: $text-color;
           }
-          select {
-            &:after {
+          .sv_select_wrapper {
+            position: relative;
+            background-color: $body-background-color;
+
+            select {
+              background: transparent;
+              appearance: none;
+              -webkit-appearance: none;
+              -moz-appearance: none;
+              -ms-progress-appearance: none;
+            }
+
+            &:before {
               content: " ";
-              padding: 1.25em;
+              padding: 1.22em;
               //background-image: "";
+              background-color: $main-color;
               position: absolute;
               right: 0;
-              top: 0;
-              background-color: $main-color;
-              pointer-events: none;
-            }
-            & > option {
-              height: 2.5em;
+              top: 1px;
+              background-image: url("./images/Down_34x34.svg");
+              @include svg-icon(34px);
             }
           }
 
@@ -346,6 +362,10 @@ $font-size: 14px;
           th {
             line-height: 2.5em;
           }
+        }
+
+        fieldset.sv_qcbc {
+          line-height: 2.5em;
         }
       }
     }

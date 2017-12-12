@@ -167,6 +167,7 @@
 // }
 
 $main-color: #1ab394;
+$main-hover-color: darken($main-color, 5%);
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
 $body-background-color: white;
@@ -182,6 +183,22 @@ $font-size: 14px;
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
     "Helvetica Neue", Arial, sans-serif;
   font-size: $font-size;
+
+  input[type="button"],
+  button {
+    font-size: 0.85em;
+    font-weight: bold;
+    color: $body-background-color;
+    line-height: 2.5em;
+    background-color: $main-color;
+    border: none;
+    min-width: 100px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $main-hover-color;
+    }
+  }
 
   .sv_custom_header {
     position: absolute;
@@ -227,9 +244,27 @@ $font-size: 14px;
 
           &:nth-child(odd) {
             background-color: $body-background-color;
+
+            .sv_q_matrix > tbody > tr {
+              &:nth-child(odd) {
+                background-color: $body-container-background-color;
+              }
+              &:nth-child(even) {
+                background-color: $body-background-color;
+              }
+            }
           }
           &:nth-child(even) {
             background-color: $body-container-background-color;
+
+            .sv_q_matrix > tbody > tr {
+              &:nth-child(odd) {
+                background-color: $body-background-color;
+              }
+              &:nth-child(even) {
+                background-color: $body-container-background-color;
+              }
+            }
           }
         }
 
@@ -244,11 +279,30 @@ $font-size: 14px;
           box-sizing: border-box;
 
           input[type="text"],
-          input[type="date"] {
+          input[type="date"],
+          select {
+            position: relative;
             width: 100%;
             box-sizing: border-box;
             border: 1px solid $header-background-color;
             font-size: 1em;
+            padding: 0.6em 0.5em;
+            color: $text-color;
+          }
+          select {
+            &:after {
+              content: " ";
+              padding: 1.25em;
+              //background-image: "";
+              position: absolute;
+              right: 0;
+              top: 0;
+              background-color: $main-color;
+              pointer-events: none;
+            }
+            & > option {
+              height: 2.5em;
+            }
           }
 
           input[type="date"] {
@@ -264,13 +318,33 @@ $font-size: 14px;
             height: 1.5em;
             vertical-align: top;
             font-size: 1em;
+            padding: 0.6em 0.5em;
           }
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
             margin-left: 2em;
           }
+        }
 
-          input {
-            padding: 0.6em 0.5em;
+        table.sv_q_matrix {
+          width: 100%;
+          border-collapse: collapse;
+
+          tr {
+            border-bottom: 1px solid $header-background-color;
+          }
+
+          td,
+          th {
+            text-align: left;
+            padding: 0 1em;
+          }
+
+          td {
+            line-height: 3.3em;
+          }
+
+          th {
+            line-height: 2.5em;
           }
         }
       }

@@ -219,23 +219,19 @@ export class Condition {
         return true;
       },
       greater: function(left, right) {
-        if (left == null) return false;
-        if (right == null) return true;
+        if (left == null || right == null) return false;
         return left > right;
       },
       less: function(left, right) {
-        if (right == null) return false;
-        if (left == null) return true;
+        if (left == null || right == null) return false;
         return left < right;
       },
       greaterorequal: function(left, right) {
-        if (left == null && right != null) return false;
-        if (right == null) return true;
+        if (left == null || right == null) return false;
         return left >= right;
       },
       lessorequal: function(left, right) {
-        if (left != null && right == null) return false;
-        if (left == null) return true;
+        if (left == null || right == null) return false;
         return left <= right;
       }
     };

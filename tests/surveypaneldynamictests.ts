@@ -343,6 +343,76 @@ QUnit.test("Support visibleIf and panel variable, question.valueName", function(
   );
 });
 
+QUnit.test("Text Processing and panel variable, question.valueName", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p");
+  var question = new QuestionPanelDynamicModel("q");
+  survey.pages[0].addQuestion(question);
+  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+    "panelQ1";
+  question.templateTitle = "Value: {panel.panelQ1}";
+  question.panelCount = 2;
+  assert.equal(
+    question.panels[0].processedTitle,
+    "Value: ",
+    "panelQ1 is empty"
+  );
+  question.value = [{ panelQ1: "val" }];
+  assert.equal(
+    question.panels[0].processedTitle,
+    "Value: val",
+    "panelQ1 is 'val'"
+  );
+});
+
+QUnit.test("Text Processing from panel.data", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p");
+  var question = new QuestionPanelDynamicModel("q");
+  question.templateTitle = "Value: {panel.panelQ1}";
+  question.panelCount = 2;
+  assert.equal(
+    question.panels[0].processedTitle,
+    "Value: ",
+    "panelQ1 is empty"
+  );
+  question.value = [{ panelQ1: "val" }];
+  assert.equal(
+    question.panels[0].processedTitle,
+    "Value: val",
+    "panelQ1 is 'val'"
+  );
+});
+
+QUnit.test("Set panel value, question.valueName", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p");
+  var question = new QuestionPanelDynamicModel("q");
+  survey.pages[0].addQuestion(question);
+  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+    "panelQ1";
+  question.panelCount = 2;
+  assert.equal(
+    question.template.questions[0].getValueName(),
+    "panelQ1",
+    "value name is set"
+  );
+  assert.equal(
+    question.panels[0].questions[0].getValueName(),
+    "panelQ1",
+    "value name is set for generated panel"
+  );
+  (<Question>question.panels[0].questions[0]).value = "val1";
+  (<Question>question.panels[1].questions[0]).value = "val2";
+  assert.deepEqual(
+    question.value,
+    [{ panelQ1: "val1" }, { panelQ1: "val2" }],
+    "set value correctly, use valueName property"
+  );
+});
+
 QUnit.test("Support panelIndex variable", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");

@@ -590,6 +590,7 @@ JsonObject.metaData.addClass(
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" },
     { name: "commentText", serializationProperty: "locCommentText" },
+    "valueName",
     "enableIf:condition",
     "defaultValue:value",
     "isRequired:boolean",

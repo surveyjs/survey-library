@@ -57,7 +57,8 @@ function iif(params: any[]): any {
 FunctionFactory.Instance.register("iif", iif);
 
 function age(params: any[]): any {
-  if (!params && params.length < 1) return -1;
+  if (!params && params.length < 1) return null;
+  if (!params[0]) return null;
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
   var ageDate = new Date(ageDifMs); // miliseconds from epoch

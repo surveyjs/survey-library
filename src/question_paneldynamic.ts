@@ -71,7 +71,7 @@ export class QuestionPanelDynamicItem
     var values = this.data.getPanelItemData(this);
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
-      q.onSurveyValueChanged(values[q.name]);
+      q.onSurveyValueChanged(values[q.getValueName()]);
     }
   }
   public setVisibleIndex(index: number, showIndex: boolean): number {
@@ -110,7 +110,7 @@ export class QuestionPanelDynamicItem
       ""
     );
     var firstName = new ProcessValue().getFirstName(textValue.name);
-    var question = <Question>this.panel.getQuestionByName(firstName);
+    var question = <Question>this.panel.getQuestionByValueName(firstName);
     var values = {};
     if (question) {
       values[firstName] = textValue.returnDisplayValue
@@ -805,7 +805,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private isValueDuplicated(panel: PanelModel, keyValues: Array<any>): boolean {
     if (!this.keyName) return false;
-    var question = <Question>panel.getQuestionByName(this.keyName);
+    var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {

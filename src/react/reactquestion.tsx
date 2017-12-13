@@ -67,10 +67,8 @@ export class SurveyQuestion extends React.Component<any, any> {
         },
         "react"
       );
-      var el = this.refs["root"];
-      if (el && this.questionBase.survey)
-        this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
     }
+    this.doAfterRender();
   }
   componentWillUnmount() {
     if (this.questionBase) {
@@ -79,6 +77,16 @@ export class SurveyQuestion extends React.Component<any, any> {
         ["visibleIndex", "renderWidth", "indent", "rightIndent, isReadOnly"],
         "react"
       );
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.doAfterRender();
+  }
+  private doAfterRender() {
+    if (this.questionBase) {
+      var el = this.refs["root"];
+      if (el && this.questionBase.survey)
+        this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
     }
   }
   render(): JSX.Element {

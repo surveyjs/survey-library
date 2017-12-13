@@ -266,24 +266,52 @@ $font-size: 14px;
           &:nth-child(odd) {
             background-color: $body-background-color;
 
-            .sv_q_matrix > tbody > tr {
-              &:nth-child(odd) {
-                background-color: $body-container-background-color;
+            .sv_q_matrix,
+            .sv_q_matrix_dynamic {
+              > tbody > tr {
+                &:nth-child(odd) {
+                  background-color: $body-container-background-color;
+                }
+                &:nth-child(even) {
+                  background-color: $body-background-color;
+                }
               }
-              &:nth-child(even) {
-                background-color: $body-background-color;
+            }
+
+            .sv_panel_dynamic {
+              .sv_p_container {
+                &:nth-child(odd) {
+                  background-color: $body-container-background-color;
+                }
+                &:nth-child(even) {
+                  background-color: $body-background-color;
+                }
               }
             }
           }
           &:nth-child(even) {
             background-color: $body-container-background-color;
 
-            .sv_q_matrix > tbody > tr {
-              &:nth-child(odd) {
-                background-color: $body-background-color;
+            .sv_q_matrix,
+            .sv_q_matrix_dynamic {
+              > tbody > tr {
+                &:nth-child(odd) {
+                  background-color: $body-background-color;
+                }
+                &:nth-child(even) {
+                  background-color: $body-container-background-color;
+                }
               }
-              &:nth-child(even) {
-                background-color: $body-container-background-color;
+            }
+
+            .sv_panel_dynamic {
+              .sv_p_container {
+                &:nth-child(odd) {
+                  background-color: $body-background-color;
+                }
+                &:nth-child(even) {
+                  background-color: $body-container-background-color;
+                }
               }
             }
           }
@@ -304,6 +332,15 @@ $font-size: 14px;
           input[type="color"],
           input[type="email"],
           input[type="number"],
+          input[type="datetime"],
+          input[type="datetime-local"],
+          input[type="month"],
+          input[type="password"],
+          input[type="range"],
+          input[type="tel"],
+          input[type="time"],
+          input[type="url"],
+          input[type="week"],
           select,
           textarea {
             position: relative;
@@ -385,6 +422,9 @@ $font-size: 14px;
               line-height: 3.3em;
             }
           }
+          &.sv_q_matrix_dynamic tr {
+            border-bottom: 1px solid $header-background-color;
+          }
 
           td,
           th {
@@ -398,7 +438,9 @@ $font-size: 14px;
           }
 
           th {
-            line-height: 2.5em;
+            line-height: 1.5em;
+            padding: 0.5em 1em;
+            //vertical-align: bottom;
           }
         }
 

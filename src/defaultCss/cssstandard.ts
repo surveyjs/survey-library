@@ -59,8 +59,8 @@ export var defaultStandardCss = {
   },
   matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
   matrixdropdown: { root: "sv_q_matrix" },
-  matrixdynamic: { root: "table", button: "" },
-  paneldynamic: { root: "", button: "" },
+  matrixdynamic: { root: "sv_q_matrix_dynamic", button: "" },
+  paneldynamic: { root: "sv_panel_dynamic", button: "" },
   multipletext: {
     root: "",
     itemTitle: "",

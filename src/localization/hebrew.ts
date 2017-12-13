@@ -19,7 +19,7 @@ export var hebrewSurveyStrings = {
     "'{0}' חייב להיות שווה או גדול מ {1}, ושווה ל- {2} או פחות מ- {}}",
   numericMin: "'{0}' חייב להיות שווה או גדול מ {1}",
   numericMax: "'{0}' חייב להיות שווה או קטן מ {1}",
-  invalidEmail: "הזן כתובת דוא"ל חוקית.",
+  invalidEmail: 'הזן כתובת דוא"ל חוקית.',
   otherRequiredError: 'נא להזין נתונים בשדה "אחר"'
 };
 

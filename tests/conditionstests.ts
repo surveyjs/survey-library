@@ -525,6 +525,19 @@ QUnit.test("Bug with contains, bug#781", function(assert) {
   values = { ResultaatSelectie: ["2"] };
   assert.equal(runner.run(values), false, "['2'] contains '1'");
 });
+QUnit.test("Bug with contains, support string.indexof, bug#831", function(
+  assert
+) {
+  var runner = new ConditionRunner("{str} contains '1'");
+  var values = { str: "12345" };
+  assert.equal(runner.run(values), true, "'12345' contains '1'");
+  values = { str: "2345" };
+  assert.equal(runner.run(values), false, "'2345' contains '1'");
+  runner = new ConditionRunner("{str} notcontains '1'");
+  assert.equal(runner.run(values), true, "'2345' notcontains '1'");
+  values = { str: "12345" };
+  assert.equal(runner.run(values), false, "'12345' notcontains '1'");
+});
 QUnit.test("Escape quotes, bug#786", function(assert) {
   var runner = new ConditionRunner("{text} = 'I\\'m here'");
   var values = { text: "I'm here" };

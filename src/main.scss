@@ -178,6 +178,8 @@ $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
 $body-background-color: white;
 $text-color: #6d7072;
+$error-color: red;
+$error-background-color: lighten($error-color, 45%);
 
 $header-height: 275px;
 $font-size: 14px;
@@ -326,6 +328,24 @@ $font-size: 14px;
         .sv_q {
           padding-bottom: 1em;
           box-sizing: border-box;
+
+          .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
+            border: 1px solid $error-color;
+            background-color: $error-background-color;
+            margin: 1em 0;
+            color: $error-color;
+            padding: 0 1em;
+            line-height: 3.3em;
+
+            & + input,
+            & + textarea,
+            & + .sv_select_wrapper select {
+              border: 1px solid $error-color;
+              &:focus {
+                outline: $error-color auto 5px;
+              }
+            }
+          }
 
           input[type="text"],
           input[type="date"],

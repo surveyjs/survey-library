@@ -48,7 +48,7 @@ export var defaultStandardCss = {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
     itemControl: "",
-    controlLabel: "",
+    controlLabel: "sv_q_checkbox_control_label",
     other: "sv_q_other sv_q_checkbox_other"
   },
   comment: "",
@@ -59,13 +59,13 @@ export var defaultStandardCss = {
     other: "sv_q_other"
   },
   matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
-  matrixdropdown: { root: "sv_q_matrix" },
+  matrixdropdown: { root: "sv_q_matrix_dropdown" },
   matrixdynamic: { root: "sv_q_matrix_dynamic", button: "" },
   paneldynamic: { root: "sv_panel_dynamic", button: "" },
   multipletext: {
-    root: "",
-    itemTitle: "",
-    row: "",
+    root: "sv_q_mt",
+    itemTitle: "sv_q_mt_title",
+    row: "sv_q_mt_row",
     itemValue: "sv_q_mt_item_value"
   },
   radiogroup: {

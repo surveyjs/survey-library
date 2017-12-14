@@ -184,7 +184,7 @@ $error-background-color: lighten($error-color, 30%);
 $header-height: 275px;
 $font-size: 14px;
 
-$base-line-height: 2.5em;
+$base-line-height: 2em;
 
 .sv_main {
   position: relative;
@@ -193,16 +193,6 @@ $base-line-height: 2.5em;
   font-family: "Segoe UI", Frutiger, "Frutiger Linotype", "Dejavu Sans",
     "Helvetica Neue", Arial, sans-serif;
   font-size: $font-size;
-
-  input,
-  select,
-  textarea {
-    &:focus {
-      border-color: $main-color;
-      outline: $main-color auto 5px;
-      //box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px $main-color;
-    }
-  }
 
   hr {
     border: none;
@@ -219,6 +209,7 @@ $base-line-height: 2.5em;
     border: none;
     min-width: 100px;
     cursor: pointer;
+    padding: 0 2em;
 
     &:hover {
       background-color: $main-hover-color;
@@ -288,7 +279,7 @@ $base-line-height: 2.5em;
             background-color: $body-background-color;
 
             .sv_q_matrix,
-            .sv_q_matrix_dynamic {
+            .sv_q_matrix_dropdown .sv_q_matrix_dynamic {
               > tbody > tr {
                 &:nth-child(odd) {
                   background-color: $body-container-background-color;
@@ -299,21 +290,22 @@ $base-line-height: 2.5em;
               }
             }
 
-            .sv_panel_dynamic {
-              .sv_p_container {
-                &:nth-child(odd) {
-                  background-color: $body-container-background-color;
-                }
-                &:nth-child(even) {
-                  background-color: $body-background-color;
-                }
-              }
-            }
+            // .sv_panel_dynamic {
+            //   .sv_p_container {
+            //     &:nth-child(odd) {
+            //       background-color: $body-container-background-color;
+            //     }
+            //     &:nth-child(even) {
+            //       background-color: $body-background-color;
+            //     }
+            //   }
+            // }
           }
           &:nth-child(even) {
             background-color: $body-container-background-color;
 
             .sv_q_matrix,
+            .sv_q_matrix_dropdown,
             .sv_q_matrix_dynamic {
               > tbody > tr {
                 &:nth-child(odd) {
@@ -325,16 +317,16 @@ $base-line-height: 2.5em;
               }
             }
 
-            .sv_panel_dynamic {
-              .sv_p_container {
-                &:nth-child(odd) {
-                  background-color: $body-background-color;
-                }
-                &:nth-child(even) {
-                  background-color: $body-container-background-color;
-                }
-              }
-            }
+            // .sv_panel_dynamic {
+            //   .sv_p_container {
+            //     &:nth-child(odd) {
+            //       background-color: $body-background-color;
+            //     }
+            //     &:nth-child(even) {
+            //       background-color: $body-container-background-color;
+            //     }
+            //   }
+            // }
           }
         }
 
@@ -347,11 +339,6 @@ $base-line-height: 2.5em;
         .sv_q {
           padding: 1em;
           box-sizing: border-box;
-
-          // .sv_p_container {
-          //   padding: 1em;
-          //   box-sizing: border-box;
-          // }
 
           .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
             border: 1px solid $error-color;
@@ -391,8 +378,15 @@ $base-line-height: 2.5em;
             box-sizing: border-box;
             border: 1px solid $header-background-color;
             font-size: 1em;
-            padding: 0.6em 0.5em;
+            line-height: $base-line-height;
             color: $text-color;
+            padding-left: 1em;
+
+            &:focus {
+              border-color: $main-color;
+              outline: none;
+              border: 1px solid $main-color;
+            }
           }
 
           .sv_select_wrapper {
@@ -414,18 +408,14 @@ $base-line-height: 2.5em;
             }
 
             &:before {
-              padding: 1.21em;
-              //background-color: $main-color;
+              padding: 1em;
               position: absolute;
+              right: 1px;
               right: 0;
               top: 1px;
               background-image: url("./images/Down_34x34.svg");
               @include svg-icon();
             }
-          }
-
-          input[type="date"] {
-            padding: 0.42em 0.5em;
           }
 
           input[type="color"] {
@@ -437,13 +427,13 @@ $base-line-height: 2.5em;
           input[type="checkbox"] {
             margin: 0;
             margin-right: 0.55em;
-            width: 1.5em;
-            height: 1.5em;
+            width: 1.2em;
+            height: 1.2em;
             vertical-align: middle;
             font-size: 1em;
           }
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
-            margin-left: 2em;
+            margin-left: 1.5em;
           }
           .sv_q_radiogroup,
           .sv_q_checkbox {
@@ -461,14 +451,27 @@ $base-line-height: 2.5em;
           width: 100%;
           border-collapse: collapse;
 
-          &.sv_q_matrix tr {
-            border-bottom: 1px solid $header-background-color;
-            .sv_q_m_label {
-              position: static;
+          &.sv_q_matrix,
+          &.sv_q_matrix_dropdown,
+          &.sv_q_matrix_dynamic {
+            tr {
+              border-bottom: 1px solid $header-background-color;
             }
           }
-          &.sv_q_matrix_dynamic tr {
-            border-bottom: 1px solid $header-background-color;
+          &.sv_q_matrix {
+            td {
+              min-width: 10em;
+              .sv_q_m_label {
+                position: static;
+              }
+            }
+          }
+          &.sv_q_matrix_dropdown {
+            .sv_qcbc {
+              .sv_q_checkbox_control_label {
+                margin-right: 1.5em;
+              }
+            }
           }
 
           td,
@@ -479,12 +482,13 @@ $base-line-height: 2.5em;
 
           td {
             padding: 0.5em;
+            padding-right: $base-line-height;
           }
 
           th {
-            line-height: 1.5em;
+            line-height: 1.3em;
             padding: 0.5em;
-            //vertical-align: bottom;
+            vertical-align: bottom;
           }
         }
 

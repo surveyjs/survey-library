@@ -13,9 +13,9 @@
             <!-- ko if: koState() == "starting" -->
             <div data-bind="css: css.body">
                 <div data-bind="attr: { id: startedPage.id }, template: { name: 'survey-page', data: startedPage, afterRender: koAfterRenderPage }"></div>
-            </div>
-            <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
-                <input type="button" data-bind="value: startSurveyText, click: start, css: cssNavigationStart" />
+                <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
+                    <input type="button" data-bind="value: startSurveyText, click: start, css: cssNavigationStart" />
+                </div>
             </div>
             <!-- /ko -->
             <!-- ko if: koState() == "running" -->
@@ -31,13 +31,13 @@
                 <!-- ko template: { name: 'survey-timerpanel'} -->
                 <!-- /ko -->
                 <!-- /ko -->
-            </div>
-            <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
-                <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && isShowPrevButton, css: cssNavigationPrev"
-                />
-                <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: cssNavigationNext" />
-                <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete"
-                />
+                <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
+                    <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && isShowPrevButton, css: cssNavigationPrev"
+                    />
+                    <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: cssNavigationNext" />
+                    <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete"
+                    />
+                </div>
             </div>
             <!-- /ko -->
             <!-- ko if: koState() == "completed" && showCompletedPage -->

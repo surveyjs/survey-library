@@ -178,8 +178,8 @@ $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
 $body-background-color: white;
 $text-color: #6d7072;
-$error-color: red;
-$error-background-color: lighten($error-color, 45%);
+$error-color: #ed5565;
+$error-background-color: lighten($error-color, 30%);
 
 $header-height: 275px;
 $font-size: 14px;
@@ -504,6 +504,15 @@ $font-size: 14px;
           .sv_q_rating_max_text {
             margin-left: 0.5em;
           }
+        }
+      }
+
+      .sv_nav {
+        padding: 1em 0;
+        min-height: 2.5em;
+
+        .sv_complete_btn {
+          float: right;
         }
       }
     }

@@ -184,6 +184,8 @@ $error-background-color: lighten($error-color, 30%);
 $header-height: 275px;
 $font-size: 14px;
 
+$base-line-height: 2.5em;
+
 .sv_main {
   position: relative;
   width: 100%;
@@ -212,7 +214,7 @@ $font-size: 14px;
     font-size: 0.85em;
     font-weight: bold;
     color: $body-background-color;
-    line-height: 2.5em;
+    line-height: $base-line-height;
     background-color: $main-color;
     border: none;
     min-width: 100px;
@@ -405,7 +407,7 @@ $font-size: 14px;
           }
 
           input[type="color"] {
-            min-height: 2.5em;
+            min-height: $base-line-height;
             padding: 0;
           }
 
@@ -465,11 +467,11 @@ $font-size: 14px;
         }
 
         fieldset.sv_qcbc {
-          line-height: 2.5em;
+          line-height: $base-line-height;
         }
 
         .sv_q_rating {
-          line-height: 2.5em;
+          line-height: $base-line-height;
 
           .sv_q_rating_item {
             cursor: pointer;
@@ -483,7 +485,7 @@ $font-size: 14px;
             }
             .sv_q_rating_item_text {
               display: inline-block;
-              width: 2.5em;
+              width: $base-line-height;
               margin-left: -0.35em;
               border: 1px solid $header-background-color;
               vertical-align: top;
@@ -509,7 +511,7 @@ $font-size: 14px;
 
       .sv_nav {
         padding: 1em 0;
-        min-height: 2.5em;
+        min-height: $base-line-height;
 
         .sv_start_btn,
         .sv_next_btn,

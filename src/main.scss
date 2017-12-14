@@ -511,8 +511,13 @@ $font-size: 14px;
         padding: 1em 0;
         min-height: 2.5em;
 
+        .sv_start_btn,
+        .sv_next_btn,
         .sv_complete_btn {
           float: right;
+        }
+        .sv_prev_btn {
+          float: left;
         }
       }
     }

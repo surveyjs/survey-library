@@ -342,6 +342,26 @@ QUnit.test("Support visibleIf and panel variable, question.valueName", function(
     "panelQ1 is 'val'"
   );
 });
+QUnit.test("Support panelIndex in visibleIf expression", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p");
+  var question = new QuestionPanelDynamicModel("q");
+  survey.pages[0].addQuestion(question);
+  question.template.addNewQuestion("text", "q1");
+  question.template.addNewQuestion("text", "q2");
+  question.template.questions[1].visibleIf = "{panelIndex} = 0";
+  question.panelCount = 2;
+  assert.equal(
+    question.panels[0].questions[1].isVisible,
+    true,
+    "panel index = 0"
+  );
+  assert.equal(
+    question.panels[1].questions[1].isVisible,
+    false,
+    "panel index != 0"
+  );
+});
 
 QUnit.test("Text Processing and panel variable, question.valueName", function(
   assert

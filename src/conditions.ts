@@ -205,18 +205,26 @@ export class Condition {
         return left != right;
       },
       contains: function(left, right) {
-        if (!left || !left.length) return false;
-        for (var i = 0; i < left.length; i++) {
-          if (left[i] == right) return true;
-        }
-        return false;
+        return Condition.operatorsValue.containsCore(left, right, true);
       },
       notcontains: function(left, right) {
-        if (!left || !left.length) return true;
-        for (var i = 0; i < left.length; i++) {
-          if (left[i] == right) return false;
+        return Condition.operatorsValue.containsCore(left, right, false);
+      },
+      containsCore: function(left, right, isContains) {
+        if (!left) return false;
+        if (!left.length) {
+          left = left.toString();
         }
-        return true;
+        if (typeof left === "string" || left instanceof String) {
+          if (!right) return false;
+          right = right.toString();
+          var found = left.indexOf(right) > -1;
+          return isContains ? found : !found;
+        }
+        for (var i = 0; i < left.length; i++) {
+          if (left[i] == right) return isContains;
+        }
+        return !isContains;
       },
       greater: function(left, right) {
         if (left == null || right == null) return false;

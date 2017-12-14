@@ -20,7 +20,7 @@ export var defaultStandardCss = {
     start: "sv_start_btn"
   },
   progress: "sv_progress",
-  progressBar: "",
+  progressBar: "sv_progress_bar",
   page: {
     root: "sv_p_root",
     title: "",

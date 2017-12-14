@@ -236,6 +236,7 @@ $base-line-height: 2.5em;
     margin: auto;
     position: relative;
     color: $text-color;
+    padding: 0 1em;
 
     .sv_header {
       padding-top: 5em;
@@ -256,6 +257,23 @@ $base-line-height: 2.5em;
       padding: 1em 1em 5em 1em;
       border-top: 2px solid $main-color;
 
+      .sv_progress {
+        height: 0.5em;
+        background-color: $header-background-color;
+
+        .sv_progress_bar {
+          height: 100%;
+          background-color: $main-color;
+          position: relative;
+          margin-top: 2em;
+          > span {
+            position: absolute;
+            top: -1.5em;
+            display: inline-block;
+          }
+        }
+      }
+
       .sv_p_root {
         .sv_p_title {
           font-weight: normal;
@@ -264,7 +282,6 @@ $base-line-height: 2.5em;
         }
 
         & > .sv_row {
-          padding: 1em;
           border-bottom: 1px solid $header-background-color;
 
           &:nth-child(odd) {
@@ -328,8 +345,13 @@ $base-line-height: 2.5em;
         }
 
         .sv_q {
-          padding-bottom: 1em;
+          padding: 1em;
           box-sizing: border-box;
+
+          // .sv_p_container {
+          //   padding: 1em;
+          //   box-sizing: border-box;
+          // }
 
           .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
             border: 1px solid $error-color;

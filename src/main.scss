@@ -447,6 +447,44 @@ $font-size: 14px;
         fieldset.sv_qcbc {
           line-height: 2.5em;
         }
+
+        .sv_q_rating {
+          line-height: 2.5em;
+
+          .sv_q_rating_item {
+            cursor: pointer;
+
+            &.active {
+              .sv_q_rating_item_text {
+                background-color: $main-hover-color;
+                border-color: $main-hover-color;
+                color: $body-background-color;
+              }
+            }
+            .sv_q_rating_item_text {
+              display: inline-block;
+              width: 2.5em;
+              margin-left: -0.35em;
+              border: 1px solid $header-background-color;
+              vertical-align: top;
+              text-align: center;
+              &:hover {
+                border: 1px solid $main-color;
+              }
+            }
+            &:not(:first-child) {
+              .sv_q_rating_item_text:not(:hover) {
+                border-left-color: transparent;
+              }
+            }
+          }
+          .sv_q_rating_min_text {
+            margin-right: 0.85em;
+          }
+          .sv_q_rating_max_text {
+            margin-left: 0.5em;
+          }
+        }
       }
     }
   }

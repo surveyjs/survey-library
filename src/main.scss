@@ -334,8 +334,7 @@ $font-size: 14px;
             background-color: $error-background-color;
             margin: 1em 0;
             color: $error-color;
-            padding: 0 1em;
-            line-height: 3.3em;
+            padding: 1em;
 
             & + input,
             & + textarea,
@@ -413,13 +412,11 @@ $font-size: 14px;
           input[type="radio"],
           input[type="checkbox"] {
             margin: 0;
-            margin-top: 0.55em;
             margin-right: 0.55em;
             width: 1.5em;
             height: 1.5em;
-            vertical-align: top;
+            vertical-align: middle;
             font-size: 1em;
-            padding: 0.6em 0.5em;
           }
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
             margin-left: 2em;
@@ -430,6 +427,10 @@ $font-size: 14px;
               white-space: nowrap;
             }
           }
+
+          .sv_q_footer {
+            padding: 1em 0;
+          }
         }
 
         table {
@@ -438,8 +439,8 @@ $font-size: 14px;
 
           &.sv_q_matrix tr {
             border-bottom: 1px solid $header-background-color;
-            fieldset.sv_qcbc {
-              line-height: 3.3em;
+            .sv_q_m_label {
+              position: static;
             }
           }
           &.sv_q_matrix_dynamic tr {
@@ -453,13 +454,12 @@ $font-size: 14px;
           }
 
           td {
-            line-height: 3.3em;
-            vertical-align: top;
+            padding: 0.5em;
           }
 
           th {
             line-height: 1.5em;
-            padding: 0.5em 1em;
+            padding: 0.5em;
             //vertical-align: bottom;
           }
         }

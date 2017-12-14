@@ -37,7 +37,8 @@ export var defaultStandardCss = {
     comment: "",
     required: "",
     titleRequired: "",
-    indent: 20
+    indent: 20,
+    footer: "sv_q_footer"
   },
   panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
   error: { root: "sv_q_erbox", icon: "", item: "" },

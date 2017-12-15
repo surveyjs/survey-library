@@ -249,7 +249,7 @@ $base-line-height: 2em;
       border-top: 2px solid $main-color;
 
       .sv_progress {
-        height: 0.5em;
+        height: 0.3em;
         background-color: $header-background-color;
 
         .sv_progress_bar {
@@ -266,10 +266,16 @@ $base-line-height: 2em;
       }
 
       .sv_p_root {
-        .sv_p_title {
+        .sv_page_title {
+          font-size: 1em;
+          margin-top: 0.1em;
           font-weight: normal;
-          font-size: 1.25em;
-          margin: 0.75em 0;
+        }
+
+        .sv_p_title {
+          font-weight: bold;
+          font-size: 1.15em;
+          margin: 1.5em 0 0 0;
         }
 
         & > .sv_row {
@@ -278,17 +284,17 @@ $base-line-height: 2em;
           &:nth-child(odd) {
             background-color: $body-background-color;
 
-            .sv_q_matrix,
-            .sv_q_matrix_dropdown .sv_q_matrix_dynamic {
-              > tbody > tr {
-                &:nth-child(odd) {
-                  background-color: $body-container-background-color;
-                }
-                &:nth-child(even) {
-                  background-color: $body-background-color;
-                }
-              }
-            }
+            // .sv_q_matrix,
+            // .sv_q_matrix_dropdown .sv_q_matrix_dynamic {
+            //   > tbody > tr {
+            //     &:nth-child(odd) {
+            //       background-color: $body-container-background-color;
+            //     }
+            //     &:nth-child(even) {
+            //       background-color: $body-background-color;
+            //     }
+            //   }
+            // }
 
             // .sv_panel_dynamic {
             //   .sv_p_container {
@@ -304,18 +310,18 @@ $base-line-height: 2em;
           &:nth-child(even) {
             background-color: $body-container-background-color;
 
-            .sv_q_matrix,
-            .sv_q_matrix_dropdown,
-            .sv_q_matrix_dynamic {
-              > tbody > tr {
-                &:nth-child(odd) {
-                  background-color: $body-background-color;
-                }
-                &:nth-child(even) {
-                  background-color: $body-container-background-color;
-                }
-              }
-            }
+            // .sv_q_matrix,
+            // .sv_q_matrix_dropdown,
+            // .sv_q_matrix_dynamic {
+            //   > tbody > tr {
+            //     &:nth-child(odd) {
+            //       background-color: $body-background-color;
+            //     }
+            //     &:nth-child(even) {
+            //       background-color: $body-container-background-color;
+            //     }
+            //   }
+            // }
 
             // .sv_panel_dynamic {
             //   .sv_p_container {
@@ -336,9 +342,19 @@ $base-line-height: 2em;
           margin: 0.5em 0;
         }
 
+        .sv_q_description {
+          margin-top: -0.6em;
+        }
+
         .sv_q {
-          padding: 1em;
+          padding: 0.5em 1em 1.5em 1em;
           box-sizing: border-box;
+
+          .sv_panel_dynamic {
+            .sv_q_title {
+              font-weight: normal;
+            }
+          }
 
           .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
             border: 1px solid $error-color;
@@ -357,6 +373,7 @@ $base-line-height: 2em;
             }
           }
 
+          .sv_q_other input,
           input[type="text"],
           input[type="date"],
           input[type="color"],
@@ -431,6 +448,7 @@ $base-line-height: 2em;
             height: 1.2em;
             vertical-align: middle;
             font-size: 1em;
+            margin-top: -0.1em;
           }
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
             margin-left: 1.5em;
@@ -440,6 +458,11 @@ $base-line-height: 2em;
             & > label {
               white-space: nowrap;
             }
+          }
+
+          .sv_q_checkbox_inline,
+          .sv_q_radiogroup_inline {
+            line-height: $base-line-height;
           }
 
           .sv_q_footer {
@@ -454,6 +477,10 @@ $base-line-height: 2em;
           &.sv_q_matrix,
           &.sv_q_matrix_dropdown,
           &.sv_q_matrix_dynamic {
+            .sv_q_checkbox_label,
+            .sv_q_radiogroup_label {
+              margin-right: 1.5em;
+            }
             tr {
               border-bottom: 1px solid $header-background-color;
             }
@@ -489,11 +516,17 @@ $base-line-height: 2em;
             line-height: 1.3em;
             padding: 0.5em;
             vertical-align: bottom;
+            font-weight: normal;
           }
         }
 
         fieldset.sv_qcbc {
           line-height: $base-line-height;
+          padding-top: 0.1em;
+        }
+
+        .sv_q_other {
+          margin-left: 1em;
         }
 
         .sv_q_rating {

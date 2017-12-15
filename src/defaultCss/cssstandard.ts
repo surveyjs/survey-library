@@ -27,7 +27,7 @@ export var defaultStandardCss = {
     description: ""
   },
   // TODO: move to the page object
-  pageTitle: "sv_p_title",
+  pageTitle: "sv_page_title",
   pageDescription: "",
   row: "sv_row",
   question: {
@@ -47,7 +47,8 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
-    itemControl: "",
+    label: "sv_q_checkbox_label",
+    itemControl: "sv_q_checkbox_control_item",
     controlLabel: "sv_q_checkbox_control_label",
     other: "sv_q_other sv_q_checkbox_other"
   },
@@ -71,8 +72,8 @@ export var defaultStandardCss = {
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
-    label: "",
-    itemControl: "",
+    label: "sv_q_radiogroup_label",
+    itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
     other: "sv_q_other sv_q_radiogroup_other"
   },

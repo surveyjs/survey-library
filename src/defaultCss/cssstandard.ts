@@ -65,7 +65,7 @@ export var defaultStandardCss = {
     root: "sv_q_matrix_dynamic",
     button: "sv_matrix_dynamic_button"
   },
-  paneldynamic: { root: "sv_panel_dynamic", button: "" },
+  paneldynamic: { root: "sv_panel_dynamic", title: "sv_p_title", button: "" },
   multipletext: {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",

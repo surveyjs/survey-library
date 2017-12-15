@@ -455,9 +455,9 @@ $base-line-height: 2em;
               outline: none;
             }
           }
-          .sv_q_radiogroup.sv_q_radiogroup_inline:not(:first-child) {
-            margin-left: 1.5em;
-          }
+          // .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child) {
+          //   margin-right: 1.5em;
+          // }
           .sv_q_radiogroup,
           .sv_q_checkbox {
             & > label {

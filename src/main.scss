@@ -211,6 +211,7 @@ $base-line-height: 2em;
     min-width: 100px;
     cursor: pointer;
     padding: 0 2em;
+    border-radius: 2px;
 
     &:hover {
       background-color: $main-hover-color;
@@ -479,6 +480,9 @@ $base-line-height: 2em;
           &.sv_q_matrix,
           &.sv_q_matrix_dropdown,
           &.sv_q_matrix_dynamic {
+            .sv_matrix_dynamic_button {
+              padding: 0.3em 2em;
+            }
             .sv_q_checkbox_label,
             .sv_q_radiogroup_label {
               margin-right: 1.5em;

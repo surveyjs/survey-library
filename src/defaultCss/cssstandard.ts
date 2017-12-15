@@ -70,7 +70,7 @@ export var defaultStandardCss = {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",
     row: "sv_q_mt_row",
-    itemValue: "sv_q_mt_item_value"
+    itemValue: "sv_q_mt_item_value sv_q_text_root"
   },
   radiogroup: {
     root: "sv_qcbc",

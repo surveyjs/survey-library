@@ -177,6 +177,7 @@ $main-hover-color: darken($main-color, 5%);
 $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
 $body-background-color: white;
+$inputs-background-color: white;
 $text-color: #6d7072;
 $error-color: #ed5565;
 $error-background-color: lighten($error-color, 30%);
@@ -375,20 +376,9 @@ $base-line-height: 2em;
           }
 
           .sv_q_other input,
+          .sv_q_text_root,
+          .sv_q_dropdown_control,
           input[type="text"],
-          input[type="date"],
-          input[type="color"],
-          input[type="email"],
-          input[type="number"],
-          input[type="datetime"],
-          input[type="datetime-local"],
-          input[type="month"],
-          input[type="password"],
-          input[type="range"],
-          input[type="tel"],
-          input[type="time"],
-          input[type="url"],
-          input[type="week"],
           select,
           textarea {
             position: relative;
@@ -399,12 +389,18 @@ $base-line-height: 2em;
             line-height: $base-line-height;
             color: $text-color;
             padding-left: 1em;
+            background-color: $inputs-background-color;
 
             &:focus {
               border-color: $main-color;
               outline: none;
               border: 1px solid $main-color;
             }
+          }
+
+          div.sv_q_text_root,
+          div.sv_q_dropdown_control {
+            min-height: 2.43em;
           }
 
           .sv_select_wrapper {
@@ -455,9 +451,10 @@ $base-line-height: 2em;
               outline: none;
             }
           }
-          // .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child) {
-          //   margin-right: 1.5em;
-          // }
+          .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child),
+          .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child) {
+            margin-right: 1.5em;
+          }
           .sv_q_radiogroup,
           .sv_q_checkbox {
             & > label {

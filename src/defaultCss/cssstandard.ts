@@ -55,7 +55,7 @@ export var defaultStandardCss = {
   comment: "",
   dropdown: {
     root: "",
-    control: "",
+    control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
     other: "sv_q_other"
   },
@@ -85,7 +85,7 @@ export var defaultStandardCss = {
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text"
   },
-  text: "",
+  text: "sv_q_text_root",
   expression: "",
   saveData: {
     root: "",

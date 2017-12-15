@@ -429,7 +429,8 @@ $base-line-height: 2em;
               right: 1px;
               right: 0;
               top: 1px;
-              background-image: url("./images/Down_34x34.svg");
+              background-color: $main-color;
+              background-image: url("./images/ArrowDown_34x34.svg");
               @include svg-icon();
             }
           }

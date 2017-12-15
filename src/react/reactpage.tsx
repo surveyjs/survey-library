@@ -26,6 +26,12 @@ export class SurveyPage extends React.Component<any, any> {
     this.css = nextProps.css;
   }
   componentDidMount() {
+    this.doAfterRender();
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.doAfterRender();
+  }
+  private doAfterRender() {
     var el = this.refs["root"];
     if (el && this.survey) this.survey.afterRenderPage(el);
   }
@@ -92,10 +98,7 @@ export class SurveyPanel extends React.Component<any, any> {
   }
   componentDidMount() {
     let self = this;
-    let el = this.refs["root"];
-    if (el && this.survey) {
-      this.survey.afterRenderPanel(this.panel, el);
-    }
+    this.doAfterRender();
     this.panel.registerFunctionOnPropertiesValueChanged(
       ["isVisible", "renderWidth", "innerIndent", "rightIndent"],
       function() {
@@ -103,6 +106,15 @@ export class SurveyPanel extends React.Component<any, any> {
       },
       "react"
     );
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.doAfterRender();
+  }
+  private doAfterRender() {
+    let el = this.refs["root"];
+    if (el && this.survey) {
+      this.survey.afterRenderPanel(this.panel, el);
+    }
   }
   componentWillUnmount() {
     if (this.panel) {

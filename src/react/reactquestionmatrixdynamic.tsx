@@ -86,7 +86,9 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
             <tbody>{rows}</tbody>
           </table>
         </div>
-        {this.renderAddRowButton(cssClasses)}
+        <div className={cssClasses.footer}>
+          {this.renderAddRowButton(cssClasses)}
+        </div>
       </div>
     );
   }

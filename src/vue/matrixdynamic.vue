@@ -16,7 +16,9 @@
                 </tr>
             </tbody>
         </table>
-        <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="question.cssClasses.button" :value="question.addRowText" @click="addRowClick"/>
+        <div :class="question.cssClasses.footer">
+            <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="question.cssClasses.button" :value="question.addRowText" @click="addRowClick"/>
+        </div>
     </div>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="question.cssClasses.root">
         <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" />
         <div v-for="panel in renderedPanels">
             <survey-panel :question="panel" :css="css"/>

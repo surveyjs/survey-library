@@ -37,10 +37,12 @@ export class SurveyPage extends React.Component<any, any> {
     var rows = [];
     var questionRows = this.page.rows;
     for (var i = 0; i < questionRows.length; i++) {
-      rows.push(this.createRow(questionRows[i], i));
+      if (questionRows[i].visible) {
+        rows.push(this.createRow(questionRows[i], i));
+      }
     }
     return (
-      <div ref="root">
+      <div ref="root" className={this.css.page.root}>
         {title}
         {description}
         {rows}
@@ -121,7 +123,9 @@ export class SurveyPanel extends React.Component<any, any> {
     var rows = [];
     var questionRows = this.panel.rows;
     for (var i = 0; i < questionRows.length; i++) {
-      rows.push(this.createRow(questionRows[i], i));
+      if (questionRows[i].visible) {
+        rows.push(this.createRow(questionRows[i], i));
+      }
     }
     var style = {
       paddingLeft: this.panel.innerIndent * this.css.question.indent + "px"
@@ -195,12 +199,7 @@ export class SurveyRow extends React.Component<any, any> {
         questions.push(this.createQuestion(question));
       }
     }
-    var style = this.row.visible ? {} : { display: "none" };
-    return (
-      <div className={this.css.row} style={style}>
-        {questions}
-      </div>
-    );
+    return <div className={this.css.row}>{questions}</div>;
   }
   protected createQuestion(question: QuestionBase): JSX.Element {
     if (question.isPanel) {

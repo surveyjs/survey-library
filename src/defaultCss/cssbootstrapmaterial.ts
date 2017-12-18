@@ -1,7 +1,7 @@
 import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapMaterialCss = {
-  root: "",
+  root: "sv_bootstrapmaterial_css",
   header: "panel-heading",
   body: "panel-body",
   footer: "panel-footer",

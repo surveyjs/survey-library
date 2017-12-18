@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 
 export class ProcessValue {
   public values: HashTable<any> = null;
@@ -34,7 +34,7 @@ export class ProcessValue {
         if (!isFirst) text = text.substr(1);
         var curName = this.getFirstName(text);
         if (!curName) return res;
-        if (!curValue[curName]) return res;
+        if (Helpers.isValueEmpty(curValue[curName])) return res;
         curValue = curValue[curName];
         text = text.substr(curName.length);
       } else {

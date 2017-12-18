@@ -754,6 +754,7 @@ export class QuestionPanelDynamicModel extends Question
       newValues[
         QuestionPanelDynamicItem.ItemVariableName
       ] = this.getPanelItemData(this.items[i]);
+      newValues[QuestionPanelDynamicItem.IndexVariableName] = i;
       this.items[i].runCondition(newValues);
     }
   }

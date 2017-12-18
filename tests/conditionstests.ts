@@ -525,6 +525,11 @@ QUnit.test("Bug with contains, bug#781", function(assert) {
   values = { ResultaatSelectie: ["2"] };
   assert.equal(runner.run(values), false, "['2'] contains '1'");
 });
+QUnit.test("0 is not an empty value", function(assert) {
+  var runner = new ConditionRunner("{val} = 0");
+  var values = { val: 0 };
+  assert.equal(runner.run(values), true, "0 = 0");
+});
 QUnit.test("Bug with contains, support string.indexof, bug#831", function(
   assert
 ) {

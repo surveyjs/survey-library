@@ -608,6 +608,32 @@ QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
   );
 });
 
+QUnit.test("Load Panel from Json + isSinglePage", function(assert) {
+  var json = {
+    isSinglePage: true,
+    pages: [
+      {
+        name: "page1",
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        name: "page2",
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  var page = survey.pages[0];
+  var koRows = page["koRows"];
+  var row = koRows()[1];
+
+  assert.ok(row, "the second row is created");
+  assert.equal(row.elements.length, 1, "There is one element here");
+  assert.equal(row.visible, true, "Row is visible");
+  var q = row.elements[0];
+  assert.equal(q["koVisible"](), true, "The question is visible");
+});
+
 QUnit.test("Load PanelDynamic from Json", function(assert) {
   var json = {
     questions: [

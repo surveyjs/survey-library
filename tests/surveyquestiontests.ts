@@ -501,6 +501,22 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function(
     "There should be at least 2 values selected"
   );
 });
+QUnit.test(
+  "other values in choices, hasOther=false, Bug(Editor) #242",
+  function(assert) {
+    var question = new QuestionRadiogroupModel("q1");
+    question.choices = ["1", "2", "3", "other"];
+    question.isRequired = true;
+    question.value = "1";
+    assert.equal(question.hasErrors(), false, "Everything is fine");
+    question.value = "other";
+    assert.equal(
+      question.hasErrors(),
+      false,
+      "Everything is still fine, hasOther = false"
+    );
+  }
+);
 QUnit.test("Show errors if others value is selected, but not entered", function(
   assert
 ) {
@@ -950,6 +966,7 @@ QUnit.test("Matrixdynamic hasOther column", function(assert) {
   question.choices = [1, 2, 3];
   question.rowCount = 1;
   question.columns.push(new MatrixDropdownColumn("column1"));
+  question.columns[0].hasOther = true;
   var rows = question.visibleRows;
   assert.equal(question.hasErrors(), false, "Everything is fine so far");
   rows[0].cells[0].question.value = "other";

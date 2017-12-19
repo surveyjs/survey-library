@@ -136,7 +136,7 @@ export class StylesManager {
     return <CSSStyleSheet>style.sheet;
   }
 
-  public static applyTheme(themeName: string) {
+  public static applyTheme(themeName?: string) {
     let sheet = StylesManager.findSheet(themeName);
     if (!sheet) {
       sheet = StylesManager.createSheet(themeName);

@@ -42,10 +42,14 @@ export class SurveyPage extends React.Component<any, any> {
     var description = this.renderDescription();
     var rows = [];
     var questionRows = this.page.rows;
+    var self = this;
     for (var i = 0; i < questionRows.length; i++) {
-      if (questionRows[i].visible) {
-        rows.push(this.createRow(questionRows[i], i));
-      }
+      var row = questionRows[i];
+      row.visibilityChangedCallback = function() {
+        self.forceUpdate();
+      };
+
+      rows.push(this.createRow(questionRows[i], i));
     }
     return (
       <div ref="root" className={this.css.page.root}>
@@ -134,10 +138,14 @@ export class SurveyPanel extends React.Component<any, any> {
     var description = this.renderDescription();
     var rows = [];
     var questionRows = this.panel.rows;
+    var self = this;
     for (var i = 0; i < questionRows.length; i++) {
-      if (questionRows[i].visible) {
-        rows.push(this.createRow(questionRows[i], i));
-      }
+      var row = questionRows[i];
+      row.visibilityChangedCallback = function() {
+        self.forceUpdate();
+      };
+
+      rows.push(this.createRow(questionRows[i], i));
     }
     var style = {
       paddingLeft: this.panel.innerIndent * this.css.question.indent + "px"
@@ -190,12 +198,6 @@ export class SurveyRow extends React.Component<any, any> {
   }
   private setProperties(props: any) {
     this.row = props.row;
-    if (this.row) {
-      var self = this;
-      this.row.visibilityChangedCallback = function() {
-        self.setState({ visible: self.row.visible });
-      };
-    }
     this.survey = props.survey;
     this.creator = props.creator;
     this.css = props.css;
@@ -203,15 +205,15 @@ export class SurveyRow extends React.Component<any, any> {
   render(): JSX.Element {
     if (this.row == null || this.survey == null || this.creator == null)
       return null;
-    var questions = null;
     if (this.row.visible) {
-      questions = [];
+      var questions = [];
       for (var i = 0; i < this.row.elements.length; i++) {
         let question = this.row.elements[i] as QuestionBase;
         questions.push(this.createQuestion(question));
       }
+      return <div className={this.css.row}>{questions}</div>;
     }
-    return <div className={this.css.row}>{questions}</div>;
+    return null;
   }
   protected createQuestion(question: QuestionBase): JSX.Element {
     if (question.isPanel) {

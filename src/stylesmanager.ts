@@ -105,7 +105,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text":
       "border-color: $border-color;",
     ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text:hover":
-      "border-color: $main-color;",
+      "border-color: $main-hover-color;",
 
     ".sv_default_css table.sv_q_matrix tr": "border-color: $border-color;",
     ".sv_default_css table.sv_q_matrix_dropdown tr":

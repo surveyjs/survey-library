@@ -2524,7 +2524,7 @@ QUnit.test("Survey Elements css", function(assert) {
   );
   var textCss = textQuestion.cssClasses;
   var checkCss = checkQuestion.cssClasses;
-  assert.equal(textCss.root, "", "text question root class");
+  assert.equal(textCss.root, "sv_q_text_root", "text question root class");
   assert.equal(textCss.title, "sv_q_title", "text question title class");
   assert.equal(
     checkCss.root,

@@ -60,6 +60,12 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     var className = cssClasses.item;
     if (isChecked) className += " " + cssClasses.selected;
     var itemText = this.renderLocString(item.locText);
+    var minTextBlock = !!minText ? (
+      <span className={cssClasses.minText}>{minText}</span>
+    ) : null;
+    var maxTextBlock = !!maxText ? (
+      <span className={cssClasses.maxText}>{maxText}</span>
+    ) : null;
     return (
       <label key={key} className={className}>
         <input
@@ -72,9 +78,9 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           onChange={this.handleOnChange}
           aria-label={item.locText.text}
         />
-        <span className={cssClasses.minText}>{minText}</span>
+        {minTextBlock}
         <span className={cssClasses.itemText}>{itemText}</span>
-        <span className={cssClasses.maxText}>{maxText}</span>
+        {maxTextBlock}
       </label>
     );
   }

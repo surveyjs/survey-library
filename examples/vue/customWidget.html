@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Welcome to Vue</title>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
@@ -13,27 +14,30 @@
     <script src="../../packages/survey-vue/survey.vue.js"></script>
 
     <!-- custom widgets -->
-        <!-- image-picker -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.css" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.js"></script>
-        <!-- eo image-picker -->
+    <!-- image-picker -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/image-picker/0.3.0/image-picker.js"></script>
+    <!-- eo image-picker -->
 
-        <!-- sortablejs -->
-            <link rel="stylesheet" href="https://unpkg.com/icheck@1.0.2/skins/flat/green.css">
-            <script src="https://unpkg.com/sortablejs@1.5.1/Sortable.js"></script>
-        <!-- eo sortablejs -->
+    <!-- sortablejs -->
+    <link rel="stylesheet" href="https://unpkg.com/icheck@1.0.2/skins/flat/green.css">
+    <script src="https://unpkg.com/sortablejs@1.5.1/Sortable.js"></script>
+    <!-- eo sortablejs -->
 
-        <!-- icheckmatrix -->
-            <link rel="stylesheet" href="https://unpkg.com/icheck@1.0.2/skins/square/blue.css">
-            <script src="https://unpkg.com/icheck@1.0.2"></script>
-        <!-- eo icheckmatrix -->
+    <!-- icheckmatrix -->
+    <link rel="stylesheet" href="https://unpkg.com/icheck@1.0.2/skins/square/blue.css">
+    <script src="https://unpkg.com/icheck@1.0.2"></script>
+    <!-- eo icheckmatrix -->
     <!-- eo custom widgets-->
+
+    <script src="https://unpkg.com/surveyjs-widgets"></script>
 </head>
 
 <body>
     <div id="surveyElement">
-        <survey :survey='survey'/>
+        <survey :survey='survey' />
     </div>
     <script src="./index.js"></script>
 </body>
+
 </html>

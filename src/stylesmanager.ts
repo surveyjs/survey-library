@@ -35,22 +35,69 @@ export class StylesManager {
     "fieldset.form-inline": "display: inline-block;"
   };
 
-  public static ThemeColors: { [key: string]: string } = {
-    "$header-background-color": "#e7e7e7",
-    "$body-container-background-color": "#f4f4f4",
+  public static ThemeColors: { [key: string]: { [key: string]: string } } = {
+    default: {
+      "$header-background-color": "#e7e7e7",
+      "$body-container-background-color": "#f4f4f4",
 
-    "$main-color": "#1ab394",
-    "$main-hover-color": "#0aa384",
-    "$body-background-color": "white",
-    "$inputs-background-color": "white",
-    "$text-color": "#6d7072",
-    "$header-color": "#6d7072",
-    "$border-color": "#e7e7e7",
+      "$main-color": "#1ab394",
+      "$main-hover-color": "#0aa384",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#6d7072",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
 
-    "$error-color": "#ed5565",
-    "$error-background-color": "#fd6575"
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    orange: {
+      "$header-background-color": "#4a4a4a",
+      "$body-container-background-color": "#f8f8f8",
+
+      "$main-color": "#f78119",
+      "$main-hover-color": "#e77109",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#f78119",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    darkblue: {
+      "$header-background-color": "#d9d8dd",
+      "$body-container-background-color": "#f6f7f2",
+
+      "$main-color": "#3c4f6d",
+      "$main-hover-color": "#2c3f5d",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    darkrose: {
+      "$header-background-color": "#ddd2ce",
+      "$body-container-background-color": "#f7efed",
+
+      "$main-color": "#68656e",
+      "$main-hover-color": "#58555e",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    }
   };
-  public static Theme: { [key: string]: string } = {
+  public static ThemeCss: { [key: string]: string } = {
     ".sv_default_css": "background-color: $body-container-background-color;",
 
     ".sv_default_css hr": "border-color: $border-color;",
@@ -136,26 +183,31 @@ export class StylesManager {
     return <CSSStyleSheet>style.sheet;
   }
 
-  public static applyTheme(themeName?: string) {
-    let sheet = StylesManager.findSheet(themeName);
+  public static applyTheme(
+    themeName: string = "default",
+    themeSelector: string = ".sv_main"
+  ) {
+    let sheet = StylesManager.findSheet(themeName + themeSelector);
     if (!sheet) {
-      sheet = StylesManager.createSheet(themeName);
-      StylesManager.initializeTheme(sheet);
+      sheet = StylesManager.createSheet(themeName + themeSelector);
+      let theme =
+        StylesManager.ThemeColors[themeName] ||
+        StylesManager.ThemeColors["default"];
+      Object.keys(StylesManager.ThemeCss).forEach(selector => {
+        let cssRuleText = StylesManager.ThemeCss[selector];
+        Object.keys(theme).forEach(
+          colorVariableName =>
+            (cssRuleText = cssRuleText.replace(
+              colorVariableName,
+              theme[colorVariableName]
+            ))
+        );
+        sheet.insertRule(
+          themeSelector + selector + " { " + cssRuleText + " }",
+          0
+        );
+      });
     }
-  }
-
-  public static initializeTheme(sheet: CSSStyleSheet) {
-    Object.keys(StylesManager.Theme).forEach(selector => {
-      let cssRuleText = StylesManager.Theme[selector];
-      Object.keys(StylesManager.ThemeColors).forEach(
-        colorVariableName =>
-          (cssRuleText = cssRuleText.replace(
-            colorVariableName,
-            StylesManager.ThemeColors[colorVariableName]
-          ))
-      );
-      sheet.insertRule(".sv_main" + selector + " { " + cssRuleText + " }", 0);
-    });
   }
 
   constructor() {

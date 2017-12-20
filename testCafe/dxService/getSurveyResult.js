@@ -7,9 +7,6 @@ import {
 } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const setupSurvey = ClientFunction(() => {
-  document
-    .querySelector("#surveyElement")
-    .insertAdjacentHTML("afterend", '<div id="chartContainer"></div>');
 
   window.survey.onSendResult.add(function(s, options) {
     if (options.success) {
@@ -18,8 +15,11 @@ const setupSurvey = ClientFunction(() => {
   });
   window.survey.onGetResult.add(function(s, options) {
     if (options.success) {
-      document.getElementById("chartContainer").innerHTML =
-        "<div id='hasResult'>Get result</div>";
+      var element = document.createElement("div");
+      element.id = "hasResult";
+      document
+      .querySelector("body")
+      .appendChild(element);
     }
   });
 });
@@ -44,6 +44,7 @@ frameworks.forEach(framework => {
     await t
       .click(`div:nth-child(20) label input`)
       .click(`input[value="Complete"]`)
+      .wait(5000)
       .expect(hasResult.exists)
       .ok();
   });

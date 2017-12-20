@@ -18,7 +18,8 @@ const setupSurvey = ClientFunction(() => {
   });
   window.survey.onGetResult.add(function(s, options) {
     if (options.success) {
-      document.getElementById("chartContainer").innerHTML = "gotResults";
+      document.getElementById("chartContainer").innerHTML =
+        "<div id='hasResult'>Get result</div>";
     }
   });
 });
@@ -38,14 +39,12 @@ frameworks.forEach(framework => {
   );
 
   test(`correct get result`, async t => {
-    const resultHtml = ClientFunction(
-      () => document.getElementById("chartContainer").innerHTML
-    );
+    const hasResult = Selector("#hasResult");
     await setupSurvey();
     await t
       .click(`div:nth-child(20) label input`)
-      .click(`input[value="Complete"]`);
-    let res = await resultHtml();
-    assert.equal(res, "gotResults");
+      .click(`input[value="Complete"]`)
+      .expect(hasResult.exists)
+      .ok();
   });
 });

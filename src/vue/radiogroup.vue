@@ -1,6 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :class="getItemClass(item)" :style="{'display': 'inline-block', 'width': colWidth, 'margin-right': question.colCount === 0 ? '5px': '0px'}">
+        <div v-for="(item, index) in question.visibleChoices" :class="getItemClass(item)" :style="{'display': 'inline-block', 'width': colWidth}">
             <label :class="question.cssClasses.label">
                 <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span class="circle"></span>

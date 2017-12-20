@@ -9,7 +9,7 @@ import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `visibleIf`;
 
-const json = {
+var json = {
   showQuestionNumbers: "off",
   questions: [
     {
@@ -34,7 +34,6 @@ const json = {
       title: "The first kid age:",
       visibleIf: "{haveKids}='Yes' and {kids} >= 1",
       isRequired: true,
-      startWithNewLine: false,
       choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     },
     {

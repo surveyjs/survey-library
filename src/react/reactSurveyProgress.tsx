@@ -19,14 +19,9 @@ export class SurveyProgress extends SurveyNavigationBase {
     return this.survey.progressText;
   }
   render(): JSX.Element {
-    var style = this.isTop
-      ? { width: "60%" }
-      : { width: "60%", marginTop: "10px" };
+    var style = this.isTop ? {} : { marginTop: "1em" };
     var progressStyle = {
-      width: "auto",
-      minWidth: this.progress + "%",
-      paddingLeft: "2px",
-      paddingRight: "2px"
+      width: this.progress + "%"
     };
     return (
       <div className={this.css.progress} style={style}>

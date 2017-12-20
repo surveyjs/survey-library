@@ -124,8 +124,7 @@ export class Survey extends React.Component<any, any>
     );
   }
   protected renderSurvey(): JSX.Element {
-    var title =
-      this.survey.title && this.survey.showTitle ? this.renderTitle() : null;
+    var title = this.renderTitle();
     var currentPage = this.survey.currentPage
       ? this.renderPage(this.survey.currentPage)
       : null;
@@ -142,20 +141,26 @@ export class Survey extends React.Component<any, any>
     }
     return (
       <div ref="root" className={this.css.root}>
-        {title}
-        <div id={pageId} className={this.css.body}>
-          {topProgress}
-          {this.renderTimerPanel("top")}
-          {currentPage}
-          {this.renderTimerPanel("bottom")}
-          {bottomProgress}
+        <div className="sv_custom_header" />
+        <div className="sv_container">
+          {title}
+          <div id={pageId} className={this.css.body}>
+            {topProgress}
+            {this.renderTimerPanel("top")}
+            {currentPage}
+            {this.renderTimerPanel("bottom")}
+            {bottomProgress}
+            {buttons}
+          </div>
         </div>
-        {buttons}
       </div>
     );
   }
   protected renderTitle(): JSX.Element {
-    var title = SurveyElementBase.renderLocString(this.survey.locTitle);
+    let title = null;
+    if (this.survey.title && this.survey.showTitle) {
+      title = SurveyElementBase.renderLocString(this.survey.locTitle);
+    }
     return (
       <div className={this.css.header}>
         <h3>{title}</h3>

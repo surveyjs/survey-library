@@ -8,8 +8,8 @@ export var surveyCss = {
 };
 
 export var defaultStandardCss = {
-  root: "sv_main",
-  header: "",
+  root: "sv_main sv_default_css",
+  header: "sv_header",
   body: "sv_body",
   footer: "sv_nav",
   navigationButton: "",
@@ -20,8 +20,14 @@ export var defaultStandardCss = {
     start: "sv_start_btn"
   },
   progress: "sv_progress",
-  progressBar: "",
-  pageTitle: "sv_p_title",
+  progressBar: "sv_progress_bar",
+  page: {
+    root: "sv_p_root",
+    title: "",
+    description: ""
+  },
+  // TODO: move to the page object
+  pageTitle: "sv_page_title",
   pageDescription: "",
   row: "sv_row",
   question: {
@@ -31,7 +37,8 @@ export var defaultStandardCss = {
     comment: "",
     required: "",
     titleRequired: "",
-    indent: 20
+    indent: 20,
+    footer: "sv_q_footer"
   },
   panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
   error: { root: "sv_q_erbox", icon: "", item: "" },
@@ -40,27 +47,36 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
-    itemControl: "",
-    controlLabel: "",
+    label: "sv_q_checkbox_label",
+    itemControl: "sv_q_checkbox_control_item",
+    controlLabel: "sv_q_checkbox_control_label",
     other: "sv_q_other sv_q_checkbox_other"
   },
   comment: "",
-  dropdown: { root: "", control: "", other: "sv_q_other" },
-  matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
-  matrixdropdown: { root: "sv_q_matrix" },
-  matrixdynamic: { root: "table", button: "" },
-  paneldynamic: { root: "", button: "" },
-  multipletext: {
+  dropdown: {
     root: "",
-    itemTitle: "",
-    row: "",
-    itemValue: "sv_q_mt_item_value"
+    control: "sv_q_dropdown_control",
+    selectWrapper: "sv_select_wrapper",
+    other: "sv_q_other"
+  },
+  matrix: { root: "sv_q_matrix", label: "sv_q_m_label" },
+  matrixdropdown: { root: "sv_q_matrix_dropdown" },
+  matrixdynamic: {
+    root: "sv_q_matrix_dynamic",
+    button: "sv_matrix_dynamic_button"
+  },
+  paneldynamic: { root: "sv_panel_dynamic", title: "sv_p_title", button: "" },
+  multipletext: {
+    root: "sv_q_mt",
+    itemTitle: "sv_q_mt_title",
+    row: "sv_q_mt_row",
+    itemValue: "sv_q_mt_item_value sv_q_text_root"
   },
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
-    label: "",
-    itemControl: "",
+    label: "sv_q_radiogroup_label",
+    itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
     other: "sv_q_other sv_q_radiogroup_other"
   },
@@ -72,7 +88,7 @@ export var defaultStandardCss = {
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text"
   },
-  text: "",
+  text: "sv_q_text_root",
   expression: "",
   saveData: {
     root: "",

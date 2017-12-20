@@ -1,7 +1,7 @@
 import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapMaterialCss = {
-  root: "",
+  root: "sv_bootstrapmaterial_css",
   header: "panel-heading",
   body: "panel-body",
   footer: "panel-footer",
@@ -14,6 +14,11 @@ export var defaultBootstrapMaterialCss = {
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
+  page: {
+    root: "",
+    title: "",
+    description: ""
+  },
   pageTitle: "",
   pageDescription: "small",
   row: "",
@@ -37,8 +42,8 @@ export var defaultBootstrapMaterialCss = {
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
-    itemControl: "form-check-input",
-    controlLabel: "form-check-label",
+    itemControl: "",
+    controlLabel: "",
     other: "sv_q_checkbox_other"
   },
   comment: "form-control",
@@ -62,8 +67,8 @@ export var defaultBootstrapMaterialCss = {
     root: "form-inline",
     item: "radio-inline",
     label: "radio-inline",
-    itemControl: "form-check-input",
-    controlLabel: "form-check-label",
+    itemControl: "",
+    controlLabel: "",
     other: "sv_q_radiogroup_other"
   },
   rating: {

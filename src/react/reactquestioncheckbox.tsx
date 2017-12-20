@@ -112,8 +112,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     if (!this.item || !this.question) return null;
     var itemWidth =
       this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var marginRight = this.question.colCount == 0 ? "5px" : "0px";
-    var divStyle = { marginRight: marginRight, display: "inline-block" };
+    var divStyle = { display: "inline-block" };
     if (itemWidth) {
       divStyle["width"] = itemWidth;
     }

@@ -103,7 +103,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       ? this.renderNavigator(cssClasses)
       : null;
     return (
-      <div>
+      <div className={cssClasses.root}>
         {navTop}
         {panels}
         {navBottom}

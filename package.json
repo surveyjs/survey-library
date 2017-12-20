@@ -74,6 +74,7 @@
     "ts-node": "3.3.0",
     "tslint": "4.5.1",
     "typescript": "2.6.1",
+    "url-loader": "^0.6.2",
     "val-loader": "0.5.0",
     "vue": "2.1.10",
     "vue-class-component": "5.0.0",

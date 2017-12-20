@@ -688,6 +688,10 @@ QUnit.test("ExpressionRunner: (1+2)*(3+2) / 5", function(assert) {
   var runner = new ExpressionRunner("(1+2)*(3+2) / 5");
   assert.equal(runner.run({}), 3, "(1+2)*(3+2) / 5 is 3");
 });
+QUnit.test("ExpressionRunner: 10 % 3", function(assert) {
+  var runner = new ExpressionRunner("10 % 3");
+  assert.equal(runner.run({}), 1, "10 % 3 is 1");
+});
 QUnit.test("ExpressionRunner: sumInArray", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
   var values = { a: [{ val1: 10 }, { val2: 10 }, { val1: 20 }] };

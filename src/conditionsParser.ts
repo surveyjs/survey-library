@@ -196,7 +196,8 @@ export class ConditionsParser {
       c == "+" ||
       c == "-" ||
       c == "*" ||
-      c == "/"
+      c == "/" ||
+      c == "%"
     );
   }
   private isOpenBracket(c: string): boolean {
@@ -281,11 +282,11 @@ export class ConditionsParser {
     return params;
   }
   private isHighPriorityOperand(op: string): boolean {
-    return op == "*" || op == "/";
+    return op == "*" || op == "/" || op == "%";
   }
   private readOperandOperator(): string {
     this.skip();
-    if (this.ch == "+" || this.ch == "-" || this.ch == "*" || this.ch == "/") {
+    if (this.ch == "+" || this.ch == "-" || this.ch == "*" || this.ch == "/" || this.ch == "%") {
       var res = this.ch;
       this.at++;
       return res;

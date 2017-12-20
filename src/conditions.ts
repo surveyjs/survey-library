@@ -56,7 +56,8 @@ export class Operand {
       (value.indexOf("-") > -1 ||
         value.indexOf("+") > 1 ||
         value.indexOf("*") > -1 ||
-        value.indexOf("/") > -1)
+        value.indexOf("/") > -1 ||
+        value.indexOf("%") > -1)
     )
       return false;
     var val = parseFloat(value);
@@ -131,6 +132,10 @@ export class ExpressionOperand extends Operand {
     if (this.operator == "/") {
       if (!r) return null;
       return l / r;
+    }
+    if (this.operator == "%") {
+      if (!r) return null;
+      return l % r;
     }
     return null;
   }

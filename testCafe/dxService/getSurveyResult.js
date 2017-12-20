@@ -18,19 +18,9 @@ const setupSurvey = ClientFunction(() => {
   });
   window.survey.onGetResult.add(function(s, options) {
     if (options.success) {
-      showChart(options.dataList);
+      document.getElementById("chartContainer").innerHTML = "gotResults";
     }
   });
-  window.showChart = function(chartDataSource) {
-    document.getElementById("chartContainer").style.height = "500px";
-    $("#chartContainer").dxPieChart({
-      dataSource: chartDataSource,
-      series: {
-        argumentField: "name",
-        valueField: "value"
-      }
-    });
-  };
 });
 const assert = require("assert");
 const title = `getSurveyResult`;
@@ -48,10 +38,14 @@ frameworks.forEach(framework => {
   );
 
   test(`correct get result`, async t => {
+    const resultHtml = ClientFunction(
+      () => document.getElementById("chartContainer").innerHTML
+    );
     await setupSurvey();
     await t
       .click(`div:nth-child(20) label input`)
-      .click(`input[value="Complete"]`)
-      .hover(`svg`);
+      .click(`input[value="Complete"]`);
+    res = await resultHtml();
+    assert.equal(res, "gotResults");
   });
 });

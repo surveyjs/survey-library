@@ -3024,6 +3024,53 @@ QUnit.test(
   }
 );
 
+QUnit.test("Survey show several pages as one", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.isSinglePage = true;
+  assert.equal(survey.visiblePages.length, 1, "You have one page");
+  var page = survey.visiblePages[0];
+  assert.equal(
+    page.elements.length,
+    2,
+    "two pages has converted into two panels"
+  );
+  assert.equal(page.questions.length, 4, "there are 4 questions on the page");
+});
+
+QUnit.test("Survey show several pages as one, set and reset", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.isSinglePage = true;
+  survey.isSinglePage = false;
+  assert.equal(survey.visiblePages.length, 2, "We have still two pages");
+  var page = survey.visiblePages[0];
+  assert.equal(page.questions.length, 2, "there are 2 questions on the page");
+  survey.isSinglePage = true;
+  assert.equal(survey.visiblePages.length, 1, "Single page");
+  survey.setDesignMode(true);
+  assert.equal(survey.visiblePages.length, 2, "We have still two pages again");
+});
+
+QUnit.test("Survey show several pages as one + firstPageIsStarted", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var thirdPage = new PageModel("third");
+  thirdPage.addNewQuestion("text", "q1");
+  thirdPage.addNewQuestion("text", "q2");
+  survey.pages.push(thirdPage);
+  survey.firstPageIsStarted = true;
+  survey.isSinglePage = true;
+  assert.equal(survey.pages.length, 2, "Start page + single page");
+  assert.equal(survey.visiblePages.length, 1, "You have one page");
+  var page = survey.visiblePages[0];
+  assert.equal(
+    page.elements.length,
+    2,
+    "two pages has converted into two panels"
+  );
+  assert.equal(page.questions.length, 4, "there are 4 questions on the page");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

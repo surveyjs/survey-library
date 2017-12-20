@@ -223,7 +223,7 @@ export class QuestionSelectBase extends Question {
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
-    if (!this.isOtherSelected || this.comment) return;
+    if (!this.hasOther || !this.isOtherSelected || this.comment) return;
     var text = this.otherErrorText;
     if (!text) {
       text = surveyLocalization.getString("otherRequiredError");

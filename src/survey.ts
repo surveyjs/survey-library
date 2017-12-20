@@ -1,5 +1,5 @@
 import { HashTable } from "./helpers";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, JsonMetadata } from "./jsonobject";
 import {
   Base,
   ISurvey,
@@ -503,6 +503,9 @@ export class SurveyModel extends Base
         self.onFirstPageIsStartedChanged();
       }
     );
+    this.registerFunctionOnPropertyValueChanged("isSinglePage", function() {
+      self.onIsSinglePageChanged();
+    });
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1243,6 +1246,7 @@ export class SurveyModel extends Base
    */
   public setDesignMode(value: boolean) {
     this.setPropertyValue("isDesignMode", value);
+    this.onIsSinglePageChanged();
   }
   /**
    * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
@@ -1320,6 +1324,18 @@ export class SurveyModel extends Base
     this.doComplete();
     return true;
   }
+  /**
+   * Set this property to true, if you want to combine all your pages in one page. Pages will be converted into panels.
+   */
+  public get isSinglePage(): boolean {
+    return this.getPropertyValue("isSinglePage", false);
+  }
+  public set isSinglePage(val: boolean) {
+    this.setPropertyValue("isSinglePage", val);
+  }
+  /**
+   * Set this property to true, to make the first page your starting page. The end-user could not comeback to the start page and it is not count in the progress.
+   */
   public get firstPageIsStarted(): boolean {
     return this.getPropertyValue("firstPageIsStarted", false);
   }
@@ -1335,6 +1351,35 @@ export class SurveyModel extends Base
     if (this.pages.length == 0) return;
     this.isStartedState = this.firstPageIsStarted;
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
+  }
+  origionalPages = null;
+  protected onIsSinglePageChanged() {
+    if (!this.isSinglePage || this.isDesignMode) {
+      if (this.origionalPages) {
+        this.pages.splice(0, this.pages.length);
+        for (var i = 0; i < this.origionalPages.length; i++) {
+          this.pages.push(this.origionalPages[i]);
+        }
+      }
+      this.origionalPages = null;
+    } else {
+      this.origionalPages = this.pages.slice(0, this.pages.length);
+      var startIndex = this.firstPageIsStarted ? 1 : 0;
+      var singlePage = this.createSinglePage(startIndex);
+      var deletedLen = this.pages.length - startIndex;
+      this.pages.splice(startIndex, deletedLen, singlePage);
+    }
+  }
+  private createSinglePage(startIndex: number): PageModel {
+    var single = this.createNewPage("all");
+    single.setSurveyImpl(this);
+    for (var i = startIndex; i < this.pages.length; i++) {
+      var page = this.pages[i];
+      var panel = single.addNewPanel(page.name);
+      var json = new JsonObject().toJsonObject(page);
+      new JsonObject().toObject(json, panel);
+    }
+    return single;
   }
   /**
    * Returns true if the current page is the first one.
@@ -2028,6 +2073,7 @@ export class SurveyModel extends Base
   }
   endLoadingFromJson() {
     this.isStartedState = this.firstPageIsStarted;
+    this.onIsSinglePageChanged();
     this.runConditions();
     this.updateVisibleIndexes();
     super.endLoadingFromJson();
@@ -2628,6 +2674,7 @@ JsonObject.metaData.addClass("survey", [
     serializationProperty: "locQuestionTitleTemplate"
   },
   { name: "firstPageIsStarted:boolean", default: false },
+  { name: "isSinglePage:boolean", default: false },
   { name: "maxTimeToFinish:number", default: 0 },
   { name: "maxTimeToFinishPage:number", default: 0 },
   {

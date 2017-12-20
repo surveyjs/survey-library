@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
     await t
       .click(`div:nth-child(20) label input`)
       .click(`input[value="Complete"]`);
-    res = await resultHtml();
+    let res = await resultHtml();
     assert.equal(res, "gotResults");
   });
 });

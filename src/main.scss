@@ -500,6 +500,10 @@ $base-line-height: 2em;
 
           .sv_q_rating_item {
             cursor: pointer;
+            word-spacing: -0.3em;
+            > * {
+              word-spacing: initial;
+            }
 
             &.active {
               .sv_q_rating_item_text {

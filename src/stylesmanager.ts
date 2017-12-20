@@ -10,7 +10,7 @@ export class StylesManager {
     //   "max-width: 80%; margin: auto; position: relative; color: #6d7072; padding: 0 1em;",
     // ".sv_bootstrap_css .panel-body":
     //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
-    // ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
+    ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
 
     ".sv_qstn": "display: inline-block; vertical-align: top;",
     ".progress": "width: 60%;",

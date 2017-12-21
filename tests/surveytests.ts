@@ -3071,6 +3071,21 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function(
   assert.equal(page.questions.length, 4, "there are 4 questions on the page");
 });
 
+QUnit.test("Survey page hasShown", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
+  assert.equal(survey.pages[1].hasShown, false, "The second page was not shown");
+  var p = survey.currentPage
+  assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
+  assert.equal(survey.pages[1].hasShown, false, "The second page was not shown");
+  survey.nextPage();
+  assert.equal(survey.pages[1].hasShown, true, "The second page was shown");
+  survey.clear();
+  assert.equal(survey.pages[1].hasShown, false, "The second page hasShown is false again");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

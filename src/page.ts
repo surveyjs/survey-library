@@ -17,6 +17,7 @@ import { PanelModel, PanelModelBase, QuestionRowModel } from "./panel";
  * The page object. It has elements collection, that contains questions and panels.
  */
 export class PageModel extends PanelModelBase implements IPage {
+  private hasShownValue: boolean = false;
   constructor(public name: string = "") {
     super(name);
   }
@@ -71,6 +72,13 @@ export class PageModel extends PanelModelBase implements IPage {
       str = this.num + ". " + str;
     }
     return str;
+  }
+  /**
+   * The property returns true, if the page has been shown to the end-user.
+   */
+  public get hasShown() { return this.hasShownValue; }
+  public setHasShown(val: boolean) {
+    this.hasShownValue = val;
   }
   /**
    * Call it to focus the input on the first question

@@ -1088,7 +1088,10 @@ export class SurveyModel extends Base
     if (value == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
     this.currentPageValue = value;
-    if (value) value.updateCustomWidgets();
+    if (value) {
+      value.updateCustomWidgets();
+      value.setHasShown(true);
+    }
     this.currentPageChanged(value, oldValue);
   }
   /**
@@ -1168,6 +1171,7 @@ export class SurveyModel extends Base
     this.setTimeSpent(0);
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
+      this.pages[i].setHasShown(false);
     }
     this.isCompleted = false;
     this.isCompletedBefore = false;

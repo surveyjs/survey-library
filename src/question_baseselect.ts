@@ -2,6 +2,7 @@ import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
 import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
+import { Helpers } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
@@ -335,13 +336,7 @@ export class QuestionSelectBase extends Question {
     });
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-    return array;
+    return Helpers.randomizeArray<ItemValue>(array);
   }
   clearUnusedValues() {
     super.clearUnusedValues();

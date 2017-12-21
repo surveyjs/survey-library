@@ -1,8 +1,20 @@
 export class StylesManager {
-  private sheet: CSSStyleSheet = null;
   private static SurveyJSStylesSheetId = "surveyjs";
+
   public static Styles: { [key: string]: string } = {
+    // ".sv_bootstrap_css":
+    //   "position: relative; width: 100%; background-color: #f4f4f4",
+    // ".sv_bootstrap_css .sv_custom_header":
+    //   "position: absolute; width: 100%; height: 275px; background-color: #e7e7e7;",
+    // ".sv_bootstrap_css .sv_container":
+    //   "max-width: 80%; margin: auto; position: relative; color: #6d7072; padding: 0 1em;",
+    // ".sv_bootstrap_css .panel-body":
+    //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
+    ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
+
     ".sv_qstn": "display: inline-block; vertical-align: top;",
+    ".progress": "width: 60%;",
+    ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_p_container": "display: inline-block; vertical-align: top;",
     ".sv_qbln .checkbox-material": "margin-right: 3px;",
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
@@ -16,27 +28,153 @@ export class StylesManager {
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
     ".sv_q_checkbox_inline, .sv_q_radiogroup_inline": "line-height: 2.5em;",
-    ".form-inline .sv_q_checkbox_inline:not(:first-child)": "margin-left: 1em;",
-    ".form-inline .sv_q_radiogroup_inline:not(:first-child)":
-      "margin-left: 1em;",
+    ".form-inline .sv_q_checkbox_inline:not(:last-child)": "margin-right: 1em;",
+    ".form-inline .sv_q_radiogroup_inline:not(:last-child)":
+      "margin-right: 1em;",
     ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
     "fieldset.form-inline": "display: inline-block;"
   };
 
-  findSheet() {
+  public static ThemeColors: { [key: string]: { [key: string]: string } } = {
+    default: {
+      "$header-background-color": "#e7e7e7",
+      "$body-container-background-color": "#f4f4f4",
+
+      "$main-color": "#1ab394",
+      "$main-hover-color": "#0aa384",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#6d7072",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    orange: {
+      "$header-background-color": "#4a4a4a",
+      "$body-container-background-color": "#f8f8f8",
+
+      "$main-color": "#f78119",
+      "$main-hover-color": "#e77109",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#f78119",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    darkblue: {
+      "$header-background-color": "#d9d8dd",
+      "$body-container-background-color": "#f6f7f2",
+
+      "$main-color": "#3c4f6d",
+      "$main-hover-color": "#2c3f5d",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    darkrose: {
+      "$header-background-color": "#ddd2ce",
+      "$body-container-background-color": "#f7efed",
+
+      "$main-color": "#68656e",
+      "$main-hover-color": "#58555e",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#4a4a4a",
+      "$header-color": "#6d7072",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    }
+  };
+  public static ThemeCss: { [key: string]: string } = {
+    ".sv_default_css": "background-color: $body-container-background-color;",
+
+    ".sv_default_css hr": "border-color: $border-color;",
+
+    ".sv_default_css input[type='button'], .sv_default_css button":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_default_css input[type='button']:hover, .sv_default_css button:hover":
+      "background-color: $main-hover-color;",
+
+    ".sv_default_css .sv_header": "color: $header-color;",
+    ".sv_default_css .sv_custom_header":
+      "background-color: $header-background-color;",
+    ".sv_default_css .sv_container": "color: $text-color;",
+    ".sv_default_css .sv_body":
+      "background-color: $body-background-color; border-color: $main-color;",
+    ".sv_default_css .sv_progress": "background-color: $border-color;",
+    ".sv_default_css .sv_progress_bar": "background-color: $main-color;",
+
+    ".sv_default_css .sv_p_root > .sv_row": "border-color: $border-color;",
+    ".sv_default_css .sv_p_root > .sv_row:nth-child(odd)":
+      "background-color: $body-background-color;",
+    ".sv_default_css .sv_p_root > .sv_row:nth-child(even)":
+      "background-color: $body-container-background-color;",
+
+    ".sv_default_css .sv_q_other input":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_text_root":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_dropdown_control":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input[type='text']":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css select":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css textarea":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_q_dropdown_control:focus":
+      "border-color: $main-color;",
+    ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
+    ".sv_default_css select:focus": "border-color: $main-color;",
+    ".sv_default_css textarea:focus": "border-color: $main-color;",
+
+    ".sv_default_css .sv_select_wrapper":
+      "background-color: $body-background-color;",
+    ".sv_default_css .sv_select_wrapper::before":
+      "background-color: $main-color;",
+
+    ".sv_default_css .sv_q_rating_item.active .sv_q_rating_item_text":
+      "background-color: $main-hover-color; border-color: $main-hover-color; color: $body-background-color;",
+    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text":
+      "border-color: $border-color;",
+    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text:hover":
+      "border-color: $main-hover-color;",
+
+    ".sv_default_css table.sv_q_matrix tr": "border-color: $border-color;",
+    ".sv_default_css table.sv_q_matrix_dropdown tr":
+      "border-color: $border-color;",
+    ".sv_default_css table.sv_q_matrix_dynamic tr":
+      "border-color: $border-color;"
+  };
+
+  private sheet: CSSStyleSheet = null;
+
+  static findSheet(styleSheetId: string) {
     for (let i = 0; i < document.styleSheets.length; i++) {
-      if (
-        document.styleSheets[i].ownerNode["id"] ===
-        StylesManager.SurveyJSStylesSheetId
-      ) {
+      if (document.styleSheets[i].ownerNode["id"] === styleSheetId) {
         return <CSSStyleSheet>document.styleSheets[i];
       }
     }
     return null;
   }
-  createSheet() {
+
+  static createSheet(styleSheetId: string) {
     let style = document.createElement("style");
-    style.id = StylesManager.SurveyJSStylesSheetId;
+    style.id = styleSheetId;
     // Add a media (and/or media query) here if you'd like!
     // style.setAttribute("media", "screen")
     // style.setAttribute("media", "only screen and (max-width : 1024px)")
@@ -45,18 +183,47 @@ export class StylesManager {
     return <CSSStyleSheet>style.sheet;
   }
 
-  constructor() {
-    this.sheet = this.findSheet();
-    if (!this.sheet) {
-      this.sheet = this.createSheet();
-      this.initializeStyles();
+  public static applyTheme(
+    themeName: string = "default",
+    themeSelector: string = ".sv_main"
+  ) {
+    let sheet = StylesManager.findSheet(themeName + themeSelector);
+    if (!sheet) {
+      sheet = StylesManager.createSheet(themeName + themeSelector);
+      let theme =
+        StylesManager.ThemeColors[themeName] ||
+        StylesManager.ThemeColors["default"];
+      Object.keys(StylesManager.ThemeCss).forEach(selector => {
+        let cssRuleText = StylesManager.ThemeCss[selector];
+        Object.keys(theme).forEach(
+          colorVariableName =>
+            (cssRuleText = cssRuleText.replace(
+              colorVariableName,
+              theme[colorVariableName]
+            ))
+        );
+        sheet.insertRule(
+          themeSelector + selector + " { " + cssRuleText + " }",
+          0
+        );
+      });
     }
   }
 
-  public initializeStyles() {
+  constructor() {
+    this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
+    if (!this.sheet) {
+      this.sheet = StylesManager.createSheet(
+        StylesManager.SurveyJSStylesSheetId
+      );
+      this.initializeStyles(this.sheet);
+    }
+  }
+
+  public initializeStyles(sheet: CSSStyleSheet) {
     Object.keys(StylesManager.Styles).forEach(selector =>
-      this.sheet.insertRule(
-        selector + "{ " + StylesManager.Styles[selector] + " }",
+      sheet.insertRule(
+        selector + " { " + StylesManager.Styles[selector] + " }",
         0
       )
     );

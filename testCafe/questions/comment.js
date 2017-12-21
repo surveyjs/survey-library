@@ -52,7 +52,7 @@ frameworks.forEach(framework => {
       await t.hover(getComment);
     });
 
-    test(`change cols count`, async t => {
+    test.skip(`change cols count`, async t => {
       const getWidth = ClientFunction(
         () => document.querySelector("textarea").clientWidth
       );

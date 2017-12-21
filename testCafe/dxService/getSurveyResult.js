@@ -7,10 +7,6 @@ import {
 } from "../settings";
 import { Selector, ClientFunction } from "testcafe";
 const setupSurvey = ClientFunction(() => {
-  document
-    .querySelector("#surveyElement")
-    .insertAdjacentHTML("afterend", '<div id="chartContainer"></div>');
-
   window.survey.onSendResult.add(function(s, options) {
     if (options.success) {
       s.getResult("a15eee7a-9418-4eb4-9671-2009c8ff6b24", "langs");
@@ -18,8 +14,9 @@ const setupSurvey = ClientFunction(() => {
   });
   window.survey.onGetResult.add(function(s, options) {
     if (options.success) {
-      document.getElementById("chartContainer").innerHTML =
-        "<div id='hasResult'>Get result</div>";
+      var element = document.createElement("div");
+      element.id = "hasResult";
+      document.querySelector("body").appendChild(element);
     }
   });
 });
@@ -38,12 +35,14 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`correct get result`, async t => {
+  //TODO need to fix service
+  test.skip(`correct get result`, async t => {
     const hasResult = Selector("#hasResult");
     await setupSurvey();
     await t
       .click(`div:nth-child(20) label input`)
       .click(`input[value="Complete"]`)
+      .wait(5000)
       .expect(hasResult.exists)
       .ok();
   });

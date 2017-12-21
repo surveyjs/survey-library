@@ -83,9 +83,7 @@ frameworks.forEach(framework => {
 
   test(`change column count`, async t => {
     const getStyleWidth = ClientFunction(
-      () =>
-        document.querySelector(`div[id*=sq_1] div[style*=margin-right]`).style
-          .width
+      () => document.querySelector(`div[id*=sq_1] fieldset > div`).style.width
     );
     let styleWidth = await getStyleWidth();
     assert.equal(styleWidth, "25%");
@@ -103,14 +101,12 @@ frameworks.forEach(framework => {
 
   test(`change choices order`, async t => {
     const getChoicesCount = ClientFunction(
-      () =>
-        document.querySelectorAll(`div[id*=sq_1] div[style*=margin-right]`)
-          .length
+      () => document.querySelectorAll(`div[id*=sq_1] fieldset > div`).length
     );
-    const getFirst = Selector("div[id*=sq_1] div[style*=margin-right]", {
+    const getFirst = Selector("div[id*=sq_1] fieldset > div", {
       index: 0
     });
-    const getSecond = Selector("div[id*=sq_1] div[style*=margin-right]", {
+    const getSecond = Selector("div[id*=sq_1] fieldset > div", {
       index: 1
     });
     let rnd_count = 0;
@@ -159,9 +155,7 @@ frameworks.forEach(framework => {
   test(`check integrity`, async t => {
     let i;
     const getChoicesCount = ClientFunction(
-      () =>
-        document.querySelectorAll("div[id*=sq_1] div[style*=margin-right]")
-          .length
+      () => document.querySelectorAll("div[id*=sq_1] fieldset > div").length
     );
     const getChoicesExistence = ClientFunction(() => {
       var choices = [
@@ -216,8 +210,7 @@ frameworks.forEach(framework => {
 
   test(`check "other" choice doesn't change order`, async t => {
     const getOtherChoice = Selector(
-      () =>
-        document.querySelectorAll(`div[id*=sq_1] div[style*=margin-right]`)[11]
+      () => document.querySelectorAll(`div[id*=sq_1] fieldset > div`)[11]
     );
     let otherChoice;
 

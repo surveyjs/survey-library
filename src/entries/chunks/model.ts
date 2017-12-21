@@ -98,5 +98,7 @@ export {
   CustomWidgetCollection
 } from "../../questionCustomWidgets";
 
+export { StylesManager } from "../../stylesmanager";
+
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";

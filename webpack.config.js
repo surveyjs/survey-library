@@ -182,6 +182,13 @@ module.exports = function(options) {
           })
         },
         {
+          test: /\.svg/,
+          use: {
+            loader: "url-loader",
+            options: {}
+          }
+        },
+        {
           test: /\.html$/,
           loader: "html-loader"
         }

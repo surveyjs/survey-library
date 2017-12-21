@@ -1,6 +1,6 @@
 <template>
-    <div style="width:60%;" :class="css.progress">
-        <div style="width:auto;margin-left: 2px;margin-right:2px" :class="css.progressBar" :style="{minWidth: progress}"
+    <div :class="css.progress">
+        <div :class="css.progressBar" :style="{width: progress}"
              role="progressbar" aria-valuemin="0"
              aria-valuemax="100">
             <span>{{survey.progressText}}</span>

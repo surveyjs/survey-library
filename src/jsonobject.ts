@@ -50,9 +50,9 @@ export class JsonObjectProperty {
     return this.onGetValue || this.serializationProperty;
   }
   public isDefaultValue(value: any): boolean {
-    return !Helpers.isValueEmpty(this.defaultValue)
-      ? this.defaultValue == value
-      : !value;
+    if (!Helpers.isValueEmpty(this.defaultValue))
+      return this.defaultValue == value;
+    return value === false || value === "" || Helpers.isValueEmpty(value);
   }
   public getValue(obj: any): any {
     if (this.onGetValue) return this.onGetValue(obj);
@@ -677,7 +677,6 @@ export class JsonObject {
   protected valueToJson(obj: any, result: any, property: JsonObjectProperty) {
     if (property.isSerializable === false) return;
     var value = property.getValue(obj);
-    if (value === undefined || value === null) return;
     if (property.isDefaultValue(value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];

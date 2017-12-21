@@ -14,6 +14,7 @@ import {
   MatrixDropdownColumn
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
+import { NumericValidator } from "../src/validator";
 
 export default QUnit.module("SurveySerialization");
 
@@ -451,3 +452,23 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q = <Question>page.addNewQuestion("text", "question1");
+  q.validators.push(new NumericValidator(0, 100));
+  var json = new JsonObject().toJsonObject(q);
+  var originalJson = {
+    name: "question1",
+    validators: [
+      {
+        type: "numeric",
+        minValue: 0,
+        maxValue: 100
+      }
+    ]
+  };
+  assert.deepEqual(json, originalJson, "minValue should be here");
+});

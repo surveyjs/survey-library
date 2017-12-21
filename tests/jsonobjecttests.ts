@@ -1,6 +1,7 @@
 ﻿import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
+import { Helpers } from "../src/helpers";
 
 class Car extends Base {
   constructor() {
@@ -411,6 +412,13 @@ QUnit.test("Serialize arrays with serializable objects", function(assert) {
     '{"cars":[{"type":"sport","maxSpeed":320},{"type":"truck","maxWeight":10000}]}',
     "serialize objects with their type"
   );
+});
+QUnit.test("Serialize 0 for number ", function(assert) {
+  assert.equal(Helpers.isValueEmpty(0), false, "The value is not default");
+  var sport = new SportCar();
+  sport.maxSpeed = 0;
+  var jsObj = new JsonObject().toJsonObject(sport);
+  assert.deepEqual(jsObj, { maxSpeed: 0 }, "0 should be serialized as well");
 });
 QUnit.test("Serialize object and get type by it's property", function(assert) {
   var dealer = new Dealer();

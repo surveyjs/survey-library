@@ -83,9 +83,20 @@ export class PageModel extends PanelModelBase implements IPage {
     if (this.survey.isDesignMode) return;
     if (val == this.hasShownValue) return;
     if (val == true && this.isQuestionsRandomized) {
-      Helpers.randomizeArray<IElement>(this.elements);
+      this.randomizeElements();
     }
     this.hasShownValue = val;
+  }
+  private randomizeElements() {
+    var oldElements = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      oldElements.push(this.elements[i]);
+    }
+    var newElements = Helpers.randomizeArray<IElement>(oldElements);
+    this.elements.splice(0, this.elements.length);
+    for (var i = 0; i < newElements.length; i++) {
+      this.elements.push(newElements[i]);
+    }
   }
   /**
    * The property returns true, if the elements are randomized on the page

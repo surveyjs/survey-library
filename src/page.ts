@@ -1,5 +1,5 @@
 import { JsonObject } from "./jsonobject";
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import {
   Base,
   IPage,
@@ -41,13 +41,13 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * Returns true, if the page is started page in the survey. It can be shown on the start only and the end-user could not comeback to it after it passed it.
    */
-  public get isStarted() : boolean {
+  public get isStarted(): boolean {
     return this.survey && this.survey.isPageStarted(this);
   }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
-    if(this.isStarted) return false;
+    if (this.isStarted) return false;
     return super.getIsPageVisible(exceptionQuestion);
-  }    
+  }
   public get num() {
     return this.getPropertyValue("num", -1);
   }
@@ -76,9 +76,40 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * The property returns true, if the page has been shown to the end-user.
    */
-  public get hasShown() { return this.hasShownValue; }
+  public get hasShown(): boolean {
+    return this.hasShownValue;
+  }
   public setHasShown(val: boolean) {
+    if (this.survey.isDesignMode) return;
+    if (val == this.hasShownValue) return;
+    if (val == true && this.isQuestionsRandomized) {
+      Helpers.randomizeArray<IElement>(this.elements);
+    }
     this.hasShownValue = val;
+  }
+  /**
+   * The property returns true, if the elements are randomized on the page
+   * @see hasShown
+   * @see questionsOrder
+   * @see SurveyModel.questionsOrder
+   */
+  public get isQuestionsRandomized(): boolean {
+    var order =
+      this.questionsOrder == "default" && this.survey
+        ? this.survey.questionsOrder
+        : this.questionsOrder;
+    return order == "random";
+  }
+  /**
+   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
+   * @see SurveyModel.questionsOrder
+   * @see isQuestionsRandomized
+   */
+  public get questionsOrder() {
+    return this.getPropertyValue("questionsOrder", "default");
+  }
+  public set questionsOrder(val: string) {
+    this.setPropertyValue("questionsOrder", val);
   }
   /**
    * Call it to focus the input on the first question
@@ -147,6 +178,11 @@ JsonObject.metaData.addClass(
       name: "navigationButtonsVisibility",
       default: "inherit",
       choices: ["inherit", "show", "hide"]
+    },
+    {
+      name: "questionsOrder",
+      default: "default",
+      choices: ["default", "initial", "random"]
     },
     { name: "maxTimeToFinish:number", default: 0 }
   ],

@@ -22,7 +22,7 @@ export class QuestionRowModel {
   private visibleValue: boolean;
   visibilityChangedCallback: () => void;
   constructor(public panel: PanelModelBase) {
-    this.visibleValue = panel.survey && panel.survey.isDesignMode;
+    this.visibleValue = panel.isDesignMode;
   }
   public elements: Array<IElement> = [];
   //TODO remove after updating react and vue
@@ -125,7 +125,7 @@ export class PanelModelBase extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    if (this.survey && this.survey.isDesignMode) this.onVisibleChanged();
+    if (this.isDesignMode) this.onVisibleChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].setSurveyImpl(value);
     }
@@ -438,9 +438,6 @@ export class PanelModelBase extends SurveyElement
     if (this.rowsChangedCallback && !this.isLoadingFromJson)
       this.rowsChangedCallback();
   }
-  private get isDesignMode() {
-    return this.survey && this.survey.isDesignMode;
-  }
   private onAddElement(element: IElement, index: number) {
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
@@ -551,9 +548,7 @@ export class PanelModelBase extends SurveyElement
    * Returns true if object is visible or survey is in design mode right now.
    */
   public get isVisible(): boolean {
-    return (
-      (this.survey && this.survey.isDesignMode) || this.getIsPageVisible(null)
-    );
+    return this.isDesignMode || this.getIsPageVisible(null);
   }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (!this.visible) return false;

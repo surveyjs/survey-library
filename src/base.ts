@@ -21,6 +21,7 @@ export interface ISurvey extends ITextProcessor {
   pageVisibilityChanged(page: IPage, newValue: boolean);
   panelVisibilityChanged(panel: IPanel, newValue: boolean);
   questionVisibilityChanged(question: IQuestion, newValue: boolean);
+  questionsOrder: string;
   questionAdded(
     question: IQuestion,
     index: number,
@@ -499,6 +500,12 @@ export class SurveyElement extends Base implements ISurveyElement {
    */
   public get survey(): ISurvey {
     return this.surveyValue;
+  }
+  /**
+   * Returns true if the question in design mode right now.
+   */
+  public get isDesignMode(): boolean {
+    return this.survey && this.survey.isDesignMode;
   }
   public get isLoadingFromJson() {
     if (this.survey) return this.survey.isLoadingFromJson;

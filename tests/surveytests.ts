@@ -3085,6 +3085,21 @@ QUnit.test("Survey page hasShown", function(
   survey.clear();
   assert.equal(survey.pages[1].hasShown, false, "The second page hasShown is false again");
 });
+QUnit.test("Questions are randomized", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var page = survey.pages[0];
+  assert.equal(page.isQuestionsRandomized, false, "By default questions are not randomized");
+  page.questionsOrder = "random";
+  assert.equal(page.isQuestionsRandomized, true, "page.questionsOrder = 'random'");
+  page.questionsOrder = "default";
+  assert.equal(page.isQuestionsRandomized, false, "page.questionsOrder = 'default'");
+  survey.questionsOrder = "random";
+  assert.equal(page.isQuestionsRandomized, true, "survey.questionsOrder = 'random' && page.questionsOrder = 'default'");
+  page.questionsOrder = "initial";
+  assert.equal(page.isQuestionsRandomized, false, "page.questionsOrder = 'initial'");
+});
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

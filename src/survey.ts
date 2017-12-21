@@ -1106,6 +1106,17 @@ export class SurveyModel extends Base
     this.currentPage = this.visiblePages[value];
   }
   /**
+   * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order. You can randomize questions on a specific page.
+   * @see SurveyPage.questionsOrder
+   */
+  public get questionsOrder() {
+    return this.getPropertyValue("questionsOrder", "initial");
+  }
+  public set questionsOrder(val: string) {
+    this.setPropertyValue("questionsOrder", val);
+  }
+
+  /**
    * Set the input focus to the first question with the input.
    */
   public focusFirstQuestion() {
@@ -2642,6 +2653,11 @@ JsonObject.metaData.addClass("survey", [
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
   { name: "showCompletedPage:boolean", default: true },
+  {
+    name: "questionsOrder",
+    default: "initial",
+    choices: ["initial", "random"]
+  },
   "showPageNumbers:boolean",
   {
     name: "showQuestionNumbers",

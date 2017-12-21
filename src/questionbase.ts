@@ -119,12 +119,6 @@ export class QuestionBase extends SurveyElement
     return this.visible || this.isDesignMode;
   }
   /**
-   * Returns true if the question in design mode right now.
-   */
-  public get isDesignMode(): boolean {
-    return this.survey && this.survey.isDesignMode;
-  }
-  /**
    * Returns true if there is no input in the question. It always returns true for html question or survey is in 'display' mode.
    * @see QuestionHtmlModel
    * @see SurveyModel.mode

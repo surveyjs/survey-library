@@ -182,6 +182,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
   }
+  public get enableIf(): string {
+    return this.getPropertyValue("enableIf", "");
+  }
+  public set enableIf(val: string) {
+    this.setPropertyValue("enableIf", val);
+  }
 
   public get booleanDefaultValue(): any {
     return this.getPropertyValue("booleanDefaultValue", "indeterminate");
@@ -789,6 +795,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     question.readOnly = this.readOnly;
     question.validators = column.validators;
     question.visibleIf = column.visibleIf;
+    question.enableIf = column.enableIf;
     if (column.hasOther) {
       if (question instanceof QuestionSelectBase) {
         (<QuestionSelectBase>question).storeOthersAsComment = false;
@@ -1009,6 +1016,7 @@ JsonObject.metaData.addClass(
       ]
     },
     "visibleIf:condition",
+    "enableIf:condition",
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",

@@ -1383,6 +1383,54 @@ QUnit.test("Matrixdynamic column.visibleIf", function(assert) {
   question.runCondition(values);
   assert.equal(q2.visible, true, "3. q2 visibleIf depends on column1 - true");
 });
+QUnit.test("Matrixdynamic column.enableIf", function(assert) {
+  var question = new QuestionMatrixDynamicModel("matrixDynamic");
+  question.rowCount = 2;
+  question.columns.push(new MatrixDropdownColumn("column1"));
+  question.columns.push(new MatrixDropdownColumn("column2"));
+  question.columns.push(new MatrixDropdownColumn("column3"));
+  question.columns[0].choices = [1, 2, 3];
+  question.columns[1].choices = [4, 5];
+  question.columns[2].choices = [7, 8, 9, 10];
+  question.columns[2].isRequired = true;
+
+  question.columns[1].enableIf = "{row.column1} = 2";
+  question.columns[2].enableIf = "{a} = 5";
+
+  var visibleRows = question.visibleRows;
+  var q1 = <QuestionDropdownModel>visibleRows[0].cells[0].question;
+  var q2 = <QuestionDropdownModel>visibleRows[0].cells[1].question;
+  var q3 = <QuestionDropdownModel>visibleRows[0].cells[2].question;
+
+  var values = { a: 3 };
+  question.runCondition(values);
+  assert.equal(q1.isReadOnly, false, "1. q1 enableIf is empty");
+  assert.equal(
+    q2.isReadOnly,
+    true,
+    "1. q2 enableIf depends on column1 - false"
+  );
+  assert.equal(
+    q3.isReadOnly,
+    true,
+    "1. q3 enableIf depends on external data - false"
+  );
+  values = { a: 5 };
+  question.runCondition(values);
+  assert.equal(
+    q3.isReadOnly,
+    false,
+    "2. q3 enableIf depends on external data - true"
+  );
+
+  q1.value = 2;
+  question.runCondition(values);
+  assert.equal(
+    q2.isReadOnly,
+    false,
+    "3. q2 enableIf depends on column1 - true"
+  );
+});
 QUnit.test(
   "Matrixdynamic column.visibleIf, load from json and add item",
   function(assert) {

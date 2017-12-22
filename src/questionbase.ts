@@ -141,6 +141,12 @@ export class QuestionBase extends SurveyElement
     return false;
   }
   /**
+   * Returns true if the question value is empty
+   */
+  public isEmpty(): boolean {
+    return true;
+  }
+  /**
    * Returns the number of erros on validation.
    */
   public get currentErrorCount(): number {

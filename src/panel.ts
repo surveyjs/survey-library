@@ -282,6 +282,15 @@ export class PanelModelBase extends SurveyElement
     return false;
   }
   /**
+   * Set this property to true, to require the answer at least in one question in the panel.
+   */
+  public get isRequired(): boolean {
+    return this.getPropertyValue("isRequired", false);
+  }
+  public set isRequired(val: boolean) {
+    this.setPropertyValue("isRequired", val);
+  }
+  /**
    * Returns true, if there is an error on this Page or inside the current Panel
    * @param fireCallback set it to true, to show errors in UI
    * @param focuseOnFirstError set it to true to focuse on the first question that doesn't pass the validation
@@ -296,14 +305,28 @@ export class PanelModelBase extends SurveyElement
       firstErrorQuestion: null,
       result: false
     };
-    this.hasErrorCore(rec);
+    this.hasErrorsCore(rec);
     return rec.result;
   }
-  protected hasErrorCore(rec: any) {
+  private hasRequiredError(rec: any) {
+    if (!this.isRequired) return;
+    var visQuestions = [];
+    this.addQuestionsToList(visQuestions, true);
+    if (visQuestions.length == 0) return;
+    for (var i = 0; i < visQuestions.length; i++) {
+      if (!visQuestions[i].isEmpty()) return;
+    }
+    rec.result = true;
+    if (!rec.firstErrorQuestion) {
+      rec.firstErrorQuestion = visQuestions[0];
+    }
+  }
+  protected hasErrorsCore(rec: any) {
+    this.hasRequiredError(rec);
     for (var i = 0; i < this.elements.length; i++) {
       if (!this.elements[i].isVisible) continue;
       if (this.elements[i].isPanel) {
-        (<PanelModelBase>(<any>this.elements[i])).hasErrorCore(rec);
+        (<PanelModelBase>(<any>this.elements[i])).hasErrorsCore(rec);
       } else {
         var question = <QuestionBase>this.elements[i];
         if (question.isReadOnly) continue;
@@ -742,8 +765,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   public expand() {
     this.state = "expanded";
   }
-  protected hasErrorCore(rec: any) {
-    super.hasErrorCore(rec);
+  protected hasErrorsCore(rec: any) {
+    super.hasErrorsCore(rec);
     if (this.isCollapsed && rec.result && rec.fireCallback) {
       this.expand();
     }
@@ -839,6 +862,7 @@ JsonObject.metaData.addClass(
       default: "default",
       choices: ["default", "collapsed", "expanded"]
     },
+    "isRequired:boolean",
     { name: "startWithNewLine:boolean", default: true },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     {

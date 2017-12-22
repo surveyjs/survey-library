@@ -90,6 +90,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
 
 export interface IQuestion extends IElement {
   hasTitle: boolean;
+  isEmpty(): boolean;
   setVisibleIndex(value: number): number;
   onSurveyValueChanged(newValue: any);
   onReadOnlyChanged();

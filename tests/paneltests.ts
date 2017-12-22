@@ -181,3 +181,22 @@ QUnit.test("Expand panel on validation error", function(assert) {
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collpased");
 });
+QUnit.test("Panel.isRequired", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("p1");
+  var panel2 = page.addNewPanel("p2");
+  var q1 = <Question>panel.addNewQuestion("text", "q1");
+  var q2 = <Question>panel.addNewQuestion("text", "q2");
+  assert.equal(panel.hasErrors(), false, "There is no errors");
+  panel.isRequired = true;
+  assert.equal(panel.hasErrors(), true, "All questions are empty");
+  q1.value = "1";
+  assert.equal(panel.hasErrors(), false, "The first question is not empty");
+  panel2.isRequired = true;
+  assert.equal(
+    panel.hasErrors(),
+    false,
+    "There is no visible questions in the panel"
+  );
+});

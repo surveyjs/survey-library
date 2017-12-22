@@ -148,3 +148,36 @@ QUnit.test("panel rows generation - nested panel", function(assert) {
     "The panel row is invisible since all questions are invisible"
   );
 });
+QUnit.test("panel isExpanded and isCollapsed", function(assert) {
+  var page = new PageModel();
+  var panel = page.addNewPanel("p1");
+  var stateChangedCounter = 0;
+  panel.stateChangedCallback = function() {
+    stateChangedCounter++;
+  };
+  assert.equal(panel.isCollapsed, false, "Panel is not collapsed by default");
+  assert.equal(panel.isExpanded, false, "Panel is not expanded by default");
+  assert.equal(panel.processedTitle, "", "Panel title is empty");
+  panel.collapse();
+  assert.equal(panel.processedTitle, "p1", "Panel title renders name");
+  assert.equal(panel.isCollapsed, true, "Panel is collapsed");
+  assert.equal(stateChangedCounter, 1, "callback is called one time");
+  panel.expand();
+  assert.equal(panel.isExpanded, true, "Panel is expanded");
+  assert.equal(stateChangedCounter, 2, "callback is called two time");
+});
+QUnit.test("Expand panel on validation error", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel1 = page.addNewPanel("p1");
+  panel1.collapse();
+  var panel2 = panel1.addNewPanel("p2");
+  panel2.collapse();
+  var question = <Question>panel2.addNewQuestion("text", "q1");
+  question.isRequired = true;
+  assert.equal(panel1.isCollapsed, true, "Panel1 is collapsed");
+  assert.equal(panel2.isCollapsed, true, "Panel2 is collpased");
+  page.hasErrors(true, true);
+  assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
+  assert.equal(panel2.isCollapsed, false, "Panel2 is not collpased");
+});

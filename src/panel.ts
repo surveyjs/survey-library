@@ -290,22 +290,31 @@ export class PanelModelBase extends SurveyElement
     fireCallback: boolean = true,
     focuseOnFirstError: boolean = false
   ): boolean {
-    var result = false;
-    var firstErrorQuestion = null;
-    var visibleQuestions = [];
-    this.addQuestionsToList(visibleQuestions, true);
-    for (var i = 0; i < visibleQuestions.length; i++) {
-      var question = visibleQuestions[i];
-      if (question.isReadOnly) continue;
-      if (question.hasErrors(fireCallback)) {
-        if (focuseOnFirstError && firstErrorQuestion == null) {
-          firstErrorQuestion = question;
+    var rec = {
+      fireCallback: fireCallback,
+      focuseOnFirstError: focuseOnFirstError,
+      firstErrorQuestion: null,
+      result: false
+    };
+    this.hasErrorCore(rec);
+    return rec.result;
+  }
+  protected hasErrorCore(rec: any) {
+    for (var i = 0; i < this.elements.length; i++) {
+      if (!this.elements[i].isVisible) continue;
+      if (this.elements[i].isPanel) {
+        (<PanelModelBase>(<any>this.elements[i])).hasErrorCore(rec);
+      } else {
+        var question = <QuestionBase>this.elements[i];
+        if (question.isReadOnly) continue;
+        if (question.hasErrors(rec.fireCallback)) {
+          if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
+            rec.firstErrorQuestion = question;
+          }
+          rec.result = true;
         }
-        result = true;
       }
     }
-    if (firstErrorQuestion) firstErrorQuestion.focus(true);
-    return result;
   }
   /**
    * Fill list array with the questions.
@@ -523,7 +532,6 @@ export class PanelModelBase extends SurveyElement
     return this.getRenderedTitle(this.locTitle.textOrHtml);
   }
   protected getRenderedTitle(str: string): string {
-    if (!str && this.isPanel && this.isDesignMode) return "[" + this.name + "]";
     return this.textProcessor != null
       ? this.textProcessor.processText(str, true)
       : str;
@@ -670,8 +678,13 @@ export class PanelModelBase extends SurveyElement
  * It may contain questions and other panels.
  */
 export class PanelModel extends PanelModelBase implements IElement {
+  stateChangedCallback: () => void;
   constructor(public name: string = "") {
     super(name);
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("state", function() {
+      if (self.stateChangedCallback) self.stateChangedCallback();
+    });
   }
   public getType(): string {
     return "panel";
@@ -687,6 +700,60 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public set page(val: IPage) {
     this.setPage(this.parent, val);
+  }
+  /**
+   * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
+   */
+  public get state(): string {
+    return this.getPropertyValue("state", "default");
+  }
+  public set state(val: string) {
+    this.setPropertyValue("state", val);
+  }
+  /**
+   * Returns true if the Panel is in the collapsed state
+   * @see state
+   * @see collapse
+   * @see isExpanded
+   */
+  public get isCollapsed() {
+    return this.state == "collapsed";
+  }
+  /**
+   * Returns true if the Panel is in the expanded state
+   * @see state
+   * @see expand
+   * @see isCollapsed
+   */
+  public get isExpanded() {
+    return this.state == "expanded";
+  }
+  /**
+   * Collapse the Panel
+   * @see state
+   */
+  public collapse() {
+    this.state = "collapsed";
+  }
+  /**
+   * Expand the Panel
+   * @see state
+   */
+  public expand() {
+    this.state = "expanded";
+  }
+  protected hasErrorCore(rec: any) {
+    super.hasErrorCore(rec);
+    if (this.isCollapsed && rec.result) {
+      this.expand();
+    }
+  }
+  protected getRenderedTitle(str: string): string {
+    if (!str) {
+      if (this.isCollapsed || this.isExpanded) return this.name;
+      if (this.isDesignMode) return "[" + this.name + "]";
+    }
+    return super.getRenderedTitle(str);
   }
   /**
    * The Panel width.
@@ -767,6 +834,11 @@ JsonObject.metaData.addClass(
 JsonObject.metaData.addClass(
   "panel",
   [
+    {
+      name: "state",
+      default: "default",
+      choices: ["default", "collapsed", "expanded"]
+    },
     { name: "startWithNewLine:boolean", default: true },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     {

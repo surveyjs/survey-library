@@ -71,6 +71,9 @@ export class Panel extends PanelModel {
   koInnerMargin: any;
   koRenderWidth: any;
   koElementType: any;
+  koIsExpanded: any;
+  koIsCollapsed: any;
+  doExpand: any;
   constructor(name: string = "") {
     super(name);
     new PanelImplementorBase(this);
@@ -79,12 +82,21 @@ export class Panel extends PanelModel {
     this.koElementType = ko.observable("survey-panel");
     this.koVisible = ko.observable(this.isVisible);
     this.koRenderWidth = ko.observable(this.renderWidth);
+    this.koIsCollapsed = ko.observable(this.isCollapsed);
+    this.koIsExpanded = ko.observable(this.isExpanded);
+    this.stateChangedCallback = function() {
+      self.onStateChanged();
+    };
+    this.doExpand = function() {
+      self.changeExpanded();
+    };
     this.registerFunctionOnPropertiesValueChanged(
       ["renderWidth", "innerIndent", "rightIndent"],
       function() {
         self.onRenderWidthChanged();
       }
     );
+
     this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
@@ -98,9 +110,21 @@ export class Panel extends PanelModel {
     this.koRenderWidth(this.renderWidth);
     this.koInnerMargin(this.getIndentSize(this.innerIndent));
   }
+  private onStateChanged() {
+    this.koIsCollapsed(this.isCollapsed);
+    this.koIsExpanded(this.isExpanded);
+  }
+  private changeExpanded() {
+    if (this.isCollapsed) {
+      this.expand();
+    } else {
+      this.collapse();
+    }
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.koVisible(this.isVisible);
+    this.onStateChanged();
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

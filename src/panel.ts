@@ -744,7 +744,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected hasErrorCore(rec: any) {
     super.hasErrorCore(rec);
-    if (this.isCollapsed && rec.result) {
+    if (this.isCollapsed && rec.result && rec.fireCallback) {
       this.expand();
     }
   }

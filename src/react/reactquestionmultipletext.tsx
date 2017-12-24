@@ -100,7 +100,7 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
     if (this.item) {
       var self = this;
       this.item.valueChangedCallback = function(newValue) {
-        self.setState({ value: this.getValue(newValue) });
+        self.setState({ value: self.getValue(newValue) });
       };
     }
   }

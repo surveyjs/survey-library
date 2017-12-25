@@ -170,7 +170,7 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
     if (!this.cell) return null;
     var errors = (
       <SurveyElementErrors
-        question={this.cell.question}
+        element={this.cell.question}
         cssClasses={this.cssClasses}
         creator={this.creator}
       />

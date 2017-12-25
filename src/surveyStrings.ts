@@ -41,6 +41,7 @@ export var surveyStrings = {
   optionsCaption: "Choose...",
   value: "value",
   requiredError: "Please answer the question.",
+  requiredErrorInPanel: "Please answer at least one question.",
   requiredInAllRowsError: "Please answer questions in all rows.",
   numericError: "The value should be numeric.",
   textMinLength: "Please enter at least {0} characters.",

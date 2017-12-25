@@ -5,6 +5,7 @@
     <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
         <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
     </div>
+    <!-- ko template: { name: 'survey-question-errors', data: $data } --><!-- /ko -->
     <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: koInnerMargin }">
     <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
     </div>

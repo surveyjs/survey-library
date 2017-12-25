@@ -191,6 +191,7 @@ QUnit.test("Panel.isRequired", function(assert) {
   assert.equal(panel.hasErrors(), false, "There is no errors");
   panel.isRequired = true;
   assert.equal(panel.hasErrors(), true, "All questions are empty");
+  assert.equal(panel.errors.length, 1, "One error");
   q1.value = "1";
   assert.equal(panel.hasErrors(), false, "The first question is not empty");
   panel2.isRequired = true;

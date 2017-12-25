@@ -10,13 +10,15 @@ import {
   ISurveyData,
   IElement,
   IQuestion,
-  SurveyElement
+  SurveyElement,
+  SurveyError
 } from "./base";
 import { QuestionBase } from "./questionbase";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
+import { OneAnswerRequiredError } from "./error";
 
 export class QuestionRowModel {
   private visibleValue: boolean;
@@ -90,8 +92,10 @@ export class PanelModelBase extends SurveyElement
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
+  private errorsValue: Array<SurveyError> = [];
   rowsChangedCallback: () => void;
   onGetQuestionTitleLocation: () => string;
+  errorsChangedCallback: () => void;
 
   constructor(public name: string = "") {
     super(name);
@@ -122,6 +126,7 @@ export class PanelModelBase extends SurveyElement
     locDescriptionValue.onGetTextCallback = function(html) {
       return self.getProcessedHtml(html);
     };
+    this.createLocalizableString("requiredErrorText", this);
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -164,7 +169,18 @@ export class PanelModelBase extends SurveyElement
   public get hasDescription(): boolean {
     return this.description != "";
   }
-
+  /**
+   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   */
+  public get requiredErrorText(): string {
+    return this.getLocalizableStringText("requiredErrorText");
+  }
+  public set requiredErrorText(val: string) {
+    this.setLocalizableStringText("requiredErrorText", val);
+  }
+  get locRequiredErrorText(): LocalizableString {
+    return this.getLocalizableString("requiredErrorText");
+  }
   getLocale(): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
@@ -195,7 +211,10 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("visibleIf", val);
   }
   public get cssClasses(): any {
-    return this.css;
+    var classes = { error: {} };
+    this.copyCssClasses(classes, this.css);
+    this.copyCssClasses(classes.error, this.css.error);
+    return classes;
   }
   private get css(): any {
     return surveyCss.getCss();
@@ -291,6 +310,16 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("isRequired", val);
   }
   /**
+   * The list of errors. It is created by callig hasErrors functions
+   * @see hasErrors
+   */
+  public get errors(): Array<SurveyError> {
+    return this.errorsValue;
+  }
+  public set errors(val: Array<SurveyError>) {
+    this.errorsValue = val;
+  }
+  /**
    * Returns true, if there is an error on this Page or inside the current Panel
    * @param fireCallback set it to true, to show errors in UI
    * @param focuseOnFirstError set it to true to focuse on the first question that doesn't pass the validation
@@ -310,6 +339,9 @@ export class PanelModelBase extends SurveyElement
   }
   private hasRequiredError(rec: any) {
     if (!this.isRequired) return;
+    var errorLength = this.errors.length;
+    this.errors = [];
+
     var visQuestions = [];
     this.addQuestionsToList(visQuestions, true);
     if (visQuestions.length == 0) return;
@@ -317,12 +349,18 @@ export class PanelModelBase extends SurveyElement
       if (!visQuestions[i].isEmpty()) return;
     }
     rec.result = true;
+    this.errors.push(new OneAnswerRequiredError(this.requiredErrorText));
     if (!rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }
+    if (
+      rec.fireCallback &&
+      (errorLength != this.errors.length || errorLength > 0)
+    ) {
+      if (this.errorsChangedCallback) this.errorsChangedCallback();
+    }
   }
   protected hasErrorsCore(rec: any) {
-    this.hasRequiredError(rec);
     for (var i = 0; i < this.elements.length; i++) {
       if (!this.elements[i].isVisible) continue;
       if (this.elements[i].isPanel) {
@@ -338,6 +376,7 @@ export class PanelModelBase extends SurveyElement
         }
       }
     }
+    this.hasRequiredError(rec);
   }
   /**
    * Fill list array with the questions.
@@ -863,6 +902,10 @@ JsonObject.metaData.addClass(
       choices: ["default", "collapsed", "expanded"]
     },
     "isRequired:boolean",
+    {
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText"
+    },
     { name: "startWithNewLine:boolean", default: true },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
     {

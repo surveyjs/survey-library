@@ -245,16 +245,6 @@ export class QuestionBase extends SurveyElement
       }
     }
   }
-  private copyCssClasses(dest: any, source: any) {
-    if (!source) return;
-    if (typeof source === "string" || source instanceof String) {
-      dest["root"] = source;
-    } else {
-      for (var key in source) {
-        dest[key] = source[key];
-      }
-    }
-  }
   private get css(): any {
     return surveyCss.getCss();
   }

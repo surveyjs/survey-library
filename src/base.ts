@@ -551,6 +551,16 @@ export class SurveyElement extends Base implements ISurveyElement {
       val.addElement(<IElement>(<any>this), -1);
     }
   }
+  protected copyCssClasses(dest: any, source: any) {
+    if (!source) return;
+    if (typeof source === "string" || source instanceof String) {
+      dest["root"] = source;
+    } else {
+      for (var key in source) {
+        dest[key] = source[key];
+      }
+    }
+  }
 }
 
 export class Event<T extends Function, Options> {

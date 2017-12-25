@@ -11,6 +11,16 @@ export class AnswerRequiredError extends SurveyError {
       : surveyLocalization.getString("requiredError");
   }
 }
+export class OneAnswerRequiredError extends SurveyError {
+  constructor(public customErrorText: string = null) {
+    super();
+  }
+  public getText(): string {
+    return this.customErrorText
+      ? this.customErrorText
+      : surveyLocalization.getString("requiredErrorInPanel");
+  }
+}
 export class RequreNumericError extends SurveyError {
   constructor() {
     super();

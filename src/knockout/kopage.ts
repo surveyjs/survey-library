@@ -71,6 +71,8 @@ export class Panel extends PanelModel {
   koInnerMargin: any;
   koRenderWidth: any;
   koElementType: any;
+  koErrors: any;
+  koCss: any;
   koIsExpanded: any;
   koIsCollapsed: any;
   doExpand: any;
@@ -82,10 +84,17 @@ export class Panel extends PanelModel {
     this.koElementType = ko.observable("survey-panel");
     this.koVisible = ko.observable(this.isVisible);
     this.koRenderWidth = ko.observable(this.renderWidth);
+    this.koErrors = ko.observable(this.errors);
+    this.koCss = ko.pureComputed(function() {
+      return self.cssClasses;
+    });
     this.koIsCollapsed = ko.observable(this.isCollapsed);
     this.koIsExpanded = ko.observable(this.isExpanded);
     this.stateChangedCallback = function() {
       self.onStateChanged();
+    };
+    this.errorsChangedCallback = function() {
+      self.koErrors(self.errors);
     };
     this.doExpand = function() {
       self.changeExpanded();

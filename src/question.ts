@@ -17,13 +17,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
   private questionComment: string;
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
-  private errorsValue: Array<SurveyError> = [];
   private validatorsValue: Array<SurveyValidator> = this.createNewArray(
     "validators"
   );
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
-  errorsChangedCallback: () => void;
   titleChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
 
@@ -449,16 +447,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);
-  }
-  /**
-   * The list of errors. It is created by callig hasErrors functions
-   * @see hasErrors
-   */
-  public get errors(): Array<SurveyError> {
-    return this.errorsValue;
-  }
-  public set errors(val: Array<SurveyError>) {
-    this.errorsValue = val;
   }
   /**
    * Returns true if threre is a validation error(s) in the question.

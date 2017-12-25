@@ -9,7 +9,7 @@ import {
 } from "../question_paneldynamic";
 import { PanelModel } from "../panel";
 import { SurveyPanel } from "./reactpage";
-import { ISurveyCreator, SurveyQuestionErrors } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors } from "./reactquestion";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 

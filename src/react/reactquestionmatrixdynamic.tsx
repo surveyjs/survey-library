@@ -4,7 +4,7 @@ import {
   SurveyQuestionElementBase
 } from "./reactquestionelement";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
-import { ISurveyCreator, SurveyQuestionErrors } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors } from "./reactquestion";
 import { MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { MatrixDropdownCell } from "../question_matrixdropdownbase";
 import { ReactQuestionFactory } from "./reactquestionfactory";

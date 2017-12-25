@@ -438,6 +438,9 @@ export class SurveyElement extends Base implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
+  private errorsValue: Array<SurveyError> = [];
+  errorsChangedCallback: () => void;
+
   public static ScrollElementToTop(elementId: string): boolean {
     if (!elementId) return false;
     var el = document.getElementById(elementId);
@@ -479,6 +482,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     }
     return index - startIndex;
   }
+
   constructor(public name: string) {
     super();
   }
@@ -511,6 +515,16 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isLoadingFromJson() {
     if (this.survey) return this.survey.isLoadingFromJson;
     return this.isLoadingFromJsonValue;
+  }
+  /**
+   * The list of errors. It is created by callig hasErrors functions
+   * @see hasErrors
+   */
+  public get errors(): Array<SurveyError> {
+    return this.errorsValue;
+  }
+  public set errors(val: Array<SurveyError>) {
+    this.errorsValue = val;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];

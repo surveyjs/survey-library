@@ -1,8 +1,11 @@
 import * as React from "react";
-import { SurveyQuestion } from "./reactquestion";
+import {
+  SurveyQuestion,
+  ISurveyCreator,
+  SurveyElementErrors
+} from "./reactquestion";
 import { PageModel } from "../page";
 import { SurveyModel } from "../survey";
-import { ISurveyCreator } from "./reactquestion";
 import { QuestionRowModel, PanelModel } from "../panel";
 import { QuestionBase } from "../questionbase";
 import { SurveyElementBase } from "./reactquestionelement";
@@ -136,6 +139,14 @@ export class SurveyPanel extends React.Component<any, any> {
     if (!this.panel.isVisible) return null;
     var title = this.renderTitle();
     var description = this.renderDescription();
+    var errors = (
+      <SurveyElementErrors
+        element={this.panel}
+        cssClasses={this.panel.cssClasses}
+        creator={this.creator}
+      />
+    );
+
     var rows = [];
     var questionRows = this.panel.rows;
     var self = this;
@@ -156,6 +167,7 @@ export class SurveyPanel extends React.Component<any, any> {
       <div ref="root" className={this.css.panel.container} style={rootStyle}>
         {title}
         {description}
+        {errors}
         <div style={style}>{rows}</div>
       </div>
     );

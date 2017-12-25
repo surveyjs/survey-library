@@ -1,6 +1,7 @@
 import * as React from "react";
 import { QuestionBase } from "../questionbase";
 import { Question } from "../question";
+import { SurveyElement } from "../base";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
@@ -195,8 +196,8 @@ export class SurveyQuestion extends React.Component<any, any> {
   }
   protected renderErrors(cssClasses: any): JSX.Element {
     return (
-      <SurveyQuestionErrors
-        question={this.question}
+      <SurveyElementErrors
+        element={this.question}
         cssClasses={cssClasses}
         creator={this.creator}
       />
@@ -204,25 +205,26 @@ export class SurveyQuestion extends React.Component<any, any> {
   }
 }
 
-export class SurveyQuestionErrors extends ReactSurveyElement {
-  protected question: Question;
+export class SurveyElementErrors extends ReactSurveyElement {
+  protected element: SurveyElement;
   private creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.setQuestion(props.question);
+    this.setElement(props.element);
     this.state = this.getState();
     this.creator = props.creator;
   }
   componentWillReceiveProps(nextProps: any) {
-    this.setQuestion(nextProps.question);
+    this.setElement(nextProps.element);
     this.setState(this.getState());
     this.creator = nextProps.creator;
   }
-  private setQuestion(question) {
-    this.question = question instanceof Question ? question : null;
-    if (this.question) {
-      this.question.errorsChangedCallback = () => {
-        this.setState(this.getState(this.state));
+  private setElement(element) {
+    this.element = element instanceof SurveyElement ? element : null;
+    if (this.element) {
+      var self = this;
+      this.element.errorsChangedCallback = () => {
+        self.setState(self.getState(self.state));
       };
     }
   }
@@ -230,10 +232,10 @@ export class SurveyQuestionErrors extends ReactSurveyElement {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
   render(): JSX.Element {
-    if (!this.question || this.question.errors.length == 0) return null;
+    if (!this.element || this.element.errors.length == 0) return null;
     var errors = [];
-    for (var i = 0; i < this.question.errors.length; i++) {
-      var errorText = this.question.errors[i].getText();
+    for (var i = 0; i < this.element.errors.length; i++) {
+      var errorText = this.element.errors[i].getText();
       var key = "error" + i;
       errors.push(this.creator.renderError(key, errorText, this.cssClasses));
     }

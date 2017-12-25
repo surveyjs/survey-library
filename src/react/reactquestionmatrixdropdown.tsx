@@ -4,7 +4,7 @@ import {
   SurveyQuestionElementBase
 } from "./reactquestionelement";
 import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
-import { ISurveyCreator, SurveyQuestionErrors } from "./reactquestion";
+import { ISurveyCreator, SurveyElementErrors } from "./reactquestion";
 import { MatrixDropdownRowModel } from "../question_matrixdropdown";
 import { MatrixDropdownCell } from "../question_matrixdropdownbase";
 import { ReactQuestionFactory } from "./reactquestionfactory";
@@ -169,7 +169,7 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.cell) return null;
     var errors = (
-      <SurveyQuestionErrors
+      <SurveyElementErrors
         question={this.cell.question}
         cssClasses={this.cssClasses}
         creator={this.creator}

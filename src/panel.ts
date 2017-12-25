@@ -92,10 +92,8 @@ export class PanelModelBase extends SurveyElement
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
-  private errorsValue: Array<SurveyError> = [];
   rowsChangedCallback: () => void;
   onGetQuestionTitleLocation: () => string;
-  errorsChangedCallback: () => void;
 
   constructor(public name: string = "") {
     super(name);
@@ -308,16 +306,6 @@ export class PanelModelBase extends SurveyElement
   }
   public set isRequired(val: boolean) {
     this.setPropertyValue("isRequired", val);
-  }
-  /**
-   * The list of errors. It is created by callig hasErrors functions
-   * @see hasErrors
-   */
-  public get errors(): Array<SurveyError> {
-    return this.errorsValue;
-  }
-  public set errors(val: Array<SurveyError>) {
-    this.errorsValue = val;
   }
   /**
    * Returns true, if there is an error on this Page or inside the current Panel

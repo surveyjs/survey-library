@@ -27,6 +27,7 @@ import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
+import { Question } from "./question";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -1818,6 +1819,24 @@ export class SurveyModel extends Base
     return result;
   }
   /**
+   * Returns quiz questions. All visible questions that has input(s) widgets.
+   */
+  public getQuizQuestions(): Array<IQuestion> {
+    var result = new Array<IQuestion>();
+    var startIndex = this.firstPageIsStarted ? 1 : 0;
+    for (var i = startIndex; i < this.pages.length; i++) {
+      if (!this.pages[i].isVisible) continue;
+      var questions = this.pages[i].questions;
+      for (var j = 0; j < questions.length; j++) {
+        var q = questions[j];
+        if (q.isVisible && q.hasInput) {
+          result.push(q);
+        }
+      }
+    }
+    return result;
+  }
+  /**
    * Returns the list of all panels in the survey
    */
   public getAllPanels(
@@ -2112,6 +2131,21 @@ export class SurveyModel extends Base
       textValue.value = this.visiblePageCount;
       return;
     }
+    if (name === "correctedanswers") {
+      textValue.isExists = true;
+      textValue.value = this.getCorrectedAnswers();
+      return;
+    }
+    if (name === "incorrectedanswers") {
+      textValue.isExists = true;
+      textValue.value = this.getInCorrectedAnswers();
+      return;
+    }
+    if (name === "questioncount") {
+      textValue.isExists = true;
+      textValue.value = this.getQuizQuestions().length;
+      return;
+    }
     var firstName = new ProcessValue().getFirstName(name);
     var variable = this.getVariable(name);
     if (variable !== undefined) {
@@ -2387,6 +2421,24 @@ export class SurveyModel extends Base
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
+  }
+  /**
+   * Returns the number of corrected answers on quiz
+   */
+  public getCorrectedAnswers(): number {
+    var questions = this.getQuizQuestions();
+    var counter = 0;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].isAnswerCorrect()) counter++;
+    }
+    return counter;
+  }
+  /**
+   * Returns the number of incorrected answers on quiz
+   */
+  public getInCorrectedAnswers(): number {
+    var questions = this.getQuizQuestions();
+    return questions.length - this.getCorrectedAnswers();
   }
   /**
    * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.

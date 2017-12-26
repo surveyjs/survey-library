@@ -66,6 +66,7 @@ export class QuestionBase extends SurveyElement
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
   }
+  public isAnswerCorrect(): boolean { return false; }
   public getValueName(): string {
     return this.name;
   }

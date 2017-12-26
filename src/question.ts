@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { JsonObject } from "./jsonobject";
 import { QuestionBase } from "./questionbase";
 import { Base, SurveyError, SurveyElement } from "./base";
@@ -401,6 +401,22 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
+  /**
+   * The correct answer on the question. Set this value if you are doing a quiz.
+   * @see SurveyModel.correctAnswers
+   * @see SurveyModel.inCorrectAnswers
+   */
+  public get correctAnswer(): any {
+    return this.getPropertyValue("correctAnswer");
+  }
+  public set correctAnswer(val: any) {
+    this.setPropertyValue("correctAnswer", val);
+  }
+  public isAnswerCorrect(): boolean {
+    if (this.isValueEmpty(this.value) || this.isValueEmpty(this.correctAnswer))
+      return false;
+    return this.isTwoValueEquals(this.value, this.correctAnswer);
+  }
   protected updateValueWithDefaults() {
     if (
       this.isLoadingFromJson ||
@@ -581,6 +597,7 @@ JsonObject.metaData.addClass(
     "valueName",
     "enableIf:condition",
     "defaultValue:value",
+    "correctAnswer:value",
     "isRequired:boolean",
     {
       name: "requiredErrorText:text",

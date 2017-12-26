@@ -3071,59 +3071,133 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function(
   assert.equal(page.questions.length, 4, "there are 4 questions on the page");
 });
 
-QUnit.test("Survey page hasShown", function(
-  assert
-) {
+QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");
-  assert.equal(survey.pages[1].hasShown, false, "The second page was not shown");
-  var p = survey.currentPage
+  assert.equal(
+    survey.pages[1].hasShown,
+    false,
+    "The second page was not shown"
+  );
+  var p = survey.currentPage;
   assert.equal(survey.pages[0].hasShown, true, "The first page was shown");
-  assert.equal(survey.pages[1].hasShown, false, "The second page was not shown");
+  assert.equal(
+    survey.pages[1].hasShown,
+    false,
+    "The second page was not shown"
+  );
   survey.nextPage();
   assert.equal(survey.pages[1].hasShown, true, "The second page was shown");
   survey.clear();
-  assert.equal(survey.pages[1].hasShown, false, "The second page hasShown is false again");
+  assert.equal(
+    survey.pages[1].hasShown,
+    false,
+    "The second page hasShown is false again"
+  );
 });
-QUnit.test("Questions are randomized", function(
-  assert
-) {
+QUnit.test("Questions are randomized", function(assert) {
   var survey = twoPageSimplestSurvey();
   var page = survey.pages[0];
-  assert.equal(page.isQuestionsRandomized, false, "By default questions are not randomized");
+  assert.equal(
+    page.isQuestionsRandomized,
+    false,
+    "By default questions are not randomized"
+  );
   page.questionsOrder = "random";
-  assert.equal(page.isQuestionsRandomized, true, "page.questionsOrder = 'random'");
+  assert.equal(
+    page.isQuestionsRandomized,
+    true,
+    "page.questionsOrder = 'random'"
+  );
   page.questionsOrder = "default";
-  assert.equal(page.isQuestionsRandomized, false, "page.questionsOrder = 'default'");
+  assert.equal(
+    page.isQuestionsRandomized,
+    false,
+    "page.questionsOrder = 'default'"
+  );
   survey.questionsOrder = "random";
-  assert.equal(page.isQuestionsRandomized, true, "survey.questionsOrder = 'random' && page.questionsOrder = 'default'");
+  assert.equal(
+    page.isQuestionsRandomized,
+    true,
+    "survey.questionsOrder = 'random' && page.questionsOrder = 'default'"
+  );
   page.questionsOrder = "initial";
-  assert.equal(page.isQuestionsRandomized, false, "page.questionsOrder = 'initial'");
+  assert.equal(
+    page.isQuestionsRandomized,
+    false,
+    "page.questionsOrder = 'initial'"
+  );
 });
-QUnit.test("Quiz, correct, incorrect answers", function(
-  assert
-) {
+QUnit.test("Quiz, correct, incorrect answers", function(assert) {
   var survey = twoPageSimplestSurvey();
-  for(var i = 1; i <= 4; i ++) {
-    (<Question>survey.getQuestionByName("question" + i)).correctAnswer = "q" + i;
+  var page = new PageModel("start");
+  page.addNewQuestion("text", "name");
+  page.addNewQuestion("text", "email");
+  survey.pages.unshift(page);
+  survey.firstPageIsStarted = true;
+  for (var i = 1; i <= 4; i++) {
+    (<Question>survey.getQuestionByName("question" + i)).correctAnswer =
+      "q" + i;
   }
-  survey.completedHtml = "{correctedAnswers}, {inCorrectedAnswers}, {questionCount}";
-  assert.equal(survey.getCorrectedAnswers(), 0, "The number of corrected answers is 0");
-  assert.equal(survey.getInCorrectedAnswers(), 4, "The number of corrected answers is 0");
+  survey.completedHtml =
+    "{correctedAnswers}, {inCorrectedAnswers}, {questionCount}";
+  survey.start();
+  assert.equal(
+    survey.getCorrectedAnswers(),
+    0,
+    "The number of corrected answers is 0"
+  );
+  assert.equal(
+    survey.getInCorrectedAnswers(),
+    4,
+    "The number of corrected answers is 0"
+  );
   survey.getQuestionByName("question1").visible = false;
-  assert.equal(survey.getInCorrectedAnswers(), 3, "The number of corrected answers is 0");
+  assert.equal(
+    survey.getInCorrectedAnswers(),
+    3,
+    "The number of corrected answers is 0"
+  );
   (<Question>survey.getQuestionByName("question2")).value = "q2";
-  assert.equal(survey.getCorrectedAnswers(), 1, "The number of corrected answers is 0");
-  assert.equal(survey.getInCorrectedAnswers(), 2, "The number of corrected answers is 0");
+  assert.equal(
+    survey.getCorrectedAnswers(),
+    1,
+    "The number of corrected answers is 0"
+  );
+  assert.equal(
+    survey.getInCorrectedAnswers(),
+    2,
+    "The number of corrected answers is 0"
+  );
   (<Question>survey.getQuestionByName("question3")).value = "q10";
   (<Question>survey.getQuestionByName("question4")).value = "q4";
-  assert.equal(survey.getCorrectedAnswers(), 2, "The number of corrected answers is 0");
-  assert.equal(survey.getInCorrectedAnswers(), 1, "The number of corrected answers is 0");
+  assert.equal(
+    survey.getCorrectedAnswers(),
+    2,
+    "The number of corrected answers is 0"
+  );
+  assert.equal(
+    survey.getInCorrectedAnswers(),
+    1,
+    "The number of corrected answers is 0"
+  );
   (<Question>survey.getQuestionByName("question4")).visible = false;
-  assert.equal(survey.getCorrectedAnswers(), 1, "The number of corrected answers is 0");
-  assert.equal(survey.getInCorrectedAnswers(), 1, "The number of corrected answers is 0");
+  assert.equal(
+    survey.getCorrectedAnswers(),
+    1,
+    "The number of corrected answers is 0"
+  );
+  assert.equal(
+    survey.getInCorrectedAnswers(),
+    1,
+    "The number of corrected answers is 0"
+  );
   (<Question>survey.getQuestionByName("question4")).visible = true;
-  assert.equal(survey.processedCompletedHtml, "2, 1, 3", "competed html is correct");
+  assert.equal(
+    survey.processedCompletedHtml,
+    "2, 1, 3",
+    "competed html is correct"
+  );
 });
 
 function twoPageSimplestSurvey() {

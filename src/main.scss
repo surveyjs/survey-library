@@ -179,7 +179,7 @@ $base-line-height: 2em;
     &.active {
       .sv_q_rating_item_text {
         background-color: $main-hover-color;
-        border-color: $main-hover-color;
+        border-color: $border-color;
         color: $body-background-color;
       }
     }

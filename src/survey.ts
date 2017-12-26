@@ -2112,6 +2112,21 @@ export class SurveyModel extends Base
       textValue.value = this.visiblePageCount;
       return;
     }
+    if (name === "correctedanswers") {
+      textValue.isExists = true;
+      textValue.value = this.getCorrectedAnswers();
+      return;
+    }
+    if (name === "incorrectedanswers") {
+      textValue.isExists = true;
+      textValue.value = this.getInCorrectedAnswers();
+      return;
+    }
+    if (name === "questioncount") {
+      textValue.isExists = true;
+      textValue.value = this.getAllQuestions(true, false).length;
+      return;
+    }
     var firstName = new ProcessValue().getFirstName(name);
     var variable = this.getVariable(name);
     if (variable !== undefined) {
@@ -2387,6 +2402,24 @@ export class SurveyModel extends Base
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
+  }
+  /**
+   * Returns the number of corrected answers on quiz
+   */
+  public getCorrectedAnswers(): number {
+    var questions = this.getAllQuestions(true, false);
+    var counter = 0;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].isAnswerCorrect()) counter++;
+    }
+    return counter;
+  }
+  /**
+   * Returns the number of incorrected answers on quiz
+   */
+  public getInCorrectedAnswers(): number {
+    var questions = this.getAllQuestions(true, false);
+    return questions.length - this.getCorrectedAnswers();
   }
   /**
    * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.

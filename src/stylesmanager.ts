@@ -95,6 +95,51 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575"
+    },
+    stone: {
+      "$header-background-color": "#cdccd2",
+      "$body-container-background-color": "#efedf4",
+
+      "$main-color": "#0f0f33",
+      "$main-hover-color": "#191955",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#0f0f33",
+      "$header-color": "#0f0f33",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    winter: {
+      "$header-background-color": "#82b8da",
+      "$body-container-background-color": "#dae1e7",
+
+      "$main-color": "#3c3b40",
+      "$main-hover-color": "#1e1d20",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#000",
+      "$header-color": "#000",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
+    },
+    winterstone: {
+      "$header-background-color": "#323232",
+      "$body-container-background-color": "#f8f8f8",
+
+      "$main-color": "#5ac8fa",
+      "$main-hover-color": "#06a1e7",
+      "$body-background-color": "white",
+      "$inputs-background-color": "white",
+      "$text-color": "#000",
+      "$header-color": "#fff",
+      "$border-color": "#e7e7e7",
+
+      "$error-color": "#ed5565",
+      "$error-background-color": "#fd6575"
     }
   };
   public static ThemeCss: { [key: string]: string } = {
@@ -198,7 +243,7 @@ export class StylesManager {
         Object.keys(theme).forEach(
           colorVariableName =>
             (cssRuleText = cssRuleText.replace(
-              colorVariableName,
+              new RegExp("\\" + colorVariableName, "g"),
               theme[colorVariableName]
             ))
         );

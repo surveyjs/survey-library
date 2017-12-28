@@ -66,7 +66,9 @@ export class QuestionBase extends SurveyElement
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
   }
-  public isAnswerCorrect(): boolean { return false; }
+  public isAnswerCorrect(): boolean {
+    return false;
+  }
   public getValueName(): string {
     return this.name;
   }
@@ -102,6 +104,10 @@ export class QuestionBase extends SurveyElement
   }
   protected onVisibleChanged() {
     this.setPropertyValue("isVisible", this.isVisible);
+    if (!this.isVisible && this.errors && this.errors.length > 0) {
+      this.errors = [];
+      this.fireCallback(this.errorsChangedCallback);
+    }
   }
   /**
    * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.

@@ -1607,3 +1607,12 @@ QUnit.test("defaultValue propeprty as array", function(assert) {
   question.defaultValue = null;
   assert.deepEqual(question.defaultValue, [], "It is empty by default");
 });
+QUnit.test("Clear errors on making question invisible, bug#846", function(assert) {
+  var question = new QuestionTextModel("q1");
+  question.isRequired = true;
+  question.hasErrors(true);
+  assert.equal(question.errors.length, 1, "There is an error");
+  question.visible = false;
+  question.visible = true;
+  assert.equal(question.errors.length, 0, "There is no error now");
+});

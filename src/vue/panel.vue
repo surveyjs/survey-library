@@ -2,7 +2,7 @@
     <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
         <h4 v-show="hasTitle" :class="css.panel.title" v-on:click="changeExpanded">
           <survey-string :locString="question.locTitle"/>
-          <span :class="iconCss"></span>
+          <span v-show="showIcon" :class="iconCss"></span>
         </h4>
         <div v-show="hasDescription" :class="css.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
@@ -41,6 +41,11 @@ export default class Panel extends Vue {
       result["width"] = this.question.renderWidth;
     }
     return result;
+  }
+  get showIcon() {
+    return (
+      this.question && (this.question.isExpanded || this.question.isCollapsed)
+    );
   }
   get rows() {
     return this.question.rows;

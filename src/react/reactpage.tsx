@@ -188,21 +188,25 @@ export class SurveyPanel extends React.Component<any, any> {
   protected renderTitle(): JSX.Element {
     if (!this.panel.title) return null;
     var text = SurveyElementBase.renderLocString(this.panel.locTitle);
-    var iconCss = "sv_panel_icon";
-    if (!this.panel.isCollapsed) iconCss += " sv_expanded";
-    var changeExpanded = () => {
-      if (this.panel.isCollapsed) {
-        this.panel.expand();
-      } else {
-        this.panel.collapse();
-      }
-      this.setState({ modelChanged: this.state.modelChanged + 1 });
-    };
+    var expandCollapse = null;
+    if (this.panel.isCollapsed || this.panel.isExpanded) {
+      var iconCss = "sv_panel_icon";
+      if (!this.panel.isCollapsed) iconCss += " sv_expanded";
+      var changeExpanded = () => {
+        if (this.panel.isCollapsed) {
+          this.panel.expand();
+        } else {
+          this.panel.collapse();
+        }
+        this.setState({ modelChanged: this.state.modelChanged + 1 });
+      };
+      expandCollapse = <span className={iconCss} />;
+    }
 
     return (
       <h4 className={this.css.panel.title} onClick={changeExpanded}>
         {text}
-        <span className={iconCss} />
+        {expandCollapse}
       </h4>
     );
   }

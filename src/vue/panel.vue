@@ -1,9 +1,12 @@
 <template>
     <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
-        <h4 v-show="hasTitle" :class="css.panel.title"><survey-string :locString="question.locTitle"/></h4>
+        <h4 v-show="hasTitle" :class="css.panel.title" v-on:click="changeExpanded">
+          <survey-string :locString="question.locTitle"/>
+          <span :class="iconCss"></span>
+        </h4>
         <div v-show="hasDescription" :class="css.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
-        <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }">
+        <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }" v-show="!question.isCollapsed">
             <div v-for="row in rows" v-if="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
@@ -50,6 +53,18 @@ export default class Panel extends Vue {
   }
   get survey() {
     return this.question.survey;
+  }
+  get iconCss() {
+    var result = "sv_panel_icon";
+    if (!this.question.isCollapsed) result += " sv_expanded";
+    return result;
+  }
+  changeExpanded() {
+    if (this.question.isCollapsed) {
+      this.question.expand();
+    } else {
+      this.question.collapse();
+    }
   }
 }
 Vue.component("survey-panel", Panel);

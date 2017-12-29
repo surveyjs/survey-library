@@ -1,14 +1,21 @@
 <script type="text/html" id="survey-panel">
-<!-- ko if: question.koVisible -->
-<div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
-    <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title"><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h4>
-    <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
-        <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+    <!-- ko if: question.koVisible -->
+    <div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
+        <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title, click: doExpand">
+            <!-- ko template: { name: 'survey-string', data: locTitle } -->
+            <!-- /ko -->
+            <span class="sv_panel_icon" data-bind="css: {sv_expanded: !koIsCollapsed()}"></span>
+        </h4>
+        <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
+            <!-- ko template: { name: 'survey-string', data: locDescription } -->
+            <!-- /ko -->
+        </div>
+        <!-- ko template: { name: 'survey-question-errors', data: $data } -->
+        <!-- /ko -->
+        <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: koInnerMargin }">
+            <!-- ko template: { name: 'survey-rows', data: $data} -->
+            <!-- /ko -->
+        </div>
     </div>
-    <!-- ko template: { name: 'survey-question-errors', data: $data } --><!-- /ko -->
-    <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: koInnerMargin }">
-    <!-- ko template: { name: 'survey-rows', data: $data} --><!-- /ko -->
-    </div>
-</div>
-<!-- /ko -->
+    <!-- /ko -->
 </script>

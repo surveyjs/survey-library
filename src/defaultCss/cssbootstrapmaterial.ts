@@ -31,7 +31,7 @@ export var defaultBootstrapMaterialCss = {
     titleRequired: "",
     indent: 20
   },
-  panel: { title: "", description: "small", container: "sv_p_container" },
+  panel: { title: "sv_p_title", description: "small", container: "sv_p_container" },
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",

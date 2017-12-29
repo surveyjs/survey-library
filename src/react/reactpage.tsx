@@ -159,7 +159,8 @@ export class SurveyPanel extends React.Component<any, any> {
       rows.push(this.createRow(questionRows[i], i));
     }
     var style = {
-      paddingLeft: this.panel.innerIndent * this.css.question.indent + "px"
+      paddingLeft: this.panel.innerIndent * this.css.question.indent + "px",
+      display: !this.panel.isCollapsed ? "block" : "none"
     };
     var rootStyle = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
@@ -187,7 +188,23 @@ export class SurveyPanel extends React.Component<any, any> {
   protected renderTitle(): JSX.Element {
     if (!this.panel.title) return null;
     var text = SurveyElementBase.renderLocString(this.panel.locTitle);
-    return <h4 className={this.css.panel.title}>{text}</h4>;
+    var iconCss = "sv_panel_icon";
+    if (!this.panel.isCollapsed) iconCss += " sv_expanded";
+    var changeExpanded = () => {
+      if (this.panel.isCollapsed) {
+        this.panel.expand();
+      } else {
+        this.panel.collapse();
+      }
+      this.setState({ modelChanged: this.state.modelChanged + 1 });
+    };
+
+    return (
+      <h4 className={this.css.panel.title} onClick={changeExpanded}>
+        {text}
+        <span className={iconCss} />
+      </h4>
+    );
   }
   protected renderDescription(): JSX.Element {
     if (!this.panel.description) return null;

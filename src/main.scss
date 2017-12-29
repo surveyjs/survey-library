@@ -310,6 +310,7 @@ $base-line-height: 2em;
         .sv_q {
           padding: 0.5em 1em 1.5em 1em;
           box-sizing: border-box;
+          overflow: auto;
 
           .sv_panel_dynamic {
             .sv_q_title {
@@ -375,6 +376,7 @@ $base-line-height: 2em;
               appearance: none;
               -webkit-appearance: none;
               -moz-appearance: none;
+              padding-right: 2.5em;
 
               &::-ms-expand {
                 display: none;

@@ -109,7 +109,7 @@ export class SurveyPanel extends React.Component<any, any> {
     let self = this;
     this.doAfterRender();
     this.panel.registerFunctionOnPropertiesValueChanged(
-      ["isVisible", "renderWidth", "innerIndent", "rightIndent"],
+      ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
       function() {
         self.setState({ modelChanged: self.state.modelChanged + 1 });
       },
@@ -128,7 +128,7 @@ export class SurveyPanel extends React.Component<any, any> {
   componentWillUnmount() {
     if (this.panel) {
       this.panel.unRegisterFunctionOnPropertiesValueChanged(
-        ["isVisible", "renderWidth", "innerIndent", "rightIndent"],
+        ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
         "react"
       );
     }

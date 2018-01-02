@@ -359,6 +359,7 @@ export class PanelModelBase extends SurveyElement
         if (question.hasErrors(rec.fireCallback)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
+            question.focus(true);
           }
           rec.result = true;
         }

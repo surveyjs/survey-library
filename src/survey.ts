@@ -1091,7 +1091,7 @@ export class SurveyModel extends Base
     this.currentPageValue = value;
     if (value) {
       value.updateCustomWidgets();
-      value.setHasShown(true);
+      value.setWasShown(true);
     }
     this.currentPageChanged(value, oldValue);
   }
@@ -1183,7 +1183,7 @@ export class SurveyModel extends Base
     this.setTimeSpent(0);
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
-      this.pages[i].setHasShown(false);
+      this.pages[i].setWasShown(false);
     }
     this.isCompleted = false;
     this.isCompletedBefore = false;
@@ -2131,14 +2131,14 @@ export class SurveyModel extends Base
       textValue.value = this.visiblePageCount;
       return;
     }
-    if (name === "correctedanswers") {
+    if (name === "correctedanswers" || name === "correctedanswercount") {
       textValue.isExists = true;
-      textValue.value = this.getCorrectedAnswers();
+      textValue.value = this.getCorrectedAnswerCount();
       return;
     }
-    if (name === "incorrectedanswers") {
+    if (name === "incorrectedanswers" || name === "incorrectedanswercount") {
       textValue.isExists = true;
-      textValue.value = this.getInCorrectedAnswers();
+      textValue.value = this.getInCorrectedAnswerCount();
       return;
     }
     if (name === "questioncount") {
@@ -2425,7 +2425,7 @@ export class SurveyModel extends Base
   /**
    * Returns the number of corrected answers on quiz
    */
-  public getCorrectedAnswers(): number {
+  public getCorrectedAnswerCount(): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
     for (var i = 0; i < questions.length; i++) {
@@ -2436,9 +2436,15 @@ export class SurveyModel extends Base
   /**
    * Returns the number of incorrected answers on quiz
    */
-  public getInCorrectedAnswers(): number {
+  public getInCorrectedAnswerCount(): number {
     var questions = this.getQuizQuestions();
-    return questions.length - this.getCorrectedAnswers();
+    return questions.length - this.getCorrectedAnswerCount();
+  }
+  getCorrectedAnswers(): number {
+    return this.getCorrectedAnswerCount();
+  }
+  getInCorrectedAnswers(): number {
+    return this.getInCorrectedAnswerCount();
   }
   /**
    * Set it to 'top' or 'bottom' if you want to show the Panel with information about how much time the end-user spent of the survey/page.

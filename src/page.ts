@@ -76,13 +76,16 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * The property returns true, if the page has been shown to the end-user.
    */
-  public get hasShown(): boolean {
+  public get wasShown(): boolean {
     return this.hasShownValue;
   }
-  public setHasShown(val: boolean) {
+  get hasShown(): boolean {
+    return this.wasShown;
+  }
+  public setWasShown(val: boolean) {
     if (this.survey.isDesignMode) return;
     if (val == this.hasShownValue) return;
-    if (val == true && this.isQuestionsRandomized) {
+    if (val == true && this.areQuestionsRandomized) {
       this.randomizeElements();
     }
     this.hasShownValue = val;
@@ -104,7 +107,7 @@ export class PageModel extends PanelModelBase implements IPage {
    * @see questionsOrder
    * @see SurveyModel.questionsOrder
    */
-  public get isQuestionsRandomized(): boolean {
+  public get areQuestionsRandomized(): boolean {
     var order =
       this.questionsOrder == "default" && this.survey
         ? this.survey.questionsOrder
@@ -114,7 +117,7 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order or 'default' to use the Survey questionsOrder property
    * @see SurveyModel.questionsOrder
-   * @see isQuestionsRandomized
+   * @see areQuestionsRandomized
    */
   public get questionsOrder() {
     return this.getPropertyValue("questionsOrder", "default");

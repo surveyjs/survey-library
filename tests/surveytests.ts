@@ -3099,31 +3099,31 @@ QUnit.test("Questions are randomized", function(assert) {
   var survey = twoPageSimplestSurvey();
   var page = survey.pages[0];
   assert.equal(
-    page.isQuestionsRandomized,
+    page.areQuestionsRandomized,
     false,
     "By default questions are not randomized"
   );
   page.questionsOrder = "random";
   assert.equal(
-    page.isQuestionsRandomized,
+    page.areQuestionsRandomized,
     true,
     "page.questionsOrder = 'random'"
   );
   page.questionsOrder = "default";
   assert.equal(
-    page.isQuestionsRandomized,
+    page.areQuestionsRandomized,
     false,
     "page.questionsOrder = 'default'"
   );
   survey.questionsOrder = "random";
   assert.equal(
-    page.isQuestionsRandomized,
+    page.areQuestionsRandomized,
     true,
     "survey.questionsOrder = 'random' && page.questionsOrder = 'default'"
   );
   page.questionsOrder = "initial";
   assert.equal(
-    page.isQuestionsRandomized,
+    page.areQuestionsRandomized,
     false,
     "page.questionsOrder = 'initial'"
   );

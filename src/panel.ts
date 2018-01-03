@@ -212,6 +212,9 @@ export class PanelModelBase extends SurveyElement
     var classes = { error: {} };
     this.copyCssClasses(classes, this.css);
     this.copyCssClasses(classes.error, this.css.error);
+    if (this.survey) {
+      this.survey.updatePanelCssClasses(this, classes);
+    }
     return classes;
   }
   private get css(): any {

@@ -49,6 +49,7 @@ export interface ISurvey extends ITextProcessor {
     uploadingCallback: (status: string) => any
   ): boolean;
   updateQuestionCssClasses(question: IQuestion, cssClasses: any);
+  updatePanelCssClasses(panel: IPanel, cssClasses: any);
   afterRenderQuestion(question: IQuestion, htmlElement);
   afterRenderPanel(panel: IElement, htmlElement);
   afterRenderPage(htmlElement);

@@ -323,6 +323,9 @@ export class PanelModelBase extends SurveyElement
       result: false
     };
     this.hasErrorsCore(rec);
+    if(rec.firstErrorQuestion) {
+      rec.firstErrorQuestion.focus(true);
+    }
     return rec.result;
   }
   private hasRequiredError(rec: any) {
@@ -359,7 +362,6 @@ export class PanelModelBase extends SurveyElement
         if (question.hasErrors(rec.fireCallback)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
-            question.focus(true);
           }
           rec.result = true;
         }

@@ -326,7 +326,7 @@ export class PanelModelBase extends SurveyElement
       result: false
     };
     this.hasErrorsCore(rec);
-    if(rec.firstErrorQuestion) {
+    if (rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
     }
     return rec.result;
@@ -782,6 +782,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see isCollapsed
    */
   public get isExpanded() {
+    if (this.isDesignMode) return;
     return this.state == "expanded";
   }
   /**
@@ -789,6 +790,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see state
    */
   public collapse() {
+    if (this.isDesignMode) return;
     this.state = "collapsed";
   }
   /**

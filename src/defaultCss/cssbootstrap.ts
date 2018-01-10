@@ -31,7 +31,11 @@ export var defaultBootstrapCss = {
     titleRequired: "",
     indent: 20
   },
-  panel: { title: "sv_p_title", description: "small", container: "sv_p_container" },
+  panel: {
+    title: "sv_p_title",
+    description: "small",
+    container: "sv_p_container"
+  },
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
@@ -40,7 +44,7 @@ export var defaultBootstrapCss = {
 
   boolean: { root: "sv_qbln form-inline checkbox", item: "" },
   checkbox: {
-    root: "sv_qcbx form-inline",
+    root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
     itemControl: "",
     controlLabel: "",
@@ -58,7 +62,7 @@ export var defaultBootstrapCss = {
     itemValue: "sv_q_mt_item_value form-control"
   },
   radiogroup: {
-    root: "form-inline",
+    root: "sv_qcbc form-inline",
     item: "radio",
     label: "",
     itemControl: "",

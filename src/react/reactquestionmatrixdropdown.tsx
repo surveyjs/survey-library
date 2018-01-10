@@ -126,20 +126,7 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
     this.creator = nextProps.creator;
   }
   componentDidMount() {
-    var el = this.refs["cell"];
-    if (el && this.cell && this.cell.question.survey) {
-      var options = {
-        cell: this.cell,
-        cellQuestion: this.cell.question,
-        htmlElement: el,
-        row: this.cell.row,
-        column: this.cell.column
-      };
-      this.cell.question.survey.matrixAfterCellRender(
-        this.cell.question,
-        options
-      );
-    }
+    this.doAfterRender();
     if (this.cell && this.cell.question) {
       var self = this;
       this.cell.question.registerFunctionOnPropertyValueChanged(
@@ -163,6 +150,25 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
       this.cell.question.unRegisterFunctionOnPropertiesValueChanged(
         ["visible", "isReadOnly"],
         "react"
+      );
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    this.doAfterRender();
+  }
+  private doAfterRender() {
+    var el = this.refs["cell"];
+    if (el && this.cell && this.cell.question.survey) {
+      var options = {
+        cell: this.cell,
+        cellQuestion: this.cell.question,
+        htmlElement: el,
+        row: this.cell.row,
+        column: this.cell.column
+      };
+      this.cell.question.survey.matrixAfterCellRender(
+        this.cell.question,
+        options
       );
     }
   }

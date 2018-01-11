@@ -14,6 +14,9 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
       "vertical-align: middle; margin-top: -1px",
 
+    ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
+      "display: inline; position: static;",
+
     ".sv_qstn": "display: inline-block; vertical-align: top;",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",

@@ -31,7 +31,11 @@ export var defaultBootstrapMaterialCss = {
     titleRequired: "",
     indent: 20
   },
-  panel: { title: "sv_p_title", description: "small", container: "sv_p_container" },
+  panel: {
+    title: "sv_p_title",
+    description: "small",
+    container: "sv_p_container"
+  },
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
@@ -64,11 +68,11 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "sv_q_mt_item_value form-control"
   },
   radiogroup: {
-    root: "form-inline",
-    item: "radio-inline",
-    label: "radio-inline",
+    root: "",
+    item: "radio",
+    label: "",
     itemControl: "",
-    controlLabel: "",
+    controlLabel: "sv_q_radiogroup_control_label",
     other: "sv_q_radiogroup_other"
   },
   rating: {

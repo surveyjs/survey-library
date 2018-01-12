@@ -79,6 +79,9 @@ export var defaultBootstrapCss = {
   },
   text: "form-control",
   expression: "form-control",
+  file: {
+    placeholderInput: "sv_q_file_placeholder"
+  },
   saveData: {
     root: "",
     saving: "alert alert-info",

@@ -90,6 +90,9 @@ export var defaultStandardCss = {
   },
   text: "sv_q_text_root",
   expression: "",
+  file: {
+    placeholderInput: "sv_q_file_placeholder"
+  },
   saveData: {
     root: "",
     saving: "",

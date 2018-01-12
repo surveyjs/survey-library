@@ -34,8 +34,16 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div>
+      <div className={this.question.cssClasses.root}>
         {fileInput}
+        <input
+          type="text"
+          readOnly
+          className={
+            "form-control " + this.question.cssClasses.placeholderInput
+          }
+          placeholder={this.question.title}
+        />
         {img}
       </div>
     );

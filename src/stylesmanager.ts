@@ -38,6 +38,7 @@ export class StylesManager {
       "margin-right: 1em;",
     ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
     "fieldset.form-inline": "display: inline-block;",
+    ".sv_qstn .sv_q_file_placeholder": "display:none",
 
     ".sv_p_title": "cursor: pointer; padding-left: 1em; padding-bottom: 0.3em;",
     ".sv_p_title .sv_panel_icon": "float: right; margin-right: 1em;",

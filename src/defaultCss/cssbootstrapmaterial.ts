@@ -85,6 +85,10 @@ export var defaultBootstrapMaterialCss = {
   },
   text: "form-control",
   expression: "form-control",
+  file: {
+    root: "form-group is-fileinput",
+    placeholderInput: ""
+  },
   saveData: {
     root: "",
     saving: "alert alert-info",

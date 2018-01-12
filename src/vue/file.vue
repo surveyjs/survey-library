@@ -1,6 +1,7 @@
 <template>
-    <div>
+    <div :class="question.cssClasses.root">
         <input v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml"/>
+        <input type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
         <div>
             <img v-show="question.previewValue" :src="question.value" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
         </div>
@@ -20,6 +21,9 @@
             if (!window["FileReader"]) return;
             if (!src || !src.files || src.files.length < 1) return;
             this.question.loadFile(src.files[0]);
+        }
+        getPlaceholderClass() {
+            return "form-control " + this.question.cssClasses.placeholderInput;
         }
     }
     Vue.component("survey-file", File)

@@ -2,14 +2,22 @@
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
+import { ILocalizableOwner } from "../src/localizablestring";
 
-class Car extends Base {
+class Car extends Base implements ILocalizableOwner {
+  public locale: string;
   constructor() {
     super();
   }
   public name: string;
   public getType(): string {
     return "car";
+  }
+  getLocale(): string {
+    return this.locale;
+  }
+  getMarkdownHtml(text: string): string {
+    return text;
   }
 }
 class FastCar extends Car {
@@ -1100,6 +1108,35 @@ QUnit.test("Set default value to the custom property", function(assert) {
   assert.equal(truck["tag"], 0, "the default numeric value is set");
   JsonObject.metaData.removeProperty("car", "isUsed");
   JsonObject.metaData.removeProperty("car", "tag");
+});
+QUnit.test("Create localizable property", function(assert) {
+  JsonObject.metaData.addProperty("car", {
+    name: "myLocalizableProp:text",
+    isLocalizable: true
+  });
+  var truck = new Truck();
+  truck["myLocalizableProp"] = "default_Text";
+  assert.equal(
+    truck["myLocalizableProp"],
+    "default_Text",
+    "The default text is here"
+  );
+  truck.locale = "de";
+  truck["myLocalizableProp"] = "de_Text";
+  assert.equal(truck["myLocalizableProp"], "de_Text", "The 'de' text is here");
+  truck.locale = "en";
+  assert.equal(
+    truck["myLocalizableProp"],
+    "default_Text",
+    "Use default value again"
+  );
+  assert.deepEqual(
+    new JsonObject().toJsonObject(truck),
+    { myLocalizableProp: { default: "default_Text", de: "de_Text" } },
+    "Serialized correctly"
+  );
+
+  JsonObject.metaData.removeProperty("car", "myLocalizableProp");
 });
 
 QUnit.test(

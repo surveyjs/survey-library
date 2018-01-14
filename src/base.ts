@@ -304,6 +304,11 @@ export class Base {
       this.unRegisterFunctionOnPropertyValueChanged(names[i], key);
     }
   }
+  public createCustomLocalizableObj(name: string) {
+    var locStr = this.getLocalizableString(name);
+    if (locStr || !this["getLocale"]) return;
+    this.createLocalizableString(name, <ILocalizableOwner>(<any>this));
+  }
   protected createLocalizableString(
     name: string,
     owner: ILocalizableOwner,
@@ -313,10 +318,10 @@ export class Base {
     this.localizableStrings[name] = locStr;
     return locStr;
   }
-  protected getLocalizableString(name: string): LocalizableString {
+  public getLocalizableString(name: string): LocalizableString {
     return this.localizableStrings[name];
   }
-  protected getLocalizableStringText(
+  public getLocalizableStringText(
     name: string,
     defaultStr: string = ""
   ): string {
@@ -325,7 +330,7 @@ export class Base {
     var res = locStr.text;
     return res ? res : defaultStr;
   }
-  protected setLocalizableStringText(name: string, value: string) {
+  public setLocalizableStringText(name: string, value: string) {
     var locStr = this.getLocalizableString(name);
     if (!locStr) return;
     var oldValue = locStr.text;

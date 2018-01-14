@@ -196,15 +196,39 @@ export class CustomPropertiesCollection {
   }
   private static createPropertyInObj(obj: any, prop: any) {
     if (obj[prop.name] || obj.hasOwnProperty(prop.name)) return;
-    var desc = {
-      get: function() {
-        return obj.getPropertyValue(prop.name, prop.defaultValue);
-      },
-      set: function(v: any) {
-        obj.setPropertyValue(prop.name, v);
-      }
-    };
-    Object.defineProperty(obj, prop.name, desc);
+    if (
+      prop.isLocalizable &&
+      prop.serializationProperty &&
+      !obj[prop.serializationProperty] &&
+      obj.createCustomLocalizableObj
+    ) {
+      obj.createCustomLocalizableObj(prop.name);
+      var locDesc = {
+        get: function() {
+          return obj.getLocalizableString(prop.name);
+        }
+      };
+      Object.defineProperty(obj, prop.serializationProperty, locDesc);
+      var desc = {
+        get: function() {
+          return obj.getLocalizableStringText(prop.name, prop.defaultValue);
+        },
+        set: function(v: any) {
+          obj.setLocalizableStringText(prop.name, v);
+        }
+      };
+      Object.defineProperty(obj, prop.name, desc);
+    } else {
+      var desc = {
+        get: function() {
+          return obj.getPropertyValue(prop.name, prop.defaultValue);
+        },
+        set: function(v: any) {
+          obj.setPropertyValue(prop.name, v);
+        }
+      };
+      Object.defineProperty(obj, prop.name, desc);
+    }
   }
 }
 
@@ -279,6 +303,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.onSetValue) {
         prop.onSetValue = propInfo.onSetValue;
+      }
+      if (propInfo.isLocalizable) {
+        propInfo.serializationProperty = "loc" + propInfo.name;
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;

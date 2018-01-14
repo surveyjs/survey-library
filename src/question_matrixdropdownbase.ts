@@ -71,6 +71,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     };
     this.createLocalizableString("optionsCaption", this);
     this.createLocalizableString("placeHolder", this);
+    this.createLocalizableString("otherText", this);
     this.choicesByUrl = new ChoicesRestfull();
     if (title) this.title = title;
   }
@@ -144,7 +145,18 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public get locPlaceHolder(): LocalizableString {
     return this.getLocalizableString("placeHolder");
   }
-
+  /**
+   * Use this property to set the different text for other item.
+   */
+  public get otherText(): string {
+    return this.getLocalizableStringText("otherText");
+  }
+  public set otherText(val: string) {
+    this.setLocalizableStringText("otherText", val);
+  }
+  get locOtherText(): LocalizableString {
+    return this.getLocalizableString("otherText");
+  }
   public get choices(): Array<any> {
     return this.choicesValue;
   }
@@ -831,6 +843,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     column: MatrixDropdownColumn,
     row: MatrixDropdownRowModelBase
   ) {
+    question.otherText = column.otherText;
     question.choicesOrder = column.choicesOrder;
     question.choices = this.getColumnChoices(column);
     question.choicesByUrl.setData(column.choicesByUrl);
@@ -973,6 +986,7 @@ JsonObject.metaData.addClass(
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
     "isRequired:boolean",
     "hasOther:boolean",
+    { name: "otherText", serializationProperty: "locOtherText" },
     "minWidth",
     { name: "placeHolder", serializationProperty: "locPlaceHolder" },
     {

@@ -46,9 +46,7 @@ export class QuestionSelectBase extends Question {
    * Returns the other item. By using this property, you may change programmatically it's value and text.
    */
   public get otherItem(): ItemValue {
-    this.otherItemValue.text = this.otherText
-      ? this.otherText
-      : surveyLocalization.getString("otherItemText");
+    this.otherItemValue.text = this.otherText;
     return this.otherItemValue;
   }
   /**
@@ -160,7 +158,10 @@ export class QuestionSelectBase extends Question {
    * Use this property to set the different text for other item.
    */
   public get otherText(): string {
-    return this.getLocalizableStringText("otherText");
+    return this.getLocalizableStringText(
+      "otherText",
+      surveyLocalization.getString("otherItemText")
+    );
   }
   public set otherText(val: string) {
     this.setLocalizableStringText("otherText", val);
@@ -173,7 +174,10 @@ export class QuestionSelectBase extends Question {
    * The text that shows when the other item is choosed by the other input is empty.
    */
   public get otherErrorText(): string {
-    return this.getLocalizableStringText("otherErrorText");
+    return this.getLocalizableStringText(
+      "otherErrorText",
+      surveyLocalization.getString("otherRequiredError")
+    );
   }
   public set otherErrorText(val: string) {
     this.setLocalizableStringText("otherErrorText", val);
@@ -225,11 +229,7 @@ export class QuestionSelectBase extends Question {
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
-    var text = this.otherErrorText;
-    if (!text) {
-      text = surveyLocalization.getString("otherRequiredError");
-    }
-    errors.push(new CustomError(text));
+    errors.push(new CustomError(this.otherErrorText));
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);

@@ -1,4 +1,5 @@
 import "../../localization/arabic";
+import "../../localization/catalan";
 import "../../localization/czech";
 import "../../localization/danish";
 import "../../localization/dutch";

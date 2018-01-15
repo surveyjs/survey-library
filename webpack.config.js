@@ -40,7 +40,7 @@ var platformOptions = {
       }
     },
     keywords: ["react", "react-component"],
-    peerDependencies: { react: "^15.0.1", "react-dom": "^15.0.1" }
+    peerDependencies: { react: ">=15.0.1 || ^16.2.0", "react-dom": ">=15.0.1 || ^16.2.0" }
   },
   knockout: {
     externals: {
@@ -64,12 +64,12 @@ var platformOptions = {
       }
     },
     keywords: ["jquery", "jquery-plugin"],
-    dependencies: { jquery: ">=1.12.4", "@types/react": "15.0.35" }
+    dependencies: { jquery: ">=1.12.4", "@types/react": ">=15.0.35 || ^16.0.34" }
   },
   angular: {
     externals: {},
     keywords: ["angular", "angular-component"],
-    dependencies: { "@types/react": "15.0.35" }
+    dependencies: { "@types/react": ">=15.0.35 || ^16.0.34" }
   },
   vue: {
     externals: {

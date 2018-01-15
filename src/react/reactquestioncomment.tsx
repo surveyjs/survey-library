@@ -36,7 +36,6 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
-        type="text"
         readOnly={this.isDisplayMode}
         value={this.state.value}
         placeholder={this.question.placeHolder}

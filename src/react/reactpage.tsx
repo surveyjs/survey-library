@@ -31,12 +31,21 @@ export class SurveyPage extends React.Component<any, any> {
   componentDidMount() {
     this.doAfterRender();
   }
+  componentWillUnmount() {
+    var el: any = this.refs["root"];
+    if (!!el) {
+      el.removeAttribute("data-rendered");
+    }
+  }
   componentDidUpdate(prevProps, prevState) {
     this.doAfterRender();
   }
   private doAfterRender() {
-    var el = this.refs["root"];
-    if (el && this.survey) this.survey.afterRenderPage(el);
+    var el: any = this.refs["root"];
+    if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
+      el.setAttribute("data-rendered", "r");
+      this.survey.afterRenderPage(el);
+    }
   }
   render(): JSX.Element {
     if (this.page == null || this.survey == null || this.creator == null)
@@ -120,8 +129,9 @@ export class SurveyPanel extends React.Component<any, any> {
     this.doAfterRender();
   }
   private doAfterRender() {
-    let el = this.refs["root"];
-    if (el && this.survey) {
+    let el: any = this.refs["root"];
+    if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
+      el.setAttribute("data-rendered", "r");
       this.survey.afterRenderPanel(this.panel, el);
     }
   }
@@ -131,6 +141,10 @@ export class SurveyPanel extends React.Component<any, any> {
         ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
         "react"
       );
+      var el: any = this.refs["root"];
+      if (!!el) {
+        el.removeAttribute("data-rendered");
+      }
     }
   }
   render(): JSX.Element {

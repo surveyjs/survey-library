@@ -3,7 +3,7 @@ import { SurveyModel } from "../survey";
 import { Survey } from "../knockout/kosurvey";
 import { SurveyWindow } from "../knockout/koSurveyWindow";
 import jQuery from "jquery";
-import {updateSurveyProps} from "../utils/updateSurveyProps"
+import { updateSurveyProps } from "../utils/updateSurveyProps";
 
 jQuery["fn"].extend({
   Survey: function(props) {
@@ -16,7 +16,12 @@ jQuery["fn"].extend({
 
   SurveyWindow: function(props) {
     this.each(function() {
-      var survey = new SurveyWindow(...props);
+      var model = props.model;
+      updateSurveyProps(model, props);
+      var survey = new SurveyWindow(null, model);
+      if(props.expanded !== undefined) {
+        survey.isExpanded = props.expanded;
+      }
       survey.show();
     });
   }

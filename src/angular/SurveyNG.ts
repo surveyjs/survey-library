@@ -18,11 +18,12 @@ export class SurveyNG {
 
 export class SurveyWindowNG {
   public static render(elementId: string | Element, props) {
-    var element: Element =
-      typeof elementId === "string"
-        ? document.getElementById(elementId)
-        : elementId;
-    var survey = new SurveyWindow(...props);
+    var model = props.model;
+    updateSurveyProps(model, props);
+    var survey = new SurveyWindow(null, model);
+    if (props.expanded !== undefined) {
+      survey.isExpanded = props.expanded;
+    }
     survey.show();
   }
 }

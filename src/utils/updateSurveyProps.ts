@@ -2,7 +2,6 @@ import { SurveyModel } from "../survey";
 import { surveyCss } from "../defaultCss/cssstandard";
 
 export const updateSurveyProps = (survey: SurveyModel, newProps: any) => {
-  debugger;
   for (var key in newProps) {
     if (key == "model" || key == "children") continue;
     if (key == "css") {

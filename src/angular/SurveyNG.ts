@@ -1,8 +1,7 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import * as ko from "knockout";
 import { SurveyModel } from "../survey";
-import { Survey } from "../react/reactSurvey";
-import { SurveyWindow } from "../react/reactSurveyWindow";
+import { Survey } from "../knockout/kosurvey";
+import { SurveyWindow } from "../knockout/koSurveyWindow";
 
 export class SurveyNG {
   public static render(elementId: string | Element, props) {
@@ -10,7 +9,7 @@ export class SurveyNG {
       typeof elementId === "string"
         ? document.getElementById(elementId)
         : elementId;
-    ReactDOM.render(<Survey {...props} />, element);
+    props.model.render(element);
   }
 }
 
@@ -20,7 +19,8 @@ export class SurveyWindowNG {
       typeof elementId === "string"
         ? document.getElementById(elementId)
         : elementId;
-    ReactDOM.render(<SurveyWindow {...props} />, element);
+    var survey = new SurveyWindow(...props);
+    survey.show();
   }
 }
 

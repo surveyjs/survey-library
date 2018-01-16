@@ -8,7 +8,7 @@ export class SurveyWindow extends SurveyWindowModel {
   koExpanded: any;
   koExpandedCss: any;
   doExpand: any;
-  constructor(jsonObj: any) {
+  constructor(jsonObj: any = null) {
     super(jsonObj);
     this.koExpanded = ko.observable(false);
     this.koExpandedCss = ko.observable(this.getButtonCss());

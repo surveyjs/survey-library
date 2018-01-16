@@ -3,11 +3,14 @@ import { SurveyModel } from "../survey";
 import { Survey } from "../knockout/kosurvey";
 import { SurveyWindow } from "../knockout/koSurveyWindow";
 import jQuery from "jquery";
+import {updateSurveyProps} from "../utils/updateSurveyProps"
 
 jQuery["fn"].extend({
   Survey: function(props) {
     this.each(function() {
-      props.model.render(this);
+      var model = props.model;
+      updateSurveyProps(model, props);
+      model.render(this);
     });
   },
 

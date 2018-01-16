@@ -69,14 +69,13 @@ var platformOptions = {
     keywords: ["jquery", "jquery-plugin"],
     dependencies: {
       jquery: ">=1.12.4",
-      knockout: "^3.4.0",
       "@types/knockout": "3.4.46"
     }
   },
   angular: {
     externals: {},
     keywords: ["angular", "angular-component"],
-    dependencies: { knockout: "^3.4.0", "@types/knockout": "3.4.46" }
+    dependencies: { "@types/knockout": "3.4.46" }
   },
   vue: {
     externals: {

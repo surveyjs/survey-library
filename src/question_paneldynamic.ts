@@ -689,6 +689,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = this.panelCount - 1;
     }
+    if(this.survey) this.survey.dynamicPanelAdded(this);
     return this.items[this.panelCount - 1].panel;
   }
   /**
@@ -720,6 +721,7 @@ export class QuestionPanelDynamicModel extends Question
     value.splice(index, 1);
     this.value = value;
     this.fireCallback(this.panelCountChangedCallback);
+    if(this.survey) this.survey.dynamicPanelRemoved(this, index);
   }
   private getPanelIndex(val: any): number {
     if (!isNaN(parseFloat(val)) && isFinite(val)) return val;

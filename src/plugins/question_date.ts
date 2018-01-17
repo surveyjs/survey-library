@@ -67,7 +67,7 @@ JsonObject.metaData.addClass(
   "question"
 );
 
-//Register the class as a quesiton. Survey editor will know it is a question and it will show it in question toolbox.
+//Register the class as a question. Survey editor will know it is a question and it will show it in question toolbox.
 QuestionFactory.Instance.registerQuestion("date", name => {
   return new QuestionDateModel(name);
 });

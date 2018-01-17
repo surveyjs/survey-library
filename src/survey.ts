@@ -370,7 +370,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on adding a new row in Matrix Dynamic quesiton.
+   * The event is fired on adding a new row in Matrix Dynamic question.
    * <br/> sender the survey object that fires the event
    * <br/> options.question a matrix question.
    * @see QuestionMatrixDynamicModel
@@ -381,7 +381,7 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on adding a new row in Matrix Dynamic quesiton.
+   * The event is fired on removing a row from Matrix Dynamic question.
    * <br/> sender the survey object that fires the event
    * <br/> options.question a matrix question.
    * <br/> options.rowIndex a removed row index.
@@ -453,6 +453,29 @@ export class SurveyModel extends Base
    * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValidate: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on adding a new panel in Panel Dynamic question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a panel question.
+   * @see QuestionPanelDynamicModel
+   * @see QuestionPanelDynamicModel.panels
+   */
+  public onDynamicPanelAdded: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on removing a panel from Panel Dynamic question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a panel question.
+   * <br/> options.panelIndex a removed panel index.
+   * @see QuestionPanelDynamicModel
+   * @see QuestionPanelDynamicModel.panels
+   */
+  public onDynamicPanelRemoved: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -1641,6 +1664,16 @@ export class SurveyModel extends Base
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error) : null;
   }
+  dynamicPanelAdded(question: IQuestion) {
+    this.onDynamicPanelAdded.fire(this, { question: question });
+  }
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number) {
+    this.onDynamicPanelRemoved.fire(this, {
+      question: question,
+      panelIndex: panelIndex
+    });
+  }
+
   /**
    * Upload the file into servey
    * @param name question name

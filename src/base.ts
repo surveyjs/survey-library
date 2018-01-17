@@ -59,6 +59,8 @@ export interface ISurvey extends ITextProcessor {
   matrixAfterCellRender(question: IQuestion, options: any);
   matrixCellValueChanged(question: IQuestion, options: any);
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
+  dynamicPanelAdded(question: IQuestion);
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number);
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;

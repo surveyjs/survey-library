@@ -103,7 +103,10 @@ export class QuestionImplementor extends QuestionImplementorBase {
     if (tEl.nodeName == "#text") tEl.data = "";
     tEl = elements[elements.length - 1];
     if (tEl.nodeName == "#text") tEl.data = "";
-    if (el && this.question.customWidget)
+    if (el && this.question.customWidget) {
       this.question.customWidget.afterRender(this.question, el);
+    } else {
+      this.question.survey.afterRenderQuestion(this.question, el);
+    }
   }
 }

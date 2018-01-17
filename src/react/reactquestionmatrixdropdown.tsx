@@ -151,14 +151,24 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
         ["visible", "isReadOnly"],
         "react"
       );
+      var el: any = this.refs["cell"];
+      if (!!el) {
+        el.removeAttribute("data-rendered");
+      }
     }
   }
   componentDidUpdate(prevProps, prevState) {
     this.doAfterRender();
   }
   private doAfterRender() {
-    var el = this.refs["cell"];
-    if (el && this.cell && this.cell.question.survey) {
+    var el: any = this.refs["cell"];
+    if (
+      el &&
+      this.cell &&
+      this.cell.question.survey &&
+      el.getAttribute("data-rendered") !== "r"
+    ) {
+      el.setAttribute("data-rendered", "r");
       var options = {
         cell: this.cell,
         cellQuestion: this.cell.question,

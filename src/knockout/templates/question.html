@@ -1,5 +1,4 @@
 ﻿<script type="text/html" id="survey-question">
-    <!-- ko if: question.koVisible -->
     <div data-bind="css: question.koRootClass, style: { paddingLeft: question.koPaddingLeft, paddingRight: question.koPaddingRight, width: question.koRenderWidth }, attr: {id: question.id}">
         <div data-bind="css: {'title-left': question.hasTitleOnLeft}">
             <!-- ko if: question.hasTitleOnLeftTop -->
@@ -29,5 +28,4 @@
             <!-- /ko -->
         </div>
     </div>
-    <!-- /ko -->
 </script>

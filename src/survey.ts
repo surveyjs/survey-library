@@ -1227,7 +1227,7 @@ export class SurveyModel extends Base
       this.currentPage = this.visiblePages[0];
     }
   }
-  protected mergeValues(src: any, dest: any) {
+  public mergeValues(src: any, dest: any) {
     if (!dest || !src) return;
     for (var key in src) {
       var value = src[key];

@@ -100,13 +100,10 @@ export class QuestionImplementor extends QuestionImplementorBase {
   protected koQuestionAfterRender(elements, con) {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     var tEl = elements[0];
-    if (tEl.nodeName == "#text") tEl.data = "";
+    if (tEl.nodeName === "#text") tEl.data = "";
     tEl = elements[elements.length - 1];
-    if (tEl.nodeName == "#text") tEl.data = "";
-    if (el && this.question.customWidget) {
+    if (tEl.nodeName === "#text") tEl.data = "";
+    if (el && this.question.customWidget)
       this.question.customWidget.afterRender(this.question, el);
-    } else {
-      this.question.survey.afterRenderQuestion(this.question, el);
-    }
   }
 }

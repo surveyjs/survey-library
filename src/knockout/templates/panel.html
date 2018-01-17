@@ -1,5 +1,4 @@
 <script type="text/html" id="survey-panel">
-    <!-- ko if: question.koVisible -->
     <div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
         <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title, click: doExpand">
             <!-- ko template: { name: 'survey-string', data: locTitle } -->
@@ -17,5 +16,4 @@
             <!-- /ko -->
         </div>
     </div>
-    <!-- /ko -->
 </script>

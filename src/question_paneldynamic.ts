@@ -695,7 +695,6 @@ export class QuestionPanelDynamicModel extends Question
    * @see panels
    */
   public addPanel(): PanelModel {
-    if (!this.canAddPanel) return null;
     this.panelCount++;
     if (!this.isRenderModeList) {
       this.currentIndex = this.panelCount - 1;

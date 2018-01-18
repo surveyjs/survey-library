@@ -143,7 +143,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     this.koRangeValue((<QuestionPanelDynamic>this.question).currentIndex);
   }
   protected addPanel() {
-    (<QuestionPanelDynamic>this.question).addPanel();
+    (<QuestionPanelDynamic>this.question).addPanelUI();
   }
   protected removePanel(val: any) {
     var q = <QuestionPanelDynamic>this.question;

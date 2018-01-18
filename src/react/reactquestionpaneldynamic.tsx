@@ -46,7 +46,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.setState({ panelCounter: this.state.panelCounter + 1 });
   }
   handleOnPanelAddClick(event) {
-    this.question.addPanel();
+    this.question.addPanelUI();
   }
   handleOnPanelPrevClick(event) {
     this.question.currentIndex--;

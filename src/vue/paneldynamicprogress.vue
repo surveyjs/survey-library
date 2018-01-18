@@ -8,35 +8,34 @@
 </template>
 
 <script lang="ts">
-    import Vue from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
-    import {default as Question} from './question'
-    import {Question as QuestionModel} from '../question'
-    import {PanelModel} from '../panel'
-    import {QuestionPanelDynamicModel} from '../question_paneldynamic'
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { default as Question } from "./question";
+import { Question as QuestionModel } from "../question";
+import { PanelModel } from "../panel";
+import { QuestionPanelDynamicModel } from "../question_paneldynamic";
 
-    @Component
-    export default class PanelDynamicProgress extends Vue {
-        @Prop
-        question: QuestionPanelDynamicModel
+@Component
+export default class PanelDynamicProgress extends Vue {
+  @Prop question: QuestionPanelDynamicModel;
 
-        get rangeMax() {
-            return this.question.panelCount - 1;
-        }
-        addPanelClick() {
-            this.question.addPanel();
-        }
-        prevPanelClick() {
-            this.question.currentIndex--;
-        }
-        nextPanelClick() {
-            this.question.currentIndex++;
-        }
+  get rangeMax() {
+    return this.question.panelCount - 1;
+  }
+  addPanelClick() {
+    this.question.addPanelUI();
+  }
+  prevPanelClick() {
+    this.question.currentIndex--;
+  }
+  nextPanelClick() {
+    this.question.currentIndex++;
+  }
 
-        changeRange(event) {
-            this.question.currentIndex = event.target.value;
-        }
-    }
+  changeRange(event) {
+    this.question.currentIndex = event.target.value;
+  }
+}
 
-    Vue.component("survey-paneldynamicprogress", PanelDynamicProgress)
+Vue.component("survey-paneldynamicprogress", PanelDynamicProgress);
 </script>

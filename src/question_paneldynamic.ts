@@ -678,6 +678,17 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
+   * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
+   * @see template
+   * @see panelCount
+   * @see panels
+   * @see canAddPanel
+   */
+  public addPanelUI(): PanelModel {
+    if (!this.canAddPanel) return null;
+    return this.addPanel();
+  }
+  /**
    * Add a new dynamic panel based on the template Panel.
    * @see template
    * @see panelCount
@@ -689,30 +700,31 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = this.panelCount - 1;
     }
-    if(this.survey) this.survey.dynamicPanelAdded(this);
+    if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.items[this.panelCount - 1].panel;
   }
   /**
-   * Call removePanel function. If confirmDelete set to true, it shows the confirmation dialog first.
+   * Call removePanel function. Do nothing is canRemovePanel returns false. If confirmDelete set to true, it shows the confirmation dialog first.
    * @param value a panel or panel index
    * @see removePanel
    * @see confirmDelete
    * @see confirmDeleteText
+   * @see canRemovePanel
+   *
    */
   public removePanelUI(value: any) {
+    if (!this.canRemovePanel) return;
     if (!this.confirmDelete || confirm(this.confirmDeleteText)) {
       this.removePanel(value);
     }
   }
   /**
-   * Removes a dynamic panel from the panels array. Do nothing is caRemovePanel returns false.
+   * Removes a dynamic panel from the panels array.
    * @param value a panel or panel index
    * @see panels
-   * @see canRemovePanel
    * @see template
    */
   public removePanel(value: any) {
-    if (!this.canRemovePanel) return;
     var index = this.getPanelIndex(value);
     if (index < 0 || index >= this.panelCount) return;
     this.items.splice(index, 1);
@@ -721,7 +733,7 @@ export class QuestionPanelDynamicModel extends Question
     value.splice(index, 1);
     this.value = value;
     this.fireCallback(this.panelCountChangedCallback);
-    if(this.survey) this.survey.dynamicPanelRemoved(this, index);
+    if (this.survey) this.survey.dynamicPanelRemoved(this, index);
   }
   private getPanelIndex(val: any): number {
     if (!isNaN(parseFloat(val)) && isFinite(val)) return val;

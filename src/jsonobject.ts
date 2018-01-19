@@ -400,7 +400,26 @@ export class JsonMetadata {
     className: string,
     propertyName: string
   ): JsonObjectProperty {
+    return this.findPropertyCore(this.getProperties(className), propertyName);
+  }
+  public findProperties(
+    className: string,
+    propertyNames: Array<string>
+  ): Array<JsonObjectProperty> {
+    var result = [];
     var properties = this.getProperties(className);
+    for (var i = 0; i < propertyNames.length; i++) {
+      var prop = this.findPropertyCore(properties, propertyNames[i]);
+      if (prop) {
+        result.push(prop);
+      }
+    }
+    return result;
+  }
+  private findPropertyCore(
+    properties: Array<JsonObjectProperty>,
+    propertyName: string
+  ): JsonObjectProperty {
     for (var i = 0; i < properties.length; i++) {
       if (properties[i].name == propertyName) return properties[i];
     }
@@ -669,6 +688,7 @@ export class JsonObject {
     if (obj.startLoadingFromJson) {
       obj.startLoadingFromJson();
     }
+    this.addDynamicProperties(obj, jsonObj, properties);
     for (var key in jsonObj) {
       if (key == JsonObject.typePropertyName) continue;
       if (key == JsonObject.positionPropertyName) {
@@ -695,11 +715,43 @@ export class JsonObject {
     if (property != null && !property.className) {
       result[JsonObject.typePropertyName] = property.getObjType(obj.getType());
     }
-    var properties = JsonObject.metaData.getProperties(obj.getType());
-    for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, result, properties[i]);
-    }
+    this.propertiesToJson(
+      obj,
+      JsonObject.metaData.getProperties(obj.getType()),
+      result
+    );
+    this.propertiesToJson(obj, this.getDynamicProperties(obj), result);
     return result;
+  }
+  private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
+    if (obj.getDynamicProperties && obj.getDynamicType) {
+      var names = obj.getDynamicProperties();
+      return JsonObject.metaData.findProperties(obj.getDynamicType(), names);
+    }
+    return [];
+  }
+  private addDynamicProperties(
+    obj: any,
+    jsonObj: any,
+    properties: Array<JsonObjectProperty>
+  ) {
+    if (!obj.getDynamicPropertyName) return;
+    var dynamicPropName = obj.getDynamicPropertyName();
+    if (!dynamicPropName || !jsonObj[dynamicPropName]) return;
+    obj[dynamicPropName] = jsonObj[dynamicPropName];
+    var dynamicProperties = this.getDynamicProperties(obj);
+    for (var i = 0; i < dynamicProperties.length; i++) {
+      properties.push(dynamicProperties[i]);
+    }
+  }
+  private propertiesToJson(
+    obj: any,
+    properties: Array<JsonObjectProperty>,
+    json: any
+  ) {
+    for (var i: number = 0; i < properties.length; i++) {
+      this.valueToJson(obj, json, properties[i]);
+    }
   }
   protected valueToJson(obj: any, result: any, property: JsonObjectProperty) {
     if (property.isSerializable === false) return;

@@ -22,6 +22,8 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 
+export default QUnit.module("Survey_QuestionMatrixDynamic");
+
 QUnit.test("Matrixdropdown cells tests", function(assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");
   question.rows = ["row1", "row2", "row3"];
@@ -787,3 +789,25 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("MatrixDropdownColumn cell question", function(assert) {
+  var question = new QuestionMatrixDynamicModel("matrix");
+  var column = question.addColumn("col1");
+  assert.equal(
+    column.cellQuestion.getType(),
+    "dropdown",
+    "The default type is dropdown"
+  );
+  question.cellType = "radiogroup";
+  assert.equal(
+    column.cellQuestion.getType(),
+    "radiogroup",
+    "The default type is radiogroup"
+  );
+  column.cellType = "checkbox";
+  assert.equal(
+    column.cellQuestion.getType(),
+    "checkbox",
+    "The question type is checkbox"
+  );
+});

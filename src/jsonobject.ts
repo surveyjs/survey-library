@@ -396,6 +396,29 @@ export class JsonMetadata {
     }
     return properties;
   }
+  private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
+    if (obj.getDynamicProperties && obj.getDynamicType) {
+      var names = obj.getDynamicProperties();
+      return JsonObject.metaData.findProperties(obj.getDynamicType(), names);
+    }
+    return [];
+  }
+  public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
+    if (!obj || !obj.getType) return [];
+    var res = [];
+    var props = this.getProperties(obj.getType());
+    for (var i = 0; i < props.length; i++) {
+      res.push(props[i]);
+    }
+    var dynamicProps = this.getDynamicProperties(obj);
+    if (dynamicProps && dynamicProps.length > 0) {
+      for (var i = 0; i < dynamicProps.length; i++) {
+        res.push(dynamicProps[i]);
+      }
+    }
+    return res;
+  }
+
   public findProperty(
     className: string,
     propertyName: string

@@ -68,7 +68,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     };
   };
   private choicesValue: Array<ItemValue>;
-  private questionValue: Question;
+  private templateQuestionValue: Question;
   private colOwnerValue: IMatrixColumnOwner = null;
   public choicesByUrl: ChoicesRestfull;
   public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
@@ -93,16 +93,44 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public getType() {
     return "matrixdropdowncolumn";
   }
-  public get question() {
-    return this.questionValue;
+  public get cellType(): string {
+    return this.getPropertyValue("cellType", "default");
+  }
+  public set cellType(val: string) {
+    val = val.toLocaleLowerCase();
+    this.setPropertyValue("cellType", val);
+    this.updateCellQuestion();
+  }
+  public get templateQuestion() {
+    return this.templateQuestionValue;
   }
   public get name() {
-    return this.question.name;
+    return this.templateQuestion.name;
   }
   public set name(val: string) {
-    this.question.name = val;
+    this.templateQuestion.name = val;
   }
-
+  public get title(): string {
+    return this.templateQuestion.title;
+  }
+  public set title(val: string) {
+    this.templateQuestion.title = val;
+  }
+  public get locTitle() {
+    return this.templateQuestion.locTitle;
+  }
+  public get fullTitle(): string {
+    return this.getFullTitle(this.locTitle.textOrHtml);
+  }
+  public getFullTitle(str: string): string {
+    if (!str) str = this.name;
+    if (this.isRequired) {
+      var requireText = this.colOwner ? this.colOwner.getRequiredText() : "";
+      if (requireText) requireText += " ";
+      str = requireText + str;
+    }
+    return str;
+  }
   public get choicesOrder(): string {
     return this.getPropertyValue("choicesOrder", "none");
   }
@@ -117,35 +145,37 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     val = val.toLocaleLowerCase();
     this.setPropertyValue("inputType", val);
   }
-  public get cellType(): string {
-    return this.getPropertyValue("cellType", "default");
+  public get isRequired(): boolean {
+    return this.templateQuestion.isRequired;
   }
-  public set cellType(val: string) {
-    val = val.toLocaleLowerCase();
-    this.setPropertyValue("cellType", val);
-    this.updateCellQuestion();
+  public set isRequired(val: boolean) {
+    this.templateQuestion.isRequired = val;
   }
-  public get title(): string {
-    return this.question.title;
+  public get hasOther(): boolean {
+    return this.templateQuestion.hasOther;
   }
-  public set title(val: string) {
-    this.question.title = val;
+  public set hasOther(val: boolean) {
+    this.templateQuestion.hasOther = val;
   }
-  public get locTitle() {
-    return this.question.locTitle;
+  public get visibleIf(): string {
+    return this.templateQuestion.visibleIf;
   }
-  public get fullTitle(): string {
-    return this.getFullTitle(this.locTitle.textOrHtml);
+  public set visibleIf(val: string) {
+    this.templateQuestion.visibleIf = val;
   }
-  public getFullTitle(str: string): string {
-    if (!str) str = this.name;
-    if (this.isRequired) {
-      var requireText = this.colOwner ? this.colOwner.getRequiredText() : "";
-      if (requireText) requireText += " ";
-      str = requireText + str;
-    }
-    return str;
+  public get enableIf(): string {
+    return this.templateQuestion.enableIf;
   }
+  public set enableIf(val: string) {
+    this.templateQuestion.enableIf = val;
+  }
+  public get minWidth(): string {
+    return this.getPropertyValue("minWidth", "");
+  }
+  public set minWidth(val: string) {
+    this.setPropertyValue("minWidth", val);
+  }
+
   public get optionsCaption(): string {
     return this.getLocalizableStringText("optionsCaption");
   }
@@ -189,37 +219,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     if (val < -1 || val > 4) return;
     this.setPropertyValue("colCount", val);
   }
-  public get isRequired(): boolean {
-    return this.question.isRequired;
-  }
-  public set isRequired(val: boolean) {
-    this.question.isRequired = val;
-  }
-  public get hasOther(): boolean {
-    return this.question.hasOther;
-  }
-  public set hasOther(val: boolean) {
-    this.question.hasOther = val;
-  }
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth", "");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
-  public get visibleIf(): string {
-    return this.question.visibleIf;
-  }
-  public set visibleIf(val: string) {
-    this.question.visibleIf = val;
-  }
-  public get enableIf(): string {
-    return this.question.enableIf;
-  }
-  public set enableIf(val: string) {
-    this.question.enableIf = val;
-  }
-
   public get booleanDefaultValue(): any {
     return this.getPropertyValue("booleanDefaultValue", "indeterminate");
   }
@@ -242,20 +241,22 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     return "dropdown";
   }
   protected updateCellQuestion() {
-    var prevCellType = this.question ? this.question.getType() : "";
+    var prevCellType = this.templateQuestion
+      ? this.templateQuestion.getType()
+      : "";
     var curCellType = this.calcCellQuestionType();
     if (curCellType === prevCellType) return;
     var json = null;
-    if (this.question) {
-      json = new JsonObject().toJsonObject(this.question);
+    if (this.templateQuestion) {
+      json = new JsonObject().toJsonObject(this.templateQuestion);
     }
-    this.questionValue = this.createNewQuestion(curCellType, json);
-    this.question.locOwner = this;
+    this.templateQuestionValue = this.createNewQuestion(curCellType, json);
+    this.templateQuestion.locOwner = this;
     var self = this;
-    this.question.locTitle.onRenderedHtmlCallback = function(text) {
+    this.templateQuestion.locTitle.onRenderedHtmlCallback = function(text) {
       return self.getFullTitle(text);
     };
-    this.question.onPropertyChanged.add(function() {
+    this.templateQuestion.onPropertyChanged.add(function() {
       self.doColumnPropertiesChanged();
     });
   }

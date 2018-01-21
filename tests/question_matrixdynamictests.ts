@@ -794,19 +794,19 @@ QUnit.test("MatrixDropdownColumn cell question", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   var column = question.addColumn("col1");
   assert.equal(
-    column.question.getType(),
+    column.templateQuestion.getType(),
     "dropdown",
     "The default type is dropdown"
   );
   question.cellType = "radiogroup";
   assert.equal(
-    column.question.getType(),
+    column.templateQuestion.getType(),
     "radiogroup",
     "The default type is radiogroup"
   );
   column.cellType = "checkbox";
   assert.equal(
-    column.question.getType(),
+    column.templateQuestion.getType(),
     "checkbox",
     "The question type is checkbox"
   );
@@ -817,13 +817,25 @@ QUnit.test("MatrixDropdownColumn properties are in questions", function(
 ) {
   var column = new MatrixDropdownColumn("col1");
   column.title = "some text";
-  assert.equal(column.question.name, "col1", "name set into question");
-  assert.equal(column.question.title, "some text", "title into question");
-  column.cellType = "checkbox";
-  assert.equal(column.question.getType(), "checkbox", "cell type is changed");
-  assert.equal(column.question.name, "col1", "name is still in question");
+  assert.equal(column.templateQuestion.name, "col1", "name set into question");
   assert.equal(
-    column.question.title,
+    column.templateQuestion.title,
+    "some text",
+    "title into question"
+  );
+  column.cellType = "checkbox";
+  assert.equal(
+    column.templateQuestion.getType(),
+    "checkbox",
+    "cell type is changed"
+  );
+  assert.equal(
+    column.templateQuestion.name,
+    "col1",
+    "name is still in question"
+  );
+  assert.equal(
+    column.templateQuestion.title,
     "some text",
     "title is still in question"
   );

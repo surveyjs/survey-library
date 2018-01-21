@@ -68,7 +68,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     };
   };
   private choicesValue: Array<ItemValue>;
-  private cellQuestionValue: Question;
+  private questionValue: Question;
   private colOwnerValue: IMatrixColumnOwner = null;
   public choicesByUrl: ChoicesRestfull;
   public validators: Array<SurveyValidator> = new Array<SurveyValidator>();
@@ -77,11 +77,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.updateCellQuestion();
     this.name = name;
     this.choicesValue = this.createItemValues("choices");
-    var self = this;
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.getFullTitle(text);
-    };
     this.createLocalizableString("optionsCaption", this);
     this.createLocalizableString("placeHolder", this);
     this.createLocalizableString("otherText", this);
@@ -98,14 +93,14 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public getType() {
     return "matrixdropdowncolumn";
   }
-  public get cellQuestion() {
-    return this.cellQuestionValue;
+  public get question() {
+    return this.questionValue;
   }
   public get name() {
-    return this.getPropertyValue("name");
+    return this.question.name;
   }
   public set name(val: string) {
-    this.setPropertyValue("name", val);
+    this.question.name = val;
   }
 
   public get choicesOrder(): string {
@@ -131,13 +126,13 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.updateCellQuestion();
   }
   public get title(): string {
-    return this.getLocalizableStringText("title", this.name);
+    return this.question.title;
   }
   public set title(val: string) {
-    this.setLocalizableStringText("title", val);
+    this.question.title = val;
   }
   public get locTitle() {
-    return this.getLocalizableString("title");
+    return this.question.locTitle;
   }
   public get fullTitle(): string {
     return this.getFullTitle(this.locTitle.textOrHtml);
@@ -195,16 +190,16 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.setPropertyValue("colCount", val);
   }
   public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired", false);
+    return this.question.isRequired;
   }
   public set isRequired(val: boolean) {
-    this.setPropertyValue("isRequired", val);
+    this.question.isRequired = val;
   }
   public get hasOther(): boolean {
-    return this.getPropertyValue("hasOther", false);
+    return this.question.hasOther;
   }
   public set hasOther(val: boolean) {
-    this.setPropertyValue("hasOther", val);
+    this.question.hasOther = val;
   }
   public get minWidth(): string {
     return this.getPropertyValue("minWidth", "");
@@ -213,16 +208,16 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.setPropertyValue("minWidth", val);
   }
   public get visibleIf(): string {
-    return this.getPropertyValue("visibleIf", "");
+    return this.question.visibleIf;
   }
   public set visibleIf(val: string) {
-    this.setPropertyValue("visibleIf", val);
+    this.question.visibleIf = val;
   }
   public get enableIf(): string {
-    return this.getPropertyValue("enableIf", "");
+    return this.question.enableIf;
   }
   public set enableIf(val: string) {
-    this.setPropertyValue("enableIf", val);
+    this.question.enableIf = val;
   }
 
   public get booleanDefaultValue(): any {
@@ -247,15 +242,36 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     return "dropdown";
   }
   protected updateCellQuestion() {
-    var prevCellType = this.cellQuestion ? this.cellQuestion.getType() : "";
+    var prevCellType = this.question ? this.question.getType() : "";
     var curCellType = this.calcCellQuestionType();
     if (curCellType === prevCellType) return;
-    this.cellQuestionValue = <Question>JsonObject.metaData.createClass(
-      curCellType
-    );
+    var json = null;
+    if (this.question) {
+      json = new JsonObject().toJsonObject(this.question);
+    }
+    this.questionValue = this.createNewQuestion(curCellType, json);
+    this.question.locOwner = this;
+    var self = this;
+    this.question.locTitle.onRenderedHtmlCallback = function(text) {
+      return self.getFullTitle(text);
+    };
+    this.question.onPropertyChanged.add(function() {
+      self.doColumnPropertiesChanged();
+    });
+  }
+  protected createNewQuestion(cellType: string, json: any): Question {
+    var question = <Question>JsonObject.metaData.createClass(cellType);
+    if (json) {
+      json.type = cellType;
+      new JsonObject().toObject(json, question);
+    }
+    return question;
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.propertyValueChanged(name, oldValue, newValue);
+    this.doColumnPropertiesChanged();
+  }
+  private doColumnPropertiesChanged() {
     if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onColumnPropertiesChanged(this);
     }

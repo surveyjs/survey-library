@@ -343,6 +343,7 @@ export class QuestionBase extends SurveyElement
   }
   onReadOnlyChanged() {}
   onAnyValueChanged(name: string) {}
+  locOwner: ILocalizableOwner = null;
   //ILocalizableOwner
   /**
    * Returns the current survey locale
@@ -351,12 +352,12 @@ export class QuestionBase extends SurveyElement
   public getLocale(): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
-      : "";
+      : this.locOwner ? this.locOwner.getLocale() : "";
   }
   public getMarkdownHtml(text: string) {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
-      : null;
+      : this.locOwner ? this.locOwner.getMarkdownHtml(text) : null;
   }
 }
 JsonObject.metaData.addClass("questionbase", [

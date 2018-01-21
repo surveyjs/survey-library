@@ -198,7 +198,7 @@ QUnit.test(
     matrix.columns.push(new MatrixDropdownColumn("column1"));
     matrix.columns.push(new MatrixDropdownColumn("column2"));
     matrix.choices = [1, 2, 3];
-    matrix.columns[1].choices = [4, 5];
+    matrix.columns[1]["choices"] = [4, 5];
     var visibleRows = matrix.visibleRows;
     matrix.value = { row2: { column1: 2 } };
     assert.equal(

@@ -116,6 +116,7 @@ JsonObject.metaData.addClass(
   [
     {
       name: "defaultValue:dropdown",
+      alternativeName: "booleanDefaultValue",
       default: "indeterminate",
       choices: ["indeterminate", "false", "true"]
     },

@@ -30,7 +30,7 @@ QUnit.test("Matrixdropdown cells tests", function(assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
+  question.columns[1]["choices"] = [4, 5];
   question.value = { row2: { column1: 2 } };
   var visibleRows = question.visibleRows;
   assert.equal(visibleRows.length, 3, "There are three rows");
@@ -53,7 +53,7 @@ QUnit.test("Matrixdropdown cells tests", function(assert) {
   );
   assert.deepEqual(
     ItemValue.getData(q2.choices),
-    ItemValue.getData(question.columns[1].choices),
+    ItemValue.getData(question.columns[1]["choices"]),
     "get choices from column"
   );
   assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
@@ -75,7 +75,7 @@ QUnit.test("Matrixdynamic cells tests", function(assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
+  question.columns[1]["choices"] = [4, 5];
   question.value = [{}, { column1: 2 }, {}];
   var visibleRows = question.visibleRows;
   assert.equal(visibleRows.length, 3, "There are three rows");
@@ -98,7 +98,7 @@ QUnit.test("Matrixdynamic cells tests", function(assert) {
   );
   assert.deepEqual(
     ItemValue.getData(q2.choices),
-    ItemValue.getData(question.columns[1].choices),
+    ItemValue.getData(question.columns[1]["choices"]),
     "get choices from column"
   );
   assert.equal(visibleRows[0].cells[1].value, null, "value is not set");
@@ -162,7 +162,7 @@ QUnit.test("Matrixdropdown value tests after cells generation", function(
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
+  question.columns[1]["choices"] = [4, 5];
   var visibleRows = question.visibleRows;
   question.value = { row2: { column1: 2 } };
   assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
@@ -175,7 +175,7 @@ QUnit.test("Matrixdynamic value tests after cells generation", function(
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
+  question.columns[1]["choices"] = [4, 5];
   var visibleRows = question.visibleRows;
   question.value = [{}, { column1: 2 }, {}];
   assert.equal(visibleRows[1].cells[0].value, 2, "value was set");
@@ -386,10 +386,10 @@ QUnit.test("Matrixdynamic change column properties on the fly", function(
     question.choices.length,
     "By use question.choices by default"
   );
-  question.columns[0].choices = [1, 2, 3, 4, 5, 6, 7];
+  question.columns[0]["choices"] = [1, 2, 3, 4, 5, 6, 7];
   assert.equal(
     (<QuestionDropdownModel>rows[0].cells[0].question).choices.length,
-    question.columns[0].choices.length,
+    question.columns[0]["choices"].length,
     "Use column choices if set"
   );
 });
@@ -401,7 +401,7 @@ QUnit.test("Matrixdynamic customize cell editors", function(assert) {
   var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
   matrix.addColumn("col1");
   matrix.addColumn("col2");
-  matrix.columns[0].choices = [1, 2];
+  matrix.columns[0]["choices"] = [1, 2];
   var survey = new SurveyModel();
   survey.addNewPage("p1");
   survey.pages[0].addQuestion(matrix);
@@ -566,8 +566,8 @@ QUnit.test("Matrixdropdown booleanDefaultValue", function(assert) {
   question.columns.push(new MatrixDropdownColumn("col1"));
   question.columns.push(new MatrixDropdownColumn("col2"));
   question.cellType = "boolean";
-  question.columns[0].booleanDefaultValue = "true";
-  question.columns[1].booleanDefaultValue = "false";
+  question.columns[0]["defaultValue"] = "true";
+  question.columns[1]["defaultValue"] = "false";
 
   question.rows = ["row1"];
   var visibleRows = question.visibleRows;
@@ -673,9 +673,9 @@ QUnit.test("Matrixdynamic column.visibleIf", function(assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.columns.push(new MatrixDropdownColumn("column3"));
-  question.columns[0].choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
-  question.columns[2].choices = [7, 8, 9, 10];
+  question.columns[0]["choices"] = [1, 2, 3];
+  question.columns[1]["choices"] = [4, 5];
+  question.columns[2]["choices"] = [7, 8, 9, 10];
   question.columns[2].isRequired = true;
 
   question.columns[1].visibleIf = "{row.column1} = 2";
@@ -719,9 +719,9 @@ QUnit.test("Matrixdynamic column.enableIf", function(assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.columns.push(new MatrixDropdownColumn("column3"));
-  question.columns[0].choices = [1, 2, 3];
-  question.columns[1].choices = [4, 5];
-  question.columns[2].choices = [7, 8, 9, 10];
+  question.columns[0]["choices"] = [1, 2, 3];
+  question.columns[1]["choices"] = [4, 5];
+  question.columns[2]["choices"] = [7, 8, 9, 10];
   question.columns[2].isRequired = true;
 
   question.columns[1].enableIf = "{row.column1} = 2";
@@ -839,4 +839,36 @@ QUnit.test("MatrixDropdownColumn properties are in questions", function(
     "some text",
     "title is still in question"
   );
+});
+QUnit.test("MatrixDropdownColumn add/remove serialization properties", function(
+  assert
+) {
+  var column = new MatrixDropdownColumn("col1");
+  assert.ok(
+    column["optionsCaption"],
+    "optionsCaption property has been created"
+  );
+  assert.ok(
+    column["locOptionsCaption"],
+    "Serialization property has been created for optionsCaption"
+  );
+  column.cellType = "text";
+  assert.notOk(
+    column["optionsCaption"],
+    "optionsCaption property has been removed"
+  );
+  assert.notOk(
+    column["locOptionsCaption"],
+    "Serialization property has been removed for optionsCaption"
+  );
+});
+QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
+  var prop = JsonObject.metaData.findProperty(
+    "matrixdropdowncolumn",
+    "cellType"
+  );
+  assert.ok(prop, "Property is here");
+  assert.equal(prop.choices.length, 7, "There are 7 cell types by default");
+  assert.equal(prop.choices[0], "default", "The first value is default");
+  assert.equal(prop.choices[1], "dropdown", "The second value is default");
 });

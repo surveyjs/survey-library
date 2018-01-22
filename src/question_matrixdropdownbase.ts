@@ -69,7 +69,10 @@ function onUpdateSelectBaseCellQuestion(
   if (cellQuestion.hasOther) {
     cellQuestion.storeOthersAsComment = false;
   }
-  if (!cellQuestion.choices || cellQuestion.choices.length == 0) {
+  if (
+    (!cellQuestion.choices || cellQuestion.choices.length == 0) &&
+    cellQuestion.choicesByUrl.isEmpty
+  ) {
     cellQuestion.choices = question.choices;
   }
   if (!cellQuestion.choicesByUrl.isEmpty) {

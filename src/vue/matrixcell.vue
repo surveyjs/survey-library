@@ -19,7 +19,7 @@ export default class MatrixCell extends Vue {
   @Prop cell: MatrixDropdownCell;
   getWidgetComponentName(element: QuestionModel) {
     if (element.customWidget) {
-      return element.customWidget.name;
+      return "survey-customwidget";
     }
     return "survey-" + element.getType();
   }

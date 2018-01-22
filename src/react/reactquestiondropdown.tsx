@@ -46,9 +46,13 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   }
   protected renderSelect(cssClasses: any): JSX.Element {
     if (this.isDisplayMode) {
+      var isOtherSelected =
+        this.question.value === this.question.otherItem.value;
       return (
         <div id={this.question.inputId} className={cssClasses.control}>
-          {this.question.displayValue}
+          {isOtherSelected
+            ? this.question.otherText
+            : this.question.displayValue}
         </div>
       );
     }

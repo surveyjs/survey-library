@@ -711,7 +711,7 @@ export class JsonObject {
     if (obj.startLoadingFromJson) {
       obj.startLoadingFromJson();
     }
-    this.addDynamicProperties(obj, jsonObj, properties);
+    properties = this.addDynamicProperties(obj, jsonObj, properties);
     for (var key in jsonObj) {
       if (key == JsonObject.typePropertyName) continue;
       if (key == JsonObject.positionPropertyName) {
@@ -757,15 +757,20 @@ export class JsonObject {
     obj: any,
     jsonObj: any,
     properties: Array<JsonObjectProperty>
-  ) {
-    if (!obj.getDynamicPropertyName) return;
+  ): Array<JsonObjectProperty> {
+    if (!obj.getDynamicPropertyName) return properties;
     var dynamicPropName = obj.getDynamicPropertyName();
-    if (!dynamicPropName || !jsonObj[dynamicPropName]) return;
+    if (!dynamicPropName || !jsonObj[dynamicPropName]) return properties;
     obj[dynamicPropName] = jsonObj[dynamicPropName];
     var dynamicProperties = this.getDynamicProperties(obj);
-    for (var i = 0; i < dynamicProperties.length; i++) {
-      properties.push(dynamicProperties[i]);
+    var res = [];
+    for (var i = 0; i < properties.length; i++) {
+      res.push(properties[i]);
     }
+    for (var i = 0; i < dynamicProperties.length; i++) {
+      res.push(dynamicProperties[i]);
+    }
+    return res;
   }
   private propertiesToJson(
     obj: any,

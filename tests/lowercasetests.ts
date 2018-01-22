@@ -43,8 +43,9 @@ QUnit.test(
   "MatrixDropdownColumn inputType value is always lower-case",
   function(assert) {
     var question = new MatrixDropdownColumn("text");
-    question.inputType = "TEXT";
-    assert.strictEqual(question.inputType, "text");
+    question.cellType = "text";
+    question["inputType"] = "TEXT";
+    assert.strictEqual(question["inputType"], "text");
   }
 );
 
@@ -60,8 +61,8 @@ QUnit.test(
   "MatrixDropdownColumn choicesOrder value is always lower-case",
   function(assert) {
     var question = new MatrixDropdownColumn("base");
-    question.choicesOrder = "RANDOM";
-    assert.strictEqual(question.choicesOrder, "random");
+    question["choicesOrder"] = "RANDOM";
+    assert.strictEqual(question["choicesOrder"], "random");
   }
 );
 

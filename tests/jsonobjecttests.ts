@@ -55,6 +55,69 @@ class Truck extends BigCar {
   }
 }
 
+class CarOwner extends Base {
+  private carValue: Car;
+  static supportedCars = {
+    fast: [],
+    truck: ["maxWeight"]
+  };
+  constructor() {
+    super();
+    this.carValue = new FastCar();
+  }
+  public getType(): string {
+    return "carowner";
+  }
+  getDynamicPropertyName(): string {
+    return "carType";
+  }
+  getDynamicType(): string {
+    return this.carType;
+  }
+  getDynamicProperties(): Array<string> {
+    return CarOwner.supportedCars[this.carType];
+  }
+  public name: string;
+  public get car(): Car {
+    return this.carValue;
+  }
+  public get carType(): string {
+    return this.carValue.getType();
+  }
+  public set carType(val: string) {
+    if (val == this.carType || !CarOwner.supportedCars[val]) return;
+    var newCar = <Car>JsonObject.metaData.createClass(val);
+    if (!newCar) return;
+    this.removeProperties();
+    this.carValue = newCar;
+    this.addProperties();
+  }
+  private removeProperties() {
+    var props = CarOwner.supportedCars[this.carType];
+    for (var i = 0; i < props.length; i++) {
+      delete this[props[i]];
+    }
+  }
+  private addProperties() {
+    var props = CarOwner.supportedCars[this.carType];
+    var car = this.car;
+    for (var i = 0; i < props.length; i++) {
+      var propName = props[i];
+      if (!!this[propName]) continue;
+      var desc = {
+        configurable: true,
+        get: function() {
+          return car[propName];
+        },
+        set: function(v: any) {
+          car[propName] = v;
+        }
+      };
+      Object.defineProperty(this, propName, desc);
+    }
+  }
+}
+
 class Dealer extends Base {
   constructor() {
     super();
@@ -176,6 +239,14 @@ JsonObject.metaData.addClass(
   ],
   function() {
     return new Dealer();
+  }
+);
+
+JsonObject.metaData.addClass(
+  "carowner",
+  [{ name: "carType", default: "fast" }, "name"],
+  function() {
+    return new CarOwner();
   }
 );
 
@@ -1187,3 +1258,58 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Generate properties on the fly", function(assert) {
+  var carOwner = <CarOwner>JsonObject.metaData.createClass("carowner");
+  assert.ok(carOwner, "The object is created");
+  assert.equal(carOwner.getType(), "carowner", "type is carowner");
+  assert.equal(carOwner.carType, "fast", "the default value is fast");
+  assert.equal(carOwner.car.getType(), "fast", "the car is fast car");
+  carOwner.carType = "truck";
+  assert.equal(carOwner.carType, "truck", "the default value is truck");
+  assert.equal(carOwner.car.getType(), "truck", "the car is fast truck");
+  carOwner["maxWeight"] = 100;
+  assert.equal(
+    carOwner.car["maxWeight"],
+    100,
+    "The property has been added correctly"
+  );
+  carOwner.carType = "fast";
+  assert.notEqual(
+    carOwner.car["maxWeight"],
+    100,
+    "The property doesn't equal 100"
+  );
+  assert.equal(carOwner["maxWeight"], undefined, "The property doesn't exist");
+});
+
+QUnit.test("Serialize/deserialize dynamic properties", function(assert) {
+  var carOwner = new CarOwner();
+  carOwner.carType = "truck";
+  carOwner["maxWeight"] = 100;
+  var json = new JsonObject().toJsonObject(carOwner);
+  assert.deepEqual(
+    json,
+    { carType: "truck", maxWeight: 100 },
+    "The additional property has serialized"
+  );
+  carOwner.carType = "fast";
+  assert.deepEqual(
+    new JsonObject().toJsonObject(carOwner),
+    {},
+    "There is no additional properties"
+  );
+  carOwner = new CarOwner();
+  new JsonObject().toObject({ carType: "truck", maxWeight: 200 }, carOwner);
+  assert.equal(carOwner.carType, "truck", "the car type was created correctly");
+  assert.equal(
+    carOwner["maxWeight"],
+    200,
+    "The dynamic property loaded correctly"
+  );
+  assert.equal(
+    carOwner.car["maxWeight"],
+    200,
+    "The dynamic property set correctly"
+  );
+});

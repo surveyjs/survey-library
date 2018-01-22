@@ -2143,29 +2143,29 @@ QUnit.test("Survey Localication - dropdownmatrix.columns", function(assert) {
   q1.rows = ["row1", "row2"];
   page.addQuestion(q1);
 
-  col1.choices = ["val1"];
+  col1["choices"] = ["val1"];
   col1.title = "title1";
-  col1.optionsCaption = "caption1";
-  col1.choices[0].text = "text1";
+  col1["optionsCaption"] = "caption1";
+  col1["choices"][0].text = "text1";
   survey.locale = "de";
   col1.title = "de-title1";
-  col1.optionsCaption = "de-caption1";
-  col1.choices[0].text = "de-text1";
+  col1["optionsCaption"] = "de-caption1";
+  col1["choices"][0].text = "de-text1";
   assert.equal(col1.title, "de-title1", "Use 'de' text, title");
   assert.equal(
-    col1.optionsCaption,
+    col1["optionsCaption"],
     "de-caption1",
     "Use 'de' text, optionsCaption"
   );
-  assert.equal(col1.choices[0].text, "de-text1", "Use 'de' text, choices");
+  assert.equal(col1["choices"][0].text, "de-text1", "Use 'de' text, choices");
   survey.locale = "fr";
   assert.equal(col1.title, "title1", "Use default text, title");
   assert.equal(
-    col1.optionsCaption,
+    col1["optionsCaption"],
     "caption1",
     "Use default text, optionsCaption"
   );
-  assert.equal(col1.choices[0].text, "text1", "Use the default text");
+  assert.equal(col1["choices"][0].text, "text1", "Use the default text");
 });
 
 QUnit.test("Survey Localication - multipletext.items", function(assert) {
@@ -2243,7 +2243,7 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function(
   ];
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0].choices = [
+  q1.columns[0]["choices"] = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" }
   ];
@@ -2269,7 +2269,7 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function(
   q1.rowCount = 2;
   q1.columns = [];
   q1.addColumn("col1");
-  q1.columns[0].choices = [
+  q1.columns[0]["choices"] = [
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" }
   ];

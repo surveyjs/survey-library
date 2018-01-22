@@ -25,6 +25,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
     var cell = <MatrixDropdownCell>con;
+    if (cell.question.customWidget) {
+      cell.question.customWidget.afterRender(cell.question, el);
+    }
     var options = {
       cell: cell,
       cellQuestion: cell.question,

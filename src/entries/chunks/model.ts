@@ -39,6 +39,7 @@ export {
 export {
   MatrixDropdownCell,
   MatrixDropdownColumn,
+  matrixDropdownColumnTypes,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase
 } from "../../question_matrixdropdownbase";

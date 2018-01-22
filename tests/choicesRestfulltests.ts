@@ -6,7 +6,11 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
+import {
+  QuestionMatrixDropdownModelBase,
+  MatrixDropdownRowModelBase,
+  MatrixDropdownColumn
+} from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { JsonObject } from "../src/jsonobject";
 
@@ -68,11 +72,21 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
   constructor(name: string) {
     super(name);
   }
-  protected createCellQuestion(questionType: string, name: string): Question {
-    if (questionType == "dropdown")
-      return new QuestionDropdownModelTester(name);
-    return super.createCellQuestion(questionType, name);
+  protected createQuestionCore(
+    row: MatrixDropdownRowModelBase,
+    column: MatrixDropdownColumn
+  ): Question {
+    var question = super.createQuestionCore(row, column);
+    if (column.cellType == "dropdown") {
+      var newQuestion = new QuestionDropdownModelTester(name);
+      var json = new JsonObject().toJsonObject(question);
+      new JsonObject().toObject(json, newQuestion);
+      newQuestion.setSurveyImpl(row);
+      return newQuestion;
+    }
+    return question;
   }
+
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
     if (!this.processor) this.processor = new TextProcessorTester();
@@ -241,7 +255,7 @@ QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {
   question.rowCount = 2;
   question.addColumn("state");
   var dropdownColumn = question.addColumn("city");
-  dropdownColumn.choicesByUrl.url = "{row.state}";
+  dropdownColumn["choicesByUrl"].url = "{row.state}";
   survey.pages[0].addQuestion(question);
   question.onSurveyLoad();
   var rows = question.visibleRows;

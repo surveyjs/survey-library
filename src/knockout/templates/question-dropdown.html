@@ -5,7 +5,7 @@
     </div>
     <!-- /ko -->
     <!-- ko if: question.koIsReadOnly -->
-    <div data-bind="text:question.displayValue, css: question.koCss().control"></div>
+    <div data-bind="text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.koCss().control"></div>
     <!-- /ko -->
     <div data-bind="visible: question.hasOther">
         <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }, css: question.koCss().other"></div>

@@ -2,6 +2,8 @@ import { JsonObject } from "../../src/jsonobject";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { Survey } from "../../src/knockout/kosurvey";
 import { Page } from "../../src/knockout/kopage";
+import { QuestionText } from "../../src/knockout/koquestion_text";
+import { QuestionCheckbox } from "../../src/knockout/koquestion_checkbox";
 
 export default QUnit.module("koTests");
 
@@ -60,4 +62,33 @@ QUnit.test("Create rows", function(assert) {
   );
   var page = <Page>survey.pages[0];
   assert.equal(page["koRows"]().length, 2, "There are two rows");
+});
+
+QUnit.test("Change value onValueChanged", function(assert) {
+  var survey = new Survey();
+  var page = survey.addNewPage("p1");
+  var q = <QuestionText>page.addNewQuestion("text", "q1");
+  survey.onValueChanged.add(function(sender, options) {
+    if (options.value == "aaa") {
+      options.question.value = "bbb";
+    }
+  });
+  q["koValue"]("aaa");
+  assert.equal(q.value, "bbb", "value is 'bbb'");
+  assert.equal(q["koValue"](), "bbb", "koValue() is 'bbb'");
+});
+QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
+  var survey = new Survey();
+  var page = survey.addNewPage("p1");
+  var q = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+  q.choices = [1, 2, 3, 4, 5];
+  survey.onValueChanged.add(function(sender, options) {
+    if (options.value && options.value.length > 2) {
+      options.value.shift();
+      options.question.value = options.value;
+    }
+  });
+  q["koValue"]([1, 2, 3]);
+  assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
+  assert.deepEqual(q["koValue"](), [2, 3], "value is [2, 3]");
 });

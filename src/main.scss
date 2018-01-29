@@ -75,6 +75,19 @@ $font-size: 14px;
 
 $base-line-height: 2em;
 
+.sv_main.sv_frame {
+  .sv_container {
+    max-width: 80%;
+    margin: auto;
+    padding: 0 1em;
+
+    .sv_header {
+      padding-top: 5em;
+      padding-bottom: 1em;
+    }
+  }
+}
+
 .sv_main {
   background-color: $body-container-background-color;
 
@@ -230,17 +243,11 @@ $base-line-height: 2em;
     //background-color: $header-background-color;
   }
   .sv_container {
-    max-width: 80%;
-    margin: auto;
     position: relative;
     //color: $text-color;
-    padding: 0 1em;
 
     .sv_header {
-      padding-top: 5em;
-      padding-bottom: 1em;
-      padding-left: 1em;
-      padding-right: 1em;
+      padding: 1em;
 
       h3 {
         font-size: 2em;

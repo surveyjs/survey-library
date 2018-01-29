@@ -872,3 +872,67 @@ QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
   assert.equal(prop.choices[0], "default", "The first value is default");
   assert.equal(prop.choices[1], "dropdown", "The second value is default");
 });
+
+QUnit.test(
+  "MatrixDropdownColumn copy local choices into cell question",
+  function(assert) {
+    var question = new QuestionMatrixDynamicModel("matrix");
+    question.choices = [1, 2, 3];
+    var column = question.addColumn("col1");
+    column["choices"] = [4, 5];
+    question.rowCount = 1;
+    var rows = question.visibleRows;
+    assert.equal(
+      rows[0].cells[0].question["choices"].length,
+      2,
+      "There are 2 choices"
+    );
+    assert.equal(
+      rows[0].cells[0].question["choices"][0].value,
+      4,
+      "The first value is 4"
+    );
+  }
+);
+
+QUnit.test("MatrixDropdownColumn load choices from json", function(assert) {
+  var question = new QuestionMatrixDropdownModel("matrix");
+  var json = {
+    type: "matrixdropdown",
+    name: "frameworksRate",
+    choices: ["Excelent", "Good", "Average", "Fair", "Poor"],
+    columns: [
+      {
+        name: "using",
+        title: "Do you use it?",
+        choices: ["Yes", "No"],
+        cellType: "radiogroup"
+      },
+      {
+        name: "experience",
+        title: "How long do you use it?",
+        choices: [
+          { value: 5, text: "3-5 years" },
+          { value: 2, text: "1-2 years" },
+          {
+            value: 1,
+            text: "less then a year"
+          }
+        ]
+      }
+    ],
+    rows: [{ value: "reactjs" }]
+  };
+  new JsonObject().toObject(json, question);
+  var rows = question.visibleRows;
+  assert.equal(
+    rows[0].cells[1].question["choices"].length,
+    3,
+    "There are 3 choices"
+  );
+  assert.equal(
+    rows[0].cells[1].question["choices"][0].value,
+    5,
+    "The first value is 5"
+  );
+});

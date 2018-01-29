@@ -760,8 +760,10 @@ export class JsonObject {
   ): Array<JsonObjectProperty> {
     if (!obj.getDynamicPropertyName) return properties;
     var dynamicPropName = obj.getDynamicPropertyName();
-    if (!dynamicPropName || !jsonObj[dynamicPropName]) return properties;
-    obj[dynamicPropName] = jsonObj[dynamicPropName];
+    if (!dynamicPropName) return properties;
+    if (jsonObj[dynamicPropName]) {
+      obj[dynamicPropName] = jsonObj[dynamicPropName];
+    }
     var dynamicProperties = this.getDynamicProperties(obj);
     var res = [];
     for (var i = 0; i < properties.length; i++) {

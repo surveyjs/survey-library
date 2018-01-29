@@ -14,6 +14,22 @@ export class Helpers {
     }
     return !value && value !== 0 && value !== false;
   }
+  public static isTwoValueEquals(x: any, y: any): boolean {
+    if (x === y) return true;
+    if (!(x instanceof Object) || !(y instanceof Object)) return false;
+    for (var p in x) {
+      if (!x.hasOwnProperty(p)) continue;
+      if (!y.hasOwnProperty(p)) return false;
+      if (x[p] === y[p]) continue;
+      if (typeof x[p] !== "object") return false;
+      if (!this.isTwoValueEquals(x[p], y[p])) return false;
+    }
+    for (p in y) {
+      if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+    }
+    return true;
+  }
+
   public static randomizeArray<T>(array: Array<T>): Array<T> {
     for (var i = array.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));

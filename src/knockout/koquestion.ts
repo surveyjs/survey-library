@@ -2,9 +2,9 @@ import * as ko from "knockout";
 import { QuestionImplementorBase } from "./koquestionbase";
 import { Question } from "../question";
 import { SurveyElement } from "../base";
+import { Helpers } from "../helpers";
 
 export class QuestionImplementor extends QuestionImplementorBase {
-  private isUpdating: boolean = false;
   private koDummy: any;
   koValue: any;
   koComment: any;
@@ -52,12 +52,14 @@ export class QuestionImplementor extends QuestionImplementorBase {
     this.updateKoDummy();
   }
   protected onValueChanged() {
-    if (this.isUpdating) return;
-    this.setkoValue(this.question.value);
+    var val = this.question.value;
+    if (Helpers.isTwoValueEquals(val, this.koValue())) return;
+    this.setkoValue(val);
   }
   protected onCommentChanged() {
-    if (this.isUpdating) return;
-    this.koComment(this.question.comment);
+    var val = this.question.comment;
+    if (Helpers.isTwoValueEquals(val, this.koValue())) return;
+    this.koComment(val);
   }
   protected onVisibleIndexChanged() {
     this.updateKoDummy();
@@ -79,14 +81,10 @@ export class QuestionImplementor extends QuestionImplementorBase {
     this.koValue(newValue);
   }
   protected updateValue(newValue: any) {
-    this.isUpdating = true;
     this.question.value = newValue;
-    this.isUpdating = false;
   }
   protected updateComment(newValue: any) {
-    this.isUpdating = true;
     this.question.comment = newValue;
-    this.isUpdating = false;
   }
   protected getNo(): string {
     return this.question.visibleIndex > -1

@@ -209,6 +209,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
+  public get readOnly(): boolean {
+    return this.templateQuestion.readOnly;
+  }
+  public set readOnly(val: boolean) {
+    this.templateQuestion.readOnly = val;
+  }
   public get hasOther(): boolean {
     return this.templateQuestion.hasOther;
   }
@@ -935,7 +941,9 @@ export class QuestionMatrixDropdownModelBase extends Question
     column: MatrixDropdownColumn
   ): Question {
     var question = column.createCellQuestion(row);
-    question.readOnly = this.readOnly;
+    if (this.isReadOnly) {
+      question.readOnly = true;
+    }
     question.setSurveyImpl(row);
     return question;
   }
@@ -1054,6 +1062,7 @@ JsonObject.metaData.addClass(
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
     "isRequired:boolean",
     "hasOther:boolean",
+    "readOnly:boolean",
     "minWidth",
     "visibleIf:condition",
     "enableIf:condition",

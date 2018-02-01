@@ -25,7 +25,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     this.setProperties(nextProps);
   }
   private setProperties(nextProps: any) {
-    this.setState({ rowCounter: 0 });
+    if (this.refs.matrixDynamicRef) this.setState({ rowCounter: 0 });
     this.question.rowCountChangedCallback = () => {
       this.setState(this.getState(this.state));
     };
@@ -74,7 +74,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
       : {};
     var btnDeleteTD = !this.isDisplayMode ? <td /> : null;
     return (
-      <div>
+      <div ref="matrixDynamicRef">
         <div style={divStyle}>
           <table className={cssClasses.root}>
             <thead>

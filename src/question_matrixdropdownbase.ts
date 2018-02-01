@@ -123,6 +123,10 @@ export var matrixDropdownColumnTypes = {
     onCellQuestionUpdate: (cellQuestion, column, question, data) => {
       cellQuestion.showTitle = true;
     }
+  },
+  expression: {
+    properties: ["expression"],
+    onCellQuestionUpdate: (cellQuestion, column, question, data) => {}
   }
 };
 

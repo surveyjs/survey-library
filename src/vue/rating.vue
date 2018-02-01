@@ -1,7 +1,7 @@
 <template>
     <div>
         <div :class="question.cssClasses.root">
-            <label v-for="(item, index) in question.visibleRateValues" :class="getCss(item)">
+            <label v-for="(item, index) in question.visibleRateValues" :class="getCss(question, item)">
                 <input type="radio" style="display: none;" :name="question.name" :id="question.name + index" :value="item.value" :disabled="question.isReadOnly" @change="change" v-bind:aria-label="item.locText.text"/>
                 <span v-if="index === 0" :class="question.cssClasses.minText"><survey-string :locString="question.locMinRateDescription"/></span>
                 <span :class="question.cssClasses.itemText"><survey-string :locString="item.locText"/></span>
@@ -13,24 +13,23 @@
 </template>
 
 <script lang="ts">
-    import Vue from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
-    import {default as Question} from './question'
-    import {QuestionRatingModel} from '../question_rating'
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { default as Question } from "./question";
+import { QuestionRatingModel } from "../question_rating";
 
-    @Component
-    export default class Rating extends Question<QuestionRatingModel> {
-        selection = ''
-        getCss(item) {
-            let css = this.question.cssClasses.item;
-            if (this.selection == item.value || this.question.value == item.value) {
-                css = css + " " + this.question.cssClasses.selected;
-            }
-            return css;
-        }
-        change(e) {
-            this.selection = this.question.value = e.target.value;
-        }
+@Component
+export default class Rating extends Question<QuestionRatingModel> {
+  getCss(question: QuestionRatingModel, item) {
+    let css = question.cssClasses.item;
+    if (question.value == item.value) {
+      css = css + " " + question.cssClasses.selected;
     }
-    Vue.component("survey-rating", Rating)
+    return css;
+  }
+  change(e) {
+    this.question.value = e.target.value;
+  }
+}
+Vue.component("survey-rating", Rating);
 </script>

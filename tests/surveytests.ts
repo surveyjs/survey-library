@@ -944,7 +944,43 @@ QUnit.test("onVisibleChanged call validation", function(assert) {
   assert.equal(
     survey.isCurrentPageHasErrors,
     true,
-    "the value is more than 100, no errors"
+    "the value is more than 100, has errors"
+  );
+});
+QUnit.test("onValidatePanel test", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var panel = page.addNewPanel("panel");
+  var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
+  var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  survey.onValidatePanel.add(function(sender, options) {
+    var panel = <PanelModel>options.panel;
+    var pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
+    var pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
+    var sum = pq1.value + pq1.value;
+    if (sum < 10 || pq1.isEmpty() || pq2.isEmpty())
+      options.error = "q1+q2 should be more than 9";
+    if (sum >= 100) options.error = "q1+q2 should be less than 100";
+  });
+
+  assert.equal(
+    survey.isCurrentPageHasErrors,
+    true,
+    "failed, values are underfined : 10 < q1.value + q2.value < 100"
+  );
+  q1.value = 5;
+  q2.value = 50;
+  assert.equal(
+    survey.isCurrentPageHasErrors,
+    false,
+    "passed: 5 + 50, 10 < q1.value + q2.value < 100"
+  );
+  q1.value = 55;
+
+  assert.equal(
+    survey.isCurrentPageHasErrors,
+    true,
+    "failed: 55 + 50, 10 < q1.value + q2.value < 100"
   );
 });
 QUnit.test(

@@ -522,7 +522,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   private fireSurveyValidation(): SurveyError {
     if (this.validateValueCallback) return this.validateValueCallback();
-    return this.survey ? this.survey.validateQuestion(this.name) : null;
+    return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     if (this.hasRequiredError()) {

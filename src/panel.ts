@@ -331,11 +331,26 @@ export class PanelModelBase extends SurveyElement
     }
     return rec.result;
   }
-  private hasRequiredError(rec: any) {
-    if (!this.isRequired) return;
+  private hasErrorsInPanels(rec: any) {
     var errorLength = this.errors.length;
     this.errors = [];
-
+    this.hasRequiredError(rec);
+    if (this.survey) {
+      var customError = this.survey.validatePanel(this);
+      if (customError) {
+        this.errors.push(customError);
+        rec.result = true;
+      }
+    }
+    if (
+      rec.fireCallback &&
+      (errorLength != this.errors.length || errorLength > 0)
+    ) {
+      if (this.errorsChangedCallback) this.errorsChangedCallback();
+    }
+  }
+  private hasRequiredError(rec: any) {
+    if (!this.isRequired) return;
     var visQuestions = [];
     this.addQuestionsToList(visQuestions, true);
     if (visQuestions.length == 0) return;
@@ -346,12 +361,6 @@ export class PanelModelBase extends SurveyElement
     this.errors.push(new OneAnswerRequiredError(this.requiredErrorText));
     if (!rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
-    }
-    if (
-      rec.fireCallback &&
-      (errorLength != this.errors.length || errorLength > 0)
-    ) {
-      if (this.errorsChangedCallback) this.errorsChangedCallback();
     }
   }
   protected hasErrorsCore(rec: any) {
@@ -370,7 +379,7 @@ export class PanelModelBase extends SurveyElement
         }
       }
     }
-    this.hasRequiredError(rec);
+    this.hasErrorsInPanels(rec);
   }
   /**
    * Fill list array with the questions.

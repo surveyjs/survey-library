@@ -233,6 +233,7 @@ export class SurveyModel extends Base
   /**
    * The event is fired on validating value in a question. Set your error to options.error and survey will show the error for the question and block completing the survey or going to the next page.
    * <br/> sender the survey object that fires the event
+   * <br/> options.question a question
    * <br/> options.name a question name
    * <br/> options.value the current question value
    * <br/> options.error an error string. It is empty by default.
@@ -248,6 +249,7 @@ export class SurveyModel extends Base
    * <br/> options.data the values of all non-empty questions on the current page. You can get a question value as options.data["myQuestionName"].
    * <br/> options.errors set your errors to this object as: options.errors["myQuestionName"] = "Error text";. It will be shown as a question error.
    * @see onValidateQuestion
+   * @see onValidatePanel
    */
   public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
   /**
@@ -258,6 +260,17 @@ export class SurveyModel extends Base
    * @see loadingHtml
    * @see QuestionHtmlModel.html
    */
+  /**
+   * The event is fired on validating a panel. Set your error to options.error and survey will show the error for the panel and block completing the survey or going to the next page.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.name a panel name
+   * <br/> options.error an error string. It is empty by default.
+   * @see onValidateQuestion
+   */
+  public onValidatePanel: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
   public onProcessHtml: Event<
     (sender: SurveyModel, options: any) => any,
     any
@@ -2450,10 +2463,25 @@ export class SurveyModel extends Base
     this.updateVisibleIndexes();
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
   }
-  validateQuestion(name: string): SurveyError {
+  validateQuestion(question: IQuestion): SurveyError {
     if (this.onValidateQuestion.isEmpty) return null;
-    var options = { name: name, value: this.getValue(name), error: null };
+    var options = {
+      name: question.name,
+      question: question,
+      value: this.getValue(question.name),
+      error: null
+    };
     this.onValidateQuestion.fire(this, options);
+    return options.error ? new CustomError(options.error) : null;
+  }
+  validatePanel(panel: IPanel): SurveyError {
+    if (this.onValidatePanel.isEmpty) return null;
+    var options = {
+      name: panel.name,
+      panel: panel,
+      error: null
+    };
+    this.onValidatePanel.fire(this, options);
     return options.error ? new CustomError(options.error) : null;
   }
   processHtml(html: string): string {

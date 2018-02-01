@@ -47,6 +47,10 @@ class XmlParser {
  */
 export class ChoicesRestfull extends Base {
   private static itemsResult = {};
+  public static onBeforeSendRequest: (
+    sender: ChoicesRestfull,
+    options: { request: XMLHttpRequest }
+  ) => void;
   private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
     var hash = obj.objHash;
     var res = ChoicesRestfull.itemsResult[hash];
@@ -123,7 +127,11 @@ export class ChoicesRestfull extends Base {
         self.onError(xhr.statusText, xhr.responseText);
       }
     };
-    xhr.send();
+    var options = { request: xhr };
+    if (!!ChoicesRestfull.onBeforeSendRequest) {
+      ChoicesRestfull.onBeforeSendRequest(this, options);
+    }
+    options.request.send();
   }
   public getType(): string {
     return "choicesByUrl";

@@ -868,7 +868,7 @@ QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
     "cellType"
   );
   assert.ok(prop, "Property is here");
-  assert.equal(prop.choices.length, 7, "There are 7 cell types by default");
+  assert.equal(prop.choices.length, 8, "There are 8 cell types by default");
   assert.equal(prop.choices[0], "default", "The first value is default");
   assert.equal(prop.choices[1], "dropdown", "The second value is default");
 });

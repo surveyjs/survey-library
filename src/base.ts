@@ -33,6 +33,7 @@ export interface ISurvey extends ITextProcessor {
   panelRemoved(panel: IElement);
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
+  hasVisibleQuestionByValueName(valueName: string): boolean;
   processHtml(html: string): string;
   isDisplayMode: boolean;
   isDesignMode: boolean;

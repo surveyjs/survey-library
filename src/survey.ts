@@ -2242,6 +2242,14 @@ export class SurveyModel extends Base
       this.clearInvisibleQuestionValues();
     }
   }
+  hasVisibleQuestionByValueName(valueName: string): boolean {
+    var questions = this.getAllQuestions();
+    for (var i: number = 0; i < questions.length; i++) {
+      if (questions[i].getValueName() == valueName && questions[i].isVisible)
+        return true;
+    }
+    return false;
+  }
   private clearInvisibleQuestionValues() {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {

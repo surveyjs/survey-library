@@ -384,9 +384,15 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.value = null;
     this.comment = null;
   }
+  private canClearValueAsInvisible(): boolean {
+    if (this.isVisible) return false;
+    if (!this.survey || !this.valueName) return true;
+    return !this.survey.hasVisibleQuestionByValueName(this.valueName);
+  }
   public clearValueIfInvisible() {
-    if (this.isVisible) return;
-    this.clearValue();
+    if (this.canClearValueAsInvisible()) {
+      this.clearValue();
+    }
   }
   public get displayValue(): any {
     return this.value;

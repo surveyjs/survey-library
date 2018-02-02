@@ -2339,7 +2339,7 @@ export class SurveyModel extends Base
   }
   protected tryGoNextPageAutomatic(name: string) {
     if (!this.goNextPageAutomatic || !this.currentPage) return;
-    var question = this.getQuestionByName(name);
+    var question = this.getQuestionByValueName(name);
     if (
       question &&
       (!question.visible || !question.supportGoNextPageAutomatic())

@@ -1211,23 +1211,26 @@ QUnit.test("clearInvisibleValues", function(assert) {
   assert.equal(question1.value, null, "Clear value of an invisible question");
   assert.equal(question2.value, "myValue", "Keep value of a visible question");
 });
-QUnit.test("clearInvisibleValues is onComplete (default value), visible and invisible questions with the same valueName, #898", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page");
-  var q1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
-  var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
-  q1.valueName = "value";
-  q2.valueName = "value";
-  q1.value = 1;
-  q2.visible = false;
-  survey.doComplete();
-  assert.deepEqual(survey.data, {value: 1}, "The value should be keeped");
-  survey.clear();
-  q1.value = 2;
-  q1.visible = false;
-  survey.doComplete();
-  assert.deepEqual(survey.data, {}, "The value should be cleaned");
-});
+QUnit.test(
+  "clearInvisibleValues is onComplete (default value), visible and invisible questions with the same valueName, #898",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
+    var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
+    q1.valueName = "value";
+    q2.valueName = "value";
+    q1.value = 1;
+    q2.visible = false;
+    survey.doComplete();
+    assert.deepEqual(survey.data, { value: 1 }, "The value should be keeped");
+    survey.clear();
+    q1.value = 2;
+    q1.visible = false;
+    survey.doComplete();
+    assert.deepEqual(survey.data, {}, "The value should be cleaned");
+  }
+);
 QUnit.test("clearInvisibleValues - comments and other values, #309", function(
   assert
 ) {
@@ -1578,6 +1581,19 @@ QUnit.test(
     assert.equal(survey.state, "completed");
   }
 );
+
+QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = <QuestionDropdownModel>page.addNewQuestion("checkbox", "q1");
+  q1.valueName = "v"; //this line produce the issue
+  q1.choices = [1, 2, 3];
+  survey.goNextPageAutomatic = true;
+  (<Question>survey.getQuestionByName("q1")).value = [1];
+  assert.notEqual(survey.state, "completed", "it should not be completed");
+});
 
 QUnit.test("isNavigationButtonsShowing", function(assert) {
   var survey = twoPageSimplestSurvey();

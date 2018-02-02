@@ -14,6 +14,7 @@ module.exports = function(config) {
         mime: {
             'text/x-typescript': ['ts','tsx']
         },
+        browserNoActivityTimeout: 100000,
         junitReporter: {
             outputDir: 'tmp/testresults/',
             outputFile: 'test-results.xml'

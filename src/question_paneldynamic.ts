@@ -605,7 +605,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Returns true when renderMode equals to "list".
-   * @renderMode
+   * @see renderMode
    */
   public get isRenderModeList() {
     return this.renderMode == "list";

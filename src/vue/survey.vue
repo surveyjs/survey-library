@@ -83,6 +83,9 @@ export default class Survey extends Vue {
   getCompletedStateClasses() {
     return this.css.saveData[this.survey.completedState];
   }
+  start() {
+    this.survey.start();
+  }
   prevPage() {
     this.survey.prevPage();
   }

@@ -26,15 +26,15 @@
               </div>
           </template>
           <div v-if="hasCompletedPage">
-              <div v-html="survey.processedCompletedHtml"></div>
+              <div v-html="survey.processedCompletedHtml" :class="css.body"></div>
               <div v-if="survey.completedState != ''" :class="css.saveData.root">
                   <div :class="getCompletedStateClasses()"><span>{{survey.completedStateText}}</span>
                       <input type="button" v-if="survey.completedState == 'error'" :value="survey.getLocString('saveAgainButton')" @click="doTrySaveAgain" :class="css.saveData.saveAgainButton" />
                   </div>
               </div>
           </div>
-          <div v-if="survey.state === 'completedbefore'" v-html="survey.processedCompletedBeforeHtml"></div>
-          <div v-if="survey.state === 'loading'" v-html="survey.processedLoadingHtml"></div>
+          <div v-if="survey.state === 'completedbefore'" :class="css.body" v-html="survey.processedCompletedBeforeHtml"></div>
+          <div v-if="survey.state === 'loading'" :class="css.body" v-html="survey.processedLoadingHtml"></div>
           <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
       </div>
     </div>

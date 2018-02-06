@@ -1227,7 +1227,7 @@ export class SurveyModel extends Base
       this.data = null;
       this.variablesHash = {};
     }
-    this.setTimeSpent(0);
+    this.timeSpent = 0;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].timeSpent = 0;
       this.pages[i].setWasShown(false);
@@ -2673,6 +2673,9 @@ export class SurveyModel extends Base
   public get timeSpent() {
     return this.getPropertyValue("timeSpent", 0);
   }
+  public set timeSpent(val: number) {
+    this.setPropertyValue("timeSpent", val);
+  }
   /**
    * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.
    * @see startTimer
@@ -2707,7 +2710,7 @@ export class SurveyModel extends Base
     if (page) {
       page.timeSpent = page.timeSpent + 1;
     }
-    this.setTimeSpent(this.timeSpent + 1);
+    this.timeSpent = this.timeSpent + 1;
     this.onTimer.fire(this, {});
     if (this.maxTimeToFinish > 0 && this.maxTimeToFinish == this.timeSpent) {
       this.completeLastPage();
@@ -2722,9 +2725,6 @@ export class SurveyModel extends Base
         }
       }
     }
-  }
-  private setTimeSpent(val: number) {
-    this.setPropertyValue("timeSpent", val);
   }
   //ISurveyImplementor
   geSurveyData(): ISurveyData {

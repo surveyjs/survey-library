@@ -8,7 +8,7 @@ export var surveyCss = {
 };
 
 export var defaultStandardCss = {
-  root: "sv_main sv_frame sv_default_css",
+  root: "sv_main sv_default_css",
   header: "sv_header",
   body: "sv_body",
   footer: "sv_nav",

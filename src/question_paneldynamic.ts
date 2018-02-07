@@ -893,15 +893,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   setPanelItemData(item: QuestionPanelDynamicItem, name: string, val: any) {
     var index = this.items.indexOf(item);
-    if (index < 0) return;
+    if (index < 0) index = this.items.length;
     var qValue = this.value;
-    if (!qValue) {
+    if (!qValue || !Array.isArray(qValue)) {
       qValue = [];
-      for (var i = 0; i < this.items.length; i++) {
+    }
+    if (qValue.length <= index) {
+      for (var i = qValue.length; i <= index; i++) {
         qValue.push({});
       }
     }
-    if (!Array.isArray(qValue) || qValue.length <= index) return;
     if (!qValue[index]) qValue[index] = {};
     if (!this.isValueEmpty(val)) {
       qValue[index][name] = val;

@@ -259,6 +259,17 @@ $base-line-height: 2em;
     }
 
     .sv_body {
+      &.sv_completed_page {
+        text-align: center;
+        padding: 5em 1em;
+
+        > h3 {
+          margin: 0;
+          font-size: 30px;
+          font-weight: 300;
+        }
+      }
+
       //background-color: $body-background-color;
       padding: 1em 1em 5em 1em;
       //border-top: 2px solid $main-color;

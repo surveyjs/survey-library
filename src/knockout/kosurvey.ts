@@ -99,6 +99,10 @@ export class Survey extends SurveyModel {
       this.css.navigation.next
     );
   }
+  public get completedCss() {
+    var css = surveyCss.getCss();
+    return css.body + " " + css.completedPage;
+  }
   private getNavigationCss(main: string, btn: string) {
     var res = "";
     if (main) res = main;

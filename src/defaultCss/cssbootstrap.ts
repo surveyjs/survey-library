@@ -6,6 +6,7 @@ export var defaultBootstrapCss = {
   body: "panel-body card-block",
   footer: "panel-footer card-footer",
   navigationButton: "",
+  completedPage: "",
   navigation: {
     complete: "sv_complete_btn",
     prev: "sv_prev_btn",

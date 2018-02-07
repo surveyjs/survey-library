@@ -112,7 +112,10 @@ export class Survey extends React.Component<any, any>
     var htmlValue = { __html: this.survey.processedCompletedHtml };
     return (
       <div>
-        <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+        <div
+          dangerouslySetInnerHTML={htmlValue}
+          className={[this.css.body, this.css.completedPage].join(" ")}
+        />
         {completedState}
       </div>
     );

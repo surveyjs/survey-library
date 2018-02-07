@@ -6,6 +6,7 @@ export var defaultBootstrapMaterialCss = {
   body: "panel-body",
   footer: "panel-footer",
   navigationButton: "",
+  completedPage: "",
   navigation: {
     complete: "sv_complete_btn",
     prev: "sv_prev_btn",

@@ -26,7 +26,7 @@
               </div>
           </template>
           <div v-if="hasCompletedPage">
-              <div v-html="survey.processedCompletedHtml" :class="css.body"></div>
+              <div v-html="survey.processedCompletedHtml" :class="getCompletedPageClasses()"></div>
               <div v-if="survey.completedState != ''" :class="css.saveData.root">
                   <div :class="getCompletedStateClasses()"><span>{{survey.completedStateText}}</span>
                       <input type="button" v-if="survey.completedState == 'error'" :value="survey.getLocString('saveAgainButton')" @click="doTrySaveAgain" :class="css.saveData.saveAgainButton" />
@@ -79,6 +79,10 @@ export default class Survey extends Vue {
   getNavBtnClasses(btnType) {
     const btnClass = this.css.navigation[btnType];
     return this.css.navigationButton + " " + btnClass;
+  }
+  getCompletedPageClasses() {
+    var css = this.css;
+    return css.body + " " + css.completedPage;
   }
   getCompletedStateClasses() {
     return this.css.saveData[this.survey.completedState];

@@ -1045,6 +1045,45 @@ QUnit.test("PanelDynamic, survey.onDanamicPanelAdd/Remove", function(assert) {
   );
   assert.equal(panelIndex, 1, "the removed panel index is correct");
 });
+QUnit.test("PanelDynamic defaultValue in questions", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "question1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question2",
+            defaultValue: "100"
+          },
+          {
+            type: "dropdown",
+            name: "question3",
+            defaultValue: "item2",
+            choices: ["item1", "item2", "item3"]
+          }
+        ]
+      }
+    ]
+  });
+  var question = <QuestionPanelDynamicModel>survey.getQuestionByName(
+    "question1"
+  );
+  question.panelCount = 2;
+  var textQuestion = <Question>question.panels[1].getQuestionByName(
+    "question2"
+  );
+  var dropDownQuestion = <Question>question.panels[1].getQuestionByName(
+    "question3"
+  );
+  assert.equal(textQuestion.value, "100", "The default value to text is set");
+  assert.equal(
+    dropDownQuestion.value,
+    "item2",
+    "The default value to dropdown is set"
+  );
+});
 
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {

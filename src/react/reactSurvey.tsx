@@ -50,12 +50,29 @@ export class Survey extends React.Component<any, any>
     }
   }
   render(): JSX.Element {
-    if (this.survey.state == "completed") return this.renderCompleted();
-    if (this.survey.state == "completedbefore")
-      return this.renderCompletedBefore();
-    if (this.survey.state == "loading") return this.renderLoading();
-    if (this.survey.state == "starting") return this.renderStartPage();
-    return this.renderSurvey();
+    var renderResult;
+    if (this.survey.state == "completed") {
+      renderResult = this.renderCompleted();
+    } else if (this.survey.state == "completedbefore") {
+      renderResult = this.renderCompletedBefore();
+    } else if (this.survey.state == "loading") {
+      renderResult = this.renderLoading();
+    } else if (this.survey.state == "starting") {
+      renderResult = this.renderStartPage();
+    } else {
+      renderResult = this.renderSurvey();
+    }
+    var title = this.renderTitle();
+
+    return (
+      <div ref="root" className={this.css.root}>
+        <div className="sv_custom_header" />
+        <div className="sv_container">
+          {title}
+          {renderResult}
+        </div>
+      </div>
+    );
   }
   public get css(): any {
     return surveyCss.getCss();
@@ -95,18 +112,22 @@ export class Survey extends React.Component<any, any>
     var htmlValue = { __html: this.survey.processedCompletedHtml };
     return (
       <div>
-        <div dangerouslySetInnerHTML={htmlValue} />
+        <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
         {completedState}
       </div>
     );
   }
   protected renderCompletedBefore(): JSX.Element {
     var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
-    return <div dangerouslySetInnerHTML={htmlValue} />;
+    return (
+      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+    );
   }
   protected renderLoading(): JSX.Element {
     var htmlValue = { __html: this.survey.processedLoadingHtml };
-    return <div dangerouslySetInnerHTML={htmlValue} />;
+    return (
+      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+    );
   }
   protected renderStartPage(): JSX.Element {
     var startedPage = this.survey.startedPage
@@ -115,7 +136,7 @@ export class Survey extends React.Component<any, any>
     var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
     var startButton = this.renderNavigation();
     return (
-      <div ref="root" className={this.css.root}>
+      <div>
         <div id={pageId} className={this.css.body}>
           {startedPage}
         </div>
@@ -124,7 +145,6 @@ export class Survey extends React.Component<any, any>
     );
   }
   protected renderSurvey(): JSX.Element {
-    var title = this.renderTitle();
     var currentPage = this.survey.currentPage
       ? this.renderPage(this.survey.currentPage)
       : null;
@@ -140,19 +160,13 @@ export class Survey extends React.Component<any, any>
       currentPage = this.renderEmptySurvey();
     }
     return (
-      <div ref="root" className={this.css.root}>
-        <div className="sv_custom_header" />
-        <div className="sv_container">
-          {title}
-          <div id={pageId} className={this.css.body}>
-            {topProgress}
-            {this.renderTimerPanel("top")}
-            {currentPage}
-            {this.renderTimerPanel("bottom")}
-            {bottomProgress}
-            {buttons}
-          </div>
-        </div>
+      <div id={pageId} className={this.css.body}>
+        {topProgress}
+        {this.renderTimerPanel("top")}
+        {currentPage}
+        {this.renderTimerPanel("bottom")}
+        {bottomProgress}
+        {buttons}
       </div>
     );
   }

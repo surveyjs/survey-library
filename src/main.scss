@@ -70,7 +70,7 @@ $border-color: $header-background-color;
 $error-color: #ed5565;
 $error-background-color: lighten($error-color, 30%);
 
-$header-height: 275px;
+$header-height: 74%;
 $font-size: 14px;
 
 $base-line-height: 2em;
@@ -240,6 +240,7 @@ $base-line-height: 2em;
     position: absolute;
     width: 100%;
     height: $header-height;
+    max-height: 275px;
     //background-color: $header-background-color;
   }
   .sv_container {

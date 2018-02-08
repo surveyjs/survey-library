@@ -47,7 +47,8 @@ export class StylesManager {
     ".sv_p_title .sv_panel_icon.sv_expanded::before":
       "transform: rotate(180deg);",
 
-    ".sv_q_file > input, .sv_q_file > button": "display: inline-block;",
+    ".sv_q_file > input[type=file], .sv_q_file > button":
+      "display: inline-block;",
     ".sv_q_file_preview": "display: inline-block;",
     ".sv_q_file_remove_button": "line-height: normal;"
   };

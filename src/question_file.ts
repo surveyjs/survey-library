@@ -11,7 +11,7 @@ import { surveyLocalization } from "./surveyStrings";
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
   previewValueLoadedCallback: () => void;
-  public previewValue: any;
+  public previewValue: any[] = [];
   constructor(public name: string) {
     super(name);
   }
@@ -136,7 +136,7 @@ export class QuestionFileModel extends Question {
           this.value = (this.value || []).concat([fileReader.result]);
         }
         if (this.showPreview && this.isFileImage(file)) {
-          this.previewValue.push(fileReader.result);
+          this.previewValue = this.previewValue.concat([fileReader.result]);
           this.fireCallback(this.previewValueLoadedCallback);
         }
       };

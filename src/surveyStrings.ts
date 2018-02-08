@@ -83,6 +83,7 @@ export var surveyStrings = {
   timerLimitAll:
     "You have spent {0} of {1} on this page and {2} of {3} in total.",
   timerLimitPage: "You have spent {0} of {1} on this page.",
-  timerLimitSurvey: "You have spent {0} of {1} in total."
+  timerLimitSurvey: "You have spent {0} of {1} in total.",
+  cleanCaption: "Clean"
 };
 surveyLocalization.locales["en"] = surveyStrings;

@@ -92,7 +92,10 @@ export var defaultStandardCss = {
   text: "sv_q_text_root",
   expression: "",
   file: {
-    placeholderInput: "sv_q_file_placeholder"
+    root: "sv_q_file",
+    placeholderInput: "sv_q_file_placeholder",
+    preview: "sv_q_file_preview",
+    removeButton: "sv_q_file_remove_button"
   },
   saveData: {
     root: "",

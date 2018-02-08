@@ -8,6 +8,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     super(props);
     this.state = { fileLoaded: 0 };
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.question.previewValueLoadedCallback = () =>
+      this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   }
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
@@ -16,13 +18,25 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var src = event.target || event.srcElement;
     if (!window["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
-    this.question.loadFile(src.files[0]);
+    let files = [];
+    for (let i = 0; i < src.files.length; i++) {
+      files.push(src.files[i]);
+    }
+    this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   }
+  handleOnClean = event => {
+    var src = event.target || event.srcElement;
+    this.question.clear();
+    src.parentElement.querySelectorAll("input")[0].value = "";
+    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+  };
   render(): JSX.Element {
     if (!this.question) return null;
     var img = this.renderImage();
     var fileInput = null;
+    var clearButton = null;
+    var displayInput = null;
     if (!this.isDisplayMode) {
       fileInput = (
         <input
@@ -30,12 +44,21 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           type="file"
           onChange={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
+          multiple={this.question.allowMultiple}
         />
       );
-    }
-    return (
-      <div className={this.question.cssClasses.root}>
-        {fileInput}
+      if (!!this.question.value) {
+        clearButton = (
+          <button
+            onClick={this.handleOnClean}
+            className={this.question.cssClasses.removeButton}
+          >
+            {this.question.cleanButtonCaption}
+          </button>
+        );
+      }
+    } else {
+      displayInput = (
         <input
           type="text"
           readOnly
@@ -44,22 +67,32 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           }
           placeholder={this.question.title}
         />
+      );
+    }
+    return (
+      <div className={this.question.cssClasses.root}>
+        {fileInput}
+        {clearButton}
+        {displayInput}
         {img}
       </div>
     );
   }
   protected renderImage(): JSX.Element {
     if (!this.question.previewValue) return null;
-    return (
-      <div>
-        {" "}
+    var images = this.question.previewValue.map(val => {
+      if (!val) return null;
+      return (
         <img
-          src={this.question.previewValue}
+          src={val}
+          key={val}
           height={this.question.imageHeight}
           width={this.question.imageWidth}
+          className={this.question.cssClasses.preview}
         />
-      </div>
-    );
+      );
+    });
+    return <div>{images}</div>;
   }
 }
 

@@ -11,6 +11,7 @@ import { surveyLocalization } from "./surveyStrings";
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
   previewValueLoadedCallback: () => void;
+  public previewValue: any[] = [];
   constructor(public name: string) {
     super(name);
   }
@@ -25,6 +26,15 @@ export class QuestionFileModel extends Question {
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);
+  }
+  /**
+   * Set it to true, to allow select multiple files.
+   */
+  public get allowMultiple() {
+    return this.getPropertyValue("allowMultiple", false);
+  }
+  public set allowMultiple(val: boolean) {
+    this.setPropertyValue("allowMultiple", val);
   }
   /**
    * The image height.
@@ -65,39 +75,73 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("maxSize", val);
   }
   /**
+   * The clean files value button caption.
+   */
+  get cleanButtonCaption(): string {
+    return surveyLocalization.getString("cleanCaption");
+  }
+  /**
+   * Clear value programmatically.
+   */
+  public clear() {
+    this.value = undefined;
+    this.previewValue = [];
+    this.fireCallback(this.previewValueLoadedCallback);
+  }
+  /**
    * Load file programmatically.
    * @param file
    */
   public loadFile(file: File) {
-    var self = this;
+    this.loadFiles([file]);
+  }
+  /**
+   * Load multiple files programmatically.
+   * @param files
+   */
+  public loadFiles(files: File[]) {
     if (
       this.survey &&
-      !this.survey.uploadFile(this.name, file, this.storeDataAsText, function(
-        status: string
-      ) {
-        self.isUploading = status == "uploading";
-      })
-    )
+      !files.every(file =>
+        this.survey.uploadFile(
+          this.name,
+          file,
+          this.storeDataAsText,
+          status => (this.isUploading = status === "uploading")
+        )
+      )
+    ) {
       return;
-    this.setFileValue(file);
+    }
+    this.setFilesValue(files);
   }
-  public previewValue: any;
   protected setFileValue(file: File) {
-    if (!FileReader) return;
-    if (!this.showPreview && !this.storeDataAsText) return;
-    if (this.checkFileForErrors(file)) return;
-    var fileReader = new FileReader();
-    var self = this;
-    fileReader.onload = function(e) {
-      if (self.showPreview) {
-        self.previewValue = self.isFileImage(file) ? fileReader.result : null;
-        self.fireCallback(self.previewValueLoadedCallback);
-      }
-      if (self.storeDataAsText) {
-        self.value = fileReader.result;
-      }
-    };
-    fileReader.readAsDataURL(file);
+    this.setFilesValue([file]);
+  }
+  protected setFilesValue(files: File[]) {
+    if (!FileReader) {
+      return;
+    }
+    if (!this.showPreview && !this.storeDataAsText) {
+      return;
+    }
+    if (files.every(file => this.checkFileForErrors(file))) {
+      return;
+    }
+    this.previewValue = [];
+    files.forEach(file => {
+      let fileReader = new FileReader();
+      fileReader.onload = e => {
+        if (this.storeDataAsText) {
+          this.value = (this.value || []).concat([fileReader.result]);
+        }
+        if (this.showPreview && this.isFileImage(file)) {
+          this.previewValue = this.previewValue.concat([fileReader.result]);
+          this.fireCallback(this.previewValueLoadedCallback);
+        }
+      };
+      fileReader.readAsDataURL(file);
+    });
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
@@ -128,6 +172,7 @@ JsonObject.metaData.addClass(
   "file",
   [
     "showPreview:boolean",
+    "allowMultiple:boolean",
     "imageHeight",
     "imageWidth",
     { name: "storeDataAsText:boolean", default: true },

@@ -62,7 +62,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     return "question";
   }
   public get hasTitle(): boolean {
-    return true;
+    return this.getTitleLocation() !== "hidden";
   }
   public get hasDescription(): boolean {
     return this.description != "";
@@ -75,7 +75,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
     return this.getPropertyValue("questionTitleLocation", "default");
   }
   public set titleLocation(value: string) {
+    var isVisibilityChanged =
+      this.titleLocation == "hidden" || value == "hidden";
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    if (isVisibilityChanged && this.survey) {
+      this.survey.questionVisibilityChanged(this, this.visible);
+    }
   }
   /**
    * Return the title location based on question titleLocation property and QuestionTitleLocation of it's parents
@@ -618,7 +623,7 @@ JsonObject.metaData.addClass(
     {
       name: "titleLocation",
       default: "default",
-      choices: ["default", "top", "bottom", "left"]
+      choices: ["default", "top", "bottom", "left", "hidden"]
     }
   ],
   null,

@@ -208,6 +208,29 @@ QUnit.test("Question Title property", function(assert) {
   question.title = "My title";
   assert.equal(question.title, "My title", "get the question name by default");
 });
+QUnit.test("Question titleLocation", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var question1 = new QuestionTextModel("q1");
+  var question2 = new QuestionTextModel("q1");
+  page.addQuestion(question1);
+  page.addQuestion(question2);
+  assert.equal(question1.hasTitle, true, "By default it has title");
+  assert.equal(question1.hasTitleOnTop, true, "By default it has title on top");
+  assert.equal(
+    question2.visibleIndex,
+    1,
+    "the second question has visible index 1"
+  );
+  question1.titleLocation = "hidden";
+  assert.equal(question1.hasTitle, false, "Title is hidden");
+  assert.equal(question1.hasTitleOnTop, false, "It doesn't show on top");
+  assert.equal(
+    question2.visibleIndex,
+    0,
+    "the second question has visible index 0 now"
+  );
+});
 QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

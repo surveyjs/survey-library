@@ -2220,6 +2220,7 @@ export class SurveyModel extends Base
     if (question) {
       textValue.isExists = true;
       name = question.getValueName() + name.substr(firstName.length);
+      name = name.toLocaleLowerCase();
       var values = {};
       values[firstName] = textValue.returnDisplayValue
         ? question.displayValue

@@ -2351,6 +2351,32 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function(
     "Dropdown Matrix Column use text"
   );
 });
+QUnit.test("Survey text preprocessing with camella case, issue #913", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "emailAddress",
+        title: "uses uppercase"
+      },
+      {
+        type: "text",
+        name: "question1",
+        title: "{emailAddress}"
+      }
+    ]
+  });
+  var question = <QuestionTextModel>survey.getQuestionByName("emailAddress");
+  question.value = "john.snow@nightwatch.com";
+  var question1 = <QuestionTextModel>survey.getQuestionByName("question1");
+  assert.equal(
+    question1.fullTitle,
+    "2. john.snow@nightwatch.com",
+    "The value is preprocessed correctly"
+  );
+});
 
 QUnit.test("Survey Markdown - dropdown.choices", function(assert) {
   var survey = new SurveyModel();

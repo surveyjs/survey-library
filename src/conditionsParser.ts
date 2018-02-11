@@ -7,20 +7,43 @@ import {
   ConditionOperand
 } from "./conditions";
 
+export class ConditionsParserError {
+  constructor(public at: number, public code: string) {}
+}
+
 export class ConditionsParser {
+  readonly ERROR_OperatorExpected = "OPERATOR_EXPECTED";
+  readonly ERROR_RightPartExpected = "RIGHTPART_EXPECTED";
+  readonly ERROR_ExpressionExpected = "EXPRESSION_EXPECTED";
+  readonly ERROR_EndExpected = "END_EXPECTED";
   private text: string;
   private root: ConditionNode;
   private expressionNodes: Array<any>;
   private node: any;
   private at: number;
   private length: number;
+  private errorValue: ConditionsParserError;
   public parse(text: string, root: ConditionNode): boolean {
     this.setProperties(text, root);
     return this.parseText();
   }
+  public createCondition(text: string): ConditionNode {
+    var root = new ConditionNode();
+    if (!this.parse(text, root)) {
+      root = null;
+    }
+    return root;
+  }
   public parseExpression(text: string): Operand {
     this.setProperties(text, new ConditionNode());
     return this.readExpressionOperand();
+  }
+  public get error(): ConditionsParserError {
+    return this.errorValue;
+  }
+  private createError(code: string) {
+    if (this.errorValue) return;
+    this.errorValue = new ConditionsParserError(this.at, code);
   }
   private setProperties(text: string, root: ConditionNode) {
     this.text = text;
@@ -31,12 +54,16 @@ export class ConditionsParser {
     this.node = this.root;
     this.expressionNodes = [];
     this.expressionNodes.push(this.node);
+    this.errorValue = null;
   }
   public toString(root: ConditionNode): string {
     return root.toString();
   }
   private parseText(): boolean {
     var res = this.readConditions();
+    if (this.at < this.length) {
+      this.createError(this.ERROR_EndExpected);
+    }
     return res && this.at >= this.length;
   }
   private readConditions(): boolean {
@@ -54,7 +81,10 @@ export class ConditionsParser {
     if (expRes < 0) return false;
     if (expRes == 1) return true;
     var left = this.readExpressionOperand();
-    if (!left) return false;
+    if (!left) {
+      this.createError(this.ERROR_ExpressionExpected);
+      return false;
+    }
     var op = this.readOperator();
     if (!op) {
       if (left.isBoolean) {
@@ -63,6 +93,7 @@ export class ConditionsParser {
         this.addCondition(c);
         return true;
       }
+      this.createError(this.ERROR_OperatorExpected);
       return false;
     }
     var c = new Condition();
@@ -70,7 +101,10 @@ export class ConditionsParser {
     c.operator = op;
     if (!Condition.isNoRightOperation(op)) {
       var right = this.readExpressionOperand();
-      if (!right) return false;
+      if (!right) {
+        this.createError(this.ERROR_RightPartExpected);
+        return false;
+      }
       c.right = right;
     }
     this.addCondition(c);
@@ -286,7 +320,13 @@ export class ConditionsParser {
   }
   private readOperandOperator(): string {
     this.skip();
-    if (this.ch == "+" || this.ch == "-" || this.ch == "*" || this.ch == "/" || this.ch == "%") {
+    if (
+      this.ch == "+" ||
+      this.ch == "-" ||
+      this.ch == "*" ||
+      this.ch == "/" ||
+      this.ch == "%"
+    ) {
       var res = this.ch;
       this.at++;
       return res;

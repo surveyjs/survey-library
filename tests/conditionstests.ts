@@ -7,6 +7,7 @@ import {
   ExpressionOperand,
   ExpressionRunner
 } from "../src/conditions";
+import { parse } from "querystring";
 
 export default QUnit.module("Conditions");
 
@@ -723,3 +724,63 @@ QUnit.test("ExpressionRunner, iif nested using", function(assert) {
   values.a = 1;
   assert.equal(runner.run(values), "low", "1 + 5 < 10");
 });
+
+QUnit.test("ConditionsParser, report error: Operator expected", function(
+  assert
+) {
+  var parser = new ConditionsParser();
+  assert.ok(parser.createCondition("{a} > 5"));
+  assert.notOk(parser.error);
+
+  assert.notOk(parser.createCondition("{a} 5"));
+  assert.ok(parser.error);
+  assert.equal(
+    parser.error.code,
+    parser.ERROR_OperatorExpected,
+    "Error operator is expected"
+  );
+  assert.equal(parser.error.at, 4, "Error at");
+});
+
+QUnit.test("ConditionsParser, report error: Right part is expected", function(
+  assert
+) {
+  var parser = new ConditionsParser();
+  assert.notOk(parser.createCondition("{a} >"));
+  assert.ok(parser.error);
+  assert.equal(
+    parser.error.code,
+    parser.ERROR_RightPartExpected,
+    "Right expression is expected"
+  );
+  assert.equal(parser.error.at, 5, "Error at");
+});
+
+QUnit.test("ConditionsParser, report error: Expression is expected", function(
+  assert
+) {
+  var parser = new ConditionsParser();
+  assert.notOk(parser.createCondition("{a} > 1 and"));
+  assert.ok(parser.error);
+  assert.equal(
+    parser.error.code,
+    parser.ERROR_ExpressionExpected,
+    "Expression is expected"
+  );
+  assert.equal(parser.error.at, 11, "Error at");
+});
+
+QUnit.test(
+  "ConditionsParser, report error: End is  expected",
+  function(assert) {
+    var parser = new ConditionsParser();
+    assert.notOk(parser.createCondition("({a} > 1))"));
+    assert.ok(parser.error);
+    assert.equal(
+      parser.error.code,
+      parser.ERROR_EndExpected,
+      "Endd is expected"
+    );
+    assert.equal(parser.error.at, 9, "Error at");
+  }
+);

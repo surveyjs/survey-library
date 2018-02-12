@@ -124,6 +124,7 @@ export class Panel extends PanelModel {
     this.koIsExpanded(this.isExpanded);
   }
   private changeExpanded() {
+    if (!this.isCollapsed && !this.isExpanded) return;
     if (this.isCollapsed) {
       this.expand();
     } else {

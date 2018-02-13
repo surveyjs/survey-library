@@ -361,7 +361,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     return this.colCountValue;
   }
   public set colCount(value: number) {
-    if (value < 0 || value > 4) return;
+    if (value < 0 || value > 5) return;
     this.colCountValue = value;
     this.fireCallback(this.colCountChangedCallback);
   }
@@ -405,7 +405,7 @@ JsonObject.metaData.addClass(
 
 JsonObject.metaData.addClass(
   "checkboxbase",
-  [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4] }],
+  [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4, 5] }],
   null,
   "selectbase"
 );

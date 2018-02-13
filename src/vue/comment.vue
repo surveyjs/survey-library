@@ -12,6 +12,8 @@
     import {QuestionCommentModel} from '../question_comment'
 
     @Component
-    export default class Comment extends Question<QuestionCommentModel> {}
+    export class Comment extends Question<QuestionCommentModel> {}
     Vue.component("survey-comment", Comment)
+
+    export default Comment;
 </script>

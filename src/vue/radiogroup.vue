@@ -20,7 +20,7 @@
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 
     @Component
-    export default class Radiogroup extends Question<QuestionRadiogroupModel> {
+    export class Radiogroup extends Question<QuestionRadiogroupModel> {
         // TODO may be need to move to the model
         get colWidth() {
             var colCount = this.question.colCount;
@@ -36,4 +36,5 @@
         }
     }
     Vue.component("survey-radiogroup", Radiogroup)
+    export default Radiogroup;
 </script>

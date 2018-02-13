@@ -12,11 +12,12 @@
     import {Question} from '../question'
 
     @Component
-    export default class OtherChoice extends Vue {
+    export class OtherChoice extends Vue {
         @Prop
         question: Question
         @Prop
         commentClass: any
     }
     Vue.component("survey-other-choice", OtherChoice)
+    export default OtherChoice;
 </script>

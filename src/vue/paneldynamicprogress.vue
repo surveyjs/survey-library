@@ -16,7 +16,7 @@ import { PanelModel } from "../panel";
 import { QuestionPanelDynamicModel } from "../question_paneldynamic";
 
 @Component
-export default class PanelDynamicProgress extends Vue {
+export class PanelDynamicProgress extends Vue {
   @Prop question: QuestionPanelDynamicModel;
 
   get rangeMax() {
@@ -38,4 +38,5 @@ export default class PanelDynamicProgress extends Vue {
 }
 
 Vue.component("survey-paneldynamicprogress", PanelDynamicProgress);
+    export default PanelDynamicProgress;
 </script>

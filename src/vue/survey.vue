@@ -47,7 +47,7 @@ import { surveyCss } from "../defaultCss/cssstandard";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
 
 @Component
-export default class Survey extends Vue {
+export class Survey extends Vue {
   @Prop survey: SurveyModel;
 
   forceUpdate() {
@@ -117,4 +117,5 @@ Object.defineProperty(Survey, "cssType", {
 });
 
 Vue.component("survey", Survey);
+    export default Survey;
 </script>

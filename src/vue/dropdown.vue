@@ -18,7 +18,7 @@ import { default as Question } from "./question";
 import { QuestionDropdownModel } from "../question_dropdown";
 
 @Component
-export default class Dropdown extends Question<QuestionDropdownModel> {
+export class Dropdown extends Question<QuestionDropdownModel> {
   get value() {
     return !this.question.isEmpty() ? this.question.value : "";
   }
@@ -32,4 +32,5 @@ export default class Dropdown extends Question<QuestionDropdownModel> {
   }
 }
 Vue.component("survey-dropdown", Dropdown);
+    export default Dropdown;
 </script>

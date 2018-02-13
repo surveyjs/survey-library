@@ -32,7 +32,7 @@
     import {QuestionMatrixModel} from '../question_matrix'
 
     @Component
-    export default class Matrix extends Question<QuestionMatrixModel> {
+    export class Matrix extends Question<QuestionMatrixModel> {
         getItemClass(row, column) {
             var isChecked = row.value == column.value;
             let itemClass = this.question.cssClasses.label + (isChecked ? " checked" : "");
@@ -40,4 +40,5 @@
         }
     }
     Vue.component("survey-matrix", Matrix)
+    export default Matrix;
 </script>

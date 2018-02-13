@@ -16,7 +16,7 @@ import { default as Question } from "./question";
 import { QuestionFileModel } from "../question_file";
 
 @Component
-export default class File extends Question<QuestionFileModel> {
+export class File extends Question<QuestionFileModel> {
   hasValue = false;
   doChange(e) {
     var src = e.target || e.srcElement;
@@ -40,4 +40,5 @@ export default class File extends Question<QuestionFileModel> {
   }
 }
 Vue.component("survey-file", File);
+    export default File;
 </script>

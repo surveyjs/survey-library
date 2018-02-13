@@ -14,7 +14,7 @@ import { Question as QuestionModel } from "../question";
 import { MatrixDropdownCell } from "../question_matrixdropdownbase";
 
 @Component
-export default class MatrixCell extends Vue {
+export class MatrixCell extends Vue {
   @Prop question: Question;
   @Prop cell: MatrixDropdownCell;
   getWidgetComponentName(element: QuestionModel) {
@@ -40,4 +40,5 @@ export default class MatrixCell extends Vue {
 }
 
 Vue.component("survey-matrixcell", MatrixCell);
+    export default MatrixCell;
 </script>

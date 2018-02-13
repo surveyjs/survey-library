@@ -9,7 +9,8 @@
     import {QuestionExpressionModel} from '../question_expression'
 
     @Component
-    export default class Expression extends Question<QuestionExpressionModel> {
+    export class Expression extends Question<QuestionExpressionModel> {
     }
     Vue.component("survey-expression", Expression)
+    export default Expression;
 </script>

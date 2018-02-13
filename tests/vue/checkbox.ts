@@ -1,7 +1,7 @@
 import Vue from "vue";
 import { VueSurveyModel } from "../../src/vue/surveyModel";
-import Checkbox from "../../src/vue/checkbox.vue";
-export { default as OtherChoice } from "../../src/vue/otherChoice.vue";
+import { Checkbox } from "../../src/vue/checkbox.vue";
+export { OtherChoice } from "../../src/vue/otherChoice.vue";
 import { QuestionCheckboxModel } from "../../src/question_checkbox";
 
 export default QUnit.module("vueTests");

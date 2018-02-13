@@ -19,7 +19,7 @@ import { default as Question } from "./question";
 import { QuestionRatingModel } from "../question_rating";
 
 @Component
-export default class Rating extends Question<QuestionRatingModel> {
+export class Rating extends Question<QuestionRatingModel> {
   getCss(question: QuestionRatingModel, item) {
     let css = question.cssClasses.item;
     if (question.value == item.value) {
@@ -32,4 +32,5 @@ export default class Rating extends Question<QuestionRatingModel> {
   }
 }
 Vue.component("survey-rating", Rating);
+    export default Rating;
 </script>

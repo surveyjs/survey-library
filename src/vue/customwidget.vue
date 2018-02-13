@@ -16,7 +16,7 @@
     import {helpers} from './helpers'
 
     @Component
-    export default class CustomWidget extends Vue {
+    export class CustomWidget extends Vue {
         @Prop
         css: any
         @Prop
@@ -44,4 +44,6 @@
         }
     }
     Vue.component("survey-customwidget", CustomWidget)
+
+    export default CustomWidget;
 </script>

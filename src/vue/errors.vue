@@ -13,9 +13,10 @@
     import {Question as QuestionModel} from '../question'
 
     @Component
-    export default class Errors extends Vue {
+    export class Errors extends Vue {
         @Prop
         question: QuestionModel
     }
     Vue.component("survey-errors", Errors)
+    export default Errors;
 </script>

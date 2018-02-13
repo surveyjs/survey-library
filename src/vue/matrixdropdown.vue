@@ -25,7 +25,7 @@ import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 
 @Component
-export default class MatrixDropdown extends Question<
+export class MatrixDropdown extends Question<
   QuestionMatrixDropdownModel
 > {
   get rows() {
@@ -34,4 +34,5 @@ export default class MatrixDropdown extends Question<
 }
 
 Vue.component("survey-matrixdropdown", MatrixDropdown);
+    export default MatrixDropdown;
 </script>

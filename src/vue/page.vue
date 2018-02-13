@@ -21,7 +21,7 @@
     @Component({
         mixins: [helpers]
     })
-    export default class Page extends Vue {
+    export class Page extends Vue {
         @Prop
         survey: SurveyModel
         @Prop
@@ -54,4 +54,5 @@
         }
     }
     Vue.component("survey-page", Page)
+    export default Page;
 </script>

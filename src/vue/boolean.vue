@@ -15,7 +15,7 @@
     import {QuestionBooleanModel} from '../question_boolean'
 
     @Component
-    export default class Boolean extends Question<QuestionBooleanModel> {
+    export class Boolean extends Question<QuestionBooleanModel> {
         get itemClass() {
             let isChecked = this.question.checkedValue;
             let itemClass = this.question.cssClasses.item + (isChecked ? " checked" : "");
@@ -23,4 +23,6 @@
         }
     }
     Vue.component("survey-boolean", Boolean)
+
+    export default Boolean;
 </script>

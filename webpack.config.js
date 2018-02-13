@@ -164,39 +164,49 @@ module.exports = function(options) {
       rules: [
         {
           test: /\.(ts|tsx)$/,
-          loader: "ts-loader",
-          options: {
-            compilerOptions: {
-              declaration: options.buildType === "prod",
-              outDir: packagePath + "typings/"
-            },
-            appendTsSuffixTo: [/\.vue$/]
+          use: {
+            loader: "ts-loader",
+            options: {
+              compilerOptions: {
+                declaration: options.buildType === "prod",
+                outDir: packagePath + "typings/"
+              },
+              appendTsSuffixTo: [/\.vue$/]
+            }
           }
         },
         {
           test: /\.vue$/,
-          loader: "vue-loader",
-          options: {
-            esModule: true
-          }
+          use: { loader: "vue-loader" }
         },
         {
           test: /\.scss$/,
-          loader: extractCSS.extract({
-            fallbackLoader: "style-loader",
-            loader: "css-loader!sass-loader"
+          use: extractCSS.extract({
+            fallback: "style-loader",
+            use: [
+              {
+                loader: "css-loader",
+                options: {
+                  sourceMap: true,
+                  importLoaders: true
+                }
+              },
+              {
+                loader: "sass-loader",
+                options: {
+                  sourceMap: true
+                }
+              }
+            ]
           })
         },
         {
           test: /\.svg/,
-          use: {
-            loader: "url-loader",
-            options: {}
-          }
+          use: { loader: "url-loader" }
         },
         {
           test: /\.html$/,
-          loader: "html-loader"
+          use: { loader: "html-loader" }
         }
       ]
     },
@@ -221,21 +231,6 @@ module.exports = function(options) {
     ],
     devtool: "inline-source-map"
   };
-
-  if (options.platform === "angular" || options.platform === "jquery") {
-    config.resolve.alias["react"] = "preact-compat";
-    config.resolve.alias["react-dom"] = "preact-compat";
-
-    // TODO because of preact-compat https://github.com/developit/preact-compat/issues/192 need to better decision
-    config.module.rules.push({
-      loader: "babel-loader",
-      include: [path.join(__dirname, "./node_modules/preact-compat/src")],
-      options: {
-        presets: [["latest", { modules: false }]]
-      }
-    });
-    // EO TODO
-  }
 
   if (options.buildType === "prod") {
     config.devtool = false;

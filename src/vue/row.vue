@@ -15,7 +15,7 @@
     @Component({
         mixins: [helpers]
     })
-    export default class Row extends Vue {
+    export class Row extends Vue {
         @Prop
         row: any
         @Prop
@@ -31,4 +31,5 @@
         }
     }
     Vue.component("survey-row", Row)
+    export default Row;
 </script>

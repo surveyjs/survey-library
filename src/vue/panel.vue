@@ -25,7 +25,7 @@ import { helpers } from "./helpers";
 @Component({
   mixins: [helpers]
 })
-export default class Panel extends Vue {
+export class Panel extends Vue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;
   @Prop css: any;
@@ -73,4 +73,5 @@ export default class Panel extends Vue {
   }
 }
 Vue.component("survey-panel", Panel);
+    export default Panel;
 </script>

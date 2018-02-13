@@ -28,7 +28,7 @@ import { Question as QuestionModel } from "../question";
 import { helpers } from "./helpers";
 
 @Component
-export default class SurveyElement extends Vue {
+export class SurveyElement extends Vue {
   @Prop css: any;
   @Prop survey: SurveyModel;
   @Prop element: IElement;
@@ -54,4 +54,5 @@ export default class SurveyElement extends Vue {
   }
 }
 Vue.component("survey-element", SurveyElement);
+    export default SurveyElement;
 </script>

@@ -12,10 +12,11 @@
     import {QuestionTextModel} from '../question_text'
 
     @Component
-    export default class Text extends Question<QuestionTextModel> {
+    export class Text extends Question<QuestionTextModel> {
         change(event) {
             this.question.value = event.target.value;
         }
     }
     Vue.component("survey-text", Text)
+    export default Text;
 </script>

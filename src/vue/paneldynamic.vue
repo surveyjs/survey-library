@@ -22,7 +22,7 @@
     import {QuestionPanelDynamicModel} from '../question_paneldynamic'
 
     @Component
-    export default class PanelDynamic extends Question<QuestionPanelDynamicModel> {
+    export class PanelDynamic extends Question<QuestionPanelDynamicModel> {
         get renderedPanels() {
             if(this.question.isRenderModeList) return this.question.panels;
             var panels = [];
@@ -39,4 +39,5 @@
         }
     }
     Vue.component("survey-paneldynamic", PanelDynamic)
+    export default PanelDynamic;
 </script>

@@ -30,7 +30,7 @@ import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 
 @Component
-export default class MatrixDynamic extends Question<
+export class MatrixDynamic extends Question<
   QuestionMatrixDynamicModel
 > {
   get rows() {
@@ -48,4 +48,5 @@ export default class MatrixDynamic extends Question<
   }
 }
 Vue.component("survey-matrixdynamic", MatrixDynamic);
+    export default MatrixDynamic;
 </script>

@@ -11,10 +11,11 @@
     import {LocalizableString} from "../localizablestring";
 
     @Component
-    export default class SurveyString extends Vue {
+    export class SurveyString extends Vue {
         @Prop
         locString: LocalizableString
     }
 
     Vue.component("survey-string", SurveyString)
+    export default SurveyString;
 </script>

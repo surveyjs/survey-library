@@ -21,7 +21,7 @@
     import {VueSurveyWindowModel} from './surveyModel'
 
     @Component
-    export default class Window extends Vue {
+    export class Window extends Vue {
         @Prop
         window: SurveyWindowModel
         @Prop
@@ -58,4 +58,5 @@
         }
     }
     Vue.component("survey-window", Window)
+    export default Window;
 </script>

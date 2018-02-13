@@ -19,10 +19,11 @@
     import {QuestionMultipleTextModel} from '../question_multipletext'
 
     @Component
-    export default class MultipleText extends Question<QuestionMultipleTextModel> {
+    export class MultipleText extends Question<QuestionMultipleTextModel> {
         change(item, event) {
             item.value = event.target.value;
         }
     }
     Vue.component("survey-multipletext", MultipleText)
+    export default MultipleText;
 </script>

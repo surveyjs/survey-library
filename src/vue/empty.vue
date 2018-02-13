@@ -9,7 +9,8 @@
     import {QuestionEmptyModel} from '../question_empty'
 
     @Component
-    export default class Empty extends Question<QuestionEmptyModel> {
+    export class Empty extends Question<QuestionEmptyModel> {
     }
     Vue.component("survey-empty", Empty)
+    export default Empty;
 </script>

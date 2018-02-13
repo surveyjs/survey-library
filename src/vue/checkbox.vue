@@ -19,7 +19,7 @@
     import {QuestionCheckboxModel} from '../question_checkbox'
 
     @Component
-    export default class Checkbox extends Question<QuestionCheckboxModel> {
+    export class Checkbox extends Question<QuestionCheckboxModel> {
         get value() {
             if(this.innerValue === null) {
                 this.innerValue = !this.question.isEmpty() ? this.question.value : [];
@@ -45,4 +45,5 @@
         }
     }
     Vue.component("survey-checkbox", Checkbox)
+    export default Checkbox;
 </script>

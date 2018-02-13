@@ -8,7 +8,7 @@
     import {SurveyModel} from '../survey'
 
     @Component
-    export default class TimerPanel extends Vue {
+    export class TimerPanel extends Vue {
         @Prop
         survey: SurveyModel
         @Prop
@@ -18,4 +18,5 @@
         }
     }
     Vue.component("survey-timerpanel", TimerPanel)
+    export default TimerPanel;
 </script>

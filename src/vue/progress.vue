@@ -14,7 +14,7 @@
     import {SurveyModel} from '../survey'
 
     @Component
-    export default class Progress extends Vue {
+    export class Progress extends Vue {
         @Prop
         survey: SurveyModel
         @Prop
@@ -24,4 +24,5 @@
         }
     }
     Vue.component("survey-progress", Progress)
+    export default Progress;
 </script>

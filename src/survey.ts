@@ -511,6 +511,18 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to define, if the answer on the question is correct or not.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a question on which you have to decide if the answer is correct or not.
+   * <br/> options.result return true, if the answer is correct or false if the answer is not correct. Use questions value and correctAnswer properties to return the correct value.
+   * @see Question.value
+   * @see Question.correctAnswer
+   */
+  public onIsAnswerCorrect: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
    * @see JsonError
    */
@@ -2515,8 +2527,12 @@ export class SurveyModel extends Base
   public getCorrectedAnswerCount(): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
+    var options = { question: null, result: false };
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].isAnswerCorrect()) counter++;
+      options.question = questions[i];
+      options.result = options.question.isAnswerCorrect();
+      this.onIsAnswerCorrect.fire(this, options);
+      if (options.result) counter++;
     }
     return counter;
   }

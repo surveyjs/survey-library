@@ -14,6 +14,18 @@ export class Helpers {
     }
     return !value && value !== 0 && value !== false;
   }
+  public static isArrayContainsEqual(x: any, y: any): boolean {
+    if (!Array.isArray(x) || !Array.isArray(y)) return false;
+    if (x.length !== y.length) return false;
+    for (var i = 0; i < x.length; i++) {
+      var j = 0;
+      for (; j < y.length; j++) {
+        if (Helpers.isTwoValueEquals(x[i], y[j])) break;
+      }
+      if (j === y.length) return false;
+    }
+    return true;
+  }
   public static isTwoValueEquals(x: any, y: any): boolean {
     if (x === y) return true;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;

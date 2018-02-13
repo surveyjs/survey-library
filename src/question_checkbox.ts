@@ -1,6 +1,7 @@
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
+import { Helpers } from "./helpers";
 
 /**
  * A Model for a checkbox question
@@ -23,7 +24,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return str;
   }
-
+  public isAnswerCorrect(): boolean {
+    return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
+  }
   protected getHasOther(val: any): boolean {
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(this.otherItem.value) >= 0;

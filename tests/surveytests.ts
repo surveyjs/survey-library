@@ -3295,6 +3295,54 @@ QUnit.test("Quiz, correct, incorrect answers", function(assert) {
   );
 });
 
+QUnit.test(
+  "Quiz, correct, incorrect answers and onIsAnswerCorrect event",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var q1 = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
+    q1.choices = [1, 2, 3, 4];
+    q1.correctAnswer = [2, 3];
+    q1.value = [1];
+    assert.equal(
+      survey.getCorrectedAnswerCount(),
+      0,
+      "The answer is incorrected"
+    );
+    q1.value = [3, 2];
+    assert.equal(
+      survey.getCorrectedAnswerCount(),
+      1,
+      "The answer is corrected now"
+    );
+    survey.onIsAnswerCorrect.add(function(survey, options){
+      var x = options.question.value;
+      var y = options.question.correctAnswer;
+      var res = x.length == y.length;
+      if(res) {
+        for(var i = 0; i < x.length; i ++) {
+          if(x[i] != y[i]) {
+            res = false;
+            break;
+          }
+        }
+      }
+      options.result = res;
+    });
+    assert.equal(
+      survey.getCorrectedAnswerCount(),
+      0,
+      "The order is important now"
+    );
+    q1.value = [2, 3];
+    assert.equal(
+      survey.getCorrectedAnswerCount(),
+      1,
+      "The order is correct"
+    );
+  }
+);
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

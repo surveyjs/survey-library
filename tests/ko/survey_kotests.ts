@@ -938,6 +938,48 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
+  assert
+) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "pdynamic",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            defaultValue: "value1"
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            defaultValue: "item2",
+            choices: ["item1", "item2", "item3"]
+          }
+        ],
+        panelCount: 1
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  var panel = <QuestionPanelDynamic>survey.getQuestionByName("pdynamic");
+  var q1 = <Question>panel.panels[0].questions[0];
+  var q2 = <Question>panel.panels[0].questions[1];
+  assert.equal(q1.value, "value1", "The default value set to q1.value");
+  assert.equal(q2.value, "item2", "The default value set to q2.value");
+  assert.equal(
+    q1["koValue"](),
+    "value1",
+    "The default value set to q1.koValue()"
+  );
+  assert.equal(
+    q2["koValue"](),
+    "item2",
+    "The default value set to q2.koValue()"
+  );
+});
 
 function createPageWithQuestion(name: string): Page {
   var page = new Page(name);

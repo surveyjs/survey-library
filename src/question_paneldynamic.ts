@@ -886,8 +886,15 @@ export class QuestionPanelDynamicModel extends Question
   }
   getPanelItemData(item: QuestionPanelDynamicItem): any {
     var index = this.items.indexOf(item);
-    if (index < 0) return {};
     var qValue = this.value;
+    if (
+      index < 0 &&
+      Array.isArray(qValue) &&
+      qValue.length > this.items.length
+    ) {
+      index = qValue.length - 1;
+    }
+    if (index < 0) return {};
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};
     return qValue[index];
   }

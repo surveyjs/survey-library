@@ -21,7 +21,7 @@
     "doc_update": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docupdater.ts",
     "lint": "tslint ./src/**/*.ts -t verbose"
   },
-  "version": "1.0.7",
+  "version": "1.0.8",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
@@ -30,8 +30,8 @@
     "@types/knockout": "3.4.46",
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
-    "@types/react": "^16.0.34",
-    "@types/react-dom": "^16.0.3",
+    "@types/react": "^16.0.38",
+    "@types/react-dom": "^16.0.4",
     "ajv": "4.11.2",
     "concurrently": "3.1.0",
     "css-loader": "0.26.1",

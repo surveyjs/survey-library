@@ -178,11 +178,11 @@ export class Survey extends React.Component<any, any>
     if (this.survey.title && this.survey.showTitle) {
       title = SurveyElementBase.renderLocString(this.survey.locTitle);
     }
-    return (
+    return title ? (
       <div className={this.css.header}>
         <h3>{title}</h3>
       </div>
-    );
+    ) : null;
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;

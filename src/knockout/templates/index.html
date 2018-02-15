@@ -4,8 +4,8 @@
     <div data-bind="css: css.root, afterRender: koEventAfterRender">
         <div class="sv_custom_header"></div>
         <div class="sv_container">
-            <div data-bind="css: css.header">
-                <h3 data-bind="visible: (title.length > 0) && showTitle && koState() == 'running'">
+            <div data-bind="css: css.header, visible: (title.length > 0) && showTitle && koState() == 'running'">
+                <h3>
                     <!-- ko template: { name: 'survey-string', data: locTitle } -->
                     <!-- /ko -->
                 </h3>

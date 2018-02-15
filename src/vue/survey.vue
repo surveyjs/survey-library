@@ -2,7 +2,7 @@
     <div :class="css.root">
         <div class="sv_custom_header"></div>
         <div class="sv_container">
-          <div :class="css.header"><h3 v-if="hasTitle"><survey-string :locString="survey.locTitle"/></h3></div>
+          <div v-if="hasTitle" :class="css.header"><h3><survey-string :locString="survey.locTitle"/></h3></div>
           <template v-if="survey.state === 'starting'">
               <div :class="css.body">
                 <survey-page :id="survey.startedPage.id" :survey="survey" :page="survey.startedPage" :css="css" />
@@ -117,5 +117,5 @@ Object.defineProperty(Survey, "cssType", {
 });
 
 Vue.component("survey", Survey);
-    export default Survey;
+export default Survey;
 </script>

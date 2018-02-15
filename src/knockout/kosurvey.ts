@@ -161,34 +161,28 @@ export class Survey extends SurveyModel {
   protected onBeforeCreating() {
     var self = this;
     this.dummyObservable = ko.observable(0);
-    this.koCurrentPage = ko.computed(function() {
-      self.dummyObservable();
-      return self.currentPage;
+    this.koCurrentPage = ko.observable(this.currentPage);
+    this.koIsNavigationButtonsShowing = ko.computed(() => {
+      this.dummyObservable();
+      return this.isNavigationButtonsShowing;
     });
-    this.koIsNavigationButtonsShowing = ko.computed(function() {
-      self.dummyObservable();
-      return self.isNavigationButtonsShowing;
+    this.koIsFirstPage = ko.computed(() => {
+      this.dummyObservable();
+      return this.isFirstPage;
     });
-    this.koIsFirstPage = ko.computed(function() {
-      self.dummyObservable();
-      return self.isFirstPage;
+    this.koIsLastPage = ko.computed(() => {
+      this.dummyObservable();
+      return this.isLastPage;
     });
-    this.koIsLastPage = ko.computed(function() {
-      self.dummyObservable();
-      return self.isLastPage;
+    this.koProgressText = ko.computed(() => {
+      this.dummyObservable();
+      return this.progressText;
     });
-    this.koProgressText = ko.computed(function() {
-      self.dummyObservable();
-      return self.progressText;
+    this.koProgress = ko.computed(() => {
+      this.dummyObservable();
+      return this.getProgress();
     });
-    this.koProgress = ko.computed(function() {
-      self.dummyObservable();
-      return self.getProgress();
-    });
-    this.koState = ko.computed(function() {
-      self.dummyObservable();
-      return self.state;
-    });
+    this.koState = ko.observable(this.state);
     this.koCompletedState = ko.observable("");
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
@@ -237,6 +231,10 @@ export class Survey extends SurveyModel {
   private updateKoCurrentPage() {
     if (this.isLoadingFromJson) return;
     this.dummyObservable(this.dummyObservable() + 1);
+    if (this.currentPage !== this.koCurrentPage()) {
+      this.koCurrentPage(this.currentPage);
+    }
+    this.koState(this.state);
   }
   private updateCurrentPageQuestions() {
     var questions = this.currentPage ? this.currentPage.questions : [];

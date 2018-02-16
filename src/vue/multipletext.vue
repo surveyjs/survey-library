@@ -1,6 +1,6 @@
 <template>
     <table :class="question.cssClasses.root">
-        <tr v-for="row in question.getRows()" :class="question.cssClasses.row">
+        <tr v-for="(row, rowindex) in question.getRows()" :key="question.inputId + 'rowkey' + rowindex" :class="question.cssClasses.row">
             <template v-for="(item, index) in row">
                 <td :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>

@@ -4,7 +4,7 @@
         <button v-if="hasValue" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <input v-if="question.isReadOnly" type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
         <div v-if="hasValue">
-            <img v-for="val in question.previewValue" v-show="val" :class="question.cssClasses.preview" :src="val" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
+            <img v-for="(val, index) in question.previewValue" :key="question.inputId + 'key' + index" v-show="val" :class="question.cssClasses.preview" :src="val" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
         </div>
     </div>
 </template>

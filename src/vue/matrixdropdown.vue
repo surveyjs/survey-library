@@ -8,9 +8,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows">
+                <tr v-for="(row, rowindex) in rows" :key="question.inputId + 'rowkey' + rowindex">
                     <td><survey-string :locString="row.locText"/></td>
-                    <survey-matrixcell :question="question" :cell="cell" v-for="cell in row.cells" />
+                    <survey-matrixcell :question="question" :cell="cell" v-for="(cell, index) in row.cells" :key="question.inputId + 'rowkey' + rowindex + 'cell' + index"/>
                 </tr>
             </tbody>
         </table>

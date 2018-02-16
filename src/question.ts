@@ -104,18 +104,18 @@ export class Question extends QuestionBase implements IValidatorOwner {
     return location;
   }
   get hasTitleOnLeft(): boolean {
-    return this.hasTitle && this.getTitleLocation() == "left";
+    return this.hasTitle && this.getTitleLocation() === "left";
   }
   get hasTitleOnTop(): boolean {
-    return this.hasTitle && this.getTitleLocation() == "top";
+    return this.hasTitle && this.getTitleLocation() === "top";
   }
   get hasTitleOnBottom(): boolean {
-    return this.hasTitle && this.getTitleLocation() == "bottom";
+    return this.hasTitle && this.getTitleLocation() === "bottom";
   }
   get hasTitleOnLeftTop(): boolean {
     if (!this.hasTitle) return false;
     var location = this.getTitleLocation();
-    return location == "left" || location == "top";
+    return location === "left" || location === "top";
   }
   public get errorLocation(): string {
     return this.survey ? this.survey.questionErrorLocation : "top";

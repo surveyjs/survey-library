@@ -13,7 +13,7 @@
                 <survey-other-choice :commentClass="css.comment" :question="element"/>
             </div>
             <survey-errors v-if="hasErrorsOnBottom" :question="element"/>
-            <h5 v-if="element.hasTitle" v-show="element.hasTitleOnBottom" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
+            <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
             <div v-if="element.hasDescription" :class="element.cssClasses.description" v-show="element.hasTitleOnBottom"><survey-string :locString="element.locDescription"/></div>
         </div>
     </div>

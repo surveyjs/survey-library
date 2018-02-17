@@ -3,7 +3,7 @@
         <div v-if="!question.isReadOnly" :class="question.cssClasses.selectWrapper">
             <select :id="question.inputId" v-model="value" :class="question.cssClasses.control" v-bind:aria-label="question.locTitle.renderedHtml">
                 <option value=''>{{question.optionsCaption}}</option>
-                <option v-for="(item, index) in question.visibleChoices" :value="item.value">{{item.text}}</option>
+                <option v-for="(item, index) in question.visibleChoices" :key="question.inputId + 'key' + index" :value="item.value">{{item.text}}</option>
             </select>
         </div>
         <div v-else :class="question.cssClasses.control">{{isOtherSelected ? question.otherText : question.displayValue}}</div>

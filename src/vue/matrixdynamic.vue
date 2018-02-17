@@ -8,8 +8,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows">
-                    <survey-matrixcell :question="question" :cell="cell" v-for="cell in row.cells" />
+                <tr v-for="(row, rowindex) in rows" :key="question.inputId + 'rowkey' + rowindex">
+                    <survey-matrixcell :question="question" :cell="cell" v-for="(cell, index) in row.cells" :key="question.inputId + 'rowkey' + rowindex + 'cell' + index"/>
                     <td v-if="!question.isReadOnly">
                         <input type="button" v-if="question.canRemoveRow" :class="question.cssClasses.button" :value="question.removeRowText" @click="removeRowClick(row)" />
                     </td>

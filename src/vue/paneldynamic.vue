@@ -1,7 +1,7 @@
 <template>
     <div :class="question.cssClasses.root">
         <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" />
-        <div v-for="panel in renderedPanels">
+        <div v-for="(panel, index) in renderedPanels" :key="panel.inputId + 'key' + index">
             <survey-panel :question="panel" :css="css"/>
             <div v-if="!question.isReadOnly">
                 <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button" :value="question.panelRemoveText" @click="removePanelClick(panel)" />

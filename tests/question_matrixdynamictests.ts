@@ -578,6 +578,35 @@ QUnit.test("Matrixdropdown booleanDefaultValue", function(assert) {
   );
 });
 
+QUnit.test("Matrixdropdown defaultValue", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        defaultValue: { row1: { col1: 1 } },
+        columns: [
+          {
+            name: "col1",
+            choices: [1, 2, 3]
+          }
+        ],
+        rows: [
+          {
+            value: "row1"
+          }
+        ]
+      }
+    ]
+  });
+  var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  assert.deepEqual(
+    question.value,
+    { row1: { col1: 1 } },
+    "default value has been assign"
+  );
+});
+
 QUnit.test("Matrixdropdown isRequiredInAllRows", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   question.rowCount = 2;

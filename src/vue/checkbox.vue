@@ -1,6 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :key="question.inputId + 'key' + index" :class="getItemClass(item)" :style="{'display': 'inline-block', width: colWidth}">
+        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" :style="{'display': 'inline-block', width: colWidth}">
             <label :class="question.cssClasses.label">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span class="checkbox-material"><span class="check"></span></span>

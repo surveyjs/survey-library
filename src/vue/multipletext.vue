@@ -1,7 +1,7 @@
 <template>
     <table :class="question.cssClasses.root">
         <tr v-for="(row, rowindex) in question.getRows()" :key="question.inputId + 'rowkey' + rowindex" :class="question.cssClasses.row">
-            <template v-for="(item, index) in row">
+            <template v-for="item in row">
                 <td :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
                 <td>
                     <input v-if="!question.isReadOnly" :id="item.id" :class="question.cssClasses.itemValue" :type="item.inputType" :size="question.itemSize" :placeholder="item.placeHolder" :value="item.value" @change="change(item, $event)" v-bind:aria-label="question.locTitle.renderedHtml"/>

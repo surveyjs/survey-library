@@ -11,14 +11,14 @@ var fs = require("fs");
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2017 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)"
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = [
   "Type definitions for Survey JavaScript library v" + packageJson.version,
-  "Project: http://surveyjs.io/",
+  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
   ""
 ].join("\n");
@@ -232,6 +232,9 @@ module.exports = function(options) {
         "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version)
       }),
+      new webpack.BannerPlugin({
+        banner: banner
+      }),
       extractCSS
     ],
     devtool: "inline-source-map"
@@ -241,7 +244,6 @@ module.exports = function(options) {
     config.devtool = false;
     config.plugins = config.plugins.concat([
       new webpack.optimize.UglifyJsPlugin(),
-      new webpack.BannerPlugin(banner),
       new GenerateJsonPlugin(
         packagePath + "package.json",
         packagePlatformJson,

@@ -14,7 +14,7 @@
 
 <script lang="ts">
     import Vue from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
+    import {Component, Prop, Watch} from 'vue-property-decorator'
     import {surveyCss} from "../defaultCss/cssstandard"
     import {SurveyModel} from '../survey'
     import {SurveyWindowModel} from '../surveyWindow'

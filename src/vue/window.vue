@@ -26,6 +26,8 @@
         window: SurveyWindowModel
         @Prop
         survey: SurveyModel
+        @Prop
+        isExpanded: boolean
 
         surveyWindow: SurveyWindowModel
         constructor () {
@@ -36,6 +38,9 @@
                 this.surveyWindow = new VueSurveyWindowModel(null, this.survey);
             }
             this.surveyWindow.isShowing = true;
+            if(this.isExpanded !== undefined) {
+                this.surveyWindow.isExpanded = this.isExpanded;
+            }
             
             var self = this;
             this.surveyWindow.survey.onComplete.add(function(survey, options) {
@@ -49,12 +54,16 @@
             return surveyCss.getCss();
         }
         get expandedCss() {
-            return this.surveyWindow.isExpanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
+            return this.isExpanded ? this.css.window.header.buttonCollapsed : this.css.window.header.buttonExpanded;
         }
-        get isExpanded(): boolean { return this.surveyWindow.isExpanded; }
+
+        @Watch("isExpanded")
+        changeQuestion(new_val: boolean, old_val: boolean) {
+            this.surveyWindow.isExpanded = new_val;
+        }
 
         doExpand() {
-            this.surveyWindow.isExpanded = !this.surveyWindow.isExpanded;
+            this.isExpanded = !this.isExpanded;
         }
     }
     Vue.component("survey-window", Window)

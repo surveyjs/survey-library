@@ -71,7 +71,6 @@ export class SurveyWindow extends Survey {
       this.window = new ReactWindowModel();
     }
 
-    newProps.model = this.window.survey;
     if (newProps.expanded || newProps.isExpanded) this.window.expand();
     this.window.isShowing = true;
 

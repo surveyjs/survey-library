@@ -24,6 +24,9 @@ export class SurveyWindowNG {
     if (props.expanded !== undefined) {
       survey.isExpanded = props.expanded;
     }
+    if (props.isExpanded !== undefined) {
+      survey.isExpanded = props.isExpanded;
+    }
     survey.show();
   }
 }

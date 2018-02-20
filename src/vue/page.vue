@@ -2,7 +2,7 @@
     <div :class="css.page.root">
         <h4 v-show="hasTitle" :class="css.pageTitle"><survey-string :locString="page.locTitle"/></h4>
         <div v-show="hasDescription" :class="css.pageDescription"><survey-string :locString="page.locDescription"/></div>
-        <div v-for="(row, index) in rows" v-if="row.visible" :key="page.inputId + 'rowkey' + index" :class="css.row">
+        <div v-for="(row, index) in rows" v-if="row.visible" :key="page.id + '_' + index" :class="css.row">
             <survey-row :row="row" :survey="survey" :css="css"></survey-row>
         </div>
     </div>

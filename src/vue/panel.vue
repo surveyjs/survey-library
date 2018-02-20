@@ -7,7 +7,7 @@
         <div v-show="hasDescription" :class="css.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
         <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }" v-show="!question.isCollapsed">
-            <div v-for="(row, index) in rows" v-if="row.visible" :key="question.inputId + 'rowkey' + index" :class="css.row">
+            <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible"   :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
         </div>

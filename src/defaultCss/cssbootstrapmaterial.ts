@@ -30,6 +30,7 @@ export var defaultBootstrapMaterialCss = {
     comment: "form-control",
     required: "",
     titleRequired: "",
+    hasError: "has-error",
     indent: 20
   },
   panel: {

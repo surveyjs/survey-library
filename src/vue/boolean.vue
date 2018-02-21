@@ -11,11 +11,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop, Watch} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionBooleanModel} from '../question_boolean'
 
     @Component
-    export class Boolean extends Question<QuestionBooleanModel> {
+    export class Boolean extends QuestionVue<QuestionBooleanModel> {
         get itemClass() {
             let isChecked = this.question.checkedValue;
             let itemClass = this.question.cssClasses.item + (isChecked ? " checked" : "");

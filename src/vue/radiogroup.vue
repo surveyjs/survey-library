@@ -16,11 +16,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionRadiogroupModel} from '../question_radiogroup'
 
     @Component
-    export class Radiogroup extends Question<QuestionRadiogroupModel> {
+    export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
         // TODO may be need to move to the model
         get colWidth() {
             var colCount = this.question.colCount;

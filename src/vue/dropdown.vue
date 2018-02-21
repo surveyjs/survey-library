@@ -14,11 +14,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { default as Question } from "./question";
+import { default as QuestionVue } from "./question";
 import { QuestionDropdownModel } from "../question_dropdown";
 
 @Component
-export class Dropdown extends Question<QuestionDropdownModel> {
+export class Dropdown extends QuestionVue<QuestionDropdownModel> {
   get value() {
     return !this.question.isEmpty() ? this.question.value : "";
   }

@@ -10,12 +10,12 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
-    import {Question as QuestionModel} from '../question'
+    import {Question} from '../question'
 
     @Component
     export class Errors extends Vue {
         @Prop
-        question: QuestionModel
+        question: Question
     }
     Vue.component("survey-errors", Errors)
     export default Errors;

@@ -10,7 +10,7 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {SurveyModel} from '../survey'
     import {IElement, IQuestion} from '../base'
-    import {Question as QuestionModel} from '../question'
+    import {Question} from '../question'
     import {QuestionBase} from '../questionbase'
     import {QuestionCustomWidget} from '../questionCustomWidgets'
     import {helpers} from './helpers'
@@ -20,7 +20,7 @@
         @Prop
         css: any
         @Prop
-        question: QuestionModel
+        question: Question
         get hasDefaultRender(): boolean { return this.question.customWidget.isDefaultRender || this.hasVueComponent; }
         get hasHtml(): boolean { return this.question.customWidget.htmlTemplate ? true : false; }
         get customHtml(): string {return this.question.customWidget.htmlTemplate;}

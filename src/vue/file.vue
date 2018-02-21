@@ -12,11 +12,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { default as Question } from "./question";
+import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "../question_file";
 
 @Component
-export class File extends Question<QuestionFileModel> {
+export class File extends QuestionVue<QuestionFileModel> {
   hasValue = false;
   doChange(e) {
     var src = e.target || e.srcElement;

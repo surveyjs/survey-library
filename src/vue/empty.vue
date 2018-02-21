@@ -5,11 +5,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop, Watch} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionEmptyModel} from '../question_empty'
 
     @Component
-    export class Empty extends Question<QuestionEmptyModel> {
+    export class Empty extends QuestionVue<QuestionEmptyModel> {
     }
     Vue.component("survey-empty", Empty)
     export default Empty;

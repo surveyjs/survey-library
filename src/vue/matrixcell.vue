@@ -10,14 +10,13 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
-import { Question as QuestionModel } from "../question";
 import { MatrixDropdownCell } from "../question_matrixdropdownbase";
 
 @Component
 export class MatrixCell extends Vue {
   @Prop question: Question;
   @Prop cell: MatrixDropdownCell;
-  getWidgetComponentName(element: QuestionModel) {
+  getWidgetComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
     }

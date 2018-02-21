@@ -28,11 +28,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionMatrixModel} from '../question_matrix'
 
     @Component
-    export class Matrix extends Question<QuestionMatrixModel> {
+    export class Matrix extends QuestionVue<QuestionMatrixModel> {
         getItemClass(row, column) {
             var isChecked = row.value == column.value;
             let itemClass = this.question.cssClasses.label + (isChecked ? " checked" : "");

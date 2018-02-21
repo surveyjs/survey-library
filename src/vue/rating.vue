@@ -15,11 +15,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { default as Question } from "./question";
+import { default as QuestionVue } from "./question";
 import { QuestionRatingModel } from "../question_rating";
 
 @Component
-export class Rating extends Question<QuestionRatingModel> {
+export class Rating extends QuestionVue<QuestionRatingModel> {
   getCss(question: QuestionRatingModel, item) {
     let css = question.cssClasses.item;
     if (question.value == item.value) {

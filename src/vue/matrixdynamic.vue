@@ -25,14 +25,12 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { default as Question } from "./question";
+import { default as QuestionVue } from "./question";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 
 @Component
-export class MatrixDynamic extends Question<
-  QuestionMatrixDynamicModel
-> {
+export class MatrixDynamic extends QuestionVue<QuestionMatrixDynamicModel> {
   get rows() {
     return this.question.visibleRows;
   }
@@ -48,5 +46,5 @@ export class MatrixDynamic extends Question<
   }
 }
 Vue.component("survey-matrixdynamic", MatrixDynamic);
-    export default MatrixDynamic;
+export default MatrixDynamic;
 </script>

@@ -1,9 +1,9 @@
 import Vue from "vue";
-import { Question as QuestionModel } from "../question";
+import { Question } from "../question";
 import { Component, Prop, Watch } from "vue-property-decorator";
 
 @Component
-export default class Question<T extends QuestionModel> extends Vue {
+export class QuestionVue<T extends Question> extends Vue {
   public innerValue = null;
 
   @Prop question: T;
@@ -15,3 +15,5 @@ export default class Question<T extends QuestionModel> extends Vue {
     this.innerValue = null;
   }
 }
+
+export default QuestionVue;

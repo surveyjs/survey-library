@@ -8,11 +8,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionCommentModel} from '../question_comment'
 
     @Component
-    export class Comment extends Question<QuestionCommentModel> {}
+    export class Comment extends QuestionVue<QuestionCommentModel> {}
     Vue.component("survey-comment", Comment)
 
     export default Comment;

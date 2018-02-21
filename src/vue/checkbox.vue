@@ -15,11 +15,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop, Watch} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionCheckboxModel} from '../question_checkbox'
 
     @Component
-    export class Checkbox extends Question<QuestionCheckboxModel> {
+    export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
         get value() {
             if(this.innerValue === null) {
                 this.innerValue = !this.question.isEmpty() ? this.question.value : [];

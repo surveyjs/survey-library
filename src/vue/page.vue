@@ -13,7 +13,6 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyModel } from "../survey";
-import { Question as QuestionModel } from "../question";
 import { PageModel } from "../page";
 import { helpers } from "./helpers";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";

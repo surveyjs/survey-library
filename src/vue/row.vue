@@ -9,7 +9,6 @@
     import {Component, Prop} from 'vue-property-decorator'
     import {SurveyModel} from '../survey'
     import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
-    import {Question as QuestionModel} from '../question'
     import {helpers} from './helpers'
 
     @Component({

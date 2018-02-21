@@ -15,11 +15,11 @@
 <script lang="ts">
     import Vue from 'vue'
     import {Component, Prop} from 'vue-property-decorator'
-    import {default as Question} from './question'
+    import {default as QuestionVue} from './question'
     import {QuestionMultipleTextModel} from '../question_multipletext'
 
     @Component
-    export class MultipleText extends Question<QuestionMultipleTextModel> {
+    export class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
         change(item, event) {
             item.value = event.target.value;
         }

@@ -9,50 +9,57 @@
 </template>
 
 <script lang="ts">
-    import Vue from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
-    import {surveyCss} from "../defaultCss/cssstandard"
-    import {SurveyModel} from '../survey'
-    import {Question as QuestionModel} from '../question'
-    import {PageModel} from '../page'
-    import {helpers} from './helpers'
-    import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { surveyCss } from "../defaultCss/cssstandard";
+import { SurveyModel } from "../survey";
+import { Question as QuestionModel } from "../question";
+import { PageModel } from "../page";
+import { helpers } from "./helpers";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 
-    @Component({
-        mixins: [helpers]
-    })
-    export class Page extends Vue {
-        @Prop
-        survey: SurveyModel
-        @Prop
-        page: PageModel
-        @Prop
-        css: Object
+@Component({
+  mixins: [helpers]
+})
+export class Page extends Vue {
+  @Prop survey: SurveyModel;
+  @Prop page: PageModel;
+  @Prop css: Object;
 
-        mounted() {
-            if(this.page.survey) {
-                this.page.survey.afterRenderPage(this.$el);
-            }
-        }
-        updated() {
-            var self = this;
-            this.$nextTick(function () {
-                self.survey.scrollToTopOnPageChange();
-            });
-        }        
-        get hasTitle () {
-            return !!this.page.title && this.survey.showPageTitles;
-        }
-        get hasDescription () {
-            return !!this.page.description;
-        }
-        get num () {
-            return this.page.num > 0 ? this.page.num + ". " : "";
-        }
-        get rows () {
-            return this.page.rows;
-        }
+  isCurrentPageChanged: boolean = false;
+
+  mounted() {
+    if (this.survey) {
+      this.survey.afterRenderPage(this.$el);
+      this.survey.scrollToTopOnPageChange();
+
+      this.survey.onCurrentPageChanged.add((sender, options) => {
+        this.isCurrentPageChanged = true;
+      });
     }
-    Vue.component("survey-page", Page)
-    export default Page;
+  }
+  updated() {
+    var self = this;
+    this.$nextTick(function() {
+      if (this.isCurrentPageChanged) {
+        this.isCurrentPageChanged = false;
+        self.survey.scrollToTopOnPageChange();
+      }
+    });
+  }
+  get hasTitle() {
+    return !!this.page.title && this.survey.showPageTitles;
+  }
+  get hasDescription() {
+    return !!this.page.description;
+  }
+  get num() {
+    return this.page.num > 0 ? this.page.num + ". " : "";
+  }
+  get rows() {
+    return this.page.rows;
+  }
+}
+Vue.component("survey-page", Page);
+export default Page;
 </script>

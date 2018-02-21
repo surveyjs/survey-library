@@ -49,7 +49,7 @@ export class Survey extends React.Component<any, any>
       this.survey.stopTimer();
     }
   }
-  render(): JSX.Element {
+  doRender(): JSX.Element {
     var renderResult;
     if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
@@ -73,6 +73,9 @@ export class Survey extends React.Component<any, any>
         </div>
       </div>
     );
+  }
+  render(): JSX.Element {
+    return this.doRender();
   }
   public get css(): any {
     return surveyCss.getCss();

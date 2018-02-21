@@ -7,7 +7,7 @@ import { updateSurveyProps } from "../utils/updateSurveyProps";
 
 jQuery["fn"].extend({
   Survey: function(props) {
-    this.each(function() {
+    return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);
       model.render(this);
@@ -15,12 +15,15 @@ jQuery["fn"].extend({
   },
 
   SurveyWindow: function(props) {
-    this.each(function() {
+    return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);
       var survey = new SurveyWindow(null, model);
-      if(props.expanded !== undefined) {
+      if (props.expanded !== undefined) {
         survey.isExpanded = props.expanded;
+      }
+      if (props.isExpanded !== undefined) {
+        survey.isExpanded = props.isExpanded;
       }
       survey.show();
     });

@@ -52,7 +52,7 @@ export class SurveyWindow extends Survey {
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.css.window.body}>{this.renderSurvey()}</div>;
+    return <div className={this.css.window.body}>{this.doRender()}</div>;
   }
   protected updateSurvey(newProps: any) {
     if (!newProps) newProps = {};
@@ -71,7 +71,6 @@ export class SurveyWindow extends Survey {
       this.window = new ReactWindowModel();
     }
 
-    newProps.model = this.window.survey;
     if (newProps.expanded || newProps.isExpanded) this.window.expand();
     this.window.isShowing = true;
 

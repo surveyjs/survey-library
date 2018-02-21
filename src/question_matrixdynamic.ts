@@ -354,7 +354,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected createNewValue(curValue: any): any {
     var result = curValue;
-    if (!result) result = [];
+    if (!result || !Array.isArray(result)) result = [];
     var r = [];
     if (result.length > this.rowCount) result.splice(this.rowCount - 1);
     for (var i = result.length; i < this.rowCount; i++) {

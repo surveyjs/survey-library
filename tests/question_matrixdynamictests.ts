@@ -965,3 +965,17 @@ QUnit.test("MatrixDropdownColumn load choices from json", function(assert) {
     "The first value is 5"
   );
 });
+
+QUnit.test(
+  "MatrixDynamic do not generate an error on setting a non-array value",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var question = new QuestionMatrixDynamicModel("matrix");
+    page.addElement(question);
+    question.addColumn("col1");
+    question.rowCount = 1;
+    survey.setValue("matrix", "sometext");
+    assert.equal(question.value, "sometext", "It does not generate the error");
+  }
+);

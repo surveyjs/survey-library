@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-    import Vue from 'vue'
+    import Vue from "vue"
     import {Component, Prop, Watch} from 'vue-property-decorator'
     import {default as QuestionVue} from './question'
     import {QuestionBooleanModel} from '../question_boolean'

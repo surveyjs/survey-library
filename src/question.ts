@@ -509,6 +509,17 @@ export class Question extends QuestionBase implements IValidatorOwner {
   private checkForErrors(fireCallback: boolean) {
     var errorLength = this.errors ? this.errors.length : 0;
     this.errors = [];
+    if (this.isVisible && !this.isReadOnly) {
+      this.collectErrors();
+    }
+    if (
+      fireCallback &&
+      (errorLength != this.errors.length || errorLength > 0)
+    ) {
+      this.fireCallback(this.errorsChangedCallback);
+    }
+  }
+  private collectErrors() {
     this.onCheckForErrors(this.errors);
     if (this.errors.length == 0 && !this.isEmpty()) {
       var error = this.runValidators();
@@ -523,12 +534,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
       if (error) {
         this.errors.push(error);
       }
-    }
-    if (
-      fireCallback &&
-      (errorLength != this.errors.length || errorLength > 0)
-    ) {
-      this.fireCallback(this.errorsChangedCallback);
     }
   }
   private fireSurveyValidation(): SurveyError {

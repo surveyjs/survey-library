@@ -8,6 +8,7 @@ var rimraf = require("rimraf");
 var GenerateJsonPlugin = require("generate-json-webpack-plugin");
 var packageJson = require("./package.json");
 var fs = require("fs");
+var replace = require("replace-in-file");
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
@@ -111,6 +112,23 @@ module.exports = function(options) {
           outputAsModuleFolder: true,
           headerText: dts_banner
         });
+
+        if (options.platform === "vue") {
+          replace(
+            {
+              files: packagePath + "survey." + options.platform + ".d.ts",
+              from: /export default\s+\w+;/g,
+              to: ""
+            },
+            (error, changes) => {
+              if (error) {
+                return console.error("Error occurred:", error);
+              }
+              console.log("Modified files:", changes.join(", "));
+            }
+          );
+        }
+
         rimraf.sync(packagePath + "typings");
         fs
           .createReadStream("./npmREADME.md")

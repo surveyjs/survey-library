@@ -6,44 +6,50 @@
 </template>
 
 <script lang="ts">
-    import Vue,  {ComponentOptions} from 'vue'
-    import {Component, Prop} from 'vue-property-decorator'
-    import {SurveyModel} from '../survey'
-    import {IElement, IQuestion} from '../base'
-    import {Question} from '../question'
-    import {QuestionBase} from '../questionbase'
-    import {QuestionCustomWidget} from '../questionCustomWidgets'
-    import {helpers} from './helpers'
+import Vue, { ComponentOptions } from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { SurveyModel } from "../survey";
+import { IElement, IQuestion } from "../base";
+import { Question } from "../question";
+import { QuestionBase } from "../questionbase";
+import { QuestionCustomWidget } from "../questionCustomWidgets";
+import { helpers } from "./helpers";
 
-    @Component
-    export class CustomWidget extends Vue {
-        @Prop
-        css: any
-        @Prop
-        question: Question
-        get hasDefaultRender(): boolean { return this.question.customWidget.isDefaultRender || this.hasVueComponent; }
-        get hasHtml(): boolean { return this.question.customWidget.htmlTemplate ? true : false; }
-        get customHtml(): string {return this.question.customWidget.htmlTemplate;}
-        get hasVueComponent(): boolean { 
-            var options = Vue["options"];
-            if(!options) return false;
-            return options.components && options.components[this.question.customWidget.name];
-        }
-        get componentName(): string {
-            if(this.hasVueComponent) return this.question.customWidget.name;
-            return "survey-" + this.question.getTemplate();
-        }
-        mounted() {
-            this.question.customWidget.afterRender(this.question, this.$el);
-        }
-        updated() {
-            //this.question.customWidget.afterRender(this.question, this.$el);
-        }
-        beforeDestroy() {
-            this.question.customWidget.willUnmount(this.question, this.$el);
-        }
-    }
-    Vue.component("survey-customwidget", CustomWidget)
+@Component
+export class CustomWidget extends Vue {
+  @Prop css: any;
+  @Prop question: Question;
+  get hasDefaultRender(): boolean {
+    return this.question.customWidget.isDefaultRender || this.hasVueComponent;
+  }
+  get hasHtml(): boolean {
+    return this.question.customWidget.htmlTemplate ? true : false;
+  }
+  get customHtml(): string {
+    return this.question.customWidget.htmlTemplate;
+  }
+  get hasVueComponent(): boolean {
+    var options = Vue["options"];
+    if (!options) return false;
+    return (
+      options.components && options.components[this.question.customWidget.name]
+    );
+  }
+  get componentName(): string {
+    if (this.hasVueComponent) return this.question.customWidget.name;
+    return "survey-" + this.question.getTemplate();
+  }
+  mounted() {
+    this.question.customWidget.afterRender(this.question, this.$el);
+  }
+  updated() {
+    //this.question.customWidget.afterRender(this.question, this.$el);
+  }
+  beforeDestroy() {
+    this.question.customWidget.willUnmount(this.question, this.$el);
+  }
+}
+Vue.component("survey-customwidget", CustomWidget);
 
-    export default CustomWidget;
+export default CustomWidget;
 </script>

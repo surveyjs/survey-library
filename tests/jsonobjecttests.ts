@@ -686,6 +686,22 @@ QUnit.test(
     assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
   }
 );
+QUnit.test(
+  "ItemValueListOwner deserialization, value as object, remove pos",
+  function(assert) {
+    var list = new ItemValueListOwner();
+    list.items.push(
+      new ItemValue({ pos: { start: 1, end: 3 }, id: 1, city: "NY" }, "Item 1")
+    );
+
+    var jsObj = new JsonObject().toJsonObject(list);
+    assert.deepEqual(
+      jsObj,
+      { items: [{ value: { id: 1, city: "NY" }, text: "Item 1" }] },
+      "serialize ItemValueListOwner"
+    );
+  }
+);
 QUnit.test("LongNamesOwner serialization", function(assert) {
   var owner = new LongNamesOwner();
   var l1 = new LongNameItemA();

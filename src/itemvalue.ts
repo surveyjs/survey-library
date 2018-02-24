@@ -133,7 +133,9 @@ export class ItemValue {
     var customAttributes = this.getCustomAttributes();
     var textJson = this.locText.getJson();
     if (!customAttributes && !textJson) return this.value;
-    var result = { value: this.value };
+    var value = this.value;
+    if (value && value["pos"]) delete value["pos"];
+    var result = { value: value };
     if (textJson) result["text"] = textJson;
     if (customAttributes) {
       for (var key in customAttributes) {

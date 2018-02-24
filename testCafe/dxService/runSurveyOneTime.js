@@ -208,7 +208,7 @@ frameworks.forEach(framework => {
   test(`send results before moving on the next page`, async t => {
     const getResultTextArea = Selector(
       () => document.querySelector("#sentResults"),
-      { timeout: 3000 }
+      { timeout: 10000 }
     );
     let clientID = uuid.v1();
     let resultTextArea;

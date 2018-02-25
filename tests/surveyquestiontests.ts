@@ -887,3 +887,13 @@ QUnit.test("Clear errors on making question readOnly, bug#950", function(
   question.hasErrors(true);
   assert.equal(question.errors.length, 1, "There is an error again");
 });
+QUnit.test("displayValue and choice value as object, bug#952", function(
+  assert
+) {
+  var question = new QuestionRadiogroupModel("q1");
+  question.choices.push(new ItemValue({ id: 1, val: "v1" }, "item 1"));
+  question.choices.push(new ItemValue({ id: 2, val: "v2" }, "item 2"));
+  question.value = { id: 2, val: "v2" };
+  assert.deepEqual(question.value, { id: 2, val: "v2" }, "value set correctly");
+  assert.equal(question.displayValue, "item 2", "display value get correctly");
+});

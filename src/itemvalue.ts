@@ -1,5 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
+import { Helpers } from "./helpers";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -58,7 +59,7 @@ export class ItemValue {
   }
   public static getItemByValue(items: Array<ItemValue>, val: any): ItemValue {
     for (var i = 0; i < items.length; i++) {
-      if (items[i].value == val) return items[i];
+      if (Helpers.isTwoValueEquals(items[i].value, val)) return items[i];
     }
     return null;
   }

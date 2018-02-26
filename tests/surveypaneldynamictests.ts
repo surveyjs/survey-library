@@ -1085,6 +1085,30 @@ QUnit.test("PanelDynamic defaultValue in questions", function(assert) {
   );
 });
 
+QUnit.test("Two PanelDynamic questions bound to the same value", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var q1 = new QuestionPanelDynamicModel("q1");
+  q1.valueName = "panel";
+  q1.template.addNewQuestion("text", "t1");
+  var q2 = new QuestionPanelDynamicModel("q2");
+  q2.valueName = "panel";
+  q2.template.addNewQuestion("text", "t1");
+  q2.template.addNewQuestion("text", "t2");
+  page.addElement(q1);
+  page.addElement(q2);
+
+  q1.panelCount = 1;
+  assert.equal(q2.panelCount, 1, "By default there are two panels in panel2");
+  q1.addPanel();
+  assert.equal(q2.panelCount, 2, "One panel was added");
+  q1.removePanel(1);
+  assert.equal(q1.panelCount, 1, "q1: One panel was removed");
+  assert.equal(q2.panelCount, 1, "q2: One panel was removed");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

@@ -717,6 +717,7 @@ export class QuestionPanelDynamicModel extends Question
       this.removePanel(value);
     }
   }
+  private static isPanelRemoving: boolean = false;
   /**
    * Removes a dynamic panel from the panels array.
    * @param value a panel or panel index
@@ -730,7 +731,9 @@ export class QuestionPanelDynamicModel extends Question
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) return;
     value.splice(index, 1);
+    QuestionPanelDynamicModel.isPanelRemoving = true;
     this.value = value;
+    QuestionPanelDynamicModel.isPanelRemoving = false;
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index);
   }
@@ -862,7 +865,11 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isValueChangingInternally) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
-    if (newPanelCount <= this.panelCount) return;
+    if (
+      !QuestionPanelDynamicModel.isPanelRemoving &&
+      newPanelCount <= this.panelCount
+    )
+      return;
     this.panelCount = newPanelCount;
   }
   public onSurveyValueChanged(newValue: any) {

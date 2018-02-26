@@ -30,7 +30,6 @@ export class Page extends Vue {
   mounted() {
     if (this.survey) {
       this.survey.afterRenderPage(this.$el);
-      this.survey.scrollToTopOnPageChange();
 
       this.survey.onCurrentPageChanged.add((sender, options) => {
         this.isCurrentPageChanged = true;

@@ -45,7 +45,6 @@ export class SurveyPage extends React.Component<any, any> {
     if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
       el.setAttribute("data-rendered", "r");
       this.survey.afterRenderPage(el);
-      this.survey.scrollToTopOnPageChange();
     }
   }
   render(): JSX.Element {

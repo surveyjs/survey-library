@@ -190,7 +190,6 @@ export class Survey extends SurveyModel {
     this.koAfterRenderPage = function(elements, con) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
-      if (!self.isDesignMode) self.scrollToTopOnPageChange();
     };
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {

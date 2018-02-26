@@ -259,6 +259,10 @@ export class PanelModelBase extends SurveyElement
 
     return this.questionsValue;
   }
+  /**
+   * Returns the question by its name
+   * @param name the question name
+   */
   public getQuestionByName(name: string): QuestionBase {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
@@ -272,6 +276,15 @@ export class PanelModelBase extends SurveyElement
       if (questions[i].getValueName() == valueName) return questions[i];
     }
     return null;
+  }
+  public getValue(): any {
+    var data = {};
+    for(var i = 0; i < this.questions.length; i ++) {
+      var q = this.questions[i];
+      if(q.isEmpty()) continue;
+      data[q.getValueName()] = q["value"];
+    }
+    return data;
   }
   private markQuestionListDirty() {
     this.isQuestionsReady = false;

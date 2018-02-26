@@ -201,3 +201,39 @@ QUnit.test("Panel.isRequired", function(assert) {
     "There is no visible questions in the panel"
   );
 });
+
+QUnit.test("Panel.getValue()", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel1 = page.addNewPanel("p1");
+  var panel2 = page.addNewPanel("p2");
+  var panel3 = panel1.addNewPanel("p3");
+  panel1.addNewQuestion("text", "q1");
+  panel2.addNewQuestion("text", "q2");
+  panel3.addNewQuestion("text", "q3");
+  panel1.addNewQuestion("text", "qEmpty");
+  survey.setValue("q1", "val1");
+  survey.setValue("q2", "val2");
+  survey.setValue("q3", "val3");
+
+  assert.deepEqual(
+    panel3.getValue(),
+    { q3: "val3" },
+    "Nested panel.getValue() works correctly"
+  );
+  assert.deepEqual(
+    panel1.getValue(),
+    { q1: "val1", q3: "val3" },
+    "Panel.getValue()  works correctly"
+  );
+  assert.deepEqual(
+    page.getValue(),
+    { q1: "val1", q2: "val2", q3: "val3" },
+    "Page.getValue() works correctly"
+  );
+  assert.deepEqual(
+    page.getValue(),
+    survey.data,
+    "survey.data == page.getValue() in our case"
+  );
+});

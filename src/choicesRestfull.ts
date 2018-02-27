@@ -111,7 +111,14 @@ export class ChoicesRestfull extends Base {
       var parser = new XmlParser();
       parsedResponse = parser.parseXmlString(response);
     } else {
-      parsedResponse = JSON.parse(response);
+      try {
+        parsedResponse = JSON.parse(response);
+      } catch {
+        parsedResponse = (response || "")
+          .split("\n")
+          .map(s => s.trim(" "))
+          .filter(s => !!s);
+      }
     }
     return parsedResponse;
   }

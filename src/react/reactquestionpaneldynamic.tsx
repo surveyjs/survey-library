@@ -43,7 +43,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.handleOnRangeChange = this.handleOnRangeChange.bind(this);
   }
   private updateQuestionRendering() {
-    this.setState({ panelCounter: this.state.panelCounter + 1 });
+    this.setState({
+      panelCounter: this.state ? this.state.panelCounter + 1 : 1
+    });
   }
   handleOnPanelAddClick(event) {
     this.question.addPanelUI();

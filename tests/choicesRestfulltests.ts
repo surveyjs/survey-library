@@ -25,6 +25,8 @@ class ChoicesRestfullTester extends ChoicesRestfull {
     if (this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
     if (this.processedUrl.indexOf("xml") > -1)
       this.onLoad(this.parseResponse(getXmlResponse()));
+    if (this.processedUrl.indexOf("text") > -1)
+      this.onLoad(this.parseResponse(getTextResponse()));
   }
   protected useChangedItemsResults(): boolean {
     if (this.noCaching) return false;
@@ -184,6 +186,23 @@ QUnit.skip("Load from xml", function(assert) {
     items[5].text,
     "Optimizes Work Processes",
     "the sixth item text is 'Optimizes Work Processes'"
+  );
+});
+
+QUnit.test("Load from plain text", function(assert) {
+  var test = new ChoicesRestfullTester();
+  var items = [];
+  test.getResultCallback = function(res: Array<ItemValue>) {
+    items = res;
+  };
+  test.url = "text";
+  test.run();
+  assert.equal(items.length, 5, "there are 5 items");
+  assert.equal(items[0].value, "1", "the item is empty");
+  assert.equal(
+    items[4].text,
+    "Optimizes Work Processes",
+    "the 5th item text is 'Optimizes Work Processes'"
   );
 });
 
@@ -480,6 +499,16 @@ function getCountries(): any {
       ]
     }
   };
+}
+
+function getTextResponse(): any {
+  return `
+  1
+  2
+  3
+  4
+  Optimizes Work Processes
+  `;
 }
 
 function getXmlResponse(): any {

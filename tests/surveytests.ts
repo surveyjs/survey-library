@@ -2923,6 +2923,25 @@ QUnit.test("clearInvisibleValues", function(assert) {
   survey.doComplete();
   assert.notOk(question.value, "onComplete - clear on complete");
 });
+QUnit.test("clearInvisibleValues=onHidden and invisiblePages, #964", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.clearInvisibleValues = "onHidden";
+  var page1 = survey.addNewPage("p1");
+  page1.addNewQuestion("text", "q1");
+  var page2 = survey.addNewPage("p2");
+  page2.addNewQuestion("text", "q2");
+  survey.setValue("q1", "val1");
+  survey.setValue("q2", "val2");
+  page2.visible = false;
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { q1: "val1" },
+    "Remove value for invisible question q2"
+  );
+});
 QUnit.test("required text can be empty: Bug #693", function(assert) {
   var survey = new SurveyModel();
   assert.equal(survey.requiredText, "*", "The default value is '*'");
@@ -3315,13 +3334,13 @@ QUnit.test(
       1,
       "The answer is corrected now"
     );
-    survey.onIsAnswerCorrect.add(function(survey, options){
+    survey.onIsAnswerCorrect.add(function(survey, options) {
       var x = options.question.value;
       var y = options.question.correctAnswer;
       var res = x.length == y.length;
-      if(res) {
-        for(var i = 0; i < x.length; i ++) {
-          if(x[i] != y[i]) {
+      if (res) {
+        for (var i = 0; i < x.length; i++) {
+          if (x[i] != y[i]) {
             res = false;
             break;
           }
@@ -3335,11 +3354,7 @@ QUnit.test(
       "The order is important now"
     );
     q1.value = [2, 3];
-    assert.equal(
-      survey.getCorrectedAnswerCount(),
-      1,
-      "The order is correct"
-    );
+    assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
 

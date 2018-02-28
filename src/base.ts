@@ -74,13 +74,13 @@ export interface IConditionRunner {
 }
 export interface ISurveyElement {
   name: string;
+  isVisible: boolean;
   setSurveyImpl(value: ISurveyImpl);
   onSurveyLoad();
   getType(): string;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
-  isVisible: boolean;
   parent: IPanel;
   renderWidth: string;
   width: string;
@@ -510,6 +510,9 @@ export class SurveyElement extends Base implements ISurveyElement {
    */
   public get isDesignMode(): boolean {
     return this.survey && this.survey.isDesignMode;
+  }
+  public get isVisible(): boolean {
+    return true;
   }
   public get isLoadingFromJson() {
     if (this.survey) return this.survey.isLoadingFromJson;

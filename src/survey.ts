@@ -2251,7 +2251,7 @@ export class SurveyModel extends Base
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
-    if (this.clearInvisibleValues == "onComplete") {
+    if (this.clearInvisibleValues != "none") {
       this.clearInvisibleQuestionValues();
     }
   }

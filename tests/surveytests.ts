@@ -1111,6 +1111,32 @@ QUnit.test("Complete trigger test", function(assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test("Complete trigger, onCurrentPageChange calls after onComplete, Bug#963", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerComplete();
+  survey.triggers.push(trigger);
+  trigger.name = "question1";
+  trigger.value = "Hello";
+  survey.setValue("question1", "Hello");
+  var page = survey.currentPage;
+
+  var firstFiredEvent = null;
+  var onCurrentPageChangedCounter = 0;
+  var onCompleteCounter = 0;
+  survey.onCurrentPageChanged.add(function(survey, options){
+    if(!firstFiredEvent) firstFiredEvent = "onCurrentPageChanged";
+    onCurrentPageChangedCounter ++;
+  });
+  survey.onComplete.add(function(survey, options){
+    if(!firstFiredEvent) firstFiredEvent = "onComplete";
+    onCompleteCounter ++;
+  });
+
+  survey.nextPage();
+  assert.equal(onCompleteCounter, 1, "onComplete fired one time");
+  assert.equal(onCurrentPageChangedCounter, 0, "onCurrentPageChanged fired one time");
+  assert.equal(firstFiredEvent, "onComplete", "should be called first");
+});
 QUnit.test("Value trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();
   var trigger = new SurveyTriggerSetValue();

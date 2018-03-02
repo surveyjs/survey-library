@@ -241,6 +241,15 @@ QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   survey.setValue("checkboxQuestion", "One");
   assert.deepEqual(question.value, ["One"], "convert value to array");
 });
+QUnit.test("Empty value for Checkbox", function(assert) {
+  var question = new QuestionCheckboxModel("checkboxQuestion");
+  question.choices = ["One", "Two", "Three"];
+  assert.deepEqual(question.value, [], "empty array");
+  question.value = ["One"];
+  assert.deepEqual(question.value, ["One"], "value");
+  question.value = [];
+  assert.deepEqual(question.value, [], "empty array");
+});
 QUnit.test("Matrix Question: visible rows", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
   assert.equal(matrix.hasRows, false, "There is now rows by default.");

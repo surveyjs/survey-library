@@ -570,7 +570,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
       this.setValueCore(newValue);
     }
   }
-  private getValueCore() {
+  protected getValueCore() {
     return this.data != null
       ? this.data.getValue(this.getValueName())
       : this.questionValue;

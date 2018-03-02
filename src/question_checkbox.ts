@@ -24,6 +24,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return str;
   }
+  protected getValueCore() {
+    return super.getValueCore() || [];
+  }
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }

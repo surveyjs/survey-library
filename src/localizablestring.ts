@@ -1,3 +1,5 @@
+import { Helpers } from "./helpers";
+
 export interface ILocalizableOwner {
   getLocale(): string;
   getMarkdownHtml(text: string): string;
@@ -100,6 +102,10 @@ export class LocalizableString {
       }
     }
     this.onChanged();
+  }
+  public equals(obj: any) {
+    if (!obj || !obj.values) return false;
+    return Helpers.isTwoValueEquals(this.values, obj.values);
   }
   public onChanged() {}
   protected onCreating() {}

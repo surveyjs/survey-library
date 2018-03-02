@@ -17,9 +17,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   private questionComment: string;
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
-  private validatorsValue: Array<SurveyValidator> = this.createNewArray(
-    "validators"
-  );
+  private validatorsValue: Array<SurveyValidator>;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   titleChangedCallback: () => void;
@@ -28,6 +26,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
   constructor(public name: string) {
     super(name);
     var self = this;
+    this.validatorsValue = this.createNewArray("validators", function(
+      validator
+    ) {
+      validator.locOwner = self;
+    });
     var locTitleValue = this.createLocalizableString("title", this, true);
     locTitleValue.onRenderedHtmlCallback = function(text) {
       return self.fullTitle;

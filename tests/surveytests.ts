@@ -2165,7 +2165,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Survey Localication - check question.title", function(assert) {
+QUnit.test("Survey Localization - check question.title", function(assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = <QuestionTextModel>survey.getQuestionByName("question1");
   q1.title = "val1";
@@ -2178,7 +2178,7 @@ QUnit.test("Survey Localication - check question.title", function(assert) {
 });
 
 QUnit.test(
-  "Survey Localication - check page/panel.title and processedTitle",
+  "Survey Localization - check page/panel.title and processedTitle",
   function(assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
@@ -2202,7 +2202,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Survey Localication - dropdown.choices", function(assert) {
+QUnit.test("Survey Localization - dropdown.choices", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "question1");
@@ -2215,7 +2215,7 @@ QUnit.test("Survey Localication - dropdown.choices", function(assert) {
   assert.equal(q1.choices[0].text, "text1", "Use the default text");
 });
 
-QUnit.test("Survey Localication - matrix.columns", function(assert) {
+QUnit.test("Survey Localization - matrix.columns", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixModel("matrix");
@@ -2230,7 +2230,7 @@ QUnit.test("Survey Localication - matrix.columns", function(assert) {
   assert.equal(q1.columns[0].text, "text1", "Use the default text");
 });
 
-QUnit.test("Survey Localication - dropdownmatrix.columns", function(assert) {
+QUnit.test("Survey Localization - dropdownmatrix.columns", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
@@ -2263,7 +2263,7 @@ QUnit.test("Survey Localication - dropdownmatrix.columns", function(assert) {
   assert.equal(col1["choices"][0].text, "text1", "Use the default text");
 });
 
-QUnit.test("Survey Localication - multipletext.items", function(assert) {
+QUnit.test("Survey Localization - multipletext.items", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMultipleTextModel("mText");
@@ -2279,6 +2279,21 @@ QUnit.test("Survey Localication - multipletext.items", function(assert) {
   survey.locale = "fr";
   assert.equal(item.title, "title1", "Use default text, title");
   assert.equal(item.placeHolder, "caption1", "Use default text, placeHolder");
+});
+
+QUnit.test("Survey Localization - question.validators[].text, Bug#966", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionTextModel("q1");
+  page.addQuestion(q1);
+  var validator = new EmailValidator();
+  q1.validators.push(validator);
+  validator.text = "default-text";
+  survey.locale = "de";
+  validator.text = "de-text";
+  assert.equal(validator.text, "de-text", "Use 'de' text");
+  survey.locale = "fr";
+  assert.equal(validator.text, "default-text", "Use default text");
 });
 
 QUnit.test(

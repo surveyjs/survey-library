@@ -1,6 +1,7 @@
 import { Base, SurveyError } from "./base";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
 
 export class ValidatorResult {
@@ -10,9 +11,19 @@ export class ValidatorResult {
  * Base SurveyJS validator class.
  */
 export class SurveyValidator extends Base {
-  public text: string = "";
+  public locOwner: ILocalizableOwner;
   constructor() {
     super();
+    this.createLocalizableString("text", this, true);
+  }
+  public get text(): string {
+    return this.getLocalizableStringText("text");
+  }
+  public set text(value: string) {
+    this.setLocalizableStringText("text", value);
+  }
+  get locText(): LocalizableString {
+    return this.getLocalizableString("text");
   }
   protected getErrorText(name: string): string {
     if (this.text) return this.text;
@@ -23,6 +34,12 @@ export class SurveyValidator extends Base {
   }
   public validate(value: any, name: string = null): ValidatorResult {
     return null;
+  }
+  getLocale(): string {
+    return this.locOwner ? this.locOwner.getLocale() : "";
+  }
+  getMarkdownHtml(text: string) {
+    return this.locOwner ? this.locOwner.getMarkdownHtml(text) : null;
   }
 }
 export interface IValidatorOwner {
@@ -220,7 +237,9 @@ export class EmailValidator extends SurveyValidator {
   }
 }
 
-JsonObject.metaData.addClass("surveyvalidator", ["text"]);
+JsonObject.metaData.addClass("surveyvalidator", [
+  { name: "text", serializationProperty: "locText" }
+]);
 JsonObject.metaData.addClass(
   "numericvalidator",
   ["minValue:number", "maxValue:number"],

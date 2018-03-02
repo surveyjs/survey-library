@@ -26,9 +26,21 @@ export class Helpers {
     }
     return true;
   }
+  public static isArraysEqual(x: any, y: any): boolean {
+    if (!Array.isArray(x) || !Array.isArray(y)) return false;
+    if (x.length !== y.length) return false;
+    for (var i = 0; i < x.length; i++) {
+      if (!Helpers.isTwoValueEquals(x[i], y[i])) return false;
+    }
+    return true;
+  }
   public static isTwoValueEquals(x: any, y: any): boolean {
     if (x === y) return true;
+    if ((x && !y) || (!x && y)) return false;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
+    if (x["equals"]) return x.equals(y);
+    if (Array.isArray(x) && Array.isArray(y))
+      return Helpers.isArraysEqual(x, y);
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
       if (!y.hasOwnProperty(p)) return false;

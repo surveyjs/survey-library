@@ -1580,9 +1580,11 @@ export class SurveyModel extends Base
     if (this.sendResultOnPageNext) {
       this.sendResult(this.surveyPostId, this.clientId, true);
     }
-    var vPages = this.visiblePages;
-    var index = vPages.indexOf(this.currentPage);
-    this.currentPage = vPages[index + 1];
+    if (!this.isCompleted) {
+      var vPages = this.visiblePages;
+      var index = vPages.indexOf(this.currentPage);
+      this.currentPage = vPages[index + 1];
+    }
   }
   protected setCompleted() {
     this.isCompleted = true;

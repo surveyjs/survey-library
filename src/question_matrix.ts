@@ -183,6 +183,13 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     }
     return values;
   }
+  public addConditionNames(names: Array<string>) {
+    for (var i = 0; i < this.rows.length; i++) {
+      if (this.rows[i].value) {
+        names.push(this.name + "." + this.rows[i].value);
+      }
+    }
+  }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
     if (this.isRowChanging) return;

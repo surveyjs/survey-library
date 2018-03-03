@@ -262,7 +262,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return values;
   }
-
+  public addConditionNames(names: Array<string>) {
+    for (var i = 0; i < this.columns.length; i++) {
+      names.push(this.name + "[0]." + this.columns[i].name);
+    }
+  }
   public supportGoNextPageAutomatic() {
     return false;
   }

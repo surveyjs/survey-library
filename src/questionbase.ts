@@ -331,6 +331,7 @@ export class QuestionBase extends SurveyElement
   public supportGoNextPageAutomatic() {
     return false;
   }
+  public addConditionNames(names: Array<string>) {}
   public clearUnusedValues() {}
   public get displayValue(): any {
     return "";

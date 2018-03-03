@@ -228,6 +228,11 @@ export class QuestionMultipleTextModel extends Question
     this.items.push(item);
     return item;
   }
+  public addConditionNames(names: Array<string>) {
+    for (var i = 0; i < this.items.length; i++) {
+      names.push(this.name + "." + this.items[i].name);
+    }
+  }
   public onLocaleChanged() {
     super.onLocaleChanged();
     for (var i = 0; i < this.items.length; i++) {

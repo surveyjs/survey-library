@@ -61,7 +61,15 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     return values;
   }
-
+  public addConditionNames(names: Array<string>) {
+    for (var i = 0; i < this.rows.length; i++) {
+      if (!this.rows[i].value) continue;
+      var prefix = this.name + "." + this.rows[i].value + ".";
+      for (var j = 0; j < this.columns.length; j++) {
+        names.push(prefix + this.columns[j].name);
+      }
+    }
+  }
   /**
    * The list of rows. A row has a value and an optional text
    */

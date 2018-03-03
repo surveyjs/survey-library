@@ -1,4 +1,5 @@
 import { Question } from "../src/question";
+import { QuestionHtmlModel } from "../src/question_html";
 import { QuestionFactory } from "../src/questionfactory";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { QuestionTextModel } from "../src/question_text";
@@ -905,4 +906,21 @@ QUnit.test("displayValue and choice value as object, bug#952", function(
   question.value = { id: 2, val: "v2" };
   assert.deepEqual(question.value, { id: 2, val: "v2" }, "value set correctly");
   assert.equal(question.displayValue, "item 2", "display value get correctly");
+});
+QUnit.test("question.addConditionNames", function(assert) {
+  var names = [];
+  new QuestionHtmlModel("q_html").addConditionNames(names);
+  new QuestionCheckboxModel("q_check").addConditionNames(names);
+  var q_mt = new QuestionMultipleTextModel("q_mt");
+  q_mt.addItem("item1");
+  q_mt.addItem("item2");
+  q_mt.addConditionNames(names);
+  var q_matrix = new QuestionMatrixModel("q_matrix");
+  q_matrix.rows = ["row1", "row2"];
+  q_matrix.addConditionNames(names);
+  assert.deepEqual(
+    names,
+    ["q_check", "q_mt.item1", "q_mt.item2", "q_matrix.row1", "q_matrix.row2"],
+    "addConditionNames work correctly"
+  );
 });

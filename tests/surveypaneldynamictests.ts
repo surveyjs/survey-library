@@ -10,6 +10,7 @@ import {
   CustomWidgetCollection,
   QuestionCustomWidget
 } from "../src/questionCustomWidgets";
+import { QuestionMultipleTextModel } from "../src/question_multipletext";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1107,6 +1108,21 @@ QUnit.test("Two PanelDynamic questions bound to the same value", function(
   q1.removePanel(1);
   assert.equal(q1.panelCount, 1, "q1: One panel was removed");
   assert.equal(q2.panelCount, 1, "q2: One panel was removed");
+});
+QUnit.test("matrixDynamic.addConditionNames", function(assert) {
+  var names = [];
+  var panel = new QuestionPanelDynamicModel("panel");
+  panel.template.addNewQuestion("text", "q1");
+  var question = new QuestionMultipleTextModel("q2");
+  question.addItem("item1");
+  question.addItem("item2");
+  panel.template.addQuestion(question);
+  panel.addConditionNames(names);
+  assert.deepEqual(
+    names,
+    ["panel[0].q1", "panel[0].q2.item1", "panel[0].q2.item2"],
+    "addConditionNames work correctly for panel dynamic"
+  );
 });
 
 /* Think about this-

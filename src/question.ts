@@ -486,6 +486,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);
   }
+  public addConditionNames(names: Array<string>) {
+    names.push(this.name);
+  }
   /**
    * Returns true if threre is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.

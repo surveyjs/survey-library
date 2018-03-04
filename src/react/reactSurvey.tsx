@@ -145,8 +145,8 @@ export class Survey extends React.Component<any, any>
       <div>
         <div id={pageId} className={this.css.body}>
           {startedPage}
+          {startButton}
         </div>
-        {startButton}
       </div>
     );
   }

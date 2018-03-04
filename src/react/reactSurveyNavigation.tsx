@@ -53,7 +53,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       ? this.renderButton(
           this.handleStartClick,
           this.survey.startSurveyText,
-          this.css.navigationButton.start
+          this.css.navigation.start
         )
       : null;
     return (

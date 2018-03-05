@@ -39,7 +39,7 @@ export class SurveyElementVue extends Vue {
     }
     return "survey-" + element.getTemplate();
   }
-  getQuestionClass(element: QuestionModel) {
+  getQuestionClass(element: Question) {
     if (!!element.errors && element.errors.length > 0) {
         return this.css.question.hasError
     }

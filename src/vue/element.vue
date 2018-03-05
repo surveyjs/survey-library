@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div :class="getQuestionClass(element)">
         <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
             <h5 v-if="element.hasTitle" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
             <div v-if="element.hasDescription" :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
@@ -38,6 +38,12 @@ export class SurveyElementVue extends Vue {
       return "survey-customwidget";
     }
     return "survey-" + element.getTemplate();
+  }
+  getQuestionClass(element: QuestionModel) {
+    if (!!element.errors && element.errors.length > 0) {
+        return this.css.question.hasError
+    }
+    return '';
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

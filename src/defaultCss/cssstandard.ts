@@ -38,6 +38,7 @@ export var defaultStandardCss = {
     comment: "",
     required: "",
     titleRequired: "",
+    hasError: "",
     indent: 20,
     footer: "sv_q_footer"
   },

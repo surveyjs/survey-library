@@ -1125,6 +1125,115 @@ QUnit.test("matrixDynamic.addConditionNames", function(assert) {
   );
 });
 
+QUnit.test("matrixDynamic.panelsState, set value", function(assert) {
+  var panel = new QuestionPanelDynamicModel("panel");
+  panel.template.addNewQuestion("text", "q1");
+  panel.panelCount = 2;
+  assert.equal(panel.panelsState, "default", "The default value is normal");
+  assert.equal(
+    panel.panels[0].state,
+    "default",
+    "The default value for all panels is normal"
+  );
+  panel.panelsState = "expanded";
+  assert.equal(
+    panel.panels[0].state,
+    "expanded",
+    "panelsState = 'expanded', the first panel is expanded"
+  );
+  assert.equal(
+    panel.panels[1].state,
+    "expanded",
+    "panelsState = 'expanded', the second panel is expanded"
+  );
+  panel.panelsState = "collapsed";
+  assert.equal(
+    panel.panels[0].state,
+    "collapsed",
+    "panelsState = 'collapsed', the first panel is collapsed"
+  );
+  assert.equal(
+    panel.panels[1].state,
+    "collapsed",
+    "panelsState = 'collapsed', the second panel is collapsed"
+  );
+  panel.panelsState = "firstExpanded";
+  assert.equal(
+    panel.panels[0].state,
+    "expanded",
+    "panelsState = 'firstExpanded', the first panel is expanded"
+  );
+  assert.equal(
+    panel.panels[1].state,
+    "collapsed",
+    "panelsState = 'firstExpanded', the second panel is collapsed"
+  );
+  panel.panelsState = "default";
+  assert.equal(
+    panel.panels[0].state,
+    "default",
+    "panelsState = 'default', the first panel has default state"
+  );
+  assert.equal(
+    panel.panels[1].state,
+    "default",
+    "panelsState = 'default', the second panel has default state"
+  );
+});
+
+QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
+  assert
+) {
+  var panel = new QuestionPanelDynamicModel("panel");
+  panel.template.addNewQuestion("text", "q1");
+  panel.panelCount = 2;
+  panel.addPanel();
+  assert.equal(
+    panel.panels[2].state,
+    "default",
+    "User can't collapse/expand the panel"
+  );
+  panel.panelsState = "expanded";
+  assert.equal(panel.panels[2].state, "expanded", "It is expanded now");
+  panel.addPanel();
+  assert.equal(
+    panel.panels[3].state,
+    "expanded",
+    "the panel is added with expanded state"
+  );
+  panel.panelsState = "collapsed";
+  panel.addPanel();
+  assert.equal(
+    panel.panels[4].state,
+    "expanded",
+    "Also the panelsState = 'collapsed' the panel is added with expanded state"
+  );
+});
+QUnit.test("matrixDynamic.panelsState, load from json", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "q",
+        panelCount: 2,
+        panelsState: "firstExpanded",
+        templateElements: [{ type: "text", name: "q1" }]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+  assert.equal(
+    panel.panels[0].state,
+    "expanded",
+    "The first panel is expanded"
+  );
+  assert.equal(
+    panel.panels[1].state,
+    "collapsed",
+    "The second panel is collapsed"
+  );
+});
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

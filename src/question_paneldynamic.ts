@@ -185,6 +185,9 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelRemoveText", this);
     this.createLocalizableString("panelPrevText", this);
     this.createLocalizableString("panelNextText", this);
+    this.registerFunctionOnPropertyValueChanged("panelsState", function() {
+      self.setPanelsState();
+    });
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -488,12 +491,41 @@ export class QuestionPanelDynamicModel extends Question
     }
     if (val == this.items.length || this.isDesignMode) return;
     for (let i = this.panelCount; i < val; i++) {
-      this.items.push(this.createNewItem());
+      var newItem = this.createNewItem();
+      this.items.push(newItem);
+      if (this.renderMode == "list" && this.panelsState != "default") {
+        newItem.panel.expand();
+      }
     }
     if (val < this.panelCount) this.items.splice(val, this.panelCount - val);
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.fireCallback(this.panelCountChangedCallback);
+  }
+  /**
+   * Use this property to allow the end-user to collapse/expand the panels. It works only if the renderMode property equals to "list" and templateTitle property is not empty. The following values are available:
+   * <br/> default - the default value. User can't collpase/expand panels
+   * <br/> expanded - User can collpase/expand panels and all panels are expanded by default
+   * <br/> collapsed - User can collpase/expand panels and all panels are collapsed by default
+   * <br/> firstExpanded - User can collpase/expand panels. The first panel is expanded and others are collapsed
+   * @see renderMode
+   * @see templateTitle
+   */
+  public get panelsState(): string {
+    return this.getPropertyValue("panelsState", "default");
+  }
+  public set panelsState(val: string) {
+    this.setPropertyValue("panelsState", val);
+  }
+  private setPanelsState() {
+    if (this.isDesignMode || this.renderMode != "list") return;
+    for (var i = 0; i < this.items.length; i++) {
+      var state = this.panelsState;
+      if (state === "firstExpanded") {
+        state = i === 0 ? "expanded" : "collapsed";
+      }
+      this.items[i].panel.state = state;
+    }
   }
   private setValueBasedOnPanelCount() {
     var value = this.value;
@@ -665,6 +697,7 @@ export class QuestionPanelDynamicModel extends Question
         items.push(this.createNewItem());
       }
     }
+    this.setPanelsState();
     this.itemsValue = items;
     this.reRunCondition();
     this.fireCallback(this.panelCountChangedCallback);
@@ -762,6 +795,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isDesignMode) {
       this.rebuildPanels();
     }
+    this.setPanelsState();
     super.onSurveyLoad();
   }
   public runCondition(values: HashTable<any>) {
@@ -963,6 +997,11 @@ JsonObject.metaData.addClass(
     {
       name: "maxPanelCount:number",
       default: QuestionPanelDynamicModel.MaxPanelCount
+    },
+    {
+      name: "panelsState",
+      default: "default",
+      choices: ["default", "collapsed", "expanded", "firstExpanded"]
     },
     { name: "keyName" },
     {

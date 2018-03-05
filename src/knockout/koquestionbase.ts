@@ -50,10 +50,14 @@ export class QuestionImplementorBase {
       return self.question.cssClasses;
     });
     this.question["koRootClass"] = ko.pureComputed(function() {
+      var result = self.question.cssClasses.mainRoot;
       if (self.question.survey.questionTitleLocation === "left") {
-        return self.question.cssClasses.mainRoot + " sv_qstn_left";
+        result += " sv_qstn_left";
       }
-      return self.question.cssClasses.mainRoot;
+      if (self.koErrors().length > 0) {
+        result += " " + self.question.cssClasses.hasError;
+      }
+      return result;
     });
   }
   protected updateQuestion() {}

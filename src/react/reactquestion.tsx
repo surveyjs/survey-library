@@ -31,6 +31,11 @@ export class SurveyQuestion extends React.Component<any, any> {
   private setQuestion(question) {
     this.questionBase = question;
     this.question = question instanceof Question ? question : null;
+    this.questionBase.errorsChangedCallback = () => {
+      var state = this.getState();
+      state.error++;
+      this.setState(state);
+    };
   }
   private getState() {
     var value = this.question ? this.question.value : null;
@@ -122,6 +127,9 @@ export class SurveyQuestion extends React.Component<any, any> {
       titleLocation === "left"
         ? cssClasses.mainRoot + " sv_qstn_left"
         : cssClasses.mainRoot;
+    if (!!this.question.errors && this.question.errors.length > 0) {
+      questionRootClass += " " + cssClasses.hasError;
+    }
     var comment =
       this.question && this.question.hasComment
         ? this.renderComment(cssClasses)
@@ -231,12 +239,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   private setElement(element) {
     this.element = element instanceof SurveyElement ? element : null;
-    if (this.element) {
-      var self = this;
-      this.element.errorsChangedCallback = () => {
-        self.setState(self.getState(self.state));
-      };
-    }
   }
   private getState(prevState = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };

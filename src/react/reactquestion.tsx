@@ -127,7 +127,7 @@ export class SurveyQuestion extends React.Component<any, any> {
       titleLocation === "left"
         ? cssClasses.mainRoot + " sv_qstn_left"
         : cssClasses.mainRoot;
-    if (!!this.question.errors && this.question.errors.length > 0) {
+    if (!!this.questionBase.errors && this.questionBase.errors.length > 0) {
       questionRootClass += " " + cssClasses.hasError;
     }
     var comment =
@@ -239,6 +239,11 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   private setElement(element) {
     this.element = element instanceof SurveyElement ? element : null;
+    if (this.element && !this.element.errorsChangedCallback) {
+      this.element.errorsChangedCallback = () => {
+        this.setState(this.getState(this.state));
+      };
+    }
   }
   private getState(prevState = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };

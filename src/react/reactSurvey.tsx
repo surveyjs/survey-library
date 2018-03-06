@@ -268,8 +268,6 @@ export class Survey extends React.Component<any, any>
     this.survey.onCurrentPageChanged.add((sender, options) => {
       self.isCurrentPageChanged = true;
       self.setState({ pageIndexChange: self.state.pageIndexChange + 1 });
-      if (newProps && newProps.onCurrentPageChanged)
-        newProps.onCurrentPageChanged(sender, options);
     });
     this.survey.onVisibleChanged.add((sender, options) => {
       if (options.question && options.question.react) {

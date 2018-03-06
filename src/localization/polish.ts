@@ -36,3 +36,4 @@ export var polishSurveyStrings = {
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;
+surveyLocalization.localeNames["pl"] = "polski";

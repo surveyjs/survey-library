@@ -40,3 +40,4 @@ export var simplifiedChineseSurveyStrings = {
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;
+surveyLocalization.localeNames["zh-cn"] = "简体中文";

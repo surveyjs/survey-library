@@ -40,3 +40,4 @@ export var catalanSurveyStrings = {
 };
 
 surveyLocalization.locales["ca"] = catalanSurveyStrings;
+surveyLocalization.localeNames["ca"] = "català";

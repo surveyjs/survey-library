@@ -2,6 +2,7 @@ export var surveyLocalization = {
   currentLocale: "",
   defaultLocale: "en",
   locales: {},
+  localeNames: {},
   supportedLocales: [],
   getString: function(strName: string) {
     var loc = this.currentLocale
@@ -87,3 +88,4 @@ export var surveyStrings = {
   cleanCaption: "Clean"
 };
 surveyLocalization.locales["en"] = surveyStrings;
+surveyLocalization.localeNames["en"] = "english";

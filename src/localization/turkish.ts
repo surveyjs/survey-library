@@ -33,3 +33,4 @@ export var turkishSurveyStrings = {
 };
 
 surveyLocalization.locales["tr"] = turkishSurveyStrings;
+surveyLocalization.localeNames["tr"] = "türkçe";

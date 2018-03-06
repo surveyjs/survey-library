@@ -37,3 +37,4 @@ export var greekSurveyStrings = {
   removeRow: "Αφαίρεση"
 };
 surveyLocalization.locales["gr"] = greekSurveyStrings;
+surveyLocalization.localeNames["gr"] = "ελληνικά";

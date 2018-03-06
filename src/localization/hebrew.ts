@@ -24,3 +24,4 @@ export var hebrewSurveyStrings = {
 };
 
 surveyLocalization.locales["he"] = hebrewSurveyStrings;
+surveyLocalization.localeNames["he"] = "עברית";

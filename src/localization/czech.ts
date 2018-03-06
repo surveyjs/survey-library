@@ -34,3 +34,4 @@ export var czechSurveyStrings = {
 };
 
 surveyLocalization.locales["cz"] = czechSurveyStrings;
+surveyLocalization.localeNames["cz"] = "čeština";

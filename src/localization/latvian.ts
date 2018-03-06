@@ -24,3 +24,4 @@ export var latvianSurveyStrings = {
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;
+surveyLocalization.localeNames["lv"] = "latviešu";

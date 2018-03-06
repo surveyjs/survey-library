@@ -34,3 +34,4 @@ export var arabicSurveyStrings = {
 };
 
 surveyLocalization.locales["ar"] = arabicSurveyStrings;
+surveyLocalization.localeNames["ar"] = "العربية";

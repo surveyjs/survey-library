@@ -25,3 +25,4 @@ export var germanSurveyStrings = {
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;
+surveyLocalization.localeNames["de"] = "deutsch";

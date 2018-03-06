@@ -46,3 +46,4 @@ export var persianSurveyStrings = {
   saveAgainButton: "مجدد تلاش کنید"
 };
 surveyLocalization.locales["fa"] = persianSurveyStrings;
+surveyLocalization.localeNames["fa"] = "فارْسِى";

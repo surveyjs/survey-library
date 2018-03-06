@@ -49,3 +49,4 @@ export var portugueseSurveyStrings = {
 };
 
 surveyLocalization.locales["pt"] = portugueseSurveyStrings;
+surveyLocalization.localeNames["pt"] = "português";

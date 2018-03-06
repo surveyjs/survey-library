@@ -40,3 +40,4 @@ export var icelandicSurveyStrings = {
 };
 
 surveyLocalization.locales["is"] = icelandicSurveyStrings;
+surveyLocalization.localeNames["is"] = "íslenska";

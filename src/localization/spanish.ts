@@ -41,3 +41,4 @@ export var spanishSurveyStrings = {
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;
+surveyLocalization.localeNames["es"] = "español";

@@ -39,3 +39,4 @@ export var italianSurveyStrings = {
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;
+surveyLocalization.localeNames["it"] = "italiano";

@@ -24,3 +24,4 @@ export var georgianSurveyStrings = {
 };
 
 surveyLocalization.locales["ka"] = georgianSurveyStrings;
+surveyLocalization.localeNames["ka"] = "ქართული";

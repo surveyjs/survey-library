@@ -26,9 +26,11 @@ export var russianSurveyStrings = {
   timerSpentAll: "Вы потратили {0} на этой странице и {1} всего.",
   timerSpentPage: "Вы потратили {0} на этой странице.",
   timerSpentSurvey: "Вы потратили {0} в течение теста.",
-  timerLimitAll:  "Вы потратили {0} из {1} на этой странице и {2} из {3} для всего теста.",
+  timerLimitAll:
+    "Вы потратили {0} из {1} на этой странице и {2} из {3} для всего теста.",
   timerLimitPage: "Вы потратили {0} из {1} на этой странице.",
   timerLimitSurvey: "Вы потратили {0} из {1} для всего теста."
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;
+surveyLocalization.localeNames["ru"] = "русский";

@@ -25,3 +25,4 @@ export var danishSurveyStrings = {
 };
 
 surveyLocalization.locales["da"] = danishSurveyStrings;
+surveyLocalization.localeNames["da"] = "dansk";

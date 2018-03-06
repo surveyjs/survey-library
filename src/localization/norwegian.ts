@@ -61,3 +61,4 @@ export var norwegianSurveyStrings = {
   cleanCaption: "Rens"
 };
 surveyLocalization.locales["no"] = norwegianSurveyStrings;
+surveyLocalization.localeNames["no"] = "norsk";

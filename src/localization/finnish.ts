@@ -25,3 +25,4 @@ export var finnishSurveyStrings = {
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;
+surveyLocalization.localeNames["fi"] = "suomalainen";

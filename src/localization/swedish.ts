@@ -35,3 +35,4 @@ export var swedishSurveyStrings = {
 };
 
 surveyLocalization.locales["sv"] = swedishSurveyStrings;
+surveyLocalization.localeNames["sv"] = "svenska";

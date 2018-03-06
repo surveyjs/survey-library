@@ -49,3 +49,4 @@ export var hungarianSurveyStrings = {
 };
 
 surveyLocalization.locales["hu"] = hungarianSurveyStrings;
+surveyLocalization.localeNames["hu"] = "magyar";

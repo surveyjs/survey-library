@@ -29,3 +29,4 @@ export var frenchSurveyStrings = {
   otherRequiredError: "Merci de pr\u00e9ciser le champ 'Autre'."
 };
 surveyLocalization.locales["fr"] = frenchSurveyStrings;
+surveyLocalization.localeNames["fr"] = "français";

@@ -2294,6 +2294,7 @@ QUnit.test("Survey Localization - question.validators[].text, Bug#966", function
   assert.equal(validator.text, "de-text", "Use 'de' text");
   survey.locale = "fr";
   assert.equal(validator.text, "default-text", "Use default text");
+  survey.locale = "";
 });
 
 QUnit.test(

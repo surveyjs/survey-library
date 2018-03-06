@@ -75,11 +75,11 @@ export class QuestionPanelDynamicItem
     }
   }
   public setVisibleIndex(index: number, showIndex: boolean): number {
-    return SurveyElement.setVisibleIndex(
-      this.panel.questions,
-      index,
-      showIndex
-    );
+    if (!showIndex) {
+      this.panel.setVisibleIndex(-1);
+      return 0;
+    }
+    return this.panel.setVisibleIndex(index);
   }
 
   getAllValues(): any {
@@ -643,6 +643,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.renderMode == "list";
   }
   public setVisibleIndex(value: number): number {
+    if (!this.isVisible) return 0;
     var startIndex = this.showQuestionNumbers == "onSurvey" ? value : 0;
     for (var i = 0; i < this.items.length; i++) {
       var counter = this.items[i].setVisibleIndex(

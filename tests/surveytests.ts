@@ -3227,6 +3227,74 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function(
   assert.equal(page.questions.length, 4, "there are 4 questions on the page");
 });
 
+QUnit.test("Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925", function(
+  assert
+) {
+  var json = {
+    "pages": [
+        {
+            "elements": [
+                {
+                    "type": "radiogroup",
+                    "name": "InvestorType",
+                    "choices": ["entity", "Individual"]
+                }
+            ],
+            "name": "section1"
+        },
+        {
+            "elements": [
+                {
+                    "type": "panel",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "name": "q1",
+                            "visibleIf": "{InvestorType}='entity'"
+                        }
+                    ],
+                    "name": "InvestmentAdvisorPanel",
+                    "visibleIf": "{InvestorType}='entity'"
+                },
+                {
+                    "type": "panel",
+                    "elements": [
+                        {
+                            "type": "text",
+                            "name": "q2",
+                            "visibleIf": "{InvestorType}='entity'",
+                        }
+                    ],
+                    "name": "FundOfFundsPanel",
+                    "visibleIf": "{InvestorType} <> 'entity'"
+                }
+            ],
+            "name": "section2",
+            "visibleIf": "{InvestorType}='entity'"
+        },
+        {
+            "elements": [
+                {
+                    "type": "text",
+                    "name": "q3",
+                    "visibleIf": "{InvestorType}='entity'",
+                }
+            ],
+            "name": "section3",
+            "visibleIf": "{InvestorType}='entity'"
+        }
+    ]
+};
+  var survey = new SurveyModel(json);
+  survey.isSinglePage = true;
+  assert.equal((<Question>survey.getQuestionByName("InvestorType")).visibleIndex, 0, "The first question");
+  survey.setValue("InvestorType", "entity");
+  var q3 = survey.getQuestionByName("q3");
+  assert.equal((<Question>survey.getQuestionByName("q1")).visibleIndex, 1, "The second question");
+  assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, -1, "The third question is invisible because of panel");
+  assert.equal((<Question>survey.getQuestionByName("q3")).visibleIndex, 2, "The forth question");
+});
+
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(survey.pages[0].hasShown, false, "The first page was not shown");

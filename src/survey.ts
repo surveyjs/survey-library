@@ -33,7 +33,8 @@ import { Question } from "./question";
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base
-  implements ISurvey,
+  implements
+    ISurvey,
     ISurveyData,
     ISurveyImpl,
     ISurveyTriggerOwner,
@@ -1444,6 +1445,7 @@ export class SurveyModel extends Base
       var deletedLen = this.pages.length - startIndex;
       this.pages.splice(startIndex, deletedLen, singlePage);
     }
+    this.updateVisibleIndexes();
   }
   private createSinglePage(startIndex: number): PageModel {
     var single = this.createNewPage("all");
@@ -2000,10 +2002,17 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
+  private runConditionsState = "";
   private runConditions() {
+    this.runConditionsState = "running";
     var pages = this.pages;
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(this.valuesHash);
+    }
+    var needUpdateIndexes = this.runConditionsState === "visibleIndexesChanged";
+    this.runConditionsState = "";
+    if (needUpdateIndexes) {
+      this.updateVisibleIndexes();
     }
   }
   /**
@@ -2144,17 +2153,21 @@ export class SurveyModel extends Base
     }
   }
   private updateVisibleIndexes() {
+    if (this.runConditionsState == "running") {
+      this.runConditionsState = "visibleIndexesChanged";
+    }
+    if (this.runConditionsState) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
       for (var i = 0; i < visPages.length; i++) {
-        this.updateQuestionVisibleIndexes(visPages[i].questions, true);
+        visPages[i].setVisibleIndex(0);
       }
     } else {
-      this.updateQuestionVisibleIndexes(
-        this.getAllQuestions(false),
-        this.showQuestionNumbers == "on"
-      );
+      var index = this.showQuestionNumbers == "on" ? 0 : -1;
+      for (var i = 0; i < this.pages.length; i++) {
+        index += this.pages[i].setVisibleIndex(index);
+      }
     }
   }
   private updatePageVisibleIndexes(showIndex: boolean) {
@@ -2166,12 +2179,6 @@ export class SurveyModel extends Base
           ? this.pages[i].visibleIndex + 1
           : -1;
     }
-  }
-  private updateQuestionVisibleIndexes(
-    questions: IQuestion[],
-    showIndex: boolean
-  ) {
-    SurveyElement.setVisibleIndex(questions, 0, showIndex);
   }
   private setJsonObject(jsonObj: any) {
     if (!jsonObj) return;

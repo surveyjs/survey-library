@@ -321,9 +321,11 @@ export class QuestionBase extends SurveyElement
     this.fireCallback(this.surveyLoadCallback);
   }
   public setVisibleIndex(val: number): number {
-    if (this.visibleIndex == val) return 1;
+    if (!this.isVisible || !this.hasTitle) {
+      val = -1;
+    }
     this.setPropertyValue("visibleIndex", val);
-    return 1;
+    return val < 0 ? 0 : 1;
   }
   public removeElement(element: IElement): boolean {
     return false;

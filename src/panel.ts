@@ -107,7 +107,6 @@ export class PanelModelBase extends SurveyElement
       }
     );
     this.registerFunctionOnPropertyValueChanged("elements", function() {
-      self.markQuestionListDirty();
       self.onRowsChanged();
     });
     this.id = PanelModelBase.getPanelId();
@@ -279,9 +278,9 @@ export class PanelModelBase extends SurveyElement
   }
   public getValue(): any {
     var data = {};
-    for(var i = 0; i < this.questions.length; i ++) {
+    for (var i = 0; i < this.questions.length; i++) {
       var q = this.questions[i];
-      if(q.isEmpty()) continue;
+      if (q.isEmpty()) continue;
       data[q.getValueName()] = q["value"];
     }
     return data;
@@ -528,6 +527,7 @@ export class PanelModelBase extends SurveyElement
   private onAddElement(element: IElement, index: number) {
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
+    this.markQuestionListDirty();
     if (element.isPanel) {
       var p = <PanelModel>element;
       if (this.survey) {
@@ -557,6 +557,7 @@ export class PanelModelBase extends SurveyElement
   }
   private onRemoveElement(element: IElement) {
     element.parent = null;
+    this.markQuestionListDirty();
     (<Base>(<any>element)).unRegisterFunctionOnPropertiesValueChanged(
       ["visible", "isVisible", "startWithNewLine"],
       this.id
@@ -644,6 +645,20 @@ export class PanelModelBase extends SurveyElement
     }
     return false;
   }
+  public setVisibleIndex(index: number): number {
+    if (!this.isVisible || index < 0) {
+      for (var i = 0; i < this.elements.length; i++) {
+        this.elements[i].setVisibleIndex(-1);
+      }
+      return 0;
+    }
+    var startIndex = index;
+    for (var i = 0; i < this.elements.length; i++) {
+      index += this.elements[i].setVisibleIndex(index);
+    }
+    return index - startIndex;
+  }
+
   /**
    * Add an elememnt into Panel or Page.
    * @param element

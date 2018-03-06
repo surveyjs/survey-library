@@ -1,18 +1,18 @@
 import { surveyLocalization } from "../surveyStrings";
 
 export var norwegianSurveyStrings = {
-  pagePrevText: "Tidligere",
+  pagePrevText: "Forrige",
   pageNextText: "Neste",
-  completeText: "Fullstendig",
+  completeText: "Fullfør",
   startSurveyText: "Start",
-  otherItemText: "Annet (beskrive)",
+  otherItemText: "Annet (beskriv)",
   progressText: "Side {0} av {1}",
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
   completingSurvey: "Takk for at du fullførte undersøkelsen!",
   completingSurveyBefore:
-    "OVåre dokumenter viser at du allerede har gjennomført denne undersøkelsen.",
-  loadingSurvey: "Undersøkelsen laster inn ...",
-  optionsCaption: "Velge...",
+    "Våre data viser at du allerede har gjennomført denne undersøkelsen.",
+  loadingSurvey: "Undersøkelsen laster...",
+  optionsCaption: "Velg...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
@@ -23,7 +23,7 @@ export var norwegianSurveyStrings = {
   textMinMaxLength: "Vennligst skriv inn mer enn {0} og mindre enn {1} tegn.",
   minRowCountError: "Vennligst fyll inn minst {0} rader.",
   minSelectError: "Vennligst velg minst {0} varianter.",
-  maxSelectError: "Vennligst velg ikke mer enn {0} varianter.",
+  maxSelectError: "Vennligst ikke velg mer enn {0} varianter.",
   numericMinMax:
     "'{0}' bør være lik eller mer enn {1} og lik eller mindre enn {2}",
   numericMin: "'{0}' bør være lik eller mer enn {1}",
@@ -31,7 +31,7 @@ export var norwegianSurveyStrings = {
   invalidEmail: "Vennligst skriv inn en gyldig e-post adresse.",
   urlRequestError: "Forespørselen returnerte feilen '{0}'. {1}",
   urlGetChoicesError:
-    "Forespørselen returnerte tomme data, eller 'banen' -egenskapen er feil",
+    "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
   exceedMaxSize: "Filstørrelsen bør ikke overstige {0}.",
   otherRequiredError: "Vennligst skriv inn den andre verdien.",
   uploadingFile:
@@ -39,25 +39,25 @@ export var norwegianSurveyStrings = {
   confirmDelete: "Ønsker du å slette posten?",
   keyDuplicationError: "Denne verdien skal være unik.",
   addRow: "Legg til rad",
-  removeRow: "Fjerne",
+  removeRow: "Fjern",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
-  choices_Item: "punkt",
+  choices_Item: "element",
   matrix_column: "Kolonne",
   matrix_row: "Rad",
-  savingData: "Resultatene lagrer på serveren ...",
+  savingData: "Resultatene lagres på serveren ...",
   savingDataError: "Det oppsto en feil, og vi kunne ikke lagre resultatene.",
   savingDataSuccess: "Resultatene ble lagret!",
   saveAgainButton: "Prøv igjen",
   timerMin: "min",
   timerSec: "sek",
-  timerSpentAll: "Du har brukt {0} på denne siden og {1} totalt.",
-  timerSpentPage: "Du har brukt {0} på denne siden.",
+  timerSpentAll: "Du har tilbrakt {0} på denne siden og {1} totalt.",
+  timerSpentPage: "Du har tilbrakt {0} på denne siden.",
   timerSpentSurvey: "Du har tilbrakt {0} totalt.",
   timerLimitAll:
-    "Du har brukt {0} av {1} på denne siden og totalt {2} av {3}.",
-  timerLimitPage: "Du har brukt {0} av {1} på denne siden.",
-  timerLimitSurvey: "Du har brukt {0} av {1} totalt.",
-  cleanCaption: "Ren"
+    "Du har tilbrakt {0} av {1} på denne siden og totalt {2} av {3}.",
+  timerLimitPage: "Du har tilbrakt {0} av {1} på denne siden.",
+  timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
+  cleanCaption: "Rens"
 };
 surveyLocalization.locales["no"] = norwegianSurveyStrings;

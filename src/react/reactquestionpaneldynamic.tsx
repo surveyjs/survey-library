@@ -25,9 +25,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.setProperties(nextProps);
   }
-  private setProperties(nextProps: any) {
-    var self = this;
+  componentDidMount() {
     this.setState({ panelCounter: 0 });
+    var self = this;
     this.question.panelCountChangedCallback = function() {
       self.updateQuestionRendering();
     };
@@ -37,6 +37,13 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.renderModeChangedCallback = function() {
       self.updateQuestionRendering();
     };
+  }
+  componentWillUnmount() {
+    this.question.panelCountChangedCallback = null;
+    this.question.currentIndexChangedCallback = null;
+    this.question.renderModeChangedCallback = null;
+  }
+  private setProperties(nextProps: any) {
     this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this);
     this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this);
     this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this);

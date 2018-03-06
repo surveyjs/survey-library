@@ -13,6 +13,7 @@ import "../../localization/hungarian";
 import "../../localization/icelandic";
 import "../../localization/italian";
 import "../../localization/latvian";
+import "../../localization/norwegian";
 import "../../localization/persian";
 import "../../localization/polish";
 import "../../localization/portuguese";

@@ -12,7 +12,7 @@ export var norwegianSurveyStrings = {
   completingSurveyBefore:
     "OVåre dokumenter viser at du allerede har gjennomført denne undersøkelsen.",
   loadingSurvey: "Undersøkelsen laster inn ...",
-  optionsCaption: "Choose...",
+  optionsCaption: "Velge...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",

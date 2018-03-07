@@ -78,33 +78,33 @@ Or dowload a version as zip file from [Releases](https://github.com/surveyjs/sur
 
 To build library yourself:
 
-1. **Clone the repo from GitHub**
+1.  **Clone the repo from GitHub**
 
-   ```
-   git clone https://github.com/surveyjs/surveyjs.git
-   cd surveyjs
-   ```
+    ```
+    git clone https://github.com/surveyjs/surveyjs.git
+    cd surveyjs
+    ```
 
-2. **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. This is only needed to _build_ surveyjs from sources.
+2.  **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. You need a version of Node.js greater than 6.0.0 and npm greater than 2.7.0. This is only needed to _build_ surveyjs from sources.
 
-   ```
-   npm install -g karma-cli
-   npm install
-   ```
+    ```
+    npm install -g karma-cli
+    npm install
+    ```
 
-3. **Build the library**
+3.  **Build the library**
 
-   ```
-   npm run build_prod
-   ```
+    ```
+    npm run build_prod
+    ```
 
-   After that you should have the libraries (angular, jquery, knockout, react and vue) at 'packages' directory.
+    After that you should have the libraries (angular, jquery, knockout, react and vue) at 'packages' directory.
 
-4. **Run unit tests**
-   ```
-   karma start
-   ```
-   This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
+4.  **Run unit tests**
+    ```
+    karma start
+    ```
+    This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
 ## License
 

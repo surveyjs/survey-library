@@ -204,6 +204,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
    * @see SurveyModel.questionTitleTemplate
    */
   public get fullTitle(): string {
+    var res = this.calcFullTitle();
+    if (!this.survey) return res;
+    return this.survey.getUpdatedQuestionTitle(this, res);
+  }
+  private calcFullTitle(): string {
     if (this.survey && this.survey.getQuestionTitleTemplate()) {
       if (!this.textPreProcessor) {
         var self = this;

@@ -38,11 +38,14 @@ export interface ISurvey extends ITextProcessor {
   isDisplayMode: boolean;
   isDesignMode: boolean;
   isLoadingFromJson: boolean;
+
   requiredText: string;
+  getQuestionTitleTemplate(): string;
+  getUpdatedQuestionTitle(question: IQuestion, title: string): string;
+
   questionStartIndex: string;
   questionTitleLocation: string;
   questionErrorLocation: string;
-  getQuestionTitleTemplate(): string;
   storeOthersAsComment: boolean;
   uploadFile(
     name: string,

@@ -277,6 +277,16 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to change the question title in the code.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.title a calcualted question title, based on question title, name, isRequired, visibleIndex (no)
+   * <br/> options.question a question object.
+   */
+  public onGetQuestionTitle: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * Use this event to process the markdown text.
    * <br/> sender the survey object that fires the event
    * <br/> options.text a text that is going to be rendered
@@ -957,6 +967,12 @@ export class SurveyModel extends Base
   }
   get locQuestionTitleTemplate(): LocalizableString {
     return this.getLocalizableString("questionTitleTemplate");
+  }
+  getUpdatedQuestionTitle(question: IQuestion, title: string): string {
+    if(this.onGetQuestionTitle.isEmpty) return title;
+    var options = {question: question, title: title};
+    this.onGetQuestionTitle.fire(this, options);
+    return options.title;
   }
 
   /**

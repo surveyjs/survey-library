@@ -1111,32 +1111,39 @@ QUnit.test("Complete trigger test", function(assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
-QUnit.test("Complete trigger, onCurrentPageChange calls after onComplete, Bug#963", function(assert) {
-  var survey = twoPageSimplestSurvey();
-  var trigger = new SurveyTriggerComplete();
-  survey.triggers.push(trigger);
-  trigger.name = "question1";
-  trigger.value = "Hello";
-  survey.setValue("question1", "Hello");
-  var page = survey.currentPage;
+QUnit.test(
+  "Complete trigger, onCurrentPageChange calls after onComplete, Bug#963",
+  function(assert) {
+    var survey = twoPageSimplestSurvey();
+    var trigger = new SurveyTriggerComplete();
+    survey.triggers.push(trigger);
+    trigger.name = "question1";
+    trigger.value = "Hello";
+    survey.setValue("question1", "Hello");
+    var page = survey.currentPage;
 
-  var firstFiredEvent = null;
-  var onCurrentPageChangedCounter = 0;
-  var onCompleteCounter = 0;
-  survey.onCurrentPageChanged.add(function(survey, options){
-    if(!firstFiredEvent) firstFiredEvent = "onCurrentPageChanged";
-    onCurrentPageChangedCounter ++;
-  });
-  survey.onComplete.add(function(survey, options){
-    if(!firstFiredEvent) firstFiredEvent = "onComplete";
-    onCompleteCounter ++;
-  });
+    var firstFiredEvent = null;
+    var onCurrentPageChangedCounter = 0;
+    var onCompleteCounter = 0;
+    survey.onCurrentPageChanged.add(function(survey, options) {
+      if (!firstFiredEvent) firstFiredEvent = "onCurrentPageChanged";
+      onCurrentPageChangedCounter++;
+    });
+    survey.onComplete.add(function(survey, options) {
+      if (!firstFiredEvent) firstFiredEvent = "onComplete";
+      onCompleteCounter++;
+    });
 
-  survey.nextPage();
-  assert.equal(onCompleteCounter, 1, "onComplete fired one time");
-  assert.equal(onCurrentPageChangedCounter, 0, "onCurrentPageChanged fired one time");
-  assert.equal(firstFiredEvent, "onComplete", "should be called first");
-});
+    survey.nextPage();
+    assert.equal(onCompleteCounter, 1, "onComplete fired one time");
+    assert.equal(
+      onCurrentPageChangedCounter,
+      0,
+      "onCurrentPageChanged fired one time"
+    );
+    assert.equal(firstFiredEvent, "onComplete", "should be called first");
+  }
+);
 QUnit.test("Value trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();
   var trigger = new SurveyTriggerSetValue();
@@ -2281,21 +2288,24 @@ QUnit.test("Survey Localization - multipletext.items", function(assert) {
   assert.equal(item.placeHolder, "caption1", "Use default text, placeHolder");
 });
 
-QUnit.test("Survey Localization - question.validators[].text, Bug#966", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
-  var q1 = new QuestionTextModel("q1");
-  page.addQuestion(q1);
-  var validator = new EmailValidator();
-  q1.validators.push(validator);
-  validator.text = "default-text";
-  survey.locale = "de";
-  validator.text = "de-text";
-  assert.equal(validator.text, "de-text", "Use 'de' text");
-  survey.locale = "fr";
-  assert.equal(validator.text, "default-text", "Use default text");
-  survey.locale = "";
-});
+QUnit.test(
+  "Survey Localization - question.validators[].text, Bug#966",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionTextModel("q1");
+    page.addQuestion(q1);
+    var validator = new EmailValidator();
+    q1.validators.push(validator);
+    validator.text = "default-text";
+    survey.locale = "de";
+    validator.text = "de-text";
+    assert.equal(validator.text, "de-text", "Use 'de' text");
+    survey.locale = "fr";
+    assert.equal(validator.text, "default-text", "Use default text");
+    survey.locale = "";
+  }
+);
 
 QUnit.test(
   "Survey text preprocessing, dropdown/checkbox/radiogroup, issue #499",
@@ -3227,73 +3237,90 @@ QUnit.test("Survey show several pages as one + firstPageIsStarted", function(
   assert.equal(page.questions.length, 4, "there are 4 questions on the page");
 });
 
-QUnit.test("Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925", function(
-  assert
-) {
-  var json = {
-    "pages": [
+QUnit.test(
+  "Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925",
+  function(assert) {
+    var json = {
+      pages: [
         {
-            "elements": [
-                {
-                    "type": "radiogroup",
-                    "name": "InvestorType",
-                    "choices": ["entity", "Individual"]
-                }
-            ],
-            "name": "section1"
+          elements: [
+            {
+              type: "radiogroup",
+              name: "InvestorType",
+              choices: ["entity", "Individual"]
+            }
+          ],
+          name: "section1"
         },
         {
-            "elements": [
+          elements: [
+            {
+              type: "panel",
+              elements: [
                 {
-                    "type": "panel",
-                    "elements": [
-                        {
-                            "type": "text",
-                            "name": "q1",
-                            "visibleIf": "{InvestorType}='entity'"
-                        }
-                    ],
-                    "name": "InvestmentAdvisorPanel",
-                    "visibleIf": "{InvestorType}='entity'"
-                },
-                {
-                    "type": "panel",
-                    "elements": [
-                        {
-                            "type": "text",
-                            "name": "q2",
-                            "visibleIf": "{InvestorType}='entity'",
-                        }
-                    ],
-                    "name": "FundOfFundsPanel",
-                    "visibleIf": "{InvestorType} <> 'entity'"
+                  type: "text",
+                  name: "q1",
+                  visibleIf: "{InvestorType}='entity'"
                 }
-            ],
-            "name": "section2",
-            "visibleIf": "{InvestorType}='entity'"
+              ],
+              name: "InvestmentAdvisorPanel",
+              visibleIf: "{InvestorType}='entity'"
+            },
+            {
+              type: "panel",
+              elements: [
+                {
+                  type: "text",
+                  name: "q2",
+                  visibleIf: "{InvestorType}='entity'"
+                }
+              ],
+              name: "FundOfFundsPanel",
+              visibleIf: "{InvestorType} <> 'entity'"
+            }
+          ],
+          name: "section2",
+          visibleIf: "{InvestorType}='entity'"
         },
         {
-            "elements": [
-                {
-                    "type": "text",
-                    "name": "q3",
-                    "visibleIf": "{InvestorType}='entity'",
-                }
-            ],
-            "name": "section3",
-            "visibleIf": "{InvestorType}='entity'"
+          elements: [
+            {
+              type: "text",
+              name: "q3",
+              visibleIf: "{InvestorType}='entity'"
+            }
+          ],
+          name: "section3",
+          visibleIf: "{InvestorType}='entity'"
         }
-    ]
-};
-  var survey = new SurveyModel(json);
-  survey.isSinglePage = true;
-  assert.equal((<Question>survey.getQuestionByName("InvestorType")).visibleIndex, 0, "The first question");
-  survey.setValue("InvestorType", "entity");
-  var q3 = survey.getQuestionByName("q3");
-  assert.equal((<Question>survey.getQuestionByName("q1")).visibleIndex, 1, "The second question");
-  assert.equal((<Question>survey.getQuestionByName("q2")).visibleIndex, -1, "The third question is invisible because of panel");
-  assert.equal((<Question>survey.getQuestionByName("q3")).visibleIndex, 2, "The forth question");
-});
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.isSinglePage = true;
+    assert.equal(
+      (<Question>survey.getQuestionByName("InvestorType")).visibleIndex,
+      0,
+      "The first question"
+    );
+    survey.setValue("InvestorType", "entity");
+    var q3 = survey.getQuestionByName("q3");
+    assert.equal(
+      (<Question>survey.getQuestionByName("q1")).visibleIndex,
+      1,
+      "The second question"
+    );
+    assert.equal(
+      (<Question>survey.getQuestionByName("q2")).visibleIndex,
+      -1,
+      "The third question is invisible because of panel"
+    );
+    assert.equal(
+      (<Question>survey.getQuestionByName("q3")).visibleIndex,
+      2,
+      "The forth question"
+    );
+  }
+);
 
 QUnit.test("Survey page hasShown", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -3467,6 +3494,20 @@ QUnit.test(
     assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
+QUnit.test("survey.onGetQuestionTitle event. ", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <Question>page.addNewQuestion("text", "question1");
+  assert.equal(
+    question.fullTitle,
+    "1. question1",
+    "by default it is question name if title is empty"
+  );
+  survey.onGetQuestionTitle.add(function(survey, options) {
+    if (options.question.title == options.question.name) options.title = "";
+  });
+  assert.equal(question.fullTitle, "", "it is empty now");
+});
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

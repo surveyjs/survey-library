@@ -62,6 +62,14 @@ export class LocalizableString {
   }
   public setLocaleText(loc: string, value: string) {
     if (value == this.getLocaleText(loc)) return;
+    if (
+      value &&
+      loc &&
+      loc != LocalizableString.defaultLocale &&
+      !this.values[loc] &&
+      value == this.getLocaleText(LocalizableString.defaultLocale)
+    )
+      return;
     if (!loc) loc = LocalizableString.defaultLocale;
     delete this.htmlValues[loc];
     if (!value) {

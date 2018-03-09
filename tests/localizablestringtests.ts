@@ -17,6 +17,20 @@ class LocalizableOwnerTester implements ILocalizableOwner {
   }
 }
 
+class LocalizableStringTester extends LocalizableString {
+  public onChangedCounter = 0;
+  constructor(
+    public owner: ILocalizableOwner,
+    public useMarkdown: boolean = false
+  ) {
+    super(owner, useMarkdown);
+  }
+  public onChanged() {
+    super.onChanged();
+    this.onChangedCounter++;
+  }
+}
+
 class LocalizableObjectTester {
   private locString: LocalizableString;
   constructor(public owner: ILocalizableOwner) {
@@ -302,3 +316,22 @@ QUnit.test("ItemValue markdown support", function(assert) {
     "renderedHtml for item3"
   );
 });
+
+QUnit.test(
+  "Do not call changed on setting value for locale, if there is the same value in default locale",
+  function(assert) {
+    var owner = new LocalizableOwnerTester("");
+
+    var locString = new LocalizableStringTester(owner, true);
+    locString.text = "enText";
+    assert.equal(locString.onChangedCounter, 1, "onChanged called one time");
+    owner.locale = "en";
+    locString.text = "enText";
+    assert.equal(
+      locString.onChangedCounter,
+      1,
+      "onChanged called still one time"
+    );
+    assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
+  }
+);

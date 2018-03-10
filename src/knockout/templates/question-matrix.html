@@ -21,7 +21,8 @@
                     </td>
                     <!-- ko foreach: question.columns -->
                     <td>
-                        <label data-bind="css: question.getItemCss(row, $data)">
+                        <span data-bind="visible: question.hasCellText, css: question.getItemCss(row, $data), text: question.getCellDisplayText(row.name, $data), click: row.koCellClick($data)"></span>
+                        <label data-bind="visible: !question.hasCellText, css: question.getItemCss(row, $data)">
                             <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()"
                             />
                             <span class="circle"></span>

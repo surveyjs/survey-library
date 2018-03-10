@@ -365,8 +365,26 @@ QUnit.test("Matrix Question cells get cell displayText", function(assert) {
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   matrix.setCellText(0, 0, "cell11");
-  assert.equal(matrix.getCellDisplayText(0, 0), "cell11", "get cell text");
-  assert.equal(matrix.getCellDisplayText(0, 1), "col2", "get column text");
+  assert.equal(
+    matrix.getCellDisplayText(0, 0),
+    "cell11",
+    "get cell text by indexes"
+  );
+  assert.equal(
+    matrix.getCellDisplayText(matrix.rows[0], matrix.columns[0]),
+    "cell11",
+    "get cell text by objects"
+  );
+  assert.equal(
+    matrix.getCellDisplayText(matrix.rows[0], matrix.columns[1]),
+    "col2",
+    "get column text by indexes"
+  );
+  assert.equal(
+    matrix.getCellDisplayText(matrix.rows[0], matrix.columns[1]),
+    "col2",
+    "get column text by objects"
+  );
 });
 
 QUnit.test("Matrix Question cells serialize/deserialize", function(assert) {

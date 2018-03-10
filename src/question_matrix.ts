@@ -88,10 +88,17 @@ export class MartrixCells {
     if (!this.values[row][column]) return null;
     return this.values[row][column].text;
   }
-  public getCellDisplayText(row: number, column: number): string {
-    if (column < 0 && column >= this.columns.length) return null;
+  public getCellDisplayText(row: any, column: any): string {
     var cellText = this.getCellText(row, column);
-    return cellText ? cellText : this.columns[column].text;
+    if (cellText) return cellText;
+    if (typeof column == "number") {
+      column =
+        column >= 0 && column < this.columns.length
+          ? this.columns[column]
+          : null;
+    }
+    if (column && column.text) return column.text;
+    return null;
   }
   public get rows(): Array<any> {
     return this.cellsOwner ? this.cellsOwner.getRows() : [];
@@ -104,6 +111,7 @@ export class MartrixCells {
       if (val < 0 || val >= values.length) return null;
       val = values[val].value;
     }
+    if (val.value) return val.value;
     return val;
   }
   public getJson(): any {
@@ -230,7 +238,7 @@ export class QuestionMatrixModel extends Question
   public getCellText(row: any, column: any): string {
     return this.cells.getCellText(row, column);
   }
-  public getCellDisplayText(row: number, column: number): string {
+  public getCellDisplayText(row: any, column: any): string {
     return this.cells.getCellDisplayText(row, column);
   }
   supportGoNextPageAutomatic() {

@@ -12,6 +12,7 @@ import { ItemValue } from "../itemvalue";
 export class MatrixRow extends MatrixRowModel {
   private isValueUpdating = false;
   koValue: any;
+  koCellClick: any;
   constructor(
     item: ItemValue,
     public fullName: string,
@@ -25,6 +26,9 @@ export class MatrixRow extends MatrixRowModel {
       if (self.isValueUpdating) true;
       self.value = newValue;
     });
+    this.koCellClick = function(column) {
+      self.koValue(column.value);
+    };
   }
   protected onValueChanged() {
     this.isValueUpdating = true;

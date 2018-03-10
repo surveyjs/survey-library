@@ -229,6 +229,10 @@ export class QuestionMatrixModel extends Question
   public get cells(): MartrixCells {
     return this.cellsValue;
   }
+  public set cells(value: MartrixCells) {
+    if (!value) return;
+    this.cells.setJson(value.getJson());
+  }
   public get hasCellText(): boolean {
     return !this.cells.isEmpty;
   }
@@ -348,7 +352,7 @@ JsonObject.metaData.addClass(
         obj.rows = value;
       }
     },
-    { name: "cells", serializationProperty: "cells" },
+    { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"
   ],
   function() {

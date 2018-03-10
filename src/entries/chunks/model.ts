@@ -51,7 +51,11 @@ export {
   MatrixDynamicRowModel,
   QuestionMatrixDynamicModel
 } from "../../question_matrixdynamic";
-export { MatrixRowModel, QuestionMatrixModel } from "../../question_matrix";
+export {
+  MatrixRowModel,
+  MartrixCells,
+  QuestionMatrixModel
+} from "../../question_matrix";
 export {
   MultipleTextItemModel,
   QuestionMultipleTextModel

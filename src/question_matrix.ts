@@ -6,7 +6,7 @@ import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { QuestionFactory } from "./questionfactory";
-import { LocalizableString } from "./localizablestring";
+import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel);
@@ -47,18 +47,108 @@ export class MatrixRowModel {
   protected onValueChanged() {}
 }
 
+export interface IMatrixCellsOwner extends ILocalizableOwner {
+  getRows(): Array<any>;
+  getColumns(): Array<any>;
+}
+
+export class MartrixCells {
+  private values = {};
+  public constructor(public cellsOwner: IMatrixCellsOwner) {}
+  public get isEmpty(): boolean {
+    return Object.keys(this.values).length == 0;
+  }
+  public setCellText(row: any, column: any, val: string) {
+    row = this.getCellRowColumnValue(row, this.rows);
+    column = this.getCellRowColumnValue(column, this.columns);
+    if (!row || !column) return;
+    if (val) {
+      if (!this.values[row]) this.values[row] = {};
+      if (!this.values[row][column])
+        this.values[row][column] = new LocalizableString(this.cellsOwner);
+      this.values[row][column].text = val;
+    } else {
+      if (this.values[row] && this.values[row][column]) {
+        var loc = this.values[row][column];
+        loc.text = "";
+        if (loc.isEmpty) {
+          delete this.values[row][column];
+          if (Object.keys(this.values[row]).length == 0) {
+            delete this.values[row];
+          }
+        }
+      }
+    }
+  }
+  public getCellText(row: any, column: any): string {
+    row = this.getCellRowColumnValue(row, this.rows);
+    column = this.getCellRowColumnValue(column, this.columns);
+    if (!row || !column) return null;
+    if (!this.values[row]) return null;
+    if (!this.values[row][column]) return null;
+    return this.values[row][column].text;
+  }
+  public getCellDisplayText(row: number, column: number): string {
+    if (column < 0 && column >= this.columns.length) return null;
+    var cellText = this.getCellText(row, column);
+    return cellText ? cellText : this.columns[column].text;
+  }
+  public get rows(): Array<any> {
+    return this.cellsOwner ? this.cellsOwner.getRows() : [];
+  }
+  public get columns(): Array<any> {
+    return this.cellsOwner ? this.cellsOwner.getColumns() : [];
+  }
+  private getCellRowColumnValue(val: any, values: Array<any>): any {
+    if (typeof val == "number") {
+      if (val < 0 || val >= values.length) return null;
+      val = values[val].value;
+    }
+    return val;
+  }
+  public getJson(): any {
+    if (this.isEmpty) return null;
+    var res = {};
+    for (var row in this.values) {
+      var resRow = {};
+      var rowValues = this.values[row];
+      for (var col in rowValues) {
+        resRow[col] = rowValues[col].getJson();
+      }
+      res[row] = resRow;
+    }
+    return res;
+  }
+  public setJson(value: any) {
+    this.values = {};
+    if (!value) return;
+    for (var row in value) {
+      var rowValues = value[row];
+      this.values[row] = {};
+      for (var col in rowValues) {
+        var loc = new LocalizableString(this.cellsOwner);
+        loc.setJson(rowValues[col]);
+        this.values[row][col] = loc;
+      }
+    }
+  }
+}
+
 /**
  * A Model for a simple matrix question.
  */
-export class QuestionMatrixModel extends Question implements IMatrixData {
+export class QuestionMatrixModel extends Question
+  implements IMatrixData, IMatrixCellsOwner {
   private columnsValue: Array<ItemValue>;
   private rowsValue: Array<ItemValue>;
   private isRowChanging = false;
   private generatedVisibleRows: Array<MatrixRowModel>;
+  private cellsValue;
   constructor(public name: string) {
     super(name);
     this.columnsValue = this.createItemValues("columns");
     this.rowsValue = this.createItemValues("rows");
+    this.cellsValue = new MartrixCells(this);
   }
   public getType(): string {
     return "matrix";
@@ -121,6 +211,27 @@ export class QuestionMatrixModel extends Question implements IMatrixData {
     }
     this.generatedVisibleRows = result;
     return result;
+  }
+  getRows(): Array<any> {
+    return this.rows;
+  }
+  getColumns(): Array<any> {
+    return this.columns;
+  }
+  public get cells(): MartrixCells {
+    return this.cellsValue;
+  }
+  public get hasCellText(): boolean {
+    return !this.cells.isEmpty;
+  }
+  public setCellText(row: any, column: any, val: string) {
+    this.cells.setCellText(row, column, val);
+  }
+  public getCellText(row: any, column: any): string {
+    return this.cells.getCellText(row, column);
+  }
+  public getCellDisplayText(row: number, column: number): string {
+    return this.cells.getCellDisplayText(row, column);
   }
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
@@ -229,6 +340,7 @@ JsonObject.metaData.addClass(
         obj.rows = value;
       }
     },
+    { name: "cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"
   ],
   function() {

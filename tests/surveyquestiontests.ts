@@ -345,6 +345,70 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function(
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
+QUnit.test("Matrix Question cells get/set cell text", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.hasCellText, false, "There is no cell text");
+  matrix.setCellText(0, 0, "cell11");
+  assert.equal(matrix.hasCellText, true, "There is cell text");
+  assert.equal(
+    matrix.getCellText(0, 0),
+    "cell11",
+    "get/set by index works correctly"
+  );
+  matrix.setCellText(0, 0, "");
+  assert.equal(matrix.hasCellText, false, "There is no cell text again");
+});
+QUnit.test("Matrix Question cells get cell displayText", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  matrix.setCellText(0, 0, "cell11");
+  assert.equal(matrix.getCellDisplayText(0, 0), "cell11", "get cell text");
+  assert.equal(matrix.getCellDisplayText(0, 1), "col2", "get column text");
+});
+
+QUnit.test("Matrix Question cells serialize/deserialize", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  matrix.setCellText(0, 0, "cell11");
+  matrix.setCellText(0, 1, "cell12");
+  matrix.setCellText(1, 1, "cell22");
+  var json = new JsonObject().toJsonObject(matrix);
+  assert.deepEqual(
+    json,
+    {
+      name: "q1",
+      rows: ["row1", "row2"],
+      columns: ["col1", "col2"],
+      cells: {
+        row1: { col1: "cell11", col2: "cell12" },
+        row2: { col2: "cell22" }
+      }
+    },
+    "serialized correctly"
+  );
+  var matrix2 = new QuestionMatrixModel("q2");
+  new JsonObject().toObject(json, matrix2);
+  assert.equal(
+    matrix2.getCellText(0, 0),
+    "cell11",
+    "deserialized correctly, cell11"
+  );
+  assert.equal(
+    matrix2.getCellText(0, 1),
+    "cell12",
+    "deserialized correctly, cell12"
+  );
+  assert.equal(
+    matrix2.getCellText(1, 1),
+    "cell22",
+    "deserialized correctly, cell22"
+  );
+});
+
 QUnit.test("Multiple Text Item: text property", function(assert) {
   var mItem = new MultipleTextItemModel("text1");
   assert.equal(mItem.title, "text1", "get value from name");

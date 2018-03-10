@@ -45,6 +45,9 @@ export class LocalizableString {
     if (!this.hasHtml) return "";
     return this.getHtmlValue();
   }
+  public get isEmpty(): boolean {
+    return Object.keys(this.values).length == 0;
+  }
   public get textOrHtml() {
     return this.hasHtml ? this.getHtmlValue() : this.text;
   }

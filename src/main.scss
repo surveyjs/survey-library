@@ -188,6 +188,11 @@ $base-line-height: 2em;
     }
   }
 
+  .sv_q_m_cell_selected {
+    color: $body-background-color;
+    background-color: $main-hover-color;
+  }
+
   .sv_q_rating_item {
     &.active {
       .sv_q_rating_item_text {

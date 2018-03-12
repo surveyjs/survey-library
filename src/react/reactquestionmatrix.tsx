@@ -115,7 +115,9 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       if (this.question.hasCellText) {
         td = (
           <td key={key} className={itemClass} onClick={getHandler(column)}>
-            <span>{this.question.getCellDisplayText(row.name, column)}</span>
+            {this.renderLocString(
+              this.question.getCellDisplayLocText(row.name, column)
+            )}
           </td>
         );
       } else {

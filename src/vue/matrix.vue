@@ -11,7 +11,7 @@
                 <tr v-for="(row, rowIndex) in question.visibleRows" :class="question.cssClasses.row">
                     <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
                     <td v-if="question.hasCellText" v-for="(column, columnIndex) in question.columns" :class="getItemClass(row, column)" v-on:click="function() { cellClick(row, column); }">
-                        <span>{{question.getCellDisplayText(row.name, column)}}</span>
+                        <span>{{question.getCellDisplayLocText(row.name, column).renderedHtml}}</span>
                     </td>
                     <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.columns">
                         <label :class="getItemClass(row, column)">
@@ -29,28 +29,28 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue"
-    import {Component, Prop} from 'vue-property-decorator'
-    import {default as QuestionVue} from './question'
-    import {QuestionMatrixModel} from '../question_matrix'
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { default as QuestionVue } from "./question";
+import { QuestionMatrixModel } from "../question_matrix";
 
-    @Component
-    export class Matrix extends QuestionVue<QuestionMatrixModel> {
-        getItemClass(row, column) {
-            var isChecked = row.value == column.value;
-            var cellSelectedClass = this.question.hasCellText
-            ? this.question.cssClasses.cellTextSelected
-            : "checked";
-            var cellClass = this.question.hasCellText
-            ? this.question.cssClasses.cellText
-            : this.question.cssClasses.label;
-            let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
-            return itemClass;
-        }
-        cellClick(row, column) {
-            row.value = column.value;
-        }
-    }
-    Vue.component("survey-matrix", Matrix)
-    export default Matrix;
+@Component
+export class Matrix extends QuestionVue<QuestionMatrixModel> {
+  getItemClass(row, column) {
+    var isChecked = row.value == column.value;
+    var cellSelectedClass = this.question.hasCellText
+      ? this.question.cssClasses.cellTextSelected
+      : "checked";
+    var cellClass = this.question.hasCellText
+      ? this.question.cssClasses.cellText
+      : this.question.cssClasses.label;
+    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+    return itemClass;
+  }
+  cellClick(row, column) {
+    row.value = column.value;
+  }
+}
+Vue.component("survey-matrix", Matrix);
+export default Matrix;
 </script>

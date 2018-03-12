@@ -65,7 +65,7 @@ export class MartrixCells {
     if (val) {
       if (!this.values[row]) this.values[row] = {};
       if (!this.values[row][column])
-        this.values[row][column] = new LocalizableString(this.cellsOwner);
+        this.values[row][column] = this.createString();
       this.values[row][column].text = val;
     } else {
       if (this.values[row] && this.values[row][column]) {
@@ -80,25 +80,33 @@ export class MartrixCells {
       }
     }
   }
-  public getCellText(row: any, column: any): string {
+  public getCellLocText(row: any, column: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
     column = this.getCellRowColumnValue(column, this.columns);
     if (!row || !column) return null;
     if (!this.values[row]) return null;
     if (!this.values[row][column]) return null;
-    return this.values[row][column].text;
+    return this.values[row][column];
   }
-  public getCellDisplayText(row: any, column: any): string {
-    var cellText = this.getCellText(row, column);
-    if (cellText) return cellText;
+  public getCellDisplayLocText(row: any, column: any): LocalizableString {
+    var cellText = this.getCellLocText(row, column);
+    if (cellText && !cellText.isEmpty) return cellText;
     if (typeof column == "number") {
       column =
         column >= 0 && column < this.columns.length
           ? this.columns[column]
           : null;
     }
-    if (column && column.text) return column.text;
+    if (column && column.locText) return column.locText;
     return null;
+  }
+  public getCellText(row: any, column: any): string {
+    var loc = this.getCellLocText(row, column);
+    return loc ? loc.text : null;
+  }
+  public getCellDisplayText(row: any, column: any): string {
+    var loc = this.getCellDisplayLocText(row, column);
+    return loc ? loc.text : null;
   }
   public get rows(): Array<any> {
     return this.cellsOwner ? this.cellsOwner.getRows() : [];
@@ -136,11 +144,14 @@ export class MartrixCells {
       this.values[row] = {};
       for (var col in rowValues) {
         if (col == "pos") continue;
-        var loc = new LocalizableString(this.cellsOwner);
+        var loc = this.createString();
         loc.setJson(rowValues[col]);
         this.values[row][col] = loc;
       }
     }
+  }
+  protected createString(): LocalizableString {
+    return new LocalizableString(this.cellsOwner, true);
   }
 }
 
@@ -245,6 +256,11 @@ export class QuestionMatrixModel extends Question
   }
   public getCellDisplayText(row: any, column: any): string {
     return this.cells.getCellDisplayText(row, column);
+  }
+  private emptyLocalizableString = new LocalizableString(this);
+  public getCellDisplayLocText(row: any, column: any): LocalizableString {
+    var loc = this.cells.getCellDisplayLocText(row, column);
+    return loc ? loc : this.emptyLocalizableString;
   }
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();

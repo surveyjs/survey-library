@@ -21,7 +21,9 @@ export var germanSurveyStrings = {
   numericMax: "'{0}' sollte gleich oder kleiner als {1} sein.",
   invalidEmail: "Bitte geben Sie eine gültige E-Mail Adresse ein.",
   exceedMaxSize: "Die Dateigröße darf {0} KB nicht überschreiten.",
-  otherRequiredError: "Bitte geben Sie Ihre benutzerdefinierte Antwort ein."
+  otherRequiredError: "Bitte geben Sie Ihre benutzerdefinierte Antwort ein.",
+  addRow: "Reihe hinzufügen",
+  removeRow: "Löschen"
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;

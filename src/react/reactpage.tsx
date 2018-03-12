@@ -203,7 +203,9 @@ export class SurveyPanel extends React.Component<any, any> {
     if (!this.panel.title) return null;
     var text = SurveyElementBase.renderLocString(this.panel.locTitle);
     var expandCollapse = null;
+    var titleStyle = this.css.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
+      titleStyle += " sv_p_title_expandable";
       var iconCss = "sv_panel_icon";
       if (!this.panel.isCollapsed) iconCss += " sv_expanded";
       var changeExpanded = () => {
@@ -218,7 +220,7 @@ export class SurveyPanel extends React.Component<any, any> {
     }
 
     return (
-      <h4 className={this.css.panel.title} onClick={changeExpanded}>
+      <h4 className={titleStyle} onClick={changeExpanded}>
         {text}
         {expandCollapse}
       </h4>

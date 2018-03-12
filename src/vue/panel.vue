@@ -1,6 +1,6 @@
 <template>
     <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
-        <h4 v-show="hasTitle" :class="css.panel.title" v-on:click="changeExpanded">
+        <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
           <survey-string :locString="question.locTitle"/>
           <span v-show="showIcon" :class="iconCss"></span>
         </h4>
@@ -64,12 +64,22 @@ export class Panel extends Vue {
     return result;
   }
   changeExpanded() {
-    if (this.question.isCollapsed) {
-      this.question.expand();
-    } else {
-      this.question.collapse();
+    if (this.question.isCollapsed || this.question.isExpanded) {
+      if (this.question.isCollapsed) {
+        this.question.expand();
+      } else {
+        this.question.collapse();
+      }
     }
   }
+  getTitleStyle() {
+    var result = this.css.panel.title;
+    if (this.question.isCollapsed || this.question.isExpanded) {
+      result += " sv_p_title_expandable";
+    }
+    return result;
+  }
+  
 }
 Vue.component("survey-panel", Panel);
     export default Panel;

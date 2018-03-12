@@ -105,7 +105,6 @@ export class Panel extends PanelModel {
         self.onRenderWidthChanged();
       }
     );
-
     this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
@@ -130,6 +129,13 @@ export class Panel extends PanelModel {
     } else {
       this.collapse();
     }
+  }
+  getTitleStyle() {
+    var result = this.koCss().panel.title;
+    if (this.koIsCollapsed() || this.koIsExpanded()) {
+      result += " sv_p_title_expandable";
+    }
+    return result;
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();

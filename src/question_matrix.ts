@@ -131,9 +131,11 @@ export class MartrixCells {
     this.values = {};
     if (!value) return;
     for (var row in value) {
+      if (row == "pos") continue;
       var rowValues = value[row];
       this.values[row] = {};
       for (var col in rowValues) {
+        if (col == "pos") continue;
         var loc = new LocalizableString(this.cellsOwner);
         loc.setJson(rowValues[col]);
         this.values[row][col] = loc;
@@ -230,8 +232,7 @@ export class QuestionMatrixModel extends Question
     return this.cellsValue;
   }
   public set cells(value: MartrixCells) {
-    if (!value) return;
-    this.cells.setJson(value.getJson());
+    this.cells.setJson(value && value.getJson ? value.getJson() : null);
   }
   public get hasCellText(): boolean {
     return !this.cells.isEmpty;

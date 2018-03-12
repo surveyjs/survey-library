@@ -11,7 +11,7 @@
                 <tr v-for="(row, rowIndex) in question.visibleRows" :class="question.cssClasses.row">
                     <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
                     <td v-if="question.hasCellText" v-for="(column, columnIndex) in question.columns" :class="getItemClass(row, column)" v-on:click="function() { cellClick(row, column); }">
-                        {{question.getCellDisplayText(row.name, column)}}
+                        <span>{{question.getCellDisplayText(row.name, column)}}</span>
                     </td>
                     <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.columns">
                         <label :class="getItemClass(row, column)">

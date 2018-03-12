@@ -21,7 +21,8 @@
                     </td>
                     <!-- ko foreach: question.columns -->
                     <!-- ko if: question.hasCellText -->
-                    <td data-bind="css: question.getItemCss(row, $data), text: question.getCellDisplayText(row.name, $data), click: function() { row.koCellClick($data); }">
+                    <td data-bind="css: question.getItemCss(row, $data), click: function() { row.koCellClick($data); }">
+                        <span data-bind="text: question.getCellDisplayText(row.name, $data)"></span>
                     </td>
                     <!-- /ko -->
                     <!-- ko if: !question.hasCellText -->

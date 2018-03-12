@@ -89,44 +89,79 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var rowText = this.renderLocString(this.row.locText);
       firstTD = <td>{rowText}</td>;
     }
-    var tds = [];
-    for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i];
-      var key = "value" + i;
-      var isChecked = this.row.value == column.value;
-      let itemClass = this.cssClasses.label + (isChecked ? " checked" : "");
-      var inputId = this.isFirst && i === 0 ? this.question.inputId : null;
-
-      var td = (
-        <td key={key}>
-          <label className={itemClass}>
-            <input
-              id={inputId}
-              type="radio"
-              className={this.cssClasses.itemValue}
-              name={this.row.fullName}
-              value={column.value}
-              disabled={this.isDisplayMode}
-              checked={isChecked}
-              onChange={this.handleOnChange}
-              aria-label={this.question.locTitle.renderedHtml}
-            />
-            <span className="circle" />
-            <span className="check" />
-            <span style={{ display: "none" }}>
-              {this.question.locTitle.renderedHtml}
-            </span>
-          </label>
-        </td>
-      );
-      tds.push(td);
-    }
+    var tds = this.generateTds();
     return (
       <tr>
         {firstTD}
         {tds}
       </tr>
     );
+  }
+
+  generateTds() {
+    var tds = [];
+    var row = this.row;
+
+    for (var i = 0; i < this.question.columns.length; i++) {
+      var td = null;
+      var column = this.question.columns[i];
+      var key = "value" + i;
+
+      var isChecked = row.value == column.value;
+      let itemClass = this.getItemClass(row, column);
+      var inputId = this.isFirst && i === 0 ? this.question.inputId : null;
+      var getHandler = column => () => this.cellClick(row, column);
+
+      if (this.question.hasCellText) {
+        td = (
+          <td key={key} className={itemClass} onClick={getHandler(column)}>
+            {this.question.getCellDisplayText(row.name, column)}
+          </td>
+        );
+      } else {
+        td = (
+          <td key={key}>
+            <label className={itemClass}>
+              <input
+                id={inputId}
+                type="radio"
+                className={this.cssClasses.itemValue}
+                name={row.fullName}
+                value={column.value}
+                disabled={this.isDisplayMode}
+                checked={isChecked}
+                onChange={this.handleOnChange}
+                aria-label={this.question.locTitle.renderedHtml}
+              />
+              <span className="circle" />
+              <span className="check" />
+              <span style={{ display: "none" }}>
+                {this.question.locTitle.renderedHtml}
+              </span>
+            </label>
+          </td>
+        );
+      }
+      tds.push(td);
+    }
+
+    return tds;
+  }
+
+  getItemClass(row, column) {
+    var isChecked = row.value == column.value;
+    var cellSelectedClass = this.question.hasCellText
+      ? this.cssClasses.cellTextSelected
+      : "checked";
+    var cellClass = this.question.hasCellText
+      ? this.cssClasses.cellText
+      : this.cssClasses.label;
+    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+    return itemClass;
+  }
+
+  cellClick(row, column) {
+    row.value = column.value;
   }
 }
 

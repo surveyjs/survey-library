@@ -50,7 +50,9 @@ export class StylesManager {
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
     ".sv_q_file_preview": "display: inline-block;",
-    ".sv_q_file_remove_button": "line-height: normal;"
+    ".sv_q_file_remove_button": "line-height: normal;",
+
+    ".sv_q_m_cell_text": "cursor: pointer;"
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
@@ -221,7 +223,10 @@ export class StylesManager {
     ".sv_default_css table.sv_q_matrix_dropdown tr":
       "border-color: $border-color;",
     ".sv_default_css table.sv_q_matrix_dynamic tr":
-      "border-color: $border-color;"
+      "border-color: $border-color;",
+
+    ".sv_default_css .sv_q_m_cell_selected":
+      "color: $body-background-color; background-color: $main-hover-color;"
   };
 
   private sheet: CSSStyleSheet = null;

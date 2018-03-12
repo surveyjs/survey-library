@@ -58,6 +58,8 @@ export var defaultBootstrapMaterialCss = {
     root: "table",
     row: "form-group",
     label: "sv_q_m_label radio-inline",
+    cellText: "sv_q_m_cell_text",
+    cellTextSelected: "sv_q_m_cell_selected bg-primary",
     itemValue: "form-control"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },

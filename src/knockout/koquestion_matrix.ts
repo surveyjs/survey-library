@@ -50,7 +50,13 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
   public getItemCss(row, column) {
     var isChecked = row.koValue() == column.value;
-    let itemClass = this["koCss"]().label + (isChecked ? " checked" : "");
+    var cellSelectedClass = this.hasCellText
+      ? this.cssClasses.cellTextSelected
+      : "checked";
+    var cellClass = this.hasCellText
+      ? this["koCss"]().cellText
+      : this["koCss"]().label;
+    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
     return itemClass;
   }
 }

@@ -10,7 +10,10 @@
             <tbody>
                 <tr v-for="(row, rowIndex) in question.visibleRows" :class="question.cssClasses.row">
                     <td v-show="question.hasRows"><survey-string :locString="row.locText"/></td>
-                    <td v-for="(column, columnIndex) in question.columns">
+                    <td v-if="question.hasCellText" v-for="(column, columnIndex) in question.columns" :class="getItemClass(row, column)" v-on:click="function() { cellClick(row, column); }">
+                        {{question.getCellDisplayText(row.name, column)}}
+                    </td>
+                    <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.columns">
                         <label :class="getItemClass(row, column)">
                             <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''" v-bind:aria-label="question.locTitle.renderedHtml"/>
                             <span class="circle"></span>
@@ -35,8 +38,17 @@
     export class Matrix extends QuestionVue<QuestionMatrixModel> {
         getItemClass(row, column) {
             var isChecked = row.value == column.value;
-            let itemClass = this.question.cssClasses.label + (isChecked ? " checked" : "");
+            var cellSelectedClass = this.question.hasCellText
+            ? this.question.cssClasses.cellTextSelected
+            : "checked";
+            var cellClass = this.question.hasCellText
+            ? this.question.cssClasses.cellText
+            : this.question.cssClasses.label;
+            let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
             return itemClass;
+        }
+        cellClick(row, column) {
+            row.value = column.value;
         }
     }
     Vue.component("survey-matrix", Matrix)

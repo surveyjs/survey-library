@@ -54,7 +54,12 @@ export var defaultBootstrapCss = {
   },
   comment: "form-control",
   dropdown: { root: "", control: "form-control", other: "" },
-  matrix: { root: "table", label: "sv_q_m_label" },
+  matrix: {
+    root: "table",
+    label: "sv_q_m_label",
+    cellText: "sv_q_m_cell_text",
+    cellTextSelected: "sv_q_m_cell_selected bg-primary"
+  },
   matrixdropdown: { root: "table" },
   matrixdynamic: { root: "table", button: "button" },
   paneldynamic: { root: "", button: "button" },

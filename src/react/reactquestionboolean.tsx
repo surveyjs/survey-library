@@ -46,7 +46,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     let itemClass = cssClasses.item + (isChecked ? " checked" : "");
 
     return (
-      <form className={cssClasses.root}>
+      <div className={cssClasses.root}>
         <label className={itemClass}>
           <input
             ref="check"
@@ -61,9 +61,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           <span className="checkbox-material">
             <span className="check" />
           </span>
-          <span>{text}</span>
+          <span className={cssClasses.label}>{text}</span>
         </label>
-      </form>
+      </div>
     );
   }
 }

@@ -45,7 +45,7 @@ export var defaultStandardCss = {
   panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
   error: { root: "sv_q_erbox", icon: "", item: "" },
 
-  boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox" },
+  boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox", label: "" },
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",

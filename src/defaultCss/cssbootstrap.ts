@@ -44,7 +44,7 @@ export var defaultBootstrapCss = {
     item: ""
   },
 
-  boolean: { root: "sv_qbln form-inline checkbox", item: "" },
+  boolean: { root: "sv_qbln form-inline checkbox", item: "", label: "" },
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",

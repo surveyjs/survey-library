@@ -30,16 +30,16 @@ frameworks.forEach(framework => {
 
   test(`checked class`, async t => {
     const isCheckedClassExists = ClientFunction(() =>
-      document.querySelector(`form label`).classList.contains("checked")
+      document.querySelector(`div label`).classList.contains("checked")
     );
 
     assert.equal(await isCheckedClassExists(), false);
 
-    await t.click(`form input`);
+    await t.click(`div input`);
 
     assert.equal(await isCheckedClassExists(), true);
 
-    await t.click(`form input`);
+    await t.click(`div input`);
 
     assert.equal(await isCheckedClassExists(), false);
   });

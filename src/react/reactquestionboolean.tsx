@@ -61,7 +61,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           <span className="checkbox-material">
             <span className="check" />
           </span>
-          <span>{text}</span>
+          <span className={cssClasses.label}>{text}</span>
         </label>
       </form>
     );

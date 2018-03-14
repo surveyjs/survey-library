@@ -543,7 +543,8 @@ $base-line-height: 2em;
             }
             .sv_q_rating_item_text {
               display: inline-block;
-              width: $base-line-height;
+              min-width: $base-line-height;
+              padding: 0 0.3em;
               margin-left: -1px;
               //border: 1px solid $header-background-color;
               text-align: center;

@@ -12,7 +12,7 @@ export interface ISurveyData {
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
-  processTextEx(text: string): any;
+  processTextEx(text: string, returnDisplayValue: boolean): any;
 }
 export interface ISurvey extends ITextProcessor {
   currentPage: IPage;

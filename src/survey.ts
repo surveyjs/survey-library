@@ -2538,9 +2538,9 @@ export class SurveyModel extends Base
   processText(text: string, returnDisplayValue: boolean): string {
     return this.textPreProcessor.process(text, returnDisplayValue);
   }
-  processTextEx(text: string): any {
+  processTextEx(text: string, returnDisplayValue: boolean): any {
     var res = {
-      text: this.textPreProcessor.process(text),
+      text: this.textPreProcessor.process(text, returnDisplayValue),
       hasAllValuesOnLastRun: true
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;

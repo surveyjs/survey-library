@@ -87,8 +87,8 @@ export class ChoicesRestfull extends Base {
   }
   private processedText(textProcessor: ITextProcessor) {
     if (textProcessor) {
-      var pUrl = textProcessor.processTextEx(this.url);
-      var pPath = textProcessor.processTextEx(this.path);
+      var pUrl = textProcessor.processTextEx(this.url, false);
+      var pPath = textProcessor.processTextEx(this.path, false);
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";

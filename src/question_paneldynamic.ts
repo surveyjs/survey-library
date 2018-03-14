@@ -129,12 +129,12 @@ export class QuestionPanelDynamicItem
     var survey = this.getSurvey();
     return survey ? survey.processText(text, returnDisplayValue) : text;
   }
-  processTextEx(text: string): any {
-    text = this.processText(text, true);
+  processTextEx(text: string, returnDisplayValue: boolean): any {
+    text = this.processText(text, returnDisplayValue);
     var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     var res = { hasAllValuesOnLastRun: true, text: text };
     if (this.getSurvey()) {
-      res = this.getSurvey().processTextEx(text);
+      res = this.getSurvey().processTextEx(text, returnDisplayValue);
     }
     res.hasAllValuesOnLastRun =
       res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;

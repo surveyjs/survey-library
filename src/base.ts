@@ -109,6 +109,7 @@ export interface IQuestion extends IElement {
   clearValue();
   clearValueIfInvisible();
   isAnswerCorrect(): boolean;
+  value: any;
 }
 export interface IParentElement {
   addElement(element: IElement, index: number);

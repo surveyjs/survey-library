@@ -295,6 +295,36 @@ QUnit.test("Use values and not text, Bug #627", function(assert) {
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
 });
 
+QUnit.test("Process text in url as case insensitive, Bug #997", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  var stateQuestion = <QuestionDropdownModel>survey.pages[0].addNewQuestion(
+    "dropdown",
+    "State"
+  );
+  stateQuestion.choices = [
+    { value: "ca_cities", text: "City from California" },
+    { value: "tx_cities", text: "City from Texas" }
+  ];
+  question.choicesByUrl.url = "{state}";
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 0, "It is empty");
+  stateQuestion.value = "ca_cities";
+  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
+  stateQuestion.value = "tx_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    3,
+    "We have three cities now, TX"
+  );
+  stateQuestion.value = "";
+  assert.equal(question.visibleChoices.length, 0, "It is empty again");
+});
+
 QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

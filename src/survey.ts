@@ -969,8 +969,8 @@ export class SurveyModel extends Base
     return this.getLocalizableString("questionTitleTemplate");
   }
   getUpdatedQuestionTitle(question: IQuestion, title: string): string {
-    if(this.onGetQuestionTitle.isEmpty) return title;
-    var options = {question: question, title: title};
+    if (this.onGetQuestionTitle.isEmpty) return title;
+    var options = { question: question, title: title };
     this.onGetQuestionTitle.fire(this, options);
     return options.title;
   }
@@ -2261,7 +2261,7 @@ export class SurveyModel extends Base
       var values = {};
       values[firstName] = textValue.returnDisplayValue
         ? question.displayValue
-        : this.getValue(firstName);
+        : question.value;
       textValue.value = new ProcessValue().getValue(name, values);
       return;
     }

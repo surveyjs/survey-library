@@ -338,6 +338,10 @@ export class QuestionBase extends SurveyElement
   public get displayValue(): any {
     return "";
   }
+  public get value(): any {
+    return null;
+  }
+  public set value(newValue: any) {}
   public clearValue() {}
   public clearValueIfInvisible() {}
   public onLocaleChanged() {

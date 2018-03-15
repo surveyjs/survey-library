@@ -91,6 +91,7 @@ export class JsonObjectProperty {
     return objType.replace(this.classNamePart, "");
   }
   public getClassName(className: string): string {
+    if (className) className = className.toLowerCase();
     return this.classNamePart && className.indexOf(this.classNamePart) < 0
       ? className + this.classNamePart
       : className;
@@ -141,6 +142,7 @@ export class CustomPropertiesCollection {
   private static properties = {};
   private static parentClasses = {};
   public static addProperty(className: string, property: any) {
+    className = className.toLowerCase();
     var props = CustomPropertiesCollection.properties;
     if (!props[className]) {
       props[className] = [];
@@ -148,6 +150,7 @@ export class CustomPropertiesCollection {
     props[className].push(property);
   }
   public static removeProperty(className: string, propertyName: string) {
+    className = className.toLowerCase();
     var props = CustomPropertiesCollection.properties;
     if (!props[className]) return;
     var properties = props[className];
@@ -159,9 +162,14 @@ export class CustomPropertiesCollection {
     }
   }
   public static addClass(className: string, parentClassName: string) {
+    className = className.toLowerCase();
+    if (parentClassName) {
+      parentClassName = parentClassName.toLowerCase();
+    }
     CustomPropertiesCollection.parentClasses[className] = parentClassName;
   }
   public static getProperties(className: string): Array<any> {
+    className = className.toLowerCase();
     var res = [];
     var props = CustomPropertiesCollection.properties;
     while (className) {
@@ -243,7 +251,9 @@ export class JsonMetadataClass {
     public creator: () => any = null,
     public parentName: string = null
   ) {
+    name = name.toLowerCase();
     if (parentName) {
+      parentName = parentName.toLowerCase();
       CustomPropertiesCollection.addClass(name, parentName);
     }
     this.properties = new Array<JsonObjectProperty>();
@@ -365,6 +375,7 @@ export class JsonMetadata {
     creator: () => any = null,
     parentName: string = null
   ): JsonMetadataClass {
+    name = name.toLowerCase();
     var metaDataClass = new JsonMetadataClass(
       name,
       properties,
@@ -373,6 +384,7 @@ export class JsonMetadata {
     );
     this.classes[name] = metaDataClass;
     if (parentName) {
+      parentName = parentName.toLowerCase();
       var children = this.childrenClasses[parentName];
       if (!children) {
         this.childrenClasses[parentName] = [];
@@ -382,12 +394,14 @@ export class JsonMetadata {
     return metaDataClass;
   }
   public overrideClassCreatore(name: string, creator: () => any) {
+    name = name.toLowerCase();
     var metaDataClass = this.findClass(name);
     if (metaDataClass) {
       metaDataClass.creator = creator;
     }
   }
   public getProperties(className: string): Array<JsonObjectProperty> {
+    className = className.toLowerCase();
     var properties = this.classProperties[className];
     if (!properties) {
       properties = new Array<JsonObjectProperty>();
@@ -423,12 +437,14 @@ export class JsonMetadata {
     className: string,
     propertyName: string
   ): JsonObjectProperty {
+    className = className.toLowerCase();
     return this.findPropertyCore(this.getProperties(className), propertyName);
   }
   public findProperties(
     className: string,
     propertyNames: Array<string>
   ): Array<JsonObjectProperty> {
+    className = className.toLowerCase();
     var result = [];
     var properties = this.getProperties(className);
     for (var i = 0; i < propertyNames.length; i++) {
@@ -449,6 +465,7 @@ export class JsonMetadata {
     return null;
   }
   public createClass(name: string): any {
+    name = name.toLowerCase();
     var metaDataClass = this.findClass(name);
     if (!metaDataClass) return null;
     if (metaDataClass.creator) return metaDataClass.creator();
@@ -463,6 +480,7 @@ export class JsonMetadata {
     return null;
   }
   private createCustomType(name: string, creator: any): any {
+    name = name.toLowerCase();
     var res = creator();
     res.customTypeName = name;
     res.customTemplateName = res.getTemplate
@@ -481,11 +499,13 @@ export class JsonMetadata {
     name: string,
     canBeCreated: boolean = false
   ): Array<JsonMetadataClass> {
+    name = name.toLowerCase();
     var result = [];
     this.fillChildrenClasses(name, canBeCreated, result);
     return result;
   }
   public getRequiredProperties(name: string): Array<string> {
+    name = name.toLowerCase();
     var properties = this.classRequiredProperties[name];
     if (!properties) {
       properties = new Array<string>();
@@ -495,12 +515,14 @@ export class JsonMetadata {
     return properties;
   }
   public addProperties(className: string, propertiesInfos: Array<any>) {
+    className = className.toLowerCase();
     var metaDataClass = this.findClass(className);
     for (var i = 0; i < propertiesInfos.length; i++) {
       this.addCustomPropertyCore(metaDataClass, propertiesInfos[i]);
     }
   }
   public addProperty(className: string, propertyInfo: any) {
+    className = className.toLowerCase();
     this.addCustomPropertyCore(this.findClass(className), propertyInfo);
   }
   private addCustomPropertyCore(
@@ -516,6 +538,7 @@ export class JsonMetadata {
     }
   }
   public removeProperty(className: string, propertyName: string) {
+    className = className.toLowerCase();
     var metaDataClass = this.findClass(className);
     if (!metaDataClass) return false;
     var property = metaDataClass.find(propertyName);
@@ -568,6 +591,7 @@ export class JsonMetadata {
     }
   }
   public findClass(name: string): JsonMetadataClass {
+    name = name.toLowerCase();
     return this.classes[name];
   }
   private fillProperties(name: string, list: Array<JsonObjectProperty>) {

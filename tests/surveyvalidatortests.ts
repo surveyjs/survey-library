@@ -1,4 +1,13 @@
-import { NumericValidator, EmailValidator } from "../src/validator";
+import {
+  SurveyValidator,
+  NumericValidator,
+  EmailValidator,
+  ValidatorResult
+} from "../src/validator";
+import { CustomError } from "../src/error";
+import { SurveyModel } from "../src/survey";
+import { QuestionTextModel } from "../src/question_text";
+import { JsonObject } from "../src/jsonobject";
 
 export default QUnit.module("Validators");
 
@@ -106,4 +115,54 @@ QUnit.test("Email validator", function(assert) {
     null,
     "Could convert the incorrect correct e-mail"
   );
+});
+
+export class CamelCaseValidator extends SurveyValidator {
+  public getType(): string {
+    return "CamelCaseValidator";
+  }
+  public validate(value: any, name: string = null): ValidatorResult {
+    if (!value) return null;
+    if (value.indexOf("CamelCase") < 0)
+      return new ValidatorResult(value, new CustomError("No Camel Case"));
+    return null;
+  }
+}
+
+JsonObject.metaData.addClass(
+  "CamelCaseValidator",
+  [],
+  function() {
+    return new CamelCaseValidator();
+  },
+  "surveyvalidator"
+);
+
+QUnit.test("Support camel names in validators, Bug#994", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "qSame",
+        validators: [{ type: "CamelCaseValidator" }]
+      },
+      {
+        type: "text",
+        name: "qLow",
+        validators: [{ type: "camelcasevalidator" }]
+      },
+      {
+        type: "text",
+        name: "qUpper",
+        validators: [{ type: "CAMELCASEVALIDATOR" }]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var qSame = <QuestionTextModel>survey.getQuestionByName("qSame");
+  var qLow = <QuestionTextModel>survey.getQuestionByName("qLow");
+  var qUpper = <QuestionTextModel>survey.getQuestionByName("qUpper");
+  assert.equal(qSame.validators.length, 1, "same case - validtor is here");
+  assert.equal(qLow.validators.length, 1, "low case - validtor is here");
+  assert.equal(qUpper.validators.length, 1, "upper case - validtor is here");
 });

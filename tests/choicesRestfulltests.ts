@@ -342,14 +342,15 @@ QUnit.test("Process text in url with default text, bug#1000", function(assert) {
   var json = {
     elements: [
       {
+        type: "dropdownrestfulltester",
+        name: "q1",
+        choicesByUrl: { url: "{state}" },
+        defaultValue: "Los Angeles"
+      },
+      {
         type: "text",
         name: "state",
         defaultValue: "ca_cities"
-      },
-      {
-        type: "dropdownrestfulltester",
-        name: "q1",
-        choicesByUrl: { url: "{state}" }
       }
     ]
   };
@@ -359,6 +360,11 @@ QUnit.test("Process text in url with default text, bug#1000", function(assert) {
     question.visibleChoices.length,
     2,
     "We have two cities on loading survey, CA"
+  );
+  assert.equal(
+    question.value,
+    "Los Angeles",
+    "The value is set correctly from defaultValue"
   );
 });
 

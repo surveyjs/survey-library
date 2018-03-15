@@ -739,6 +739,7 @@ export class PanelModelBase extends SurveyElement
     this.removeElement(question);
   }
   runCondition(values: HashTable<any>) {
+    if (this.isDesignMode) return;
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].runCondition(values);
     }

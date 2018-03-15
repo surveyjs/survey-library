@@ -332,6 +332,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
 
   public runCondition(values: HashTable<any>) {
+    if (this.isDesignMode) return;
     super.runCondition(values);
     if (!this.enableIf) return;
     if (!this.conditionEnabelRunner)

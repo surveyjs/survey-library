@@ -309,6 +309,7 @@ export class QuestionBase extends SurveyElement
    * @see enableIf
    */
   public runCondition(values: HashTable<any>) {
+    if (this.isDesignMode) return;
     if (!this.visibleIf) return;
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);

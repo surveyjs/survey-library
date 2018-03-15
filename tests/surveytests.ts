@@ -3509,6 +3509,23 @@ QUnit.test("survey.onGetQuestionTitle event. ", function(assert) {
   assert.equal(question.fullTitle, "", "it is empty now");
 });
 
+QUnit.test("Do not run conditions (enableIf/visibleIf) at design-time/Editor, Bug #999", function(assert) {
+  var survey = new SurveyModel();
+  var page1 = survey.addNewPage("page1");
+  var page2 = survey.addNewPage("page2");
+  var panel = page1.addNewPanel("panel");
+  var question = <Question>panel.addNewQuestion("text", "question");
+  page1.addNewQuestion("text", "q1");
+  survey.setDesignMode(true);
+  page2.visibleIf = "{q1} = 1";
+  panel.visibleIf = "{q1} = 1";
+  question.enableIf = "{q1} = 1";
+  survey.setValue("q1", 2);
+  assert.equal(page2.visible, true, "Page object doesn't run condition at design");
+  assert.equal(panel.visible, true, "Panel object doesn't run condition at design");
+  assert.equal(question.readOnly, false, "Question object doesn't run condition at design");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

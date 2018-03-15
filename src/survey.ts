@@ -2196,7 +2196,7 @@ export class SurveyModel extends Base
           : -1;
     }
   }
-  private setJsonObject(jsonObj: any) {
+  public setJsonObject(jsonObj: any) {
     if (!jsonObj) return;
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();

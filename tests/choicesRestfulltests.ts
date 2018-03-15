@@ -47,6 +47,9 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   constructor(name: string) {
     super(name);
   }
+  public getType(): string {
+    return "dropdownrestfulltester";
+  }
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfullTester();
   }
@@ -56,6 +59,16 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
     return this.processor;
   }
 }
+
+JsonObject.metaData.addClass(
+  "dropdownrestfulltester",
+  [],
+  function() {
+    return new QuestionDropdownModelTester("");
+  },
+  "dropdown"
+);
+
 class QuestionCheckboxModelTester extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
@@ -323,6 +336,30 @@ QUnit.test("Process text in url as case insensitive, Bug #997", function(
   );
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
+});
+
+QUnit.test("Process text in url with default text, bug#1000", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "state",
+        defaultValue: "ca_cities"
+      },
+      {
+        type: "dropdownrestfulltester",
+        name: "q1",
+        choicesByUrl: { url: "{state}" }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
+  assert.equal(
+    question.visibleChoices.length,
+    2,
+    "We have two cities on loading survey, CA"
+  );
 });
 
 QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {

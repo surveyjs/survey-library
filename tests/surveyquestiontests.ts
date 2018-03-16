@@ -345,7 +345,7 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function(
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
-QUnit.test("Matrix Question cells get/set cell text", function(assert) {
+QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -360,7 +360,9 @@ QUnit.test("Matrix Question cells get/set cell text", function(assert) {
   matrix.setCellText(0, 0, "");
   assert.equal(matrix.hasCellText, false, "There is no cell text again");
 });
-QUnit.test("Matrix Question cells get cell displayText", function(assert) {
+QUnit.test("Rubric Matrix Question cells get cell displayText", function(
+  assert
+) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -387,7 +389,9 @@ QUnit.test("Matrix Question cells get cell displayText", function(assert) {
   );
 });
 
-QUnit.test("Matrix Question cells serialize/deserialize", function(assert) {
+QUnit.test("Rubric Matrix Question cells serialize/deserialize", function(
+  assert
+) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -424,6 +428,48 @@ QUnit.test("Matrix Question cells serialize/deserialize", function(assert) {
     matrix2.getCellText(1, 1),
     "cell22",
     "deserialized correctly, cell22"
+  );
+});
+
+QUnit.test("Rubric Matrix Question cells default row", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  matrix.setDefaultCellText(1, "defaultCell2");
+  matrix.setCellText(0, 0, "cell11");
+
+  assert.equal(matrix.getCellDisplayText(0, 0), "cell11", "Use cell text");
+  assert.equal(
+    matrix.getCellDisplayText(0, 1),
+    "defaultCell2",
+    "Use default row cell text"
+  );
+  assert.equal(matrix.getCellDisplayText(1, 0), "col1", "Use rows text");
+  var json = new JsonObject().toJsonObject(matrix);
+  assert.deepEqual(
+    json,
+    {
+      name: "q1",
+      rows: ["row1", "row2"],
+      columns: ["col1", "col2"],
+      cells: {
+        default: { col2: "defaultCell2" },
+        row1: { col1: "cell11" }
+      }
+    },
+    "serialized correctly"
+  );
+  var matrix2 = new QuestionMatrixModel("q2");
+  new JsonObject().toObject(json, matrix2);
+  assert.equal(
+    matrix2.getCellText(0, 0),
+    "cell11",
+    "deserialized correctly, cell11"
+  );
+  assert.equal(
+    matrix2.getDefaultCellText(1),
+    "defaultCell2",
+    "deserialized default cell correctly, defaultCell2"
   );
 });
 

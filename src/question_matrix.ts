@@ -53,6 +53,7 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
 }
 
 export class MartrixCells {
+  public static DefaultRowName = "default";
   private values = {};
   public constructor(public cellsOwner: IMatrixCellsOwner) {}
   public get isEmpty(): boolean {
@@ -80,6 +81,9 @@ export class MartrixCells {
       }
     }
   }
+  public setDefaultCellText(column: any, val: string) {
+    this.setCellText(MartrixCells.DefaultRowName, column, val);
+  }
   public getCellLocText(row: any, column: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
     column = this.getCellRowColumnValue(column, this.columns);
@@ -88,8 +92,13 @@ export class MartrixCells {
     if (!this.values[row][column]) return null;
     return this.values[row][column];
   }
+  public getDefaultCellLocText(column: any, val: string): LocalizableString {
+    return this.getCellLocText(MartrixCells.DefaultRowName, column);
+  }
   public getCellDisplayLocText(row: any, column: any): LocalizableString {
     var cellText = this.getCellLocText(row, column);
+    if (cellText && !cellText.isEmpty) return cellText;
+    cellText = this.getCellLocText(MartrixCells.DefaultRowName, column);
     if (cellText && !cellText.isEmpty) return cellText;
     if (typeof column == "number") {
       column =
@@ -102,6 +111,10 @@ export class MartrixCells {
   }
   public getCellText(row: any, column: any): string {
     var loc = this.getCellLocText(row, column);
+    return loc ? loc.text : null;
+  }
+  public getDefaultCellText(column: any): string {
+    var loc = this.getCellLocText(MartrixCells.DefaultRowName, column);
     return loc ? loc.text : null;
   }
   public getCellDisplayText(row: any, column: any): string {
@@ -253,6 +266,12 @@ export class QuestionMatrixModel extends Question
   }
   public getCellText(row: any, column: any): string {
     return this.cells.getCellText(row, column);
+  }
+  public setDefaultCellText(column: any, val: string) {
+    this.cells.setDefaultCellText(column, val);
+  }
+  public getDefaultCellText(column: any): string {
+    return this.cells.getDefaultCellText(column);
   }
   public getCellDisplayText(row: any, column: any): string {
     return this.cells.getCellDisplayText(row, column);

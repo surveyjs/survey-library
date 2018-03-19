@@ -417,6 +417,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
     }
   }
   public get displayValue(): any {
+    if (this.customWidget) {
+      var res = this.customWidget.getDisplayText(this);
+      if (res) return res;
+    }
     return this.value;
   }
   /**

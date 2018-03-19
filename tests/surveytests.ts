@@ -2177,6 +2177,36 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function(
   JsonObject.metaData.removeProperty("dropdown", "renderAs");
   CustomWidgetCollection.Instance.clear();
 });
+
+QUnit.test("customWidgets support displayValue", function(assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: question => {
+      return question.getType() == "text";
+    },
+    getDisplayText: (question: Question): string => {
+      if(question.value === 1) return "one";
+      return null;
+    }
+  });
+  var survey = twoPageSimplestSurvey();
+  var question = survey.pages[0].addNewQuestion("text", "text");
+  assert.equal(
+    survey.currentPage,
+    survey.pages[0],
+    "the first page is choosen"
+  );
+  assert.equal(
+    question.customWidget.name,
+    "first",
+    "has the first custom widget"
+  );
+  question.value = 1;
+  assert.equal(question.displayValue, "one", "Use display value of custom widget");
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test(
   "Set 0 value for text inputType=number from survey. Bug #267",
   function(assert) {

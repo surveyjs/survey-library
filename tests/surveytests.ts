@@ -1111,6 +1111,25 @@ QUnit.test("Complete trigger test", function(assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test("Complete trigger + matrix test", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var matrix = <QuestionMatrixModel>survey.pages[0].addNewQuestion("matrix", "matrix");
+  matrix.rows = ["row 1", "row 2"];
+  matrix.columns = ["column 1", "column 2"];
+  var trigger = new SurveyTriggerComplete();
+  survey.triggers.push(trigger);
+  trigger.name = "matrix.row 1";
+  trigger.value = "column 2";
+
+  survey.setValue("matrix", {"row 1": "column 1"});
+  assert.equal(survey.state, "running");
+
+  survey.setValue("matrix", {"row 1": "column 2"});
+  assert.equal(survey.state, "running");
+  survey.nextPage();
+  assert.equal(survey.state, "completed");
+});
+
 QUnit.test(
   "Complete trigger, onCurrentPageChange calls after onComplete, Bug#963",
   function(assert) {

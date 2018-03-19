@@ -2006,10 +2006,14 @@ export class SurveyModel extends Base
     return result;
   }
   private checkTriggers(name: string, newValue: any, isOnNextPage: boolean) {
+    var processValue = new ProcessValue();
     for (var i: number = 0; i < this.triggers.length; i++) {
       var trigger = this.triggers[i];
-      if (trigger.name == name && trigger.isOnNextPage == isOnNextPage) {
-        trigger.check(newValue);
+      var firstName = processValue.getFirstName(trigger.name);
+      if (firstName == name && trigger.isOnNextPage == isOnNextPage) {
+        var values = {};
+        values[firstName] = newValue;
+        trigger.check(processValue.getValue(trigger.name, values));
       }
     }
   }

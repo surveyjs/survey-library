@@ -209,7 +209,7 @@ export class QuestionSelectBase extends Question {
    */
   public get displayValue(): any {
     if (this.customWidget) {
-      var res = this.customWidget.getDisplayText(this);
+      var res = this.customWidget.getDisplayValue(this);
       if (res) return res;
     }
     if (this.isEmpty()) return "";

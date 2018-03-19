@@ -11,9 +11,9 @@ export class QuestionCustomWidget {
   public willUnmount(question: IQuestion, el: any) {
     if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
   }
-  public getDisplayText(question: IQuestion): string {
-    if (this.widgetJson.getDisplayText)
-      return this.widgetJson.getDisplayText(question);
+  public getDisplayValue(question: IQuestion): string {
+    if (this.widgetJson.getDisplayValue)
+      return this.widgetJson.getDisplayValue(question);
     return null;
   }
   public isFit(question: IQuestion): boolean {

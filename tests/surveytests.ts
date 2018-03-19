@@ -2185,7 +2185,7 @@ QUnit.test("customWidgets support displayValue", function(assert) {
     isFit: question => {
       return question.getType() == "text";
     },
-    getDisplayText: (question: Question): string => {
+    getDisplayValue: (question: Question): string => {
       if(question.value === 1) return "one";
       return null;
     }

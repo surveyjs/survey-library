@@ -11,6 +11,7 @@ import {
   QuestionCustomWidget
 } from "../src/questionCustomWidgets";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1123,6 +1124,22 @@ QUnit.test("matrixDynamic.addConditionNames", function(assert) {
     ["panel[0].q1", "panel[0].q2.item1", "panel[0].q2.item2"],
     "addConditionNames work correctly for panel dynamic"
   );
+});
+
+QUnit.test("matrixDynamic.getConditionJson", function(assert) {
+  var panel = new QuestionPanelDynamicModel("panel");
+  (<QuestionCheckboxModel>panel.template.addNewQuestion(
+    "checkbox",
+    "q1"
+  )).choices = [1, 2];
+  var question = new QuestionMultipleTextModel("q2");
+  question.addItem("item1");
+  question.addItem("item2");
+  panel.template.addQuestion(question);
+  var json = panel.getConditionJson("equals", "q1");
+  assert.deepEqual(json.choices, [1, 2], "choices get correctly");
+  json = panel.getConditionJson("equals", "q2.item2");
+  assert.equal(json.type, "text", "mutliple item type get correctly");
 });
 
 QUnit.test("matrixDynamic.panelsState, set value", function(assert) {

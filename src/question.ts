@@ -499,6 +499,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    var json = new JsonObject().toJsonObject(this);
+    json["type"] = this.getType();
+    return json;
+  }
   /**
    * Returns true if threre is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.

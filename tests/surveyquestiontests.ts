@@ -1052,3 +1052,64 @@ QUnit.test("question.addConditionNames", function(assert) {
     "addConditionNames work correctly"
   );
 });
+QUnit.test("question.addConditionNames", function(assert) {
+  var names = [];
+  new QuestionHtmlModel("q_html").addConditionNames(names);
+  new QuestionCheckboxModel("q_check").addConditionNames(names);
+  var q_mt = new QuestionMultipleTextModel("q_mt");
+  q_mt.addItem("item1");
+  q_mt.addItem("item2");
+  q_mt.addConditionNames(names);
+  var q_matrix = new QuestionMatrixModel("q_matrix");
+  q_matrix.rows = ["row1", "row2"];
+  q_matrix.addConditionNames(names);
+  assert.deepEqual(
+    names,
+    ["q_check", "q_mt.item1", "q_mt.item2", "q_matrix.row1", "q_matrix.row2"],
+    "addConditionNames work correctly"
+  );
+});
+
+QUnit.test("question.getConditionJson", function(assert) {
+  var json = new QuestionHtmlModel("q_html").getConditionJson("equals");
+  assert.equal(json, null, "Html has not input value - so it is null");
+  var qRadio = new QuestionRadiogroupModel("qRadio");
+  qRadio.choices = [1, 2, 3, 4, 5];
+  json = qRadio.getConditionJson("equals");
+  assert.deepEqual(
+    json.choices,
+    [1, 2, 3, 4, 5],
+    "radiogroup: choices correctly converted"
+  );
+  assert.equal(json.type, "radiogroup", "radiogroup: type set correctly");
+
+  var qCheckbox = new QuestionCheckboxModel("qCheckbox");
+  qCheckbox.choices = [1, 2, 3, 4, 5];
+  json = qCheckbox.getConditionJson("equals");
+  assert.deepEqual(
+    json.choices,
+    [1, 2, 3, 4, 5],
+    "checkbox: choices correctly converted"
+  );
+  assert.equal(json.type, "checkbox", "checkbox: type set correctly");
+  json = qCheckbox.getConditionJson("contains");
+  assert.equal(
+    json.type,
+    "radiogroup",
+    "checkbox: type set correctly for operator contains"
+  );
+  var q_mt = new QuestionMultipleTextModel("q_mt");
+  q_mt.addItem("item1");
+  q_mt.addItem("item2");
+  json = q_mt.getConditionJson("equals", "dummy");
+  assert.equal(json, null, "There is no item as dummy");
+  json = q_mt.getConditionJson("equals", "item2");
+  assert.ok(json, "multiple text item returns json");
+  assert.equal(json.type, "text", "mutltiple text item: type set correctly");
+  var q_matrix = new QuestionMatrixModel("q_matrix");
+  q_matrix.rows = ["row1", "row2"];
+  q_matrix.columns = ["col1", "col2"];
+  json = q_matrix.getConditionJson("equals", "row1");
+  assert.ok(json, "matrix text item returns json");
+  assert.equal(json.type, "dropdown", "matrix row: type set correctly");
+});

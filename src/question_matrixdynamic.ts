@@ -302,7 +302,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private isValueDuplicated(): boolean {
     if (!this.keyName || !this.generatedVisibleRows) return false;
-    var column = this.getColumnName(this.keyName);
+    var column = this.getColumnByName(this.keyName);
     if (!column) return false;
     var keyValues = [];
     var res = false;

@@ -703,6 +703,19 @@ export class QuestionMatrixDropdownModelBase extends Question
   getCellType(): string {
     return this.cellType;
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    if (!path) return super.getConditionJson();
+    var columnName = "";
+    for (var i = path.length - 1; i >= 0; i--) {
+      if (path[i] == ".") break;
+      columnName = path[i] + columnName;
+    }
+    var column = this.getColumnByName(columnName);
+    if (!column) return null;
+    var question = column.createCellQuestion(null);
+    if (!question) return null;
+    return question.getConditionJson(operator);
+  }
   public runCondition(values: HashTable<any>) {
     super.runCondition(values);
     this.runCellsCondition(values);
@@ -735,11 +748,14 @@ export class QuestionMatrixDropdownModelBase extends Question
    * Returns the column by it's name. Retuns null if a column with this name doesn't exist.
    * @param column
    */
-  public getColumnName(columnName: string): MatrixDropdownColumn {
+  public getColumnByName(columnName: string): MatrixDropdownColumn {
     for (var i = 0; i < this.columns.length; i++) {
       if (this.columns[i].name == columnName) return this.columns[i];
     }
     return null;
+  }
+  getColumnName(columnName: string): MatrixDropdownColumn {
+    return this.getColumnByName(columnName);
   }
   /**
    * Returns the column width.

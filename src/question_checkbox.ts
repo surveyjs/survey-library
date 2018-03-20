@@ -24,6 +24,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return str;
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    var json = super.getConditionJson();
+    if (operator == "contains" || operator == "notcontains") {
+      json["type"] = "radiogroup";
+    }
+    return json;
+  }
   protected getValueCore() {
     return super.getValueCore() || [];
   }

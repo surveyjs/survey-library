@@ -7,6 +7,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
+import { QuestionDropdownModel } from "./question_dropdown";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel);
@@ -348,6 +349,14 @@ export class QuestionMatrixModel extends Question
         names.push(this.name + "." + this.rows[i].value);
       }
     }
+  }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    if (!path) return super.getConditionJson();
+    var question = new QuestionDropdownModel(path);
+    question.choices = this.columns;
+    var json = new JsonObject().toJsonObject(question);
+    json["type"] = question.getType();
+    return json;
   }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {

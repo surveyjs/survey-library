@@ -228,10 +228,24 @@ export class QuestionMultipleTextModel extends Question
     this.items.push(item);
     return item;
   }
+  public getItemByName(name: string): MultipleTextItemModel {
+    for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].name == name) return this.items[i];
+    }
+    return null;
+  }
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.items.length; i++) {
       names.push(this.name + "." + this.items[i].name);
     }
+  }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    if (!path) return super.getConditionJson();
+    var item = this.getItemByName(path);
+    if (!item) return null;
+    var json = new JsonObject().toJsonObject(item);
+    json["type"] = "text";
+    return json;
   }
   public onLocaleChanged() {
     super.onLocaleChanged();

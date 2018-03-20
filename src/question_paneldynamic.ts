@@ -789,6 +789,18 @@ export class QuestionPanelDynamicModel extends Question
       names.push(prefix + panelNames[i]);
     }
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    if (!path) return super.getConditionJson(operator, path);
+    var questionName = path;
+    var pos = path.indexOf(".");
+    if (pos > -1) {
+      questionName = path.substr(0, pos);
+      path = path.substr(pos + 1);
+    }
+    var question = this.template.getQuestionByName(questionName);
+    if (!question) return null;
+    return question.getConditionJson(operator, path);
+  }
   public onSurveyLoad() {
     if (this.loadingPanelCount > 0) {
       this.panelCount = this.loadingPanelCount;

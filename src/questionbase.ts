@@ -335,6 +335,9 @@ export class QuestionBase extends SurveyElement
     return false;
   }
   public addConditionNames(names: Array<string>) {}
+  public getConditionJson(operator: string = null, path: string = null): any {
+    return null;
+  }
   public clearUnusedValues() {}
   public get displayValue(): any {
     return "";

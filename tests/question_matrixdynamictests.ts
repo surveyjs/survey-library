@@ -1010,3 +1010,22 @@ QUnit.test("matrixDropdown.addConditionNames", function(assert) {
     "addConditionNames work correctly for matrix dropdown"
   );
 });
+
+QUnit.test("matrixDynamic.getConditionJson", function(assert) {
+  var names = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.columns[0]["choices"] = [1, 2];
+  question.columns[1].cellType = "checkbox";
+  question.columns[1]["choices"] = [1, 2, 3];
+  question.rowCount = 2;
+  var json = question.getConditionJson("equals", "[0].col1");
+  assert.deepEqual(json.choices, [1, 2], "column 1 get choices");
+  assert.equal(json.type, "dropdown", "column 1 get type");
+  json = question.getConditionJson("equals", "row.col2");
+  assert.deepEqual(json.choices, [1, 2, 3], "column 2 get choices");
+  assert.equal(json.type, "checkbox", "column 2 get type");
+  json = question.getConditionJson("contains", "[0].col2");
+  assert.equal(json.type, "radiogroup", "column 2 get type for contains");
+});

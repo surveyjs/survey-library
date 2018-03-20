@@ -1468,9 +1468,10 @@ export class SurveyModel extends Base
     single.setSurveyImpl(this);
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
-      var panel = single.addNewPanel(page.name);
+      var panel = JsonObject.metaData.createClass("panel");
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
+      single.addPanel(panel);
     }
     return single;
   }

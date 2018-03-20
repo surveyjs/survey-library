@@ -981,6 +981,60 @@ QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
   );
 });
 
+QUnit.test(
+  "Survey.isSinglePage = true, the last page doesn't added, bug#1009",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              name: "text1",
+              type: "text"
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              name: "text2",
+              type: "text"
+            }
+          ]
+        },
+        {
+          name: "page3",
+          elements: [
+            {
+              name: "text3",
+              type: "text"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    survey.isSinglePage = true;
+    assert.equal(
+      survey.currentPage.questions.length,
+      3,
+      "There are 3 elements on the single page"
+    );
+    assert.equal(
+      survey.currentPage["koRows"]().length,
+      3,
+      "There are 3 rows on the page"
+    );
+    assert.equal(
+      survey.currentPage["koRows"]()[2].koVisible(),
+      true,
+      "The last row is visible"
+    );
+  }
+);
+
 function createPageWithQuestion(name: string): Page {
   var page = new Page(name);
   page.addNewQuestion("text", "q1");

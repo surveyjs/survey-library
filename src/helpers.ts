@@ -26,21 +26,41 @@ export class Helpers {
     }
     return true;
   }
-  public static isArraysEqual(x: any, y: any): boolean {
+  public static isArraysEqual(
+    x: any,
+    y: any,
+    ignoreOrder: boolean = false
+  ): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
+    if (ignoreOrder) {
+      var xSorted = [];
+      var ySorted = [];
+      for (var i = 0; i < x.length; i++) {
+        xSorted.push(x[i]);
+        ySorted.push(y[i]);
+      }
+      xSorted.sort();
+      ySorted.sort();
+      x = xSorted;
+      y = ySorted;
+    }
     for (var i = 0; i < x.length; i++) {
       if (!Helpers.isTwoValueEquals(x[i], y[i])) return false;
     }
     return true;
   }
-  public static isTwoValueEquals(x: any, y: any): boolean {
+  public static isTwoValueEquals(
+    x: any,
+    y: any,
+    ignoreOrder: boolean = false
+  ): boolean {
     if (x === y) return true;
     if ((x && !y) || (!x && y)) return false;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y))
-      return Helpers.isArraysEqual(x, y);
+      return Helpers.isArraysEqual(x, y, ignoreOrder);
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
       if (!y.hasOwnProperty(p)) return false;

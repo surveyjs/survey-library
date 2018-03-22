@@ -111,6 +111,8 @@ export class ConditionsParser {
     return true;
   }
   private readOperand(): Operand {
+    var ar = this.readArray();
+    if (ar) return new Operand(ar);
     var str = this.readString();
     if (!str) return null;
     var params = this.readParameters();
@@ -243,6 +245,22 @@ export class ConditionsParser {
   private isBrackets(c: string): boolean {
     return this.isOpenBracket(c) || this.isCloseBracket(c);
   }
+  private readArray(): Array<any> {
+    this.skip();
+    if (this.at >= this.length) return null;
+    if (this.ch !== "[") return null;
+    this.at++;
+    var res = [];
+    while (this.at < this.length) {
+      var str = this.readString();
+      if (str) res.push(str);
+      this.skip();
+      var c = this.ch;
+      if (c == ",") this.at++;
+      if (c == "]") break;
+    }
+    return res;
+  }
   private readString(): string {
     this.skip();
     if (this.at >= this.length) return null;
@@ -268,6 +286,7 @@ export class ConditionsParser {
         if (this.ch != "-" && isFirstOpCh != this.isOperatorChar(this.ch))
           break;
         if (this.isBrackets(this.ch) || this.isComma(this.ch)) break;
+        if (this.ch === "]") break;
       }
       isPrevEspape = this.ch === "\\";
       this.at++;

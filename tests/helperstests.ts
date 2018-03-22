@@ -15,6 +15,14 @@ QUnit.test("Event hasEvents property", function(assert) {
     Helpers.isArrayContainsEqual([2, 1], [1, 2]),
     "The content of array is the same"
   );
+  assert.ok(
+    Helpers.isArraysEqual([2, 1], [1, 2], true),
+    "Ignore Order = true: We believe it is the same arrays"
+  );
+  assert.notOk(
+    Helpers.isArraysEqual([2, 1], [1, 2]),
+    "Ignore Order = false: We believe it is not the same arrays"
+  );
 });
 QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();

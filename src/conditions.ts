@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { ConditionsParser } from "./conditionsParser";
 import { FunctionFactory } from "./functionsfactory";
 import { ProcessValue } from "./conditionProcessValue";
@@ -6,6 +6,14 @@ import { ProcessValue } from "./conditionProcessValue";
 export class Operand {
   constructor(public origionalValue: any) {}
   public getValue(processValue: ProcessValue): any {
+    if (Array.isArray(this.origionalValue)) {
+      let res = [];
+      for (let i = 0; i < this.origionalValue.length; i++) {
+        let val = new Operand(this.origionalValue[i]);
+        res.push(val.getValue(processValue));
+      }
+      return res;
+    }
     var res = this.getSimpleValue(this.origionalValue);
     if (res.isSimple) return res.value;
     var val = this.removeQuotesAndEscapes(this.origionalValue);
@@ -198,16 +206,10 @@ export class Condition {
         return !!left;
       },
       equal: function(left, right) {
-        if ((left == null && right != null) || (left != null && right == null))
-          return false;
-        if (left == null && right == null) return true;
-        return left == right;
+        return Helpers.isTwoValueEquals(left, right, true);
       },
       notequal: function(left, right) {
-        if ((left == null && right != null) || (left != null && right == null))
-          return true;
-        if (left == null && right == null) return false;
-        return left != right;
+        return !Helpers.isTwoValueEquals(left, right, true);
       },
       contains: function(left, right) {
         return Condition.operatorsValue.containsCore(left, right, true);

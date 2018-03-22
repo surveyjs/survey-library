@@ -566,6 +566,31 @@ QUnit.test("Allow differnt symbols in variable name, bug#803", function(
   assert.equal(runner.run(values), false, "2 <> 1");
 });
 
+QUnit.test("Condition array: {a} equals [1, 2]", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  parser.parse("{a} equals [1, 2]", node);
+  assert.equal(node.children.length, 1);
+  var child = node.children[0];
+  assert.equal(child.left.origionalValue, "{a}", "left is parsed correctly");
+  assert.equal(child.operator, "equal", "operator is parsed correctly");
+  assert.deepEqual(
+    child.right.getValue(null),
+    [1, 2],
+    "right is parsed correctly"
+  );
+});
+
+QUnit.test("Support array", function(assert) {
+  var runner = new ConditionRunner("{a} equals [1, 2]");
+  var values = { a: [1, 2] };
+  assert.equal(runner.run(values), true, "[1, 2] equals [1, 2]");
+  values = { a: [2] };
+  assert.equal(runner.run(values), false, "[2] equals [1, 2]");
+  values = { a: [2, 1] };
+  assert.equal(runner.run(values), true, "[2, 1] equals [1, 2]");
+});
+
 QUnit.test("Override functions: make equal works as contains", function(
   assert
 ) {
@@ -770,17 +795,12 @@ QUnit.test("ConditionsParser, report error: Expression is expected", function(
   assert.equal(parser.error.at, 11, "Error at");
 });
 
-QUnit.test(
-  "ConditionsParser, report error: End is  expected",
-  function(assert) {
-    var parser = new ConditionsParser();
-    assert.notOk(parser.createCondition("({a} > 1))"));
-    assert.ok(parser.error);
-    assert.equal(
-      parser.error.code,
-      parser.ERROR_EndExpected,
-      "Endd is expected"
-    );
-    assert.equal(parser.error.at, 9, "Error at");
-  }
-);
+QUnit.test("ConditionsParser, report error: End is  expected", function(
+  assert
+) {
+  var parser = new ConditionsParser();
+  assert.notOk(parser.createCondition("({a} > 1))"));
+  assert.ok(parser.error);
+  assert.equal(parser.error.code, parser.ERROR_EndExpected, "Endd is expected");
+  assert.equal(parser.error.at, 9, "Error at");
+});

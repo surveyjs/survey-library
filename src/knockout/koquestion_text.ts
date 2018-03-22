@@ -4,6 +4,7 @@ import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
+import { Helpers } from "../helpers";
 
 export class QuestionTextImplementor extends QuestionImplementor {
   constructor(public question: Question) {
@@ -11,7 +12,7 @@ export class QuestionTextImplementor extends QuestionImplementor {
   }
   protected updateValue(newValue: any) {
     super.updateValue(newValue);
-    if (newValue !== this.question.value) {
+    if (!Helpers.isTwoValueEquals(newValue, this.question.value)) {
       this.koValue(this.question.value);
     }
   }

@@ -81,7 +81,9 @@ export class QuestionImplementor extends QuestionImplementorBase {
     this.koValue(newValue);
   }
   protected updateValue(newValue: any) {
-    this.question.value = newValue;
+    if (!Helpers.isTwoValueEquals(this.question.value, newValue)) {
+      this.question.value = newValue;
+    }
   }
   protected updateComment(newValue: any) {
     this.question.comment = newValue;

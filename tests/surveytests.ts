@@ -3617,17 +3617,16 @@ QUnit.test("Do not run conditions (enableIf/visibleIf) at design-time/Editor, Bu
   assert.equal(question.readOnly, false, "Question object doesn't run condition at design");
 });
 
-/* TODO - fix the test
-QUnit.test("Infinitive loop on setting value to checkbox, if there is a text question with the same name, Bug #", function(assert) {
+QUnit.test("Infinitive loop on setting value to checkbox, if there is a text question with the same name, Bug #1015", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var qCheck = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "onename");
   qCheck.choices = [{value: "item1", text:"display 1"}, {value: "item2", text:"display 2"}];
   var qText = page.addNewQuestion("text", "onename");
   survey.setValue("onename", ["item1"]);
-  assert.deepEqual(survey.getValue("oneName"), ["item1"], "The value set correctly");
+  assert.deepEqual(survey.getValue("onename"), ["item1"], "The value set correctly");
 });
-*/
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

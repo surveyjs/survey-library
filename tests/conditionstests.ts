@@ -804,3 +804,9 @@ QUnit.test("ConditionsParser, report error: End is  expected", function(
   assert.equal(parser.error.code, parser.ERROR_EndExpected, "Endd is expected");
   assert.equal(parser.error.at, 9, "Error at");
 });
+
+QUnit.test("ConditionsParser, parse array successfully", function(assert) {
+  var parser = new ConditionsParser();
+  assert.ok(parser.createCondition("{a} = ['item1', 'item2']"));
+  assert.notOk(parser.error, "There is no errors");
+});

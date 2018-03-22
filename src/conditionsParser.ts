@@ -257,7 +257,10 @@ export class ConditionsParser {
       this.skip();
       var c = this.ch;
       if (c == ",") this.at++;
-      if (c == "]") break;
+      if (c == "]") {
+        this.at++;
+        break;
+      }
     }
     return res;
   }

@@ -779,6 +779,16 @@ export class SurveyModel extends Base
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
+   * Change this property from 'onNextPage' to 'onValueChanged' to check erorrs on every question value changing.
+   * By default, library checks errors on changing current page to the next or on completing the survey.
+   */
+  public get checkErrorsMode(): string {
+    return this.getPropertyValue("checkErrorsMode", "onNextPage");
+  }
+  public set checkErrorsMode(val: string) {
+    this.setPropertyValue("checkErrorsMode", val);
+  }
+  /**
    * Set it to 'none' to include the invisible values into the survey data.
    * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
    * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
@@ -974,7 +984,6 @@ export class SurveyModel extends Base
     this.onGetQuestionTitle.fire(this, options);
     return options.title;
   }
-
   /**
    * Set this property to false to turn off the numbering on pages titles.
    */
@@ -1954,6 +1963,9 @@ export class SurveyModel extends Base
     for (var i: number = 0; i < questions.length; i++) {
       if (questions[i].getValueName() != valueName) continue;
       question = questions[i];
+      if (this.checkErrorsMode == "onValueChanged") {
+        question.hasErrors(true);
+      }
       this.doSurveyValueChanged(question, newValue);
       this.onValueChanged.fire(this, {
         name: valueName,
@@ -2873,6 +2885,11 @@ JsonObject.metaData.addClass("survey", [
     name: "clearInvisibleValues",
     default: "onComplete",
     choices: ["none", "onComplete", "onHidden"]
+  },
+  {
+    name: "checkErrorsMode",
+    default: "onNextPage",
+    choices: ["onNextPage", "onValueChanged"]
   },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },

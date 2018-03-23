@@ -478,6 +478,49 @@ QUnit.test(
     assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
   }
 );
+QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanged'",
+  function(assert) {
+    var survey = twoPageSimplestSurvey();
+    assert.notEqual(survey, null, "Survey is not  null");
+    var question =<Question>survey.pages[0].questions[0];
+    question.validators.push(new EmailValidator());
+    survey.checkErrorsMode = "onValueChanged";
+    assert.equal(question.errors.length, 0, "there is no errrors yet");
+    survey.setValue(question.name, "it is not e-mail");
+    assert.equal(question.errors.length, 1, "The error about invalid e-mail is generated");
+    survey.setValue(question.name, "a@a.co");
+    assert.equal(question.errors.length, 0, "The is not errors again");
+  }
+);
+QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanged', load from json + defaultValue",
+  function(assert) {
+    var json = {
+      "checkErrorsMode" : "onValueChanged",
+      "pages": [
+       {
+        "name": "page1",
+        "elements": [
+         {
+          "type": "text",
+          "name": "q1",
+          "defaultValue": "it is not e-mail",
+          "validators": [
+           {
+            "type": "email"
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     };
+    var survey = new SurveyModel(json);
+    var question = <Question>survey.getQuestionByName("q1");
+    assert.equal(question.errors.length, 1, "The error about invalid e-mail is generated");
+  }
+);
 QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
   var survey = new SurveyModel();
   survey.goNextPageAutomatic = true;

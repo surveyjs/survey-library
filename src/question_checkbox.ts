@@ -24,6 +24,26 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return str;
   }
+  public clearIncorrectValues() {
+    var val = this.value;
+    if (!val) return;
+    if (!Array.isArray(val) || val.length == 0) {
+      this.clearValue();
+      return;
+    }
+    var newValue = [];
+    for (var i = 0; i < val.length; i++) {
+      if (!this.hasUnknownValue(val[i], true)) {
+        newValue.push(val[i]);
+      }
+    }
+    if (newValue.length == val.length) return;
+    if (newValue.length == 0) {
+      this.clearValue();
+    } else {
+      this.value = newValue;
+    }
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = super.getConditionJson();
     if (operator == "contains" || operator == "notcontains") {

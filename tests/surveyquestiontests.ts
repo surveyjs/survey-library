@@ -1113,3 +1113,38 @@ QUnit.test("question.getConditionJson", function(assert) {
   assert.ok(json, "matrix text item returns json");
   assert.equal(json.type, "dropdown", "matrix row: type set correctly");
 });
+
+QUnit.test("question.clearIncorrectValues", function(assert) {
+  var qText = new QuestionTextModel("q1");
+  qText.value = "1";
+  qText.clearIncorrectValues();
+  assert.equal(qText.value, "1", "do nothing for text question");
+  var qRadio = new QuestionRadiogroupModel("q1");
+  qRadio.choices = ["1", "2", "3"];
+  qRadio.value = "1";
+  qRadio.clearIncorrectValues();
+  assert.equal(qRadio.value, "1", "do nothing since item exists in choices");
+  qRadio.value = "5";
+  qRadio.clearIncorrectValues();
+  assert.notOk(qRadio.value, "clear value since item doesn't exist in choices");
+
+  var qcheck = new QuestionCheckboxModel("q1");
+  qcheck.choices = ["1", "2", "3"];
+  qcheck.value = ["1", "2"];
+  qcheck.clearIncorrectValues();
+  assert.deepEqual(
+    qcheck.value,
+    ["1", "2"],
+    "do nothing since item exists in choices"
+  );
+  qcheck.value = ["1", "5"];
+  qcheck.clearIncorrectValues();
+  assert.deepEqual(qcheck.value, ["1"], "remove one item from choices");
+  qcheck.value = ["7", "5"];
+  qcheck.clearIncorrectValues();
+  assert.deepEqual(
+    qcheck.value,
+    [],
+    "clear values, there is no these items in choices"
+  );
+});

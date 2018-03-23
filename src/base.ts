@@ -103,6 +103,7 @@ export interface IQuestion extends IElement {
   onSurveyValueChanged(newValue: any);
   onReadOnlyChanged();
   supportGoNextPageAutomatic(): boolean;
+  clearIncorrectValues();
   clearUnusedValues();
   displayValue: any;
   getValueName(): string;

@@ -338,6 +338,7 @@ export class QuestionBase extends SurveyElement
   public getConditionJson(operator: string = null, path: string = null): any {
     return null;
   }
+  public clearIncorrectValues() {}
   public clearUnusedValues() {}
   public get displayValue(): any {
     return "";

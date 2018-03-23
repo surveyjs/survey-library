@@ -99,8 +99,7 @@ export class QuestionSelectBase extends Question {
     return this.valueToDataCore(val);
   }
   protected valueFromDataCore(val: any): any {
-    if (!this.hasUnknownValue(val)) return val;
-    if (val == this.otherItem.value) return val;
+    if (!this.hasUnknownValue(val, true)) return val;
     this.comment = val;
     return this.otherItem.value;
   }
@@ -110,8 +109,9 @@ export class QuestionSelectBase extends Question {
     }
     return val;
   }
-  protected hasUnknownValue(val: any): boolean {
+  protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (!val) return false;
+    if (includeOther && val == this.otherItem.value) return false;
     var items = this.activeChoices;
     for (var i = 0; i < items.length; i++) {
       if (items[i].value == val) return false;
@@ -357,6 +357,12 @@ export class QuestionSelectBase extends Question {
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
     return Helpers.randomizeArray<ItemValue>(array);
+  }
+  public clearIncorrectValues() {
+    var val = this.value;
+    if (this.hasUnknownValue(val, true)) {
+      this.clearValue();
+    }
   }
   clearUnusedValues() {
     super.clearUnusedValues();

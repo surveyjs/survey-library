@@ -8,7 +8,7 @@ export var dutchSurveyStrings = {
   otherItemText: "Andere",
   progressText: "Pagina {0} van {1}",
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
-  completingSurvey: "Bedankt om deze vragenlijst in te vullen",
+  completingSurvey: "Bedankt voor het invullen van de vragenlijst",
   loadingSurvey: "De vragenlijst is aan het laden...",
   optionsCaption: "Kies...",
   requiredError: "Gelieve een antwoord in te vullen",

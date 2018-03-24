@@ -2684,6 +2684,39 @@ QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function(
   assert.equal(question.comment, "comment text");
 });
 
+QUnit.test("survey.clearIncorrectValues", function(
+  assert
+) {
+  var json = {
+    "pages": [
+     {
+      "name": "page1",
+      "elements": [
+       {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+         {
+          "type": "radiogroup",
+          "name": "question1",
+          "defaultValue": "item3",
+          "choices": [
+           "item1",
+           "item2",
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   };
+   var survey = new SurveyModel(json);
+   assert.deepEqual(survey.data, {question1: "item3"}, "The default value is set");
+   survey.clearIncorrectValues();
+   assert.deepEqual(survey.data, {}, "The default value is removed");
+});
+
 QUnit.test("Create questions from elements array - issue #395", function(
   assert
 ) {

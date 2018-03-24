@@ -804,6 +804,20 @@ export class SurveyModel extends Base
     if (val === false) val = "none";
     this.setPropertyValue("clearInvisibleValues", val);
   }
+  /**
+   * Call this function to remove all question values from the survey, that end-user will not be able to enter.
+   * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
+   * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
+   * In fact this function just call clearIncorrectValues function of all questions in the survery
+   * @see Question.clearIncorrectValues
+   * @see Page.clearIncorrectValues
+   * @see Panel.clearIncorrectValues
+   */
+  public clearIncorrectValues() {
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].clearIncorrectValues();
+    }
+  }
 
   /**
    * Use it to change the survey locale. By default it is empty, 'en'. You may set it to 'de' - german, 'fr' - french and so on. The library has built-in localization for several languages. The library has a multi-language support as well.

@@ -285,6 +285,17 @@ export class PanelModelBase extends SurveyElement
     }
     return data;
   }
+  /**
+   * Call this function to remove all question values from the current page/panel, that end-user will not be able to enter.
+   * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
+   * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
+   * @see Question.clearIncorrectValues
+   */
+  public clearIncorrectValues() {
+    for(var i = 0; i < this.elements.length; i ++) {
+      this.elements[i].clearIncorrectValues();
+    }
+  }
   private markQuestionListDirty() {
     this.isQuestionsReady = false;
     if (this.parent) this.parent.markQuestionListDirty();

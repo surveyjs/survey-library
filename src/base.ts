@@ -95,6 +95,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   onLocaleChanged();
   onAnyValueChanged(name: string);
   updateCustomWidgets();
+  clearIncorrectValues();
 }
 
 export interface IQuestion extends IElement {
@@ -103,7 +104,6 @@ export interface IQuestion extends IElement {
   onSurveyValueChanged(newValue: any);
   onReadOnlyChanged();
   supportGoNextPageAutomatic(): boolean;
-  clearIncorrectValues();
   clearUnusedValues();
   displayValue: any;
   getValueName(): string;

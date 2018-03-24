@@ -508,11 +508,34 @@ export class MatrixDropdownRowModelBase
     }
     return true;
   }
-  public getQuestionByColumn(column: MatrixDropdownColumn) {
+  public getQuestionByColumn(column: MatrixDropdownColumn): Question {
     for (var i = 0; i < this.cells.length; i++) {
       if (this.cells[i].column == column) return this.cells[i].question;
     }
     return null;
+  }
+  public getQuestionByColumnName(columnName: string): Question {
+    for (var i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].column.name == columnName)
+        return this.cells[i].question;
+    }
+    return null;
+  }
+  public clearIncorrectValues() {
+    var val = this.value;
+    var newVal = {};
+    for (var key in val) {
+      var question = this.getQuestionByColumnName(key);
+      if (question) {
+        var qVal = question.value;
+        question.clearIncorrectValues();
+        if (!Helpers.isTwoValueEquals(qVal, question.value)) {
+          this.setValue(key, question.value);
+        }
+      } else {
+        this.setValue(key, null);
+      }
+    }
   }
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
@@ -715,6 +738,13 @@ export class QuestionMatrixDropdownModelBase extends Question
     var question = column.createCellQuestion(null);
     if (!question) return null;
     return question.getConditionJson(operator);
+  }
+  public clearIncorrectValues() {
+    var rows = this.visibleRows;
+    if (!rows) return;
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].clearIncorrectValues();
+    }
   }
   public runCondition(values: HashTable<any>) {
     super.runCondition(values);

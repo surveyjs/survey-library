@@ -79,6 +79,23 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set rows(val: Array<any>) {
     this.setPropertyValue("rows", val);
   }
+  public clearIncorrectValues() {
+    var val = this.value;
+    if (!val) return;
+    var newVal = {};
+    var isChanged = false;
+    for (var key in val) {
+      if (ItemValue.getItemByValue(this.rows, key)) {
+        newVal[key] = val[key];
+      } else {
+        isChanged = true;
+      }
+    }
+    if (isChanged) {
+      this.value = newVal;
+    }
+    super.clearIncorrectValues();
+  }
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
     if (!this.rows || this.rows.length === 0) return result;

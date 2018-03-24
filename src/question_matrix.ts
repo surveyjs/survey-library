@@ -282,6 +282,25 @@ export class QuestionMatrixModel extends Question
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
+  public clearIncorrectValues() {
+    var val = this.value;
+    if (!val) return;
+    var newVal = {};
+    var isChanged = false;
+    for (var key in val) {
+      if (
+        ItemValue.getItemByValue(this.rows, key) &&
+        ItemValue.getItemByValue(this.columns, val[key])
+      ) {
+        newVal[key] = val[key];
+      } else {
+        isChanged = true;
+      }
+    }
+    if (isChanged) {
+      this.value = newVal;
+    }
+  }
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
   }

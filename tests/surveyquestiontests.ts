@@ -345,6 +345,20 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function(
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
+QUnit.test("Matrix Question clearIncorrectValues", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  matrix.value = { row1: "col2", row2: "col3", row3: "col1" };
+  matrix.clearIncorrectValues();
+
+  assert.deepEqual(
+    matrix.value,
+    { row1: "col2" },
+    "Remove values with incorrect row and incorrect column"
+  );
+});
+
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];

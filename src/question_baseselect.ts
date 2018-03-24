@@ -112,11 +112,7 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (!val) return false;
     if (includeOther && val == this.otherItem.value) return false;
-    var items = this.activeChoices;
-    for (var i = 0; i < items.length; i++) {
-      if (items[i].value == val) return false;
-    }
-    return true;
+    return ItemValue.getItemByValue(this.activeChoices, val) == null;
   }
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.

@@ -1029,3 +1029,41 @@ QUnit.test("matrixDynamic.getConditionJson", function(assert) {
   json = question.getConditionJson("contains", "[0].col2");
   assert.equal(json.type, "radiogroup", "column 2 get type for contains");
 });
+
+QUnit.test("matrixDynamic.clearInvisibleValues", function(assert) {
+  var names = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.columns[0]["choices"] = [1, 2];
+  question.columns[1]["choices"] = [1, 2, 3];
+  question.rowCount = 2;
+  question.value = [{ col1: 1, col2: 4 }, { col4: 1, col2: 2 }];
+  question.clearIncorrectValues();
+  assert.deepEqual(
+    question.value,
+    [{ col1: 1 }, { col2: 2 }],
+    "clear unexisting columns and values"
+  );
+});
+
+QUnit.test("matrixDropdown.clearInvisibleValues", function(assert) {
+  var names = [];
+  var question = new QuestionMatrixDropdownModel("matrix");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.columns[0]["choices"] = [1, 2];
+  question.columns[1]["choices"] = [1, 2, 3];
+  question.rows = ["row1", "row2"];
+  question.value = {
+    row1: { col1: 1, col2: 4 },
+    row0: { col1: 1 },
+    row2: { col4: 1, col2: 2 }
+  };
+  question.clearIncorrectValues();
+  assert.deepEqual(
+    question.value,
+    { row1: { col1: 1 }, row2: { col2: 2 } },
+    "clear unexisting columns and values"
+  );
+});

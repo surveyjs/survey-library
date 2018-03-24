@@ -107,6 +107,22 @@ export class SurveyModel extends Base
     any
   >();
   /**
+   * The event is fired before another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
+   * <br/> sender the survey object that fires the event
+   * <br/> option.oldCurrentPage the previous current/active page
+   * <br/> option.newCurrentPage a new current/active page
+   * @see currentPage
+   * @see currentPageNo
+   * @see nextPage
+   * @see prevPage
+   * @see completeLastPage
+   * @see onCurrentPageChanged
+   **/
+  public onCurrentPageChanging: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired when another page becomes the current. Typically it happens when a user click on 'Next' or 'Prev' buttons.
    * <br/> sender the survey object that fires the event
    * <br/> option.oldCurrentPage the previous current/active page
@@ -116,6 +132,7 @@ export class SurveyModel extends Base
    * @see nextPage
    * @see prevPage
    * @see completeLastPage
+   * @see onCurrentPageChanging
    */
   public onCurrentPageChanged: Event<
     (sender: SurveyModel, options: any) => any,
@@ -1187,6 +1204,7 @@ export class SurveyModel extends Base
     if (value != null && vPages.indexOf(value) < 0) return;
     if (value == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
+    this.currentPageChanging(value, oldValue);
     this.currentPageValue = value;
     if (value) {
       value.updateCustomWidgets();
@@ -1307,6 +1325,12 @@ export class SurveyModel extends Base
   protected updateCustomWidgets(page: PageModel) {
     if (!page) return;
     page.updateCustomWidgets();
+  }
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel) {
+    this.onCurrentPageChanging.fire(this, {
+      oldCurrentPage: oldValue,
+      newCurrentPage: newValue
+    });
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
     this.onCurrentPageChanged.fire(this, {

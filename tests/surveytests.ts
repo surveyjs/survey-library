@@ -1172,6 +1172,39 @@ QUnit.test("Complete trigger + matrix test", function(assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test(
+  "survey.onCurrentPageChanging",
+  function(assert) {
+    var survey = twoPageSimplestSurvey();
+    var changingOldPage = null;
+    var changingNewPage = null;
+    var changingCounter = 0;
+    var changingBeforeChanged = 0;
+    var page = survey.currentPage;
+    survey.onCurrentPageChanging.add(function(survey, options){
+      changingOldPage = options.oldCurrentPage;
+      changingNewPage = options.newCurrentPage;
+      changingCounter ++;
+      changingBeforeChanged = 1;
+    });
+    survey.onCurrentPageChanged.add(function(surey, options){
+      if(changingBeforeChanged == 1) {
+        changingBeforeChanged = 2;
+      }
+    });
+    survey.nextPage();
+    assert.equal(changingOldPage.name, "Page 1", "first nextPage: oldCurrentPage");
+    assert.equal(changingNewPage.name, "Page 2", "first nextPage: newCurrentPage");
+    assert.equal(changingCounter, 1, "first nextPage: called one time");
+    assert.equal(changingBeforeChanged, 2, "first nextPage: called before changed");
+    survey.prevPage();
+    assert.equal(changingOldPage.name, "Page 2", "first prevPage: oldCurrentPage");
+    assert.equal(changingNewPage.name, "Page 1", "first prevPage: newCurrentPage");
+    assert.equal(changingCounter, 2, "first prevPage: called two time");
+    assert.equal(changingBeforeChanged, 2, "first prevPage: called before changed");
+  }
+);
+
 
 QUnit.test(
   "Complete trigger, onCurrentPageChange calls after onComplete, Bug#963",

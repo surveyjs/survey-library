@@ -12,6 +12,7 @@ import {
 } from "../src/questionCustomWidgets";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -54,6 +55,26 @@ QUnit.test("Synhronize panelCount and value array length", function(assert) {
     question.value[1]["q1"],
     "val1",
     "Do not delete the value in non deleted panels"
+  );
+});
+
+QUnit.test("Dynamic Panel, clearIncorrectValues", function(assert) {
+  var question = new QuestionPanelDynamicModel("q");
+  (<QuestionRadiogroupModel>question.template.addNewQuestion(
+    "radiogroup",
+    "q1"
+  )).choices = [1, 2];
+  (<QuestionRadiogroupModel>question.template.addNewQuestion(
+    "radiogroup",
+    "q2"
+  )).choices = [1, 2, 3];
+
+  question.value = [{ q1: 1 }, { q1: "val1" }, { q4: 3, q2: 5 }];
+  question.clearIncorrectValues();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1 }, {}, {}],
+    "Remove incorrect values in all panels"
   );
 });
 

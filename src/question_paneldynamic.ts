@@ -778,6 +778,29 @@ export class QuestionPanelDynamicModel extends Question
     }
     return -1;
   }
+  public clearIncorrectValues() {
+    for (var i = 0; i < this.panels.length; i++) {
+      this.clearIncorrectValuesInPanel(i);
+    }
+  }
+  private clearIncorrectValuesInPanel(index: number) {
+    var panel = this.panels[index];
+    panel.clearIncorrectValues();
+    var val = this.value;
+    var values = index < val.length ? val[index] : null;
+    if (!values) return;
+    var isChanged = false;
+    for (var key in values) {
+      if (!panel.getQuestionByName(key)) {
+        delete values[key];
+        isChanged = true;
+      }
+    }
+    if (isChanged) {
+      val[index] = values;
+      this.value = val;
+    }
+  }
   public addConditionNames(names: Array<string>) {
     var prefix = this.name + "[0].";
     var panelNames = [];

@@ -4,7 +4,7 @@ import { surveyLocalization } from "../surveyStrings";
 export var dutchSurveyStrings = {
   pagePrevText: "Vorige",
   pageNextText: "Volgende",
-  completeText: "Afsluiten",
+  completeText: "Verzenden",
   otherItemText: "Andere",
   progressText: "Pagina {0} van {1}",
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",

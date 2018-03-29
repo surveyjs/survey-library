@@ -51,10 +51,13 @@ export class QuestionImplementor extends QuestionImplementorBase {
   protected updateQuestion() {
     this.updateKoDummy();
   }
+  private isValueChangedPerforming = false;
   protected onValueChanged() {
     var val = this.question.value;
     if (Helpers.isTwoValueEquals(val, this.koValue())) return;
+    this.isValueChangedPerforming = true;
     this.setkoValue(val);
+    this.isValueChangedPerforming = false;
   }
   protected onCommentChanged() {
     var val = this.question.comment;
@@ -81,6 +84,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
     this.koValue(newValue);
   }
   protected updateValue(newValue: any) {
+    if (this.isValueChangedPerforming) return;
     if (!Helpers.isTwoValueEquals(this.question.value, newValue)) {
       this.question.value = newValue;
     }

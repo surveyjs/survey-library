@@ -83,6 +83,14 @@ export class Helpers {
     }
     return array;
   }
+  public static getUnbindValue(value: any): any {
+    if (value && value instanceof Object) {
+      //do not return the same object instance!!!
+      return JSON.parse(JSON.stringify(value));
+    }
+    return value;
+  }
+  
 }
 if (!String.prototype["format"]) {
   String.prototype["format"] = function() {

@@ -262,6 +262,37 @@ QUnit.test("Matrixdynamic lost last cell under certain circumstances", function(
   );
 });
 
+QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
+  assert
+) {
+  var survey = new Survey({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "col1",
+            cellType: "checkbox",
+            colCount: 1,
+            choices: ["1", "2", "3"]
+          }
+        ],
+        rowCount: 1
+      }
+    ]
+  });
+  var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  (<any>rows[0].cells[0].question).koValue(["1"]);
+  (<any>rows[0].cells[0].question).koValue(["1", "2"]);
+  assert.deepEqual(
+    survey.data,
+    { q1: [{ col1: ["1", "2"] }] },
+    "The value set correctly"
+  );
+});
+
 QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
   var mQuestion = new QuestionMultipleText("q1");
   mQuestion.items.push(new MultipleTextItem("i1"));

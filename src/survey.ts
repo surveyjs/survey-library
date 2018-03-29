@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonMetadata } from "./jsonobject";
 import {
   Base,
@@ -2371,11 +2371,7 @@ export class SurveyModel extends Base
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {
-    if (value && value instanceof Object) {
-      //do not return the same object instance!!!
-      return JSON.parse(JSON.stringify(value));
-    }
-    return value;
+    return Helpers.getUnbindValue(value);
   }
   /**
    * Returns a question value

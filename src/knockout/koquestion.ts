@@ -86,7 +86,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
   protected updateValue(newValue: any) {
     if (this.isValueChangedPerforming) return;
     if (!Helpers.isTwoValueEquals(this.question.value, newValue)) {
-      this.question.value = newValue;
+      this.question.value = Helpers.getUnbindValue(newValue);
     }
   }
   protected updateComment(newValue: any) {

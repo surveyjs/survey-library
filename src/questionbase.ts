@@ -299,6 +299,10 @@ export class QuestionBase extends SurveyElement
   protected fireCallback(callback: () => void) {
     if (callback) callback();
   }
+  public getOthersMaxLength(): any {
+    if (!this.survey) return null;
+    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
+  }
   protected onCreating() {}
   /**
    * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.

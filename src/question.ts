@@ -279,10 +279,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.setPropertyValue("isRequired", val);
     this.fireCallback(this.titleChangedCallback);
   }
-  public getOthersMaxLength(): any {
-    if (!this.survey) return null;
-    return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
-  }
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment", false);
   }

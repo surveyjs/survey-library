@@ -38,6 +38,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
         className={cssClasses.root}
         readOnly={this.isDisplayMode}
         value={this.state.value}
+        maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}
         onChange={this.handleOnChange}

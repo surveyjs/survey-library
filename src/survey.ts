@@ -783,6 +783,31 @@ export class SurveyModel extends Base
     this.setPropertyValue("storeOthersAsComment", val);
   }
   /**
+   * The default maximum length for questions like text and comment, including matrix cell questions.
+   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * @see maxOthersLength
+   */
+  public get maxTextLength(): number {
+    return this.getPropertyValue("maxTextLength", 0);
+  }
+  public set maxTextLength(val: number) {
+    this.setPropertyValue("maxTextLength", val);
+  }
+  /**
+   * The default maximum length for question comments and others
+   * The default value is 0, it is unlimited maxLength - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp
+   * @see Question.hasComment
+   * @see Question.hasOther
+   * @see maxTextLength
+   */
+  public get maxOthersLength(): number {
+    return this.getPropertyValue("maxOthersLength", 0);
+  }
+  public set maxOthersLength(val: number) {
+    this.setPropertyValue("maxOthersLength", val);
+  }
+
+  /**
    * Set it to the one of the following constants if you want to go to the next page without pressing 'Next' button when all questions are anwered.
    * true - go next page and submit automatically
    * "autogonext" - go next page automatically but do not submit
@@ -2914,6 +2939,8 @@ JsonObject.metaData.addClass("survey", [
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
+  { name: "maxTextLength:number", default: 0 },
+  { name: "maxOthersLength:number", default: 0 },
   "goNextPageAutomatic:boolean",
   {
     name: "clearInvisibleValues",

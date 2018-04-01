@@ -47,6 +47,10 @@ export interface ISurvey extends ITextProcessor {
   questionTitleLocation: string;
   questionErrorLocation: string;
   storeOthersAsComment: boolean;
+
+  maxTextLength: number;
+  maxOthersLength: number;
+
   uploadFile(
     name: string,
     file: File,

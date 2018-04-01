@@ -1162,3 +1162,17 @@ QUnit.test("question.clearIncorrectValues", function(assert) {
     "clear values, there is no these items in choices"
   );
 });
+
+QUnit.test("questiontext.maxLength", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qText = new QuestionTextModel("q1");
+  page.addElement(qText);
+  assert.equal(qText.getMaxLength(), null, "By default it is null");
+  survey.maxTextLength = 10;
+  assert.equal(qText.getMaxLength(), 10, "get from survey");
+  qText.maxLength = 0;
+  assert.equal(qText.getMaxLength(), null, "makes it underfined");
+  qText.maxLength = 5;
+  assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+});

@@ -90,7 +90,12 @@ export class Helpers {
     }
     return value;
   }
-  
+  public static getMaxLength(maxLength: number, surveyLength: number): any {
+    if (maxLength < 0) {
+      maxLength = surveyLength;
+    }
+    return maxLength > 0 ? maxLength : null;
+  }
 }
 if (!String.prototype["format"]) {
   String.prototype["format"] = function() {

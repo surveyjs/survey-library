@@ -41,6 +41,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         className={cssClasses.root}
         type={this.question.inputType}
         value={this.state.value}
+        maxLength={this.question.getMaxLength()}
         size={this.question.size}
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}

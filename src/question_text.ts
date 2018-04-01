@@ -2,6 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
+import { Helpers } from "./helpers";
 
 /**
  * A Model for an input text question.
@@ -24,6 +25,23 @@ export class QuestionTextModel extends Question {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
+  }
+  /**
+   * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
+   * If it is 0, then the value is unlimited
+   * @see SurveyModel.maxTextLength
+   */
+  public get maxLength(): number {
+    return this.getPropertyValue("maxLength", -1);
+  }
+  public set maxLength(val: number) {
+    this.setPropertyValue("maxLength", val);
+  }
+  public getMaxLength(): any {
+    return Helpers.getMaxLength(
+      this.maxLength,
+      this.survey ? this.survey.maxTextLength : -1
+    );
   }
   /**
    * The text input size
@@ -92,6 +110,7 @@ JsonObject.metaData.addClass(
       ]
     },
     { name: "size:number", default: 25 },
+    { name: "maxLength:number", default: -1 },
     { name: "placeHolder", serializationProperty: "locPlaceHolder" }
   ],
   function() {

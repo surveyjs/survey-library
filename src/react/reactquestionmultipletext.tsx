@@ -123,6 +123,7 @@ export class SurveyQuestionMultipleTextItem extends ReactSurveyElement {
         className={this.cssClasses.itemValue}
         type={this.item.inputType}
         value={this.state.value}
+        maxLength={this.item.getMaxLength()}
         placeholder={this.item.placeHolder}
         onBlur={this.handleOnBlur}
         onChange={this.handleOnChange}

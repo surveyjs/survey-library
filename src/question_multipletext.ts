@@ -13,6 +13,7 @@ import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./base";
 import { AnswerRequiredError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { Helpers } from "./helpers";
 
 export interface IMultipleTextData {
   getSurvey(): ISurvey;
@@ -104,6 +105,24 @@ export class MultipleTextItemModel extends Base
    */
   public get fullTitle(): string {
     return this.editor.fullTitle;
+  }
+  /**
+   * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
+   * If it is 0, then the value is unlimited
+   * @see SurveyModel.maxTextLength
+   */
+  public get maxLength(): number {
+    return this.getPropertyValue("maxLength", -1);
+  }
+  public set maxLength(val: number) {
+    this.setPropertyValue("maxLength", val);
+  }
+  public getMaxLength(): any {
+    var survey = this.getSurvey();
+    return Helpers.getMaxLength(
+      this.maxLength,
+      survey ? survey.maxTextLength : -1
+    );
   }
   /**
    * The input place holder.
@@ -390,6 +409,7 @@ JsonObject.metaData.addClass(
       ]
     },
     { name: "title", serializationProperty: "locTitle" },
+    { name: "maxLength:number", default: -1 },
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",

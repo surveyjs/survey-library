@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-matrixdynamic">
     <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
         <table data-bind="css: question.koCss().root">
-            <thead>
+            <thead data-bind="visible: question.showHeader">
                 <tr>
                     <!-- ko foreach: question.columns -->
                     <th data-bind="style: { minWidth: question.getColumnWidth($data) }">

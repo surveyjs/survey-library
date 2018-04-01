@@ -1,7 +1,7 @@
 <template>
     <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
         <table :class="question.cssClasses.root">
-            <thead>
+            <thead v-show="question.showHeader">
                 <tr>
                     <td></td>
                     <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
@@ -25,14 +25,12 @@ import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 
 @Component
-export class MatrixDropdown extends QuestionVue<
-  QuestionMatrixDropdownModel
-> {
+export class MatrixDropdown extends QuestionVue<QuestionMatrixDropdownModel> {
   get rows() {
     return this.question.visibleRows;
   }
 }
 
 Vue.component("survey-matrixdropdown", MatrixDropdown);
-    export default MatrixDropdown;
+export default MatrixDropdown;
 </script>

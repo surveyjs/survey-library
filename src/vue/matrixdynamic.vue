@@ -1,7 +1,7 @@
 <template>
     <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
         <table :class="question.cssClasses.root">
-            <thead>
+            <thead v-show="question.showHeader">
                 <tr>
                     <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
                     <td v-if="!question.isReadOnly"></td>

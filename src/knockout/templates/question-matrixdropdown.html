@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-matrixdropdown">
     <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
         <table data-bind="css: question.koCss().root">
-            <thead>
+            <thead data-bind="visible: question.showHeader">
                 <tr>
                     <td></td>
                     <!-- ko foreach: question.columns -->

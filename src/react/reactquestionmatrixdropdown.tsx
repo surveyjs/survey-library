@@ -20,19 +20,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var headers = [];
-    for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i];
-      var key = "column" + i;
-      var minWidth = this.question.getColumnWidth(column);
-      var columnStyle = minWidth ? { minWidth: minWidth } : {};
-      var columnTitle = this.renderLocString(column.locTitle);
-      headers.push(
-        <th key={key} style={columnStyle}>
-          {columnTitle}
-        </th>
-      );
-    }
+    var header = this.renderHeader();
     var rows = [];
     var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
@@ -53,15 +41,34 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionElementBase {
     return (
       <div style={divStyle}>
         <table className={cssClasses.root}>
-          <thead>
-            <tr>
-              <td />
-              {headers}
-            </tr>
-          </thead>
+          {header}
           <tbody>{rows}</tbody>
         </table>
       </div>
+    );
+  }
+  renderHeader(): JSX.Element {
+    if (!this.question.showHeader) return null;
+    var headers = [];
+    for (var i = 0; i < this.question.columns.length; i++) {
+      var column = this.question.columns[i];
+      var key = "column" + i;
+      var minWidth = this.question.getColumnWidth(column);
+      var columnStyle = minWidth ? { minWidth: minWidth } : {};
+      var columnTitle = this.renderLocString(column.locTitle);
+      headers.push(
+        <th key={key} style={columnStyle}>
+          {columnTitle}
+        </th>
+      );
+    }
+    return (
+      <thead>
+        <tr>
+          <td />
+          {headers}
+        </tr>
+      </thead>
     );
   }
 }

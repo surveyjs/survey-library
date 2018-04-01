@@ -836,6 +836,15 @@ export class QuestionMatrixDropdownModelBase extends Question
     }
     return this.generatedVisibleRows;
   }
+  /**
+   * Set this property to false, to hide table header. The default value is true.
+   */
+  public get showHeader(): boolean {
+    return this.getPropertyValue("showHeader", true);
+  }
+  public set showHeader(val: boolean) {
+    this.setPropertyValue("showHeader", val);
+  }
   public onSurveyLoad() {
     super.onSurveyLoad();
     this.generatedVisibleRows = null;
@@ -1153,7 +1162,8 @@ JsonObject.metaData.addClass(
       }
     },
     { name: "columnColCount", default: 0, choices: [0, 1, 2, 3, 4] },
-    "columnMinWidth"
+    "columnMinWidth",
+    { name: "showHeader:boolean", default: true }
   ],
   function() {
     return new QuestionMatrixDropdownModelBase("");

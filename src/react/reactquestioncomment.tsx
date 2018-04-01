@@ -86,6 +86,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         type="text"
         className={className}
         value={this.state.value}
+        maxLength={this.question.getOthersMaxLength()}
         onChange={this.handleOnChange}
         onBlur={this.handleOnBlur}
         aria-label={this.question.locTitle.renderedHtml}

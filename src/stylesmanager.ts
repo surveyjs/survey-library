@@ -37,7 +37,6 @@ export class StylesManager {
     ".form-inline .sv_q_radiogroup_inline:not(:last-child)":
       "margin-right: 1em;",
     ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
-    "fieldset.form-inline": "display: inline-block;",
     ".sv_qstn .sv_q_file_placeholder": "display:none",
 
     ".sv_p_title": "padding-left: 1em; padding-bottom: 0.3em;",

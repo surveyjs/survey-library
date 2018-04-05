@@ -23,12 +23,12 @@ export class SurveyWindow extends SurveyWindowModel {
     this.doExpand = function() {
       self.changeExpanded();
     };
-    this.survey.onComplete.add((sender: SurveyModel) => {
-      self.onComplete();
-    });
   }
   protected createSurvey(jsonObj: any): SurveyModel {
     return new Survey(jsonObj);
+  }
+  protected closeWindowOnComplete() {
+    this.hide();
   }
   protected get template(): string {
     return this.templateValue ? this.templateValue : this.getDefaultTemplate();
@@ -56,9 +56,6 @@ export class SurveyWindow extends SurveyWindowModel {
   }
   private changeExpanded() {
     this.expandcollapse(!this.isExpanded);
-  }
-  private onComplete() {
-    this.hide();
   }
   private getButtonCss() {
     return this.koExpanded()

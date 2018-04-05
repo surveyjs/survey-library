@@ -15,6 +15,7 @@ export class SurveyWindowModel extends Base {
   templateValue: string;
   expandedChangedCallback: () => void;
   showingChangedCallback: () => void;
+  closeWindowOnCompleteCallback: () => void;
 
   constructor(jsonObj: any, initialModel: SurveyModel = null) {
     super();
@@ -27,6 +28,10 @@ export class SurveyWindowModel extends Base {
     if ("undefined" !== typeof document) {
       this.windowElement = <HTMLDivElement>document.createElement("div");
     }
+    var self = this;
+    this.survey.onComplete.add(function(survey, options) {
+      self.onSurveyComplete();
+    });
   }
   public getType(): string {
     return "window";
@@ -38,6 +43,10 @@ export class SurveyWindowModel extends Base {
   public get survey(): SurveyModel {
     return this.surveyValue;
   }
+  /**
+   * Set this value to negative value, for example -1, to avoid closing the window on completing the survey. Leave it equals to 0 (default value) to close the window immediately, or set it to 3, 5, 10, ... to close the window in 3, 5, 10 seconds.
+   */
+  public closeOnCompleteTimeout: number = 0;
   /**
    * Returns true if the window is currently showing. Set it to true to show the window and false to hide it.
    * @see show
@@ -110,5 +119,24 @@ export class SurveyWindowModel extends Base {
     if (this.isExpandedValue == value) return;
     this.isExpandedValue = value;
     if (this.expandedChangedCallback) this.expandedChangedCallback();
+  }
+  protected onSurveyComplete() {
+    if (this.closeOnCompleteTimeout < 0) return;
+    if (this.closeOnCompleteTimeout == 0) {
+      this.closeWindowOnComplete();
+    } else {
+      var self = this;
+      var timerId = null;
+      var func = function() {
+        self.closeWindowOnComplete();
+        window.clearInterval(timerId);
+      };
+      timerId = window.setInterval(func, this.closeOnCompleteTimeout * 1000);
+    }
+  }
+  protected closeWindowOnComplete() {
+    if (this.closeWindowOnCompleteCallback) {
+      this.closeWindowOnCompleteCallback();
+    }
   }
 }

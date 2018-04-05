@@ -86,8 +86,8 @@ export class SurveyWindow extends Survey {
     this.window.showingChangedCallback = function() {
       self.setState({ isShowing: self.window.isShowing });
     };
-    this.survey.onComplete.add(function(s: SurveyModel) {
+    this.window.closeWindowOnCompleteCallback = function() {
       self.window.hide();
-    });
+    };
   }
 }

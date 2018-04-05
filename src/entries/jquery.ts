@@ -25,6 +25,9 @@ jQuery["fn"].extend({
       if (props.isExpanded !== undefined) {
         survey.isExpanded = props.isExpanded;
       }
+      if (props.closeOnCompleteTimeout !== undefined) {
+        survey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
+      }
       survey.show();
     });
   }

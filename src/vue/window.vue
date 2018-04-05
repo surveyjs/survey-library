@@ -26,6 +26,7 @@ export class Window extends Vue {
   @Prop survey: SurveyModel;
   @Prop isExpanded: boolean;
   @Prop isexpanded: boolean;
+  @Prop closeOnCompleteTimeout: number;
 
   surveyWindow: SurveyWindowModel;
   constructor() {
@@ -35,18 +36,20 @@ export class Window extends Vue {
     } else {
       this.surveyWindow = new VueSurveyWindowModel(null, this.survey);
     }
-    this.surveyWindow.isShowing = true;
     if (this.isexpanded !== undefined) {
       this.surveyWindow.isExpanded = this.isexpanded;
     }
     if (this.isExpanded !== undefined) {
       this.surveyWindow.isExpanded = this.isExpanded;
     }
-
+    if (this.closeOnCompleteTimeout !== undefined) {
+      this.surveyWindow.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
+    }
+    this.surveyWindow.isShowing = true;
     var self = this;
-    this.surveyWindow.survey.onComplete.add(function(survey, options) {
-      Vue.set(self.surveyWindow, "isShowing", false);
-    });
+    this.surveyWindow.closeWindowOnCompleteCallback = function() {
+      self.doHide();
+    };
   }
   get windowSurvey(): SurveyModel {
     return this.surveyWindow.survey;
@@ -59,12 +62,17 @@ export class Window extends Vue {
       ? this.css.window.header.buttonCollapsed
       : this.css.window.header.buttonExpanded;
   }
-
   get isExpandedSurvey(): boolean {
     return this.surveyWindow.isExpanded;
   }
+  set isExpandedSurvey(val: boolean) {
+    this.surveyWindow.isExpanded = val;
+  }
   doExpand() {
     this.surveyWindow.isExpanded = !this.surveyWindow.isExpanded;
+  }
+  doHide() {
+    Vue.set(this.surveyWindow, "isShowing", false);
   }
 }
 Vue.component("survey-window", Window);

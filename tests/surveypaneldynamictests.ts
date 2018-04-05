@@ -1272,6 +1272,47 @@ QUnit.test("matrixDynamic.panelsState, load from json", function(assert) {
     "The second panel is collapsed"
   );
 });
+QUnit.test(
+  "Dynamic Panel, multiple text question and validation, Bug#1037",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var panel = new QuestionPanelDynamicModel("q");
+    var question = <QuestionMultipleTextModel>panel.template.addNewQuestion(
+      "multipletext",
+      "q1"
+    );
+    question.addItem("item1");
+    question.addItem("item2");
+    page.addElement(panel);
+    survey.onValidateQuestion.add(function(survey, options) {
+      if (options.name != "q1") return;
+      var v1 = options.value["item1"];
+      var v2 = options.value["item2"];
+      if (!v1 || !v2) {
+        options.error = "all items should be set";
+        return;
+      }
+      if (v1 < 5) {
+        options.error = "item1 should be more than 4";
+      }
+      if (v2 < 10) {
+        options.error = "item2 should be more than 9";
+      }
+    });
+
+    panel.panelCount = 1;
+    panel.panels[0].questions[0].value = {};
+
+    assert.equal(page.hasErrors(), true, "There are errors items are empty");
+
+    panel.panels[0].questions[0].value = { item1: 5, item2: 5 };
+    assert.equal(page.hasErrors(), true, "There is error item2 less than 10");
+    panel.panels[0].questions[0].value = { item1: 5, item2: 11 };
+    assert.equal(page.hasErrors(), false, "There is no errors");
+  }
+);
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

@@ -585,6 +585,9 @@ export class Event<T extends Function, Options> {
       var callResult = this.callbacks[i](sender, options);
     }
   }
+  public clear() {
+    this.callbacks = [];
+  }
   public add(func: T) {
     if (this.callbacks == null) {
       this.callbacks = new Array<T>();

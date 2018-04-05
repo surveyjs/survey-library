@@ -2590,7 +2590,7 @@ export class SurveyModel extends Base
     var options = {
       name: question.name,
       question: question,
-      value: this.getValue(question.name),
+      value: question.value,
       error: null
     };
     this.onValidateQuestion.fire(this, options);

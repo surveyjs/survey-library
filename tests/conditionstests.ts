@@ -544,6 +544,14 @@ QUnit.test("Bug with contains, support string.indexof, bug#831", function(
   values = { str: "12345" };
   assert.equal(runner.run(values), false, "'12345' notcontains '1'");
 });
+QUnit.test("Bug with contains, bug#1039", function(assert) {
+  var runner = new ConditionRunner("{ValueType} contains '3b'");
+  var values = { ValueType: ["3b"] };
+  assert.equal(runner.run(values), true, "['3b'] contains '3b'");
+  values = { ValueType: ["1"] };
+  assert.equal(runner.run(values), false, "['1'] contains '3b'");
+});
+
 QUnit.test("Escape quotes, bug#786", function(assert) {
   var runner = new ConditionRunner("{text} = 'I\\'m here'");
   var values = { text: "I'm here" };

@@ -68,7 +68,7 @@ export class Operand {
         value.indexOf("%") > -1)
     )
       return false;
-    var val = parseFloat(value);
+    var val = Number(value);
     if (isNaN(val)) return false;
     return isFinite(val);
   }

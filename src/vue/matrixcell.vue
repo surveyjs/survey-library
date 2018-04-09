@@ -1,7 +1,7 @@
 <template>
     <td :class="question.cssClasses.itemValue">
         <survey-errors :question="cell.question" />
-        <component v-show="cell.question.visible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
+        <component v-show="isVisible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
     </td>
 </template>
 
@@ -16,6 +16,7 @@ import { MatrixDropdownCell } from "../question_matrixdropdownbase";
 export class MatrixCell extends Vue {
   @Prop question: Question;
   @Prop cell: MatrixDropdownCell;
+  isVisible: boolean = false;
   getWidgetComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
@@ -24,6 +25,14 @@ export class MatrixCell extends Vue {
   }
   mounted() {
     if (!this.cell || !this.cell.question || !this.cell.question.survey) return;
+    this.onVisibilityChanged();
+    var self = this;
+    this.cell.question.registerFunctionOnPropertyValueChanged(
+      "isVisible",
+      function() {
+        self.onVisibilityChanged();
+      }
+    );
     var options = {
       cell: this.cell,
       cellQuestion: this.cell.question,
@@ -36,8 +45,11 @@ export class MatrixCell extends Vue {
       options
     );
   }
+  private onVisibilityChanged() {
+    this.isVisible = this.cell.question.isVisible;
+  }
 }
 
 Vue.component("survey-matrixcell", MatrixCell);
-    export default MatrixCell;
+export default MatrixCell;
 </script>

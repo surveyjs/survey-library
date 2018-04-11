@@ -292,7 +292,7 @@ export class PanelModelBase extends SurveyElement
    * @see Question.clearIncorrectValues
    */
   public clearIncorrectValues() {
-    for(var i = 0; i < this.elements.length; i ++) {
+    for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].clearIncorrectValues();
     }
   }
@@ -751,8 +751,9 @@ export class PanelModelBase extends SurveyElement
   }
   runCondition(values: HashTable<any>) {
     if (this.isDesignMode) return;
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].runCondition(values);
+    var elements = this.elements.slice();
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].runCondition(values);
     }
     if (!this.visibleIf) return;
     if (!this.conditionRunner)

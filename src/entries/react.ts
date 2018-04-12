@@ -26,7 +26,7 @@ export {
 export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
 export { SurveyNavigation } from "../react/reactSurveyNavigation";
-export { SurveyPage, SurveyRow } from "../react/reactpage";
+export { SurveyPage, SurveyRow, SurveyPanel } from "../react/reactpage";
 export { SurveyQuestion, SurveyElementErrors } from "../react/reactquestion";
 export {
   SurveyElementBase,

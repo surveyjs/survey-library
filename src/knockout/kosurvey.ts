@@ -130,6 +130,10 @@ export class Survey extends SurveyModel {
     self.startTimerFromUI();
     self.applyBinding();
   }
+  public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+    super.clear(clearData, gotoFirstPage);
+    this.render();
+  }
   public koEventAfterRender(element, survey) {
     survey.onRendered.fire(self, {});
     survey.afterRenderSurvey(element);

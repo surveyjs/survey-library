@@ -82,6 +82,22 @@ QUnit.test("Current Page", function(assert) {
     "the first page is current after removing the current one"
   );
 });
+QUnit.test("Set number and name into currentPage property", function(assert) {
+  var survey = new SurveyModel();
+  survey.addPage(createPageWithQuestion("page1"));
+  survey.addPage(createPageWithQuestion("page2"));
+  survey.addPage(createPageWithQuestion("page3"));
+  assert.equal(survey.currentPage.name, "page1", "The current page is page1");
+  survey.currentPage = 1;
+  assert.equal(survey.currentPage.name, "page2", "The current page is page2, set by number");
+  survey.currentPage = 4;
+  assert.equal(survey.currentPage.name, "page2", "The current page is still page2, set by number that doesn't exist");
+  survey.currentPage = "page3";
+  assert.equal(survey.currentPage.name, "page3", "The current page is page3, set by name");
+  survey.currentPage = "page5";
+  assert.equal(survey.currentPage.name, "page3", "The current page is still page3, set by name that doesn't exist");
+});
+
 QUnit.test("CurrentPageNo", function(assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));

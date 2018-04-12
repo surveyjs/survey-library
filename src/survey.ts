@@ -1212,7 +1212,7 @@ export class SurveyModel extends Base
   /**
    * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.
    */
-  public get currentPage(): PageModel {
+  public get currentPage(): any {
     var vPages = this.visiblePages;
     if (this.currentPageValue != null) {
       if (vPages.indexOf(this.currentPageValue) < 0) {
@@ -1224,18 +1224,32 @@ export class SurveyModel extends Base
     }
     return this.currentPageValue;
   }
-  public set currentPage(value: PageModel) {
+  public set currentPage(value: any) {
+    var newPage = this.getPageByObject(value);
+    if (!!value && !newPage) return;
     var vPages = this.visiblePages;
-    if (value != null && vPages.indexOf(value) < 0) return;
-    if (value == this.currentPageValue) return;
+    if (newPage != null && vPages.indexOf(newPage) < 0) return;
+    if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
-    this.currentPageChanging(value, oldValue);
-    this.currentPageValue = value;
-    if (value) {
-      value.updateCustomWidgets();
-      value.setWasShown(true);
+    this.currentPageChanging(newPage, oldValue);
+    this.currentPageValue = newPage;
+    if (newPage) {
+      newPage.updateCustomWidgets();
+      newPage.setWasShown(true);
     }
-    this.currentPageChanged(value, oldValue);
+    this.currentPageChanged(newPage, oldValue);
+  }
+  private getPageByObject(value: any): PageModel {
+    if (!value) return null;
+    if (typeof value === "string" || value instanceof String)
+      return this.getPageByName(String(value));
+    if (!isNaN(value)) {
+      var index = Number(value);
+      var vPages = this.visiblePages;
+      if (value < 0 || value >= vPages.length) return null;
+      return vPages[index];
+    }
+    return value;
   }
   /**
    * The index of the current page in the visible pages array. It starts from 0.
@@ -1245,8 +1259,8 @@ export class SurveyModel extends Base
   }
   public set currentPageNo(value: number) {
     var vPages = this.visiblePages;
-    if (value < 0 || value >= this.visiblePages.length) return;
-    this.currentPage = this.visiblePages[value];
+    if (value < 0 || value >= vPages.length) return;
+    this.currentPage = vPages[value];
   }
   /**
    * Use this property to randomize questions. Set it to 'random' to randomize questions, 'initial' to keep them in the same order. You can randomize questions on a specific page.

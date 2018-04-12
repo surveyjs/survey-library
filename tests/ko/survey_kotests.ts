@@ -2,6 +2,7 @@ import { Survey } from "../../src/knockout/kosurvey";
 import { QuestionText } from "../../src/knockout/koquestion_text";
 import { QuestionDropdown } from "../../src/knockout/koquestion_dropdown";
 import { QuestionCheckbox } from "../../src/knockout/koquestion_checkbox";
+import { QuestionRadiogroup } from "../../src/knockout/koquestion_radiogroup";
 import { Question } from "../../src/question";
 import { QuestionMatrix } from "../../src/knockout/koquestion_matrix";
 import { QuestionMatrixDropdown } from "../../src/knockout/koquestion_matrixdropdown";
@@ -485,15 +486,15 @@ QUnit.test("Localization, otherItem", function(assert) {
   var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
   q1.choices = [1, 2];
   q1.hasOther = true;
-  var defaultText = q1["koVisibleChoices"]()[2].text;
+  var defaultText = q1["koVisibleChoices"]()[2].locText["koRenderedHtml"]();
   assert.equal(
-    q1["koVisibleChoices"]()[2].text,
+    q1["koVisibleChoices"]()[2].locText["koRenderedHtml"](),
     surveyLocalization.getString("otherItemText"),
     "use default locale"
   );
   survey.locale = "de";
   assert.notEqual(
-    q1["koVisibleChoices"]()[2].text,
+    q1["koVisibleChoices"]()[2].locText["koRenderedHtml"](),
     defaultText,
     "use another locale locale"
   );
@@ -1065,6 +1066,53 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function(
+  assert
+) {
+  var json = {
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasOther: true,
+        choices: [1, 2],
+        otherText: {
+          default: "Other",
+          es: "Otro"
+        }
+      }
+    ]
+  };
+
+  var survey = new Survey(json);
+  var q1 = <QuestionRadiogroup>survey.getQuestionByName("q1");
+
+  assert.equal(
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
+    "Other",
+    "By default it is Other"
+  );
+  survey.locale = "es";
+  assert.equal(
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
+    "Otro",
+    "Otro for Spanish"
+  );
+  survey.locale = "";
+  assert.equal(
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
+    "Other",
+    "It is default again"
+  );
+  survey.locale = "es";
+  assert.equal(
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
+    "Otro",
+    "It is Spanish again"
+  );
+  survey.locale = "";
+});
 
 function createPageWithQuestion(name: string): Page {
   var page = new Page(name);

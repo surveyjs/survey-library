@@ -2379,6 +2379,32 @@ QUnit.test("Survey Localization - dropdown.choices", function(assert) {
   assert.equal(q1.choices[0].text, "text1", "Use the default text");
 });
 
+QUnit.test("Survey Localization - radiogroup.otheItem", function(assert) {
+  var json = {
+    questions:[ {
+      type: "radiogroup",
+      name: "q1",
+      hasOther: true,
+      choices: [ 1, 2],
+      otherText: {
+       default: "Other",
+       es: "Otro"
+      }}]
+    };
+  
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Other", "By default it is Other");
+  survey.locale = "es";
+  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Otro", "Otro for Spanish");
+  survey.locale = "";
+  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Other", "It is default again");
+  survey.locale = "es";
+  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Otro", "It is Spanish again");
+  survey.locale = "";
+});
+
 QUnit.test("Survey Localization - matrix.columns", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

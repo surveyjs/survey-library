@@ -7,6 +7,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
+import { setFlagsFromString } from "v8";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -14,10 +15,7 @@ import { LocalizableString } from "./localizablestring";
 export class QuestionSelectBase extends Question {
   private visibleChoicesCache: Array<ItemValue> = null;
   private commentValue: string;
-  private otherItemValue: ItemValue = new ItemValue(
-    "other",
-    surveyLocalization.getString("otherItemText")
-  );
+  private otherItemValue: ItemValue = new ItemValue("other");
   protected cachedValue: any;
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
@@ -34,10 +32,13 @@ export class QuestionSelectBase extends Question {
     this.choicesValues = this.createItemValues("choices");
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
-    this.createLocalizableString("otherText", this, true);
+    var locOtherText = this.createLocalizableString("otherText", this, true);
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
-
+    this.otherItemValue.setLocText(locOtherText);
+    locOtherText.onGetTextCallback = function(text) {
+      return !!text ? text : surveyLocalization.getString("otherItemText");
+    };
     this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
@@ -46,7 +47,6 @@ export class QuestionSelectBase extends Question {
    * Returns the other item. By using this property, you may change programmatically it's value and text.
    */
   public get otherItem(): ItemValue {
-    this.otherItemValue.text = this.otherText;
     return this.otherItemValue;
   }
   /**
@@ -213,7 +213,7 @@ export class QuestionSelectBase extends Question {
   }
   protected getDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
-      return this.comment ? this.comment : "";
+      return this.comment ? this.comment : this.locOtherText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }

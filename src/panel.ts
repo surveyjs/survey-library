@@ -777,6 +777,11 @@ export class PanelModelBase extends SurveyElement
       this.locTitle.onChanged();
     }
   }
+  onReadOnlyChanged() {
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].onReadOnlyChanged();
+    }
+  }
 }
 
 /**

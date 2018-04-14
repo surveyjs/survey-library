@@ -1109,9 +1109,8 @@ export class SurveyModel extends Base
     if (value == this.mode) return;
     if (value != "edit" && value != "display") return;
     this.setPropertyValue("mode", value);
-    var questions = this.getAllQuestions();
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].onReadOnlyChanged();
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].onReadOnlyChanged();
     }
   }
   /**

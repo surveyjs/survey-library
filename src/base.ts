@@ -97,6 +97,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isPanel: boolean;
   removeElement(el: IElement): boolean;
   onLocaleChanged();
+  onReadOnlyChanged();
   onAnyValueChanged(name: string);
   updateCustomWidgets();
   clearIncorrectValues();
@@ -106,7 +107,6 @@ export interface IQuestion extends IElement {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any);
-  onReadOnlyChanged();
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues();
   displayValue: any;

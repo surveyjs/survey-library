@@ -13,6 +13,7 @@ import {
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1312,7 +1313,45 @@ QUnit.test(
     assert.equal(page.hasErrors(), false, "There is no errors");
   }
 );
-
+QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
+  assert
+) {
+  var json = {
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        type: "text",
+        name: "q2"
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  var question = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.ok(panel.panels[0].questions[0].survey, "The survey is set");
+  assert.equal(
+    panel.panels[0].questions[0].isReadOnly,
+    false,
+    "The question is not readonly"
+  );
+  survey.mode = "display";
+  assert.equal(question.isReadOnly, true, "The standard question is readonly");
+  assert.equal(
+    panel.panels[0].questions[0].isReadOnly,
+    true,
+    "The question in dynamic panel should be readonly"
+  );
+});
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

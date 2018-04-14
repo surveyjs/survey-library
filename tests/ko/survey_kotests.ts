@@ -1114,6 +1114,72 @@ QUnit.test("Survey Localization - radiogroup.otheItem, Bug#1045", function(
   survey.locale = "";
 });
 
+QUnit.test(
+  "PanelDynamic and MatrixDynamic, survey in readonly mode, Bug#1051",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ]
+        },
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1"
+            }
+          ]
+        },
+        {
+          type: "text",
+          name: "q2"
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var panel = <QuestionPanelDynamic>survey.getQuestionByName("panel");
+    var matrix = <QuestionMatrixDynamic>survey.getQuestionByName("matrix");
+    var rows = matrix.visibleRows;
+    var question = <QuestionText>survey.getQuestionByName("q2");
+    assert.equal(
+      panel.panels[0].questions[0]["koIsReadOnly"](),
+      false,
+      "The question is not readonly in panel dynamic"
+    );
+    assert.equal(
+      rows[0].cells[0].question["koIsReadOnly"](),
+      false,
+      "The question is not readonly in matrix dynamic"
+    );
+    survey.mode = "display";
+    assert.equal(
+      question["koIsReadOnly"](),
+      true,
+      "The standard question is readonly"
+    );
+    assert.equal(
+      panel.panels[0].questions[0]["koIsReadOnly"](),
+      true,
+      "The question in dynamic panel should be readonly"
+    );
+    assert.equal(
+      rows[0].cells[0].question["koIsReadOnly"](),
+      true,
+      "The question is readonly in matrix dynamic"
+    );
+  }
+);
+
 function createPageWithQuestion(name: string): Page {
   var page = new Page(name);
   page.addNewQuestion("text", "q1");

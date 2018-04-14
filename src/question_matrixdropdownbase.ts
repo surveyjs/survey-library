@@ -474,6 +474,11 @@ export class MatrixDropdownRowModelBase
     }
     this.isSettingValue = false;
   }
+  public onReadOnlyChanged() {
+    for (var i = 0; i < this.cells.length; i++) {
+      this.cells[i].question.onReadOnlyChanged();
+    }
+  }
   public onAnyValueChanged(name: string) {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].question.onAnyValueChanged(name);
@@ -1012,6 +1017,13 @@ export class QuestionMatrixDropdownModelBase extends Question
   ): any {
     delete newValue[row.rowName];
     return Object.keys(newValue).length == 0 ? null : newValue;
+  }
+  onReadOnlyChanged() {
+    if (this.isLoadingFromJson) return;
+    var rows = this.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].onReadOnlyChanged();
+    }
   }
   onAnyValueChanged(name: string) {
     if (this.isLoadingFromJson) return;

@@ -23,7 +23,7 @@
                     <!-- /ko -->
                     <!-- ko ifnot: question.koIsReadOnly -->
                     <td>
-                        <input type="button" data-bind="visible: question.koCanRemoveRow, click:question.koRemoveRowClick, css: question.koCss().button, value: question.removeRowText"
+                        <input type="button" data-bind="visible: question.koCanRemoveRow, click:question.koRemoveRowClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.removeRowText"
                         />
                     </td>
                     <!-- /ko -->
@@ -34,7 +34,8 @@
     </div>
     <div data-bind="css: question.koCss().footer">
         <!-- ko ifnot: question.koIsReadOnly() || !question.koCanAddRow() -->
-        <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button, value: question.addRowText" />
+        <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.addRowText"
+        />
         <!-- /ko -->
     </div>
 </script>

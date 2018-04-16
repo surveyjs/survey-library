@@ -70,7 +70,9 @@ export var defaultStandardCss = {
   matrixdropdown: { root: "sv_q_matrix_dropdown" },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
-    button: "sv_matrix_dynamic_button"
+    button: "sv_matrix_dynamic_button",
+    buttonAdd: "",
+    buttonRemove: ""
   },
   paneldynamic: { root: "sv_panel_dynamic", title: "sv_p_title", button: "" },
   multipletext: {

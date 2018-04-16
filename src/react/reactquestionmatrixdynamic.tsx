@@ -103,7 +103,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionElementBase {
     if (this.isDisplayMode || !this.question.canAddRow) return null;
     return (
       <input
-        className={cssClasses.button}
+        className={cssClasses.button + " " + cssClasses.buttonAdd}
         type="button"
         onClick={this.handleOnRowAddClick}
         value={this.question.addRowText}
@@ -159,7 +159,7 @@ export class SurveyQuestionMatrixDynamicRow extends ReactSurveyElement {
   protected renderButton(): JSX.Element {
     return (
       <input
-        className={this.cssClasses.button}
+        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
         type="button"
         onClick={this.handleOnRowRemoveClick}
         value={this.question.removeRowText}

@@ -61,7 +61,12 @@ export var defaultBootstrapCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary"
   },
   matrixdropdown: { root: "table" },
-  matrixdynamic: { root: "table", button: "button" },
+  matrixdynamic: {
+    root: "table",
+    button: "button",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   paneldynamic: { root: "", button: "button" },
   multipletext: {
     root: "table",

@@ -11,13 +11,13 @@
                 <tr v-for="(row, rowIndex) in rows" :key="question.inputId + '_' + rowIndex">
                     <survey-matrixcell :question="question" :cell="cell" v-for="cell in row.cells" :key="rowIndex + '_' + cell.question.id"/>
                     <td v-if="!question.isReadOnly">
-                        <input type="button" v-if="question.canRemoveRow" :class="question.cssClasses.button" :value="question.removeRowText" @click="removeRowClick(row)" />
+                        <input type="button" v-if="question.canRemoveRow" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove" :value="question.removeRowText" @click="removeRowClick(row)" />
                     </td>
                 </tr>
             </tbody>
         </table>
         <div :class="question.cssClasses.footer">
-            <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="question.cssClasses.button" :value="question.addRowText" @click="addRowClick"/>
+            <input type="button" v-if="!question.isReadOnly && question.canAddRow" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd" :value="question.addRowText" @click="addRowClick"/>
         </div>
     </div>
 </template>

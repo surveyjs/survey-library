@@ -63,7 +63,13 @@ export var defaultBootstrapMaterialCss = {
     itemValue: "form-control"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
-  matrixdynamic: { root: "table", button: "button", itemValue: "form-group" },
+  matrixdynamic: {
+    root: "table",
+    button: "button",
+    itemValue: "form-group",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   paneldynamic: { root: "", button: "button" },
   multipletext: {
     root: "table",

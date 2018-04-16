@@ -77,10 +77,10 @@ frameworks.forEach(framework => {
       )
     );
     const getFirstInput = Selector(
-      () => document.querySelectorAll("h4 ~ div input[type=text]")[0]
+      () => document.querySelectorAll(".sv_q_text_root")[0]
     );
     const getSecondInput = Selector(
-      () => document.querySelectorAll("h4 ~ div input[type=text]")[1]
+      () => document.querySelectorAll(".sv_q_text_root")[1]
     );
 
     await t.hover(getFirstTitle).hover(getSecondTitle);

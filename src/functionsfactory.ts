@@ -33,6 +33,15 @@ function sum(params: any[]): any {
 }
 FunctionFactory.Instance.register("sum", sum);
 
+function avg(params: any[]): any {
+  var res = 0;
+  for (var i = 0; i < params.length; i++) {
+    res += params[i];
+  }
+  return params.length > 0 ? res / params.length : 0;
+}
+FunctionFactory.Instance.register("avg", sum);
+
 function sumInArray(params: any[]): any {
   if (params.length != 2) return 0;
   var arr = params[0];

@@ -40,7 +40,7 @@ function avg(params: any[]): any {
   }
   return params.length > 0 ? res / params.length : 0;
 }
-FunctionFactory.Instance.register("avg", sum);
+FunctionFactory.Instance.register("avg", avg);
 
 function sumInArray(params: any[]): any {
   if (params.length != 2) return 0;

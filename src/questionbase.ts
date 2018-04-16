@@ -50,6 +50,9 @@ export class QuestionBase extends SurveyElement
     this.id = QuestionBase.getQuestionId();
     this.onCreating();
   }
+  /**
+   * Returns the type of the object as a string as it represents in the json.
+   */
   public getType(): string {
     return "questionbase";
   }

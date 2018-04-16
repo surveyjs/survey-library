@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
     });
 
     const getTextInputByIndex = Selector(
-      index => document.querySelectorAll("div input[type=text]")[index]
+      index => document.querySelectorAll(".sv_q_text_root")[index]
     );
     const getTextarea = Selector(() => document.querySelector("textarea"));
     let surveyResult;

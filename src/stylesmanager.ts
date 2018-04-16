@@ -17,7 +17,7 @@ export class StylesManager {
     ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
 
-    ".sv_qstn": "display: inline-block; vertical-align: top;",
+    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_p_container": "display: inline-block; vertical-align: top;",
@@ -26,6 +26,7 @@ export class StylesManager {
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
+    ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",

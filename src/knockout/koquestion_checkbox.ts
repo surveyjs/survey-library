@@ -31,7 +31,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     var isChecked = this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1;
     var itemClass =
       this.cssClasses.item +
-      (this.colCount === 0 ? " sv_q_checkbox_inline" : "");
+      (this.colCount === 0 ? " sv_q_checkbox_inline" : (" sv-q-col-" + this.colCount));
 
     if (isChecked) itemClass += " checked";
 

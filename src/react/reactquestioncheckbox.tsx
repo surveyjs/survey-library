@@ -110,12 +110,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
-    var itemWidth =
-      this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var divStyle = { display: "inline-block" };
-    if (itemWidth) {
-      divStyle["width"] = itemWidth;
-    }
     var isChecked =
       (this.question.value &&
         this.question.value.indexOf(this.item.value) > -1) ||
@@ -124,26 +118,27 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
         : null;
-    return this.renderCheckbox(isChecked, divStyle, otherItem);
+    return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
     return { marginRight: "3px" };
   }
   protected renderCheckbox(
     isChecked: boolean,
-    divStyle: any,
     otherItem: JSX.Element
   ): JSX.Element {
     var id = this.isFirst ? this.question.inputId : null;
     var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +
-      (this.question.colCount === 0 ? " sv_q_checkbox_inline" : "");
+      (this.question.colCount === 0
+        ? " sv_q_checkbox_inline"
+        : " sv-q-col-" + this.question.colCount);
 
     if (isChecked) itemClass += " checked";
 
     return (
-      <div className={itemClass} style={divStyle}>
+      <div className={itemClass}>
         <label className={this.cssClasses.label}>
           <input
             className={this.cssClasses.itemControl}

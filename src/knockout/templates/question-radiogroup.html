@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-radiogroup">
     <fieldset data-bind="css: question.koCss().root">
         <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <div data-bind="style:{display: 'inline-block', width: question.koWidth}, css: question.getItemClass(item)">
+        <div data-bind="css: question.getItemClass(item)">
             <label data-bind="css: question.koCss().label">
                 <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml}, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"
                 />

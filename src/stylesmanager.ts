@@ -55,7 +55,41 @@ export class StylesManager {
     ".sv_q_m_cell_text": "cursor: pointer;",
 
     ".sv_q_dd_other": "margin-top: 1em;",
-    ".sv_q_dd_other input": "width: 100%;"
+    ".sv_q_dd_other input": "width: 100%;",
+
+    ".sv_qstn .sv-q-col-1":
+      "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+    ".sv_qstn .sv-q-col-2":
+      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+    ".sv_qstn .sv-q-col-3":
+      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+    ".sv_qstn .sv-q-col-4":
+      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+    ".sv_qstn .sv-q-col-5":
+      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;"
+  };
+
+  public static Media: { [key: string]: { media: string; style: string } } = {
+    ".sv_qstn fieldset .sv-q-col-1": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-2": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-3": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-4": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-5": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    }
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
@@ -298,5 +332,16 @@ export class StylesManager {
         0
       )
     );
+    Object.keys(StylesManager.Media).forEach(selector => {
+      sheet.insertRule(
+        StylesManager.Media[selector].media +
+          " { " +
+          selector +
+          " { " +
+          StylesManager.Media[selector].style +
+          " } }",
+        0
+      );
+    });
   }
 }

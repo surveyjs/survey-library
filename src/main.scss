@@ -438,20 +438,30 @@ $base-line-height: 2em;
               outline: none;
             }
           }
+
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child),
           .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child) {
             margin-right: 1.5em;
           }
-          .sv_q_radiogroup,
-          .sv_q_checkbox {
-            & > label {
-              white-space: nowrap;
-            }
-          }
+
+          // .sv_q_radiogroup,
+          // .sv_q_checkbox {
+          //   $total-columns: 5;
+          //   @for $i from 1 through $total-columns {
+          //     &.sv-q-col-#{$i} {
+          //       width: 100% / $i;
+          //       display: inline-block;
+          //       @media only screen and (max-width: 480px) {
+          //         width: 100%;
+          //       }
+          //     }
+          //   }
+          // }
 
           .sv_q_checkbox_inline,
           .sv_q_radiogroup_inline {
             line-height: $base-line-height;
+            display: inline-block;
           }
 
           .sv_q_footer {

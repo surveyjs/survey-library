@@ -12,7 +12,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   getItemClass(item) {
     var itemClass =
       this.cssClasses.item +
-      (this.colCount === 0 ? " sv_q_radiogroup_inline" : "");
+      (this.colCount === 0 ? " sv_q_radiogroup_inline" : (" sv-q-col-" + this.colCount));
     if (item.value === this["koValue"]()) itemClass += " checked";
     return itemClass;
   }

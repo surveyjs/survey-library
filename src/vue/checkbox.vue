@@ -1,6 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" :style="{'display': 'inline-block', width: colWidth}">
+        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)">
             <label :class="question.cssClasses.label">
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span class="checkbox-material"><span class="check"></span></span>
@@ -30,7 +30,9 @@ export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
   getItemClass(item) {
     var itemClass =
       this.question.cssClasses.item +
-      (this.question.colCount === 0 ? " sv_q_checkbox_inline" : "");
+      (this.question.colCount === 0
+        ? " sv_q_checkbox_inline"
+        : " sv-q-col-" + this.question.colCount);
     var isChecked =
       this.question.value && this.question.value.indexOf(item.value) !== -1;
     if (isChecked) itemClass += " checked";

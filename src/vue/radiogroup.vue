@@ -1,6 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
-        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" :style="{'display': 'inline-block', 'width': colWidth}">
+        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
                 <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span class="circle"></span>
@@ -14,27 +14,31 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue"
-    import {Component} from 'vue-property-decorator'
-    import {default as QuestionVue} from './question'
-    import {QuestionRadiogroupModel} from '../question_radiogroup'
+import Vue from "vue";
+import { Component } from "vue-property-decorator";
+import { default as QuestionVue } from "./question";
+import { QuestionRadiogroupModel } from "../question_radiogroup";
 
-    @Component
-    export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
-        // TODO may be need to move to the model
-        get colWidth() {
-            var colCount = this.question.colCount;
-            return colCount > 0 ? (100 / colCount) + '%' : "";
-        }
-        get choicesCount() {
-            return this.question.visibleChoices.length - 1;
-        }
-        getItemClass(item) {
-            var itemClass = this.question.cssClasses.item + (this.question.colCount === 0 ? " sv_q_radiogroup_inline": "");
-            if (item.value === this.question.value) itemClass += " checked";
-            return itemClass;
-        }
-    }
-    Vue.component("survey-radiogroup", Radiogroup)
-    export default Radiogroup;
+@Component
+export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
+  // TODO may be need to move to the model
+  get colWidth() {
+    var colCount = this.question.colCount;
+    return colCount > 0 ? 100 / colCount + "%" : "";
+  }
+  get choicesCount() {
+    return this.question.visibleChoices.length - 1;
+  }
+  getItemClass(item) {
+    var itemClass =
+      this.question.cssClasses.item +
+      (this.question.colCount === 0
+        ? " sv_q_radiogroup_inline"
+        : " sv-q-col-" + this.question.colCount);
+    if (item.value === this.question.value) itemClass += " checked";
+    return itemClass;
+  }
+}
+Vue.component("survey-radiogroup", Radiogroup);
+export default Radiogroup;
 </script>

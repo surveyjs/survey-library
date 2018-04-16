@@ -56,14 +56,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var itemWidth =
-      this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var divStyle = {
-      display: "inline-block"
-    };
-    if (itemWidth) {
-      divStyle["width"] = itemWidth;
-    }
     var isChecked = this.question.value == item.value;
     var otherItem =
       isChecked && item.value === this.question.otherItem.value
@@ -73,7 +65,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       key,
       item,
       isChecked,
-      divStyle,
       otherItem,
       isFirst,
       cssClasses
@@ -83,7 +74,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     key: string,
     item: ItemValue,
     isChecked: boolean,
-    divStyle: any,
     otherItem: JSX.Element,
     isFirst: boolean,
     cssClasses: any
@@ -92,12 +82,14 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var itemText = this.renderLocString(item.locText, this.textStyle);
     let itemClass =
       cssClasses.item +
-      (this.question.colCount === 0 ? " sv_q_radiogroup_inline" : "");
+      (this.question.colCount === 0
+        ? " sv_q_radiogroup_inline"
+        : " sv-q-col-" + this.question.colCount);
 
     if (isChecked) itemClass += " checked";
 
     return (
-      <div key={key} className={itemClass} style={divStyle}>
+      <div key={key} className={itemClass}>
         <label className={cssClasses.label}>
           <input
             className={cssClasses.itemControl}

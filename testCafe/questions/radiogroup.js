@@ -67,19 +67,21 @@ frameworks.forEach(framework => {
   });
 
   test(`change column count`, async t => {
-    const getStyleWidth = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset > div`).style.width
+    const getClassName = ClientFunction(
+      () => document.querySelector(`div[id*=sq_1] fieldset > div`).className
     );
-    let styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "25%");
+    let className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-4"), -1);
 
     await setOptions("car", { colCount: 1 });
-    styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "100%");
+
+    className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-1"), -1);
 
     await setOptions("car", { colCount: 2 });
-    styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "50%");
+
+    className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-2"), -1);
   });
 
   test(`change choices order`, async t => {

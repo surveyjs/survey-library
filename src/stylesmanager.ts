@@ -52,7 +52,10 @@ export class StylesManager {
     ".sv_q_file_preview": "display: inline-block;",
     ".sv_q_file_remove_button": "line-height: normal;",
 
-    ".sv_q_m_cell_text": "cursor: pointer;"
+    ".sv_q_m_cell_text": "cursor: pointer;",
+
+    ".sv_q_dd_other": "margin-top: 1em;",
+    ".sv_q_dd_other input": "width: 100%;"
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {

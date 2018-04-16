@@ -53,7 +53,7 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_checkbox_other"
   },
   comment: "form-control",
-  dropdown: { root: "", control: "form-control", other: "" },
+  dropdown: { root: "", control: "form-control", other: "sv_q_dd_other" },
   matrix: {
     root: "table",
     row: "form-group",

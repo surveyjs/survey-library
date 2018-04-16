@@ -59,7 +59,7 @@ export var defaultStandardCss = {
     root: "",
     control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
-    other: "sv_q_other"
+    other: "sv_q_dd_other"
   },
   matrix: {
     root: "sv_q_matrix",

@@ -371,6 +371,7 @@ $base-line-height: 2em;
             //border: 1px solid $header-background-color;
             font-size: 1em;
             line-height: $base-line-height;
+            height: calc(#{$base-line-height} + 1px);
             //color: $text-color;
             padding-left: 1em;
             //background-color: $inputs-background-color;

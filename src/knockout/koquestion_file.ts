@@ -31,6 +31,10 @@ export class QuestionFileImplementor extends QuestionImplementor {
       this.koHasValue(false);
     };
   }
+  protected updateValue(newValue: any) {
+    super.updateValue(newValue);
+    this.koHasValue(!this.question.isEmpty());
+  }
   private onChange(src: any) {
     if (!window["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;

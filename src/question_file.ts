@@ -128,19 +128,40 @@ export class QuestionFileModel extends Question {
     if (files.every(file => this.checkFileForErrors(file))) {
       return;
     }
-    this.previewValue = [];
     files.forEach(file => {
       let fileReader = new FileReader();
       fileReader.onload = e => {
         if (this.storeDataAsText) {
           this.value = (this.value || []).concat([fileReader.result]);
         }
-        if (this.showPreview && this.isFileImage(file)) {
-          this.previewValue = this.previewValue.concat([fileReader.result]);
-          this.fireCallback(this.previewValueLoadedCallback);
-        }
       };
       fileReader.readAsDataURL(file);
+    });
+  }
+  protected setNewValue(newValue: any) {
+    super.setNewValue(newValue);
+    this.previewValue = [];
+    var newValues = Array.isArray(newValue)
+      ? newValue
+      : !!newValue
+        ? [newValue]
+        : [];
+    newValues.forEach(value => {
+      if (this.showPreview) {
+        if (this.storeDataAsText) {
+          if (this.isFileContentImage(value)) {
+            this.previewValue = this.previewValue.concat([value]);
+            this.fireCallback(this.previewValueLoadedCallback);
+          }
+        } else {
+          this.survey.downloadFile(this.name, value, (status, data) => {
+            if (status === "done") {
+              this.previewValue = this.previewValue.concat([data]);
+              this.fireCallback(this.previewValueLoadedCallback);
+            }
+          });
+        }
+      }
     });
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
@@ -166,6 +187,11 @@ export class QuestionFileModel extends Question {
     if (!file || !file.type) return;
     var str = file.type.toLowerCase();
     return str.indexOf("image") == 0;
+  }
+  private isFileContentImage(fileContent: string) {
+    if (!fileContent) return;
+    var str = fileContent.toLowerCase();
+    return str.indexOf("data:image") == 0;
   }
 }
 JsonObject.metaData.addClass(

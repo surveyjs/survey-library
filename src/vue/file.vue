@@ -17,7 +17,6 @@ import { QuestionFileModel } from "../question_file";
 
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  hasValue = false;
   doChange(e) {
     var src = e.target || e.srcElement;
     if (!window["FileReader"]) return;
@@ -27,18 +26,19 @@ export class File extends QuestionVue<QuestionFileModel> {
       files.push(src.files[i]);
     }
     this.question.loadFiles(files);
-    this.hasValue = true;
   }
   doClean(event) {
     var src = event.target || event.srcElement;
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
-    this.hasValue = false;
+  }
+  get hasValue() {
+    return !this.question.isEmpty();
   }
   getPlaceholderClass() {
     return "form-control " + this.question.cssClasses.placeholderInput;
   }
 }
 Vue.component("survey-file", File);
-    export default File;
+export default File;
 </script>

@@ -350,6 +350,19 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are two properties in options: options.name, options.value and options.downloadingCallback.
+   * <br/> sender the survey object that fires the event
+   * name: name, value: value
+   * <br/> name the question name
+   * <br/> value the question value
+   * <br/> downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
+   * @see downloadFile
+   */
+  public onDownloadFile: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired before rendering a question. Use it to override the default question css classes.
    * There are two parameters in options: options.question and options.cssClasses
    * <br/> sender the survey object that fires the event
@@ -1806,7 +1819,7 @@ export class SurveyModel extends Base
   }
 
   /**
-   * Upload the file into servey
+   * Upload the file into server
    * @param name question name
    * @param file uploading file
    * @param storeDataAsText set it to true to encode file content into the survey results
@@ -1826,6 +1839,25 @@ export class SurveyModel extends Base
     }
     return true;
   }
+  /**
+   * Download the file from server
+   * @param name question name
+   * @param value file question value
+   * @param downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
+   */
+  public downloadFile(
+    questionName: string,
+    value: any,
+    downloadingCallback: (status: string, data: any) => any
+  ): boolean {
+    this.onDownloadFile.fire(this, {
+      name: name,
+      value: value,
+      downloadingCallback: downloadingCallback
+    });
+    return true;
+  }
+
   protected createSurveyService(): dxSurveyService {
     return new dxSurveyService();
   }

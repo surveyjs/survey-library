@@ -89,13 +89,29 @@ QUnit.test("Set number and name into currentPage property", function(assert) {
   survey.addPage(createPageWithQuestion("page3"));
   assert.equal(survey.currentPage.name, "page1", "The current page is page1");
   survey.currentPage = 1;
-  assert.equal(survey.currentPage.name, "page2", "The current page is page2, set by number");
+  assert.equal(
+    survey.currentPage.name,
+    "page2",
+    "The current page is page2, set by number"
+  );
   survey.currentPage = 4;
-  assert.equal(survey.currentPage.name, "page2", "The current page is still page2, set by number that doesn't exist");
+  assert.equal(
+    survey.currentPage.name,
+    "page2",
+    "The current page is still page2, set by number that doesn't exist"
+  );
   survey.currentPage = "page3";
-  assert.equal(survey.currentPage.name, "page3", "The current page is page3, set by name");
+  assert.equal(
+    survey.currentPage.name,
+    "page3",
+    "The current page is page3, set by name"
+  );
   survey.currentPage = "page5";
-  assert.equal(survey.currentPage.name, "page3", "The current page is still page3, set by name that doesn't exist");
+  assert.equal(
+    survey.currentPage.name,
+    "page3",
+    "The current page is still page3, set by name that doesn't exist"
+  );
 });
 
 QUnit.test("CurrentPageNo", function(assert) {
@@ -2397,27 +2413,46 @@ QUnit.test("Survey Localization - dropdown.choices", function(assert) {
 
 QUnit.test("Survey Localization - radiogroup.otheItem", function(assert) {
   var json = {
-    questions:[ {
-      type: "radiogroup",
-      name: "q1",
-      hasOther: true,
-      choices: [ 1, 2],
-      otherText: {
-       default: "Other",
-       es: "Otro"
-      }}]
-    };
-  
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasOther: true,
+        choices: [1, 2],
+        otherText: {
+          default: "Other",
+          es: "Otro"
+        }
+      }
+    ]
+  };
+
   var survey = new SurveyModel(json);
   var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
 
-  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Other", "By default it is Other");
+  assert.equal(
+    q1.visibleChoices[2].locText.textOrHtml,
+    "Other",
+    "By default it is Other"
+  );
   survey.locale = "es";
-  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Otro", "Otro for Spanish");
+  assert.equal(
+    q1.visibleChoices[2].locText.textOrHtml,
+    "Otro",
+    "Otro for Spanish"
+  );
   survey.locale = "";
-  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Other", "It is default again");
+  assert.equal(
+    q1.visibleChoices[2].locText.textOrHtml,
+    "Other",
+    "It is default again"
+  );
   survey.locale = "es";
-  assert.equal(q1.visibleChoices[2].locText.textOrHtml, "Otro", "It is Spanish again");
+  assert.equal(
+    q1.visibleChoices[2].locText.textOrHtml,
+    "Otro",
+    "It is Spanish again"
+  );
   survey.locale = "";
 });
 
@@ -3859,7 +3894,7 @@ QUnit.test(
     var q3 = page.addNewQuestion("text", "q3");
     q2.visibleIf = "{q1} = 2";
     q3.visibleIf = "{q1} = 3";
-    
+
     survey.onVisibleChanged.add(function(survey, options) {
       if (options.visible) {
         var question = options.question;
@@ -3867,7 +3902,7 @@ QUnit.test(
         survey.currentPage.addQuestion(question);
       }
     });
-    
+
     survey.setValue("q1", null);
     assert.equal(q2.isVisible, false, "Initially q2 is invisible");
     assert.equal(q3.isVisible, false, "Initially q3 is invisible");
@@ -3879,6 +3914,59 @@ QUnit.test(
     assert.equal(q3.isVisible, true, "q1=3, q3 is visible");
   }
 );
+
+QUnit.test("QuestionFile value initialization", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your photo 1",
+        name: "image1",
+        storeDataAsText: false,
+        showPreview: true,
+        imageWidth: 150,
+        maxSize: 102400
+      },
+      {
+        type: "file",
+        allowMultiple: true,
+        title: "Please upload your photo 2",
+        name: "image2",
+        storeDataAsText: true,
+        showPreview: true,
+        imageWidth: 150,
+        maxSize: 102400
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
+  survey.onDownloadFile.add((survey, options) => {
+    options.downloadingCallback("done", "data:image/jpeg;base64,FILECONTENT1");
+  });
+
+  survey.data = {
+    image1: ["someId"],
+    image2: ["data:image/jpeg;base64,FILECONTENT"]
+  };
+  assert.deepEqual(q1.value, survey.data.image1);
+  assert.deepEqual(q2.value, survey.data.image2);
+  assert.equal(q1.previewValue.length, 1, "remote stored file");
+  assert.equal(q2.previewValue.length, 1, "file stored as text");
+  assert.deepEqual(
+    q1.previewValue[0],
+    "data:image/jpeg;base64,FILECONTENT1",
+    "remote stored file content"
+  );
+  assert.deepEqual(
+    q2.previewValue[0],
+    survey.data.image2[0],
+    "locally stored file content"
+  );
+});
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

@@ -57,6 +57,11 @@ export interface ISurvey extends ITextProcessor {
     storeDataAsText: boolean,
     uploadingCallback: (status: string) => any
   ): boolean;
+  downloadFile(
+    name: string,
+    value: File,
+    downloadingCallback: (status: string, data: any) => any
+  ): boolean;
   updateQuestionCssClasses(question: IQuestion, cssClasses: any);
   updatePanelCssClasses(panel: IPanel, cssClasses: any);
   afterRenderQuestion(question: IQuestion, htmlElement);

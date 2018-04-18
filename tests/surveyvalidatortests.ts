@@ -7,6 +7,7 @@ import {
 import { CustomError } from "../src/error";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { JsonObject } from "../src/jsonobject";
 
 export default QUnit.module("Validators");
@@ -166,3 +167,50 @@ QUnit.test("Support camel names in validators, Bug#994", function(assert) {
   assert.equal(qLow.validators.length, 1, "low case - validtor is here");
   assert.equal(qUpper.validators.length, 1, "upper case - validtor is here");
 });
+
+QUnit.test(
+  "Validators and isRequired in multipletext items, Bug#1055",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "multipletext",
+          name: "pricelimit",
+          items: [
+            {
+              name: "leastamount",
+              validators: [
+                {
+                  type: "numeric",
+                  minValue: 0,
+                  maxValue: 100
+                }
+              ]
+            },
+            {
+              name: "mostamount",
+              isRequired: true,
+              validators: [
+                {
+                  type: "numeric",
+                  minValue: 0,
+                  maxValue: 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMultipleTextModel>survey.getQuestionByName(
+      "pricelimit"
+    );
+    question.items[1].value = 3;
+    assert.equal(
+      question.hasErrors(),
+      false,
+      "Everything is fine, there is no errors"
+    );
+  }
+);

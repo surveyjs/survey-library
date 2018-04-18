@@ -147,6 +147,9 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(this.name, value);
     }
   }
+  public isEmpty() {
+    return Helpers.isValueEmpty(this.value);
+  }
   public onValueChanged(newValue: any) {
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);
   }
@@ -274,7 +277,7 @@ export class QuestionMultipleTextModel extends Question
   }
   supportGoNextPageAutomatic() {
     for (var i = 0; i < this.items.length; i++) {
-      if (!this.items[i].value) return false;
+      if (this.items[i].isEmpty()) return false;
     }
     return true;
   }
@@ -339,6 +342,7 @@ export class QuestionMultipleTextModel extends Question
     var error = super.runValidators();
     if (error != null) return error;
     for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].isEmpty()) continue;
       error = new ValidatorRunner().run(this.items[i]);
       if (error != null) return error;
     }

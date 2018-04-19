@@ -51,17 +51,16 @@ export interface ISurvey extends ITextProcessor {
   maxTextLength: number;
   maxOthersLength: number;
 
-  uploadFile(
+  uploadFiles(
     name: string,
-    file: File,
-    storeDataAsText: boolean,
-    uploadingCallback: (status: string) => any
-  ): boolean;
+    files: File[],
+    uploadingCallback: (status: string, data: any) => any
+  );
   downloadFile(
     name: string,
-    value: File,
+    content: string,
     downloadingCallback: (status: string, data: any) => any
-  ): boolean;
+  );
   updateQuestionCssClasses(question: IQuestion, cssClasses: any);
   updatePanelCssClasses(panel: IPanel, cssClasses: any);
   afterRenderQuestion(question: IQuestion, htmlElement);

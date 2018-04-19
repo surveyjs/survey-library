@@ -345,14 +345,14 @@ export class SurveyModel extends Base
    * <br/> accept a boolean value, true by default. Set it to false to deny this file to upload
    * @see uploadFile
    */
-  public onUploadFile: Event<
+  public onUploadFiles: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are two properties in options: options.name, options.value and options.downloadingCallback.
+   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are three properties in options: options.name, options.content and options.downloadingCallback.
    * <br/> sender the survey object that fires the event
-   * name: name, value: value
+   * name: name, content: content
    * <br/> name the question name
    * <br/> value the question value
    * <br/> downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
@@ -1825,57 +1825,67 @@ export class SurveyModel extends Base
    * @param storeDataAsText set it to true to encode file content into the survey results
    * @param uploadingCallback a call back function to get the status on uploading the file
    */
-  public uploadFile(
+  public uploadFiles(
     name: string,
-    file: File,
-    storeDataAsText: boolean,
-    uploadingCallback: (status: string) => any
-  ): boolean {
-    var accept = true;
-    this.onUploadFile.fire(this, { name: name, file: file, accept: accept });
-    if (!accept) return false;
-    if (!storeDataAsText && this.surveyPostId) {
-      this.uploadFileCore(name, file, uploadingCallback);
+    files: File[],
+    uploadingCallback: (status: string, data: any) => any
+  ) {
+    this.onUploadFiles.fire(this, {
+      name: name,
+      files: files || [],
+      callback: uploadingCallback
+    });
+    if (this.surveyPostId) {
+      this.uploadFilesCore(name, files, uploadingCallback);
     }
-    return true;
   }
   /**
    * Download the file from server
    * @param name question name
-   * @param value file question value
+   * @param content file content id
    * @param downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
    */
   public downloadFile(
     questionName: string,
-    value: any,
+    content: string,
     downloadingCallback: (status: string, data: any) => any
-  ): boolean {
+  ) {
+    if (this.onDownloadFile.isEmpty) {
+      !!downloadingCallback && downloadingCallback("success", content);
+    }
     this.onDownloadFile.fire(this, {
       name: name,
-      value: value,
+      content: content,
       downloadingCallback: downloadingCallback
     });
-    return true;
   }
 
   protected createSurveyService(): dxSurveyService {
     return new dxSurveyService();
   }
-  protected uploadFileCore(
+  protected uploadFilesCore(
     name: string,
-    file: File,
-    uploadingCallback: (status: string) => any
+    files: File[],
+    uploadingCallback: (status: string, data: any) => any
   ) {
-    var self = this;
-    if (uploadingCallback) uploadingCallback("uploading");
-    this.createSurveyService().sendFile(this.surveyPostId, file, function(
-      success: boolean,
-      response: any
-    ) {
-      if (uploadingCallback) uploadingCallback(success ? "success" : "error");
-      if (success) {
-        self.setValue(name, response);
-      }
+    var responses = [];
+    files.forEach(file => {
+      if (uploadingCallback) uploadingCallback("uploading", file);
+      this.createSurveyService().sendFile(
+        this.surveyPostId,
+        file,
+        (success: boolean, response: any) => {
+          if (success) {
+            responses.push({ content: response, file: file });
+            if (responses.length === files.length) {
+              if (uploadingCallback) uploadingCallback("success", responses);
+            }
+          } else {
+            if (uploadingCallback)
+              uploadingCallback("error", { response: response, file: file });
+          }
+        }
+      );
     });
   }
   getPage(index: number): PageModel {

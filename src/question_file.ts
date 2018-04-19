@@ -56,8 +56,8 @@ export class QuestionFileModel extends Question {
   }
   /**
    * Set it to false if you do not want to serialize file content as text in the survey.data.
-   * In this case, you have to write the code onUploadFile event to store the file content.
-   * @see SurveyModel.onUploadFile
+   * In this case, you have to write the code onUploadFiles event to store the file content.
+   * @see SurveyModel.onUploadFiles
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText", true);
@@ -65,6 +65,15 @@ export class QuestionFileModel extends Question {
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
   }
+  // /**
+  //  * Set it to true if you want to wait until files will be uploaded to your server.
+  //  */
+  // public get waitForUpload(): boolean {
+  //   return this.getPropertyValue("waitForUpload", false);
+  // }
+  // public set waitForUpload(val: boolean) {
+  //   this.setPropertyValue("waitForUpload", val);
+  // }
   /**
    * Use this property to setup the maximum allowed file size.
    */
@@ -89,54 +98,41 @@ export class QuestionFileModel extends Question {
     this.fireCallback(this.previewValueLoadedCallback);
   }
   /**
-   * Load file programmatically.
-   * @param file
-   */
-  public loadFile(file: File) {
-    this.loadFiles([file]);
-  }
-  /**
    * Load multiple files programmatically.
    * @param files
    */
   public loadFiles(files: File[]) {
-    if (
-      this.survey &&
-      !files.every(file =>
-        this.survey.uploadFile(
-          this.name,
-          file,
-          this.storeDataAsText,
-          status => (this.isUploading = status === "uploading")
-        )
-      )
-    ) {
-      return;
-    }
-    this.setFilesValue(files);
-  }
-  protected setFileValue(file: File) {
-    this.setFilesValue([file]);
-  }
-  protected setFilesValue(files: File[]) {
-    if (!FileReader) {
-      return;
-    }
-    if (!this.showPreview && !this.storeDataAsText) {
+    if (!this.survey) {
       return;
     }
     if (files.every(file => this.checkFileForErrors(file))) {
       return;
     }
-    files.forEach(file => {
-      let fileReader = new FileReader();
-      fileReader.onload = e => {
-        if (this.storeDataAsText) {
-          this.value = (this.value || []).concat([fileReader.result]);
+    this.value = [];
+    if (this.storeDataAsText) {
+      files.forEach(file => {
+        let fileReader = new FileReader();
+        fileReader.onload = e => {
+          this.value = (this.value || []).concat([
+            { name: file.name, type: file.type, content: fileReader.result }
+          ]);
+        };
+        fileReader.readAsDataURL(file);
+      });
+    } else {
+      this.survey.uploadFiles(this.name, files, (status, data) => {
+        this.isUploading = status === "uploading";
+        if (status === "success") {
+          this.value = data.map(r => {
+            return {
+              name: r.file.name,
+              type: r.file.type,
+              content: r.content
+            };
+          });
         }
-      };
-      fileReader.readAsDataURL(file);
-    });
+      });
+    }
   }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
@@ -147,15 +143,16 @@ export class QuestionFileModel extends Question {
         ? [newValue]
         : [];
     newValues.forEach(value => {
+      var content = value.content || value;
       if (this.showPreview) {
         if (this.storeDataAsText) {
-          if (this.isFileContentImage(value)) {
-            this.previewValue = this.previewValue.concat([value]);
+          if (this.isFileContentImage(content)) {
+            this.previewValue = this.previewValue.concat([content]);
             this.fireCallback(this.previewValueLoadedCallback);
           }
         } else {
-          this.survey.downloadFile(this.name, value, (status, data) => {
-            if (status === "done") {
+          this.survey.downloadFile(this.name, content, (status, data) => {
+            if (status === "success") {
               this.previewValue = this.previewValue.concat([data]);
               this.fireCallback(this.previewValueLoadedCallback);
             }
@@ -202,6 +199,7 @@ JsonObject.metaData.addClass(
     "imageHeight",
     "imageWidth",
     { name: "storeDataAsText:boolean", default: true },
+    // { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
   function() {

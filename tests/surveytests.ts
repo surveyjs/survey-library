@@ -3915,59 +3915,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionFile value initialization", function(assert) {
-  var json = {
-    questions: [
-      {
-        type: "file",
-        allowMultiple: true,
-        title: "Please upload your photo 1",
-        name: "image1",
-        storeDataAsText: false,
-        showPreview: true,
-        imageWidth: 150,
-        maxSize: 102400
-      },
-      {
-        type: "file",
-        allowMultiple: true,
-        title: "Please upload your photo 2",
-        name: "image2",
-        storeDataAsText: true,
-        showPreview: true,
-        imageWidth: 150,
-        maxSize: 102400
-      }
-    ]
-  };
-
-  var survey = new SurveyModel(json);
-  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
-  var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
-  survey.onDownloadFile.add((survey, options) => {
-    options.downloadingCallback("done", "data:image/jpeg;base64,FILECONTENT1");
-  });
-
-  survey.data = {
-    image1: ["someId"],
-    image2: ["data:image/jpeg;base64,FILECONTENT"]
-  };
-  assert.deepEqual(q1.value, survey.data.image1);
-  assert.deepEqual(q2.value, survey.data.image2);
-  assert.equal(q1.previewValue.length, 1, "remote stored file");
-  assert.equal(q2.previewValue.length, 1, "file stored as text");
-  assert.deepEqual(
-    q1.previewValue[0],
-    "data:image/jpeg;base64,FILECONTENT1",
-    "remote stored file content"
-  );
-  assert.deepEqual(
-    q2.previewValue[0],
-    survey.data.image2[0],
-    "locally stored file content"
-  );
-});
-
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

@@ -1,6 +1,6 @@
 <template>
     <div :class="question.cssClasses.root">
-        <input v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined"/>
+        <input v-bind:style="{color: question.isEmpty() ? 'inherit' : 'transparent'}" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined"/>
         <button v-if="hasValue" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <input v-if="question.isReadOnly" type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
         <div v-if="hasValue">

@@ -235,7 +235,6 @@ QUnit.test("QuestionFile upload files", function(assert) {
         title: "Please upload your photo 1",
         name: "image1",
         storeDataAsText: false,
-        waitForUpload: true,
         showPreview: true,
         imageWidth: 150,
         maxSize: 102400

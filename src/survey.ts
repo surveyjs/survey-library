@@ -350,12 +350,12 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are three properties in options: options.name, options.content and options.downloadingCallback.
+   * The event is fired on downloading the file in QuestionFile. You may use it to pass the file for the preview. There are three properties in options: options.name, options.content and options.callback.
    * <br/> sender the survey object that fires the event
    * name: name, content: content
    * <br/> name the question name
    * <br/> value the question value
-   * <br/> downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
+   * <br/> callback a call back function to get the status on downloading the file and the downloaded file content
    * @see downloadFile
    */
   public onDownloadFile: Event<
@@ -1843,20 +1843,20 @@ export class SurveyModel extends Base
    * Download the file from server
    * @param name question name
    * @param content file content id
-   * @param downloadingCallback a call back function to get the status on downloading the file and the downloaded file content
+   * @param callback a call back function to get the status on downloading the file and the downloaded file content
    */
   public downloadFile(
     questionName: string,
     content: string,
-    downloadingCallback: (status: string, data: any) => any
+    callback: (status: string, data: any) => any
   ) {
     if (this.onDownloadFile.isEmpty) {
-      !!downloadingCallback && downloadingCallback("success", content);
+      !!callback && callback("success", content);
     }
     this.onDownloadFile.fire(this, {
       name: name,
       content: content,
-      downloadingCallback: downloadingCallback
+      callback: callback
     });
   }
 

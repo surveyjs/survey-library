@@ -69,7 +69,9 @@ export class StylesManager {
     ".sv_qstn .sv-q-col-5":
       "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
 
-    ".sv_qstn .sv_q_file_input::after": "content: attr(title); padding-left: 1em; color: initial;"
+    ".sv_qstn .sv_q_file_input": "color: transparent;",
+    ".sv_qstn .sv_q_file_input::after":
+      "content: attr(title); padding-left: 1em; color: initial;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

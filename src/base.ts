@@ -59,7 +59,7 @@ export interface ISurvey extends ITextProcessor {
   downloadFile(
     name: string,
     content: string,
-    downloadingCallback: (status: string, data: any) => any
+    callback: (status: string, data: any) => any
   );
   updateQuestionCssClasses(question: IQuestion, cssClasses: any);
   updatePanelCssClasses(panel: IPanel, cssClasses: any);

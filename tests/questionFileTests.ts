@@ -33,7 +33,7 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    options.downloadingCallback(
+    options.callback(
       "success",
       "data:image/jpeg;base64,FILECONTENT1"
     );
@@ -89,7 +89,7 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    options.downloadingCallback(
+    options.callback(
       "success",
       "data:image/jpeg;base64,FILECONTENT1"
     );
@@ -149,12 +149,14 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   survey.onDownloadFile.add((survey, options) => {
     assert.equal(q1.inputTitle, "Loading...");
     assert.equal(q2.inputTitle, "");
-      options.downloadingCallback(
+    options.callback(
       "success",
       "data:image/jpeg;base64,FILECONTENT1"
     );
   });
 
+  assert.equal(q1.inputTitle, "Choose file(s)...");
+  assert.equal(q2.inputTitle, "Choose file(s)...");
   survey.data = {
     image1: [{ content: "someId" }],
     image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }]

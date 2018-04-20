@@ -37,6 +37,8 @@ export var englishStrings = {
   otherRequiredError: "Please enter the other value.",
   uploadingFile:
     "Your file is uploading. Please wait several seconds and try again.",
+  loadingFile: "Loading...",
+  chooseFile: "Choose file(s)...",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addRow: "Add row",
@@ -59,9 +61,7 @@ export var englishStrings = {
     "You have spent {0} of {1} on this page and {2} of {3} in total.",
   timerLimitPage: "You have spent {0} of {1} on this page.",
   timerLimitSurvey: "You have spent {0} of {1} in total.",
-  cleanCaption: "Clean",
-  emptyFile: "Choose file(s)...",
-  loadingFile: "Loading..."
+  cleanCaption: "Clean"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

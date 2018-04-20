@@ -101,8 +101,8 @@ export class QuestionFileModel extends Question {
    * The input title value.
    */
   get inputTitle(): string {
-    if (this.isEmpty()) return surveyLocalization.getString("emptyFile");
     if (this.isUploading) return surveyLocalization.getString("loadingFile");
+    if (this.isEmpty()) return surveyLocalization.getString("chooseFile");
     return "";
   }
   /**
@@ -123,7 +123,6 @@ export class QuestionFileModel extends Question {
       return;
     }
     this.value = [];
-    this.isUploading = true;
 
     this.stateChanged("loading");
     if (this.storeDataAsText) {
@@ -131,11 +130,10 @@ export class QuestionFileModel extends Question {
       files.forEach(file => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
-          content.concat([
+          content = content.concat([
             { name: file.name, type: file.type, content: fileReader.result }
           ]);
-          if(this.value.length === files.length) {
-            this.isUploading = false;
+          if (content.length === files.length) {
             this.value = content;
           }
         };
@@ -147,7 +145,6 @@ export class QuestionFileModel extends Question {
           this.stateChanged("error");
         }
         if (status === "success") {
-          this.isUploading = false;
           this.value = data.map(r => {
             return {
               name: r.file.name,
@@ -160,8 +157,8 @@ export class QuestionFileModel extends Question {
     }
   }
   protected setNewValue(newValue: any) {
-    this.stateChanged(!!newValue ? "loading" : "empty");
     super.setNewValue(newValue);
+    this.stateChanged(!!newValue ? "loading" : "empty");
     this.previewValue = [];
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -200,6 +197,12 @@ export class QuestionFileModel extends Question {
     }
   }
   protected stateChanged(state: string) {
+    if (state === "loading") {
+      this.isUploading = true;
+    }
+    if (state === "loaded") {
+      this.isUploading = false;
+    }
     this.onStateChanged.fire(this, { state: state });
   }
   private checkFileForErrors(file: File): boolean {

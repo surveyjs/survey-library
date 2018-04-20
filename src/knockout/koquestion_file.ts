@@ -9,7 +9,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
   koState = ko.observable<string>("empty");
   koHasValue = ko.computed(() => this.koState() === "loaded");
   koData = ko.computed(() => {
-    if(this.koHasValue()) {
+    if (this.koHasValue()) {
       return (<QuestionFileModel>this.question).previewValue;
     }
     return [];
@@ -22,10 +22,13 @@ export class QuestionFileImplementor extends QuestionImplementor {
     this.question["koData"] = this.koData;
     this.question["koHasValue"] = this.koHasValue;
     this.question["koInputTitle"] = this.koInputTitle;
-    (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
-      this.koState(options.state);
+    var updateState = state => {
+      this.koState(state);
       this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
-    })
+    };
+    (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
+      updateState(options.state);
+    });
     this.question["dochange"] = (data, event) => {
       var src = event.target || event.srcElement;
       self.onChange(src);

@@ -45,7 +45,13 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
-      image: ["data:text/plain;base64,V29tYmF0"]
+      image: [
+        {
+          name: "stub.txt",
+          type: "text/plain",
+          content: "data:text/plain;base64,V29tYmF0"
+        }
+      ]
     });
   });
 
@@ -58,7 +64,7 @@ frameworks.forEach(framework => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].indexOf("image/jpeg") !== -1);
+    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
   test(`without preview`, async t => {
@@ -80,7 +86,7 @@ frameworks.forEach(framework => {
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].indexOf("image/jpeg") !== -1);
+    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
   test(`file not in data`, async t => {

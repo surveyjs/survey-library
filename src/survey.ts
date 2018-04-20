@@ -1830,11 +1830,15 @@ export class SurveyModel extends Base
     files: File[],
     uploadingCallback: (status: string, data: any) => any
   ) {
-    this.onUploadFiles.fire(this, {
-      name: name,
-      files: files || [],
-      callback: uploadingCallback
-    });
+    if (this.onUploadFiles.isEmpty) {
+      uploadingCallback("error", files);
+    } else {
+      this.onUploadFiles.fire(this, {
+        name: name,
+        files: files || [],
+        callback: uploadingCallback
+      });
+    }
     if (this.surveyPostId) {
       this.uploadFilesCore(name, files, uploadingCallback);
     }

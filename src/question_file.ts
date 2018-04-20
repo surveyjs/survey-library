@@ -73,15 +73,15 @@ export class QuestionFileModel extends Question {
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
   }
-  // /**
-  //  * Set it to true if you want to wait until files will be uploaded to your server.
-  //  */
-  // public get waitForUpload(): boolean {
-  //   return this.getPropertyValue("waitForUpload", false);
-  // }
-  // public set waitForUpload(val: boolean) {
-  //   this.setPropertyValue("waitForUpload", val);
-  // }
+  /**
+   * Set it to true if you want to wait until files will be uploaded to your server.
+   */
+  public get waitForUpload(): boolean {
+    return this.getPropertyValue("waitForUpload", false);
+  }
+  public set waitForUpload(val: boolean) {
+    this.setPropertyValue("waitForUpload", val);
+  }
   /**
    * Use this property to setup the maximum allowed file size.
    */
@@ -122,7 +122,7 @@ export class QuestionFileModel extends Question {
     if (files.every(file => this.checkFileForErrors(file))) {
       return;
     }
-    this.value = [];
+    this.clear();
 
     this.stateChanged("loading");
     if (this.storeDataAsText) {
@@ -158,39 +158,44 @@ export class QuestionFileModel extends Question {
   }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
-    this.stateChanged(!!newValue ? "loading" : "empty");
     this.previewValue = [];
+    this.stateChanged(
+      !!newValue ? (this.showPreview ? "loading" : "loaded") : "empty"
+    );
+    if (!this.showPreview) return;
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue
         ? [newValue]
         : [];
-    newValues.forEach(value => {
-      var content = value.content || value;
-      if (this.showPreview) {
-        if (this.storeDataAsText) {
-          if (this.isFileContentImage(content)) {
-            this.previewValue = this.previewValue.concat([content]);
-            this.stateChanged("loaded");
-          }
-        } else {
-          this.survey.downloadFile(this.name, content, (status, data) => {
-            if (status === "success") {
-              this.previewValue = this.previewValue.concat([data]);
-              if (this.previewValue.length === newValues.length) {
-                this.stateChanged("loaded");
-              }
-            } else {
-              this.stateChanged("error");
-            }
-          });
+
+    if (this.storeDataAsText) {
+      newValues.forEach(value => {
+        var content = value.content || value;
+        if (this.isFileContentImage(content)) {
+          this.previewValue = this.previewValue.concat([content]);
         }
-      }
-    });
+      });
+      this.stateChanged("loaded");
+    } else {
+      newValues.forEach(value => {
+        var content = value.content || value;
+        this.survey.downloadFile(this.name, content, (status, data) => {
+          if (status === "success") {
+            this.previewValue = this.previewValue.concat([data]);
+            if (this.previewValue.length === newValues.length) {
+              this.stateChanged("loaded");
+            }
+          } else {
+            this.stateChanged("error");
+          }
+        });
+      });
+    }
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
-    if (this.isUploading) {
+    if (this.isUploading && this.waitForUpload) {
       errors.push(
         new CustomError(surveyLocalization.getString("uploadingFile"))
       );
@@ -235,7 +240,7 @@ JsonObject.metaData.addClass(
     "imageHeight",
     "imageWidth",
     { name: "storeDataAsText:boolean", default: true },
-    // { name: "waitForUpload:boolean", default: false },
+    { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
   function() {

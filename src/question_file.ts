@@ -162,7 +162,7 @@ export class QuestionFileModel extends Question {
     this.stateChanged(
       !!newValue ? (this.showPreview ? "loading" : "loaded") : "empty"
     );
-    if (!this.showPreview) return;
+    if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
       : !!newValue

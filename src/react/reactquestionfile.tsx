@@ -8,8 +8,9 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     super(props);
     this.state = { fileLoaded: 0 };
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.question.previewValueLoadedCallback = () =>
-      this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+    this.question.onStateChanged.add(() =>
+      this.setState({ fileLoaded: this.state.fileLoaded + 1 })
+    );
   }
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
@@ -40,12 +41,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!this.isDisplayMode) {
       fileInput = (
         <input
+          className={this.question.cssClasses.fileInput}
           id={this.question.inputId}
           type="file"
-          style={{color: this.question.isEmpty() ? 'inherit' : 'transparent'}}
           onChange={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}
+          title={this.question.inputTitle}
         />
       );
       if (!!this.question.value) {

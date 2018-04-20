@@ -1,9 +1,9 @@
 <template>
     <div :class="question.cssClasses.root">
-        <input v-bind:style="{color: question.isEmpty() ? 'inherit' : 'transparent'}" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined"/>
-        <button v-if="hasValue" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
+        <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle"/>
+        <button v-if="!question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <input v-if="question.isReadOnly" type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
-        <div v-if="hasValue">
+        <div v-if="!question.isEmpty()">
             <img v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview" :src="val" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
         </div>
     </div>
@@ -31,9 +31,6 @@ export class File extends QuestionVue<QuestionFileModel> {
     var src = event.target || event.srcElement;
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
-  }
-  get hasValue() {
-    return !this.question.isEmpty();
   }
   getPlaceholderClass() {
     return "form-control " + this.question.cssClasses.placeholderInput;

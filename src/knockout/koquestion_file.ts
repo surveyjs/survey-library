@@ -6,20 +6,26 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionFileImplementor extends QuestionImplementor {
-  koDataUpdater = ko.observable(0);
-  koData: any;
-  koHasValue = ko.observable(false);
+  koState = ko.observable<string>("empty");
+  koHasValue = ko.computed(() => this.koState() === "loaded");
+  koData = ko.computed(() => {
+    if(this.koHasValue()) {
+      return (<QuestionFileModel>this.question).previewValue;
+    }
+    return [];
+  });
+  koInputTitle = ko.observable<string>();
+
   constructor(question: Question) {
     super(question);
     var self = this;
-    this.koData = ko.computed(() => {
-      self.koDataUpdater();
-      return (<QuestionFileModel>self.question).previewValue;
-    });
     this.question["koData"] = this.koData;
     this.question["koHasValue"] = this.koHasValue;
-    (<QuestionFileModel>this.question).previewValueLoadedCallback =
-      self.onLoadPreview;
+    this.question["koInputTitle"] = this.koInputTitle;
+    (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
+      this.koState(options.state);
+      this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
+    })
     this.question["dochange"] = (data, event) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
@@ -33,7 +39,6 @@ export class QuestionFileImplementor extends QuestionImplementor {
   }
   protected updateValue(newValue: any) {
     super.updateValue(newValue);
-    this.koHasValue(!this.question.isEmpty());
   }
   private onChange(src: any) {
     if (!window["FileReader"]) return;
@@ -43,11 +48,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
       files.push(src.files[i]);
     }
     (<QuestionFileModel>this.question).loadFiles(files);
-    this.koHasValue(true);
   }
-  onLoadPreview = () => {
-    this.koDataUpdater(this.koDataUpdater() + 1);
-  };
 }
 
 export class QuestionFile extends QuestionFileModel {

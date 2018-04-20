@@ -103,7 +103,8 @@ export var defaultStandardCss = {
     root: "sv_q_file",
     placeholderInput: "sv_q_file_placeholder",
     preview: "sv_q_file_preview",
-    removeButton: "sv_q_file_remove_button"
+    removeButton: "sv_q_file_remove_button",
+    fileInput: "sv_q_file_input"
   },
   saveData: {
     root: "",

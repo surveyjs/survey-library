@@ -1,7 +1,7 @@
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError } from "./base";
+import { SurveyError, Event } from "./base";
 import { CustomError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 
@@ -10,7 +10,15 @@ import { surveyLocalization } from "./surveyStrings";
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
-  previewValueLoadedCallback: () => void;
+  /**
+   * The event is fired after question state has been changed.
+   * <br/> sender the question object that fires the event
+   * <br/> options.state new question state value.
+   */
+  public onStateChanged: Event<
+    (sender: QuestionFileModel, options: any) => any,
+    any
+  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
   constructor(public name: string) {
     super(name);
@@ -90,12 +98,18 @@ export class QuestionFileModel extends Question {
     return surveyLocalization.getString("cleanCaption");
   }
   /**
+   * The input title value.
+   */
+  get inputTitle(): string {
+    if (this.isEmpty()) return surveyLocalization.getString("emptyFile");
+    if (this.isUploading) return surveyLocalization.getString("loadingFile");
+    return "";
+  }
+  /**
    * Clear value programmatically.
    */
   public clear() {
     this.value = undefined;
-    this.previewValue = [];
-    this.fireCallback(this.previewValueLoadedCallback);
   }
   /**
    * Load multiple files programmatically.
@@ -109,20 +123,31 @@ export class QuestionFileModel extends Question {
       return;
     }
     this.value = [];
+    this.isUploading = true;
+
+    this.stateChanged("loading");
     if (this.storeDataAsText) {
+      var content = [];
       files.forEach(file => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
-          this.value = (this.value || []).concat([
+          content.concat([
             { name: file.name, type: file.type, content: fileReader.result }
           ]);
+          if(this.value.length === files.length) {
+            this.isUploading = false;
+            this.value = content;
+          }
         };
         fileReader.readAsDataURL(file);
       });
     } else {
       this.survey.uploadFiles(this.name, files, (status, data) => {
-        this.isUploading = status === "uploading";
+        if (status === "error") {
+          this.stateChanged("error");
+        }
         if (status === "success") {
+          this.isUploading = false;
           this.value = data.map(r => {
             return {
               name: r.file.name,
@@ -135,6 +160,7 @@ export class QuestionFileModel extends Question {
     }
   }
   protected setNewValue(newValue: any) {
+    this.stateChanged(!!newValue ? "loading" : "empty");
     super.setNewValue(newValue);
     this.previewValue = [];
     var newValues = Array.isArray(newValue)
@@ -148,13 +174,17 @@ export class QuestionFileModel extends Question {
         if (this.storeDataAsText) {
           if (this.isFileContentImage(content)) {
             this.previewValue = this.previewValue.concat([content]);
-            this.fireCallback(this.previewValueLoadedCallback);
+            this.stateChanged("loaded");
           }
         } else {
           this.survey.downloadFile(this.name, content, (status, data) => {
             if (status === "success") {
               this.previewValue = this.previewValue.concat([data]);
-              this.fireCallback(this.previewValueLoadedCallback);
+              if (this.previewValue.length === newValues.length) {
+                this.stateChanged("loaded");
+              }
+            } else {
+              this.stateChanged("error");
             }
           });
         }
@@ -168,6 +198,9 @@ export class QuestionFileModel extends Question {
         new CustomError(surveyLocalization.getString("uploadingFile"))
       );
     }
+  }
+  protected stateChanged(state: string) {
+    this.onStateChanged.fire(this, { state: state });
   }
   private checkFileForErrors(file: File): boolean {
     var errorLength = this.errors ? this.errors.length : 0;

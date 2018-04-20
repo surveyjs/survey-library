@@ -99,7 +99,8 @@ export var defaultBootstrapMaterialCss = {
     root: "form-group is-fileinput sv_q_file",
     placeholderInput: "",
     preview: "sv_q_file_preview",
-    removeButton: "sv_q_file_remove_button"
+    removeButton: "sv_q_file_remove_button",
+    fileInput: "sv_q_file_input"
   },
   saveData: {
     root: "",

@@ -147,7 +147,9 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    options.downloadingCallback(
+    assert.equal(q1.inputTitle, "Loading...");
+    assert.equal(q2.inputTitle, "");
+      options.downloadingCallback(
       "success",
       "data:image/jpeg;base64,FILECONTENT1"
     );
@@ -157,6 +159,8 @@ QUnit.test("QuestionFile value initialization array of objects", function(
     image1: [{ content: "someId" }],
     image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }]
   };
+  assert.equal(q1.inputTitle, "");
+  assert.equal(q2.inputTitle, "");
   assert.deepEqual(q1.value, survey.data.image1);
   assert.deepEqual(q2.value, survey.data.image2);
   assert.equal(q1.previewValue.length, 1, "remote stored file");

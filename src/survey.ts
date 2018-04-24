@@ -266,6 +266,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.data the values of all non-empty questions on the current page. You can get a question value as options.data["myQuestionName"].
    * <br/> options.errors set your errors to this object as: options.errors["myQuestionName"] = "Error text";. It will be shown as a question error.
+   * <br/> options.complete() call this function to tell survey that your server callback has been processed.
    * @see onValidateQuestion
    * @see onValidatePanel
    */

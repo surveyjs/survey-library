@@ -1916,6 +1916,22 @@ QUnit.test("simple condition test, page visibility", function(assert) {
   survey.setValue("q1", ["yes"]);
   assert.equal(page2.visible, true, "the page becomes visible, q1 = 'yes'");
 });
+QUnit.test("Re-run condition on changing the variable", function(assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        questions: [{ type: "text", name: "q1", visibleIf: "{var1} = 1" }]
+      }
+    ]
+  });
+  var q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isVisible, false, "var1 is not exists, question is invisible");
+  survey.setVariable("var1", 1);
+  assert.equal(q1.isVisible, true, "var1 equals 1, question is visible");
+  survey.setVariable("var1", 2);
+  assert.equal(q1.isVisible, false, "var1 equals 2, question is not visible now");
+});
 
 QUnit.test("visibleIf for question, call onPageVisibleChanged", function(
   assert

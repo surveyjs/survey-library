@@ -2162,8 +2162,11 @@ export class SurveyModel extends Base
   private runConditions() {
     this.runConditionsState = "running";
     var pages = this.pages;
+    var values = {};
+    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
+    for (var key in this.valuesHash) values[key] = this.valuesHash[key];
     for (var i = 0; i < pages.length; i++) {
-      pages[i].runCondition(this.valuesHash);
+      pages[i].runCondition(values);
     }
     var needUpdateIndexes = this.runConditionsState === "visibleIndexesChanged";
     this.runConditionsState = "";
@@ -2453,6 +2456,7 @@ export class SurveyModel extends Base
     if (!name) return;
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
+    this.runConditions();
   }
   //ISurvey data
   protected getUnbindValue(value: any): any {

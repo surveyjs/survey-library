@@ -420,6 +420,35 @@ QUnit.test("Cascad dropdown in panel dynamic", function(assert) {
   assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
 });
 
+QUnit.test(
+  "Question in panel dynamic where url is depend on value outside panel, bug#1064",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    page.addNewQuestion("text", "state");
+    var question = new QuestionPanelDynamicModel("panel");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{state}";
+    question.template.addQuestion(dropDown);
+    page.addElement(question);
+    question.panelCount = 1;
+
+    var qCity = <QuestionDropdownModelTester>question.panels[0].questions[0];
+
+    assert.equal(qCity.visibleChoices.length, 0, "It is empty");
+    survey.setValue("state", "ca_cities");
+    assert.equal(qCity.visibleChoices.length, 2, "We have two cities now, CA");
+    survey.setValue("state", "tx_cities");
+    assert.equal(
+      qCity.visibleChoices.length,
+      3,
+      "We have three cities now, TX"
+    );
+    survey.clearValue("state");
+    assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
+  }
+);
+
 QUnit.test("Load countries, custom properties, #615", function(assert) {
   var test = new ChoicesRestfullTester();
   test.noCaching = true;

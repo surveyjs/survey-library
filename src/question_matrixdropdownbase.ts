@@ -579,6 +579,7 @@ export class MatrixDropdownRowModelBase
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     var firstName = new ProcessValue().getFirstName(textValue.name);
     textValue.isExists = firstName == "row";
+    textValue.canProcess = textValue.isExists;
     if (!textValue.isExists) return;
     //name should start with the row
     var values = { row: this.value };

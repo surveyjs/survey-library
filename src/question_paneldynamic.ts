@@ -96,6 +96,7 @@ export class QuestionPanelDynamicItem
   }
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    if (!textValue) return;
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
       textValue.isExists = true;
       textValue.value = this.data.getItemIndex(this) + 1;
@@ -103,7 +104,8 @@ export class QuestionPanelDynamicItem
     }
     var firstName = new ProcessValue().getFirstName(textValue.name);
     textValue.isExists = firstName == QuestionPanelDynamicItem.ItemVariableName;
-    if (!textValue) return;
+    textValue.canProcess = textValue.isExists;
+    if (!textValue.canProcess) return;
     //name should start with the panel
     textValue.name = textValue.name.replace(
       QuestionPanelDynamicItem.ItemVariableName + ".",

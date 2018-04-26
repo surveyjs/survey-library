@@ -6,9 +6,11 @@ export class TextPreProcessorItem {
 export class TextPreProcessorValue {
   constructor(public name: string, public returnDisplayValue: boolean) {
     this.isExists = false;
+    this.canProcess = true;
   }
   public value: any;
   public isExists: boolean;
+  public canProcess: boolean;
 }
 
 export class TextPreProcessor {
@@ -27,7 +29,9 @@ export class TextPreProcessor {
       var textValue = new TextPreProcessorValue(name, returnDisplayValue);
       this.onProcess(textValue);
       if (!textValue.isExists) {
-        this.hasAllValuesOnLastRunValue = false;
+        if (textValue.canProcess) {
+          this.hasAllValuesOnLastRunValue = false;
+        }
         continue;
       }
       if (textValue.value == null) {

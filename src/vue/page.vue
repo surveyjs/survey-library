@@ -38,6 +38,7 @@ export class Page extends Vue {
   }
   updated() {
     var self = this;
+    self.survey.afterRenderPage(this.$el);
     this.$nextTick(function() {
       if (this.isCurrentPageChanged) {
         this.isCurrentPageChanged = false;

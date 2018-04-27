@@ -42,6 +42,15 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
+    this.choicesByUrl.updateResultCallback = function(
+      items: Array<ItemValue>,
+      serverResult: any
+    ): Array<ItemValue> {
+      if (self.survey) {
+        return self.survey.updateChoicesFromServer(self, items, serverResult);
+      }
+      return items;
+    };
   }
   /**
    * Returns the other item. By using this property, you may change programmatically it's value and text.

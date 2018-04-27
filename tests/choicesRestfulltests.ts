@@ -51,7 +51,9 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
     return "dropdownrestfulltester";
   }
   protected createRestfull(): ChoicesRestfull {
-    return new ChoicesRestfullTester();
+    var res = new ChoicesRestfullTester();
+    res.noCaching = true;
+    return res;
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
@@ -278,6 +280,42 @@ QUnit.test("Use variables", function(assert) {
   );
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
+});
+
+QUnit.test("onLoadItemsFromServer event", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+  question.choicesByUrl.url = "{state}";
+
+  survey.onLoadChoicesFromServer.add(function(survey, options) {
+    if (options.question.name != "q1") return;
+    options.question.visible = options.choices.length > 0;
+    if (options.choices.length > 1) {
+      options.choices.shift();
+    }
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 0, "It is empty");
+  assert.equal(question.visible, false, "make it invisible on event");
+  stateQuestion.value = "ca_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "We have two cities and we remove on event one, CA"
+  );
+  assert.equal(question.visible, true, "make it visible on event");
+  stateQuestion.value = "tx_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    2,
+    "We have three cities now and we remove on event one, TX"
+  );
+  stateQuestion.value = "";
+  assert.equal(question.visibleChoices.length, 0, "It is empty again");
+  assert.equal(question.visible, false, "And it is again invisible");
 });
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {

@@ -43,7 +43,7 @@ class XmlParser {
 
 /**
  * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
- * The run method call a restfull service and results can be get on getREsultCallback.
+ * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
   private static itemsResult = {};
@@ -64,6 +64,10 @@ export class ChoicesRestfull extends Base {
   protected processedUrl: string = "";
   protected processedPath: string = "";
   public getResultCallback: (items: Array<ItemValue>) => void;
+  public updateResultCallback: (
+    items: Array<ItemValue>,
+    serverResult: any
+  ) => Array<ItemValue>;
   public error: SurveyError = null;
   public owner: Base;
   constructor() {
@@ -73,7 +77,7 @@ export class ChoicesRestfull extends Base {
     if (!this.url || !this.getResultCallback) return;
     this.processedText(textProcessor);
     if (!this.processedUrl) {
-      this.getResultCallback([]);
+      this.doEmptyResultCallback({});
       return;
     }
     if (this.lastObjHash == this.objHash) return;
@@ -84,6 +88,13 @@ export class ChoicesRestfull extends Base {
   }
   protected useChangedItemsResults(): boolean {
     return ChoicesRestfull.getCachedItemsResult(this);
+  }
+  private doEmptyResultCallback(serverResult: any) {
+    var items = [];
+    if (this.updateResultCallback) {
+      items = this.updateResultCallback(items, serverResult);
+    }
+    this.getResultCallback(items);
   }
   private processedText(textProcessor: ITextProcessor) {
     if (textProcessor) {
@@ -237,10 +248,10 @@ export class ChoicesRestfull extends Base {
   }
   protected onLoad(result: any) {
     var items = [];
-    result = this.getResultAfterPath(result);
-    if (result && result["length"]) {
-      for (var i = 0; i < result.length; i++) {
-        var itemValue = result[i];
+    var updatedResult = this.getResultAfterPath(result);
+    if (updatedResult && updatedResult["length"]) {
+      for (var i = 0; i < updatedResult.length; i++) {
+        var itemValue = updatedResult[i];
         if (!itemValue) continue;
         var value = this.getValue(itemValue);
         var title = this.getTitle(itemValue);
@@ -252,6 +263,9 @@ export class ChoicesRestfull extends Base {
       this.error = new CustomError(
         surveyLocalization.getString("urlGetChoicesError")
       );
+    }
+    if (this.updateResultCallback) {
+      items = this.updateResultCallback(items, result);
     }
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
@@ -281,7 +295,7 @@ export class ChoicesRestfull extends Base {
         .getString("urlRequestError")
         ["format"](status, response)
     );
-    this.getResultCallback([]);
+    this.doEmptyResultCallback(response);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;

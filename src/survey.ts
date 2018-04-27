@@ -28,6 +28,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
+import {ItemValue} from "./itemvalue";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -363,6 +364,17 @@ export class SurveyModel extends Base
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired after choices for radiogroup, checkbox and dropdown has been loaded from the RESTful service and before they are assign to the question. 
+   * You may change the choices, before it was assign or disable/enabled make visible/invisible question, based on loaded results
+   * <br/> question - the question where loaded choices are going to be assigned
+   * <br/> choices - the loaded choices. You may change them to assign the correct one
+   * <br> serverResult - a result that comes from the server as it is.
+   */
+  public onLoadChoicesFromServer: Event<
+  (sender: SurveyModel, options: any) => any,
+  any
+> = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired before rendering a question. Use it to override the default question css classes.
    * There are two parameters in options: options.question and options.cssClasses
@@ -1862,6 +1874,11 @@ export class SurveyModel extends Base
       content: content,
       callback: callback
     });
+  }
+  updateChoicesFromServer(question: IQuestion, choices: Array<ItemValue>, serverResult: any): Array<ItemValue> {
+    var options = {question: question, choices: choices, serverResult: serverResult};
+    this.onLoadChoicesFromServer.fire(this, options);
+    return options.choices;
   }
 
   protected createSurveyService(): dxSurveyService {

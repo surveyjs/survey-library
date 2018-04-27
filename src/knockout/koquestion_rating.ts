@@ -22,8 +22,8 @@ class QuestionRatingImplementor extends QuestionImplementor {
       self.onRateValuesChanged();
     };
     this.question["koGetCss"] = function(val) {
-      var css = (<QuestionRating>self.question).itemCss;
-      var selected = (<QuestionRating>self.question).selectedCss;
+      var css = self.question.cssClasses.item;
+      var selected = self.question.cssClasses.selected;
       return self.question["koValue"]() == val.value
         ? css + " " + selected
         : css;
@@ -38,18 +38,9 @@ class QuestionRatingImplementor extends QuestionImplementor {
 }
 
 export class QuestionRating extends QuestionRatingModel {
-  public itemCss: string;
-  public selectedCss: string;
   constructor(public name: string) {
     super(name);
     new QuestionRatingImplementor(this);
-  }
-  protected onSetData() {
-    var css = this.survey ? this.survey["css"] : null;
-    if (css && css.rating) {
-      this.itemCss = css.rating.item;
-      this.selectedCss = css.rating.selected;
-    }
   }
 }
 

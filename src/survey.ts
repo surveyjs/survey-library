@@ -1583,7 +1583,6 @@ export class SurveyModel extends Base
   }
   public get isShowPrevButton(): boolean {
     if (this.isFirstPage || !this.showPrevButton) return false;
-    if (this.maxTimeToFinish > 0) return false;
     var page = this.visiblePages[this.currentPageNo - 1];
     return this.getPageMaxTimeToFinish(page) <= 0;
   }

@@ -17,7 +17,9 @@ export class StylesManager {
     ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
 
-    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto",
+    ".sv_row": "font-size: 0;",
+    ".sv_row > .sv_qstn": "font-size: 14px;",
+    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_p_container": "display: inline-block; vertical-align: top;",

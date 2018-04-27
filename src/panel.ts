@@ -59,21 +59,12 @@ export class QuestionRowModel {
       if (this.elements[i].isVisible) {
         var q = this.elements[i];
         q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + "%";
-        q.renderWidth = this.fixWidthForIE(q.renderWidth);
         q.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
         this.elements[i].renderWidth = "";
       }
     }
-  }
-  private fixWidthForIE(width): string {
-    if (!browser.msie) return width;
-
-    var widthNumber = +width.replace("%", "");
-    widthNumber -= 1;
-
-    return widthNumber + "%";
   }
   private getVisibleCount(): number {
     var res = 0;

@@ -22,7 +22,7 @@ export var defaultBootstrapCss = {
   },
   pageTitle: "",
   pageDescription: "small",
-  row: "",
+  row: "sv_row",
   question: {
     mainRoot: "sv_qstn",
     title: "",

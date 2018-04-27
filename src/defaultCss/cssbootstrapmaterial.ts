@@ -22,7 +22,7 @@ export var defaultBootstrapMaterialCss = {
   },
   pageTitle: "",
   pageDescription: "small",
-  row: "",
+  row: "sv_row",
   question: {
     mainRoot: "sv_qstn form-group",
     title: "",

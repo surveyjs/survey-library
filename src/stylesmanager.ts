@@ -18,7 +18,7 @@ export class StylesManager {
       "display: inline; position: static;",
 
     ".sv_row": "font-size: 0;",
-    ".sv_row > .sv_qstn": "font-size: 14px;",
+    ".sv_row > *": "font-size: 14px;",
     ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",

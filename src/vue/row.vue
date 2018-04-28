@@ -1,7 +1,5 @@
 <template>
-    <div>
-        <survey-element v-if="element.visible" v-for="element in row.elements" :key="element.idValue" :class="questionRootClass" :id="element.id" :style="{ paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }" :element="element" :survey="survey" :css="css" />
-    </div>
+    <survey-element v-if="element.visible" v-for="element in row.elements" :key="element.idValue" :class="questionRootClass" :id="element.id" :style="{ paddingLeft: getIndentSize(element, element.indent), paddingRight: getIndentSize(element, element.rightIndent), width: element.renderWidth }" :element="element" :survey="survey" :css="css" />
 </template>
 
 <script lang="ts">

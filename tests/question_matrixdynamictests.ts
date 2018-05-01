@@ -716,7 +716,7 @@ QUnit.test("Matrixdynamic column.visibleIf", function(assert) {
   var q3 = <QuestionDropdownModel>visibleRows[0].cells[2].question;
 
   var values = { a: 3 };
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(q1.visible, true, "1. q1 visibleIf is empty");
   assert.equal(q2.visible, false, "1. q2 visibleIf depends on column1 - false");
   assert.equal(
@@ -731,7 +731,7 @@ QUnit.test("Matrixdynamic column.visibleIf", function(assert) {
   );
 
   values = { a: 5 };
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(
     q3.visible,
     true,
@@ -739,7 +739,7 @@ QUnit.test("Matrixdynamic column.visibleIf", function(assert) {
   );
 
   q1.value = 2;
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(q2.visible, true, "3. q2 visibleIf depends on column1 - true");
 });
 QUnit.test("Matrixdynamic column.enableIf", function(assert) {
@@ -762,7 +762,7 @@ QUnit.test("Matrixdynamic column.enableIf", function(assert) {
   var q3 = <QuestionDropdownModel>visibleRows[0].cells[2].question;
 
   var values = { a: 3 };
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(q1.isReadOnly, false, "1. q1 enableIf is empty");
   assert.equal(
     q2.isReadOnly,
@@ -775,7 +775,7 @@ QUnit.test("Matrixdynamic column.enableIf", function(assert) {
     "1. q3 enableIf depends on external data - false"
   );
   values = { a: 5 };
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(
     q3.isReadOnly,
     false,
@@ -783,7 +783,7 @@ QUnit.test("Matrixdynamic column.enableIf", function(assert) {
   );
 
   q1.value = 2;
-  question.runCondition(values);
+  question.runCondition(values, null);
   assert.equal(
     q2.isReadOnly,
     false,

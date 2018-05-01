@@ -750,17 +750,17 @@ export class PanelModelBase extends SurveyElement
   public removeQuestion(question: QuestionBase) {
     this.removeElement(question);
   }
-  runCondition(values: HashTable<any>) {
+  runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
-      elements[i].runCondition(values);
+      elements[i].runCondition(values, properties);
     }
     if (!this.visibleIf) return;
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);
     this.conditionRunner.expression = this.visibleIf;
-    this.visible = this.conditionRunner.run(values);
+    this.visible = this.conditionRunner.run(values, properties);
   }
   onLocaleChanged() {
     for (var i = 0; i < this.elements.length; i++) {

@@ -331,14 +331,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.setPropertyValue("enableIf", val);
   }
 
-  public runCondition(values: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
-    super.runCondition(values);
+    super.runCondition(values, properties);
     if (!this.enableIf) return;
     if (!this.conditionEnabelRunner)
       this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
     this.conditionEnabelRunner.expression = this.enableIf;
-    this.readOnly = !this.conditionEnabelRunner.run(values);
+    this.readOnly = !this.conditionEnabelRunner.run(values, properties);
   }
 
   onReadOnlyChanged() {

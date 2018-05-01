@@ -2,6 +2,7 @@ import { Helpers, HashTable } from "./helpers";
 
 export class ProcessValue {
   public values: HashTable<any> = null;
+  public properties: HashTable<any> = null;
   constructor() {}
   public getFirstName(text: string): string {
     if (!text) return text;

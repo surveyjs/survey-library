@@ -49,8 +49,8 @@ export class QuestionPanelDynamicItem
   public get panel(): PanelModel {
     return this.panelValue;
   }
-  public runCondition(values: HashTable<any>) {
-    this.panel.runCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    this.panel.runCondition(values, properties);
   }
   public getValue(name: string): any {
     var values = this.data.getPanelItemData(this);
@@ -836,15 +836,16 @@ export class QuestionPanelDynamicModel extends Question
     this.setPanelsState();
     super.onSurveyLoad();
   }
-  public runCondition(values: HashTable<any>) {
-    super.runCondition(values);
-    this.runPanelsCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    this.runPanelsCondition(values, properties);
   }
   private reRunCondition() {
     if (!this.data) return;
-    this.runCondition(this.data.getAllValues());
+    var properties = { survey: this.survey};
+    this.runCondition(this.data.getAllValues(), properties);
   }
-  protected runPanelsCondition(values: HashTable<any>) {
+  protected runPanelsCondition(values: HashTable<any>, properties: HashTable<any>) {
     var newValues = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
@@ -854,7 +855,7 @@ export class QuestionPanelDynamicModel extends Question
         QuestionPanelDynamicItem.ItemVariableName
       ] = this.getPanelItemData(this.items[i]);
       newValues[QuestionPanelDynamicItem.IndexVariableName] = i;
-      this.items[i].runCondition(newValues);
+      this.items[i].runCondition(newValues, properties);
     }
   }
   onReadOnlyChanged() {

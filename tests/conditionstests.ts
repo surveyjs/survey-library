@@ -8,6 +8,7 @@ import {
   ExpressionRunner
 } from "../src/conditions";
 import { parse } from "querystring";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Conditions");
 
@@ -473,6 +474,21 @@ QUnit.test("Run age function with empty value", function(assert) {
   var values = {};
   assert.equal(runner.run(values), false, "1. false, bithday is empty");
   assert.equal(runner2.run(values), false, "2. false, bithday is empty");
+});
+
+QUnit.test("Run function with properties", function(assert) {
+  function isEqual(params: any[]): any {
+    return this.propValue == params[0];
+  }
+  FunctionFactory.Instance.register("isEqual", isEqual);
+
+  var runner = new ConditionRunner("isEqual({val}) == true");
+  var values = { val: 3 };
+  var properties = { propValue: 3 };
+  assert.equal(runner.run(values, properties), true, "3 = 3");
+  properties.propValue = 5;
+  assert.equal(runner.run(values, properties), false, "3 != 5");
+  FunctionFactory.Instance.unregister("isEqual");
 });
 
 QUnit.test("Support true/false constants, #643", function(assert) {

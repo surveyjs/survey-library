@@ -82,7 +82,7 @@ export interface ISurveyImpl {
   getTextProcessor(): ITextProcessor;
 }
 export interface IConditionRunner {
-  runCondition(values: HashTable<any>);
+  runCondition(values: HashTable<any>, properties: HashTable<any>);
 }
 export interface ISurveyElement {
   name: string;

@@ -46,13 +46,13 @@ export class QuestionExpressionModel extends Question {
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
   }
-  public runCondition(values: HashTable<any>) {
-    super.runCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
     this.expressionIsRunning = true;
     if (!this.expressionRunner)
       this.expressionRunner = new ExpressionRunner(this.expression);
-    this.value = this.expressionRunner.run(values);
+    this.value = this.expressionRunner.run(values, properties);
     this.expressionIsRunning = false;
   }
   public get displayValue(): any {

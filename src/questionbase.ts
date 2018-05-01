@@ -315,13 +315,13 @@ export class QuestionBase extends SurveyElement
    * @see readOnly
    * @see enableIf
    */
-  public runCondition(values: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
     if (!this.visibleIf) return;
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);
     this.conditionRunner.expression = this.visibleIf;
-    this.visible = this.conditionRunner.run(values);
+    this.visible = this.conditionRunner.run(values, properties);
   }
   //IQuestion
   public onSurveyValueChanged(newValue: any) {}

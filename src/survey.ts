@@ -2181,8 +2181,9 @@ export class SurveyModel extends Base
     var values = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     for (var key in this.valuesHash) values[key] = this.valuesHash[key];
+    var properties = {survey: this};
     for (var i = 0; i < pages.length; i++) {
-      pages[i].runCondition(values);
+      pages[i].runCondition(values, properties);
     }
     var needUpdateIndexes = this.runConditionsState === "visibleIndexesChanged";
     this.runConditionsState = "";

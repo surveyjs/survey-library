@@ -411,8 +411,8 @@ export class MatrixDropdownCell {
   public set value(value: any) {
     this.question.value = value;
   }
-  public runCondition(values: HashTable<any>) {
-    this.question.runCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    this.question.runCondition(values, properties);
   }
 }
 
@@ -553,10 +553,10 @@ export class MatrixDropdownRowModelBase
       this.cells[i].question.onLocaleChanged();
     }
   }
-  public runCondition(values: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     values["row"] = this.value;
     for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].runCondition(values);
+      this.cells[i].runCondition(values, properties);
     }
   }
   protected buildCells() {
@@ -752,11 +752,14 @@ export class QuestionMatrixDropdownModelBase extends Question
       rows[i].clearIncorrectValues();
     }
   }
-  public runCondition(values: HashTable<any>) {
-    super.runCondition(values);
-    this.runCellsCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    this.runCellsCondition(values, properties);
   }
-  protected runCellsCondition(values: HashTable<any>) {
+  protected runCellsCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
     if (!this.generatedVisibleRows) return;
     var newValues = {};
     if (values && values instanceof Object) {
@@ -765,7 +768,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     newValues["row"] = {};
     var rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {
-      rows[i].runCondition(newValues);
+      rows[i].runCondition(newValues, properties);
     }
   }
   public onLocaleChanged() {
@@ -837,7 +840,8 @@ export class QuestionMatrixDropdownModelBase extends Question
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
       if (this.data) {
-        this.runCellsCondition(this.data.getAllValues());
+        var properties = { survey: this.survey };
+        this.runCellsCondition(this.data.getAllValues(), properties);
       }
     }
     return this.generatedVisibleRows;

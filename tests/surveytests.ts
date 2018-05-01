@@ -36,6 +36,7 @@ import { QuestionSelectBase } from "../src/question_baseselect";
 import { LocalizableString } from "../src/localizablestring";
 import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
+import {FunctionFactory} from "../src/functionsfactory";
 
 export default QUnit.module("Survey");
 
@@ -1961,6 +1962,29 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function(
   assert.equal(counter, 2, "calls second time");
   survey.setValue("q1", []);
   assert.equal(counter, 2, "nothing happens");
+});
+QUnit.test("visibleIf, expression custom function has property this.survey", function(
+  assert
+) {
+  function isAllChecksSet(params: any[]): any {
+    if(!params && params.length !== 1) return false;
+    var q = this.survey.getQuestionByName(params[0]);
+    if(!q) return false;
+    var val = q.value;
+    if(!val || !Array.isArray(val)) return false;
+    return val.length == q.visibleChoices.length;
+  }
+  FunctionFactory.Instance.register("isAllChecksSet", isAllChecksSet);
+  var survey = new SurveyModel({
+        questions: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }, {type:"text", name: "q2", visibleIf: "isAllChecksSet('q1') == true"}]
+  });
+  var q = survey.getQuestionByName("q2");
+  assert.equal(q.isVisible, false, "all checks are unset");
+  survey.setValue("q1", ["yes", "no"]);
+  assert.equal(q.isVisible, true, "all checks are set");
+  survey.setValue("q1", ["yes"]);
+  assert.equal(q.isVisible, false, "not all checks are set");
+  FunctionFactory.Instance.unregister("isAllChecksSet");
 });
 QUnit.test("visibleIf, bug#729", function(assert) {
   var survey = new SurveyModel({

@@ -106,7 +106,11 @@ export class FunctionOperand extends Operand {
     for (var i = 0; i < this.parameters.length; i++) {
       paramValues.push(this.parameters[i].getValue(processValue));
     }
-    return FunctionFactory.Instance.run(this.origionalValue, paramValues);
+    return FunctionFactory.Instance.run(
+      this.origionalValue,
+      paramValues,
+      processValue.properties
+    );
   }
   public toString() {
     var res = this.origionalValue + "(";
@@ -386,9 +390,10 @@ export class ExpressionRunner {
     this.expressionValue = value;
     this.operand = new ConditionsParser().parseExpression(this.expressionValue);
   }
-  public run(values: HashTable<any>): any {
+  public run(values: HashTable<any>, properties: HashTable<any> = null): any {
     if (!this.operand) return null;
     this.processValue.values = values;
+    this.processValue.properties = properties;
     return this.operand.getValue(this.processValue);
   }
 }
@@ -407,10 +412,14 @@ export class ConditionRunner {
     this.expressionValue = value;
     new ConditionsParser().parse(this.expressionValue, this.root);
   }
-  public run(values: HashTable<any>): boolean {
+  public run(
+    values: HashTable<any>,
+    properties: HashTable<any> = null
+  ): boolean {
     var condition = new ConditionOperand(this.root);
     var processValue = new ProcessValue();
     processValue.values = values;
+    processValue.properties = properties;
     return <boolean>condition.getValue(processValue);
   }
 }

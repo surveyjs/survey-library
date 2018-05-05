@@ -1154,6 +1154,14 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
+  getFilteredValues(): any { 
+    var values = {};
+    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
+    for (var key in this.valuesHash) values[key] = this.valuesHash[key];
+    return values;
+  }
+  getFilteredProperties(): any { return {survey: this}; }
+  
   public set data(data: any) {
     this.valuesHash = {};
     if (data) {
@@ -2178,10 +2186,8 @@ export class SurveyModel extends Base
   private runConditions() {
     this.runConditionsState = "running";
     var pages = this.pages;
-    var values = {};
-    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    for (var key in this.valuesHash) values[key] = this.valuesHash[key];
-    var properties = {survey: this};
+    var values = this.getFilteredValues();
+    var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
     }

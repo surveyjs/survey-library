@@ -9,6 +9,8 @@ export interface ISurveyData {
   getComment(name: string): string;
   setComment(name: string, newValue: string);
   getAllValues(): any;
+  getFilteredValues(): any;
+  getFilteredProperties(): any;
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;

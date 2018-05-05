@@ -181,6 +181,8 @@ export class MultipleTextItemModel extends Base
     if (this.data) return this.data.getAllValues();
     return this.value;
   }
+  getFilteredValues(): any { return this.getAllValues(); }
+  getFilteredProperties(): any { return {}; }
   //IValidatorOwner
   getValidatorTitle(): string {
     return this.title;

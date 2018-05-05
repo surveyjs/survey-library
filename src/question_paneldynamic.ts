@@ -85,6 +85,8 @@ export class QuestionPanelDynamicItem
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }
+  getFilteredValues(): any { return this.getAllValues(); }
+  getFilteredProperties(): any { return {}; }
   geSurveyData(): ISurveyData {
     return this;
   }
@@ -842,8 +844,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private reRunCondition() {
     if (!this.data) return;
-    var properties = { survey: this.survey};
-    this.runCondition(this.data.getAllValues(), properties);
+    this.runCondition(this.data.getFilteredValues(), this.data.getFilteredProperties());
   }
   protected runPanelsCondition(values: HashTable<any>, properties: HashTable<any>) {
     var newValues = {};

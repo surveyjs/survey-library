@@ -1176,3 +1176,31 @@ QUnit.test("questiontext.maxLength", function(assert) {
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
 });
+
+QUnit.test("runCondition on adding element into survey", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q = new QuestionCheckboxModel("cars");
+  q.visibleIf = "{val} = 1";
+  page.addElement(q);
+  assert.equal(q.isVisible, false, "It should be invisible");
+});
+
+QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionRadiogroupModel("bestCar");
+  qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.choicesVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleChoices.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleChoices.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleChoices.length, 3, "3 cars are selected");
+  qBestCar.choicesVisibleIf = "";
+  assert.equal(qBestCar.visibleChoices.length, 4, "there is no filter");
+});

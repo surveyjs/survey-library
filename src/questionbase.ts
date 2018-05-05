@@ -58,7 +58,15 @@ export class QuestionBase extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    if (this.survey && this.survey.isDesignMode) this.onVisibleChanged();
+    if (this.survey && this.survey.isDesignMode) {
+      this.onVisibleChanged();
+    }
+    if (this.data && !this.isLoadingFromJson) {
+      this.runCondition(
+        this.data.getFilteredValues(),
+        this.data.getFilteredProperties()
+      );
+    }
   }
   /**
    * A parent element. It can be panel or page.
@@ -375,12 +383,16 @@ export class QuestionBase extends SurveyElement
   public getLocale(): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getLocale()
-      : this.locOwner ? this.locOwner.getLocale() : "";
+      : this.locOwner
+        ? this.locOwner.getLocale()
+        : "";
   }
   public getMarkdownHtml(text: string) {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
-      : this.locOwner ? this.locOwner.getMarkdownHtml(text) : null;
+      : this.locOwner
+        ? this.locOwner.getMarkdownHtml(text)
+        : null;
   }
 }
 JsonObject.metaData.addClass("questionbase", [

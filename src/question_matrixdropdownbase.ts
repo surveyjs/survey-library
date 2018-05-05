@@ -459,6 +459,8 @@ export class MatrixDropdownRowModelBase
   getAllValues(): any {
     return this.value;
   }
+  getFilteredValues(): any { return this.getAllValues(); }
+  getFilteredProperties(): any { return {}; }
   public set value(value: any) {
     this.isSettingValue = true;
     this.rowValues = {};

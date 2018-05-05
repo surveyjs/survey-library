@@ -2,18 +2,22 @@ import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
 import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
+import { ConditionRunner } from "./conditions";
 import { setFlagsFromString } from "v8";
+import { timingSafeEqual } from "crypto";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
  */
 export class QuestionSelectBase extends Question {
   private visibleChoicesCache: Array<ItemValue> = null;
+  private filteredChoicesValue: Array<ItemValue> = null;
+  private conditionChoicesVisibleIfRunner: ConditionRunner;
   private commentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   protected cachedValue: any;
@@ -65,6 +69,89 @@ export class QuestionSelectBase extends Question {
     return this.getStoreOthersAsComment()
       ? this.getHasOther(this.value)
       : this.getHasOther(this.cachedValue);
+  }
+  /**
+   * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
+   * @see visibleIf
+   */
+  public get choicesVisibleIf(): string {
+    return this.getPropertyValue("choicesVisibleIf", "");
+  }
+  public set choicesVisibleIf(val: string) {
+    this.setPropertyValue("choicesVisibleIf", val);
+    this.filterItems();
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    this.runItemsCondition(values, properties);
+  }
+  protected filterItems(): boolean {
+    if (this.isLoadingFromJson || !this.data) return false;
+    return this.runItemsCondition(
+      this.data.getFilteredValues(),
+      this.data.getFilteredProperties()
+    );
+  }
+  protected runItemsCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): boolean {
+    var itemValue = values["item"];
+    this.setConditionalChoicesRunner();
+    var hasChanges = this.runConditionsForItems(values, properties);
+    if (this.filteredChoicesValue.length === this.activeChoices.length) {
+      this.filteredChoicesValue = null;
+    }
+    if (itemValue) {
+      values["item"] = itemValue;
+    } else {
+      delete values["item"];
+    }
+    if (hasChanges) {
+      this.onVisibleChoicesChanged();
+    }
+    return hasChanges;
+  }
+  private setConditionalChoicesRunner() {
+    if (this.choicesVisibleIf) {
+      if (!this.conditionChoicesVisibleIfRunner) {
+        this.conditionChoicesVisibleIfRunner = new ConditionRunner(
+          this.choicesVisibleIf
+        );
+      }
+      this.conditionChoicesVisibleIfRunner.expression = this.choicesVisibleIf;
+    } else {
+      this.conditionChoicesVisibleIfRunner = null;
+    }
+  }
+  private runConditionsForItems(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): boolean {
+    this.filteredChoicesValue = [];
+    var choices = this.activeChoices;
+    var hasChanded = false;
+    for (var i = 0; i < choices.length; i++) {
+      var item = choices[i];
+      values["item"] = item.value;
+      var runner = this.getConditionRunnerByItem(item);
+      if (runner) {
+        var vis = runner.run(values, properties);
+        if (vis) {
+          this.filteredChoicesValue.push(item);
+        }
+        if (vis != item.isVisible) {
+          hasChanded = true;
+          item.setIsVisible(vis);
+        }
+      } else {
+        this.filteredChoicesValue.push(item);
+      }
+    }
+    return hasChanded;
+  }
+  private getConditionRunnerByItem(item: ItemValue) {
+    return this.conditionChoicesVisibleIfRunner;
   }
   protected getHasOther(val: any): boolean {
     return val == this.otherItem.value;
@@ -132,7 +219,9 @@ export class QuestionSelectBase extends Question {
   }
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
-    this.onVisibleChoicesChanged();
+    if (!this.filterItems()) {
+      this.onVisibleChoicesChanged();
+    }
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
@@ -198,10 +287,10 @@ export class QuestionSelectBase extends Question {
    */
   public get visibleChoices(): Array<ItemValue> {
     if (!this.hasOther && this.choicesOrder == "none")
-      return this.activeChoices;
+      return this.filteredChoices;
     if (!this.visibleChoicesCache) {
       this.visibleChoicesCache = this.sortVisibleChoices(
-        this.activeChoices.slice()
+        this.filteredChoices.slice()
       );
       if (this.hasOther) {
         this.visibleChoicesCache.push(this.otherItem);
@@ -225,6 +314,11 @@ export class QuestionSelectBase extends Question {
       return this.comment ? this.comment : this.locOtherText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
+  }
+  private get filteredChoices(): Array<ItemValue> {
+    return this.filteredChoicesValue
+      ? this.filteredChoicesValue
+      : this.activeChoices;
   }
   private get activeChoices(): Array<ItemValue> {
     return this.choicesFromUrl ? this.choicesFromUrl : this.choices;
@@ -426,6 +520,7 @@ JsonObject.metaData.addClass(
         obj.choicesByUrl.setData(value);
       }
     },
+    "choicesVisibleIf:condition",
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
     { name: "storeOthersAsComment:boolean", default: true }

@@ -82,11 +82,14 @@ export class ItemValue {
     "locOwner",
     "locText",
     "isValueEmpty",
+    "isVisible",
+    "isVisibleValue",
     "locTextValue",
     "pos"
   ];
   private itemValue: any;
   private locTextValue: LocalizableString;
+  private isVisibleValue: boolean = true;
   constructor(value: any, text: string = null) {
     this.locTextValue = new LocalizableString(null, true);
     var self = this;
@@ -160,6 +163,12 @@ export class ItemValue {
     } else {
       this.value = value;
     }
+  }
+  public get isVisible() {
+    return this.isVisibleValue;
+  }
+  public setIsVisible(val: boolean) {
+    this.isVisibleValue = val;
   }
   private get isValueEmpty() {
     return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;

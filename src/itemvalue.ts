@@ -1,6 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
 import { Helpers } from "./helpers";
+import { ConditionRunner } from "./conditions";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -85,11 +86,14 @@ export class ItemValue {
     "isVisible",
     "isVisibleValue",
     "locTextValue",
+    "conditionRunner",
     "pos"
   ];
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
+  private conditionRunner: ConditionRunner;
+
   constructor(value: any, text: string = null) {
     this.locTextValue = new LocalizableString(null, true);
     var self = this;
@@ -164,11 +168,19 @@ export class ItemValue {
       this.value = value;
     }
   }
+  public visibleIf: string;
   public get isVisible() {
     return this.isVisibleValue;
   }
   public setIsVisible(val: boolean) {
     this.isVisibleValue = val;
+  }
+  public getConditionRunner(): ConditionRunner {
+    if (!this.visibleIf) return null;
+    if (!this.conditionRunner)
+      this.conditionRunner = new ConditionRunner(this.visibleIf);
+    this.conditionRunner.expression = this.visibleIf;
+    return this.conditionRunner;
   }
   private get isValueEmpty() {
     return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;
@@ -210,5 +222,6 @@ JsonObject.metaData.addClass("itemvalue", [
     onGetValue: function(obj: any) {
       return obj.locText.pureText;
     }
-  }
+  },
+  { name: "visibleIf", visible: false }
 ]);

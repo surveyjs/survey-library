@@ -1204,3 +1204,30 @@ QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
   qBestCar.choicesVisibleIf = "";
   assert.equal(qBestCar.visibleChoices.length, 4, "there is no filter");
 });
+
+QUnit.test("itemValue.visibleIf", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q",
+        choices: [
+          { value: "contactbyphone", visibleIf: "{phone} notempty" },
+          { value: "contactbyemail", visibleIf: "{email} notempty" }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionCheckboxModel>survey.getQuestionByName("q");
+  assert.equal(
+    q.choices[0].visibleIf,
+    "{phone} notempty",
+    "itemValue.visibleIf loaded correctly"
+  );
+  assert.equal(q.visibleChoices.length, 0, "Nothing is set");
+  survey.setValue("phone", "1");
+  assert.equal(q.visibleChoices.length, 1, "phone is set");
+  survey.setValue("email", "2");
+  assert.equal(q.visibleChoices.length, 2, "phone and e-mail are set");
+});

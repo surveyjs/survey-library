@@ -150,8 +150,9 @@ export class QuestionSelectBase extends Question {
     }
     return hasChanded;
   }
-  private getConditionRunnerByItem(item: ItemValue) {
-    return this.conditionChoicesVisibleIfRunner;
+  private getConditionRunnerByItem(item: ItemValue): ConditionRunner {
+    var runner = item.getConditionRunner();
+    return runner ? runner : this.conditionChoicesVisibleIfRunner;
   }
   protected getHasOther(val: any): boolean {
     return val == this.otherItem.value;

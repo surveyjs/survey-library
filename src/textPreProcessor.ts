@@ -25,7 +25,7 @@ export class TextPreProcessor {
     for (var i = items.length - 1; i >= 0; i--) {
       var item = items[i];
       var name = this.getName(text.substring(item.start + 1, item.end));
-      if (!this.canProcessName(name)) continue;
+      if (!name) continue;
       var textValue = new TextPreProcessorValue(name, returnDisplayValue);
       this.onProcess(textValue);
       if (!textValue.isExists) {
@@ -71,13 +71,5 @@ export class TextPreProcessor {
   private getName(name: string): string {
     if (!name) return;
     return name.trim();
-  }
-  private canProcessName(name: string): boolean {
-    if (!name) return false;
-    for (var i = 0; i < name.length; i++) {
-      var ch = name[i];
-      if (ch == " " || ch == "-" || ch == "&") return false;
-    }
-    return true;
   }
 }

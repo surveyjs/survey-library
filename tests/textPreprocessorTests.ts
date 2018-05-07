@@ -19,13 +19,9 @@ QUnit.test("Replace simple names", function(assert) {
   result = processor.process("test1{111}");
   assert.equal(result, "test1aaa111", "at the end");
   result = processor.process("test1{aaa bbb}");
-  assert.equal(result, "test1{aaa bbb}", "do not process several words");
+  assert.equal(result, "test1aaaaaa bbb", "several words");
   result = processor.process("test1{aaa-bbb}");
-  assert.equal(
-    result,
-    "test1{aaa-bbb}",
-    "do not process several words separed by any symbols"
-  );
+  assert.equal(result, "test1aaaaaa-bbb", "complex name");
   result = processor.process("test1{   bbb   }");
   assert.equal(result, "test1aaabbb", "removespaces");
   result = processor.process("test1{ }");

@@ -834,3 +834,11 @@ QUnit.test("ConditionsParser, parse array successfully", function(assert) {
   assert.ok(parser.createCondition("{a} = ['item1', 'item2']"));
   assert.notOk(parser.error, "There is no errors");
 });
+
+QUnit.test("Variable may have '-' and '+' in their names", function(assert) {
+  var runner = new ConditionRunner("{2-3+4} = 1");
+  var values = { "2-3+4": 1 };
+  assert.equal(runner.run(values), true, "1 = 1");
+  values = { "2-3+4": 2 };
+  assert.equal(runner.run(values), false, "2 != 1");
+});

@@ -3955,6 +3955,19 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Process text with question name containing '-' and '+', Bug #1080",
+  function(assert) {
+    var json = {elements: [ { type: "text", name: "1-2+3" }, { type: "text", name: "age", visibleIf: "{1-2+3} notempty", title: "Hi, {1-2+3}" } ]};
+    var survey = new SurveyModel(json);
+    var qAge = <Question>survey.getQuestionByName("age");
+    assert.equal(qAge.isVisible, false, "It is hidden by default");
+    survey.setValue("1-2+3", "John");
+    assert.equal(qAge.isVisible, true, "It is visible now");
+    assert.equal(qAge.locTitle.renderedHtml, "2. Hi, John", "title processed correctly");
+  }
+);
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

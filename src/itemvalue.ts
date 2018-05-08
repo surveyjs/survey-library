@@ -79,6 +79,8 @@ export class ItemValue {
   private static itemValueProp = [
     "text",
     "value",
+    "visibleIfValue",
+    "visibleIf",
     "hasText",
     "locOwner",
     "locText",
@@ -89,6 +91,7 @@ export class ItemValue {
     "conditionRunner",
     "pos"
   ];
+  private visibleIfValue: string = "";
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
@@ -143,11 +146,12 @@ export class ItemValue {
   public getData(): any {
     var customAttributes = this.getCustomAttributes();
     var textJson = this.locText.getJson();
-    if (!customAttributes && !textJson) return this.value;
+    if (!customAttributes && !textJson && !this.visibleIf) return this.value;
     var value = this.value;
     if (value && value["pos"]) delete value["pos"];
     var result = { value: value };
     if (textJson) result["text"] = textJson;
+    if (this.visibleIf) result["visibleIf"] = this.visibleIf;
     if (customAttributes) {
       for (var key in customAttributes) {
         result[key] = customAttributes[key];
@@ -161,6 +165,7 @@ export class ItemValue {
       if (this.isObjItemValue(value)) {
         value.itemValue = value.itemValue;
         this.locText.setJson(value.locText.getJson());
+        if (value.visibleIf) this.visibleIf = value.visibleIf;
         exception = ItemValue.itemValueProp;
       }
       this.copyAttributes(value, exception);
@@ -168,7 +173,12 @@ export class ItemValue {
       this.value = value;
     }
   }
-  public visibleIf: string;
+  public get visibleIf(): string {
+    return this.visibleIfValue;
+  }
+  public set visibleIf(val: string) {
+    this.visibleIfValue = val;
+  }
   public get isVisible() {
     return this.isVisibleValue;
   }
@@ -223,5 +233,5 @@ JsonObject.metaData.addClass("itemvalue", [
       return obj.locText.pureText;
     }
   },
-  { name: "visibleIf", visible: false }
+  { name: "visibleIf:condition", visible: false }
 ]);

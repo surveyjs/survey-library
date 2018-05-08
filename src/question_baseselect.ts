@@ -86,7 +86,7 @@ export class QuestionSelectBase extends Question {
     this.runItemsCondition(values, properties);
   }
   protected filterItems(): boolean {
-    if (this.isLoadingFromJson || !this.data) return false;
+    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
     return this.runItemsCondition(
       this.data.getFilteredValues(),
       this.data.getFilteredProperties()

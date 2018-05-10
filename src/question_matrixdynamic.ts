@@ -30,6 +30,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public static MaxRowCount = 100;
   private rowCounter = 0;
   private rowCountValue: number = 2;
+  private initialRowCount: number = 2;
   rowCountChangedCallback: () => void;
 
   constructor(public name: string) {
@@ -79,7 +80,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       qVal.splice(val);
       this.value = qVal;
     }
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) {
+      this.initialRowCount = this.rowCount;
+      return;
+    }
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows.splice(val);
       for (var i = prevValue; i < val; i++) {
@@ -349,11 +353,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected onBeforeValueChanged(val: any) {
     var newRowCount = val && Array.isArray(val) ? val.length : 0;
-    if (newRowCount <= this.rowCount) return;
-    this.rowCountValue = newRowCount;
+    if (newRowCount <= this.rowCount && newRowCount > 0) return;
+    this.rowCountValue = newRowCount || this.initialRowCount;
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows = null;
       this.generatedVisibleRows = this.visibleRows;
+      this.fireCallback(this.rowCountChangedCallback);
     }
   }
   protected createNewValue(curValue: any): any {

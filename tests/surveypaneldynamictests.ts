@@ -1352,6 +1352,32 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
     "The question in dynamic panel should be readonly"
   );
 });
+
+QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
+  assert
+) {
+  var json = {
+    isSinglePage: true,
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.ok(panel.template.survey, "The survey is set for template");
+  assert.ok(panel.panels[0].questions[0].survey, "The survey is set for panel");
+});
+
 /* Think about this-
 QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
     var survey = new SurveyModel();

@@ -958,10 +958,10 @@ export class QuestionPanelDynamicModel extends Question
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
     if (
       !QuestionPanelDynamicModel.isPanelRemoving &&
-      newPanelCount <= this.panelCount && newPanelCount > 0
+      newPanelCount <= this.panelCount
     )
       return;
-    this.panelCount = newPanelCount || this.loadingPanelCount;
+    this.panelCount = newPanelCount;
   }
   public onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);

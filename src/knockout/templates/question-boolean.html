@@ -3,7 +3,7 @@
         <label data-bind="css: question.getItemCss()">
             <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, checked: question.koCheckedValue, surveyProp: {indeterminate: question.koIndeterminate}, enable: !question.koIsReadOnly()"
             />
-            <span class="checkbox-material">
+            <span data-bind="css: question.koCss().materialDecorator">
                 <span class="check"></span>
             </span>
             <span data-bind="css: question.koCss().label">

@@ -151,7 +151,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className="checkbox-material">
+          <span className={this.cssClasses.materialDecorator}>
             <span className="check" />
           </span>
           <span className={this.cssClasses.controlLabel}>{text}</span>

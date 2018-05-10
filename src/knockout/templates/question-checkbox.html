@@ -5,7 +5,7 @@
             <label data-bind="css: question.koCss().label">
                 <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml }, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"
                 />
-                <span class="checkbox-material">
+                <span data-bind="css: question.koCss().materialDecorator">
                     <span class="check"></span>
                 </span>
                 <span data-bind="css: question.koCss().controlLabel">

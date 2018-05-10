@@ -45,13 +45,19 @@ export var defaultStandardCss = {
   panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
   error: { root: "sv_q_erbox", icon: "", item: "" },
 
-  boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox", label: "" },
+  boolean: {
+    root: "sv_qcbc sv_qbln",
+    item: "sv_q_checkbox",
+    label: "",
+    materialDecorator: "checkbox-material"
+  },
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
     controlLabel: "sv_q_checkbox_control_label",
+    materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other"
   },
   comment: "",

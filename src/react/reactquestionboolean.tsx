@@ -58,7 +58,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className="checkbox-material">
+          <span className={cssClasses.materialDecorator}>
             <span className="check" />
           </span>
           <span className={cssClasses.label}>{text}</span>

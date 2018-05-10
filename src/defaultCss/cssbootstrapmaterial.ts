@@ -44,12 +44,18 @@ export var defaultBootstrapMaterialCss = {
     item: ""
   },
 
-  boolean: { root: "sv_qbln form-inline checkbox", item: "", label: "" },
+  boolean: {
+    root: "sv_qbln form-inline checkbox",
+    item: "",
+    label: "",
+    materialDecorator: "checkbox-material"
+  },
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
     itemControl: "",
     controlLabel: "",
+    materialDecorator: "checkbox-material",
     other: "sv_q_checkbox_other"
   },
   comment: "form-control",

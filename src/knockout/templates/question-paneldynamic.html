@@ -4,11 +4,11 @@
         <!-- ko foreach: { data: question.koPanels } -->
         <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
         <!-- /ko -->
-        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText"
+        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
         />
         <hr/>
         <!-- /ko -->
-        <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button, value: question.panelAddText"
+        <input type="button" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.panelAddText"
         />
         <!-- /ko -->
         <!-- ko ifnot: question.koIsList()  -->
@@ -18,7 +18,7 @@
         </div>
         <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
         <!-- /ko -->
-        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button, value: question.panelRemoveText"
+        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
         />
         <div data-bind="visible:question.koIsProgressBottom">
             <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->

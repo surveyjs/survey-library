@@ -180,7 +180,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   ): JSX.Element {
     return (
       <input
-        className={cssClasses.button}
+        className={cssClasses.button + " " + cssClasses.buttonAdd}
         style={style}
         type="button"
         onClick={onClick}
@@ -244,7 +244,7 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
     var style = { marginTop: "5px" };
     return (
       <input
-        className={this.cssClasses.button}
+        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
         style={style}
         type="button"
         onClick={this.handleOnPanelRemoveClick}

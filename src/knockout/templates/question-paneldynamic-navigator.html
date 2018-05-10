@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-paneldynamic-navigator">
     <input type="range" min="0" style="width:25%;float:left;margin:5px" data-bind="visible: koIsRange, value: question.koRangeValue, attr: {max: question.koRangeMax}" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsPrevButton, click:question.koPrevPanelClick, css: question.koCss().button, value: question.panelPrevText" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsNextButton, click:question.koNextPanelClick, css: question.koCss().button, value: question.panelNextText" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button, value: question.panelAddText" />
+    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsPrevButton, click:question.koPrevPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonPrev, value: question.panelPrevText" />
+    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsNextButton, click:question.koNextPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonNext, value: question.panelNextText" />
+    <input type="button" style="float:left;margin:5px" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.panelAddText" />
 </script>

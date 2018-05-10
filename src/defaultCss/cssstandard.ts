@@ -74,7 +74,15 @@ export var defaultStandardCss = {
     buttonAdd: "",
     buttonRemove: ""
   },
-  paneldynamic: { root: "sv_panel_dynamic", title: "sv_p_title", button: "" },
+  paneldynamic: {
+    root: "sv_panel_dynamic",
+    title: "sv_p_title",
+    button: "",
+    buttonPrev: "",
+    buttonNext: "",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   multipletext: {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",

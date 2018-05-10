@@ -70,7 +70,14 @@ export var defaultBootstrapMaterialCss = {
     buttonAdd: "",
     buttonRemove: ""
   },
-  paneldynamic: { root: "", button: "button" },
+  paneldynamic: {
+    root: "",
+    button: "button",
+    buttonPrev: "",
+    buttonNext: "",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   multipletext: {
     root: "table",
     itemTitle: "",

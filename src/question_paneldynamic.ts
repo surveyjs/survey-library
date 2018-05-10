@@ -43,11 +43,14 @@ export class QuestionPanelDynamicItem
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.panel.setSurveyImpl(this);
+    this.setSurveyImpl();
     this.panel.updateCustomWidgets();
   }
   public get panel(): PanelModel {
     return this.panelValue;
+  }
+  public setSurveyImpl() {
+    this.panel.setSurveyImpl(this);
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     this.panel.runCondition(values, properties);
@@ -85,8 +88,12 @@ export class QuestionPanelDynamicItem
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }
-  getFilteredValues(): any { return this.getAllValues(); }
-  getFilteredProperties(): any { return {}; }
+  getFilteredValues(): any {
+    return this.getAllValues();
+  }
+  getFilteredProperties(): any {
+    return {};
+  }
   geSurveyData(): ISurveyData {
     return this;
   }
@@ -521,6 +528,11 @@ export class QuestionPanelDynamicModel extends Question
   public set panelsState(val: string) {
     this.setPropertyValue("panelsState", val);
   }
+  private setPanelsSurveyImpl() {
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].setSurveyImpl();
+    }
+  }
   private setPanelsState() {
     if (this.isDesignMode || this.renderMode != "list") return;
     for (var i = 0; i < this.items.length; i++) {
@@ -835,6 +847,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isDesignMode) {
       this.rebuildPanels();
     }
+    this.setPanelsSurveyImpl();
     this.setPanelsState();
     super.onSurveyLoad();
   }
@@ -844,9 +857,15 @@ export class QuestionPanelDynamicModel extends Question
   }
   private reRunCondition() {
     if (!this.data) return;
-    this.runCondition(this.data.getFilteredValues(), this.data.getFilteredProperties());
+    this.runCondition(
+      this.data.getFilteredValues(),
+      this.data.getFilteredProperties()
+    );
   }
-  protected runPanelsCondition(values: HashTable<any>, properties: HashTable<any>) {
+  protected runPanelsCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
     var newValues = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));

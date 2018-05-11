@@ -354,13 +354,18 @@ export class QuestionMatrixModel extends Question
     }
     this.isRowChanging = false;
   }
-  public get displayValue(): any {
+  public getDisplayValue(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
+    var res = {};
     for (var key in values) {
-      values[key] = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
+      var newKey = keysAsText ? ItemValue.getTextOrHtmlByValue(this.rows, key): key;
+      if (!newKey) newKey = key;
+      var newValue = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
+      if (!newValue) newValue = values[key];
+      res[newKey] = newValue;
     }
-    return values;
+    return res;
   }
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.rows.length; i++) {

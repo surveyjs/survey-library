@@ -359,8 +359,11 @@ export class QuestionBase extends SurveyElement
    */
   public clearIncorrectValues() {}
   public clearUnusedValues() {}
-  public get displayValue(): any {
+  public getDisplayValue(keysAsText: boolean): any {
     return "";
+  }
+  public get displayValue(): any {
+    return this.getDisplayValue(true);
   }
   public get value(): any {
     return null;

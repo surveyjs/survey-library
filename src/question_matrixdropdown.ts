@@ -49,15 +49,22 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdown";
   }
-  public get displayValue(): any {
+  public getDisplayValue(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
     var rows = this.visibleRows;
+    var res = {};
     for (var i = 0; i < rows.length; i++) {
       var rowValue = this.rows[i].value;
       var val = values[rowValue];
       if (!val) continue;
-      values[rowValue] = this.getRowDisplayValue(rows[i], val);
+      if(keysAsText) {
+        var displayRowValue = ItemValue.getTextOrHtmlByValue(this.rows, rowValue);
+        if(!!displayRowValue) {
+          rowValue = displayRowValue;
+        }
+      }
+      res[rowValue] = this.getRowDisplayValue(rows[i], val);
     }
     return values;
   }

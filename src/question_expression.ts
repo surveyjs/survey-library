@@ -55,7 +55,7 @@ export class QuestionExpressionModel extends Question {
     this.value = this.expressionRunner.run(values, properties);
     this.expressionIsRunning = false;
   }
-  public get displayValue(): any {
+  public getDisplayValue(keysAsText: boolean): any {
     var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
     if (this.isValueEmpty(val)) return "";
     var str = this.getValueAsStr(val);

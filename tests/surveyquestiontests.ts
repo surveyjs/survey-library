@@ -203,6 +203,20 @@ QUnit.test(
     );
   }
 );
+QUnit.test("matrix.displayValue, bug #1087", function(assert) {
+  var question = new QuestionMatrixModel("q1");
+  question.rows = [{ value: 1, text: "Row 1" }, { value: 2, text: "Row 2" }];
+  question.columns = [
+    { value: 1, text: "Column 1" },
+    { value: 2, text: "Column 2" }
+  ];
+  question.value = { 1: 1, 2: 2 };
+  assert.deepEqual(
+    question.displayValue,
+    { "Row 1": "Column 1", "Row 2": "Column 2" },
+    "matrix question displayValue works correctly"
+  );
+});
 QUnit.test("Question Title property", function(assert) {
   var question = new QuestionTextModel("q1");
   assert.equal(question.title, "q1", "get the question name by default");

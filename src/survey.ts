@@ -2426,7 +2426,7 @@ export class SurveyModel extends Base
       name = name.toLocaleLowerCase();
       var values = {};
       values[firstName] = textValue.returnDisplayValue
-        ? question.displayValue
+        ? question.getDisplayValue(false)
         : question.value;
       textValue.value = new ProcessValue().getValue(name, values);
       return;

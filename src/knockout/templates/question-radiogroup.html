@@ -5,7 +5,7 @@
             <label data-bind="css: question.koCss().label">
                 <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml}, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"
                 />
-                <span class="circle"></span>
+                <span data-bind="css: question.koCss().materialDecorator"></span>
                 <span class="check"></span>
                 <span data-bind="css: question.koCss().controlLabel">
                     <!-- ko template: { name: 'survey-string', data: item.locText } -->

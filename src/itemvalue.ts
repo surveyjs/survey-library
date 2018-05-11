@@ -89,7 +89,8 @@ export class ItemValue {
     "isVisibleValue",
     "locTextValue",
     "conditionRunner",
-    "pos"
+    "pos",
+    "survey"
   ];
   private visibleIfValue: string = "";
   private itemValue: any;

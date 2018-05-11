@@ -3,7 +3,7 @@
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
                 <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <span class="circle"></span>
+                <span :class="question.cssClasses.materialDecorator"></span>
                 <span class="check"></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
                 <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :class="question.cssClasses.other" :question="question"/>

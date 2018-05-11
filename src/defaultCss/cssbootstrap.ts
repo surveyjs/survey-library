@@ -92,6 +92,7 @@ export var defaultBootstrapCss = {
     label: "",
     itemControl: "",
     controlLabel: "",
+    materialDecorator: "circle",
     other: "sv_q_radiogroup_other"
   },
   rating: {

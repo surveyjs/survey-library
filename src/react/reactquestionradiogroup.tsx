@@ -102,7 +102,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className="circle" />
+          <span className={cssClasses.materialDecorator} />
           <span className="check" />
           <span className={cssClasses.controlLabel}>{itemText}</span>
         </label>

@@ -57,6 +57,7 @@ export class Helpers {
   ): boolean {
     if (x === y) return true;
     if ((x && !y) || (!x && y)) return false;
+    if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y))

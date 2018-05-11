@@ -416,7 +416,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
       this.clearValue();
     }
   }
-  public get displayValue(): any {
+  public getDisplayValue(keysAsText: boolean): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this);
       if (res) return res;

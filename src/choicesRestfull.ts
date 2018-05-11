@@ -172,7 +172,11 @@ export class ChoicesRestfull extends Base {
     var properties = JsonObject.metaData.getProperties(this.itemValueType);
     var res = [];
     for (var i = 0; i < properties.length; i++) {
-      if (properties[i].name === "value" || properties[i].name === "text")
+      if (
+        properties[i].name === "value" ||
+        properties[i].name === "text" ||
+        properties[i].name === "visibleIf"
+      )
         continue;
       res.push(properties[i]);
     }

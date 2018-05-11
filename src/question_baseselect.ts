@@ -108,6 +108,9 @@ export class QuestionSelectBase extends Question {
       delete values["item"];
     }
     if (hasChanges) {
+      if (!!this.filteredChoicesValue) {
+        this.clearIncorrectValues();
+      }
       this.onVisibleChoicesChanged();
     }
     return hasChanges;
@@ -209,7 +212,7 @@ export class QuestionSelectBase extends Question {
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
     if (!val) return false;
     if (includeOther && val == this.otherItem.value) return false;
-    return ItemValue.getItemByValue(this.activeChoices, val) == null;
+    return ItemValue.getItemByValue(this.filteredChoices, val) == null;
   }
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.

@@ -61,6 +61,7 @@ export class ChoicesRestfull extends Base {
     return true;
   }
   private lastObjHash: string = "";
+  private isRunningValue: boolean = false;
   protected processedUrl: string = "";
   protected processedPath: string = "";
   public getResultCallback: (items: Array<ItemValue>) => void;
@@ -85,6 +86,12 @@ export class ChoicesRestfull extends Base {
     if (this.useChangedItemsResults()) return;
     this.error = null;
     this.sendRequest();
+  }
+  public get isRunning() {
+    return this.isRunningValue;
+  }
+  public get isWaitingForParameters() {
+    return this.url && !this.processedUrl;
   }
   protected useChangedItemsResults(): boolean {
     return ChoicesRestfull.getCachedItemsResult(this);
@@ -134,11 +141,13 @@ export class ChoicesRestfull extends Base {
     return parsedResponse;
   }
   protected sendRequest() {
+    this.isRunningValue = true;
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     xhr.onload = function() {
+      self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response));
       } else {

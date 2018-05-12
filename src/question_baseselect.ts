@@ -185,7 +185,13 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected setNewValue(newValue: any) {
-    this.cachedValueForUrlRequests = newValue;
+    if (
+      (!this.choicesByUrl.isRunning &&
+        !this.choicesByUrl.isWaitingForParameters) ||
+      !this.isValueEmpty(newValue)
+    ) {
+      this.cachedValueForUrlRequests = newValue;
+    }
     super.setNewValue(newValue);
   }
   protected valueFromData(val: any): any {

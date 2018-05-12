@@ -44,8 +44,14 @@ class TextProcessorTester implements ITextProcessor {
 }
 
 class QuestionDropdownModelTester extends QuestionDropdownModel {
+  oldGetResultCallback: any;
   constructor(name: string) {
     super(name);
+    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+    var self = this;
+    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+      self.newGetResultCallback(items);
+    };
   }
   public getType(): string {
     return "dropdownrestfulltester";
@@ -54,6 +60,20 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
     var res = new ChoicesRestfullTester();
     res.noCaching = true;
     return res;
+  }
+  public hasItemsCallbackDelay: boolean = false;
+  private loadedItems: Array<ItemValue>;
+  public doResultsCallback() {
+    if (this.loadedItems) {
+      this.oldGetResultCallback(this.loadedItems);
+    }
+    this.loadedItems = null;
+  }
+  protected newGetResultCallback(items: Array<ItemValue>) {
+    this.loadedItems = items;
+    if (!this.hasItemsCallbackDelay) {
+      this.doResultsCallback();
+    }
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
@@ -316,6 +336,19 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
   assert.equal(question.visible, false, "And it is again invisible");
+});
+
+QUnit.test("Set value before loading data, bug #1089", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  survey.setValue("q1", "CA");
+  question.doResultsCallback();
+  assert.equal(question.value, "CA", "'CA' value is still here");
 });
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {

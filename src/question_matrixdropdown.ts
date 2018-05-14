@@ -49,7 +49,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdown";
   }
-  public getDisplayValue(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
     var rows = this.visibleRows;
@@ -58,9 +58,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       var rowValue = this.rows[i].value;
       var val = values[rowValue];
       if (!val) continue;
-      if(keysAsText) {
-        var displayRowValue = ItemValue.getTextOrHtmlByValue(this.rows, rowValue);
-        if(!!displayRowValue) {
+      if (keysAsText) {
+        var displayRowValue = ItemValue.getTextOrHtmlByValue(
+          this.rows,
+          rowValue
+        );
+        if (!!displayRowValue) {
           rowValue = displayRowValue;
         }
       }

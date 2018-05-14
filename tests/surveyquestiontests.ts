@@ -203,6 +203,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test("displayValue function for rating question, issue #1094", function(
+  assert
+) {
+  var question = new QuestionRatingModel("q1");
+  question.rateValues = [
+    { value: 1, text: "Value 1" },
+    { value: 2, text: "Value 2" }
+  ];
+  assert.equal(
+    question.displayValue,
+    "",
+    "value is null, displayValue is empty"
+  );
+  question.value = 1;
+  assert.equal(question.displayValue, "Value 1", "the first value is selected");
+  question.value = 2;
+  assert.equal(
+    question.displayValue,
+    "Value 2",
+    "the second value is selected"
+  );
+  question.value = 3;
+  assert.equal(
+    question.displayValue,
+    "3",
+    "there is no value in the list, so show the value"
+  );
+});
 QUnit.test("matrix.displayValue, bug #1087", function(assert) {
   var question = new QuestionMatrixModel("q1");
   question.rows = [{ value: 1, text: "Row 1" }, { value: 2, text: "Row 2" }];

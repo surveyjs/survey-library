@@ -103,6 +103,14 @@ export class QuestionRatingModel extends Question {
     if (val > this.rateMax - this.rateMin) val = this.rateMax - this.rateMin;
     this.setPropertyValue("rateStep", val);
   }
+  protected getDisplayValueCore(keysAsText: boolean): any {
+    if (this.isEmpty()) return "";
+    var res = ItemValue.getTextOrHtmlByValue(
+      this.visibleRateValues,
+      this.value
+    );
+    return !!res ? res : this.value;
+  }
   get visibleRateValues(): ItemValue[] {
     if (this.rateValues.length > 0) return this.rateValues;
     var res = [];

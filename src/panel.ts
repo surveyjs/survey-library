@@ -58,7 +58,9 @@ export class QuestionRowModel {
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isVisible) {
         var q = this.elements[i];
-        q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + "%";
+        // q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + "%";
+        q.renderWidth = q.width ? q.width : (100 / visCount).toFixed(6) + "%";
+
         q.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {

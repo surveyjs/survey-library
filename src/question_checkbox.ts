@@ -10,7 +10,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   constructor(public name: string) {
     super(name);
   }
-  public getDisplayValue(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";
     var items = this.visibleChoices;
     var values = this.value;

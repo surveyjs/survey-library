@@ -311,11 +311,7 @@ export class QuestionSelectBase extends Question {
   /**
    * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
    */
-  public getDisplayValue(keysAsText: boolean): any {
-    if (this.customWidget) {
-      var res = this.customWidget.getDisplayValue(this);
-      if (res) return res;
-    }
+  protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";
     return this.getChoicesDisplayValue(this.visibleChoices, this.value);
   }

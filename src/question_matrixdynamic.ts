@@ -147,7 +147,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
     if (this.data) {
-      this.runCellsCondition(this.data.getFilteredValues(), this.data.getFilteredProperties());
+      this.runCellsCondition(
+        this.data.getFilteredValues(),
+        this.data.getFilteredProperties()
+      );
     }
     if (this.survey) {
       if (prevRowCount + 1 == this.rowCount) this.survey.matrixRowAdded(this);
@@ -251,7 +254,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   get locRemoveRowText() {
     return this.getLocalizableString("removeRowText");
   }
-  public getDisplayValue(keysAsText: boolean): any {
+  protected getDisplayValueCore(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
     var rows = this.visibleRows;

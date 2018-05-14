@@ -354,12 +354,14 @@ export class QuestionMatrixModel extends Question
     }
     this.isRowChanging = false;
   }
-  public getDisplayValue(keysAsText: boolean): any {
+  public getDisplayValueCore(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
     var res = {};
     for (var key in values) {
-      var newKey = keysAsText ? ItemValue.getTextOrHtmlByValue(this.rows, key): key;
+      var newKey = keysAsText
+        ? ItemValue.getTextOrHtmlByValue(this.rows, key)
+        : key;
       if (!newKey) newKey = key;
       var newValue = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
       if (!newValue) newValue = values[key];

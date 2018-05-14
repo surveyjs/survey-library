@@ -421,6 +421,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
       var res = this.customWidget.getDisplayValue(this);
       if (res) return res;
     }
+    return this.getDisplayValueCore(keysAsText);
+  }
+  protected getDisplayValueCore(keyAsText: boolean): any {
     return this.value;
   }
   /**

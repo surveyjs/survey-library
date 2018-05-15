@@ -520,6 +520,24 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Question in panel dynamic where url is depend on value outside panel, bug#1089",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{state}";
+    page.addQuestion(dropDown);
+    assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
+    survey.data = { state: "ca_cities" };
+    assert.equal(
+      dropDown.visibleChoices.length,
+      2,
+      "We have two cities now, CA"
+    );
+  }
+);
+
 QUnit.test("Load countries, custom properties, #615", function(assert) {
   var test = new ChoicesRestfullTester();
   test.noCaching = true;

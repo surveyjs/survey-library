@@ -361,7 +361,9 @@ export class QuestionSelectBase extends Question {
   }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);
-    this.runChoicesByUrl();
+    if (name != this.getValueName()) {
+      this.runChoicesByUrl();
+    }
   }
   private runChoicesByUrl() {
     if (!this.choicesByUrl || this.isLoadingFromJson) return;

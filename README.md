@@ -3,7 +3,13 @@
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
 </a>
-![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif)
+<a href="https://github.com/surveyjs/surveyjs/issues">
+<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/surveyjs.svg">
+</a>
+<a href="https://github.com/surveyjs/surveyjs/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
+<img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/surveyjs.svg">
+</a>
+![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
 
 ## Getting started
 

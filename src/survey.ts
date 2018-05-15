@@ -1179,6 +1179,9 @@ export class SurveyModel extends Base
   protected setDataValueCore(valuesHash: any, key: string, value: any) {
     valuesHash[key] = value;
   }
+  protected deleteDataValueCore(valuesHash: any, key: string) {
+    delete valuesHash[key];
+  }
   /**
    * Returns all comments from the data.
    * @see data
@@ -2520,7 +2523,7 @@ export class SurveyModel extends Base
   public setValue(name: string, newValue: any) {
     if (this.isValueEqual(name, newValue)) return;
     if (this.isValueEmpty(newValue)) {
-      delete this.valuesHash[name];
+      this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
@@ -2591,7 +2594,7 @@ export class SurveyModel extends Base
   public setComment(name: string, newValue: string) {
     var commentName = name + this.commentPrefix;
     if (newValue === "" || newValue === null) {
-      delete this.valuesHash[commentName];
+      this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);
       this.tryGoNextPageAutomatic(name);

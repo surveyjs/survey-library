@@ -5,7 +5,7 @@
                 <input type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId + '_' + item.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span :class="question.cssClasses.materialDecorator"><span class="check"></span></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
-                <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :class="question.cssClasses.other" :question="question" />
+                <survey-other-choice v-show="question.hasOther && question.value && question.isOtherSelected" v-if="index == choicesCount" :class="question.cssClasses.other" :question="question" />
             </label>
         </div>
         <legend style="display: none;">{{question.locTitle.renderedHtml}}</legend>

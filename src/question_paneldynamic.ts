@@ -1009,7 +1009,7 @@ export class QuestionPanelDynamicModel extends Question
       Array.isArray(qValue) &&
       qValue.length > this.items.length
     ) {
-      index = qValue.length - 1;
+      index = this.items.length;
     }
     if (index < 0) return {};
     if (!qValue || !Array.isArray(qValue) || qValue.length <= index) return {};

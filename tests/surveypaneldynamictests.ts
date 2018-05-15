@@ -1378,17 +1378,81 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
   assert.ok(panel.panels[0].questions[0].survey, "The survey is set for panel");
 });
 
-/* Think about this-
-QUnit.test("PanelDynamic survey.getPageByQuestion/Element", function (assert) {
-    var survey = new SurveyModel();
-    survey.setDesignMode(true);
-    survey.addNewPage("p");
-    var question = new QuestionPanelDynamicModel("q");
-    survey.pages[0].addQuestion(question);
-    question.template.addNewQuestion("text", "q1");
-    question.template.addNewQuestion("text", "q2");
-    question.panelCount = 2;
-    assert.equal(survey.getPageByQuestion(question.template.questions[0]).name, "p", "Template question page is found");
-    assert.equal(survey.getPageByQuestion(question.panels[0].questions[0]).name, "p", "Nested question page is found");
-});
-*/
+QUnit.test(
+  "Nested dynamic panel doesn't set data correctly, Bug#1096",
+  function(assert) {
+    var json = {
+      isSinglePage: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            { type: "text", name: "q1" },
+            {
+              type: "paneldynamic",
+              name: "nested1",
+              templateElements: [{ type: "text", name: "q2" }]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.data = {
+      panel1: [
+        { q1: 1, nested1: [{ q2: 1 }] },
+        { q1: 2, nested1: [{ q2: 1 }, { q2: 2 }, { q2: 3 }] }
+      ]
+    };
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var panel1 = panel.panels[0];
+    var panel2 = panel.panels[1];
+    var panel1Nested1 = <QuestionPanelDynamicModel>panel1.getQuestionByName(
+      "nested1"
+    );
+    var panel2Nested1 = <QuestionPanelDynamicModel>panel2.getQuestionByName(
+      "nested1"
+    );
+    assert.equal(
+      panel1.getQuestionByName("q1").value,
+      1,
+      "q1 in first panel set correctly"
+    );
+    assert.equal(
+      panel2.getQuestionByName("q1").value,
+      2,
+      "q1 in second panel set correctly"
+    );
+    assert.equal(
+      panel1Nested1.panelCount,
+      1,
+      "There should be one panel in the first nested panel"
+    );
+    assert.equal(
+      panel1Nested1.panels[0].getQuestionByName("q2").value,
+      1,
+      "q2 set correctly in the first nested panel"
+    );
+    assert.equal(
+      panel2Nested1.panelCount,
+      3,
+      "There should be three panels in the second nested panel"
+    );
+    assert.equal(
+      panel2Nested1.panels[0].getQuestionByName("q2").value,
+      1,
+      "first q2 set correctly in the second nested panel"
+    );
+    assert.equal(
+      panel2Nested1.panels[1].getQuestionByName("q2").value,
+      2,
+      "second q2 set correctly in the second nested panel"
+    );
+    assert.equal(
+      panel2Nested1.panels[2].getQuestionByName("q2").value,
+      3,
+      "third q2 set correctly in the second nested panel"
+    );
+  }
+);

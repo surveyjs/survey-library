@@ -1481,6 +1481,10 @@ QUnit.test("merge values", function(assert) {
   survey.doMergeValues({ val2: { val2: 2 } }, dest);
   assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
 });
+function percentageToNum(width: string): Number {
+  width = width.replace('%', '');
+  return parseFloat(width);
+}
 QUnit.test("Several questions in one row", function(assert) {
   var page = new PageModel();
   for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
@@ -1491,8 +1495,8 @@ QUnit.test("Several questions in one row", function(assert) {
   page.questions[0].startWithNewLine = false;
   assert.equal(page.rows.length, 10, "still 10 rows for each question");
   assert.equal(
-    page.rows[0].questions[0].renderWidth,
-    "100%",
+    percentageToNum(page.rows[0].questions[0].renderWidth),
+    100,
     "the render width is 100%"
   );
 
@@ -1513,14 +1517,14 @@ QUnit.test("Several questions in one row", function(assert) {
       "two questions for every row"
     );
     assert.equal(
-      page.rows[i].questions[0].renderWidth,
-      "50%",
+      percentageToNum(page.rows[i].questions[0].renderWidth),
+      50,
       "the render width is 50%"
     );
     assert.equal(page.rows[i].questions[0].rightIndent, 1, "the indent is 1");
     assert.equal(
-      page.rows[i].questions[1].renderWidth,
-      "50%",
+      percentageToNum(page.rows[i].questions[1].renderWidth),
+      50,
       "the render width is 50%"
     );
     assert.equal(page.rows[i].questions[1].rightIndent, 0, "the indent is 0");

@@ -2481,6 +2481,7 @@ export class SurveyModel extends Base
    */
   public getVariable(name: string): any {
     if (!name) return null;
+    name = name.toLowerCase();
     return this.variablesHash[name];
   }
   /**
@@ -2491,6 +2492,7 @@ export class SurveyModel extends Base
    */
   public setVariable(name: string, newValue: any) {
     if (!name) return;
+    name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     this.runConditions();

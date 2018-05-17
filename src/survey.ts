@@ -2103,6 +2103,25 @@ export class SurveyModel extends Base
     return result;
   }
   /**
+   * Returns a panel by its name
+   * @param name a panel name
+   * @param caseInsensitive
+   * @see getQuestionByName
+   */
+  public getPanelByName(
+    name: string,
+    caseInsensitive: boolean = false
+  ): IPanel {
+    var panels = this.getAllPanels();
+    if (caseInsensitive) name = name.toLowerCase();
+    for (var i: number = 0; i < panels.length; i++) {
+      var panelName = panels[i].name;
+      if (caseInsensitive) panelName = panelName.toLowerCase();
+      if (panelName == name) return panels[i];
+    }
+    return null;
+  }
+  /**
    * Returns the list of all panels in the survey
    */
   public getAllPanels(

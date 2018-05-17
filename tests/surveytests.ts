@@ -371,6 +371,39 @@ QUnit.test("Survey.getQuestionByName", function(assert) {
   );
   assert.equal(survey.getQuestionByName("Q0"), null, "return null");
 });
+QUnit.test("Survey.getPanelByName", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page1");
+  var panel1 = page.addNewPanel("Panel1");
+  page.addNewPanel("Panel2");
+  panel1.addNewPanel("Panel1_1");
+  page = survey.addNewPage("Page2");
+  var panel3 = page.addNewPanel("Panel3");
+  page.addNewPanel("Panel4");
+  panel3.addNewPanel("Panel3_1");
+
+  assert.equal(
+    survey.getPanelByName("Panel2").name,
+    "Panel2",
+    "find panel on the first page"
+  );
+  assert.equal(
+    survey.getPanelByName("panel3", true).name,
+    "Panel3",
+    "find question on the second page"
+  );
+  assert.equal(
+    survey.getPanelByName("Panel1_1").name,
+    "Panel1_1",
+    "find child panel on the first page"
+  );
+  assert.equal(
+    survey.getPanelByName("panel3_1", true).name,
+    "Panel3_1",
+    "find child question on the second page"
+  );
+  assert.equal(survey.getPanelByName("NoPanel"), null, "return null");
+});
 QUnit.test("Survey.getPageByQuestion/getPageByElement", function(assert) {
   var survey = new SurveyModel();
   var page1 = survey.addNewPage("page1");

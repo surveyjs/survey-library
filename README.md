@@ -20,6 +20,21 @@
 
 [SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
 
+## Visual Editor
+
+You can easy build SurveyJS JSON definitions with the SurveyJS Editor (Survey Builder)
+
+Visual Editor [site](https://www.surveyjs.io/Editor/)
+
+Visual Editor sources are [here](https://github.com/surveyjs/editor)
+
+[Try it right now!](https://www.surveyjs.io/Editor/Editor/)
+
+## Custom Widgets
+
+SurveyJS has extandable ecosystem with integrated 3rd party widgets.
+Custom Widgets source code is [here](https://github.com/surveyjs/widgets)
+
 ## More info about SurveyJS
 
 ![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
@@ -126,15 +141,3 @@ To build library yourself:
 ## License
 
 [MIT license](https://github.com/surveyjs/surveyjs/blob/master/LICENSE)
-
-## Visual Editor
-
-Visual Editor [site](https://www.surveyjs.io/Editor/)
-
-Visual Editor sources are [here](https://github.com/surveyjs/editor)
-
-[Try it right now!](https://www.surveyjs.io/Editor/Editor/)
-
-## Custom Widgets
-
-Custom Widgets sources are [here](https://github.com/surveyjs/widgets)

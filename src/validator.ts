@@ -114,13 +114,26 @@ export class NumericValidator extends SurveyValidator {
  * Validate text values
  */
 export class TextValidator extends SurveyValidator {
-  constructor(public minLength: number = 0, public maxLength: number = 0) {
+  constructor(
+    public minLength: number = 0,
+    public maxLength: number = 0,
+    public allowDigits = true
+  ) {
     super();
   }
   public getType(): string {
     return "textvalidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
+    if (!this.allowDigits) {
+      var reg = /^[A-Za-z\s]*$/;
+      if (!reg.test(value)) {
+        return new ValidatorResult(
+          null,
+          new CustomError(this.getErrorText(name))
+        );
+      }
+    }
     if (this.minLength > 0 && value.length < this.minLength) {
       return new ValidatorResult(
         null,
@@ -250,7 +263,7 @@ JsonObject.metaData.addClass(
 );
 JsonObject.metaData.addClass(
   "textvalidator",
-  ["minLength:number", "maxLength:number"],
+  ["minLength:number", "maxLength:number", "allowDigits:boolean"],
   function() {
     return new TextValidator();
   },

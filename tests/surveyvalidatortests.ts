@@ -2,6 +2,7 @@ import {
   SurveyValidator,
   NumericValidator,
   EmailValidator,
+  TextValidator,
   ValidatorResult
 } from "../src/validator";
 import { CustomError } from "../src/error";
@@ -116,6 +117,20 @@ QUnit.test("Email validator", function(assert) {
     null,
     "Could convert the incorrect correct e-mail"
   );
+});
+
+QUnit.test("Text validator", function(assert) {
+  var validator = new TextValidator();
+  assert.equal(validator.validate(""), null, "Empty string");
+  validator.minLength = 1;
+  validator.maxLength = 5;
+  assert.notEqual(validator.validate(""), null, "Empty string");
+  assert.equal(validator.validate("a"), null, "Shorter string");
+  assert.equal(validator.validate("abcde"), null, "Five letter string");
+  assert.notEqual(validator.validate("abcdef"), null, "Longer string");
+  assert.equal(validator.validate("abc12"), null, "Not just text");
+  validator.allowDigits = false;
+  assert.notEqual(validator.validate("abc12"), null, "Not just text");
 });
 
 export class CamelCaseValidator extends SurveyValidator {

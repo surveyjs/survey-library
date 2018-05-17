@@ -10,6 +10,8 @@
 <img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/surveyjs.svg">
 </a>
 
+[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Documentation
 
 [SurveyJS Core Library Documentation](https://surveyjs.io/Documentation/Library/)
@@ -18,11 +20,9 @@
 
 [SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
 
+## More info about SurveyJS
+
 ![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
-
-## Getting started
-
-[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 To find out more about the library go
 
@@ -44,6 +44,8 @@ or use quickstart repos:
 * [Angular CLI](https://github.com/surveyjs/surveyjs_angular_cli)
 * [React](https://github.com/surveyjs/surveyjs_react_quickstart)
 * [Vue](https://github.com/surveyjs/surveyjs_vue_quickstart)
+
+## Getting started
 
 Install the library using npm.
 

@@ -11,6 +11,14 @@
 </a>
 ![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
 
+## Documentation
+
+[SurveyJS Core Library Documentation](https://surveyjs.io/Documentation/Library/)
+
+## Live Examples
+
+[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
+
 ## Getting started
 
 [![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

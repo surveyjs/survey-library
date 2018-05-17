@@ -1,4 +1,4 @@
-**survey.js** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
+## **SurveyJS** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
 [![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
@@ -9,7 +9,6 @@
 <a href="https://github.com/surveyjs/surveyjs/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
 <img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/surveyjs.svg">
 </a>
-![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
 
 ## Documentation
 
@@ -18,6 +17,8 @@
 ## Live Examples
 
 [SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
+
+![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
 
 ## Getting started
 

@@ -565,6 +565,21 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired when item value is changed in Panel Dynamic question.
+   * <br/> options.question - the panel question
+   * <br/> options.panel - the dynamic panel item
+   * <br/> options.name - the item name
+   * <br/> options.value - a new value
+   * <br/> options.itemIndex - the panel item index
+   * <br/> options.itemValue - the panel item object
+   * @see onDynamicPanelAdded
+   * @see QuestionPanelDynamicModel
+   */
+  public onDynamicPanelItemValueChanged: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * Use this event to define, if the answer on the question is correct or not.
    * <br/> sender the survey object that fires the event
    * <br/> options.question a question on which you have to decide if the answer is correct or not.
@@ -1842,6 +1857,10 @@ export class SurveyModel extends Base
       question: question,
       panelIndex: panelIndex
     });
+  }
+  dynamicPanelItemValueChanged(question: IQuestion, options: any) {
+    options.question = question;
+    this.onDynamicPanelItemValueChanged.fire(this, options);
   }
 
   /**

@@ -1036,6 +1036,16 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = true;
     this.value = qValue;
     this.isValueChangingInternally = false;
+
+    var options = {
+      question: this,
+      panel: item.panel,
+      name: name,
+      itemIndex: index,
+      itemValue: qValue[index],
+      value: val
+    };
+    this.survey.dynamicPanelItemValueChanged(this, options);
   }
   getSurvey(): ISurvey {
     return this.survey;

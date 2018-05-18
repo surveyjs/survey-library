@@ -63,7 +63,11 @@ export interface ISurvey extends ITextProcessor {
     content: string,
     callback: (status: string, data: any) => any
   );
-  updateChoicesFromServer(question: IQuestion, choices: Array<ItemValue>, serverResult: any): Array<ItemValue>
+  updateChoicesFromServer(
+    question: IQuestion,
+    choices: Array<ItemValue>,
+    serverResult: any
+  ): Array<ItemValue>;
   updateQuestionCssClasses(question: IQuestion, cssClasses: any);
   updatePanelCssClasses(panel: IPanel, cssClasses: any);
   afterRenderQuestion(question: IQuestion, htmlElement);
@@ -77,6 +81,7 @@ export interface ISurvey extends ITextProcessor {
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
   dynamicPanelAdded(question: IQuestion);
   dynamicPanelRemoved(question: IQuestion, panelIndex: number);
+  dynamicPanelItemValueChanged(question: IQuestion, options: any);
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;

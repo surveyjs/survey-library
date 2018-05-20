@@ -463,7 +463,7 @@ export class MatrixDropdownRowModelBase
     return this.getAllValues();
   }
   getFilteredProperties(): any {
-    return {};
+    return { survey: this.getSurvey() };
   }
   public set value(value: any) {
     this.isSettingValue = true;

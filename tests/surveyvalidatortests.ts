@@ -3,7 +3,8 @@ import {
   NumericValidator,
   EmailValidator,
   TextValidator,
-  ValidatorResult
+  ValidatorResult,
+  ExpressionValidator
 } from "../src/validator";
 import { CustomError } from "../src/error";
 import { SurveyModel } from "../src/survey";
@@ -229,3 +230,39 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Expression validator", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "multipletext",
+        name: "pricelimit",
+        items: [
+          {
+            name: "leastamount"
+          },
+          {
+            name: "mostamount"
+          }
+        ],
+        validators: [
+          {
+            type: "expression",
+            expression: "{pricelimit.leastamount} <= {pricelimit.mostamount}",
+            text: "Error"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMultipleTextModel>survey.getQuestionByName(
+    "pricelimit"
+  );
+  question.items[0].value = 5;
+  question.items[1].value = 3;
+  assert.equal(question.hasErrors(), true, "5 <= 3");
+  question.items[0].value = 3;
+  question.items[1].value = 5;
+  assert.equal(question.hasErrors(), false, "5 >= 3");
+});

@@ -30,6 +30,7 @@ export var englishStrings = {
   numericMin: "The '{0}' should be equal or more than {1}",
   numericMax: "The '{0}' should be equal or less than {1}",
   invalidEmail: "Please enter a valid e-mail address.",
+  invalidExpression: "The expression: {0} should return 'true'.",
   urlRequestError: "The request returned error '{0}'. {1}",
   urlGetChoicesError:
     "The request returned empty data or the 'path' property is incorrect",

@@ -635,6 +635,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
   set validatedValue(val: any) {
     this.value = val;
   }
+  getAllValues(): any {
+    return !!this.data ? this.data.getAllValues() : null;
+  }
 }
 JsonObject.metaData.addClass(
   "question",

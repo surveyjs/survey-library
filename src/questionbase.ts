@@ -63,10 +63,16 @@ export class QuestionBase extends SurveyElement
     }
     if (this.data && !this.isLoadingFromJson) {
       this.runCondition(
-        this.data.getFilteredValues(),
-        this.data.getFilteredProperties()
+        this.getDataFilteredValues(),
+        this.getDataFilteredProperties()
       );
     }
+  }
+  public getDataFilteredValues(): any {
+    return !!this.data ? this.data.getFilteredValues() : null;
+  }
+  public getDataFilteredProperties(): any {
+    return !!this.data ? this.data.getFilteredProperties() : null;
   }
   /**
    * A parent element. It can be panel or page.

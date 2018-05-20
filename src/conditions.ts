@@ -177,10 +177,10 @@ export class ConditionOperand extends Operand {
     var onFirstFail = node.connective == "and";
     for (var i = 0; i < node.children.length; i++) {
       var res = this.runNodeCondition(node.children[i]);
-      if (!res && onFirstFail) return false;
-      if (res && !onFirstFail) return true;
+      if (!res && onFirstFail) return node.isNot;
+      if (res && !onFirstFail) return !node.isNot;
     }
-    return onFirstFail;
+    return !node.isNot ? onFirstFail : !onFirstFail;
   }
   private runNodeCondition(value: any): boolean {
     if (value["children"]) return this.runNode(value);
@@ -337,6 +337,7 @@ export class Condition {
 }
 export class ConditionNode {
   private connectiveValue: string = "and";
+  public isNot: boolean = false;
   public children: Array<any> = [];
   public constructor() {}
   public get connective(): string {

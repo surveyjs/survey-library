@@ -123,8 +123,16 @@ export class ConditionsParser {
     }
     return new Operand(str);
   }
-  private readExpression(): number {
+  private readNotOperand(): boolean {
     this.skip();
+    var savedAt = this.at;
+    var str = this.readString();
+    if (!!str && (str.toLowerCase() == "not" || str == "!")) return true;
+    this.at = savedAt;
+    return false;
+  }
+  private readExpression(): number {
+    var isNot = this.readNotOperand();
     if (this.at >= this.length || this.ch != "(") return 0;
     this.at++;
     this.pushExpression();
@@ -133,7 +141,7 @@ export class ConditionsParser {
       this.skip();
       res = this.ch == <string>")";
       this.at++;
-      this.popExpression();
+      this.popExpression(isNot);
       return 1;
     }
     return -1;
@@ -142,7 +150,7 @@ export class ConditionsParser {
     prevExpr: ExpressionOperand = null,
     stack: Array<ExpressionOperand> = null
   ): Operand {
-    this.skip();
+    var isNot = this.readNotOperand();
     if (this.at >= this.length) return null;
     var isOpenBracket = this.isOpenBracket(this.ch);
     if (isOpenBracket) {
@@ -168,7 +176,7 @@ export class ConditionsParser {
           this.at = saveAt + (doPopExpression ? 1 : 0);
         }
         if (doPopExpression) {
-          this.popExpression();
+          this.popExpression(isNot);
         }
       }
       if (operator) {
@@ -395,10 +403,11 @@ export class ConditionsParser {
       this.expressionNodes[this.expressionNodes.length - 1] = this.node;
     }
   }
-  private popExpression() {
+  private popExpression(isNot: boolean) {
     var node = this.expressionNodes.pop();
     this.node = this.expressionNodes[this.expressionNodes.length - 1];
     if (node) {
+      node.isNot = isNot;
       this.makeNodeCondition();
       this.node.children.push(node);
     }

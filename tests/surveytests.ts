@@ -916,6 +916,21 @@ QUnit.test("Question visibleIndex, add-remove questions", function(assert) {
     "the second question"
   );
 });
+QUnit.test("Question visibleIndex in onVisibleChanged event, containers", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("panel1");
+  var question = panel.addNewQuestion("text", "q1");
+  question.visible = false;
+  question.visibleIf = "{state} = 1";
+  var visibleIndex = -1;
+  survey.onVisibleChanged.add(function(sender, options){
+    visibleIndex = options.question.visibleIndex;
+  });
+  survey.setValue("state", 1);
+  //question.visible = true;
+  assert.equal(visibleIndex, 0, "visible index should be 0");
+});
 
 QUnit.test("showQuestionNumbers - question fullTitle", function(assert) {
   var survey = twoPageSimplestSurvey();

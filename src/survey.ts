@@ -2234,19 +2234,12 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
-  private runConditionsState = "";
   private runConditions() {
-    this.runConditionsState = "running";
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
-    }
-    var needUpdateIndexes = this.runConditionsState === "visibleIndexesChanged";
-    this.runConditionsState = "";
-    if (needUpdateIndexes) {
-      this.updateVisibleIndexes();
     }
   }
   /**
@@ -2387,10 +2380,6 @@ export class SurveyModel extends Base
     }
   }
   private updateVisibleIndexes() {
-    if (this.runConditionsState == "running") {
-      this.runConditionsState = "visibleIndexesChanged";
-    }
-    if (this.runConditionsState) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;

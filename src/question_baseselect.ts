@@ -350,8 +350,9 @@ export class QuestionSelectBase extends Question {
   }
   protected getStoreOthersAsComment() {
     return (
-      this.storeOthersAsComment &&
-      (this.survey != null ? this.survey.storeOthersAsComment : true)
+      (this.storeOthersAsComment &&
+        (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
+      (!this.choicesByUrl.isEmpty && !this.choicesFromUrl)
     );
   }
   onSurveyLoad() {

@@ -505,7 +505,11 @@ export class QuestionPanelDynamicModel extends Question
       var newItem = this.createNewItem();
       this.items.push(newItem);
       if (this.renderMode == "list" && this.panelsState != "default") {
-        newItem.panel.expand();
+        if (this.panelsState === "expand") {
+          newItem.panel.expand();
+        } else {
+          newItem.panel.collapse();          
+        }
       }
     }
     if (val < this.panelCount) this.items.splice(val, this.panelCount - val);

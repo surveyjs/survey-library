@@ -259,7 +259,7 @@ export class Base {
     });
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func();
+        this.onPropChangeFunctions[i].func(newValue);
     }
   }
   /**

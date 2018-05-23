@@ -1067,3 +1067,27 @@ QUnit.test("matrixDropdown.clearInvisibleValues", function(assert) {
     "clear unexisting columns and values"
   );
 });
+
+QUnit.test("Matrixdropdown column.index", function(assert) {
+  var question = new QuestionMatrixDropdownModel("matrixDropdown");
+  question.rows = ["row1"];
+  question.columns.push(new MatrixDropdownColumn("column1"));
+  question.columns.push(new MatrixDropdownColumn("column2"));
+  question.columns.push(new MatrixDropdownColumn("column3"));
+  for (var i = 0; i < question.columns.length; i++) {
+    assert.equal(
+      question.columns[i].index,
+      i,
+      "column.index is correct after push"
+    );
+  }
+  question.columns.splice(1, 1);
+  assert.equal(question.columns.length, 2, "now 2 columns");
+  for (var i = 0; i < question.columns.length; i++) {
+    assert.equal(
+      question.columns[i].index,
+      i,
+      "column.index is correct after removing"
+    );
+  }
+});

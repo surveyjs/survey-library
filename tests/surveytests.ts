@@ -3975,7 +3975,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("exprssion function isContainerReady", function(assert) {
+QUnit.test("condition function isContainerReady", function(assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
@@ -3986,7 +3986,7 @@ QUnit.test("exprssion function isContainerReady", function(assert) {
     var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
     qTest.visible = false;
     qTest.visibleIf = "isContainerReady('panel1') = true";
-    assert.equal(qTest.isVisible, false, "It is invisibl by default");
+    assert.equal(qTest.isVisible, false, "It is invisible by default");
     q1.value = "1";
     assert.equal(qTest.isVisible, false, "q2 is empty");
     q2.value = "2";

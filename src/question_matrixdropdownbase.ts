@@ -140,6 +140,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   private templateQuestionValue: Question;
   private colOwnerValue: IMatrixColumnOwner = null;
+  private indexValue = -1;
 
   constructor(name: string, title: string = null) {
     super();
@@ -165,6 +166,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set colOwner(value: IMatrixColumnOwner) {
     this.colOwnerValue = value;
     this.updateTemplateQuestion();
+  }
+  public get index() {
+    return this.indexValue;
+  }
+  public setIndex(val: number) {
+    this.indexValue = val;
   }
   public getType() {
     return "matrixdropdowncolumn";
@@ -623,6 +630,7 @@ export class QuestionMatrixDropdownModelBase extends Question
   protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
+  columnsLocationChangedCallback: () => void;
 
   constructor(public name: string) {
     super(name);
@@ -632,7 +640,10 @@ export class QuestionMatrixDropdownModelBase extends Question
     });
     this.choicesValue = this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
-    this.registerFunctionOnPropertyValueChanged("columns", function() {
+    this.registerFunctionOnPropertyValueChanged("columns", function(
+      newColumns
+    ) {
+      self.updateColumnsIndexes(newColumns);
       self.generatedVisibleRows = null;
       self.fireCallback(self.columnsChangedCallback);
     });
@@ -651,6 +662,24 @@ export class QuestionMatrixDropdownModelBase extends Question
   }
   public set columns(value: Array<MatrixDropdownColumn>) {
     this.setPropertyValue("columns", value);
+  }
+  /**
+   * Set columnsLocation to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
+   * @see columns
+   * @see rowCount
+   */
+  public get columnsLocation(): string {
+    return this.getPropertyValue("columnsLocation", "horizontal");
+  }
+  public set columnsLocation(val: string) {
+    this.setPropertyValue("columnsLocation", val);
+  }
+  /**
+   * Returns true if columns are located horizontally
+   * @see columnsLocation
+   */
+  public get isColumnsLocationHorizontal() {
+    return this.columnsLocation != "vertical";
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
     if (!this.survey) return;
@@ -689,6 +718,11 @@ export class QuestionMatrixDropdownModelBase extends Question
   private updateColumnsCellType() {
     for (var i = 0; i < this.columns.length; i++) {
       this.columns[i].defaultCellTypeChanged();
+    }
+  }
+  private updateColumnsIndexes(cols: Array<MatrixDropdownColumn>) {
+    for (var i = 0; i < cols.length; i++) {
+      cols[i].setIndex(i);
     }
   }
   /**
@@ -863,6 +897,7 @@ export class QuestionMatrixDropdownModelBase extends Question
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
+    this.updateColumnsIndexes(this.columns);
     this.generatedVisibleRows = null;
   }
   /**
@@ -1165,6 +1200,11 @@ JsonObject.metaData.addClass(
     {
       name: "columns:matrixdropdowncolumns",
       className: "matrixdropdowncolumn"
+    },
+    {
+      name: "columnsLocation",
+      default: "horizontal",
+      choices: ["horizontal", "vertical"]
     },
     "horizontalScroll:boolean",
     {

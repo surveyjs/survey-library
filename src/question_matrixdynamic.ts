@@ -38,6 +38,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.createLocalizableString("keyDuplicationError", this);
     this.createLocalizableString("addRowText", this);
     this.createLocalizableString("removeRowText", this);
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("columnsLocation", function() {
+      self.fireCallback(self.columnsLocationChangedCallback);
+    });
   }
   public getType(): string {
     return "matrixdynamic";

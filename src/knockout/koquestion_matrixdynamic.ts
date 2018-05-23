@@ -9,57 +9,28 @@ import { QuestionMatrixDropdownModelBase } from "../question_matrixdropdownbase"
 import { MatrixDynamicRowModel } from "../question_matrixdynamic";
 
 export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {
-  koRows: any;
-  koRecalc: any;
-  koAddRowClick: any;
-  koRemoveRowClick: any;
-  koOverflowX: any;
-  koCanAddRow: any;
-  koCanRemoveRow: any;
   constructor(question: Question) {
     super(question);
-    this.koRecalc = ko.observable(0);
-    this.koRows = ko.pureComputed(function() {
-      this.koRecalc();
-      return (<QuestionMatrixDynamic>this.question).visibleRows;
-    }, this);
-
-    this.koOverflowX = ko.pureComputed(function() {
-      return (<QuestionMatrixDropdownModelBase>this.question).horizontalScroll
-        ? "scroll"
-        : "none";
-    }, this);
-    this.question["koRows"] = this.koRows;
     var self = this;
-    this.koAddRowClick = function() {
-      self.addRow();
-    };
-    this.koRemoveRowClick = function(data) {
-      self.removeRow(data);
-    };
-    this.koCanAddRow = ko.pureComputed(function() {
-      self.koRecalc();
-      return (<QuestionMatrixDynamic>self.question).canAddRow;
-    });
-    this.koCanRemoveRow = ko.pureComputed(function() {
-      self.koRecalc();
-      return (<QuestionMatrixDynamic>self.question).canRemoveRow;
-    });
-    this.question["koAddRowClick"] = this.koAddRowClick;
-    this.question["koRemoveRowClick"] = this.koRemoveRowClick;
-    this.question["koOverflowX"] = this.koOverflowX;
-    this.question["koCanAddRow"] = this.koCanAddRow;
-    this.question["koCanRemoveRow"] = this.koCanRemoveRow;
     (<QuestionMatrixDynamic>this
       .question).rowCountChangedCallback = function() {
       self.onRowCountChanged();
     };
-    (<QuestionMatrixDynamic>this.question).columnsChangedCallback = function() {
-      self.onColumnChanged();
-    };
-    (<QuestionMatrixDynamic>this.question).updateCellsCallback = function() {
-      self.onUpdateCells();
-    };
+  }
+  protected hasRowText(): boolean {
+    return false;
+  }
+  protected canAddRow(): boolean {
+    return (
+      !this.question.isReadOnly &&
+      (<QuestionMatrixDynamic>this.question).canAddRow
+    );
+  }
+  protected canRemoveRow(): boolean {
+    return (
+      !this.question.isReadOnly &&
+      (<QuestionMatrixDynamic>this.question).canRemoveRow
+    );
   }
   protected onUpdateCells() {
     //Genereate rows again.

@@ -2,6 +2,7 @@ import {
   TextPreProcessor,
   TextPreProcessorValue
 } from "../src/textPreProcessor";
+import { Question } from "../src/question";
 import { ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("TextPreprocessorTests");
@@ -86,4 +87,15 @@ QUnit.test("ProcessValue getValue/hasValue, arrays and nested values", function(
   assert.equal(process.getValue("b[0].d", value), 2, "b[0].d=2");
   assert.equal(process.getValue("b[1].c[0]", value), 3, "c[0]=3");
   assert.equal(process.getValue("b[1].c[1].d", value), 4, "c[0].d=4");
+});
+
+QUnit.test("Question process any propery", function(assert) {
+  var question = new Question("q1");
+  var processor = new TextPreProcessor();
+  processor.onProcess = val => question["getProcessedTextValue"](val);
+  assert.equal(
+    processor.process("test1 {name} test2"),
+    "test1 q1 test2",
+    "name is the same"
+  );
 });

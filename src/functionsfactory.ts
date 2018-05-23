@@ -90,3 +90,18 @@ function age(params: any[]): any {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 FunctionFactory.Instance.register("age", age);
+
+function areQuestionsAnswered(params: any[]): any {
+  if (!params && params.length < 1) return false;
+  if (!params[0] || !this.survey) return false;
+  var name = params[0];
+  var container = this.survey.getPageByName(name);
+  if (!container) container = this.survey.getPanelByName(name);
+  if (!container) return false;
+  var questions = container.questions;
+  for (var i = 0; i < questions.length; i++) {
+    if (questions[i].hasErrors(false)) return false;
+  }
+  return true;
+}
+FunctionFactory.Instance.register("areQuestionsAnswered", areQuestionsAnswered);

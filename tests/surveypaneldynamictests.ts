@@ -1226,7 +1226,7 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
   var panel = new QuestionPanelDynamicModel("panel");
   panel.template.addNewQuestion("text", "q1");
   panel.panelCount = 2;
-  panel.addPanel();
+  panel.addPanelUI();
   assert.equal(
     panel.panels[2].state,
     "default",
@@ -1234,14 +1234,14 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
   );
   panel.panelsState = "expanded";
   assert.equal(panel.panels[2].state, "expanded", "It is expanded now");
-  panel.addPanel();
+  panel.addPanelUI();
   assert.equal(
     panel.panels[3].state,
     "expanded",
     "the panel is added with expanded state"
   );
   panel.panelsState = "collapsed";
-  panel.addPanel();
+  panel.addPanelUI();
   assert.equal(
     panel.panels[4].state,
     "expanded",

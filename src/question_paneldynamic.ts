@@ -740,7 +740,11 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
-    return this.addPanel();
+    var newPanel = this.addPanel();
+    if (this.renderMode === "list" && this.panelsState !== "default" ) {
+      newPanel.expand();
+    }
+    return newPanel;
   }
   /**
    * Add a new dynamic panel based on the template Panel.

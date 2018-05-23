@@ -20,7 +20,7 @@ export var germanSurveyStrings = {
   numericMin: "'{0}' sollte gleich oder größer sein als {1}.",
   numericMax: "'{0}' sollte gleich oder kleiner als {1} sein.",
   invalidEmail: "Bitte geben Sie eine gültige E-Mail Adresse ein.",
-  exceedMaxSize: "Die Dateigröße darf {0} KB nicht überschreiten.",
+  exceedMaxSize: "Die Dateigröße darf {0} nicht überschreiten.",
   otherRequiredError: "Bitte geben Sie Ihre benutzerdefinierte Antwort ein.",
   addRow: "Reihe hinzufügen",
   removeRow: "Löschen"

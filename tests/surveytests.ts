@@ -3975,7 +3975,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("exprssion function areQuestionsAnswered", function(assert) {
+QUnit.test("exprssion function isContainerReady", function(assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
@@ -3985,14 +3985,14 @@ QUnit.test("exprssion function areQuestionsAnswered", function(assert) {
     q2.validators.push(new EmailValidator());
     var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
     qTest.visible = false;
-    qTest.visibleIf = "areQuestionsAnswered('panel1') = true";
+    qTest.visibleIf = "isContainerReady('panel1') = true";
     assert.equal(qTest.isVisible, false, "It is invisibl by default");
     q1.value = "1";
     assert.equal(qTest.isVisible, false, "q2 is empty");
     q2.value = "2";
     assert.equal(qTest.isVisible, false, "q2 is not e-mail");
     q2.value = "email@mail.com";
-    assert.equal(qTest.isVisible, true, "areQuestionsAnswered returns true");
+    assert.equal(qTest.isVisible, true, "isContainerReady returns true");
   }
 );
 

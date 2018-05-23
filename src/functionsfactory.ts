@@ -91,7 +91,7 @@ function age(params: any[]): any {
 }
 FunctionFactory.Instance.register("age", age);
 
-function areQuestionsAnswered(params: any[]): any {
+function isContainerReady(params: any[]): any {
   if (!params && params.length < 1) return false;
   if (!params[0] || !this.survey) return false;
   var name = params[0];
@@ -104,4 +104,4 @@ function areQuestionsAnswered(params: any[]): any {
   }
   return true;
 }
-FunctionFactory.Instance.register("areQuestionsAnswered", areQuestionsAnswered);
+FunctionFactory.Instance.register("isContainerReady", isContainerReady);

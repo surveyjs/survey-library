@@ -88,8 +88,8 @@ export class QuestionSelectBase extends Question {
   protected filterItems(): boolean {
     if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
     return this.runItemsCondition(
-      this.data.getFilteredValues(),
-      this.data.getFilteredProperties()
+      this.getDataFilteredValues(),
+      this.getDataFilteredProperties()
     );
   }
   protected runItemsCondition(
@@ -350,8 +350,9 @@ export class QuestionSelectBase extends Question {
   }
   protected getStoreOthersAsComment() {
     return (
-      this.storeOthersAsComment &&
-      (this.survey != null ? this.survey.storeOthersAsComment : true)
+      (this.storeOthersAsComment &&
+        (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
+      (!this.choicesByUrl.isEmpty && !this.choicesFromUrl)
     );
   }
   onSurveyLoad() {
@@ -361,7 +362,9 @@ export class QuestionSelectBase extends Question {
   }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);
-    this.runChoicesByUrl();
+    if (name != this.getValueName()) {
+      this.runChoicesByUrl();
+    }
   }
   private runChoicesByUrl() {
     if (!this.choicesByUrl || this.isLoadingFromJson) return;

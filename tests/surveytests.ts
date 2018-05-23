@@ -36,7 +36,7 @@ import { QuestionSelectBase } from "../src/question_baseselect";
 import { LocalizableString } from "../src/localizablestring";
 import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
-import {FunctionFactory} from "../src/functionsfactory";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Survey");
 
@@ -370,6 +370,39 @@ QUnit.test("Survey.getQuestionByName", function(assert) {
     "find question on the second page"
   );
   assert.equal(survey.getQuestionByName("Q0"), null, "return null");
+});
+QUnit.test("Survey.getPanelByName", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page1");
+  var panel1 = page.addNewPanel("Panel1");
+  page.addNewPanel("Panel2");
+  panel1.addNewPanel("Panel1_1");
+  page = survey.addNewPage("Page2");
+  var panel3 = page.addNewPanel("Panel3");
+  page.addNewPanel("Panel4");
+  panel3.addNewPanel("Panel3_1");
+
+  assert.equal(
+    survey.getPanelByName("Panel2").name,
+    "Panel2",
+    "find panel on the first page"
+  );
+  assert.equal(
+    survey.getPanelByName("panel3", true).name,
+    "Panel3",
+    "find question on the second page"
+  );
+  assert.equal(
+    survey.getPanelByName("Panel1_1").name,
+    "Panel1_1",
+    "find child panel on the first page"
+  );
+  assert.equal(
+    survey.getPanelByName("panel3_1", true).name,
+    "Panel3_1",
+    "find child question on the second page"
+  );
+  assert.equal(survey.getPanelByName("NoPanel"), null, "return null");
 });
 QUnit.test("Survey.getPageByQuestion/getPageByElement", function(assert) {
   var survey = new SurveyModel();
@@ -883,6 +916,21 @@ QUnit.test("Question visibleIndex, add-remove questions", function(assert) {
     "the second question"
   );
 });
+QUnit.test("Question visibleIndex in onVisibleChanged event, containers", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("panel1");
+  var question = panel.addNewQuestion("text", "q1");
+  question.visible = false;
+  question.visibleIf = "{state} = 1";
+  var visibleIndex = -1;
+  survey.onVisibleChanged.add(function(sender, options){
+    visibleIndex = options.question.visibleIndex;
+  });
+  survey.setValue("state", 1);
+  //question.visible = true;
+  assert.equal(visibleIndex, 0, "visible index should be 0");
+});
 
 QUnit.test("showQuestionNumbers - question fullTitle", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -1350,6 +1398,16 @@ QUnit.test("pre process title", function(assert) {
   );
 });
 
+QUnit.test(
+  "pre process title with variables in Capital letters, bug#1099",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.setVariable("Var1", "[My variable]");
+    survey.completedHtml = "Your Var1 is: {VaR1}";
+    assert.equal(survey.processedCompletedHtml, "Your Var1 is: [My variable]");
+  }
+);
+
 QUnit.test("pre process completedHtml nested properties and arrays", function(
   assert
 ) {
@@ -1482,7 +1540,7 @@ QUnit.test("merge values", function(assert) {
   assert.deepEqual({ val: 1, val2: { val1: "str", val2: 2 } }, dest);
 });
 function percentageToNum(width: string): Number {
-  width = width.replace('%', '');
+  width = width.replace("%", "");
   return parseFloat(width);
 }
 QUnit.test("Several questions in one row", function(assert) {
@@ -1931,11 +1989,19 @@ QUnit.test("Re-run condition on changing the variable", function(assert) {
     ]
   });
   var q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.isVisible, false, "var1 is not exists, question is invisible");
+  assert.equal(
+    q1.isVisible,
+    false,
+    "var1 is not exists, question is invisible"
+  );
   survey.setVariable("var1", 1);
   assert.equal(q1.isVisible, true, "var1 equals 1, question is visible");
   survey.setVariable("var1", 2);
-  assert.equal(q1.isVisible, false, "var1 equals 2, question is not visible now");
+  assert.equal(
+    q1.isVisible,
+    false,
+    "var1 equals 2, question is not visible now"
+  );
 });
 
 QUnit.test("visibleIf for question, call onPageVisibleChanged", function(
@@ -1967,29 +2033,33 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function(
   survey.setValue("q1", []);
   assert.equal(counter, 2, "nothing happens");
 });
-QUnit.test("visibleIf, expression custom function has property this.survey", function(
-  assert
-) {
-  function isAllChecksSet(params: any[]): any {
-    if(!params && params.length !== 1) return false;
-    var q = this.survey.getQuestionByName(params[0]);
-    if(!q) return false;
-    var val = q.value;
-    if(!val || !Array.isArray(val)) return false;
-    return val.length == q.visibleChoices.length;
+QUnit.test(
+  "visibleIf, expression custom function has property this.survey",
+  function(assert) {
+    function isAllChecksSet(params: any[]): any {
+      if (!params && params.length !== 1) return false;
+      var q = this.survey.getQuestionByName(params[0]);
+      if (!q) return false;
+      var val = q.value;
+      if (!val || !Array.isArray(val)) return false;
+      return val.length == q.visibleChoices.length;
+    }
+    FunctionFactory.Instance.register("isAllChecksSet", isAllChecksSet);
+    var survey = new SurveyModel({
+      questions: [
+        { type: "checkbox", name: "q1", choices: ["yes", "no"] },
+        { type: "text", name: "q2", visibleIf: "isAllChecksSet('q1') == true" }
+      ]
+    });
+    var q = survey.getQuestionByName("q2");
+    assert.equal(q.isVisible, false, "all checks are unset");
+    survey.setValue("q1", ["yes", "no"]);
+    assert.equal(q.isVisible, true, "all checks are set");
+    survey.setValue("q1", ["yes"]);
+    assert.equal(q.isVisible, false, "not all checks are set");
+    FunctionFactory.Instance.unregister("isAllChecksSet");
   }
-  FunctionFactory.Instance.register("isAllChecksSet", isAllChecksSet);
-  var survey = new SurveyModel({
-        questions: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }, {type:"text", name: "q2", visibleIf: "isAllChecksSet('q1') == true"}]
-  });
-  var q = survey.getQuestionByName("q2");
-  assert.equal(q.isVisible, false, "all checks are unset");
-  survey.setValue("q1", ["yes", "no"]);
-  assert.equal(q.isVisible, true, "all checks are set");
-  survey.setValue("q1", ["yes"]);
-  assert.equal(q.isVisible, false, "not all checks are set");
-  FunctionFactory.Instance.unregister("isAllChecksSet");
-});
+);
 QUnit.test("visibleIf, bug#729", function(assert) {
   var survey = new SurveyModel({
     questions: [
@@ -3962,13 +4032,27 @@ QUnit.test(
 QUnit.test(
   "Process text with question name containing '-' and '+', Bug #1080",
   function(assert) {
-    var json = {elements: [ { type: "text", name: "1-2+3" }, { type: "text", name: "age", visibleIf: "{1-2+3} notempty", title: "Hi, {1-2+3}" } ]};
+    var json = {
+      elements: [
+        { type: "text", name: "1-2+3" },
+        {
+          type: "text",
+          name: "age",
+          visibleIf: "{1-2+3} notempty",
+          title: "Hi, {1-2+3}"
+        }
+      ]
+    };
     var survey = new SurveyModel(json);
     var qAge = <Question>survey.getQuestionByName("age");
     assert.equal(qAge.isVisible, false, "It is hidden by default");
     survey.setValue("1-2+3", "John");
     assert.equal(qAge.isVisible, true, "It is visible now");
-    assert.equal(qAge.locTitle.renderedHtml, "2. Hi, John", "title processed correctly");
+    assert.equal(
+      qAge.locTitle.renderedHtml,
+      "2. Hi, John",
+      "title processed correctly"
+    );
   }
 );
 

@@ -730,6 +730,42 @@ QUnit.test("ExpressionOperand: brackets 2", function(assert) {
   values.c = 5;
   assert.equal(runner.run(values), true, "(1 + 3 + 4) / 3 >= 3");
 });
+
+QUnit.test("ExpressionOperand: not operator", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  parser.parse("({a} + {b}) * 2 >= 10", node);
+  assert.equal(node.isNot, false, "there is no not");
+  parser.parse("not(({a} + {b}) * 2 >= 10)", node);
+  assert.equal(node.isNot, true, "not is 'not'");
+  parser.parse("!(({a} + {b}) * 2 >= 10)", node);
+  assert.equal(node.isNot, true, "not is '!'");
+});
+QUnit.test("ExpressionOperand: not operator 2", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  parser.parse("({a} + {b} >= 10) and !({a} - {b} < 0)", node);
+  assert.equal(node.children.length, 2, "there two children");
+  assert.equal(node.isNot, false, "there is no not in the root");
+  assert.equal(
+    node.children[0].isNot,
+    false,
+    "there is no not in first children"
+  );
+  assert.equal(node.children[1].isNot, true, "there is not in second children");
+});
+
+QUnit.test("ConditionRunner, not operator simple", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  var runner = new ConditionRunner("not({a} + {b} > 20)");
+
+  var values = { a: 10, b: 20 };
+  assert.equal(runner.run(values), false, "10 + 20 > 20");
+  values.b = 5;
+  assert.equal(runner.run(values), true, "10 + 5 > 20");
+});
+
 QUnit.test("ExpressionRunner: (1+2)*3", function(assert) {
   var runner = new ExpressionRunner("(1+2)*3");
   assert.equal(runner.run({}), 9, "(1+2)*3 is 9");

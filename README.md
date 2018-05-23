@@ -1,4 +1,4 @@
-**survey.js** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
+## **SurveyJS** is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.
 [![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
@@ -9,11 +9,35 @@
 <a href="https://github.com/surveyjs/surveyjs/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
 <img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/surveyjs.svg">
 </a>
-![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
-
-## Getting started
 
 [![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+## Documentation
+
+[SurveyJS Core Library Documentation](https://surveyjs.io/Documentation/Library/)
+
+## Live Examples
+
+[SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
+
+## Visual Editor
+
+You can easy build SurveyJS JSON definitions with the SurveyJS Editor (Survey Builder)
+
+Visual Editor [site](https://www.surveyjs.io/Editor/)
+
+Visual Editor sources are [here](https://github.com/surveyjs/editor)
+
+[Try it right now!](https://www.surveyjs.io/Editor/Editor/)
+
+## Custom Widgets
+
+SurveyJS has extandable ecosystem with integrated 3rd party widgets.
+Custom Widgets source code is [here](https://github.com/surveyjs/widgets)
+
+## More info about SurveyJS
+
+![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif) 
 
 To find out more about the library go
 
@@ -35,6 +59,8 @@ or use quickstart repos:
 * [Angular CLI](https://github.com/surveyjs/surveyjs_angular_cli)
 * [React](https://github.com/surveyjs/surveyjs_react_quickstart)
 * [Vue](https://github.com/surveyjs/surveyjs_vue_quickstart)
+
+## Getting started
 
 Install the library using npm.
 
@@ -115,15 +141,3 @@ To build library yourself:
 ## License
 
 [MIT license](https://github.com/surveyjs/surveyjs/blob/master/LICENSE)
-
-## Visual Editor
-
-Visual Editor [site](https://www.surveyjs.io/Editor/)
-
-Visual Editor sources are [here](https://github.com/surveyjs/editor)
-
-[Try it right now!](https://www.surveyjs.io/Editor/Editor/)
-
-## Custom Widgets
-
-Custom Widgets sources are [here](https://github.com/surveyjs/widgets)

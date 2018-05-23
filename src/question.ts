@@ -13,6 +13,10 @@ import { ConditionRunner } from "./conditions";
  * Extends question base class with title, value, errors and other functionality
  */
 export class Question extends QuestionBase implements IValidatorOwner {
+  private static TextPreprocessorValuesMap = {
+    title: "processedTitle",
+    require: "requiredText"
+  };
   private questionValue: any;
   private questionComment: string;
   private textPreProcessor: TextPreProcessor;
@@ -257,10 +261,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   protected getProcessedTextValue(textValue: TextPreProcessorValue) {
     var name = textValue.name.toLocaleLowerCase();
-    textValue.isExists = name == "no" || name == "title" || name == "require";
-    if (name == "no") textValue.value = this.no;
-    if (name == "title") textValue.value = this.processedTitle;
-    if (name == "require") textValue.value = this.requiredText;
+    textValue.isExists =
+      Object.keys(Question.TextPreprocessorValuesMap).indexOf(name) !== -1 ||
+      this[textValue.name] !== undefined;
+    textValue.value = this[
+      Question.TextPreprocessorValuesMap[name] || textValue.name
+    ];
   }
   public supportComment(): boolean {
     return false;
@@ -634,6 +640,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   set validatedValue(val: any) {
     this.value = val;
+  }
+  getAllValues(): any {
+    return !!this.data ? this.data.getAllValues() : null;
   }
 }
 JsonObject.metaData.addClass(

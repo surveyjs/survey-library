@@ -92,7 +92,7 @@ export class QuestionPanelDynamicItem
     return this.getAllValues();
   }
   getFilteredProperties(): any {
-    return {};
+    return { survey: this.getSurvey() };
   }
   geSurveyData(): ISurveyData {
     return this;
@@ -858,8 +858,8 @@ export class QuestionPanelDynamicModel extends Question
   private reRunCondition() {
     if (!this.data) return;
     this.runCondition(
-      this.data.getFilteredValues(),
-      this.data.getFilteredProperties()
+      this.getDataFilteredValues(),
+      this.getDataFilteredProperties()
     );
   }
   protected runPanelsCondition(
@@ -1036,6 +1036,17 @@ export class QuestionPanelDynamicModel extends Question
     this.isValueChangingInternally = true;
     this.value = qValue;
     this.isValueChangingInternally = false;
+    if (this.survey) {
+      var options = {
+        question: this,
+        panel: item.panel,
+        name: name,
+        itemIndex: index,
+        itemValue: qValue[index],
+        value: val
+      };
+      this.survey.dynamicPanelItemValueChanged(this, options);
+    }
   }
   getSurvey(): ISurvey {
     return this.survey;

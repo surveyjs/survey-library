@@ -2,7 +2,9 @@ import {
   SurveyValidator,
   NumericValidator,
   EmailValidator,
-  ValidatorResult
+  TextValidator,
+  ValidatorResult,
+  ExpressionValidator
 } from "../src/validator";
 import { CustomError } from "../src/error";
 import { SurveyModel } from "../src/survey";
@@ -118,6 +120,20 @@ QUnit.test("Email validator", function(assert) {
   );
 });
 
+QUnit.test("Text validator", function(assert) {
+  var validator = new TextValidator();
+  assert.equal(validator.validate(""), null, "Empty string");
+  validator.minLength = 1;
+  validator.maxLength = 5;
+  assert.notEqual(validator.validate(""), null, "Empty string");
+  assert.equal(validator.validate("a"), null, "Shorter string");
+  assert.equal(validator.validate("abcde"), null, "Five letter string");
+  assert.notEqual(validator.validate("abcdef"), null, "Longer string");
+  assert.equal(validator.validate("abc12"), null, "Not just text");
+  validator.allowDigits = false;
+  assert.notEqual(validator.validate("abc12"), null, "Not just text");
+});
+
 export class CamelCaseValidator extends SurveyValidator {
   public getType(): string {
     return "CamelCaseValidator";
@@ -214,3 +230,39 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Expression validator", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "multipletext",
+        name: "pricelimit",
+        items: [
+          {
+            name: "leastamount"
+          },
+          {
+            name: "mostamount"
+          }
+        ],
+        validators: [
+          {
+            type: "expression",
+            expression: "{pricelimit.leastamount} <= {pricelimit.mostamount}",
+            text: "Error"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMultipleTextModel>survey.getQuestionByName(
+    "pricelimit"
+  );
+  question.items[0].value = 5;
+  question.items[1].value = 3;
+  assert.equal(question.hasErrors(), true, "5 <= 3");
+  question.items[0].value = 3;
+  question.items[1].value = 5;
+  assert.equal(question.hasErrors(), false, "5 >= 3");
+});

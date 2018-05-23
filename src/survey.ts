@@ -28,7 +28,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
-import {ItemValue} from "./itemvalue";
+import { ItemValue } from "./itemvalue";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -365,16 +365,16 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
-   * The event is fired after choices for radiogroup, checkbox and dropdown has been loaded from the RESTful service and before they are assign to the question. 
+   * The event is fired after choices for radiogroup, checkbox and dropdown has been loaded from the RESTful service and before they are assign to the question.
    * You may change the choices, before it was assign or disable/enabled make visible/invisible question, based on loaded results
    * <br/> question - the question where loaded choices are going to be assigned
    * <br/> choices - the loaded choices. You may change them to assign the correct one
    * <br> serverResult - a result that comes from the server as it is.
    */
   public onLoadChoicesFromServer: Event<
-  (sender: SurveyModel, options: any) => any,
-  any
-> = new Event<(sender: SurveyModel, options: any) => any, any>();
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired before rendering a question. Use it to override the default question css classes.
    * There are two parameters in options: options.question and options.cssClasses
@@ -561,6 +561,21 @@ export class SurveyModel extends Base
    * <br/> options.text - the timer panel info text.
    */
   public onTimerPanelInfoText: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired when item value is changed in Panel Dynamic question.
+   * <br/> options.question - the panel question
+   * <br/> options.panel - the dynamic panel item
+   * <br/> options.name - the item name
+   * <br/> options.value - a new value
+   * <br/> options.itemIndex - the panel item index
+   * <br/> options.itemValue - the panel item object
+   * @see onDynamicPanelAdded
+   * @see QuestionPanelDynamicModel
+   */
+  public onDynamicPanelItemValueChanged: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -1154,14 +1169,16 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
-  getFilteredValues(): any { 
+  getFilteredValues(): any {
     var values = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     for (var key in this.valuesHash) values[key] = this.valuesHash[key];
     return values;
   }
-  getFilteredProperties(): any { return {survey: this}; }
-  
+  getFilteredProperties(): any {
+    return { survey: this };
+  }
+
   public set data(data: any) {
     this.valuesHash = {};
     if (data) {
@@ -1171,6 +1188,7 @@ export class SurveyModel extends Base
       }
     }
     this.notifyAllQuestionsOnValueChanged();
+    this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
   }
   protected setDataValueCore(valuesHash: any, key: string, value: any) {
@@ -1840,6 +1858,10 @@ export class SurveyModel extends Base
       panelIndex: panelIndex
     });
   }
+  dynamicPanelItemValueChanged(question: IQuestion, options: any) {
+    options.question = question;
+    this.onDynamicPanelItemValueChanged.fire(this, options);
+  }
 
   /**
    * Upload the file into server
@@ -1886,8 +1908,16 @@ export class SurveyModel extends Base
       callback: callback
     });
   }
-  updateChoicesFromServer(question: IQuestion, choices: Array<ItemValue>, serverResult: any): Array<ItemValue> {
-    var options = {question: question, choices: choices, serverResult: serverResult};
+  updateChoicesFromServer(
+    question: IQuestion,
+    choices: Array<ItemValue>,
+    serverResult: any
+  ): Array<ItemValue> {
+    var options = {
+      question: question,
+      choices: choices,
+      serverResult: serverResult
+    };
     this.onLoadChoicesFromServer.fire(this, options);
     return options.choices;
   }
@@ -2092,6 +2122,25 @@ export class SurveyModel extends Base
     return result;
   }
   /**
+   * Returns a panel by its name
+   * @param name a panel name
+   * @param caseInsensitive
+   * @see getQuestionByName
+   */
+  public getPanelByName(
+    name: string,
+    caseInsensitive: boolean = false
+  ): IPanel {
+    var panels = this.getAllPanels();
+    if (caseInsensitive) name = name.toLowerCase();
+    for (var i: number = 0; i < panels.length; i++) {
+      var panelName = panels[i].name;
+      if (caseInsensitive) panelName = panelName.toLowerCase();
+      if (panelName == name) return panels[i];
+    }
+    return null;
+  }
+  /**
    * Returns the list of all panels in the survey
    */
   public getAllPanels(
@@ -2185,19 +2234,12 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
-  private runConditionsState = "";
   private runConditions() {
-    this.runConditionsState = "running";
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
-    }
-    var needUpdateIndexes = this.runConditionsState === "visibleIndexesChanged";
-    this.runConditionsState = "";
-    if (needUpdateIndexes) {
-      this.updateVisibleIndexes();
     }
   }
   /**
@@ -2338,10 +2380,6 @@ export class SurveyModel extends Base
     }
   }
   private updateVisibleIndexes() {
-    if (this.runConditionsState == "running") {
-      this.runConditionsState = "visibleIndexesChanged";
-    }
-    if (this.runConditionsState) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
@@ -2470,6 +2508,7 @@ export class SurveyModel extends Base
    */
   public getVariable(name: string): any {
     if (!name) return null;
+    name = name.toLowerCase();
     return this.variablesHash[name];
   }
   /**
@@ -2480,6 +2519,7 @@ export class SurveyModel extends Base
    */
   public setVariable(name: string, newValue: any) {
     if (!name) return;
+    name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     this.runConditions();

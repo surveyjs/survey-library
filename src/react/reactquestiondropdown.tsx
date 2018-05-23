@@ -33,6 +33,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     var comment =
+      this.question.hasOther &&
       this.question.value === this.question.otherItem.value
         ? this.renderOther(cssClasses)
         : null;

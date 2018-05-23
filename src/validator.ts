@@ -3,6 +3,7 @@ import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
+import { ConditionRunner } from "./conditions";
 
 export class ValidatorResult {
   constructor(public value: any, public error: SurveyError = null) {}
@@ -22,6 +23,9 @@ export class SurveyValidator extends Base {
   public set text(value: string) {
     this.setLocalizableStringText("text", value);
   }
+  public get isValidateAllValues() {
+    return false;
+  }
   get locText(): LocalizableString {
     return this.getLocalizableString("text");
   }
@@ -35,6 +39,14 @@ export class SurveyValidator extends Base {
   public validate(value: any, name: string = null): ValidatorResult {
     return null;
   }
+  public validateAllValues(
+    value: any,
+    values: any,
+    properties: any,
+    name: string = null
+  ): ValidatorResult {
+    return null;
+  }
   getLocale(): string {
     return this.locOwner ? this.locOwner.getLocale() : "";
   }
@@ -46,14 +58,27 @@ export interface IValidatorOwner {
   validators: Array<SurveyValidator>;
   validatedValue: any;
   getValidatorTitle(): string;
+  getDataFilteredValues(): any;
+  getDataFilteredProperties(): any;
 }
 export class ValidatorRunner {
   public run(owner: IValidatorOwner): SurveyError {
     for (var i = 0; i < owner.validators.length; i++) {
-      var validatorResult = owner.validators[i].validate(
-        owner.validatedValue,
-        owner.getValidatorTitle()
-      );
+      var validatorResult = null;
+      var validator = owner.validators[i];
+      if (!validator.isValidateAllValues) {
+        validatorResult = validator.validate(
+          owner.validatedValue,
+          owner.getValidatorTitle()
+        );
+      } else {
+        validatorResult = validator.validateAllValues(
+          owner.validatedValue,
+          owner.getDataFilteredValues(),
+          owner.getDataFilteredProperties(),
+          owner.getValidatorTitle()
+        );
+      }
       if (validatorResult != null) {
         if (validatorResult.error) return validatorResult.error;
         if (validatorResult.value) {
@@ -114,13 +139,26 @@ export class NumericValidator extends SurveyValidator {
  * Validate text values
  */
 export class TextValidator extends SurveyValidator {
-  constructor(public minLength: number = 0, public maxLength: number = 0) {
+  constructor(
+    public minLength: number = 0,
+    public maxLength: number = 0,
+    public allowDigits = true
+  ) {
     super();
   }
   public getType(): string {
     return "textvalidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
+    if (!this.allowDigits) {
+      var reg = /^[A-Za-z\s]*$/;
+      if (!reg.test(value)) {
+        return new ValidatorResult(
+          null,
+          new CustomError(this.getErrorText(name))
+        );
+      }
+    }
     if (this.minLength > 0 && value.length < this.minLength) {
       return new ValidatorResult(
         null,
@@ -237,6 +275,48 @@ export class EmailValidator extends SurveyValidator {
   }
 }
 
+/**
+ * Show error if expression returns false
+ */
+export class ExpressionValidator extends SurveyValidator {
+  private conditionRunner: ConditionRunner = null;
+  public expression: string;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "expressionvalidator";
+  }
+  public get isValidateAllValues() {
+    return true;
+  }
+  public validateAllValues(
+    value: any,
+    values: any,
+    properties: any,
+    name: string = null
+  ): ValidatorResult {
+    if (!this.expression) return null;
+    if (!this.conditionRunner) {
+      this.conditionRunner = new ConditionRunner(this.expression);
+    }
+    this.conditionRunner.expression = this.expression;
+    var res = this.conditionRunner.run(values, properties);
+    if (!res) {
+      return new ValidatorResult(
+        value,
+        new CustomError(this.getErrorText(name))
+      );
+    }
+    return null;
+  }
+  protected getDefaultErrorText(name: string) {
+    return surveyLocalization
+      .getString("invalidExpression")
+      ["format"](this.expression);
+  }
+}
+
 JsonObject.metaData.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" }
 ]);
@@ -250,7 +330,7 @@ JsonObject.metaData.addClass(
 );
 JsonObject.metaData.addClass(
   "textvalidator",
-  ["minLength:number", "maxLength:number"],
+  ["minLength:number", "maxLength:number", "allowDigits:boolean"],
   function() {
     return new TextValidator();
   },
@@ -277,6 +357,15 @@ JsonObject.metaData.addClass(
   [],
   function() {
     return new EmailValidator();
+  },
+  "surveyvalidator"
+);
+
+JsonObject.metaData.addClass(
+  "expressionvalidator",
+  ["expression:condition"],
+  function() {
+    return new ExpressionValidator();
   },
   "surveyvalidator"
 );

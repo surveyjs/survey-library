@@ -3975,6 +3975,27 @@ QUnit.test(
   }
 );
 
+QUnit.test("exprssion function isContainerReady", function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var panel = page.addNewPanel("panel1");
+    var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
+    var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+    q1.isRequired = q2.isRequired = true;
+    q2.validators.push(new EmailValidator());
+    var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
+    qTest.visible = false;
+    qTest.visibleIf = "isContainerReady('panel1') = true";
+    assert.equal(qTest.isVisible, false, "It is invisibl by default");
+    q1.value = "1";
+    assert.equal(qTest.isVisible, false, "q2 is empty");
+    q2.value = "2";
+    assert.equal(qTest.isVisible, false, "q2 is not e-mail");
+    q2.value = "email@mail.com";
+    assert.equal(qTest.isVisible, true, "isContainerReady returns true");
+  }
+);
+
 QUnit.test(
   "Infinitive loop on setting value to checkbox, if there is a text question with the same name, Bug #1015",
   function(assert) {

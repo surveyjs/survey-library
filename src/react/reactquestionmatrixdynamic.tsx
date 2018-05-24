@@ -58,7 +58,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     );
   }
   renderRow(
-    key: number,
+    index: number,
     row: MatrixDropdownRowModelBase,
     cssClasses: any
   ): JSX.Element {
@@ -66,6 +66,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       <SurveyQuestionMatrixDynamicRow
         key={row.id}
         row={row}
+        index={index}
         cssClasses={cssClasses}
         isDisplayMode={this.isDisplayMode}
         creator={this.creator}

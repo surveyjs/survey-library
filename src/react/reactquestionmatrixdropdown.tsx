@@ -29,13 +29,13 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
     elements.push(<td />);
   }
   renderRow(
-    key: number,
+    index: number,
     row: MatrixDropdownRowModelBase,
     cssClasses: any
   ): JSX.Element {
     return (
       <SurveyQuestionMatrixDropdownRow
-        key={key}
+        key={row.id}
         row={row}
         cssClasses={cssClasses}
         isDisplayMode={this.isDisplayMode}

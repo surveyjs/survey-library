@@ -92,7 +92,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return <tbody>{rows}</tbody>;
   }
   renderRow(
-    key: number,
+    index: number,
     row: MatrixDropdownRowModelBase,
     cssClasses: any
   ): JSX.Element {

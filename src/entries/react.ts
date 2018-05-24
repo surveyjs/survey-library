@@ -42,10 +42,6 @@ export {
 } from "../react/reactquestioncheckbox";
 export { SurveyQuestionDropdown } from "../react/reactquestiondropdown";
 export {
-  SurveyQuestionMatrixDropdown,
-  SurveyQuestionMatrixDropdownRow
-} from "../react/reactquestionmatrixdropdown";
-export {
   SurveyQuestionMatrix,
   SurveyQuestionMatrixRow
 } from "../react/reactquestionmatrix";
@@ -59,6 +55,13 @@ export { SurveyQuestionRadiogroup } from "../react/reactquestionradiogroup";
 export { SurveyQuestionText } from "../react/reactquestiontext";
 export { SurveyQuestionBoolean } from "../react/reactquestionboolean";
 export { SurveyQuestionEmpty } from "../react/reactquestionempty";
+export {
+  SurveyQuestionMatrixDropdownCell
+} from "../react/reactquestionmatrixdropdownbase";
+export {
+  SurveyQuestionMatrixDropdown,
+  SurveyQuestionMatrixDropdownRow
+} from "../react/reactquestionmatrixdropdown";
 export {
   SurveyQuestionMatrixDynamic,
   SurveyQuestionMatrixDynamicRow

@@ -132,7 +132,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get canAddRow(): boolean {
-    return this.rowCount < this.maxRowCount;
+    return !this.isReadOnly && this.rowCount < this.maxRowCount;
   }
   /**
    * Returns true, if a row can be removed.
@@ -141,7 +141,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get canRemoveRow(): boolean {
-    return this.rowCount > this.minRowCount;
+    return !this.isReadOnly && this.rowCount > this.minRowCount;
   }
   /**
    * Creates and add a new row.

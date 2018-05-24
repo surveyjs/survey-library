@@ -3,7 +3,7 @@ import { surveyCss } from "./cssstandard";
 export var defaultBootstrapCss = {
   root: "sv_bootstrap_css",
   header: "panel-heading card-header",
-  body: "panel-body card-block",
+  body: "panel-body card-block mt-4",
   footer: "panel-footer card-footer",
   navigationButton: "",
   completedPage: "",

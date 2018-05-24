@@ -651,6 +651,9 @@ export class QuestionMatrixDropdownModelBase extends Question
   public getType(): string {
     return "matrixdropdownbase";
   }
+  public get isRowsDynamic(): boolean {
+    return false;
+  }
   public get isAllowTitleLeft(): boolean {
     return false;
   }

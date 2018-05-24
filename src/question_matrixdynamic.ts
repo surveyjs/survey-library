@@ -46,6 +46,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
+  public get isRowsDynamic(): boolean {
+    return true;
+  }
   /**
    * Set it to true, to show a confirmation dialog on removing a row
    * @see ConfirmDeleteText

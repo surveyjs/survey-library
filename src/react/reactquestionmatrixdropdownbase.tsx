@@ -7,7 +7,8 @@ import { ISurveyCreator, SurveyElementErrors } from "./reactquestion";
 import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownModelBase
+  QuestionMatrixDropdownModelBase,
+  MatrixDropdownColumn
 } from "../question_matrixdropdownbase";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyCustomWidget } from "./custom-widget";
@@ -24,8 +25,12 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return this.renderTableDiv();
   }
   renderTableDiv(): JSX.Element {
-    var header = this.renderHeader();
-    var rows = this.renderRows();
+    var header = this.question.isColumnsLocationHorizontal
+      ? this.renderHeader()
+      : this.renderRowsAsHeaders();
+    var rows = this.question.isColumnsLocationHorizontal
+      ? this.renderRows()
+      : this.renderColumnsAsRows();
     var divStyle = this.question.horizontalScroll
       ? { overflowX: "scroll" }
       : {};
@@ -61,8 +66,21 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       </thead>
     );
   }
-  protected addHeaderLeft(elements: Array<JSX.Element>) {}
-  protected addHeaderRight(elements: Array<JSX.Element>) {}
+  renderRowsAsHeaders(): JSX.Element {
+    return null;
+  }
+  renderColumnsAsRows(): JSX.Element {
+    var cssClasses = this.question.cssClasses;
+    var rows = [];
+    var columns = this.question.columns;
+    for (var i = 0; i < columns.length; i++) {
+      var column = columns[i];
+      rows.push(this.renderColumnAsRow(i, column, cssClasses));
+    }
+    this.addBottomColumnAsRows(rows);
+    return <tbody>{rows}</tbody>;
+  }
+
   renderRows(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var rows = [];
@@ -80,6 +98,34 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   ): JSX.Element {
     return null;
   }
+  renderColumnAsRow(
+    index: number,
+    column: MatrixDropdownColumn,
+    cssClasses: any
+  ): JSX.Element {
+    var tds = [];
+    if (this.question.showHeader) {
+      var colTitle = this.renderLocString(column.locTitle);
+      tds.push(<td>{colTitle}</td>);
+    }
+    var rows = this.question.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      var cell = rows[i].cells[index];
+      var cellElement = (
+        <SurveyQuestionMatrixDropdownCell
+          key={"cell" + i}
+          cssClasses={cssClasses}
+          cell={cell}
+          creator={this.creator}
+        />
+      );
+      tds.push(cellElement);
+    }
+    return <tr key={"row" + index}>{tds}</tr>;
+  }
+  protected addHeaderLeft(elements: Array<JSX.Element>) {}
+  protected addHeaderRight(elements: Array<JSX.Element>) {}
+  protected addBottomColumnAsRows(elements: Array<JSX.Element>) {}
 }
 
 export class SurveyQuestionMatrixDropdownRowBase extends ReactSurveyElement {

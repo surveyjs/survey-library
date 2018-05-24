@@ -64,11 +64,12 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   ): JSX.Element {
     return (
       <SurveyQuestionMatrixDynamicRow
-        key={key}
+        key={row.id}
         row={row}
         cssClasses={cssClasses}
         isDisplayMode={this.isDisplayMode}
         creator={this.creator}
+        question={this.question}
       />
     );
   }
@@ -88,6 +89,57 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       />
     );
   }
+  protected addBottomColumnAsRows(elements: Array<JSX.Element>) {
+    if (!this.matrix.canRemoveRow) return;
+    var cssClasses = this.question.cssClasses;
+    var tds = [];
+    if (this.question.showHeader) {
+      tds.push(<td />);
+    }
+    var rows = this.question.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      var removeButton = (
+        <SurveyQuestionMatrixDynamicRemoveButton
+          question={this.question}
+          index={i}
+          cssClasses={cssClasses}
+        />
+      );
+      tds.push(<td key={"cell" + i}>{removeButton}</td>);
+    }
+    elements.push(<tr key={"removeRow"}>{tds}</tr>);
+  }
+}
+
+export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement {
+  private question: QuestionMatrixDynamicModel;
+  private index: number;
+  constructor(props: any) {
+    super(props);
+    this.setProperties(props);
+  }
+  componentWillReceiveProps(nextProps: any) {
+    super.componentWillReceiveProps(nextProps);
+    this.setProperties(nextProps);
+  }
+  private setProperties(nextProps: any) {
+    this.question = nextProps.question;
+    this.index = nextProps.index;
+    this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
+  }
+  handleOnRowRemoveClick(event) {
+    this.question.removeRowUI(this.index);
+  }
+  render(): JSX.Element {
+    return (
+      <input
+        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
+        type="button"
+        onClick={this.handleOnRowRemoveClick}
+        value={this.question.removeRowText}
+      />
+    );
+  }
 }
 
 export class SurveyQuestionMatrixDynamicRow extends SurveyQuestionMatrixDropdownRowBase {
@@ -100,27 +152,18 @@ export class SurveyQuestionMatrixDynamicRow extends SurveyQuestionMatrixDropdown
     super.setProperties(nextProps);
     this.question = nextProps.question;
     this.index = nextProps.index;
-    this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
   }
-  handleOnRowRemoveClick(event) {
-    this.question.removeRowUI(this.index);
-  }
-
   protected AddRightCells(tds: Array<JSX.Element>) {
-    if (!this.isDisplayMode && this.question.canRemoveRow) {
-      var removeButton = this.renderButton();
+    if (this.question.canRemoveRow) {
+      var removeButton = (
+        <SurveyQuestionMatrixDynamicRemoveButton
+          question={this.question}
+          index={this.index}
+          cssClasses={this.cssClasses}
+        />
+      );
       tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
     }
-  }
-  protected renderButton(): JSX.Element {
-    return (
-      <input
-        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
-        type="button"
-        onClick={this.handleOnRowRemoveClick}
-        value={this.question.removeRowText}
-      />
-    );
   }
 }
 

@@ -43,6 +43,24 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
       />
     );
   }
+  renderRowsAsHeaders(): JSX.Element {
+    var headers = [];
+    if (this.question.showHeader) {
+      headers.push(<td />);
+    }
+    var rows = this.matrix.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      var key = "column" + i;
+      var row = rows[i] as MatrixDropdownRowModel;
+      var columnTitle = this.renderLocString(row.locText);
+      headers.push(<th key={key}>{columnTitle}</th>);
+    }
+    return (
+      <thead>
+        <tr>{headers}</tr>
+      </thead>
+    );
+  }
 }
 export class SurveyQuestionMatrixDropdownRow extends SurveyQuestionMatrixDropdownRowBase {
   constructor(props: any) {

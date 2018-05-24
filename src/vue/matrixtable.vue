@@ -45,7 +45,8 @@ import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
 import {
   QuestionMatrixDropdownModelBase,
-  MatrixDropdownCell
+  MatrixDropdownCell,
+  MatrixDropdownRowModelBase
 } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
 import { MatrixDropdownRowModel } from "../question_matrixdropdown";

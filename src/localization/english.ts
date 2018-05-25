@@ -42,6 +42,7 @@ export var englishStrings = {
   chooseFile: "Choose file(s)...",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
+  addColumn: "Add column",
   addRow: "Add row",
   removeRow: "Remove",
   addPanel: "Add new",

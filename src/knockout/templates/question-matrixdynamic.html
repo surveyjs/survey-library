@@ -1,4 +1,7 @@
 ﻿<script type="text/html" id="survey-question-matrixdynamic">
+    <div data-bind="visible: question.koIsAddRowOnTop(), css: question.koCss().footer">
+        <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.addRowText" />
+    </div>
     <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
         <table data-bind="visible: question.koIsHorizontalColumnsLocation, css: question.koCss().root">
             <thead data-bind="visible: question.showHeader">
@@ -71,7 +74,7 @@
             </tbody>
         </table>
     </div>
-    <div data-bind="visible: question.koCanAddRow(), css: question.koCss().footer">
+    <div data-bind="visible: question.koIsAddRowOnBottom(), css: question.koCss().footer">
         <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.addRowText" />
     </div>
 </script>

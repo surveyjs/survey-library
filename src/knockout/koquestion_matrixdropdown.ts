@@ -17,7 +17,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koRecalc: any;
   koAddRowClick: any;
   koRemoveRowClick: any;
-  koCanAddRow: any;
+  koIsAddRowOnTop: any;
+  koIsAddRowOnBottom: any;
   koCanRemoveRow: any;
   koIsHorizontalColumnsLocation: any;
   constructor(question: Question) {
@@ -38,9 +39,13 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.koRemoveRowClick = function(data) {
       self.removeRow(data);
     };
-    this.koCanAddRow = ko.pureComputed(function() {
+    this.koIsAddRowOnTop = ko.pureComputed(function() {
       self.koRecalc();
-      return self.canAddRow();
+      return self.isAddRowTop();
+    });
+    this.koIsAddRowOnBottom = ko.pureComputed(function() {
+      self.koRecalc();
+      return self.isAddRowBottom();
     });
     this.koCanRemoveRow = ko.pureComputed(function() {
       self.koRecalc();
@@ -53,7 +58,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.question["koCellAfterRender"] = this.koCellAfterRender;
     this.question["koAddRowClick"] = this.koAddRowClick;
     this.question["koRemoveRowClick"] = this.koRemoveRowClick;
-    this.question["koCanAddRow"] = this.koCanAddRow;
+    this.question["koIsAddRowOnTop"] = this.koIsAddRowOnTop;
+    this.question["koIsAddRowOnBottom"] = this.koIsAddRowOnBottom;
     this.question["koCanRemoveRow"] = this.koCanRemoveRow;
     this.question[
       "koIsHorizontalColumnsLocation"
@@ -105,7 +111,10 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
         .isColumnsLocationHorizontal
     );
   }
-  protected canAddRow(): boolean {
+  protected isAddRowTop(): boolean {
+    return false;
+  }
+  protected isAddRowBottom(): boolean {
     return false;
   }
   protected canRemoveRow(): boolean {

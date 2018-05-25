@@ -20,11 +20,11 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   protected hasRowText(): boolean {
     return false;
   }
-  protected canAddRow(): boolean {
-    return (
-      !this.question.isReadOnly &&
-      (<QuestionMatrixDynamic>this.question).canAddRow
-    );
+  protected isAddRowTop(): boolean {
+    return (<QuestionMatrixDynamic>this.question).isAddRowOnTop;
+  }
+  protected isAddRowBottom(): boolean {
+    return (<QuestionMatrixDynamic>this.question).isAddRowOnBottom;
   }
   protected canRemoveRow(): boolean {
     return (

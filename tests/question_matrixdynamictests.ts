@@ -1091,3 +1091,94 @@ QUnit.test("Matrixdropdown column.index", function(assert) {
     );
   }
 });
+QUnit.test("Matrixdynamic addRowLocation", function(assert) {
+  var question = new QuestionMatrixDynamicModel("matrix");
+  assert.equal(
+    question.isAddRowOnTop,
+    false,
+    "columnsLocation='horizontal', addRowLocation='default', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    true,
+    "columnsLocation='horizontal', addRowLocation='default', #2"
+  );
+  question.addRowLocation = "top";
+  assert.equal(
+    question.isAddRowOnTop,
+    true,
+    "columnsLocation='horizontal', addRowLocation='top', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    false,
+    "columnsLocation='horizontal', addRowLocation='top', #2"
+  );
+  question.addRowLocation = "bottom";
+  assert.equal(
+    question.isAddRowOnTop,
+    false,
+    "columnsLocation='horizontal', addRowLocation='bottom', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    true,
+    "columnsLocation='horizontal', addRowLocation='bottom', #2"
+  );
+  question.addRowLocation = "topBottom";
+  assert.equal(
+    question.isAddRowOnTop,
+    true,
+    "columnsLocation='horizontal', addRowLocation='topBottom', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    true,
+    "columnsLocation='horizontal', addRowLocation='topBottom', #2"
+  );
+  question.columnsLocation = "vertical";
+  question.addRowLocation = "default";
+  assert.equal(
+    question.isAddRowOnTop,
+    true,
+    "columnsLocation='vertical', addRowLocation='default', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    false,
+    "columnsLocation='vertical', addRowLocation='default', #2"
+  );
+  question.addRowLocation = "top";
+  assert.equal(
+    question.isAddRowOnTop,
+    true,
+    "columnsLocation='vertical', addRowLocation='top', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    false,
+    "columnsLocation='vertical', addRowLocation='top', #2"
+  );
+  question.addRowLocation = "bottom";
+  assert.equal(
+    question.isAddRowOnTop,
+    false,
+    "columnsLocation='vertical', addRowLocation='bottom', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    true,
+    "columnsLocation='vertical', addRowLocation='bottom', #2"
+  );
+  question.addRowLocation = "topBottom";
+  assert.equal(
+    question.isAddRowOnTop,
+    true,
+    "columnsLocation='vertical', addRowLocation='topBottom', #1"
+  );
+  assert.equal(
+    question.isAddRowOnBottom,
+    true,
+    "columnsLocation='vertical', addRowLocation='topBottom', #2"
+  );
+});

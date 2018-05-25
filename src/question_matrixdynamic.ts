@@ -235,9 +235,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Use this property to change the default value of add row button text.
    */
   public get addRowText() {
+    var defaultLocName = this.isColumnsLocationHorizontal
+      ? "addRow"
+      : "addColumn";
     return this.getLocalizableStringText(
       "addRowText",
-      surveyLocalization.getString("addRow")
+      surveyLocalization.getString(defaultLocName)
     );
   }
   public set addRowText(val: string) {
@@ -245,6 +248,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   get locAddRowText() {
     return this.getLocalizableString("addRowText");
+  }
+  /**
+   * By default the 'Add Row' button is shown on bottom if columnsLocation is horizontal and on top if columnsLocation is vertial. <br/>
+   * You may set it to "top", "bottom" or "topBottom" (to show on top and bottom).
+   * @see columnsLocation
+   */
+  public get addRowLocation(): string {
+    return this.getPropertyValue("addRowLocation", "default");
+  }
+  public set addRowLocation(val: string) {
+    this.setPropertyValue("addRowLocation", val);
+  }
+  public get isAddRowOnTop() {
+    if (!this.canAddRow) return false;
+    if (this.addRowLocation === "default")
+      return this.columnsLocation === "vertical";
+    return this.addRowLocation !== "bottom";
+  }
+  public get isAddRowOnBottom() {
+    if (!this.canAddRow) return false;
+    if (this.addRowLocation === "default")
+      return this.columnsLocation === "horizontal";
+    return this.addRowLocation !== "top";
   }
   /**
    * Use this property to change the default value of remove row button text.
@@ -426,6 +452,11 @@ JsonObject.metaData.addClass(
     {
       name: "confirmDeleteText",
       serializationProperty: "locConfirmDeleteText"
+    },
+    {
+      name: "addRowLocation",
+      default: "default",
+      choices: ["default", "top", "bottom", "topBottom"]
     },
     { name: "addRowText", serializationProperty: "locAddRowText" },
     { name: "removeRowText", serializationProperty: "locRemoveRowText" }

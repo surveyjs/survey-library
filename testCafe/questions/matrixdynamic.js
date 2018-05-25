@@ -16,6 +16,7 @@ const json = {
       name: "frameworksRate",
       title: "Please rate your teachers",
       addRowText: "Add Subject",
+      addRowLocation: "top",
       horizontalScroll: true,
       columnMinWidth: "120px",
       columnColCount: 1,
@@ -150,9 +151,7 @@ frameworks.forEach(framework => {
       await t
         .click(`${baseSelectorFunc`${rowNumber}${1}`} select`)
         .click(
-          `${baseSelectorFunc`${
-            rowNumber
-          }${1}`} select option[value="Science: Physical Science"]`
+          `${baseSelectorFunc`${rowNumber}${1}`} select option[value="Science: Physical Science"]`
         );
 
       for (i = 2; i < 13; i++) {

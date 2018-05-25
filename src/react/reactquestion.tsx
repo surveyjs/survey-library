@@ -36,6 +36,7 @@ export class SurveyQuestion extends React.Component<any, any> {
       state.error++;
       this.setState(state);
     };
+    if (!this.question) return;
     this.question.titleChangedCallback = () => {
       var state = this.getState();
       state.error++;

@@ -14,6 +14,8 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
       "vertical-align: middle; margin-top: -1px",
     ".sv_bootstrap_css .sv_qstn fieldset": "display: block;",
+    ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline":
+      "display: inline-block;",
 
     ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",

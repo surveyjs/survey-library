@@ -13,12 +13,13 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
       "vertical-align: middle; margin-top: -1px",
+    ".sv_bootstrap_css .sv_qstn fieldset": "display: block;",
 
     ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
 
     ".sv_row .sv_qstn": "float: left",
-    ".sv_row .sv_qstn:last-child": "float: none",    
+    ".sv_row .sv_qstn:last-child": "float: none",
     ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",

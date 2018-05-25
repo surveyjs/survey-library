@@ -50,10 +50,9 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     var mainDiv = this.renderTableDiv();
     return (
       <div ref="matrixDynamicRef">
+        {this.renderAddRowButtonOnTop(cssClasses)}
         {mainDiv}
-        <div className={cssClasses.footer}>
-          {this.renderAddRowButton(cssClasses)}
-        </div>
+        {this.renderAddRowButtonOnBottom(cssClasses)}
       </div>
     );
   }
@@ -79,15 +78,24 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       elements.push(<td />);
     }
   }
+  protected renderAddRowButtonOnTop(cssClasses: any): JSX.Element {
+    if (!this.matrix.isAddRowOnTop) return null;
+    return this.renderAddRowButton(cssClasses);
+  }
+  protected renderAddRowButtonOnBottom(cssClasses: any): JSX.Element {
+    if (!this.matrix.isAddRowOnBottom) return null;
+    return this.renderAddRowButton(cssClasses);
+  }
   protected renderAddRowButton(cssClasses: any): JSX.Element {
-    if (!this.matrix.canAddRow) return null;
     return (
-      <input
-        className={cssClasses.button + " " + cssClasses.buttonAdd}
-        type="button"
-        onClick={this.handleOnRowAddClick}
-        value={this.matrix.addRowText}
-      />
+      <div className={cssClasses.footer}>
+        <input
+          className={cssClasses.button + " " + cssClasses.buttonAdd}
+          type="button"
+          onClick={this.handleOnRowAddClick}
+          value={this.matrix.addRowText}
+        />
+      </div>
     );
   }
   protected addBottomColumnAsRows(elements: Array<JSX.Element>) {

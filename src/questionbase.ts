@@ -66,6 +66,7 @@ export class QuestionBase extends SurveyElement
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
+      this.locStrsChanged();
     }
   }
   public getDataFilteredValues(): any {
@@ -403,9 +404,9 @@ export class QuestionBase extends SurveyElement
         : null;
   }
   public getProcessedText(text: string): string {
-    return this.textProcessor
-      ? this.textProcessor.processText(text, true)
-      : text;
+    if (this.textProcessor) return this.textProcessor.processText(text, true);
+    if (this.locOwner) return this.locOwner.getProcessedText(text);
+    return text;
   }
 }
 JsonObject.metaData.addClass("questionbase", [

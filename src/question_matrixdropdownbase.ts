@@ -168,6 +168,10 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.colOwnerValue = value;
     this.updateTemplateQuestion();
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    this.locTitle.strChanged();
+  }
   public get index() {
     return this.indexValue;
   }
@@ -825,8 +829,15 @@ export class QuestionMatrixDropdownModelBase extends Question
   }
   public locStrsChanged() {
     super.locStrsChanged();
-    for (var i = 0; i < this.columns.length; i++) {
-      this.columns[i].locStrsChanged();
+    var columns = this.columns;
+    for (var i = 0; i < columns.length; i++) {
+      columns[i].locStrsChanged();
+    }
+    var rows = this.generatedVisibleRows;
+    if (rows) {
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].locStrsChanged();
+      }
     }
   }
   /**

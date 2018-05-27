@@ -2857,8 +2857,9 @@ QUnit.test("Survey Markdown - page title", function(assert) {
   );
 });
 
-QUnit.test("Survey Markdown - dropdownmatrix.columns", function(assert) {
+QUnit.test("Survey Markdown and text processing - dropdownmatrix.columns", function(assert) {
   var survey = new SurveyModel();
+  survey.setValue("val1", "-newvalue-");
   survey.onTextMarkdown.add(function(survey, options) {
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
@@ -2866,8 +2867,8 @@ QUnit.test("Survey Markdown - dropdownmatrix.columns", function(assert) {
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
   var col1 = q1.addColumn("col1");
-  var col2 = q1.addColumn("col2", "colText2");
-  var col3 = q1.addColumn("col3", "colText3markdown");
+  var col2 = q1.addColumn("col2", "colText2{val1}");
+  var col3 = q1.addColumn("col3", "colText3{val1}markdown");
   q1.rows = ["row1", "row2"];
   page.addQuestion(q1);
 
@@ -2875,15 +2876,15 @@ QUnit.test("Survey Markdown - dropdownmatrix.columns", function(assert) {
   var loc2 = col2.locTitle;
   var loc3 = col3.locTitle;
   assert.equal(loc1.renderedHtml, "col1", "render column name");
-  assert.equal(loc2.renderedHtml, "colText2", "render column text");
+  assert.equal(loc2.renderedHtml, "colText2-newvalue-", "render column text");
   assert.equal(
     loc3.renderedHtml,
-    "colText3!",
+    "colText3-newvalue-!",
     "render column text as markdown"
   );
 });
 
-QUnit.test("Survey Markdown - nmatrix.rows", function(assert) {
+QUnit.test("Survey Markdown and text processing - nmatrix.rows", function(assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {
     if (options.text.indexOf("markdown") > -1)
@@ -2893,19 +2894,19 @@ QUnit.test("Survey Markdown - nmatrix.rows", function(assert) {
   var q1 = new QuestionMatrixModel("matrixdropdown");
   q1.columns = [1];
   q1.rows = ["row1", "row2", "row3"];
-  q1.rows[1].text = "rowText2";
-  q1.rows[2].text = "rowText3markdown";
+  q1.rows[1].text = "rowText2{val1}";
+  q1.rows[2].text = "rowText3{val1}markdown";
   page.addQuestion(q1);
-
   var loc1 = q1.visibleRows[0].locText;
   var loc2 = q1.visibleRows[1].locText;
   var loc3 = q1.visibleRows[2].locText;
+  survey.setValue("val1", "-newvalue-");
   assert.equal(loc1.renderedHtml, "row1", "render column name");
-  assert.equal(loc2.renderedHtml, "rowText2", "render column text");
+  assert.equal(loc2.renderedHtml, "rowText2-newvalue-", "render column text + text processing");
   assert.equal(
     loc3.renderedHtml,
-    "rowText3!",
-    "render column text as markdown"
+    "rowText3-newvalue-!",
+    "render column text as markdown + text processing"
   );
 });
 

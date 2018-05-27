@@ -377,9 +377,8 @@ export class QuestionBase extends SurveyElement
   public set value(newValue: any) {}
   public clearValue() {}
   public clearValueIfInvisible() {}
-  public onLocaleChanged() {
-    super.onLocaleChanged();
-    this.localeChanged.fire(this, this.getLocale());
+  public locStrsChanged() {
+    super.locStrsChanged();
   }
   onReadOnlyChanged() {}
   onAnyValueChanged(name: string) {}
@@ -396,12 +395,17 @@ export class QuestionBase extends SurveyElement
         ? this.locOwner.getLocale()
         : "";
   }
-  public getMarkdownHtml(text: string) {
+  public getMarkdownHtml(text: string): string {
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
       : this.locOwner
         ? this.locOwner.getMarkdownHtml(text)
         : null;
+  }
+  public getProcessedText(text: string): string {
+    return this.textProcessor
+      ? this.textProcessor.processText(text, true)
+      : text;
   }
 }
 JsonObject.metaData.addClass("questionbase", [

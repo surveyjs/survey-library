@@ -15,15 +15,13 @@ import { AnswerRequiredError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 
-export interface IMultipleTextData {
+export interface IMultipleTextData extends ILocalizableOwner {
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
   getAllValues(): any;
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any);
   getIsRequiredText(): string;
-  getLocale(): string;
-  getMarkdownHtml(text: string): string;
 }
 
 export class MultipleTextItemModel extends Base
@@ -281,10 +279,10 @@ export class QuestionMultipleTextModel extends Question
     json["type"] = "text";
     return json;
   }
-  public onLocaleChanged() {
-    super.onLocaleChanged();
+  public locStrsChanged() {
+    super.locStrsChanged();
     for (var i = 0; i < this.items.length; i++) {
-      this.items[i].onLocaleChanged();
+      this.items[i].locStrsChanged();
     }
   }
   supportGoNextPageAutomatic() {

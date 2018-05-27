@@ -836,11 +836,11 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
   var qLocTitle = (<Question>panel.questions[1]).locTitle;
   assert.equal(
     qLocTitle["koRenderedHtml"](),
-    "",
-    "q2 title is empty by default"
+    "q2",
+    "q2 title show q2 name by default"
   );
   assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
-  question.value = [{ q1: "val1" }];
+  panel.getQuestionByName("q1").value = "val1";
   assert.equal(qLocTitle["koRenderedHtml"](), "val1", "q2 title is q1.value");
   assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });

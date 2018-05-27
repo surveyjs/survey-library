@@ -24,7 +24,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
   private validatorsValue: Array<SurveyValidator>;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
-  titleChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
 
   constructor(public name: string) {
@@ -44,9 +43,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
       this,
       true
     );
-    locDescriptionValue.onGetTextCallback = function(html) {
-      return self.getProcessedHtml(html);
-    };
     this.createLocalizableString("commentText", this, true);
     this.createLocalizableString("requiredErrorText", this);
   }
@@ -142,7 +138,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   public set title(val: string) {
     this.setLocalizableStringText("title", val);
-    this.fireCallback(this.titleChangedCallback);
   }
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
@@ -201,7 +196,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
    * Returns the rendred question title.
    */
   public get processedTitle() {
-    return this.getProcessedHtml(this.locTitleHtml);
+    var res = this.locTitle.textOrHtml;
+    return res ? res : this.name;
+    //return this.getProcessedHtml(this.locTitleHtml);
   }
   /**
    * Returns the title after processing the question template.
@@ -283,7 +280,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public set isRequired(val: boolean) {
     if (this.isRequired == val) return;
     this.setPropertyValue("isRequired", val);
-    this.fireCallback(this.titleChangedCallback);
+    this.locTitle.strChanged();
   }
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment", false);
@@ -349,14 +346,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
   onReadOnlyChanged() {
     this.setPropertyValue("isReadOnly", this.isReadOnly);
-  }
-  onAnyValueChanged(name: string) {
-    if (!name) return;
-    var titleValue = this.locTitle.text;
-    if (!titleValue) return;
-    if (titleValue.toLocaleLowerCase().indexOf("{" + name.toLowerCase()) > -1) {
-      this.fireCallback(this.titleChangedCallback);
-    }
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";

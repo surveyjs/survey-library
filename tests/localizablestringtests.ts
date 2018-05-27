@@ -1,10 +1,12 @@
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
+import { HashTable } from "../src/helpers";
 
 export default QUnit.module("LocalizableString");
 
 class LocalizableOwnerTester implements ILocalizableOwner {
+  public values: HashTable<string> = {};
   public static MarkdownText = "it is a markdown";
   constructor(public locale: string) {}
   public getLocale(): string {
@@ -14,6 +16,12 @@ class LocalizableOwnerTester implements ILocalizableOwner {
     if (text.indexOf("markdown") > -1)
       return LocalizableOwnerTester.MarkdownText;
     return null;
+  }
+  public getProcessedText(text: string): string {
+    for (var key in this.values) {
+      text = text.replace("{" + key + "}", this.values[key]);
+    }
+    return text;
   }
 }
 
@@ -323,6 +331,7 @@ QUnit.test(
     var owner = new LocalizableOwnerTester("");
 
     var locString = new LocalizableStringTester(owner, true);
+    var text = locString.text; //cached text
     locString.text = "enText";
     assert.equal(locString.onChangedCounter, 1, "onChanged called one time");
     owner.locale = "en";
@@ -335,3 +344,22 @@ QUnit.test(
     assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
   }
 );
+
+QUnit.test("getProcessedText, cached text", function(assert) {
+  var owner = new LocalizableOwnerTester("");
+  owner.values["name"] = "John Snow";
+  var locString = new LocalizableStringTester(owner, true);
+  //TODO replace
+  locString.onGetTextCallback = locString.onGetTextCallback;
+  var text = locString.text; //cached text
+  locString.text = "enText";
+  assert.equal(locString.onChangedCounter, 1, "onChanged called one time");
+  owner.locale = "en";
+  locString.text = "enText";
+  assert.equal(
+    locString.onChangedCounter,
+    1,
+    "onChanged called still one time"
+  );
+  assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
+});

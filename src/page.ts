@@ -20,6 +20,10 @@ export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
   constructor(public name: string = "") {
     super(name);
+    var self = this;
+    this.locTitle.onGetTextCallback = function(text) {
+      return self.getRenderedTitle(text);
+    };
   }
   public getType(): string {
     return "page";
@@ -83,7 +87,7 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.wasShown;
   }
   public setWasShown(val: boolean) {
-    if (this.survey.isDesignMode) return;
+    if (this.isDesignMode) return;
     if (val == this.hasShownValue) return;
     if (val == true && this.areQuestionsRandomized) {
       this.randomizeElements();

@@ -115,17 +115,11 @@ export class PanelModelBase extends SurveyElement
     this.id = PanelModelBase.getPanelId();
     var self = this;
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.getRenderedTitle(text);
-    };
     var locDescriptionValue = this.createLocalizableString(
       "description",
       this,
       true
     );
-    locDescriptionValue.onGetTextCallback = function(html) {
-      return self.getProcessedHtml(html);
-    };
     this.createLocalizableString("requiredErrorText", this);
   }
   public setSurveyImpl(value: ISurveyImpl) {
@@ -169,6 +163,12 @@ export class PanelModelBase extends SurveyElement
   public get hasDescription(): boolean {
     return this.description != "";
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].locStrsChanged();
+    }
+  }
   /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
    */
@@ -190,6 +190,11 @@ export class PanelModelBase extends SurveyElement
     return this.survey
       ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
       : null;
+  }
+  getProcessedText(text: string): string {
+    return this.textProcessor
+      ? this.textProcessor.processText(text, true)
+      : text;
   }
   /**
    * A parent element. It is always null for the Page object and always not null for the Panel object. Panel object may contain Questions and other Panels.
@@ -764,20 +769,9 @@ export class PanelModelBase extends SurveyElement
     this.conditionRunner.expression = this.visibleIf;
     this.visible = this.conditionRunner.run(values, properties);
   }
-  onLocaleChanged() {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onLocaleChanged();
-    }
-    this.locTitle.onChanged();
-  }
   onAnyValueChanged(name: string) {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onAnyValueChanged(name);
-    }
-    var titleValue = this.locTitle.text;
-    if (!titleValue) return;
-    if (titleValue.toLocaleLowerCase().indexOf("{" + name.toLowerCase()) > -1) {
-      this.locTitle.onChanged();
     }
   }
   onReadOnlyChanged() {

@@ -529,8 +529,17 @@ export class PanelModelBase extends SurveyElement
     while (res.parent) res = res.parent;
     return res;
   }
+  protected childVisibilityChangeHandler = () => {
+    var pageIsVisible = this.getIsPageVisible(null);
+    var oldPageIsVisible = this.getPropertyValue("isVisible");
+    if (pageIsVisible !== oldPageIsVisible) {
+      this.onVisibleChanged();
+    }
+  };
   protected createRow(): QuestionRowModel {
-    return new QuestionRowModel(this);
+    var result = new QuestionRowModel(this);
+    result.visibilityChangedCallback = this.childVisibilityChangeHandler;
+    return result;
   }
   onSurveyLoad() {
     for (var i = 0; i < this.elements.length; i++) {

@@ -108,7 +108,9 @@ export class Panel extends PanelModel {
     this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
-    return new QuestionRow(this);
+    var result = new QuestionRow(this);
+    result.visibilityChangedCallback = this.childVisibilityChangeHandler;
+    return result;
   }
   protected onCreating() {}
   protected onNumChanged(value: number) {

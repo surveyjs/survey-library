@@ -600,10 +600,7 @@ export class SurveyModel extends Base
   constructor(jsonObj: any = null) {
     super();
     var self = this;
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.processedTitle;
-    };
+    this.createLocalizableString("title", this, true);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
@@ -1125,7 +1122,7 @@ export class SurveyModel extends Base
    * Returns the text/html that renders as survey title.
    */
   public get processedTitle() {
-    return this.processText(this.locTitle.textOrHtml, true);
+    return this.locTitle.renderedHtml;
   }
   /**
    * Set this property to 'bottom' or 'left' to show question title under the question or on the left.

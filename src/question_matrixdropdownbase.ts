@@ -318,7 +318,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     var self = this;
-    this.templateQuestion.locTitle.onRenderedHtmlCallback = function(text) {
+    this.templateQuestion.locTitle.onGetTextCallback = function(text) {
       return self.getFullTitle(text);
     };
     this.templateQuestion.onPropertyChanged.add(function() {

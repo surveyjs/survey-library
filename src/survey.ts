@@ -600,10 +600,7 @@ export class SurveyModel extends Base
   constructor(jsonObj: any = null) {
     super();
     var self = this;
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.processedTitle;
-    };
+    this.createLocalizableString("title", this, true);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
@@ -912,18 +909,25 @@ export class SurveyModel extends Base
     this.localeValue = value;
     this.setPropertyValue("locale", value);
     surveyLocalization.currentLocale = value;
-    for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].onLocaleChanged();
-    }
+    this.locStrsChanged();
   }
   //ILocalizableOwner
   getLocale() {
     return this.locale;
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    if (this.currentPage) {
+      this.currentPage.locStrsChanged();
+    }
+  }
   public getMarkdownHtml(text: string) {
     var options = { text: text, html: null };
     this.onTextMarkdown.fire(this, options);
     return options.html;
+  }
+  public getProcessedText(text: string) {
+    return this.processText(text, true);
   }
   getLocString(str: string) {
     return surveyLocalization.getString(str);
@@ -1118,7 +1122,7 @@ export class SurveyModel extends Base
    * Returns the text/html that renders as survey title.
    */
   public get processedTitle() {
-    return this.processText(this.locTitle.textOrHtml, true);
+    return this.locTitle.renderedHtml;
   }
   /**
    * Set this property to 'bottom' or 'left' to show question title under the question or on the left.
@@ -2185,6 +2189,7 @@ export class SurveyModel extends Base
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
+    this.locStrsChanged();
   }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();

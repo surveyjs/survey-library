@@ -1,4 +1,5 @@
 import { Survey } from "../../src/knockout/kosurvey";
+import { PanelModel } from "../../src/panel";
 import { QuestionText } from "../../src/knockout/koquestion_text";
 import { QuestionDropdown } from "../../src/knockout/koquestion_dropdown";
 import { QuestionCheckbox } from "../../src/knockout/koquestion_checkbox";
@@ -836,11 +837,11 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
   var qLocTitle = (<Question>panel.questions[1]).locTitle;
   assert.equal(
     qLocTitle["koRenderedHtml"](),
-    "",
-    "q2 title is empty by default"
+    "q2",
+    "q2 title show q2 name by default"
   );
   assert.equal(pLocTitle["koRenderedHtml"](), "", "np1 title is empty");
-  question.value = [{ q1: "val1" }];
+  panel.getQuestionByName("q1").value = "val1";
   assert.equal(qLocTitle["koRenderedHtml"](), "val1", "q2 title is q1.value");
   assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });
@@ -1185,3 +1186,60 @@ function createPageWithQuestion(name: string): Page {
   page.addNewQuestion("text", "q1");
   return page;
 }
+
+QUnit.test("koquestion inside panel vidibleif", function(assert) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "dropdown",
+            name: "question1",
+            choices: ["item1", "item2", "item3"]
+          },
+          {
+            type: "checkbox",
+            name: "question2",
+            choices: ["item1", "item2", "item3"]
+          },
+          {
+            type: "panel",
+            name: "panel1",
+            elements: [
+              {
+                type: "rating",
+                name: "question3",
+                visibleIf: "{question2} contain 'item2'"
+              }
+            ],
+            visibleIf: "{question1} equal 'item1'",
+            state: "collapsed"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new Survey(json);
+
+  var q1 = <Question>survey.getQuestionByName("question1");
+  var q2 = <Question>survey.getQuestionByName("question2");
+  var q3 = <Question>survey.getQuestionByName("question3");
+  var p1 = <Panel>survey.getPanelByName("panel1");
+
+  q1.value = "item1";
+  assert.notOk(p1.isVisible);
+  assert.notOk(q3.isVisible);
+  assert.ok(p1.visible);
+  assert.notOk(q3.visible);
+  assert.notOk(p1.koVisible());
+  assert.notOk(q3["koVisible"]());
+
+  q2.value = ["item2"];
+  assert.ok(p1.isVisible);
+  assert.ok(q3.isVisible);
+  assert.ok(p1.visible);
+  assert.ok(q3.visible);
+  assert.ok(p1.koVisible());
+  assert.ok(q3["koVisible"]());
+});

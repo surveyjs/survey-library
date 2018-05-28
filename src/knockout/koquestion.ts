@@ -21,9 +21,6 @@ export class QuestionImplementor extends QuestionImplementorBase {
     question.errorsChangedCallback = function() {
       self.onErrorsChanged();
     };
-    question.titleChangedCallback = function() {
-      self.onVisibleIndexChanged();
-    };
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });

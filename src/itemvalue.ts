@@ -71,9 +71,9 @@ export class ItemValue {
     var item = ItemValue.getItemByValue(items, val);
     return item !== null ? item.locText.textOrHtml : "";
   }
-  public static NotifyArrayOnLocaleChanged(items: Array<ItemValue>) {
+  public static locStrsChanged(items: Array<ItemValue>) {
     for (var i = 0; i < items.length; i++) {
-      items[i].locText.onChanged();
+      items[i].locText.strChanged();
     }
   }
   private static itemValueProp = [

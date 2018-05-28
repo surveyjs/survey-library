@@ -5,8 +5,6 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
   }
-  localeChangedHandler = sender =>
-    (sender.customWidgetData.isNeedRender = true);
   private _afterRender() {
     if (this.questionBase.customWidget) {
       let el = this.refs["widget"];
@@ -19,7 +17,6 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   componentDidMount() {
     if (this.questionBase) {
       this._afterRender();
-      this.questionBase.localeChanged.add(this.localeChangedHandler);
     }
   }
   componentDidUpdate() {
@@ -34,7 +31,6 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
         this.questionBase.customWidget.willUnmount(this.questionBase, el);
       }
     }
-    this.questionBase.localeChanged.remove(this.localeChangedHandler);
   }
   render(): JSX.Element {
     if (!this.questionBase || !this.creator) {

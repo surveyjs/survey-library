@@ -42,7 +42,7 @@ export class LocalizableString {
   }
   private calText(): string {
     var res = this.pureText;
-    if (this.owner && this.owner.getProcessedText) {
+    if (res && this.owner && this.owner.getProcessedText && res.indexOf('{') > -1) {
       res = this.owner.getProcessedText(res);
     }
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);

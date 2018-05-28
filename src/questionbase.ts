@@ -34,14 +34,6 @@ export class QuestionBase extends SurveyElement
   private isCustomWidgetRequested: boolean = false;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
-  /**
-   * The event is fired when the survey change it's locale
-   * @see SurveyModel.locale
-   */
-  public localeChanged: Event<(sender: QuestionBase) => any, any> = new Event<
-    (sender: QuestionBase) => any,
-    any
-  >();
   focusCallback: () => void;
   surveyLoadCallback: () => void;
 

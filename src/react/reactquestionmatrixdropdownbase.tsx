@@ -106,7 +106,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var tds = [];
     if (this.question.showHeader) {
       var colTitle = this.renderLocString(column.locTitle);
-      tds.push(<td>{colTitle}</td>);
+      tds.push(<td key={"header"}>{colTitle}</td>);
     }
     var rows = this.question.visibleRows;
     for (var i = 0; i < rows.length; i++) {
@@ -121,7 +121,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       );
       tds.push(cellElement);
     }
-    return <tr key={"row" + index}>{tds}</tr>;
+    return <tr key={"columnAsrow" + index}>{tds}</tr>;
   }
   protected addHeaderLeft(elements: Array<JSX.Element>) {}
   protected addHeaderRight(elements: Array<JSX.Element>) {}
@@ -172,10 +172,7 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.setProperties(props);
-    if (this.cell && this.cell.question) {
-      var q = this.cell.question;
-      this.state = { isReadOnly: q.isReadOnly, visible: q.visible };
-    }
+    this.state = this.getState();
   }
   componentWillReceiveProps(nextProps: any) {
     super.componentWillReceiveProps(nextProps);
@@ -185,6 +182,13 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
     this.cell = nextProps.cell;
     this.creator = nextProps.creator;
   }
+  private getState(increaseError: boolean = false): any {
+    if(!this.cell || !this.cell.question) return;
+    var q = this.cell.question;
+    var error = (!!this.state && !!this.state.error) ? this.state.error : 0;
+    if(increaseError) error++;
+    return { isReadOnly: q.isReadOnly, visible: q.visible, error: error }
+  }
   componentDidMount() {
     this.doAfterRender();
     if (this.cell && this.cell.question) {
@@ -192,21 +196,25 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
       this.cell.question.registerFunctionOnPropertyValueChanged(
         "isReadOnly",
         function() {
-          self.setState({ isReadOnly: self.cell.question.isReadOnly });
+          self.setState(self.getState());
         },
         "react"
       );
       this.cell.question.registerFunctionOnPropertyValueChanged(
         "visible",
         function() {
-          self.setState({ visible: self.cell.question.visible });
+          self.setState(self.getState());
         },
         "react"
       );
+      this.cell.question.errorsChangedCallback = () => {
+        self.setState(self.getState(true));
+      };
     }
   }
   componentWillUnmount() {
     if (this.cell && this.cell.question) {
+      this.cell.question.errorsChangedCallback = null;
       this.cell.question.unRegisterFunctionOnPropertiesValueChanged(
         ["visible", "isReadOnly"],
         "react"

@@ -103,7 +103,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     var cssClasses = this.question.cssClasses;
     var tds = [];
     if (this.question.showHeader) {
-      tds.push(<td />);
+      tds.push(<td key={"header"} />);
     }
     var rows = this.question.visibleRows;
     for (var i = 0; i < rows.length; i++) {

@@ -660,6 +660,13 @@ export class QuestionMatrixDropdownModelBase extends Question
       self.generatedVisibleRows = null;
       self.fireCallback(self.columnsChangedCallback);
     });
+    this.registerFunctionOnPropertiesValueChanged(["columnsLocation", "addRowLocation"], function() {
+      self.fireCallback(self.columnsLocationChangedCallback);
+    });
+    this.registerFunctionOnPropertyValueChanged("cellType", function() {
+      self.generatedVisibleRows = null;
+      self.fireCallback(self.columnsChangedCallback);
+    });
   }
   public getType(): string {
     return "matrixdropdownbase";

@@ -110,6 +110,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       (<QuestionMatrixDropdownModelBase>this.question)
         .isColumnsLocationHorizontal
     );
+    this.koRecalc(this.koRecalc() + 1);
   }
   protected isAddRowTop(): boolean {
     return false;
@@ -120,8 +121,13 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   protected canRemoveRow(): boolean {
     return false;
   }
-  protected onColumnChanged() {}
-  protected onRowCountChanged() {}
+  protected onColumnChanged() {
+    var rows = (<QuestionMatrixDropdownModelBase>this.question).visibleRows;
+    this.onRowCountChanged();
+  }
+  protected onRowCountChanged() {
+    this.koRecalc(this.koRecalc() + 1);
+  }
   protected addRow() {}
   protected removeRow(row: MatrixDropdownRowModelBase) {}
   protected onUpdateCells() {}

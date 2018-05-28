@@ -39,13 +39,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
     if (rows && rows.length > 0 && columns && columns.length > 0)
       this.onColumnChanged();
   }
-  protected onColumnChanged() {
-    var rows = (<QuestionMatrixDynamic>this.question).visibleRows;
-    this.onRowCountChanged();
-  }
-  protected onRowCountChanged() {
-    this.koRecalc(this.koRecalc() + 1);
-  }
   protected addRow() {
     (<QuestionMatrixDynamic>this.question).addRow();
   }

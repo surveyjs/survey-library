@@ -508,7 +508,7 @@ export class QuestionPanelDynamicModel extends Question
         if (this.panelsState === "expand") {
           newItem.panel.expand();
         } else {
-          newItem.panel.collapse();          
+          newItem.panel.collapse();
         }
       }
     }
@@ -741,7 +741,7 @@ export class QuestionPanelDynamicModel extends Question
   public addPanelUI(): PanelModel {
     if (!this.canAddPanel) return null;
     var newPanel = this.addPanel();
-    if (this.renderMode === "list" && this.panelsState !== "default" ) {
+    if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
     return newPanel;
@@ -801,6 +801,13 @@ export class QuestionPanelDynamicModel extends Question
       if (this.items[i] === val || this.items[i].panel === val) return i;
     }
     return -1;
+  }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      panels[i].locStrsChanged();
+    }
   }
   public clearIncorrectValues() {
     for (var i = 0; i < this.panels.length; i++) {

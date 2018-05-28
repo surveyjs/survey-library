@@ -50,8 +50,11 @@ export class SurveyValidator extends Base {
   getLocale(): string {
     return this.locOwner ? this.locOwner.getLocale() : "";
   }
-  getMarkdownHtml(text: string) {
+  getMarkdownHtml(text: string): string {
     return this.locOwner ? this.locOwner.getMarkdownHtml(text) : null;
+  }
+  getProcessedText(text: string): string {
+    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
   }
 }
 export interface IValidatorOwner {

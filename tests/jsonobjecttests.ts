@@ -19,6 +19,9 @@ class Car extends Base implements ILocalizableOwner {
   getMarkdownHtml(text: string): string {
     return text;
   }
+  getProcessedText(text: string): string {
+    return text;
+  }
 }
 class FastCar extends Car {
   constructor() {

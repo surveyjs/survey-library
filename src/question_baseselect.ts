@@ -344,10 +344,6 @@ export class QuestionSelectBase extends Question {
     super.setSurveyImpl(value);
     this.runChoicesByUrl();
   }
-  public onLocaleChanged() {
-    super.onLocaleChanged();
-    this.onVisibleChoicesChanged();
-  }
   protected getStoreOthersAsComment() {
     return (
       (this.storeOthersAsComment &&

@@ -51,6 +51,7 @@ export interface IMatrixDropdownData {
   ): Question;
   getLocale(): string;
   getMarkdownHtml(text: string): string;
+  getProcessedText(text: string): string;
   getSurvey(): ISurvey;
 }
 
@@ -167,6 +168,10 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.colOwnerValue = value;
     this.updateTemplateQuestion();
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    this.locTitle.strChanged();
+  }
   public get index() {
     return this.indexValue;
   }
@@ -267,8 +272,11 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public getLocale(): string {
     return this.colOwner ? this.colOwner.getLocale() : "";
   }
-  public getMarkdownHtml(text: string) {
+  public getMarkdownHtml(text: string): string {
     return this.colOwner ? this.colOwner.getMarkdownHtml(text) : null;
+  }
+  public getProcessedText(text: string): string {
+    return this.colOwner ? this.colOwner.getProcessedText(text) : text;
   }
   public createCellQuestion(data: any): Question {
     var qType = this.calcCellQuestionType();
@@ -558,12 +566,15 @@ export class MatrixDropdownRowModelBase
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
   }
-  public getMarkdownHtml(text: string) {
+  public getMarkdownHtml(text: string): string {
     return this.data ? this.data.getMarkdownHtml(text) : null;
   }
-  public onLocaleChanged() {
+  public getProcessedText(text: string): string {
+    return this.data ? this.data.getProcessedText(text) : text;
+  }
+  public locStrsChanged() {
     for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].question.onLocaleChanged();
+      this.cells[i].question.locStrsChanged();
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
@@ -603,10 +614,12 @@ export class MatrixDropdownRowModelBase
   }
   processText(text: string, returnDisplayValue: boolean): string {
     text = this.textPreProcessor.process(text, returnDisplayValue);
+    if (!this.getSurvey()) return text;
     return this.getSurvey().processText(text, returnDisplayValue);
   }
   processTextEx(text: string, returnDisplayValue: boolean): any {
     text = this.processText(text, returnDisplayValue);
+    if (!this.getSurvey()) return text;
     var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     var res = this.getSurvey().processTextEx(text, returnDisplayValue);
     res.hasAllValuesOnLastRun =
@@ -814,17 +827,18 @@ export class QuestionMatrixDropdownModelBase extends Question
       rows[i].runCondition(newValues, properties);
     }
   }
-  public onLocaleChanged() {
-    super.onLocaleChanged();
-    for (var i = 0; i < this.columns.length; i++) {
-      this.columns[i].onLocaleChanged();
+  public locStrsChanged() {
+    super.locStrsChanged();
+    var columns = this.columns;
+    for (var i = 0; i < columns.length; i++) {
+      columns[i].locStrsChanged();
     }
-    var rows = this.visibleRows;
-    if (!rows) return;
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].onLocaleChanged();
+    var rows = this.generatedVisibleRows;
+    if (rows) {
+      for (var i = 0; i < rows.length; i++) {
+        rows[i].locStrsChanged();
+      }
     }
-    this.fireCallback(this.updateCellsCallback);
   }
   /**
    * Returns the column by it's name. Retuns null if a column with this name doesn't exist.

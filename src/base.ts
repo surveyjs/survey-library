@@ -98,6 +98,7 @@ export interface ISurveyElement {
   onSurveyLoad();
   getType(): string;
   setVisibleIndex(value: number): number;
+  locStrsChanged();
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -108,7 +109,6 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   startWithNewLine: boolean;
   isPanel: boolean;
   removeElement(el: IElement): boolean;
-  onLocaleChanged();
   onReadOnlyChanged();
   onAnyValueChanged(name: string);
   updateCustomWidgets();
@@ -199,17 +199,17 @@ export class Base {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
-  public onLocaleChanged() {
+  public locStrsChanged() {
     for (let key in this.arraysInfo) {
       let item = this.arraysInfo[key];
       if (item && item.isItemValues) {
         var arr = this.getPropertyValue(key);
-        if (arr) ItemValue.NotifyArrayOnLocaleChanged(arr);
+        if (arr) ItemValue.locStrsChanged(arr);
       }
     }
     for (let key in this.localizableStrings) {
       let item = this.getLocalizableString(key);
-      if (item) item.onChanged();
+      if (item) item.strChanged();
     }
   }
   /**

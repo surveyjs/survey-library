@@ -912,18 +912,25 @@ export class SurveyModel extends Base
     this.localeValue = value;
     this.setPropertyValue("locale", value);
     surveyLocalization.currentLocale = value;
-    for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].onLocaleChanged();
-    }
+    this.locStrsChanged();
   }
   //ILocalizableOwner
   getLocale() {
     return this.locale;
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    if (this.currentPage) {
+      this.currentPage.locStrsChanged();
+    }
+  }
   public getMarkdownHtml(text: string) {
     var options = { text: text, html: null };
     this.onTextMarkdown.fire(this, options);
     return options.html;
+  }
+  public getProcessedText(text: string) {
+    return this.processText(text, true);
   }
   getLocString(str: string) {
     return surveyLocalization.getString(str);
@@ -2185,6 +2192,7 @@ export class SurveyModel extends Base
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
+    this.locStrsChanged();
   }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();

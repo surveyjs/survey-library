@@ -3,6 +3,7 @@ import { Helpers } from "./helpers";
 export interface ILocalizableOwner {
   getLocale(): string;
   getMarkdownHtml(text: string): string;
+  getProcessedText(text: string): string;
 }
 /**
  * The class represents the string that supports multi-languages and markdown.
@@ -12,8 +13,11 @@ export class LocalizableString {
   public static defaultLocale: string = "default";
   private values = {};
   private htmlValues = {};
+  private renderedText: string = null;
+  private calculatedText: string = null;
   public onRenderedHtmlCallback: (html: string) => string;
   public onGetTextCallback: (str: string) => string = null;
+  public onStrChanged: () => void;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false
@@ -23,8 +27,24 @@ export class LocalizableString {
   public get locale() {
     return this.owner ? this.owner.getLocale() : "";
   }
+  public strChanged() {
+    if (this.renderedText === null) return;
+    this.calculatedText = this.calText();
+    if (this.renderedText !== this.calculatedText) {
+      this.onChanged();
+    }
+  }
   public get text(): string {
+    this.renderedText =
+      this.calculatedText !== null ? this.calculatedText : this.calText();
+    this.calculatedText = null;
+    return this.renderedText;
+  }
+  private calText(): string {
     var res = this.pureText;
+    if (res && this.owner && this.owner.getProcessedText && res.indexOf('{') > -1) {
+      res = this.owner.getProcessedText(res);
+    }
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);
     return res;
   }
@@ -92,7 +112,7 @@ export class LocalizableString {
         }
       }
     }
-    this.onChanged();
+    this.strChanged();
   }
   public getJson(): any {
     var keys = Object.keys(this.values);
@@ -112,13 +132,15 @@ export class LocalizableString {
         this.setLocaleText(key, value[key]);
       }
     }
-    this.onChanged();
+    this.strChanged();
   }
   public equals(obj: any) {
     if (!obj || !obj.values) return false;
     return Helpers.isTwoValueEquals(this.values, obj.values);
   }
-  public onChanged() {}
+  public onChanged() {
+    if (this.onStrChanged) this.onStrChanged();
+  }
   protected onCreating() {}
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;

@@ -96,16 +96,10 @@ export class QuestionSelectBase extends Question {
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
-    var itemValue = values["item"];
     this.setConditionalChoicesRunner();
     var hasChanges = this.runConditionsForItems(values, properties);
     if (this.filteredChoicesValue.length === this.activeChoices.length) {
       this.filteredChoicesValue = null;
-    }
-    if (itemValue) {
-      values["item"] = itemValue;
-    } else {
-      delete values["item"];
     }
     if (hasChanges) {
       if (!!this.filteredChoicesValue) {
@@ -132,26 +126,13 @@ export class QuestionSelectBase extends Question {
     properties: HashTable<any>
   ): boolean {
     this.filteredChoicesValue = [];
-    var choices = this.activeChoices;
-    var hasChanded = false;
-    for (var i = 0; i < choices.length; i++) {
-      var item = choices[i];
-      values["item"] = item.value;
-      var runner = this.getConditionRunnerByItem(item);
-      if (runner) {
-        var vis = runner.run(values, properties);
-        if (vis) {
-          this.filteredChoicesValue.push(item);
-        }
-        if (vis != item.isVisible) {
-          hasChanded = true;
-          item.setIsVisible(vis);
-        }
-      } else {
-        this.filteredChoicesValue.push(item);
-      }
-    }
-    return hasChanded;
+    return ItemValue.runConditionsForItems(
+      this.activeChoices,
+      this.filteredChoices,
+      this.conditionChoicesVisibleIfRunner,
+      values,
+      properties
+    );
   }
   private getConditionRunnerByItem(item: ItemValue): ConditionRunner {
     var runner = item.getConditionRunner();

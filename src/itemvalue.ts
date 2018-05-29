@@ -76,6 +76,45 @@ export class ItemValue {
       items[i].locText.strChanged();
     }
   }
+  public static runConditionsForItems(
+    items: Array<ItemValue>,
+    filteredItems: Array<ItemValue>,
+    runner: ConditionRunner,
+    values: any,
+    properties: any
+  ): boolean {
+    if (!values) {
+      values = {};
+    }
+    var itemValue = values["item"];
+    var hasChanded = false;
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      values["item"] = item.value;
+      var itemRunner = item.getConditionRunner();
+      if (!itemRunner) {
+        itemRunner = runner;
+      }
+      if (itemRunner) {
+        var vis = itemRunner.run(values, properties);
+        if (vis) {
+          filteredItems.push(item);
+        }
+        if (vis != item.isVisible) {
+          hasChanded = true;
+          item.setIsVisible(vis);
+        }
+      } else {
+        filteredItems.push(item);
+      }
+    }
+    if (itemValue) {
+      values["item"] = itemValue;
+    } else {
+      delete values["item"];
+    }
+    return hasChanded;
+  }
   private static itemValueProp = [
     "text",
     "value",

@@ -139,7 +139,7 @@ To build library yourself:
     This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
 ## Wordpress
-We have [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) in the official wordpress repo
+We have a [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) in the official wordpress repo
 
 ## License
 

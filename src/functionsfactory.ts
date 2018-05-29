@@ -105,3 +105,8 @@ function isContainerReady(params: any[]): any {
   return true;
 }
 FunctionFactory.Instance.register("isContainerReady", isContainerReady);
+
+function isDisplayMode() {
+  return this.survey && this.survey.isDisplayMode;
+ }
+ FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);

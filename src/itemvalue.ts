@@ -95,17 +95,18 @@ export class ItemValue {
       if (!itemRunner) {
         itemRunner = runner;
       }
+      var vis = true;
       if (itemRunner) {
-        var vis = itemRunner.run(values, properties);
+        vis = itemRunner.run(values, properties);
         if (vis) {
           filteredItems.push(item);
         }
-        if (vis != item.isVisible) {
-          hasChanded = true;
-          item.setIsVisible(vis);
-        }
       } else {
         filteredItems.push(item);
+      }
+      if (vis != item.isVisible) {
+        hasChanded = true;
+        item.setIsVisible(vis);
       }
     }
     if (itemValue) {

@@ -846,6 +846,26 @@ QUnit.test("PanelDynamic and koRenderedHtml on text processing", function(
   assert.equal(pLocTitle["koRenderedHtml"](), "val1", "np1 title is q1.value");
 });
 
+QUnit.test("koSurvey matrix.rowsVisibleIf", function(assert) {
+  var survey = new Survey();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckbox("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrix("bestCar");
+  qBestCar.columns = ["col1"];
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.koVisibleRows().length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.koVisibleRows().length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.koVisibleRows().length, 3, "3 cars are selected");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.koVisibleRows().length, 4, "there is no filter");
+});
+
 export class DesignerSurveyTester extends Survey {
   constructor(
     jsonObj: any = null,

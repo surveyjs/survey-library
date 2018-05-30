@@ -34,6 +34,11 @@ export class QuestionSelectBase extends Question {
     super(name);
     var self = this;
     this.choicesValues = this.createItemValues("choices");
+    this.registerFunctionOnPropertyValueChanged("choices", function() {
+      if (!self.filterItems()) {
+        self.onVisibleChoicesChanged();
+      }
+    });
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
     var locOtherText = this.createLocalizableString("otherText", this, true);
@@ -210,9 +215,6 @@ export class QuestionSelectBase extends Question {
   }
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
-    if (!this.filterItems()) {
-      this.onVisibleChoicesChanged();
-    }
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.

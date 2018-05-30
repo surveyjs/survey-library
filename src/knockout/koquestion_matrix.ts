@@ -8,6 +8,7 @@ import { QuestionImplementor } from "./koquestion";
 import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { ItemValue } from "../itemvalue";
+import { Helpers } from "../helpers";
 
 export class MatrixRow extends MatrixRowModel {
   private isValueUpdating = false;
@@ -32,14 +33,26 @@ export class MatrixRow extends MatrixRowModel {
   }
   protected onValueChanged() {
     this.isValueUpdating = true;
-    this.koValue(this.value);
+    if (!Helpers.isTwoValueEquals(this.koValue(), this.value)) {
+      this.koValue(this.value);
+    }
     this.isValueUpdating = false;
   }
 }
 export class QuestionMatrix extends QuestionMatrixModel {
+  koVisibleRows: any;
   constructor(public name: string) {
     super(name);
     new QuestionImplementor(this);
+    this.koVisibleRows = ko.observable(this.visibleRows);
+  }
+  protected onRowsChanged() {
+    super.onRowsChanged();
+    this.koVisibleRows(this.visibleRows);
+  }
+  public onSurveyLoad() {
+    super.onSurveyLoad();
+    this.koVisibleRows(this.visibleRows);
   }
   protected createMatrixRow(
     item: ItemValue,

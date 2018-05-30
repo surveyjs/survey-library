@@ -182,12 +182,19 @@ export class QuestionMatrixModel extends Question
   private isRowChanging = false;
   private generatedVisibleRows: Array<MatrixRowModel>;
   private cellsValue;
+  public rowChangedCallback: () => void;
   constructor(public name: string) {
     super(name);
     this.filteredRows = null;
     this.columnsValue = this.createItemValues("columns");
     this.rowsValue = this.createItemValues("rows");
     this.cellsValue = new MartrixCells(this);
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("rows", function() {
+      if (!self.filterItems()) {
+        self.onRowsChanged();
+      }
+    });
   }
   public getType(): string {
     return "matrix";
@@ -259,6 +266,9 @@ export class QuestionMatrixModel extends Question
   getColumns(): Array<any> {
     return this.columns;
   }
+  protected onRowsChanged() {
+    this.fireCallback(this.rowChangedCallback);
+  }
   /**
    * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
    * @see visibleIf
@@ -286,7 +296,9 @@ export class QuestionMatrixModel extends Question
     properties: HashTable<any>
   ): boolean {
     var hasChanges = this.runConditionsForRows(values, properties);
-    //TODO
+    if (hasChanges) {
+      this.onRowsChanged();
+    }
     return hasChanges;
   }
   private runConditionsForRows(
@@ -480,6 +492,7 @@ JsonObject.metaData.addClass(
         obj.rows = value;
       }
     },
+    "rowsVisibleIf:condition",
     { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"
   ],

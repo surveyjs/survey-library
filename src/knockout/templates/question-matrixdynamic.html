@@ -36,7 +36,8 @@
                 <!-- /ko -->
             </tbody>
         </table>
-        <table data-bind="visible: !question.koIsHorizontalColumnsLocation(), css: question.koCss().root">
+        <!-- ko if: !question.koIsHorizontalColumnsLocation() -->
+        <table data-bind="css: question.koCss().root">
             <!-- ko if: question.hasRowText -->
                 <thead>
                     <tr>
@@ -73,6 +74,7 @@
                 <!-- /ko -->
             </tbody>
         </table>
+        <!-- /ko -->
     </div>
     <div data-bind="visible: question.koIsAddRowOnBottom(), css: question.koCss().footer">
         <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.addRowText" />

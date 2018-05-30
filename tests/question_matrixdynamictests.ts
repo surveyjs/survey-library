@@ -1182,3 +1182,48 @@ QUnit.test("Matrixdynamic addRowLocation", function(assert) {
     "columnsLocation='vertical', addRowLocation='topBottom', #2"
   );
 });
+
+QUnit.test(
+  "cannot use visibleIf and clearInvisibleValues = 'onHidden' together in matrixdynamic with preloaded bug #1137",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          name: "acl",
+          type: "matrixdynamic",
+          rowCount: 0,
+          addRowText: "Add a new entry",
+          columns: [
+            {
+              name: "foo",
+              cellType: "text"
+            },
+            {
+              cellType: "checkbox",
+              isRequired: true,
+              choices: ["Algeria", "American Samoa"],
+              name: "countries",
+              visibleIf: "{row.foo} notempty"
+            }
+          ]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+
+    survey.clearInvisibleValues = "onHidden";
+
+    survey.data = {
+      acl: [{ foo: "sdsa", countries: ["Algeria", "American Samoa"] }]
+    };
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("acl");
+    var checkQuestion = <QuestionCheckboxModel>question.visibleRows[0].cells[1]
+      .question;
+    assert.deepEqual(
+      checkQuestion.value,
+      ["Algeria", "American Samoa"],
+      "It should be initialized"
+    );
+  }
+);

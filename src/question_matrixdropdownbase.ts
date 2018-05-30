@@ -475,7 +475,12 @@ export class MatrixDropdownRowModelBase
     return this.value;
   }
   getFilteredValues(): any {
-    return this.getAllValues();
+    var values = this.getAllValues();
+    var result: { [key: string]: any } = { row: values };
+    for (var key in values) {
+      result[key] = values[key];
+    }
+    return result;
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
@@ -660,9 +665,12 @@ export class QuestionMatrixDropdownModelBase extends Question
       self.generatedVisibleRows = null;
       self.fireCallback(self.columnsChangedCallback);
     });
-    this.registerFunctionOnPropertiesValueChanged(["columnsLocation", "addRowLocation"], function() {
-      self.fireCallback(self.columnsLocationChangedCallback);
-    });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["columnsLocation", "addRowLocation"],
+      function() {
+        self.fireCallback(self.columnsLocationChangedCallback);
+      }
+    );
     this.registerFunctionOnPropertyValueChanged("cellType", function() {
       self.generatedVisibleRows = null;
       self.fireCallback(self.columnsChangedCallback);

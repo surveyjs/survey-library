@@ -475,12 +475,21 @@ export class MatrixDropdownRowModelBase
     return this.value;
   }
   getFilteredValues(): any {
+<<<<<<< HEAD
     var allValues = this.getAllValues();
     var values: { [key: string]: any } = { row: allValues };
     for (var key in allValues) {
       values[key] = allValues[key];
     }
     return values;
+=======
+    var values = this.getAllValues();
+    var result: { [key: string]: any } = { row: values };
+    for (var key in values) {
+      result[key] = values[key];
+    }
+    return result;
+>>>>>>> 2fda85e69e29736a6738db15e9045adc59c4b01c
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };

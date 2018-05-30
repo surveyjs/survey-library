@@ -1,4 +1,5 @@
 import { Base } from "./base";
+import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
@@ -8,6 +9,7 @@ import { CustomError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { ConditionRunner } from "./conditions";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel);
@@ -175,12 +177,14 @@ export class MartrixCells {
 export class QuestionMatrixModel extends Question
   implements IMatrixData, IMatrixCellsOwner {
   private columnsValue: Array<ItemValue>;
+  private filteredRows: Array<ItemValue>;
   private rowsValue: Array<ItemValue>;
   private isRowChanging = false;
   private generatedVisibleRows: Array<MatrixRowModel>;
   private cellsValue;
   constructor(public name: string) {
     super(name);
+    this.filteredRows = null;
     this.columnsValue = this.createItemValues("columns");
     this.rowsValue = this.createItemValues("rows");
     this.cellsValue = new MartrixCells(this);
@@ -223,6 +227,7 @@ export class QuestionMatrixModel extends Question
   }
   set rows(newValue: Array<any>) {
     this.setPropertyValue("rows", newValue);
+    this.filterItems();
   }
   /**
    * Returns the list of rows as model objects.
@@ -231,17 +236,18 @@ export class QuestionMatrixModel extends Question
     var result = new Array<MatrixRowModel>();
     var val = this.value;
     if (!val) val = {};
-    for (var i = 0; i < this.rows.length; i++) {
-      if (!this.rows[i].value) continue;
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].value) continue;
       result.push(
         this.createMatrixRow(
-          this.rows[i],
+          rows[i],
           this.name + "_" + this.rows[i].value.toString(),
           val[this.rows[i].value]
         )
       );
     }
-    if (result.length == 0) {
+    if (result.length == 0 && !this.filteredRows) {
       result.push(this.createMatrixRow(new ItemValue(null), this.name, val));
     }
     this.generatedVisibleRows = result;
@@ -253,6 +259,57 @@ export class QuestionMatrixModel extends Question
   getColumns(): Array<any> {
     return this.columns;
   }
+  /**
+   * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
+   * @see visibleIf
+   */
+  public get rowsVisibleIf(): string {
+    return this.getPropertyValue("rowsVisibleIf", "");
+  }
+  public set rowsVisibleIf(val: string) {
+    this.setPropertyValue("rowsVisibleIf", val);
+    this.filterItems();
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
+    this.runItemsCondition(values, properties);
+  }
+  protected filterItems(): boolean {
+    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
+    return this.runItemsCondition(
+      this.getDataFilteredValues(),
+      this.getDataFilteredProperties()
+    );
+  }
+  protected runItemsCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): boolean {
+    var hasChanges = this.runConditionsForRows(values, properties);
+    //TODO
+    return hasChanges;
+  }
+  private runConditionsForRows(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): boolean {
+    var runner = !!this.rowsVisibleIf
+      ? new ConditionRunner(this.rowsVisibleIf)
+      : null;
+    this.filteredRows = [];
+    var hasChanged = ItemValue.runConditionsForItems(
+      this.rows,
+      this.filteredRows,
+      runner,
+      values,
+      properties
+    );
+    if (this.filteredRows.length === this.rows.length) {
+      this.filteredRows = null;
+    }
+    return hasChanged;
+  }
+
   public get cells(): MartrixCells {
     return this.cellsValue;
   }

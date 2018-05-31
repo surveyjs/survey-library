@@ -1456,3 +1456,59 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "visibleIf and add new panel in child paneldynamic bug #1139",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              templateElements: [
+                {
+                  type: "radiogroup",
+                  name: "question2",
+                  choices: ["item1", "item2", "item3"]
+                },
+                {
+                  type: "paneldynamic",
+                  name: "question3",
+                  minPanelCount: 1,
+                  visibleIf: "{panel.question2} notempty",
+                  templateElements: [
+                    {
+                      type: "text",
+                      name: "question4",
+                      title: "Input"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+
+    var rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "question1"
+    );
+    var rootPanelEl1 = rootPanel.addPanel();
+    var question2 = rootPanelEl1.getQuestionByName("question2");
+    var question3 = <QuestionPanelDynamicModel>rootPanelEl1.getQuestionByName(
+      "question3"
+    );
+
+    assert.notOk(question3.isVisible, "Child panel is hidden");
+    question2.value = "item1";
+    assert.ok(question3.isVisible, "Child panel become visible");
+    var childPanelEl1 = question3.addPanel();
+    assert.ok(question3.isVisible, "Child panel still visible");
+  }
+);

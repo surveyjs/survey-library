@@ -89,7 +89,12 @@ export class QuestionPanelDynamicItem
     return this.data.getPanelItemData(this);
   }
   getFilteredValues(): any {
-    return this.getAllValues();
+    var allValues = this.getAllValues();
+    var values: { [key: string]: any } = { panel: allValues };
+    for (var key in allValues) {
+      values[key] = allValues[key];
+    }
+    return values;
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };

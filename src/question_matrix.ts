@@ -177,8 +177,9 @@ export class MartrixCells {
 export class QuestionMatrixModel extends Question
   implements IMatrixData, IMatrixCellsOwner {
   private columnsValue: Array<ItemValue>;
-  private filteredRows: Array<ItemValue>;
   private rowsValue: Array<ItemValue>;
+  private filteredColumns: Array<ItemValue>;
+  private filteredRows: Array<ItemValue>;
   private isRowChanging = false;
   private generatedVisibleRows: Array<MatrixRowModel>;
   private cellsValue;
@@ -186,6 +187,7 @@ export class QuestionMatrixModel extends Question
   constructor(public name: string) {
     super(name);
     this.filteredRows = null;
+    this.filteredColumns = null;
     this.columnsValue = this.createItemValues("columns");
     this.rowsValue = this.createItemValues("rows");
     this.cellsValue = new MartrixCells(this);
@@ -226,6 +228,9 @@ export class QuestionMatrixModel extends Question
   set columns(newValue: Array<any>) {
     this.setPropertyValue("columns", newValue);
   }
+  public get visibleColumns(): Array<any> {
+    return !!this.filteredColumns ? this.filteredColumns : this.columns;
+  }
   /**
    * The list of rows. A row has a value and an optional text
    */
@@ -237,7 +242,8 @@ export class QuestionMatrixModel extends Question
     this.filterItems();
   }
   /**
-   * Returns the list of rows as model objects.
+   * Returns the list of visible rows as model objects.
+   * @see rowsVisibleIf
    */
   public get visibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
@@ -264,7 +270,7 @@ export class QuestionMatrixModel extends Question
     return this.rows;
   }
   getColumns(): Array<any> {
-    return this.columns;
+    return this.visibleColumns;
   }
   protected onRowsChanged() {
     this.fireCallback(this.rowChangedCallback);
@@ -278,6 +284,17 @@ export class QuestionMatrixModel extends Question
   }
   public set rowsVisibleIf(val: string) {
     this.setPropertyValue("rowsVisibleIf", val);
+    this.filterItems();
+  }
+  /**
+   * An expression that returns true or false. It runs against each column item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
+   * @see rowVisibleIf
+   */
+  public get columnsVisibleIf(): string {
+    return this.getPropertyValue("columnsVisibleIf", "");
+  }
+  public set columnsVisibleIf(val: string) {
+    this.setPropertyValue("columnsVisibleIf", val);
     this.filterItems();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
@@ -296,7 +313,11 @@ export class QuestionMatrixModel extends Question
     properties: HashTable<any>
   ): boolean {
     var hasChanges = this.runConditionsForRows(values, properties);
+    hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
     if (hasChanges) {
+      if (!!this.filteredColumns || !!this.filteredRows) {
+        this.clearIncorrectValues();
+      }
       this.onRowsChanged();
     }
     return hasChanges;
@@ -319,8 +340,25 @@ export class QuestionMatrixModel extends Question
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }
-    if (hasChanged && !!this.filteredRows) {
-      this.clearIncorrectValues();
+    return hasChanged;
+  }
+  private runConditionsForColumns(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): boolean {
+    var runner = !!this.columnsVisibleIf
+      ? new ConditionRunner(this.columnsVisibleIf)
+      : null;
+    this.filteredColumns = [];
+    var hasChanged = ItemValue.runConditionsForItems(
+      this.columns,
+      this.filteredColumns,
+      runner,
+      values,
+      properties
+    );
+    if (this.filteredColumns.length === this.columns.length) {
+      this.filteredColumns = null;
     }
     return hasChanged;
   }
@@ -359,10 +397,11 @@ export class QuestionMatrixModel extends Question
     var newVal = null;
     var isChanged = false;
     var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    var columns = !!this.filteredColumns ? this.filteredColumns : this.columns;
     for (var key in val) {
       if (
         ItemValue.getItemByValue(rows, key) &&
-        ItemValue.getItemByValue(this.columns, val[key])
+        ItemValue.getItemByValue(columns, val[key])
       ) {
         if (newVal == null) newVal = {};
         newVal[key] = val[key];
@@ -496,6 +535,7 @@ JsonObject.metaData.addClass(
         obj.rows = value;
       }
     },
+    "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
     { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"

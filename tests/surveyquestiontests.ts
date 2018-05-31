@@ -1267,6 +1267,26 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
+QUnit.test("matrix.columnsVisibleIf", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixModel("bestCar");
+  qBestCar.rows = ["col1"];
+  qBestCar.columns = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.columnsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleColumns.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleColumns.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleColumns.length, 3, "3 cars are selected");
+  qBestCar.columnsVisibleIf = "";
+  assert.equal(qBestCar.visibleColumns.length, 4, "there is no filter");
+});
+
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function(assert) {
@@ -1286,6 +1306,30 @@ QUnit.test(
     );
     survey.setValue("cars", ["BMW"]);
     assert.deepEqual(qBestCar.value, { BMW: "col1" }, "Audi is removed");
+    survey.setValue("cars", ["Mercedes"]);
+    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
+  }
+);
+
+QUnit.test(
+  "matrix.columnsVisibleIf, clear value on making the value invisible",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var qBestCar = new QuestionMatrixModel("bestCar");
+    qBestCar.rows = ["col1", "col2"];
+    qBestCar.columns = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+    qBestCar.columnsVisibleIf = "{cars} contains {item}";
+    page.addElement(qBestCar);
+    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
+    qBestCar.value = { col1: "BMW", col2: "Audi" };
+    assert.deepEqual(
+      qBestCar.value,
+      { col1: "BMW", col2: "Audi" },
+      "Audi is selected"
+    );
+    survey.setValue("cars", ["BMW"]);
+    assert.deepEqual(qBestCar.value, { col1: "BMW" }, "Audi is removed");
     survey.setValue("cars", ["Mercedes"]);
     assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }

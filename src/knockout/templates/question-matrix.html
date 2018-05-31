@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     <td data-bind="visible: question.hasRows"></td>
-                    <!-- ko foreach: question.columns -->
+                    <!-- ko foreach: question.koVisibleColumns -->
                     <th>
                         <!-- ko template: { name: 'survey-string', data: locText } -->
                         <!-- /ko -->
@@ -19,7 +19,7 @@
                         <!-- ko template: { name: 'survey-string', data: row.locText } -->
                         <!-- /ko -->
                     </td>
-                    <!-- ko foreach: question.columns -->
+                    <!-- ko foreach: question.koVisibleColumns -->
                     <!-- ko if: question.hasCellText -->
                     <td data-bind="css: question.getItemCss(row, $data), click: function() { row.koCellClick($data); }">
                         <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->

@@ -41,18 +41,21 @@ export class MatrixRow extends MatrixRowModel {
 }
 export class QuestionMatrix extends QuestionMatrixModel {
   koVisibleRows: any;
+  koVisibleColumns: any;
   constructor(public name: string) {
     super(name);
     new QuestionImplementor(this);
     this.koVisibleRows = ko.observable(this.visibleRows);
+    this.koVisibleColumns = ko.observable(this.visibleColumns);
   }
   protected onRowsChanged() {
     super.onRowsChanged();
     this.koVisibleRows(this.visibleRows);
+    this.koVisibleColumns(this.visibleColumns);
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
-    this.koVisibleRows(this.visibleRows);
+    this.onRowsChanged();
   }
   protected createMatrixRow(
     item: ItemValue,

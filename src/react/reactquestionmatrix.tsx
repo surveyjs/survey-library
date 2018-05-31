@@ -11,17 +11,32 @@ import { ItemValue } from "../itemvalue";
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
+    this.state = { rowsChanged: 0 };
   }
   protected get question(): QuestionMatrixModel {
     return this.questionBase as QuestionMatrixModel;
   }
+  componentDidMount() {
+    if (this.question) {
+      var self = this;
+      this.question.visibleRowsChangedCallback = function() {
+        self.setState({ rowsChanged: self.state.rowsChanged + 1 });
+      };
+    }
+  }
+  componentWillUnmount() {
+    if (this.question) {
+      this.question.visibleRowsChangedCallback = null;
+    }
+  }
+
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     var firstTH = this.question.hasRows ? <td /> : null;
     var headers = [];
-    for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i];
+    for (var i = 0; i < this.question.visibleColumns.length; i++) {
+      var column = this.question.visibleColumns[i];
       var key = "column" + i;
       var columText = this.renderLocString(column.locText);
       headers.push(<th key={key}>{columText}</th>);
@@ -102,9 +117,9 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     var tds = [];
     var row = this.row;
 
-    for (var i = 0; i < this.question.columns.length; i++) {
+    for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var td = null;
-      var column = this.question.columns[i];
+      var column = this.question.visibleColumns[i];
       var key = "value" + i;
 
       var isChecked = row.value == column.value;

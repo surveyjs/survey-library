@@ -183,7 +183,7 @@ export class QuestionMatrixModel extends Question
   private isRowChanging = false;
   private generatedVisibleRows: Array<MatrixRowModel>;
   private cellsValue;
-  public rowChangedCallback: () => void;
+  public visibleRowsChangedCallback: () => void;
   constructor(public name: string) {
     super(name);
     this.filteredRows = null;
@@ -273,7 +273,7 @@ export class QuestionMatrixModel extends Question
     return this.visibleColumns;
   }
   protected onRowsChanged() {
-    this.fireCallback(this.rowChangedCallback);
+    this.fireCallback(this.visibleRowsChangedCallback);
   }
   /**
    * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.

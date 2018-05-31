@@ -649,6 +649,7 @@ export class QuestionMatrixDropdownModelBase extends Question
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
   columnsLocationChangedCallback: () => void;
+  visibleRowsChangedCallback: () => void;
 
   constructor(public name: string) {
     super(name);

@@ -1183,47 +1183,48 @@ QUnit.test("Matrixdynamic addRowLocation", function(assert) {
   );
 });
 
+QUnit.test("matrix.rowsVisibleIf", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  qBestCar.addColumn("col1");
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleRows.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 3, "3 cars are selected");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
+});
+
 QUnit.test(
-  "cannot use visibleIf and clearInvisibleValues = 'onHidden' together in matrixdynamic with preloaded bug #1137",
+  "matrix.rowsVisibleIf, clear value on making the value invisible",
   function(assert) {
-    var json = {
-      elements: [
-        {
-          name: "acl",
-          type: "matrixdynamic",
-          rowCount: 0,
-          addRowText: "Add a new entry",
-          columns: [
-            {
-              name: "foo",
-              cellType: "text"
-            },
-            {
-              cellType: "checkbox",
-              isRequired: true,
-              choices: ["Algeria", "American Samoa"],
-              name: "countries",
-              visibleIf: "{row.foo} notempty"
-            }
-          ]
-        }
-      ]
-    };
-
-    var survey = new SurveyModel(json);
-
-    survey.clearInvisibleValues = "onHidden";
-
-    survey.data = {
-      acl: [{ foo: "sdsa", countries: ["Algeria", "American Samoa"] }]
-    };
-    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("acl");
-    var checkQuestion = <QuestionCheckboxModel>question.visibleRows[0].cells[1]
-      .question;
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+    qBestCar.cellType = "text";
+    qBestCar.addColumn("col1");
+    qBestCar.addColumn("col2");
+    qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+    qBestCar.rowsVisibleIf = "{cars} contains {item}";
+    page.addElement(qBestCar);
+    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
+    qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
     assert.deepEqual(
-      checkQuestion.value,
-      ["Algeria", "American Samoa"],
-      "It should be initialized"
+      qBestCar.value,
+      { BMW: { col1: 1 }, Audi: { col2: 2 } },
+      "Audi is selected"
     );
+    survey.setValue("cars", ["BMW"]);
+    assert.deepEqual(qBestCar.value, { BMW: { col1: 1 } }, "Audi is removed");
+    survey.setValue("cars", ["Mercedes"]);
+    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }
 );

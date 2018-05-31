@@ -16,9 +16,20 @@ import { SurveyCustomWidget } from "./custom-widget";
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
+    this.setProperties(props);
+    this.state = this.getState();
   }
   protected get question(): QuestionMatrixDropdownModelBase {
     return this.questionBase as QuestionMatrixDropdownModelBase;
+  }
+  protected setProperties(nextProps: any) {
+    if (this.refs.matrixDynamicRef) this.setState({ rowCounter: 0 });
+    this.question.visibleRowsChangedCallback = () => {
+      this.setState(this.getState(this.state));
+    };
+  }
+  private getState(prevState = null) {
+    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -183,11 +194,11 @@ export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
     this.creator = nextProps.creator;
   }
   private getState(increaseError: boolean = false): any {
-    if(!this.cell || !this.cell.question) return;
+    if (!this.cell || !this.cell.question) return;
     var q = this.cell.question;
-    var error = (!!this.state && !!this.state.error) ? this.state.error : 0;
-    if(increaseError) error++;
-    return { isReadOnly: q.isReadOnly, visible: q.visible, error: error }
+    var error = !!this.state && !!this.state.error ? this.state.error : 0;
+    if (increaseError) error++;
+    return { isReadOnly: q.isReadOnly, visible: q.visible, error: error };
   }
   componentDidMount() {
     this.doAfterRender();

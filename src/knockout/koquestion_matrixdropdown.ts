@@ -33,6 +33,10 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       return (<QuestionMatrixDropdownModel>this.question).visibleRows;
     }, this);
     var self = this;
+    (<QuestionMatrixDropdownModel>this
+      .question).visibleRowsChangedCallback = function() {
+      self.onVisibleRowsChanged();
+    };
     this.koAddRowClick = function() {
       self.addRow();
     };
@@ -123,9 +127,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   }
   protected onColumnChanged() {
     var rows = (<QuestionMatrixDropdownModelBase>this.question).visibleRows;
-    this.onRowCountChanged();
+    this.onVisibleRowsChanged();
   }
-  protected onRowCountChanged() {
+  protected onVisibleRowsChanged() {
     this.koRecalc(this.koRecalc() + 1);
   }
   protected addRow() {}

@@ -30,7 +30,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public static MaxRowCount = 100;
   private rowCounter = 0;
   private rowCountValue: number = 2;
-  rowCountChangedCallback: () => void;
 
   constructor(public name: string) {
     super(name);
@@ -89,7 +88,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.generatedVisibleRows.push(this.createMatrixRow(null));
       }
     }
-    this.fireCallback(this.rowCountChangedCallback);
+    this.fireCallback(this.visibleRowsChangedCallback);
   }
   /**
    * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
@@ -193,7 +192,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.value = val;
     }
     this.rowCountValue--;
-    this.fireCallback(this.rowCountChangedCallback);
+    this.fireCallback(this.visibleRowsChangedCallback);
   }
   /**
    * Use this property to change the default text showing in the confirmation delete dialog on removing a row.

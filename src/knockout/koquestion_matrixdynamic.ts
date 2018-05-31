@@ -12,10 +12,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   constructor(question: Question) {
     super(question);
     var self = this;
-    (<QuestionMatrixDynamic>this
-      .question).rowCountChangedCallback = function() {
-      self.onRowCountChanged();
-    };
   }
   protected hasRowText(): boolean {
     return false;

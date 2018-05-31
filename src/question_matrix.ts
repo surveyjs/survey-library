@@ -319,9 +319,11 @@ export class QuestionMatrixModel extends Question
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }
+    if (hasChanged && !!this.filteredRows) {
+      this.clearIncorrectValues();
+    }
     return hasChanged;
   }
-
   public get cells(): MartrixCells {
     return this.cellsValue;
   }
@@ -354,13 +356,15 @@ export class QuestionMatrixModel extends Question
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;
-    var newVal = {};
+    var newVal = null;
     var isChanged = false;
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
     for (var key in val) {
       if (
-        ItemValue.getItemByValue(this.rows, key) &&
+        ItemValue.getItemByValue(rows, key) &&
         ItemValue.getItemByValue(this.columns, val[key])
       ) {
+        if (newVal == null) newVal = {};
         newVal[key] = val[key];
       } else {
         isChanged = true;

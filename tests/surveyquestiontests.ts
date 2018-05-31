@@ -1268,6 +1268,30 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
 });
 
 QUnit.test(
+  "matrix.rowsVisibleIf, clear value on making the value invisible",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var qBestCar = new QuestionMatrixModel("bestCar");
+    qBestCar.columns = ["col1", "col2"];
+    qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+    qBestCar.rowsVisibleIf = "{cars} contains {item}";
+    page.addElement(qBestCar);
+    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
+    qBestCar.value = { BMW: "col1", Audi: "col2" };
+    assert.deepEqual(
+      qBestCar.value,
+      { BMW: "col1", Audi: "col2" },
+      "Audi is selected"
+    );
+    survey.setValue("cars", ["BMW"]);
+    assert.deepEqual(qBestCar.value, { BMW: "col1" }, "Audi is removed");
+    survey.setValue("cars", ["Mercedes"]);
+    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
+  }
+);
+
+QUnit.test(
   "radiogroup.choicesVisibleIf, clear value on making the value invisible, bug #1093",
   function(assert) {
     var survey = new SurveyModel();

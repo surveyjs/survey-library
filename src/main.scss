@@ -487,10 +487,6 @@ $base-line-height: 2em;
             .sv_matrix_dynamic_button {
               padding: 0.3em 2em;
             }
-            .sv_q_checkbox_label,
-            .sv_q_radiogroup_label {
-              margin-right: 1.5em;
-            }
             tr {
               //border-bottom: 1px solid $header-background-color;
             }
@@ -519,7 +515,6 @@ $base-line-height: 2em;
 
           td {
             padding: 0.5em;
-            padding-right: $base-line-height;
           }
 
           th {

@@ -44,11 +44,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           className={this.question.cssClasses.fileInput}
           id={this.question.inputId}
           type="file"
-          style={{color: this.question.isEmpty() ? 'transparent' : 'inherit'}}
+          style={{ color: this.question.isEmpty() ? 'transparent' : 'inherit' }}
           onChange={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}
+          accept={this.question.acceptedTypes}
         />
       );
       if (!!this.question.value) {

@@ -21,8 +21,9 @@ export class PageModel extends PanelModelBase implements IPage {
   constructor(public name: string = "") {
     super(name);
     var self = this;
-    this.locTitle.onGetTextCallback = function(text) {
-      return self.getRenderedTitle(text);
+    this.locTitle.onRenderedHtmlCallback = function(text) {
+      if (self.num > 0) return self.num + ". " + text;
+      return text;
     };
   }
   public getType(): string {
@@ -69,13 +70,6 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public set navigationButtonsVisibility(val: string) {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
-  }
-  protected getRenderedTitle(str: string): string {
-    str = super.getRenderedTitle(str);
-    if (this.num > 0) {
-      str = this.num + ". " + str;
-    }
-    return str;
   }
   /**
    * The property returns true, if the page has been shown to the end-user.

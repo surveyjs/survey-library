@@ -390,7 +390,7 @@ export class QuestionBase extends SurveyElement
   }
   public getMarkdownHtml(text: string): string {
     return this.survey
-      ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
+      ? this.survey.getSurveyMarkdownHtml(this, text)
       : this.locOwner
         ? this.locOwner.getMarkdownHtml(text)
         : null;

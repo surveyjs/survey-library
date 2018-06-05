@@ -187,9 +187,7 @@ export class PanelModelBase extends SurveyElement
       : "";
   }
   getMarkdownHtml(text: string) {
-    return this.survey
-      ? (<ILocalizableOwner>(<any>this.survey)).getMarkdownHtml(text)
-      : null;
+    return this.survey ? this.survey.getSurveyMarkdownHtml(this, text) : null;
   }
   getProcessedText(text: string): string {
     return this.textProcessor

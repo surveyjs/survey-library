@@ -2857,6 +2857,25 @@ QUnit.test("Survey Markdown - page title", function(assert) {
   );
 });
 
+QUnit.test("Survey Markdown - page title + showPageNumbers = true", function(assert) {
+  var survey = new SurveyModel();
+  survey.showPageNumbers = true;
+  var page = survey.addNewPage("Page 1");
+  var q1 = <Question>page.addNewQuestion("text", "q1");
+  survey.onTextMarkdown.add(function(survey, options) {
+    if (options.text.indexOf("markdown") > -1)
+      options.html = options.text.replace("markdown", "!");
+  });
+  q1.value = "value1";
+  var loc = page.locTitle;
+  page.title = "Page 1markdown, q1 is {q1}";
+  assert.equal(
+    loc.renderedHtml,
+    "1. Page 1!, q1 is value1",
+    "page.locTitle.renderedHtml, pageNo and use markdown and text preprocessing"
+  );
+});
+
 QUnit.test("Survey Markdown and text processing - dropdownmatrix.columns", function(assert) {
   var survey = new SurveyModel();
   survey.setValue("val1", "-newvalue-");

@@ -308,6 +308,7 @@ export class SurveyModel extends Base
   /**
    * Use this event to process the markdown text.
    * <br/> sender the survey object that fires the event
+   * <br/> options.element SurveyJS element where the string is going to be rendered. It is a question, panel, page or survey
    * <br/> options.text a text that is going to be rendered
    * <br/> options.html a html. It is null by default. Set it and survey will use it instead of options.text
    */
@@ -922,9 +923,7 @@ export class SurveyModel extends Base
     }
   }
   public getMarkdownHtml(text: string) {
-    var options = { text: text, html: null };
-    this.onTextMarkdown.fire(this, options);
-    return options.html;
+    return this.getSurveyMarkdownHtml(this, text);
   }
   public getProcessedText(text: string) {
     return this.processText(text, true);
@@ -2756,6 +2755,11 @@ export class SurveyModel extends Base
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
+  }
+  getSurveyMarkdownHtml(element: Base, text: string): string {
+    var options = { element: element, text: text, html: null };
+    this.onTextMarkdown.fire(this, options);
+    return options.html;
   }
   /**
    * Returns the number of corrected answers on quiz

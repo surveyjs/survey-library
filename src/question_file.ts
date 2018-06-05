@@ -20,6 +20,7 @@ export class QuestionFileModel extends Question {
     any
     > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
+  public currentState = "empty";
   constructor(public name: string) {
     super(name);
   }
@@ -217,6 +218,7 @@ export class QuestionFileModel extends Question {
     if (state === "loaded") {
       this.isUploading = false;
     }
+    this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
   }
   private checkFileForErrors(file: File): boolean {

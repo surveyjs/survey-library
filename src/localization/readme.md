@@ -12,6 +12,6 @@
 
 * Fork the repo
 * Find the required localization file [language name].ts, for example: french.ts
-* Translate strings the missing strings that exists in english.ts file, but not in your [language name].ts file
+* Translate the missing strings that exists in english.ts file, but not in your [language name].ts file
 * Rebuild the library, based on instruction in the readme.md file in the root and / or
 * Optionally make a pull request to share your translation with the community. We will rebuild the library and you will get your localization with the next minor update

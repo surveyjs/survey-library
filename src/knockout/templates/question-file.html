@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-file">
     <div data-bind="css: question.cssClasses.root">
         <!-- ko ifnot: question.koIsReadOnly -->
-        <input type="file" data-bind="css: question.cssClasses.fileInput, style: { color: koHasValue() ? 'inherit' : 'transparent' }, attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle }, event: {change: question.dochange}">
+        <input type="file" data-bind="css: question.cssClasses.fileInput, style: { color: koHasValue() ? 'inherit' : 'transparent' }, attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
         <!-- ko if: question.koHasValue -->
         <button data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>
         <!-- /ko -->

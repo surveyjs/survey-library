@@ -18,8 +18,9 @@ export class QuestionFileModel extends Question {
   public onStateChanged: Event<
     (sender: QuestionFileModel, options: any) => any,
     any
-  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
+    > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
+  public currentState = "empty";
   constructor(public name: string) {
     super(name);
   }
@@ -61,6 +62,15 @@ export class QuestionFileModel extends Question {
   }
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
+  }
+  /**
+   * Accepted file types.
+   */
+  public get acceptedTypes(): string {
+    return this.getPropertyValue("acceptedTypes");
+  }
+  public set acceptedTypes(val: string) {
+    this.setPropertyValue("acceptedTypes", val);
   }
   /**
    * Set it to false if you do not want to serialize file content as text in the survey.data.
@@ -208,6 +218,7 @@ export class QuestionFileModel extends Question {
     if (state === "loaded") {
       this.isUploading = false;
     }
+    this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
   }
   private checkFileForErrors(file: File): boolean {
@@ -239,11 +250,12 @@ JsonObject.metaData.addClass(
     "allowMultiple:boolean",
     "imageHeight",
     "imageWidth",
+    "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
-  function() {
+  function () {
     return new QuestionFileModel("");
   },
   "question"

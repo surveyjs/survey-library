@@ -6,10 +6,10 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { fileLoaded: 0 };
+    this.state = { fileLoaded: 0, state: "empty" };
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.question.onStateChanged.add(() =>
-      this.setState({ fileLoaded: this.state.fileLoaded + 1 })
+    this.question.onStateChanged.add(state =>
+      this.setState({ fileLoaded: this.state.fileLoaded + 1, state: state })
     );
   }
   protected get question(): QuestionFileModel {
@@ -44,11 +44,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           className={this.question.cssClasses.fileInput}
           id={this.question.inputId}
           type="file"
-          style={{color: this.question.isEmpty() ? 'transparent' : 'inherit'}}
+          style={{ color: this.state.state === "loaded" ? 'inherit' : 'transparent' }}
           onChange={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}
+          accept={this.question.acceptedTypes}
         />
       );
       if (!!this.question.value) {

@@ -328,6 +328,9 @@ QUnit.test("Matrixdynamic minRowCount/maxRowCount", function(assert) {
   assert.equal(question.rowCount, 4, "row count is max row count");
   question.addRow();
   assert.equal(question.rowCount, 4, "row count is still max row count");
+  question.minRowCount = 5;
+  assert.equal(question.maxRowCount, 5, "maxRowCount = minRowCount");
+  assert.equal(question.rowCount, 5, "row count is still max row count = 5");
 });
 QUnit.test("Matrixdynamic do not re-create the rows", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");

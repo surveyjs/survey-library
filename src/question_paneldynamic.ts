@@ -571,8 +571,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set minPanelCount(val: number) {
     if (val < 0) val = 0;
-    if (val == this.minPanelCount || val > this.maxPanelCount) return;
+    if (val == this.minPanelCount) return;
     this.setPropertyValue("minPanelCount", val);
+    if (val > this.maxPanelCount) this.maxPanelCount = val;
     if (this.panelCount < val) this.panelCount = val;
   }
   /**
@@ -590,8 +591,9 @@ export class QuestionPanelDynamicModel extends Question
     if (val <= 0) return;
     if (val > QuestionPanelDynamicModel.MaxPanelCount)
       val = QuestionPanelDynamicModel.MaxPanelCount;
-    if (val == this.maxPanelCount || val < this.minPanelCount) return;
+    if (val == this.maxPanelCount) return;
     this.setPropertyValue("maxPanelCount", val);
+    if (val < this.minPanelCount) this.minPanelCount = val;
     if (this.panelCount > val) this.panelCount = val;
   }
   /**

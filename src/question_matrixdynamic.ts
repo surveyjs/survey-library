@@ -100,8 +100,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set minRowCount(val: number) {
     if (val < 0) val = 0;
-    if (val == this.minRowCount || val > this.maxRowCount) return;
     this.setPropertyValue("minRowCount", val);
+    if (val > this.maxRowCount) this.maxRowCount = val;
     if (this.rowCount < val) this.rowCount = val;
   }
   /**
@@ -119,8 +119,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (val <= 0) return;
     if (val > QuestionMatrixDynamicModel.MaxRowCount)
       val = QuestionMatrixDynamicModel.MaxRowCount;
-    if (val == this.maxRowCount || val < this.minRowCount) return;
+    if (val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
+    if (val < this.minRowCount) this.minRowCount = val;
     if (this.rowCount > val) this.rowCount = val;
   }
   /**

@@ -328,7 +328,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   protected doAfterRender() {}
   protected getCellClass(): any {
-    return this.cssClasses.itemValue;
+    return null;
   }
   render(): JSX.Element {
     if (!this.question) return null;

@@ -214,4 +214,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       this.question.survey.matrixAfterCellRender(this.question, options);
     }
   }
+  protected getCellClass(): any {
+    return this.cssClasses.itemValue;
+  }
 }

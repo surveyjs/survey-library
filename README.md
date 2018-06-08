@@ -85,7 +85,7 @@ You may create a very complex forms with a lot of pages, like [this one](https:/
 * [Render Questions in one line](https://surveyjs.io/Examples/Library/?id=survey-startwithnewline)
 * [Markdown support](https://surveyjs.io/Examples/Library/?id=survey-markdown-radiogroup)
 
-### More frequent used functionalities
+### Frequently used functionalities
 
 * [Quiz creating](https://surveyjs.io/Examples/Library/?id=survey-quiz)
 * [Show survey or form in the popup window](https://surveyjs.io/Examples/Library/?id=survey-window)

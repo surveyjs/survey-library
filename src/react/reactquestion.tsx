@@ -1,14 +1,14 @@
 import * as React from "react";
 import { QuestionBase } from "../questionbase";
 import { Question } from "../question";
-import { SurveyElement } from "../base";
+import { SurveyElement, SurveyError } from "../base";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
 
 export interface ISurveyCreator {
   createQuestionElement(question: QuestionBase): JSX.Element;
-  renderError(key: string, errorText: string, cssClasses: any): JSX.Element;
+  renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
 }
@@ -252,9 +252,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
     if (!this.element || this.element.errors.length == 0) return null;
     var errors = [];
     for (var i = 0; i < this.element.errors.length; i++) {
-      var errorText = this.element.errors[i].getText();
       var key = "error" + i;
-      errors.push(this.creator.renderError(key, errorText, this.cssClasses));
+      errors.push(
+        this.creator.renderError(key, this.element.errors[i], this.cssClasses)
+      );
     }
     return (
       <div role="alert" className={this.cssClasses.error.root}>

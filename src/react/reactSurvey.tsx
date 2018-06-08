@@ -2,13 +2,14 @@ import * as React from "react";
 import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./reactpage";
 import { SurveyNavigation } from "./reactSurveyNavigation";
+import { SurveyError } from "../base";
 import { QuestionBase } from "../questionbase";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
-import { SurveyElementBase } from "./reactquestionelement";
+import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
 
 export class Survey extends React.Component<any, any>
@@ -300,12 +301,12 @@ export class Survey extends React.Component<any, any>
   }
   public renderError(
     key: string,
-    errorText: string,
+    error: SurveyError,
     cssClasses: any
   ): JSX.Element {
     return (
       <div key={key} className={cssClasses.error.item}>
-        {errorText}
+        <SurveyLocString locStr={error.locText} />
       </div>
     );
   }

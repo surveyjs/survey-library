@@ -3,16 +3,25 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyError } from "./base";
 
 export class AnswerRequiredError extends SurveyError {
+  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+    super(text, locOwner);
+  }
   protected getDefaultText(): string {
     return surveyLocalization.getString("requiredError");
   }
 }
 export class OneAnswerRequiredError extends SurveyError {
+  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+    super(text, locOwner);
+  }
   protected getDefaultText(): string {
     return surveyLocalization.getString("requiredErrorInPanel");
   }
 }
 export class RequreNumericError extends SurveyError {
+  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+    super(text, locOwner);
+  }
   protected getDefaultText(): string {
     return surveyLocalization.getString("numericError");
   }
@@ -38,4 +47,8 @@ export class ExceedSizeError extends SurveyError {
   }
 }
 
-export class CustomError extends SurveyError {}
+export class CustomError extends SurveyError {
+  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+    super(text, locOwner);
+  }
+}

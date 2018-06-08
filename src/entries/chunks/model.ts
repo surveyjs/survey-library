@@ -17,6 +17,13 @@ export {
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
+export {
+  CustomError,
+  AnswerRequiredError,
+  OneAnswerRequiredError,
+  RequreNumericError,
+  ExceedSizeError
+} from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";

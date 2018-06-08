@@ -48,7 +48,7 @@ export class ExceedSizeError extends SurveyError {
 }
 
 export class CustomError extends SurveyError {
-  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+  constructor(public text: string, locOwner: ILocalizableOwner = null) {
     super(text, locOwner);
   }
 }

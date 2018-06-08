@@ -1,41 +1,29 @@
 import { surveyLocalization } from "./surveyStrings";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyError } from "./base";
 
 export class AnswerRequiredError extends SurveyError {
-  constructor(public customErrorText: string = null) {
-    super();
-  }
-  public getText(): string {
-    return this.customErrorText
-      ? this.customErrorText
-      : surveyLocalization.getString("requiredError");
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("requiredError");
   }
 }
 export class OneAnswerRequiredError extends SurveyError {
-  constructor(public customErrorText: string = null) {
-    super();
-  }
-  public getText(): string {
-    return this.customErrorText
-      ? this.customErrorText
-      : surveyLocalization.getString("requiredErrorInPanel");
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("requiredErrorInPanel");
   }
 }
 export class RequreNumericError extends SurveyError {
-  constructor() {
-    super();
-  }
-  public getText(): string {
+  protected getDefaultText(): string {
     return surveyLocalization.getString("numericError");
   }
 }
 export class ExceedSizeError extends SurveyError {
   private maxSize: number;
-  constructor(maxSize: number) {
-    super();
+  constructor(maxSize: number, locOwner: ILocalizableOwner = null) {
+    super(null, locOwner);
     this.maxSize = maxSize;
   }
-  public getText(): string {
+  public getDefaultText(): string {
     return surveyLocalization
       .getString("exceedMaxSize")
       ["format"](this.getTextSize());
@@ -50,13 +38,4 @@ export class ExceedSizeError extends SurveyError {
   }
 }
 
-export class CustomError extends SurveyError {
-  private text: string;
-  constructor(text: string) {
-    super();
-    this.text = text;
-  }
-  public getText(): string {
-    return this.text;
-  }
-}
+export class CustomError extends SurveyError {}

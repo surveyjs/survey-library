@@ -2950,7 +2950,7 @@ QUnit.test("Survey Markdown - survey title", function(assert) {
   );
 });
 
-/*
+
 QUnit.test("Survey Markdown - question.validators", function(assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {
@@ -2969,9 +2969,10 @@ QUnit.test("Survey Markdown - question.validators", function(assert) {
   survey.setValue("q1", "val");
   page.hasErrors(true);
   assert.equal(validator.locText.renderedHtml, "error!", "Markdown is working");
-  assert.equal(question1.errors[0].getText(), "error!", "Markdown is working");
+  assert.equal(question1.errors[0].locText.renderedHtml, "error!", "Markdown in validators is working");
+  assert.equal(question2.errors[0].locText.renderedHtml, "!", "Markdown for event is working");
 });
-*/
+
 QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function(
   assert
 ) {

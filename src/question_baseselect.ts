@@ -321,7 +321,7 @@ export class QuestionSelectBase extends Question {
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
-    errors.push(new CustomError(this.otherErrorText));
+    errors.push(new CustomError(this.otherErrorText, this));
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);

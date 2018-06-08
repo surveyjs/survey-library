@@ -959,7 +959,7 @@ export class QuestionPanelDynamicModel extends Question
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(new CustomError(this.keyDuplicationError));
+        question.addError(new CustomError(this.keyDuplicationError, this));
         return true;
       }
     }

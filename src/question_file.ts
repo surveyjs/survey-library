@@ -207,7 +207,7 @@ export class QuestionFileModel extends Question {
     super.onCheckForErrors(errors);
     if (this.isUploading && this.waitForUpload) {
       errors.push(
-        new CustomError(surveyLocalization.getString("uploadingFile"))
+        new CustomError(surveyLocalization.getString("uploadingFile"), this)
       );
     }
   }

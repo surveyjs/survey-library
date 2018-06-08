@@ -56,6 +56,9 @@ export class SurveyValidator extends Base {
   getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text) : text;
   }
+  protected createCustomError(name: string): SurveyError {
+    return new CustomError(this.getErrorText(name), this.locOwner);
+  }
 }
 export interface IValidatorOwner {
   validators: Array<SurveyValidator>;
@@ -108,11 +111,11 @@ export class NumericValidator extends SurveyValidator {
     }
     var result = new ValidatorResult(parseFloat(value));
     if (this.minValue !== null && this.minValue > result.value) {
-      result.error = new CustomError(this.getErrorText(name));
+      result.error = this.createCustomError(name);
       return result;
     }
     if (this.maxValue !== null && this.maxValue < result.value) {
-      result.error = new CustomError(this.getErrorText(name));
+      result.error = this.createCustomError(name);
       return result;
     }
     return typeof value === "number" ? null : result;
@@ -156,23 +159,14 @@ export class TextValidator extends SurveyValidator {
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {
-        return new ValidatorResult(
-          null,
-          new CustomError(this.getErrorText(name))
-        );
+        return new ValidatorResult(null, this.createCustomError(name));
       }
     }
     if (this.minLength > 0 && value.length < this.minLength) {
-      return new ValidatorResult(
-        null,
-        new CustomError(this.getErrorText(name))
-      );
+      return new ValidatorResult(null, this.createCustomError(name));
     }
     if (this.maxLength > 0 && value.length > this.maxLength) {
-      return new ValidatorResult(
-        null,
-        new CustomError(this.getErrorText(name))
-      );
+      return new ValidatorResult(null, this.createCustomError(name));
     }
     return null;
   }
@@ -204,24 +198,20 @@ export class AnswerCountValidator extends SurveyValidator {
     if (this.minCount && count < this.minCount) {
       return new ValidatorResult(
         null,
-        new CustomError(
-          this.getErrorText(
-            surveyLocalization
-              .getString("minSelectError")
-              ["format"](this.minCount)
-          )
+        this.createCustomError(
+          surveyLocalization
+            .getString("minSelectError")
+            ["format"](this.minCount)
         )
       );
     }
     if (this.maxCount && count > this.maxCount) {
       return new ValidatorResult(
         null,
-        new CustomError(
-          this.getErrorText(
-            surveyLocalization
-              .getString("maxSelectError")
-              ["format"](this.maxCount)
-          )
+        this.createCustomError(
+          surveyLocalization
+            .getString("maxSelectError")
+            ["format"](this.maxCount)
         )
       );
     }
@@ -254,7 +244,7 @@ export class RegexValidator extends SurveyValidator {
   }
   private hasError(re: RegExp, value: any, name: string): ValidatorResult {
     if (re.test(value)) return null;
-    return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
+    return new ValidatorResult(value, this.createCustomError(name));
   }
 }
 /**
@@ -271,7 +261,7 @@ export class EmailValidator extends SurveyValidator {
   public validate(value: any, name: string = null): ValidatorResult {
     if (!value) return null;
     if (this.re.test(value)) return null;
-    return new ValidatorResult(value, new CustomError(this.getErrorText(name)));
+    return new ValidatorResult(value, this.createCustomError(name));
   }
   protected getDefaultErrorText(name: string) {
     return surveyLocalization.getString("invalidEmail");
@@ -306,10 +296,7 @@ export class ExpressionValidator extends SurveyValidator {
     this.conditionRunner.expression = this.expression;
     var res = this.conditionRunner.run(values, properties);
     if (!res) {
-      return new ValidatorResult(
-        value,
-        new CustomError(this.getErrorText(name))
-      );
+      return new ValidatorResult(value, this.createCustomError(name));
     }
     return null;
   }

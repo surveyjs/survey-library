@@ -1727,7 +1727,7 @@ export class SurveyModel extends Base
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
           hasErrors = true;
-          question["addError"](new CustomError(options.errors[name]));
+          question["addError"](new CustomError(options.errors[name], this));
         }
       }
     }
@@ -1850,7 +1850,7 @@ export class SurveyModel extends Base
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
-    return options.error ? new CustomError(options.error) : null;
+    return options.error ? new CustomError(options.error, this) : null;
   }
   dynamicPanelAdded(question: IQuestion) {
     this.onDynamicPanelAdded.fire(this, { question: question });
@@ -2728,7 +2728,7 @@ export class SurveyModel extends Base
       error: null
     };
     this.onValidateQuestion.fire(this, options);
-    return options.error ? new CustomError(options.error) : null;
+    return options.error ? new CustomError(options.error, this) : null;
   }
   validatePanel(panel: IPanel): SurveyError {
     if (this.onValidatePanel.isEmpty) return null;
@@ -2738,7 +2738,7 @@ export class SurveyModel extends Base
       error: null
     };
     this.onValidatePanel.fire(this, options);
-    return options.error ? new CustomError(options.error) : null;
+    return options.error ? new CustomError(options.error, this) : null;
   }
   processHtml(html: string): string {
     var options = { html: html };

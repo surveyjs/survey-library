@@ -448,8 +448,23 @@ export class Base {
   }
 }
 export class SurveyError {
+  private locTextValue: LocalizableString;
+  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
+    this.locTextValue = new LocalizableString(locOwner, true);
+    if (text) {
+      this.locText.text = text;
+    }
+  }
+  public get locText() {
+    return this.locTextValue;
+  }
   public getText(): string {
-    throw new Error("This method is abstract");
+    var res = this.locText.text;
+    if (!res) res = this.getDefaultText();
+    return res;
+  }
+  protected getDefaultText(): string {
+    return "";
   }
 }
 

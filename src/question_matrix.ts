@@ -420,7 +420,7 @@ export class QuestionMatrixModel extends Question
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
       errors.push(
-        new CustomError(surveyLocalization.getString("requiredInAllRowsError"))
+        new CustomError(surveyLocalization.getString("requiredInAllRowsError"), this)
       );
     }
   }

@@ -28,7 +28,6 @@ export {
 } from "../../conditions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
-export { CustomError, ExceedSizeError, RequreNumericError } from "../../error";
 export {
   JsonError,
   JsonIncorrectTypeError,

@@ -2,7 +2,9 @@
     <div role="alert" data-bind="visible: koErrors().length > 0, foreach: { data: koErrors, as: 'error'}, css: question.koCss().error.root">
         <div>
             <span aria-hidden="true" data-bind="css: question.koCss().error.icon"></span>
-            <span data-bind="text:error.getText(), css: question.koCss().error.item"></span>
+            <span data-bind="css: question.koCss().error.item">
+                <!-- ko template: { name: 'survey-string', data: error.locText } --><!-- /ko -->
+            </span>
         </div>
     </div>
 </script>

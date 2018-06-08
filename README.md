@@ -1,4 +1,6 @@
-## **SurveyJS** is a JavaScript Survey and Form Library with versions for angular2+. jQuery, knockout, react and vue. It is a modern way to add a survey or form to your website.
+## **SurveyJS** is a JavaScript Survey and Form Library. It is a modern way to add a survey or form to your website.
+
+**SurveyJS** has versions for angular2+. jQuery, knockout, react and vue.
 
 [![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
@@ -31,7 +33,7 @@ Visual Editor sources are [here](https://github.com/surveyjs/editor)
 
 ![alt tag](https://cloud.githubusercontent.com/assets/22315929/22462339/ed33f60a-e7bd-11e6-942b-72882e6bf1db.gif)
 
-**SurveyJS** is the most feature-rich Survey / Form Library available at the current moment. Additionally, it can be easily customized and extended to suit your needs.
+**SurveyJS** is the most feature-rich Survey / Form Library available at the current moment. It can be easily customized and extended to suit your needs.
 
 ## Main Features
 

@@ -3,7 +3,12 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase
 } from "./reactquestionelement";
-import { ISurveyCreator, SurveyElementErrors } from "./reactquestion";
+import {
+  ISurveyCreator,
+  SurveyElementErrors,
+  SurveyQuestionAndErrorsCell
+} from "./reactquestion";
+import { Question } from "../question";
 import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
@@ -177,118 +182,36 @@ export class SurveyQuestionMatrixDropdownRowBase extends ReactSurveyElement {
   protected AddRightCells(tds: Array<JSX.Element>) {}
 }
 
-export class SurveyQuestionMatrixDropdownCell extends ReactSurveyElement {
+export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCell {
   private cell: MatrixDropdownCell;
-  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
-    this.state = this.getState();
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
-  }
-  private setProperties(nextProps: any) {
+  protected setProperties(nextProps: any) {
+    super.setProperties(nextProps);
     this.cell = nextProps.cell;
-    this.creator = nextProps.creator;
-  }
-  private getState(increaseError: boolean = false): any {
-    if (!this.cell || !this.cell.question) return;
-    var q = this.cell.question;
-    var error = !!this.state && !!this.state.error ? this.state.error : 0;
-    if (increaseError) error++;
-    return { isReadOnly: q.isReadOnly, visible: q.visible, error: error };
-  }
-  componentDidMount() {
-    this.doAfterRender();
-    if (this.cell && this.cell.question) {
-      var self = this;
-      this.cell.question.registerFunctionOnPropertyValueChanged(
-        "isReadOnly",
-        function() {
-          self.setState(self.getState());
-        },
-        "react"
-      );
-      this.cell.question.registerFunctionOnPropertyValueChanged(
-        "visible",
-        function() {
-          self.setState(self.getState());
-        },
-        "react"
-      );
-      this.cell.question.errorsChangedCallback = () => {
-        self.setState(self.getState(true));
-      };
+    if (!this.question && !!this.cell) {
+      this.question = this.cell.question;
     }
   }
-  componentWillUnmount() {
-    if (this.cell && this.cell.question) {
-      this.cell.question.errorsChangedCallback = null;
-      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(
-        ["visible", "isReadOnly"],
-        "react"
-      );
-      var el: any = this.refs["cell"];
-      if (!!el) {
-        el.removeAttribute("data-rendered");
-      }
-    }
-  }
-  componentDidUpdate(prevProps, prevState) {
-    this.doAfterRender();
-  }
-  private doAfterRender() {
+  protected doAfterRender() {
     var el: any = this.refs["cell"];
     if (
       el &&
       this.cell &&
-      this.cell.question.survey &&
+      this.question &&
+      this.question.survey &&
       el.getAttribute("data-rendered") !== "r"
     ) {
       el.setAttribute("data-rendered", "r");
       var options = {
         cell: this.cell,
-        cellQuestion: this.cell.question,
+        cellQuestion: this.question,
         htmlElement: el,
         row: this.cell.row,
         column: this.cell.column
       };
-      this.cell.question.survey.matrixAfterCellRender(
-        this.cell.question,
-        options
-      );
+      this.question.survey.matrixAfterCellRender(this.question, options);
     }
-  }
-  render(): JSX.Element {
-    if (!this.cell) return null;
-    var errors = (
-      <SurveyElementErrors
-        element={this.cell.question}
-        cssClasses={this.cssClasses}
-        creator={this.creator}
-      />
-    );
-    var renderedCell = this.renderCell();
-    return (
-      <td ref="cell" className={this.cssClasses.itemValue}>
-        {errors}
-        {renderedCell}
-      </td>
-    );
-  }
-  renderCell(): JSX.Element {
-    if (!this.cell.question.visible) return null;
-    var customWidget = this.cell.question.customWidget;
-    if (!customWidget) {
-      return this.creator.createQuestionElement(this.cell.question);
-    }
-    return (
-      <SurveyCustomWidget
-        creator={this.creator}
-        question={this.cell.question}
-      />
-    );
   }
 }

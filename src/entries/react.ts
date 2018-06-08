@@ -27,7 +27,11 @@ export { SurveyNavigationBase } from "../react/reactSurveyNavigationBase";
 export { SurveyTimerPanel } from "../react/reacttimerpanel";
 export { SurveyNavigation } from "../react/reactSurveyNavigation";
 export { SurveyPage, SurveyRow, SurveyPanel } from "../react/reactpage";
-export { SurveyQuestion, SurveyElementErrors } from "../react/reactquestion";
+export {
+  SurveyQuestion,
+  SurveyElementErrors,
+  SurveyQuestionAndErrorsCell
+} from "../react/reactquestion";
 export {
   SurveyElementBase,
   SurveyQuestionElementBase
@@ -47,10 +51,7 @@ export {
 } from "../react/reactquestionmatrix";
 export { SurveyQuestionHtml } from "../react/reactquestionhtml";
 export { SurveyQuestionFile } from "../react/reactquestionfile";
-export {
-  SurveyQuestionMultipleText,
-  SurveyQuestionMultipleTextItem
-} from "../react/reactquestionmultipletext";
+export { SurveyQuestionMultipleText } from "../react/reactquestionmultipletext";
 export { SurveyQuestionRadiogroup } from "../react/reactquestionradiogroup";
 export { SurveyQuestionText } from "../react/reactquestiontext";
 export { SurveyQuestionBoolean } from "../react/reactquestionboolean";

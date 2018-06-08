@@ -14,8 +14,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyCustomWidget } from "./custom-widget";
 import {
   SurveyQuestionMatrixDropdownBase,
-  SurveyQuestionMatrixDropdownRowBase,
-  SurveyQuestionMatrixDropdownCell
+  SurveyQuestionMatrixDropdownRowBase
 } from "./reactquestionmatrixdropdownbase";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {

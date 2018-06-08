@@ -12,8 +12,7 @@ import {
 } from "../question_matrixdropdownbase";
 import {
   SurveyQuestionMatrixDropdownBase,
-  SurveyQuestionMatrixDropdownRowBase,
-  SurveyQuestionMatrixDropdownCell
+  SurveyQuestionMatrixDropdownRowBase
 } from "./reactquestionmatrixdropdownbase";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyCustomWidget } from "./custom-widget";

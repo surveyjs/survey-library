@@ -2950,6 +2950,28 @@ QUnit.test("Survey Markdown - survey title", function(assert) {
   );
 });
 
+/*
+QUnit.test("Survey Markdown - question.validators", function(assert) {
+  var survey = new SurveyModel();
+  survey.onTextMarkdown.add(function(survey, options) {
+    if (options.text.indexOf("markdown") > -1)
+      options.html = options.text.replace("markdown", "!");
+  });
+  survey.onValidateQuestion.add(function(servey, options){
+    if(options.name == "q2") options.error = "markdown";
+  });
+  var page = survey.addNewPage("p1");
+  var question1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
+  var question2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
+  var validator = new EmailValidator();
+  validator.text = "errormarkdown";
+  question1.validators.push(validator);
+  survey.setValue("q1", "val");
+  page.hasErrors(true);
+  assert.equal(validator.locText.renderedHtml, "error!", "Markdown is working");
+  assert.equal(question1.errors[0].getText(), "error!", "Markdown is working");
+});
+*/
 QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function(
   assert
 ) {

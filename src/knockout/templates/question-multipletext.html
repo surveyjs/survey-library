@@ -3,11 +3,9 @@
         <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
             <td data-bind="css: question.koCss().itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
             <td>
-                <!-- ko ifnot: question.koIsReadOnly -->
-                <input data-bind="attr: {id: item.id, type: item.inputType, maxLength: item.getMaxLength(), size: question.itemSize, id: ($index() == 0) ? question.inputId : '', placeholder: item.placeHolder, 'aria-label': question.locTitle.renderedHtml}, value: item.koValue, css: question.koCss().itemValue" />
+                <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                 <!-- /ko -->
-                <!-- ko if: question.koIsReadOnly -->
-                <div data-bind="attr: {size: question.itemSize}, text: item.koValue, css: question.koCss().itemValue"></div>
+                <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question' } -->
                 <!-- /ko -->
             </td>
         </tr>

@@ -645,7 +645,7 @@ QUnit.test("Validators for multiple text question", function(assert) {
     "The value should be between 10 and 20"
   );
   assert.equal(
-    mText.errors[0].getText().indexOf("t1") >= 0,
+    mText.errors[0].locText.textOrHtml.indexOf("t1") >= 0,
     true,
     "Error contains information about item name"
   );
@@ -933,6 +933,11 @@ QUnit.test("Text questions spaces is not a valid answer for required", function(
   var question = new QuestionTextModel("text");
   question.isRequired = true;
   assert.equal(question.hasErrors(), true, "Question is empty");
+  assert.equal(
+    question.errors[0].locText.textOrHtml,
+    "Please answer the question.",
+    "error has correct text"
+  );
   question.value = "  ";
   assert.equal(question.hasErrors(), true, "spaces is not an answer");
   question.value = " 1 ";
@@ -945,7 +950,7 @@ QUnit.test("Custom text in required error", function(assert) {
   assert.equal(question.hasErrors(), true, "Question is empty");
   assert.equal(question.errors.length, 1, "There is one error");
   assert.equal(
-    question.errors[0].getText(),
+    question.errors[0].locText.textOrHtml,
     "Custom required error",
     "there is a custom errror text"
   );

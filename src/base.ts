@@ -451,15 +451,13 @@ export class SurveyError {
   private locTextValue: LocalizableString;
   constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
     this.locTextValue = new LocalizableString(locOwner, true);
-    if (text) {
-      this.locText.text = text;
-    }
+    this.locText.text = this.getText();
   }
   public get locText() {
     return this.locTextValue;
   }
   public getText(): string {
-    var res = this.locText.text;
+    var res = this.text;
     if (!res) res = this.getDefaultText();
     return res;
   }

@@ -363,3 +363,16 @@ QUnit.test("getProcessedText, cached text", function(assert) {
   );
   assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
 });
+
+QUnit.test("Value without title loctext", function(assert) {
+  var itemValue = new ItemValue("val1");
+  var counter = 0;
+
+  itemValue.locText.onChanged = () => {
+    counter++;
+  };
+
+  itemValue.value = "val2";
+
+  assert.equal(counter, 1);
+});

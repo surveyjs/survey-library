@@ -173,6 +173,8 @@ export class ItemValue {
     if (index > -1) {
       this.itemValue = str.slice(0, index);
       this.text = str.slice(index + 1);
+    } else if (!this.hasText) {
+      this.locText.onChanged();
     }
   }
   public get hasText(): boolean {

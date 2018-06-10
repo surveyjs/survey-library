@@ -2461,6 +2461,34 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("customWidgets support onReadonlyChanged", function(assert) {
+  var readOnlyChangedCounter = 0;
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+
+    isFit: question => {
+      return true;
+    },
+    onReadOnlyChanged: (question) => {
+      readOnlyChangedCounter ++;
+    }
+  });
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <Question>page.addNewQuestion("text", "text");
+
+  assert.equal(readOnlyChangedCounter, 0, "callback was not called");
+  question.readOnly = true;
+  assert.equal(readOnlyChangedCounter, 1, "callback was called one time");
+  question.readOnly = false;
+  assert.equal(readOnlyChangedCounter, 2, "callback was not called two time");
+  survey.mode = "display";
+  assert.equal(readOnlyChangedCounter, 3, "callback was not called three time");
+  
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test(
   "Set 0 value for text inputType=number from survey. Bug #267",
   function(assert) {

@@ -346,6 +346,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
   onReadOnlyChanged() {
     this.setPropertyValue("isReadOnly", this.isReadOnly);
+    if(this.customWidget) {
+      this.customWidget.onReadOnlyChanged(this);
+    }
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";

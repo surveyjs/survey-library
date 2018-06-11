@@ -450,7 +450,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
       return false;
     return this.isTwoValueEquals(this.value, this.correctAnswer);
   }
-  protected updateValueWithDefaults() {
+  public updateValueWithDefaults() {
     if (
       this.isLoadingFromJson ||
       (!this.isDesignMode && this.isValueEmpty(this.defaultValue))

@@ -358,6 +358,7 @@ export class QuestionBase extends SurveyElement
    */
   public clearIncorrectValues() {}
   public clearUnusedValues() {}
+  public updateValueWithDefaults() {}
   public getDisplayValue(keysAsText: boolean): any {
     return "";
   }

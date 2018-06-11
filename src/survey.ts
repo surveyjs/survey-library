@@ -1405,6 +1405,9 @@ export class SurveyModel extends Base
     if (gotoFirstPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
+    if(clearData) {
+      this.updateValuesWithDefaults();
+    }
   }
   public mergeValues(src: any, dest: any) {
     if (!dest || !src) return;
@@ -1415,6 +1418,15 @@ export class SurveyModel extends Base
         this.mergeValues(value, dest[key]);
       } else {
         dest[key] = value;
+      }
+    }
+  }
+  private  updateValuesWithDefaults() {
+    if(this.isDesignMode || this.isLoading) return;
+    for(var i = 0; i < this.pages.length; i ++) {
+      var questions = this.pages[0].questions;
+      for(var j = 0; j < questions.length; j ++) {
+        questions[j].updateValueWithDefaults();
       }
     }
   }

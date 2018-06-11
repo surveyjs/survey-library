@@ -3328,24 +3328,18 @@ QUnit.test("Set defaultValue in design-time", function(assert) {
   q1.defaultValue = null;
   assert.notOk(survey.getValue("q1"), "the value is reset");
 });
-QUnit.test("matrixdynamic.defaultValue - check the complex property", function(
-  assert
-) {
-  var survey = new SurveyModel({
-    questions: [
-      {
-        type: "matrixdynamic",
-        name: "matrix",
-        columns: [{ name: "col1" }, { name: "col2" }],
-        defaultValue: [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }]
-      }
+
+QUnit.test("defaultValue + survey.clear()", function(assert) {
+  var json = {
+    elements: [
+      {type: "text", name: "q1", defaultValue: "defValue"}
     ]
-  });
-  assert.deepEqual(
-    survey.getValue("matrix"),
-    [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }],
-    "set complex defaultValue correctly"
-  );
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.getValue("q1"), "defValue", "the value is set");
+  survey.doComplete();
+  survey.clear(true);
+  assert.equal(survey.getValue("q1"), "defValue", "the value is set after clear, #1163");
 });
 
 QUnit.test("Dublicate errors", function(assert) {

@@ -610,6 +610,26 @@ QUnit.test("Matrixdropdown defaultValue", function(assert) {
   );
 });
 
+QUnit.test("matrixdynamic.defaultValue - check the complex property", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        defaultValue: [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }]
+      }
+    ]
+  });
+  assert.deepEqual(
+    survey.getValue("matrix"),
+    [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }],
+    "set complex defaultValue correctly"
+  );
+});
+
 QUnit.test("Matrixdropdown isRequiredInAllRows", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   question.rowCount = 2;

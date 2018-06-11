@@ -2957,6 +2957,17 @@ QUnit.test("Survey Markdown and text processing - nmatrix.rows", function(assert
   );
 });
 
+QUnit.test("html.html property, text preprocessing", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var html = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  survey.setVariable("var1", 5);
+  html.html = "val: {var1}";
+  assert.equal(html.locHtml.renderedHtml, "val: 5", "initial value is set");
+  survey.setVariable("var1", 10);
+  assert.equal(html.locHtml.renderedHtml, "val: 10", "value is changed");
+});
+
 QUnit.test("Survey Markdown - survey title", function(assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {

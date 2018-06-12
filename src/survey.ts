@@ -357,11 +357,24 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * name: name, content: content
    * <br/> name the question name
-   * <br/> value the question value
+   * <br/> content the question value
    * <br/> callback a call back function to get the status on downloading the file and the downloaded file content
    * @see downloadFile
    */
   public onDownloadFile: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on clearing the value in QuestionFile. You may use it to remove files stored on your server. There are three properties in options: options.name, options.value and options.callback.
+   * <br/> sender the survey object that fires the event
+   * name: name, value: value
+   * <br/> name the question name
+   * <br/> value the question value
+   * <br/> callback a call back function to get the status on clearing the files operation
+   * @see clearFiles
+   */
+  public onClearFiles: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -1920,6 +1933,26 @@ export class SurveyModel extends Base
     this.onDownloadFile.fire(this, {
       name: name,
       content: content,
+      callback: callback
+    });
+  }
+  /**
+   * Clear files from server
+   * @param name question name
+   * @param value file question value
+   * @param callback a call back function to get the status of the clearing operation
+   */
+  public clearFiles(
+    name: string,
+    value: any,
+    callback: (status: string, data: any) => any
+  ) {
+    if (this.onClearFiles.isEmpty) {
+      !!callback && callback("success", value);
+    }
+    this.onClearFiles.fire(this, {
+      name: name,
+      value: value,
       callback: callback
     });
   }

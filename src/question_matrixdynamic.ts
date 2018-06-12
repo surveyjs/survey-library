@@ -65,6 +65,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("keyName", val);
   }
   /**
+   * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
+   * @see defaultValue
+   */
+  public get defaultRowValue(): any {
+    return this.getPropertyValue("defaultRowValue");
+  }
+  public set defaultRowValue(val: any) {
+    this.setPropertyValue("defaultRowValue", val);
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return (
+      super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultRowValue)
+    );
+  }
+  protected setDefaultValue() {
+    if (this.isValueEmpty(this.defaultRowValue)) {
+      super.setDefaultValue();
+      return;
+    }
+    if (!this.isEmpty() || this.rowCount == 0) return;
+    var newValue = [];
+    for (var i = 0; i < this.rowCount; i++) {
+      newValue.push(this.defaultRowValue);
+    }
+    this.value = newValue;
+  }
+  /**
    * The number of rows in the matrix.
    * @see minRowCount
    * @see maxRowCount
@@ -149,6 +176,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.canAddRow) return;
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
+    if (!this.isValueEmpty(this.defaultRowValue)) {
+      var newValue = this.createNewValue(this.value);
+      if (newValue.length == this.rowCount) {
+        newValue[newValue.length - 1] = this.defaultRowValue;
+        this.value = newValue;
+      }
+    }
     if (this.data) {
       this.runCellsCondition(
         this.getDataFilteredValues(),
@@ -444,6 +478,7 @@ JsonObject.metaData.addClass(
       name: "keyDuplicationError",
       serializationProperty: "locKeyDuplicationError"
     },
+    "defaultRowValue:rowvalue",
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",

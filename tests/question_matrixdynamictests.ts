@@ -1251,3 +1251,44 @@ QUnit.test(
     assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }
 );
+
+QUnit.test("matrix.rowDefaultValue, apply from json and then from UI", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        cellType: "text",
+        name: "q1",
+        columns: [
+          { name: "column1" },
+          { name: "column2" },
+          { name: "column3" }
+        ],
+        rowCount: 2,
+        defaultRowValue: { column1: "val1", column3: "val3" }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  assert.deepEqual(
+    question.value,
+    [
+      { column1: "val1", column3: "val3" },
+      { column1: "val1", column3: "val3" }
+    ],
+    "defaultRowValue set correctly on json loading"
+  );
+  question.addRow();
+  assert.deepEqual(
+    question.value,
+    [
+      { column1: "val1", column3: "val3" },
+      { column1: "val1", column3: "val3" },
+      { column1: "val1", column3: "val3" }
+    ],
+    "defaultRowValue set correclty on adding row"
+  );
+});

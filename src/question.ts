@@ -346,7 +346,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
 
   onReadOnlyChanged() {
     this.setPropertyValue("isReadOnly", this.isReadOnly);
-    if(this.customWidget) {
+    if (this.customWidget) {
       this.customWidget.onReadOnlyChanged(this);
     }
   }
@@ -365,16 +365,12 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
-    if (this.defaultValue) {
-      this.updateValueWithDefaults();
-    }
+    this.updateValueWithDefaults();
   }
   protected onSetData() {
     super.onSetData();
     this.onSurveyValueChanged(this.value);
-    if (this.defaultValue) {
-      this.updateValueWithDefaults();
-    }
+    this.updateValueWithDefaults();
   }
   private isvalueChangedCallbackFiring: boolean = false;
   /**
@@ -453,11 +449,14 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public updateValueWithDefaults() {
     if (
       this.isLoadingFromJson ||
-      (!this.isDesignMode && this.isValueEmpty(this.defaultValue))
+      (!this.isDesignMode && this.isDefaultValueEmpty())
     )
       return;
     if (!this.isDesignMode && !this.isEmpty()) return;
     this.setDefaultValue();
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return this.isValueEmpty(this.defaultValue);
   }
   protected setDefaultValue() {
     this.value = this.defaultValue;

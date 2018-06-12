@@ -1252,7 +1252,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("matrix.rowDefaultValue, apply from json and then from UI", function(
+QUnit.test("matrix.defaultRowValue, apply from json and then from UI", function(
   assert
 ) {
   var json = {
@@ -1292,3 +1292,39 @@ QUnit.test("matrix.rowDefaultValue, apply from json and then from UI", function(
     "defaultRowValue set correclty on adding row"
   );
 });
+
+QUnit.test(
+  "matrix.defaultRowValue, defaultValue has higher priority than defaultRowValue",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          cellType: "text",
+          name: "q1",
+          columns: [
+            { name: "column1" },
+            { name: "column2" },
+            { name: "column3" }
+          ],
+          rowCount: 2,
+          defaultRowValue: { column1: "val1", column3: "val3" },
+          defaultValue: [
+            { column1: "val2", column3: "val5" },
+            { column2: "val2", column3: "val4" }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    assert.deepEqual(
+      question.value,
+      [
+        { column1: "val2", column3: "val5" },
+        { column2: "val2", column3: "val4" }
+      ],
+      "defaultValue is used"
+    );
+  }
+);

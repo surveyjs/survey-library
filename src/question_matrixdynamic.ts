@@ -80,7 +80,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   protected setDefaultValue() {
-    if (this.isValueEmpty(this.defaultRowValue)) {
+    if (
+      this.isValueEmpty(this.defaultRowValue) ||
+      !this.isValueEmpty(this.defaultValue)
+    ) {
       super.setDefaultValue();
       return;
     }

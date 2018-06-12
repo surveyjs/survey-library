@@ -750,7 +750,7 @@ export class JsonObject {
         );
         continue;
       }
-      this.valueToObj(jsonObj[key], obj, key, property);
+      this.valueToObj(jsonObj[key], obj, property);
     }
     if (obj.endLoadingFromJson) {
       obj.endLoadingFromJson();
@@ -824,13 +824,9 @@ export class JsonObject {
       result[property.name] = value;
     }
   }
-  protected valueToObj(
-    value: any,
-    obj: any,
-    key: any,
-    property: JsonObjectProperty
-  ) {
+  protected valueToObj(value: any, obj: any, property: JsonObjectProperty) {
     if (value == null) return;
+    this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);
       return;
@@ -850,6 +846,22 @@ export class JsonObject {
       } else {
         obj[property.name] = value;
       }
+    }
+  }
+  private removePos(property: JsonObjectProperty, value: any) {
+    if (!property || !property.type || property.type.indexOf("value") < 0)
+      return;
+    this.removePosFromObj(value);
+  }
+  private removePosFromObj(obj: any) {
+    if (!obj) return;
+    if (Array.isArray(obj)) {
+      for (var i = 0; i < obj.length; i++) {
+        this.removePosFromObj(obj[i]);
+      }
+    }
+    if (!!obj[JsonObject.positionPropertyName]) {
+      delete obj[JsonObject.positionPropertyName];
     }
   }
   private isValueArray(value: any): boolean {

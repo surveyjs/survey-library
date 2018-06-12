@@ -723,7 +723,6 @@ QUnit.test(
     assert.deepEqual(
       jsObj,
       {
-        type: "matrixdynamic",
         name: "q1",
         defaultValue: [{ column1: 1, column2: 2 }, { column1: 3, column2: 4 }],
         defaultRowValue: { column1: 1, column2: 2 }

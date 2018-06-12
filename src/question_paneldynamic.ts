@@ -739,6 +739,51 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
+   * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
+   * @see defaultValue
+   */
+  public get defaultPanelValue(): any {
+    return this.getPropertyValue("defaultPanelValue");
+  }
+  public set defaultPanelValue(val: any) {
+    this.setPropertyValue("defaultPanelValue", val);
+  }
+  protected isDefaultValueEmpty(): boolean {
+    return (
+      super.isDefaultValueEmpty() && this.isValueEmpty(this.defaultPanelValue)
+    );
+  }
+  protected setDefaultValue() {
+    if (
+      this.isValueEmpty(this.defaultPanelValue) ||
+      !this.isValueEmpty(this.defaultValue)
+    ) {
+      super.setDefaultValue();
+      return;
+    }
+    if (!this.isEmpty() || this.panelCount == 0) return;
+    var newValue = [];
+    for (var i = 0; i < this.panelCount; i++) {
+      newValue.push(this.defaultPanelValue);
+    }
+    this.value = newValue;
+  }
+  public isEmpty(): boolean {
+    var val = this.value;
+    if (!val || !Array.isArray(val)) return true;
+    for (var i = 0; i < val.length; i++) {
+      if (!this.isRowEmpty(val[i])) return false;
+    }
+    return true;
+  }
+  private isRowEmpty(val: any) {
+    for (var prop in val) {
+      if (val.hasOwnProperty(prop)) return false;
+    }
+    return true;
+  }
+
+  /**
    * Add a new dynamic panel based on the template Panel. It checks if canAddPanel returns true and then calls addPanel method.
    * @see template
    * @see panelCount
@@ -763,6 +808,17 @@ export class QuestionPanelDynamicModel extends Question
     this.panelCount++;
     if (!this.isRenderModeList) {
       this.currentIndex = this.panelCount - 1;
+    }
+    if (!this.isValueEmpty(this.defaultPanelValue)) {
+      var newValue = this.value;
+      if (
+        newValue &&
+        Array.isArray(newValue) &&
+        newValue.length == this.panelCount
+      ) {
+        newValue[newValue.length - 1] = this.defaultPanelValue;
+      }
+      this.value = newValue;
     }
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.items[this.panelCount - 1].panel;
@@ -1096,6 +1152,7 @@ JsonObject.metaData.addClass(
       name: "maxPanelCount:number",
       default: QuestionPanelDynamicModel.MaxPanelCount
     },
+    "defaultPanelValue:panelvalue",
     {
       name: "panelsState",
       default: "default",

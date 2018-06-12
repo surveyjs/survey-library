@@ -1512,3 +1512,75 @@ QUnit.test(
     assert.ok(question3.isVisible, "Child panel still visible");
   }
 );
+
+QUnit.test(
+  "panel.defaultPanelValue, apply from json and then from UI",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dPanel",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ],
+          panelCount: 2,
+          defaultPanelValue: { q1: "val1", q3: "val3" }
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "dPanel"
+    );
+    assert.deepEqual(
+      question.value,
+      [{ q1: "val1", q3: "val3" }, { q1: "val1", q3: "val3" }],
+      "defaultPanelValue set correctly on json loading"
+    );
+    question.addPanel();
+    assert.deepEqual(
+      question.value,
+      [
+        { q1: "val1", q3: "val3" },
+        { q1: "val1", q3: "val3" },
+        { q1: "val1", q3: "val3" }
+      ],
+      "defaultPanelValue set correclty on adding row"
+    );
+  }
+);
+
+QUnit.test(
+  "matrix.defaultRowValue, defaultValue has higher priority than defaultRowValue",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dPanel",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ],
+          panelCount: 2,
+          defaultPanelValue: { q1: "val1", q3: "val3" },
+          defaultValue: [{ q1: "v1", q2: "v2" }, { q1: "v11", q3: "v3" }]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "dPanel"
+    );
+    assert.deepEqual(
+      question.value,
+      [{ q1: "v1", q2: "v2" }, { q1: "v11", q3: "v3" }],
+      "defaultValue is used"
+    );
+  }
+);

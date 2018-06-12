@@ -119,7 +119,11 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear() {
-    this.value = undefined;
+    this.survey.clearFiles(this.name, this.value, (status, data) => {
+      if (status === "success") {
+        this.value = undefined;
+      }
+    });
   }
   /**
    * Load multiple files programmatically.

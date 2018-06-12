@@ -64,6 +64,11 @@ export interface ISurvey extends ITextProcessor {
     content: string,
     callback: (status: string, data: any) => any
   );
+  clearFiles(
+    name: string,
+    value: any,
+    clearCallback: (status: string, data: any) => any
+  );
   updateChoicesFromServer(
     question: IQuestion,
     choices: Array<ItemValue>,

@@ -764,13 +764,18 @@ export class PanelModelBase extends SurveyElement
   public removeQuestion(question: QuestionBase) {
     this.removeElement(question);
   }
+  private conditionVersion = -1;
   runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
+    if (values.conditionVersion < this.conditionVersion) return;
+    this.conditionVersion = values.conditionVersion;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
+      if (values.conditionVersion < this.conditionVersion) return;
       elements[i].runCondition(values, properties);
     }
     if (!this.visibleIf) return;
+    if (values.conditionVersion < this.conditionVersion) return;
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);
     this.conditionRunner.expression = this.visibleIf;

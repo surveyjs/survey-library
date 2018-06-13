@@ -35,6 +35,9 @@ export class MultipleTextItemModel extends Base
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
+    this.editor.questionTitleTemplateCallback = function() {
+      return "";
+    };
     this.editor.titleLocation = "left";
     if (title) {
       this.title = title;

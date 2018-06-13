@@ -1401,3 +1401,26 @@ QUnit.test("itemValue.visibleIf", function(assert) {
   survey.setValue("email", "2");
   assert.equal(q.visibleChoices.length, 2, "phone and e-mail are set");
 });
+
+QUnit.test(
+  "multipletext item title renders incorrectly if survey.questionTitleTemplate is set, bug #1170",
+  function(assert) {
+    var json = {
+      questionTitleTemplate: "{no}. {title} {require}",
+      elements: [
+        {
+          type: "multipletext",
+          name: "question1",
+          items: [
+            {
+              name: "text1"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var q = <QuestionMultipleTextModel>survey.getQuestionByName("question1");
+    assert.equal(q.items[0].locTitle.renderedHtml, "text1", "There is no .");
+  }
+);

@@ -25,6 +25,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
+  questionTitleTemplateCallback: () => string;
 
   constructor(public name: string) {
     super(name);
@@ -209,8 +210,13 @@ export class Question extends QuestionBase implements IValidatorOwner {
     if (!this.survey) return res;
     return this.survey.getUpdatedQuestionTitle(this, res);
   }
+  protected getQuestionTitleTemplate() {
+    if (this.questionTitleTemplateCallback)
+      return this.questionTitleTemplateCallback();
+    return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;
+  }
   private calcFullTitle(): string {
-    if (this.survey && this.survey.getQuestionTitleTemplate()) {
+    if (this.getQuestionTitleTemplate()) {
       if (!this.textPreProcessor) {
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
@@ -220,9 +226,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
           self.getProcessedTextValue(textValue);
         };
       }
-      return this.textPreProcessor.process(
-        this.survey.getQuestionTitleTemplate()
-      );
+      return this.textPreProcessor.process(this.getQuestionTitleTemplate());
     }
     var requireText = this.requiredText;
     if (requireText) requireText += " ";

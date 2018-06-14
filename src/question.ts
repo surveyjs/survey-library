@@ -347,12 +347,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
     this.conditionEnabelRunner.expression = this.enableIf;
     this.readOnly = !this.conditionEnabelRunner.run(values, properties);
   }
-
+  public readOnlyChangedCallback: () => void;
   onReadOnlyChanged() {
     this.setPropertyValue("isReadOnly", this.isReadOnly);
-    if (this.customWidget) {
-      this.customWidget.onReadOnlyChanged(this);
-    }
+    this.fireCallback(this.readOnlyChangedCallback);
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";

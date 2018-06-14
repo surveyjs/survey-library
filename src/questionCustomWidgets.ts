@@ -11,9 +11,6 @@ export class QuestionCustomWidget {
   public willUnmount(question: IQuestion, el: any) {
     if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
   }
-  public onReadOnlyChanged(question: IQuestion) {
-    if (this.widgetJson.onReadOnlyChanged) this.widgetJson.onReadOnlyChanged(question);
-  }
   public getDisplayValue(question: IQuestion): string {
     if (this.widgetJson.getDisplayValue)
       return this.widgetJson.getDisplayValue(question);

@@ -2283,9 +2283,11 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
+  private conditionVersion = 0;
   private runConditions() {
     var pages = this.pages;
     var values = this.getFilteredValues();
+    values.conditionVersion = ++this.conditionVersion;
     var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);

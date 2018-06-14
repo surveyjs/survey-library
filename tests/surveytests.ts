@@ -916,21 +916,24 @@ QUnit.test("Question visibleIndex, add-remove questions", function(assert) {
     "the second question"
   );
 });
-QUnit.test("Question visibleIndex in onVisibleChanged event, containers", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page1");
-  var panel = page.addNewPanel("panel1");
-  var question = panel.addNewQuestion("text", "q1");
-  question.visible = false;
-  question.visibleIf = "{state} = 1";
-  var visibleIndex = -1;
-  survey.onVisibleChanged.add(function(sender, options){
-    visibleIndex = options.question.visibleIndex;
-  });
-  survey.setValue("state", 1);
-  //question.visible = true;
-  assert.equal(visibleIndex, 0, "visible index should be 0");
-});
+QUnit.test(
+  "Question visibleIndex in onVisibleChanged event, containers",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page1");
+    var panel = page.addNewPanel("panel1");
+    var question = panel.addNewQuestion("text", "q1");
+    question.visible = false;
+    question.visibleIf = "{state} = 1";
+    var visibleIndex = -1;
+    survey.onVisibleChanged.add(function(sender, options) {
+      visibleIndex = options.question.visibleIndex;
+    });
+    survey.setValue("state", 1);
+    //question.visible = true;
+    assert.equal(visibleIndex, 0, "visible index should be 0");
+  }
+);
 
 QUnit.test("showQuestionNumbers - question fullTitle", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -2470,8 +2473,8 @@ QUnit.test("customWidgets support onReadonlyChanged", function(assert) {
     isFit: question => {
       return true;
     },
-    onReadOnlyChanged: (question) => {
-      readOnlyChangedCounter ++;
+    onReadOnlyChanged: question => {
+      readOnlyChangedCounter++;
     }
   });
   var survey = new SurveyModel();
@@ -2485,7 +2488,7 @@ QUnit.test("customWidgets support onReadonlyChanged", function(assert) {
   assert.equal(readOnlyChangedCounter, 2, "callback was not called two time");
   survey.mode = "display";
   assert.equal(readOnlyChangedCounter, 3, "callback was not called three time");
-  
+
   CustomWidgetCollection.Instance.clear();
 });
 
@@ -2885,7 +2888,9 @@ QUnit.test("Survey Markdown - page title", function(assert) {
   );
 });
 
-QUnit.test("Survey Markdown - page title + showPageNumbers = true", function(assert) {
+QUnit.test("Survey Markdown - page title + showPageNumbers = true", function(
+  assert
+) {
   var survey = new SurveyModel();
   survey.showPageNumbers = true;
   var page = survey.addNewPage("Page 1");
@@ -2904,34 +2909,39 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function(ass
   );
 });
 
-QUnit.test("Survey Markdown and text processing - dropdownmatrix.columns", function(assert) {
-  var survey = new SurveyModel();
-  survey.setValue("val1", "-newvalue-");
-  survey.onTextMarkdown.add(function(survey, options) {
-    if (options.text.indexOf("markdown") > -1)
-      options.html = options.text.replace("markdown", "!");
-  });
-  var page = survey.addNewPage("Page 1");
-  var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
-  var col1 = q1.addColumn("col1");
-  var col2 = q1.addColumn("col2", "colText2{val1}");
-  var col3 = q1.addColumn("col3", "colText3{val1}markdown");
-  q1.rows = ["row1", "row2"];
-  page.addQuestion(q1);
+QUnit.test(
+  "Survey Markdown and text processing - dropdownmatrix.columns",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.setValue("val1", "-newvalue-");
+    survey.onTextMarkdown.add(function(survey, options) {
+      if (options.text.indexOf("markdown") > -1)
+        options.html = options.text.replace("markdown", "!");
+    });
+    var page = survey.addNewPage("Page 1");
+    var q1 = new QuestionMatrixDropdownModel("matrixdropdown");
+    var col1 = q1.addColumn("col1");
+    var col2 = q1.addColumn("col2", "colText2{val1}");
+    var col3 = q1.addColumn("col3", "colText3{val1}markdown");
+    q1.rows = ["row1", "row2"];
+    page.addQuestion(q1);
 
-  var loc1 = col1.locTitle;
-  var loc2 = col2.locTitle;
-  var loc3 = col3.locTitle;
-  assert.equal(loc1.renderedHtml, "col1", "render column name");
-  assert.equal(loc2.renderedHtml, "colText2-newvalue-", "render column text");
-  assert.equal(
-    loc3.renderedHtml,
-    "colText3-newvalue-!",
-    "render column text as markdown"
-  );
-});
+    var loc1 = col1.locTitle;
+    var loc2 = col2.locTitle;
+    var loc3 = col3.locTitle;
+    assert.equal(loc1.renderedHtml, "col1", "render column name");
+    assert.equal(loc2.renderedHtml, "colText2-newvalue-", "render column text");
+    assert.equal(
+      loc3.renderedHtml,
+      "colText3-newvalue-!",
+      "render column text as markdown"
+    );
+  }
+);
 
-QUnit.test("Survey Markdown and text processing - nmatrix.rows", function(assert) {
+QUnit.test("Survey Markdown and text processing - nmatrix.rows", function(
+  assert
+) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {
     if (options.text.indexOf("markdown") > -1)
@@ -2949,7 +2959,11 @@ QUnit.test("Survey Markdown and text processing - nmatrix.rows", function(assert
   var loc3 = q1.visibleRows[2].locText;
   survey.setValue("val1", "-newvalue-");
   assert.equal(loc1.renderedHtml, "row1", "render column name");
-  assert.equal(loc2.renderedHtml, "rowText2-newvalue-", "render column text + text processing");
+  assert.equal(
+    loc2.renderedHtml,
+    "rowText2-newvalue-",
+    "render column text + text processing"
+  );
   assert.equal(
     loc3.renderedHtml,
     "rowText3-newvalue-!",
@@ -2989,15 +3003,14 @@ QUnit.test("Survey Markdown - survey title", function(assert) {
   );
 });
 
-
 QUnit.test("Survey Markdown - question.validators", function(assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {
     if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
-  survey.onValidateQuestion.add(function(servey, options){
-    if(options.name == "q2") options.error = "markdown";
+  survey.onValidateQuestion.add(function(servey, options) {
+    if (options.name == "q2") options.error = "markdown";
   });
   var page = survey.addNewPage("p1");
   var question1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
@@ -3008,8 +3021,16 @@ QUnit.test("Survey Markdown - question.validators", function(assert) {
   survey.setValue("q1", "val");
   page.hasErrors(true);
   assert.equal(validator.locText.renderedHtml, "error!", "Markdown is working");
-  assert.equal(question1.errors[0].locText.renderedHtml, "error!", "Markdown in validators is working");
-  assert.equal(question2.errors[0].locText.renderedHtml, "!", "Markdown for event is working");
+  assert.equal(
+    question1.errors[0].locText.renderedHtml,
+    "error!",
+    "Markdown in validators is working"
+  );
+  assert.equal(
+    question2.errors[0].locText.renderedHtml,
+    "!",
+    "Markdown for event is working"
+  );
 });
 
 QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function(
@@ -3342,15 +3363,17 @@ QUnit.test("Set defaultValue in design-time", function(assert) {
 
 QUnit.test("defaultValue + survey.clear()", function(assert) {
   var json = {
-    elements: [
-      {type: "text", name: "q1", defaultValue: "defValue"}
-    ]
+    elements: [{ type: "text", name: "q1", defaultValue: "defValue" }]
   };
   var survey = new SurveyModel(json);
   assert.equal(survey.getValue("q1"), "defValue", "the value is set");
   survey.doComplete();
   survey.clear(true);
-  assert.equal(survey.getValue("q1"), "defValue", "the value is set after clear, #1163");
+  assert.equal(
+    survey.getValue("q1"),
+    "defValue",
+    "the value is set after clear, #1163"
+  );
 });
 
 QUnit.test("Dublicate errors", function(assert) {
@@ -4052,25 +4075,24 @@ QUnit.test(
 );
 
 QUnit.test("condition function isContainerReady", function(assert) {
-    var survey = new SurveyModel();
-    var page = survey.addNewPage("page1");
-    var panel = page.addNewPanel("panel1");
-    var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
-    var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
-    q1.isRequired = q2.isRequired = true;
-    q2.validators.push(new EmailValidator());
-    var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
-    qTest.visible = false;
-    qTest.visibleIf = "isContainerReady('panel1') = true";
-    assert.equal(qTest.isVisible, false, "It is invisible by default");
-    q1.value = "1";
-    assert.equal(qTest.isVisible, false, "q2 is empty");
-    q2.value = "2";
-    assert.equal(qTest.isVisible, false, "q2 is not e-mail");
-    q2.value = "email@mail.com";
-    assert.equal(qTest.isVisible, true, "isContainerReady returns true");
-  }
-);
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = page.addNewPanel("panel1");
+  var q1 = <QuestionTextModel>panel.addNewQuestion("text", "q1");
+  var q2 = <QuestionTextModel>panel.addNewQuestion("text", "q2");
+  q1.isRequired = q2.isRequired = true;
+  q2.validators.push(new EmailValidator());
+  var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
+  qTest.visible = false;
+  qTest.visibleIf = "isContainerReady('panel1') = true";
+  assert.equal(qTest.isVisible, false, "It is invisible by default");
+  q1.value = "1";
+  assert.equal(qTest.isVisible, false, "q2 is empty");
+  q2.value = "2";
+  assert.equal(qTest.isVisible, false, "q2 is not e-mail");
+  q2.value = "email@mail.com";
+  assert.equal(qTest.isVisible, true, "isContainerReady returns true");
+});
 
 QUnit.test(
   "Infinitive loop on setting value to checkbox, if there is a text question with the same name, Bug #1015",
@@ -4152,6 +4174,112 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "issueType",
+        elements: [
+          {
+            type: "dropdown",
+            name: "issueType",
+            choices: [
+              {
+                value: "installJaxx",
+                text: "Install"
+              },
+              {
+                value: "backupPhrase",
+                text: "backup "
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "installJaxx",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "choosePlatform",
+            visibleIf: "{issueType} = 'installJaxx'",
+            choices: [
+              {
+                value: "linux",
+                text: "Linux"
+              },
+              {
+                value: "android",
+                text: "Android"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "pageInstallLinux",
+        elements: [
+          {
+            type: "text",
+            name: "installLinux",
+            visibleIf: "{choosePlatform} = 'linux'"
+          }
+        ]
+      }
+    ],
+    clearInvisibleValues: "onHidden"
+  };
+  var survey = new SurveyModel(json);
+  var qchoosePlatform = <Question>survey.getQuestionByName("choosePlatform");
+  var qinstallLinux = <Question>survey.getQuestionByName("installLinux");
+  assert.equal(
+    qchoosePlatform.isVisible,
+    false,
+    "choosePlatform is not visible initial"
+  );
+  assert.equal(
+    qinstallLinux.isVisible,
+    false,
+    "installLinux is not visible initial"
+  );
+  survey.setValue("issueType", "installJaxx");
+  assert.equal(
+    qchoosePlatform.isVisible,
+    true,
+    "choosePlatform is visible step 1"
+  );
+  assert.equal(
+    qinstallLinux.isVisible,
+    false,
+    "installLinux is not visible step 1"
+  );
+  survey.setValue("choosePlatform", "linux");
+  assert.equal(
+    qchoosePlatform.isVisible,
+    true,
+    "choosePlatform is visible step 2"
+  );
+  assert.equal(qinstallLinux.isVisible, true, "installLinux is visible step 2");
+  survey.setValue("issueType", "backupPhrase");
+  assert.equal(
+    qchoosePlatform.isVisible,
+    false,
+    "choosePlatform is visible step 3"
+  );
+  assert.equal(
+    qchoosePlatform.isEmpty(),
+    true,
+    "choosePlatform is empty step 3"
+  );
+  assert.equal(
+    qinstallLinux.isVisible,
+    false,
+    "installLinux is not visible step 3"
+  );
+});
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

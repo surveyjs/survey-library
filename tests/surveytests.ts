@@ -2464,22 +2464,15 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
-QUnit.test("customWidgets support onReadonlyChanged", function(assert) {
+QUnit.test("question support readOnlyChangedCallback", function(assert) {
   var readOnlyChangedCounter = 0;
-  CustomWidgetCollection.Instance.clear();
-  CustomWidgetCollection.Instance.addCustomWidget({
-    name: "first",
-
-    isFit: question => {
-      return true;
-    },
-    onReadOnlyChanged: question => {
-      readOnlyChangedCounter++;
-    }
-  });
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var question = <Question>page.addNewQuestion("text", "text");
+
+  question.readOnlyChangedCallback = function() {
+    readOnlyChangedCounter++;
+  };
 
   assert.equal(readOnlyChangedCounter, 0, "callback was not called");
   question.readOnly = true;
@@ -2488,8 +2481,6 @@ QUnit.test("customWidgets support onReadonlyChanged", function(assert) {
   assert.equal(readOnlyChangedCounter, 2, "callback was not called two time");
   survey.mode = "display";
   assert.equal(readOnlyChangedCounter, 3, "callback was not called three time");
-
-  CustomWidgetCollection.Instance.clear();
 });
 
 QUnit.test(

@@ -175,6 +175,9 @@ export class QuestionBase extends SurveyElement
   public get hasTitle(): boolean {
     return false;
   }
+  public getTitleLocation(): string {
+    return "";
+  }
   /**
    * Returns false if the question doesn't have a description property, for example: QuestionHtmlModel, or description property is empty.
    */

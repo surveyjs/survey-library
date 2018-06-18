@@ -51,7 +51,7 @@ export class QuestionImplementorBase {
     });
     this.question["koRootClass"] = ko.pureComputed(function() {
       var result = self.question.cssClasses.mainRoot;
-      if (self.question.survey.questionTitleLocation === "left") {
+      if (self.question.getTitleLocation() === "left") {
         result += " sv_qstn_left";
       }
       if (self.koErrors().length > 0) {

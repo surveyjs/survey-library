@@ -152,6 +152,12 @@ You find all versions/builds in the [surveyjs/build repo](https://github.com/sur
 
 Or dowload a version as zip file from [Releases](https://github.com/surveyjs/surveyjs/releases)
 
+If you want to import it in another script:
+
+```javascript
+import * as Survey from 'survey-jquery'; 
+```
+
 ## Building survey.js from sources
 
 To build library yourself:

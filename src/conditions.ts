@@ -85,7 +85,11 @@ export class Operand {
     }
     if (this.isNumeric(val)) {
       res.isSimple = true;
-      res.value = parseFloat(val);
+      if (val.indexOf("0x") == 0) {
+        res.value = parseInt(val);
+      } else {
+        res.value = parseFloat(val);
+      }
       return res;
     }
     if (this.isBooleanValue(val)) {

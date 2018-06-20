@@ -1263,3 +1263,36 @@ QUnit.test("koquestion inside panel vidibleif", function(assert) {
   assert.ok(p1.koVisible());
   assert.ok(q3["koVisible"]());
 });
+
+QUnit.test(
+  "multipletext item is not readonly when survey is readonly, bug #1177",
+  function(assert) {
+    var json = {
+      mode: "display",
+      elements: [
+        {
+          type: "multipletext",
+          name: "question1",
+          items: [
+            {
+              name: "text1"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var q = <QuestionMultipleText>survey.getQuestionByName("question1");
+    assert.equal(
+      q.items[0].editor["koIsReadOnly"](),
+      true,
+      "It should be readonly"
+    );
+    survey.mode = "edit";
+    assert.equal(
+      q.items[0].editor["koIsReadOnly"](),
+      false,
+      "It is editable now"
+    );
+  }
+);

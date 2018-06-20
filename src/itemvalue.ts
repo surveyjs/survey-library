@@ -91,7 +91,9 @@ export class ItemValue {
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
       values["item"] = item.value;
-      var itemRunner = item.getConditionRunner();
+      var itemRunner = !!item.getConditionRunner
+        ? item.getConditionRunner()
+        : false;
       if (!itemRunner) {
         itemRunner = runner;
       }
@@ -106,7 +108,7 @@ export class ItemValue {
       }
       if (vis != item.isVisible) {
         hasChanded = true;
-        item.setIsVisible(vis);
+        if (!!item.setIsVisible) item.setIsVisible(vis);
       }
     }
     if (itemValue) {

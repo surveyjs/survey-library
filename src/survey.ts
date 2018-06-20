@@ -1418,7 +1418,7 @@ export class SurveyModel extends Base
     if (gotoFirstPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
-    if(clearData) {
+    if (clearData) {
       this.updateValuesWithDefaults();
     }
   }
@@ -1434,11 +1434,11 @@ export class SurveyModel extends Base
       }
     }
   }
-  private  updateValuesWithDefaults() {
-    if(this.isDesignMode || this.isLoading) return;
-    for(var i = 0; i < this.pages.length; i ++) {
+  private updateValuesWithDefaults() {
+    if (this.isDesignMode || this.isLoading) return;
+    for (var i = 0; i < this.pages.length; i++) {
       var questions = this.pages[0].questions;
-      for(var j = 0; j < questions.length; j ++) {
+      for (var j = 0; j < questions.length; j++) {
         questions[j].updateValueWithDefaults();
       }
     }
@@ -1637,9 +1637,9 @@ export class SurveyModel extends Base
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
       var panel = JsonObject.metaData.createClass("panel");
+      single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
-      single.addPanel(panel);
     }
     return single;
   }

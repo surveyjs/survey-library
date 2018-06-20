@@ -1296,3 +1296,60 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
+  var json = {
+    locale: "de",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "question102",
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "question91",
+            title: {
+              de: "Wählen Sie eine Option"
+            },
+            choices: [
+              {
+                value: "Option 1/2",
+                text: "Option 1/2"
+              },
+              {
+                value: "Option 3",
+                text: "Option 3"
+              },
+              {
+                value: "Option 4",
+                text: "Option 4"
+              }
+            ]
+          }
+        ],
+        templateTitle: "Panel #{panelIndex}",
+        panelCount: 2
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  //survey.isSinglePage = true;
+  var q = <QuestionPanelDynamic>survey.getQuestionByName("question102");
+  var locQ = <Question>q.panels[0].questions[0];
+  /*
+  assert.ok(q.locOwner, "locOwner is set for dynamic panel");
+  assert.ok(q.survey, "survey is set for dynamic  panel");
+  */
+  assert.equal(locQ.getLocale(), "de", "locale is 'de'");
+
+  assert.equal(
+    locQ.locTitle.renderedHtml,
+    "Wählen Sie eine Option",
+    "German text is rendered"
+  );
+  assert.equal(
+    locQ.locTitle["koRenderedHtml"](),
+    "Wählen Sie eine Option",
+    "German text is rendered in koRenderedHtml"
+  );
+});

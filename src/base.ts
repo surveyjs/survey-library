@@ -132,7 +132,7 @@ export interface IQuestion extends IElement {
   clearValue();
   clearValueIfInvisible();
   isAnswerCorrect(): boolean;
-  updateValueWithDefaults();  
+  updateValueWithDefaults();
   value: any;
 }
 export interface IParentElement {

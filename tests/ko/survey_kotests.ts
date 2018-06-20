@@ -1333,13 +1333,10 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
     ]
   };
   var survey = new Survey(json);
-  //survey.isSinglePage = true;
+  survey.isSinglePage = true;
   var q = <QuestionPanelDynamic>survey.getQuestionByName("question102");
   var locQ = <Question>q.panels[0].questions[0];
-  /*
-  assert.ok(q.locOwner, "locOwner is set for dynamic panel");
-  assert.ok(q.survey, "survey is set for dynamic  panel");
-  */
+
   assert.equal(locQ.getLocale(), "de", "locale is 'de'");
 
   assert.equal(

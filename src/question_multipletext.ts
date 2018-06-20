@@ -240,9 +240,22 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
+  onSurveyLoad() {
+    super.onSurveyLoad();
+    this.callEditorFunction("onSurveyLoad");
     this.fireCallback(this.colCountChangedCallback);
+  }
+  onReadOnlyChanged() {
+    super.onReadOnlyChanged();
+    this.callEditorFunction("onReadOnlyChanged");
+  }
+  private callEditorFunction(funcName: string) {
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
+      if (item.editor && item.editor[funcName]) {
+        item.editor[funcName]();
+      }
+    }
   }
   /**
    * The list of input items.

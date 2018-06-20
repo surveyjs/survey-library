@@ -878,3 +878,15 @@ QUnit.test("Variable may have '-' and '+' in their names", function(assert) {
   values = { "2-3+4": 2 };
   assert.equal(runner.run(values), false, "2 != 1");
 });
+
+QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
+  var runner = new ConditionRunner("{val} notempty");
+  var values = { val: "0x1" };
+  assert.equal(runner.run(values), true, "0x1 is not empty");
+
+  runner = new ConditionRunner("{val} = 2");
+  values = { val: "0x1" };
+  assert.equal(runner.run(values), false, "0x1 is not 2");
+  values = { val: "0x2" };
+  assert.equal(runner.run(values), true, "0x2 is not 2");
+});

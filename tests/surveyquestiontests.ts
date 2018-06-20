@@ -1424,3 +1424,25 @@ QUnit.test(
     assert.equal(q.items[0].locTitle.renderedHtml, "text1", "There is no .");
   }
 );
+QUnit.test(
+  "multipletext item is not readonly when survey is readonly, bug #1177",
+  function(assert) {
+    var json = {
+      mode: "display",
+      elements: [
+        {
+          type: "multipletext",
+          name: "question1",
+          items: [
+            {
+              name: "text1"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var q = <QuestionMultipleTextModel>survey.getQuestionByName("question1");
+    assert.equal(q.items[0].editor.isReadOnly, true, "It should be readonly");
+  }
+);

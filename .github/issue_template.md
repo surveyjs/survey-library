@@ -1,4 +1,4 @@
-### Are you requesting a feature, reporting a bug or ask a question?
+### Are you requesting a feature, reporting a bug or asking a question?
 
 
 

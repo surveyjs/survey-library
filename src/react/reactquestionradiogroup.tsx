@@ -29,9 +29,23 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+    var clearButton = null;
+    if (this.question.showClearButton) {
+      clearButton = (
+        <div>
+          <input
+            type="button"
+            className={this.question.cssClasses.clearButton}
+            onClick={() => this.question.clearValue()}
+            value={this.question.clearButtonCaption}
+          />
+        </div>
+      );
+    }
     return (
       <fieldset className={cssClasses.root}>
         {this.getItems(cssClasses)}
+        {clearButton}
         <legend style={{ display: "none" }}>
           {this.question.locTitle.renderedHtml}
         </legend>

@@ -93,7 +93,8 @@ export var defaultBootstrapCss = {
     itemControl: "",
     controlLabel: "",
     materialDecorator: "circle",
-    other: "sv_q_radiogroup_other"
+    other: "sv_q_radiogroup_other",
+    clearButton: "sv_q_radiogroup_clear button"
   },
   rating: {
     root: "btn-group",

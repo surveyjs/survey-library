@@ -17,6 +17,11 @@
             <!-- /ko -->
         </div>
         <!-- /ko -->
+        <!-- ko if: question.showClearButton -->
+        <div>
+            <input type="button" data-bind="click:question.clearValue, css: question.koCss().clearButton, value: question.clearButtonCaption"/>
+        </div>
+        <!-- /ko -->
         <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
     </fieldset>
 </script>

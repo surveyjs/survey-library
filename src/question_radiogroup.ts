@@ -1,6 +1,7 @@
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
+import { surveyLocalization } from "./surveyStrings";
 
 /**
  * A Model for a radiogroup question.
@@ -12,6 +13,18 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public getType(): string {
     return "radiogroup";
   }
+  /**
+   * Show "clear button" flag.
+   */
+  public get showClearButton(): boolean {
+    return this.getPropertyValue("showClearButton");
+  }
+  public set showClearButton(val: boolean) {
+    this.setPropertyValue("showClearButton", val);
+  }
+  public get clearButtonCaption() {
+    return surveyLocalization.getString("clearCaption");
+  }
   supportGoNextPageAutomatic() {
     return true;
   }
@@ -19,7 +32,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 
 JsonObject.metaData.addClass(
   "radiogroup",
-  [],
+  [{ name: "showClearButton:boolean", default: false }],
   function() {
     return new QuestionRadiogroupModel("");
   },

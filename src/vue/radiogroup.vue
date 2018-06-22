@@ -9,6 +9,9 @@
                 <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :class="question.cssClasses.other" :question="question"/>
             </label>
         </div>
+        <div v-if="question.showClearButton">
+            <input type="button" :class="question.cssClasses.clearButton" v-on:click="function() { question.clearValue(); }" :value="question.clearButtonCaption"/>
+        </div>
         <legend style="display: none;">{{question.locTitle.renderedHtml}}</legend>
     </fieldset>
 </template>

@@ -102,7 +102,8 @@ export var defaultStandardCss = {
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
     materialDecorator: "circle",
-    other: "sv_q_other sv_q_radiogroup_other"
+    other: "sv_q_other sv_q_radiogroup_other",
+    clearButton: "sv_q_radiogroup_clear"
   },
   rating: {
     root: "sv_q_rating",

@@ -466,6 +466,10 @@ $base-line-height: 2em;
           //   }
           // }
 
+          .sv_q_radiogroup_clear {
+            margin-top: 0.5em;
+          }
+
           .sv_q_checkbox_inline,
           .sv_q_radiogroup_inline {
             line-height: $base-line-height;

@@ -39,6 +39,7 @@ export interface IMatrixDropdownData {
     columnName: string,
     newRowValue: any
   );
+  getRowIndex(row: MatrixDropdownRowModelBase): number;
   validateCell(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -433,6 +434,9 @@ export class MatrixDropdownCell {
 
 export class MatrixDropdownRowModelBase
   implements ISurveyData, ISurveyImpl, ILocalizableOwner, ITextProcessor {
+  public static RowVariableName = "row";
+  public static IndexVariableName = "rowIndex";
+
   private static idCounter: number = 1;
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
@@ -522,7 +526,7 @@ export class MatrixDropdownRowModelBase
       delete this.rowValues[name];
     }
     this.data.onRowChanged(this, name, this.value);
-    this.onAnyValueChanged("row");
+    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
   }
   public getComment(name: string): string {
     var result = this.getValue(name + Base.commentPrefix);
@@ -583,7 +587,8 @@ export class MatrixDropdownRowModelBase
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    values["row"] = this.value;
+    values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
+    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].runCondition(values, properties);
     }
@@ -604,13 +609,16 @@ export class MatrixDropdownRowModelBase
   getSurvey(): ISurvey {
     return this.data ? this.data.getSurvey() : null;
   }
+  protected get rowIndex(): number {
+    return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
+  }
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     var firstName = new ProcessValue().getFirstName(textValue.name);
-    textValue.isExists = firstName == "row";
+    textValue.isExists =
+      firstName == MatrixDropdownRowModelBase.RowVariableName;
     textValue.canProcess = textValue.isExists;
     if (!textValue.isExists) return;
-    //name should start with the row
     var values = { row: this.value };
     textValue.value = new ProcessValue().getValue(textValue.name, values);
   }
@@ -1179,6 +1187,9 @@ export class QuestionMatrixDropdownModelBase extends Question
     if (columnName) {
       this.onCellValueChanged(row, columnName, rowValue);
     }
+  }
+  getRowIndex(row: MatrixDropdownRowModelBase): number {
+    return this.visibleRows.indexOf(row);
   }
   private isMatrixValueEmpty(val) {
     if (!val) return;

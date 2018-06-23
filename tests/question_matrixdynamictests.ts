@@ -1328,3 +1328,23 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("rowIndex variable, in text processing", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          { name: "column1", cellType: "expression", expression: "{rowIndex}" }
+        ],
+        rowCount: 2
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  assert.equal(rows[0].cells[0].question.value, 1, "The first row has index 1");
+  assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
+});

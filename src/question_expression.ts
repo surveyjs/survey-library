@@ -55,6 +55,26 @@ export class QuestionExpressionModel extends Question {
     this.value = this.expressionRunner.run(values, properties);
     this.expressionIsRunning = false;
   }
+  /**
+   * The maximum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   */
+  public get maximumFractionDigits(): number {
+    return this.getPropertyValue("maximumFractionDigits", -1);
+  }
+  public set maximumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("maximumFractionDigits", val);
+  }
+  /**
+   * The minimum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   */
+  public get minimumFractionDigits(): number {
+    return this.getPropertyValue("minimumFractionDigits", -1);
+  }
+  public set minimumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("minimumFractionDigits", val);
+  }
   protected getDisplayValueCore(keysAsText: boolean): any {
     var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
     if (this.isValueEmpty(val)) return "";
@@ -102,6 +122,12 @@ export class QuestionExpressionModel extends Question {
         currency: this.currency,
         useGrouping: this.useGrouping
       };
+      if (this.maximumFractionDigits > -1) {
+        options["maximumFractionDigits"] = this.maximumFractionDigits;
+      }
+      if (this.minimumFractionDigits > -1) {
+        options["minimumFractionDigits"] = this.minimumFractionDigits;
+      }
       return val.toLocaleString(locale, options);
     }
     return val.toString();
@@ -308,6 +334,8 @@ JsonObject.metaData.addClass(
       },
       default: "USD"
     },
+    { name: "maximumFractionDigits:number", default: -1 },
+    { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
     { name: "commentText", visible: false },
     { name: "enableIf", visible: false },

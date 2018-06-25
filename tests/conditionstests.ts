@@ -890,3 +890,14 @@ QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
   values = { val: "0x2" };
   assert.equal(runner.run(values), true, "0x2 is not 2");
 });
+
+QUnit.test("Get variables in expression", function(assert) {
+  var parser = new ConditionsParser();
+  var node = parser.createCondition(
+    "{val1} - {val2} + myFunc({val3}, {val4.prop}) < {val5} and {val6}=1"
+  );
+  var vars = node.getVariables();
+  assert.equal(vars.length, 6, "There are 6 variables in expression");
+  assert.equal(vars[0], "val1", "the first variable");
+  assert.equal(vars[5], "val6", "the last variable");
+});

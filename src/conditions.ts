@@ -30,6 +30,12 @@ export class Operand {
   public get isBoolean() {
     return this.isBooleanValue(this.origionalValue);
   }
+  public fillVariables(vars: Array<string>) {
+    var name = this.getValueName(this.origionalValue);
+    if (!!name) {
+      vars.push(name);
+    }
+  }
   public toString(): string {
     var val = this.origionalValue;
     if (val && (!this.isNumeric(val) && !this.isBooleanValue(val)))
@@ -116,6 +122,11 @@ export class FunctionOperand extends Operand {
       processValue.properties
     );
   }
+  public fillVariables(vars: Array<string>) {
+    for (var i = 0; i < this.parameters.length; i++) {
+      this.parameters[i].fillVariables(vars);
+    }
+  }
   public toString() {
     var res = this.origionalValue + "(";
     for (var i = 0; i < this.parameters.length; i++) {
@@ -155,6 +166,10 @@ export class ExpressionOperand extends Operand {
     }
     return null;
   }
+  public fillVariables(vars: Array<string>) {
+    if (!!this.left) this.left.fillVariables(vars);
+    if (!!this.right) this.left.fillVariables(vars);
+  }
   public toString() {
     var res = this.left ? this.left.toString() : "";
     res += " " + this.operator + " ";
@@ -173,6 +188,11 @@ export class ConditionOperand extends Operand {
     if (!this.root) return false;
     this.processValue = processValue;
     return this.runNode(this.root);
+  }
+  public fillVariables(vars: Array<string>) {
+    if (!!this.root) {
+      this.root.fillVariables(vars);
+    }
   }
   public toString(): string {
     return this.root ? this.root.toString() : "";
@@ -320,6 +340,10 @@ export class Condition {
     var rightValue = right ? right.getValue(processValue) : null;
     return Condition.operators[this.operator](leftValue, rightValue);
   }
+  public fillVariables(vars: Array<string>) {
+    if (this.left) this.left.fillVariables(vars);
+    if (this.right) this.right.fillVariables(vars);
+  }
   public toString(): string {
     if (!this.right || !this.operator) return "";
     var left = this.left.toString();
@@ -361,6 +385,16 @@ export class ConditionNode {
   public clear() {
     this.children = [];
     this.connective = "and";
+  }
+  public getVariables(): Array<string> {
+    var vars = [];
+    this.fillVariables(vars);
+    return vars;
+  }
+  public fillVariables(vars: Array<string>) {
+    for (var i = 0; i < this.children.length; i++) {
+      this.children[i].fillVariables(vars);
+    }
   }
   public toString(): string {
     if (this.isEmpty) return "";

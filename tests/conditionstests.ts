@@ -901,3 +901,16 @@ QUnit.test("Get variables in expression", function(assert) {
   assert.equal(vars[0], "val1", "the first variable");
   assert.equal(vars[5], "val6", "the last variable");
 });
+
+QUnit.test("contain and noncontain for null arrays", function(assert) {
+  var runner = new ConditionRunner("{val} contain 1");
+  var values = {};
+  assert.equal(
+    runner.run(values),
+    false,
+    "underfined doesn't contain 1 - false"
+  );
+  runner = new ConditionRunner("{val} notcontain 1");
+  values = {};
+  assert.equal(runner.run(values), true, "underfined doesn't contain 1 - true");
+});

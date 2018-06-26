@@ -243,6 +243,7 @@ export class Condition {
         return Condition.operatorsValue.containsCore(left, right, true);
       },
       notcontains: function(left, right) {
+        if (!left && !Helpers.isValueEmpty(right)) return true;
         return Condition.operatorsValue.containsCore(left, right, false);
       },
       containsCore: function(left, right, isContains) {

@@ -2205,6 +2205,7 @@ export class SurveyModel extends Base
     return new PageModel(name);
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
+    if (this.isLoadingFromJson) return;
     var questions = this.getAllQuestions();
     var question = null;
     for (var i: number = 0; i < questions.length; i++) {

@@ -1350,3 +1350,51 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
     "German text is rendered in koRenderedHtml"
   );
 });
+/*
+QUnit.test("Expression with two columns doesn't work, bug#1199", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "bldg",
+            title: "Building",
+            cellType: "text"
+          },
+          {
+            name: "cont",
+            title: "Contents",
+            cellType: "text"
+          },
+          {
+            name: "tot",
+            title: "Total",
+            cellType: "expression",
+            expression: "{row.bldg} + {row.cont}"
+          }
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "B",
+            text: "Budgeted"
+          },
+          {
+            value: "A",
+            text: "Actual"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new Survey(json);
+  survey.setValue("q1", { B: { bldg: 4, cont: 6 } });
+  //var rows = question.visibleRows;
+  var val = survey.getValue("q1");
+  assert.equal(val.B.tot, 10, "Expression equals 10");
+});
+*/

@@ -1112,12 +1112,15 @@ export class QuestionMatrixDropdownModelBase extends Question
       rows[i].onReadOnlyChanged();
     }
   }
+  private isDoingonAnyValueChanged = false;
   onAnyValueChanged(name: string) {
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson || this.isDoingonAnyValueChanged) return;
+    this.isDoingonAnyValueChanged = true;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length; i++) {
       rows[i].onAnyValueChanged(name);
     }
+    this.isDoingonAnyValueChanged = false;
   }
   protected onCellValueChanged(
     row: MatrixDropdownRowModelBase,

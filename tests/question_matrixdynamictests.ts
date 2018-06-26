@@ -1348,3 +1348,51 @@ QUnit.test("rowIndex variable, in text processing", function(assert) {
   assert.equal(rows[0].cells[0].question.value, 1, "The first row has index 1");
   assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
 });
+
+QUnit.test("Expression with two columns doesn't work, bug#1199", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "bldg",
+            title: "Building",
+            cellType: "text"
+          },
+          {
+            name: "cont",
+            title: "Contents",
+            cellType: "text"
+          },
+          {
+            name: "tot",
+            title: "Total",
+            cellType: "expression",
+            expression: "{row.bldg} + {row.cont}"
+          }
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "B",
+            text: "Budgeted"
+          },
+          {
+            value: "A",
+            text: "Actual"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  question.value = { B: { bldg: 4, cont: 6 } };
+  var val = question.value;
+  var rows = question.visibleRows;
+  assert.equal(val.B.tot, 10, "Expression equals 10");
+});

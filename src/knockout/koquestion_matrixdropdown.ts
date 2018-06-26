@@ -20,7 +20,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koIsAddRowOnTop: any;
   koIsAddRowOnBottom: any;
   koCanRemoveRow: any;
-  koIsHorizontalColumnsLocation: any;
+  koIsHorizontalColumnLayout: any;
   constructor(question: Question) {
     super(question);
     var self = this;
@@ -55,8 +55,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.koRecalc();
       return self.canRemoveRow();
     });
-    this.koIsHorizontalColumnsLocation = ko.observable(
-      (<QuestionMatrixDropdownModel>this.question).isColumnsLocationHorizontal
+    this.koIsHorizontalColumnLayout = ko.observable(
+      (<QuestionMatrixDropdownModel>this.question).isColumnLayoutHorizontal
     );
     this.question["koRows"] = this.koRows;
     this.question["koCellAfterRender"] = this.koCellAfterRender;
@@ -66,8 +66,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.question["koIsAddRowOnBottom"] = this.koIsAddRowOnBottom;
     this.question["koCanRemoveRow"] = this.koCanRemoveRow;
     this.question[
-      "koIsHorizontalColumnsLocation"
-    ] = this.koIsHorizontalColumnsLocation;
+      "koIsHorizontalColumnLayout"
+    ] = this.koIsHorizontalColumnLayout;
     this.question["hasRowText"] = this.hasRowText();
     (<QuestionMatrixDropdownModel>this
       .question).columnsChangedCallback = function() {
@@ -78,8 +78,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.onUpdateCells();
     };
     (<QuestionMatrixDropdownModel>this
-      .question).columnsLocationChangedCallback = function() {
-      self.onColumnsLocationChanged();
+      .question).columnLayoutChangedCallback = function() {
+      self.onColumnLayoutChanged();
     };
   }
   protected getQuestionTemplate(): string {
@@ -104,15 +104,14 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   }
   protected onSurveyLoad() {
     super.onSurveyLoad();
-    this.onColumnsLocationChanged();
+    this.onColumnLayoutChanged();
   }
   protected hasRowText(): boolean {
     return true;
   }
-  protected onColumnsLocationChanged() {
-    this.koIsHorizontalColumnsLocation(
-      (<QuestionMatrixDropdownModelBase>this.question)
-        .isColumnsLocationHorizontal
+  protected onColumnLayoutChanged() {
+    this.koIsHorizontalColumnLayout(
+      (<QuestionMatrixDropdownModelBase>this.question).isColumnLayoutHorizontal
     );
     this.koRecalc(this.koRecalc() + 1);
   }

@@ -656,7 +656,7 @@ export class QuestionMatrixDropdownModelBase extends Question
   protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
-  columnsLocationChangedCallback: () => void;
+  columnLayoutChangedCallback: () => void;
   visibleRowsChangedCallback: () => void;
 
   constructor(public name: string) {
@@ -675,9 +675,9 @@ export class QuestionMatrixDropdownModelBase extends Question
       self.fireCallback(self.columnsChangedCallback);
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["columnsLocation", "addRowLocation"],
+      ["columnLayout", "addRowLocation"],
       function() {
-        self.fireCallback(self.columnsLocationChangedCallback);
+        self.fireCallback(self.columnLayoutChangedCallback);
       }
     );
     this.registerFunctionOnPropertyValueChanged("cellType", function() {
@@ -704,22 +704,28 @@ export class QuestionMatrixDropdownModelBase extends Question
     this.setPropertyValue("columns", value);
   }
   /**
-   * Set columnsLocation to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
+   * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
    * @see columns
    * @see rowCount
    */
-  public get columnsLocation(): string {
-    return this.getPropertyValue("columnsLocation", "horizontal");
+  public get columnLayout(): string {
+    return this.getPropertyValue("columnLayout", "horizontal");
   }
-  public set columnsLocation(val: string) {
-    this.setPropertyValue("columnsLocation", val);
+  public set columnLayout(val: string) {
+    this.setPropertyValue("columnLayout", val);
+  }
+  get columnsLocation(): string {
+    return this.columnLayout;
+  }
+  set columnsLocation(val: string) {
+    this.columnLayout = val;
   }
   /**
    * Returns true if columns are located horizontally
-   * @see columnsLocation
+   * @see columnLayout
    */
-  public get isColumnsLocationHorizontal() {
-    return this.columnsLocation != "vertical";
+  public get isColumnLayoutHorizontal() {
+    return this.columnLayout != "vertical";
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
     if (!this.survey) return;
@@ -1249,7 +1255,8 @@ JsonObject.metaData.addClass(
       className: "matrixdropdowncolumn"
     },
     {
-      name: "columnsLocation",
+      name: "columnLayout",
+      alternativeName: "columnsLocation",
       default: "horizontal",
       choices: ["horizontal", "vertical"]
     },

@@ -3,7 +3,7 @@
         <input type="button" data-bind="click:question.koAddRowClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.addRowText" />
     </div>
     <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
-        <table data-bind="visible: question.koIsHorizontalColumnsLocation, css: question.koCss().root">
+        <table data-bind="visible: question.koIsHorizontalColumnLayout, css: question.koCss().root">
             <thead data-bind="visible: question.showHeader">
                 <tr>
                     <!-- ko if: question.hasRowText --><td></td><!-- /ko -->
@@ -36,7 +36,7 @@
                 <!-- /ko -->
             </tbody>
         </table>
-        <!-- ko if: !question.koIsHorizontalColumnsLocation() -->
+        <!-- ko if: !question.koIsHorizontalColumnLayout() -->
         <table data-bind="css: question.koCss().root">
             <!-- ko if: question.hasRowText -->
                 <thead>

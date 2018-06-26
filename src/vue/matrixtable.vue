@@ -61,7 +61,7 @@ export class MatrixTable extends Vue {
     return this.question.visibleRows;
   }
   get isColumnsHorizontal() {
-    return this.question.isColumnsLocationHorizontal;
+    return this.question.isColumnLayoutHorizontal;
   }
   get showHorizontalHeader() {
     return this.isColumnsHorizontal && this.question.showHeader;

@@ -41,10 +41,10 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return this.renderTableDiv();
   }
   renderTableDiv(): JSX.Element {
-    var header = this.question.isColumnsLocationHorizontal
+    var header = this.question.isColumnLayoutHorizontal
       ? this.renderHeader()
       : this.renderRowsAsHeaders();
-    var rows = this.question.isColumnsLocationHorizontal
+    var rows = this.question.isColumnLayoutHorizontal
       ? this.renderRows()
       : this.renderColumnsAsRows();
     var divStyle = this.question.horizontalScroll

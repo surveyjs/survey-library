@@ -98,7 +98,7 @@ export var defaultBootstrapMaterialCss = {
     controlLabel: "sv_q_radiogroup_control_label",
     materialDecorator: "circle",
     other: "sv_q_radiogroup_other",
-    clearButton: "sv_q_radiogroup_clear button"
+    clearButton: "sv_q_radiogroup_clear button btn btn-primary"
   },
   rating: {
     root: "btn-group",

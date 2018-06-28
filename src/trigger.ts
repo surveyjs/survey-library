@@ -1,6 +1,8 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { JsonObject } from "./jsonobject";
+import { ConditionRunner, Operand } from "./conditions";
+import { ProcessValue } from "./conditionProcessValue";
 
 /**
  * A base class for all triggers.
@@ -47,25 +49,68 @@ export class Trigger extends Base {
     };
     return Trigger.operatorsValue;
   }
-  private opValue: string = "equal";
-  public value: any;
+  private conditionRunner: ConditionRunner;
+  private usedNames: Array<string>;
   constructor() {
     super();
+    this.usedNames = [];
+    var self = this;
+    this.registerFunctionOnPropertiesValueChanged(
+      ["operator", "value", "name"],
+      function() {
+        self.oldPropertiesChanged();
+      }
+    );
+    this.registerFunctionOnPropertyValueChanged("expression", function() {
+      self.onExpressionChanged();
+    });
   }
   public getType(): string {
     return "triggerbase";
   }
   public get operator(): string {
-    return this.opValue;
+    return this.getPropertyValue("operator", "equal");
   }
   public set operator(value: string) {
     if (!value) return;
     value = value.toLowerCase();
     if (!Trigger.operators[value]) return;
-    this.opValue = value;
+    this.setPropertyValue("operator", value);
+  }
+  public get value(): any {
+    return this.getPropertyValue("value", null);
+  }
+  public set value(val: any) {
+    this.setPropertyValue("value", val);
+  }
+  public get name(): string {
+    return this.getPropertyValue("name", "");
+  }
+  public set name(val: string) {
+    this.setPropertyValue("name", val);
+  }
+
+  public get expression(): string {
+    return this.getPropertyValue("expression", "");
+  }
+  public set expression(val: string) {
+    this.setPropertyValue("expression", val);
+  }
+  public checkExpression(
+    keys: any,
+    values: HashTable<any>,
+    properties: HashTable<any> = null
+  ) {
+    if (!this.isCheckRequired(keys)) return;
+    if (!!this.conditionRunner) {
+      this.perform(this.conditionRunner.run(values, properties));
+    }
   }
   public check(value: any) {
-    if (Trigger.operators[this.operator](value, this.value)) {
+    this.perform(Trigger.operators[this.operator](value, this.value));
+  }
+  private perform(triggerResult: boolean) {
+    if (triggerResult) {
       this.onSuccess();
     } else {
       this.onFailure();
@@ -73,6 +118,53 @@ export class Trigger extends Base {
   }
   protected onSuccess() {}
   protected onFailure() {}
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.oldPropertiesChanged();
+  }
+  private oldPropertiesChanged() {
+    var val = this.buildExpression();
+    if (!!val) {
+      this.expression = val;
+    }
+  }
+  private onExpressionChanged() {
+    this.usedNames = [];
+    this.conditionRunner = null;
+  }
+  private buildExpression(): string {
+    if (!this.name) return "";
+    if (Helpers.isValueEmpty(this.value) && this.isRequireValue) return "";
+    return (
+      "{" +
+      this.name +
+      "} " +
+      this.operator +
+      " " +
+      new Operand(this.value).toString()
+    );
+  }
+  private isCheckRequired(keys: any): boolean {
+    if (!keys) return false;
+    this.buildUsedNames();
+    for (var i = 0; i < this.usedNames.length; i++) {
+      if (keys.hasOwnProperty(this.usedNames[i])) return true;
+      //if (keys[this.usedNames[i]] != undefined) return true;
+    }
+    return false;
+  }
+  private buildUsedNames() {
+    if (!!this.conditionRunner) return;
+    this.conditionRunner = new ConditionRunner(this.expression);
+    this.usedNames = this.conditionRunner.getVariables();
+    var processValue = new ProcessValue();
+    for (var i = 0; i < this.usedNames.length; i++) {
+      this.usedNames[i] = processValue.getFirstName(this.usedNames[i]);
+    }
+  }
+  private get isRequireValue(): boolean {
+    return this.operator !== "empty" && this.operator != "notempty";
+  }
 }
 
 export interface ISurveyTriggerOwner {
@@ -85,7 +177,6 @@ export interface ISurveyTriggerOwner {
  * It extends the Trigger base class and add properties required for SurveyJS classes.
  */
 export class SurveyTrigger extends Trigger {
-  public name: string;
   protected owner: ISurveyTriggerOwner = null;
   constructor() {
     super();

@@ -1200,9 +1200,9 @@ export class SurveyModel extends Base
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
-        this.checkTriggers(key, data[key], false);
       }
     }
+    this.checkTriggers(this.valuesHash, false);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
@@ -2250,11 +2250,13 @@ export class SurveyModel extends Base
   }
   private checkOnPageTriggers() {
     var questions = this.getCurrentPageQuestions();
+    var values = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      var value = this.getValue(question.getValueName());
-      this.checkTriggers(question.getValueName(), value, true);
+      var name = question.getValueName();
+      values[name] = this.getValue(name);
     }
+    this.checkTriggers(values, true);
   }
   private getCurrentPageQuestions(): Array<QuestionBase> {
     var result = [];
@@ -2267,15 +2269,13 @@ export class SurveyModel extends Base
     }
     return result;
   }
-  private checkTriggers(name: string, newValue: any, isOnNextPage: boolean) {
-    var processValue = new ProcessValue();
+  private checkTriggers(key: any, isOnNextPage: boolean) {
+    var values = this.getConditionValues();
+    var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
       var trigger = this.triggers[i];
-      var firstName = processValue.getFirstName(trigger.name);
-      if (firstName == name && trigger.isOnNextPage == isOnNextPage) {
-        var values = {};
-        values[firstName] = newValue;
-        trigger.check(processValue.getValue(trigger.name, values));
+      if (trigger.isOnNextPage == isOnNextPage) {
+        trigger.checkExpression(key, values, properties);
       }
     }
   }
@@ -2287,12 +2287,16 @@ export class SurveyModel extends Base
   private conditionVersion = 0;
   private runConditions() {
     var pages = this.pages;
-    var values = this.getFilteredValues();
-    values.conditionVersion = ++this.conditionVersion;
+    var values = this.getConditionValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
     }
+  }
+  private getConditionValues(): HashTable<any> {
+    var values = this.getFilteredValues();
+    values.conditionVersion = ++this.conditionVersion;
+    return values;
   }
   /**
    * Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.
@@ -2610,7 +2614,9 @@ export class SurveyModel extends Base
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
     this.notifyQuestionOnValueChanged(name, newValue);
-    this.checkTriggers(name, newValue, false);
+    var triggerKeys = {};
+    triggerKeys[name] = newValue;
+    this.checkTriggers(triggerKeys, false);
     this.runConditions();
     this.tryGoNextPageAutomatic(name);
   }

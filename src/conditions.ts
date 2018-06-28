@@ -452,6 +452,9 @@ export class ConditionRunner {
     this.expressionValue = value;
     new ConditionsParser().parse(this.expressionValue, this.root);
   }
+  public getVariables(): Array<string> {
+    return !!this.root ? this.root.getVariables() : [];
+  }
   public run(
     values: HashTable<any>,
     properties: HashTable<any> = null

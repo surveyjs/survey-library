@@ -19,6 +19,8 @@ export class StylesManager {
 
     ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
+    ".sv_bootstrapmaterial_css .checkbox":
+      "margin-top:10px;margin-bottom:10px;",
 
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",

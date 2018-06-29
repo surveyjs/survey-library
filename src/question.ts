@@ -552,7 +552,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   private collectErrors() {
     this.onCheckForErrors(this.errors);
-    if (this.errors.length == 0 && !this.isEmpty()) {
+    if (this.errors.length == 0) {
       var error = this.runValidators();
       if (error) {
         //validators may change the question value.

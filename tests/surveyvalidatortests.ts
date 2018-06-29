@@ -8,6 +8,7 @@ import {
 } from "../src/validator";
 import { CustomError } from "../src/error";
 import { SurveyModel } from "../src/survey";
+import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { JsonObject } from "../src/jsonobject";
@@ -265,4 +266,36 @@ QUnit.test("Expression validator", function(assert) {
   question.items[0].value = 3;
   question.items[1].value = 5;
   assert.equal(question.hasErrors(), false, "5 >= 3");
+});
+
+QUnit.test("Expression validator #2", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "comment",
+        name: "comment",
+        title: "Please tell us about your experience",
+        validators: [
+          {
+            type: "expression",
+            expression: "{satisfaction} < 6 or {comment} notempty",
+            text: "Please answer this question."
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.setValue("satisfaction", 6);
+  assert.equal(
+    survey.isCurrentPageHasErrors,
+    true,
+    "comment should not be empty"
+  );
+  survey.setValue("comment", "some text");
+  assert.equal(survey.isCurrentPageHasErrors, false, "comment has text now");
+  survey.clearValue("comment");
+  assert.equal(survey.isCurrentPageHasErrors, true, "comment is empty again");
+  survey.setValue("satisfaction", 5);
+  assert.equal(survey.isCurrentPageHasErrors, false, "satisfaction is low");
 });

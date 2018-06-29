@@ -4,6 +4,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
+import { Helpers } from "./helpers";
 
 export class ValidatorResult {
   constructor(public value: any, public error: SurveyError = null) {}
@@ -106,6 +107,7 @@ export class NumericValidator extends SurveyValidator {
     return "numericvalidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
+    if (Helpers.isValueEmpty(value)) return null;
     if (!this.isNumber(value)) {
       return new ValidatorResult(null, new RequreNumericError());
     }

@@ -1185,10 +1185,12 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
+  private conditionVersion = 0;
   getFilteredValues(): any {
     var values = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     for (var key in this.valuesHash) values[key] = this.valuesHash[key];
+    values["conditionVersion"] = ++this.conditionVersion;
     return values;
   }
   getFilteredProperties(): any {
@@ -2270,7 +2272,7 @@ export class SurveyModel extends Base
     return result;
   }
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    var values = this.getConditionValues();
+    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
       var trigger = this.triggers[i];
@@ -2284,19 +2286,13 @@ export class SurveyModel extends Base
       this.pages[i].onSurveyLoad();
     }
   }
-  private conditionVersion = 0;
   private runConditions() {
     var pages = this.pages;
-    var values = this.getConditionValues();
+    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
     }
-  }
-  private getConditionValues(): HashTable<any> {
-    var values = this.getFilteredValues();
-    values.conditionVersion = ++this.conditionVersion;
-    return values;
   }
   /**
    * Send the survey result into [dxsurvey.com](http://www.dxsurvey.com) service.

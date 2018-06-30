@@ -123,10 +123,7 @@ export class Trigger extends Base {
     this.oldPropertiesChanged();
   }
   private oldPropertiesChanged() {
-    var val = this.buildExpression();
-    if (!!val) {
-      this.expression = val;
-    }
+    this.onExpressionChanged();
   }
   private onExpressionChanged() {
     this.usedNames = [];
@@ -155,7 +152,12 @@ export class Trigger extends Base {
   }
   private buildUsedNames() {
     if (!!this.conditionRunner) return;
-    this.conditionRunner = new ConditionRunner(this.expression);
+    var expression = this.expression;
+    if (!expression) {
+      expression = this.buildExpression();
+    }
+    if (!expression) return;
+    this.conditionRunner = new ConditionRunner(expression);
     this.usedNames = this.conditionRunner.getVariables();
     var processValue = new ProcessValue();
     for (var i = 0; i < this.usedNames.length; i++) {
@@ -254,7 +256,11 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   }
 }
 
-JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
+JsonObject.metaData.addClass("trigger", [
+  "operator",
+  "value",
+  "expression:condition"
+]);
 JsonObject.metaData.addClass("surveytrigger", ["!name"], null, "trigger");
 JsonObject.metaData.addClass(
   "visibletrigger",

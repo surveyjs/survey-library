@@ -87,10 +87,12 @@ export class ItemValue {
       values = {};
     }
     var itemValue = values["item"];
+    var choiceValue = values["choice"];
     var hasChanded = false;
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
       values["item"] = item.value;
+      values["choice"] = item.value;
       var itemRunner = !!item.getConditionRunner
         ? item.getConditionRunner()
         : false;
@@ -115,6 +117,11 @@ export class ItemValue {
       values["item"] = itemValue;
     } else {
       delete values["item"];
+    }
+    if (choiceValue) {
+      values["choice"] = choiceValue;
+    } else {
+      delete values["choice"];
     }
     return hasChanded;
   }

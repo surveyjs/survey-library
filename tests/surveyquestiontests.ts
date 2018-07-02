@@ -1252,6 +1252,23 @@ QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleChoices.length, 4, "there is no filter");
 });
 
+QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionRadiogroupModel("bestCar");
+  qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.choicesVisibleIf = "{cars} contains {choice}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleChoices.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleChoices.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleChoices.length, 3, "3 cars are selected");
+});
+
 QUnit.test("matrix.rowsVisibleIf", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

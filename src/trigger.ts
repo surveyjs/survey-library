@@ -129,7 +129,7 @@ export class Trigger extends Base {
     this.usedNames = [];
     this.conditionRunner = null;
   }
-  private buildExpression(): string {
+  public buildExpression(): string {
     if (!this.name) return "";
     if (Helpers.isValueEmpty(this.value) && this.isRequireValue) return "";
     return (
@@ -257,11 +257,11 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
 }
 
 JsonObject.metaData.addClass("trigger", [
-  "operator",
+  {name: "operator", default: "equal"},
   "value",
   "expression:condition"
 ]);
-JsonObject.metaData.addClass("surveytrigger", ["!name"], null, "trigger");
+JsonObject.metaData.addClass("surveytrigger", ["name"], null, "trigger");
 JsonObject.metaData.addClass(
   "visibletrigger",
   ["pages", "questions"],

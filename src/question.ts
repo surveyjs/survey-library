@@ -471,6 +471,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
     return this.getComment();
   }
   public set comment(newValue: string) {
+    if (!!newValue) newValue = newValue.trim();
     if (this.comment == newValue) return;
     this.setComment(newValue);
     this.fireCallback(this.commentChangedCallback);

@@ -1252,7 +1252,9 @@ QUnit.test("questionselectbase.choicesVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleChoices.length, 4, "there is no filter");
 });
 
-QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function(assert) {
+QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function(
+  assert
+) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -1463,3 +1465,31 @@ QUnit.test(
     assert.equal(q.items[0].editor.isReadOnly, true, "It should be readonly");
   }
 );
+
+QUnit.test("space in others does not work correctly , bug #1214", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasOther: true,
+        choices: ["high"],
+        storeOthersAsComment: false
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q.value = q.otherItem.value;
+  assert.equal(q.isOtherSelected, true, "other is selected");
+  assert.equal(q.hasErrors(), true, "other is not entered");
+  q.comment = " ";
+  assert.equal(q.isOtherSelected, true, "other is still selected");
+  assert.equal(
+    q.hasErrors(),
+    true,
+    "other is not entered, whitespace doesn't count"
+  );
+});

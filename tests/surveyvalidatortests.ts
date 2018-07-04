@@ -6,7 +6,7 @@ import {
   ValidatorResult,
   ExpressionValidator
 } from "../src/validator";
-import { CustomError } from "../src/error";
+import { CustomError, ExceedSizeError } from "../src/error";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";
@@ -298,4 +298,10 @@ QUnit.test("Expression validator #2", function(assert) {
   assert.equal(survey.isCurrentPageHasErrors, true, "comment is empty again");
   survey.setValue("satisfaction", 5);
   assert.equal(survey.isCurrentPageHasErrors, false, "satisfaction is low");
+});
+
+QUnit.test("ExceedSizeError", function(assert) {
+  var error = new ExceedSizeError(102400);
+  assert.equal(error.getText(), "The file size should not exceed 100 KB.");
+  assert.equal(error.locText.text, "The file size should not exceed 100 KB.");
 });

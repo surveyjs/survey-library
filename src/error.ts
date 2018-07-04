@@ -27,10 +27,9 @@ export class RequreNumericError extends SurveyError {
   }
 }
 export class ExceedSizeError extends SurveyError {
-  private maxSize: number;
-  constructor(maxSize: number, locOwner: ILocalizableOwner = null) {
+  constructor(private maxSize: number, locOwner: ILocalizableOwner = null) {
     super(null, locOwner);
-    this.maxSize = maxSize;
+    this.locText.text = this.getText();
   }
   public getDefaultText(): string {
     return surveyLocalization
@@ -40,7 +39,9 @@ export class ExceedSizeError extends SurveyError {
   private getTextSize() {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     var fixed = [0, 0, 2, 3, 3];
-    if (this.maxSize == 0) return "0 Byte";
+    if (this.maxSize === 0) {
+      return "0 Byte";
+    }
     var i = Math.floor(Math.log(this.maxSize) / Math.log(1024));
     var value = this.maxSize / Math.pow(1024, i);
     return value.toFixed(fixed[i]) + " " + sizes[i];

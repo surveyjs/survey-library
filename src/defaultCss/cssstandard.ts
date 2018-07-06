@@ -105,6 +105,15 @@ export var defaultStandardCss = {
     other: "sv_q_other sv_q_radiogroup_other",
     clearButton: "sv_q_radiogroup_clear"
   },
+  imagepicker: {
+    root: "sv_imgsel",
+    item: "sv_q_imgsel",
+    label: "sv_q_imgsel_label",
+    itemControl: "sv_q_imgsel_control_item",
+    image: "sv_q_imgsel_image",
+    itemText: "sv_q_imgsel_text",
+    clearButton: "sv_q_radiogroup_clear"
+  },
   rating: {
     root: "sv_q_rating",
     item: "sv_q_rating_item",

@@ -208,6 +208,10 @@ $base-line-height: 2em;
       }
     }
   }
+
+  .sv_q_imgsel.checked label > div {
+    background-color: $main-color;
+  }
 }
 
 .sv_main {
@@ -447,8 +451,21 @@ $base-line-height: 2em;
           }
 
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child),
-          .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child) {
+          .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child),
+          .sv_q_imgsel.sv_q_imagepicker_inline:not(:last-child) {
             margin-right: 1.5em;
+          }
+
+          .sv_q_imgsel label > div {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding: 4px;
+            border: 1px solid lightgray;
+            border-radius: 4px;
+            > img {
+              display: block;
+            }
           }
 
           // .sv_q_radiogroup,
@@ -470,7 +487,8 @@ $base-line-height: 2em;
           }
 
           .sv_q_checkbox_inline,
-          .sv_q_radiogroup_inline {
+          .sv_q_radiogroup_inline,
+          .sv_q_imagepicker_inline {
             line-height: $base-line-height;
             display: inline-block;
           }

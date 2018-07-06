@@ -275,7 +275,9 @@ export class StylesManager {
       "border-color: $border-color;",
 
     ".sv_default_css .sv_q_m_cell_selected":
-      "color: $body-background-color; background-color: $main-hover-color;"
+      "color: $body-background-color; background-color: $main-hover-color;",
+
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 
   private sheet: CSSStyleSheet = null;

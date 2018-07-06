@@ -2464,6 +2464,34 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("customWidgets camel name", function(assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "camelName",
+    isFit: question => {
+      return question.getType() == "camelname";
+    }
+  });
+  if(!JsonObject.metaData.findClass("camelName")) {
+    JsonObject.metaData.addClass("camelName", [], null, "text");
+  }
+  
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "camelName", name: "q1"
+      }
+    ]
+  });
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(
+    question.customWidget.name,
+    "camelName",
+    "the custom custom widget is set"
+  );
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("question support readOnlyChangedCallback", function(assert) {
   var readOnlyChangedCounter = 0;
   var survey = new SurveyModel();

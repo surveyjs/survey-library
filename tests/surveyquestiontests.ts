@@ -1493,3 +1493,27 @@ QUnit.test("space in others does not work correctly , bug #1214", function(
     "other is not entered, whitespace doesn't count"
   );
 });
+
+QUnit.test("Checkbox hasNone", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasNone: true,
+        choices: [1, 2, 3, 4, 5]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.visibleChoices.length, 6, "5 items + none");
+  q.hasNone = false;
+  assert.equal(q.visibleChoices.length, 5, "none is removed");
+  q.hasNone = true;
+  assert.equal(q.visibleChoices.length, 6, "none is added");
+  q.value = [1, 2, "none"];
+  assert.deepEqual(q.value, ["none"], "we keep only none");
+  q.value = [1, "none"];
+  assert.deepEqual(q.value, [1], "none should gone");
+});

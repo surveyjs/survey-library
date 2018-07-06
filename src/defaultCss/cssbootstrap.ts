@@ -96,6 +96,15 @@ export var defaultBootstrapCss = {
     other: "sv_q_radiogroup_other",
     clearButton: "sv_q_radiogroup_clear button"
   },
+  imagepicker: {
+    root: "sv_imgsel",
+    item: "sv_q_imgsel",
+    label: "sv_q_imgsel_label",
+    itemControl: "sv_q_imgsel_control_item",
+    image: "sv_q_imgsel_image",
+    itemText: "sv_q_imgsel_text",
+    clearButton: "sv_q_radiogroup_clear"
+  },
   rating: {
     root: "btn-group",
     item: "btn btn-default btn-secondary",

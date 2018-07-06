@@ -1,0 +1,19 @@
+﻿<script type="text/html" id="survey-question-imagepicker">
+    <fieldset data-bind="css: question.koCss().root">
+        <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+        <div data-bind="css: question.getItemClass(item)">
+            <label data-bind="css: question.koCss().label">
+                <input style="display: none;" data-bind="attr: {type: question.multiSelect ? 'checkbox' : 'radio', name: question.name + '_' + question.id, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml}, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"
+                />
+                <div>
+                    <img data-bind="css: question.koCss().image, attr: { src: imageLink }"/>
+                    <!-- ko if: question.showLabel -->
+                    <span data-bind="text: text || value, attr: { title: text || value }, css: question.koCss().itemText"></span>
+                    <!-- /ko -->
+                </div>
+            </label>
+        </div>
+        <!-- /ko -->
+        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
+    </fieldset>
+</script>

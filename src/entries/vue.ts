@@ -46,6 +46,7 @@ export { MatrixDynamic } from "../vue/matrixdynamic.vue";
 export { Errors } from "../vue/errors.vue";
 export { Html } from "../vue/html.vue";
 export { Expression } from "../vue/expression.vue";
+export { ImagePicker } from "../vue/imagepicker.vue";
 export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { Progress } from "../vue/progress.vue";

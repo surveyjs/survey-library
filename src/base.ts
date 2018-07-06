@@ -182,7 +182,7 @@ export class Base {
     CustomPropertiesCollection.createProperties(this);
   }
   /**
-   * Returns the type of the object as a string as it represents in the json.
+   * Returns the type of the object as a string as it represents in the json. It should be in lowcase.
    */
   public getType(): string {
     return "base";

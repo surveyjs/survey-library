@@ -184,9 +184,17 @@ To build library yourself:
     ```
     This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
-## Wordpress
+### CMS integration 
 
-We have a [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) in the official wordpress repo
+|     | CMS and services   | Plugin Link        |
+|-----| -------------------|--------------------|
+| [+] | Wordpress          | [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) |
+| [+] | Zendesk            | In progress of publication      |
+| [ ] | Sales Force |       |
+| [ ] | Microsoft Dynamics |       |
+| [ ] | [Typo3](https://typo3.org/) |       |
+
+Please feel free to contact us if you need to supports some particular CMS or implemented a plugin yourself.
 
 ## License
 

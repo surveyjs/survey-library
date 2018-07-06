@@ -7,6 +7,7 @@ export var englishStrings = {
   completeText: "Complete",
   startSurveyText: "Start",
   otherItemText: "Other (describe)",
+  noneItemText: "None",
   progressText: "Page {0} of {1}",
   emptySurvey: "There is no visible page or question in the survey.",
   completingSurvey: "Thank you for completing the survey!",

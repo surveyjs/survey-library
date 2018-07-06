@@ -8,8 +8,6 @@ import { CustomError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
-import { setFlagsFromString } from "v8";
-import { timingSafeEqual } from "crypto";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -63,6 +61,7 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Returns the other item. By using this property, you may change programmatically it's value and text.
+   * @see hasOther
    */
   public get otherItem(): ItemValue {
     return this.otherItemValue;
@@ -279,17 +278,22 @@ export class QuestionSelectBase extends Question {
    * @see choicesOrder
    */
   public get visibleChoices(): Array<ItemValue> {
-    if (!this.hasOther && this.choicesOrder == "none")
-      return this.filteredChoices;
+    if (this.canUseFilteredChoices()) return this.filteredChoices;
     if (!this.visibleChoicesCache) {
       this.visibleChoicesCache = this.sortVisibleChoices(
         this.filteredChoices.slice()
       );
-      if (this.hasOther) {
-        this.visibleChoicesCache.push(this.otherItem);
-      }
+      this.addToVisibleChoices(this.visibleChoicesCache);
     }
     return this.visibleChoicesCache;
+  }
+  protected canUseFilteredChoices(): boolean {
+    return !this.hasOther && this.choicesOrder == "none";
+  }
+  protected addToVisibleChoices(items: Array<ItemValue>) {
+    if (this.hasOther) {
+      items.push(this.otherItem);
+    }
   }
   /**
    * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
@@ -423,7 +427,7 @@ export class QuestionSelectBase extends Question {
       val.isExists && this.hasUnknownValue(val.value) ? null : val.value;
     return { value: value };
   }
-  private onVisibleChoicesChanged() {
+  protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.visibleChoicesCache = null;
     this.fireCallback(this.choicesChangedCallback);

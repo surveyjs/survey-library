@@ -361,6 +361,13 @@ JsonObject.metaData.addClass(
   "dealer"
 );
 
+JsonObject.metaData.addClass(
+  "camelDealer",
+  [{ name: "defaultValue", visible: false }],
+  null,
+  "dealer"
+);
+
 class CheckGetPropertyValue {
   public directProp: string;
   public getValueProp: string;
@@ -1303,6 +1310,11 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Create class with camel name", function(assert) {
+  var dealer = <Dealer>JsonObject.metaData.createClass("Cameldealer");
+  assert.ok(dealer, "The object is created");
+});
 
 QUnit.test("Generate properties on the fly", function(assert) {
   var carOwner = <CarOwner>JsonObject.metaData.createClass("carowner");

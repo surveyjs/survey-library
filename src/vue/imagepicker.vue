@@ -6,7 +6,7 @@
                 <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <div>
                     <img :class="question.cssClasses.image" :src="item.imageLink"/>
-                    <span v-if="question.showLabel" :title="item.value" :class="question.cssClasses.itemText">{{item.value}}</span>
+                    <span v-if="question.showLabel" :title="item.text || item.value" :class="question.cssClasses.itemText">{{item.text || item.value}}</span>
                 </div>
             </label>
         </div>

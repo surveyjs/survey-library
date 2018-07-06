@@ -8,7 +8,7 @@
                 <div>
                     <img data-bind="css: question.koCss().image, attr: { src: imageLink }"/>
                     <!-- ko if: question.showLabel -->
-                    <span data-bind="text: value, attr: { title: value }, css: question.koCss().itemText"></span>
+                    <span data-bind="text: text || value, attr: { title: text || value }, css: question.koCss().itemText"></span>
                     <!-- /ko -->
                 </div>
             </label>

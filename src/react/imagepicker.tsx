@@ -89,8 +89,11 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var text = null;
     if (this.question.showLabel) {
       text = (
-        <span title={item.value} className={this.question.cssClasses.itemText}>
-          {item.value}
+        <span
+          title={item.text || item.value}
+          className={this.question.cssClasses.itemText}
+        >
+          {item.text || item.value}
         </span>
       );
     }

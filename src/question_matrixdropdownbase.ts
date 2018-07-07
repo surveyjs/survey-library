@@ -117,7 +117,7 @@ export var matrixDropdownColumnTypes = {
     onCellQuestionUpdate: (cellQuestion, column, question, data) => {}
   },
   comment: {
-    properties: ["placeHolder"],
+    properties: ["placeHolder", "rows"],
     onCellQuestionUpdate: (cellQuestion, column, question, data) => {}
   },
   boolean: {

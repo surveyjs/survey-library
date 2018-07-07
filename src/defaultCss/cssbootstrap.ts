@@ -1,17 +1,17 @@
 import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapCss = {
-  root: "sv_bootstrap_css",
+  root: "sv_main sv_bootstrap_css",
   header: "panel-heading card-header",
   body: "panel-body card-block mt-4",
   footer: "panel-footer card-footer",
   navigationButton: "",
   completedPage: "",
   navigation: {
-    complete: "sv_complete_btn",
-    prev: "sv_prev_btn",
-    next: "sv_next_btn",
-    start: "sv_start_btn"
+    complete: "btn sv_complete_btn",
+    prev: "btn sv_prev_btn",
+    next: "btn sv_next_btn",
+    start: "btn sv_start_btn"
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",

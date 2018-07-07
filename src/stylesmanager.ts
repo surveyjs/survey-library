@@ -280,6 +280,43 @@ export class StylesManager {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 
+  public static BootstrapMaterialThemeCss: { [key: string]: string } = {
+    ".sv_bootstrapmaterial_css .form-group.is-focused .form-control":
+      "background-image: linear-gradient($main-color, $main-color), linear-gradient(#D2D2D2, #D2D2D2);",
+    ".sv_bootstrapmaterial_css .form-group.is-focused label":
+      "color:$main-color;",
+
+    ".sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
+      "border-color: $main-color;",
+    ".sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check":
+      "border-color: $main-color;",
+    ".sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check:before":
+      "color: $main-color;",
+    ".sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check:before":
+      "color: $main-color;",
+
+    ".sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .circle":
+      "border-color: $main-color;",
+    ".sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .circle":
+      "border-color: $main-color;",
+    ".sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .check":
+      "background-color: $main-color;",
+    ".sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .check":
+      "background-color: $main-color;",
+
+    ".sv_bootstrapmaterial_css .btn-default.active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_bootstrapmaterial_css .btn-default:active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_bootstrapmaterial_css .open>.dropdown-toggle.btn-default":
+      "background-color: $main-color; color: $body-background-color;",
+
+    ".sv_bootstrapmaterial_css input[type='button'], .sv_bootstrapmaterial_css button":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_bootstrapmaterial_css input[type='button']:hover, .sv_bootstrapmaterial_css button:hover":
+      "background-color: $main-hover-color;"
+  };
+
   private sheet: CSSStyleSheet = null;
 
   static findSheet(styleSheetId: string) {
@@ -306,14 +343,22 @@ export class StylesManager {
     themeName: string = "default",
     themeSelector: string = ".sv_main"
   ) {
+    let ThemeCss;
+    if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
+      ThemeCss = StylesManager.BootstrapMaterialThemeCss;
+    } else {
+      ThemeCss = StylesManager.ThemeCss;
+    }
+
     let sheet = StylesManager.findSheet(themeName + themeSelector);
     if (!sheet) {
       sheet = StylesManager.createSheet(themeName + themeSelector);
       let theme =
         StylesManager.ThemeColors[themeName] ||
         StylesManager.ThemeColors["default"];
-      Object.keys(StylesManager.ThemeCss).forEach(selector => {
-        let cssRuleText = StylesManager.ThemeCss[selector];
+
+      Object.keys(ThemeCss).forEach(selector => {
+        let cssRuleText = ThemeCss[selector];
         Object.keys(theme).forEach(
           colorVariableName =>
             (cssRuleText = cssRuleText.replace(

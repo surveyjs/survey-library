@@ -50,11 +50,41 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public getValueName(): string {
     return this.valueName ? this.valueName : this.name;
   }
+  /**
+   * Use this property if you want to store the question result in the name different from the question name.
+   * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
+   * This sets automatically if name has symbols like '.' period. You can't use '.' symbols to store the results.
+   */
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
   }
   public set valueName(val: string) {
     this.setPropertyValue("valueName", val);
+  }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+    if (name === "name") {
+      this.onNameValueChanged(oldValue, newValue);
+    }
+    super.propertyValueChanged(name, oldValue, newValue);
+  }
+  protected onNameValueChanged(oldValue: string, newValue: string) {
+    if (!newValue) return;
+    if (newValue.indexOf(".") > -1) {
+      if (!this.valueName || this.isCorrectedNameEqualsValueName(oldValue))
+        this.valueName = this.getCorrectedName(newValue);
+    } else {
+      if (!!this.valueName && this.isCorrectedNameEqualsValueName(oldValue)) {
+        this.valueName = "";
+      }
+    }
+  }
+  private getCorrectedName(name: string): string {
+    while (name.indexOf(".") > -1) name = name.replace(".", " ");
+    return name.trim();
+  }
+  private isCorrectedNameEqualsValueName(name: string): boolean {
+    if (!name || name.indexOf(".") < 0 || !this.valueName) return false;
+    return this.getCorrectedName(name) == this.valueName;
   }
   /**
    * Returns true if the question may have a title located on the left

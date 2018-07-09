@@ -506,8 +506,9 @@ export class SurveyElement extends Base implements ISurveyElement {
     }
     return false;
   }
-  constructor(public name: string) {
+  constructor(name: string) {
     super();
+    this.name = name;
   }
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
@@ -541,6 +542,12 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isLoadingFromJson() {
     if (this.survey) return this.survey.isLoadingFromJson;
     return this.isLoadingFromJsonValue;
+  }
+  public get name(): string {
+    return this.getPropertyValue("name", "");
+  }
+  public set name(val: string) {
+    this.setPropertyValue("name", val);
   }
   /**
    * The list of errors. It is created by callig hasErrors functions

@@ -4300,6 +4300,42 @@ QUnit.test("clearInvisibleValues: 'onHidden' doesn't work. The fix was created b
   );
 });
 
+QUnit.test("readOnly, enabledIf for Panels and Pages", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var panel1 = page.addNewPanel("panel1");
+  var panel2 = panel1.addNewPanel("panel2");
+  survey.setValue("val1", 1);
+  panel1.enableIf = "{val1} == 1";
+  var question1 = <Question>panel1.addNewQuestion("text", "question1");
+  var question1ReadOnlyCounter = 0;
+  question1.onReadOnlyChanged = function() {
+    question1ReadOnlyCounter ++;
+  }
+  var question2 = <Question>panel2.addNewQuestion("text", "question2");
+  assert.equal(question2.isReadOnly, false, "It is not readOnly by default");
+  survey.setValue("val1", 2);
+  assert.equal(question1.isReadOnly, true, "question1 is readOnly");
+  assert.equal(question2.isReadOnly, true, "question2 is readOnly");
+  assert.equal(panel1.isReadOnly, true, "panel1 is readOnly");
+  assert.equal(panel2.isReadOnly, true, "panel2 is readOnly");
+
+  var question3 = <Question>panel2.addNewQuestion("text", "question3");
+  assert.equal(question3.isReadOnly, true, "question3 is readOnly");
+  assert.equal(question1ReadOnlyCounter, 1, "It was changed one time");
+
+  survey.setValue("val1", 1);
+  assert.equal(question2.isReadOnly, false, "question2 is editable");
+  assert.equal(question1ReadOnlyCounter, 2, "It was changed two times");
+
+  panel2.readOnly = true;
+  assert.equal(question1.isReadOnly, false, "question1 is not readOnly, panel2 is ReadOnly");
+  assert.equal(question2.isReadOnly, true, "question2 is readOnly, panel2 is ReadOnly");
+  assert.equal(question1ReadOnlyCounter, 2, "It was changed two times, panel2 is nested panel");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

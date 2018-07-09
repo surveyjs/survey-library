@@ -3,6 +3,8 @@ import {
   ISurveyData,
   ISurveyImpl,
   ISurvey,
+  IPanel,
+  IElement,
   ITextProcessor
 } from "./base";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
@@ -15,7 +17,7 @@ import { AnswerRequiredError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 
-export interface IMultipleTextData extends ILocalizableOwner {
+export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
   getAllValues(): any;
@@ -68,6 +70,7 @@ export class MultipleTextItemModel extends Base
     this.data = data;
     if (data) {
       this.editor.setSurveyImpl(this);
+      this.editor.parent = data;
     }
   }
   /**
@@ -210,7 +213,7 @@ export class MultipleTextItemModel extends Base
  * A Model for a multiple text question.
  */
 export class QuestionMultipleTextModel extends Question
-  implements IMultipleTextData {
+  implements IMultipleTextData, IPanel {
   colCountChangedCallback: () => void;
   private itemsValues: Array<MultipleTextItemModel> = new Array<
     MultipleTextItemModel
@@ -409,6 +412,14 @@ export class QuestionMultipleTextModel extends Question
   }
   getIsRequiredText(): string {
     return this.survey ? this.survey.requiredText : "";
+  }
+  //IPanel
+  addElement(element: IElement, index: number) {}
+  removeElement(element: IElement): boolean {
+    return false;
+  }
+  getQuestionTitleLocation(): string {
+    return "left";
   }
 }
 

@@ -138,16 +138,14 @@ export interface IQuestion extends IElement {
 export interface IParentElement {
   addElement(element: IElement, index: number);
   removeElement(element: IElement): boolean;
+  isReadOnly: boolean;
 }
 
 export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleLocation(): string;
   parent: IPanel;
 }
-export interface IPage
-  extends ISurveyElement,
-    IParentElement,
-    IConditionRunner {}
+export interface IPage extends IPanel, IConditionRunner {}
 /**
  * The base class for SurveyJS objects.
  */

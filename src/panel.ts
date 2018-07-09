@@ -522,6 +522,11 @@ export class PanelModelBase extends SurveyElement
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
+  get isReadOnly(): boolean {
+    if (!!this.parent) return this.parent.isReadOnly;
+    if (!!this.survey && this.survey.isDisplayMode) return true;
+    return false;
+  }
   protected get root(): PanelModelBase {
     var res = <PanelModelBase>this;
     while (res.parent) res = res.parent;

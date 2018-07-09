@@ -1556,3 +1556,25 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "readOnly property doesn't work for multipletext question, #1217",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    page.addQuestion(question);
+    question.addItem("text1");
+    question.addItem("text2");
+    var itemQuestion = question.items[0].editor;
+    assert.equal(itemQuestion.isReadOnly, false, "It is not readOnly by default");
+    survey.mode = "display";
+    assert.equal(itemQuestion.isReadOnly, true, "survey mode is display");
+    survey.mode = "edit";
+    assert.equal(itemQuestion.isReadOnly, false, "survey mode is edit");
+    question.readOnly = true;
+    assert.equal(itemQuestion.isReadOnly, true, "question is readOnly");
+  }
+);
+
+

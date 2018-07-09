@@ -340,7 +340,11 @@ export class Question extends QuestionBase implements IValidatorOwner {
    * @see readOnly
    */
   public get isReadOnly() {
-    return this.readOnly || (this.survey != null && this.survey.isDisplayMode);
+    return (
+      this.readOnly ||
+      (!!this.parent && this.parent.isReadOnly) ||
+      (!!this.survey && this.survey.isDisplayMode)
+    );
   }
   /**
    * Set it to true to make a question readonly.

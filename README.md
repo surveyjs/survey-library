@@ -178,7 +178,14 @@ To build library yourself:
 
     After that you should have the libraries (angular, jquery, knockout, react and vue) at 'packages' directory.
 
-4.  **Run unit tests**
+4.  **Run samples**
+    ```
+    npm start
+    ```
+    This command will run local http server at the http://localhost:7777 
+    You can open http://localhost:7777/examples/knockout to view KnockoutJS samples, http://localhost:7777/examples/react to view ReactJS samples and so on
+    
+5.  **Run unit tests**
     ```
     karma start
     ```

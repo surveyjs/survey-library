@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="form-group">
         <input v-if="!question.isReadOnly" type="text" :class="question.cssClasses.other || commentClass" v-model="question.comment" :maxlength="question.getOthersMaxLength()" v-bind:aria-label="question.locTitle.renderedHtml"/>
         <div v-else :class="question.cssClasses.other">{{question.comment}}</div>
     </div>

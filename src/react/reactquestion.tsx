@@ -203,7 +203,7 @@ export class SurveyQuestion extends React.Component<any, any> {
       this.question.locCommentText
     );
     return (
-      <div>
+      <div className="form-group">
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}

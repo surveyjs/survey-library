@@ -91,7 +91,6 @@ export class PanelModelBase extends SurveyElement
   }
 
   private rowValues: Array<QuestionRowModel> = null;
-  private conditionRunner: ConditionRunner = null;
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
@@ -522,11 +521,6 @@ export class PanelModelBase extends SurveyElement
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
-  get isReadOnly(): boolean {
-    if (!!this.parent) return this.parent.isReadOnly;
-    if (!!this.survey && this.survey.isDisplayMode) return true;
-    return false;
-  }
   protected get root(): PanelModelBase {
     var res = <PanelModelBase>this;
     while (res.parent) res = res.parent;
@@ -689,7 +683,42 @@ export class PanelModelBase extends SurveyElement
     }
     return index - startIndex;
   }
-
+  /**
+   * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
+   * @see SurveyModel.model
+   * @see readOnly
+   */
+  public get isReadOnly(): boolean {
+    if (this.readOnly) return true;
+    if (!!this.parent) return this.parent.isReadOnly;
+    if (!!this.survey && this.survey.isDisplayMode) return true;
+    return false;
+  }
+  /**
+   * Set it to true to make a panel/page readonly.
+   * @see enableIf
+   * @see isReadOnly
+   */
+  public get readOnly(): boolean {
+    return this.getPropertyValue("readOnly", false);
+  }
+  public set readOnly(val: boolean) {
+    if (this.readOnly == val) return;
+    this.setPropertyValue("readOnly", val);
+    this.onReadOnlyChanged();
+  }
+  /**
+   * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.
+   * The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
+   * @see readOnly
+   * @see isReadOnly
+   */
+  public get enableIf(): string {
+    return this.getPropertyValue("enableIf", "");
+  }
+  public set enableIf(val: string) {
+    this.setPropertyValue("enableIf", val);
+  }
   /**
    * Add an elememnt into Panel or Page.
    * @param element
@@ -779,12 +808,25 @@ export class PanelModelBase extends SurveyElement
       if (values.conditionVersion < this.conditionVersion) return;
       elements[i].runCondition(values, properties);
     }
-    if (!this.visibleIf) return;
     if (values.conditionVersion < this.conditionVersion) return;
-    if (!this.conditionRunner)
-      this.conditionRunner = new ConditionRunner(this.visibleIf);
-    this.conditionRunner.expression = this.visibleIf;
-    this.visible = this.conditionRunner.run(values, properties);
+    this.runVisibleCondition(values, properties);
+    this.runEnableCondition(values, properties);
+  }
+  private runVisibleCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.visibleIf) return;
+    var conditionRunner = new ConditionRunner(this.visibleIf);
+    this.visible = conditionRunner.run(values, properties);
+  }
+  private runEnableCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.enableIf) return;
+    var conditionRunner = new ConditionRunner(this.enableIf);
+    this.readOnly = !conditionRunner.run(values, properties);
   }
   onAnyValueChanged(name: string) {
     for (var i = 0; i < this.elements.length; i++) {
@@ -945,6 +987,8 @@ JsonObject.metaData.addClass(
     },
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
+    "enableIf:condition",
+    "readOnly:boolean",
     {
       name: "questionTitleLocation",
       default: "default",

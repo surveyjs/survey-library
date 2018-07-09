@@ -335,7 +335,7 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   protected hasOtherChanged() {}
   /**
-   * Retuns true if readOnly property is true or survey is in display mode.
+   * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
    * @see readOnly
    */
@@ -348,9 +348,8 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   /**
    * Set it to true to make a question readonly.
-   */
-  /**
-   * Set it to true to make the question readonly.
+   * @see enableIf
+   * @see isReadOnly
    */
   public get readOnly(): boolean {
     return this.getPropertyValue("readOnly", false);
@@ -371,7 +370,6 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
   }
-
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
     super.runCondition(values, properties);

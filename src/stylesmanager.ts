@@ -32,6 +32,7 @@ export class StylesManager {
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
+    ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
@@ -40,9 +41,12 @@ export class StylesManager {
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
-    ".sv_q_checkbox_inline, .sv_q_radiogroup_inline": "line-height: 2.5em;",
+    ".sv_q_checkbox_inline, .sv_q_radiogroup_inline, .sv_q_imagepicker_inline":
+      "line-height: 2.5em;",
     ".form-inline .sv_q_checkbox_inline:not(:last-child)": "margin-right: 1em;",
     ".form-inline .sv_q_radiogroup_inline:not(:last-child)":
+      "margin-right: 1em;",
+    ".sv_imgsel .sv_q_imagepicker_inline:not(:last-child)":
       "margin-right: 1em;",
     ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
     ".sv_qstn .sv_q_file_placeholder": "display:none",
@@ -78,7 +82,11 @@ export class StylesManager {
 
     ".sv_qstn .sv_q_file_input": "color: transparent;",
     ".sv_qstn .sv_q_file_input::after":
-      "content: attr(title); padding-left: 1em; color: initial;"
+      "content: attr(title); padding-left: 1em; color: initial;",
+
+    ".sv_qstn .sv_q_imgsel label > div":
+      "overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px; border: 1px solid lightgray; border-radius: 4px;",
+    ".sv_qstn .sv_q_imgsel label > div > img": "display: block;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -313,7 +321,9 @@ export class StylesManager {
     ".sv_bootstrap_css input[type='button'], .sv_bootstrap_css button":
       "color: $body-background-color; background-color: $main-color;",
     ".sv_bootstrap_css input[type='button']:hover, .sv_bootstrap_css button:hover":
-      "background-color: $main-hover-color;"
+      "background-color: $main-hover-color;",
+
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -350,7 +360,9 @@ export class StylesManager {
     ".sv_bootstrapmaterial_css input[type='button'], .sv_bootstrapmaterial_css button":
       "color: $body-background-color; background-color: $main-color;",
     ".sv_bootstrapmaterial_css input[type='button']:hover, .sv_bootstrapmaterial_css button:hover":
-      "background-color: $main-hover-color;"
+      "background-color: $main-hover-color;",
+
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 
   private sheet: CSSStyleSheet = null;

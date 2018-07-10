@@ -1567,7 +1567,11 @@ QUnit.test(
     question.addItem("text1");
     question.addItem("text2");
     var itemQuestion = question.items[0].editor;
-    assert.equal(itemQuestion.isReadOnly, false, "It is not readOnly by default");
+    assert.equal(
+      itemQuestion.isReadOnly,
+      false,
+      "It is not readOnly by default"
+    );
     survey.mode = "display";
     assert.equal(itemQuestion.isReadOnly, true, "survey mode is display");
     survey.mode = "edit";
@@ -1577,4 +1581,18 @@ QUnit.test(
   }
 );
 
-
+QUnit.test(
+  "Multipletext, item isRequired, 0 is a valid value, bug #1225",
+  function(assert) {
+    var question = new QuestionMultipleTextModel("q1");
+    var item = question.addItem("text1");
+    item.isRequired = true;
+    item.inputType = "number";
+    item.value = 0;
+    assert.equal(
+      question.hasErrors(),
+      false,
+      "There is no errors, 0 is a valid value"
+    );
+  }
+);

@@ -914,3 +914,45 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
   values = {};
   assert.equal(runner.run(values), true, "underfined doesn't contain 1 - true");
 });
+
+QUnit.test("contain and noncontain for strings", function(assert) {
+  var runner = new ConditionRunner("{val} contain 'ab'");
+  var values = {};
+  assert.equal(
+    runner.run(values),
+    false,
+    "contains: underfined doesn't contain 'ab' - false"
+  );
+  values = { val: "ba" };
+  assert.equal(
+    runner.run(values),
+    false,
+    "contains: 'ba' doesn't contain 'ab' - false"
+  );
+  values = { val: "babc" };
+  assert.equal(
+    runner.run(values),
+    true,
+    "contains: 'babc' contains 'ab' - true"
+  );
+
+  runner = new ConditionRunner("{val} notcontain 'ab'");
+  values = {};
+  assert.equal(
+    runner.run(values),
+    true,
+    "notcontains: underfined doesn't contain 'ab' - true"
+  );
+  values = { val: "ba" };
+  assert.equal(
+    runner.run(values),
+    true,
+    "notcontains: 'ba' doesn't contain 'ab' - true"
+  );
+  values = { val: "babc" };
+  assert.equal(
+    runner.run(values),
+    false,
+    "notcontains: 'babc' contains 'ab' - false"
+  );
+});

@@ -44,11 +44,11 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
         ? " sv_q_imagepicker_inline"
         : " sv-q-col-" + this.colCount);
     if (this.multiSelect) {
-      if (this["koValue"]().indexOf(item.value) !== -1) {
+      if (!!this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1) {
         itemClass += " checked";
       }
     } else {
-      if (item.value === this["koValue"]()) {
+      if (!!item.value && item.value === this["koValue"]()) {
         itemClass += " checked";
       }
     }

@@ -22,7 +22,7 @@ import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
-import { QuestionRatingModel } from "../../src/question_rating";
+import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { JsonObject } from "../../src/jsonobject";
 
 export default QUnit.module("koTests");
@@ -1350,6 +1350,26 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
     "German text is rendered in koRenderedHtml"
   );
 });
+
+QUnit.test(
+  "exception during changing multiSelect for imagepicker, bug https://github.com/surveyjs/editor/issues/374",
+  function(assert) {
+    var q = new QuestionImagePicker("question1");
+    q.endLoadingFromJson();
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
+    q.multiSelect = true;
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
+  }
+);
+
 /*
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

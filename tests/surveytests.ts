@@ -4352,6 +4352,20 @@ QUnit.test("Hide question numbers on particular page", function(
   assert.equal(question.fullTitle, "2. q3", "It has number 2 now");
 });
 
+QUnit.test("Could not assign value into mutlipletext question, #1229", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var question = new QuestionMultipleTextModel("q1");
+  question.addItem("item1");
+  question.addItem("item2");
+  page.addQuestion(question);
+  survey.data = {q1: {item1: "val1", item2: "val2"}};
+  assert.equal(question.items[0].editor.value, "val1", "val1 is set to the question item");
+  assert.equal(question.items[1].editor.value, "val2", "val1 is set to the question item");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

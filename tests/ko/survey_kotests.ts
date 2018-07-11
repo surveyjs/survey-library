@@ -1370,6 +1370,28 @@ QUnit.test(
   }
 );
 
+QUnit.test("Could not assign value into mutlipletext question, #1229", function(
+  assert
+) {
+  var survey = new Survey();
+  var page = survey.addNewPage("page1");
+  var question = new QuestionMultipleText("q1");
+  question.addItem("item1");
+  question.addItem("item2");
+  page.addQuestion(question);
+  survey.data = { q1: { item1: "val1", item2: "val2" } };
+  assert.equal(
+    question.items[0].editor["koValue"](),
+    "val1",
+    "val1 is set to the question item"
+  );
+  assert.equal(
+    question.items[1].editor["koValue"](),
+    "val2",
+    "val1 is set to the question item"
+  );
+});
+
 /*
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

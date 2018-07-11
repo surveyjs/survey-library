@@ -70,6 +70,7 @@ export class Operand {
       (value.indexOf("-") > -1 ||
         value.indexOf("+") > 1 ||
         value.indexOf("*") > -1 ||
+        value.indexOf("^") > -1 ||
         value.indexOf("/") > -1 ||
         value.indexOf("%") > -1)
     )
@@ -155,6 +156,9 @@ export class ExpressionOperand extends Operand {
     }
     if (this.operator == "*") {
       return l * r;
+    }
+    if (this.operator == "^") {
+      return Math.pow(l, r);
     }
     if (this.operator == "/") {
       if (!r) return null;

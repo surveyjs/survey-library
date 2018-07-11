@@ -810,6 +810,12 @@ QUnit.test("ExpressionRunner, iif nested using", function(assert) {
   assert.equal(runner.run(values), "low", "1 + 5 < 10");
 });
 
+QUnit.test("ExpressionRunner, ^ operator", function(assert) {
+  var runner = new ExpressionRunner("{a} ^ 3 + {b} ^ 0.5");
+  var values = { a: 10, b: 400 };
+  assert.equal(runner.run(values), 1020, "10^3 + 400^0.5 = 1000 + 20");
+});
+
 QUnit.test("ConditionsParser, report error: Operator expected", function(
   assert
 ) {

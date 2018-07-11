@@ -240,6 +240,7 @@ export class ConditionsParser {
       c == "+" ||
       c == "-" ||
       c == "*" ||
+      c == "^" ||
       c == "/" ||
       c == "%"
     );
@@ -346,7 +347,7 @@ export class ConditionsParser {
     return params;
   }
   private isHighPriorityOperand(op: string): boolean {
-    return op == "*" || op == "/" || op == "%";
+    return op == "*" || op == "^" || op == "/" || op == "%";
   }
   private readOperandOperator(): string {
     this.skip();
@@ -354,6 +355,7 @@ export class ConditionsParser {
       this.ch == "+" ||
       this.ch == "-" ||
       this.ch == "*" ||
+      this.ch == "^" ||
       this.ch == "/" ||
       this.ch == "%"
     ) {

@@ -22,7 +22,7 @@ import { koTemplate } from "../../src/knockout/templateText";
 import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynamic";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
-import { QuestionRatingModel } from "../../src/question_rating";
+import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { JsonObject } from "../../src/jsonobject";
 
 export default QUnit.module("koTests");
@@ -1350,6 +1350,48 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
     "German text is rendered in koRenderedHtml"
   );
 });
+
+QUnit.test(
+  "exception during changing multiSelect for imagepicker, bug https://github.com/surveyjs/editor/issues/374",
+  function(assert) {
+    var q = new QuestionImagePicker("question1");
+    q.endLoadingFromJson();
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
+    q.multiSelect = true;
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
+  }
+);
+
+QUnit.test("Could not assign value into mutlipletext question, #1229", function(
+  assert
+) {
+  var survey = new Survey();
+  var page = survey.addNewPage("page1");
+  var question = new QuestionMultipleText("q1");
+  question.addItem("item1");
+  question.addItem("item2");
+  page.addQuestion(question);
+  survey.data = { q1: { item1: "val1", item2: "val2" } };
+  assert.equal(
+    question.items[0].editor["koValue"](),
+    "val1",
+    "val1 is set to the question item"
+  );
+  assert.equal(
+    question.items[1].editor["koValue"](),
+    "val2",
+    "val1 is set to the question item"
+  );
+});
+
 /*
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

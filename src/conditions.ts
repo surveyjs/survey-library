@@ -70,6 +70,7 @@ export class Operand {
       (value.indexOf("-") > -1 ||
         value.indexOf("+") > 1 ||
         value.indexOf("*") > -1 ||
+        value.indexOf("^") > -1 ||
         value.indexOf("/") > -1 ||
         value.indexOf("%") > -1)
     )
@@ -144,7 +145,8 @@ export class ExpressionOperand extends Operand {
     super(null);
   }
   public getValue(processValue: ProcessValue): any {
-    if (!this.left || !this.right) return null;
+    if (Helpers.isValueEmpty(this.left) || Helpers.isValueEmpty(this.right))
+      return null;
     var l = this.left.getValue(processValue);
     var r = this.right.getValue(processValue);
     if (this.operator == "+") {
@@ -155,6 +157,9 @@ export class ExpressionOperand extends Operand {
     }
     if (this.operator == "*") {
       return l * r;
+    }
+    if (this.operator == "^") {
+      return Math.pow(l, r);
     }
     if (this.operator == "/") {
       if (!r) return null;

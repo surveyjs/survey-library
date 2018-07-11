@@ -252,6 +252,13 @@ export class QuestionMultipleTextModel extends Question
     super.onReadOnlyChanged();
     this.callEditorFunction("onReadOnlyChanged");
   }
+  onSurveyValueChanged(newValue: any) {
+    super.onSurveyValueChanged(newValue);
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
+      if (item.editor) item.editor.onSurveyValueChanged(item.value);
+    }
+  }
   private callEditorFunction(funcName: string) {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];

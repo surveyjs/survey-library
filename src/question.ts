@@ -129,13 +129,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
   }
   protected getTitleLocationCore(): string {
     if (this.titleLocation !== "default") return this.titleLocation;
-    var location = "top";
-    if (this.parent) {
-      location = this.parent.getQuestionTitleLocation();
-    } else if (this.survey) {
-      location = this.survey.questionTitleLocation;
-    }
-    return location;
+    if (!!this.parent) return this.parent.getQuestionTitleLocation();
+    if (!!this.survey) return this.survey.questionTitleLocation;
+    return "top";
   }
   get hasTitleOnLeft(): boolean {
     return this.hasTitle && this.getTitleLocation() === "left";

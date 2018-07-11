@@ -349,19 +349,16 @@ export class StylesManager {
       "background-color: $main-color;",
     ".sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .check":
       "background-color: $main-color;",
-
     ".sv_bootstrapmaterial_css .btn-default.active":
       "background-color: $main-color; color: $body-background-color;",
     ".sv_bootstrapmaterial_css .btn-default:active":
       "background-color: $main-color; color: $body-background-color;",
     ".sv_bootstrapmaterial_css .open>.dropdown-toggle.btn-default":
       "background-color: $main-color; color: $body-background-color;",
-
-    ".sv_bootstrapmaterial_css input[type='button'], .sv_bootstrapmaterial_css button":
+    ".sv_bootstrapmaterial_css input[type='button'].btn-primary, .sv_bootstrapmaterial_css button.btn-primary":
       "color: $body-background-color; background-color: $main-color;",
-    ".sv_bootstrapmaterial_css input[type='button']:hover, .sv_bootstrapmaterial_css button:hover":
+    ".sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_bootstrapmaterial_css button.btn-primary:hover":
       "background-color: $main-hover-color;",
-
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 

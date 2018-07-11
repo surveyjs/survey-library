@@ -4336,6 +4336,22 @@ QUnit.test("readOnly, enabledIf for Panels and Pages", function(
   assert.equal(question1ReadOnlyCounter, 2, "It was changed two times, panel2 is nested panel");
 });
 
+QUnit.test("Hide question numbers on particular page", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("page1");
+  survey.addNewPage("page2");
+  survey.addNewPage("page3");
+  survey.pages[0].addNewQuestion("text", "q1");
+  survey.pages[1].addNewQuestion("text", "q2");
+  survey.pages[2].addNewQuestion("text", "q3");
+  var question = <Question>survey.getQuestionByName("q3");
+  assert.equal(question.fullTitle, "3. q3", "It has number 3");
+  survey.pages[1].questionTitleLocation = "hidden";
+  assert.equal(question.fullTitle, "2. q3", "It has number 2 now");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

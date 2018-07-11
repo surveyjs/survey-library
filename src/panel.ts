@@ -111,6 +111,12 @@ export class PanelModelBase extends SurveyElement
     this.registerFunctionOnPropertyValueChanged("elements", function() {
       self.onRowsChanged();
     });
+    this.registerFunctionOnPropertyValueChanged(
+      "questionTitleLocation",
+      function() {
+        self.onVisibleChanged();
+      }
+    );
     this.id = PanelModelBase.getPanelId();
     var self = this;
     var locTitleValue = this.createLocalizableString("title", this, true);
@@ -992,7 +998,7 @@ JsonObject.metaData.addClass(
     {
       name: "questionTitleLocation",
       default: "default",
-      choices: ["default", "top", "bottom", "left"]
+      choices: ["default", "top", "bottom", "left", "hidden"]
     },
     { name: "title:text", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }

@@ -28,6 +28,13 @@ export class ProcessValue {
     var res = { hasValue: false, value: null };
     var curValue = values;
     if (!curValue) return res;
+    if (
+      text &&
+      text.lastIndexOf(".length") === text.length - ".length".length
+    ) {
+      res.value = 0;
+      res.hasValue = true;
+    }
     var isFirst = true;
     while (text && text.length > 0) {
       var isArray = !isFirst && text[0] == "[";

@@ -1,6 +1,7 @@
 import { Helpers } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
+import { ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("Helpers");
 
@@ -45,4 +46,28 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
     "These two arrays are not equal"
   );
   survey.locale = "";
+});
+
+QUnit.test("Return correct value for array.length", function(assert) {
+  var process = new ProcessValue();
+  assert.equal(
+    process.getValue("ar.length", { ar: [1, 2] }),
+    2,
+    "There are two values in array"
+  );
+  assert.equal(
+    process.getValue("ar.length", { ar: [] }),
+    0,
+    "Return 0 for empty array"
+  );
+  assert.equal(
+    process.getValue("ar.length", { ar: null }),
+    0,
+    "Return 0 for null value"
+  );
+  assert.equal(
+    process.getValue("ar.length", {}),
+    0,
+    "Return 0 for undefined array"
+  );
 });

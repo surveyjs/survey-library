@@ -921,6 +921,12 @@ QUnit.test("contain and noncontain for null arrays", function(assert) {
   assert.equal(runner.run(values), true, "underfined doesn't contain 1 - true");
 });
 
+QUnit.test("length for undefined arrays", function(assert) {
+  var runner = new ConditionRunner("{val.length} = 0");
+  assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
+  assert.equal(runner.run({}), true, "underfined length returns 0");
+});
+
 QUnit.test("contain and noncontain for strings", function(assert) {
   var runner = new ConditionRunner("{val} contain 'ab'");
   var values = {};

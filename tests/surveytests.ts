@@ -7,7 +7,7 @@ import { QuestionHtmlModel } from "../src/question_html";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
-  SurveyTriggerSetValue
+  SurveyTriggerSetValue, SurveyTriggerCopyValue
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
@@ -32,8 +32,6 @@ import {
   CustomWidgetCollection,
   QuestionCustomWidget
 } from "../src/questionCustomWidgets";
-import { QuestionSelectBase } from "../src/question_baseselect";
-import { LocalizableString } from "../src/localizablestring";
 import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
@@ -1362,6 +1360,21 @@ QUnit.test("Value trigger test", function(assert) {
   assert.equal(survey.getValue("name1"), null, "value is not set");
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), "val1", "value is set");
+});
+QUnit.test("Copy value trigger test", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerCopyValue();
+  survey.triggers.push(trigger);
+  trigger.name = "question1";
+  trigger.value = "Hello";
+
+  trigger.setToName = "question2";
+  trigger.fromName = "question3";
+  survey.setValue("question3", "CopiedValue");
+  
+  assert.equal(survey.getValue("question2"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("question2"), "CopiedValue", "value is set");
 });
 QUnit.test("String format", function(assert) {
   var strResult = surveyLocalization.getString("textMinLength")["format"](10);

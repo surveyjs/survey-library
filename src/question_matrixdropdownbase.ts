@@ -113,7 +113,7 @@ export var matrixDropdownColumnTypes = {
     }
   },
   text: {
-    properties: ["placeHolder", "inputType"],
+    properties: ["placeHolder", "inputType", "maxLength"],
     onCellQuestionUpdate: (cellQuestion, column, question, data) => {}
   },
   comment: {

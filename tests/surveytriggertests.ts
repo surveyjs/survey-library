@@ -30,6 +30,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
   }
   doComplete() {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
+  copyTriggerValue(name: string, fromName: string) {}
 }
 
 QUnit.test("Check trigger operations", function(assert) {

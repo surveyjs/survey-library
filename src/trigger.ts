@@ -173,6 +173,7 @@ export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
   doComplete();
   setTriggerValue(name: string, value: any, isVariable: boolean);
+  copyTriggerValue(name: string, fromName: string);
 }
 
 /**
@@ -255,9 +256,23 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
+export class SurveyTriggerCopyValue extends SurveyTrigger {
+  public setToName: string;
+  public fromName: any;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "copyvaluetrigger";
+  }
+  protected onSuccess() {
+    if (!this.setToName || !this.owner) return;
+    this.owner.copyTriggerValue(this.setToName, this.fromName);
+  }
+}
 
 JsonObject.metaData.addClass("trigger", [
-  {name: "operator", default: "equal"},
+  { name: "operator", default: "equal" },
   "value",
   "expression:condition"
 ]);
@@ -283,6 +298,15 @@ JsonObject.metaData.addClass(
   ["!setToName", "setValue", "isVariable:boolean"],
   function() {
     return new SurveyTriggerSetValue();
+  },
+  "surveytrigger"
+);
+
+JsonObject.metaData.addClass(
+  "copyvaluetrigger",
+  ["!setToName", "!fromName"],
+  function() {
+    return new SurveyTriggerCopyValue();
   },
   "surveytrigger"
 );

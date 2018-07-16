@@ -1,7 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { CustomPropertiesCollection } from "./jsonobject";
+import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -203,6 +203,12 @@ export class Base {
   }
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
+  }
+  /**
+   * Deserialized the current object into JSON
+   */
+  public toJSON(): any {
+    return new JsonObject().toJsonObject(this);
   }
   public locStrsChanged() {
     for (let key in this.arraysInfo) {

@@ -3058,6 +3058,10 @@ export class SurveyModel extends Base
       this.setValue(name, value);
     }
   }
+  copyTriggerValue(name: string, fromName: string) {
+    if (!name || !fromName) return;
+    this.setValue(name, this.getValue(fromName));
+  }
 }
 
 JsonObject.metaData.addClass("survey", [

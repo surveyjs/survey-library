@@ -326,7 +326,10 @@ export class StylesManager {
       "color: $body-background-color; background-color: $main-color;",
     ".sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_bootstrapmaterial_css button.btn-primary:hover":
       "background-color: $main-hover-color;",
-    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color;",
+
+    ".sv_bootstrapmaterial_css .form-group input[type=file]":
+      "position: relative; opacity: 1;"
   };
 
   private sheet: CSSStyleSheet = null;

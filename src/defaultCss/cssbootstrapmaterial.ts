@@ -8,10 +8,10 @@ export var defaultBootstrapMaterialCss = {
   navigationButton: "",
   completedPage: "",
   navigation: {
-    complete: "btn sv_complete_btn",
-    prev: "btn sv_prev_btn",
-    next: "btn sv_next_btn",
-    start: "btn sv_start_btn"
+    complete: "btn sv_complete_btn btn-primary",
+    prev: "btn sv_prev_btn btn-primary",
+    next: "btn sv_next_btn btn-primary",
+    start: "btn sv_start_btn btn-primary"
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
@@ -59,7 +59,11 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_checkbox_other form-control"
   },
   comment: "form-control",
-  dropdown: { root: "", control: "form-control", other: "sv_q_dd_other form-control" },
+  dropdown: {
+    root: "",
+    control: "form-control",
+    other: "sv_q_dd_other form-control"
+  },
   matrix: {
     root: "table",
     row: "form-group",
@@ -71,14 +75,14 @@ export var defaultBootstrapMaterialCss = {
   matrixdropdown: { root: "table", itemValue: "form-group" },
   matrixdynamic: {
     root: "table",
-    button: "button",
+    button: "btn btn-primary",
     itemValue: "form-group",
     buttonAdd: "",
     buttonRemove: ""
   },
   paneldynamic: {
     root: "",
-    button: "button",
+    button: "btn btn-primary",
     buttonPrev: "",
     buttonNext: "",
     buttonAdd: "",

@@ -157,9 +157,9 @@ export class Survey extends React.Component<any, any>
       : null;
     var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
     var topProgress =
-      this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
+      this.survey.isShowProgressBarOnTop ? this.renderProgress(true) : null;
     var bottomProgress =
-      this.survey.showProgressBar == "bottom"
+      this.survey.isShowProgressBarOnBottom
         ? this.renderProgress(false)
         : null;
     var buttons = currentPage ? this.renderNavigation() : null;

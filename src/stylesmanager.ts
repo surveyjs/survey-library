@@ -18,9 +18,9 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline":
       "display: inline-block;",
 
-    ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
-    ".sv_bootstrapmaterial_css .checkbox":
+    ".sv_main.sv_bootstrapmaterial_css .checkbox":
       "margin-top:10px;margin-bottom:10px;",
 
     ".sv_row .sv_qstn": "float: left",
@@ -294,41 +294,45 @@ export class StylesManager {
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
-    ".sv_bootstrapmaterial_css .form-group.is-focused .form-control":
+    ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
       "background-image: linear-gradient($main-color, $main-color), linear-gradient(#D2D2D2, #D2D2D2);",
-    ".sv_bootstrapmaterial_css .form-group.is-focused label":
+    ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
       "color:$main-color;",
 
-    ".sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
+    ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
-    ".sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check":
+    ".sv_main.sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
-    ".sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check:before":
+    ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check:before":
       "color: $main-color;",
-    ".sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check:before":
+    ".sv_main.sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check:before":
       "color: $main-color;",
 
-    ".sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .circle":
+    ".sv_main.sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .circle":
       "border-color: $main-color;",
-    ".sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .circle":
+    ".sv_main.sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .circle":
       "border-color: $main-color;",
-    ".sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .check":
+    ".sv_main.sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .check":
       "background-color: $main-color;",
-    ".sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .check":
+    ".sv_main.sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .check":
       "background-color: $main-color;",
-    ".sv_bootstrapmaterial_css .btn-default.active":
+    ".sv_main.sv_bootstrapmaterial_css .btn-default.active":
       "background-color: $main-color; color: $body-background-color;",
-    ".sv_bootstrapmaterial_css .btn-default:active":
+    ".sv_main.sv_bootstrapmaterial_css .btn-default:active":
       "background-color: $main-color; color: $body-background-color;",
-    ".sv_bootstrapmaterial_css .open>.dropdown-toggle.btn-default":
+    ".sv_main.sv_bootstrapmaterial_css .btn-secondary.active":
       "background-color: $main-color; color: $body-background-color;",
-    ".sv_bootstrapmaterial_css input[type='button'].btn-primary, .sv_bootstrapmaterial_css button.btn-primary":
+    ".sv_main.sv_bootstrapmaterial_css .btn-secondary:active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css .open>.dropdown-toggle.btn-default":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css input[type='button'].btn-primary, .sv_main.sv_bootstrapmaterial_css button.btn-primary":
       "color: $body-background-color; background-color: $main-color;",
-    ".sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_bootstrapmaterial_css button.btn-primary:hover":
+    ".sv_main.sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_main.sv_bootstrapmaterial_css button.btn-primary:hover":
       "background-color: $main-hover-color;",
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color;",
 
-    ".sv_bootstrapmaterial_css .form-group input[type=file]":
+    ".sv_main.sv_bootstrapmaterial_css .form-group input[type=file]":
       "position: relative; opacity: 1;"
   };
 

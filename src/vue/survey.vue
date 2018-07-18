@@ -13,11 +13,11 @@
           </template>
           <template v-if="survey.state === 'running'">
               <div :class="css.body">
-                <survey-progress v-if="survey.showProgressBar =='top'" :survey="survey" :css="css"/>
+                <survey-progress v-if="survey.isShowProgressBarOnTop" :survey="survey" :css="css"/>
                 <survey-timerpanel v-if="survey.isTimerPanelShowingOnTop" :survey="survey" :css="css"/>
                 <survey-page :id="survey.currentPage.id" :survey="survey" :page="survey.currentPage" :css="css" />
                 <survey-timerpanel v-if="survey.isTimerPanelShowingOnBottom" :survey="survey" :css="css"/>
-                <survey-progress style="margin-top: 1em" v-if="survey.showProgressBar =='bottom'" :survey="survey" :css="css"/>
+                <survey-progress style="margin-top: 1em" v-if="survey.isShowProgressBarOnBottom" :survey="survey" :css="css"/>
                 <div v-if="survey.isNavigationButtonsShowing" :class="css.footer">
                     <input type="button" :value="survey.pagePrevText" v-show="!survey.isFirstPage && survey.isShowPrevButton" :class="getNavBtnClasses('prev')" @click="prevPage"/>
                     <input type="button" :value="survey.pageNextText" v-show="!survey.isLastPage" :class="getNavBtnClasses('next')" @click="nextPage"/>

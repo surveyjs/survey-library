@@ -1130,6 +1130,12 @@ export class SurveyModel extends Base
   public set showProgressBar(newValue: string) {
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
+  public get isShowProgressBarOnTop(): boolean {
+    return this.showProgressBar === "top" || this.showProgressBar === "both";
+  }
+  public get isShowProgressBarOnBottom(): boolean {
+    return this.showProgressBar === "bottom" || this.showProgressBar === "both";
+  }
   /**
    * Returns the text/html that renders as survey title.
    */
@@ -3128,7 +3134,7 @@ JsonObject.metaData.addClass("survey", [
   {
     name: "showProgressBar",
     default: "off",
-    choices: ["off", "top", "bottom"]
+    choices: ["off", "top", "bottom", "both"]
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

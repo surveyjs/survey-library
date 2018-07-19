@@ -74,6 +74,16 @@ export class SurveyModel extends Base
 
   private isTimerStarted: boolean = false;
   /**
+   * The event is fired before the survey is completed and onComplete event is fired. You may prevent the survey from completing by setting options.allowComplete to false
+   * <br/> sender the survey object that fires the event
+   * <br/> options.allowComplete set it false to prevent the survey from completing. The default value is true.
+   * @see onComplete
+   */
+  public onCompleting: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired after a user click on 'Complete' button and finished the survey. You may use it to send the data to your web server.
    * <br/> sender the survey object that fires the event
    * <br/> options.showDataSaving(text) call this method to show that the survey is saving the data on your server. The text is an optional parameter to show your message instead of default.
@@ -1684,6 +1694,9 @@ export class SurveyModel extends Base
    * @see completeLastPage
    */
   public doComplete() {
+    var onCompletingOptions = { allowComplete: true };
+    this.onCompleting.fire(this, onCompletingOptions);
+    if (!onCompletingOptions.allowComplete) return;
     let previousCookie = this.hasCookie;
     this.stopTimer();
     this.clearUnusedValues();

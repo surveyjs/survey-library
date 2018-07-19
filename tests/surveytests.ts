@@ -1338,6 +1338,20 @@ QUnit.test("survey.onCurrentPageChanging, allowChanging option", function(assert
   assert.equal(survey.currentPageNo, 0, "The second page again");
 });
 
+QUnit.test("survey.onCompleting, allowComplete option", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var allowComplete = false;
+  survey.onCompleting.add(function(survey, options) {
+    options.allowComplete = allowComplete;
+  });
+  assert.equal(survey.state, "running", "It is running");
+  survey.doComplete();
+  assert.equal(survey.state, "running", "It is still running");
+  allowComplete = true;
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "It is completed now");
+});
+
 QUnit.test(
   "Complete trigger, onCurrentPageChange calls after onComplete, Bug#963",
   function(assert) {

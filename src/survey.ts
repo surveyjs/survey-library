@@ -112,6 +112,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> option.oldCurrentPage the previous current/active page
    * <br/> option.newCurrentPage a new current/active page
+   * <br/> option.allowChanging set it to false to disable the current page changing. It is true by default.
    * @see currentPage
    * @see currentPageNo
    * @see nextPage
@@ -1309,7 +1310,7 @@ export class SurveyModel extends Base
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
-    this.currentPageChanging(newPage, oldValue);
+    if (!this.currentPageChanging(newPage, oldValue)) return;
     this.currentPageValue = newPage;
     if (newPage) {
       newPage.updateCustomWidgets();
@@ -1456,10 +1457,13 @@ export class SurveyModel extends Base
     page.updateCustomWidgets();
   }
   protected currentPageChanging(newValue: PageModel, oldValue: PageModel) {
-    this.onCurrentPageChanging.fire(this, {
+    var options = {
       oldCurrentPage: oldValue,
-      newCurrentPage: newValue
-    });
+      newCurrentPage: newValue,
+      allowChanging: true
+    };
+    this.onCurrentPageChanging.fire(this, options);
+    return options.allowChanging;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
     this.onCurrentPageChanged.fire(this, {

@@ -1316,6 +1316,28 @@ QUnit.test("survey.onCurrentPageChanging", function(assert) {
   );
 });
 
+QUnit.test("survey.onCurrentPageChanging, allowChanging option", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  //get current Page
+  survey.currentPage;
+  var allowChanging = false;
+  survey.onCurrentPageChanging.add(function(survey, options) {
+    options.allowChanging = allowChanging;
+  });
+  assert.equal(survey.currentPageNo, 0, "The first page");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Still the first page");
+  allowChanging = true;
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "The second page");
+  allowChanging = false;
+  survey.prevPage();
+  assert.equal(survey.currentPageNo, 1, "Still the second page");
+  allowChanging = true;
+  survey.prevPage();
+  assert.equal(survey.currentPageNo, 0, "The second page again");
+});
+
 QUnit.test(
   "Complete trigger, onCurrentPageChange calls after onComplete, Bug#963",
   function(assert) {

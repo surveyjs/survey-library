@@ -232,6 +232,44 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "text validator doesn't work correctly with empty text, Bug#1241",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [
+            {
+              type: "text",
+              minLength: 1,
+              maxLength: 100
+            }
+          ]
+        },
+        {
+          type: "text",
+          name: "q2",
+          validators: [
+            {
+              type: "text",
+              minLength: 0,
+              maxLength: 100
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    assert.equal(
+      survey.currentPage.hasErrors(),
+      false,
+      "There is no errors, values are empty"
+    );
+  }
+);
+
 QUnit.test("Expression validator", function(assert) {
   var json = {
     questions: [

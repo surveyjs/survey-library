@@ -158,6 +158,7 @@ export class TextValidator extends SurveyValidator {
     return "textvalidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
+    if (value !== "" && Helpers.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /^[A-Za-z\s]*$/;
       if (!reg.test(value)) {

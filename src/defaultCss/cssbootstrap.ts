@@ -56,13 +56,13 @@ export var defaultBootstrapCss = {
     itemControl: "",
     controlLabel: "",
     materialDecorator: "checkbox-material",
-    other: "sv_q_checkbox_other form-control"
+    other: "sv_q_checkbox_other" 
   },
   comment: "form-control",
   dropdown: {
     root: "",
     control: "form-control",
-    other: "sv_q_dd_other form-control"
+    other: "sv_q_dd_other" 
   },
   matrix: {
     root: "table",

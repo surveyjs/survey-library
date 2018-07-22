@@ -64,7 +64,7 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("imageWidth", val);
   }
   /**
-   * Accepted file types.
+   * Accepted file types. Passed to the 'accept' attribute of the file input tag. See https://www.w3schools.com/tags/att_input_accept.asp for more details.
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");

@@ -30,6 +30,7 @@ export class ProcessValue {
     if (!curValue) return res;
     if (
       text &&
+      text.lastIndexOf(".length") > -1 &&
       text.lastIndexOf(".length") === text.length - ".length".length
     ) {
       res.value = 0;

@@ -70,5 +70,6 @@ QUnit.test("Return correct value for array.length", function(assert) {
     0,
     "Return 0 for undefined array"
   );
+  //Test for bug: #1243
   assert.equal(process.getValue("region", {}), null, "Return null string");
 });

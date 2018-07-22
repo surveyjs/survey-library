@@ -7,7 +7,7 @@ import { QuestionHtmlModel } from "../src/question_html";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
-  SurveyTriggerSetValue, SurveyTriggerCopyValue
+  SurveyTriggerSetValue, SurveyTriggerCopyValue, SurveyTriggerRunExpression
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
@@ -1397,6 +1397,26 @@ QUnit.test("Value trigger test", function(assert) {
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), "val1", "value is set");
 });
+QUnit.test("RunExpression trigger test", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.setValue("val1", 3);
+  survey.setValue("val2", 2);
+  var trigger = new SurveyTriggerRunExpression();
+  survey.triggers.push(trigger);
+  trigger.expression = "{question1} = 'Hello'";
+  trigger.setToName = "name1";
+  trigger.runExpression = "{val1} + {val2}";
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), 5, "value is set as expression");
+  survey.setValue("question1", "Hello1");
+  trigger.runExpression = "{val2}";
+  survey.clearValue("val2");
+  trigger.setToName = "";
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), 5, "value is still 5");
+});
+
 QUnit.test("Copy value trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();
   var trigger = new SurveyTriggerCopyValue();
@@ -4414,6 +4434,21 @@ QUnit.test("Could not assign value into mutlipletext question, #1229", function(
   assert.equal(question.items[0].editor.value, "val1", "val1 is set to the question item");
   assert.equal(question.items[1].editor.value, "val2", "val1 is set to the question item");
 });
+
+QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q = <QuestionDropdownModel>page.addNewQuestion("dropdown", "region");
+  q.choices = ["1", "2", "3"];
+  var res = survey.processTextEx("{region}", false);
+  assert.ok(res.hasAllValuesOnLastRun === false, "region doesn't exists");
+  q.value = 1;
+  res = survey.processTextEx("{region}", false);
+  assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
+});
+
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

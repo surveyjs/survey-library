@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { JsonObject } from "./jsonobject";
-import { ConditionRunner, Operand } from "./conditions";
+import { ConditionRunner, ExpressionRunner, Operand } from "./conditions";
 import { ProcessValue } from "./conditionProcessValue";
 
 /**
@@ -103,20 +103,26 @@ export class Trigger extends Base {
   ) {
     if (!this.isCheckRequired(keys)) return;
     if (!!this.conditionRunner) {
-      this.perform(this.conditionRunner.run(values, properties));
+      this.perform(values, properties);
     }
   }
   public check(value: any) {
-    this.perform(Trigger.operators[this.operator](value, this.value));
-  }
-  private perform(triggerResult: boolean) {
+    var triggerResult = Trigger.operators[this.operator](value, this.value);
     if (triggerResult) {
-      this.onSuccess();
+      this.onSuccess({}, null);
     } else {
       this.onFailure();
     }
   }
-  protected onSuccess() {}
+  private perform(values: HashTable<any>, properties: HashTable<any>) {
+    var triggerResult = this.conditionRunner.run(values, properties);
+    if (triggerResult) {
+      this.onSuccess(values, properties);
+    } else {
+      this.onFailure();
+    }
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {}
   protected onFailure() {}
   endLoadingFromJson() {
     super.endLoadingFromJson();
@@ -204,7 +210,7 @@ export class SurveyTriggerVisible extends SurveyTrigger {
   public getType(): string {
     return "visibletrigger";
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     this.onTrigger(this.onItemSuccess);
   }
   protected onFailure() {
@@ -237,7 +243,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   public get isOnNextPage() {
     return true;
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (this.owner) this.owner.doComplete();
   }
 }
@@ -251,11 +257,34 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   public getType(): string {
     return "setvaluetrigger";
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
+
+export class SurveyTriggerRunExpression extends SurveyTrigger {
+  public setToName: string;
+  public runExpression: any;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "runexpressiontrigger";
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+    if (!this.owner || !this.runExpression) return;
+    var newValue = undefined;
+    var expression = new ExpressionRunner(this.runExpression);
+    if (expression.canRun) {
+      newValue = expression.run(values, properties);
+    }
+    if (!this.setToName || newValue !== undefined) {
+      this.owner.setTriggerValue(this.setToName, newValue, false);
+    }
+  }
+}
+
 export class SurveyTriggerCopyValue extends SurveyTrigger {
   public setToName: string;
   public fromName: any;
@@ -265,7 +294,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   public getType(): string {
     return "copyvaluetrigger";
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
     this.owner.copyTriggerValue(this.setToName, this.fromName);
   }
@@ -307,6 +336,14 @@ JsonObject.metaData.addClass(
   ["!setToName", "!fromName"],
   function() {
     return new SurveyTriggerCopyValue();
+  },
+  "surveytrigger"
+);
+JsonObject.metaData.addClass(
+  "runExpressiontrigger",
+  ["setToName", "runExpression"],
+  function() {
+    return new SurveyTriggerRunExpression();
   },
   "surveytrigger"
 );

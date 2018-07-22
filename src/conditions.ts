@@ -435,6 +435,9 @@ export class ExpressionRunner {
     this.expressionValue = value;
     this.operand = new ConditionsParser().parseExpression(this.expressionValue);
   }
+  public canRun(): boolean {
+    return !!this.operand;
+  }
   public run(values: HashTable<any>, properties: HashTable<any> = null): any {
     if (!this.operand) return null;
     this.processValue.values = values;

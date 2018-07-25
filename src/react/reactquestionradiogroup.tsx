@@ -10,7 +10,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     super(props);
     this.state = { choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function() {
+    this.question.choicesChangedCallback = function () {
       self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -126,7 +126,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected renderOther(cssClasses: any): JSX.Element {
     return (
-      <div className={cssClasses.other}>
+      <div className="form-group" >
         <SurveyQuestionCommentItem
           question={this.question}
           otherCss={cssClasses.other}

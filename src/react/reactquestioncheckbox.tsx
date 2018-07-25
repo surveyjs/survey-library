@@ -13,7 +13,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     super(props);
     this.state = { choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function() {
+    this.question.choicesChangedCallback = function () {
       self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
   }
@@ -162,7 +162,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderOther(): JSX.Element {
     return (
-      <div className={this.cssClasses.other}>
+      <div className="form-group">
         <SurveyQuestionCommentItem
           question={this.question}
           otherCss={this.cssClasses.other}

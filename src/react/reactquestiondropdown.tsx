@@ -10,7 +10,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     super(props);
     this.state = { value: this.getStateValue(), choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function() {
+    this.question.choicesChangedCallback = function () {
       self.setState({
         choicesChanged: self.state.choicesChanged + 1,
         value: self.question.value
@@ -34,7 +34,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var comment =
       this.question.hasOther &&
-      this.question.value === this.question.otherItem.value
+        this.question.value === this.question.otherItem.value
         ? this.renderOther(cssClasses)
         : null;
     var select = this.renderSelect(cssClasses);
@@ -94,9 +94,8 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     );
   }
   protected renderOther(cssClasses: any): JSX.Element {
-    var style = { marginTop: "3px" };
     return (
-      <div style={style}>
+      <div className="form-group">
         <SurveyQuestionCommentItem
           question={this.question}
           otherCss={cssClasses.other}

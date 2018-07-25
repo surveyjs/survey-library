@@ -7,7 +7,7 @@
             </select>
         </div>
         <div v-else :class="question.cssClasses.control">{{isOtherSelected ? question.otherText : question.displayValue}}</div>
-        <survey-other-choice v-show="isOtherSelected" :class="question.cssClasses.other" :question="question"/>
+        <survey-other-choice v-show="isOtherSelected" :question="question"/>
     </div>
 </template>
 

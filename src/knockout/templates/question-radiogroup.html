@@ -13,7 +13,7 @@
                 </span>
             </label>
             <!-- ko if: question.hasOther && ($index() == question.koVisibleChoices().length-1) -->
-            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}, css: question.koCss().other"></div>
+            <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible}}"></div>
             <!-- /ko -->
         </div>
         <!-- /ko -->

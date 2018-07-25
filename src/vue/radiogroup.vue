@@ -6,7 +6,7 @@
                 <span :class="question.cssClasses.materialDecorator"></span>
                 <span class="check"></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
-                <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" :question="question"/>
+                <survey-other-choice v-show="question.hasOther && question.isOtherSelected && index === choicesCount" v-if="index == choicesCount" :question="question"/>
             </label>
         </div>
         <div v-if="question.showClearButton">

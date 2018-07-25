@@ -200,7 +200,7 @@ frameworks.forEach(framework => {
 
   test(`choose other`, async t => {
     const getOtherInput = Selector(
-      () => document.querySelectorAll("div:nth-child(12) input")[1]
+      () => document.querySelector(".form-group .sv_q_radiogroup_other")
     );
     let surveyResult;
 

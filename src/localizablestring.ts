@@ -148,9 +148,7 @@ export class LocalizableString {
     if (!text) return false;
     var loc = this.locale;
     if (!loc) loc = LocalizableString.defaultLocale;
-    if (!(loc in this.htmlValues)) {
-      this.htmlValues[loc] = this.owner.getMarkdownHtml(text);
-    }
+    this.htmlValues[loc] = this.owner.getMarkdownHtml(text);
     return this.htmlValues[loc] ? true : false;
   }
   private getHtmlValue(): string {

@@ -34,7 +34,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   };
   render(): JSX.Element {
     if (!this.question) return null;
-    var img = this.renderImage();
+    var preview = this.renderPreview();
     var fileInput = null;
     var clearButton = null;
     var displayInput = null;
@@ -78,25 +78,36 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         {fileInput}
         {clearButton}
         {displayInput}
-        {img}
+        {preview}
       </div>
     );
   }
-  protected renderImage(): JSX.Element {
+  protected renderPreview(): JSX.Element {
     if (!this.question.previewValue) return null;
-    var images = this.question.previewValue.map(val => {
+    var previews = this.question.previewValue.map((val,index) => {
       if (!val) return null;
       return (
-        <img
-          src={val}
-          key={val}
-          height={this.question.imageHeight}
-          width={this.question.imageWidth}
-          className={this.question.cssClasses.preview}
-        />
+        <span key={this.question.inputId + '_' + index} className={this.question.cssClasses.preview}>
+          {
+            val.name ?
+              <a href={val.content} title={val.name} download={val.name} style={{ width: this.question.imageWidth + "px" }}>{val.name}
+              </a>
+              : null
+          }
+          {
+            val.content ?
+              <img
+                src={val.content}
+                height={this.question.imageHeight}
+                width={this.question.imageWidth}
+                alt="File preview"
+              /> : null
+          }
+
+        </span>
       );
     });
-    return <div>{images}</div>;
+    return <div>{previews}</div>;
   }
 }
 

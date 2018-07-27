@@ -4,7 +4,10 @@
         <button v-if="!question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <input v-if="question.isReadOnly" type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
         <div v-if="!question.isEmpty()">
-            <img v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview" :src="val" :height="question.imageHeight" :width="question.imageWidth" alt="File preview"/>
+            <span v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview">
+                <a v-if="val.name" :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
+                <img v-if="val.content" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
+            </span>
         </div>
     </div>
 </template>

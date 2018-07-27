@@ -11,8 +11,14 @@
         />
         <!-- /ko -->
         <div data-bind="foreach: question.koData, visible: question.koHasValue">
-            <img data-bind="attr: { src: $data, height: question.imageHeight, width: question.imageWidth }, visible: question.showPreview, css: question.cssClasses.preview"
-                alt="File preview">
+            <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
+                <!-- ko if: $data.name -->
+                <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
+                <!-- /ko -->
+                <!-- ko if: $data.content -->
+                <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
+                <!-- /ko -->
+            </span>
         </div>
     </div>
 </script>

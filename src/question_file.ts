@@ -186,9 +186,10 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach(value => {
         var content = value.content || value;
-        if (this.isFileContentImage(content)) {
-          this.previewValue = this.previewValue.concat([content]);
-        }
+        this.previewValue = this.previewValue.concat([{
+          name: value.name,
+          content: this.isFileContentImage(content) ? content : ""
+        }]);
       });
       this.stateChanged("loaded");
     } else {
@@ -196,7 +197,7 @@ export class QuestionFileModel extends Question {
         var content = value.content || value;
         this.survey.downloadFile(this.name, content, (status, data) => {
           if (status === "success") {
-            this.previewValue = this.previewValue.concat([data]);
+            this.previewValue = this.previewValue.concat([{content: data, name: value.name}]);
             if (this.previewValue.length === newValues.length) {
               this.stateChanged("loaded");
             }

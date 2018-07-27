@@ -62,7 +62,8 @@ export class StylesManager {
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
-    ".sv_q_file_preview": "display: inline-block;",
+    ".sv_q_file_preview": "display: inline-block; vertical-align: top; border: 1px solid lightgray; padding: 5px; margin-top: 10px;",
+    ".sv_q_file_preview > a": "display: block; overflow: hidden; vertical-align: top; white-space: nowrap; text-overflow: ellipsis;",
     ".sv_q_file_remove_button": "line-height: normal;",
 
     ".sv_q_m_cell_text": "cursor: pointer;",

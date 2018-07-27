@@ -82,8 +82,6 @@ export class StylesManager {
       "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
 
     ".sv_qstn .sv_q_file_input": "color: transparent;",
-    ".sv_qstn .sv_q_file_input::after":
-      "content: attr(title); padding-left: 1em; color: initial;",
 
     ".sv_qstn .sv_q_imgsel label > div":
       "overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px; border: 1px solid lightgray; border-radius: 4px;",
@@ -415,11 +413,11 @@ export class StylesManager {
     Object.keys(StylesManager.Media).forEach(selector => {
       sheet.insertRule(
         StylesManager.Media[selector].media +
-          " { " +
-          selector +
-          " { " +
-          StylesManager.Media[selector].style +
-          " } }",
+        " { " +
+        selector +
+        " { " +
+        StylesManager.Media[selector].style +
+        " } }",
         0
       );
     });

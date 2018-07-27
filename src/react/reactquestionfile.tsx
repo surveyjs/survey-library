@@ -44,7 +44,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           className={this.question.cssClasses.fileInput}
           id={this.question.inputId}
           type="file"
-          style={{ color: this.state.state === "loaded" ? 'inherit' : 'transparent' }}
           onChange={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}

@@ -3,7 +3,7 @@ import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("Survey");
 
-QUnit.test("QuestionFile value initialization strings", function(assert) {
+QUnit.test("QuestionFile value initialization strings", function (assert) {
   var json = {
     questions: [
       {
@@ -48,18 +48,18 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
   assert.equal(q1.previewValue.length, 1, "remote stored file");
   assert.equal(q2.previewValue.length, 1, "file stored as text");
   assert.equal(
-    q1.previewValue[0],
+    q1.previewValue[0].content,
     "data:image/jpeg;base64,FILECONTENT1",
     "remote stored file content"
   );
   assert.equal(
-    q2.previewValue[0],
+    q2.previewValue[0].content,
     survey.data.image2,
     "locally stored file content"
   );
 });
 
-QUnit.test("QuestionFile value initialization array", function(assert) {
+QUnit.test("QuestionFile value initialization array", function (assert) {
   var json = {
     questions: [
       {
@@ -104,18 +104,18 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
   assert.equal(q1.previewValue.length, 1, "remote stored file");
   assert.equal(q2.previewValue.length, 1, "file stored as text");
   assert.equal(
-    q1.previewValue[0],
+    q1.previewValue[0].content,
     "data:image/jpeg;base64,FILECONTENT1",
     "remote stored file content"
   );
   assert.equal(
-    q2.previewValue[0],
+    q2.previewValue[0].content,
     survey.data.image2,
     "locally stored file content"
   );
 });
 
-QUnit.test("QuestionFile value initialization array of objects", function(
+QUnit.test("QuestionFile value initialization array of objects", function (
   assert
 ) {
   var json = {
@@ -168,12 +168,12 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   assert.equal(q1.previewValue.length, 1, "remote stored file");
   assert.equal(q2.previewValue.length, 1, "file stored as text");
   assert.equal(
-    q1.previewValue[0],
+    q1.previewValue[0].content,
     "data:image/jpeg;base64,FILECONTENT1",
     "remote stored file content"
   );
   assert.equal(
-    q2.previewValue[0],
+    q2.previewValue[0].content,
     survey.data.image2[0].content,
     "locally stored file content"
   );
@@ -181,7 +181,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
 
 QUnit.test(
   "QuestionFile value initialization array of objects without onDownloadFile handler",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
         {
@@ -220,19 +220,19 @@ QUnit.test(
     assert.equal(q1.previewValue.length, 1, "remote stored file");
     assert.equal(q2.previewValue.length, 1, "file stored as text");
     assert.equal(
-      q1.previewValue[0],
+      q1.previewValue[0].content,
       survey.data.image1[0].content,
       "remote stored file content"
     );
     assert.equal(
-      q2.previewValue[0],
+      q2.previewValue[0].content,
       survey.data.image2[0].content,
       "locally stored file content"
     );
   }
 );
 
-QUnit.test("QuestionFile upload files", function(assert) {
+QUnit.test("QuestionFile upload files", function (assert) {
   var json = {
     questions: [
       {
@@ -280,8 +280,11 @@ QUnit.test("QuestionFile upload files", function(assert) {
       q1.value[1].name + "_url",
       "second content"
     );
-    assert.equal(q1.previewValue[0], q1.value[0].content, "preview content 1");
-    assert.equal(q1.previewValue[1], q1.value[1].content, "preview content 2");
+    assert.equal(q1.previewValue[0].content, q1.value[0].content, "preview content 1");
+    assert.equal(q1.previewValue[1].content, q1.value[1].content, "preview content 2");
+
+    assert.equal(q1.previewValue[0].name, q1.value[0].name, "preview name 1");
+    assert.equal(q1.previewValue[1].name, q1.value[1].name, "preview name 2");
     done();
   });
 });

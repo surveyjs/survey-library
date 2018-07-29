@@ -23,15 +23,39 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   }
 }
 export class QuestionCheckbox extends QuestionCheckboxModel {
+  koAllSelected: any;
+  private isAllSelectedUpdating = false;
   constructor(public name: string) {
     super(name);
     new QuestionCheckboxImplementor(this);
+    this.koAllSelected = ko.observable(this.isAllSelected);
+    var self = this;
+    this.koAllSelected.subscribe(function(newValue) {
+      if (self.isAllSelectedUpdating) return;
+      if (newValue) self.selectAll();
+      else self.clearValue();
+    });
+  }
+  protected onValueChanged() {
+    super.onValueChanged();
+    this.updateAllSelected();
+  }
+  protected onVisibleChoicesChanged() {
+    super.onVisibleChoicesChanged();
+    this.updateAllSelected();
+  }
+  protected updateAllSelected() {
+    this.isAllSelectedUpdating = true;
+    this.koAllSelected(this.isAllSelected);
+    this.isAllSelectedUpdating = false;
   }
   getItemClass(item) {
-    var isChecked = this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1;
+    var isChecked = this.isItemSelected(item);
     var itemClass =
       this.cssClasses.item +
-      (this.colCount === 0 ? " sv_q_checkbox_inline" : (" sv-q-col-" + this.colCount));
+      (this.colCount === 0
+        ? " sv_q_checkbox_inline"
+        : " sv-q-col-" + this.colCount);
 
     if (isChecked) itemClass += " checked";
 

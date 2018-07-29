@@ -24,6 +24,11 @@ export class ItemValue {
       value.locOwner = locOwner;
       return result;
     };
+    items.unshift = function(value): number {
+      var result = Array.prototype.unshift.call(this, value);
+      value.locOwner = locOwner;
+      return result;
+    };
     items.splice = function(
       start?: number,
       deleteCount?: number,

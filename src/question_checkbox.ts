@@ -11,21 +11,41 @@ import { LocalizableString } from "./localizablestring";
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private noneItemValue: ItemValue = new ItemValue("none");
+  private selectAllItemValue: ItemValue = new ItemValue("selectall");
   constructor(public name: string) {
     super(name);
-    var noneOtherText = this.createLocalizableString("noneText", this, true);
-    noneOtherText.onGetTextCallback = function(text) {
+    var noneItemText = this.createLocalizableString("noneText", this, true);
+    noneItemText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("noneItemText");
     };
     this.noneItemValue.locOwner = this;
-    this.noneItemValue.setLocText(noneOtherText);
+    this.noneItemValue.setLocText(noneItemText);
+
+    var selectAllItemText = this.createLocalizableString(
+      "selectAllText",
+      this,
+      true
+    );
+    selectAllItemText.onGetTextCallback = function(text) {
+      return !!text ? text : surveyLocalization.getString("selectAllItemText");
+    };
+    this.selectAllItem.locOwner = this;
+    this.selectAllItem.setLocText(selectAllItemText);
+
     var self = this;
     this.registerFunctionOnPropertiesValueChanged(
-      ["hasNone", "noneText"],
+      ["hasNone", "noneText", "hasSelectAll", "selectAllText"],
       function() {
         self.onVisibleChoicesChanged();
       }
     );
+  }
+  /**
+   * Returns the select all item. By using this property, you may change programmatically it's value and text.
+   * @see hasSelectAll
+   */
+  public get selectAllItem(): ItemValue {
+    return this.selectAllItemValue;
   }
   /**
    * Returns the none item. By using this property, you may change programmatically it's value and text.
@@ -49,11 +69,96 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   get locNoneText(): LocalizableString {
     return this.getLocalizableString("noneText");
   }
+  /**
+   * Use this property to set the different text for Select All item.
+   */
+  public get selectAllText(): string {
+    return this.getLocalizableStringText(
+      "selectAllText",
+      surveyLocalization.getString("selectAllItemText")
+    );
+  }
+  public set selectAllText(val: string) {
+    this.setLocalizableStringText("selectAllText", val);
+  }
+  get locSelectAllText(): LocalizableString {
+    return this.getLocalizableString("selectAllText");
+  }
+  /**
+   * Set this property to true, to show the "Select All" item on the top. If end-user checks this item, then all items are checked.
+   */
+  public get hasSelectAll(): boolean {
+    return this.getPropertyValue("hasSelectAll", false);
+  }
+  public set hasSelectAll(val: boolean) {
+    this.setPropertyValue("hasSelectAll", val);
+  }
+  /**
+   * Returns true if all items are selected
+   * @see toggleSelectAll
+   */
+  public get isAllSelected(): boolean {
+    var val = this.value;
+    if (!val || !Array.isArray(val)) return false;
+    if (this.isItemSelected(this.noneItem)) return false;
+    var allItemCount = this.visibleChoices.length;
+    if (this.hasOther) allItemCount--;
+    if (this.hasNone) allItemCount--;
+    if (this.hasSelectAll) allItemCount--;
+    var selectedCount = val.length;
+    if (this.isItemSelected(this.otherItem)) selectedCount--;
+    return selectedCount === allItemCount;
+  }
+  public set isAllSelected(val: boolean) {
+    if (val) {
+      this.selectAll();
+    } else {
+      this.clearValue();
+    }
+  }
+  /**
+   * It will select all items, except other and none. If all items have been already selected then it will clear the value
+   * @see isAllSelected
+   * @see selectAll
+   */
+  public toggleSelectAll() {
+    this.isAllSelected = !this.isAllSelected;
+  }
+  /**
+   * Select all items, except other and none.
+   */
+  public selectAll() {
+    var val = [];
+    for (var i = 0; i < this.visibleChoices.length; i++) {
+      var item = this.visibleChoices[i];
+      if (
+        item === this.noneItem ||
+        item === this.otherItem ||
+        item === this.selectAllItem
+      )
+        continue;
+      val.push(item.value);
+    }
+    this.value = val;
+  }
+  /**
+   * Set this property to true, to show the "None" item on the bottom. If end-user checks this item, all other items would be unchecked.
+   */
   public get hasNone(): boolean {
     return this.getPropertyValue("hasNone", false);
   }
   public set hasNone(val: boolean) {
     this.setPropertyValue("hasNone", val);
+  }
+  /**
+   * Returns true if item is checked
+   * @param item checkbox item value
+   */
+  public isItemSelected(item: ItemValue): boolean {
+    if (item === this.selectAllItem) return this.isAllSelected;
+    var val = this.value;
+    if (!val || !Array.isArray(val)) return false;
+    return val.indexOf(item.value) > -1;
   }
   protected setNewValue(newValue: any) {
     if (this.hasNone) {
@@ -83,9 +188,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return -1;
   }
   protected canUseFilteredChoices(): boolean {
-    return !this.hasNone && super.canUseFilteredChoices();
+    return !this.hasNone && !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected addToVisibleChoices(items: Array<ItemValue>) {
+    if (this.hasSelectAll) {
+      items.unshift(this.selectAllItem);
+    }
     if (this.hasNone) {
       items.push(this.noneItem);
     }
@@ -179,8 +287,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 JsonObject.metaData.addClass(
   "checkbox",
   [
+    "hasSelectAll:boolean",
     "hasNone:boolean",
-    { name: "noneText", serializationProperty: "locNoneText" }
+    { name: "noneText", serializationProperty: "locNoneText" },
+    { name: "selectAllText", serializationProperty: "locSelectAllText" }
   ],
   function() {
     return new QuestionCheckboxModel("");

@@ -260,6 +260,10 @@ export class Question extends QuestionBase implements IValidatorOwner {
     if (no) no += ". ";
     return no + requireText + this.processedTitle;
   }
+  /**
+   * Move the focus to the input of this question.
+   * @param onError set this parameter to true, to focus the input with the first error, other wise the first input will be focused.
+   */
   public focus(onError: boolean = false) {
     SurveyElement.ScrollElementToTop(this.id);
     var id = !onError

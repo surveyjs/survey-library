@@ -13,7 +13,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     super(props);
     this.state = { choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function () {
+    this.question.choicesChangedCallback = function() {
       self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
   }
@@ -75,6 +75,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.textStyle = props.textStyle;
     this.isFirst = props.isFirst;
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.selectAllChanged = this.selectAllChanged.bind(this);
   }
   public shouldComponentUpdate(): boolean {
     return (
@@ -108,12 +109,12 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.question.value = newValue;
     this.setState({ value: this.question.value });
   }
+  selectAllChanged(event) {
+    this.question.toggleSelectAll();
+  }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
-    var isChecked =
-      (this.question.value &&
-        this.question.value.indexOf(this.item.value) > -1) ||
-      false;
+    var isChecked = this.question.isItemSelected(this.item);
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
@@ -136,6 +137,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         : " sv-q-col-" + this.question.colCount);
 
     if (isChecked) itemClass += " checked";
+    var onItemChanged =
+      this.item == this.question.selectAllItem
+        ? this.selectAllChanged
+        : this.handleOnChange;
 
     return (
       <div className={itemClass}>
@@ -148,7 +153,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             style={this.inputStyle}
             disabled={this.isDisplayMode}
             checked={isChecked}
-            onChange={this.handleOnChange}
+            onChange={onItemChanged}
             aria-label={this.question.locTitle.renderedHtml}
           />
           <span className={this.cssClasses.materialDecorator}>

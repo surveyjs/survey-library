@@ -1518,6 +1518,59 @@ QUnit.test("Checkbox hasNone", function(assert) {
   assert.deepEqual(q.value, [1], "none should gone");
 });
 
+QUnit.test("Checkbox hasSelectAll", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasSelectAll: true,
+        choices: [1, 2, 3]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.visibleChoices.length, 4, "3 items + select all");
+  q.hasSelectAll = false;
+  assert.equal(q.visibleChoices.length, 3, "select all is removed");
+  q.hasSelectAll = true;
+  assert.equal(q.visibleChoices.length, 4, "none is added");
+  assert.equal(q.isAllSelected, false, "All items are not selected");
+  assert.equal(
+    q.isItemSelected(q.selectAllItem),
+    false,
+    "isItemSelected returns false"
+  );
+  q.value = [1, 2, 3];
+  assert.equal(q.isAllSelected, true, "All items are selected");
+  assert.equal(
+    q.isItemSelected(q.selectAllItem),
+    true,
+    "isItemSelected returns true"
+  );
+  q.hasOther = true;
+  q.value = [1, 2, "other"];
+  assert.equal(q.isAllSelected, false, "3 is not selected");
+  q.value = [1, 2, 3, "other"];
+  assert.equal(q.isAllSelected, true, "all + other are selected");
+  q.value = [1, 2];
+  q.toggleSelectAll();
+  assert.deepEqual(
+    q.value,
+    [1, 2, 3],
+    "all items are selected after clicking select all"
+  );
+  q.toggleSelectAll();
+  assert.equal(q.isEmpty(), true, "value is empty");
+  q.toggleSelectAll();
+  assert.deepEqual(
+    q.value,
+    [1, 2, 3],
+    "all items are selected again after clicking select all"
+  );
+});
+
 QUnit.test(
   "Set valueName automatically if name property is not valid",
   function(assert) {

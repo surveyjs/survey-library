@@ -89,6 +89,21 @@ export class QuestionSelectBase extends Question {
     super.runCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
+  protected setDefaultValue() {
+    if (
+      !this.hasOther ||
+      !this.getStoreOthersAsComment() ||
+      !this.hasUnknownValue(this.defaultValue, true)
+    ) {
+      super.setDefaultValue();
+    } else {
+      this.setDefaultValueWithOthers();
+    }
+  }
+  protected setDefaultValueWithOthers() {
+    this.value = this.otherItem.value;
+    this.comment = this.defaultValue;
+  }
   protected filterItems(): boolean {
     if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
     return this.runItemsCondition(
@@ -137,10 +152,6 @@ export class QuestionSelectBase extends Question {
       values,
       properties
     );
-  }
-  private getConditionRunnerByItem(item: ItemValue): ConditionRunner {
-    var runner = item.getConditionRunner();
-    return runner ? runner : this.conditionChoicesVisibleIfRunner;
   }
   protected getHasOther(val: any): boolean {
     return val == this.otherItem.value;
@@ -201,7 +212,7 @@ export class QuestionSelectBase extends Question {
     return val;
   }
   protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
-    if (!val) return false;
+    if (Helpers.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     return ItemValue.getItemByValue(this.filteredChoices, val) == null;
   }

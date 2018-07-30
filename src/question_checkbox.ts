@@ -246,6 +246,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
+  protected setDefaultValueWithOthers() {
+    this.value = this.valueFromDataCore(this.defaultValue);
+  }
   protected getHasOther(val: any): boolean {
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(this.otherItem.value) >= 0;

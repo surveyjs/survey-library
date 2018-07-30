@@ -1027,6 +1027,47 @@ QUnit.test("Boolean question defaultValue", function(assert) {
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
+QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [1, 2, 3],
+        hasOther: true,
+        defaultValue: "otherValue"
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(question.isOtherSelected, true, "The other is selected");
+  assert.equal(question.comment, "otherValue", "other value is set");
+});
+
+QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3],
+        hasOther: true,
+        defaultValue: [2, "otherValue"]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(question.isOtherSelected, true, "The other is selected");
+  assert.deepEqual(question.value, [2, "other"], "value set correctly");
+  assert.equal(question.comment, "otherValue", "other value is set");
+});
+
 QUnit.test("Rating question, visibleRateValues property", function(assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(

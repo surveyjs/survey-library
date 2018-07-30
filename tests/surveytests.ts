@@ -178,6 +178,44 @@ QUnit.test("Do not show errors in display mode", function(assert) {
     "Can move into another page"
   );
 });
+
+QUnit.test("Check pages state on onValueChanged event", function(assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "question1",
+            isRequired: true,
+            choices: ["1", "2"]
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "html",
+            name: "question2",
+            html: "hello"
+          }
+        ],
+        visibleIf: '{question1} = "2"'
+      }
+    ]
+  });
+
+  survey.onValueChanged.add(() => {
+    assert.notOk(survey.isLastPage);
+  });
+  assert.ok(survey.isLastPage);
+
+  var q1 = survey.getQuestionByName("question1");
+  q1.value = "2";
+});
+
 QUnit.test("Question is readOnly", function(assert) {
   var survey = twoPageSimplestSurvey();
   var q1 = <Question>(<Question>survey.pages[0].questions[0]);

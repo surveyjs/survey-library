@@ -2632,11 +2632,11 @@ export class SurveyModel extends Base
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
-    this.notifyQuestionOnValueChanged(name, newValue);
     var triggerKeys = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
+    this.notifyQuestionOnValueChanged(name, newValue);
     this.tryGoNextPageAutomatic(name);
   }
   private isValueEqual(name: string, newValue: any): boolean {

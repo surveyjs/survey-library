@@ -50,6 +50,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.isAllSelectedUpdating = false;
   }
   getItemClass(item) {
+    var val = this["koValue"](); //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
     var itemClass =
       this.cssClasses.item +

@@ -473,6 +473,18 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired before adding a new row in Matrix Dynamic question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a matrix question.
+   * <br/> options.canAddRow an allowing flag.
+   * @see QuestionMatrixDynamicModel
+   * @see QuestionMatrixDynamicModel.visibleRows
+   */
+  public onMatrixBeforeRowAdded: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired on removing a row from Matrix Dynamic question.
    * <br/> sender the survey object that fires the event
    * <br/> options.question a matrix question.
@@ -494,6 +506,7 @@ export class SurveyModel extends Base
    * <br/> options.column - the matrix column object
    * <br/> options.columName - the matrix column name
    * <br/> options.row - the matrix row object
+   * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -525,6 +538,7 @@ export class SurveyModel extends Base
    * <br/> options.value - a new value
    * <br/> options.row - the matrix row object
    * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -540,6 +554,7 @@ export class SurveyModel extends Base
    * <br/> options.value - a cell value
    * <br/> options.row - the matrix row object
    * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
@@ -1874,6 +1889,9 @@ export class SurveyModel extends Base
       panel: panel,
       htmlElement: htmlElement
     });
+  }
+  matrixBeforeRowAdded(options: any) {
+    this.onMatrixBeforeRowAdded.fire(this, options);
   }
   matrixRowAdded(question: IQuestion) {
     this.onMatrixRowAdded.fire(this, { question: question });

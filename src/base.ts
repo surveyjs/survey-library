@@ -80,6 +80,7 @@ export interface ISurvey extends ITextProcessor {
   afterRenderPanel(panel: IElement, htmlElement);
   afterRenderPage(htmlElement);
   matrixRowAdded(question: IQuestion);
+  matrixBeforeRowAdded(options: { question: IQuestion; canAddRow: boolean });
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any);
   matrixCellCreated(question: IQuestion, options: any);
   matrixAfterCellRender(question: IQuestion, options: any);

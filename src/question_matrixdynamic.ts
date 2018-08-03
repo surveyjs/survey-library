@@ -177,7 +177,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   public addRow() {
     var options = { question: this, canAddRow: this.canAddRow };
-    this.survey.matrixBeforeRowAdded(options);
+    if (!!this.survey) {
+      this.survey.matrixBeforeRowAdded(options);
+    }
     if (!options.canAddRow) return;
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;

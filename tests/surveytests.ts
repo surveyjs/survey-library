@@ -3244,6 +3244,27 @@ QUnit.test("onMatrixRowAdded", function(assert) {
   assert.equal(q1.rowCount, 4, "there are two rows");
   assert.equal(q1.value[3]["col1"], 2, "get value from previous");
 });
+QUnit.test("onMatrixBeforeRowAdded", function(assert) {
+  var survey = new SurveyModel();
+  survey.onMatrixBeforeRowAdded.add(function(sender, options) {
+    if (options.question.rowCount >= 1) options.canAddRow = false;
+    return;
+  });
+
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
+  page.addElement(q1);
+  q1.addColumn("col1");
+  q1.addColumn("col2");
+  q1.addColumn("col3");
+  q1.rowCount = 0;
+
+  q1.addRow();
+  assert.equal(q1.rowCount, 1, "there is one row");
+  q1.addRow();
+  assert.equal(q1.rowCount, 1, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'");
+});
+
 QUnit.test("onMatrixRowRemoved", function(assert) {
   var survey = new SurveyModel();
   var removedRowIndex = -1;

@@ -4487,6 +4487,26 @@ QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function(
   assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
 });
 
+QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        defaultValue: [{q2: "val1"}, {q2: "val2"}],
+        elements: [{type: "text", name: "q2"}],
+        panelCount: 2
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.getQuestionByName("q1").visible = false;
+  survey.doComplete();
+  assert.deepEqual(survey.data, {}, "Panel Dynamic is invisible");
+});
+
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

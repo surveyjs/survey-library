@@ -194,6 +194,9 @@ export class QuestionPanelDynamicModel extends Question
       if (self.oldTemplateRowsChangedCallback)
         self.oldTemplateRowsChangedCallback();
     };
+    this.template.addElementCallback = function(element) {
+      self.addOnPropertyChangedCallback(element);
+    };
 
     this.createLocalizableString("confirmDeleteText", this);
     this.createLocalizableString("keyDuplicationError", this);
@@ -212,6 +215,35 @@ export class QuestionPanelDynamicModel extends Question
   private templateOnRowsChanged() {
     if (this.isLoadingFromJson) return;
     this.rebuildPanels();
+  }
+  private assignOnPropertyChangedToTemplate() {
+    var elements = this.template.elements;
+    var self = this;
+    for (var i = 0; i < elements.length; i++) {
+      this.addOnPropertyChangedCallback(elements[i]);
+    }
+  }
+  private addOnPropertyChangedCallback(element: IElement) {
+    var self = this;
+    (<Base>(<any>element)).onPropertyChanged.add(function(element, options) {
+      self.onTemplateElementPropertyChanged(element, options);
+    });
+    if (element.isPanel) {
+      (<PanelModel>(<any>element)).addElementCallback = function(element) {
+        self.addOnPropertyChangedCallback(element);
+      };
+    }
+  }
+  private onTemplateElementPropertyChanged(element, options) {
+    if (this.isLoadingFromJson || !this.items || this.items.length == 0) return;
+    if (options.name === "visibleIndex") return;
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      var question = panels[i].getQuestionByName(element.name);
+      if (!!question) {
+        question[options.name] = options.newValue;
+      }
+    }
   }
   public getType(): string {
     return "paneldynamic";
@@ -927,6 +959,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.setPanelsSurveyImpl();
     this.setPanelsState();
+    this.assignOnPropertyChangedToTemplate();
     super.onSurveyLoad();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {

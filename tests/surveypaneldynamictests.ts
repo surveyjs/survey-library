@@ -1561,7 +1561,7 @@ QUnit.test(
         {
           type: "paneldynamic",
           name: "dPanel",
-          elements: [
+          templateElements: [
             { type: "text", name: "q1" },
             { type: "text", name: "q2" },
             { type: "text", name: "q3" }
@@ -1584,3 +1584,89 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Synhronize elements on changing template", function(assert) {
+  var question = new QuestionPanelDynamicModel("q");
+  question.template.addNewQuestion("text", "q1");
+  question.template.addNewQuestion("text", "q2");
+  question.panelCount = 2;
+  assert.equal(question.panels[0].elements.length, 2, "There are two elements");
+  question.template.addNewQuestion("text", "q3");
+  assert.equal(
+    question.panels[0].elements.length,
+    3,
+    "There are three elements"
+  );
+  question.template.removeQuestion(question.template.questions[0]);
+  assert.equal(
+    question.panels[0].elements.length,
+    2,
+    "There are two elements again"
+  );
+  assert.equal(
+    question.panels[0].questions[0].name,
+    "q2",
+    "The first element is 'q2"
+  );
+});
+
+QUnit.test("synhronize on template question property change", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "dPanel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "checkbox", name: "q2", choices: [1, 2] },
+          {
+            type: "panel",
+            name: "p1",
+            elements: [{ type: "text", name: "p1_q1" }]
+          }
+        ],
+        panelCount: 2
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("dPanel");
+  var q1_1 = question.panels[0].elements[0];
+  var q1_2 = question.panels[1].elements[0];
+  var q2_1 = question.panels[0].elements[1];
+  var q2_2 = question.panels[1].elements[1];
+  (<QuestionTextModel>question.templateElements[0]).title = "title1";
+  (<QuestionCheckboxModel>question.templateElements[1]).choices = [1, 2, 3];
+  assert.equal((<QuestionTextModel>q1_1).title, "title1", "q1_1 title changed");
+  assert.equal((<QuestionTextModel>q1_2).title, "title1", "q1_2 title changed");
+  assert.equal(
+    (<QuestionCheckboxModel>q2_1).choices.length,
+    3,
+    "q2_1 choices changed"
+  );
+  assert.deepEqual(
+    (<QuestionCheckboxModel>q2_2).choices.length,
+    3,
+    "q2_2 choices changed"
+  );
+  var q3 = <QuestionTextModel>question.template.addNewQuestion("text", "q3");
+  var q3_1 = <QuestionTextModel>question.panels[0].getQuestionByName("q3");
+  assert.equal(q3_1.title, "q3", "The title is empty");
+  q3.title = "title_3";
+  assert.equal(
+    q3_1.title,
+    "title_3",
+    "The title for added question has been changed"
+  );
+  var p1_q1 = <QuestionTextModel>question.template.getQuestionByName("p1_q1");
+  var q3_q1_1 = <QuestionTextModel>question.panels[0].getQuestionByName(
+    "p1_q1"
+  );
+  p1_q1.title = "title_in_panel";
+  assert.equal(
+    q3_q1_1.title,
+    "title_in_panel",
+    "The title for a question in a panel has been changed"
+  );
+});

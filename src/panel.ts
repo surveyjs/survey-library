@@ -95,6 +95,8 @@ export class PanelModelBase extends SurveyElement
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
   rowsChangedCallback: () => void;
+  addElementCallback: (element: IElement) => void;
+  removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
 
   constructor(public name: string = "") {
@@ -570,6 +572,7 @@ export class PanelModelBase extends SurveyElement
         this.survey.questionAdded(q, index, this, this.root);
       }
     }
+    if (!!this.addElementCallback) this.addElementCallback(element);
     var self = this;
     (<Base>(<any>element)).registerFunctionOnPropertiesValueChanged(
       ["visible", "isVisible"],
@@ -598,6 +601,7 @@ export class PanelModelBase extends SurveyElement
     } else {
       if (this.survey) this.survey.panelRemoved(element);
     }
+    if (!!this.removeElementCallback) this.removeElementCallback(element);
   }
   private onElementVisibilityChanged(element: any) {
     if (this.rowValues) {

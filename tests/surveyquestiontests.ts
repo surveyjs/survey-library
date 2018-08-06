@@ -1690,3 +1690,33 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Test property hideIfChoicesEmpty", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = new QuestionCheckboxModel("q1");
+  page.addElement(question);
+  assert.equal(question.isVisible, true, "By default it is visible");
+  question.hideIfChoicesEmpty = true;
+  assert.equal(question.isVisible, false, "Choices are empty");
+  question.hasOther = true;
+  question.hasSelectAll = true;
+  question.hasNone = true;
+  assert.equal(question.isVisible, false, "Still choices are empty");
+  question.choices = [1, 2, 3];
+  assert.equal(question.isVisible, true, "Choices are not empty");
+  question.choicesVisibleIf = "{item} = {val1}";
+  assert.equal(question.isVisible, false, "Filtered choices are empty");
+  survey.setValue("val1", 2);
+  assert.equal(question.isVisible, true, "There is one visible item");
+});
+
+QUnit.test("Test property hideIfChoicesEmpty - load from json", function(
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [{ type: "dropdown", name: "q1", hideIfChoicesEmpty: true }]
+  });
+  var question = survey.getQuestionByName("q1");
+  assert.equal(question.isVisible, false, "It is invisible");
+});

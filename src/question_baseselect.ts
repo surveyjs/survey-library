@@ -37,6 +37,12 @@ export class QuestionSelectBase extends Question {
         self.onVisibleChoicesChanged();
       }
     });
+    this.registerFunctionOnPropertyValueChanged(
+      "hideIfChoicesEmpty",
+      function() {
+        self.updateVisibilityBasedOnChoices();
+      }
+    );
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
     var locOtherText = this.createLocalizableString("otherText", this, true);
@@ -225,6 +231,12 @@ export class QuestionSelectBase extends Question {
   }
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);
+  }
+  public get hideIfChoicesEmpty(): boolean {
+    return this.getPropertyValue("hideIfChoicesEmpty", false);
+  }
+  public set hideIfChoicesEmpty(val: boolean) {
+    this.setPropertyValue("hideIfChoicesEmpty", val);
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
@@ -442,6 +454,12 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson) return;
     this.visibleChoicesCache = null;
     this.fireCallback(this.choicesChangedCallback);
+    this.updateVisibilityBasedOnChoices();
+  }
+  private updateVisibilityBasedOnChoices() {
+    if (this.hideIfChoicesEmpty) {
+      this.visible = !this.filteredChoices || this.filteredChoices.length > 0;
+    }
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     var order = this.choicesOrder.toLowerCase();
@@ -523,6 +541,7 @@ JsonObject.metaData.addClass(
         obj.choicesByUrl.setData(value);
       }
     },
+    "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },

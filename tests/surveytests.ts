@@ -4516,16 +4516,16 @@ QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function(
       {
         type: "paneldynamic",
         name: "q1",
-        defaultValue: [{q2: "val1"}, {q2: "val2"}],
-        elements: [{type: "text", name: "q2"}],
-        panelCount: 2
+        templateElements: [{type: "text", name: "q2", visible: false}],
+        panelCount: 1,
+        minPanelCount: 1
       }
     ]
   };
   var survey = new SurveyModel(json);
   survey.getQuestionByName("q1").visible = false;
   survey.doComplete();
-  assert.deepEqual(survey.data, {}, "Panel Dynamic is invisible");
+  assert.equal(JSON.stringify(survey.data), "{}", "Panel Dynamic is invisible");
 });
 
 

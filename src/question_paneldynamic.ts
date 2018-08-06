@@ -1006,13 +1006,13 @@ export class QuestionPanelDynamicModel extends Question
     return super.hasErrors(fireCallback) || errosInPanels;
   }
   public clearValueIfInvisible() {
-    super.clearValueIfInvisible();
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
       for (var j = 0; j < questions.length; j++) {
         questions[j].clearValueIfInvisible();
       }
     }
+    super.clearValueIfInvisible();
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();

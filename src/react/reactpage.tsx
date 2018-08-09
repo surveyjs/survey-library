@@ -14,6 +14,7 @@ export class SurveyPage extends React.Component<any, any> {
   private page: PageModel;
   private survey: SurveyModel;
   private creator: ISurveyCreator;
+  private questionRows: Array<QuestionRowModel>;
   protected css: any;
   constructor(props: any) {
     super(props);
@@ -21,12 +22,14 @@ export class SurveyPage extends React.Component<any, any> {
     this.survey = props.survey;
     this.creator = props.creator;
     this.css = props.css;
+    this.questionRows = props.page.rows;
   }
   componentWillReceiveProps(nextProps: any) {
     this.page = nextProps.page;
     this.survey = nextProps.survey;
     this.creator = nextProps.creator;
     this.css = nextProps.css;
+    this.questionRows = nextProps.page.rows;
   }
   componentDidMount() {
     this.doAfterRender();
@@ -38,6 +41,7 @@ export class SurveyPage extends React.Component<any, any> {
     }
   }
   componentDidUpdate(prevProps, prevState) {
+    this.questionRows = this.page.rows;
     this.doAfterRender();
   }
   private doAfterRender() {
@@ -53,7 +57,7 @@ export class SurveyPage extends React.Component<any, any> {
     var title = this.renderTitle();
     var description = this.renderDescription();
     var rows = [];
-    var questionRows = this.page.rows;
+    var questionRows = this.questionRows;
     var self = this;
     for (var i = 0; i < questionRows.length; i++) {
       var row = questionRows[i];

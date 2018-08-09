@@ -116,7 +116,7 @@ module.exports = function(options) {
         if (options.platform === "vue") {
           replace(
             {
-              files: packagePath + "survey." + options.platform + ".d.ts",
+              files: packagePath + "survey.vue.d.ts",
               from: /export default\s+\w+;/g,
               to: ""
             },
@@ -127,6 +127,13 @@ module.exports = function(options) {
               console.log("Modified files:", changes.join(", "));
             }
           );
+
+          fs
+            .createReadStream(packagePath + "survey.vue.js")
+            .pipe(fs.createWriteStream(packagePath + "survey-vue.js"));
+          fs
+            .createReadStream(packagePath + "survey.vue.min.js")
+            .pipe(fs.createWriteStream(packagePath + "survey-vue.min.js"));
         }
 
         rimraf.sync(packagePath + "typings");
@@ -137,6 +144,10 @@ module.exports = function(options) {
     }
   };
 
+  var mainFile =
+    options.platform === "vue"
+      ? "survey-vue.js"
+      : "survey." + options.platformPrefix + ".js";
   var packagePlatformJson = {
     name: "survey-" + options.platform,
     version: packageJson.version,
@@ -153,7 +164,7 @@ module.exports = function(options) {
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"
     ],
-    main: "survey." + options.platformPrefix + ".js",
+    main: mainFile,
     repository: {
       type: "git",
       url: "https://github.com/surveyjs/surveyjs.git"

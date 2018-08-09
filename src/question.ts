@@ -314,7 +314,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
   public set isRequired(val: boolean) {
     if (this.isRequired == val) return;
     this.setPropertyValue("isRequired", val);
-    this.locTitle.strChanged();
+    if (!this.isLoadingFromJson) {
+      this.locTitle.onChanged();
+    }
   }
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment", false);

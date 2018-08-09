@@ -1411,6 +1411,36 @@ QUnit.test("Checkbox Select All Test", function(assert) {
   assert.deepEqual(question.isEmpty(), true, "None is selected");
 });
 
+QUnit.test(
+  "Changing isRequired doesn't update title for questions in dynamic panel, Bug in Editor #385",
+  function(assert) {
+    var survey = new Survey();
+    var page = survey.addNewPage("page1");
+    var question = new QuestionPanelDynamic("q1");
+    var tmpQuestion = <Question>question.template.addNewQuestion("text", "q2");
+    page.addElement(question);
+    question.panelCount = 2;
+    var pnlQuestion = <Question>question.panels[0].questions[0];
+    assert.equal(
+      pnlQuestion.locTitle["koRenderedHtml"](),
+      "q2",
+      "The default value"
+    );
+    tmpQuestion.title = "q22";
+    assert.equal(
+      pnlQuestion.locTitle["koRenderedHtml"](),
+      "q22",
+      "The default value"
+    );
+    tmpQuestion.isRequired = true;
+    assert.equal(
+      pnlQuestion.locTitle["koRenderedHtml"](),
+      "* q22",
+      "The default value"
+    );
+  }
+);
+
 /*
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

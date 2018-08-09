@@ -35,6 +35,7 @@ import {
 import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
+import { QuestionExpressionModel } from "../src/question_expression";
 
 export default QUnit.module("Survey");
 
@@ -4526,6 +4527,50 @@ QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function(
   survey.getQuestionByName("q1").visible = false;
   survey.doComplete();
   assert.equal(JSON.stringify(survey.data), "{}", "Panel Dynamic is invisible");
+});
+
+QUnit.test("Compete trigger and goNextPageAutomatic option", function(
+  assert
+) {
+  var json = {
+    pages: [{
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "text",
+          name: "q2",
+          visible: false
+        }
+      ]},
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q3"
+          }
+        ]
+      }
+    ],
+    triggers: [{
+        type: "complete",
+        expression: "{exp1} = true"
+    }],
+    goNextPageAutomatic: true  
+  };
+  var survey = new SurveyModel(json);
+  var expressionQuestion = new QuestionExpressionModel("exp1")
+  expressionQuestion.expression = "iif({q1} = 'a', true, false)";
+  survey.pages[0].addElement(expressionQuestion);
+  var completedCounter = 0;
+  survey.onComplete.add(function() {
+    completedCounter ++;
+  });
+  survey.setValue("q2", "b");
+  survey.setValue("q1", "a");
+  assert.equal(completedCounter, 1, "The survey is completed one time");
 });
 
 

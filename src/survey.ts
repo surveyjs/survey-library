@@ -1714,9 +1714,9 @@ export class SurveyModel extends Base
     if (!onCompletingOptions.allowComplete) return;
     let previousCookie = this.hasCookie;
     this.stopTimer();
+    this.setCompleted();
     this.clearUnusedValues();
     this.setCookie();
-    this.setCompleted();
     var self = this;
     var onCompleteOptions = {
       showDataSaving: function(text: string) {
@@ -2313,6 +2313,7 @@ export class SurveyModel extends Base
     return result;
   }
   private checkTriggers(key: any, isOnNextPage: boolean) {
+    if (this.isCompleted) return;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
@@ -2328,6 +2329,7 @@ export class SurveyModel extends Base
     }
   }
   private runConditions() {
+    if (this.isCompleted) return;
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
@@ -2686,8 +2688,7 @@ export class SurveyModel extends Base
       return;
     var questions = this.getCurrentPageQuestions();
     for (var i = 0; i < questions.length; i++) {
-      var value = this.getValue(questions[i].getValueName());
-      if (questions[i].hasInput && this.isValueEmpty(value)) return;
+      if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
     if (!this.currentPage.hasErrors(true, false)) {
       if (!this.isLastPage) {

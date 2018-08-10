@@ -2533,6 +2533,13 @@ export class SurveyModel extends Base
       textValue.value = this.visiblePageCount;
       return;
     }
+    if (name === "locale") {
+      textValue.isExists = true;
+      textValue.value = !!this.locale
+        ? this.locale
+        : surveyLocalization.defaultLocale;
+      return;
+    }
     if (name === "correctedanswers" || name === "correctedanswercount") {
       textValue.isExists = true;
       textValue.value = this.getCorrectedAnswerCount();

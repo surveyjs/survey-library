@@ -1509,6 +1509,22 @@ QUnit.test("pre process title", function(assert) {
   );
 });
 
+QUnit.test("pre process title, 'locale' variable", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.title = "The current locale is: '{locale}'";
+  assert.equal(
+    survey.processedTitle,
+    "The current locale is: 'en'",
+    "process the locale correctly"
+  );
+  survey.locale = "fr";
+  assert.equal(
+    survey.processedTitle,
+    "The current locale is: 'fr'",
+    "process the locale correctly again"
+  );
+});
+
 QUnit.test(
   "pre process title with variables in Capital letters, bug#1099",
   function(assert) {

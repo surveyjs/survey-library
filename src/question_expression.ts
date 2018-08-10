@@ -324,7 +324,7 @@ JsonObject.metaData.addClass(
     { name: "format", serializationProperty: "locFormat" },
     {
       name: "displayStyle",
-      default: "decimal",
+      default: "none",
       choices: ["none", "decimal", "currency", "percent"]
     },
     {

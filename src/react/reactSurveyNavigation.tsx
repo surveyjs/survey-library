@@ -3,10 +3,12 @@ import { SurveyModel } from "../survey";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 
 export class SurveyNavigation extends SurveyNavigationBase {
+  private mouseDownPage: any = null;
   constructor(props: any) {
     super(props);
     this.handlePrevClick = this.handlePrevClick.bind(this);
     this.handleNextClick = this.handleNextClick.bind(this);
+    this.handleNextMouseDown = this.handleNextMouseDown.bind(this);
     this.handleCompleteClick = this.handleCompleteClick.bind(this);
     this.handleStartClick = this.handleStartClick.bind(this);
   }
@@ -14,7 +16,15 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.survey.prevPage();
   }
   handleNextClick(event) {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
+      return;
+    this.mouseDownPage = null;
     this.survey.nextPage();
+  }
+  handleNextMouseDown(event) {
+    this.mouseDownPage = this.survey.currentPage;
+    var el = document.activeElement;
+    if (!!el && !!el["blur"]) el["blur"]();
   }
   handleCompleteClick(event) {
     this.survey.completeLastPage();
@@ -29,6 +39,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton
         ? this.renderButton(
             this.handlePrevClick,
+            null,
             this.survey.pagePrevText,
             this.css.navigation.prev
           )
@@ -37,6 +48,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       !isStartedPage && !this.survey.isLastPage
         ? this.renderButton(
             this.handleNextClick,
+            this.handleNextMouseDown,
             this.survey.pageNextText,
             this.css.navigation.next
           )
@@ -45,6 +57,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
       !isStartedPage && this.survey.isLastPage && this.survey.isEditMode
         ? this.renderButton(
             this.handleCompleteClick,
+            null,
             this.survey.completeText,
             this.css.navigation.complete
           )
@@ -52,6 +65,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
     var startButton = isStartedPage
       ? this.renderButton(
           this.handleStartClick,
+          null,
           this.survey.startSurveyText,
           this.css.navigation.start
         )
@@ -67,6 +81,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
   }
   protected renderButton(
     click: any,
+    mouseDown: any,
     text: string,
     btnClassName: string
   ): JSX.Element {
@@ -78,6 +93,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
         className={className}
         style={style}
         type="button"
+        onMouseDown={mouseDown}
         onClick={click}
         value={text}
       />

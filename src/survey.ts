@@ -2687,13 +2687,15 @@ export class SurveyModel extends Base
   }
   protected tryGoNextPageAutomatic(name: string) {
     if (!this.goNextPageAutomatic || !this.currentPage) return;
-    var question = this.getQuestionByValueName(name);
+    var question = <QuestionBase>this.getQuestionByValueName(name);
     if (
-      question &&
-      (!question.visible || !question.supportGoNextPageAutomatic())
+      !question ||
+      (!!question &&
+        (!question.visible || !question.supportGoNextPageAutomatic()))
     )
       return;
     var questions = this.getCurrentPageQuestions();
+    if (questions.indexOf(question) < 0) return;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }

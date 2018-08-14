@@ -34,7 +34,7 @@
                 <div data-bind="visible: koIsNavigationButtonsShowing, css: css.footer">
                     <input type="button" data-bind="value: pagePrevText, click: prevPage, visible: !koIsFirstPage() && isShowPrevButton, css: cssNavigationPrev"
                     />
-                    <input type="button" data-bind="value: pageNextText, click: nextPage, visible: !koIsLastPage(), css: cssNavigationNext" />
+                    <input type="button" data-bind="value: pageNextText, click: nextPageUIClick, event: { mousedown: nextPageMouseDown }, visible: !koIsLastPage(), css: cssNavigationNext" />
                     <input type="button" data-bind="value: completeText, click: completeLastPage, visible: koIsLastPage() && isEditMode, css: cssNavigationComplete"
                     />
                 </div>

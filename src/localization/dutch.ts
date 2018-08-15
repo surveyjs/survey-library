@@ -26,4 +26,4 @@ export var dutchSurveyStrings = {
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;
-surveyLocalization.localeNames["nl"] = "hollandsk";
+surveyLocalization.localeNames["nl"] = "nederlands";

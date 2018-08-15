@@ -39,6 +39,7 @@ export class Survey extends SurveyModel {
     any
   >();
   private isFirstRender: boolean = true;
+  private mouseDownPage: any = null;
 
   koCurrentPage: any;
   koIsFirstPage: any;
@@ -74,6 +75,16 @@ export class Survey extends SurveyModel {
     });
 
     this.render(renderedElement);
+  }
+  public nextPageUIClick() {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.currentPage) return;
+    this.mouseDownPage = null;
+    this.nextPage();
+  }
+  public nextPageMouseDown() {
+    this.mouseDownPage = this.currentPage;
+    var el = <any>document.activeElement;
+    if (!!el && !!el.blur) el.blur();
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(

@@ -289,6 +289,7 @@ $base-line-height: 2em;
 
         .sv_progress_bar {
           height: 100%;
+          min-width: 100px;
           //background-color: $main-color;
           position: relative;
           margin-top: 2em;

@@ -1670,3 +1670,43 @@ QUnit.test("synhronize on template question property change", function(assert) {
     "The title for a question in a panel has been changed"
   );
 });
+
+QUnit.test(
+  "synhronize on template question property change bug #1278",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dPanel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "checkbox", name: "q2", choices: [1, 2] },
+            {
+              type: "panel",
+              name: "p1",
+              elements: [{ type: "text", name: "p1_q1" }]
+            }
+          ],
+          panelCount: 2
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "dPanel"
+    );
+    assert.equal(
+      question.panels[0].elements[0].isVisible,
+      true,
+      "The first question is visible"
+    );
+    question.templateElements[0].visible = false;
+    assert.equal(
+      question.panels[0].elements[0].isVisible,
+      false,
+      "The first question is not visible now"
+    );
+  }
+);

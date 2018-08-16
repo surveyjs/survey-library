@@ -236,11 +236,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   private onTemplateElementPropertyChanged(element, options) {
     if (this.isLoadingFromJson || !this.items || this.items.length == 0) return;
-    if (options.name === "visibleIndex") return;
+    if (options.name === "visibleIndex" || options.name === "isVisible") return;
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
       var question = panels[i].getQuestionByName(element.name);
-      if (!!question) {
+      if (!!question && question[options.name] !== options.newValue) {
         question[options.name] = options.newValue;
       }
     }

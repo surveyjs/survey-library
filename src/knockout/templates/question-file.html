@@ -15,7 +15,7 @@
                 <!-- ko if: $data.name -->
                 <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
                 <!-- /ko -->
-                <!-- ko if: $data.content -->
+                <!-- ko if: question.canPreviewImage($data) -->
                 <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
                 <!-- /ko -->
             </span>

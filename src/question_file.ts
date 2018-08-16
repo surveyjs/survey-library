@@ -18,7 +18,7 @@ export class QuestionFileModel extends Question {
   public onStateChanged: Event<
     (sender: QuestionFileModel, options: any) => any,
     any
-    > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
+  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
   public currentState = "empty";
   constructor(public name: string) {
@@ -170,6 +170,9 @@ export class QuestionFileModel extends Question {
       });
     }
   }
+  public canPreviewImage(fileItem: any): boolean {
+    return !!fileItem && this.isFileContentImage(fileItem.content);
+  }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.previewValue = [];
@@ -186,10 +189,12 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach(value => {
         var content = value.content || value;
-        this.previewValue = this.previewValue.concat([{
-          name: value.name,
-          content: this.isFileContentImage(content) ? content : ""
-        }]);
+        this.previewValue = this.previewValue.concat([
+          {
+            name: value.name,
+            content: content
+          }
+        ]);
       });
       this.stateChanged("loaded");
     } else {
@@ -197,7 +202,9 @@ export class QuestionFileModel extends Question {
         var content = value.content || value;
         this.survey.downloadFile(this.name, content, (status, data) => {
           if (status === "success") {
-            this.previewValue = this.previewValue.concat([{content: data, name: value.name}]);
+            this.previewValue = this.previewValue.concat([
+              { content: data, name: value.name }
+            ]);
             if (this.previewValue.length === newValues.length) {
               this.stateChanged("loaded");
             }
@@ -242,10 +249,12 @@ export class QuestionFileModel extends Question {
     var str = file.type.toLowerCase();
     return str.indexOf("image") == 0;
   }
-  private isFileContentImage(fileContent: string) {
-    if (!fileContent) return;
-    var str = fileContent.toLowerCase();
-    return str.indexOf("data:image") == 0;
+  private isFileContentImage(fileContent: string): boolean {
+    if (!fileContent) return false;
+    const imagePrefix = "data:image";
+    var subStr = fileContent.substr(0, imagePrefix.length);
+    subStr = subStr.toLowerCase();
+    return subStr == imagePrefix;
   }
 }
 JsonObject.metaData.addClass(
@@ -260,7 +269,7 @@ JsonObject.metaData.addClass(
     { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
-  function () {
+  function() {
     return new QuestionFileModel("");
   },
   "question"

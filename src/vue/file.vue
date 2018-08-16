@@ -6,7 +6,7 @@
         <div v-if="!question.isEmpty()">
             <span v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview">
                 <a v-if="val.name" :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
-                <img v-if="val.content" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
+                <img v-if="question.canPreviewImage(val)" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
             </span>
         </div>
     </div>

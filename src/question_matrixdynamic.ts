@@ -115,7 +115,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows.splice(val);
       for (var i = prevValue; i < val; i++) {
-        this.generatedVisibleRows.push(this.createMatrixRow(null));
+        var newRow = this.createMatrixRow(null);
+        this.generatedVisibleRows.push(newRow);
+        this.onMatrixRowCreated(newRow);
       }
     }
     this.fireCallback(this.visibleRowsChangedCallback);
@@ -414,9 +416,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return result;
   }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
-    var row = new MatrixDynamicRowModel(this.rowCounter++, this, value);
-    this.onMatrixRowCreated(row);
-    return row;
+    return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
   protected onBeforeValueChanged(val: any) {
     var newRowCount = val && Array.isArray(val) ? val.length : 0;

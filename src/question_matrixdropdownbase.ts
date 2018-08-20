@@ -926,6 +926,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     if (this.isLoadingFromJson) return;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
+      this.generatedVisibleRows.forEach(row => this.onMatrixRowCreated(row));
       if (this.data) {
         var properties = { survey: this.survey };
         this.runCellsCondition(this.data.getAllValues(), properties);
@@ -1137,7 +1138,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     var self = this;
     var getQuestion = function(colName) {
       for (var i = 0; self.columns.length; i++) {
-        if (self.columns[i].name == colName) {
+        if (self.columns[i].name === colName) {
           return row.cells[i].question;
         }
       }
@@ -1186,7 +1187,7 @@ export class QuestionMatrixDropdownModelBase extends Question
         }
       }
     }
-    if (Object.keys(rowValue).length == 0) {
+    if (Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;

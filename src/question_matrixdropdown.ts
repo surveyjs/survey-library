@@ -140,9 +140,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     item: ItemValue,
     value: any
   ): MatrixDropdownRowModel {
-    var row = new MatrixDropdownRowModel(item.value, item, this, value);
-    this.onMatrixRowCreated(row);
-    return row;
+    return new MatrixDropdownRowModel(item.value, item, this, value);
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);

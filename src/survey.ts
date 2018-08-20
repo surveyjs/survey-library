@@ -382,6 +382,7 @@ export class SurveyModel extends Base
    * name: name, value: value
    * <br/> name the question name
    * <br/> value the question value
+   * <br/> fileName of the removed file, pass null to clear all files
    * <br/> callback a call back function to get the status on clearing the files operation
    * @see clearFiles
    */
@@ -1988,6 +1989,7 @@ export class SurveyModel extends Base
   public clearFiles(
     name: string,
     value: any,
+    fileName: string,
     callback: (status: string, data: any) => any
   ) {
     if (this.onClearFiles.isEmpty) {
@@ -1996,6 +1998,7 @@ export class SurveyModel extends Base
     this.onClearFiles.fire(this, {
       name: name,
       value: value,
+      fileName: fileName,
       callback: callback
     });
   }

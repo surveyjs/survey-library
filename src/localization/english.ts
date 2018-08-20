@@ -66,7 +66,8 @@ export var englishStrings = {
   timerLimitPage: "You have spent {0} of {1} on this page.",
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   cleanCaption: "Clean",
-  clearCaption: "Clear"
+  clearCaption: "Clear",
+  removeFileCaption: "Remove this file"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

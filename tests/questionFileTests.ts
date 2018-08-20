@@ -3,7 +3,7 @@ import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("Survey");
 
-QUnit.test("QuestionFile value initialization strings", function (assert) {
+QUnit.test("QuestionFile value initialization strings", function(assert) {
   var json = {
     questions: [
       {
@@ -33,10 +33,7 @@ QUnit.test("QuestionFile value initialization strings", function (assert) {
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    options.callback(
-      "success",
-      "data:image/jpeg;base64,FILECONTENT1"
-    );
+    options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
   });
 
   survey.data = {
@@ -59,7 +56,7 @@ QUnit.test("QuestionFile value initialization strings", function (assert) {
   );
 });
 
-QUnit.test("QuestionFile value initialization array", function (assert) {
+QUnit.test("QuestionFile value initialization array", function(assert) {
   var json = {
     questions: [
       {
@@ -89,10 +86,7 @@ QUnit.test("QuestionFile value initialization array", function (assert) {
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    options.callback(
-      "success",
-      "data:image/jpeg;base64,FILECONTENT1"
-    );
+    options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
   });
 
   survey.data = {
@@ -115,7 +109,7 @@ QUnit.test("QuestionFile value initialization array", function (assert) {
   );
 });
 
-QUnit.test("QuestionFile value initialization array of objects", function (
+QUnit.test("QuestionFile value initialization array of objects", function(
   assert
 ) {
   var json = {
@@ -149,10 +143,7 @@ QUnit.test("QuestionFile value initialization array of objects", function (
   survey.onDownloadFile.add((survey, options) => {
     assert.equal(q1.inputTitle, "Loading...");
     assert.equal(q2.inputTitle, "");
-    options.callback(
-      "success",
-      "data:image/jpeg;base64,FILECONTENT1"
-    );
+    options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
   });
 
   assert.equal(q1.inputTitle, "Choose file(s)...");
@@ -181,7 +172,7 @@ QUnit.test("QuestionFile value initialization array of objects", function (
 
 QUnit.test(
   "QuestionFile value initialization array of objects without onDownloadFile handler",
-  function (assert) {
+  function(assert) {
     var json = {
       questions: [
         {
@@ -232,7 +223,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionFile upload files", function (assert) {
+QUnit.test("QuestionFile upload files", function(assert) {
   var json = {
     questions: [
       {
@@ -280,11 +271,46 @@ QUnit.test("QuestionFile upload files", function (assert) {
       q1.value[1].name + "_url",
       "second content"
     );
-    assert.equal(q1.previewValue[0].content, q1.value[0].content, "preview content 1");
-    assert.equal(q1.previewValue[1].content, q1.value[1].content, "preview content 2");
+    assert.equal(
+      q1.previewValue[0].content,
+      q1.value[0].content,
+      "preview content 1"
+    );
+    assert.equal(
+      q1.previewValue[1].content,
+      q1.value[1].content,
+      "preview content 2"
+    );
 
     assert.equal(q1.previewValue[0].name, q1.value[0].name, "preview name 1");
     assert.equal(q1.previewValue[1].name, q1.value[1].name, "preview name 2");
     done();
   });
+});
+
+QUnit.test("QuestionFile remove file", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  survey.data = {
+    image1: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }]
+  };
+
+  q1.removeFile({ name: "f1" });
+  assert.deepEqual(survey.data, {
+    image1: [{ name: "f2", content: "data" }]
+  });
+
+  q1.removeFile({ name: "f2" });
+  assert.deepEqual(survey.data, {});
 });

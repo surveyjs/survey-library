@@ -108,6 +108,12 @@ export class QuestionFileModel extends Question {
     return surveyLocalization.getString("cleanCaption");
   }
   /**
+   * The remove file button caption.
+   */
+  get removeFileCaption(): string {
+    return surveyLocalization.getString("removeFileCaption");
+  }
+  /**
    * The input title value.
    */
   get inputTitle(): string {
@@ -119,11 +125,31 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear() {
-    this.survey.clearFiles(this.name, this.value, (status, data) => {
+    this.survey.clearFiles(this.name, this.value, null, (status, data) => {
       if (status === "success") {
         this.value = undefined;
       }
     });
+  }
+  /**
+   * Remove file item programmatically.
+   */
+  public removeFile(content: { name: string }) {
+    this.survey.clearFiles(
+      this.name,
+      this.value,
+      content.name,
+      (status, data) => {
+        if (status === "success") {
+          var oldValue = this.value;
+          if (Array.isArray(oldValue)) {
+            this.value = oldValue.filter(f => f.name !== content.name);
+          } else {
+            this.value = undefined;
+          }
+        }
+      }
+    );
   }
   /**
    * Load multiple files programmatically.
@@ -136,11 +162,10 @@ export class QuestionFileModel extends Question {
     if (files.every(file => this.checkFileForErrors(file))) {
       return;
     }
-    this.clear();
 
     this.stateChanged("loading");
+    var content = [];
     if (this.storeDataAsText) {
-      var content = [];
       files.forEach(file => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
@@ -148,7 +173,7 @@ export class QuestionFileModel extends Question {
             { name: file.name, type: file.type, content: fileReader.result }
           ]);
           if (content.length === files.length) {
-            this.value = content;
+            this.value = (this.value || []).concat(content);
           }
         };
         fileReader.readAsDataURL(file);
@@ -159,13 +184,15 @@ export class QuestionFileModel extends Question {
           this.stateChanged("error");
         }
         if (status === "success") {
-          this.value = data.map(r => {
-            return {
-              name: r.file.name,
-              type: r.file.type,
-              content: r.content
-            };
-          });
+          this.value = (this.value || []).concat(
+            data.map(r => {
+              return {
+                name: r.file.name,
+                type: r.file.type,
+                content: r.content
+              };
+            })
+          );
         }
       });
     }
@@ -176,9 +203,14 @@ export class QuestionFileModel extends Question {
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.previewValue = [];
-    this.stateChanged(
-      !!newValue ? (this.showPreview ? "loading" : "loaded") : "empty"
-    );
+    var state =
+      (!Array.isArray(newValue) && !!newValue) ||
+      (Array.isArray(newValue) && newValue.length > 0)
+        ? this.showPreview
+          ? "loading"
+          : "loaded"
+        : "empty";
+    this.stateChanged(state);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -196,7 +228,7 @@ export class QuestionFileModel extends Question {
           }
         ]);
       });
-      this.stateChanged("loaded");
+      if (state === "loading") this.stateChanged("loaded");
     } else {
       newValues.forEach(value => {
         var content = value.content || value;
@@ -239,22 +271,17 @@ export class QuestionFileModel extends Question {
     if (this.maxSize > 0 && file.size > this.maxSize) {
       this.errors.push(new ExceedSizeError(this.maxSize));
     }
-    if (errorLength != this.errors.length || this.errors.length > 0) {
+    if (errorLength !== this.errors.length || this.errors.length > 0) {
       this.fireCallback(this.errorsChangedCallback);
     }
     return this.errors.length > 0;
-  }
-  private isFileImage(file: File) {
-    if (!file || !file.type) return;
-    var str = file.type.toLowerCase();
-    return str.indexOf("image") == 0;
   }
   private isFileContentImage(fileContent: string): boolean {
     if (!fileContent) return false;
     const imagePrefix = "data:image";
     var subStr = fileContent.substr(0, imagePrefix.length);
     subStr = subStr.toLowerCase();
-    return subStr == imagePrefix;
+    return subStr === imagePrefix;
   }
 }
 JsonObject.metaData.addClass(

@@ -1342,6 +1342,7 @@ export class SurveyModel extends Base
       newPage.updateCustomWidgets();
       newPage.setWasShown(true);
     }
+    this.locStrsChanged();
     this.currentPageChanged(newPage, oldValue);
   }
   private getPageByObject(value: any): PageModel {

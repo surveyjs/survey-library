@@ -494,7 +494,7 @@ export class MatrixDropdownRowModelBase
     this.rowValues = {};
     if (value != null) {
       for (var key in value) {
-        this.rowValues[key] = value[key];
+        this.setDataValueCore(this.rowValues, key, value[key]);
       }
     }
     for (var i = 0; i < this.cells.length; i++) {
@@ -514,6 +514,23 @@ export class MatrixDropdownRowModelBase
       this.cells[i].question.onAnyValueChanged(name);
     }
   }
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
+    var survey = this.getSurvey();
+    if (!!survey) {
+      (<any>survey).setDataValueCore(valuesHash, key, value);
+    } else {
+      valuesHash[key] = value;
+    }
+  }
+  public deleteDataValueCore(valuesHash: any, key: string) {
+    var survey = this.getSurvey();
+    if (!!survey) {
+      (<any>survey).deleteDataValueCore(valuesHash, key);
+    } else {
+      delete valuesHash[key];
+    }
+  }
+
   public getValue(name: string): any {
     return this.rowValues[name];
   }
@@ -521,9 +538,9 @@ export class MatrixDropdownRowModelBase
     if (this.isSettingValue) return;
     if (newValue === "") newValue = null;
     if (newValue != null) {
-      this.rowValues[name] = newValue;
+      this.setDataValueCore(this.rowValues, name, newValue);
     } else {
-      delete this.rowValues[name];
+      this.deleteDataValueCore(this.rowValues, name);
     }
     this.data.onRowChanged(this, name, this.value);
     this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);

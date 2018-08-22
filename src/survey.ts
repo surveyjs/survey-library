@@ -1242,10 +1242,10 @@ export class SurveyModel extends Base
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
   }
-  protected setDataValueCore(valuesHash: any, key: string, value: any) {
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
     valuesHash[key] = value;
   }
-  protected deleteDataValueCore(valuesHash: any, key: string) {
+  public deleteDataValueCore(valuesHash: any, key: string) {
     delete valuesHash[key];
   }
   /**

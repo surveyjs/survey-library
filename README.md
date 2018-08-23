@@ -56,6 +56,7 @@ Visual Editor sources are [here](https://github.com/surveyjs/editor)
 * [Panel Container](https://surveyjs.io/Examples/Library/?id=questiontype-panel)
 * [Panel Dynamic Question](https://surveyjs.io/Examples/Library/?id=questiontype-paneldynamic)
 * [Expression Question](https://surveyjs.io/Examples/Library/?id=questiontype-expression)
+* [Image Picker Question](https://surveyjs.io/Examples/Library/?id=questiontype-imagepicker)
 * [Support for third-party popular UI widgets](https://surveyjs.io/Examples/Library/?id=custom-widget-select2). The custom widgets [GitHub repo](https://github.com/surveyjs/widgets)
 
 ### Multiple Pages Support
@@ -155,7 +156,7 @@ Or dowload a version as zip file from [Releases](https://github.com/surveyjs/sur
 If you want to import it in another script:
 
 ```javascript
-import * as Survey from 'survey-jquery'; 
+import * as Survey from "survey-jquery";
 ```
 
 ## Building survey.js from sources
@@ -185,27 +186,29 @@ To build library yourself:
     After that you should have the libraries (angular, jquery, knockout, react and vue) at 'packages' directory.
 
 4.  **Run samples**
+
     ```
     npm start
     ```
-    This command will run local http server at the http://localhost:7777 
+
+    This command will run local http server at the http://localhost:7777
     You can open http://localhost:7777/examples/knockout to view KnockoutJS samples, http://localhost:7777/examples/react to view ReactJS samples and so on
-    
+
 5.  **Run unit tests**
     ```
     karma start
     ```
     This command will run unit tests using [Karma](https://karma-runner.github.io/0.13/index.html)
 
-### CMS integration 
+### CMS integration
 
-|     | CMS and services   | Plugin Link        |
-|-----| -------------------|--------------------|
-| [+] | Wordpress          | [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) |
-| [+] | Zendesk            | In progress of publication      |
-| [ ] | Sales Force |       |
-| [ ] | Microsoft Dynamics |       |
-| [ ] | [Typo3](https://typo3.org/) |       |
+|     | CMS and services            | Plugin Link                                                |
+| --- | --------------------------- | ---------------------------------------------------------- |
+| [+] | Wordpress                   | [SurveyJS plugin](https://wordpress.org/plugins/surveyjs/) |
+| [+] | Zendesk                     | In progress of publication                                 |
+| [ ] | Sales Force                 |                                                            |
+| [ ] | Microsoft Dynamics          |                                                            |
+| [ ] | [Typo3](https://typo3.org/) |                                                            |
 
 Please feel free to contact us if you need to supports some particular CMS or implemented a plugin yourself.
 

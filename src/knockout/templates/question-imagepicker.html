@@ -6,7 +6,7 @@
                 <input style="display: none;" data-bind="attr: {type: question.multiSelect ? 'checkbox' : 'radio', name: question.name + '_' + question.id, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml}, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"
                 />
                 <div>
-                    <img data-bind="css: question.koCss().image, attr: { src: $data.imageLink }"/>
+                    <img data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
                     <!-- ko if: question.showLabel -->
                     <span data-bind="text: text || value, attr: { title: text || value }, css: question.koCss().itemText"></span>
                     <!-- /ko -->

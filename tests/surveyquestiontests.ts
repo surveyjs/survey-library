@@ -317,7 +317,7 @@ QUnit.test("Matrix Question: visible rows", function(assert) {
   assert.equal(matrix.visibleRows[0].name, "row1", "the row name is 'row1'");
   assert.equal(
     matrix.visibleRows[0].fullName,
-    "q1_row1",
+    matrix.id + "_row1",
     "The default row fullName is the question name"
   );
 });

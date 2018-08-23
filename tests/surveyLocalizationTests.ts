@@ -93,3 +93,45 @@ QUnit.test("Supported locales", function(assert) {
     "Support all locales"
   );
 });
+QUnit.test("Do not have empty locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.title = "Title_DE";
+  survey.locale = "en";
+  survey.title = "Title_EN";
+  survey.locale = "";
+  assert.deepEqual(survey.toJSON(), {
+    title: { en: "Title_EN", default: "Title_DE" }
+  });
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test("Do not serialize default locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.locale = "de";
+  assert.deepEqual(survey.toJSON(), {});
+  survey.locale = "";
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test(
+  "surveyLocalization returns empty on currentLocale if it equals to defaultLocale",
+  function(assert) {
+    assert.equal(
+      surveyLocalization.currentLocale,
+      "",
+      "It is empty by default"
+    );
+    surveyLocalization.currentLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de'");
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "", "It is empty again");
+    surveyLocalization.defaultLocale = "en";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de' again");
+    surveyLocalization.currentLocale = "";
+    var survey = new SurveyModel();
+    survey.locale = "en";
+    assert.equal(survey.locale, "", "Locale is empty, since 'en' is default");
+  }
+);

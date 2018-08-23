@@ -946,9 +946,9 @@ export class SurveyModel extends Base
     return this.localeValue;
   }
   public set locale(value: string) {
-    this.localeValue = value;
-    this.setPropertyValue("locale", value);
     surveyLocalization.currentLocale = value;
+    this.localeValue = surveyLocalization.currentLocale;
+    this.setPropertyValue("locale", this.localeValue);
     this.locStrsChanged();
   }
   //ILocalizableOwner
@@ -3120,6 +3120,9 @@ JsonObject.metaData.addClass("survey", [
     name: "locale",
     choices: () => {
       return surveyLocalization.getLocales();
+    },
+    onGetValue: obj => {
+      return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     }
   },
   { name: "title:text", serializationProperty: "locTitle" },

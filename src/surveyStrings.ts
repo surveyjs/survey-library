@@ -1,11 +1,25 @@
 import { englishStrings } from "./localization/english";
 
 export var surveyLocalization = {
-  currentLocale: "",
-  defaultLocale: "en",
+  currentLocaleValue: "",
+  defaultLocaleValue: "en",
   locales: {},
   localeNames: {},
   supportedLocales: [],
+  get currentLocale() {
+    return this.currentLocaleValue === this.defaultLocaleValue
+      ? ""
+      : this.currentLocaleValue;
+  },
+  set currentLocale(val: string) {
+    this.currentLocaleValue = val;
+  },
+  get defaultLocale() {
+    return this.defaultLocaleValue;
+  },
+  set defaultLocale(val: string) {
+    this.defaultLocaleValue = val;
+  },
   getString: function(strName: string) {
     var loc = this.currentLocale
       ? this.locales[this.currentLocale]

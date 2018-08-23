@@ -24,13 +24,13 @@ export class VueSurveyModel extends SurveyModel {
   set css(value: any) {
     this.mergeValues(value, this.css);
   }
-  protected setDataValueCore(valuesHash: any, key: string, value: any) {
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
     Vue.set(valuesHash, key, value);
   }
-  protected deleteDataValueCore(valuesHash: any, key: string) {
+  public deleteDataValueCore(valuesHash: any, key: string) {
     Vue.delete(valuesHash, key);
   }
-  
+
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
     Vue.set(propertiesHash, name, val);
   }

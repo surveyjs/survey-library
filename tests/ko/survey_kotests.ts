@@ -1489,3 +1489,47 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert.equal(val.B.tot, 10, "Expression equals 10");
 });
 */
+
+QUnit.test("Loc string text preprocessing update on change value", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        questions: [
+          {
+            type: "text",
+            name: "name"
+          }
+        ]
+      },
+      {
+        questions: [
+          {
+            type: "comment",
+            name: "comment",
+            title: "{name}, text"
+          }
+        ]
+      }
+    ]
+  };
+
+  var survey = new Survey(json);
+  var commentQuestion = <Question>survey.getQuestionByName("comment");
+
+  survey.setValue("name", "a");
+  assert.equal(
+    commentQuestion.locTitle["koRenderedHtml"](),
+    "2. a, text",
+    "The first value"
+  );
+
+  survey.setValue("name", "b");
+  survey.nextPage();
+  assert.equal(
+    commentQuestion.locTitle["koRenderedHtml"](),
+    "2. b, text",
+    "The first value"
+  );
+});

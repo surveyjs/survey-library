@@ -124,7 +124,8 @@ export var defaultBootstrapCss = {
     placeholderInput: "sv_q_file_placeholder",
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
-    fileInput: "sv_q_file_input"
+    fileInput: "sv_q_file_input",
+    removeFile: "sv_q_file_remove"
   },
   saveData: {
     root: "",

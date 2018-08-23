@@ -5,8 +5,13 @@
         <input v-if="question.isReadOnly" type="text" readonly :class="getPlaceholderClass()" :placeholder="question.title" />
         <div v-if="!question.isEmpty()">
             <span v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview">
-                <a v-if="val.name" :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
+                <div v-if="val.name">
+                  <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
+                </div>
                 <img v-if="question.canPreviewImage(val)" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
+                <div v-if="val.name">
+                  <span @click="doRemoveFile(val)" :class="question.cssClasses.removeFile">{{question.removeFileCaption}}</span>
+                </div>
             </span>
         </div>
     </div>
@@ -34,6 +39,9 @@ export class File extends QuestionVue<QuestionFileModel> {
     var src = event.target || event.srcElement;
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
+  }
+  doRemoveFile(data) {
+    this.question.removeFile(data);
   }
   getPlaceholderClass() {
     return "form-control " + this.question.cssClasses.placeholderInput;

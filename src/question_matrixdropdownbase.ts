@@ -226,6 +226,15 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
+  public get requiredErrorText(): string {
+    return this.templateQuestion.requiredErrorText;
+  }
+  public set requiredErrorText(val: string) {
+    this.templateQuestion.requiredErrorText = val;
+  }
+  get locRequiredErrorText(): LocalizableString {
+    return this.templateQuestion.locRequiredErrorText;
+  }
   public get readOnly(): boolean {
     return this.templateQuestion.readOnly;
   }
@@ -1249,6 +1258,10 @@ JsonObject.metaData.addClass(
     },
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
     "isRequired:boolean",
+    {
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText"
+    },
     "hasOther:boolean",
     "readOnly:boolean",
     "minWidth",

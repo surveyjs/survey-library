@@ -1347,6 +1347,7 @@ export class SurveyModel extends Base
   }
   private getPageByObject(value: any): PageModel {
     if (!value) return null;
+    if (value.getType && value.getType() == "page") return value;
     if (typeof value === "string" || value instanceof String)
       return this.getPageByName(String(value));
     if (!isNaN(value)) {

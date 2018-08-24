@@ -1720,3 +1720,16 @@ QUnit.test("Test property hideIfChoicesEmpty - load from json", function(
   var question = survey.getQuestionByName("q1");
   assert.equal(question.isVisible, false, "It is invisible");
 });
+
+QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  survey.onProcessHtml.add(function(survey, options) {
+    options.html = options.html + "-add-";
+  });
+  question.html = "text";
+  assert.equal(question.locHtml.renderedHtml, "text-add-", "process html");
+});

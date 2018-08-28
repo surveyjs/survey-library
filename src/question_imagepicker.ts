@@ -66,8 +66,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-JsonObject.metaData.addClass("imageitemvalues", [], null, "itemvalue");
-JsonObject.metaData.addProperty("imageitemvalues", {
+JsonObject.metaData.addClass("imageitemvalue", [], null, "itemvalue");
+JsonObject.metaData.addProperty("imageitemvalue", {
   name: "imageLink"
 });
 
@@ -106,7 +106,7 @@ JsonObject.metaData.addProperty("imagepicker", {
   default: false
 });
 JsonObject.metaData.addProperty("imagepicker", {
-  name: "choices:imageitemvalues",
+  name: "choices:imageitemvalue",
   onGetValue: function(obj) {
     return ItemValue.getData(obj.choices);
   },

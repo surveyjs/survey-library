@@ -289,6 +289,9 @@ export class PanelModelBase extends SurveyElement
     }
     return null;
   }
+  /**
+   * Returns question values on the current page
+   */
   public getValue(): any {
     var data = {};
     for (var i = 0; i < this.questions.length; i++) {
@@ -674,9 +677,9 @@ export class PanelModelBase extends SurveyElement
   }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (!this.visible) return false;
-    for (var i = 0; i < this.questions.length; i++) {
-      if (this.questions[i] == exceptionQuestion) continue;
-      if (this.questions[i].visible) return true;
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i] == exceptionQuestion) continue;
+      if (this.elements[i].isVisible) return true;
     }
     return false;
   }

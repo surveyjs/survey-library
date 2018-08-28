@@ -4648,6 +4648,52 @@ QUnit.test("Page with numeric name, bug #1293", function(assert) {
   assert.equal(survey.currentPage.name, "0608", "the current page is correct");
 });
 
+QUnit.test("visiblePages and invisible panel, bug #395 (in Editor)", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "dropdown",
+            name: "question2",
+            choices: ["item1", "item2", "item3"]
+          }
+        ]
+      },
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel2",
+            elements: [
+              {
+                type: "text",
+                name: "question3",
+                visibleIf: '{question2} = "item1"'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.visiblePageCount, 1, "Only one page is visible");
+  assert.equal(
+    survey.pages[1].isVisible,
+    false,
+    "The second page is invisible"
+  );
+  survey.setValue("question2", "item1");
+  assert.equal(survey.visiblePageCount, 2, "Two pages are visible");
+  survey.setValue("question2", "item2");
+  assert.equal(survey.visiblePageCount, 1, "One page is visible again");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

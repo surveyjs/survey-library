@@ -159,7 +159,8 @@ export class QuestionFileModel extends Question {
     if (!this.survey) {
       return;
     }
-    if (files.every(file => this.checkFileForErrors(file))) {
+    this.errors = [];
+    if (!this.allFilesOk(files)) {
       return;
     }
 
@@ -265,16 +266,17 @@ export class QuestionFileModel extends Question {
     this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
   }
-  private checkFileForErrors(file: File): boolean {
+  private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
-    this.errors = [];
-    if (this.maxSize > 0 && file.size > this.maxSize) {
-      this.errors.push(new ExceedSizeError(this.maxSize));
-    }
+    (files || []).forEach(file => {
+      if (this.maxSize > 0 && file.size > this.maxSize) {
+        this.errors.push(new ExceedSizeError(this.maxSize));
+      }
+    });
     if (errorLength !== this.errors.length || this.errors.length > 0) {
       this.fireCallback(this.errorsChangedCallback);
     }
-    return this.errors.length > 0;
+    return errorLength === this.errors.length;
   }
   private isFileContentImage(fileContent: string): boolean {
     if (!fileContent) return false;

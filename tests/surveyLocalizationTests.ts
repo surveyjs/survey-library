@@ -1,5 +1,6 @@
 import { surveyLocalization } from "../src/surveyStrings";
 import { SurveyModel } from "../src/survey";
+import { Question } from "../src/question";
 
 import "../src/localization/russian";
 import "../src/localization/french";
@@ -135,3 +136,26 @@ QUnit.test(
     assert.equal(survey.locale, "", "Locale is empty, since 'en' is default");
   }
 );
+
+QUnit.test("Fix the bug, when the default locale is set as specific", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: {
+          en: "English 1"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(
+    question.locTitle.renderedHtml,
+    "1. English 1",
+    "Get the english locale"
+  );
+});

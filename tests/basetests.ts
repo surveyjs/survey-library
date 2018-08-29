@@ -134,6 +134,35 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     "set correct text property for the second item"
   );
 });
+QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
+  var items = new Array<ItemValue>();
+  var data = [
+    new ItemValue(true, "Yes", "imageitemvalue"),
+    new ItemValue(false, "No", "imageitemvalue")
+  ];
+  ItemValue.setData(items, data);
+  assert.equal(items.length, 2, "there are 2 items");
+  assert.equal(
+    items[0].value,
+    true,
+    "set correct value property for the first item"
+  );
+  assert.equal(
+    items[0].text,
+    "Yes",
+    "set correct text property for the first item"
+  );
+  assert.equal(
+    items[1].value,
+    false,
+    "set correct value property for the second item"
+  );
+  assert.equal(
+    items[1].text,
+    "No",
+    "set correct text property for the second item"
+  );
+});
 QUnit.test("ItemValue.getData()", function(assert) {
   var items = new Array<ItemValue>();
   items.push(new ItemValue(7, "Item 1"));

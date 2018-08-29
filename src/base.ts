@@ -446,7 +446,11 @@ export class Base {
     for (var i = 0; i < dest.length; i++) {
       if (isItemValues) {
         var item = dest[i];
-        item = new ItemValue(null);
+        if (typeof dest[i].getType === "function") {
+          item = new ItemValue(null, undefined, dest[i].getType());
+        } else {
+          item = new ItemValue(null);
+        }
         item.setData(dest[i]);
         Array.prototype.push.call(src, item);
       } else {

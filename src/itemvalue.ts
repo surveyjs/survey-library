@@ -51,7 +51,12 @@ export class ItemValue {
     items.length = 0;
     for (var i = 0; i < values.length; i++) {
       var value = values[i];
-      var item = new ItemValue(null);
+      var item;
+      if (typeof value.getType === "function") {
+        item = new ItemValue(null, undefined, value.getType());
+      } else {
+        item = new ItemValue(null);
+      }
       item.setData(value);
       items.push(item);
     }
@@ -152,18 +157,16 @@ export class ItemValue {
   private isVisibleValue: boolean = true;
   private conditionRunner: ConditionRunner;
 
-  constructor(value: any, text: string = null) {
+  constructor(value: any, text: string = null, typeName = "itemvalue") {
+    this.getType = () => typeName;
     this.locTextValue = new LocalizableString(null, true);
-    var self = this;
-    this.locTextValue.onGetTextCallback = function(text) {
-      return text ? text : !self.isValueEmpty ? self.value.toString() : null;
+    this.locTextValue.onGetTextCallback = txt => {
+      return txt ? txt : !this.isValueEmpty ? this.value.toString() : null;
     };
     if (text) this.locText.text = text;
     this.value = value;
   }
-  public getType(): string {
-    return "itemvalue";
-  }
+  public getType: () => string;
   public get locText(): LocalizableString {
     return this.locTextValue;
   }
@@ -259,10 +262,15 @@ export class ItemValue {
     for (var key in src) {
       if (typeof src[key] == "function") continue;
       if (exceptons && exceptons.indexOf(key) > -1) continue;
-      if (key == "text") {
+      if (key === "text") {
         this.locText.setJson(src[key]);
       } else {
-        this[key] = src[key];
+        if (
+          ["locText", "hasText", "isVisible", "isValueEmpty"].indexOf(key) ===
+          -1
+        ) {
+          this[key] = src[key];
+        }
       }
     }
   }
@@ -270,9 +278,9 @@ export class ItemValue {
     var result = null;
     for (var key in this) {
       if (
-        typeof this[key] == "function" ||
+        typeof this[key] === "function" ||
         ItemValue.itemValueProp.indexOf(key) > -1 ||
-        key == "itemValue"
+        key === "itemValue"
       )
         continue;
       if (result == null) result = {};

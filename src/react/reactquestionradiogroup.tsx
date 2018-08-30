@@ -10,7 +10,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     super(props);
     this.state = { choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function () {
+    this.question.choicesChangedCallback = function() {
       self.setState({ choicesChanged: self.state.choicesChanged + 1 });
     };
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -92,7 +92,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
-    var id = isFirst ? this.question.inputId : null;
+    var id = this.question.inputId + "_" + item.value;
     var itemText = this.renderLocString(item.locText, this.textStyle);
     let itemClass =
       cssClasses.item +
@@ -114,7 +114,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
             value={item.value}
             disabled={this.isDisplayMode}
             onChange={this.handleOnChange}
-            aria-label={this.question.locTitle.renderedHtml}
+            aria-label={item.locText.renderedHtml}
           />
           <span className={cssClasses.materialDecorator} />
           <span className="check" />
@@ -126,7 +126,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected renderOther(cssClasses: any): JSX.Element {
     return (
-      <div className="form-group" >
+      <div className="form-group">
         <SurveyQuestionCommentItem
           question={this.question}
           otherCss={cssClasses.other}

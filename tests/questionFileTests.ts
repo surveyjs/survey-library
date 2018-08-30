@@ -256,7 +256,10 @@ QUnit.test("QuestionFile upload files", function(assert) {
     );
   });
 
-  var files: any = [{ name: "f1", type: "t1" }, { name: "f2", type: "t2" }];
+  var files: any = [
+    { name: "f1", type: "t1" },
+    { name: "f2", type: "t2", size: 100000 }
+  ];
   q1.loadFiles(files);
 
   survey.onValueChanged.add((survey, options) => {
@@ -314,3 +317,60 @@ QUnit.test("QuestionFile remove file", function(assert) {
   q1.removeFile({ name: "f2" });
   assert.deepEqual(survey.data, {});
 });
+
+QUnit.test(
+  "QuestionFile upload files that exceed max size - https://surveyjs.answerdesk.io/ticket/details/T994",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "file",
+          allowMultiple: true,
+          name: "image1",
+          storeDataAsText: false,
+          maxSize: 10
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+    var loadedFilesCount = 0;
+    survey.onUploadFiles.add((survey, options) => {
+      options.callback(
+        "success",
+        options.files.map(file => {
+          return { file: file, content: file.name + "_url" };
+        })
+      );
+      loadedFilesCount++;
+    });
+
+    var files: any = [
+      { name: "f1", type: "t1", size: 9 },
+      { name: "f2", type: "t2", size: 11 }
+    ];
+    q1.loadFiles(files);
+    assert.equal(q1.errors.length, 1, "one error");
+    assert.equal(loadedFilesCount, 0, "no files loaded");
+
+    var loadedFilesCount = 0;
+    q1.loadFiles([<any>{ name: "f1", type: "t1", size: 9 }]);
+    assert.equal(q1.errors.length, 0, "no error");
+    assert.equal(loadedFilesCount, 1, "one files loaded");
+
+    var loadedFilesCount = 0;
+    q1.loadFiles([<any>{ name: "f1", type: "t1", size: 12 }]);
+    assert.equal(q1.errors.length, 1, "one error");
+    assert.equal(loadedFilesCount, 0, "no files loaded");
+
+    var loadedFilesCount = 0;
+    q1.loadFiles([
+      <any>{ name: "f1", type: "t1", size: 1 },
+      <any>{ name: "f2", type: "t2", size: 2 }
+    ]);
+    assert.equal(q1.errors.length, 0, "no error");
+    assert.equal(loadedFilesCount, 1, "two files loaded");
+  }
+);

@@ -128,7 +128,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.isFirst ? this.question.inputId : null;
+    var id = this.question.inputId + "_" + this.item.value;
     var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +
@@ -154,7 +154,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={this.isDisplayMode}
             checked={isChecked}
             onChange={onItemChanged}
-            aria-label={this.question.locTitle.renderedHtml}
+            aria-label={this.item.locText.renderedHtml}
           />
           <span className={this.cssClasses.materialDecorator}>
             <span className="check" />

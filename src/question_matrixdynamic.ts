@@ -7,8 +7,9 @@ import {
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./base";
+import { Base, SurveyError } from "./base";
 import { CustomError } from "./error";
+import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {

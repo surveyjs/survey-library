@@ -1424,3 +1424,42 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   var rows = question.visibleRows;
   assert.equal(val.B.tot, 10, "Expression equals 10");
 });
+
+QUnit.test(
+  "defaultValue: false doesn't work for boolean column after removing row, bug#1266",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "boolean",
+              defaultValue: "false"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var rows = question.visibleRows;
+    assert.equal(rows.length, 2, "There are two rows");
+    assert.deepEqual(
+      question.value,
+      [{ col1: false }, { col1: false }],
+      "defaultValue set correctly"
+    );
+    question.removeRow(1);
+    rows = question.visibleRows;
+    assert.equal(rows.length, 1, "There is one row");
+    assert.deepEqual(
+      question.value,
+      [{ col1: false }],
+      "defaultValue is still there for the first row"
+    );
+  }
+);

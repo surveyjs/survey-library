@@ -491,6 +491,9 @@ export class Question extends QuestionBase implements IValidatorOwner {
     if (!this.isDesignMode && !this.isEmpty()) return;
     this.setDefaultValue();
   }
+  public getDefaultValue(): any {
+    return this.defaultValue;
+  }
   protected isDefaultValueEmpty(): boolean {
     return this.isValueEmpty(this.defaultValue);
   }

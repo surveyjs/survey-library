@@ -53,6 +53,12 @@ export class QuestionBooleanModel extends Question {
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
+  public getDefaultValue(): any {
+    if (this.defaultValue == "indeterminate") return null;
+    return this.defaultValue == "true"
+      ? this.getValueTrue()
+      : this.getValueFalse();
+  }
   /**
    * The checkbox label. If it is empty and showTitle is false then title is rendered
    * @see showTitle

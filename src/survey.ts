@@ -2852,15 +2852,19 @@ export class SurveyModel extends Base
     return this.processText(options.html, true);
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    return this.textPreProcessor.process(text, returnDisplayValue);
+    return this.processTextCore(text, returnDisplayValue);
   }
   processTextEx(text: string, returnDisplayValue: boolean): any {
     var res = {
-      text: this.textPreProcessor.process(text, returnDisplayValue),
+      text: this.processTextCore(text, returnDisplayValue),
       hasAllValuesOnLastRun: true
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
+  }
+  private processTextCore(text: string, returnDisplayValue: boolean): string {
+    if (this.isDesignMode) return text;
+    return this.textPreProcessor.process(text, returnDisplayValue);
   }
   getSurveyMarkdownHtml(element: Base, text: string): string {
     var options = { element: element, text: text, html: null };

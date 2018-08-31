@@ -4694,6 +4694,28 @@ QUnit.test("visiblePages and invisible panel, bug #395 (in Editor)", function(
   assert.equal(survey.visiblePageCount, 1, "One page is visible again");
 });
 
+QUnit.test("Do not process html in design time, bug #396 (in Editor)", function(
+  assert
+) {
+  var json = {
+    "elements": [
+      {
+      "type": "text",
+      "name": "question1"
+      },
+      {
+      "type": "text",
+      "name": "question2",
+      "title": "{question1} test"
+      }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  var question = <Question>survey.getQuestionByName("question2");
+  assert.equal(question.locTitle.renderedHtml, "2. {question1} test", "Do not process anything at design time");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

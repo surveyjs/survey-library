@@ -72,6 +72,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public set contentMode(val: string) {
     this.setPropertyValue("contentMode", val);
+    if (val === "video") {
+      this.showLabel = true;
+    }
   }
 }
 

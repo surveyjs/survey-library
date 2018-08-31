@@ -64,6 +64,18 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set imageFit(val: string) {
     this.setPropertyValue("imageFit", val);
   }
+  /**
+   * The content mode.
+   */
+  public get contentMode(): string {
+    return this.getPropertyValue("contentMode", "image");
+  }
+  public set contentMode(val: string) {
+    this.setPropertyValue("contentMode", val);
+    if (val === "video") {
+      this.showLabel = true;
+    }
+  }
 }
 
 JsonObject.metaData.addClass("imageitemvalue", [], null, "itemvalue");
@@ -79,6 +91,11 @@ JsonObject.metaData.addClass(
     { name: "optionsCaption", visible: false },
     { name: "otherErrorText", visible: false },
     { name: "storeOthersAsComment", visible: false },
+    {
+      name: "contentMode",
+      default: "image",
+      choices: ["image", "video"]
+    },
     {
       name: "imageFit",
       default: "contain",

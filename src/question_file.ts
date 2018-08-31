@@ -289,7 +289,7 @@ export class QuestionFileModel extends Question {
 JsonObject.metaData.addClass(
   "file",
   [
-    "showPreview:boolean",
+    { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     "imageHeight",
     "imageWidth",

@@ -100,6 +100,46 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
 
     var style: any = { objectFit: this.question.imageFit };
 
+    var control = null;
+    if (this.question.contentMode === "image") {
+      control = (
+        <img
+          className={cssClasses.image}
+          src={item["imageLink"]}
+          width={
+            this.question.imageWidth
+              ? this.question.imageWidth + "px"
+              : undefined
+          }
+          height={
+            this.question.imageHeight
+              ? this.question.imageHeight + "px"
+              : undefined
+          }
+          style={style}
+        />
+      );
+    }
+    if (this.question.contentMode === "video") {
+      control = (
+        <embed
+          className={cssClasses.image}
+          src={item["imageLink"]}
+          width={
+            this.question.imageWidth
+              ? this.question.imageWidth + "px"
+              : undefined
+          }
+          height={
+            this.question.imageHeight
+              ? this.question.imageHeight + "px"
+              : undefined
+          }
+          style={style}
+        />
+      );
+    }
+
     return (
       <div key={key} className={itemClass}>
         <label className={cssClasses.label}>
@@ -116,21 +156,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             aria-label={this.question.locTitle.renderedHtml}
           />
           <div>
-            <img
-              className={cssClasses.image}
-              src={item["imageLink"]}
-              width={
-                this.question.imageWidth
-                  ? this.question.imageWidth + "px"
-                  : undefined
-              }
-              height={
-                this.question.imageHeight
-                  ? this.question.imageHeight + "px"
-                  : undefined
-              }
-              style={style}
-            />
+            {control}
             {text}
           </div>
         </label>

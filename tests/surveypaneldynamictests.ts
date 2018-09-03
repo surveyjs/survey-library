@@ -1710,3 +1710,33 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <QuestionPanelDynamicModel>page.addNewQuestion(
+    "paneldynamic",
+    "question"
+  );
+  question.panelCount = 0;
+  question.template.addNewQuestion("text", "q1");
+  question.template.addNewQuestion("text", "q2");
+  question.template.addNewQuestion("text", "q3");
+  question.defaultValueFromLastPanel = true;
+  question.addPanel();
+  assert.equal(question.isEmpty(), true, "It is empty");
+  question.value = [{ q1: 1, q2: 2 }];
+  question.addPanel();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }],
+    "defaultValueFromLastPanel is working"
+  );
+  question.defaultPanelValue = { q1: 11, q3: 3 };
+  question.addPanel();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }, { q1: 1, q2: 2, q3: 3 }],
+    "defaultValueFromLastRow is merging with defaultPanelValue"
+  );
+});

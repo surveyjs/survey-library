@@ -1463,3 +1463,35 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Test defaultValueFromLastRow property", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <QuestionMatrixDynamicModel>page.addNewQuestion(
+    "matrixdynamic",
+    "question"
+  );
+  question.rowCount = 0;
+  question.cellType = "text";
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.addColumn("col3");
+  question.defaultValueFromLastRow = true;
+  question.addRow();
+  question.visibleRows;
+  assert.equal(question.isEmpty(), true, "It is empty");
+  question.value = [{ col1: 1, col2: 2 }];
+  question.addRow();
+  assert.deepEqual(
+    question.value,
+    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }],
+    "defaultValueFromLastRow is working"
+  );
+  question.defaultRowValue = { col1: 11, col3: 3 };
+  question.addRow();
+  assert.deepEqual(
+    question.value,
+    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }, { col1: 1, col2: 2, col3: 3 }],
+    "defaultValueFromLastRow is merging with defaultRowValue"
+  );
+});

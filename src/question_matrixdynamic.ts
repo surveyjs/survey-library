@@ -68,12 +68,25 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
    * @see defaultValue
+   * @see defaultValueFromLastRow
    */
   public get defaultRowValue(): any {
     return this.getPropertyValue("defaultRowValue");
   }
   public set defaultRowValue(val: any) {
     this.setPropertyValue("defaultRowValue", val);
+  }
+  /**
+   * Set it to true to copy the value into new added row from the last row. If defaultRowValue is set and this property equals to true,
+   * then the value for new added row is merging.
+   * @see defaultValue
+   * @see defaultRowValue
+   */
+  public get defaultValueFromLastRow(): boolean {
+    return this.getPropertyValue("defaultValueFromLastRow", false);
+  }
+  public set defaultValueFromLastRow(val: boolean) {
+    this.setPropertyValue("defaultValueFromLastRow", val);
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -186,7 +199,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!options.canAddRow) return;
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
-    var defaultValue = this.getDefaultRowValue();
+    var defaultValue = this.getDefaultRowValue(true);
     if (!this.isValueEmpty(defaultValue)) {
       var newValue = this.createNewValue(this.value);
       if (newValue.length == this.rowCount) {
@@ -204,7 +217,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (prevRowCount + 1 == this.rowCount) this.survey.matrixRowAdded(this);
     }
   }
-  private getDefaultRowValue(): any {
+  private getDefaultRowValue(isRowAdded: boolean): any {
     var res = null;
     for (var i = 0; i < this.columns.length; i++) {
       var q = this.columns[i].templateQuestion;
@@ -217,6 +230,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       for (var key in this.defaultRowValue) {
         res = res || {};
         res[key] = this.defaultRowValue[key];
+      }
+    }
+    if (isRowAdded && this.defaultValueFromLastRow) {
+      var val = this.value;
+      if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
+        var rowValue = val[this.rowCount - 2];
+        for (var key in rowValue) {
+          res = res || {};
+          res[key] = rowValue[key];
+        }
       }
     }
     return res;
@@ -432,7 +455,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rowCount; i++) {
       result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
     }
-    if (!this.isValueEmpty(this.getDefaultRowValue())) {
+    if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
       this.value = val;
     }
     return result;
@@ -454,7 +477,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!result || !Array.isArray(result)) result = [];
     var r = [];
     if (result.length > this.rowCount) result.splice(this.rowCount - 1);
-    var rowValue = this.getDefaultRowValue();
+    var rowValue = this.getDefaultRowValue(false);
     rowValue = rowValue || {};
     for (var i = result.length; i < this.rowCount; i++) {
       result.push(Helpers.getUnbindValue(rowValue));
@@ -508,6 +531,7 @@ JsonObject.metaData.addClass(
       serializationProperty: "locKeyDuplicationError"
     },
     "defaultRowValue:rowvalue",
+    "defaultValueFromLastRow:boolean",
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",

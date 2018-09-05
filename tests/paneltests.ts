@@ -237,3 +237,34 @@ QUnit.test("Panel.getValue()", function(assert) {
     "survey.data == page.getValue() in our case"
   );
 });
+
+QUnit.test("Panel.getComments()", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel1 = page.addNewPanel("p1");
+  var panel2 = page.addNewPanel("p2");
+  var panel3 = panel1.addNewPanel("p3");
+  panel1.addNewQuestion("text", "q1");
+  panel2.addNewQuestion("text", "q2");
+  panel3.addNewQuestion("text", "q3");
+  panel1.addNewQuestion("text", "qEmpty");
+  survey.setComment("q1", "val1");
+  survey.setComment("q2", "val2");
+  survey.setComment("q3", "val3");
+
+  assert.deepEqual(
+    panel3.getComments(),
+    { q3: "val3" },
+    "Nested panel.getComments() works correctly"
+  );
+  assert.deepEqual(
+    panel1.getComments(),
+    { q1: "val1", q3: "val3" },
+    "Panel.getComments()  works correctly"
+  );
+  assert.deepEqual(
+    page.getComments(),
+    { q1: "val1", q2: "val2", q3: "val3" },
+    "Page.getComments() works correctly"
+  );
+});

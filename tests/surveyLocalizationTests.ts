@@ -1,5 +1,6 @@
 import { surveyLocalization } from "../src/surveyStrings";
 import { SurveyModel } from "../src/survey";
+import { Question } from "../src/question";
 
 import "../src/localization/russian";
 import "../src/localization/french";
@@ -91,5 +92,70 @@ QUnit.test("Supported locales", function(assert) {
     surveyLocalization.getLocales().length,
     localesCounts,
     "Support all locales"
+  );
+});
+QUnit.test("Do not have empty locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.title = "Title_DE";
+  survey.locale = "en";
+  survey.title = "Title_EN";
+  survey.locale = "";
+  assert.deepEqual(survey.toJSON(), {
+    title: { en: "Title_EN", default: "Title_DE" }
+  });
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test("Do not serialize default locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.locale = "de";
+  assert.deepEqual(survey.toJSON(), {});
+  survey.locale = "";
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test(
+  "surveyLocalization returns empty on currentLocale if it equals to defaultLocale",
+  function(assert) {
+    assert.equal(
+      surveyLocalization.currentLocale,
+      "",
+      "It is empty by default"
+    );
+    surveyLocalization.currentLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de'");
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "", "It is empty again");
+    surveyLocalization.defaultLocale = "en";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de' again");
+    surveyLocalization.currentLocale = "";
+    var survey = new SurveyModel();
+    survey.locale = "en";
+    assert.equal(survey.locale, "", "Locale is empty, since 'en' is default");
+  }
+);
+
+QUnit.test("Fix the bug, when the default locale is set as specific", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: {
+          en: "English 1"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(
+    question.locTitle.renderedHtml,
+    "1. English 1",
+    "Get the english locale"
   );
 });

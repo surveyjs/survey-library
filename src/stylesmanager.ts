@@ -62,9 +62,12 @@ export class StylesManager {
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
-    ".sv_q_file_preview": "display: inline-block; vertical-align: top; border: 1px solid lightgray; padding: 5px; margin-top: 10px;",
-    ".sv_q_file_preview > a": "display: block; overflow: hidden; vertical-align: top; white-space: nowrap; text-overflow: ellipsis;",
+    ".sv_q_file_preview":
+      "display: inline-block; vertical-align: top; border: 1px solid lightgray; padding: 5px; margin-top: 10px;",
+    ".sv_q_file_preview > a":
+      "display: block; overflow: hidden; vertical-align: top; white-space: nowrap; text-overflow: ellipsis;",
     ".sv_q_file_remove_button": "line-height: normal;",
+    ".sv_q_file_remove": "display: block; cursor: pointer;",
 
     ".sv_q_m_cell_text": "cursor: pointer;",
 
@@ -86,7 +89,8 @@ export class StylesManager {
 
     ".sv_qstn .sv_q_imgsel label > div":
       "overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px; border: 1px solid lightgray; border-radius: 4px;",
-    ".sv_qstn .sv_q_imgsel label > div > img": "display: block;"
+    ".sv_qstn .sv_q_imgsel label > div > img, .sv_qstn .sv_q_imgsel label > div > embed":
+      "display: block;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -285,6 +289,8 @@ export class StylesManager {
     ".sv_default_css .sv_q_m_cell_selected":
       "color: $body-background-color; background-color: $main-hover-color;",
 
+    ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
+
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
   };
 
@@ -330,6 +336,9 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_main.sv_bootstrapmaterial_css button.btn-primary:hover":
       "background-color: $main-hover-color;",
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_file_remove:hover":
+      "color: $main-color;",
 
     ".sv_main.sv_bootstrapmaterial_css .form-group input[type=file]":
       "position: relative; opacity: 1;"
@@ -414,11 +423,11 @@ export class StylesManager {
     Object.keys(StylesManager.Media).forEach(selector => {
       sheet.insertRule(
         StylesManager.Media[selector].media +
-        " { " +
-        selector +
-        " { " +
-        StylesManager.Media[selector].style +
-        " } }",
+          " { " +
+          selector +
+          " { " +
+          StylesManager.Media[selector].style +
+          " } }",
         0
       );
     });

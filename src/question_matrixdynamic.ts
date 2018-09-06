@@ -10,6 +10,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { Base, SurveyError } from "./base";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
+import { Helpers } from "./helpers";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -67,12 +68,25 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
    * @see defaultValue
+   * @see defaultValueFromLastRow
    */
   public get defaultRowValue(): any {
     return this.getPropertyValue("defaultRowValue");
   }
   public set defaultRowValue(val: any) {
     this.setPropertyValue("defaultRowValue", val);
+  }
+  /**
+   * Set it to true to copy the value into new added row from the last row. If defaultRowValue is set and this property equals to true,
+   * then the value for new added row is merging.
+   * @see defaultValue
+   * @see defaultRowValue
+   */
+  public get defaultValueFromLastRow(): boolean {
+    return this.getPropertyValue("defaultValueFromLastRow", false);
+  }
+  public set defaultValueFromLastRow(val: boolean) {
+    this.setPropertyValue("defaultValueFromLastRow", val);
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -115,7 +129,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows.splice(val);
       for (var i = prevValue; i < val; i++) {
-        this.generatedVisibleRows.push(this.createMatrixRow(null));
+        var newRow = this.createMatrixRow(null);
+        this.generatedVisibleRows.push(newRow);
+        this.onMatrixRowCreated(newRow);
       }
     }
     this.fireCallback(this.visibleRowsChangedCallback);
@@ -183,10 +199,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!options.canAddRow) return;
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
-    if (!this.isValueEmpty(this.defaultRowValue)) {
+    var defaultValue = this.getDefaultRowValue(true);
+    if (!this.isValueEmpty(defaultValue)) {
       var newValue = this.createNewValue(this.value);
       if (newValue.length == this.rowCount) {
-        newValue[newValue.length - 1] = this.defaultRowValue;
+        newValue[newValue.length - 1] = defaultValue;
         this.value = newValue;
       }
     }
@@ -202,6 +219,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.fireCallback(this.visibleRowsChangedCallback);
       }
     }
+  }
+  private getDefaultRowValue(isRowAdded: boolean): any {
+    var res = null;
+    for (var i = 0; i < this.columns.length; i++) {
+      var q = this.columns[i].templateQuestion;
+      if (!!q && !this.isValueEmpty(q.getDefaultValue())) {
+        res = res || {};
+        res[this.columns[i].name] = q.getDefaultValue();
+      }
+    }
+    if (!this.isValueEmpty(this.defaultRowValue)) {
+      for (var key in this.defaultRowValue) {
+        res = res || {};
+        res[key] = this.defaultRowValue[key];
+      }
+    }
+    if (isRowAdded && this.defaultValueFromLastRow) {
+      var val = this.value;
+      if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
+        var rowValue = val[this.rowCount - 2];
+        for (var key in rowValue) {
+          res = res || {};
+          res[key] = rowValue[key];
+        }
+      }
+    }
+    return res;
   }
   /**
    * Removes a row by it's index. If confirmDelete is true, show a confirmation dialog
@@ -414,12 +458,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rowCount; i++) {
       result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
     }
+    if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
+      this.value = val;
+    }
     return result;
   }
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
-    var row = new MatrixDynamicRowModel(this.rowCounter++, this, value);
-    this.onMatrixRowCreated(row);
-    return row;
+    return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
   protected onBeforeValueChanged(val: any) {
     var newRowCount = val && Array.isArray(val) ? val.length : 0;
@@ -435,8 +480,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!result || !Array.isArray(result)) result = [];
     var r = [];
     if (result.length > this.rowCount) result.splice(this.rowCount - 1);
+    var rowValue = this.getDefaultRowValue(false);
+    rowValue = rowValue || {};
     for (var i = result.length; i < this.rowCount; i++) {
-      result.push({});
+      result.push(Helpers.getUnbindValue(rowValue));
     }
     return result;
   }
@@ -487,6 +534,7 @@ JsonObject.metaData.addClass(
       serializationProperty: "locKeyDuplicationError"
     },
     "defaultRowValue:rowvalue",
+    "defaultValueFromLastRow:boolean",
     { name: "confirmDelete:boolean" },
     {
       name: "confirmDeleteText",

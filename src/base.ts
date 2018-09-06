@@ -67,6 +67,7 @@ export interface ISurvey extends ITextProcessor {
   clearFiles(
     name: string,
     value: any,
+    fileName: string,
     clearCallback: (status: string, data: any) => any
   );
   updateChoicesFromServer(
@@ -445,7 +446,11 @@ export class Base {
     for (var i = 0; i < dest.length; i++) {
       if (isItemValues) {
         var item = dest[i];
-        item = new ItemValue(null);
+        if (typeof dest[i].getType === "function") {
+          item = new ItemValue(null, undefined, dest[i].getType());
+        } else {
+          item = new ItemValue(null);
+        }
         item.setData(dest[i]);
         Array.prototype.push.call(src, item);
       } else {
@@ -633,6 +638,7 @@ export class Event<T extends Function, Options> {
     this.callbacks = [];
   }
   public add(func: T) {
+    if (this.hasFunc(func)) return;
     if (this.callbacks == null) {
       this.callbacks = new Array<T>();
     }
@@ -644,5 +650,9 @@ export class Event<T extends Function, Options> {
     if (index != undefined) {
       this.callbacks.splice(index, 1);
     }
+  }
+  public hasFunc(func: T): boolean {
+    if (this.callbacks == null) return false;
+    return this.callbacks.indexOf(func, 0) > -1;
   }
 }

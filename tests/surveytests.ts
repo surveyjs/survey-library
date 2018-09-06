@@ -7,7 +7,9 @@ import { QuestionHtmlModel } from "../src/question_html";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
-  SurveyTriggerSetValue, SurveyTriggerCopyValue, SurveyTriggerRunExpression
+  SurveyTriggerSetValue,
+  SurveyTriggerCopyValue,
+  SurveyTriggerRunExpression
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
@@ -1355,7 +1357,9 @@ QUnit.test("survey.onCurrentPageChanging", function(assert) {
   );
 });
 
-QUnit.test("survey.onCurrentPageChanging, allowChanging option", function(assert) {
+QUnit.test("survey.onCurrentPageChanging, allowChanging option", function(
+  assert
+) {
   var survey = twoPageSimplestSurvey();
   //get current Page
   survey.currentPage;
@@ -1466,7 +1470,7 @@ QUnit.test("Copy value trigger test", function(assert) {
   trigger.setToName = "question2";
   trigger.fromName = "question3";
   survey.setValue("question3", "CopiedValue");
-  
+
   assert.equal(survey.getValue("question2"), null, "value is not set");
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("question2"), "CopiedValue", "value is set");
@@ -2596,14 +2600,15 @@ QUnit.test("customWidgets camel name", function(assert) {
       return question.getType() == "camelname";
     }
   });
-  if(!JsonObject.metaData.findClass("camelName")) {
+  if (!JsonObject.metaData.findClass("camelName")) {
     JsonObject.metaData.addClass("camelName", [], null, "text");
   }
-  
+
   var survey = new SurveyModel({
     elements: [
       {
-        type: "camelName", name: "q1"
+        type: "camelName",
+        name: "q1"
       }
     ]
   });
@@ -3279,7 +3284,11 @@ QUnit.test("onMatrixBeforeRowAdded", function(assert) {
   q1.addRow();
   assert.equal(q1.rowCount, 1, "there is one row");
   q1.addRow();
-  assert.equal(q1.rowCount, 1, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'");
+  assert.equal(
+    q1.rowCount,
+    1,
+    "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'"
+  );
 });
 
 QUnit.test("onMatrixRowRemoved", function(assert) {
@@ -4339,115 +4348,118 @@ QUnit.test(
   }
 );
 
-QUnit.test("clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172", function(
-  assert
-) {
-  var json = {
-    pages: [
-      {
-        name: "issueType",
-        elements: [
-          {
-            type: "dropdown",
-            name: "issueType",
-            choices: [
-              {
-                value: "installJaxx",
-                text: "Install"
-              },
-              {
-                value: "backupPhrase",
-                text: "backup "
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "installJaxx",
-        elements: [
-          {
-            type: "radiogroup",
-            name: "choosePlatform",
-            visibleIf: "{issueType} = 'installJaxx'",
-            choices: [
-              {
-                value: "linux",
-                text: "Linux"
-              },
-              {
-                value: "android",
-                text: "Android"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        name: "pageInstallLinux",
-        elements: [
-          {
-            type: "text",
-            name: "installLinux",
-            visibleIf: "{choosePlatform} = 'linux'"
-          }
-        ]
-      }
-    ],
-    clearInvisibleValues: "onHidden"
-  };
-  var survey = new SurveyModel(json);
-  var qchoosePlatform = <Question>survey.getQuestionByName("choosePlatform");
-  var qinstallLinux = <Question>survey.getQuestionByName("installLinux");
-  assert.equal(
-    qchoosePlatform.isVisible,
-    false,
-    "choosePlatform is not visible initial"
-  );
-  assert.equal(
-    qinstallLinux.isVisible,
-    false,
-    "installLinux is not visible initial"
-  );
-  survey.setValue("issueType", "installJaxx");
-  assert.equal(
-    qchoosePlatform.isVisible,
-    true,
-    "choosePlatform is visible step 1"
-  );
-  assert.equal(
-    qinstallLinux.isVisible,
-    false,
-    "installLinux is not visible step 1"
-  );
-  survey.setValue("choosePlatform", "linux");
-  assert.equal(
-    qchoosePlatform.isVisible,
-    true,
-    "choosePlatform is visible step 2"
-  );
-  assert.equal(qinstallLinux.isVisible, true, "installLinux is visible step 2");
-  survey.setValue("issueType", "backupPhrase");
-  assert.equal(
-    qchoosePlatform.isVisible,
-    false,
-    "choosePlatform is visible step 3"
-  );
-  assert.equal(
-    qchoosePlatform.isEmpty(),
-    true,
-    "choosePlatform is empty step 3"
-  );
-  assert.equal(
-    qinstallLinux.isVisible,
-    false,
-    "installLinux is not visible step 3"
-  );
-});
+QUnit.test(
+  "clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "issueType",
+          elements: [
+            {
+              type: "dropdown",
+              name: "issueType",
+              choices: [
+                {
+                  value: "installJaxx",
+                  text: "Install"
+                },
+                {
+                  value: "backupPhrase",
+                  text: "backup "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "installJaxx",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "choosePlatform",
+              visibleIf: "{issueType} = 'installJaxx'",
+              choices: [
+                {
+                  value: "linux",
+                  text: "Linux"
+                },
+                {
+                  value: "android",
+                  text: "Android"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "pageInstallLinux",
+          elements: [
+            {
+              type: "text",
+              name: "installLinux",
+              visibleIf: "{choosePlatform} = 'linux'"
+            }
+          ]
+        }
+      ],
+      clearInvisibleValues: "onHidden"
+    };
+    var survey = new SurveyModel(json);
+    var qchoosePlatform = <Question>survey.getQuestionByName("choosePlatform");
+    var qinstallLinux = <Question>survey.getQuestionByName("installLinux");
+    assert.equal(
+      qchoosePlatform.isVisible,
+      false,
+      "choosePlatform is not visible initial"
+    );
+    assert.equal(
+      qinstallLinux.isVisible,
+      false,
+      "installLinux is not visible initial"
+    );
+    survey.setValue("issueType", "installJaxx");
+    assert.equal(
+      qchoosePlatform.isVisible,
+      true,
+      "choosePlatform is visible step 1"
+    );
+    assert.equal(
+      qinstallLinux.isVisible,
+      false,
+      "installLinux is not visible step 1"
+    );
+    survey.setValue("choosePlatform", "linux");
+    assert.equal(
+      qchoosePlatform.isVisible,
+      true,
+      "choosePlatform is visible step 2"
+    );
+    assert.equal(
+      qinstallLinux.isVisible,
+      true,
+      "installLinux is visible step 2"
+    );
+    survey.setValue("issueType", "backupPhrase");
+    assert.equal(
+      qchoosePlatform.isVisible,
+      false,
+      "choosePlatform is visible step 3"
+    );
+    assert.equal(
+      qchoosePlatform.isEmpty(),
+      true,
+      "choosePlatform is empty step 3"
+    );
+    assert.equal(
+      qinstallLinux.isVisible,
+      false,
+      "installLinux is not visible step 3"
+    );
+  }
+);
 
-QUnit.test("readOnly, enabledIf for Panels and Pages", function(
-  assert
-) {
+QUnit.test("readOnly, enabledIf for Panels and Pages", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");
   var panel1 = page.addNewPanel("panel1");
@@ -4457,8 +4469,8 @@ QUnit.test("readOnly, enabledIf for Panels and Pages", function(
   var question1 = <Question>panel1.addNewQuestion("text", "question1");
   var question1ReadOnlyCounter = 0;
   question1.onReadOnlyChanged = function() {
-    question1ReadOnlyCounter ++;
-  }
+    question1ReadOnlyCounter++;
+  };
   var question2 = <Question>panel2.addNewQuestion("text", "question2");
   assert.equal(question2.isReadOnly, false, "It is not readOnly by default");
   survey.setValue("val1", 2);
@@ -4476,14 +4488,24 @@ QUnit.test("readOnly, enabledIf for Panels and Pages", function(
   assert.equal(question1ReadOnlyCounter, 2, "It was changed two times");
 
   panel2.readOnly = true;
-  assert.equal(question1.isReadOnly, false, "question1 is not readOnly, panel2 is ReadOnly");
-  assert.equal(question2.isReadOnly, true, "question2 is readOnly, panel2 is ReadOnly");
-  assert.equal(question1ReadOnlyCounter, 2, "It was changed two times, panel2 is nested panel");
+  assert.equal(
+    question1.isReadOnly,
+    false,
+    "question1 is not readOnly, panel2 is ReadOnly"
+  );
+  assert.equal(
+    question2.isReadOnly,
+    true,
+    "question2 is readOnly, panel2 is ReadOnly"
+  );
+  assert.equal(
+    question1ReadOnlyCounter,
+    2,
+    "It was changed two times, panel2 is nested panel"
+  );
 });
 
-QUnit.test("Hide question numbers on particular page", function(
-  assert
-) {
+QUnit.test("Hide question numbers on particular page", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("page1");
   survey.addNewPage("page2");
@@ -4506,9 +4528,17 @@ QUnit.test("Could not assign value into mutlipletext question, #1229", function(
   question.addItem("item1");
   question.addItem("item2");
   page.addQuestion(question);
-  survey.data = {q1: {item1: "val1", item2: "val2"}};
-  assert.equal(question.items[0].editor.value, "val1", "val1 is set to the question item");
-  assert.equal(question.items[1].editor.value, "val2", "val1 is set to the question item");
+  survey.data = { q1: { item1: "val1", item2: "val2" } };
+  assert.equal(
+    question.items[0].editor.value,
+    "val1",
+    "val1 is set to the question item"
+  );
+  assert.equal(
+    question.items[1].editor.value,
+    "val2",
+    "val1 is set to the question item"
+  );
 });
 
 QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function(
@@ -4533,7 +4563,7 @@ QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function(
       {
         type: "paneldynamic",
         name: "q1",
-        templateElements: [{type: "text", name: "q2", visible: false}],
+        templateElements: [{ type: "text", name: "q2", visible: false }],
         panelCount: 1,
         minPanelCount: 1
       }
@@ -4545,22 +4575,22 @@ QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function(
   assert.equal(JSON.stringify(survey.data), "{}", "Panel Dynamic is invisible");
 });
 
-QUnit.test("Compete trigger and goNextPageAutomatic option", function(
-  assert
-) {
+QUnit.test("Compete trigger and goNextPageAutomatic option", function(assert) {
   var json = {
-    pages: [{
-      elements: [
-        {
-          type: "text",
-          name: "q1"
-        },
-        {
-          type: "text",
-          name: "q2",
-          visible: false
-        }
-      ]},
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          },
+          {
+            type: "text",
+            name: "q2",
+            visible: false
+          }
+        ]
+      },
       {
         elements: [
           {
@@ -4570,25 +4600,121 @@ QUnit.test("Compete trigger and goNextPageAutomatic option", function(
         ]
       }
     ],
-    triggers: [{
+    triggers: [
+      {
         type: "complete",
         expression: "{exp1} = true"
-    }],
-    goNextPageAutomatic: true  
+      }
+    ],
+    goNextPageAutomatic: true
   };
   var survey = new SurveyModel(json);
-  var expressionQuestion = new QuestionExpressionModel("exp1")
+  var expressionQuestion = new QuestionExpressionModel("exp1");
   expressionQuestion.expression = "iif({q1} = 'a', true, false)";
   survey.pages[0].addElement(expressionQuestion);
   var completedCounter = 0;
   survey.onComplete.add(function() {
-    completedCounter ++;
+    completedCounter++;
   });
   survey.setValue("q2", "b");
   survey.setValue("q1", "a");
   assert.equal(completedCounter, 1, "The survey is completed one time");
 });
 
+QUnit.test("Page with numeric name, bug #1293", function(assert) {
+  var json = {
+    pages: [
+      {
+        name: "0608",
+        questions: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        name: "002",
+        elements: [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.currentPage.name, "0608", "the current page is correct");
+});
+
+QUnit.test("visiblePages and invisible panel, bug #395 (in Editor)", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "dropdown",
+            name: "question2",
+            choices: ["item1", "item2", "item3"]
+          }
+        ]
+      },
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel2",
+            elements: [
+              {
+                type: "text",
+                name: "question3",
+                visibleIf: '{question2} = "item1"'
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.visiblePageCount, 1, "Only one page is visible");
+  assert.equal(
+    survey.pages[1].isVisible,
+    false,
+    "The second page is invisible"
+  );
+  survey.setValue("question2", "item1");
+  assert.equal(survey.visiblePageCount, 2, "Two pages are visible");
+  survey.setValue("question2", "item2");
+  assert.equal(survey.visiblePageCount, 1, "One page is visible again");
+});
+
+QUnit.test("Do not process html in design time, bug #396 (in Editor)", function(
+  assert
+) {
+  var json = {
+    "elements": [
+      {
+      "type": "text",
+      "name": "question1"
+      },
+      {
+      "type": "text",
+      "name": "question2",
+      "title": "{question1} test"
+      }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  var question = <Question>survey.getQuestionByName("question2");
+  assert.equal(question.locTitle.renderedHtml, "2. {question1} test", "Do not process anything at design time");
+});
 
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();

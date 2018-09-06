@@ -447,6 +447,34 @@ QUnit.test("Matrixdynamic customize cell editors", function(assert) {
   );
 });
 
+QUnit.test(
+  "MatrixCellCreated set cell value https://github.com/surveyjs/surveyjs/issues/1259#issuecomment-413947851",
+  function(assert) {
+    var matrix = new QuestionMatrixDynamicModel("matrixDymanic");
+    matrix.addColumn("col1");
+    matrix.addColumn("col2");
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    survey.pages[0].addQuestion(matrix);
+    survey.onMatrixCellCreated.add(function(survey, options) {
+      if (options.columnName === "col2") {
+        options.cellQuestion.value = "A";
+      }
+      // if (options.columnName === "col1") {
+      //   options.rowValue[options.columnName] = "B";
+      //   //options.row.setValue(options.columnName, options.columnName);
+      // }
+    });
+    matrix.rowCount = 1;
+    assert.equal(matrix.visibleRows.length, 1, "one row");
+    assert.deepEqual(
+      matrix.value,
+      [{ col2: "A" }], //[{ col1: "B", col2: "A" }],
+      "col1 is B, col2 is A"
+    );
+  }
+);
+
 //QUnit.test("Matrixdynamic validate cell values - do not allow to have the same value", function (assert) {
 QUnit.test(
   "Matrixdynamic validate cell values - onMatrixCellValueChanged",
@@ -1395,4 +1423,75 @@ QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   var val = question.value;
   var rows = question.visibleRows;
   assert.equal(val.B.tot, 10, "Expression equals 10");
+});
+
+QUnit.test(
+  "defaultValue: false doesn't work for boolean column after removing row, bug#1266",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "boolean",
+              defaultValue: "false"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var rows = question.visibleRows;
+    assert.equal(rows.length, 2, "There are two rows");
+    assert.deepEqual(
+      question.value,
+      [{ col1: false }, { col1: false }],
+      "defaultValue set correctly"
+    );
+    question.removeRow(1);
+    rows = question.visibleRows;
+    assert.equal(rows.length, 1, "There is one row");
+    assert.deepEqual(
+      question.value,
+      [{ col1: false }],
+      "defaultValue is still there for the first row"
+    );
+  }
+);
+
+QUnit.test("Test defaultValueFromLastRow property", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <QuestionMatrixDynamicModel>page.addNewQuestion(
+    "matrixdynamic",
+    "question"
+  );
+  question.rowCount = 0;
+  question.cellType = "text";
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.addColumn("col3");
+  question.defaultValueFromLastRow = true;
+  question.addRow();
+  question.visibleRows;
+  assert.equal(question.isEmpty(), true, "It is empty");
+  question.value = [{ col1: 1, col2: 2 }];
+  question.addRow();
+  assert.deepEqual(
+    question.value,
+    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }],
+    "defaultValueFromLastRow is working"
+  );
+  question.defaultRowValue = { col1: 11, col3: 3 };
+  question.addRow();
+  assert.deepEqual(
+    question.value,
+    [{ col1: 1, col2: 2 }, { col1: 1, col2: 2 }, { col1: 1, col2: 2, col3: 3 }],
+    "defaultValueFromLastRow is merging with defaultRowValue"
+  );
 });

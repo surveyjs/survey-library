@@ -236,11 +236,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   private onTemplateElementPropertyChanged(element, options) {
     if (this.isLoadingFromJson || !this.items || this.items.length == 0) return;
-    if (options.name === "visibleIndex") return;
+    if (options.name === "visibleIndex" || options.name === "isVisible") return;
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
       var question = panels[i].getQuestionByName(element.name);
-      if (!!question) {
+      if (!!question && question[options.name] !== options.newValue) {
         question[options.name] = options.newValue;
       }
     }
@@ -773,12 +773,25 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
    * @see defaultValue
+   * @see defaultValueFromLastRow
    */
   public get defaultPanelValue(): any {
     return this.getPropertyValue("defaultPanelValue");
   }
   public set defaultPanelValue(val: any) {
     this.setPropertyValue("defaultPanelValue", val);
+  }
+  /**
+   * Set it to true to copy the value into new added panel from the last panel. If defaultPanelValue is set and this property equals to true,
+   * then the value for new added panel is merging.
+   * @see defaultValue
+   * @see defaultPanelValue
+   */
+  public get defaultValueFromLastPanel(): boolean {
+    return this.getPropertyValue("defaultValueFromLastPanel", false);
+  }
+  public set defaultValueFromLastPanel(val: boolean) {
+    this.setPropertyValue("defaultValueFromLastPanel", val);
   }
   protected isDefaultValueEmpty(): boolean {
     return (
@@ -841,19 +854,41 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = this.panelCount - 1;
     }
+    var newValue = this.value;
+    var hasModified = false;
     if (!this.isValueEmpty(this.defaultPanelValue)) {
-      var newValue = this.value;
       if (
-        newValue &&
+        !!newValue &&
         Array.isArray(newValue) &&
         newValue.length == this.panelCount
       ) {
-        newValue[newValue.length - 1] = this.defaultPanelValue;
+        hasModified = true;
+        this.copyValue(newValue[newValue.length - 1], this.defaultPanelValue);
       }
+    }
+    if (
+      this.defaultValueFromLastPanel &&
+      !!newValue &&
+      Array.isArray(newValue) &&
+      newValue.length > 1 &&
+      newValue.length == this.panelCount
+    ) {
+      hasModified = true;
+      this.copyValue(
+        newValue[newValue.length - 1],
+        newValue[newValue.length - 2]
+      );
+    }
+    if (hasModified) {
       this.value = newValue;
     }
     if (this.survey) this.survey.dynamicPanelAdded(this);
     return this.items[this.panelCount - 1].panel;
+  }
+  private copyValue(src: any, dest: any) {
+    for (var key in dest) {
+      src[key] = dest[key];
+    }
   }
   /**
    * Call removePanel function. Do nothing is canRemovePanel returns false. If confirmDelete set to true, it shows the confirmation dialog first.
@@ -1186,6 +1221,7 @@ JsonObject.metaData.addClass(
       default: QuestionPanelDynamicModel.MaxPanelCount
     },
     "defaultPanelValue:panelvalue",
+    "defaultValueFromLastPanel:boolean",
     {
       name: "panelsState",
       default: "default",

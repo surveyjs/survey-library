@@ -226,6 +226,15 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set isRequired(val: boolean) {
     this.templateQuestion.isRequired = val;
   }
+  public get requiredErrorText(): string {
+    return this.templateQuestion.requiredErrorText;
+  }
+  public set requiredErrorText(val: string) {
+    this.templateQuestion.requiredErrorText = val;
+  }
+  get locRequiredErrorText(): LocalizableString {
+    return this.templateQuestion.locRequiredErrorText;
+  }
   public get readOnly(): boolean {
     return this.templateQuestion.readOnly;
   }
@@ -494,7 +503,7 @@ export class MatrixDropdownRowModelBase
     this.rowValues = {};
     if (value != null) {
       for (var key in value) {
-        this.rowValues[key] = value[key];
+        this.setDataValueCore(this.rowValues, key, value[key]);
       }
     }
     for (var i = 0; i < this.cells.length; i++) {
@@ -514,6 +523,23 @@ export class MatrixDropdownRowModelBase
       this.cells[i].question.onAnyValueChanged(name);
     }
   }
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
+    var survey = this.getSurvey();
+    if (!!survey) {
+      (<any>survey).setDataValueCore(valuesHash, key, value);
+    } else {
+      valuesHash[key] = value;
+    }
+  }
+  public deleteDataValueCore(valuesHash: any, key: string) {
+    var survey = this.getSurvey();
+    if (!!survey) {
+      (<any>survey).deleteDataValueCore(valuesHash, key);
+    } else {
+      delete valuesHash[key];
+    }
+  }
+
   public getValue(name: string): any {
     return this.rowValues[name];
   }
@@ -521,9 +547,9 @@ export class MatrixDropdownRowModelBase
     if (this.isSettingValue) return;
     if (newValue === "") newValue = null;
     if (newValue != null) {
-      this.rowValues[name] = newValue;
+      this.setDataValueCore(this.rowValues, name, newValue);
     } else {
-      delete this.rowValues[name];
+      this.deleteDataValueCore(this.rowValues, name);
     }
     this.data.onRowChanged(this, name, this.value);
     this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
@@ -926,6 +952,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     if (this.isLoadingFromJson) return;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
+      this.generatedVisibleRows.forEach(row => this.onMatrixRowCreated(row));
       if (this.data) {
         var properties = { survey: this.survey };
         this.runCellsCondition(this.data.getAllValues(), properties);
@@ -1137,7 +1164,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     var self = this;
     var getQuestion = function(colName) {
       for (var i = 0; self.columns.length; i++) {
-        if (self.columns[i].name == colName) {
+        if (self.columns[i].name === colName) {
           return row.cells[i].question;
         }
       }
@@ -1186,7 +1213,7 @@ export class QuestionMatrixDropdownModelBase extends Question
         }
       }
     }
-    if (Object.keys(rowValue).length == 0) {
+    if (Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
@@ -1231,6 +1258,10 @@ JsonObject.metaData.addClass(
     },
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
     "isRequired:boolean",
+    {
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText"
+    },
     "hasOther:boolean",
     "readOnly:boolean",
     "minWidth",

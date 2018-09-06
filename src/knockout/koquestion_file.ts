@@ -39,6 +39,9 @@ export class QuestionFileImplementor extends QuestionImplementor {
       (<QuestionFileModel>this.question).clear();
       input.value = "";
     };
+    this.question["doremovefile"] = (data, event) => {
+      (<QuestionFileModel>this.question).removeFile(data);
+    };
   }
   protected updateValue(newValue: any) {
     super.updateValue(newValue);

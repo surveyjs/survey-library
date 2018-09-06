@@ -255,7 +255,7 @@ export class QuestionMatrixModel extends Question
       result.push(
         this.createMatrixRow(
           rows[i],
-          this.name + "_" + this.rows[i].value.toString(),
+          this.id + "_" + this.rows[i].value.toString(),
           val[this.rows[i].value]
         )
       );

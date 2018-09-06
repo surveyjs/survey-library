@@ -32,6 +32,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     src.parentElement.querySelectorAll("input")[0].value = "";
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
+  handleOnRemoveFile = event => {
+    this.question.removeFile(event);
+    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+  };
   render(): JSX.Element {
     if (!this.question) return null;
     var preview = this.renderPreview();
@@ -84,26 +88,43 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderPreview(): JSX.Element {
     if (!this.question.previewValue) return null;
-    var previews = this.question.previewValue.map((val,index) => {
+    var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
       return (
-        <span key={this.question.inputId + '_' + index} className={this.question.cssClasses.preview}>
-          {
-            val.name ?
-              <a href={val.content} title={val.name} download={val.name} style={{ width: this.question.imageWidth + "px" }}>{val.name}
+        <span
+          key={this.question.inputId + "_" + index}
+          className={this.question.cssClasses.preview}
+        >
+          {val.name ? (
+            <div>
+              <a
+                href={val.content}
+                title={val.name}
+                download={val.name}
+                style={{ width: this.question.imageWidth + "px" }}
+              >
+                {val.name}
               </a>
-              : null
-          }
-          {
-            val.content ?
-              <img
-                src={val.content}
-                height={this.question.imageHeight}
-                width={this.question.imageWidth}
-                alt="File preview"
-              /> : null
-          }
-
+            </div>
+          ) : null}
+          {this.question.canPreviewImage(val) ? (
+            <img
+              src={val.content}
+              height={this.question.imageHeight}
+              width={this.question.imageWidth}
+              alt="File preview"
+            />
+          ) : null}
+          {val.name ? (
+            <div>
+              <span
+                className={this.question.cssClasses.removeFile}
+                onClick={event => this.handleOnRemoveFile(val)}
+              >
+                {this.question.removeFileCaption}
+              </span>
+            </div>
+          ) : null}
         </span>
       );
     });

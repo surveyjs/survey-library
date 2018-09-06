@@ -5,7 +5,8 @@
                 <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <input v-else style="display: none;" type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <div>
-                    <img :class="question.cssClasses.image" :src="item.imageLink"/>
+                    <img v-if="question.contentMode === 'image'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
+                    <embed v-if="question.contentMode === 'video'" :class="question.cssClasses.image" :src="item.imageLink" :width="question.imageWidth ? question.imageWidth + 'px' : undefined" :height="question.imageHeight ? question.imageHeight + 'px' : undefined" v-bind:style="{ objectFit: question.imageFit }"/>
                     <span v-if="question.showLabel" :title="item.text || item.value" :class="question.cssClasses.itemText">{{item.text || item.value}}</span>
                 </div>
             </label>

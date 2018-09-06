@@ -1670,3 +1670,73 @@ QUnit.test("synhronize on template question property change", function(assert) {
     "The title for a question in a panel has been changed"
   );
 });
+
+QUnit.test(
+  "synhronize on template question property change bug #1278",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dPanel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "checkbox", name: "q2", choices: [1, 2] },
+            {
+              type: "panel",
+              name: "p1",
+              elements: [{ type: "text", name: "p1_q1" }]
+            }
+          ],
+          panelCount: 2
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "dPanel"
+    );
+    assert.equal(
+      question.panels[0].elements[0].isVisible,
+      true,
+      "The first question is visible"
+    );
+    question.templateElements[0].visible = false;
+    assert.equal(
+      question.panels[0].elements[0].isVisible,
+      false,
+      "The first question is not visible now"
+    );
+  }
+);
+
+QUnit.test("Test defaultValueFromLastPanel property", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var question = <QuestionPanelDynamicModel>page.addNewQuestion(
+    "paneldynamic",
+    "question"
+  );
+  question.panelCount = 0;
+  question.template.addNewQuestion("text", "q1");
+  question.template.addNewQuestion("text", "q2");
+  question.template.addNewQuestion("text", "q3");
+  question.defaultValueFromLastPanel = true;
+  question.addPanel();
+  assert.equal(question.isEmpty(), true, "It is empty");
+  question.value = [{ q1: 1, q2: 2 }];
+  question.addPanel();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }],
+    "defaultValueFromLastPanel is working"
+  );
+  question.defaultPanelValue = { q1: 11, q3: 3 };
+  question.addPanel();
+  assert.deepEqual(
+    question.value,
+    [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }, { q1: 1, q2: 2, q3: 3 }],
+    "defaultValueFromLastRow is merging with defaultPanelValue"
+  );
+});

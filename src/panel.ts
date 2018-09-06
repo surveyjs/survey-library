@@ -289,14 +289,35 @@ export class PanelModelBase extends SurveyElement
     }
     return null;
   }
+  /**
+   * Returns question values on the current page
+   */
   public getValue(): any {
     var data = {};
-    for (var i = 0; i < this.questions.length; i++) {
-      var q = this.questions[i];
+    var questions = this.questions;
+
+    for (var i = 0; i < questions.length; i++) {
+      var q = questions[i];
       if (q.isEmpty()) continue;
       data[q.getValueName()] = q["value"];
     }
     return data;
+  }
+  /**
+   * Returns question comments on the current page
+   */
+  public getComments(): any {
+    var comments = {};
+    if (!this.data) return comments;
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var q = questions[i];
+      var comment = this.data.getComment(q.getValueName());
+      if (!!comment) {
+        comments[q.getValueName()] = comment;
+      }
+    }
+    return comments;
   }
   /**
    * Call this function to remove all question values from the current page/panel, that end-user will not be able to enter.
@@ -674,9 +695,9 @@ export class PanelModelBase extends SurveyElement
   }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (!this.visible) return false;
-    for (var i = 0; i < this.questions.length; i++) {
-      if (this.questions[i] == exceptionQuestion) continue;
-      if (this.questions[i].visible) return true;
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i] == exceptionQuestion) continue;
+      if (this.elements[i].isVisible) return true;
     }
     return false;
   }

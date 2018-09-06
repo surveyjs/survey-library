@@ -18,7 +18,7 @@ export class QuestionFileModel extends Question {
   public onStateChanged: Event<
     (sender: QuestionFileModel, options: any) => any,
     any
-    > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
+  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
   public currentState = "empty";
   constructor(public name: string) {
@@ -31,7 +31,7 @@ export class QuestionFileModel extends Question {
    * Set it to true, to show the preview for the image files.
    */
   public get showPreview() {
-    return this.getPropertyValue("showPreview", false);
+    return this.getPropertyValue("showPreview", true);
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);
@@ -108,6 +108,12 @@ export class QuestionFileModel extends Question {
     return surveyLocalization.getString("cleanCaption");
   }
   /**
+   * The remove file button caption.
+   */
+  get removeFileCaption(): string {
+    return surveyLocalization.getString("removeFileCaption");
+  }
+  /**
    * The input title value.
    */
   get inputTitle(): string {
@@ -119,11 +125,31 @@ export class QuestionFileModel extends Question {
    * Clear value programmatically.
    */
   public clear() {
-    this.survey.clearFiles(this.name, this.value, (status, data) => {
+    this.survey.clearFiles(this.name, this.value, null, (status, data) => {
       if (status === "success") {
         this.value = undefined;
       }
     });
+  }
+  /**
+   * Remove file item programmatically.
+   */
+  public removeFile(content: { name: string }) {
+    this.survey.clearFiles(
+      this.name,
+      this.value,
+      content.name,
+      (status, data) => {
+        if (status === "success") {
+          var oldValue = this.value;
+          if (Array.isArray(oldValue)) {
+            this.value = oldValue.filter(f => f.name !== content.name);
+          } else {
+            this.value = undefined;
+          }
+        }
+      }
+    );
   }
   /**
    * Load multiple files programmatically.
@@ -133,14 +159,14 @@ export class QuestionFileModel extends Question {
     if (!this.survey) {
       return;
     }
-    if (files.every(file => this.checkFileForErrors(file))) {
+    this.errors = [];
+    if (!this.allFilesOk(files)) {
       return;
     }
-    this.clear();
 
     this.stateChanged("loading");
+    var content = [];
     if (this.storeDataAsText) {
-      var content = [];
       files.forEach(file => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
@@ -148,7 +174,7 @@ export class QuestionFileModel extends Question {
             { name: file.name, type: file.type, content: fileReader.result }
           ]);
           if (content.length === files.length) {
-            this.value = content;
+            this.value = (this.value || []).concat(content);
           }
         };
         fileReader.readAsDataURL(file);
@@ -159,23 +185,33 @@ export class QuestionFileModel extends Question {
           this.stateChanged("error");
         }
         if (status === "success") {
-          this.value = data.map(r => {
-            return {
-              name: r.file.name,
-              type: r.file.type,
-              content: r.content
-            };
-          });
+          this.value = (this.value || []).concat(
+            data.map(r => {
+              return {
+                name: r.file.name,
+                type: r.file.type,
+                content: r.content
+              };
+            })
+          );
         }
       });
     }
   }
+  public canPreviewImage(fileItem: any): boolean {
+    return !!fileItem && this.isFileContentImage(fileItem.content);
+  }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
     this.previewValue = [];
-    this.stateChanged(
-      !!newValue ? (this.showPreview ? "loading" : "loaded") : "empty"
-    );
+    var state =
+      (!Array.isArray(newValue) && !!newValue) ||
+      (Array.isArray(newValue) && newValue.length > 0)
+        ? this.showPreview
+          ? "loading"
+          : "loaded"
+        : "empty";
+    this.stateChanged(state);
     if (!this.showPreview || !newValue) return;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -186,18 +222,22 @@ export class QuestionFileModel extends Question {
     if (this.storeDataAsText) {
       newValues.forEach(value => {
         var content = value.content || value;
-        this.previewValue = this.previewValue.concat([{
-          name: value.name,
-          content: this.isFileContentImage(content) ? content : ""
-        }]);
+        this.previewValue = this.previewValue.concat([
+          {
+            name: value.name,
+            content: content
+          }
+        ]);
       });
-      this.stateChanged("loaded");
+      if (state === "loading") this.stateChanged("loaded");
     } else {
       newValues.forEach(value => {
         var content = value.content || value;
         this.survey.downloadFile(this.name, content, (status, data) => {
           if (status === "success") {
-            this.previewValue = this.previewValue.concat([{content: data, name: value.name}]);
+            this.previewValue = this.previewValue.concat([
+              { content: data, name: value.name }
+            ]);
             if (this.previewValue.length === newValues.length) {
               this.stateChanged("loaded");
             }
@@ -226,32 +266,30 @@ export class QuestionFileModel extends Question {
     this.currentState = state;
     this.onStateChanged.fire(this, { state: state });
   }
-  private checkFileForErrors(file: File): boolean {
+  private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
-    this.errors = [];
-    if (this.maxSize > 0 && file.size > this.maxSize) {
-      this.errors.push(new ExceedSizeError(this.maxSize));
-    }
-    if (errorLength != this.errors.length || this.errors.length > 0) {
+    (files || []).forEach(file => {
+      if (this.maxSize > 0 && file.size > this.maxSize) {
+        this.errors.push(new ExceedSizeError(this.maxSize));
+      }
+    });
+    if (errorLength !== this.errors.length || this.errors.length > 0) {
       this.fireCallback(this.errorsChangedCallback);
     }
-    return this.errors.length > 0;
+    return errorLength === this.errors.length;
   }
-  private isFileImage(file: File) {
-    if (!file || !file.type) return;
-    var str = file.type.toLowerCase();
-    return str.indexOf("image") == 0;
-  }
-  private isFileContentImage(fileContent: string) {
-    if (!fileContent) return;
-    var str = fileContent.toLowerCase();
-    return str.indexOf("data:image") == 0;
+  private isFileContentImage(fileContent: string): boolean {
+    if (!fileContent) return false;
+    const imagePrefix = "data:image";
+    var subStr = fileContent.substr(0, imagePrefix.length);
+    subStr = subStr.toLowerCase();
+    return subStr === imagePrefix;
   }
 }
 JsonObject.metaData.addClass(
   "file",
   [
-    "showPreview:boolean",
+    { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     "imageHeight",
     "imageWidth",
@@ -260,7 +298,7 @@ JsonObject.metaData.addClass(
     { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
-  function () {
+  function() {
     return new QuestionFileModel("");
   },
   "question"

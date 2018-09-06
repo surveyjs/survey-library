@@ -39,6 +39,24 @@ QUnit.test("Event with parameters", function(assert) {
   assert.equal(options.allow, true, "function should change allow to true");
   assert.equal(counter, 5, "function should increase counter on 5");
 });
+QUnit.test("Do not add function with the same instance several times", function(
+  assert
+) {
+  var event = new Event<() => any, any>();
+  var counter = 0;
+  var func = () => {
+    counter++;
+  };
+  event.add(func);
+  event.add(func);
+  event.add(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function called one time");
+  event.remove(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function should not be called the second time");
+});
+
 QUnit.test("Item value", function(assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
@@ -112,6 +130,35 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     { value: true, text: "Yes" },
     { value: false, text: "No" }
   ]);
+  assert.equal(items.length, 2, "there are 2 items");
+  assert.equal(
+    items[0].value,
+    true,
+    "set correct value property for the first item"
+  );
+  assert.equal(
+    items[0].text,
+    "Yes",
+    "set correct text property for the first item"
+  );
+  assert.equal(
+    items[1].value,
+    false,
+    "set correct value property for the second item"
+  );
+  assert.equal(
+    items[1].text,
+    "No",
+    "set correct text property for the second item"
+  );
+});
+QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
+  var items = new Array<ItemValue>();
+  var data = [
+    new ItemValue(true, "Yes", "imageitemvalue"),
+    new ItemValue(false, "No", "imageitemvalue")
+  ];
+  ItemValue.setData(items, data);
   assert.equal(items.length, 2, "there are 2 items");
   assert.equal(
     items[0].value,

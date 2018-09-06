@@ -9,11 +9,18 @@ import { LocalizableString } from "./localizablestring";
 export class QuestionHtmlModel extends QuestionBase {
   constructor(public name: string) {
     super(name);
-    this.createLocalizableString("html", this);
+    var locHtml = this.createLocalizableString("html", this);
+    var self = this;
+    locHtml.onGetTextCallback = function(str: string): string {
+      return !!self.survey ? self.survey.processHtml(str) : str;
+    };
   }
   public getType(): string {
     return "html";
   }
+  /**
+   * Set html to display it
+   */
   public get html(): string {
     return this.getLocalizableStringText("html", "");
   }

@@ -212,6 +212,10 @@ $base-line-height: 2em;
   .sv_q_imgsel.checked label > div {
     background-color: $main-color;
   }
+
+  .sv_q_file_remove:hover {
+    color: $main-color;
+  }
 }
 
 .sv_main {
@@ -289,6 +293,7 @@ $base-line-height: 2em;
 
         .sv_progress_bar {
           height: 100%;
+          min-width: 100px;
           //background-color: $main-color;
           position: relative;
           margin-top: 2em;

@@ -1,4 +1,5 @@
 import { Helpers } from "./helpers";
+import { surveyLocalization } from "./surveyStrings";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -42,7 +43,12 @@ export class LocalizableString {
   }
   private calText(): string {
     var res = this.pureText;
-    if (res && this.owner && this.owner.getProcessedText && res.indexOf('{') > -1) {
+    if (
+      res &&
+      this.owner &&
+      this.owner.getProcessedText &&
+      res.indexOf("{") > -1
+    ) {
       res = this.owner.getProcessedText(res);
     }
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);
@@ -52,6 +58,9 @@ export class LocalizableString {
     var loc = this.locale;
     if (!loc) loc = LocalizableString.defaultLocale;
     var res = this.values[loc];
+    if (!res && loc == LocalizableString.defaultLocale) {
+      res = this.values[surveyLocalization.defaultLocale];
+    }
     if (!res && loc !== LocalizableString.defaultLocale) {
       res = this.values[LocalizableString.defaultLocale];
     }

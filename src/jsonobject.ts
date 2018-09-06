@@ -46,6 +46,9 @@ export class JsonObjectProperty {
   public get isRequired() {
     return this.isRequiredValue;
   }
+  public set isRequired(val: boolean) {
+    this.isRequiredValue = val;
+  }
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
   }
@@ -244,7 +247,6 @@ export class JsonMetadataClass {
   static requiredSymbol = "!";
   static typeSymbol = ":";
   properties: Array<JsonObjectProperty> = null;
-  requiredProperties: Array<string> = null;
   constructor(
     public name: string,
     properties: Array<any>,
@@ -297,9 +299,6 @@ export class JsonMetadataClass {
       }
       if (propInfo.visible === false) {
         prop.visible = false;
-      }
-      if (propInfo.isRequired) {
-        this.makePropertyRequired(prop.name);
       }
       if (propInfo.choices) {
         var choicesFunc =
@@ -354,21 +353,13 @@ export class JsonMetadataClass {
   private getPropertyName(propertyName: string): string {
     if (!this.getIsPropertyNameRequired(propertyName)) return propertyName;
     propertyName = propertyName.slice(1);
-    this.makePropertyRequired(propertyName);
     return propertyName;
-  }
-  private makePropertyRequired(propertyName: string) {
-    if (!this.requiredProperties) {
-      this.requiredProperties = new Array<string>();
-    }
-    this.requiredProperties.push(propertyName);
   }
 }
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private classProperties: HashTable<Array<JsonObjectProperty>> = {};
-  private classRequiredProperties: HashTable<Array<string>> = {};
   public addClass(
     name: string,
     properties: Array<any>,
@@ -505,14 +496,14 @@ export class JsonMetadata {
     return result;
   }
   public getRequiredProperties(name: string): Array<string> {
-    name = name.toLowerCase();
-    var properties = this.classRequiredProperties[name];
-    if (!properties) {
-      properties = new Array<string>();
-      this.fillRequiredProperties(name, properties);
-      this.classRequiredProperties[name] = properties;
+    var properties = this.getProperties(name);
+    var res = [];
+    for (var i = 0; i < properties.length; i++) {
+      if (properties[i].isRequired) {
+        res.push(properties[i].name);
+      }
     }
-    return properties;
+    return res;
   }
   public addProperties(className: string, propertiesInfos: Array<any>) {
     className = className.toLowerCase();
@@ -562,12 +553,6 @@ export class JsonMetadata {
     var index = metaDataClass.properties.indexOf(property);
     if (index < 0) return;
     metaDataClass.properties.splice(index, 1);
-    if (metaDataClass.requiredProperties) {
-      index = metaDataClass.requiredProperties.indexOf(property.name);
-      if (index >= 0) {
-        metaDataClass.requiredProperties.splice(index, 1);
-      }
-    }
   }
   private emptyClassPropertiesHash(metaDataClass: JsonMetadataClass) {
     this.classProperties[metaDataClass.name] = null;
@@ -621,16 +606,6 @@ export class JsonMetadata {
     } else {
       property.mergeWith(list[index]);
       list[index] = property;
-    }
-  }
-  private fillRequiredProperties(name: string, list: Array<string>) {
-    var metaDataClass = this.findClass(name);
-    if (!metaDataClass) return;
-    if (metaDataClass.requiredProperties) {
-      Array.prototype.push.apply(list, metaDataClass.requiredProperties);
-    }
-    if (metaDataClass.parentName) {
-      this.fillRequiredProperties(metaDataClass.parentName, list);
     }
   }
 }

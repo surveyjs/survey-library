@@ -121,12 +121,8 @@ export class PanelModelBase extends SurveyElement
     );
     this.id = PanelModelBase.getPanelId();
     var self = this;
-    var locTitleValue = this.createLocalizableString("title", this, true);
-    var locDescriptionValue = this.createLocalizableString(
-      "description",
-      this,
-      true
-    );
+    this.createLocalizableString("title", this, true);
+    this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
   }
   public setSurveyImpl(value: ISurveyImpl) {

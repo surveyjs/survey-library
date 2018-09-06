@@ -39,6 +39,24 @@ QUnit.test("Event with parameters", function(assert) {
   assert.equal(options.allow, true, "function should change allow to true");
   assert.equal(counter, 5, "function should increase counter on 5");
 });
+QUnit.test("Do not add function with the same instance several times", function(
+  assert
+) {
+  var event = new Event<() => any, any>();
+  var counter = 0;
+  var func = () => {
+    counter++;
+  };
+  event.add(func);
+  event.add(func);
+  event.add(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function called one time");
+  event.remove(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function should not be called the second time");
+});
+
 QUnit.test("Item value", function(assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");

@@ -638,6 +638,7 @@ export class Event<T extends Function, Options> {
     this.callbacks = [];
   }
   public add(func: T) {
+    if (this.hasFunc(func)) return;
     if (this.callbacks == null) {
       this.callbacks = new Array<T>();
     }
@@ -649,5 +650,9 @@ export class Event<T extends Function, Options> {
     if (index != undefined) {
       this.callbacks.splice(index, 1);
     }
+  }
+  public hasFunc(func: T): boolean {
+    if (this.callbacks == null) return false;
+    return this.callbacks.indexOf(func, 0) > -1;
   }
 }

@@ -31,7 +31,7 @@ export class QuestionFileModel extends Question {
    * Set it to true, to show the preview for the image files.
    */
   public get showPreview() {
-    return this.getPropertyValue("showPreview", false);
+    return this.getPropertyValue("showPreview", true);
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);

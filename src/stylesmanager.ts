@@ -23,6 +23,7 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .checkbox":
       "margin-top:10px;margin-bottom:10px;",
 
+    ".sv_row": "clear: both;",
     ".sv_row .sv_qstn": "float: left",
     ".sv_row .sv_qstn:last-child": "float: none",
     ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",

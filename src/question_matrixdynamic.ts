@@ -214,7 +214,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       );
     }
     if (this.survey) {
-      if (prevRowCount + 1 == this.rowCount) this.survey.matrixRowAdded(this);
+      if (prevRowCount + 1 == this.rowCount) {
+        this.survey.matrixRowAdded(this);
+        this.fireCallback(this.visibleRowsChangedCallback);
+      }
     }
   }
   private getDefaultRowValue(isRowAdded: boolean): any {

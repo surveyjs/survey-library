@@ -7,8 +7,7 @@
         <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: question.koIsReadOnly -->
-        <input type="text" readonly data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }"
-        />
+        <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
         <!-- /ko -->
         <div data-bind="foreach: question.koData, visible: question.koHasValue">
             <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
@@ -22,7 +21,9 @@
                 <!-- /ko -->
                 <!-- ko if: $data.name -->
                 <div>
+                <!-- ko ifnot: question.koIsReadOnly -->
                 <span data-bind="css: question.cssClasses.removeFile, click: question.doremovefile, text: question.removeFileCaption"></span>
+                <!-- /ko -->
                 </div>
                 <!-- /ko -->
             </span>

@@ -23,7 +23,8 @@ export class SurveyWindow extends Survey {
     let style: React.CSSProperties = {
       position: "fixed",
       bottom: 3,
-      right: 10
+      right: 10,
+      maxWidth: "60%"
     };
     return (
       <div className={this.css.window.root} style={style}>
@@ -48,6 +49,16 @@ export class SurveyWindow extends Survey {
           </span>
           <span className={glyphClassName} aria-hidden="true" />
         </span>
+        {this.window.isExpanded ? (
+          <span
+            onClick={this.handleOnExpanded}
+            style={{ float: "right", cursor: "pointer" }}
+          >
+            <span className={this.css.window.header.title} style={styleTitle}>
+              X
+            </span>
+          </span>
+        ) : null}
       </div>
     );
   }

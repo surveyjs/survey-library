@@ -68,12 +68,14 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     } else {
       displayInput = (
         <input
-          type="text"
-          readOnly
-          className={
-            "form-control " + this.question.cssClasses.placeholderInput
-          }
-          placeholder={this.question.title}
+          disabled={true}
+          className={this.question.cssClasses.fileInput}
+          id={this.question.inputId}
+          type="file"
+          aria-label={this.question.locTitle.renderedHtml}
+          multiple={this.question.allowMultiple}
+          title={this.question.inputTitle}
+          accept={this.question.acceptedTypes}
         />
       );
     }
@@ -117,12 +119,14 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           ) : null}
           {val.name ? (
             <div>
-              <span
-                className={this.question.cssClasses.removeFile}
-                onClick={event => this.handleOnRemoveFile(val)}
-              >
-                {this.question.removeFileCaption}
-              </span>
+              {!this.question.isReadOnly ? (
+                <span
+                  className={this.question.cssClasses.removeFile}
+                  onClick={event => this.handleOnRemoveFile(val)}
+                >
+                  {this.question.removeFileCaption}
+                </span>
+              ) : null}
             </div>
           ) : null}
         </span>

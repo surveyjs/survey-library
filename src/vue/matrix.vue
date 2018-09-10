@@ -48,6 +48,7 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
     return itemClass;
   }
   cellClick(row, column) {
+    if (this.question.isReadOnly) return;
     row.value = column.value;
   }
 }

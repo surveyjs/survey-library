@@ -125,9 +125,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var isChecked = row.value == column.value;
       let itemClass = this.getItemClass(row, column);
       var inputId = this.isFirst && i === 0 ? this.question.inputId : null;
-      var getHandler = column => () => this.cellClick(row, column);
 
       if (this.question.hasCellText) {
+        var getHandler = !this.question.isReadOnly
+          ? column => () => this.cellClick(row, column)
+          : null;
         td = (
           <td key={key} className={itemClass} onClick={getHandler(column)}>
             {this.renderLocString(

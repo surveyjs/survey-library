@@ -1,7 +1,7 @@
 <template>
     <div>
         <input v-if="!question.isReadOnly" :class="question.cssClasses.root" :type="question.inputType" :maxlength="question.getMaxLength()" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" @change="change" v-bind:aria-label="question.locTitle.renderedHtml"/>
-        <div v-else :class="question.cssClasses.text">{{question.value}}</div>
+        <input v-else disabled :class="question.cssClasses.root" :type="question.inputType" :size="question.size" :id="question.inputId" :placeholder="question.placeHolder" :value="question.value" v-bind:aria-label="question.locTitle.renderedHtml"/>
     </div>
 </template>
 

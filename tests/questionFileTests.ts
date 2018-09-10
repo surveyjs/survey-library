@@ -374,3 +374,22 @@ QUnit.test(
     assert.equal(loadedFilesCount, 1, "two files loaded");
   }
 );
+
+QUnit.test("QuestionFile canPreviewImage", function(assert) {
+  var q1: QuestionFileModel = new QuestionFileModel("image1");
+
+  assert.notOk(q1.canPreviewImage(undefined), "no item");
+  assert.notOk(q1.canPreviewImage({}), "empty item");
+  assert.ok(
+    q1.canPreviewImage({ content: "data:image;/someth" }),
+    "by content"
+  );
+  assert.ok(
+    q1.canPreviewImage({ content: "someth", type: "image/png" }),
+    "by content"
+  );
+  assert.notOk(
+    q1.canPreviewImage({ content: "someth", type: "text/html" }),
+    "other type"
+  );
+});

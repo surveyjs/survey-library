@@ -199,7 +199,7 @@ export class QuestionFileModel extends Question {
     }
   }
   public canPreviewImage(fileItem: any): boolean {
-    return !!fileItem && this.isFileContentImage(fileItem.content);
+    return !!fileItem && this.isFileImage(fileItem);
   }
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);
@@ -225,6 +225,7 @@ export class QuestionFileModel extends Question {
         this.previewValue = this.previewValue.concat([
           {
             name: value.name,
+            type: value.type,
             content: content
           }
         ]);
@@ -233,10 +234,14 @@ export class QuestionFileModel extends Question {
     } else {
       newValues.forEach(value => {
         var content = value.content || value;
-        this.survey.downloadFile(this.name, content, (status, data) => {
+        this.survey.downloadFile(this.name, value, (status, data) => {
           if (status === "success") {
             this.previewValue = this.previewValue.concat([
-              { content: data, name: value.name }
+              {
+                content: data,
+                name: value.name,
+                type: value.type
+              }
             ]);
             if (this.previewValue.length === newValues.length) {
               this.stateChanged("loaded");
@@ -278,12 +283,19 @@ export class QuestionFileModel extends Question {
     }
     return errorLength === this.errors.length;
   }
-  private isFileContentImage(fileContent: string): boolean {
-    if (!fileContent) return false;
+  private isFileImage(file: {
+    content: string;
+    name?: string;
+    type?: string;
+  }): boolean {
+    if (!file) return false;
     const imagePrefix = "data:image";
-    var subStr = fileContent.substr(0, imagePrefix.length);
-    subStr = subStr.toLowerCase();
-    return subStr === imagePrefix;
+    var subStr = file.content && file.content.substr(0, imagePrefix.length);
+    subStr = subStr && subStr.toLowerCase();
+    var result =
+      subStr === imagePrefix ||
+      (!!file.type && file.type.toLowerCase().indexOf("image/") === 0);
+    return result;
   }
 }
 JsonObject.metaData.addClass(

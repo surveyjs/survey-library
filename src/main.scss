@@ -519,7 +519,9 @@ $base-line-height: 2em;
           }
           &.sv_q_matrix {
             td {
-              min-width: 10em;
+              @media (min-width: 768px) {
+                min-width: 10em;
+              }
               .sv_q_m_label {
                 position: static;
               }

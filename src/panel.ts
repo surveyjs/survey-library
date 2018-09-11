@@ -552,12 +552,15 @@ export class PanelModelBase extends SurveyElement
     return res;
   }
   protected childVisibilityChangeHandler = () => {
+    this.childVisibilityChanged();
+  };
+  private childVisibilityChanged() {
     var pageIsVisible = this.getIsPageVisible(null);
     var oldPageIsVisible = this.getPropertyValue("isVisible");
     if (pageIsVisible !== oldPageIsVisible) {
       this.onVisibleChanged();
     }
-  };
+  }
   protected createRow(): QuestionRowModel {
     var result = new QuestionRowModel(this);
     result.visibilityChangedCallback = this.childVisibilityChangeHandler;
@@ -624,8 +627,10 @@ export class PanelModelBase extends SurveyElement
     if (this.rowValues) {
       this.updateRowsVisibility(element);
     }
-    if (this.parent) {
+    if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);
+    } else {
+      this.childVisibilityChanged();
     }
   }
   private onElementStartWithNewLineChanged(element: any) {

@@ -2470,17 +2470,6 @@ export class SurveyModel extends Base
   }
   protected onLoadingSurveyFromService() {}
   protected onLoadSurveyFromService() {}
-  private checkPageVisibility(
-    question: IQuestion,
-    oldQuestionVisible: boolean
-  ) {
-    var page = this.getPageByQuestion(question);
-    if (!page) return;
-    var newValue = page.isVisible;
-    if (newValue != page.getIsPageVisible(question) || oldQuestionVisible) {
-      this.pageVisibilityChanged(page, newValue);
-    }
-  }
   private updateVisibleIndexes() {
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
@@ -2764,7 +2753,6 @@ export class SurveyModel extends Base
       name: question.name,
       visible: newValue
     });
-    this.checkPageVisibility(question, !newValue);
     if (
       question &&
       !question.visible &&

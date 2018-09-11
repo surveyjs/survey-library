@@ -4716,6 +4716,63 @@ QUnit.test("Do not process html in design time, bug #396 (in Editor)", function(
   assert.equal(question.locTitle.renderedHtml, "2. {question1} test", "Do not process anything at design time");
 });
 
+QUnit.test("panel.visibleIf doesn't work if it is a single panel on the page, #1329", function(
+  assert
+) {
+  var json = {
+    pages: [
+     {
+      name: "page1",
+      elements: [
+       {
+        type: "radiogroup",
+        name: "question1",
+        choices: [
+         "item1",
+         "item2",
+         "item3"
+        ]
+       }
+      ]
+     },
+     {
+      name: "page2",
+      elements: [
+       {
+        type: "panel",
+        name: "panel1",
+        elements: [
+         {
+          type: "radiogroup",
+          name: "question2",
+          choices: [
+           "item1",
+           "item2",
+           "item3"
+          ]
+         }
+        ],
+        visibleIf: "{question1} = 'item1'"
+       }
+      ]
+     }
+    ]
+   };
+  var survey = new SurveyModel(json);
+  var counter = 0;
+  survey.onPageVisibleChanged.add(function(sender, options){
+    counter ++;
+  });
+  assert.equal(survey.visiblePageCount, 1, "There is one visible page");
+  assert.equal(counter, 0, "counter is 0");
+  survey.setValue("question1", "item1");
+  assert.equal(survey.visiblePageCount, 2, "There are two visible pages");
+  assert.equal(counter, 1, "counter is 1");
+  survey.setValue("question1", "item2");
+  assert.equal(survey.visiblePageCount, 1, "There is one visible page again");
+  assert.equal(counter, 2, "counter is 2");
+});
+
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

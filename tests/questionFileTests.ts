@@ -336,6 +336,11 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
 
+    var errorsChangesCount = 0;
+    q1.errorsChangedCallback = () => {
+      errorsChangesCount++;
+    };
+
     var loadedFilesCount = 0;
     survey.onUploadFiles.add((survey, options) => {
       options.callback(
@@ -353,16 +358,19 @@ QUnit.test(
     ];
     q1.loadFiles(files);
     assert.equal(q1.errors.length, 1, "one error");
+    assert.equal(errorsChangesCount, 2, "clear errors + the error");
     assert.equal(loadedFilesCount, 0, "no files loaded");
 
     var loadedFilesCount = 0;
     q1.loadFiles([<any>{ name: "f1", type: "t1", size: 9 }]);
     assert.equal(q1.errors.length, 0, "no error");
+    assert.equal(errorsChangesCount, 3, "clear errors");
     assert.equal(loadedFilesCount, 1, "one files loaded");
 
     var loadedFilesCount = 0;
     q1.loadFiles([<any>{ name: "f1", type: "t1", size: 12 }]);
     assert.equal(q1.errors.length, 1, "one error");
+    assert.equal(errorsChangesCount, 5, "clear errors + the error");
     assert.equal(loadedFilesCount, 0, "no files loaded");
 
     var loadedFilesCount = 0;
@@ -371,7 +379,11 @@ QUnit.test(
       <any>{ name: "f2", type: "t2", size: 2 }
     ]);
     assert.equal(q1.errors.length, 0, "no error");
+    assert.equal(errorsChangesCount, 6, "clear errors");
     assert.equal(loadedFilesCount, 1, "two files loaded");
+
+    q1.clear();
+    assert.equal(errorsChangesCount, 7, "clear errors");
   }
 );
 

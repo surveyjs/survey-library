@@ -128,6 +128,8 @@ export class QuestionFileModel extends Question {
     this.survey.clearFiles(this.name, this.value, null, (status, data) => {
       if (status === "success") {
         this.value = undefined;
+        this.errors = [];
+        this.fireCallback(this.errorsChangedCallback);
       }
     });
   }
@@ -160,6 +162,7 @@ export class QuestionFileModel extends Question {
       return;
     }
     this.errors = [];
+    this.fireCallback(this.errorsChangedCallback);
     if (!this.allFilesOk(files)) {
       return;
     }

@@ -782,6 +782,43 @@ QUnit.test(
     );
   }
 );
+QUnit.test("onValueChanging event", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var name = "";
+  var questionName = "";
+  var newValue = null;
+  var counter = 0;
+  survey.onValueChanging.add(function(sender: SurveyModel, options: any) {
+    name = options.name;
+    questionName = !!options.question ? options.question.name : "";
+    newValue = options.value;
+    if(options.value = "value0") options.value = "value";
+    counter++;
+  });
+  survey.setValue("question1", "value1");
+  assert.equal(
+    name,
+    "question1",
+    "onValueChanging event, property name is correct"
+  );
+  assert.equal(
+    questionName,
+    "question1",
+    "onValueChanging event, property question is correct"
+  );
+  assert.equal(
+    newValue,
+    "value1",
+    "onValueChanging event, property newValue is correct"
+  );
+  assert.equal(counter, 1, "onValueChanging event is called one time");
+  (<Question>survey.pages[0].questions[0]).value = "val";
+  assert.equal(counter, 2, "onValueChanging event is called two time");
+  survey.setValue("q1", "val");
+  assert.equal(counter, 3, "onValueChanging event is called three time");
+  survey.setValue("q1", "value0");
+  assert.equal(survey.getValue("q1"), "value", "onValueChanging event allows to change value");
+});
 QUnit.test("adding, inserting Multiple Text Item correctly", function(assert) {
   var survey = twoPageSimplestSurvey();
   var multiTextQuestion = new QuestionMultipleTextModel("multitext");

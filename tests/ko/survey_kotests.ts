@@ -1441,6 +1441,53 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "panel.visibleIf doesn't work if it is a single panel on the page, #1329",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question1",
+              choices: ["item1", "item2", "item3"]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "panel",
+              name: "panel1",
+              elements: [
+                {
+                  type: "radiogroup",
+                  name: "question2",
+                  choices: ["item1", "item2", "item3"]
+                }
+              ],
+              visibleIf: "{question1} = 'item1'"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    assert.equal(survey.koIsLastPage(), true, "There is one visible page");
+    survey.setValue("question1", "item1");
+    assert.equal(survey.koIsLastPage(), false, "There are two visible pages");
+    survey.setValue("question1", "item2");
+    assert.equal(
+      survey.koIsLastPage(),
+      true,
+      "There is one visible page again"
+    );
+  }
+);
+
 /*
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

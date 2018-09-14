@@ -151,12 +151,26 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired before the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.name the value name that has being changed
+   * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
+   * <br/> options.value a new value. You may change it
+   * @see setValue
+   * @see onValueChanged
+   */
+  public onValueChanging: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
    * <br/> sender the survey object that fires the event
    * <br/> options.name the value name that has been changed
    * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
    * <br/> options.value a new value
    * @see setValue
+   * @see onValueChanging
    */
   public onValueChanged: Event<
     (sender: SurveyModel, options: any) => any,
@@ -2254,6 +2268,15 @@ export class SurveyModel extends Base
   protected createNewPage(name: string) {
     return new PageModel(name);
   }
+  protected questionOnValueChanging(valueName: string, newValue: any): any {
+    var options = {
+      name: valueName,
+      question: this.getQuestionByValueName(valueName),
+      value: newValue
+    };
+    this.onValueChanging.fire(this, options);
+    return options.value;
+  }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
     var questions = this.getAllQuestions();
@@ -2648,6 +2671,7 @@ export class SurveyModel extends Base
    * @see goNextPageAutomatic
    */
   public setValue(name: string, newValue: any) {
+    newValue = this.questionOnValueChanging(name, newValue);
     if (this.isValueEqual(name, newValue)) return;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);

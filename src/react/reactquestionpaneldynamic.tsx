@@ -75,7 +75,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         var panel = this.question.panels[i];
         panels.push(
           <SurveyQuestionPanelDynamicItem
-            key={i}
+            key={panel.id}
             panel={panel}
             question={this.question}
             index={i}

@@ -108,5 +108,10 @@ FunctionFactory.Instance.register("isContainerReady", isContainerReady);
 
 function isDisplayMode() {
   return this.survey && this.survey.isDisplayMode;
- }
- FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
+}
+FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
+
+function currentDate() {
+  return new Date();
+}
+FunctionFactory.Instance.register("currentDate", currentDate);

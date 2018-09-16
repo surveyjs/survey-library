@@ -3,6 +3,7 @@ import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
+import { EmailValidator } from "./validator";
 
 /**
  * A Model for an input text question.
@@ -25,6 +26,13 @@ export class QuestionTextModel extends Question {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
+    if (
+      !this.isLoadingFromJson &&
+      val === "email" &&
+      !this.validators.some(v => v.getType() === "emailvalidator")
+    ) {
+      this.validators.push(new EmailValidator());
+    }
   }
   /**
    * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.

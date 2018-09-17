@@ -611,14 +611,22 @@ export class SurveyElement extends Base implements ISurveyElement {
       val.addElement(<IElement>(<any>this), -1);
     }
   }
+  private static copyObject(dst: any, src: any) {
+    for (var key in src) {
+      var source = src[key];
+      if (typeof source === "object") {
+        source = {};
+        this.copyObject(source, src[key]);
+      }
+      dst[key] = source;
+    }
+  }
   protected copyCssClasses(dest: any, source: any) {
     if (!source) return;
     if (typeof source === "string" || source instanceof String) {
       dest["root"] = source;
     } else {
-      for (var key in source) {
-        dest[key] = source[key];
-      }
+      SurveyElement.copyObject(dest, source);
     }
   }
 }

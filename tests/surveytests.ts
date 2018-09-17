@@ -3348,6 +3348,33 @@ QUnit.test("onMatrixRowRemoved", function(assert) {
   );
 });
 
+QUnit.test("onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333", function(assert) {
+  var css = surveyCss.getCss();
+  var survey = new SurveyModel();
+  survey.onUpdatePanelCssClasses.add(function(survey, options) {
+    if (options.panel.name == "panel1")
+      options.cssClasses.panel["container"] = "hereIam";
+  });
+  var page = survey.addNewPage("page1");
+  var panel1 = new PanelModel("panel1");
+  var panel2 = new PanelModel("panel2");
+  page.addElement(panel1);
+  page.addElement(panel2);
+  var css1 = panel1.cssClasses;
+  assert.equal(
+    css1.panel.container,
+    "hereIam",
+    "panel1 custom class"
+  );
+  var css2 = panel2.cssClasses;
+  assert.equal(
+    css2.panel.container,
+    "sv_p_container",
+    "keep original panel class"
+  );
+  assert.equal(css.panel.container, "sv_p_container", "keep original main css class");
+});
+
 QUnit.test("Survey Elements css", function(assert) {
   var css = surveyCss.getCss();
   css.question.titleRequired = "required";

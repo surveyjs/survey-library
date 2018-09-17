@@ -44,7 +44,7 @@ export class Survey extends SurveyModel {
   koCurrentPage: any;
   koIsFirstPage: any;
   koIsLastPage: any;
-  koIsNavigationButtonsShowing: any;
+  koIsNavigationButtonsShowing = ko.observable<boolean>(true);
   dummyObservable: any;
   koState: any;
   koProgress: any;
@@ -164,6 +164,13 @@ export class Survey extends SurveyModel {
     super.setCompleted();
     this.updateKoCurrentPage();
   }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
+    super.propertyValueChanged(name, oldValue, newValue);
+    if (this.isLoadingFromJson) return;
+    if (name === "showNavigationButtons") {
+      this.koIsNavigationButtonsShowing(this.isNavigationButtonsShowing);
+    }
+  }
   public start() {
     super.start();
     this.updateKoCurrentPage();
@@ -178,9 +185,12 @@ export class Survey extends SurveyModel {
     var self = this;
     this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.observable(this.currentPage);
-    this.koIsNavigationButtonsShowing = ko.computed(() => {
+    this.koIsNavigationButtonsShowing = ko.observable(
+      this.isNavigationButtonsShowing
+    );
+    ko.computed(() => {
       this.dummyObservable();
-      return this.isNavigationButtonsShowing;
+      this.koIsNavigationButtonsShowing(this.isNavigationButtonsShowing);
     });
     this.koIsFirstPage = ko.computed(() => {
       this.dummyObservable();

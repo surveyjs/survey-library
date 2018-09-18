@@ -22,6 +22,7 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionBooleanModel } from "../src/question_boolean";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1423,6 +1424,49 @@ QUnit.test(
     assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
   }
 );
+
+QUnit.test("matrixdropdown.rowsVisibleIf", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  qBestCar.addColumn("col1");
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleRows.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleRows.length, 3, "3 cars are selected");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
+});
+
+QUnit.test("matrixdropdown.columnsVisibleIf", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  qBestCar.rows = ["col1"];
+  qBestCar.addColumn("Audi");
+  qBestCar.addColumn("BMW");
+  qBestCar.addColumn("Mercedes");
+  qBestCar.addColumn("Volkswagen");
+  qBestCar.columnsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.visibleColumns.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleColumns.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.visibleColumns.length, 3, "3 cars are selected");
+  qBestCar.columnsVisibleIf = "";
+  assert.equal(qBestCar.visibleColumns.length, 4, "there is no filter");
+});
 
 QUnit.test(
   "radiogroup.choicesVisibleIf, clear value on making the value invisible, bug #1093",

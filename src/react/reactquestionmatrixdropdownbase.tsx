@@ -63,8 +63,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if (!this.question.showHeader) return null;
     var headers = [];
     this.addHeaderLeft(headers);
-    for (var i = 0; i < this.question.columns.length; i++) {
-      var column = this.question.columns[i];
+    for (var i = 0; i < this.question.visibleColumns.length; i++) {
+      var column = this.question.visibleColumns[i];
       var key = "column" + i;
       var minWidth = this.question.getColumnWidth(column);
       var columnStyle = minWidth ? { minWidth: minWidth } : {};
@@ -88,7 +88,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   renderColumnsAsRows(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var rows = [];
-    var columns = this.question.columns;
+    var columns = this.question.visibleColumns;
     for (var i = 0; i < columns.length; i++) {
       var column = columns[i];
       rows.push(this.renderColumnAsRow(i, column, cssClasses));

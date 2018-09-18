@@ -11,7 +11,6 @@ import { MatrixDynamicRowModel } from "../question_matrixdynamic";
 export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplementor {
   constructor(question: Question) {
     super(question);
-    var self = this;
   }
   protected hasRowText(): boolean {
     return false;

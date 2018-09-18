@@ -7,7 +7,7 @@
             <thead data-bind="visible: question.showHeader">
                 <tr>
                     <!-- ko if: question.hasRowText --><td></td><!-- /ko -->
-                    <!-- ko foreach: question.columns -->
+                    <!-- ko foreach: question.koVisibleColumns -->
                     <th data-bind="style: { minWidth: question.getColumnWidth($data) }">
                         <!-- ko template: { name: 'survey-string', data: locTitle } -->
                         <!-- /ko -->
@@ -49,7 +49,7 @@
                 </thead>
             <!-- /ko -->
             <tbody>
-                <!-- ko foreach: { data: question.columns, as: 'column' } -->
+                <!-- ko foreach: { data: question.koVisibleColumns, as: 'column' } -->
                     <tr>
                         <th data-bind="visible: question.showHeader, style: { minWidth: question.getColumnWidth($data) }">
                             <!-- ko template: { name: 'survey-string', data: locTitle } -->

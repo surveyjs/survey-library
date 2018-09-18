@@ -3,6 +3,7 @@ import {
   CustomPropertiesCollection,
   JsonObjectProperty
 } from "./jsonobject";
+import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import {
@@ -17,21 +18,10 @@ import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
-import {
-  QuestionSelectBase,
-  QuestionCheckboxBase
-} from "./question_baseselect";
-import { QuestionDropdownModel } from "./question_dropdown";
-import { QuestionCheckboxModel } from "./question_checkbox";
-import { QuestionRadiogroupModel } from "./question_radiogroup";
-import { QuestionTextModel } from "./question_text";
-import { QuestionCommentModel } from "./question_comment";
-import { QuestionBooleanModel } from "./question_boolean";
-import { ChoicesRestfull } from "./choicesRestfull";
+import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
-import { CustomWidgetCollection } from "./questionCustomWidgets";
 
 export interface IMatrixDropdownData {
   onRowChanged(
@@ -143,6 +133,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   private templateQuestionValue: Question;
   private colOwnerValue: IMatrixColumnOwner = null;
   private indexValue = -1;
+  private _isVisible = true;
 
   constructor(name: string, title: string = null) {
     super();
@@ -192,6 +183,15 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public get templateQuestion() {
     return this.templateQuestionValue;
+  }
+  public get value() {
+    return this.templateQuestion.name;
+  }
+  public get isVisible() {
+    return this._isVisible;
+  }
+  public setIsVisible(newVal) {
+    this._isVisible = newVal;
   }
   public get name() {
     return this.templateQuestion.name;
@@ -623,7 +623,9 @@ export class MatrixDropdownRowModelBase
     var columns = this.data.columns;
     for (var i = 0; i < columns.length; i++) {
       var column = columns[i];
-      this.cells.push(this.createCell(column));
+      if (column.isVisible) {
+        this.cells.push(this.createCell(column));
+      }
     }
   }
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
@@ -670,27 +672,31 @@ export class MatrixDropdownRowModelBase
 /**
  * A base class for matrix dropdown and matrix dynamic questions.
  */
-export class QuestionMatrixDropdownModelBase extends Question
+export class QuestionMatrixDropdownModelBase
+  extends QuestionMatrixBaseModel<
+    MatrixDropdownRowModelBase,
+    MatrixDropdownColumn
+  >
   implements IMatrixDropdownData {
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
-  private columnsValue: Array<MatrixDropdownColumn>;
   private choicesValue: Array<ItemValue>;
   private isRowChanging = false;
-  protected generatedVisibleRows: Array<MatrixDropdownRowModelBase> = null;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
   columnLayoutChangedCallback: () => void;
-  visibleRowsChangedCallback: () => void;
+
+  protected createColumnValues() {
+    return this.createNewArray("columns", item => {
+      item.colOwner = this;
+    });
+  }
 
   constructor(public name: string) {
     super(name);
     var self = this;
-    this.columnsValue = this.createNewArray("columns", function(item) {
-      item.colOwner = self;
-    });
     this.choicesValue = this.createItemValues("choices");
     this.createLocalizableString("optionsCaption", this);
     this.registerFunctionOnPropertyValueChanged("columns", function(
@@ -716,18 +722,6 @@ export class QuestionMatrixDropdownModelBase extends Question
   }
   public get isRowsDynamic(): boolean {
     return false;
-  }
-  public get isAllowTitleLeft(): boolean {
-    return false;
-  }
-  /**
-   * The list of matrix columns.
-   */
-  public get columns(): Array<MatrixDropdownColumn> {
-    return this.columnsValue;
-  }
-  public set columns(value: Array<MatrixDropdownColumn>) {
-    this.setPropertyValue("columns", value);
   }
   /**
    * Set columnLayout to 'vertical' to place columns vertically and rows horizontally. It makes sense when we have many columns and few rows.
@@ -764,7 +758,7 @@ export class QuestionMatrixDropdownModelBase extends Question
       cellQuestion: null,
       value: null
     };
-    for (var i = 0; i < this.columns.length; i++) {
+    for (var i = 0; i < this.visibleColumns.length; i++) {
       options.column = this.columns[i];
       options.columnName = options.column.name;
       var cell = row.cells[i];
@@ -945,10 +939,7 @@ export class QuestionMatrixDropdownModelBase extends Question
     this.columnsValue.push(column);
     return column;
   }
-  /**
-   * Returns the rows model objects that used during rendering.
-   */
-  public get visibleRows(): Array<MatrixDropdownRowModelBase> {
+  protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {
     if (this.isLoadingFromJson) return;
     if (!this.generatedVisibleRows) {
       this.generatedVisibleRows = this.generateRows();
@@ -1316,5 +1307,5 @@ JsonObject.metaData.addClass(
   function() {
     return new QuestionMatrixDropdownModelBase("");
   },
-  "question"
+  "matrixbase"
 );

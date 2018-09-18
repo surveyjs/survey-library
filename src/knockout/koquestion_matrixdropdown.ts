@@ -14,6 +14,7 @@ import { QuestionImplementor } from "./koquestion";
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koCellAfterRender: any;
   koRows: any;
+  koVisibleColumns: any;
   koRecalc: any;
   koAddRowClick: any;
   koRemoveRowClick: any;
@@ -31,6 +32,10 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.koRows = ko.pureComputed(function() {
       this.koRecalc();
       return (<QuestionMatrixDropdownModel>this.question).visibleRows;
+    }, this);
+    this.koVisibleColumns = ko.pureComputed(function() {
+      this.koRecalc();
+      return (<QuestionMatrixDropdownModel>this.question).visibleColumns;
     }, this);
     var self = this;
     (<QuestionMatrixDropdownModel>this
@@ -59,6 +64,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       (<QuestionMatrixDropdownModel>this.question).isColumnLayoutHorizontal
     );
     this.question["koRows"] = this.koRows;
+    this.question["koVisibleColumns"] = this.koVisibleColumns;
     this.question["koCellAfterRender"] = this.koCellAfterRender;
     this.question["koAddRowClick"] = this.koAddRowClick;
     this.question["koRemoveRowClick"] = this.koRemoveRowClick;

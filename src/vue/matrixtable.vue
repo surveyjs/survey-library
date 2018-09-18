@@ -3,7 +3,7 @@
         <thead v-if="showHorizontalHeader">
             <tr>
                 <td v-if="!isDynamic"></td>
-                <th v-for="column in question.columns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
+                <th v-for="column in question.visibleColumns" :style="{ minWidth: question.getColumnWidth(column) }"><survey-string :locString="column.locTitle"/></th>
                 <td v-if="question.canRemoveRow"></td>
             </tr>
         </thead>
@@ -23,7 +23,7 @@
             </tr>
         </tbody>
         <tbody v-if="!isColumnsHorizontal">
-            <tr v-for="(column, columnIndex) in question.columns" :key="question.inputId + '_' + columnIndex">
+            <tr v-for="(column, columnIndex) in question.visibleColumns" :key="question.inputId + '_' + columnIndex">
                 <th v-if="question.showHeader"><survey-string :locString="column.locTitle"/></th>
                 <survey-matrixcell :question="question" :cell="cell" v-for="cell in getCellsByColumn(columnIndex)" :key="columnIndex + '_' + cell.question.id"/>
             </tr>

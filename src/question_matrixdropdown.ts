@@ -38,13 +38,8 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  private rowsValue: Array<ItemValue>;
-  private filteredRows: Array<ItemValue>;
-
   constructor(public name: string) {
     super(name);
-    this.filteredRows = null;
-    this.rowsValue = this.createItemValues("rows");
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function() {
       self.generatedVisibleRows = null;
@@ -85,26 +80,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
-  /**
-   * The list of rows. A row has a value and an optional text
-   */
-  public get rows(): Array<any> {
-    return this.rowsValue;
-  }
-  public set rows(val: Array<any>) {
-    this.setPropertyValue("rows", val);
-  }
-  /**
-   * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
-   * @see visibleIf
-   */
-  public get rowsVisibleIf(): string {
-    return this.getPropertyValue("rowsVisibleIf", "");
-  }
-  public set rowsVisibleIf(val: string) {
-    this.setPropertyValue("rowsVisibleIf", val);
-    this.filterItems();
-  }
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;
@@ -141,51 +116,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     value: any
   ): MatrixDropdownRowModel {
     return new MatrixDropdownRowModel(item.value, item, this, value);
-  }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
-    this.runItemsCondition(values, properties);
-  }
-  protected filterItems(): boolean {
-    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
-    return this.runItemsCondition(
-      this.getDataFilteredValues(),
-      this.getDataFilteredProperties()
-    );
-  }
-  protected runItemsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var hasChanges = this.runConditionsForRows(values, properties);
-    if (hasChanges) {
-      if (!!this.filteredRows) {
-        this.clearIncorrectValues();
-      }
-      this.generatedVisibleRows = null;
-      this.fireCallback(this.visibleRowsChangedCallback);
-    }
-    return hasChanges;
-  }
-  private runConditionsForRows(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var runner = !!this.rowsVisibleIf
-      ? new ConditionRunner(this.rowsVisibleIf)
-      : null;
-    this.filteredRows = [];
-    var hasChanged = ItemValue.runConditionsForItems(
-      this.rows,
-      this.filteredRows,
-      runner,
-      values,
-      properties
-    );
-    if (this.filteredRows.length === this.rows.length) {
-      this.filteredRows = null;
-    }
-    return hasChanged;
   }
 }
 

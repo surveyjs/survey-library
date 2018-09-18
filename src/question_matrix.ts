@@ -1,7 +1,5 @@
-import { Base } from "./base";
-import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { Question } from "./question";
+import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject } from "./jsonobject";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
@@ -9,7 +7,6 @@ import { CustomError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
-import { ConditionRunner } from "./conditions";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel);
@@ -174,22 +171,18 @@ export class MartrixCells {
 /**
  * A Model for a simple matrix question.
  */
-export class QuestionMatrixModel extends Question
+export class QuestionMatrixModel
+  extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
   implements IMatrixData, IMatrixCellsOwner {
-  private columnsValue: Array<ItemValue>;
-  private rowsValue: Array<ItemValue>;
-  private filteredColumns: Array<ItemValue>;
-  private filteredRows: Array<ItemValue>;
   private isRowChanging = false;
-  private generatedVisibleRows: Array<MatrixRowModel>;
   private cellsValue;
-  public visibleRowsChangedCallback: () => void;
+
+  protected createColumnValues() {
+    return this.createItemValues("columns");
+  }
+
   constructor(public name: string) {
     super(name);
-    this.filteredRows = null;
-    this.filteredColumns = null;
-    this.columnsValue = this.createItemValues("columns");
-    this.rowsValue = this.createItemValues("rows");
     this.cellsValue = new MartrixCells(this);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function() {
@@ -200,9 +193,6 @@ export class QuestionMatrixModel extends Question
   }
   public getType(): string {
     return "matrix";
-  }
-  public get isAllowTitleLeft(): boolean {
-    return false;
   }
   /**
    * Set this property to true, if you want a user to answer all rows.
@@ -219,33 +209,13 @@ export class QuestionMatrixModel extends Question
   public get hasRows(): boolean {
     return this.rowsValue.length > 0;
   }
-  /**
-   * The list of columns. A column has a value and an optional text
-   */
-  get columns(): Array<any> {
-    return this.columnsValue;
+  getRows(): Array<any> {
+    return this.rows;
   }
-  set columns(newValue: Array<any>) {
-    this.setPropertyValue("columns", newValue);
+  getColumns(): Array<any> {
+    return this.visibleColumns;
   }
-  public get visibleColumns(): Array<any> {
-    return !!this.filteredColumns ? this.filteredColumns : this.columns;
-  }
-  /**
-   * The list of rows. A row has a value and an optional text
-   */
-  get rows(): Array<any> {
-    return this.rowsValue;
-  }
-  set rows(newValue: Array<any>) {
-    this.setPropertyValue("rows", newValue);
-    this.filterItems();
-  }
-  /**
-   * Returns the list of visible rows as model objects.
-   * @see rowsVisibleIf
-   */
-  public get visibleRows(): Array<MatrixRowModel> {
+  protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
     var val = this.value;
     if (!val) val = {};
@@ -266,101 +236,12 @@ export class QuestionMatrixModel extends Question
     this.generatedVisibleRows = result;
     return result;
   }
-  getRows(): Array<any> {
-    return this.rows;
-  }
-  getColumns(): Array<any> {
-    return this.visibleColumns;
-  }
-  protected onRowsChanged() {
-    this.fireCallback(this.visibleRowsChangedCallback);
-  }
   /**
-   * An expression that returns true or false. It runs against each row item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
-   * @see visibleIf
+   * Returns the list of visible rows as model objects.
+   * @see rowsVisibleIf
    */
-  public get rowsVisibleIf(): string {
-    return this.getPropertyValue("rowsVisibleIf", "");
-  }
-  public set rowsVisibleIf(val: string) {
-    this.setPropertyValue("rowsVisibleIf", val);
-    this.filterItems();
-  }
-  /**
-   * An expression that returns true or false. It runs against each column item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
-   * @see rowVisibleIf
-   */
-  public get columnsVisibleIf(): string {
-    return this.getPropertyValue("columnsVisibleIf", "");
-  }
-  public set columnsVisibleIf(val: string) {
-    this.setPropertyValue("columnsVisibleIf", val);
-    this.filterItems();
-  }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    super.runCondition(values, properties);
-    this.runItemsCondition(values, properties);
-  }
-  protected filterItems(): boolean {
-    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
-    return this.runItemsCondition(
-      this.getDataFilteredValues(),
-      this.getDataFilteredProperties()
-    );
-  }
-  protected runItemsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var hasChanges = this.runConditionsForRows(values, properties);
-    hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
-    if (hasChanges) {
-      if (!!this.filteredColumns || !!this.filteredRows) {
-        this.clearIncorrectValues();
-      }
-      this.onRowsChanged();
-    }
-    return hasChanges;
-  }
-  private runConditionsForRows(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var runner = !!this.rowsVisibleIf
-      ? new ConditionRunner(this.rowsVisibleIf)
-      : null;
-    this.filteredRows = [];
-    var hasChanged = ItemValue.runConditionsForItems(
-      this.rows,
-      this.filteredRows,
-      runner,
-      values,
-      properties
-    );
-    if (this.filteredRows.length === this.rows.length) {
-      this.filteredRows = null;
-    }
-    return hasChanged;
-  }
-  private runConditionsForColumns(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
-    var runner = !!this.columnsVisibleIf
-      ? new ConditionRunner(this.columnsVisibleIf)
-      : null;
-    this.filteredColumns = [];
-    var hasChanged = ItemValue.runConditionsForItems(
-      this.columns,
-      this.filteredColumns,
-      runner,
-      values,
-      properties
-    );
-    if (this.filteredColumns.length === this.columns.length) {
-      this.filteredColumns = null;
-    }
-    return hasChanged;
+  public get visibleRows(): Array<MatrixRowModel> {
+    return this.getVisibleRows();
   }
   public get cells(): MartrixCells {
     return this.cellsValue;
@@ -391,28 +272,6 @@ export class QuestionMatrixModel extends Question
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  public clearIncorrectValues() {
-    var val = this.value;
-    if (!val) return;
-    var newVal = null;
-    var isChanged = false;
-    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
-    var columns = !!this.filteredColumns ? this.filteredColumns : this.columns;
-    for (var key in val) {
-      if (
-        ItemValue.getItemByValue(rows, key) &&
-        ItemValue.getItemByValue(columns, val[key])
-      ) {
-        if (newVal == null) newVal = {};
-        newVal[key] = val[key];
-      } else {
-        isChanged = true;
-      }
-    }
-    if (isChanged) {
-      this.value = newVal;
-    }
-  }
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
   }
@@ -420,7 +279,10 @@ export class QuestionMatrixModel extends Question
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
       errors.push(
-        new CustomError(surveyLocalization.getString("requiredInAllRowsError"), this)
+        new CustomError(
+          surveyLocalization.getString("requiredInAllRowsError"),
+          this
+        )
       );
     }
   }
@@ -535,15 +397,13 @@ JsonObject.metaData.addClass(
         obj.rows = value;
       }
     },
-    "columnsVisibleIf:condition",
-    "rowsVisibleIf:condition",
     { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"
   ],
   function() {
     return new QuestionMatrixModel("");
   },
-  "question"
+  "matrixbase"
 );
 
 QuestionFactory.Instance.registerQuestion("matrix", name => {

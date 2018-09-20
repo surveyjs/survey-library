@@ -23,6 +23,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     for (let i = 0; i < src.files.length; i++) {
       files.push(src.files[i]);
     }
+    src.value = "";
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   }

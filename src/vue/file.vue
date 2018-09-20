@@ -33,6 +33,7 @@ export class File extends QuestionVue<QuestionFileModel> {
     for (let i = 0; i < src.files.length; i++) {
       files.push(src.files[i]);
     }
+    src.value = "";
     this.question.loadFiles(files);
   }
   doClean(event) {

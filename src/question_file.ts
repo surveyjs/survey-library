@@ -119,7 +119,7 @@ export class QuestionFileModel extends Question {
   get inputTitle(): string {
     if (this.isUploading) return surveyLocalization.getString("loadingFile");
     if (this.isEmpty()) return surveyLocalization.getString("chooseFile");
-    return "";
+    return " ";
   }
   /**
    * Clear value programmatically.

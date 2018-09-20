@@ -53,6 +53,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     for (let i = 0; i < src.files.length; i++) {
       files.push(src.files[i]);
     }
+    src.value = "";
     (<QuestionFileModel>this.question).loadFiles(files);
   }
 }

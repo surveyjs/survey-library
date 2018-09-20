@@ -142,7 +142,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
     assert.equal(q1.inputTitle, "Loading...");
-    assert.equal(q2.inputTitle, "");
+    assert.equal(q2.inputTitle, " ");
     options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
   });
 
@@ -152,8 +152,8 @@ QUnit.test("QuestionFile value initialization array of objects", function(
     image1: [{ content: "someId" }],
     image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }]
   };
-  assert.equal(q1.inputTitle, "");
-  assert.equal(q2.inputTitle, "");
+  assert.equal(q1.inputTitle, " ");
+  assert.equal(q2.inputTitle, " ");
   assert.deepEqual(q1.value, survey.data.image1);
   assert.deepEqual(q2.value, survey.data.image2);
   assert.equal(q1.previewValue.length, 1, "remote stored file");
@@ -405,3 +405,60 @@ QUnit.test("QuestionFile canPreviewImage", function(assert) {
     "other type"
   );
 });
+
+QUnit.test(
+  "QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "file",
+          name: "image1",
+          storeDataAsText: false,
+          showPreview: true
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+    var isSuccess = true;
+    survey.onUploadFiles.add((survey, options) => {
+      if (isSuccess) {
+        options.callback(
+          "success",
+          options.files.map(file => {
+            return { file: file, content: file.name + "_url" };
+          })
+        );
+      } else {
+        options.callback("error");
+      }
+    });
+
+    var state = "";
+    q1.onStateChanged.add((_, options) => {
+      state = options.state;
+    });
+
+    assert.ok(q1.isEmpty());
+    assert.equal(q1.value, undefined);
+    assert.equal(state, "");
+
+    isSuccess = false;
+    q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
+
+    assert.ok(q1.isEmpty());
+    assert.equal(q1.value, undefined);
+    assert.equal(state, "error");
+
+    isSuccess = true;
+    q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
+
+    assert.notOk(q1.isEmpty());
+    assert.equal(q1.value.length, 1);
+    assert.equal(q1.value[0].content, "f2_url");
+    assert.equal(state, "loaded");
+  }
+);

@@ -349,7 +349,10 @@ export class StylesManager {
 
   static findSheet(styleSheetId: string) {
     for (let i = 0; i < document.styleSheets.length; i++) {
-      if (document.styleSheets[i].ownerNode["id"] === styleSheetId) {
+      if (
+        !!document.styleSheets[i].ownerNode &&
+        document.styleSheets[i].ownerNode["id"] === styleSheetId
+      ) {
         return <CSSStyleSheet>document.styleSheets[i];
       }
     }

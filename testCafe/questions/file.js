@@ -31,15 +31,9 @@ frameworks.forEach(framework => {
   );
 
   test(`choose file`, async t => {
-    const getFileName = ClientFunction(
-      () => document.querySelector("input[type=file]").files[0].name
-    );
     let surveyResult;
-    let fileName;
 
     await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
-    fileName = await getFileName();
-    assert.equal(fileName, `stub.txt`);
 
     await t.click(`input[value=Complete]`);
 
@@ -53,6 +47,23 @@ frameworks.forEach(framework => {
         }
       ]
     });
+  });
+
+  test(`choose multiple files`, async t => {
+    let surveyResult;
+
+    await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
+    await t.setFilesToUpload(
+      `input[type=file]`,
+      `../resources/small_Dashka.jpg`
+    );
+
+    await t.click(`input[value=Complete]`);
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.image.length, 2);
+    assert.equal(surveyResult.image[0].name, "stub.txt");
+    assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
   });
 
   test(`choose image`, async t => {

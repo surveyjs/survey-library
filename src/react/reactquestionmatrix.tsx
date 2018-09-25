@@ -139,7 +139,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         );
       } else {
         td = (
-          <td key={key}>
+          <td key={key} headers={column.locText.renderedHtml}>
             <label className={itemClass}>
               <input
                 id={inputId}

@@ -13,7 +13,7 @@
                     <td v-if="question.hasCellText" v-for="(column, columnIndex) in question.visibleColumns" :class="getItemClass(row, column)" v-on:click="function() { cellClick(row, column); }">
                         <span>{{question.getCellDisplayLocText(row.name, column).renderedHtml}}</span>
                     </td>
-                    <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.visibleColumns">
+                    <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.visibleColumns" :headers="column.locText.renderedHtml">
                         <label :class="getItemClass(row, column)">
                             <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="(columnIndex === 0) && (rowIndex === 0) ? question.inputId : ''" v-bind:aria-label="question.locTitle.renderedHtml"/>
                             <span class="circle"></span>

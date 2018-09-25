@@ -98,7 +98,9 @@ module.exports = function(options) {
     options.platform == "knockout" ? "ko" : options.platform;
   var packagePath = "./packages/survey-" + options.platform + "/";
   var extractCSS = new ExtractTextPlugin({
-    filename: packagePath + "survey.css"
+    filename:
+      packagePath +
+      (options.buildType === "prod" ? "survey.min.css" : "survey.css")
   });
 
   var percentage_handler = function handler(percentage, msg) {
@@ -222,6 +224,7 @@ module.exports = function(options) {
                 loader: "css-loader",
                 options: {
                   sourceMap: true,
+                  minimize: options.buildType === "prod",
                   importLoaders: true
                 }
               },

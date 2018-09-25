@@ -27,7 +27,7 @@
                     </td>
                     <!-- /ko -->
                     <!-- ko if: !question.hasCellText -->
-                    <td>
+                    <td data-bind="attr: { headers: $data.locText.renderedHtml }">
                         <label data-bind="css: question.getItemCss(row, $data)">
                             <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()"
                             />

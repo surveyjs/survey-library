@@ -1,5 +1,5 @@
 <template>
-    <td :class="question.cssClasses.itemValue">
+    <td :class="question.cssClasses.itemValue" :headers="cell.question.isVisible ? cell.column.locTitle.renderedHtml : ''">
         <survey-errors :question="cell.question" />
         <component v-show="isVisible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
     </td>

@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-matrixcell">
-    <td data-bind="css: $context.question.koCss().itemValue">
+    <td data-bind="css: $context.question.koCss().itemValue, attr: { headers: cell.question.koVisible() ? cell.column.locTitle.renderedHtml : '' }">
         <div data-bind="visible: cell.question.koVisible">
             <!-- ko template: { name: 'survey-question-errors', data: cell.question } -->
             <!-- /ko -->

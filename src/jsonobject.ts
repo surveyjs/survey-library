@@ -358,6 +358,7 @@ export class JsonMetadataClass {
 }
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
+  private alternativeNames: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private classProperties: HashTable<Array<JsonObjectProperty>> = {};
   public addClass(
@@ -392,12 +393,13 @@ export class JsonMetadata {
     }
   }
   public getProperties(className: string): Array<JsonObjectProperty> {
-    className = className.toLowerCase();
-    var properties = this.classProperties[className];
+    var metaClass = this.findClass(className);
+    if (!metaClass) return [];
+    var properties = this.classProperties[metaClass.name];
     if (!properties) {
       properties = new Array<JsonObjectProperty>();
-      this.fillProperties(className, properties);
-      this.classProperties[className] = properties;
+      this.fillProperties(metaClass.name, properties);
+      this.classProperties[metaClass.name] = properties;
     }
     return properties;
   }
@@ -513,7 +515,6 @@ export class JsonMetadata {
     }
   }
   public addProperty(className: string, propertyInfo: any) {
-    className = className.toLowerCase();
     this.addCustomPropertyCore(this.findClass(className), propertyInfo);
   }
   private addCustomPropertyCore(
@@ -529,14 +530,16 @@ export class JsonMetadata {
     }
   }
   public removeProperty(className: string, propertyName: string) {
-    className = className.toLowerCase();
     var metaDataClass = this.findClass(className);
     if (!metaDataClass) return false;
     var property = metaDataClass.find(propertyName);
     if (property) {
       this.removePropertyFromClass(metaDataClass, property);
       this.emptyClassPropertiesHash(metaDataClass);
-      CustomPropertiesCollection.removeProperty(className, propertyName);
+      CustomPropertiesCollection.removeProperty(
+        metaDataClass.name,
+        propertyName
+      );
     }
   }
   private addPropertyToClass(
@@ -577,7 +580,15 @@ export class JsonMetadata {
   }
   public findClass(name: string): JsonMetadataClass {
     name = name.toLowerCase();
-    return this.classes[name];
+    var res = this.classes[name];
+    if (!res) {
+      var newName = this.alternativeNames[name];
+      if (!!newName && newName != name) return this.findClass(newName);
+    }
+    return res;
+  }
+  public addAlterNativeClassName(name: string, alternativeName: string) {
+    this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
   private fillProperties(name: string, list: Array<JsonObjectProperty>) {
     var metaDataClass = this.findClass(name);

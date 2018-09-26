@@ -1023,6 +1023,45 @@ QUnit.test("Add new property to object", function(assert) {
   );
 });
 
+QUnit.test("Add property into alternative name of class", function(assert) {
+  JsonObject.metaData.addAlterNativeClassName("truck", "trick");
+  assert.equal(
+    JsonObject.metaData.findClass("trick").name,
+    "truck",
+    "Find class by alternative name"
+  );
+  var propertiesCount = JsonObject.metaData.getProperties("truck").length;
+  JsonObject.metaData.addProperty("trick", "isUsed:boolean");
+  assert.equal(
+    propertiesCount + 1,
+    JsonObject.metaData.getProperties("truck").length,
+    "there is on one property more"
+  );
+  assert.equal(
+    propertiesCount + 1,
+    JsonObject.metaData.getProperties("trick").length,
+    "alternative name returns correct properties as well"
+  );
+  var dealer = new Dealer();
+  new JsonObject().toObject(
+    { truck: { isUsed: true, maxWeight: 10000 } },
+    dealer
+  );
+  assert.equal(dealer.truck["isUsed"], true, "new property is here");
+  var jsObj = new JsonObject().toJsonObject(dealer);
+  assert.deepEqual(
+    jsObj,
+    { truck: { isUsed: true, maxWeight: 10000 } },
+    "property is serialized"
+  );
+  JsonObject.metaData.removeProperty("trick", "isUsed");
+  assert.equal(
+    propertiesCount,
+    JsonObject.metaData.getProperties("truck").length,
+    "the additional property is removed"
+  );
+});
+
 QUnit.test("Add a new number property with default value", function(assert) {
   JsonObject.metaData.addProperty("car", { name: "tag:number", default: 1 });
   var dealer = new Dealer();

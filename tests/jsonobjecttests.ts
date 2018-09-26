@@ -4,6 +4,8 @@ import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { Question } from "../src/question";
+import { QuestionBase } from "../src/questionbase";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -1369,4 +1371,17 @@ QUnit.test("Serialize/deserialize dynamic properties", function(assert) {
     200,
     "The dynamic property set correctly"
   );
+});
+
+QUnit.test("Add property into questionbase", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", "custom");
+  var question = new Question("q1");
+  new JsonObject().toObject({ name: "q2", custom: "customValue1" }, question);
+  assert.equal(question.name, "q2", "name serialzied successful");
+  assert.equal(
+    question["custom"],
+    "customValue1",
+    "custom serialzied successful"
+  );
+  JsonObject.metaData.removeProperty("questionbase", "custom");
 });

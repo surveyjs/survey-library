@@ -75,6 +75,7 @@ export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { PageModel } from "../../page";
 export { Question } from "../../question";
 export { QuestionBase } from "../../questionbase";
+export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,

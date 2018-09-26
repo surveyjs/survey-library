@@ -1,13 +1,13 @@
 import * as ko from "knockout";
 import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
-import { QuestionImplementorBase } from "./koquestionbase";
+import { QuestionImplementor } from "./koquestion";
 import { QuestionHtmlModel } from "../question_html";
 
 export class QuestionHtml extends QuestionHtmlModel {
   constructor(public name: string) {
     super(name);
-    new QuestionImplementorBase(this);
+    new QuestionImplementor(this);
   }
 }
 

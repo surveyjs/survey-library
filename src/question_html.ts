@@ -1,4 +1,5 @@
-import { QuestionBase } from "./questionbase";
+import { Question } from "./question";
+import { QuestionNonValue } from "./questionnonvalue";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -6,7 +7,7 @@ import { LocalizableString } from "./localizablestring";
 /**
  * A Model for html question. Unlike other questions it doesn't have value and title.
  */
-export class QuestionHtmlModel extends QuestionBase {
+export class QuestionHtmlModel extends QuestionNonValue {
   constructor(public name: string) {
     super(name);
     var locHtml = this.createLocalizableString("html", this);
@@ -40,7 +41,7 @@ JsonObject.metaData.addClass(
   function() {
     return new QuestionHtmlModel("");
   },
-  "questionbase"
+  "nonvalue"
 );
 QuestionFactory.Instance.registerQuestion("html", name => {
   return new QuestionHtmlModel(name);

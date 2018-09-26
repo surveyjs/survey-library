@@ -22,7 +22,6 @@ import "../main.scss";
 export { Survey } from "../knockout/kosurvey";
 export { Survey as Model } from "../knockout/kosurvey";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
-export { QuestionImplementorBase } from "../knockout/koquestionbase";
 export { QuestionImplementor } from "../knockout/koquestion";
 export {
   QuestionSelectBaseImplementor

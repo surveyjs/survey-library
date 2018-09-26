@@ -22,7 +22,6 @@ import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
 import { JsonError } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import { QuestionBase } from "./questionbase";
 import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
@@ -182,8 +181,8 @@ export class SurveyModel extends Base
    * <br/> options.question a question which visibility has been changed
    * <br/> options.name a question name
    * <br/> options.visible a question visible boolean value
-   * @see QuestionBase.visibile
-   * @see QuestionBase.visibileIf
+   * @see Question.visibile
+   * @see Question.visibileIf
    */
   public onVisibleChanged: Event<
     (sender: SurveyModel, options: any) => any,
@@ -222,7 +221,7 @@ export class SurveyModel extends Base
    * <br/> options.index a index of the question in the container (page or panel)
    * <br/> options.parentPanel a container where question is located. It can be page or panel.
    * <br/> options.rootPanel typically it is a page.
-   * @see QuestionBase
+   * @see Question
    */
   public onQuestionAdded: Event<
     (sender: SurveyModel, options: any) => any,
@@ -233,7 +232,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.question a removed question object.
    * <br/> options.name a question name
-   * @see QuestionBase
+   * @see Question
    */
   public onQuestionRemoved: Event<
     (sender: SurveyModel, options: any) => any,
@@ -847,7 +846,7 @@ export class SurveyModel extends Base
   }
   /**
    * A char/string that will be rendered in the title required questions.
-   * @see QuestionBase.title
+   * @see Question.title
    */
   public get requiredText(): string {
     return this.getPropertyValue("requiredText", "*");
@@ -857,7 +856,7 @@ export class SurveyModel extends Base
   }
   /**
    * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.
-   * @see QuestionBase.title
+   * @see Question.title
    * @see requiredText
    */
   public get questionStartIndex(): string {
@@ -929,7 +928,7 @@ export class SurveyModel extends Base
    * </br> Set it to 'onHidden' to clear the question value when it becomes invisible.
    * </br> Leave it equals to 'onComplete', to remove from data property values of invisible questions on survey complete. In this case, the invisible questions will not be stored on the server.
    * </br> The default value is 'onComplete'.
-   * @see QuestionBase.visible
+   * @see Question.visible
    * @see onComplete
    */
   public get clearInvisibleValues(): any {
@@ -2331,7 +2330,7 @@ export class SurveyModel extends Base
     }
     this.checkTriggers(values, true);
   }
-  private getCurrentPageQuestions(): Array<QuestionBase> {
+  private getCurrentPageQuestions(): Array<Question> {
     var result = [];
     var page = this.currentPage;
     if (!page) return result;
@@ -2667,7 +2666,7 @@ export class SurveyModel extends Base
    * @see data
    * @see getValue
    * @see PageModel.visibleIf
-   * @see QuestionBase.visibleIf
+   * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
   public setValue(name: string, newValue: any) {
@@ -2707,7 +2706,7 @@ export class SurveyModel extends Base
   }
   protected tryGoNextPageAutomatic(name: string) {
     if (!this.goNextPageAutomatic || !this.currentPage) return;
-    var question = <QuestionBase>this.getQuestionByValueName(name);
+    var question = <Question>this.getQuestionByValueName(name);
     if (
       !question ||
       (!!question &&

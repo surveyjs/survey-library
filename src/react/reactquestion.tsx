@@ -1,5 +1,4 @@
 import * as React from "react";
-import { QuestionBase } from "../questionbase";
 import { Question } from "../question";
 import { SurveyElement, SurveyError } from "../base";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
@@ -7,14 +6,13 @@ import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
 
 export interface ISurveyCreator {
-  createQuestionElement(question: QuestionBase): JSX.Element;
+  createQuestionElement(question: Question): JSX.Element;
   renderError(key: string, error: SurveyError, cssClasses: any): JSX.Element;
   questionTitleLocation(): string;
   questionErrorLocation(): string;
 }
 
 export class SurveyQuestion extends React.Component<any, any> {
-  private questionBase: QuestionBase;
   protected question: Question;
   private creator: ISurveyCreator;
   constructor(props: any) {
@@ -29,9 +27,8 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.setState(this.getState());
   }
   private setQuestion(question) {
-    this.questionBase = question;
-    this.question = question instanceof Question ? question : null;
-    this.questionBase.errorsChangedCallback = () => {
+    this.question = question;
+    this.question.errorsChangedCallback = () => {
       var state = this.getState();
       state.error++;
       this.setState(state);
@@ -40,36 +37,36 @@ export class SurveyQuestion extends React.Component<any, any> {
   private getState() {
     var value = this.question ? this.question.value : null;
     return {
-      visible: this.questionBase.visible,
+      visible: this.question.visible,
       value: value,
       error: 0,
       renderWidth: 0,
       visibleIndexValue: -1,
-      isReadOnly: this.questionBase.isReadOnly
+      isReadOnly: this.question.isReadOnly
     };
   }
   componentDidMount() {
-    if (this.questionBase) {
+    if (this.question) {
       var self = this;
-      this.questionBase["react"] = self;
-      this.questionBase.registerFunctionOnPropertiesValueChanged(
+      this.question["react"] = self;
+      this.question.registerFunctionOnPropertiesValueChanged(
         ["renderWidth", "indent", "rightIndent"],
         function() {
           self.setState({ renderWidth: self.state.renderWidth + 1 });
         },
         "react"
       );
-      this.questionBase.registerFunctionOnPropertyValueChanged(
+      this.question.registerFunctionOnPropertyValueChanged(
         "visibleIndex",
         function() {
-          self.setState({ visibleIndexValue: self.questionBase.visibleIndex });
+          self.setState({ visibleIndexValue: self.question.visibleIndex });
         },
         "react"
       );
-      this.questionBase.registerFunctionOnPropertyValueChanged(
+      this.question.registerFunctionOnPropertyValueChanged(
         "isReadOnly",
         function() {
-          self.setState({ isReadOnly: self.questionBase.isReadOnly });
+          self.setState({ isReadOnly: self.question.isReadOnly });
         },
         "react"
       );
@@ -77,9 +74,9 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.doAfterRender();
   }
   componentWillUnmount() {
-    if (this.questionBase) {
-      this.questionBase["react"] = null;
-      this.questionBase.unRegisterFunctionOnPropertiesValueChanged(
+    if (this.question) {
+      this.question["react"] = null;
+      this.question.unRegisterFunctionOnPropertiesValueChanged(
         ["visibleIndex", "renderWidth", "indent", "rightIndent, isReadOnly"],
         "react"
       );
@@ -93,26 +90,24 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.doAfterRender();
   }
   private doAfterRender() {
-    if (this.questionBase) {
+    if (this.question) {
       var el: any = this.refs["root"];
       if (
         el &&
-        this.questionBase.survey &&
+        this.question.survey &&
         el.getAttribute("data-rendered") !== "r"
       ) {
         el.setAttribute("data-rendered", "r");
-        this.questionBase.survey.afterRenderQuestion(this.questionBase, el);
+        this.question.survey.afterRenderQuestion(this.question, el);
       }
     }
   }
   render(): JSX.Element {
-    if (!this.questionBase || !this.creator) return null;
-    if (!this.questionBase.visible) return null;
-    var cssClasses = this.questionBase.cssClasses;
+    if (!this.question || !this.creator) return null;
+    if (!this.question.visible) return null;
+    var cssClasses = this.question.cssClasses;
     var questionRender = this.renderQuestion();
-    var title = this.questionBase.hasTitle
-      ? this.renderTitle(cssClasses)
-      : null;
+    var title = this.question.hasTitle ? this.renderTitle(cssClasses) : null;
     var description = this.renderDescription(cssClasses);
     var titleLocation = this.question ? this.question.getTitleLocation() : "";
     var titleTop = titleLocation === "top" ? title : null;
@@ -127,7 +122,7 @@ export class SurveyQuestion extends React.Component<any, any> {
       titleLocation === "left"
         ? cssClasses.mainRoot + " sv_qstn_left"
         : cssClasses.mainRoot;
-    if (!!this.questionBase.errors && this.questionBase.errors.length > 0) {
+    if (!!this.question.errors && this.question.errors.length > 0) {
       questionRootClass += " " + cssClasses.hasError;
     }
     var comment =
@@ -140,23 +135,23 @@ export class SurveyQuestion extends React.Component<any, any> {
     var errorsBottom =
       this.creator.questionErrorLocation() === "bottom" ? errors : null;
     var paddingLeft =
-      this.questionBase.indent > 0
-        ? this.questionBase.indent * cssClasses.indent + "px"
+      this.question.indent > 0
+        ? this.question.indent * cssClasses.indent + "px"
         : null;
     var paddingRight =
-      this.questionBase.rightIndent > 0
-        ? this.questionBase.rightIndent * cssClasses.indent + "px"
+      this.question.rightIndent > 0
+        ? this.question.rightIndent * cssClasses.indent + "px"
         : null;
     let rootStyle = {};
-    if (this.questionBase.renderWidth)
-      rootStyle["width"] = this.questionBase.renderWidth;
+    if (this.question.renderWidth)
+      rootStyle["width"] = this.question.renderWidth;
     if (paddingLeft) rootStyle["paddingLeft"] = paddingLeft;
     if (paddingRight) rootStyle["paddingRight"] = paddingRight;
 
     return (
       <div
         ref="root"
-        id={this.questionBase.id}
+        id={this.question.id}
         className={questionRootClass}
         style={rootStyle}
       >
@@ -179,12 +174,12 @@ export class SurveyQuestion extends React.Component<any, any> {
     );
   }
   protected renderQuestion(): JSX.Element {
-    var customWidget = this.questionBase.customWidget;
+    var customWidget = this.question.customWidget;
     if (!customWidget) {
-      return this.creator.createQuestionElement(this.questionBase);
+      return this.creator.createQuestionElement(this.question);
     }
     return (
-      <SurveyCustomWidget creator={this.creator} question={this.questionBase} />
+      <SurveyCustomWidget creator={this.creator} question={this.question} />
     );
   }
   protected renderTitle(cssClasses: any): JSX.Element {
@@ -192,7 +187,7 @@ export class SurveyQuestion extends React.Component<any, any> {
     return <h5 className={cssClasses.title}>{titleText}</h5>;
   }
   protected renderDescription(cssClasses: any): JSX.Element {
-    if (!this.questionBase.hasDescription) return null;
+    if (!this.question.hasDescription) return null;
     var descriptionText = SurveyElementBase.renderLocString(
       this.question.locDescription
     );
@@ -342,7 +337,15 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     );
     var renderedCell = this.renderCell();
     return (
-      <td ref="cell" className={this.getCellClass()} headers={this.question.visible && !!this["cell"] ? this["cell"].column.locTitle.renderedHtml : ''}>
+      <td
+        ref="cell"
+        className={this.getCellClass()}
+        headers={
+          this.question.visible && !!this["cell"]
+            ? this["cell"].column.locTitle.renderedHtml
+            : ""
+        }
+      >
         {errors}
         {renderedCell}
       </td>

@@ -1,5 +1,5 @@
 import { HashTable } from "./helpers";
-import { QuestionBase } from "./questionbase";
+import { Question } from "./question";
 import { IElement } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 
@@ -21,11 +21,11 @@ export class QuestionFactory {
     var rowName = surveyLocalization.getString("matrix_row") + " ";
     return [rowName + "1", rowName + "2"];
   }
-  private creatorHash: HashTable<(name: string) => QuestionBase> = {};
+  private creatorHash: HashTable<(name: string) => Question> = {};
 
   public registerQuestion(
     questionType: string,
-    questionCreator: (name: string) => QuestionBase
+    questionCreator: (name: string) => Question
   ) {
     this.creatorHash[questionType] = questionCreator;
   }
@@ -39,7 +39,7 @@ export class QuestionFactory {
     }
     return result.sort();
   }
-  public createQuestion(questionType: string, name: string): QuestionBase {
+  public createQuestion(questionType: string, name: string): Question {
     var creator = this.creatorHash[questionType];
     if (creator == null) return null;
     return creator(name);

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { ItemValue } from "../itemvalue";
 import { LocalizableString } from "../localizablestring";
-import { QuestionBase } from "../questionbase";
+import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
 
 export class SurveyLocString extends React.Component<any, any> {
@@ -69,7 +69,7 @@ export class ReactSurveyElement extends SurveyElementBase {
 }
 
 export class SurveyQuestionElementBase extends SurveyElementBase {
-  protected questionBase: QuestionBase;
+  protected questionBase: Question;
   protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);

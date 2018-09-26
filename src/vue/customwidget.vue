@@ -11,7 +11,6 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
-import { QuestionBase } from "../questionbase";
 import { QuestionCustomWidget } from "../questionCustomWidgets";
 import { helpers } from "./helpers";
 

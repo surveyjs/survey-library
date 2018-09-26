@@ -3,7 +3,7 @@ import { ReactSurveyModel } from "./reactsurveymodel";
 import { SurveyPage } from "./reactpage";
 import { SurveyNavigation } from "./reactSurveyNavigation";
 import { SurveyError } from "../base";
-import { QuestionBase } from "../questionbase";
+import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { surveyCss } from "../defaultCss/cssstandard";
@@ -156,12 +156,12 @@ export class Survey extends React.Component<any, any>
       ? this.renderPage(this.survey.currentPage)
       : null;
     var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
-    var topProgress =
-      this.survey.isShowProgressBarOnTop ? this.renderProgress(true) : null;
-    var bottomProgress =
-      this.survey.isShowProgressBarOnBottom
-        ? this.renderProgress(false)
-        : null;
+    var topProgress = this.survey.isShowProgressBarOnTop
+      ? this.renderProgress(true)
+      : null;
+    var bottomProgress = this.survey.isShowProgressBarOnBottom
+      ? this.renderProgress(false)
+      : null;
     var buttons = currentPage ? this.renderNavigation() : null;
     if (!currentPage) {
       currentPage = this.renderEmptySurvey();
@@ -289,7 +289,7 @@ export class Survey extends React.Component<any, any>
   }
 
   //ISurveyCreator
-  public createQuestionElement(question: QuestionBase): JSX.Element {
+  public createQuestionElement(question: Question): JSX.Element {
     return ReactQuestionFactory.Instance.createQuestion(
       question.getTemplate(),
       {

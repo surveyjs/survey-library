@@ -13,7 +13,7 @@ import {
   SurveyElement,
   SurveyError
 } from "./base";
-import { QuestionBase } from "./questionbase";
+import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -93,7 +93,7 @@ export class PanelModelBase extends SurveyElement
   private rowValues: Array<QuestionRowModel> = null;
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
-  private questionsValue: Array<QuestionBase> = new Array<QuestionBase>();
+  private questionsValue: Array<Question> = new Array<Question>();
   rowsChangedCallback: () => void;
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
@@ -245,10 +245,10 @@ export class PanelModelBase extends SurveyElement
   }
   /**
    * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
-   * @see QuestionBase
+   * @see Question
    * @see elements
    */
-  public get questions(): Array<QuestionBase> {
+  public get questions(): Array<Question> {
     if (!this.isQuestionsReady) {
       this.questionsValue = [];
       for (var i = 0; i < this.elements.length; i++) {
@@ -259,7 +259,7 @@ export class PanelModelBase extends SurveyElement
             this.questionsValue.push(qs[j]);
           }
         } else {
-          this.questionsValue.push(<QuestionBase>el);
+          this.questionsValue.push(<Question>el);
         }
       }
       this.isQuestionsReady = true;
@@ -271,14 +271,14 @@ export class PanelModelBase extends SurveyElement
    * Returns the question by its name
    * @param name the question name
    */
-  public getQuestionByName(name: string): QuestionBase {
+  public getQuestionByName(name: string): Question {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].name == name) return questions[i];
     }
     return null;
   }
-  public getQuestionByValueName(valueName: string): QuestionBase {
+  public getQuestionByValueName(valueName: string): Question {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].getValueName() == valueName) return questions[i];
@@ -422,7 +422,7 @@ export class PanelModelBase extends SurveyElement
       if (this.elements[i].isPanel) {
         (<PanelModelBase>(<any>this.elements[i])).hasErrorsCore(rec);
       } else {
-        var question = <QuestionBase>this.elements[i];
+        var question = <Question>this.elements[i];
         if (question.isReadOnly) continue;
         if (question.hasErrors(rec.fireCallback)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
@@ -588,7 +588,7 @@ export class PanelModelBase extends SurveyElement
       }
     } else {
       if (this.survey) {
-        var q = <QuestionBase>element;
+        var q = <Question>element;
         this.survey.questionAdded(q, index, this, this.root);
       }
     }
@@ -617,7 +617,7 @@ export class PanelModelBase extends SurveyElement
       this.id
     );
     if (!element.isPanel) {
-      if (this.survey) this.survey.questionRemoved(<QuestionBase>element);
+      if (this.survey) this.survey.questionRemoved(<Question>element);
     } else {
       if (this.survey) this.survey.panelRemoved(element);
     }
@@ -769,7 +769,7 @@ export class PanelModelBase extends SurveyElement
    * @param question
    * @param index element index in the elements array
    */
-  public addQuestion(question: QuestionBase, index: number = -1) {
+  public addQuestion(question: Question, index: number = -1) {
     this.addElement(question, index);
   }
   /**
@@ -785,10 +785,7 @@ export class PanelModelBase extends SurveyElement
    * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
    * @param name a question name
    */
-  public addNewQuestion(
-    questionType: string,
-    name: string = null
-  ): QuestionBase {
+  public addNewQuestion(questionType: string, name: string = null): Question {
     var question = QuestionFactory.Instance.createQuestion(questionType, name);
     this.addQuestion(question);
     return question;
@@ -827,7 +824,7 @@ export class PanelModelBase extends SurveyElement
    * @see elements
    * @see removeElement
    */
-  public removeQuestion(question: QuestionBase) {
+  public removeQuestion(question: Question) {
     this.removeElement(question);
   }
   private conditionVersion = -1;

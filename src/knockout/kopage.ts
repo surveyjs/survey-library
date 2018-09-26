@@ -2,7 +2,6 @@ import * as ko from "knockout";
 import { PageModel } from "../page";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { JsonObject } from "../jsonobject";
-import { QuestionBase } from "../questionbase";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 

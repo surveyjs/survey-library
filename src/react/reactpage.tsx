@@ -7,7 +7,7 @@ import {
 import { PageModel } from "../page";
 import { SurveyModel } from "../survey";
 import { QuestionRowModel, PanelModel } from "../panel";
-import { QuestionBase } from "../questionbase";
+import { Question } from "../question";
 import { SurveyElementBase } from "./reactquestionelement";
 
 export class SurveyPage extends React.Component<any, any> {
@@ -261,14 +261,14 @@ export class SurveyRow extends React.Component<any, any> {
     if (this.row.visible) {
       var questions = [];
       for (var i = 0; i < this.row.elements.length; i++) {
-        let question = this.row.elements[i] as QuestionBase;
+        let question = this.row.elements[i] as Question;
         questions.push(this.createQuestion(question));
       }
       return <div className={this.css.row}>{questions}</div>;
     }
     return null;
   }
-  protected createQuestion(question: QuestionBase): JSX.Element {
+  protected createQuestion(question: Question): JSX.Element {
     if (question.isPanel) {
       return (
         <SurveyPanel

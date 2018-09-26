@@ -9,7 +9,7 @@ import {
   IQuestion,
   SurveyElement
 } from "./base";
-import { QuestionBase } from "./questionbase";
+import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { PanelModel, PanelModelBase, QuestionRowModel } from "./panel";

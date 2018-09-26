@@ -5,7 +5,6 @@ import { Helpers } from "../src/helpers";
 import { ILocalizableOwner } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
-import { QuestionBase } from "../src/questionbase";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;

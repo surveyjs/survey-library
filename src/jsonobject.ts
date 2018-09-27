@@ -7,6 +7,7 @@ export class JsonObjectProperty {
     "readOnlyValue",
     "visibleValue",
     "isSerializable",
+    "isDynamicChoices",
     "isLocalizableValue",
     "className",
     "alternativeName",
@@ -25,6 +26,7 @@ export class JsonObjectProperty {
   private isLocalizableValue = null;
   private choicesfunc: (obj: any) => Array<any> = null;
   public isSerializable: boolean = true;
+  public isDynamicChoices: boolean = false;
   public className: string = null;
   public alternativeName: string = null;
   public classNamePart: string = null;
@@ -296,6 +298,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isSerializable)) {
         prop.isSerializable = propInfo.isSerializable;
+      }
+      if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
+        prop.isDynamicChoices = propInfo.isDynamicChoices;
       }
       if (propInfo.visible === false) {
         prop.visible = false;

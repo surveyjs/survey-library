@@ -17,6 +17,21 @@ export class QuestionImplementor {
   koIsReadOnly: any;
   constructor(public question: Question) {
     var self = this;
+
+    question.iteratePropertiesHash(
+      (hash, key) => (hash[key] = ko.observable(hash[key]))
+    );
+    question.getPropertyValueCoreHandler = (hash, key) => {
+      if (hash[key] === undefined) {
+        hash[key] = ko.observable();
+      }
+      return ko.unwrap(hash[key]);
+    };
+    question.setPropertyValueCoreHandler = (hash, key, val) =>
+      hash[key] !== undefined
+        ? hash[key](val)
+        : (hash[key] = ko.observable(val));
+
     question.registerFunctionOnPropertyValueChanged("isVisible", function() {
       self.onVisibilityChanged();
     });

@@ -173,11 +173,15 @@ export class Base {
     (sender: Base, options: any) => any,
     any
   > = new Event<(sender: Base, options: any) => any, any>();
+
+  getPropertyValueCoreHandler: (propertiesHash: any, name: string) => any;
+
   setPropertyValueCoreHandler: (
     propertiesHash: any,
     name: string,
     val: any
   ) => void;
+
   public constructor() {
     CustomPropertiesCollection.createProperties(this);
   }
@@ -230,14 +234,26 @@ export class Base {
    * @param name property name
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
-    var res = this.propertyHash[name];
+    var res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.IsPropertyEmpty(res) && defaultValue != null) return defaultValue;
     return res;
+  }
+  protected getPropertyValueCore(propertiesHash: any, name: string) {
+    if (this.getPropertyValueCoreHandler)
+      return this.getPropertyValueCoreHandler(propertiesHash, name);
+    else return propertiesHash[name];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
     if (this.setPropertyValueCoreHandler)
       this.setPropertyValueCoreHandler(propertiesHash, name, val);
     else propertiesHash[name] = val;
+  }
+  public iteratePropertiesHash(func: (hash, key) => void) {
+    var keys = [];
+    for (var key in this.propertyHash) {
+      keys.push(key);
+    }
+    keys.forEach(key => func(this.propertyHash, key));
   }
   /**
    * set property value
@@ -245,7 +261,7 @@ export class Base {
    * @param val new property value
    */
   public setPropertyValue(name: string, val: any) {
-    var oldValue = this.propertyHash[name];
+    var oldValue = this.getPropertyValue(name);
     if (oldValue && Array.isArray(oldValue)) {
       if (this.isTwoValueEquals(oldValue, val)) return;
       var arrayInfo = this.arraysInfo[name];

@@ -212,6 +212,7 @@ export class SurveyQuestion extends React.Component<any, any> {
         <SurveyQuestionCommentItem
           question={this.question}
           cssClasses={cssClasses}
+          otherCss={cssClasses.other}
         />
       </div>
     );

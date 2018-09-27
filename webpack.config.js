@@ -162,6 +162,7 @@ module.exports = function(options) {
     license: "MIT",
     files: [
       "survey.css",
+      "survey.min.css",
       "survey." + options.platformPrefix + ".d.ts",
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"

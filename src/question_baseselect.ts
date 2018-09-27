@@ -21,7 +21,6 @@ export class QuestionSelectBase extends Question {
   protected cachedValue: any;
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
-  private choicesValues: Array<ItemValue>;
   /**
    * Use this property to fill the choices from a restful service.
    * @see choices
@@ -31,7 +30,7 @@ export class QuestionSelectBase extends Question {
   constructor(name: string) {
     super(name);
     var self = this;
-    this.choicesValues = this.createItemValues("choices");
+    this.choices = this.createItemValues("choices");
     this.registerFunctionOnPropertyValueChanged("choices", function() {
       if (!self.filterItems()) {
         self.onVisibleChoicesChanged();
@@ -227,7 +226,7 @@ export class QuestionSelectBase extends Question {
    * @see choicesByUrl
    */
   public get choices(): Array<any> {
-    return this.choicesValues;
+    return this.getPropertyValue("choices");
   }
   public set choices(newValue: Array<any>) {
     this.setPropertyValue("choices", newValue);

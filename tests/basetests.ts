@@ -276,6 +276,28 @@ QUnit.test("Base simple propety value", function(assert) {
   assert.equal(newValue, 5, "newValue is 5");
 });
 
+QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function(
+  assert
+) {
+  var base = new BaseTester();
+  var counter = 0;
+  var val;
+  base.setPropertyValueCoreHandler = (h, k, v) => {
+    counter++;
+    val = v;
+  };
+  base.getPropertyValueCoreHandler = (h, k) => {
+    counter++;
+    return val;
+  };
+
+  base.value1 = 5;
+  assert.equal(counter, 2);
+  assert.equal(val, 5);
+  assert.equal(base.value1, 5);
+  assert.equal(counter, 3);
+});
+
 QUnit.test("Base localizable string", function(assert) {
   var base = new BaseTester();
   var counter = 0;

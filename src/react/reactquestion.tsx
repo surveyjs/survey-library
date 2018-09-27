@@ -20,6 +20,14 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.setQuestion(props.question);
     this.state = this.getState();
     this.creator = props.creator;
+    this.question.setPropertyValueCoreHandler = (hash, key, val) => {
+      hash[key] = val;
+      this.setState(state => {
+        var newState = {};
+        newState[key] = val;
+        return newState;
+      });
+    };
   }
   componentWillReceiveProps(nextProps: any) {
     this.creator = nextProps.creator;
@@ -194,9 +202,10 @@ export class SurveyQuestion extends React.Component<any, any> {
     return <div className={cssClasses.description}>{descriptionText}</div>;
   }
   protected renderComment(cssClasses: any): JSX.Element {
-    var commentText = SurveyElementBase.renderLocString(
-      this.question.locCommentText
-    );
+    // var commentText = SurveyElementBase.renderLocString(
+    //   this.question.locCommentText
+    // );
+    var commentText = this.question.commentText;
     return (
       <div className="form-group">
         <div>{commentText}</div>

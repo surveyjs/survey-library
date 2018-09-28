@@ -268,7 +268,7 @@ export class QuestionMultipleTextModel extends Question
    * The list of input items.
    */
   public get items(): Array<MultipleTextItemModel> {
-    return this.getPropertyValue("items", []);
+    return this.getPropertyValue("items");
   }
   public set items(val: Array<MultipleTextItemModel>) {
     this.setPropertyValue("items", val);

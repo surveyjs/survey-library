@@ -494,7 +494,6 @@ export class QuestionSelectBase extends Question {
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
-  private colCountValue: number = 1;
   colCountChangedCallback: () => void;
   constructor(public name: string) {
     super(name);
@@ -503,11 +502,11 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
    * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.
    */
   public get colCount(): number {
-    return this.colCountValue;
+    return this.getPropertyValue("colCount", 1);
   }
   public set colCount(value: number) {
     if (value < 0 || value > 5) return;
-    this.colCountValue = value;
+    this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
   }
 }

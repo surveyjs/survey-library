@@ -215,13 +215,10 @@ export class MultipleTextItemModel extends Base
 export class QuestionMultipleTextModel extends Question
   implements IMultipleTextData, IPanel {
   colCountChangedCallback: () => void;
-  private itemsValues: Array<MultipleTextItemModel> = new Array<
-    MultipleTextItemModel
-  >();
   constructor(public name: string) {
     super(name);
     var self = this;
-    this.itemsValues = this.createNewArray("items", function(item) {
+    this.items = this.createNewArray("items", function(item) {
       item.setData(self);
     });
     this.registerFunctionOnPropertyValueChanged("items", function() {
@@ -271,7 +268,7 @@ export class QuestionMultipleTextModel extends Question
    * The list of input items.
    */
   public get items(): Array<MultipleTextItemModel> {
-    return this.itemsValues;
+    return this.getPropertyValue("items", []);
   }
   public set items(val: Array<MultipleTextItemModel>) {
     this.setPropertyValue("items", val);

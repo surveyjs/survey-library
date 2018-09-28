@@ -23,11 +23,6 @@ import { QuestionImagePickerModel } from "../question_imagepicker";
 
 @Component
 export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
-  // TODO may be need to move to the model
-  get colWidth() {
-    var colCount = this.question.colCount;
-    return colCount > 0 ? 100 / colCount + "%" : "";
-  }
   getItemClass(item) {
     var itemClass =
       this.question.cssClasses.item +

@@ -21,10 +21,6 @@ import { QuestionCheckboxModel } from "../question_checkbox";
 
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
-  get colWidth() {
-    var colCount = this.question.colCount;
-    return colCount > 0 ? 100 / colCount + "%" : "";
-  }
   get choicesCount() {
     return this.question.visibleChoices.length - 1;
   }

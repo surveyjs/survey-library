@@ -33,23 +33,9 @@ export class QuestionSelectBaseImplementor extends QuestionImplementor {
   }
 }
 export class QuestionCheckboxBaseImplementor extends QuestionSelectBaseImplementor {
-  koWidth: any;
   constructor(question: Question) {
     super(question);
-    this.koWidth = ko.observable(this.colWidth);
-    this.question["koWidth"] = this.koWidth;
     this.question["koAfterRender"] = this.koAfterRender;
-    var self = this;
-    (<QuestionCheckboxBase>this.question).colCountChangedCallback = function() {
-      self.onColCountChanged();
-    };
-  }
-  protected onColCountChanged() {
-    this.question["koWidth"] = ko.observable(this.colWidth);
-  }
-  protected get colWidth(): string {
-    var colCount = (<QuestionCheckboxBase>this.question).colCount;
-    return colCount > 0 ? 100 / colCount + "%" : "";
   }
   private koAfterRender(el, con) {
     var tEl = el[0];

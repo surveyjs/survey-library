@@ -24,11 +24,6 @@ import { QuestionRadiogroupModel } from "../question_radiogroup";
 
 @Component
 export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
-  // TODO may be need to move to the model
-  get colWidth() {
-    var colCount = this.question.colCount;
-    return colCount > 0 ? 100 / colCount + "%" : "";
-  }
   get choicesCount() {
     return this.question.visibleChoices.length - 1;
   }

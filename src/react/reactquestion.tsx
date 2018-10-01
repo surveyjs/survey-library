@@ -20,6 +20,17 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.setQuestion(props.question);
     this.state = this.getState();
     this.creator = props.creator;
+    this.question.iteratePropertiesHash((hash, key) => {
+      var val = hash[key];
+      if (Array.isArray(val)) {
+        val["onArrayChanged"] = () =>
+          this.setState(state => {
+            var newState = {};
+            newState[key] = val;
+            return newState;
+          });
+      }
+    });
     this.question.setPropertyValueCoreHandler = (hash, key, val) => {
       hash[key] = val;
       this.setState(state => {
@@ -36,11 +47,6 @@ export class SurveyQuestion extends React.Component<any, any> {
   }
   private setQuestion(question) {
     this.question = question;
-    this.question.errorsChangedCallback = () => {
-      var state = this.getState();
-      state.error++;
-      this.setState(state);
-    };
   }
   private getState() {
     var value = this.question ? this.question.value : null;
@@ -244,11 +250,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   private setElement(element) {
     this.element = element instanceof SurveyElement ? element : null;
-    if (this.element && !this.element.errorsChangedCallback) {
-      this.element.errorsChangedCallback = () => {
-        this.setState(this.getState(this.state));
-      };
-    }
   }
   private getState(prevState = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
@@ -311,14 +312,10 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         },
         "react"
       );
-      this.question.errorsChangedCallback = () => {
-        self.setState(self.getState(true));
-      };
     }
   }
   componentWillUnmount() {
     if (this.question) {
-      this.question.errorsChangedCallback = null;
       this.question.unRegisterFunctionOnPropertiesValueChanged(
         ["visible", "isReadOnly"],
         "react"

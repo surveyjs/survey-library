@@ -129,7 +129,6 @@ export class QuestionFileModel extends Question {
       if (status === "success") {
         this.value = undefined;
         this.errors = [];
-        this.fireCallback(this.errorsChangedCallback);
       }
     });
   }
@@ -162,7 +161,6 @@ export class QuestionFileModel extends Question {
       return;
     }
     this.errors = [];
-    this.fireCallback(this.errorsChangedCallback);
     if (!this.allFilesOk(files)) {
       return;
     }
@@ -281,9 +279,6 @@ export class QuestionFileModel extends Question {
         this.errors.push(new ExceedSizeError(this.maxSize));
       }
     });
-    if (errorLength !== this.errors.length || this.errors.length > 0) {
-      this.fireCallback(this.errorsChangedCallback);
-    }
     return errorLength === this.errors.length;
   }
   private isFileImage(file: {

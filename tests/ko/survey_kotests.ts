@@ -24,6 +24,7 @@ import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { JsonObject } from "../../src/jsonobject";
+import * as ko from "knockout";
 
 export default QUnit.module("koTests");
 
@@ -408,7 +409,7 @@ QUnit.test("Load title correctly from JSON", function(assert) {
     "title is getting from name"
   );
 });
-QUnit.test("koErrors should be empty after prevPage bug#151", function(assert) {
+QUnit.test("errors should be empty after prevPage bug#151", function(assert) {
   var survey = new Survey();
   survey.goNextPageAutomatic = true;
   var page = survey.addNewPage("page1");
@@ -418,17 +419,18 @@ QUnit.test("koErrors should be empty after prevPage bug#151", function(assert) {
   page = survey.addNewPage("page2");
   page.addNewQuestion("text", "q2");
 
+  var errorCount = 0;
+  ko.computed(() => {
+    errorCount = question.errors.length;
+  });
+
   survey.nextPage();
-  assert.equal(
-    question["koErrors"]().length,
-    1,
-    "The question is not filled out."
-  );
+  assert.equal(errorCount, 1, "The question is not filled out.");
   (<Question>survey.pages[0].questions[0]).value = 1;
-  assert.equal(question["koErrors"]().length, 0, "The question has not errors");
+  assert.equal(errorCount, 0, "The question has not errors");
   assert.equal(survey.currentPage.name, "page2", "Go to the next page");
   survey.prevPage();
-  assert.equal(question["koErrors"]().length, 0, "The question has not errors");
+  assert.equal(errorCount, 0, "The question has not errors");
 });
 
 QUnit.test("add customwidget item", function(assert) {

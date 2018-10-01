@@ -382,13 +382,9 @@ export class QuestionSelectBase extends Question {
   }
   private isFirstLoadChoicesFromUrl = true;
   private onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    var errorCount = this.errors.length;
     this.errors = [];
     if (this.choicesByUrl && this.choicesByUrl.error) {
       this.errors.push(this.choicesByUrl.error);
-    }
-    if (errorCount > 0 || this.errors.length > 0) {
-      this.fireCallback(this.errorsChangedCallback);
     }
     var newChoices = null;
     var checkCachedValuesOnExisting = true;

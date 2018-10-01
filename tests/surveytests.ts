@@ -248,6 +248,19 @@ QUnit.test("Do not show required error for readOnly questions", function(
     "There is no errors, the question is readOnly"
   );
 });
+QUnit.test("DO not change errors array on fireCallback = false", function(
+  assert
+) {
+  var survey = twoPageSimplestSurvey();
+  var page = survey.pages[0];
+  var q1 = <Question>(<Question>page.questions[0]);
+  q1.isRequired = true;
+  assert.equal(page.hasErrors(false), true, "There is a required error");
+  assert.equal(q1.errors.length, 0, "The errors array is empty");
+  page.hasErrors(true);
+  assert.equal(q1.errors.length, 1, "The errors array is not empty now");
+});
+
 QUnit.test("Do not show required error for value 0 and false, #345", function(
   assert
 ) {
@@ -641,15 +654,9 @@ QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
   page = survey.addNewPage("page2");
   page.addNewQuestion("text", "q2");
 
-  var errorsChangedCounter = 0;
-  question.errorsChangedCallback = function() {
-    errorsChangedCounter++;
-  };
   survey.nextPage();
   assert.equal(question.errors.length, 1, "The question is not filled out.");
-  assert.equal(errorsChangedCounter, 1, "called one time");
   question.value = 1;
-  assert.equal(errorsChangedCounter, 2, "called second time");
   assert.equal(question.errors.length, 0, "The question has not errors");
   assert.equal(
     survey.currentPage.name,
@@ -657,7 +664,6 @@ QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
     "Go to the next page"
   );
   survey.prevPage();
-  assert.equal(errorsChangedCounter, 2, "called second time");
   assert.equal(question.errors.length, 0, "The question has not errors");
 });
 

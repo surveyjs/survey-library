@@ -6,7 +6,6 @@ import { Helpers } from "../helpers";
 export class QuestionImplementor {
   private koDummy: any;
   koVisible: any;
-  koErrors: any;
   koPaddingLeft: any;
   koPaddingRight: any;
   koRenderWidth: any;
@@ -18,9 +17,15 @@ export class QuestionImplementor {
   constructor(public question: Question) {
     var self = this;
 
-    question.iteratePropertiesHash(
-      (hash, key) => (hash[key] = ko.observable(hash[key]))
-    );
+    question.iteratePropertiesHash((hash, key) => {
+      var val = hash[key];
+      if (Array.isArray(val)) {
+        hash[key] = ko.observableArray(val);
+        val["onArrayChanged"] = () => hash[key].notifySubscribers();
+      } else {
+        hash[key] = ko.observable(val);
+      }
+    });
     question.getPropertyValueCoreHandler = (hash, key) => {
       if (hash[key] === undefined) {
         hash[key] = ko.observable();
@@ -50,7 +55,6 @@ export class QuestionImplementor {
     this.koElementType = ko.observable("survey-question");
     this.koVisible = ko.observable(this.question.isVisible);
     this.koRenderWidth = ko.observable(this.question.renderWidth);
-    this.koErrors = ko.observableArray();
     this.koPaddingLeft = ko.observable(
       self.getIndentSize(self.question.indent)
     );
@@ -61,7 +65,6 @@ export class QuestionImplementor {
     this.question["koTemplateName"] = this.koTemplateName;
     this.question["koVisible"] = this.koVisible;
     this.question["koRenderWidth"] = this.koRenderWidth;
-    this.question["koErrors"] = this.koErrors;
     this.question["koPaddingLeft"] = this.koPaddingLeft;
     this.question["koPaddingRight"] = this.koPaddingRight;
     this.question["updateQuestion"] = function() {
@@ -75,7 +78,7 @@ export class QuestionImplementor {
       if (self.question.getTitleLocation() === "left") {
         result += " sv_qstn_left";
       }
-      if (self.koErrors().length > 0) {
+      if (self.question.errors.length > 0) {
         result += " " + self.question.cssClasses.hasError;
       }
       return result;
@@ -87,9 +90,6 @@ export class QuestionImplementor {
     question.commentChangedCallback = function() {
       self.onCommentChanged();
     };
-    question.errorsChangedCallback = function() {
-      self.onErrorsChanged();
-    };
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });
@@ -99,7 +99,6 @@ export class QuestionImplementor {
     this.koDummy = ko.observable(0);
     this.koValue = this.createkoValue();
     this.koComment = ko.observable(this.question.comment);
-    this.koErrors(this.question.errors);
     this.koIsReadOnly = ko.observable(this.question.isReadOnly);
     this.koValue.subscribe(function(newValue) {
       self.updateValue(newValue);
@@ -142,9 +141,6 @@ export class QuestionImplementor {
   }
   protected onReadOnlyChanged() {
     this.koIsReadOnly(this.question.isReadOnly);
-  }
-  protected onErrorsChanged() {
-    this.koErrors(this.question.errors);
   }
   protected onRenderWidthChanged() {
     this.koRenderWidth(this.question.renderWidth);

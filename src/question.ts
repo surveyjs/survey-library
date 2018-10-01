@@ -120,7 +120,6 @@ export class Question extends SurveyElement
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
-      this.fireCallback(this.errorsChangedCallback);
     }
   }
   /**
@@ -809,12 +808,15 @@ export class Question extends SurveyElement
     return json;
   }
   /**
-   * Returns true if threre is a validation error(s) in the question.
+   * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
   public hasErrors(fireCallback: boolean = true): boolean {
-    this.checkForErrors(fireCallback);
-    return this.errors.length > 0;
+    var errors = this.checkForErrors();
+    if (fireCallback) {
+      this.errors = errors;
+    }
+    return errors.length > 0;
   }
   /**
    * Returns the validation errors count.
@@ -837,35 +839,28 @@ export class Question extends SurveyElement
    */
   public addError(error: SurveyError) {
     this.errors.push(error);
-    this.fireCallback(this.errorsChangedCallback);
   }
-  private checkForErrors(fireCallback: boolean) {
-    var errorLength = this.errors ? this.errors.length : 0;
-    this.errors = [];
+  private checkForErrors(): Array<SurveyError> {
+    var qErrors = new Array<SurveyError>();
     if (this.isVisible && !this.isReadOnly) {
-      this.collectErrors();
+      this.collectErrors(qErrors);
     }
-    if (
-      fireCallback &&
-      (errorLength != this.errors.length || errorLength > 0)
-    ) {
-      this.fireCallback(this.errorsChangedCallback);
-    }
+    return qErrors;
   }
-  private collectErrors() {
-    this.onCheckForErrors(this.errors);
-    if (this.errors.length == 0) {
+  private collectErrors(qErrors: Array<SurveyError>) {
+    this.onCheckForErrors(qErrors);
+    if (qErrors.length == 0) {
       var error = this.runValidators();
       if (error) {
         //validators may change the question value.
-        this.errors = [];
-        this.errors.push(error);
+        qErrors.length = 0;
+        qErrors.push(error);
       }
     }
-    if (this.survey && this.errors.length == 0) {
+    if (this.survey && qErrors.length == 0) {
       var error = this.fireSurveyValidation();
       if (error) {
-        this.errors.push(error);
+        qErrors.push(error);
       }
     }
   }
@@ -875,7 +870,7 @@ export class Question extends SurveyElement
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     if (this.hasRequiredError()) {
-      this.errors.push(new AnswerRequiredError(this.requiredErrorText));
+      errors.push(new AnswerRequiredError(this.requiredErrorText));
     }
   }
   protected hasRequiredError(): boolean {

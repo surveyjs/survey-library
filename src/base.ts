@@ -400,6 +400,9 @@ export class Base {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
+  private notifyArrayChanged(ar: Array<any>) {
+    !!ar["onArrayChanged"] && ar["onArrayChanged"]();
+  }
   protected createNewArray(
     name: string,
     onPush: any = null,
@@ -413,12 +416,14 @@ export class Base {
       var result = Array.prototype.push.call(newArray, value);
       if (onPush) onPush(value);
       self.propertyValueChanged(name, newArray, newArray);
+      self.notifyArrayChanged(newArray);
       return result;
     };
     newArray.pop = function(): number {
       var result = Array.prototype.pop.call(newArray);
       if (onRemove) onRemove(result);
       self.propertyValueChanged(name, newArray, newArray);
+      self.notifyArrayChanged(newArray);
       return result;
     };
     newArray.splice = function(
@@ -446,6 +451,7 @@ export class Base {
         }
       }
       self.propertyValueChanged(name, newArray, newArray);
+      self.notifyArrayChanged(newArray);
       return result;
     };
 
@@ -458,7 +464,10 @@ export class Base {
     onPush: any
   ) {
     src.length = 0;
-    if (!dest) return;
+    if (!dest) {
+      this.notifyArrayChanged(src);
+      return;
+    }
     for (var i = 0; i < dest.length; i++) {
       if (isItemValues) {
         var item = dest[i];
@@ -474,6 +483,7 @@ export class Base {
       }
       if (onPush) onPush(src[i]);
     }
+    this.notifyArrayChanged(src);
   }
   protected isTwoValueEquals(x: any, y: any): boolean {
     return Helpers.isTwoValueEquals(x, y);
@@ -504,7 +514,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
-  private errorsValue: Array<SurveyError> = [];
+  //private errorsValue: Array<SurveyError> = [];
   errorsChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
@@ -535,6 +545,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   constructor(name: string) {
     super();
     this.name = name;
+    this.createNewArray("errors");
   }
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
@@ -580,10 +591,12 @@ export class SurveyElement extends Base implements ISurveyElement {
    * @see hasErrors
    */
   public get errors(): Array<SurveyError> {
-    return this.errorsValue;
+    return this.getPropertyValue("errors");
+    //return this.errorsValue;
   }
   public set errors(val: Array<SurveyError>) {
-    this.errorsValue = val;
+    this.setPropertyValue("errors", val);
+    //this.errorsValue = val;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];

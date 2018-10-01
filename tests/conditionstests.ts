@@ -567,6 +567,17 @@ QUnit.test("Bug with contains, bug#1039", function(assert) {
   values = { ValueType: ["1"] };
   assert.equal(runner.run(values), false, "['1'] contains '3b'");
 });
+QUnit.test("Add support for array for cotains operator, issue#1366", function(
+  assert
+) {
+  var runner = new ConditionRunner("{value} contains ['a', 'b']");
+  var values = { value: ["a", "b"] };
+  assert.equal(runner.run(values), true, "['a', 'b'] contains ['a', 'b']");
+  values = { value: ["a", "c"] };
+  assert.equal(runner.run(values), false, "['a', 'c'] contains ['a', 'b']");
+  values = { value: ["a", "b", "c"] };
+  assert.equal(runner.run(values), true, "['a', 'b', 'c'] contains ['a', 'b']");
+});
 
 QUnit.test("Escape quotes, bug#786", function(assert) {
   var runner = new ConditionRunner("{text} = 'I\\'m here'");

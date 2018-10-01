@@ -262,10 +262,16 @@ export class Condition {
           var found = left.indexOf(right) > -1;
           return isContains ? found : !found;
         }
-        for (var i = 0; i < left.length; i++) {
-          if (left[i] == right) return isContains;
+        var rightArray = Array.isArray(right) ? right : [right];
+        for (var rIndex = 0; rIndex < rightArray.length; rIndex++) {
+          var i = 0;
+          right = rightArray[rIndex];
+          for (; i < left.length; i++) {
+            if (left[i] == right) break;
+          }
+          if (i == left.length) return !isContains;
         }
-        return !isContains;
+        return isContains;
       },
       greater: function(left, right) {
         if (left == null || right == null) return false;

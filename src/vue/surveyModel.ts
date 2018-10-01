@@ -40,40 +40,33 @@ export class VueSurveyModel extends SurveyModel {
     parentPanel: any,
     rootPanel: any
   ) {
-    var q: any;
-    q = question;
-    q.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
+    this.updatePropertiesHash(question);
     super.questionAdded(question, index, parentPanel, rootPanel);
   }
   protected doOnPageAdded(page: PageModel) {
-    var p: any;
-    p = page;
-    p.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
+    this.updatePropertiesHash(page);
     super.doOnPageAdded(page);
   }
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
-    var p: any;
-    p = panel;
-    p.setPropertyValueCoreHandler = function(
+    this.updatePropertiesHash(panel);
+    super.panelAdded(panel, index, parentPanel, rootPanel);
+  }
+  private updatePropertiesHash(obj: any) {
+    /*
+    obj.iteratePropertiesHash((hash, key) => {
+      var val = hash[key];
+      if (Array.isArray(val)) {
+        Vue.set(hash, key, val);
+      }
+    });
+    */
+    obj.setPropertyValueCoreHandler = function(
       propertiesHash: any,
       name: string,
       val: any
     ) {
       Vue.set(propertiesHash, name, val);
     };
-    super.panelAdded(panel, index, parentPanel, rootPanel);
   }
 }
 

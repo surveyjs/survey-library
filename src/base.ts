@@ -413,14 +413,14 @@ export class Base {
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
     newArray.push = function(value): number {
-      var result = Array.prototype.push.call(newArray, value);
+      var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
       if (onPush) onPush(value);
       self.propertyValueChanged(name, newArray, newArray);
       self.notifyArrayChanged(newArray);
       return result;
     };
     newArray.pop = function(): number {
-      var result = Array.prototype.pop.call(newArray);
+      var result = Object.getPrototypeOf(newArray).pop.call(newArray);
       if (onRemove) onRemove(result);
       self.propertyValueChanged(name, newArray, newArray);
       self.notifyArrayChanged(newArray);
@@ -433,7 +433,7 @@ export class Base {
     ): any[] {
       if (!start) start = 0;
       if (!deleteCount) deleteCount = 0;
-      var result = Array.prototype.splice.call(
+      var result = Object.getPrototypeOf(newArray).splice.call(
         newArray,
         start,
         deleteCount,
@@ -463,24 +463,25 @@ export class Base {
     isItemValues: boolean,
     onPush: any
   ) {
-    src.length = 0;
+    Object.getPrototypeOf(src).splice.call(src, 0, src.length);
+    //src.splice(0, src.length);
+    //    src.length = 0;
     if (!dest) {
       this.notifyArrayChanged(src);
       return;
     }
     for (var i = 0; i < dest.length; i++) {
+      var item = dest[i];
       if (isItemValues) {
-        var item = dest[i];
         if (typeof dest[i].getType === "function") {
           item = new ItemValue(null, undefined, dest[i].getType());
         } else {
           item = new ItemValue(null);
         }
         item.setData(dest[i]);
-        Array.prototype.push.call(src, item);
-      } else {
-        Array.prototype.push.call(src, dest[i]);
       }
+      Object.getPrototypeOf(src).push.call(src, item);
+      //src["origionalPush"].apply(src, [item]);
       if (onPush) onPush(src[i]);
     }
     this.notifyArrayChanged(src);

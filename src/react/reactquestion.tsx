@@ -12,7 +12,7 @@ export interface ISurveyCreator {
   questionErrorLocation(): string;
 }
 
-export class SurveyQuestion extends React.Component<any, any> {
+export class SurveyQuestion extends SurveyElementBase {
   protected question: Question;
   private creator: ISurveyCreator;
   constructor(props: any) {
@@ -20,25 +20,6 @@ export class SurveyQuestion extends React.Component<any, any> {
     this.setQuestion(props.question);
     this.state = this.getState();
     this.creator = props.creator;
-    this.question.iteratePropertiesHash((hash, key) => {
-      var val = hash[key];
-      if (Array.isArray(val)) {
-        val["onArrayChanged"] = () =>
-          this.setState(state => {
-            var newState = {};
-            newState[key] = val;
-            return newState;
-          });
-      }
-    });
-    this.question.setPropertyValueCoreHandler = (hash, key, val) => {
-      hash[key] = val;
-      this.setState(state => {
-        var newState = {};
-        newState[key] = val;
-        return newState;
-      });
-    };
   }
   componentWillReceiveProps(nextProps: any) {
     this.creator = nextProps.creator;
@@ -47,6 +28,7 @@ export class SurveyQuestion extends React.Component<any, any> {
   }
   private setQuestion(question) {
     this.question = question;
+    this.makeBaseElementReact(this.question);
   }
   private getState() {
     var value = this.question ? this.question.value : null;
@@ -272,7 +254,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
 }
 
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
-  protected question: Question;
+  private questionValue: Question;
   protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
@@ -286,6 +268,13 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected setProperties(nextProps: any) {
     this.question = nextProps.question;
     this.creator = nextProps.creator;
+  }
+  protected get question() {
+    return this.questionValue;
+  }
+  protected set question(val: Question) {
+    this.questionValue = val;
+    this.makeBaseElementReact(this.question);
   }
   private getState(increaseError: boolean = false): any {
     if (!this.question) return;

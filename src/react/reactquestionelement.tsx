@@ -3,6 +3,7 @@ import { ItemValue } from "../itemvalue";
 import { LocalizableString } from "../localizablestring";
 import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
+import { Base } from "../base";
 
 export class SurveyLocString extends React.Component<any, any> {
   private locStr: LocalizableString;
@@ -53,6 +54,28 @@ export class SurveyElementBase extends React.Component<any, any> {
     style: any = null
   ): JSX.Element {
     return SurveyElementBase.renderLocString(locStr, style);
+  }
+  protected makeBaseElementReact(baseElement: Base) {
+    if (!baseElement) return;
+    baseElement.iteratePropertiesHash((hash, key) => {
+      var val = hash[key];
+      if (Array.isArray(val)) {
+        val["onArrayChanged"] = () =>
+          this.setState(state => {
+            var newState = {};
+            newState[key] = val;
+            return newState;
+          });
+      }
+    });
+    baseElement.setPropertyValueCoreHandler = (hash, key, val) => {
+      hash[key] = val;
+      this.setState(state => {
+        var newState = {};
+        newState[key] = val;
+        return newState;
+      });
+    };
   }
 }
 

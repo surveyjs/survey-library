@@ -52,14 +52,6 @@ export class VueSurveyModel extends SurveyModel {
     super.panelAdded(panel, index, parentPanel, rootPanel);
   }
   private updatePropertiesHash(obj: any) {
-    /*
-    obj.iteratePropertiesHash((hash, key) => {
-      var val = hash[key];
-      if (Array.isArray(val)) {
-        Vue.set(hash, key, val);
-      }
-    });
-    */
     obj.setPropertyValueCoreHandler = function(
       propertiesHash: any,
       name: string,

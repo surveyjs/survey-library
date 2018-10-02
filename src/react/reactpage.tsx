@@ -10,8 +10,8 @@ import { QuestionRowModel, PanelModel } from "../panel";
 import { Question } from "../question";
 import { SurveyElementBase } from "./reactquestionelement";
 
-export class SurveyPage extends React.Component<any, any> {
-  private page: PageModel;
+export class SurveyPage extends SurveyElementBase {
+  private pageValue: PageModel;
   private survey: SurveyModel;
   private creator: ISurveyCreator;
   private questionRows: Array<QuestionRowModel>;
@@ -30,6 +30,13 @@ export class SurveyPage extends React.Component<any, any> {
     this.creator = nextProps.creator;
     this.css = nextProps.css;
     this.questionRows = nextProps.page.rows;
+  }
+  public get page(): PageModel {
+    return this.pageValue;
+  }
+  public set page(val: PageModel) {
+    this.pageValue = val;
+    this.makeBaseElementReact(this.page);
   }
   componentDidMount() {
     this.doAfterRender();
@@ -99,8 +106,8 @@ export class SurveyPage extends React.Component<any, any> {
   }
 }
 
-export class SurveyPanel extends React.Component<any, any> {
-  private panel: PanelModel;
+export class SurveyPanel extends SurveyElementBase {
+  private panelValue: PanelModel;
   private survey: SurveyModel;
   private creator: ISurveyCreator;
   protected css: any;
@@ -117,6 +124,13 @@ export class SurveyPanel extends React.Component<any, any> {
     this.survey = nextProps.survey;
     this.creator = nextProps.creator;
     this.css = nextProps.css;
+  }
+  public get panel() {
+    return this.panelValue;
+  }
+  public set panel(val: PanelModel) {
+    this.panelValue = val;
+    this.makeBaseElementReact(this.panel);
   }
   componentDidMount() {
     let self = this;

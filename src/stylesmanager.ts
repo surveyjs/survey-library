@@ -114,6 +114,43 @@ export class StylesManager {
     ".sv_qstn fieldset .sv-q-col-5": {
       style: "width: 100%;",
       media: "@media only screen and (max-width: 480px)"
+    },
+
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn": {
+      style: "display: block; width: 100% !important;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .title-left": {
+      style: "float: none;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_radiogroup_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_checkbox_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_imagepicker_inline": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table thead": {
+      style: "display: none;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tbody, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tr, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table td": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table:not(.sv_q_matrix) td:before": {
+      style: "content: attr(headers);",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.sv_q_matrix td:after": {
+      style: "content: attr(headers); padding-left: 1em",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .radio label, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .checkbox label": {
+      style: "line-height: 12px; vertical-align: top;",
+      media: "@media (max-width: 600px)"
     }
   };
 

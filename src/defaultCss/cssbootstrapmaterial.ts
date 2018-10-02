@@ -65,7 +65,7 @@ export var defaultBootstrapMaterialCss = {
     other: "sv_q_dd_other form-control"
   },
   matrix: {
-    root: "table",
+    root: "table sv_q_matrix",
     row: "form-group",
     label: "sv_q_m_label radio-inline",
     cellText: "sv_q_m_cell_text",

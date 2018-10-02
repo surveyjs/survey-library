@@ -65,7 +65,7 @@ export var defaultBootstrapCss = {
     other: "sv_q_dd_other form-control"
   },
   matrix: {
-    root: "table",
+    root: "table sv_q_matrix",
     label: "sv_q_m_label",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary"

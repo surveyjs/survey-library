@@ -4,6 +4,7 @@ import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { JsonObject } from "../jsonobject";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
+import { ImplementorBase } from "./kobase";
 
 export class QuestionRow extends QuestionRowModel {
   koVisible: any;
@@ -53,9 +54,10 @@ export class QuestionRow extends QuestionRowModel {
   }
 }
 
-export class PanelImplementorBase {
+export class PanelImplementorBase extends ImplementorBase {
   koRows: any;
   constructor(public panel: PanelModelBase) {
+    super(panel);
     var self = this;
     this.koRows = ko.observableArray();
     this.panel.rowsChangedCallback = function() {
@@ -70,7 +72,6 @@ export class Panel extends PanelModel {
   koInnerMargin: any;
   koRenderWidth: any;
   koElementType: any;
-  koErrors: any;
   koCss: any;
   koIsExpanded: any;
   koIsCollapsed: any;
@@ -83,7 +84,6 @@ export class Panel extends PanelModel {
     this.koElementType = ko.observable("survey-panel");
     this.koVisible = ko.observable(this.isVisible);
     this.koRenderWidth = ko.observable(this.renderWidth);
-    this.koErrors = ko.observable(this.errors);
     this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
@@ -91,9 +91,6 @@ export class Panel extends PanelModel {
     this.koIsExpanded = ko.observable(this.isExpanded);
     this.stateChangedCallback = function() {
       self.onStateChanged();
-    };
-    this.errorsChangedCallback = function() {
-      self.koErrors(self.errors);
     };
     this.doExpand = function() {
       self.changeExpanded();

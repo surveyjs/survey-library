@@ -2,8 +2,9 @@ import * as ko from "knockout";
 import { Question } from "../question";
 import { SurveyElement } from "../base";
 import { Helpers } from "../helpers";
+import { ImplementorBase } from "./kobase";
 
-export class QuestionImplementor {
+export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
   koVisible: any;
   koPaddingLeft: any;
@@ -15,28 +16,8 @@ export class QuestionImplementor {
   koComment: any;
   koIsReadOnly: any;
   constructor(public question: Question) {
+    super(question);
     var self = this;
-
-    question.iteratePropertiesHash((hash, key) => {
-      var val = hash[key];
-      if (Array.isArray(val)) {
-        hash[key] = ko.observableArray(val);
-        val["onArrayChanged"] = () => hash[key].notifySubscribers();
-      } else {
-        hash[key] = ko.observable(val);
-      }
-    });
-    question.getPropertyValueCoreHandler = (hash, key) => {
-      if (hash[key] === undefined) {
-        hash[key] = ko.observable();
-      }
-      return ko.unwrap(hash[key]);
-    };
-    question.setPropertyValueCoreHandler = (hash, key, val) =>
-      hash[key] !== undefined
-        ? hash[key](val)
-        : (hash[key] = ko.observable(val));
-
     question.registerFunctionOnPropertyValueChanged("isVisible", function() {
       self.onVisibilityChanged();
     });

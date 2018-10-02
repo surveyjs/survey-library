@@ -515,8 +515,6 @@ export class SurveyElement extends Base implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
-  //private errorsValue: Array<SurveyError> = [];
-  errorsChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
     if (!elementId) return false;
@@ -593,11 +591,9 @@ export class SurveyElement extends Base implements ISurveyElement {
    */
   public get errors(): Array<SurveyError> {
     return this.getPropertyValue("errors");
-    //return this.errorsValue;
   }
   public set errors(val: Array<SurveyError>) {
     this.setPropertyValue("errors", val);
-    //this.errorsValue = val;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];

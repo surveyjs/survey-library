@@ -1727,7 +1727,7 @@ QUnit.test("Several questions in one row", function(assert) {
   page.questions[0].startWithNewLine = false;
   assert.equal(page.rows.length, 10, "still 10 rows for each question");
   assert.equal(
-    percentageToNum(page.rows[0].questions[0].renderWidth),
+    percentageToNum(page.rows[0].elements[0].renderWidth),
     100,
     "the render width is 100%"
   );
@@ -1744,22 +1744,22 @@ QUnit.test("Several questions in one row", function(assert) {
   );
   for (var i = 0; i < 5; i++) {
     assert.equal(
-      page.rows[i].questions.length,
+      page.rows[i].elements.length,
       2,
       "two questions for every row"
     );
     assert.equal(
-      percentageToNum(page.rows[i].questions[0].renderWidth),
+      percentageToNum(page.rows[i].elements[0].renderWidth),
       50,
       "the render width is 50%"
     );
-    assert.equal(page.rows[i].questions[0].rightIndent, 1, "the indent is 1");
+    assert.equal(page.rows[i].elements[0].rightIndent, 1, "the indent is 1");
     assert.equal(
-      percentageToNum(page.rows[i].questions[1].renderWidth),
+      percentageToNum(page.rows[i].elements[1].renderWidth),
       50,
       "the render width is 50%"
     );
-    assert.equal(page.rows[i].questions[1].rightIndent, 0, "the indent is 0");
+    assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
   }
 });
 QUnit.test("test goNextPageAutomatic property", function(assert) {

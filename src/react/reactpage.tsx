@@ -59,13 +59,7 @@ export class SurveyPanelBase extends SurveyElementBase {
   protected renderRows(): Array<JSX.Element> {
     var rows = [];
     var questionRows = this.panelBase.rows;
-    var self = this;
     for (var i = 0; i < questionRows.length; i++) {
-      var row = questionRows[i];
-      row.visibilityChangedCallback = function() {
-        self.forceUpdate();
-      };
-
       rows.push(this.createRow(questionRows[i], i));
     }
     return rows;
@@ -218,7 +212,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
 }
 
-export class SurveyRow extends React.Component<any, any> {
+export class SurveyRow extends SurveyElementBase {
   private row: QuestionRowModel;
   private survey: SurveyModel;
   private creator: ISurveyCreator;
@@ -226,6 +220,7 @@ export class SurveyRow extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
     this.setProperties(props);
+    this.makeBaseElementReact(this.row);
   }
   componentWillReceiveProps(nextProps: any) {
     this.setProperties(nextProps);
@@ -240,12 +235,12 @@ export class SurveyRow extends React.Component<any, any> {
     if (this.row == null || this.survey == null || this.creator == null)
       return null;
     if (this.row.visible) {
-      var questions = [];
+      var elements = [];
       for (var i = 0; i < this.row.elements.length; i++) {
         let question = this.row.elements[i] as Question;
-        questions.push(this.createQuestion(question));
+        elements.push(this.createQuestion(question));
       }
-      return <div className={this.css.row}>{questions}</div>;
+      return <div className={this.css.row}>{elements}</div>;
     }
     return null;
   }

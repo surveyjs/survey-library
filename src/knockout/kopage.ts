@@ -7,14 +7,11 @@ import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
 
 export class QuestionRow extends QuestionRowModel {
-  koVisible: any;
-  koElements: any;
   koGetType: any;
   koElementAfterRender: any;
   constructor(public panel: PanelModelBase) {
     super(panel);
-    this.koVisible = ko.observable(this.visible);
-    this.koElements = ko.observableArray();
+    new ImplementorBase(this);
     var self = this;
     this.koGetType = function(el) {
       return self.getElementType(el);
@@ -22,14 +19,6 @@ export class QuestionRow extends QuestionRowModel {
     this.koElementAfterRender = function(el, con) {
       return self.elementAfterRender(el, con);
     };
-  }
-  public addElement(q: IElement) {
-    super.addElement(q);
-    this.koElements(this.elements);
-  }
-  protected onVisibleChanged() {
-    this.koVisible(this.visible);
-    super.onVisibleChanged();
   }
   public getElementType(el) {
     return el.isPanel ? "survey-panel" : "survey-question";
@@ -104,9 +93,7 @@ export class Panel extends PanelModel {
     this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
-    var result = new QuestionRow(this);
-    result.visibilityChangedCallback = this.childVisibilityChangeHandler;
-    return result;
+    return new QuestionRow(this);
   }
   protected onCreating() {}
   protected onNumChanged(value: number) {

@@ -1,10 +1,10 @@
 import * as ko from "knockout";
 import { JsonObject } from "../jsonobject";
-import { SurveyElement } from "../base";
+import { Base } from "../base";
 import { ElementFactory } from "../questionfactory";
 
 export class ImplementorBase {
-  constructor(public element: SurveyElement) {
+  constructor(public element: Base) {
     element.iteratePropertiesHash((hash, key) => {
       var val = hash[key];
       if (Array.isArray(val)) {

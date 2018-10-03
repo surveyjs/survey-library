@@ -21,24 +21,20 @@ import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { browser } from "./utils/utils";
 
-export class QuestionRowModel {
-  private visibleValue: boolean;
-  visibilityChangedCallback: () => void;
+export class QuestionRowModel extends Base {
   constructor(public panel: PanelModelBase) {
-    this.visibleValue = panel.isDesignMode;
+    super();
+    this.visible = panel.isDesignMode;
+    this.createNewArray("elements");
   }
-  public elements: Array<IElement> = [];
-  //TODO remove after updating react and vue
-  public get questions(): Array<IElement> {
-    return this.elements;
+  public get elements(): Array<IElement> {
+    return this.getPropertyValue("elements");
   }
   public get visible(): boolean {
-    return this.visibleValue;
+    return this.getPropertyValue("visible", true);
   }
   public set visible(val: boolean) {
-    if (val == this.visible) return;
-    this.visibleValue = val;
-    this.onVisibleChanged();
+    this.setPropertyValue("visible", val);
   }
   public updateVisible() {
     this.visible = this.calcVisible();
@@ -48,9 +44,6 @@ export class QuestionRowModel {
     this.elements.push(q);
     this.updateVisible();
   }
-  protected onVisibleChanged() {
-    if (this.visibilityChangedCallback) this.visibilityChangedCallback();
-  }
   private setWidth() {
     var visCount = this.getVisibleCount();
     if (visCount == 0) return;
@@ -58,9 +51,7 @@ export class QuestionRowModel {
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isVisible) {
         var q = this.elements[i];
-        // q.renderWidth = q.width ? q.width : Math.floor(100 / visCount) + "%";
         q.renderWidth = q.width ? q.width : (100 / visCount).toFixed(6) + "%";
-
         q.rightIndent = counter < visCount - 1 ? 1 : 0;
         counter++;
       } else {
@@ -547,20 +538,15 @@ export class PanelModelBase extends SurveyElement
     while (res.parent) res = res.parent;
     return res;
   }
-  protected childVisibilityChangeHandler = () => {
-    this.childVisibilityChanged();
-  };
   private childVisibilityChanged() {
-    var pageIsVisible = this.getIsPageVisible(null);
-    var oldPageIsVisible = this.getPropertyValue("isVisible");
-    if (pageIsVisible !== oldPageIsVisible) {
+    var containerIsVisible = this.getIsPageVisible(null);
+    var oldContainerIsVisible = this.getPropertyValue("isVisible");
+    if (containerIsVisible !== oldContainerIsVisible) {
       this.onVisibleChanged();
     }
   }
   protected createRow(): QuestionRowModel {
-    var result = new QuestionRowModel(this);
-    result.visibilityChangedCallback = this.childVisibilityChangeHandler;
-    return result;
+    return new QuestionRowModel(this);
   }
   onSurveyLoad() {
     for (var i = 0; i < this.elements.length; i++) {
@@ -623,10 +609,9 @@ export class PanelModelBase extends SurveyElement
     if (this.rowValues) {
       this.updateRowsVisibility(element);
     }
+    this.childVisibilityChanged();
     if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);
-    } else {
-      this.childVisibilityChanged();
     }
   }
   private onElementStartWithNewLineChanged(element: any) {

@@ -6,37 +6,32 @@ import {
 } from "./reactquestion";
 import { PageModel } from "../page";
 import { SurveyModel } from "../survey";
-import { QuestionRowModel, PanelModel } from "../panel";
+import { QuestionRowModel, PanelModel, PanelModelBase } from "../panel";
 import { Question } from "../question";
 import { SurveyElementBase } from "./reactquestionelement";
 
-export class SurveyPage extends SurveyElementBase {
-  private pageValue: PageModel;
-  private survey: SurveyModel;
-  private creator: ISurveyCreator;
-  private questionRows: Array<QuestionRowModel>;
+export class SurveyPanelBase extends SurveyElementBase {
+  private panelValue: PanelModelBase;
+  protected survey: SurveyModel;
+  protected creator: ISurveyCreator;
   protected css: any;
   constructor(props: any) {
     super(props);
-    this.page = props.page;
     this.survey = props.survey;
     this.creator = props.creator;
     this.css = props.css;
-    this.questionRows = props.page.rows;
   }
   componentWillReceiveProps(nextProps: any) {
-    this.page = nextProps.page;
     this.survey = nextProps.survey;
     this.creator = nextProps.creator;
     this.css = nextProps.css;
-    this.questionRows = nextProps.page.rows;
   }
-  public get page(): PageModel {
-    return this.pageValue;
+  public get panelBase(): PanelModelBase {
+    return this.panelValue;
   }
-  public set page(val: PageModel) {
-    this.pageValue = val;
-    this.makeBaseElementReact(this.page);
+  public set panelBase(val: PanelModelBase) {
+    this.panelValue = val;
+    this.makeBaseElementReact(this.panelBase);
   }
   componentDidMount() {
     this.doAfterRender();
@@ -48,23 +43,22 @@ export class SurveyPage extends SurveyElementBase {
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    this.questionRows = this.page.rows;
     this.doAfterRender();
   }
   private doAfterRender() {
     var el: any = this.refs["root"];
     if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
       el.setAttribute("data-rendered", "r");
-      this.survey.afterRenderPage(el);
+      if (this.panelBase.isPanel) {
+        this.survey.afterRenderPanel(this.panelBase as PanelModel, el);
+      } else {
+        this.survey.afterRenderPage(el);
+      }
     }
   }
-  render(): JSX.Element {
-    if (this.page == null || this.survey == null || this.creator == null)
-      return null;
-    var title = this.renderTitle();
-    var description = this.renderDescription();
+  protected renderRows(): Array<JSX.Element> {
     var rows = [];
-    var questionRows = this.questionRows;
+    var questionRows = this.panelBase.rows;
     var self = this;
     for (var i = 0; i < questionRows.length; i++) {
       var row = questionRows[i];
@@ -74,13 +68,7 @@ export class SurveyPage extends SurveyElementBase {
 
       rows.push(this.createRow(questionRows[i], i));
     }
-    return (
-      <div ref="root" className={this.css.page.root}>
-        {title}
-        {description}
-        {rows}
-      </div>
-    );
+    return rows;
   }
   protected createRow(row: QuestionRowModel, index: number): JSX.Element {
     var rowName = "row" + (index + 1);
@@ -92,6 +80,33 @@ export class SurveyPage extends SurveyElementBase {
         creator={this.creator}
         css={this.css}
       />
+    );
+  }
+}
+export class SurveyPage extends SurveyPanelBase {
+  constructor(props: any) {
+    super(props);
+    this.panelBase = props.page;
+  }
+  componentWillReceiveProps(nextProps: any) {
+    super.componentWillReceiveProps(nextProps);
+    this.panelBase = nextProps.page;
+  }
+  public get page(): PageModel {
+    return this.panelBase as PageModel;
+  }
+  render(): JSX.Element {
+    if (this.page == null || this.survey == null || this.creator == null)
+      return null;
+    var title = this.renderTitle();
+    var description = this.renderDescription();
+    var rows = this.renderRows();
+    return (
+      <div ref="root" className={this.css.page.root}>
+        {title}
+        {description}
+        {rows}
+      </div>
     );
   }
   protected renderTitle(): JSX.Element {
@@ -106,36 +121,23 @@ export class SurveyPage extends SurveyElementBase {
   }
 }
 
-export class SurveyPanel extends SurveyElementBase {
-  private panelValue: PanelModel;
-  private survey: SurveyModel;
-  private creator: ISurveyCreator;
-  protected css: any;
+export class SurveyPanel extends SurveyPanelBase {
   constructor(props: any) {
     super(props);
-    this.panel = props.panel;
-    this.survey = props.survey;
-    this.creator = props.creator;
-    this.css = props.css;
+    this.panelBase = props.panel;
     this.state = { modelChanged: 0 };
   }
   componentWillReceiveProps(nextProps: any) {
-    this.panel = nextProps.panel;
-    this.survey = nextProps.survey;
-    this.creator = nextProps.creator;
-    this.css = nextProps.css;
+    super.componentWillReceiveProps(nextProps);
+    this.panelBase = nextProps.panel;
   }
-  public get panel() {
-    return this.panelValue;
-  }
-  public set panel(val: PanelModel) {
-    this.panelValue = val;
-    this.makeBaseElementReact(this.panel);
+  public get panel(): PanelModel {
+    return this.panelBase as PanelModel;
   }
   componentDidMount() {
+    super.componentDidMount();
     let self = this;
-    this.doAfterRender();
-    this.panel.registerFunctionOnPropertiesValueChanged(
+    this.panelBase.registerFunctionOnPropertiesValueChanged(
       ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
       function() {
         self.setState({ modelChanged: self.state.modelChanged + 1 });
@@ -143,53 +145,30 @@ export class SurveyPanel extends SurveyElementBase {
       "react"
     );
   }
-  componentDidUpdate(prevProps, prevState) {
-    this.doAfterRender();
-  }
-  private doAfterRender() {
-    let el: any = this.refs["root"];
-    if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
-      el.setAttribute("data-rendered", "r");
-      this.survey.afterRenderPanel(this.panel, el);
-    }
-  }
   componentWillUnmount() {
-    if (this.panel) {
-      this.panel.unRegisterFunctionOnPropertiesValueChanged(
+    super.componentWillUnmount();
+    if (this.panelBase) {
+      this.panelBase.unRegisterFunctionOnPropertiesValueChanged(
         ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
         "react"
       );
-      var el: any = this.refs["root"];
-      if (!!el) {
-        el.removeAttribute("data-rendered");
-      }
     }
   }
   render(): JSX.Element {
-    if (this.panel == null || this.survey == null || this.creator == null)
+    if (this.panelBase == null || this.survey == null || this.creator == null)
       return null;
-    if (!this.panel.isVisible) return null;
+    if (!this.panelBase.isVisible) return null;
     var title = this.renderTitle();
     var description = this.renderDescription();
     var errors = (
       <SurveyElementErrors
-        element={this.panel}
-        cssClasses={this.panel.cssClasses}
+        element={this.panelBase}
+        cssClasses={this.panelBase.cssClasses}
         creator={this.creator}
       />
     );
 
-    var rows = [];
-    var questionRows = this.panel.rows;
-    var self = this;
-    for (var i = 0; i < questionRows.length; i++) {
-      var row = questionRows[i];
-      row.visibilityChangedCallback = function() {
-        self.forceUpdate();
-      };
-
-      rows.push(this.createRow(questionRows[i], i));
-    }
+    var rows = this.renderRows();
     var style = {
       paddingLeft: this.panel.innerIndent * this.css.question.indent + "px",
       display: !this.panel.isCollapsed ? "block" : "none"
@@ -205,21 +184,9 @@ export class SurveyPanel extends SurveyElementBase {
       </div>
     );
   }
-  protected createRow(row: QuestionRowModel, index: number): JSX.Element {
-    var rowName = "row" + (index + 1);
-    return (
-      <SurveyRow
-        key={rowName}
-        row={row}
-        survey={this.survey}
-        creator={this.creator}
-        css={this.css}
-      />
-    );
-  }
   protected renderTitle(): JSX.Element {
-    if (!this.panel.title) return null;
-    var text = SurveyElementBase.renderLocString(this.panel.locTitle);
+    if (!this.panelBase.title) return null;
+    var text = SurveyElementBase.renderLocString(this.panelBase.locTitle);
     var expandCollapse = null;
     var titleStyle = this.css.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
@@ -245,8 +212,8 @@ export class SurveyPanel extends SurveyElementBase {
     );
   }
   protected renderDescription(): JSX.Element {
-    if (!this.panel.description) return null;
-    var text = SurveyElementBase.renderLocString(this.panel.locDescription);
+    if (!this.panelBase.description) return null;
+    var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
     return <div className={this.css.panel.description}>{text}</div>;
   }
 }

@@ -9,6 +9,7 @@ import { ItemValue } from "./itemvalue";
 export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(public name: string) {
     super(name);
+    this.colCount = 0;
   }
   public getType(): string {
     return "imagepicker";

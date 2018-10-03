@@ -91,7 +91,10 @@ export class StylesManager {
     ".sv_qstn .sv_q_imgsel label > div":
       "overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px; border: 1px solid lightgray; border-radius: 4px;",
     ".sv_qstn .sv_q_imgsel label > div > img, .sv_qstn .sv_q_imgsel label > div > embed":
-      "display: block;"
+      "display: block;",
+
+    ".sv_qstn table tr td .sv_q_m_cell_label":
+      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

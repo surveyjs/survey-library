@@ -29,12 +29,13 @@
                     <!-- ko if: !question.hasCellText -->
                     <td data-bind="attr: { headers: $data.locText.renderedHtml }">
                         <label data-bind="css: question.getItemCss(row, $data)">
-                            <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: ($index() == 0) && ($parentContext.$index() == 0) ? question.inputId : ''}, checked: row.koValue, enable: !question.koIsReadOnly()"
+                            <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.koIsReadOnly()"
                             />
                             <span class="circle"></span>
                             <span class="check"></span>
                             <span style="display: none" data-bind="text: $data.locText.text"></span>
                         </label>
+                        <label data-bind="css: question.koCss().cellLabel, attr: { for: question.inputId + '_' + row.name + '_' + $index() }"></label>
                     </td>
                     <!-- /ko -->
                     <!-- /ko -->

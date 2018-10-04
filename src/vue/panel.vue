@@ -1,10 +1,10 @@
 <template>
-    <div v-if="question.isVisible" :class="css.panel.container" :style="rootStyle">
+    <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
         <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
           <survey-string :locString="question.locTitle"/>
           <span v-show="showIcon" :class="iconCss"></span>
         </h4>
-        <div v-show="hasDescription" :class="css.panel.description"><survey-string :locString="question.locDescription"/></div>
+        <div v-show="hasDescription" :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
         <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }" v-show="!isCollapsed">
             <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible"   :class="css.row">

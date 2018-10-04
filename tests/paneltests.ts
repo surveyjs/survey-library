@@ -268,3 +268,29 @@ QUnit.test("Panel.getComments()", function(assert) {
     "Page.getComments() works correctly"
   );
 });
+
+QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
+  var survey = new SurveyModel();
+  var page1 = survey.addNewPage("page1");
+  var panel1 = page1.addNewPanel("p1");
+  var panel2 = page1.addNewPanel("p2");
+
+  var page2 = survey.addNewPage("page2");
+  var panel3 = page2.addNewPanel("p3");
+
+  assert.equal(
+    survey.getAllPanels().length,
+    3,
+    "There are 3 panels in the survey"
+  );
+  assert.equal(
+    survey.pages[0].getPanels().length,
+    2,
+    "There are 2 panels in the first page"
+  );
+  assert.equal(
+    survey.pages[1].getPanels().length,
+    1,
+    "There is 1 panel in the second page"
+  );
+});

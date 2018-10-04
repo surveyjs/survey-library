@@ -1695,6 +1695,7 @@ export class SurveyModel extends Base
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
     }
+    single.endLoadingFromJson();
     return single;
   }
   /**

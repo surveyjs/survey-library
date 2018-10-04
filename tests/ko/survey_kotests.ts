@@ -341,16 +341,13 @@ QUnit.test("koElements", function(assert) {
   page.addNewQuestion("text", "q1");
   page.addNewPanel("panel1");
   assert.equal(page["koRows"]().length, 2, "There are two rows");
+  assert.equal(page.rows[0].elements.length, 1, "One element in the first row");
   assert.equal(
-    page.rows[0].questions.length,
-    1,
-    "One element in the first row"
-  );
-  assert.equal(
-    page.rows[1].questions.length,
+    page.rows[1].elements.length,
     1,
     "One element in the second row"
   );
+  /*
   assert.equal(
     page["koRows"]()[0]["koElements"]().length,
     1,
@@ -360,7 +357,7 @@ QUnit.test("koElements", function(assert) {
     page["koRows"]()[1]["koElements"]().length,
     1,
     "One element in the second row, ko"
-  );
+  );*/
 });
 QUnit.test("Set notification on setting survey data", function(assert) {
   var survey = new Survey();
@@ -703,8 +700,8 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   assert.equal(panel["koRows"]().length, 2, "Two questions - two rows");
   var row = <QuestionRow>panel["koRows"]()[0];
   assert.ok(row, "the first row is created");
-  assert.equal(row.koElements().length, 1, "there is one question in the row");
-  assert.equal(row.koElements()[0].koVisible(), true, "question is visible");
+  assert.equal(row.elements.length, 1, "there is one question in the row");
+  assert.equal(row.elements[0].visible, true, "question is visible");
   <Question>panel.questions[0].koValue("val1");
   assert.deepEqual(
     question.value,
@@ -787,11 +784,11 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
   var row1 = <QuestionRow>panel["koRows"]()[0];
   var row2 = <QuestionRow>panel["koRows"]()[1];
   assert.ok(row1, "the first row is created");
-  assert.equal(row1.koElements().length, 1, "there is one element in the row");
-  assert.equal(row1.koElements()[0].koVisible(), true, "element is visible");
+  assert.equal(row1.elements.length, 1, "there is one element in the row");
+  assert.equal(row1.elements[0].visible, true, "element is visible");
   assert.ok(row2, "the second row is created");
-  assert.equal(row2.koElements().length, 1, "there is one element in the row");
-  assert.equal(row2.koElements()[0].koVisible(), true, "element is visible");
+  assert.equal(row2.elements.length, 1, "there is one element in the row");
+  assert.equal(row2.elements[0].visible, true, "element is visible");
   assert.equal(
     nestedPanel["koRows"]().length,
     1,
@@ -800,12 +797,12 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
   var rowN1 = <QuestionRow>nestedPanel["koRows"]()[0];
   assert.ok(row1, "the nested row is created");
   assert.equal(
-    row1.koElements().length,
+    row1.elements.length,
     1,
     "there is one element in the nested row"
   );
   assert.equal(
-    row1.koElements()[0].koVisible(),
+    row1.elements[0].visible,
     true,
     "element is visible in nested row is visible"
   );
@@ -928,13 +925,9 @@ QUnit.test(
     assert.ok(rows, "panel rows are here");
     assert.equal(rows.length, 1, "There is one element in the rows");
     var row1 = rows[0];
-    assert.equal(
-      row1.koElements().length,
-      1,
-      "there is one element in the row"
-    );
-    assert.equal(row1.koElements()[0].koVisible(), true, "element is visible");
-    assert.equal(row1.koElements()[0].name, "question2", "It is our question");
+    assert.equal(row1.elements.length, 1, "there is one element in the row");
+    assert.equal(row1.elements[0].visible, true, "element is visible");
+    assert.equal(row1.elements[0].name, "question2", "It is our question");
   }
 );
 
@@ -965,13 +958,9 @@ QUnit.test(
     assert.ok(rows, "panel rows are here");
     assert.equal(rows.length, 1, "There is one element in the rows");
     var row1 = rows[0];
-    assert.equal(
-      row1.koElements().length,
-      1,
-      "there is one element in the row"
-    );
-    assert.equal(row1.koElements()[0].koVisible(), true, "element is visible");
-    assert.equal(row1.koElements()[0].name, "question2", "It is our question");
+    assert.equal(row1.elements.length, 1, "there is one element in the row");
+    assert.equal(row1.elements[0].isVisible, true, "element is visible");
+    assert.equal(row1.elements[0].name, "question2", "It is our question");
   }
 );
 
@@ -1083,7 +1072,7 @@ QUnit.test(
       "There are 3 rows on the page"
     );
     assert.equal(
-      survey.currentPage["koRows"]()[2].koVisible(),
+      survey.currentPage["koRows"]()[2].visible,
       true,
       "The last row is visible"
     );
@@ -1358,9 +1347,17 @@ QUnit.test(
   function(assert) {
     var q = new QuestionImagePicker("question1");
     q.endLoadingFromJson();
-    assert.equal(q.getItemClass({}), "sv_q_imgsel sv-q-col-1", "No exception");
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
     q.multiSelect = true;
-    assert.equal(q.getItemClass({}), "sv_q_imgsel sv-q-col-1", "No exception");
+    assert.equal(
+      q.getItemClass({}),
+      "sv_q_imgsel sv_q_imagepicker_inline",
+      "No exception"
+    );
   }
 );
 

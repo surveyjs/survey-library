@@ -3,6 +3,7 @@ import { HashTable, Helpers } from "./helpers";
 import {
   Base,
   IPage,
+  IPanel,
   IConditionRunner,
   ISurvey,
   IElement,
@@ -162,6 +163,17 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public set timeSpent(val: number) {
     this.setPropertyValue("timeSpent", val);
+  }
+  /**
+   * Returns the list of all panels in the page
+   */
+  public getPanels(
+    visibleOnly: boolean = false,
+    includingDesignTime: boolean = false
+  ): Array<IPanel> {
+    var result = new Array<IPanel>();
+    this.addPanelsIntoList(result, visibleOnly, includingDesignTime);
+    return result;
   }
   /**
    * The maximum time in seconds that end-user has to complete the page. If the value is 0 or less, the end-user has unlimited number of time to finish the page.

@@ -81,17 +81,16 @@ export class PanelModelBase extends SurveyElement
     return "sp_" + PanelModelBase.panelCounter++;
   }
 
-  private rowValues: Array<QuestionRowModel> = null;
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
-  rowsChangedCallback: () => void;
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
 
   constructor(public name: string = "") {
     super(name);
+    this.createNewArray("rows");
     this.elementsValue = this.createNewArray(
       "elements",
       function(item) {
@@ -498,12 +497,6 @@ export class PanelModelBase extends SurveyElement
       }
     }
   }
-  get rows(): Array<QuestionRowModel> {
-    if (!this.rowValues) {
-      this.rowValues = this.buildRows();
-    }
-    return this.rowValues;
-  }
   /**
    * Returns true if the current object is Page and it is the current page.
    */
@@ -552,12 +545,15 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
-    if (this.rowsChangedCallback) this.rowsChangedCallback();
+    this.onRowsChanged();
   }
+  get rows(): Array<QuestionRowModel> {
+    return this.getPropertyValue("rows");
+  }
+
   protected onRowsChanged() {
-    this.rowValues = null;
-    if (this.rowsChangedCallback && !this.isLoadingFromJson)
-      this.rowsChangedCallback();
+    if (this.isLoadingFromJson) return;
+    this.setPropertyValue("rows", this.buildRows());
   }
   private onAddElement(element: IElement, index: number) {
     element.setSurveyImpl(this.surveyImpl);
@@ -590,6 +586,7 @@ export class PanelModelBase extends SurveyElement
       },
       this.id
     );
+    this.onElementVisibilityChanged(this);
   }
   private onRemoveElement(element: IElement) {
     element.parent = null;
@@ -604,11 +601,11 @@ export class PanelModelBase extends SurveyElement
       if (this.survey) this.survey.panelRemoved(element);
     }
     if (!!this.removeElementCallback) this.removeElementCallback(element);
+    this.onElementVisibilityChanged(this);
   }
   private onElementVisibilityChanged(element: any) {
-    if (this.rowValues) {
-      this.updateRowsVisibility(element);
-    }
+    if (this.isLoadingFromJson) return;
+    this.updateRowsVisibility(element);
     this.childVisibilityChanged();
     if (!!this.parent) {
       this.parent.onElementVisibilityChanged(this);
@@ -618,8 +615,9 @@ export class PanelModelBase extends SurveyElement
     this.onRowsChanged();
   }
   private updateRowsVisibility(element: any) {
-    for (var i = 0; i < this.rowValues.length; i++) {
-      var row = this.rowValues[i];
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
         row.updateVisible();
         break;
@@ -628,8 +626,6 @@ export class PanelModelBase extends SurveyElement
   }
   private buildRows(): Array<QuestionRowModel> {
     var result = new Array<QuestionRowModel>();
-    var lastRowVisibleIndex = -1;
-    var self = this;
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
       var isNewRow = i == 0 || el.startWithNewLine;

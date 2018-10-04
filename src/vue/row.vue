@@ -5,30 +5,36 @@
 </template>
 
 <script lang="ts">
-    import Vue from "vue"
-    import {Component, Prop} from 'vue-property-decorator'
-    import {SurveyModel} from '../survey'
-    import {PanelModelBase, PanelModel, QuestionRowModel} from "../panel"
-    import {helpers} from './helpers'
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { SurveyModel } from "../survey";
+import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
+import { VueSurveyModel } from "./surveyModel";
+import { helpers } from "./helpers";
 
-    @Component({
-        mixins: [helpers]
-    })
-    export class Row extends Vue {
-        @Prop
-        row: any
-        @Prop
-        css: any
-        @Prop
-        survey: SurveyModel
-
-        get questionRootClass() {
-            if(this.survey.questionTitleLocation === "left") {
-                return this.css.question.mainRoot + " sv_qstn_left";
-            }
-            return this.css.question.mainRoot;
-        }
+@Component({
+  mixins: [helpers]
+})
+export class Row extends Vue {
+  @Prop
+  row: any;
+  @Prop
+  css: any;
+  @Prop
+  survey: SurveyModel;
+  mounted() {
+    if (!!this.row) {
+      VueSurveyModel.updatePropertiesHash(this.row);
     }
-    Vue.component("survey-row", Row)
-    export default Row;
+  }
+
+  get questionRootClass() {
+    if (this.survey.questionTitleLocation === "left") {
+      return this.css.question.mainRoot + " sv_qstn_left";
+    }
+    return this.css.question.mainRoot;
+  }
+}
+Vue.component("survey-row", Row);
+export default Row;
 </script>

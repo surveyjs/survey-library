@@ -147,6 +147,14 @@ QUnit.test("panel rows generation - nested panel", function(assert) {
     false,
     "The panel row is invisible since all questions are invisible"
   );
+  p1q1.visible = true;
+  assert.equal(page.rows[1].visible, true, "The panel row is visible again");
+  p1.removeElement(p1q1);
+  assert.equal(
+    page.rows[1].visible,
+    false,
+    "The panel row is invisible - it is empty"
+  );
 });
 QUnit.test("panel isExpanded and isCollapsed", function(assert) {
   var page = new PageModel();

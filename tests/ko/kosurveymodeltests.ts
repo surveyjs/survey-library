@@ -11,7 +11,7 @@ QUnit.test("Serialize two pages", function(assert) {
   var survey = new Survey();
   survey.addNewPage("Page 1");
   survey.addNewPage("Page 2");
-  assert.ok(survey.pages[0]["koRows"], "creates the koPage class");
+  assert.ok(survey.pages[0].rows, "creates the koPage class");
   var jsObj = new JsonObject().toJsonObject(survey);
   assert.equal(
     JSON.stringify(jsObj),
@@ -26,7 +26,7 @@ QUnit.test("Deserialize two pages", function(assert) {
     survey
   );
   assert.equal(survey.pages.length, 2, "Two pages from json");
-  assert.ok(survey.pages[0]["koRows"], "creates the koPage class");
+  assert.ok(survey.pages[0].rows, "creates the koPage class");
 });
 QUnit.test("Deserialize rate widget, custom rateValues", function(assert) {
   var survey = new Survey();
@@ -61,7 +61,7 @@ QUnit.test("Create rows", function(assert) {
     survey
   );
   var page = <Page>survey.pages[0];
-  assert.equal(page["koRows"]().length, 2, "There are two rows");
+  assert.equal(page.rows.length, 2, "There are two rows");
 });
 
 QUnit.test("Change value onValueChanged", function(assert) {

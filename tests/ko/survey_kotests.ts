@@ -340,24 +340,23 @@ QUnit.test("koElements", function(assert) {
   var page = survey.addNewPage("page1");
   page.addNewQuestion("text", "q1");
   page.addNewPanel("panel1");
-  assert.equal(page["koRows"]().length, 2, "There are two rows");
+  assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(page.rows[0].elements.length, 1, "One element in the first row");
   assert.equal(
     page.rows[1].elements.length,
     1,
     "One element in the second row"
   );
-  /*
   assert.equal(
-    page["koRows"]()[0]["koElements"]().length,
+    page.rows[0].elements.length,
     1,
     "One element in the first row, ko"
   );
   assert.equal(
-    page["koRows"]()[1]["koElements"]().length,
+    page.rows[1].elements.length,
     1,
     "One element in the second row, ko"
-  );*/
+  );
 });
 QUnit.test("Set notification on setting survey data", function(assert) {
   var survey = new Survey();
@@ -628,11 +627,11 @@ QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
   };
   var survey = new Survey(json);
   var panel = survey.getAllPanels()[0];
-  var koRows = panel["koRows"];
-  var row = koRows()[0];
+  var rows = (<Panel>panel).rows;
+  var row = rows[0];
 
   assert.ok(row, "row is created");
-  assert.equal(koRows().length, 1, "There are 1 row in the panel");
+  assert.equal(rows.length, 1, "There are 1 row in the panel");
   assert.equal(
     survey.getQuestionByName("q2")["koVisible"](),
     false,
@@ -656,8 +655,8 @@ QUnit.test("Load Panel from Json + isSinglePage", function(assert) {
   };
   var survey = new Survey(json);
   var page = survey.pages[0];
-  var koRows = page["koRows"];
-  var row = koRows()[1];
+  var rows = (<Page>page).rows;
+  var row = rows[1];
 
   assert.ok(row, "the second row is created");
   assert.equal(row.elements.length, 1, "There is one element here");
@@ -697,8 +696,8 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
   var panel = question["koPanels"]()[0];
   assert.equal(panel.koVisible(), true, "Panel is visible");
-  assert.equal(panel["koRows"]().length, 2, "Two questions - two rows");
-  var row = <QuestionRow>panel["koRows"]()[0];
+  assert.equal(panel.rows.length, 2, "Two questions - two rows");
+  var row = <QuestionRow>panel.rows[0];
   assert.ok(row, "the first row is created");
   assert.equal(row.elements.length, 1, "there is one question in the row");
   assert.equal(row.elements[0].visible, true, "question is visible");
@@ -780,9 +779,9 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
   );
   assert.equal(panel.koVisible(), true, "Panel is visible");
   assert.equal(nestedPanel.koVisible(), true, "Nested panel is visible");
-  assert.equal(panel["koRows"]().length, 2, "Two elements - two rows");
-  var row1 = <QuestionRow>panel["koRows"]()[0];
-  var row2 = <QuestionRow>panel["koRows"]()[1];
+  assert.equal(panel.rows.length, 2, "Two elements - two rows");
+  var row1 = <QuestionRow>panel.rows[0];
+  var row2 = <QuestionRow>panel.rows[1];
   assert.ok(row1, "the first row is created");
   assert.equal(row1.elements.length, 1, "there is one element in the row");
   assert.equal(row1.elements[0].visible, true, "element is visible");
@@ -790,11 +789,11 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
   assert.equal(row2.elements.length, 1, "there is one element in the row");
   assert.equal(row2.elements[0].visible, true, "element is visible");
   assert.equal(
-    nestedPanel["koRows"]().length,
+    nestedPanel.rows.length,
     1,
     "One element - one row in nested panel"
   );
-  var rowN1 = <QuestionRow>nestedPanel["koRows"]()[0];
+  var rowN1 = <QuestionRow>nestedPanel.rows[0];
   assert.ok(row1, "the nested row is created");
   assert.equal(
     row1.elements.length,
@@ -921,7 +920,7 @@ QUnit.test(
     var panel = <Panel>templatePanel.elements[0];
     assert.ok(panel, "panel is here");
     assert.equal(panel.elements.length, 1, "There is one element in the panel");
-    var rows = panel["koRows"]();
+    var rows = panel.rows;
     assert.ok(rows, "panel rows are here");
     assert.equal(rows.length, 1, "There is one element in the rows");
     var row1 = rows[0];
@@ -954,7 +953,7 @@ QUnit.test(
     var panel = <Panel>survey.pages[0].elements[0];
     assert.ok(panel, "panel is here");
     assert.equal(panel.elements.length, 1, "There is one element in the panel");
-    var rows = panel["koRows"]();
+    var rows = panel.rows;
     assert.ok(rows, "panel rows are here");
     assert.equal(rows.length, 1, "There is one element in the rows");
     var row1 = rows[0];
@@ -1067,12 +1066,12 @@ QUnit.test(
       "There are 3 elements on the single page"
     );
     assert.equal(
-      survey.currentPage["koRows"]().length,
+      survey.currentPage.rows.length,
       3,
       "There are 3 rows on the page"
     );
     assert.equal(
-      survey.currentPage["koRows"]()[2].visible,
+      survey.currentPage.rows[2].visible,
       true,
       "The last row is visible"
     );

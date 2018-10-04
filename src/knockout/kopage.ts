@@ -44,15 +44,8 @@ export class QuestionRow extends QuestionRowModel {
 }
 
 export class PanelImplementorBase extends ImplementorBase {
-  koRows: any;
   constructor(public panel: PanelModelBase) {
     super(panel);
-    var self = this;
-    this.koRows = ko.observableArray();
-    this.panel.rowsChangedCallback = function() {
-      self.koRows(self.panel.rows);
-    };
-    this.panel["koRows"] = this.koRows;
   }
 }
 

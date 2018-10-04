@@ -6,6 +6,15 @@ import { IQuestion, IElement } from "../base";
 import { surveyCss } from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
+  public static updatePropertiesHash(obj: any) {
+    obj.setPropertyValueCoreHandler = function(
+      propertiesHash: any,
+      name: string,
+      val: any
+    ) {
+      Vue.set(propertiesHash, name, val);
+    };
+  }
   renderCallback: () => void;
   public render() {
     if (this.renderCallback) {
@@ -40,25 +49,16 @@ export class VueSurveyModel extends SurveyModel {
     parentPanel: any,
     rootPanel: any
   ) {
-    this.updatePropertiesHash(question);
+    VueSurveyModel.updatePropertiesHash(question);
     super.questionAdded(question, index, parentPanel, rootPanel);
   }
   protected doOnPageAdded(page: PageModel) {
-    this.updatePropertiesHash(page);
+    VueSurveyModel.updatePropertiesHash(page);
     super.doOnPageAdded(page);
   }
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
-    this.updatePropertiesHash(panel);
+    VueSurveyModel.updatePropertiesHash(panel);
     super.panelAdded(panel, index, parentPanel, rootPanel);
-  }
-  private updatePropertiesHash(obj: any) {
-    obj.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
   }
 }
 

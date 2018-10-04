@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-rows">
-    <!-- ko foreach: { data: koRows, as: 'row'} -->
+    <!-- ko foreach: { data: rows, as: 'row'} -->
     <!-- ko if: row.visible -->
     <div data-bind="css: panel.cssClasses.row">
         <!-- ko foreach: { data: row.elements, as: 'question' , afterRender: row.koAfterRender } -->

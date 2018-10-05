@@ -9,7 +9,6 @@ export class QuestionImplementor extends ImplementorBase {
   koVisible: any;
   koPaddingLeft: any;
   koPaddingRight: any;
-  koRenderWidth: any;
   koTemplateName: any;
   koElementType: any;
   koValue: any;
@@ -35,7 +34,6 @@ export class QuestionImplementor extends ImplementorBase {
     });
     this.koElementType = ko.observable("survey-question");
     this.koVisible = ko.observable(this.question.isVisible);
-    this.koRenderWidth = ko.observable(this.question.renderWidth);
     this.koPaddingLeft = ko.observable(
       self.getIndentSize(self.question.indent)
     );
@@ -45,7 +43,6 @@ export class QuestionImplementor extends ImplementorBase {
     this.question["koElementType"] = this.koElementType;
     this.question["koTemplateName"] = this.koTemplateName;
     this.question["koVisible"] = this.koVisible;
-    this.question["koRenderWidth"] = this.koRenderWidth;
     this.question["koPaddingLeft"] = this.koPaddingLeft;
     this.question["koPaddingRight"] = this.koPaddingRight;
     this.question["updateQuestion"] = function() {
@@ -124,7 +121,6 @@ export class QuestionImplementor extends ImplementorBase {
     this.koIsReadOnly(this.question.isReadOnly);
   }
   protected onRenderWidthChanged() {
-    this.koRenderWidth(this.question.renderWidth);
     this.koPaddingLeft(this.getIndentSize(this.question.indent));
     this.koPaddingRight(this.getIndentSize(this.question.rightIndent));
   }

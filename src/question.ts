@@ -64,13 +64,14 @@ export class Question extends SurveyElement
     locTitleValue.onRenderedHtmlCallback = function(text) {
       return self.fullTitle;
     };
-    var locDescriptionValue = this.createLocalizableString(
-      "description",
-      this,
-      true
-    );
+    this.createLocalizableString("description", this, true);
     this.createLocalizableString("commentText", this, true);
     this.createLocalizableString("requiredErrorText", this);
+    this.registerFunctionOnPropertyValueChanged("width", function() {
+      if (!!self.parent) {
+        self.parent.elementWidthChanged(self);
+      }
+    });
   }
   public getValueName(): string {
     return this.valueName ? this.valueName : this.name;

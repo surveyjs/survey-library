@@ -146,6 +146,7 @@ export interface IParentElement {
 export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleLocation(): string;
   parent: IPanel;
+  elementWidthChanged(el: IElement);
 }
 export interface IPage extends IPanel, IConditionRunner {}
 /**

@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-panel">
-    <div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
+    <div data-bind="style:{ width: renderWidth }, attr: {id: id}, css: cssClasses.panel.container">
         <h4 data-bind="visible: (processedTitle.length > 0), css: $data.getTitleStyle(), click: doExpand">
             <!-- ko template: { name: 'survey-string', data: locTitle } -->
             <!-- /ko -->

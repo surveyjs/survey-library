@@ -425,6 +425,7 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleLocation(): string {
     return "left";
   }
+  elementWidthChanged(el: IElement) {}
 }
 
 JsonObject.metaData.addClass(

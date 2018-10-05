@@ -52,7 +52,6 @@ export class PanelImplementorBase extends ImplementorBase {
 export class Panel extends PanelModel {
   koVisible: any;
   koInnerMargin: any;
-  koRenderWidth: any;
   koElementType: any;
   koCss: any;
   koIsExpanded: any;
@@ -65,7 +64,6 @@ export class Panel extends PanelModel {
     var self = this;
     this.koElementType = ko.observable("survey-panel");
     this.koVisible = ko.observable(this.isVisible);
-    this.koRenderWidth = ko.observable(this.renderWidth);
     this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
@@ -93,7 +91,6 @@ export class Panel extends PanelModel {
     this.locTitle.onChanged();
   }
   protected onRenderWidthChanged() {
-    this.koRenderWidth(this.renderWidth);
     this.koInnerMargin(this.getIndentSize(this.innerIndent));
   }
   private onStateChanged() {

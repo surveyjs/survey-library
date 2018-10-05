@@ -638,6 +638,20 @@ export class PanelModelBase extends SurveyElement
     }
     return result;
   }
+  private findRowByElement(el: IElement): QuestionRowModel {
+    var rows = this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].elements.indexOf(el) > -1) return rows[i];
+    }
+    return null;
+  }
+  elementWidthChanged(el: IElement) {
+    if (this.isLoadingFromJson) return;
+    var row = this.findRowByElement(el);
+    if (!!row) {
+      row.updateVisible();
+    }
+  }
   /**
    * Returns rendered title text or html.
    */
@@ -857,6 +871,11 @@ export class PanelModel extends PanelModelBase implements IElement {
     var self = this;
     this.registerFunctionOnPropertyValueChanged("state", function() {
       if (self.stateChangedCallback) self.stateChangedCallback();
+    });
+    this.registerFunctionOnPropertyValueChanged("width", function() {
+      if (!!self.parent) {
+        self.parent.elementWidthChanged(self);
+      }
     });
   }
   public getType(): string {

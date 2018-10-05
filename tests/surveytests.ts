@@ -4843,6 +4843,19 @@ QUnit.test("panel.visibleIf doesn't work if it is a single panel on the page, #1
   assert.equal(counter, 2, "counter is 2");
 });
 
+QUnit.test("Change renderWidth on width change, Editor Bug #422", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var panel = page.addNewPanel("p1");
+  panel.addNewQuestion("text", "q1")
+  var question = page.addNewQuestion("text", "q2");
+  question.width = "100px";
+  panel.width = "200px";
+  assert.equal(question.renderWidth, "100px", "row set question.renderWidth to it's width");
+  assert.equal(panel.renderWidth, "200px", "row set panel.renderWidth to it's width");
+});
 function twoPageSimplestSurvey() {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

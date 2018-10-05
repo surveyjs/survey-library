@@ -539,7 +539,7 @@ QUnit.test("Update page.title correctly with numbers", function(assert) {
 });
 
 QUnit.test(
-  "Survey display mode should set koIsReadonly to true for questions",
+  "Survey display mode should set isReadOnly to true for questions",
   function(assert) {
     var survey = new Survey();
     var page = new Page("page1");
@@ -547,13 +547,13 @@ QUnit.test(
     var question = new QuestionText("q1");
     page.addQuestion(question);
     assert.equal(
-      question["koIsReadOnly"](),
+      question.isReadOnly,
       false,
       "by default question is not readonly"
     );
     survey.mode = "display";
     assert.equal(
-      question["koIsReadOnly"](),
+      question.isReadOnly,
       true,
       "survey in display mode, question is readonly"
     );
@@ -1163,28 +1163,28 @@ QUnit.test(
     var rows = matrix.visibleRows;
     var question = <QuestionText>survey.getQuestionByName("q2");
     assert.equal(
-      panel.panels[0].questions[0]["koIsReadOnly"](),
+      panel.panels[0].questions[0].isReadOnly,
       false,
       "The question is not readonly in panel dynamic"
     );
     assert.equal(
-      rows[0].cells[0].question["koIsReadOnly"](),
+      rows[0].cells[0].question.isReadOnly,
       false,
       "The question is not readonly in matrix dynamic"
     );
     survey.mode = "display";
     assert.equal(
-      question["koIsReadOnly"](),
+      question.isReadOnly,
       true,
       "The standard question is readonly"
     );
     assert.equal(
-      panel.panels[0].questions[0]["koIsReadOnly"](),
+      panel.panels[0].questions[0].isReadOnly,
       true,
       "The question in dynamic panel should be readonly"
     );
     assert.equal(
-      rows[0].cells[0].question["koIsReadOnly"](),
+      rows[0].cells[0].question.isReadOnly,
       true,
       "The question is readonly in matrix dynamic"
     );
@@ -1273,17 +1273,9 @@ QUnit.test(
     };
     var survey = new Survey(json);
     var q = <QuestionMultipleText>survey.getQuestionByName("question1");
-    assert.equal(
-      q.items[0].editor["koIsReadOnly"](),
-      true,
-      "It should be readonly"
-    );
+    assert.equal(q.items[0].editor.isReadOnly, true, "It should be readonly");
     survey.mode = "edit";
-    assert.equal(
-      q.items[0].editor["koIsReadOnly"](),
-      false,
-      "It is editable now"
-    );
+    assert.equal(q.items[0].editor.isReadOnly, false, "It is editable now");
   }
 );
 

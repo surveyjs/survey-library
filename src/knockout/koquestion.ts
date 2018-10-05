@@ -12,7 +12,6 @@ export class QuestionImplementor extends ImplementorBase {
   koElementType: any;
   koValue: any;
   koComment: any;
-  koIsReadOnly: any;
   constructor(public question: Question) {
     super(question);
     var self = this;
@@ -65,13 +64,9 @@ export class QuestionImplementor extends ImplementorBase {
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });
-    question.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
-      self.onReadOnlyChanged();
-    });
     this.koDummy = ko.observable(0);
     this.koValue = this.createkoValue();
     this.koComment = ko.observable(this.question.comment);
-    this.koIsReadOnly = ko.observable(this.question.isReadOnly);
     this.koValue.subscribe(function(newValue) {
       self.updateValue(newValue);
     });
@@ -80,7 +75,6 @@ export class QuestionImplementor extends ImplementorBase {
     });
     this.question["koValue"] = this.koValue;
     this.question["koComment"] = this.koComment;
-    this.question["koIsReadOnly"] = this.koIsReadOnly;
     this.question["koQuestionAfterRender"] = function(el, con) {
       self.koQuestionAfterRender(el, con);
     };
@@ -104,12 +98,7 @@ export class QuestionImplementor extends ImplementorBase {
   protected onVisibleIndexChanged() {
     this.updateKoDummy();
   }
-  protected onSurveyLoad() {
-    this.onReadOnlyChanged();
-  }
-  protected onReadOnlyChanged() {
-    this.koIsReadOnly(this.question.isReadOnly);
-  }
+  protected onSurveyLoad() {}
   protected onRenderWidthChanged() {
     this.koPaddingLeft(this.getIndentSize(this.question.indent));
     this.koPaddingRight(this.getIndentSize(this.question.rightIndent));

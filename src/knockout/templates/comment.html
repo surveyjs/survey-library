@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-comment">
-    <!-- ko ifnot: question.koIsReadOnly -->
+    <!-- ko ifnot: question.isReadOnly -->
     <input type="text" data-bind="value: $data.question.koComment, visible: $data.visible, css: question.koCss().other, attr: { maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml }"
     />
     <!-- /ko -->
-    <!-- ko if: question.koIsReadOnly -->
+    <!-- ko if: question.isReadOnly -->
     <div data-bind="text: $data.question.koComment, visible: $data.visible, css: question.koCss().other"></div>
     <!-- /ko -->
 </script>

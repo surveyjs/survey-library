@@ -4,10 +4,10 @@
         <div data-bind="css: question.getItemClass(item)">
             <label data-bind="css: question.koCss().label">
                 <!-- ko if: item == question.selectAllItem -->
-                <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"/>
+                <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
                 <!-- /ko -->
                 <!-- ko if: item != question.selectAllItem -->
-                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: question.inputId, 'aria-label': item.locText.renderedHtml }, checked: question.koValue, enable: !question.koIsReadOnly(), css: question.koCss().itemControl"/>
+                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: question.inputId, 'aria-label': item.locText.renderedHtml }, checked: question.koValue, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
                 <!-- /ko -->
                 <span data-bind="css: question.koCss().materialDecorator">
                     <span class="check"></span>

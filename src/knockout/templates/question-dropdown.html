@@ -1,10 +1,10 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
-    <!-- ko ifnot: question.koIsReadOnly -->
+    <!-- ko ifnot: question.isReadOnly -->
     <div data-bind="css: question.koCss().selectWrapper">
         <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: question.koCss().control"></select>
     </div>
     <!-- /ko -->
-    <!-- ko if: question.koIsReadOnly -->
+    <!-- ko if: question.isReadOnly -->
     <div data-bind="text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.koCss().control"></div>
     <!-- /ko -->
     <div class="form-group" data-bind="template: { visible: question.hasOther, name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>

@@ -642,10 +642,8 @@ export class Question extends SurveyElement
     this.conditionEnabelRunner.expression = this.enableIf;
     this.readOnly = !this.conditionEnabelRunner.run(values, properties);
   }
-  public readOnlyChangedCallback: () => void;
   onReadOnlyChanged() {
     this.setPropertyValue("isReadOnly", this.isReadOnly);
-    this.fireCallback(this.readOnlyChangedCallback);
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";

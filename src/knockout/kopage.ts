@@ -50,7 +50,6 @@ export class PanelImplementorBase extends ImplementorBase {
 }
 
 export class Panel extends PanelModel {
-  koVisible: any;
   koInnerMargin: any;
   koElementType: any;
   koCss: any;
@@ -63,7 +62,6 @@ export class Panel extends PanelModel {
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koVisible = ko.observable(this.isVisible);
     this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
@@ -76,7 +74,7 @@ export class Panel extends PanelModel {
       self.changeExpanded();
     };
     this.registerFunctionOnPropertiesValueChanged(
-      ["renderWidth", "innerIndent", "rightIndent"],
+      ["innerIndent", "rightIndent"],
       function() {
         self.onRenderWidthChanged();
       }
@@ -114,12 +112,7 @@ export class Panel extends PanelModel {
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    this.koVisible(this.isVisible);
     this.onStateChanged();
-  }
-  protected onVisibleChanged() {
-    super.onVisibleChanged();
-    this.koVisible(this.isVisible);
   }
   private getIndentSize(indent: number): string {
     if (indent < 1) return "";

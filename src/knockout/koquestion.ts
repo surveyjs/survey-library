@@ -6,7 +6,6 @@ import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
-  koVisible: any;
   koPaddingLeft: any;
   koPaddingRight: any;
   koTemplateName: any;
@@ -17,11 +16,8 @@ export class QuestionImplementor extends ImplementorBase {
   constructor(public question: Question) {
     super(question);
     var self = this;
-    question.registerFunctionOnPropertyValueChanged("isVisible", function() {
-      self.onVisibilityChanged();
-    });
     question.registerFunctionOnPropertiesValueChanged(
-      ["renderWidth", "indent", "rightIndent"],
+      ["indent", "rightIndent"],
       function() {
         self.onRenderWidthChanged();
       }
@@ -33,7 +29,6 @@ export class QuestionImplementor extends ImplementorBase {
       return self.getTemplateName();
     });
     this.koElementType = ko.observable("survey-question");
-    this.koVisible = ko.observable(this.question.isVisible);
     this.koPaddingLeft = ko.observable(
       self.getIndentSize(self.question.indent)
     );
@@ -42,7 +37,6 @@ export class QuestionImplementor extends ImplementorBase {
     );
     this.question["koElementType"] = this.koElementType;
     this.question["koTemplateName"] = this.koTemplateName;
-    this.question["koVisible"] = this.koVisible;
     this.question["koPaddingLeft"] = this.koPaddingLeft;
     this.question["koPaddingRight"] = this.koPaddingRight;
     this.question["updateQuestion"] = function() {
@@ -111,11 +105,7 @@ export class QuestionImplementor extends ImplementorBase {
     this.updateKoDummy();
   }
   protected onSurveyLoad() {
-    this.onVisibilityChanged();
     this.onReadOnlyChanged();
-  }
-  protected onVisibilityChanged() {
-    this.koVisible(this.question.isVisible);
   }
   protected onReadOnlyChanged() {
     this.koIsReadOnly(this.question.isReadOnly);

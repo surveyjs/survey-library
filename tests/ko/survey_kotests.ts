@@ -380,13 +380,13 @@ QUnit.test("On make survey data empy for Multiple text question", function(
   survey.data = null;
   assert.equal(question.items[0]["koValue"](), null, "Make the data empty");
 });
-QUnit.test("koVisible property", function(assert) {
+QUnit.test("isVisible property", function(assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   var question = page.addNewQuestion("text", "q1");
-  assert.equal(question["koVisible"](), true, "it is true by default");
+  assert.equal(question.isVisible, true, "it is true by default");
   question.visible = false;
-  assert.equal(question["koVisible"](), false, "it is false now");
+  assert.equal(question.isVisible, false, "it is false now");
 });
 QUnit.test("koComment property", function(assert) {
   var survey = new Survey();
@@ -633,7 +633,7 @@ QUnit.test("Load Panel from Json + visibleIf + startWithNewLine", function(
   assert.ok(row, "row is created");
   assert.equal(rows.length, 1, "There are 1 row in the panel");
   assert.equal(
-    survey.getQuestionByName("q2")["koVisible"](),
+    survey.getQuestionByName("q2").isVisible,
     false,
     "The question is invisible"
   );
@@ -662,7 +662,7 @@ QUnit.test("Load Panel from Json + isSinglePage", function(assert) {
   assert.equal(row.elements.length, 1, "There is one element here");
   assert.equal(row.visible, true, "Row is visible");
   var q = row.elements[0];
-  assert.equal(q["koVisible"](), true, "The question is visible");
+  assert.equal(q.isVisible, true, "The question is visible");
 });
 
 QUnit.test("Load PanelDynamic from Json", function(assert) {
@@ -695,7 +695,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   assert.equal(question.panelCount, 3, "panelCount loaded correctly");
   assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
   var panel = question["koPanels"]()[0];
-  assert.equal(panel.koVisible(), true, "Panel is visible");
+  assert.equal(panel.isVisible, true, "Panel is visible");
   assert.equal(panel.rows.length, 2, "Two questions - two rows");
   var row = <QuestionRow>panel.rows[0];
   assert.ok(row, "the first row is created");
@@ -777,8 +777,8 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
     1,
     "there is one element in the nested panel"
   );
-  assert.equal(panel.koVisible(), true, "Panel is visible");
-  assert.equal(nestedPanel.koVisible(), true, "Nested panel is visible");
+  assert.equal(panel.isVisible, true, "Panel is visible");
+  assert.equal(nestedPanel.isVisible, true, "Nested panel is visible");
   assert.equal(panel.rows.length, 2, "Two elements - two rows");
   var row1 = <QuestionRow>panel.rows[0];
   var row2 = <QuestionRow>panel.rows[1];
@@ -1242,16 +1242,16 @@ QUnit.test("koquestion inside panel vidibleif", function(assert) {
   assert.notOk(q3.isVisible);
   assert.ok(p1.visible);
   assert.notOk(q3.visible);
-  assert.notOk(p1.koVisible());
-  assert.notOk(q3["koVisible"]());
+  assert.notOk(p1.isVisible);
+  assert.notOk(q3.isVisible);
 
   q2.value = ["item2"];
   assert.ok(p1.isVisible);
   assert.ok(q3.isVisible);
   assert.ok(p1.visible);
   assert.ok(q3.visible);
-  assert.ok(p1.koVisible());
-  assert.ok(q3["koVisible"]());
+  assert.ok(p1.isVisible);
+  assert.ok(q3.isVisible);
 });
 
 QUnit.test(

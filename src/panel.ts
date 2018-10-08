@@ -887,6 +887,10 @@ export class PanelModel extends PanelModelBase implements IElement {
   public getType(): string {
     return "panel";
   }
+  onSurveyLoad() {
+    super.onSurveyLoad();
+    this.onIndentChanged();
+  }
   public get isPanel(): boolean {
     return true;
   }

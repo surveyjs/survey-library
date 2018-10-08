@@ -878,7 +878,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
-      ["innerIndent", "rightIndent"],
+      ["indent", "innerIndent", "rightIndent"],
       function() {
         self.onIndentChanged();
       }
@@ -969,6 +969,15 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("width", val);
   }
   /**
+   * The left indent. Set this property to increase the panel left indent.
+   */
+  public get indent(): number {
+    return this.getPropertyValue("indent", 0);
+  }
+  public set indent(val: number) {
+    this.setPropertyValue("indent", val);
+  }
+  /**
    * The inner indent. Set this property to increase the panel content margin.
    */
   public get innerIndent(): number {
@@ -1002,10 +1011,16 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("rightIndent", val);
   }
   get paddingLeft(): string {
-    return this.getPropertyValue("paddintLeft", "");
+    return this.getPropertyValue("paddingLeft", "");
   }
   set paddingLeft(val: string) {
-    this.setPropertyValue("paddintLeft", val);
+    this.setPropertyValue("paddingLeft", val);
+  }
+  get innerPaddingLeft(): string {
+    return this.getPropertyValue("innerPaddingLeft", "");
+  }
+  set innerPaddingLeft(val: string) {
+    this.setPropertyValue("innerPaddingLeft", val);
   }
   get paddingRight(): string {
     return this.getPropertyValue("paddingRight", "");
@@ -1014,7 +1029,8 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("paddingRight", val);
   }
   private onIndentChanged() {
-    this.paddingLeft = this.getIndentSize(this.innerIndent);
+    this.innerPaddingLeft = this.getIndentSize(this.innerIndent);
+    this.paddingLeft = this.getIndentSize(this.indent);
     this.paddingRight = this.getIndentSize(this.rightIndent);
   }
   private getIndentSize(indent: number): string {
@@ -1075,6 +1091,7 @@ JsonObject.metaData.addClass(
     },
     { name: "startWithNewLine:boolean", default: true },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
+    { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
     {
       name: "page",
       isSerializable: false,

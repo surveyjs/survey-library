@@ -1,11 +1,18 @@
 import * as React from "react";
 import { SurveyModel } from "../survey";
 import { SurveyWindowModel } from "../surveyWindow";
+import { surveyCss } from "../defaultCss/cssstandard";
 
 export class ReactSurveyModel extends SurveyModel {
   renderCallback: () => void;
   constructor(jsonObj: any = null) {
     super(jsonObj);
+  }
+  get css() {
+    return surveyCss.getCss();
+  }
+  set css(value: any) {
+    this.mergeValues(value, this.css);
   }
   public render() {
     if (this.renderCallback) {

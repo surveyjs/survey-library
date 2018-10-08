@@ -164,8 +164,7 @@ export class SurveyPanel extends SurveyPanelBase {
 
     var rows = this.renderRows();
     var style = {
-      paddingLeft: this.panel.paddingLeft,
-      paddingRight: this.panel.paddingRight,
+      paddingLeft: this.panel.innerPaddingLeft,
       display: !this.panel.isCollapsed ? "block" : "none"
     };
     var rootStyle = {};

@@ -1571,22 +1571,26 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   assert.equal(panel.paddingRight, "", "right is empty");
   panel.innerIndent = 1;
   panel.rightIndent = 2;
-  assert.equal(panel.paddingLeft, "20px", "left is not empty");
+  panel.indent = 3;
+  assert.equal(panel.innerPaddingLeft, "20px", "inner left is not empty");
   assert.equal(panel.paddingRight, "40px", "right is not empty");
+  assert.equal(panel.paddingLeft, "60px", "left is not empty");
 });
-QUnit.test("question.paddingLeft form json", function(assert) {
+QUnit.test("panel and question paddings form json", function(assert) {
   var survey = new Survey({
     elements: [
       {
         type: "panel",
         name: "p1",
-        innerIndent: 2
+        innerIndent: 2,
+        indent: 3
       },
       { type: "text", name: "q1", indent: 1 }
     ]
   });
   var panel = <Panel>survey.getPanelByName("p1");
   var question = <Question>survey.getQuestionByName("q1");
-  assert.equal(panel.paddingLeft, "40px", "panel left is 40px");
+  assert.equal(panel.paddingLeft, "60px", "panel left is 60px");
+  assert.equal(panel.innerPaddingLeft, "40px", "panel inner left is 40px");
   assert.equal(question.paddingLeft, "20px", "question left is 20px");
 });

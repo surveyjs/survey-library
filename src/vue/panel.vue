@@ -6,8 +6,8 @@
         </h4>
         <div v-show="hasDescription" :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
-        <div :style="{ paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }" v-show="!isCollapsed">
-            <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible"   :class="css.row">
+        <div :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
+            <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible" :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
         </div>

@@ -1801,3 +1801,16 @@ QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
   question.html = "text";
   assert.equal(question.locHtml.renderedHtml, "text-add-", "process html");
 });
+
+QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "dropdown", name: "q1" }]
+  });
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.paddingLeft, "", "left is empty");
+  assert.equal(question.paddingRight, "", "right is empty");
+  question.indent = 1;
+  question.rightIndent = 2;
+  assert.equal(question.paddingLeft, "20px", "left is not empty");
+  assert.equal(question.paddingRight, "40px", "right is not empty");
+});

@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
+import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 

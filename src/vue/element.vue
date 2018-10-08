@@ -25,7 +25,6 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
-import { helpers } from "./helpers";
 
 @Component
 export class SurveyElementVue extends Vue {
@@ -41,9 +40,9 @@ export class SurveyElementVue extends Vue {
   }
   getQuestionClass(element: Question) {
     if (!!element.errors && element.errors.length > 0) {
-        return this.css.question.hasError
+      return this.css.question.hasError;
     }
-    return '';
+    return "";
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

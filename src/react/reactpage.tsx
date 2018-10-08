@@ -132,7 +132,7 @@ export class SurveyPanel extends SurveyPanelBase {
     super.componentDidMount();
     let self = this;
     this.panelBase.registerFunctionOnPropertiesValueChanged(
-      ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
+      ["isVisible", "state"],
       function() {
         self.setState({ modelChanged: self.state.modelChanged + 1 });
       },
@@ -143,7 +143,7 @@ export class SurveyPanel extends SurveyPanelBase {
     super.componentWillUnmount();
     if (this.panelBase) {
       this.panelBase.unRegisterFunctionOnPropertiesValueChanged(
-        ["isVisible", "renderWidth", "innerIndent", "rightIndent", "state"],
+        ["isVisible", "state"],
         "react"
       );
     }
@@ -164,7 +164,8 @@ export class SurveyPanel extends SurveyPanelBase {
 
     var rows = this.renderRows();
     var style = {
-      paddingLeft: this.panel.innerIndent * this.css.question.indent + "px",
+      paddingLeft: this.panel.paddingLeft,
+      paddingRight: this.panel.paddingRight,
       display: !this.panel.isCollapsed ? "block" : "none"
     };
     var rootStyle = {};

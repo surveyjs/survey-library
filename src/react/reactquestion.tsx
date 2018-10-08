@@ -45,24 +45,10 @@ export class SurveyQuestion extends SurveyElementBase {
     if (this.question) {
       var self = this;
       this.question["react"] = self;
-      this.question.registerFunctionOnPropertiesValueChanged(
-        ["renderWidth", "indent", "rightIndent"],
-        function() {
-          self.setState({ renderWidth: self.state.renderWidth + 1 });
-        },
-        "react"
-      );
       this.question.registerFunctionOnPropertyValueChanged(
         "visibleIndex",
         function() {
           self.setState({ visibleIndexValue: self.question.visibleIndex });
-        },
-        "react"
-      );
-      this.question.registerFunctionOnPropertyValueChanged(
-        "isReadOnly",
-        function() {
-          self.setState({ isReadOnly: self.question.isReadOnly });
         },
         "react"
       );
@@ -73,7 +59,7 @@ export class SurveyQuestion extends SurveyElementBase {
     if (this.question) {
       this.question["react"] = null;
       this.question.unRegisterFunctionOnPropertiesValueChanged(
-        ["visibleIndex", "renderWidth", "indent", "rightIndent, isReadOnly"],
+        ["visibleIndex"],
         "react"
       );
       var el: any = this.refs["root"];
@@ -130,19 +116,13 @@ export class SurveyQuestion extends SurveyElementBase {
       this.creator.questionErrorLocation() === "top" ? errors : null;
     var errorsBottom =
       this.creator.questionErrorLocation() === "bottom" ? errors : null;
-    var paddingLeft =
-      this.question.indent > 0
-        ? this.question.indent * cssClasses.indent + "px"
-        : null;
-    var paddingRight =
-      this.question.rightIndent > 0
-        ? this.question.rightIndent * cssClasses.indent + "px"
-        : null;
     let rootStyle = {};
     if (this.question.renderWidth)
       rootStyle["width"] = this.question.renderWidth;
-    if (paddingLeft) rootStyle["paddingLeft"] = paddingLeft;
-    if (paddingRight) rootStyle["paddingRight"] = paddingRight;
+    if (!!this.question.paddingLeft)
+      rootStyle["paddingLeft"] = this.question.paddingLeft;
+    if (!!this.question.paddingRight)
+      rootStyle["paddingRight"] = this.question.paddingRight;
 
     return (
       <div

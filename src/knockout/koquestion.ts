@@ -6,8 +6,6 @@ import { ImplementorBase } from "./kobase";
 
 export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
-  koPaddingLeft: any;
-  koPaddingRight: any;
   koTemplateName: any;
   koElementType: any;
   koValue: any;
@@ -15,12 +13,6 @@ export class QuestionImplementor extends ImplementorBase {
   constructor(public question: Question) {
     super(question);
     var self = this;
-    question.registerFunctionOnPropertiesValueChanged(
-      ["indent", "rightIndent"],
-      function() {
-        self.onRenderWidthChanged();
-      }
-    );
     question.surveyLoadCallback = function() {
       self.onSurveyLoad();
     };
@@ -28,16 +20,8 @@ export class QuestionImplementor extends ImplementorBase {
       return self.getTemplateName();
     });
     this.koElementType = ko.observable("survey-question");
-    this.koPaddingLeft = ko.observable(
-      self.getIndentSize(self.question.indent)
-    );
-    this.koPaddingRight = ko.observable(
-      self.getIndentSize(self.question.rightIndent)
-    );
     this.question["koElementType"] = this.koElementType;
     this.question["koTemplateName"] = this.koTemplateName;
-    this.question["koPaddingLeft"] = this.koPaddingLeft;
-    this.question["koPaddingRight"] = this.koPaddingRight;
     this.question["updateQuestion"] = function() {
       self.updateQuestion();
     };
@@ -99,16 +83,8 @@ export class QuestionImplementor extends ImplementorBase {
     this.updateKoDummy();
   }
   protected onSurveyLoad() {}
-  protected onRenderWidthChanged() {
-    this.koPaddingLeft(this.getIndentSize(this.question.indent));
-    this.koPaddingRight(this.getIndentSize(this.question.rightIndent));
-  }
   protected getQuestionTemplate(): string {
     return this.question.getTemplate();
-  }
-  private getIndentSize(indent: number): string {
-    if (indent < 1) return "";
-    return indent * this.question.cssClasses.indent + "px";
   }
   private getTemplateName(): string {
     if (

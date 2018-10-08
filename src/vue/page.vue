@@ -14,12 +14,9 @@ import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyModel } from "../survey";
 import { PageModel } from "../page";
-import { helpers } from "./helpers";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 
-@Component({
-  mixins: [helpers]
-})
+@Component
 export class Page extends Vue {
   @Prop survey: SurveyModel;
   @Prop page: PageModel;

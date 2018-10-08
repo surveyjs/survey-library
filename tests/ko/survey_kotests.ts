@@ -1562,3 +1562,15 @@ QUnit.test("Loc string text preprocessing update on change value", function(
     "The first value"
   );
 });
+QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
+  var survey = new Survey({
+    elements: [{ type: "panel", name: "p1" }]
+  });
+  var panel = <Panel>survey.getPanelByName("p1");
+  assert.equal(panel.paddingLeft, "", "left is empty");
+  assert.equal(panel.paddingRight, "", "right is empty");
+  panel.innerIndent = 1;
+  panel.rightIndent = 2;
+  assert.equal(panel.paddingLeft, "20px", "left is not empty");
+  assert.equal(panel.paddingRight, "40px", "right is not empty");
+});

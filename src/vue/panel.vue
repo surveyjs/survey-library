@@ -6,7 +6,7 @@
         </h4>
         <div v-show="hasDescription" :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
-        <div :style="{ paddingLeft: getIndentSize(question, question.innerIndent) }" v-show="!isCollapsed">
+        <div :style="{ paddingLeft: question.paddingLeft, paddingRight: question.paddingRight }" v-show="!isCollapsed">
             <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible"   :class="css.row">
                 <survey-row :row="row" :survey="survey" :css="css"></survey-row>
             </div>
@@ -19,11 +19,8 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { ISurvey } from "../base";
-import { helpers } from "./helpers";
 
-@Component({
-  mixins: [helpers]
-})
+@Component
 export class Panel extends Vue {
   @Prop question: PanelModel;
   @Prop isEditMode: Boolean;

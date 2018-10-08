@@ -12,7 +12,6 @@ import { SurveyModel } from "../survey";
 import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
 import { QuestionCustomWidget } from "../questionCustomWidgets";
-import { helpers } from "./helpers";
 
 @Component
 export class CustomWidget extends Vue {

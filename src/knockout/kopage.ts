@@ -50,7 +50,6 @@ export class PanelImplementorBase extends ImplementorBase {
 }
 
 export class Panel extends PanelModel {
-  koInnerMargin: any;
   koElementType: any;
   koCss: any;
   koIsExpanded: any;
@@ -73,13 +72,6 @@ export class Panel extends PanelModel {
     this.doExpand = function() {
       self.changeExpanded();
     };
-    this.registerFunctionOnPropertiesValueChanged(
-      ["innerIndent", "rightIndent"],
-      function() {
-        self.onRenderWidthChanged();
-      }
-    );
-    this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -87,9 +79,6 @@ export class Panel extends PanelModel {
   protected onCreating() {}
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
-  }
-  protected onRenderWidthChanged() {
-    this.koInnerMargin(this.getIndentSize(this.innerIndent));
   }
   private onStateChanged() {
     this.koIsCollapsed(this.isCollapsed);
@@ -113,13 +102,6 @@ export class Panel extends PanelModel {
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.onStateChanged();
-  }
-  private getIndentSize(indent: number): string {
-    if (indent < 1) return "";
-    if (!this.data) return "";
-    var css = this.survey["css"];
-    if (!css) return "";
-    return indent * css.question.indent + "px";
   }
 }
 

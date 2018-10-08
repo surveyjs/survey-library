@@ -877,6 +877,12 @@ export class PanelModel extends PanelModelBase implements IElement {
         self.parent.elementWidthChanged(self);
       }
     });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["innerIndent", "rightIndent"],
+      function() {
+        self.onIndentChanged();
+      }
+    );
   }
   public getType(): string {
     return "panel";
@@ -990,6 +996,29 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   public set rightIndent(val: number) {
     this.setPropertyValue("rightIndent", val);
+  }
+  get paddingLeft(): string {
+    return this.getPropertyValue("paddintLeft", "");
+  }
+  set paddingLeft(val: string) {
+    this.setPropertyValue("paddintLeft", val);
+  }
+  get paddingRight(): string {
+    return this.getPropertyValue("paddingRight", "");
+  }
+  set paddingRight(val: string) {
+    this.setPropertyValue("paddingRight", val);
+  }
+  private onIndentChanged() {
+    this.paddingLeft = this.getIndentSize(this.innerIndent);
+    this.paddingRight = this.getIndentSize(this.rightIndent);
+  }
+  private getIndentSize(indent: number): string {
+    if (indent < 1) return "";
+    if (!this.data) return "";
+    var css = this.survey["css"];
+    if (!css) return "";
+    return indent * css.question.indent + "px";
   }
   protected onVisibleChanged() {
     super.onVisibleChanged();

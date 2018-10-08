@@ -20,6 +20,7 @@ import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
+import { timingSafeEqual } from "crypto";
 /**
  * A base class for all questions.
  */
@@ -44,7 +45,6 @@ export class Question extends SurveyElement
   private questionComment: string;
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
-  private validatorsValue: Array<SurveyValidator>;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
@@ -55,9 +55,7 @@ export class Question extends SurveyElement
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.validatorsValue = this.createNewArray("validators", function(
-      validator
-    ) {
+    this.createNewArray("validators", function(validator) {
       validator.locOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
@@ -72,6 +70,12 @@ export class Question extends SurveyElement
         self.parent.elementWidthChanged(self);
       }
     });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["indent", "rightIndent"],
+      function() {
+        self.onIndentChanged();
+      }
+    );
   }
   public getValueName(): string {
     return this.valueName ? this.valueName : this.name;
@@ -488,6 +492,26 @@ export class Question extends SurveyElement
   public set rightIndent(val: number) {
     this.setPropertyValue("rightIndent", val);
   }
+  get paddingLeft(): string {
+    return this.getPropertyValue("paddintLeft", "");
+  }
+  set paddingLeft(val: string) {
+    this.setPropertyValue("paddintLeft", val);
+  }
+  get paddingRight(): string {
+    return this.getPropertyValue("paddingRight", "");
+  }
+  set paddingRight(val: string) {
+    this.setPropertyValue("paddingRight", val);
+  }
+  private onIndentChanged() {
+    this.paddingLeft = this.getIndentSize(this.indent);
+    this.paddingRight = this.getIndentSize(this.rightIndent);
+  }
+  private getIndentSize(indent: number): string {
+    if (indent < 1) return "";
+    return indent * this.cssClasses.indent + "px";
+  }
   /**
    * Move the focus to the input of this question.
    * @param onError set this parameter to true, to focus the input with the first error, other wise the first input will be focused.
@@ -793,7 +817,7 @@ export class Question extends SurveyElement
    * The list of question validators.
    */
   public get validators(): Array<SurveyValidator> {
-    return this.validatorsValue;
+    return this.getPropertyValue("validators");
   }
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);

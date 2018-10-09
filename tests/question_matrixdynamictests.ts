@@ -1495,3 +1495,56 @@ QUnit.test("Test defaultValueFromLastRow property", function(assert) {
     "defaultValueFromLastRow is merging with defaultRowValue"
   );
 });
+
+QUnit.test("Text preprocessing with capital questions", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "Q11",
+        columns: [
+          {
+            name: "C11"
+          }
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "R11",
+            text: "{Q11.R11.C11} -- r11"
+          }
+        ]
+      },
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "c1"
+          }
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "r1",
+            text: "{Q1.R1.C1} -- r1"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = { Q11: { R11: { C11: "val11" } }, q1: { r1: { c1: "val1" } } };
+  var q11 = <QuestionMatrixDropdownModel>survey.getQuestionByName("Q11");
+  var q1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(
+    q1.rows[0].locText.renderedHtml,
+    "val1 -- r1",
+    "lowcase name is fine"
+  );
+  assert.equal(
+    q11.rows[0].locText.renderedHtml,
+    "val11 -- r11",
+    "uppercase name is fine"
+  );
+});

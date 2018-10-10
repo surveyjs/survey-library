@@ -4852,3 +4852,26 @@ function createPageWithQuestion(name: string): PageModel {
   page.addNewQuestion("text", "q1");
   return page;
 }
+
+QUnit.test("Survey get full title with values", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: 1, text: "One" }, { value: 2, text: "Two" }],
+        useDisplayValuesInTitle: false
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = 1;
+
+  assert.equal(
+    q1.getProcessedText("{q1}"),
+    1,
+    "Get question value"
+  );
+});

@@ -1423,3 +1423,46 @@ QUnit.test("Add property into questionbase", function(assert) {
   );
   JsonObject.metaData.removeProperty("questionbase", "custom");
 });
+
+QUnit.test("Add itemvalues (array) property into questionbase", function(
+  assert
+) {
+  JsonObject.metaData.addProperty("questionbase", "customArray:itemvalues");
+  var question = new Question("q1");
+
+  assert.equal(
+    question["customArray"].length,
+    0,
+    "customArray deserialzied successful"
+  );
+  new JsonObject().toObject(
+    { name: "q2", custom: "customValue1", customArray: [1, 2, 3, 4] },
+    question
+  );
+  assert.equal(
+    question["customArray"].length,
+    4,
+    "customArray deserialzied successful"
+  );
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [1, 2, 3, 4],
+    "customArray serialzied successful"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [1, 3, 5]
+  });
+  question = new Question("q2");
+  assert.equal(
+    question["customArray"].length,
+    3,
+    "defaultValue loaded successful"
+  );
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});

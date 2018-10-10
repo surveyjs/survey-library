@@ -232,6 +232,12 @@ export class CustomPropertiesCollection {
       };
       Object.defineProperty(obj, prop.name, desc);
     } else {
+      if (
+        prop.typeValue === "itemvalues" &&
+        typeof obj.createNewArray === "function"
+      ) {
+        obj.createNewArray(prop.name);
+      }
       var desc = {
         get: function() {
           return obj.getPropertyValue(prop.name, prop.defaultValue);

@@ -207,7 +207,7 @@ export class QuestionMatrixModel
    * Returns true, if there is at least one row.
    */
   public get hasRows(): boolean {
-    return this.rowsValue.length > 0;
+    return this.rows.length > 0;
   }
   getRows(): Array<any> {
     return this.rows;

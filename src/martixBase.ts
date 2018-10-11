@@ -9,7 +9,6 @@ import { ConditionRunner } from "./conditions";
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected columnsValue: Array<TColumn>;
-  protected rowsValue: Array<ItemValue>;
   protected filteredColumns: Array<TColumn>;
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
@@ -24,7 +23,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.filteredRows = null;
     this.filteredColumns = null;
     this.columnsValue = this.createColumnValues();
-    this.rowsValue = this.createItemValues("rows");
+    this.rows = this.createItemValues("rows");
   }
   public getType(): string {
     return "matrixbase";
@@ -48,7 +47,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * The list of rows. A row has a value and an optional text
    */
   get rows(): Array<any> {
-    return this.rowsValue;
+    return this.getPropertyValue("rows");
   }
   set rows(newValue: Array<any>) {
     this.setPropertyValue("rows", newValue);
@@ -92,7 +91,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.runItemsCondition(values, properties);
   }
   protected filterItems(): boolean {
-    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
+    if (this.isDesignMode) {
+      this.onRowsChanged();
+      return false;
+    }
+    if (this.isLoadingFromJson || !this.data) return false;
     return this.runItemsCondition(
       this.getDataFilteredValues(),
       this.getDataFilteredProperties()

@@ -128,6 +128,15 @@ export class Question extends SurveyElement
     }
   }
   /**
+   * Use it to choose how other question values will be rendered in title if referenced in {}.
+   */
+  public get useDisplayValuesInTitle(): boolean {
+    return this.getPropertyValue("useDisplayValuesInTitle", true);
+  }
+  public set useDisplayValuesInTitle(val: boolean) {
+    this.setPropertyValue("useDisplayValuesInTitle", val);
+  }
+  /**
    * An expression that returns true or false. If it returns true the Question becomes visible and if it returns false the Question becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
    * @see visible
    */
@@ -398,7 +407,10 @@ export class Question extends SurveyElement
           self.getProcessedTextValue(textValue);
         };
       }
-      return this.textPreProcessor.process(this.getQuestionTitleTemplate());
+      return this.textPreProcessor.process(
+        this.getQuestionTitleTemplate(),
+        this.useDisplayValuesInTitle
+      );
     }
     var requireText = this.requiredText;
     if (requireText) requireText += " ";
@@ -985,7 +997,8 @@ export class Question extends SurveyElement
         : null;
   }
   public getProcessedText(text: string): string {
-    if (this.textProcessor) return this.textProcessor.processText(text, true);
+    if (this.textProcessor)
+      return this.textProcessor.processText(text, this.useDisplayValuesInTitle);
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
@@ -1007,6 +1020,7 @@ export class Question extends SurveyElement
 JsonObject.metaData.addClass("question", [
   "!name",
   { name: "visible:boolean", default: true },
+  { name: "useDisplayValuesInTitle:boolean", default: true },
   "visibleIf:condition",
   { name: "width" },
   { name: "startWithNewLine:boolean", default: true },

@@ -342,7 +342,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   protected setQuestionProperties(question: Question) {
     if (this.templateQuestion) {
-      var json = new JsonObject().toJsonObject(this.templateQuestion);
+      var json = new JsonObject().toJsonObject(this.templateQuestion, true);
       json.type = question.getType();
       new JsonObject().toObject(json, question);
     }

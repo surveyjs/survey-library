@@ -1466,3 +1466,26 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
   );
   JsonObject.metaData.removeProperty("questionbase", "customArray");
 });
+
+QUnit.test(
+  "Serialize default values - https://github.com/surveyjs/surveyjs/issues/1386",
+  function(assert) {
+    var q1 = new Question("q1");
+    var q2 = new Question("q2");
+
+    q2.readOnly = true;
+    var json = new JsonObject().toJsonObject(q1, true);
+
+    assert.equal(
+      json["readOnly"],
+      false,
+      "default value for readOnly proeprty has been serialzied successfully"
+    );
+
+    new JsonObject().toObject(json, q2);
+    assert.notOk(
+      q2.readOnly,
+      "default value for readOnly proeprty has been deserialzied successfully"
+    );
+  }
+);

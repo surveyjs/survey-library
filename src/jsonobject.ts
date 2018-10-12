@@ -719,8 +719,8 @@ export class JsonObject {
     return JsonObject.metaDataValue;
   }
   public errors = new Array<JsonError>();
-  public toJsonObject(obj: any): any {
-    return this.toJsonObjectCore(obj, null);
+  public toJsonObject(obj: any, storeDefaults = false): any {
+    return this.toJsonObjectCore(obj, null, storeDefaults);
   }
   public toObject(jsonObj: any, obj: any) {
     if (!jsonObj) return;
@@ -753,8 +753,12 @@ export class JsonObject {
       obj.endLoadingFromJson();
     }
   }
-  protected toJsonObjectCore(obj: any, property: JsonObjectProperty): any {
-    if (!obj.getType) return obj;
+  protected toJsonObjectCore(
+    obj: any,
+    property: JsonObjectProperty,
+    storeDefaults = false
+  ): any {
+    if (!obj || !obj.getType) return obj;
     var result = {};
     if (property != null && !property.className) {
       result[JsonObject.typePropertyName] = property.getObjType(obj.getType());
@@ -762,9 +766,15 @@ export class JsonObject {
     this.propertiesToJson(
       obj,
       JsonObject.metaData.getProperties(obj.getType()),
-      result
+      result,
+      storeDefaults
     );
-    this.propertiesToJson(obj, this.getDynamicProperties(obj), result);
+    this.propertiesToJson(
+      obj,
+      this.getDynamicProperties(obj),
+      result,
+      storeDefaults
+    );
     return result;
   }
   private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
@@ -798,16 +808,22 @@ export class JsonObject {
   private propertiesToJson(
     obj: any,
     properties: Array<JsonObjectProperty>,
-    json: any
+    json: any,
+    storeDefaults = false
   ) {
     for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, json, properties[i]);
+      this.valueToJson(obj, json, properties[i], storeDefaults);
     }
   }
-  protected valueToJson(obj: any, result: any, property: JsonObjectProperty) {
+  protected valueToJson(
+    obj: any,
+    result: any,
+    property: JsonObjectProperty,
+    storeDefaults = false
+  ) {
     if (property.isSerializable === false) return;
     var value = property.getValue(obj);
-    if (property.isDefaultValue(value)) return;
+    if (!storeDefaults && property.isDefaultValue(value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
@@ -817,7 +833,7 @@ export class JsonObject {
     } else {
       value = this.toJsonObjectCore(value, property);
     }
-    if (!property.isDefaultValue(value)) {
+    if (storeDefaults || !property.isDefaultValue(value)) {
       result[property.name] = value;
     }
   }

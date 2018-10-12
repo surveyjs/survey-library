@@ -66,6 +66,10 @@ export class MultipleTextItemModel extends Base
   protected createEditor(name: string): QuestionTextModel {
     return new QuestionTextModel(name);
   }
+  public locStrsChanged() {
+    super.locStrsChanged();
+    this.editor.locStrsChanged();
+  }
   setData(data: IMultipleTextData) {
     this.data = data;
     if (data) {

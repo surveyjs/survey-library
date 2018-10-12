@@ -1473,7 +1473,7 @@ QUnit.test(
     var q1 = new Question("q1");
     var q2 = new Question("q2");
 
-    q2.readOnly = true;
+    q1.readOnly = false;
     var json = new JsonObject().toJsonObject(q1, true);
 
     assert.equal(
@@ -1482,6 +1482,7 @@ QUnit.test(
       "default value for readOnly proeprty has been serialzied successfully"
     );
 
+    q2.readOnly = true;
     new JsonObject().toObject(json, q2);
     assert.notOk(
       q2.readOnly,

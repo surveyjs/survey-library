@@ -827,13 +827,16 @@ export class JsonObject {
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
-        arrValue.push(this.toJsonObjectCore(value[i], property));
+        arrValue.push(this.toJsonObjectCore(value[i], property, storeDefaults));
       }
       value = arrValue.length > 0 ? arrValue : null;
     } else {
-      value = this.toJsonObjectCore(value, property);
+      value = this.toJsonObjectCore(value, property, storeDefaults);
     }
-    if (storeDefaults || !property.isDefaultValue(value)) {
+    var hasValue =
+      typeof obj["getPropertyValue"] === "function" &&
+      obj["getPropertyValue"](property.name, null) !== null;
+    if ((storeDefaults && hasValue) || !property.isDefaultValue(value)) {
       result[property.name] = value;
     }
   }

@@ -416,15 +416,11 @@ export class MatrixDropdownCell {
     CustomPropertiesCollection.getProperties(column.getType()).forEach(
       property => {
         let propertyName = property.name;
-        if (
-          column[propertyName] !== undefined &&
-          this.questionValue.getPropertyValue(propertyName, null) == null
-        ) {
+        if (column[propertyName] !== undefined) {
           this.questionValue[propertyName] = column[propertyName];
         }
       }
     );
-    Object.keys(column).forEach(key => {});
     this.questionValue.updateCustomWidget();
   }
   public get question(): Question {

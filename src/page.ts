@@ -13,7 +13,13 @@ import {
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
-import { PanelModel, PanelModelBase, QuestionRowModel } from "./panel";
+import {
+  DragDropInfo,
+  PanelModel,
+  PanelModelBase,
+  QuestionRowModel
+} from "./panel";
+
 /**
  * The page object. It has elements collection, that contains questions and panels.
  */
@@ -192,6 +198,58 @@ export class PageModel extends PanelModelBase implements IPage {
     if (this.survey != null) {
       this.survey.pageVisibilityChanged(this, this.isVisible);
     }
+  }
+  private dragDropInfo: DragDropInfo;
+  public dragDropStart(src: IElement, target: IElement) {
+    this.dragDropInfo = new DragDropInfo(src, target);
+  }
+  public dragDropMoveTo(
+    destination: IElement,
+    isBottom: boolean = false,
+    isEdge: boolean = false
+  ): boolean {
+    if (!this.dragDropInfo) return false;
+    if (destination == this.dragDropInfo.target) return true;
+    if (!!destination && destination == this.dragDropInfo.source) return false;
+    this.dragDropInfo.destination = destination;
+    this.dragDropInfo.isBottom = isBottom;
+    this.dragDropInfo.isEdge = isEdge;
+    this.dragDropAddTarget(this.dragDropInfo);
+    return true;
+  }
+  public dragDropFinish(isCancel: boolean = false) {
+    if (!this.dragDropInfo) return;
+    var target = this.dragDropInfo.target;
+    var row = this.dragDropFindRow(target);
+    if (!isCancel) {
+      var targetIndex = this.dragDropGetElementIndex(target, row);
+      var src = this.dragDropInfo.source;
+      if (!!src && !!src.parent) {
+        var srcIndex = (<PanelModelBase>src.parent).elements.indexOf(src);
+        if (!!row && row.panel == src.parent && targetIndex > srcIndex) {
+          targetIndex--;
+        }
+        src.parent.removeElement(src);
+      }
+      this.dragDropRemoveTarget(target, row);
+      if (!!row && targetIndex > -1) {
+        row.panel.addElement(target, targetIndex);
+      }
+    } else {
+      this.dragDropRemoveTarget(target, row);
+    }
+    this.dragDropInfo = null;
+  }
+  private dragDropGetElementIndex(
+    target: IElement,
+    row: QuestionRowModel
+  ): number {
+    if (!row) return -1;
+    var index = row.elements.indexOf(target);
+    if (row.index == 0) return index;
+    var prevRow = row.panel.rows[row.index - 1];
+    var prevElement = prevRow.elements[prevRow.elements.length - 1];
+    return index + row.panel.elements.indexOf(prevElement) + 1;
   }
 }
 

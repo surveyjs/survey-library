@@ -19,6 +19,7 @@ export * from "../elementslayouttests";
 export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
+export * from "../dragdroptests";
 
 // localization
 import "../../src/localization/russian";

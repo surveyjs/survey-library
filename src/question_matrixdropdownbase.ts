@@ -451,8 +451,8 @@ export class MatrixDropdownCell {
     CustomPropertiesCollection.getProperties(column.getType()).forEach(
       property => {
         let propertyName = property.name;
-        if (column[propertyName] !== undefined) {
-          this.questionValue[propertyName] = column[propertyName];
+        if ((<any>column)[propertyName] !== undefined) {
+          this.questionValue[propertyName] = (<any>column)[propertyName];
         }
       }
     );

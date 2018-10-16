@@ -97,17 +97,17 @@ export interface ISurveyImpl {
   getTextProcessor(): ITextProcessor;
 }
 export interface IConditionRunner {
-  runCondition(values: HashTable<any>, properties: HashTable<any>);
+  runCondition(values: HashTable<any>, properties: HashTable<any>): any;
 }
 export interface ISurveyElement {
   name: string;
   isVisible: boolean;
   isPage: boolean;
-  setSurveyImpl(value: ISurveyImpl);
-  onSurveyLoad();
+  setSurveyImpl(value: ISurveyImpl): any;
+  onSurveyLoad(): any;
   getType(): string;
   setVisibleIndex(value: number): number;
-  locStrsChanged();
+  locStrsChanged(): any;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -119,28 +119,28 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isPanel: boolean;
   getPanel(): IPanel;
   removeElement(el: IElement): boolean;
-  onReadOnlyChanged();
-  onAnyValueChanged(name: string);
-  updateCustomWidgets();
-  clearIncorrectValues();
+  onReadOnlyChanged(): any;
+  onAnyValueChanged(name: string): any;
+  updateCustomWidgets(): any;
+  clearIncorrectValues(): any;
 }
 
 export interface IQuestion extends IElement {
   hasTitle: boolean;
   isEmpty(): boolean;
-  onSurveyValueChanged(newValue: any);
+  onSurveyValueChanged(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
-  clearUnusedValues();
+  clearUnusedValues(): any;
   getDisplayValue(keysAsText: boolean): any;
   getValueName(): string;
-  clearValue();
-  clearValueIfInvisible();
+  clearValue(): any;
+  clearValueIfInvisible(): any;
   isAnswerCorrect(): boolean;
-  updateValueWithDefaults();
+  updateValueWithDefaults(): any;
   value: any;
 }
 export interface IParentElement {
-  addElement(element: IElement, index: number);
+  addElement(element: IElement, index: number): any;
   removeElement(element: IElement): boolean;
   isReadOnly: boolean;
 }

@@ -766,7 +766,7 @@ export class JsonObject {
     if (!obj || !obj.getType) return obj;
     var result = {};
     if (property != null && !property.className) {
-      result[JsonObject.typePropertyName] = property.getObjType(obj.getType());
+      (<any>result)[JsonObject.typePropertyName] = property.getObjType(obj.getType());
     }
     this.propertiesToJson(
       obj,

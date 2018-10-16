@@ -193,8 +193,12 @@ export class PageModel extends PanelModelBase implements IPage {
     }
   }
   private dragDropInfo: DragDropInfo;
-  public dragDropStart(src: IElement, target: IElement) {
-    this.dragDropInfo = new DragDropInfo(src, target);
+  public dragDropStart(
+    src: IElement,
+    target: IElement,
+    nestedPanelDepth: number = -1
+  ) {
+    this.dragDropInfo = new DragDropInfo(src, target, nestedPanelDepth);
   }
   public dragDropMoveTo(
     destination: ISurveyElement,
@@ -202,8 +206,7 @@ export class PageModel extends PanelModelBase implements IPage {
     isEdge: boolean = false
   ): boolean {
     if (!this.dragDropInfo) return false;
-    if (destination == this.dragDropInfo.target) return true;
-    if (!!destination && destination == this.dragDropInfo.source) return false;
+    if (!this.dragDropCanDrop(destination)) return false;
     this.dragDropInfo.destination = destination;
     this.dragDropInfo.isBottom = isBottom;
     this.dragDropInfo.isEdge = isEdge;
@@ -243,6 +246,34 @@ export class PageModel extends PanelModelBase implements IPage {
     var prevRow = row.panel.rows[row.index - 1];
     var prevElement = prevRow.elements[prevRow.elements.length - 1];
     return index + row.panel.elements.indexOf(prevElement) + 1;
+  }
+  private dragDropCanDrop(destination: ISurveyElement): boolean {
+    if (!destination || destination.isPage) return true;
+    if (
+      !this.dragDropCanDropCore(this.dragDropInfo.target, <IElement>destination)
+    )
+      return false;
+    if (!this.dragDropInfo.source) return true;
+    return this.dragDropCanDropCore(
+      this.dragDropInfo.source,
+      <IElement>destination
+    );
+  }
+  private dragDropCanDropCore(
+    target: IElement,
+    destination: IElement
+  ): boolean {
+    if (!destination) return true;
+    if (destination == target || destination.name == target.name) return false;
+    if (target.isPanel) {
+      var pnl = <PanelModelBase>(<any>target);
+      if (
+        pnl.containsElement(destination) ||
+        !!pnl.getElementByName(destination.name)
+      )
+        return false;
+    }
+    return true;
   }
 }
 

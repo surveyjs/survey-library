@@ -23,7 +23,11 @@ import { OneAnswerRequiredError } from "./error";
 import { browser } from "./utils/utils";
 
 export class DragDropInfo {
-  constructor(public source: IElement, public target: IElement) {}
+  constructor(
+    public source: IElement,
+    public target: IElement,
+    public nestedPanelDepth: number = -1
+  ) {}
   public destination: ISurveyElement;
   public isBottom: boolean;
   public isEdge: boolean;
@@ -207,6 +211,10 @@ export class PanelModelBase extends SurveyElement
   public set parent(val: PanelModelBase) {
     this.setPropertyValue("parent", val);
   }
+  public get depth(): number {
+    if (this.parent == null) return 0;
+    return this.parent.depth + 1;
+  }
   /**
    * An expression that returns true or false. If it returns true the Panel becomes visible and if it returns false the Panel becomes invisible. The library runs the expression on survey start and on changing a question value. If the property is empty then visible property is used.
    * @see visible
@@ -244,6 +252,9 @@ export class PanelModelBase extends SurveyElement
   public get isPanel(): boolean {
     return false;
   }
+  public getPanel(): IPanel {
+    return this;
+  }
   /**
    * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
    * @see Question
@@ -276,6 +287,23 @@ export class PanelModelBase extends SurveyElement
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].name == name) return questions[i];
+    }
+    return null;
+  }
+  /**
+   * Retuns the element by its name. It works recursively.
+   * @param name the element name
+   */
+  public getElementByName(name: string): IElement {
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
+      if (el.name == name) return el;
+      var pnl = el.getPanel();
+      if (!!pnl) {
+        var res = (<PanelModelBase>pnl).getElementByName(name);
+        if (!!res) return res;
+      }
     }
     return null;
   }
@@ -349,8 +377,9 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < this.elements.length; i++) {
       var el: any = this.elements[i];
       if (el == element) return true;
-      if (el.isPanel) {
-        if ((<PanelModelBase>el).containsElement(element)) return true;
+      var pnl = el.getPanel();
+      if (!!pnl) {
+        if ((<PanelModelBase>pnl).containsElement(element)) return true;
       }
     }
     return false;
@@ -896,9 +925,9 @@ export class PanelModelBase extends SurveyElement
       if (rows[i].elements.indexOf(element) > -1) return rows[i];
     }
     for (var i = 0; i < this.elements.length; i++) {
-      var el: any = this.elements[i];
-      if (!el.isPanel) continue;
-      var row = (<PanelModelBase>el).dragDropFindRow(element);
+      var pnl = this.elements[i].getPanel();
+      if (!pnl) continue;
+      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
       if (!!row) return row;
     }
     return null;
@@ -922,20 +951,27 @@ export class PanelModelBase extends SurveyElement
   }
   private dragDropAddTargetToEmptyPanel(dragDropInfo: DragDropInfo): boolean {
     if (dragDropInfo.destination.isPage) {
-      this.dragDropAddTargetToEmptyPanelCore(this.root, dragDropInfo.target);
+      this.dragDropAddTargetToEmptyPanelCore(
+        this.root,
+        dragDropInfo.target,
+        dragDropInfo.isBottom
+      );
       return true;
     }
     var dest = <IElement>dragDropInfo.destination;
-    if (
-      dest.isPanel &&
-      !dragDropInfo.isEdge &&
-      (<PanelModelBase>(<any>dest)).elements.length == 0
-    ) {
-      this.dragDropAddTargetToEmptyPanelCore(
-        <PanelModelBase>(<any>dest),
-        dragDropInfo.target
-      );
-      return true;
+    if (dest.isPanel && !dragDropInfo.isEdge) {
+      var panel = <PanelModelBase>(<any>dest);
+      if (
+        dragDropInfo.nestedPanelDepth < 0 ||
+        dragDropInfo.nestedPanelDepth >= panel.depth
+      ) {
+        this.dragDropAddTargetToEmptyPanelCore(
+          <PanelModelBase>(<any>dest),
+          dragDropInfo.target,
+          dragDropInfo.isBottom
+        );
+        return true;
+      }
     }
     return false;
   }
@@ -945,7 +981,11 @@ export class PanelModelBase extends SurveyElement
     prevRow: QuestionRowModel
   ): boolean {
     var index = destRow.elements.indexOf(<IElement>dragDropInfo.destination);
-    if (index == 0 && !dragDropInfo.isBottom) {
+    if (
+      index == 0 &&
+      !dragDropInfo.isBottom &&
+      destRow.elements[0].startWithNewLine
+    ) {
       if (destRow.index > 0) {
         dragDropInfo.isBottom = true;
         destRow = destRow.panel.rows[destRow.index - 1];
@@ -965,6 +1005,12 @@ export class PanelModelBase extends SurveyElement
       prevRowIndex = destRow.elements.indexOf(dragDropInfo.target);
     }
     if (dragDropInfo.isBottom) index++;
+    var srcRow = this.findRowByElement(dragDropInfo.source);
+    if (
+      srcRow == destRow &&
+      srcRow.elements.indexOf(dragDropInfo.source) == index
+    )
+      return false;
     if (index == prevRowIndex) return false;
     if (prevRowIndex > -1) {
       destRow.elements.splice(prevRowIndex, 1);
@@ -973,14 +1019,6 @@ export class PanelModelBase extends SurveyElement
     destRow.elements.splice(index, 0, dragDropInfo.target);
     destRow.updateVisible();
     return prevRowIndex < 0;
-  }
-  private dragDropAddTargetToEmptyPanelCore(
-    panel: PanelModelBase,
-    target: IElement
-  ) {
-    var targetRow = new QuestionRowModel(panel);
-    targetRow.addElement(target);
-    panel.rows.push(targetRow);
   }
   private dragDropAddTargetToNewRow(
     dragDropInfo: DragDropInfo,
@@ -996,8 +1034,29 @@ export class PanelModelBase extends SurveyElement
     //same row
     if (!!prevRow && prevRow.panel == targetRow.panel && prevRow.index == index)
       return false;
+    var srcRow = this.findRowByElement(dragDropInfo.source);
+    if (
+      !!srcRow &&
+      srcRow.panel == targetRow.panel &&
+      srcRow.elements.length == 1 &&
+      srcRow.index == index
+    )
+      return false;
     destRow.panel.rows.splice(index, 0, targetRow);
     return true;
+  }
+  private dragDropAddTargetToEmptyPanelCore(
+    panel: PanelModelBase,
+    target: IElement,
+    isBottom: boolean
+  ) {
+    var targetRow = new QuestionRowModel(panel);
+    targetRow.addElement(target);
+    if (panel.elements.length == 0 || isBottom) {
+      panel.rows.push(targetRow);
+    } else {
+      panel.rows.splice(0, 0, targetRow);
+    }
   }
 }
 

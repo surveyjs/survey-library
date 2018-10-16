@@ -2,7 +2,7 @@ import { HashTable } from "./helpers";
 import {
   IElement,
   Base,
-  SurveyElement,
+  IPanel,
   SurveyError,
   ISurveyData,
   ISurvey,
@@ -14,7 +14,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { Question } from "./question";
-import { PanelModel, PanelModelBase } from "./panel";
+import { PanelModel } from "./panel";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { CustomError } from "./error";
@@ -261,6 +261,9 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get template(): PanelModel {
     return this.templateValue;
+  }
+  public getPanel(): IPanel {
+    return this.template;
   }
   /**
    * The template Panel elements, questions and panels.

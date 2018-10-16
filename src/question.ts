@@ -106,6 +106,9 @@ export class Question extends SurveyElement
   public get isPanel(): boolean {
     return false;
   }
+  public getPanel(): IPanel {
+    return null;
+  }
   /**
    * Use it to get/set the question visibility.
    * @see visibleIf

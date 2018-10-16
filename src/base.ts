@@ -117,6 +117,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   rightIndent: number;
   startWithNewLine: boolean;
   isPanel: boolean;
+  getPanel(): IPanel;
   removeElement(el: IElement): boolean;
   onReadOnlyChanged();
   onAnyValueChanged(name: string);

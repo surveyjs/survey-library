@@ -4,10 +4,6 @@ import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("Drag and Drop Tests");
 
-QUnit.test("remove", function(assert) {
-  assert.ok(true, "Remove");
-});
-
 QUnit.test("Show/hide new created item, simple test", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -45,155 +41,81 @@ QUnit.test("Show/hide new created item, simple test", function(assert) {
   assert.equal(page.questions.length, 3, "3 questions now");
   assert.equal(page.questions[1].name, "qt", "It is a second question");
 });
+QUnit.test("Move item to the end", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page.addNewQuestion("text", "q3");
+  var target = new QuestionTextModel("q1");
+
+  page.dragDropStart(q1, target);
+  page.dragDropMoveTo(q3, true);
+  page.dragDropFinish();
+  assert.equal(page.questions.length, 3, "we have only two questions");
+  assert.equal(page.questions[2].name, "q1", "The last question is q1 now");
+});
+QUnit.test("Show/hide/create for empty page", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var target = new QuestionTextModel("qt");
+  page.dragDropStart(null, target);
+  assert.equal(page.rows.length, 0, "There are no elements initially");
+  assert.equal(page.dragDropMoveTo(page, false), true, "It can be done: 1");
+  assert.equal(page.rows.length, 1, "Move 1");
+  assert.equal(page.rows[0].elements[0].name, "qt", "Move 1");
+  page.dragDropMoveTo(null);
+  assert.equal(page.rows.length, 0, "clear destination");
+  page.dragDropMoveTo(page, false);
+  page.dragDropFinish();
+  assert.equal(page.questions.length, 1, "one question now");
+  assert.equal(page.questions[0].name, "qt", "A new question");
+});
+QUnit.test("Move item startWithNewLine=false", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page.addNewQuestion("text", "q3");
+  q1.startWithNewLine = false;
+  var target = new QuestionTextModel("q1");
+  target.startWithNewLine = false;
+
+  page.dragDropStart(q1, target);
+  page.dragDropMoveTo(q3, true);
+  assert.equal(page.rows.length, 3, "Move 1. No rows should be added");
+  assert.equal(
+    page.rows[2].elements.length,
+    2,
+    "Move 1. There are two elements in the last row"
+  );
+  assert.equal(
+    page.rows[2].elements[1].name,
+    "q1",
+    "Move 1. The first question is the last element"
+  );
+  page.dragDropMoveTo(q3, false);
+  assert.equal(page.rows.length, 3, "Move 2. No rows should be added");
+  assert.equal(
+    page.rows[1].elements.length,
+    2,
+    "Move 2. There are two elements in the second row"
+  );
+  assert.equal(
+    page.rows[2].elements.length,
+    1,
+    "Move 2. There is one elements in the last row"
+  );
+  assert.equal(
+    page.rows[1].elements[1].name,
+    "q1",
+    "Move 2. The first question is the last element in the first row"
+  );
+  page.dragDropFinish();
+  assert.equal(page.questions.length, 3, "we have only two questions");
+  assert.equal(page.questions[1].name, "q1", "The second question is q1 now");
+});
 /*
-  QUnit.test("Show/hide move item, simple test", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var q1 = page.addNewQuestion("text", "q1");
-    var q2 = page.addNewQuestion("text", "q2");
-    var target = new Survey.QuestionText("q2");
-  
-    var dragTarget = new DragDropTargetElement(page, target, q2);
-    assert.equal(dragTarget.getRows(page).length, 2, "Two elements initially");
-    assert.equal(dragTarget.moveTo(q1, false), true, "It can be done: 1");
-    assert.equal(dragTarget.getRows(page).length, 3, "Move 1");
-    assert.equal(
-      dragTarget.getRows(page)[0]["elements"][0].name,
-      "q2",
-      "Move 1"
-    );
-    dragTarget.clear();
-    assert.equal(dragTarget.getRows(page).length, 2, "out of page");
-    assert.equal(dragTarget.moveTo(q1, true), false, "It can't be done: 2");
-    assert.equal(dragTarget.getRows(page).length, 2, "Move 2");
-    assert.equal(dragTarget.moveTo(q2, false), false, "It can't be done: 3");
-    assert.equal(dragTarget.getRows(page).length, 2, "Move 3");
-    assert.equal(dragTarget.moveTo(q2, true), false, "It can't be done: 4");
-    assert.equal(dragTarget.getRows(page).length, 2, "Move 4");
-    dragTarget.moveTo(q1, false);
-    dragTarget.doDrop();
-    assert.equal(page.questions.length, 2, "we have only two questions");
-    assert.equal(
-      page.questions[0].name,
-      "q2",
-      "The second question becomes the first"
-    );
-  });
-  
-  QUnit.test("Move item to the end", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var q1 = page.addNewQuestion("text", "q1");
-    var q2 = page.addNewQuestion("text", "q2");
-    var q3 = page.addNewQuestion("text", "q3");
-    var target = new Survey.QuestionText("q1");
-  
-    var dragTarget = new DragDropTargetElement(page, target, q1);
-    dragTarget.moveTo(q3, true);
-    dragTarget.doDrop();
-    assert.equal(page.questions.length, 3, "we have only two questions");
-    assert.equal(page.questions[2].name, "q1", "The last question is q1 now");
-  });
-  
-  QUnit.test("Show/hide/create for empty page", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var target = new Survey.QuestionText("qt");
-    var dragTarget = new DragDropTargetElement(page, target, null);
-    assert.equal(
-      dragTarget.getRows(page).length,
-      0,
-      "There are no elements initially"
-    );
-    assert.equal(dragTarget.moveTo(page, false), true, "It can be done: 1");
-    assert.equal(dragTarget.getRows(page).length, 1, "Move 1");
-    assert.equal(
-      dragTarget.getRows(page)[0]["elements"][0].name,
-      "qt",
-      "Move 1"
-    );
-    dragTarget.clear();
-    assert.equal(dragTarget.getRows(page).length, 0, "clear destination");
-    dragTarget.moveTo(page, false);
-    dragTarget.doDrop();
-    assert.equal(page.questions.length, 1, "one question now");
-    assert.equal(page.questions[0].name, "qt", "A new question");
-  });
-  
-  QUnit.test("Replace target element", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var ddhelper = new DragDropHelper(survey, null);
-    var target = new Survey.QuestionText("qt");
-  
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, page);
-  
-    var result = ddhelper.replaceTargetElement(target);
-    assert.equal(result, target);
-  
-    page.addElement(target);
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, target);
-  
-    var target1 = new Survey.QuestionBoolean("qb");
-    page.addElement(target1);
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, target1);
-  });
-  
-  QUnit.test("Move item startWithNewLine=false", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var q1 = page.addNewQuestion("text", "q1");
-    var q2 = page.addNewQuestion("text", "q2");
-    var q3 = page.addNewQuestion("text", "q3");
-    q1.startWithNewLine = false;
-    var target = new Survey.QuestionText("q1");
-    target.startWithNewLine = false;
-  
-    var dragTarget = new DragDropTargetElement(page, target, q1);
-    dragTarget.moveTo(q3, true);
-    assert.equal(
-      dragTarget.getRows(page).length,
-      3,
-      "Move 1. No rows should be added"
-    );
-    assert.equal(
-      dragTarget.getRows(page)[2]["elements"].length,
-      2,
-      "Move 1. There are two elements in the last row"
-    );
-    assert.equal(
-      dragTarget.getRows(page)[2]["elements"][1].name,
-      "q1",
-      "Move 1. The first question is the last element"
-    );
-    dragTarget.moveTo(q3, false);
-    assert.equal(
-      dragTarget.getRows(page).length,
-      3,
-      "Move 2. No rows should be added"
-    );
-    assert.equal(
-      dragTarget.getRows(page)[1]["elements"].length,
-      2,
-      "Move 2. There are two elements in the second row"
-    );
-    assert.equal(
-      dragTarget.getRows(page)[2]["elements"].length,
-      1,
-      "Move 2. There is one elements in the last row"
-    );
-    assert.equal(
-      dragTarget.getRows(page)[1]["elements"][1].name,
-      "q1",
-      "Move 2. The first question is the last element in the first row"
-    );
-    dragTarget.doDrop();
-    assert.equal(page.questions.length, 3, "we have only two questions");
-    assert.equal(page.questions[1].name, "q1", "The second question is q1 now");
-  });
   
   QUnit.test("Move item startWithNewLine=false, 2", function(assert) {
     var survey = new Survey.Survey();
@@ -736,4 +658,28 @@ QUnit.test("Show/hide new created item, simple test", function(assert) {
       "It is the 'q1' question"
     );
   });
+
+  //Do we need this test?
+QUnit.test("Replace target element", function(assert) {
+    var survey = new Survey.Survey();
+    var page = <Survey.Page>survey.addNewPage("p1");
+    var ddhelper = new DragDropHelper(survey, null);
+    var target = new Survey.QuestionText("qt");
+  
+    var result = ddhelper.replaceTargetElement(page);
+    assert.equal(result, page);
+  
+    var result = ddhelper.replaceTargetElement(target);
+    assert.equal(result, target);
+  
+    page.addElement(target);
+    var result = ddhelper.replaceTargetElement(page);
+    assert.equal(result, target);
+  
+    var target1 = new Survey.QuestionBoolean("qb");
+    page.addElement(target1);
+    var result = ddhelper.replaceTargetElement(page);
+    assert.equal(result, target1);
+  });
+
 */

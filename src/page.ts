@@ -1,24 +1,14 @@
 import { JsonObject } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
-  Base,
   IPage,
   IPanel,
-  IConditionRunner,
-  ISurvey,
   IElement,
+  ISurveyElement,
   IQuestion,
   SurveyElement
 } from "./base";
-import { Question } from "./question";
-import { ConditionRunner } from "./conditions";
-import { QuestionFactory } from "./questionfactory";
-import {
-  DragDropInfo,
-  PanelModel,
-  PanelModelBase,
-  QuestionRowModel
-} from "./panel";
+import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 
 /**
  * The page object. It has elements collection, that contains questions and panels.
@@ -38,6 +28,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public toString(): string {
     return this.name;
+  }
+  public get isPage() {
+    return true;
   }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
@@ -204,7 +197,7 @@ export class PageModel extends PanelModelBase implements IPage {
     this.dragDropInfo = new DragDropInfo(src, target);
   }
   public dragDropMoveTo(
-    destination: IElement,
+    destination: ISurveyElement,
     isBottom: boolean = false,
     isEdge: boolean = false
   ): boolean {

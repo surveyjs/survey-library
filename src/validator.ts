@@ -139,7 +139,7 @@ export class NumericValidator extends SurveyValidator {
         ["format"](vName, this.maxValue);
     }
   }
-  private isNumber(value): boolean {
+  private isNumber(value:any): boolean {
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }

@@ -80,7 +80,7 @@ export class QuestionExpressionModel extends Question {
     if (this.isValueEmpty(val)) return "";
     var str = this.getValueAsStr(val);
     if (!this.format) return str;
-    return this.format["format"](str);
+    return (<any>this.format)["format"](str);
   }
   /**
    * You may set this property to "decimal", "currency" or "percent". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
@@ -123,10 +123,10 @@ export class QuestionExpressionModel extends Question {
         useGrouping: this.useGrouping
       };
       if (this.maximumFractionDigits > -1) {
-        options["maximumFractionDigits"] = this.maximumFractionDigits;
+        (<any>options)["maximumFractionDigits"] = this.maximumFractionDigits;
       }
       if (this.minimumFractionDigits > -1) {
-        options["minimumFractionDigits"] = this.minimumFractionDigits;
+        (<any>options)["minimumFractionDigits"] = this.minimumFractionDigits;
       }
       return val.toLocaleString(locale, options);
     }

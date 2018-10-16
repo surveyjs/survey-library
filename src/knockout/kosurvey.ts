@@ -146,7 +146,7 @@ export class Survey extends SurveyModel {
     super.clear(clearData, gotoFirstPage);
     this.render();
   }
-  public koEventAfterRender(element, survey) {
+  public koEventAfterRender(element:any, survey:any) {
     survey.onRendered.fire(self, {});
     survey.afterRenderSurvey(element);
   }
@@ -213,7 +213,7 @@ export class Survey extends SurveyModel {
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
-    this.koAfterRenderPage = function(elements, con) {
+    this.koAfterRenderPage = function(elements:any, con:any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
     };

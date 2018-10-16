@@ -4,7 +4,7 @@
     "module": "es2015",
     "lib": ["DOM", "ES5", "ES2015.Promise"],
     "sourceMap": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "importHelpers": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",

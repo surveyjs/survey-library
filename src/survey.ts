@@ -671,10 +671,10 @@ export class SurveyModel extends Base
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.pagesValue = this.createNewArray("pages", function(value) {
+    this.pagesValue = this.createNewArray("pages", function(value: any) {
       self.doOnPageAdded(value);
     });
-    this.triggersValue = this.createNewArray("triggers", function(value) {
+    this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
 
@@ -1223,7 +1223,7 @@ export class SurveyModel extends Base
    * @see getValue
    */
   public get data(): any {
-    var result = {};
+    var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
       result[key] = this.valuesHash[key];
     }
@@ -1234,7 +1234,7 @@ export class SurveyModel extends Base
   }
   private conditionVersion = 0;
   getFilteredValues(): any {
-    var values = {};
+    var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     for (var key in this.valuesHash) values[key] = this.valuesHash[key];
     values["conditionVersion"] = ++this.conditionVersion;
@@ -1267,7 +1267,7 @@ export class SurveyModel extends Base
    * @see data
    */
   public get comments(): any {
-    var result = {};
+    var result: {[index: string]: any} = {};
     for (var key in this.valuesHash) {
       if (key.indexOf(this.commentPrefix) > 0) {
         result[key] = this.valuesHash[key];
@@ -1666,7 +1666,7 @@ export class SurveyModel extends Base
     this.isStartedState = this.firstPageIsStarted;
     this.pageVisibilityChanged(this.pages[0], !this.firstPageIsStarted);
   }
-  origionalPages = null;
+  origionalPages: any = null;
   protected onIsSinglePageChanged() {
     if (!this.isSinglePage || this.isDesignMode) {
       if (this.origionalPages) {
@@ -1782,7 +1782,7 @@ export class SurveyModel extends Base
     if (!this.onServerValidateQuestions) return false;
     var self = this;
     var options = {
-      data: {},
+      data: <{[index: string]: any}>{},
       errors: {},
       survey: this,
       complete: function() {
@@ -1871,7 +1871,7 @@ export class SurveyModel extends Base
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
   }
-  protected afterRenderSurvey(htmlElement) {
+  protected afterRenderSurvey(htmlElement: any) {
     this.onAfterRenderSurvey.fire(this, {
       survey: this,
       htmlElement: htmlElement
@@ -1889,20 +1889,20 @@ export class SurveyModel extends Base
       cssClasses: cssClasses
     });
   }
-  afterRenderPage(htmlElement) {
+  afterRenderPage(htmlElement: any) {
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
       page: this.currentPage,
       htmlElement: htmlElement
     });
   }
-  afterRenderQuestion(question: IQuestion, htmlElement) {
+  afterRenderQuestion(question: IQuestion, htmlElement: any) {
     this.onAfterRenderQuestion.fire(this, {
       question: question,
       htmlElement: htmlElement
     });
   }
-  afterRenderPanel(panel: IElement, htmlElement) {
+  afterRenderPanel(panel: IElement, htmlElement: any) {
     this.onAfterRenderPanel.fire(this, {
       panel: panel,
       htmlElement: htmlElement
@@ -2042,7 +2042,7 @@ export class SurveyModel extends Base
     files: File[],
     uploadingCallback: (status: string, data: any) => any
   ) {
-    var responses = [];
+    var responses: Array<any> = [];
     files.forEach(file => {
       if (uploadingCallback) uploadingCallback("uploading", file);
       this.createSurveyService().sendFile(
@@ -2146,7 +2146,7 @@ export class SurveyModel extends Base
     names: string[],
     caseInsensitive: boolean = false
   ): IQuestion[] {
-    var result = [];
+    var result: IQuestion[] = [];
     if (!names) return result;
     for (var i: number = 0; i < names.length; i++) {
       if (!names[i]) continue;
@@ -2188,7 +2188,7 @@ export class SurveyModel extends Base
    * @param names a list of pages names
    */
   public getPagesByNames(names: string[]): PageModel[] {
-    var result = [];
+    var result: PageModel[] = [];
     if (!names) return result;
     for (var i: number = 0; i < names.length; i++) {
       if (!names[i]) continue;
@@ -2280,7 +2280,7 @@ export class SurveyModel extends Base
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
     var questions = this.getAllQuestions();
-    var question = null;
+    var question: any = null;
     for (var i: number = 0; i < questions.length; i++) {
       if (questions[i].getValueName() != valueName) continue;
       question = questions[i];
@@ -2323,7 +2323,7 @@ export class SurveyModel extends Base
   }
   private checkOnPageTriggers() {
     var questions = this.getCurrentPageQuestions();
-    var values = {};
+    var values: {[index: string]: any} = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
       var name = question.getValueName();
@@ -2332,7 +2332,7 @@ export class SurveyModel extends Base
     this.checkTriggers(values, true);
   }
   private getCurrentPageQuestions(): Array<Question> {
-    var result = [];
+    var result: Array<Question> = [];
     var page = this.currentPage;
     if (!page) return result;
     for (var i = 0; i < page.questions.length; i++) {
@@ -2586,7 +2586,7 @@ export class SurveyModel extends Base
       textValue.isExists = true;
       name = question.getValueName() + name.substr(firstName.length);
       name = name.toLocaleLowerCase();
-      var values = {};
+      var values: {[index: string]: any} = {};
       values[firstName] = textValue.returnDisplayValue
         ? question.getDisplayValue(false)
         : question.value;
@@ -2679,7 +2679,7 @@ export class SurveyModel extends Base
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
-    var triggerKeys = {};
+    var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);
     this.runConditions();
@@ -2699,7 +2699,7 @@ export class SurveyModel extends Base
     this.onPageAdded.fire(this, options);
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
-    var keys = {};
+    var keys: { [index: string]: any } = {};
     for (var i = 0; i < elements.length; i++) keys[elements[i]["name"]] = true;
     var index = 1;
     while (keys[baseName + index]) index++;
@@ -2845,7 +2845,7 @@ export class SurveyModel extends Base
       name: question.name,
       question: question,
       value: question.value,
-      error: null
+      error: <any>null
     };
     this.onValidateQuestion.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
@@ -2855,7 +2855,7 @@ export class SurveyModel extends Base
     var options = {
       name: panel.name,
       panel: panel,
-      error: null
+      error: <any>null
     };
     this.onValidatePanel.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
@@ -2881,7 +2881,7 @@ export class SurveyModel extends Base
     return this.textPreProcessor.process(text, returnDisplayValue);
   }
   getSurveyMarkdownHtml(element: Base, text: string): string {
-    var options = { element: element, text: text, html: null };
+    var options = { element: element, text: text, html: <any>null };
     this.onTextMarkdown.fire(this, options);
     return options.html;
   }
@@ -2891,7 +2891,7 @@ export class SurveyModel extends Base
   public getCorrectedAnswerCount(): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
-    var options = { question: null, result: false };
+    var options = { question: <IQuestion>null, result: false };
     for (var i = 0; i < questions.length; i++) {
       options.question = questions[i];
       options.result = options.question.isAnswerCorrect();
@@ -3016,7 +3016,7 @@ export class SurveyModel extends Base
     if (res) res += " ";
     return res + sec + " " + this.getLocString("timerSec");
   }
-  private timerFunc = null;
+  private timerFunc: any = null;
   /**
    * Call this method to start timer that will calculate how much time end-user spends on the survey or on pages
    * @see stopTimer
@@ -3119,7 +3119,7 @@ export class SurveyModel extends Base
   }
   //ISurveyTriggerOwner
   getObjects(pages: string[], questions: string[]): any[] {
-    var result = [];
+    var result: any[] = [];
     Array.prototype.push.apply(result, this.getPagesByNames(pages));
     Array.prototype.push.apply(result, this.getQuestionsByNames(questions));
     return result;
@@ -3144,7 +3144,7 @@ JsonObject.metaData.addClass("survey", [
     choices: () => {
       return surveyLocalization.getLocales();
     },
-    onGetValue: obj => {
+    onGetValue: (obj: any): any => {
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     }
   },
@@ -3162,10 +3162,10 @@ JsonObject.metaData.addClass("survey", [
     alternativeName: "elements",
     baseClassName: "question",
     visible: false,
-    onGetValue: function(obj) {
+    onGetValue: function(obj: any): any {
       return null;
     },
-    onSetValue: function(obj, value, jsonConverter) {
+    onSetValue: function(obj: any, value: any, jsonConverter: any) {
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
     }

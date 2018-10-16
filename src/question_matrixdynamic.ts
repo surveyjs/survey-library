@@ -226,13 +226,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       var q = this.columns[i].templateQuestion;
       if (!!q && !this.isValueEmpty(q.getDefaultValue())) {
         res = res || {};
-        res[this.columns[i].name] = q.getDefaultValue();
+        (<any>res)[this.columns[i].name] = q.getDefaultValue();
       }
     }
     if (!this.isValueEmpty(this.defaultRowValue)) {
       for (var key in this.defaultRowValue) {
         res = res || {};
-        res[key] = this.defaultRowValue[key];
+        (<any>res)[key] = this.defaultRowValue[key];
       }
     }
     if (isRowAdded && this.defaultValueFromLastRow) {
@@ -241,7 +241,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         var rowValue = val[this.rowCount - 2];
         for (var key in rowValue) {
           res = res || {};
-          res[key] = rowValue[key];
+          (<any>res)[key] = rowValue[key];
         }
       }
     }
@@ -422,7 +422,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.keyName || !this.generatedVisibleRows) return false;
     var column = this.getColumnByName(this.keyName);
     if (!column) return false;
-    var keyValues = [];
+    var keyValues = <Array<any>>[];
     var res = false;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       res =

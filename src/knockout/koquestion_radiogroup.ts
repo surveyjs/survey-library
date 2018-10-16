@@ -9,11 +9,11 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
     super(name);
     new QuestionCheckboxBaseImplementor(this);
   }
-  getItemClass(item) {
+  getItemClass(item:any) {
     var itemClass =
       this.cssClasses.item +
       (this.colCount === 0 ? " sv_q_radiogroup_inline" : (" sv-q-col-" + this.colCount));
-    if (item.value === this["koValue"]()) itemClass += " checked";
+    if (item.value === (<any>this)["koValue"]()) itemClass += " checked";
     return itemClass;
   }
 }

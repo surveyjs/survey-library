@@ -87,7 +87,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     this.isFirst = props.isFirst;
     this.handleOnChange = this.handleOnChange.bind(this);
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
   }

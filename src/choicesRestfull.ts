@@ -46,7 +46,7 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
-  private static itemsResult = {};
+  private static itemsResult:{ [index: string]: any } = {};
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
@@ -97,7 +97,7 @@ export class ChoicesRestfull extends Base {
     return ChoicesRestfull.getCachedItemsResult(this);
   }
   private doEmptyResultCallback(serverResult: any) {
-    var items = [];
+    var items: Array<any> = [];
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, serverResult);
     }
@@ -119,7 +119,7 @@ export class ChoicesRestfull extends Base {
       this.processedPath = this.path;
     }
   }
-  protected parseResponse(response) {
+  protected parseResponse(response:any) {
     let parsedResponse;
     if (
       !!response &&
@@ -134,8 +134,8 @@ export class ChoicesRestfull extends Base {
       } catch {
         parsedResponse = (response || "")
           .split("\n")
-          .map(s => s.trim(" "))
-          .filter(s => !!s);
+          .map((s:any) => s.trim(" "))
+          .filter((s:any) => !!s);
       }
     }
     return parsedResponse;
@@ -199,19 +199,19 @@ export class ChoicesRestfull extends Base {
     if (json.titleName) this.titleName = json.titleName;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (json[properties[i]]) this[properties[i]] = json[properties[i]];
+      if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
     }
   }
   public getData(): any {
     if (this.isEmpty) return null;
-    var res = {};
+    var res: any = {};
     if (this.url) res["url"] = this.url;
     if (this.path) res["path"] = this.path;
     if (this.valueName) res["valueName"] = this.valueName;
     if (this.titleName) res["titleName"] = this.titleName;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (this[properties[i]]) res[properties[i]] = this[properties[i]];
+      if ((<any>this)[properties[i]]) res[properties[i]] = (<any>this)[properties[i]];
     }
     return res;
   }
@@ -256,7 +256,7 @@ export class ChoicesRestfull extends Base {
     this.titleName = "";
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (this[properties[i]]) this[properties[i]] = "";
+      if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
     }
   }
   protected onLoad(result: any) {
@@ -292,14 +292,14 @@ export class ChoicesRestfull extends Base {
         this.getPropertyBinding(prop.name)
       );
       if (!this.isValueEmpty(val)) {
-        item[prop.name] = val;
+        (<any>item)[prop.name] = val;
       }
     }
   }
   private getPropertyBinding(propertyName: string) {
-    if (this[this.getCustomPropertyName(propertyName)])
-      return this[this.getCustomPropertyName(propertyName)];
-    if (this[propertyName]) return this[propertyName];
+    if ((<any>this)[this.getCustomPropertyName(propertyName)])
+      return (<any>this)[this.getCustomPropertyName(propertyName)];
+    if ((<any>this)[propertyName]) return (<any>this)[propertyName];
     return propertyName;
   }
   private onError(status: string, response: string) {

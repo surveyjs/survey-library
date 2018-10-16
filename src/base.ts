@@ -5,9 +5,9 @@ import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
 
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any);
+  setValue(name: string, newValue: any): any;
   getComment(name: string): string;
-  setComment(name: string, newValue: string);
+  setComment(name: string, newValue: string): any;
   getAllValues(): any;
   getFilteredValues(): any;
   getFilteredProperties(): any;
@@ -20,19 +20,19 @@ export interface ISurvey extends ITextProcessor {
   currentPage: IPage;
   pages: Array<IPage>;
   isPageStarted(page: IPage): boolean;
-  pageVisibilityChanged(page: IPage, newValue: boolean);
-  panelVisibilityChanged(panel: IPanel, newValue: boolean);
-  questionVisibilityChanged(question: IQuestion, newValue: boolean);
+  pageVisibilityChanged(page: IPage, newValue: boolean): any;
+  panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
+  questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
   questionsOrder: string;
   questionAdded(
     question: IQuestion,
     index: number,
     parentPanel: any,
     rootPanel: any
-  );
-  panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any);
-  questionRemoved(question: IQuestion);
-  panelRemoved(panel: IElement);
+  ): any;
+  panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any): any;
+  questionRemoved(question: IQuestion): any;
+  panelRemoved(panel: IElement): any;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
@@ -58,38 +58,38 @@ export interface ISurvey extends ITextProcessor {
     name: string,
     files: File[],
     uploadingCallback: (status: string, data: any) => any
-  );
+  ): any;
   downloadFile(
     name: string,
     content: string,
     callback: (status: string, data: any) => any
-  );
+  ): any;
   clearFiles(
     name: string,
     value: any,
     fileName: string,
     clearCallback: (status: string, data: any) => any
-  );
+  ): any;
   updateChoicesFromServer(
     question: IQuestion,
     choices: Array<ItemValue>,
     serverResult: any
   ): Array<ItemValue>;
-  updateQuestionCssClasses(question: IQuestion, cssClasses: any);
-  updatePanelCssClasses(panel: IPanel, cssClasses: any);
-  afterRenderQuestion(question: IQuestion, htmlElement);
-  afterRenderPanel(panel: IElement, htmlElement);
-  afterRenderPage(htmlElement);
-  matrixRowAdded(question: IQuestion);
-  matrixBeforeRowAdded(options: { question: IQuestion; canAddRow: boolean });
-  matrixRowRemoved(question: IQuestion, rowIndex: number, row: any);
-  matrixCellCreated(question: IQuestion, options: any);
-  matrixAfterCellRender(question: IQuestion, options: any);
-  matrixCellValueChanged(question: IQuestion, options: any);
+  updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
+  updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
+  afterRenderQuestion(question: IQuestion, htmlElement: any): any;
+  afterRenderPanel(panel: IElement, htmlElement: any): any;
+  afterRenderPage(htmlElement: any): any;
+  matrixRowAdded(question: IQuestion): any;
+  matrixBeforeRowAdded(options: { question: IQuestion; canAddRow: boolean }): any;
+  matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
+  matrixCellCreated(question: IQuestion, options: any): any;
+  matrixAfterCellRender(question: IQuestion, options: any): any;
+  matrixCellValueChanged(question: IQuestion, options: any): any;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
-  dynamicPanelAdded(question: IQuestion);
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number);
-  dynamicPanelItemValueChanged(question: IQuestion, options: any);
+  dynamicPanelAdded(question: IQuestion): any;
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number): any;
+  dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
@@ -148,7 +148,7 @@ export interface IParentElement {
 export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleLocation(): string;
   parent: IPanel;
-  elementWidthChanged(el: IElement);
+  elementWidthChanged(el: IElement): any;
 }
 export interface IPage extends IPanel, IConditionRunner {}
 /**
@@ -167,10 +167,10 @@ export class Base {
     return value !== "" && this.isValueEmpty(value);
   }
 
-  private propertyHash = {};
-  private localizableStrings = {};
-  private arraysInfo = {};
-  private onPropChangeFunctions = [];
+  private propertyHash: { [index: string]: any } = {};
+  private localizableStrings: { [index: string]: LocalizableString } = {};
+  private arraysInfo: { [index: string]: any } = {};
+  private onPropChangeFunctions: Array<{ name: string; func: (...args: any[]) => void; key: string }> = [];
   protected isLoadingFromJsonValue: boolean = false;
   public onPropertyChanged: Event<
     (sender: Base, options: any) => any,
@@ -251,7 +251,7 @@ export class Base {
       this.setPropertyValueCoreHandler(propertiesHash, name, val);
     else propertiesHash[name] = val;
   }
-  public iteratePropertiesHash(func: (hash, key) => void) {
+  public iteratePropertiesHash(func: (hash:any, key:any) => void) {
     var keys = [];
     for (var key in this.propertyHash) {
       keys.push(key);
@@ -363,7 +363,7 @@ export class Base {
   }
   public createCustomLocalizableObj(name: string) {
     var locStr = this.getLocalizableString(name);
-    if (locStr || !this["getLocale"]) return;
+    if (locStr || !(<any>this).getLocale) return;
     this.createLocalizableString(name, <ILocalizableOwner>(<any>this));
   }
   protected createLocalizableString(
@@ -397,14 +397,14 @@ export class Base {
   }
   protected createItemValues(name: string): Array<any> {
     var self = this;
-    var result = this.createNewArray(name, function(item) {
+    var result = this.createNewArray(name, function(item: any) {
       item.locOwner = self;
     });
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private notifyArrayChanged(ar: Array<any>) {
-    !!ar["onArrayChanged"] && ar["onArrayChanged"]();
+  private notifyArrayChanged(ar: any) {
+    !!ar.onArrayChanged && ar.onArrayChanged();
   }
   protected createNewArray(
     name: string,

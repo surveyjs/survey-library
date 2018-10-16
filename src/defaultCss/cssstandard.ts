@@ -1,4 +1,4 @@
-export var surveyCss = {
+export var surveyCss: any = {
   currentType: "",
   getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;

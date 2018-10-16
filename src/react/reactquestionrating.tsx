@@ -13,7 +13,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
   protected get question(): QuestionRatingModel {
     return this.questionBase as QuestionRatingModel;
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.question.value });
   }

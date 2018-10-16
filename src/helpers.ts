@@ -98,10 +98,10 @@ export class Helpers {
     return maxLength > 0 ? maxLength : null;
   }
 }
-if (!String.prototype["format"]) {
-  String.prototype["format"] = function() {
+if (!(<any>String.prototype)["format"]) {
+  (<any>String.prototype)["format"] = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) {
+    return this.replace(/{(\d+)}/g, function(match:any, number:any) {
       return typeof args[number] != "undefined" ? args[number] : match;
     });
   };

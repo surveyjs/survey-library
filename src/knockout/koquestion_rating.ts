@@ -12,19 +12,19 @@ class QuestionRatingImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     this.koVisibleRateValues = ko.observableArray(this.getValues());
-    this.question["koVisibleRateValues"] = this.koVisibleRateValues;
+    (<any>this.question)["koVisibleRateValues"] = this.koVisibleRateValues;
     var self = this;
-    this.koChange = function(val) {
+    this.koChange = function(val:any) {
       self.koValue(val.itemValue);
     };
-    this.question["koChange"] = this.koChange;
+    (<any>this.question)["koChange"] = this.koChange;
     (<QuestionRating>this.question).rateValuesChangedCallback = function() {
       self.onRateValuesChanged();
     };
-    this.question["koGetCss"] = function(val) {
+    (<any>this.question)["koGetCss"] = function(val:any) {
       var css = self.question.cssClasses.item;
       var selected = self.question.cssClasses.selected;
-      return self.question["koValue"]() == val.value
+      return (<any>self.question)["koValue"]() == val.value
         ? css + " " + selected
         : css;
     };

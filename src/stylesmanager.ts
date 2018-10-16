@@ -391,7 +391,7 @@ export class StylesManager {
     for (let i = 0; i < document.styleSheets.length; i++) {
       if (
         !!document.styleSheets[i].ownerNode &&
-        document.styleSheets[i].ownerNode["id"] === styleSheetId
+        (<any>document).styleSheets[i].ownerNode["id"] === styleSheetId
       ) {
         return <CSSStyleSheet>document.styleSheets[i];
       }
@@ -414,9 +414,9 @@ export class StylesManager {
     themeName: string = "default",
     themeSelector: string = ".sv_main"
   ) {
-    let ThemeCss;
+    let ThemeCss:any;
     if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
-      ThemeCss = StylesManager[themeName + "ThemeCss"];
+      ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {
       ThemeCss = StylesManager.ThemeCss;

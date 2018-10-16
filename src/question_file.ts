@@ -166,7 +166,7 @@ export class QuestionFileModel extends Question {
     }
 
     this.stateChanged("loading");
-    var content = [];
+    var content = <Array<any>>[];
     if (this.storeDataAsText) {
       files.forEach(file => {
         let fileReader = new FileReader();
@@ -187,7 +187,7 @@ export class QuestionFileModel extends Question {
         }
         if (status === "success") {
           this.value = (this.value || []).concat(
-            data.map(r => {
+            data.map((r:any) => {
               return {
                 name: r.file.name,
                 type: r.file.type,

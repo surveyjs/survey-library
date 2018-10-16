@@ -9,7 +9,7 @@ export class ImplementorBase {
       var val = hash[key];
       if (Array.isArray(val)) {
         hash[key] = ko.observableArray(val);
-        val["onArrayChanged"] = () => hash[key].notifySubscribers();
+        (<any>val)["onArrayChanged"] = () => hash[key].notifySubscribers();
       } else {
         hash[key] = ko.observable(val);
       }

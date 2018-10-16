@@ -67,7 +67,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
           rowValue = displayRowValue;
         }
       }
-      res[rowValue] = this.getRowDisplayValue(rows[i], val);
+      (<any>res)[rowValue] = this.getRowDisplayValue(rows[i], val);
     }
     return values;
   }
@@ -89,7 +89,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var key in val) {
       if (ItemValue.getItemByValue(rows, key)) {
         if (newVal == null) newVal = {};
-        newVal[key] = val[key];
+        (<any>newVal)[key] = val[key];
       } else {
         isChanged = true;
       }

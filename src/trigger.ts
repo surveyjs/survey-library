@@ -14,36 +14,36 @@ export class Trigger extends Base {
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
-      empty: function(value, expectedValue) {
+      empty: function(value:any, expectedValue:any) {
         return !value;
       },
-      notempty: function(value, expectedValue) {
+      notempty: function(value:any, expectedValue:any) {
         return !!value;
       },
-      equal: function(value, expectedValue) {
+      equal: function(value:any, expectedValue:any) {
         return value == expectedValue;
       },
-      notequal: function(value, expectedValue) {
+      notequal: function(value:any, expectedValue:any) {
         return value != expectedValue;
       },
-      contains: function(value, expectedValue) {
+      contains: function(value:any, expectedValue:any) {
         return value && value["indexOf"] && value.indexOf(expectedValue) > -1;
       },
-      notcontains: function(value, expectedValue) {
+      notcontains: function(value:any, expectedValue:any) {
         return (
           !value || !value["indexOf"] || value.indexOf(expectedValue) == -1
         );
       },
-      greater: function(value, expectedValue) {
+      greater: function(value:any, expectedValue:any) {
         return value > expectedValue;
       },
-      less: function(value, expectedValue) {
+      less: function(value:any, expectedValue:any) {
         return value < expectedValue;
       },
-      greaterorequal: function(value, expectedValue) {
+      greaterorequal: function(value:any, expectedValue:any) {
         return value >= expectedValue;
       },
-      lessorequal: function(value, expectedValue) {
+      lessorequal: function(value:any, expectedValue:any) {
         return value <= expectedValue;
       }
     };
@@ -177,9 +177,9 @@ export class Trigger extends Base {
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  doComplete();
-  setTriggerValue(name: string, value: any, isVariable: boolean);
-  copyTriggerValue(name: string, fromName: string);
+  doComplete(): any;
+  setTriggerValue(name: string, value: any, isVariable: boolean): any;
+  copyTriggerValue(name: string, fromName: string): any;
 }
 
 /**

@@ -171,7 +171,7 @@ export class ConditionsParser {
         this.at++;
         operator = this.readOperandOperator();
         var doPopExpression =
-          operator || (prevExpr && prevExpr["isOpenBracket"]);
+          operator || (prevExpr && (<any>prevExpr)["isOpenBracket"]);
         if (!operator) {
           this.at = saveAt + (doPopExpression ? 1 : 0);
         }
@@ -188,7 +188,7 @@ export class ConditionsParser {
       return a;
     }
     var expr = new ExpressionOperand();
-    expr["isOpenBracket"] = isOpenBracket;
+    (<any>expr)["isOpenBracket"] = isOpenBracket;
     expr.left = a;
     expr.operator = operator;
     if (!stack) {

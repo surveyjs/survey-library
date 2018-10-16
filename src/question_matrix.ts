@@ -9,7 +9,7 @@ import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
 
 export interface IMatrixData {
-  onMatrixRowChanged(row: MatrixRowModel);
+  onMatrixRowChanged(row: MatrixRowModel): void;
 }
 
 export class MatrixRowModel {
@@ -54,7 +54,7 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
 
 export class MartrixCells {
   public static DefaultRowName = "default";
-  private values = {};
+  private values: {[index: string]: any} = {};
   public constructor(public cellsOwner: IMatrixCellsOwner) {}
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
@@ -137,9 +137,9 @@ export class MartrixCells {
   }
   public getJson(): any {
     if (this.isEmpty) return null;
-    var res = {};
+    var res: {[index: string]: any} = {};
     for (var row in this.values) {
-      var resRow = {};
+      var resRow: {[index: string]: any} = {};
       var rowValues = this.values[row];
       for (var col in rowValues) {
         resRow[col] = rowValues[col].getJson();
@@ -175,7 +175,7 @@ export class QuestionMatrixModel
   extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
   implements IMatrixData, IMatrixCellsOwner {
   private isRowChanging = false;
-  private cellsValue;
+  private cellsValue: MartrixCells;
 
   protected createColumnValues() {
     return this.createItemValues("columns");
@@ -331,7 +331,7 @@ export class QuestionMatrixModel
   public getDisplayValueCore(keysAsText: boolean): any {
     var values = this.value;
     if (!values) return values;
-    var res = {};
+    var res: {[index: string]: any} = {};
     for (var key in values) {
       var newKey = keysAsText
         ? ItemValue.getTextOrHtmlByValue(this.rows, key)

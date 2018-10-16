@@ -17,11 +17,11 @@ export class QuestionBooleanImplementor extends QuestionImplementor {
       (<QuestionBoolean>this.question).checkedValue
     );
     var self = this;
-    this.koCheckedValue.subscribe(function(newValue) {
+    this.koCheckedValue.subscribe(function(newValue:any) {
       self.updateCheckedValue(newValue);
     });
-    this.question["koIndeterminate"] = this.koIndeterminate;
-    this.question["koCheckedValue"] = this.koCheckedValue;
+    (<any>this.question)["koIndeterminate"] = this.koIndeterminate;
+    (<any>this.question)["koCheckedValue"] = this.koCheckedValue;
   }
   protected setkoValue(newValue: any) {
     super.setkoValue(newValue);
@@ -45,9 +45,9 @@ export class QuestionBoolean extends QuestionBooleanModel {
     super(name);
     new QuestionBooleanImplementor(this);
   }
-  public getItemCss(row, column) {
-    let isChecked = this["koCheckedValue"]();
-    let itemClass = this["koCss"]().item + (isChecked ? " checked" : "");
+  public getItemCss(row:any, column:any) {
+    let isChecked = (<any>this)["koCheckedValue"]();
+    let itemClass = (<any>this)["koCss"]().item + (isChecked ? " checked" : "");
     return itemClass;
   }
 }

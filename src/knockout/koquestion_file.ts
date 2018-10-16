@@ -19,27 +19,27 @@ export class QuestionFileImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     var self = this;
-    this.question["koData"] = this.koData;
-    this.question["koHasValue"] = this.koHasValue;
-    this.question["koInputTitle"] = this.koInputTitle;
-    var updateState = state => {
+    (<any>this.question)["koData"] = this.koData;
+    (<any>this.question)["koHasValue"] = this.koHasValue;
+    (<any>this.question)["koInputTitle"] = this.koInputTitle;
+    var updateState = (state:any) => {
       this.koState(state);
       this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
     };
     (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
       updateState(options.state);
     });
-    this.question["dochange"] = (data, event) => {
+    (<any>this.question)["dochange"] = (data:any, event:any) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
     };
-    this.question["doclean"] = (data, event) => {
+    (<any>this.question)["doclean"] = (data:any, event:any) => {
       var src = event.target || event.srcElement;
       var input = src.parentElement.querySelectorAll("input")[0];
       (<QuestionFileModel>this.question).clear();
       input.value = "";
     };
-    this.question["doremovefile"] = (data, event) => {
+    (<any>this.question)["doremovefile"] = (data:any, event:any) => {
       (<QuestionFileModel>this.question).removeFile(data);
     };
   }
@@ -47,7 +47,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     super.updateValue(newValue);
   }
   private onChange(src: any) {
-    if (!window["FileReader"]) return;
+    if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {

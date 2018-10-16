@@ -12,24 +12,24 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.handleCompleteClick = this.handleCompleteClick.bind(this);
     this.handleStartClick = this.handleStartClick.bind(this);
   }
-  handlePrevClick(event) {
+  handlePrevClick(event: any) {
     this.survey.prevPage();
   }
-  handleNextClick(event) {
+  handleNextClick(event: any) {
     if (!!this.mouseDownPage && this.mouseDownPage !== this.survey.currentPage)
       return;
     this.mouseDownPage = null;
     this.survey.nextPage();
   }
-  handleNextMouseDown(event) {
+  handleNextMouseDown(event: any) {
     this.mouseDownPage = this.survey.currentPage;
     var el = document.activeElement;
     if (!!el && !!el["blur"]) el["blur"]();
   }
-  handleCompleteClick(event) {
+  handleCompleteClick(event: any) {
     this.survey.completeLastPage();
   }
-  handleStartClick(event) {
+  handleStartClick(event: any) {
     this.survey.start();
   }
   render(): JSX.Element {

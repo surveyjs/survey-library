@@ -57,12 +57,12 @@ export class LocalizableString {
   public get pureText() {
     var loc = this.locale;
     if (!loc) loc = LocalizableString.defaultLocale;
-    var res = this.values[loc];
+    var res = (<any>this).values[loc];
     if (!res && loc == LocalizableString.defaultLocale) {
-      res = this.values[surveyLocalization.defaultLocale];
+      res = (<any>this).values[surveyLocalization.defaultLocale];
     }
     if (!res && loc !== LocalizableString.defaultLocale) {
-      res = this.values[LocalizableString.defaultLocale];
+      res = (<any>this).values[LocalizableString.defaultLocale];
     }
     if (!res) res = "";
     return res;
@@ -89,7 +89,7 @@ export class LocalizableString {
   }
   public getLocaleText(loc: string): string {
     if (!loc) loc = LocalizableString.defaultLocale;
-    var res = this.values[loc];
+    var res = (<any>this).values[loc];
     return res ? res : "";
   }
   public setLocaleText(loc: string, value: string) {
@@ -98,14 +98,14 @@ export class LocalizableString {
       value &&
       loc &&
       loc != LocalizableString.defaultLocale &&
-      !this.values[loc] &&
+      !(<any>this).values[loc] &&
       value == this.getLocaleText(LocalizableString.defaultLocale)
     )
       return;
     if (!loc) loc = LocalizableString.defaultLocale;
-    delete this.htmlValues[loc];
+    delete (<any>this).htmlValues[loc];
     if (!value) {
-      if (this.values[loc]) delete this.values[loc];
+      if ((<any>this).values[loc]) delete (<any>this).values[loc];
     } else {
       if (typeof value === "string") {
         if (
@@ -114,7 +114,7 @@ export class LocalizableString {
         ) {
           this.setLocaleText(loc, null);
         } else {
-          this.values[loc] = value;
+          (<any>this).values[loc] = value;
           if (loc == LocalizableString.defaultLocale) {
             this.deleteValuesEqualsToDefault(value);
           }
@@ -127,7 +127,7 @@ export class LocalizableString {
     var keys = Object.keys(this.values);
     if (keys.length == 0) return null;
     if (keys.length == 1 && keys[0] == LocalizableString.defaultLocale)
-      return this.values[keys[0]];
+      return (<any>this).values[keys[0]];
     return this.values;
   }
   public setJson(value: any) {
@@ -157,20 +157,20 @@ export class LocalizableString {
     if (!text) return false;
     var loc = this.locale;
     if (!loc) loc = LocalizableString.defaultLocale;
-    this.htmlValues[loc] = this.owner.getMarkdownHtml(text);
-    return this.htmlValues[loc] ? true : false;
+    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(text);
+    return (<any>this).htmlValues[loc] ? true : false;
   }
   private getHtmlValue(): string {
     var loc = this.locale;
     if (!loc) loc = LocalizableString.defaultLocale;
-    return this.htmlValues[loc];
+    return (<any>this).htmlValues[loc];
   }
 
   private deleteValuesEqualsToDefault(defaultValue: string) {
     var keys = Object.keys(this.values);
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == LocalizableString.defaultLocale) continue;
-      if (this.values[keys[i]] == defaultValue) delete this.values[keys[i]];
+      if ((<any>this).values[keys[i]] == defaultValue) delete (<any>this).values[keys[i]];
     }
   }
 }

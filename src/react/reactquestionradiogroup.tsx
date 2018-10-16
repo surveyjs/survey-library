@@ -22,7 +22,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.handleOnChange = this.handleOnChange.bind(this);
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.question.value });
   }

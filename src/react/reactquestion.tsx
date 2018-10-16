@@ -68,7 +68,7 @@ export class SurveyQuestion extends SurveyElementBase {
       }
     }
   }
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: any, prevState: any) {
     this.doAfterRender();
   }
   private doAfterRender() {

@@ -33,7 +33,7 @@ export class FunctionFactory {
 
     if (properties) {
       for (var key in properties) {
-        classRunner[key] = properties[key];
+        (<any>classRunner)[key] = properties[key];
       }
     }
     return classRunner.func(params);

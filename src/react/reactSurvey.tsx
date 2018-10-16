@@ -84,7 +84,7 @@ export class Survey extends React.Component<any, any>
   public set css(value: any) {
     this.survey.mergeCss(value, this.css);
   }
-  handleTryAgainClick(event) {
+  handleTryAgainClick(event: any) {
     this.survey.doComplete();
   }
   protected renderCompleted(): JSX.Element {

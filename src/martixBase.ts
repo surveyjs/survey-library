@@ -14,7 +14,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected generatedVisibleRows: Array<TRow> = null;
   public visibleRowsChangedCallback: () => void;
 
-  protected createColumnValues() {
+  protected createColumnValues():any {
     return [];
   }
 
@@ -172,7 +172,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
         ItemValue.getItemByValue(columns, val[key])
       ) {
         if (newVal == null) newVal = {};
-        newVal[key] = val[key];
+        (<any>newVal)[key] = val[key];
       } else {
         isChanged = true;
       }

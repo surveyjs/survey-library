@@ -22,10 +22,10 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getStateValue() });
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.setState({ value: event.target.value });
   }
-  handleOnBlur(event) {
+  handleOnBlur(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.getStateValue() });
   }
@@ -66,11 +66,11 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.comment = event.target.value;
     this.setState({ value: this.comment });
   }
-  handleOnBlur(event) {
+  handleOnBlur(event: any) {
     this.question.comment = this.comment;
   }
   componentWillReceiveProps(nextProps: any) {

@@ -21,7 +21,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.handleOnChange = this.handleOnChange.bind(this);
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     if (this.question.multiSelect) {
       if (event.target.checked) {
         this.question.value = this.question.value.concat(event.target.value);

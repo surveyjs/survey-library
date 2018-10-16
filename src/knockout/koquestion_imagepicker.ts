@@ -37,18 +37,18 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
     super.endLoadingFromJson();
     new QuestionImagePickerImplementor(this);
   }
-  getItemClass(item) {
+  getItemClass(item:any) {
     var itemClass =
       this.cssClasses.item +
       (this.colCount === 0
         ? " sv_q_imagepicker_inline"
         : " sv-q-col-" + this.colCount);
     if (this.multiSelect) {
-      if (!!this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1) {
+      if (!!(<any>this)["koValue"]() && (<any>this)["koValue"]().indexOf(item.value) !== -1) {
         itemClass += " checked";
       }
     } else {
-      if (!!item.value && item.value === this["koValue"]()) {
+      if (!!item.value && item.value === (<any>this)["koValue"]()) {
         itemClass += " checked";
       }
     }

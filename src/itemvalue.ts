@@ -210,11 +210,11 @@ export class ItemValue {
     var value = this.value;
     if (value && value["pos"]) delete value["pos"];
     var result = { value: value };
-    if (textJson) result["text"] = textJson;
-    if (this.visibleIf) result["visibleIf"] = this.visibleIf;
+    if (textJson) (<any>result)["text"] = textJson;
+    if (this.visibleIf) (<any>result)["visibleIf"] = this.visibleIf;
     if (customAttributes) {
       for (var key in customAttributes) {
-        result[key] = customAttributes[key];
+        (<any>result)[key] = customAttributes[key];
       }
     }
     return result;
@@ -269,7 +269,7 @@ export class ItemValue {
           ["locText", "hasText", "isVisible", "isValueEmpty"].indexOf(key) ===
           -1
         ) {
-          this[key] = src[key];
+          (<any>this)[key] = src[key];
         }
       }
     }
@@ -284,7 +284,7 @@ export class ItemValue {
       )
         continue;
       if (result == null) result = {};
-      result[key] = this[key];
+      (<any>result)[key] = this[key];
     }
     return result;
   }

@@ -55,7 +55,7 @@ export class Question extends SurveyElement
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.createNewArray("validators", function(validator) {
+    this.createNewArray("validators", function(validator:any) {
       validator.locOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
@@ -558,9 +558,9 @@ export class Question extends SurveyElement
     var name = textValue.name.toLocaleLowerCase();
     textValue.isExists =
       Object.keys(Question.TextPreprocessorValuesMap).indexOf(name) !== -1 ||
-      this[textValue.name] !== undefined;
-    textValue.value = this[
-      Question.TextPreprocessorValuesMap[name] || textValue.name
+      (<any>this)[textValue.name] !== undefined;
+    textValue.value = (<any>this)[
+      (<any>Question.TextPreprocessorValuesMap)[name] || textValue.name
     ];
   }
   public supportComment(): boolean {
@@ -1031,7 +1031,7 @@ JsonObject.metaData.addClass("question", [
   {
     name: "page",
     isSerializable: false,
-    choices: function(obj) {
+    choices: function(obj:any) {
       var survey = obj ? obj.survey : null;
       return survey ? survey.pages : [];
     }

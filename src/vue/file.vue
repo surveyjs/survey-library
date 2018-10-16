@@ -36,7 +36,7 @@ export class File extends QuestionVue<QuestionFileModel> {
     src.value = "";
     this.question.loadFiles(files);
   }
-  doClean(event) {
+  doClean(event: any) {
     var src = event.target || event.srcElement;
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";

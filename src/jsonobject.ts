@@ -1,6 +1,11 @@
 import { Helpers, HashTable } from "./helpers";
 
-export class JsonObjectProperty {
+export interface IObject {
+  [key: string] : any;
+}
+
+export class JsonObjectProperty implements IObject  {
+  [key: string] : any;
   private static mergableValues = [
     "typeValue",
     "choicesValue",
@@ -21,9 +26,9 @@ export class JsonObjectProperty {
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
   private isRequiredValue: boolean = false;
-  private readOnlyValue = null;
-  private visibleValue = null;
-  private isLocalizableValue = null;
+  private readOnlyValue: boolean | null = null;
+  private visibleValue: boolean | null = null;
+  private isLocalizableValue: boolean | null = null;
   private choicesfunc: (obj: any) => Array<any> = null;
   public isSerializable: boolean = true;
   public isDynamicChoices: boolean = false;
@@ -144,8 +149,8 @@ export class JsonObjectProperty {
   }
 }
 export class CustomPropertiesCollection {
-  private static properties = {};
-  private static parentClasses = {};
+  private static properties: IObject = {};
+  private static parentClasses: { [key: string]: string } = {};
   public static addProperty(className: string, property: any) {
     className = className.toLowerCase();
     var props = CustomPropertiesCollection.properties;
@@ -504,7 +509,7 @@ export class JsonMetadata {
     canBeCreated: boolean = false
   ): Array<JsonMetadataClass> {
     name = name.toLowerCase();
-    var result = [];
+    var result: Array<JsonMetadataClass> = [];
     this.fillChildrenClasses(name, canBeCreated, result);
     return result;
   }
@@ -884,7 +889,7 @@ export class JsonObject {
     return value && Array.isArray(value);
   }
   private createNewObj(value: any, property: JsonObjectProperty): any {
-    var result = { newObj: null, error: null };
+    var result: any = { newObj: null, error: null };
     var className = value[JsonObject.typePropertyName];
     if (!className && property != null && property.className) {
       className = property.className;

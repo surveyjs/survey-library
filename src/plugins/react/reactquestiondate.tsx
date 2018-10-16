@@ -12,7 +12,7 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     this.state = { value: this.question.value };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.question.value });
   }

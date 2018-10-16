@@ -7,9 +7,9 @@ import { QuestionImplementor } from "../../knockout/koquestion";
 export class QuestionDateImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
-    this.question["dateId"] = this.inputId;
+    (<any>this.question)["dateId"] = this.inputId;
   }
-  protected koQuestionAfterRender(el, con) {
+  protected koQuestionAfterRender(el: any, con: any) {
     eval(con.getjQueryScript(con["dateId"]));
   }
   private get inputId() {

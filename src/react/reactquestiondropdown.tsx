@@ -10,7 +10,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     super(props);
     this.state = { value: this.getStateValue(), choicesChanged: 0 };
     var self = this;
-    this.question.choicesChangedCallback = function () {
+    this.question.choicesChangedCallback = function() {
       self.setState({
         choicesChanged: self.state.choicesChanged + 1,
         value: self.question.value
@@ -25,7 +25,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getStateValue() });
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.getStateValue() });
   }
@@ -34,7 +34,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var comment =
       this.question.hasOther &&
-        this.question.value === this.question.otherItem.value
+      this.question.value === this.question.otherItem.value
         ? this.renderOther(cssClasses)
         : null;
     var select = this.renderSelect(cssClasses);

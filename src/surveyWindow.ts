@@ -126,7 +126,7 @@ export class SurveyWindowModel extends Base {
       this.closeWindowOnComplete();
     } else {
       var self = this;
-      var timerId = null;
+      var timerId: any = null;
       var func = function() {
         self.closeWindowOnComplete();
         window.clearInterval(timerId);

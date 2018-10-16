@@ -30,7 +30,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     new QuestionCheckboxImplementor(this);
     this.koAllSelected = ko.observable(this.isAllSelected);
     var self = this;
-    this.koAllSelected.subscribe(function(newValue) {
+    this.koAllSelected.subscribe(function(newValue: any) {
       if (self.isAllSelectedUpdating) return;
       if (newValue) self.selectAll();
       else self.clearValue();
@@ -49,8 +49,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.koAllSelected(this.isAllSelected);
     this.isAllSelectedUpdating = false;
   }
-  getItemClass(item) {
-    var val = this["koValue"](); //trigger dependencies from koValue for knockout
+  getItemClass(item: any) {
+    var val = (<any>this)["koValue"](); //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
     var itemClass =
       this.cssClasses.item +

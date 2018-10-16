@@ -1,5 +1,10 @@
 import { Helpers, HashTable } from "./helpers";
 
+export interface ValueCore {
+  hasValue: boolean;
+  value: any;
+}
+
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
@@ -25,7 +30,7 @@ export class ProcessValue {
     return res.value;
   }
   private getValueCore(text: string, values: any): any {
-    var res = { hasValue: false, value: null };
+    var res:ValueCore = { hasValue: false, value: null };
     var curValue = values;
     if (!curValue) return res;
     if (

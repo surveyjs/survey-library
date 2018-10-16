@@ -23,11 +23,11 @@ export class MatrixRow extends MatrixRowModel {
     super(item, fullName, data, value);
     this.koValue = ko.observable(this.value);
     var self = this;
-    this.koValue.subscribe(function(newValue) {
+    this.koValue.subscribe(function(newValue:any) {
       if (self.isValueUpdating) true;
       self.value = newValue;
     });
-    this.koCellClick = function(column) {
+    this.koCellClick = function(column:any) {
       self.koValue(column.value);
     };
   }
@@ -64,14 +64,14 @@ export class QuestionMatrix extends QuestionMatrixModel {
   ): MatrixRowModel {
     return new MatrixRow(item, fullName, this, value);
   }
-  public getItemCss(row, column) {
+  public getItemCss(row:any, column:any) {
     var isChecked = row.koValue() == column.value;
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
       : "checked";
     var cellClass = this.hasCellText
-      ? this["koCss"]().cellText
-      : this["koCss"]().label;
+      ? (<any>this)["koCss"]().cellText
+      : (<any>this)["koCss"]().label;
     let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
     return itemClass;
   }

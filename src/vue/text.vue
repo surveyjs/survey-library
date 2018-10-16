@@ -13,7 +13,7 @@ import { QuestionTextModel } from "../question_text";
 
 @Component
 export class Text extends QuestionVue<QuestionTextModel> {
-  change(event) {
+  change(event: any) {
     this.question.value = event.target.value;
   }
 }

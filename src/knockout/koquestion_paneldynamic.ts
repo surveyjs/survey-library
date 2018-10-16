@@ -37,12 +37,12 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       return (<QuestionPanelDynamic>this.question).panels;
     }, this);
 
-    this.question["koPanels"] = this.koPanels;
+    (<any>this.question)["koPanels"] = this.koPanels;
     var self = this;
     this.koAddPanelClick = function() {
       self.addPanel();
     };
-    this.koRemovePanelClick = function(data) {
+    this.koRemovePanelClick = function(data: any) {
       self.removePanel(data);
     };
     this.koPrevPanelClick = function() {
@@ -92,7 +92,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     this.koRangeValue = ko.observable(
       (<QuestionPanelDynamic>self.question).currentIndex
     );
-    this.koRangeValue.subscribe(function(newValue) {
+    this.koRangeValue.subscribe(function(newValue: any) {
       (<QuestionPanelDynamic>self.question).currentIndex = newValue;
     });
     this.koRangeMax = ko.pureComputed(function() {
@@ -100,23 +100,23 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       return (<QuestionPanelDynamic>self.question).panelCount - 1;
     });
 
-    this.question["koAddPanelClick"] = this.koAddPanelClick;
-    this.question["koRemovePanelClick"] = this.koRemovePanelClick;
-    this.question["koPrevPanelClick"] = this.koPrevPanelClick;
-    this.question["koNextPanelClick"] = this.koNextPanelClick;
-    this.question["koCanAddPanel"] = this.koCanAddPanel;
-    this.question["koCanRemovePanel"] = this.koCanRemovePanel;
-    this.question["koPanel"] = this.koPanel;
-    this.question["koIsList"] = this.koIsList;
-    this.question["koIsProgressTop"] = this.koIsProgressTop;
-    this.question["koIsProgressBottom"] = this.koIsProgressBottom;
-    this.question["koIsPrevButton"] = this.koIsPrevButton;
-    this.question["koIsNextButton"] = this.koIsNextButton;
-    this.question["koIsRange"] = this.koIsRange;
-    this.question["koRangeValue"] = this.koRangeValue;
-    this.question["koRangeMax"] = this.koRangeMax;
+    (<any>this.question)["koAddPanelClick"] = this.koAddPanelClick;
+    (<any>this.question)["koRemovePanelClick"] = this.koRemovePanelClick;
+    (<any>this.question)["koPrevPanelClick"] = this.koPrevPanelClick;
+    (<any>this.question)["koNextPanelClick"] = this.koNextPanelClick;
+    (<any>this.question)["koCanAddPanel"] = this.koCanAddPanel;
+    (<any>this.question)["koCanRemovePanel"] = this.koCanRemovePanel;
+    (<any>this.question)["koPanel"] = this.koPanel;
+    (<any>this.question)["koIsList"] = this.koIsList;
+    (<any>this.question)["koIsProgressTop"] = this.koIsProgressTop;
+    (<any>this.question)["koIsProgressBottom"] = this.koIsProgressBottom;
+    (<any>this.question)["koIsPrevButton"] = this.koIsPrevButton;
+    (<any>this.question)["koIsNextButton"] = this.koIsNextButton;
+    (<any>this.question)["koIsRange"] = this.koIsRange;
+    (<any>this.question)["koRangeValue"] = this.koRangeValue;
+    (<any>this.question)["koRangeMax"] = this.koRangeMax;
 
-    this.question["koPanelAfterRender"] = function(el, con) {
+    (<any>this.question)["koPanelAfterRender"] = function(el: any, con: any) {
       self.panelAfterRender(el, con);
     };
     (<QuestionPanelDynamic>this
@@ -152,7 +152,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     }
     q.removePanelUI(val);
   }
-  private panelAfterRender(elements, con) {
+  private panelAfterRender(elements: any, con: any) {
     if (!this.question || !this.question.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);

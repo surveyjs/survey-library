@@ -19,10 +19,10 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
     super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getValue(this.question.value) });
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.setState({ value: this.getValue(event.target.value) });
   }
-  handleOnBlur(event) {
+  handleOnBlur(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.getValue(this.question.value) });
   }

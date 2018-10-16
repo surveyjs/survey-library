@@ -15,7 +15,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     var src = event.target || event.srcElement;
     if (!window["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;

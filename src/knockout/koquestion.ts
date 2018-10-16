@@ -20,15 +20,15 @@ export class QuestionImplementor extends ImplementorBase {
       return self.getTemplateName();
     });
     this.koElementType = ko.observable("survey-question");
-    this.question["koElementType"] = this.koElementType;
-    this.question["koTemplateName"] = this.koTemplateName;
-    this.question["updateQuestion"] = function() {
+    (<any>this.question)["koElementType"] = this.koElementType;
+    (<any>this.question)["koTemplateName"] = this.koTemplateName;
+    (<any>this.question)["updateQuestion"] = function() {
       self.updateQuestion();
     };
-    this.question["koCss"] = ko.pureComputed(function() {
+    (<any>this.question)["koCss"] = ko.pureComputed(function() {
       return self.question.cssClasses;
     });
-    this.question["koRootClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
       var result = self.question.cssClasses.mainRoot;
       if (self.question.getTitleLocation() === "left") {
         result += " sv_qstn_left";
@@ -51,15 +51,15 @@ export class QuestionImplementor extends ImplementorBase {
     this.koDummy = ko.observable(0);
     this.koValue = this.createkoValue();
     this.koComment = ko.observable(this.question.comment);
-    this.koValue.subscribe(function(newValue) {
+    this.koValue.subscribe(function(newValue: any) {
       self.updateValue(newValue);
     });
-    this.koComment.subscribe(function(newValue) {
+    this.koComment.subscribe(function(newValue: any) {
       self.updateComment(newValue);
     });
-    this.question["koValue"] = this.koValue;
-    this.question["koComment"] = this.koComment;
-    this.question["koQuestionAfterRender"] = function(el, con) {
+    (<any>this.question)["koValue"] = this.koValue;
+    (<any>this.question)["koComment"] = this.koComment;
+    (<any>this.question)["koQuestionAfterRender"] = function(el: any, con: any) {
       self.koQuestionAfterRender(el, con);
     };
   }
@@ -118,7 +118,7 @@ export class QuestionImplementor extends ImplementorBase {
     this.koDummy(this.koDummy() + 1);
     this.question.locTitle.onChanged();
   }
-  protected koQuestionAfterRender(elements, con) {
+  protected koQuestionAfterRender(elements: any, con: any) {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     var tEl = elements[0];
     if (tEl.nodeName === "#text") tEl.data = "";

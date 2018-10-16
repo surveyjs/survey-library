@@ -13,7 +13,7 @@ export class SurveyWindow extends Survey {
   componentWillReceiveProps(nextProps: any) {
     this.updateSurvey(nextProps);
   }
-  handleOnExpanded(event) {
+  handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;
   }
   render(): JSX.Element {

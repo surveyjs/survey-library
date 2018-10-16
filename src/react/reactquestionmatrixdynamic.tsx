@@ -32,7 +32,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     super.setProperties(nextProps);
     this.handleOnRowAddClick = this.handleOnRowAddClick.bind(this);
   }
-  handleOnRowAddClick(event) {
+  handleOnRowAddClick(event: any) {
     this.matrix.addRow();
   }
   render(): JSX.Element {
@@ -127,7 +127,7 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
     this.index = nextProps.index;
     this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
   }
-  handleOnRowRemoveClick(event) {
+  handleOnRowRemoveClick(event: any) {
     this.question.removeRowUI(this.index);
   }
   render(): JSX.Element {

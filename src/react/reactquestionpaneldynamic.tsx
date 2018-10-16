@@ -54,16 +54,16 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       panelCounter: this.state ? this.state.panelCounter + 1 : 1
     });
   }
-  handleOnPanelAddClick(event) {
+  handleOnPanelAddClick(event: any) {
     this.question.addPanelUI();
   }
-  handleOnPanelPrevClick(event) {
+  handleOnPanelPrevClick(event: any) {
     this.question.currentIndex--;
   }
-  handleOnPanelNextClick(event) {
+  handleOnPanelNextClick(event: any) {
     this.question.currentIndex++;
   }
-  handleOnRangeChange(event) {
+  handleOnRangeChange(event: any) {
     this.question.currentIndex = event.target.value;
   }
   render(): JSX.Element {
@@ -210,7 +210,7 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
     this.creator = nextProps.creator;
     this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
   }
-  handleOnPanelRemoveClick(event) {
+  handleOnPanelRemoveClick(event: any) {
     this.question.removePanelUI(this.index);
   }
   render(): JSX.Element {

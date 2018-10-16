@@ -147,4 +147,4 @@ export var defaultBootstrapCss = {
     }
   }
 };
-surveyCss["bootstrap"] = defaultBootstrapCss;
+(<any>surveyCss)["bootstrap"] = defaultBootstrapCss;

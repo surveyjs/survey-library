@@ -13,24 +13,24 @@ export class QuestionRow extends QuestionRowModel {
     super(panel);
     new ImplementorBase(this);
     var self = this;
-    this.koGetType = function(el) {
+    this.koGetType = function(el: any) {
       return self.getElementType(el);
     };
-    this.koElementAfterRender = function(el, con) {
+    this.koElementAfterRender = function(el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
-  public getElementType(el) {
+  public getElementType(el: any) {
     return el.isPanel ? "survey-panel" : "survey-question";
   }
-  public koAfterRender(el, con) {
+  public koAfterRender(el: any, con: any) {
     for (var i = 0; i < el.length; i++) {
       var tEl = el[i];
       var nName = tEl.nodeName;
       if (nName == "#text") tEl.data = "";
     }
   }
-  private elementAfterRender(elements, con) {
+  private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;

@@ -151,4 +151,4 @@ export var defaultBootstrapMaterialCss = {
     }
   }
 };
-surveyCss["bootstrapmaterial"] = defaultBootstrapMaterialCss;
+(<any>surveyCss)["bootstrapmaterial"] = defaultBootstrapMaterialCss;

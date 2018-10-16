@@ -17,7 +17,7 @@ export class MultipleTextItem extends MultipleTextItemModel {
     super(name, title);
     this.koValue = ko.observable(this.value);
     var self = this;
-    this.koValue.subscribe(function(newValue) {
+    this.koValue.subscribe(function(newValue:any) {
       if (!self.isKOValueUpdating) {
         self.value = newValue;
       }
@@ -40,7 +40,7 @@ export class QuestionMultipleTextImplementor extends QuestionImplementor {
     this.koRows = ko.observableArray(
       (<QuestionMultipleTextModel>this.question).getRows()
     );
-    this.question["koRows"] = this.koRows;
+    (<any>this.question)["koRows"] = this.koRows;
     this.onColCountChanged();
     var self = this;
     (<QuestionMultipleTextModel>this

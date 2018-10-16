@@ -30,11 +30,11 @@ export class PanelDynamicProgress extends Vue {
     this.question.currentIndex++;
   }
 
-  changeRange(event) {
+  changeRange(event: any) {
     this.question.currentIndex = event.target.value;
   }
 }
 
 Vue.component("survey-paneldynamicprogress", PanelDynamicProgress);
-    export default PanelDynamicProgress;
+export default PanelDynamicProgress;
 </script>

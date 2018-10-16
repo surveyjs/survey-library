@@ -56,7 +56,7 @@ export class CustomWidgetCollection {
     }
     var customWidget = new QuestionCustomWidget(name, widgetJson);
     this.widgetsValues.push(customWidget);
-    this.widgetsActivatedBy[name] = activatedBy;
+    (<any>this).widgetsActivatedBy[name] = activatedBy;
     customWidget.activatedByChanged(activatedBy);
     this.onCustomWidgetAdded.fire(customWidget, null);
   }
@@ -66,7 +66,7 @@ export class CustomWidgetCollection {
    * @see setActivatedBy
    */
   public getActivatedBy(widgetName: string) {
-    var res = this.widgetsActivatedBy[widgetName];
+    var res = (<any>this).widgetsActivatedBy[widgetName];
     return res ? res : "property";
   }
   /**
@@ -78,7 +78,7 @@ export class CustomWidgetCollection {
     if (!widgetName || !activatedBy) return;
     var widget = this.getCustomWidgetByName(widgetName);
     if (!widget) return;
-    this.widgetsActivatedBy[widgetName] = activatedBy;
+    (<any>this).widgetsActivatedBy[widgetName] = activatedBy;
     widget.activatedByChanged(activatedBy);
   }
   public clear() {

@@ -19,7 +19,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.checkedValue = event.target.checked;
     this.setState({ value: this.question.checkedValue });
   }

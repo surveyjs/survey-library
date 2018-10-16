@@ -908,7 +908,7 @@ export class PanelModelBase extends SurveyElement
     prevRow: QuestionRowModel
   ): boolean {
     if (!dragDropInfo.destination) return true;
-    if (this.dragDropAddTargetToEmptyPage(dragDropInfo)) return true;
+    if (this.dragDropAddTargetToEmptyPanel(dragDropInfo)) return true;
     var dest = dragDropInfo.destination;
     var destRow = this.dragDropFindRow(dest);
     if (!destRow) return true;
@@ -920,12 +920,24 @@ export class PanelModelBase extends SurveyElement
       );
     return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
   }
-  private dragDropAddTargetToEmptyPage(dragDropInfo: DragDropInfo): boolean {
-    if (!dragDropInfo.destination.isPage) return false;
-    var targetRow = new QuestionRowModel(this.root);
-    targetRow.addElement(dragDropInfo.target);
-    this.root.rows.push(targetRow);
-    return true;
+  private dragDropAddTargetToEmptyPanel(dragDropInfo: DragDropInfo): boolean {
+    if (dragDropInfo.destination.isPage) {
+      this.dragDropAddTargetToEmptyPanelCore(this.root, dragDropInfo.target);
+      return true;
+    }
+    var dest = <IElement>dragDropInfo.destination;
+    if (
+      dest.isPanel &&
+      !dragDropInfo.isEdge &&
+      (<PanelModelBase>(<any>dest)).elements.length == 0
+    ) {
+      this.dragDropAddTargetToEmptyPanelCore(
+        <PanelModelBase>(<any>dest),
+        dragDropInfo.target
+      );
+      return true;
+    }
+    return false;
   }
   private dragDropAddTargetToExistingRow(
     dragDropInfo: DragDropInfo,
@@ -961,6 +973,14 @@ export class PanelModelBase extends SurveyElement
     destRow.elements.splice(index, 0, dragDropInfo.target);
     destRow.updateVisible();
     return prevRowIndex < 0;
+  }
+  private dragDropAddTargetToEmptyPanelCore(
+    panel: PanelModelBase,
+    target: IElement
+  ) {
+    var targetRow = new QuestionRowModel(panel);
+    targetRow.addElement(target);
+    panel.rows.push(targetRow);
   }
   private dragDropAddTargetToNewRow(
     dragDropInfo: DragDropInfo,

@@ -20,7 +20,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertyValueChanged("rates", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
-    this.onPropertyChanged.add(function(sender, options) {
+    this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||

@@ -3,8 +3,8 @@ import { englishStrings } from "./localization/english";
 export var surveyLocalization = {
   currentLocaleValue: "",
   defaultLocaleValue: "en",
-  locales: {},
-  localeNames: {},
+  locales: <{[index: string]: any}>{},
+  localeNames: <{[index: string]: any}>{},
   supportedLocales: <Array<any>>[],
   get currentLocale() {
     return this.currentLocaleValue === this.defaultLocaleValue

@@ -31,7 +31,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     );
   }
   protected renderRow(
-    rowIndex,
+    rowIndex: number,
     items: Array<MultipleTextItemModel>,
     cssClasses: any
   ) {

@@ -84,7 +84,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       </label>
     );
   }
-  protected renderOther(cssClasses): JSX.Element {
+  protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className={cssClasses.other}>
         <SurveyQuestionCommentItem

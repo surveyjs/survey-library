@@ -31,7 +31,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
   private updateIndeterminate() {
     if (!this.question) return;
-    var el = this.refs["check"];
+    var el: any = this.refs["check"];
     if (el) {
       el["indeterminate"] = this.question.isIndeterminate;
     }

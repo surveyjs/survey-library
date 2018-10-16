@@ -39,6 +39,7 @@ export class SurveyModel extends Base
     ISurveyImpl,
     ISurveyTriggerOwner,
     ILocalizableOwner {
+  [index: string]: any;
   private static stylesManager = new StylesManager();
   public static platform: string = "unknown";
   public get platformName(): string {

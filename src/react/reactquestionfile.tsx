@@ -8,7 +8,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     super(props);
     this.state = { fileLoaded: 0, state: "empty" };
     this.handleOnChange = this.handleOnChange.bind(this);
-    this.question.onStateChanged.add(state =>
+    this.question.onStateChanged.add((state: any) =>
       this.setState({ fileLoaded: this.state.fileLoaded + 1, state: state })
     );
   }
@@ -17,6 +17,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   handleOnChange(event: any) {
     var src = event.target || event.srcElement;
+    var window: any = window;
     if (!window["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
@@ -27,13 +28,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   }
-  handleOnClean = event => {
+  handleOnClean = (event: any) => {
     var src = event.target || event.srcElement;
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
-  handleOnRemoveFile = event => {
+  handleOnRemoveFile = (event: any) => {
     this.question.removeFile(event);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };

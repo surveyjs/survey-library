@@ -26,6 +26,7 @@ import { timingSafeEqual } from "crypto";
  */
 export class Question extends SurveyElement
   implements IQuestion, IConditionRunner, ILocalizableOwner, IValidatorOwner {
+  [index: string]: any;
   private static TextPreprocessorValuesMap = {
     title: "processedTitle",
     require: "requiredText"
@@ -55,7 +56,7 @@ export class Question extends SurveyElement
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.createNewArray("validators", function(validator:any) {
+    this.createNewArray("validators", function(validator: any) {
       validator.locOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
@@ -1031,7 +1032,7 @@ JsonObject.metaData.addClass("question", [
   {
     name: "page",
     isSerializable: false,
-    choices: function(obj:any) {
+    choices: function(obj: any) {
       var survey = obj ? obj.survey : null;
       return survey ? survey.pages : [];
     }

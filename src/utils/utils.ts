@@ -3,10 +3,10 @@ var webkitRegExp = /(webkit)[ \/]([\w.]+)/,
   ie11RegExp = /(trident).*rv:(\d{1,2}\.\d)/,
   msEdge = /(edge)\/((\d+)?[\w\.]+)/,
   mozillaRegExp = /(mozilla)(?:.*? rv:([\w.]+))/;
-var browserFromUA = function(ua) {
+var browserFromUA = function(ua:any) {
   ua = ua.toLowerCase();
   var result: { msie?: boolean; firefox?: boolean; version?: string } = {},
-    matches =
+    matches:any[] =
       ieRegExp.exec(ua) ||
       ie11RegExp.exec(ua) ||
       msEdge.exec(ua) ||
@@ -21,7 +21,7 @@ var browserFromUA = function(ua) {
     browserName = "firefox";
   }
   if (browserName) {
-    result[browserName] = true;
+    (<any>result)[browserName] = true;
     result.version = browserVersion;
   }
   return result;
@@ -29,7 +29,7 @@ var browserFromUA = function(ua) {
 
 let browser = browserFromUA(navigator.userAgent);
 
-function compareVersions(a, b) {
+function compareVersions(a:any, b:any) {
   var i, diff;
   var regExStrip0 = /(\.0+)+$/;
   var segmentsA = a.replace(regExStrip0, "").split(".");

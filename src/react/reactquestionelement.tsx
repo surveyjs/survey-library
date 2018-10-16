@@ -58,20 +58,25 @@ export class SurveyElementBase extends React.Component<any, any> {
   protected makeBaseElementReact(baseElement: Base) {
     if (!baseElement) return;
     baseElement.iteratePropertiesHash((hash, key) => {
-      var val = hash[key];
+      var val: any = hash[key];
       if (Array.isArray(val)) {
+        var val: any = val;
         val["onArrayChanged"] = () =>
-          this.setState(state => {
-            var newState = {};
+          this.setState((state: any) => {
+            var newState: {[index: string]: any} = {};
             newState[key] = val;
             return newState;
           });
       }
     });
-    baseElement.setPropertyValueCoreHandler = (hash, key, val) => {
+    baseElement.setPropertyValueCoreHandler = (
+      hash: any,
+      key: string,
+      val: any
+    ) => {
       hash[key] = val;
-      this.setState(state => {
-        var newState = {};
+      this.setState((state: any) => {
+        var newState: { [index: string]: any } = {};
         newState[key] = val;
         return newState;
       });

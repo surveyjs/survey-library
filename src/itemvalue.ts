@@ -9,6 +9,7 @@ import { ConditionRunner } from "./conditions";
  * The text property is localizable and support markdown.
  */
 export class ItemValue {
+  [index: string]: any;
   public static Separator = "|";
   public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
     var items: Array<ItemValue> = [];

@@ -128,7 +128,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
       if (this.question.hasCellText) {
         var getHandler = !this.question.isReadOnly
-          ? column => () => this.cellClick(row, column)
+          ? (column: any) => () => this.cellClick(row, column)
           : null;
         td = (
           <td key={key} className={itemClass} onClick={getHandler(column)}>
@@ -171,7 +171,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return tds;
   }
 
-  getItemClass(row, column) {
+  getItemClass(row: any, column: any) {
     var isChecked = row.value == column.value;
     var cellSelectedClass = this.question.hasCellText
       ? this.cssClasses.cellTextSelected
@@ -183,7 +183,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return itemClass;
   }
 
-  cellClick(row, column) {
+  cellClick(row: any, column: any) {
     row.value = column.value;
   }
 }

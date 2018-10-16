@@ -33,7 +33,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       this.setState(this.getState(this.state));
     };
   }
-  private getState(prevState = null) {
+  private getState(prevState: any = null) {
     return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
   }
   render(): JSX.Element {
@@ -61,7 +61,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   renderHeader(): JSX.Element {
     if (!this.question.showHeader) return null;
-    var headers = [];
+    var headers: any[] = [];
     this.addHeaderLeft(headers);
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
@@ -161,7 +161,7 @@ export class SurveyQuestionMatrixDropdownRowBase extends ReactSurveyElement {
   }
   render(): JSX.Element {
     if (!this.row) return null;
-    var tds = [];
+    var tds: any[] = [];
     this.AddLeftCells(tds);
     for (var i = 0; i < this.row.cells.length; i++) {
       var cell = this.row.cells[i];

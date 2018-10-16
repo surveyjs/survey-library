@@ -252,7 +252,7 @@ export class Base {
     else propertiesHash[name] = val;
   }
   public iteratePropertiesHash(func: (hash:any, key:any) => void) {
-    var keys = [];
+    var keys: any[] = [];
     for (var key in this.propertyHash) {
       keys.push(key);
     }

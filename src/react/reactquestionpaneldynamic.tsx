@@ -150,7 +150,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected renderRange(style: any): JSX.Element {
-    var updatedStyle = { width: "25%" }; //TODO 25%.
+    var updatedStyle: { [index: string]: any } = { width: "25%" }; //TODO 25%.
     for (var attr in style) updatedStyle[attr] = style[attr];
     return (
       <input

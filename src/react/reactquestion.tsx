@@ -26,7 +26,7 @@ export class SurveyQuestion extends SurveyElementBase {
     this.setQuestion(nextProps.question);
     this.setState(this.getState());
   }
-  private setQuestion(question) {
+  private setQuestion(question: any) {
     this.question = question;
     this.makeBaseElementReact(this.question);
   }
@@ -116,7 +116,7 @@ export class SurveyQuestion extends SurveyElementBase {
       this.creator.questionErrorLocation() === "top" ? errors : null;
     var errorsBottom =
       this.creator.questionErrorLocation() === "bottom" ? errors : null;
-    let rootStyle = {};
+    let rootStyle: { [index: string]: any } = {};
     if (this.question.renderWidth)
       rootStyle["width"] = this.question.renderWidth;
     if (!!this.question.paddingLeft)
@@ -210,10 +210,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
     this.setState(this.getState());
     this.creator = nextProps.creator;
   }
-  private setElement(element) {
+  private setElement(element: any) {
     this.element = element instanceof SurveyElement ? element : null;
   }
-  private getState(prevState = null) {
+  private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
   }
   render(): JSX.Element {
@@ -234,6 +234,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
 }
 
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
+  [index: string]: any;
   private questionValue: Question;
   protected creator: ISurveyCreator;
   constructor(props: any) {
@@ -295,7 +296,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       }
     }
   }
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: any, prevState: any) {
     this.doAfterRender();
   }
   protected doAfterRender() {}

@@ -10,7 +10,7 @@ export const updateSurveyProps = (survey: SurveyModel, newProps: any) => {
     }
     if (key.indexOf("on") == 0 && survey[key] && survey[key].add) {
       let funcBody = newProps[key];
-      let func = function(sender, options) {
+      let func = function(sender: any, options: any) {
         funcBody(sender, options);
       };
       survey[key].add(func);

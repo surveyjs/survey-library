@@ -6,7 +6,7 @@ import jQuery from "jquery";
 import { updateSurveyProps } from "../utils/updateSurveyProps";
 
 jQuery["fn"].extend({
-  Survey: function(props) {
+  Survey: function(props: any) {
     return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);
@@ -14,7 +14,7 @@ jQuery["fn"].extend({
     });
   },
 
-  SurveyWindow: function(props) {
+  SurveyWindow: function(props: any) {
     return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);

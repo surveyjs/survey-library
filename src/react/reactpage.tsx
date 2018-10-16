@@ -42,7 +42,7 @@ export class SurveyPanelBase extends SurveyElementBase {
       el.removeAttribute("data-rendered");
     }
   }
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps: any, prevState: any) {
     this.doAfterRender();
   }
   private doAfterRender() {
@@ -167,7 +167,7 @@ export class SurveyPanel extends SurveyPanelBase {
       paddingLeft: this.panel.innerPaddingLeft,
       display: !this.panel.isCollapsed ? "block" : "none"
     };
-    var rootStyle = {};
+    var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
     return (
       <div ref="root" className={this.css.panel.container} style={rootStyle}>

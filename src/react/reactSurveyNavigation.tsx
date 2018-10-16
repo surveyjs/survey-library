@@ -23,7 +23,7 @@ export class SurveyNavigation extends SurveyNavigationBase {
   }
   handleNextMouseDown(event: any) {
     this.mouseDownPage = this.survey.currentPage;
-    var el = document.activeElement;
+    var el: any = document.activeElement;
     if (!!el && !!el["blur"]) el["blur"]();
   }
   handleCompleteClick(event: any) {

@@ -237,7 +237,7 @@ export class Survey extends React.Component<any, any>
           this.survey[key].add
         ) {
           let funcBody = newProps[key];
-          let func = function(sender, options) {
+          let func = function(sender: any, options: any) {
             funcBody(sender, options);
           };
           this.survey[key].add(func);

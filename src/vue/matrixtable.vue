@@ -83,7 +83,7 @@ export class MatrixTable extends Vue {
     }
     return res;
   }
-  removeRowClick(row) {
+  removeRowClick(row:any) {
     var rows = this.question.visibleRows;
     var index = rows.indexOf(row);
     if (index > -1) {

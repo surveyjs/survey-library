@@ -27,7 +27,7 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
   get choicesCount() {
     return this.question.visibleChoices.length - 1;
   }
-  getItemClass(item) {
+  getItemClass(item:any) {
     var itemClass =
       this.question.cssClasses.item +
       (this.question.colCount === 0

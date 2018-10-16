@@ -76,7 +76,7 @@ export class Survey extends Vue {
   get css() {
     return this.survey.css;
   }
-  getNavBtnClasses(btnType) {
+  getNavBtnClasses(btnType:any) {
     const btnClass = this.css.navigation[btnType];
     return this.css.navigationButton + " " + btnClass;
   }

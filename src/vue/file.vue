@@ -25,9 +25,9 @@ import { QuestionFileModel } from "../question_file";
 
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  doChange(e) {
+  doChange(e:any) {
     var src = e.target || e.srcElement;
-    if (!window["FileReader"]) return;
+    if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {
@@ -41,7 +41,7 @@ export class File extends QuestionVue<QuestionFileModel> {
     this.question.clear();
     src.parentElement.querySelectorAll("input")[0].value = "";
   }
-  doRemoveFile(data) {
+  doRemoveFile(data:any) {
     this.question.removeFile(data);
   }
   getPlaceholderClass() {

@@ -30,7 +30,7 @@
             }
             return panels;
         }
-        removePanelClick(panel) {
+        removePanelClick(panel:any) {
             this.question.removePanelUI(panel);
         }
         addPanelClick() {

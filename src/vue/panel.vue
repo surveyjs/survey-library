@@ -34,7 +34,7 @@ export class Panel extends Vue {
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
     this.question.registerFunctionOnPropertyValueChanged("state", function(
-      val
+      val:any
     ) {
       self.isCollapsed = self.question.isCollapsed;
     });
@@ -42,7 +42,7 @@ export class Panel extends Vue {
   get rootStyle() {
     var result = {};
     if (this.question.renderWidth) {
-      result["width"] = this.question.renderWidth;
+      (<any>result)["width"] = this.question.renderWidth;
     }
     return result;
   }

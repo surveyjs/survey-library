@@ -27,7 +27,7 @@ export class CustomWidget extends Vue {
     return this.question.customWidget.htmlTemplate;
   }
   get hasVueComponent(): boolean {
-    var options = Vue["options"];
+    var options = (<any>Vue)["options"];
     if (!options) return false;
     return (
       options.components && options.components[this.question.customWidget.name]

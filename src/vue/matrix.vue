@@ -37,7 +37,7 @@ import { QuestionMatrixModel } from "../question_matrix";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
-  getItemClass(row, column) {
+  getItemClass(row:any, column:any) {
     var isChecked = row.value == column.value;
     var cellSelectedClass = this.question.hasCellText
       ? this.question.cssClasses.cellTextSelected
@@ -48,7 +48,7 @@ export class Matrix extends QuestionVue<QuestionMatrixModel> {
     let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
     return itemClass;
   }
-  cellClick(row, column) {
+  cellClick(row:any, column:any) {
     if (this.question.isReadOnly) return;
     row.value = column.value;
   }

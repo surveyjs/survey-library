@@ -227,12 +227,12 @@ export class PageModel extends PanelModelBase implements IPage {
         }
         src.parent.removeElement(src);
       }
-      this.dragDropRemoveTarget(target, row);
+      this.updateRowsRemoveElementFromRow(target, row);
       if (!!row && targetIndex > -1) {
         row.panel.addElement(target, targetIndex);
       }
     } else {
-      this.dragDropRemoveTarget(target, row);
+      this.updateRowsRemoveElementFromRow(target, row);
     }
     this.dragDropInfo = null;
   }

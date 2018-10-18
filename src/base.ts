@@ -30,7 +30,12 @@ export interface ISurvey extends ITextProcessor {
     parentPanel: any,
     rootPanel: any
   ): any;
-  panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any): any;
+  panelAdded(
+    panel: IElement,
+    index: number,
+    parentPanel: any,
+    rootPanel: any
+  ): any;
   questionRemoved(question: IQuestion): any;
   panelRemoved(panel: IElement): any;
   validateQuestion(question: IQuestion): SurveyError;
@@ -81,7 +86,10 @@ export interface ISurvey extends ITextProcessor {
   afterRenderPanel(panel: IElement, htmlElement: any): any;
   afterRenderPage(htmlElement: any): any;
   matrixRowAdded(question: IQuestion): any;
-  matrixBeforeRowAdded(options: { question: IQuestion; canAddRow: boolean }): any;
+  matrixBeforeRowAdded(options: {
+    question: IQuestion;
+    canAddRow: boolean;
+  }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;
@@ -170,7 +178,11 @@ export class Base {
   private propertyHash: { [index: string]: any } = {};
   private localizableStrings: { [index: string]: LocalizableString } = {};
   private arraysInfo: { [index: string]: any } = {};
-  private onPropChangeFunctions: Array<{ name: string; func: (...args: any[]) => void; key: string }> = [];
+  private onPropChangeFunctions: Array<{
+    name: string;
+    func: (...args: any[]) => void;
+    key: string;
+  }> = [];
   protected isLoadingFromJsonValue: boolean = false;
   public onPropertyChanged: Event<
     (sender: Base, options: any) => any,
@@ -251,7 +263,7 @@ export class Base {
       this.setPropertyValueCoreHandler(propertiesHash, name, val);
     else propertiesHash[name] = val;
   }
-  public iteratePropertiesHash(func: (hash:any, key:any) => void) {
+  public iteratePropertiesHash(func: (hash: any, key: any) => void) {
     var keys: any[] = [];
     for (var key in this.propertyHash) {
       keys.push(key);
@@ -417,7 +429,7 @@ export class Base {
     var self = this;
     newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
-      if (onPush) onPush(value);
+      if (onPush) onPush(value, newArray.length - 1);
       self.propertyValueChanged(name, newArray, newArray);
       self.notifyArrayChanged(newArray);
       return result;

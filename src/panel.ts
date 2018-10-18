@@ -108,14 +108,19 @@ export class PanelModelBase extends SurveyElement
     this.createNewArray("rows");
     this.elementsValue = this.createNewArray(
       "elements",
-      function(item:any) {
-        self.onAddElement(item, self.elementsValue.length);
+      function(item: any, index: number) {
+        self.onAddElement(item, index);
+        //Uncomment and remove this.registerFunctionOnPropertyValueChanged("elements" line
+        //self.updateRowsOnElementAdded(item, index);
       },
-      function(item:any) {
+      function(item: any) {
         self.onRemoveElement(item);
+        //Uncomment and remove this.registerFunctionOnPropertyValueChanged("elements" line
+        //self.updateRowsOnElementRemoved(item);
       }
     );
     this.registerFunctionOnPropertyValueChanged("elements", function() {
+      //TODO remove and use onAddElement/onRemoveElement
       self.onRowsChanged();
     });
     this.registerFunctionOnPropertyValueChanged(
@@ -678,6 +683,46 @@ export class PanelModelBase extends SurveyElement
     }
     return result;
   }
+  private updateRowsOnElementAdded(element: IElement, index: number) {
+    if (this.isLoadingFromJson) return;
+    var dragDropInfo = new DragDropInfo(null, element);
+    dragDropInfo.target = element;
+    dragDropInfo.isEdge = this.elements.length > 1;
+    if (this.elements.length < 2) {
+      dragDropInfo.destination = this;
+    } else {
+      dragDropInfo.isBottom = index > 0;
+      if (index == 0) {
+        dragDropInfo.destination = this.elements[1];
+      } else {
+        dragDropInfo.destination = this.elements[index - 1];
+      }
+    }
+    this.dragDropAddTargetToRow(dragDropInfo, null);
+  }
+  private updateRowsOnElementRemoved(element: IElement) {
+    if (this.isLoadingFromJson) return;
+    this.updateRowsRemoveElementFromRow(
+      element,
+      this.findRowByElement(element)
+    );
+  }
+  protected updateRowsRemoveElementFromRow(
+    element: IElement,
+    row: QuestionRowModel
+  ) {
+    if (!row || !row.panel) return;
+    var elIndex = row.elements.indexOf(element);
+    if (elIndex < 0) return;
+    row.elements.splice(elIndex, 1);
+    if (row.elements.length > 0) {
+      row.updateVisible();
+    } else {
+      if (row.index >= 0) {
+        row.panel.rows.splice(row.index, 1);
+      }
+    }
+  }
   private findRowByElement(el: IElement): QuestionRowModel {
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
@@ -901,20 +946,7 @@ export class PanelModelBase extends SurveyElement
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {
     var prevRow = this.dragDropFindRow(dragDropInfo.target);
     if (this.dragDropAddTargetToRow(dragDropInfo, prevRow)) {
-      this.dragDropRemoveTarget(dragDropInfo.target, prevRow);
-    }
-  }
-  protected dragDropRemoveTarget(target: IElement, row: QuestionRowModel) {
-    if (!row || !row.panel) return;
-    var elIndex = row.elements.indexOf(target);
-    if (elIndex < 0) return;
-    row.elements.splice(elIndex, 1);
-    if (row.elements.length > 0) {
-      row.updateVisible();
-    } else {
-      if (row.index >= 0) {
-        row.panel.rows.splice(row.index, 1);
-      }
+      this.updateRowsRemoveElementFromRow(dragDropInfo.target, prevRow);
     }
   }
   protected dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
@@ -1025,7 +1057,7 @@ export class PanelModelBase extends SurveyElement
     destRow: QuestionRowModel,
     prevRow: QuestionRowModel
   ): boolean {
-    var targetRow = new QuestionRowModel(destRow.panel);
+    var targetRow = destRow.panel.createRow();
     targetRow.addElement(dragDropInfo.target);
     var index = destRow.index;
     if (dragDropInfo.isBottom) {
@@ -1050,7 +1082,7 @@ export class PanelModelBase extends SurveyElement
     target: IElement,
     isBottom: boolean
   ) {
-    var targetRow = new QuestionRowModel(panel);
+    var targetRow = panel.createRow();
     targetRow.addElement(target);
     if (panel.elements.length == 0 || isBottom) {
       panel.rows.push(targetRow);
@@ -1295,7 +1327,7 @@ JsonObject.metaData.addClass(
     {
       name: "page",
       isSerializable: false,
-      choices: function(obj:any) {
+      choices: function(obj: any) {
         var survey = obj ? obj.survey : null;
         return survey ? survey.pages : [];
       }

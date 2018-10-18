@@ -1179,7 +1179,7 @@ export class QuestionMatrixDropdownModelBase
     }
     this.isDoingonAnyValueChanged = false;
   }
-  private isObject(value: any) {
+  protected isObject(value: any) {
     return value !== null && typeof value === "object";
   }
   protected onCellValueChanged(

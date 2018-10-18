@@ -493,7 +493,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   ): any {
     var isEmpty = true;
     for (var i = 0; i < newValue.length; i++) {
-      if (Object.keys(newValue[i]).length > 0) {
+      if (this.isObject(newValue[i]) && Object.keys(newValue[i]).length > 0) {
         isEmpty = false;
         break;
       }

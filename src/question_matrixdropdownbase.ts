@@ -898,7 +898,7 @@ export class QuestionMatrixDropdownModelBase
     properties: HashTable<any>
   ) {
     if (!this.generatedVisibleRows) return;
-    var newValues: {[index: string]: any} = {};
+    var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }
@@ -1158,7 +1158,9 @@ export class QuestionMatrixDropdownModelBase
     row: MatrixDropdownRowModelBase
   ): any {
     delete newValue[row.rowName];
-    return Object.keys(newValue).length == 0 ? null : newValue;
+    return this.isObject(newValue) && Object.keys(newValue).length == 0
+      ? null
+      : newValue;
   }
   onReadOnlyChanged() {
     if (this.isLoadingFromJson) return;
@@ -1176,6 +1178,9 @@ export class QuestionMatrixDropdownModelBase
       rows[i].onAnyValueChanged(name);
     }
     this.isDoingonAnyValueChanged = false;
+  }
+  private isObject(value: any) {
+    return value !== null && typeof value === "object";
   }
   protected onCellValueChanged(
     row: MatrixDropdownRowModelBase,
@@ -1235,7 +1240,7 @@ export class QuestionMatrixDropdownModelBase
         }
       }
     }
-    if (Object.keys(rowValue).length === 0) {
+    if (this.isObject(rowValue) && Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }
     if (this.isTwoValueEquals(oldValue, newValue)) return;
@@ -1253,7 +1258,8 @@ export class QuestionMatrixDropdownModelBase
     if (!val) return;
     if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
-        if (Object.keys(val[i]).length > 0) return false;
+        if (this.isObject(val[i]) && Object.keys(val[i]).length > 0)
+          return false;
       }
       return true;
     }

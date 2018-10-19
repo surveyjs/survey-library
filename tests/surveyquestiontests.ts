@@ -23,6 +23,7 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { AssertionError } from "assert";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1814,3 +1815,57 @@ QUnit.test("question.paddingLeft and question.paddingRight", function(assert) {
   assert.equal(question.paddingLeft, "20px", "left is not empty");
   assert.equal(question.paddingRight, "40px", "right is not empty");
 });
+
+QUnit.test(
+  "selectbase question item.visibleIf and survey.data on set, bug#1394, https://surveyjs.answerdesk.io/ticket/details/T1228",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "qid261",
+          columns: ["0", "1"],
+          rows: [
+            {
+              value: "oid11772",
+              text: "AES",
+              visibleIf: "{qid260} contains 'oid11772'"
+            },
+            {
+              value: "oid13403",
+              text: "RC6",
+              visibleIf: "{qid260} contains 'oid13403'"
+            },
+            {
+              value: "oid13404",
+              text: "SEED",
+              visibleIf: "{qid260} contains 'oid13404'"
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      qid260: ["oid11772", "oid13404"],
+      qid261: { oid11772: "1", oid13404: "1" }
+    };
+
+    var question = <QuestionMatrixModel>survey.getQuestionByName("qid261");
+    assert.deepEqual(
+      question.value,
+      { oid11772: "1", oid13404: "1" },
+      "value set correctly"
+    );
+    assert.equal(question.visibleRows.length, 2, "Two rows are visible");
+    assert.equal(
+      question.visibleRows[0].value,
+      "1",
+      "The first row value is set"
+    );
+    assert.equal(
+      question.visibleRows[1].value,
+      "1",
+      "The second row value is set"
+    );
+  }
+);

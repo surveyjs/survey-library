@@ -110,19 +110,13 @@ export class PanelModelBase extends SurveyElement
       "elements",
       function(item: any, index: number) {
         self.onAddElement(item, index);
-        //Uncomment and remove this.registerFunctionOnPropertyValueChanged("elements" line
-        //self.updateRowsOnElementAdded(item, index);
+        self.updateRowsOnElementAdded(item, index);
       },
       function(item: any) {
         self.onRemoveElement(item);
-        //Uncomment and remove this.registerFunctionOnPropertyValueChanged("elements" line
-        //self.updateRowsOnElementRemoved(item);
+        self.updateRowsOnElementRemoved(item);
       }
     );
-    this.registerFunctionOnPropertyValueChanged("elements", function() {
-      //TODO remove and use onAddElement/onRemoveElement
-      self.onRowsChanged();
-    });
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleLocation",
       function() {

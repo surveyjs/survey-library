@@ -206,14 +206,19 @@ export class PageModel extends PanelModelBase implements IPage {
     isEdge: boolean = false
   ): boolean {
     if (!this.dragDropInfo) return false;
-    if (!this.dragDropCanDrop(destination)) return false;
     this.dragDropInfo.destination = destination;
     this.dragDropInfo.isBottom = isBottom;
     this.dragDropInfo.isEdge = isEdge;
+    if (!this.dragDropCanDropTagert()) return false;
+    if (!!this.dragDropInfo.source && !this.dragDropCanDropSource()) {
+      var row = this.dragDropFindRow(this.dragDropInfo.target);
+      this.updateRowsRemoveElementFromRow(this.dragDropInfo.target, row);
+      return false;
+    }
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
   }
-  public dragDropFinish(isCancel: boolean = false) {
+  public dragDropFinish(isCancel: boolean = false): IElement {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
     var row = this.dragDropFindRow(target);
@@ -235,6 +240,7 @@ export class PageModel extends PanelModelBase implements IPage {
       this.updateRowsRemoveElementFromRow(target, row);
     }
     this.dragDropInfo = null;
+    return !isCancel ? target : null;
   }
   private dragDropGetElementIndex(
     target: IElement,
@@ -247,16 +253,24 @@ export class PageModel extends PanelModelBase implements IPage {
     var prevElement = prevRow.elements[prevRow.elements.length - 1];
     return index + row.panel.elements.indexOf(prevElement) + 1;
   }
-  private dragDropCanDrop(destination: ISurveyElement): boolean {
+  private dragDropCanDropTagert(): boolean {
+    var destination = this.dragDropInfo.destination;
     if (!destination || destination.isPage) return true;
-    if (
-      !this.dragDropCanDropCore(this.dragDropInfo.target, <IElement>destination)
-    )
-      return false;
-    if (!this.dragDropInfo.source) return true;
     return this.dragDropCanDropCore(
-      this.dragDropInfo.source,
+      this.dragDropInfo.target,
       <IElement>destination
+    );
+  }
+  private dragDropCanDropSource(): boolean {
+    var source = this.dragDropInfo.source;
+    if (!source) return true;
+    var destination = <IElement>this.dragDropInfo.destination;
+    if (!this.dragDropCanDropCore(source, destination)) return false;
+    return this.dragDropCanDropNotNext(
+      source,
+      destination,
+      this.dragDropInfo.isEdge,
+      this.dragDropInfo.isBottom
     );
   }
   private dragDropCanDropCore(
@@ -264,7 +278,7 @@ export class PageModel extends PanelModelBase implements IPage {
     destination: IElement
   ): boolean {
     if (!destination) return true;
-    if (destination == target || destination.name == target.name) return false;
+    if (this.dragDropIsSameElement(destination, target)) return false;
     if (target.isPanel) {
       var pnl = <PanelModelBase>(<any>target);
       if (
@@ -274,6 +288,27 @@ export class PageModel extends PanelModelBase implements IPage {
         return false;
     }
     return true;
+  }
+  private dragDropCanDropNotNext(
+    source: IElement,
+    destination: IElement,
+    isEdge: boolean,
+    isBottom: boolean
+  ): boolean {
+    if (destination.isPanel && !isEdge) return true;
+    if (source.parent !== destination.parent) return true;
+    var pnl = <PanelModelBase>source.parent;
+    var srcIndex = pnl.elements.indexOf(source);
+    var destIndex = pnl.elements.indexOf(destination);
+    if (destIndex < srcIndex && !isBottom) destIndex--;
+    if (isBottom) destIndex++;
+    var dif = srcIndex - destIndex;
+    if (dif < 0) dif *= -1;
+    return dif > 1;
+  }
+
+  private dragDropIsSameElement(el1: IElement, el2: IElement) {
+    return el1 == el2 || el1.name == el2.name;
   }
 }
 

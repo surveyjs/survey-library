@@ -57,6 +57,47 @@ QUnit.test("Move item to the end", function(assert) {
   assert.equal(page.questions.length, 3, "we have only two questions");
   assert.equal(page.questions[2].name, "q1", "The last question is q1 now");
 });
+QUnit.test("Do not move question to the same position", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page.addNewQuestion("text", "q3");
+  var target = new QuestionTextModel("q2");
+
+  page.dragDropStart(q2, target);
+  assert.equal(page.rows.length, 3, "Initial 3 rows");
+  page.dragDropMoveTo(q1, false);
+  assert.equal(page.rows.length, 4, "It should be 4 rows, above the first row");
+  page.dragDropMoveTo(q1, true);
+  assert.equal(page.rows.length, 3, "It should be 3 rows, next the first row");
+  page.dragDropMoveTo(q2, false);
+  assert.equal(
+    page.rows.length,
+    3,
+    "It should be 3 rows, above the second row"
+  );
+  page.dragDropMoveTo(q2, true);
+  assert.equal(page.rows.length, 3, "It should be 3 rows, next the second row");
+  page.dragDropMoveTo(q3, false);
+  assert.equal(page.rows.length, 3, "It should be 3 rows, above the third row");
+  page.dragDropMoveTo(q3, true);
+  assert.equal(page.rows.length, 4, "It should be 4 rows, next the third row");
+});
+QUnit.test("Do not move remove the target without source", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var target = new QuestionTextModel("q1");
+
+  page.dragDropStart(null, target);
+  assert.equal(page.rows.length, 2, "Initial 2 rows");
+  page.dragDropMoveTo(q2, true);
+  assert.equal(page.rows.length, 3, "Target is shown");
+  page.dragDropMoveTo(target, true);
+  assert.equal(page.rows.length, 3, "Target is still shown");
+});
 QUnit.test("Show/hide/create for empty page", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -627,29 +668,3 @@ QUnit.test("Move item into empty paneldynamic", function(assert) {
     "It is the 'q1' question"
   );
 });
-
-/*
-  //Do we need this test?
-QUnit.test("Replace target element", function(assert) {
-    var survey = new Survey.Survey();
-    var page = <Survey.Page>survey.addNewPage("p1");
-    var ddhelper = new DragDropHelper(survey, null);
-    var target = new Survey.QuestionText("qt");
-  
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, page);
-  
-    var result = ddhelper.replaceTargetElement(target);
-    assert.equal(result, target);
-  
-    page.addElement(target);
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, target);
-  
-    var target1 = new Survey.QuestionBoolean("qb");
-    page.addElement(target1);
-    var result = ddhelper.replaceTargetElement(page);
-    assert.equal(result, target1);
-  });
-
-*/

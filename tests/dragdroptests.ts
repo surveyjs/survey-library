@@ -84,28 +84,70 @@ QUnit.test("Do not move question to the same position", function(assert) {
   page.dragDropMoveTo(q3, true);
   assert.equal(page.rows.length, 4, "It should be 4 rows, next the third row");
 });
-QUnit.test("Do not move question to the same position, from bottom to top", function(assert) {
+QUnit.test(
+  "Do not move question to the same position, from bottom to top",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p1");
+    var q1 = page.addNewQuestion("text", "q1");
+    var q2 = page.addNewQuestion("text", "q2");
+    var q3 = page.addNewQuestion("text", "q3");
+    var target = new QuestionTextModel("q3");
+
+    page.dragDropStart(q3, target);
+    assert.equal(page.rows.length, 3, "Initial 3 rows");
+    page.dragDropMoveTo(q3, true);
+    assert.equal(
+      page.rows.length,
+      3,
+      "It should be 3 rows, next the third row"
+    );
+    page.dragDropMoveTo(q3, false);
+    assert.equal(
+      page.rows.length,
+      3,
+      "It should be 3 rows, above the third row"
+    );
+    page.dragDropMoveTo(q2, true);
+    assert.equal(
+      page.rows.length,
+      3,
+      "It should be 3 rows, next the second row"
+    );
+    page.dragDropMoveTo(q2, false);
+    assert.equal(
+      page.rows.length,
+      4,
+      "It should be 4 rows, above the second row"
+    );
+    page.dragDropMoveTo(q1, true);
+    assert.equal(
+      page.rows.length,
+      4,
+      "It should be 4 rows, next the first row"
+    );
+    page.dragDropMoveTo(q1, false);
+    assert.equal(
+      page.rows.length,
+      4,
+      "It should be 4 rows, above the first row"
+    );
+  }
+);
+QUnit.test("Dropping element on the source should do nothing", function(
+  assert
+) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = page.addNewQuestion("text", "q1");
-  var q2 = page.addNewQuestion("text", "q2");
-  var q3 = page.addNewQuestion("text", "q3");
-  var target = new QuestionTextModel("q3");
+  var target = new QuestionTextModel("q1");
 
-  page.dragDropStart(q3, target);
-  assert.equal(page.rows.length, 3, "Initial 3 rows");
-  page.dragDropMoveTo(q3, true);
-  assert.equal(page.rows.length, 3, "It should be 3 rows, next the third row");
-  page.dragDropMoveTo(q3, false);
-  assert.equal(page.rows.length, 3, "It should be 3 rows, above the third row");
-  page.dragDropMoveTo(q2, true);
-  assert.equal(page.rows.length, 3, "It should be 3 rows, next the second row");
-  page.dragDropMoveTo(q2, false);
-  assert.equal(page.rows.length, 4, "It should be 4 rows, above the second row");
-  page.dragDropMoveTo(q1, true);
-  assert.equal(page.rows.length, 4, "It should be 4 rows, next the first row");
+  page.dragDropStart(q1, target);
+  assert.equal(page.rows.length, 1, "Initial 1 rows");
   page.dragDropMoveTo(q1, false);
-  assert.equal(page.rows.length, 4, "It should be 4 rows, above the first row");
+  assert.equal(page.rows.length, 1, "still 1 rows");
+  page.dragDropFinish();
+  assert.equal(page.elements.length, 1, "It should be stil one element");
 });
 QUnit.test("Do not move remove the target without source", function(assert) {
   var survey = new SurveyModel();

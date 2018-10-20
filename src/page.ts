@@ -230,7 +230,9 @@ export class PageModel extends PanelModelBase implements IPage {
         if (!!row && row.panel == src.parent && targetIndex > srcIndex) {
           targetIndex--;
         }
-        src.parent.removeElement(src);
+        if (!!row) {
+          src.parent.removeElement(src);
+        }
       }
       this.updateRowsRemoveElementFromRow(target, row);
       if (!!row && targetIndex > -1) {
@@ -295,7 +297,7 @@ export class PageModel extends PanelModelBase implements IPage {
     isEdge: boolean,
     isBottom: boolean
   ): boolean {
-    if (destination.isPanel && !isEdge) return true;
+    if (!destination || (destination.isPanel && !isEdge)) return true;
     if (source.parent !== destination.parent) return true;
     var pnl = <PanelModelBase>source.parent;
     var srcIndex = pnl.elements.indexOf(source);

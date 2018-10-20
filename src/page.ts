@@ -302,9 +302,9 @@ export class PageModel extends PanelModelBase implements IPage {
     var destIndex = pnl.elements.indexOf(destination);
     if (destIndex < srcIndex && !isBottom) destIndex--;
     if (isBottom) destIndex++;
-    var dif = srcIndex - destIndex;
-    if (dif < 0) dif *= -1;
-    return dif > 1;
+    return srcIndex < destIndex
+      ? destIndex - srcIndex > 1
+      : srcIndex - destIndex > 0;
   }
 
   private dragDropIsSameElement(el1: IElement, el2: IElement) {

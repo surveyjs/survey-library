@@ -9,6 +9,7 @@ import {
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
   koOtherVisible: any;
   koVisibleChoices: any;
+  protected onCreated() {}
   constructor(question: Question) {
     super(question);
     var self = this;
@@ -27,6 +28,7 @@ export class QuestionSelectBaseImplementor extends QuestionImplementor {
     };
     (<any>this.question)["koOtherVisible"] = this.koOtherVisible;
     (<any>this.question)["koVisibleChoices"] = this.koVisibleChoices;
+    this.onCreated();
   }
   protected get isOtherSelected(): boolean {
     return (<QuestionSelectBase>this.question).isOtherSelected;

@@ -98,6 +98,7 @@ export interface ISurvey extends ITextProcessor {
   dynamicPanelAdded(question: IQuestion): any;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number): any;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
+  dragAndDropAllow(options: any): boolean;
 }
 export interface ISurveyImpl {
   geSurveyData(): ISurveyData;

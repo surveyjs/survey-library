@@ -733,3 +733,50 @@ QUnit.test("Move item into empty paneldynamic", function(assert) {
     "It is the 'q1' question"
   );
 });
+
+QUnit.test("survey onDragDropAllow event", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var panel1 = page.addNewPanel("panel1");
+  var q3 = panel1.addNewQuestion("text", "q3");
+  var q4 = panel1.addNewQuestion("text", "q4");
+  var q5 = page.addNewQuestion("text", "q5");
+  var panel2 = page.addNewPanel("panel2");
+  var target = new QuestionTextModel("q1");
+  var canInsertIntoPanel2 = false;
+  survey.onDragDropAllow.add(function(sender, options) {
+    options.allow =
+      (canInsertIntoPanel2 || options.parent != panel2) &&
+      options.insertBefore !== panel1 &&
+      options.insertAfter != q5;
+  });
+  assert.equal(page.rows.length, 5, "By default 5 rows in the page");
+  page.dragDropStart(q1, target);
+  page.dragDropMoveTo(q2, true);
+  assert.equal(
+    page.rows.length,
+    5,
+    "not allow options.insertBefore !== panel1"
+  );
+  page.dragDropMoveTo(panel1, false, true);
+  assert.equal(
+    page.rows.length,
+    5,
+    "not allow options.insertBefore !== panel1"
+  );
+  assert.equal(panel1.rows.length, 2, "two rows in panel1 by default");
+  page.dragDropMoveTo(q3, false);
+  assert.equal(panel1.rows.length, 3, "three rows in panel1 now");
+  page.dragDropMoveTo(q5, false);
+  assert.equal(panel1.rows.length, 2, "two rows in panel1 again");
+  assert.equal(page.rows.length, 6, "6 rows in the page");
+  page.dragDropMoveTo(q5, true);
+  assert.equal(page.rows.length, 5, "options.insertAfter != q5");
+  page.dragDropMoveTo(panel2, false);
+  assert.equal(panel2.rows.length, 0, "options.parent != panel2");
+  canInsertIntoPanel2 = true;
+  page.dragDropMoveTo(panel2, true);
+  assert.equal(panel2.rows.length, 1, "can insert into panel2 now");
+});

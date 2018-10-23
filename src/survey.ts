@@ -648,6 +648,22 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * Use this event to control drag&drop operations during design mode.
+   * <br/> sender the survey object that fires the event.
+   * <br/> options.allow set it to false to disable dragging.
+   * <br/> options.target a target element that is dragging.
+   * <br/> options.source a source element. It can be null, if it is a new element, dragging from toolbox.
+   * <br/> options.parent a page or panel where target element is dragging.
+   * <br/> options.insertBefore an element before the target element is dragging. It can be null if parent container (page or panel) is empty or dragging an element under the last element of the container.
+   * <br/> options.insertAfter an element after the target element is dragging. It can be null if parent container (page or panel) is empty or dragging element to the top of the parent container.
+   * @see setDesignMode
+   * @see isDesignMode
+   */
+  public onDragDropAllow : Event<
+  (sender: SurveyModel, options: any) => any,
+  any
+> = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
    * @see JsonError
    */
@@ -1951,6 +1967,11 @@ export class SurveyModel extends Base
   dynamicPanelItemValueChanged(question: IQuestion, options: any) {
     options.question = question;
     this.onDynamicPanelItemValueChanged.fire(this, options);
+  }
+  dragAndDropAllow(options: any): boolean {
+    options.allow = true;
+    this.onDragDropAllow.fire(this, options);
+    return options.allow;
   }
 
   /**

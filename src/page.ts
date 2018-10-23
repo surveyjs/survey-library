@@ -210,13 +210,50 @@ export class PageModel extends PanelModelBase implements IPage {
     this.dragDropInfo.isBottom = isBottom;
     this.dragDropInfo.isEdge = isEdge;
     if (!this.dragDropCanDropTagert()) return false;
-    if (!!this.dragDropInfo.source && !this.dragDropCanDropSource()) {
-      var row = this.dragDropFindRow(this.dragDropInfo.target);
-      this.updateRowsRemoveElementFromRow(this.dragDropInfo.target, row);
+    if (!this.dragDropCanDropSource() || !this.dragDropAllowFromSurvey()) {
+      if (!!this.dragDropInfo.source) {
+        var row = this.dragDropFindRow(this.dragDropInfo.target);
+        this.updateRowsRemoveElementFromRow(this.dragDropInfo.target, row);
+      }
       return false;
     }
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
+  }
+  private dragDropAllowFromSurvey(): boolean {
+    var dest = this.dragDropInfo.destination;
+    if (!dest || !this.survey) return true;
+    var insertBefore: IElement = null;
+    var insertAfter: IElement = null;
+    var parent =
+      dest.isPage || (!this.dragDropInfo.isEdge && (<IElement>dest).isPanel)
+        ? dest
+        : (<IElement>dest).parent;
+    if (!dest.isPage) {
+      var container = (<IElement>dest).parent;
+      if (!!container) {
+        var elements = (<PanelModelBase>container).elements;
+        var index = elements.indexOf(<IElement>dest);
+        if (index > -1) {
+          insertBefore = <IElement>dest;
+          insertAfter = <IElement>dest;
+          if (this.dragDropInfo.isBottom) {
+            insertBefore =
+              index < elements.length - 1 ? elements[index + 1] : null;
+          } else {
+            insertAfter = index > 0 ? elements[index - 1] : null;
+          }
+        }
+      }
+    }
+    var options = {
+      target: this.dragDropInfo.target,
+      source: this.dragDropInfo.source,
+      parent: parent,
+      insertAfter: insertAfter,
+      insertBefore: insertBefore
+    };
+    return this.survey.dragAndDropAllow(options);
   }
   public dragDropFinish(isCancel: boolean = false): IElement {
     if (!this.dragDropInfo) return;

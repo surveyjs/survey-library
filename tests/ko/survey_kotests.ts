@@ -1594,3 +1594,25 @@ QUnit.test("panel and question paddings form json", function(assert) {
   assert.equal(panel.innerPaddingLeft, "40px", "panel inner left is 40px");
   assert.equal(question.paddingLeft, "20px", "question left is 20px");
 });
+QUnit.test("Questions are randomized", function(assert) {
+  var survey = new Survey({
+    elements: [
+      {
+        type: "text",
+        name: "question1"
+      },
+      {
+        type: "text",
+        name: "question2"
+      },
+      {
+        type: "text",
+        name: "question3"
+      }
+    ],
+    questionsOrder: "random"
+  });
+  var page = survey.pages[0];
+  assert.equal(page.areQuestionsRandomized, true, "Questions are randomized");
+  assert.equal(page.rows.length, 3, "There are 3 rows");
+});

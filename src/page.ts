@@ -88,16 +88,21 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     this.hasShownValue = val;
   }
+  private isRandomizing = false;
   private randomizeElements() {
+    if (this.isRandomizing) return;
+    this.isRandomizing = true;
     var oldElements = [];
-    for (var i = 0; i < this.elements.length; i++) {
-      oldElements.push(this.elements[i]);
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      oldElements.push(elements[i]);
     }
     var newElements = Helpers.randomizeArray<IElement>(oldElements);
     this.elements.splice(0, this.elements.length);
     for (var i = 0; i < newElements.length; i++) {
       this.elements.push(newElements[i]);
     }
+    this.isRandomizing = false;
   }
   /**
    * The property returns true, if the elements are randomized on the page

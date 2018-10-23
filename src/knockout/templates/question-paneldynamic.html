@@ -4,7 +4,7 @@
         <!-- ko foreach: { data: question.koPanels } -->
         <!-- ko template: { name: 'survey-panel', data: $data, as: 'question', afterRender: question.koPanelAfterRender } -->
         <!-- /ko -->
-        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
+        <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel() && !$data.koIsCollapsed(), click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
         />
         <hr/>
         <!-- /ko -->

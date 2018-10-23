@@ -169,12 +169,14 @@ export class SurveyPanel extends SurveyPanelBase {
     };
     var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
+    var bottom = this.renderBottom();
     return (
       <div ref="root" className={this.css.panel.container} style={rootStyle}>
         {title}
         {description}
         {errors}
         <div style={style}>{rows}</div>
+        {bottom}
       </div>
     );
   }
@@ -209,6 +211,9 @@ export class SurveyPanel extends SurveyPanelBase {
     if (!this.panelBase.description) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
     return <div className={this.css.panel.description}>{text}</div>;
+  }
+  protected renderBottom(): JSX.Element {
+    return null;
   }
 }
 

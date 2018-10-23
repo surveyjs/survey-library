@@ -474,6 +474,10 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
+    if(!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) return;
+    this.clearIncorrectValuesCore();
+  }
+  protected clearIncorrectValuesCore() {
     var val = this.value;
     if (this.hasUnknownValue(val, true)) {
       this.clearValue();

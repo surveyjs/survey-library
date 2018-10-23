@@ -213,7 +213,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return str;
   }
-  public clearIncorrectValues() {
+  protected clearIncorrectValuesCore() {
     var val = this.value;
     if (!val) return;
     if (!Array.isArray(val) || val.length == 0) {

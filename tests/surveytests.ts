@@ -4875,3 +4875,45 @@ QUnit.test("Survey get full title with values", function(assert) {
     "Get question value"
   );
 });
+
+QUnit.test("Survey radioGroup remove data on visible items change even if there are other visible questions here, Bug# T1239", function(assert) {
+  var json = {
+    "questions": [
+        {
+            "type": "radiogroup",
+            "name": "group1",
+            "valueName": "question1",
+            "choices": [
+                {
+                    "value": "answer_possibility_2",
+                    "visibleIf": "{other_question} = \"2\"" // If this line is removed value is selected
+                },
+                {
+                    "value": "value_should_be_selected",
+                    "visibleIf": "1=2"
+                }
+            ],
+            "visibleIf": "{another_question} = \"whatever\""
+        },
+        {
+            "type": "radiogroup",
+            "name": "group2",
+            "valueName": "question1",
+            "choices": [
+                {
+                    "value": "value_should_be_selected"
+                }
+            ]
+        }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var data = {
+    "other_question": "2",
+    "another_question": "blah",
+    "question1": "value_should_be_selected"
+  };
+  survey.data = data;
+  assert.deepEqual(survey.data, data);
+});

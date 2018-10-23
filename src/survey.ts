@@ -659,10 +659,10 @@ export class SurveyModel extends Base
    * @see setDesignMode
    * @see isDesignMode
    */
-  public onDragDropAllow : Event<
-  (sender: SurveyModel, options: any) => any,
-  any
-> = new Event<(sender: SurveyModel, options: any) => any, any>();
+  public onDragDropAllow: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The list of errors on loading survey json. If the list is empty after loading a json then the json is correct and there is no errors in it.
    * @see JsonError
@@ -1284,7 +1284,7 @@ export class SurveyModel extends Base
    * @see data
    */
   public get comments(): any {
-    var result: {[index: string]: any} = {};
+    var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
       if (key.indexOf(this.commentPrefix) > 0) {
         result[key] = this.valuesHash[key];
@@ -1799,7 +1799,7 @@ export class SurveyModel extends Base
     if (!this.onServerValidateQuestions) return false;
     var self = this;
     var options = {
-      data: <{[index: string]: any}>{},
+      data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
       complete: function() {
@@ -2345,7 +2345,7 @@ export class SurveyModel extends Base
   }
   private checkOnPageTriggers() {
     var questions = this.getCurrentPageQuestions();
-    var values: {[index: string]: any} = {};
+    var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
       var name = question.getValueName();
@@ -2608,7 +2608,7 @@ export class SurveyModel extends Base
       textValue.isExists = true;
       name = question.getValueName() + name.substr(firstName.length);
       name = name.toLocaleLowerCase();
-      var values: {[index: string]: any} = {};
+      var values: { [index: string]: any } = {};
       values[firstName] = textValue.returnDisplayValue
         ? question.getDisplayValue(false)
         : question.value;
@@ -2637,6 +2637,14 @@ export class SurveyModel extends Base
         return true;
     }
     return false;
+  }
+  questionCountByValueName(valueName: string): number {
+    var counter = 0;
+    var questions = this.getAllQuestions();
+    for (var i: number = 0; i < questions.length; i++) {
+      if (questions[i].getValueName() == valueName) counter++;
+    }
+    return counter;
   }
   private clearInvisibleQuestionValues() {
     var questions = this.getAllQuestions();

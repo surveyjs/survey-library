@@ -41,6 +41,7 @@ export interface ISurvey extends ITextProcessor {
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
+  questionCountByValueName(valueName: string): number;
   processHtml(html: string): string;
   getSurveyMarkdownHtml(element: Base, text: string): string;
   isDisplayMode: boolean;

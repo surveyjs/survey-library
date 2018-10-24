@@ -12,6 +12,7 @@ import { SurveyPanel } from "./reactpage";
 import { ISurveyCreator } from "./reactquestion";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { SurveyModel } from "../survey";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -190,8 +191,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 }
 
-export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
-  private panel: PanelModel;
+export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   private question: QuestionPanelDynamicModel;
   private index: number;
   protected creator: ISurveyCreator;
@@ -204,27 +204,20 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
     this.setProperties(nextProps);
   }
   private setProperties(nextProps: any) {
-    this.panel = nextProps.panel;
     this.question = nextProps.question;
     this.index = nextProps.index;
     this.creator = nextProps.creator;
+    this.survey = !!this.question
+      ? (this.question.survey as SurveyModel)
+      : null;
+    this.css = surveyCss.getCss();
     this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
   }
   handleOnPanelRemoveClick(event: any) {
     this.question.removePanelUI(this.index);
   }
-  render(): JSX.Element {
-    if (!this.panel) return null;
-    this.question.survey;
-    var panel = (
-      <SurveyPanel
-        key={this.index}
-        panel={this.panel}
-        css={surveyCss.getCss()}
-        survey={this.question.survey}
-        creator={this.creator}
-      />
-    );
+  protected renderBottom(): JSX.Element {
+    if (!this.question) return null;
     var hr =
       this.question.isRenderModeList &&
       this.index < this.question.panelCount - 1 ? (
@@ -233,18 +226,25 @@ export class SurveyQuestionPanelDynamicItem extends ReactSurveyElement {
     var removeButton = this.renderButton();
     return (
       <div>
-        {panel}
         {removeButton}
         {hr}
       </div>
     );
   }
   protected renderButton(): JSX.Element {
-    if (!this.question.canRemovePanel) return null;
+    if (
+      !this.question.canRemovePanel ||
+      (this.question.isRenderModeList && this.panel.isCollapsed)
+    )
+      return null;
     var style = { marginTop: "5px" };
     return (
       <input
-        className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
+        className={
+          this.question.cssClasses.button +
+          " " +
+          this.question.cssClasses.buttonRemove
+        }
         style={style}
         type="button"
         onClick={this.handleOnPanelRemoveClick}

@@ -1430,6 +1430,21 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
   JsonObject.metaData.addProperty("questionbase", "customArray:itemvalues");
   var question = new Question("q1");
 
+  var property = JsonObject.metaData.findProperty(
+    "questionbase",
+    "customArray"
+  );
+  assert.equal(
+    property.type,
+    "itemvalues",
+    "Property should have correct type"
+  );
+  assert.equal(
+    property.className,
+    "itemvalue",
+    "Property should have correct className"
+  );
+
   assert.equal(
     question["customArray"].length,
     0,
@@ -1443,6 +1458,11 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
     question["customArray"].length,
     4,
     "customArray deserialzied successful"
+  );
+  assert.equal(
+    question["customArray"][0].value,
+    1,
+    "customArray content deserialzied successful"
   );
 
   var json = new JsonObject().toJsonObject(question);
@@ -1490,3 +1510,115 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("itemvalues (array) default value", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [0, 25, 50, 75, 100]
+  });
+  var question = new Question("q1");
+
+  assert.equal(
+    question["customArray"].length,
+    5,
+    "customArray defaults applied successfully"
+  );
+
+  question["customArray"][0].text = "text 1";
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 1",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 1"
+  );
+
+  question = new Question("q1");
+
+  new JsonObject().toObject(json, question);
+  assert.equal(
+    question["customArray"][0].text,
+    "text 1",
+    "text deserialized ok"
+  );
+
+  json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 1",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 2"
+  );
+
+  question["customArray"][0].text = "text 2";
+  json = new JsonObject().toJsonObject(question);
+
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 2",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 2"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});
+
+QUnit.test("itemvalues (array) save localized text", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [0]
+  });
+  var question = new Question("q1");
+
+  assert.equal(
+    question["customArray"].length,
+    1,
+    "customArray defaults applied successfully"
+  );
+
+  question["customArray"][0].text = "text 1";
+  question.locOwner = <any>{ getLocale: () => "de" };
+  question["customArray"][0].text = "text de";
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: {
+          default: "text 1",
+          de: "text de"
+        },
+        value: 0
+      }
+    ],
+    "customArray serialzied successful 1"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});

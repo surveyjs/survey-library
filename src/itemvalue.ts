@@ -291,13 +291,15 @@ export class ItemValue {
   }
 }
 
-JsonObject.metaData.addClass("itemvalue", [
-  "!value",
-  {
-    name: "text",
-    onGetValue: function(obj: any) {
-      return obj.locText.pureText;
-    }
-  },
-  { name: "visibleIf:condition", visible: false }
-]);
+JsonObject.metaData.addClass(
+  "itemvalue",
+  [
+    "!value",
+    {
+      name: "text",
+      serializationProperty: "locText"
+    },
+    { name: "visibleIf:condition", visible: false }
+  ],
+  (value: any) => new ItemValue(value)
+);

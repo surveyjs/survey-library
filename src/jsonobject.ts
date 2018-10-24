@@ -1,11 +1,12 @@
 import { Helpers, HashTable } from "./helpers";
+import { ItemValue } from "./itemvalue";
 
 export interface IObject {
-  [key: string] : any;
+  [key: string]: any;
 }
 
-export class JsonObjectProperty implements IObject  {
-  [key: string] : any;
+export class JsonObjectProperty implements IObject {
+  [key: string]: any;
   private static mergableValues = [
     "typeValue",
     "choicesValue",
@@ -36,7 +37,7 @@ export class JsonObjectProperty implements IObject  {
   public alternativeName: string = null;
   public classNamePart: string = null;
   public baseClassName: string = null;
-  public defaultValue: any = null;
+  public defaultValueValue: any = null;
   public serializationProperty: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
@@ -49,6 +50,9 @@ export class JsonObjectProperty implements IObject  {
   }
   public set type(value: string) {
     this.typeValue = value;
+    if (this.typeValue === "itemvalues") {
+      this.className = "itemvalue";
+    }
   }
   public get isRequired() {
     return this.isRequiredValue;
@@ -58,6 +62,17 @@ export class JsonObjectProperty implements IObject  {
   }
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
+  }
+  public get defaultValue() {
+    var result: any = this.defaultValueValue;
+    if (this.typeValue === "itemvalues") {
+      result = [];
+      ItemValue.setData(result, this.defaultValueValue || []);
+    }
+    return result;
+  }
+  public set defaultValue(newValue) {
+    this.defaultValueValue = newValue;
   }
   public isDefaultValue(value: any): boolean {
     if (!Helpers.isValueEmpty(this.defaultValue))
@@ -212,7 +227,7 @@ export class CustomPropertiesCollection {
       CustomPropertiesCollection.createPropertyInObj(obj, properties[i]);
     }
   }
-  private static createPropertyInObj(obj: any, prop: any) {
+  private static createPropertyInObj(obj: any, prop: JsonObjectProperty) {
     if (obj[prop.name] || obj.hasOwnProperty(prop.name)) return;
     if (
       prop.isLocalizable &&
@@ -237,15 +252,20 @@ export class CustomPropertiesCollection {
       };
       Object.defineProperty(obj, prop.name, desc);
     } else {
+      var defaultValue = prop.defaultValue;
       if (
-        prop.typeValue === "itemvalues" &&
+        prop.type === "itemvalues" &&
         typeof obj.createNewArray === "function"
       ) {
-        obj.createNewArray(prop.name);
+        obj.createNewArray(prop.name, function(item: any) {
+          item.locOwner = obj;
+        });
+        obj.setPropertyValue(prop.name, defaultValue);
+        defaultValue = null;
       }
       var desc = {
-        get: function() {
-          return obj.getPropertyValue(prop.name, prop.defaultValue);
+        get: () => {
+          return obj.getPropertyValue(prop.name, defaultValue);
         },
         set: function(v: any) {
           obj.setPropertyValue(prop.name, v);
@@ -263,7 +283,7 @@ export class JsonMetadataClass {
   constructor(
     public name: string,
     properties: Array<any>,
-    public creator: () => any = null,
+    public creator: (json?:any) => any = null,
     public parentName: string = null
   ) {
     name = name.toLowerCase();
@@ -380,7 +400,7 @@ export class JsonMetadata {
   public addClass(
     name: string,
     properties: Array<any>,
-    creator: () => any = null,
+    creator: (json?: any) => any = null,
     parentName: string = null
   ): JsonMetadataClass {
     name = name.toLowerCase();
@@ -473,24 +493,28 @@ export class JsonMetadata {
     }
     return null;
   }
-  public createClass(name: string): any {
+  public createClass(name: string, json: any = undefined): any {
     name = name.toLowerCase();
     var metaDataClass = this.findClass(name);
     if (!metaDataClass) return null;
-    if (metaDataClass.creator) return metaDataClass.creator();
+    if (metaDataClass.creator) return metaDataClass.creator(json);
     var parentName = metaDataClass.parentName;
     while (parentName) {
       metaDataClass = this.findClass(parentName);
       if (!metaDataClass) return null;
       parentName = metaDataClass.parentName;
       if (metaDataClass.creator)
-        return this.createCustomType(name, metaDataClass.creator);
+        return this.createCustomType(name, metaDataClass.creator, json);
     }
     return null;
   }
-  private createCustomType(name: string, creator: any): any {
+  private createCustomType(
+    name: string,
+    creator: any,
+    json: any = undefined
+  ): any {
     name = name.toLowerCase();
-    var res = creator();
+    var res = creator(json);
     res.customTypeName = name;
     res.customTemplateName = res.getTemplate
       ? res.getTemplate()
@@ -764,9 +788,12 @@ export class JsonObject {
     storeDefaults = false
   ): any {
     if (!obj || !obj.getType) return obj;
+    if (typeof obj.getData === "function") return obj.getData();
     var result = {};
     if (property != null && !property.className) {
-      (<any>result)[JsonObject.typePropertyName] = property.getObjType(obj.getType());
+      (<any>result)[JsonObject.typePropertyName] = property.getObjType(
+        obj.getType()
+      );
     }
     this.propertiesToJson(
       obj,
@@ -896,7 +923,7 @@ export class JsonObject {
     }
     className = property.getClassName(className);
     result.newObj = className
-      ? JsonObject.metaData.createClass(className)
+      ? JsonObject.metaData.createClass(className, value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,

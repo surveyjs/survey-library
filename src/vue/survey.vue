@@ -1,5 +1,6 @@
 <template>
     <div :class="css.root">
+      <form>
         <div class="sv_custom_header"></div>
         <div class="sv_container">
           <div v-if="hasTitle" :class="css.header"><h3><survey-string :locString="survey.locTitle"/></h3></div>
@@ -36,7 +37,8 @@
           <div v-if="survey.state === 'completedbefore'" :class="css.body" v-html="survey.processedCompletedBeforeHtml"></div>
           <div v-if="survey.state === 'loading'" :class="css.body" v-html="survey.processedLoadingHtml"></div>
           <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
-      </div>
+        </div>
+      </form>
     </div>
 </template>
 

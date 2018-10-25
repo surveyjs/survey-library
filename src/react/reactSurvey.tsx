@@ -67,11 +67,13 @@ export class Survey extends React.Component<any, any>
 
     return (
       <div ref="root" className={this.css.root}>
-        <div className="sv_custom_header" />
-        <div className="sv_container">
-          {title}
-          {renderResult}
-        </div>
+        <form>
+          <div className="sv_custom_header" />
+          <div className="sv_container">
+            {title}
+            {renderResult}
+          </div>
+        </form>
       </div>
     );
   }

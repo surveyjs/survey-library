@@ -66,7 +66,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   }
   protected addHeaderRigth(elements: Array<JSX.Element>) {
     if (this.matrix.canRemoveRow) {
-      elements.push(<td />);
+      elements.push(<td key="header-right-1" />);
     }
   }
   protected renderAddRowButtonOnTop(cssClasses: any): JSX.Element {

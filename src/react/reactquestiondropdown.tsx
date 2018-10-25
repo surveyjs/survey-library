@@ -69,21 +69,13 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       options.push(option);
     }
 
-    let onChange = null;
-    if (
-      browser.msie ||
-      (browser.firefox && compareVersions(browser.version, "51") < 0) ||
-      (browser.firefox && isMobile())
-    ) {
-      onChange = this.handleOnChange;
-    }
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
           value={this.state.value}
-          onChange={onChange}
+          onChange={this.handleOnChange}
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
         >

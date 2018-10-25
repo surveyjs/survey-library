@@ -25,7 +25,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
     return this.questionBase as QuestionMatrixDropdownModel;
   }
   protected addHeaderLeft(elements: Array<JSX.Element>) {
-    elements.push(<td />);
+    elements.push(<td key="header-left-1" />);
   }
   renderRow(
     index: number,
@@ -45,7 +45,7 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
   renderRowsAsHeaders(): JSX.Element {
     var headers = [];
     if (this.question.showHeader) {
-      headers.push(<td />);
+      headers.push(<td key="head-column-0" />);
     }
     var rows = this.matrix.visibleRows;
     for (var i = 0; i < rows.length; i++) {
@@ -68,7 +68,7 @@ export class SurveyQuestionMatrixDropdownRow extends SurveyQuestionMatrixDropdow
   protected AddLeftCells(tds: Array<JSX.Element>) {
     var row = this.row as MatrixDropdownRowModel;
     var rowText = this.renderLocString(row.locText);
-    tds.push(<td>{rowText}</td>);
+    tds.push(<td key="row-left-1">{rowText}</td>);
   }
 }
 

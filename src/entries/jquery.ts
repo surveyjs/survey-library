@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+export * from "./knockout";
 import { SurveyModel } from "../survey";
 import { Survey } from "../knockout/kosurvey";
 import { SurveyWindow } from "../knockout/koSurveyWindow";
@@ -34,5 +35,3 @@ jQuery["fn"].extend({
 });
 
 SurveyModel.platform = "jquery";
-
-export * from "./knockout";

@@ -3,7 +3,6 @@ import { SurveyQuestionElementBase } from "./reactquestionelement";
 import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
-import { browser, compareVersions, isMobile } from "../utils/utils";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {

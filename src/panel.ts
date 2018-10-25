@@ -20,7 +20,6 @@ import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
-import { browser } from "./utils/utils";
 
 export class DragDropInfo {
   constructor(

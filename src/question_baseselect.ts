@@ -474,7 +474,11 @@ export class QuestionSelectBase extends Question {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   public clearIncorrectValues() {
-    if(!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) return;
+    if (
+      !!this.survey &&
+      this.survey.questionCountByValueName(this.getValueName()) > 1
+    )
+      return;
     this.clearIncorrectValuesCore();
   }
   protected clearIncorrectValuesCore() {
@@ -516,13 +520,7 @@ JsonObject.metaData.addClass(
     "hasComment:boolean",
     "hasOther:boolean",
     {
-      name: "choices:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.choices);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.choices = value;
-      }
+      name: "choices:itemvalues"
     },
     {
       name: "choicesOrder",

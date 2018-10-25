@@ -166,13 +166,7 @@ JsonObject.metaData.addClass(
   [
     "hasComment:boolean",
     {
-      name: "rateValues:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rateValues);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rateValues = value;
-      }
+      name: "rateValues:itemvalues"
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },

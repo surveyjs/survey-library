@@ -381,22 +381,10 @@ JsonObject.metaData.addClass(
   "matrix",
   [
     {
-      name: "columns:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.columns);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.columns = value;
-      }
+      name: "columns:itemvalues"
     },
     {
-      name: "rows:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rows);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rows = value;
-      }
+      name: "rows:itemvalues"
     },
     { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"

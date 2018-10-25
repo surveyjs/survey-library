@@ -165,7 +165,11 @@ export class ItemValue {
       return txt ? txt : !this.isValueEmpty ? this.value.toString() : null;
     };
     if (text) this.locText.text = text;
-    this.value = value;
+    if (!!value && typeof value === "object") {
+      this.setData(value);
+    } else {
+      this.value = value;
+    }
   }
   public getType: () => string;
   public get locText(): LocalizableString {

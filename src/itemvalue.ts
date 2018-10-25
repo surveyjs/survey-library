@@ -294,7 +294,7 @@ export class ItemValue {
 JsonObject.metaData.addClass(
   "itemvalue",
   [
-    "!value",
+    "value",
     {
       name: "text",
       serializationProperty: "locText"

@@ -938,7 +938,7 @@ export class QuestionPanelDynamicModel extends Question
     var panel = this.panels[index];
     panel.clearIncorrectValues();
     var val = this.value;
-    var values = index < val.length ? val[index] : null;
+    var values = !!val && index < val.length ? val[index] : null;
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
@@ -1003,7 +1003,7 @@ export class QuestionPanelDynamicModel extends Question
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    var newValues: { [index: string]: any} = {};
+    var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }

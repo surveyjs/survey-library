@@ -63,7 +63,7 @@ export class SurveyElementBase extends React.Component<any, any> {
         var val: any = val;
         val["onArrayChanged"] = () =>
           this.setState((state: any) => {
-            var newState: {[index: string]: any} = {};
+            var newState: { [index: string]: any } = {};
             newState[key] = val;
             return newState;
           });
@@ -74,12 +74,14 @@ export class SurveyElementBase extends React.Component<any, any> {
       key: string,
       val: any
     ) => {
-      hash[key] = val;
-      this.setState((state: any) => {
-        var newState: { [index: string]: any } = {};
-        newState[key] = val;
-        return newState;
-      });
+      if (hash[key] !== val) {
+        hash[key] = val;
+        this.setState((state: any) => {
+          var newState: { [index: string]: any } = {};
+          newState[key] = val;
+          return newState;
+        });
+      }
     };
   }
 }

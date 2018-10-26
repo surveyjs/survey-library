@@ -2199,6 +2199,8 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function(
   survey.onPageVisibleChanged.add(function() {
     counter++;
   });
+  assert.equal(survey.pages[0].isVisible, true, "first page visible by children");
+  assert.equal(survey.pages[1].isVisible, false, "second page is not visible by children");
   assert.equal(counter, 0, "nothing happens");
   survey.setValue("q1", ["yes"]);
   assert.equal(counter, 1, "calls one time");

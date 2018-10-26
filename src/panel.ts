@@ -569,10 +569,10 @@ export class PanelModelBase extends SurveyElement
     while (res.parent) res = res.parent;
     return res;
   }
-  private childVisibilityChanged() {
-    var containerIsVisible = this.getIsPageVisible(null);
-    var oldContainerIsVisible = this.getPropertyValue("isVisible");
-    if (containerIsVisible !== oldContainerIsVisible) {
+  protected childVisibilityChanged() {
+    var newIsVisibleValue = this.getIsPageVisible(null);
+    var oldIsVisibleValue = this.getPropertyValue("isVisible", true);
+    if (newIsVisibleValue !== oldIsVisibleValue) {
       this.onVisibleChanged();
     }
   }
@@ -584,6 +584,7 @@ export class PanelModelBase extends SurveyElement
       this.elements[i].onSurveyLoad();
     }
     this.onRowsChanged();
+    this.onElementVisibilityChanged(this);
   }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");

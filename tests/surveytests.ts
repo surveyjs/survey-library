@@ -852,7 +852,7 @@ QUnit.test("Multiple Text required items", function(assert) {
   var item1 = multiTextQuestion.addItem("item1");
   var item2 = multiTextQuestion.addItem("item2");
   item1.isRequired = true;
-  assert.equal(item1.fullTitle, "&#42; item1", "Add isRequired Text");
+  assert.equal(item1.fullTitle, "* item1", "Add isRequired Text");
   assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
   assert.equal(
     multiTextQuestion.hasErrors(),
@@ -1612,13 +1612,13 @@ QUnit.test("question fullTitle", function(assert) {
   question.title = "My Title";
   assert.equal(question.fullTitle, "2. My Title");
   question.isRequired = true;
-  assert.equal(question.fullTitle, "2. &#42; My Title");
+  assert.equal(question.fullTitle, "2. * My Title");
   survey.questionStartIndex = "100";
-  assert.equal(question.fullTitle, "101. &#42; My Title");
+  assert.equal(question.fullTitle, "101. * My Title");
   survey.questionStartIndex = "A";
-  assert.equal(question.fullTitle, "B. &#42; My Title");
+  assert.equal(question.fullTitle, "B. * My Title");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
-  assert.equal(question.fullTitle, "B) My Title (&#42;)");
+  assert.equal(question.fullTitle, "B) My Title (*)");
 });
 QUnit.test("clearInvisibleValues", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -3029,12 +3029,12 @@ QUnit.test("Survey Markdown - question title", function(assert) {
   q1.isRequired = true;
   assert.equal(
     q1.fullTitle,
-    "1) title1, q2.value is value2! (&#42;)!",
+    "1) title1, q2.value is value2! (*)!",
     "question.title with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
   assert.equal(
     loc.renderedHtml,
-    "1) title1, q2.value is value2! (&#42;)!",
+    "1) title1, q2.value is value2! (*)!",
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });
@@ -3701,11 +3701,11 @@ QUnit.test("clearInvisibleValues=onHidden and invisiblePages, #964", function(
 });
 QUnit.test("required text can be empty: Bug #693", function(assert) {
   var survey = new SurveyModel();
-  assert.equal(survey.requiredText, "&#42;", "The default value is '*'");
+  assert.equal(survey.requiredText, "*", "The default value is '*'");
   survey.requiredText = "";
   assert.equal(survey.requiredText, "", "The value is empty string");
   survey.requiredText = null;
-  assert.equal(survey.requiredText, "&#42;", "The value is again default");
+  assert.equal(survey.requiredText, "*", "The value is again default");
 });
 QUnit.test("Set 0 value into survey.data", function(assert) {
   var survey = new SurveyModel();

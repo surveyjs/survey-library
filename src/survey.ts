@@ -866,7 +866,7 @@ export class SurveyModel extends Base
    * @see Question.title
    */
   public get requiredText(): string {
-    return this.getPropertyValue("requiredText", "*");
+    return this.getPropertyValue("requiredText", "&#42;");
   }
   public set requiredText(val: string) {
     this.setPropertyValue("requiredText", val);
@@ -3256,7 +3256,7 @@ JsonObject.metaData.addClass("survey", [
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
   { name: "completeText", serializationProperty: "locCompleteText" },
-  { name: "requiredText", default: "*" },
+  { name: "requiredText", default: "&#42;" },
   "questionStartIndex",
   {
     name: "questionTitleTemplate",

@@ -1417,7 +1417,7 @@ QUnit.test(
     tmpQuestion.isRequired = true;
     assert.equal(
       pnlQuestion.locTitle["koRenderedHtml"](),
-      "* q22",
+      "&#42; q22",
       "The default value"
     );
   }

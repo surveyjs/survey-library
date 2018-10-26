@@ -1321,13 +1321,7 @@ JsonObject.metaData.addClass(
     },
     "horizontalScroll:boolean",
     {
-      name: "choices:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.choices);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.choices = value;
-      }
+      name: "choices:itemvalues"
     },
     { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
     {

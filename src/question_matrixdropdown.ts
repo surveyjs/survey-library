@@ -123,13 +123,7 @@ JsonObject.metaData.addClass(
   "matrixdropdown",
   [
     {
-      name: "rows:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rows);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rows = value;
-      }
+      name: "rows:itemvalues"
     },
     "rowsVisibleIf:condition"
   ],

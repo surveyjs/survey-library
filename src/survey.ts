@@ -2776,8 +2776,9 @@ export class SurveyModel extends Base
    * @see getComment
    */
   public setComment(name: string, newValue: string) {
+    if (Helpers.isTwoValueEquals(newValue, this.getComment(name))) return;
     var commentName = name + this.commentPrefix;
-    if (newValue === "" || newValue === null) {
+    if (Helpers.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);

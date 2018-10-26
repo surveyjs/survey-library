@@ -20,7 +20,7 @@ import {
   MultipleTextItemModel
 } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
-import { ISurvey, ISurveyData } from "../src/base";
+import { ISurvey, ISurveyData, SurveyElement } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -4918,4 +4918,28 @@ QUnit.test("Survey radioGroup remove data on visible items change even if there 
   };
   survey.data = data;
   assert.deepEqual(survey.data, data);
+});
+
+QUnit.test("Do not call onValueChanged event onComplete event, Bug# T1239", function(assert) {
+  
+  var survey = new SurveyModel( {
+              questions: [
+                  {
+                      name: "name",
+                      type: "text",
+                      title: "Please enter your name:"
+                  }
+                    ]
+  });
+  var radio = survey.pages[0].addNewQuestion("radiogroup","test");
+  radio.choices = ["Yes", "No"];
+  var counter = 0;
+  survey.onValueChanged.add(function(sender, options){
+    counter++;
+  });
+  survey.setValue("name", "name1");
+  survey.setValue("test", "Yes");
+  assert.deepEqual(counter, 2, "onValueChanged called two times");
+  survey.doComplete();
+  assert.deepEqual(counter, 2, "onValueChanged called still two times");
 });

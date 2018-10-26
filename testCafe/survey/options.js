@@ -144,7 +144,7 @@ frameworks.forEach(framework => {
   test(`set question numbers on page`, async t => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf(
-        "1. * Plese select from the list"
+        "1. &#42; Plese select from the list"
       )
     );
 
@@ -158,7 +158,7 @@ frameworks.forEach(framework => {
   test(`set question numbers off`, async t => {
     const getPosition = ClientFunction(() =>
       document.documentElement.innerHTML.indexOf(
-        "1. * Plese select from the list"
+        "1. &#42; Plese select from the list"
       )
     );
 

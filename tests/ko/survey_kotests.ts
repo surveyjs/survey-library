@@ -24,6 +24,7 @@ import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
 import { JsonObject } from "../../src/jsonobject";
+import { SurveyTimer } from "../../src/surveytimer";
 import * as ko from "knockout";
 
 export default QUnit.module("koTests");
@@ -1616,3 +1617,48 @@ QUnit.test("Questions are randomized", function(assert) {
   assert.equal(page.areQuestionsRandomized, true, "Questions are randomized");
   assert.equal(page.rows.length, 3, "There are 3 rows");
 });
+function doTimer(count: number) {
+  for (var i = 0; i < count; i++) {
+    SurveyTimer.instance.doTimer();
+  }
+}
+QUnit.test(
+  "Complete pages by timer and questionsOrder = 'random', Bug#1406",
+  function(assert) {
+    var survey = new Survey({
+      pages: [
+        {
+          name: "startPage",
+          element: [{ type: "text", name: "startQuestion" }]
+        },
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "text", name: "q3" },
+            { type: "text", name: "q4" }
+          ],
+          maxTimeToFinish: 5
+        }
+      ],
+      firstPageIsStarted: true,
+      maxTimeToFinishPage: 10,
+      questionsOrder: "random",
+      showTimerPanel: "top"
+    });
+    survey.start();
+    assert.equal(survey.state, "running", "The state is running");
+    assert.equal(survey.currentPage.name, "page1", "The first page");
+    doTimer(5);
+    assert.equal(survey.state, "running", "The state is still running");
+    assert.equal(survey.currentPage.name, "page1", "The first page");
+    doTimer(5);
+    assert.equal(survey.state, "running", "The state is still running");
+    assert.equal(survey.currentPage.name, "page2", "The second first page");
+    doTimer(5);
+    assert.equal(survey.state, "completed", "The survey is completed");
+  }
+);

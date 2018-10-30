@@ -1579,6 +1579,13 @@ export class SurveyModel extends Base
     this.setPropertyValue("isDesignMode", value);
     this.onIsSinglePageChanged();
   }
+  public get showInvisibleElements(): boolean { return this.getPropertyValue("showInvisibleElements", false);}
+  public set showInvisibleElements(val: boolean) { 
+    this.setPropertyValue("showInvisibleElements", val);
+  }
+  public get areInvisibleElementsShowing(): boolean {
+    return this.isDesignMode || this.showInvisibleElements;
+  } 
   /**
    * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
    * @see cookieName

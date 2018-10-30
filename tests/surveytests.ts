@@ -4769,6 +4769,42 @@ QUnit.test("Do not process html in design time, bug #396 (in Editor)", function(
   assert.equal(question.locTitle.renderedHtml, "2. {question1} test", "Do not process anything at design time");
 });
 
+QUnit.test("survey.showInvisibleElements property", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+    "elements": [
+      {
+      "type": "text",
+      "name": "question1"
+      },
+      {
+      "type": "text",
+      "name": "question2",
+      "visible": false
+      }
+    ]},
+    {
+    "elements": [
+      {
+      "type": "text",
+      "name": "question3",
+      "visibleIf": "{question1} = 'test'"
+      }
+    ]
+    }
+  ]
+   };
+  var survey = new SurveyModel(json);
+  assert.equal(survey.visiblePages.length, 1, "There is one visible page");
+  assert.equal(survey.getQuestionByName("question2").isVisible, false, "question2 is invisible");
+  survey.showInvisibleElements = true;
+  assert.equal(survey.visiblePages.length, 2, "There are two visible pages");
+  assert.equal(survey.getQuestionByName("question2").isVisible, true, "question2 is visible");
+});
+
 QUnit.test("panel.visibleIf doesn't work if it is a single panel on the page, #1329", function(
   assert
 ) {

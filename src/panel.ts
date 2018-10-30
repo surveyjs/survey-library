@@ -35,7 +35,7 @@ export class DragDropInfo {
 export class QuestionRowModel extends Base {
   constructor(public panel: PanelModelBase) {
     super();
-    this.visible = panel.isDesignMode;
+    this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
   }
   public get elements(): Array<IElement> {
@@ -762,7 +762,7 @@ export class PanelModelBase extends SurveyElement
    * Returns true if object is visible or survey is in design mode right now.
    */
   public get isVisible(): boolean {
-    return this.isDesignMode || this.getIsPageVisible(null);
+    return this.areInvisibleElementsShowing || this.getIsPageVisible(null);
   }
   getIsPageVisible(exceptionQuestion: IQuestion): boolean {
     if (!this.visible) return false;
@@ -908,7 +908,9 @@ export class PanelModelBase extends SurveyElement
       elements[i].runCondition(values, properties);
     }
     if (values.conditionVersion < this.conditionVersion) return;
-    this.runVisibleCondition(values, properties);
+    if (!this.areInvisibleElementsShowing) {
+      this.runVisibleCondition(values, properties);
+    }
     this.runEnableCondition(values, properties);
   }
   private runVisibleCondition(

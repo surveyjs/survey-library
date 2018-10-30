@@ -14,7 +14,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected generatedVisibleRows: Array<TRow> = null;
   public visibleRowsChangedCallback: () => void;
 
-  protected createColumnValues():any {
+  protected createColumnValues(): any {
     return [];
   }
 
@@ -91,7 +91,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.runItemsCondition(values, properties);
   }
   protected filterItems(): boolean {
-    if (this.isDesignMode) {
+    if (this.areInvisibleElementsShowing) {
       this.onRowsChanged();
       return false;
     }

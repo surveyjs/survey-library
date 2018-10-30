@@ -46,6 +46,7 @@ export interface ISurvey extends ITextProcessor {
   getSurveyMarkdownHtml(element: Base, text: string): string;
   isDisplayMode: boolean;
   isDesignMode: boolean;
+  areInvisibleElementsShowing: boolean;
   isLoadingFromJson: boolean;
 
   requiredText: string;
@@ -587,7 +588,10 @@ export class SurveyElement extends Base implements ISurveyElement {
    * Returns true if the question in design mode right now.
    */
   public get isDesignMode(): boolean {
-    return this.survey && this.survey.isDesignMode;
+    return !!this.survey && this.survey.isDesignMode;
+  }
+  public get areInvisibleElementsShowing(): boolean {
+    return !!this.survey && this.survey.areInvisibleElementsShowing;
   }
   public get isVisible(): boolean {
     return true;

@@ -154,7 +154,7 @@ export class Question extends SurveyElement
    * Returns true if the question is visible or survey is in design mode right now.
    */
   public get isVisible(): boolean {
-    return this.visible || this.isDesignMode;
+    return this.visible || this.areInvisibleElementsShowing;
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
@@ -659,7 +659,9 @@ export class Question extends SurveyElement
    */
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode) return;
-    this.runVisibleIfCondition(values, properties);
+    if (!this.areInvisibleElementsShowing) {
+      this.runVisibleIfCondition(values, properties);
+    }
     this.runEnableIfCondition(values, properties);
   }
   private runVisibleIfCondition(

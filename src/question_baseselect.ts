@@ -110,7 +110,12 @@ export class QuestionSelectBase extends Question {
     this.comment = this.defaultValue;
   }
   protected filterItems(): boolean {
-    if (this.isLoadingFromJson || !this.data || this.isDesignMode) return false;
+    if (
+      this.isLoadingFromJson ||
+      !this.data ||
+      this.areInvisibleElementsShowing
+    )
+      return false;
     return this.runItemsCondition(
       this.getDataFilteredValues(),
       this.getDataFilteredProperties()

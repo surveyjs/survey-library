@@ -134,7 +134,12 @@ export class PageModel extends PanelModelBase implements IPage {
   public focusFirstQuestion() {
     for (var i = 0; i < this.questions.length; i++) {
       var question = this.questions[i];
-      if (!question.visible || !question.hasInput) continue;
+      if (
+        !this.questions[i].parent.isVisible ||
+        !question.visible ||
+        !question.hasInput
+      )
+        continue;
       this.questions[i].focus();
       break;
     }
@@ -145,6 +150,7 @@ export class PageModel extends PanelModelBase implements IPage {
   public focusFirstErrorQuestion() {
     for (var i = 0; i < this.questions.length; i++) {
       if (
+        !this.questions[i].parent.isVisible ||
         !this.questions[i].visible ||
         this.questions[i].currentErrorCount == 0
       )

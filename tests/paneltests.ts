@@ -303,3 +303,55 @@ QUnit.test("Page getPanels and Survey getAllPanels", function(assert) {
     "There is 1 panel in the second page"
   );
 });
+
+QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "html", name: "q1" },
+      {
+        type: "panel",
+        name: "p1",
+        visible: false,
+        elements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", isRequired: true }
+        ]
+      },
+      {
+        type: "panel",
+        name: "p2",
+        visible: false,
+        elements: [
+          {
+            type: "panel",
+            name: "p3",
+            elements: [
+              { type: "text", name: "q4" },
+              { type: "text", name: "q5", isRequired: true }
+            ]
+          }
+        ]
+      },
+      {
+        type: "panel",
+        name: "p4",
+        elements: [
+          { type: "text", name: "q6" },
+          { type: "text", name: "q7", isRequired: true }
+        ]
+      }
+    ]
+  });
+  var page = survey.pages[0];
+  page.hasErrors(true);
+  assert.equal(
+    page.getFirstQuestionToFocus().name,
+    "q6",
+    "The first question for focusing is q6"
+  );
+  assert.equal(
+    page.getFirstQuestionToFocus(true).name,
+    "q7",
+    "The first question for focusing with errors is q7"
+  );
+});

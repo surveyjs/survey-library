@@ -8,6 +8,7 @@ import {
   IQuestion,
   SurveyElement
 } from "./base";
+import { Question } from "./question";
 import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
 
 /**
@@ -132,25 +133,18 @@ export class PageModel extends PanelModelBase implements IPage {
    * Call it to focus the input on the first question
    */
   public focusFirstQuestion() {
-    for (var i = 0; i < this.questions.length; i++) {
-      var question = this.questions[i];
-      if (!question.visible || !question.hasInput) continue;
-      this.questions[i].focus();
-      break;
+    var q = this.getFirstQuestionToFocus();
+    if (!!q) {
+      q.focus();
     }
   }
   /**
    * Call it to focus the input of the first question that has an error.
    */
   public focusFirstErrorQuestion() {
-    for (var i = 0; i < this.questions.length; i++) {
-      if (
-        !this.questions[i].visible ||
-        this.questions[i].currentErrorCount == 0
-      )
-        continue;
-      this.questions[i].focus(true);
-      break;
+    var q = this.getFirstQuestionToFocus(true);
+    if (!!q) {
+      q.focus();
     }
   }
   /**

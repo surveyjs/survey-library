@@ -458,6 +458,23 @@ export class PanelModelBase extends SurveyElement
     }
     this.hasErrorsInPanels(rec);
   }
+  getFirstQuestionToFocus(withError: boolean = false): Question {
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      var el = elements[i];
+      if (!el.isVisible) continue;
+      if (el.isPanel) {
+        var res = (<PanelModelBase>(<any>el)).getFirstQuestionToFocus(
+          withError
+        );
+        if (!!res) return res;
+      } else {
+        var q = <Question>el;
+        if (q.hasInput && (!withError || q.currentErrorCount > 0)) return q;
+      }
+    }
+    return null;
+  }
   /**
    * Fill list array with the questions.
    * @param list

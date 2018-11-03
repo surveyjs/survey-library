@@ -1,3 +1,6 @@
+<!-- The easiest way to fix the issue is provide us with a [Minimal, Complete, and Verifiable example](https://stackoverflow.com/help/mcve). This should not be exactly your JSON or code. Just a small sample illustrating the issue. In this case we will be able to investigate it in our side and find the cause of the issue. -->
+
+
 ### Are you requesting a feature, reporting a bug or asking a question?
 
 

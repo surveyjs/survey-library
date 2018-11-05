@@ -21,9 +21,6 @@ export class QuestionNonValue extends Question {
   public getTitleLocation(): string {
     return "";
   }
-  public get hasDescription(): boolean {
-    return false;
-  }
   public get hasComment(): boolean {
     return false;
   }

@@ -163,7 +163,7 @@ export class SurveyQuestion extends SurveyElementBase {
     return <h5 className={cssClasses.title}>{titleText}</h5>;
   }
   protected renderDescription(cssClasses: any): JSX.Element {
-    if (!this.question.hasDescription) return null;
+    if (this.question.locDescription.isEmpty) return null;
     var descriptionText = SurveyElementBase.renderLocString(
       this.question.locDescription
     );

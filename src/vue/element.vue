@@ -2,9 +2,8 @@
     <div :class="getQuestionClass(element)">
         <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
             <h5 v-if="element.hasTitle" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
-            <div v-if="element.hasDescription" :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
+            <div :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
         </div>
-
         <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
             <survey-errors v-if="hasErrorsOnTop" :question="element"/>
             <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
@@ -14,7 +13,7 @@
             </div>
             <survey-errors v-if="hasErrorsOnBottom" :question="element"/>
             <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
-            <div v-if="element.hasDescription" :class="element.cssClasses.description" v-show="element.hasTitleOnBottom"><survey-string :locString="element.locDescription"/></div>
+            <div v-show="element.hasTitleOnBottom"><survey-string :locString="element.locDescription"/></div>
         </div>
     </div>
 </template>

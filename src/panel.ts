@@ -166,9 +166,6 @@ export class PanelModelBase extends SurveyElement
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
-  public get hasDescription(): boolean {
-    return this.description != "";
-  }
   public locStrsChanged() {
     super.locStrsChanged();
     for (var i = 0; i < this.elements.length; i++) {

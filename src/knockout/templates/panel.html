@@ -5,7 +5,7 @@
             <!-- /ko -->
             <span class="sv_panel_icon" data-bind="visible: koIsCollapsed() || koIsExpanded(), css: {sv_expanded: !koIsCollapsed()}"></span>
         </h4>
-        <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
+        <div data-bind="css: cssClasses.panel.description">
             <!-- ko template: { name: 'survey-string', data: locDescription } -->
             <!-- /ko -->
         </div>

@@ -979,3 +979,16 @@ QUnit.test("contain and noncontain for strings", function(assert) {
     "notcontains: 'babc' contains 'ab' - false"
   );
 });
+/*
+QUnit.test(
+  "ExpressionRunner: 7 * (({q1} * 0.4) + ({q2} * 0.6)), bug# 1423",
+  function(assert) {
+    var runner = new ExpressionRunner("7 * ((10 * 0.4) + (20 * 0.6))");
+    assert.equal(
+      runner.run({}),
+      7 * (4 + 12),
+      "7 * ((10 * 0.4) + (20 * 0.6)) is 112"
+    );
+  }
+);
+*/

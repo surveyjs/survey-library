@@ -4,7 +4,7 @@
           <survey-string :locString="question.locTitle"/>
           <span v-show="showIcon" :class="iconCss"></span>
         </h4>
-        <div v-show="hasDescription" :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
+        <div :class="question.cssClasses.panel.description"><survey-string :locString="question.locDescription"/></div>
         <survey-errors :question="question"/>
         <div :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
             <div v-for="(row, index) in rows" :key="question.id + '_' + index" v-if="row.visible" :class="css.row">
@@ -34,7 +34,7 @@ export class Panel extends Vue {
     this.isCollapsed = this.question.isCollapsed;
     var self = this;
     this.question.registerFunctionOnPropertyValueChanged("state", function(
-      val:any
+      val: any
     ) {
       self.isCollapsed = self.question.isCollapsed;
     });
@@ -56,9 +56,6 @@ export class Panel extends Vue {
   }
   get hasTitle() {
     return this.question.title.length > 0;
-  }
-  get hasDescription() {
-    return !!this.question.description;
   }
   get survey() {
     return this.question.survey;

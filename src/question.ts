@@ -236,13 +236,6 @@ export class Question extends SurveyElement
     return this.getTitleLocation() !== "hidden";
   }
   /**
-   * Returns false if the question doesn't have a description property, for example: QuestionHtmlModel, or description property is empty.
-   * @see description
-   */
-  public get hasDescription(): boolean {
-    return this.description != "";
-  }
-  /**
    * Set this property different from "default" to set the specific question title location for this panel/page.
    * @see SurveyModel.questionTitleLocation
    */

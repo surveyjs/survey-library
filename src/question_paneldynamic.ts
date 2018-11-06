@@ -1015,12 +1015,6 @@ export class QuestionPanelDynamicModel extends Question
       this.items[i].runCondition(newValues, properties);
     }
   }
-  onReadOnlyChanged() {
-    super.onReadOnlyChanged();
-    for (var i = 0; i < this.panels.length; i++) {
-      this.panels[i].onReadOnlyChanged();
-    }
-  }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);
     for (var i = 0; i < this.items.length; i++) {

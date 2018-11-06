@@ -547,16 +547,42 @@ QUnit.test(
     survey.addPage(page);
     var question = new QuestionText("q1");
     page.addQuestion(question);
+    var readOnlyChangedCounter = 0;
+    ko.computed(() => {
+      var val = question.isReadOnly;
+      readOnlyChangedCounter++;
+    });
     assert.equal(
       question.isReadOnly,
       false,
       "by default question is not readonly"
+    );
+    assert.equal(
+      readOnlyChangedCounter,
+      1,
+      "readOnlyChangedCounter - nothing chanhed"
     );
     survey.mode = "display";
     assert.equal(
       question.isReadOnly,
       true,
       "survey in display mode, question is readonly"
+    );
+    assert.equal(
+      readOnlyChangedCounter,
+      2,
+      "readOnlyChangedCounter - mode chanhed 1"
+    );
+    survey.mode = "edit";
+    assert.equal(
+      question.isReadOnly,
+      false,
+      "survey in edit mode, question is not readonly"
+    );
+    assert.equal(
+      readOnlyChangedCounter,
+      3,
+      "readOnlyChangedCounter - mode chanhed 2"
     );
   }
 );

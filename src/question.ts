@@ -612,11 +612,9 @@ export class Question extends SurveyElement
    * @see readOnly
    */
   public get isReadOnly() {
-    return (
-      this.readOnly ||
-      (!!this.parent && this.parent.isReadOnly) ||
-      (!!this.survey && this.survey.isDisplayMode)
-    );
+    var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
+    var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
   /**
    * Set it to true to make a question readonly.

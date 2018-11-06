@@ -805,10 +805,9 @@ export class PanelModelBase extends SurveyElement
    * @see readOnly
    */
   public get isReadOnly(): boolean {
-    if (this.readOnly) return true;
-    if (!!this.parent) return this.parent.isReadOnly;
-    if (!!this.survey && this.survey.isDisplayMode) return true;
-    return false;
+    var isParentReadOnly = !!this.parent && this.parent.isReadOnly;
+    var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
+    return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
   /**
    * Set it to true to make a panel/page readonly.

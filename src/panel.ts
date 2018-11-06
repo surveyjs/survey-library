@@ -820,7 +820,6 @@ export class PanelModelBase extends SurveyElement
   public set readOnly(val: boolean) {
     if (this.readOnly == val) return;
     this.setPropertyValue("readOnly", val);
-    this.onReadOnlyChanged();
   }
   /**
    * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.
@@ -945,11 +944,6 @@ export class PanelModelBase extends SurveyElement
   onAnyValueChanged(name: string) {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onAnyValueChanged(name);
-    }
-  }
-  onReadOnlyChanged() {
-    for (var i = 0; i < this.elements.length; i++) {
-      this.elements[i].onReadOnlyChanged();
     }
   }
   protected dragDropAddTarget(dragDropInfo: DragDropInfo) {

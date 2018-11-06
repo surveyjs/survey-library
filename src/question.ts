@@ -627,7 +627,6 @@ export class Question extends SurveyElement
   public set readOnly(val: boolean) {
     if (this.readOnly == val) return;
     this.setPropertyValue("readOnly", val);
-    this.onReadOnlyChanged();
   }
   /**
    * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
@@ -674,9 +673,6 @@ export class Question extends SurveyElement
       this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
     this.conditionEnabelRunner.expression = this.enableIf;
     this.readOnly = !this.conditionEnabelRunner.run(values, properties);
-  }
-  onReadOnlyChanged() {
-    this.setPropertyValue("isReadOnly", this.isReadOnly);
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";

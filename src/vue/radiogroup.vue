@@ -2,7 +2,7 @@
     <fieldset :class="question.cssClasses.root">
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
-                <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + index" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span :class="question.cssClasses.materialDecorator"></span>
                 <span class="check"></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
@@ -27,7 +27,7 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
   get choicesCount() {
     return this.question.visibleChoices.length - 1;
   }
-  getItemClass(item:any) {
+  getItemClass(item: any) {
     var itemClass =
       this.question.cssClasses.item +
       (this.question.colCount === 0

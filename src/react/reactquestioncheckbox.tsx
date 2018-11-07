@@ -37,7 +37,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i == 0, cssClasses));
+      items.push(this.renderItem(key, item, i == 0, cssClasses, i));
     }
     return items;
   }
@@ -48,7 +48,8 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     key: string,
     item: any,
     isFirst: boolean,
-    cssClasses: any
+    cssClasses: any,
+    index: number
   ): JSX.Element {
     return (
       <SurveyQuestionCheckboxItem
@@ -59,6 +60,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         item={item}
         textStyle={this.textStyle}
         isFirst={isFirst}
+        index={index}
       />
     );
   }
@@ -68,12 +70,14 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   protected item: ItemValue;
   protected textStyle: any;
   protected isFirst: any;
+  protected index: number;
   constructor(props: any) {
     super(props);
     this.item = props.item;
     this.question = props.question;
     this.textStyle = props.textStyle;
     this.isFirst = props.isFirst;
+    this.index = props.index;
     this.handleOnChange = this.handleOnChange.bind(this);
     this.selectAllChanged = this.selectAllChanged.bind(this);
   }
@@ -128,7 +132,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.question.inputId;
+    var id = this.question.inputId + "-" + this.index;
     var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +

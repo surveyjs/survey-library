@@ -57,7 +57,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i === 0, cssClasses));
+      items.push(this.renderItem(key, item, i === 0, cssClasses, i));
     }
     return items;
   }
@@ -68,7 +68,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     key: string,
     item: ItemValue,
     isFirst: boolean,
-    cssClasses: any
+    cssClasses: any,
+    index: number
   ): JSX.Element {
     var isChecked = this.question.value == item.value;
     var otherItem =
@@ -81,7 +82,8 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
       isChecked,
       otherItem,
       isFirst,
-      cssClasses
+      cssClasses,
+      index
     );
   }
   protected renderRadio(
@@ -90,9 +92,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     isChecked: boolean,
     otherItem: JSX.Element,
     isFirst: boolean,
-    cssClasses: any
+    cssClasses: any,
+    index: number
   ): JSX.Element {
-    var id = this.question.inputId;
+    var id = this.question.inputId + "-" + index;
     var itemText = this.renderLocString(item.locText, this.textStyle);
     let itemClass =
       cssClasses.item +

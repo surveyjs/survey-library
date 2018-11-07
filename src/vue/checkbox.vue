@@ -2,8 +2,8 @@
     <fieldset :class="question.cssClasses.root">
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)">
             <label :class="question.cssClasses.label">
-                <input v-if="item == question.selectAllItem" type="checkbox" :name="question.name" :value="isAllSelected" v-model="isAllSelected" :id="question.inputId" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <input v-if="item != question.selectAllItem" type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input v-if="item == question.selectAllItem" type="checkbox" :name="question.name" :value="isAllSelected" v-model="isAllSelected" :id="question.inputId + '_' + index" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
+                <input v-if="item != question.selectAllItem" type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId + '_' + index" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span :class="question.cssClasses.materialDecorator"><span class="check"></span></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
                 <survey-other-choice v-show="question.hasOther && question.value && question.isOtherSelected" v-if="index == choicesCount" :question="question" />

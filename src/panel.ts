@@ -455,6 +455,15 @@ export class PanelModelBase extends SurveyElement
     }
     this.hasErrorsInPanels(rec);
   }
+  updateElementVisibility() {
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = this.elements[i];
+      (<Base>(<any>el)).setPropertyValue("isVisible", el.isVisible);
+      if (el.isPanel) {
+        (<PanelModelBase>(<any>el)).updateElementVisibility();
+      }
+    }
+  }
   getFirstQuestionToFocus(withError: boolean = false): Question {
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {

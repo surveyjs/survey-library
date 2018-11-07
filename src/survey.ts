@@ -13,7 +13,8 @@ import {
   IConditionRunner,
   IPage,
   SurveyError,
-  Event
+  Event,
+  ISurveyElement
 } from "./base";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { PageModel } from "./page";
@@ -1576,13 +1577,29 @@ export class SurveyModel extends Base
     this.setPropertyValue("isDesignMode", value);
     this.onIsSinglePageChanged();
   }
-  public get showInvisibleElements(): boolean { return this.getPropertyValue("showInvisibleElements", false);}
-  public set showInvisibleElements(val: boolean) { 
+  public get showInvisibleElements(): boolean {
+    return this.getPropertyValue("showInvisibleElements", false);
+  }
+  public set showInvisibleElements(val: boolean) {
+    var visPages = this.visiblePages;
     this.setPropertyValue("showInvisibleElements", val);
+    this.updateAllElementsVisibility(visPages);
+  }
+  private updateAllElementsVisibility(visPages: Array<PageModel>) {
+    for (var i = 0; i < this.pages.length; i++) {
+      var page = this.pages[i];
+      page.updateElementVisibility();
+      if (visPages.indexOf(page) > -1 != page.isVisible) {
+        this.onPageVisibleChanged.fire(this, {
+          page: page,
+          visible: page.isVisible
+        });
+      }
+    }
   }
   public get areInvisibleElementsShowing(): boolean {
     return this.isDesignMode || this.showInvisibleElements;
-  } 
+  }
   /**
    * Returns true, if a user has already completed the survey on this browser and there is a cookie about it. Survey goes to 'completed' state if the function returns true.
    * @see cookieName

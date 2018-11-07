@@ -671,12 +671,12 @@ QUnit.test("ExpressionOperand: parser, 1 + 2 + 3", function(assert) {
   parser.parse("1 + 2 - 3 >= 10", node);
   assert.equal(node.children.length, 1);
   var left = <ExpressionOperand>node.children[0].left;
-  var leftLeft = <ExpressionOperand>left.left;
-  assert.equal(leftLeft.left.origionalValue, 1);
-  assert.equal(leftLeft.right.origionalValue, 2);
-  assert.equal(leftLeft.operator, "+");
-  assert.equal(left.operator, "-");
-  assert.equal(left.right.origionalValue, 3);
+  var leftright = <ExpressionOperand>left.right;
+  assert.equal(left.left.origionalValue, 1);
+  assert.equal(left.operator, "+");
+  assert.equal(leftright.left.origionalValue, 2);
+  assert.equal(leftright.operator, "-");
+  assert.equal(leftright.right.origionalValue, 3);
   assert.equal(node.children[0].operator, "greaterorequal");
   assert.equal(node.children[0].right.origionalValue, 10);
   assert.equal(node.connective, "and");
@@ -979,7 +979,7 @@ QUnit.test("contain and noncontain for strings", function(assert) {
     "notcontains: 'babc' contains 'ab' - false"
   );
 });
-/*
+
 QUnit.test(
   "ExpressionRunner: 7 * (({q1} * 0.4) + ({q2} * 0.6)), bug# 1423",
   function(assert) {
@@ -991,4 +991,3 @@ QUnit.test(
     );
   }
 );
-*/

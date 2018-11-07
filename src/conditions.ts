@@ -145,10 +145,10 @@ export class ExpressionOperand extends Operand {
     super(null);
   }
   public getValue(processValue: ProcessValue): any {
-    if (Helpers.isValueEmpty(this.left) || Helpers.isValueEmpty(this.right))
-      return null;
     var l = this.left.getValue(processValue);
     var r = this.right.getValue(processValue);
+    if (Helpers.isValueEmpty(l)) l = 0;
+    if (Helpers.isValueEmpty(r)) r = 0;
     if (this.operator == "+") {
       return l + r;
     }
@@ -173,7 +173,7 @@ export class ExpressionOperand extends Operand {
   }
   public fillVariables(vars: Array<string>) {
     if (!!this.left) this.left.fillVariables(vars);
-    if (!!this.right) this.left.fillVariables(vars);
+    if (!!this.right) this.right.fillVariables(vars);
   }
   public toString() {
     var res = this.left ? this.left.toString() : "";

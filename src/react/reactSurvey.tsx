@@ -226,6 +226,32 @@ export class Survey extends React.Component<any, any>
     } else {
       this.survey = new ReactSurveyModel();
     }
+    this.survey.iteratePropertiesHash((hash, key) => {
+      var val: any = hash[key];
+      if (Array.isArray(val)) {
+        var val: any = val;
+        val["onArrayChanged"] = () =>
+          this.setState((state: any) => {
+            var newState: { [index: string]: any } = {};
+            newState[key] = val;
+            return newState;
+          });
+      }
+    });
+    this.survey.setPropertyValueCoreHandler = (
+      hash: any,
+      key: string,
+      val: any
+    ) => {
+      if (hash[key] !== val) {
+        hash[key] = val;
+        this.setState((state: any) => {
+          var newState: { [index: string]: any } = {};
+          newState[key] = val;
+          return newState;
+        });
+      }
+    };
     if (newProps) {
       for (var key in newProps) {
         if (key == "model" || key == "children") continue;

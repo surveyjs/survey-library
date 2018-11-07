@@ -544,11 +544,6 @@ export class MatrixDropdownRowModelBase
     }
     this.isSettingValue = false;
   }
-  public onReadOnlyChanged() {
-    for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].question.onReadOnlyChanged();
-    }
-  }
   public onAnyValueChanged(name: string) {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].question.onAnyValueChanged(name);
@@ -1161,13 +1156,6 @@ export class QuestionMatrixDropdownModelBase
     return this.isObject(newValue) && Object.keys(newValue).length == 0
       ? null
       : newValue;
-  }
-  onReadOnlyChanged() {
-    if (this.isLoadingFromJson) return;
-    var rows = this.visibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].onReadOnlyChanged();
-    }
   }
   private isDoingonAnyValueChanged = false;
   onAnyValueChanged(name: string) {

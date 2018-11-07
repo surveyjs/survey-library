@@ -1230,9 +1230,6 @@ export class SurveyModel extends Base
     if (value == this.mode) return;
     if (value != "edit" && value != "display") return;
     this.setPropertyValue("mode", value);
-    for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].onReadOnlyChanged();
-    }
   }
   /**
    * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }

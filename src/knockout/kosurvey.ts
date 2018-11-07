@@ -61,6 +61,25 @@ export class Survey extends SurveyModel {
     css: any = null
   ) {
     super(jsonObj);
+    this.iteratePropertiesHash((hash, key) => {
+      var val = hash[key];
+      if (Array.isArray(val)) {
+        hash[key] = ko.observableArray(val);
+        (<any>val)["onArrayChanged"] = () => hash[key].notifySubscribers();
+      } else {
+        hash[key] = ko.observable(val);
+      }
+    });
+    this.getPropertyValueCoreHandler = (hash, key) => {
+      if (hash[key] === undefined) {
+        hash[key] = ko.observable();
+      }
+      return ko.unwrap(hash[key]);
+    };
+    this.setPropertyValueCoreHandler = (hash, key, val) =>
+      hash[key] !== undefined
+        ? hash[key](val)
+        : (hash[key] = ko.observable(val));
     if (css) {
       this.css = css;
     }
@@ -146,7 +165,7 @@ export class Survey extends SurveyModel {
     super.clear(clearData, gotoFirstPage);
     this.render();
   }
-  public koEventAfterRender(element:any, survey:any) {
+  public koEventAfterRender(element: any, survey: any) {
     survey.onRendered.fire(self, {});
     survey.afterRenderSurvey(element);
   }
@@ -213,7 +232,7 @@ export class Survey extends SurveyModel {
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
-    this.koAfterRenderPage = function(elements:any, con:any) {
+    this.koAfterRenderPage = function(elements: any, con: any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
     };

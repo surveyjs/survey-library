@@ -269,13 +269,6 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     if (this.question) {
       var self = this;
       this.question.registerFunctionOnPropertyValueChanged(
-        "isReadOnly",
-        function() {
-          self.setState(self.getState());
-        },
-        "react"
-      );
-      this.question.registerFunctionOnPropertyValueChanged(
         "visible",
         function() {
           self.setState(self.getState());
@@ -287,7 +280,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   componentWillUnmount() {
     if (this.question) {
       this.question.unRegisterFunctionOnPropertiesValueChanged(
-        ["visible", "isReadOnly"],
+        ["visible"],
         "react"
       );
       var el: any = this.refs["cell"];

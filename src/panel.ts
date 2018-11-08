@@ -107,23 +107,14 @@ export class PanelModelBase extends SurveyElement
     this.createNewArray("rows");
     this.elementsValue = this.createNewArray(
       "elements",
-      function(item: any, index: number) {
-        self.onAddElement(item, index);
-        self.updateRowsOnElementAdded(item, index);
-      },
-      function(item: any) {
-        self.onRemoveElement(item);
-        self.updateRowsOnElementRemoved(item);
-      }
+      this.onAddElement.bind(this),
+      this.onRemoveElement.bind(this)
     );
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleLocation",
-      function() {
-        self.onVisibleChanged();
-      }
+      this.onVisibleChanged.bind(this)
     );
     this.id = PanelModelBase.getPanelId();
-    var self = this;
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
@@ -621,6 +612,7 @@ export class PanelModelBase extends SurveyElement
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
+    this.updateRowsOnElementAdded(element, index);
     if (element.isPanel) {
       var p = <PanelModel>element;
       if (this.survey) {
@@ -657,6 +649,7 @@ export class PanelModelBase extends SurveyElement
       ["visible", "isVisible", "startWithNewLine"],
       this.id
     );
+    this.updateRowsOnElementRemoved(element);
     if (!element.isPanel) {
       if (this.survey) this.survey.questionRemoved(<Question>element);
     } else {

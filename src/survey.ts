@@ -59,7 +59,13 @@ export class SurveyModel extends Base
 
   private pagesValue: Array<PageModel>;
   private triggersValue: Array<SurveyTrigger>;
-  private currentPageValue: PageModel = null;
+  private get currentPageValue(): PageModel {
+    return this.getPropertyValue("currentPageValue", null);
+  }
+  private set currentPageValue(val: PageModel) {
+    this.setPropertyValue("currentPageValue", val);
+  }
+
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
 

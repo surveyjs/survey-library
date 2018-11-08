@@ -983,7 +983,9 @@ export class SurveyModel extends Base
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
     this.locStrsChanged();
+    this.onLocaleChanged();
   }
+  protected onLocaleChanged() {}
   //ILocalizableOwner
   getLocale() {
     return this.locale;

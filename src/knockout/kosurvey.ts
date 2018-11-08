@@ -165,6 +165,9 @@ export class Survey extends SurveyModel {
     super.clear(clearData, gotoFirstPage);
     this.render();
   }
+  protected onLocaleChanged() {
+    this.render();
+  }
   public koEventAfterRender(element: any, survey: any) {
     survey.onRendered.fire(self, {});
     survey.afterRenderSurvey(element);

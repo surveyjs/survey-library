@@ -394,7 +394,8 @@ export class Question extends SurveyElement
     return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;
   }
   private calcFullTitle(): string {
-    if (this.getQuestionTitleTemplate()) {
+    var titleTemplate = this.getQuestionTitleTemplate();
+    if (titleTemplate) {
       if (!this.textPreProcessor) {
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
@@ -405,7 +406,7 @@ export class Question extends SurveyElement
         };
       }
       return this.textPreProcessor.process(
-        this.getQuestionTitleTemplate(),
+        titleTemplate,
         this.useDisplayValuesInTitle
       );
     }

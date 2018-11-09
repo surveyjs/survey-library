@@ -4968,3 +4968,25 @@ QUnit.test("Do not call onValueChanged event onComplete event, Bug# T1239", func
   survey.doComplete();
   assert.deepEqual(counter, 2, "onValueChanged called still two times");
 });
+
+QUnit.test("Call onValueChanged event onComplete event only one for real field, Bug# T1239", function(assert) {
+  var survey = new SurveyModel( {
+              questions: [
+                  {
+                      name: "name",
+                      type: "text",
+                      title: "Please enter your name:"
+                  }
+                    ]
+  });
+  var radio = survey.pages[0].addNewQuestion("radiogroup","test");
+  radio.choices = ["Yes", "No"];
+  radio.value = "Some value";
+  radio.visible = false;
+  var counter = 0;
+  survey.onValueChanged.add(function(sender, options){
+    counter++;
+  });
+  survey.doComplete();
+  assert.equal(counter, 1, "onValueChanged called still two times");
+});

@@ -701,7 +701,9 @@ export class SurveyModel extends Base
     this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-
+    this.registerFunctionOnPropertyValueChanged("questionTitleTemplate", function(){
+      self.questionTitleTemplateCache = undefined;
+    })
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
       function() {
@@ -985,6 +987,7 @@ export class SurveyModel extends Base
     return this.localeValue;
   }
   public set locale(value: string) {
+    this.questionTitleTemplateCache = undefined;
     surveyLocalization.currentLocale = value;
     this.localeValue = surveyLocalization.currentLocale;
     this.setPropertyValue("locale", this.localeValue);
@@ -1147,13 +1150,17 @@ export class SurveyModel extends Base
   public set questionTitleTemplate(value: string) {
     this.setLocalizableStringText("questionTitleTemplate", value);
   }
+  private questionTitleTemplateCache: string = undefined;
   /**
    * Returns the question title template
    * @see questionTitleTemplate
    * @see QuestionModel.title
    */
   public getQuestionTitleTemplate(): string {
-    return this.locQuestionTitleTemplate.textOrHtml;
+    if(this.questionTitleTemplateCache === undefined) {
+      this.questionTitleTemplateCache = this.locQuestionTitleTemplate.textOrHtml;
+    }
+    return this.questionTitleTemplateCache;
   }
   get locQuestionTitleTemplate(): LocalizableString {
     return this.getLocalizableString("questionTitleTemplate");

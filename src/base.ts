@@ -38,6 +38,7 @@ export interface ISurvey extends ITextProcessor {
   ): any;
   questionRemoved(question: IQuestion): any;
   panelRemoved(panel: IElement): any;
+  //questionRenamed(question: IQuestion, oldName: string, oldValueName: string): any;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;

@@ -701,9 +701,12 @@ export class SurveyModel extends Base
     this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
-    this.registerFunctionOnPropertyValueChanged("questionTitleTemplate", function(){
-      self.questionTitleTemplateCache = undefined;
-    })
+    this.registerFunctionOnPropertyValueChanged(
+      "questionTitleTemplate",
+      function() {
+        self.questionTitleTemplateCache = undefined;
+      }
+    );
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
       function() {
@@ -1157,7 +1160,7 @@ export class SurveyModel extends Base
    * @see QuestionModel.title
    */
   public getQuestionTitleTemplate(): string {
-    if(this.questionTitleTemplateCache === undefined) {
+    if (this.questionTitleTemplateCache === undefined) {
       this.questionTitleTemplateCache = this.locQuestionTitleTemplate.textOrHtml;
     }
     return this.questionTitleTemplateCache;
@@ -1518,7 +1521,7 @@ export class SurveyModel extends Base
   private updateValuesWithDefaults() {
     if (this.isDesignMode || this.isLoading) return;
     for (var i = 0; i < this.pages.length; i++) {
-      var questions = this.pages[0].questions;
+      var questions = this.pages[i].questions;
       for (var j = 0; j < questions.length; j++) {
         questions[j].updateValueWithDefaults();
       }
@@ -2417,7 +2420,7 @@ export class SurveyModel extends Base
     }
   }
   private runConditions() {
-    if (this.isCompleted) return;
+    if (this.isCompleted || this.isEndLoadingFromJson) return;
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
@@ -2584,16 +2587,19 @@ export class SurveyModel extends Base
       this.jsonErrors = jsonConverter.errors;
     }
   }
+  private isEndLoadingFromJson = false;
   endLoadingFromJson() {
+    this.isEndLoadingFromJson = true;
     this.isStartedState = this.firstPageIsStarted;
     this.onIsSinglePageChanged();
-    this.runConditions();
     this.updateVisibleIndexes();
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.doComplete();
     }
     this.doElementsOnLoad();
+    this.isEndLoadingFromJson = false;
+    this.runConditions();
   }
   protected onBeforeCreating() {}
   protected onCreating() {}
@@ -2875,7 +2881,9 @@ export class SurveyModel extends Base
         this.getAllQuestions(false, true),
         "question"
       );
-    this.updateVisibleIndexes();
+    if (!this.isLoadingFromJson) {
+      this.updateVisibleIndexes();
+    }
     this.onQuestionAdded.fire(this, {
       question: question,
       name: question.name,
@@ -2891,6 +2899,19 @@ export class SurveyModel extends Base
       name: question.name
     });
   }
+  /*
+  questionRenamed(
+    question: IQuestion,
+    oldName: string,
+    oldValueName: string
+  ): any {}
+  private questionAddedUpdateCache(question: Question) {}
+  private questionRemovedUpdateCache(
+    question: Question,
+    name: string,
+    valueName: string
+  ) {}
+  */
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
     if (!panel.name)
       panel.name = this.generateNewName(

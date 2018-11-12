@@ -321,7 +321,7 @@ export class QuestionMultipleTextModel extends Question
     return this.getPropertyValue("colCount", 1);
   }
   public set colCount(val: number) {
-    if (val < 1 || val > 4) return;
+    if (val < 1 || val > 5) return;
     this.setPropertyValue("colCount", val);
   }
   /**
@@ -472,7 +472,7 @@ JsonObject.metaData.addClass(
   [
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", default: 25 },
-    { name: "colCount:number", default: 1, choices: [1, 2, 3, 4] }
+    { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] }
   ],
   function() {
     return new QuestionMultipleTextModel("");

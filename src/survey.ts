@@ -29,6 +29,8 @@ import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
+import { Hash } from "crypto";
+import { PanelModelBase } from "./panel";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -1726,6 +1728,7 @@ export class SurveyModel extends Base
   protected onIsSinglePageChanged() {
     if (!this.isSinglePage || this.isDesignMode) {
       if (this.origionalPages) {
+        this.questionHashesClear();
         this.pages.splice(0, this.pages.length);
         for (var i = 0; i < this.origionalPages.length; i++) {
           this.pages.push(this.origionalPages[i]);
@@ -1733,11 +1736,16 @@ export class SurveyModel extends Base
       }
       this.origionalPages = null;
     } else {
+      this.questionHashesClear();
       this.origionalPages = this.pages.slice(0, this.pages.length);
       var startIndex = this.firstPageIsStarted ? 1 : 0;
+      super.startLoadingFromJson();
       var singlePage = this.createSinglePage(startIndex);
       var deletedLen = this.pages.length - startIndex;
       this.pages.splice(startIndex, deletedLen, singlePage);
+      super.endLoadingFromJson();
+      singlePage.endLoadingFromJson();
+      this.doElementsOnLoad();
     }
     this.updateVisibleIndexes();
   }
@@ -1751,7 +1759,6 @@ export class SurveyModel extends Base
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
     }
-    single.endLoadingFromJson();
     return single;
   }
   /**
@@ -2169,14 +2176,12 @@ export class SurveyModel extends Base
     name: string,
     caseInsensitive: boolean = false
   ): IQuestion {
-    var questions = this.getAllQuestions();
-    if (caseInsensitive) name = name.toLowerCase();
-    for (var i: number = 0; i < questions.length; i++) {
-      var questionName = questions[i].name;
-      if (caseInsensitive) questionName = questionName.toLowerCase();
-      if (questionName == name) return questions[i];
-    }
-    return null;
+    var hash: HashTable<any> = !!caseInsensitive
+      ? this.questionHashes.namesInsensitive
+      : this.questionHashes.names;
+    var res = hash[name];
+    if (!res) return null;
+    return res[0];
   }
   /**
    * Returns a question by its value name
@@ -2189,14 +2194,12 @@ export class SurveyModel extends Base
     valueName: string,
     caseInsensitive: boolean = false
   ): IQuestion {
-    var questions = this.getAllQuestions();
-    if (caseInsensitive) valueName = valueName.toLowerCase();
-    for (var i: number = 0; i < questions.length; i++) {
-      var questionValueName = questions[i].getValueName();
-      if (caseInsensitive) questionValueName = questionValueName.toLowerCase();
-      if (questionValueName == valueName) return questions[i];
-    }
-    return null;
+    var hash: HashTable<any> = !!caseInsensitive
+      ? this.questionHashes.valueNamesInsensitive
+      : this.questionHashes.valueNames;
+    var res = hash[valueName];
+    if (!res) return null;
+    return res[0];
   }
   /**
    * Get a list of questions by their names
@@ -2580,6 +2583,7 @@ export class SurveyModel extends Base
   }
   public setJsonObject(jsonObj: any) {
     if (!jsonObj) return;
+    this.questionHashesClear();
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();
     jsonConverter.toObject(jsonObj, this);
@@ -2770,6 +2774,7 @@ export class SurveyModel extends Base
   protected doOnPageAdded(page: PageModel) {
     page.setSurveyImpl(this);
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
+    this.questionHashesPanelAdded(page);
     var options = { page: page };
     this.onPageAdded.fire(this, options);
   }
@@ -2876,11 +2881,15 @@ export class SurveyModel extends Base
     parentPanel: any,
     rootPanel: any
   ) {
-    if (!question.name)
+    if (!question.name) {
       question.name = this.generateNewName(
         this.getAllQuestions(false, true),
         "question"
       );
+    }
+    if (!!(<Question>question).page) {
+      this.questionHashesAdded(<Question>question);
+    }
     if (!this.isLoadingFromJson) {
       this.updateVisibleIndexes();
     }
@@ -2893,31 +2902,122 @@ export class SurveyModel extends Base
     });
   }
   questionRemoved(question: IQuestion) {
+    this.questionHashesRemoved(
+      <Question>question,
+      question.name,
+      question.getValueName()
+    );
     this.updateVisibleIndexes();
     this.onQuestionRemoved.fire(this, {
       question: question,
       name: question.name
     });
   }
-  /*
   questionRenamed(
     question: IQuestion,
     oldName: string,
     oldValueName: string
-  ): any {}
-  private questionAddedUpdateCache(question: Question) {}
-  private questionRemovedUpdateCache(
+  ): any {
+    this.questionHashesRemoved(<Question>question, oldName, oldValueName);
+    this.questionHashesAdded(<Question>question);
+  }
+  private questionHashes = {
+    names: {},
+    namesInsensitive: {},
+    valueNames: {},
+    valueNamesInsensitive: {}
+  };
+  private questionHashesClear() {
+    this.questionHashes.names = {};
+    this.questionHashes.namesInsensitive = {};
+    this.questionHashes.valueNames = {};
+    this.questionHashes.valueNamesInsensitive = {};
+  }
+  private questionHashesPanelAdded(panel: PanelModelBase) {
+    if (this.isLoadingFromJson) return;
+    var questions = panel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      this.questionHashesAdded(questions[i]);
+    }
+  }
+  private questionHashesAdded(question: Question) {
+    this.questionHashAddedCore(
+      this.questionHashes.names,
+      question,
+      question.name
+    );
+    this.questionHashAddedCore(
+      this.questionHashes.namesInsensitive,
+      question,
+      question.name.toLowerCase()
+    );
+    this.questionHashAddedCore(
+      this.questionHashes.valueNames,
+      question,
+      question.getValueName()
+    );
+    this.questionHashAddedCore(
+      this.questionHashes.valueNamesInsensitive,
+      question,
+      question.getValueName().toLowerCase()
+    );
+  }
+  private questionHashesRemoved(
     question: Question,
     name: string,
     valueName: string
-  ) {}
-  */
+  ) {
+    if (!!name) {
+      this.questionHashRemovedCore(this.questionHashes.names, question, name);
+      this.questionHashRemovedCore(
+        this.questionHashes.namesInsensitive,
+        question,
+        name.toLowerCase()
+      );
+    }
+    if (!!valueName) {
+      this.questionHashRemovedCore(
+        this.questionHashes.valueNames,
+        question,
+        valueName
+      );
+      this.questionHashRemovedCore(
+        this.questionHashes.valueNamesInsensitive,
+        question,
+        valueName.toLowerCase()
+      );
+    }
+  }
+  private questionHashAddedCore(hash: any, question: Question, name: string) {
+    var res = hash[name];
+    if (!!res) {
+      var res = hash[name];
+      if (res.indexOf(question) < 0) {
+        res.push(question);
+      }
+    } else {
+      hash[name] = [question];
+    }
+  }
+  private questionHashRemovedCore(hash: any, question: Question, name: string) {
+    var res = hash[name];
+    if (!res) return;
+    var index = res.indexOf(question);
+    if (index > -1) {
+      res.splice(index, 1);
+    }
+    if (res.length == 0) {
+      delete hash[name];
+    }
+  }
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
-    if (!panel.name)
+    if (!panel.name) {
       panel.name = this.generateNewName(
         this.getAllPanels(false, true),
         "panel"
       );
+    }
+    this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
     this.updateVisibleIndexes();
     this.onPanelAdded.fire(this, {
       panel: panel,

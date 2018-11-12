@@ -38,7 +38,11 @@ export interface ISurvey extends ITextProcessor {
   ): any;
   questionRemoved(question: IQuestion): any;
   panelRemoved(panel: IElement): any;
-  //questionRenamed(question: IQuestion, oldName: string, oldValueName: string): any;
+  questionRenamed(
+    question: IQuestion,
+    oldName: string,
+    oldValueName: string
+  ): any;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
@@ -604,8 +608,13 @@ export class SurveyElement extends Base implements ISurveyElement {
     return this.getPropertyValue("name", "");
   }
   public set name(val: string) {
+    var oldValue = this.name;
     this.setPropertyValue("name", val);
+    if (!this.isLoadingFromJson && !!oldValue) {
+      this.onNameChanged(oldValue);
+    }
   }
+  protected onNameChanged(oldValue: string) {}
   /**
    * The list of errors. It is created by callig hasErrors functions
    * @see hasErrors

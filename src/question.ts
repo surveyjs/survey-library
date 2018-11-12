@@ -90,7 +90,25 @@ export class Question extends SurveyElement
     return this.getPropertyValue("valueName", "");
   }
   public set valueName(val: string) {
+    var oldValueName = this.getValueName();
     this.setPropertyValue("valueName", val);
+    this.onValueNameChanged(oldValueName);
+  }
+  protected onValueNameChanged(oldValue: string) {
+    if (!this.survey) return;
+    this.survey.questionRenamed(
+      this,
+      this.name,
+      !!oldValue ? oldValue : this.name
+    );
+  }
+  protected onNameChanged(oldValue: string) {
+    if (!this.survey) return;
+    this.survey.questionRenamed(
+      this,
+      oldValue,
+      this.valueName ? this.valueName : oldValue
+    );
   }
   /**
    * Get/set the page where the question is located.

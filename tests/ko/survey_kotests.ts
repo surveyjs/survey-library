@@ -1344,8 +1344,48 @@ QUnit.test("Dynamic Panel bug with localization, bug #1184", function(assert) {
   var survey = new Survey(json);
   survey.isSinglePage = true;
   var q = <QuestionPanelDynamic>survey.getQuestionByName("question102");
-  var locQ = <Question>q.panels[0].questions[0];
+  var panelJsonOriginal = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question91",
+        title: {
+          de: "Wählen Sie eine Option"
+        },
+        choices: [
+          {
+            value: "Option 1/2",
+            text: "Option 1/2"
+          },
+          {
+            value: "Option 3",
+            text: "Option 3"
+          },
+          {
+            value: "Option 4",
+            text: "Option 4"
+          }
+        ]
+      }
+    ]
+  };
+  var qJson = q.template.toJSON();
+  delete qJson["title"];
+  assert.deepEqual(
+    qJson,
+    panelJsonOriginal,
+    "Dynamic Panel template restored correctly"
+  );
 
+  qJson = q.panels[0].toJSON();
+  delete qJson["title"];
+  assert.deepEqual(
+    qJson,
+    panelJsonOriginal,
+    "Dynamic Panel, first Panel  restored correctly"
+  );
+
+  var locQ = <Question>q.panels[0].questions[0];
   assert.equal(locQ.getLocale(), "de", "locale is 'de'");
 
   assert.equal(

@@ -283,7 +283,7 @@ export class JsonMetadataClass {
   constructor(
     public name: string,
     properties: Array<any>,
-    public creator: (json?:any) => any = null,
+    public creator: (json?: any) => any = null,
     public parentName: string = null
   ) {
     name = name.toLowerCase();
@@ -992,6 +992,9 @@ export class JsonObject {
     for (var i = 0; i < value.length; i++) {
       var newValue = this.createNewObj(value[i], property);
       if (newValue.newObj) {
+        if (!!value[i].name) {
+          newValue.newObj.name = value[i].name;
+        }
         obj[key].push(newValue.newObj);
         this.toObject(value[i], newValue.newObj);
       } else {

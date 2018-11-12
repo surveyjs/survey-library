@@ -1080,9 +1080,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
-    var jObj = new JsonObject();
-    var json = jObj.toJsonObject(this.template);
-    jObj.toObject(json, panel);
+    var json = this.template.toJSON();
+    new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     return panel;
   }

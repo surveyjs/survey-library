@@ -2194,12 +2194,19 @@ export class SurveyModel extends Base
     valueName: string,
     caseInsensitive: boolean = false
   ): IQuestion {
+    var res = this.getQuestionsByValueNameCore(valueName, caseInsensitive);
+    return !!res ? res[0] : null;
+  }
+  private getQuestionsByValueNameCore(
+    valueName: string,
+    caseInsensitive: boolean = false
+  ): Array<Question> {
     var hash: HashTable<any> = !!caseInsensitive
       ? this.questionHashes.valueNamesInsensitive
       : this.questionHashes.valueNames;
     var res = hash[valueName];
     if (!res) return null;
-    return res[0];
+    return res;
   }
   /**
    * Get a list of questions by their names
@@ -2343,22 +2350,21 @@ export class SurveyModel extends Base
   }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
-    var questions = this.getAllQuestions();
-    var question: any = null;
-    for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() != valueName) continue;
-      question = questions[i];
-      if (this.checkErrorsMode == "onValueChanged") {
-        question.hasErrors(true);
+    var questions = this.getQuestionsByValueNameCore(valueName);
+    if (!!questions) {
+      for (var i: number = 0; i < questions.length; i++) {
+        var question = questions[i];
+        if (this.checkErrorsMode == "onValueChanged") {
+          question.hasErrors(true);
+        }
+        this.doSurveyValueChanged(question, newValue);
+        this.onValueChanged.fire(this, {
+          name: valueName,
+          question: question,
+          value: newValue
+        });
       }
-      this.doSurveyValueChanged(question, newValue);
-      this.onValueChanged.fire(this, {
-        name: valueName,
-        question: question,
-        value: newValue
-      });
-    }
-    if (!question) {
+    } else {
       this.onValueChanged.fire(this, {
         name: valueName,
         question: null,
@@ -2423,7 +2429,7 @@ export class SurveyModel extends Base
     }
   }
   private runConditions() {
-    if (this.isCompleted || this.isEndLoadingFromJson) return;
+    if (this.isCompleted || this.isEndLoadingFromJson === "processing") return;
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
@@ -2558,6 +2564,7 @@ export class SurveyModel extends Base
   protected onLoadingSurveyFromService() {}
   protected onLoadSurveyFromService() {}
   private updateVisibleIndexes() {
+    if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
     if (this.showQuestionNumbers == "onPage") {
       var visPages = this.visiblePages;
@@ -2591,19 +2598,20 @@ export class SurveyModel extends Base
       this.jsonErrors = jsonConverter.errors;
     }
   }
-  private isEndLoadingFromJson = false;
+  private isEndLoadingFromJson: string = null;
   endLoadingFromJson() {
-    this.isEndLoadingFromJson = true;
+    this.isEndLoadingFromJson = "processing";
     this.isStartedState = this.firstPageIsStarted;
     this.onIsSinglePageChanged();
-    this.updateVisibleIndexes();
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.doComplete();
     }
     this.doElementsOnLoad();
-    this.isEndLoadingFromJson = false;
+    this.isEndLoadingFromJson = "conditions";
     this.runConditions();
+    this.isEndLoadingFromJson = null;
+    this.updateVisibleIndexes();
   }
   protected onBeforeCreating() {}
   protected onCreating() {}
@@ -2680,20 +2688,16 @@ export class SurveyModel extends Base
     }
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
-    var questions = this.getAllQuestions();
+    var questions = this.getQuestionsByValueNameCore(valueName);
+    if (!questions) return false;
     for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName && questions[i].isVisible)
-        return true;
+      if (questions[i].isVisible) return true;
     }
     return false;
   }
   questionCountByValueName(valueName: string): number {
-    var counter = 0;
-    var questions = this.getAllQuestions();
-    for (var i: number = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName) counter++;
-    }
-    return counter;
+    var questions = this.getQuestionsByValueNameCore(valueName);
+    return !!questions ? questions.length : 0;
   }
   private clearInvisibleQuestionValues() {
     var questions = this.getAllQuestions();

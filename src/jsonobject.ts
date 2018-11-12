@@ -515,15 +515,15 @@ export class JsonMetadata {
   ): any {
     name = name.toLowerCase();
     var res = creator(json);
-    res.customTypeName = name;
-    res.customTemplateName = res.getTemplate
+    var customTypeName = name;
+    var customTemplateName = res.getTemplate
       ? res.getTemplate()
       : res.getType();
     res.getType = function() {
-      return res.customTypeName;
+      return customTypeName;
     };
     res.getTemplate = function() {
-      return res.customTemplateName;
+      return customTemplateName;
     };
     CustomPropertiesCollection.createProperties(res);
     return res;

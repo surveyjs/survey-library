@@ -290,7 +290,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         ref="cell"
         className={this.getCellClass()}
         headers={
-          this.question.visible && !!this["cell"]
+          this.question.isVisible && !!this["cell"]
             ? this["cell"].column.locTitle.renderedHtml
             : ""
         }

@@ -33,35 +33,14 @@ export class SurveyQuestion extends SurveyElementBase {
   private getState() {
     var value = this.question ? this.question.value : null;
     return {
-      visible: this.question.visible,
-      value: value,
-      error: 0,
-      renderWidth: 0,
-      visibleIndexValue: -1,
-      isReadOnly: this.question.isReadOnly
+      value: value
     };
   }
   componentDidMount() {
-    if (this.question) {
-      var self = this;
-      this.question["react"] = self;
-      this.question.registerFunctionOnPropertyValueChanged(
-        "visibleIndex",
-        function() {
-          self.setState({ visibleIndexValue: self.question.visibleIndex });
-        },
-        "react"
-      );
-    }
     this.doAfterRender();
   }
   componentWillUnmount() {
     if (this.question) {
-      this.question["react"] = null;
-      this.question.unRegisterFunctionOnPropertiesValueChanged(
-        ["visibleIndex"],
-        "react"
-      );
       var el: any = this.refs["root"];
       if (!!el) {
         el.removeAttribute("data-rendered");
@@ -86,7 +65,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   render(): JSX.Element {
     if (!this.question || !this.creator) return null;
-    if (!this.question.visible) return null;
+    if (!this.question.isVisible) return null;
     var cssClasses = this.question.cssClasses;
     var questionRender = this.renderQuestion();
     var title = this.question.hasTitle ? this.renderTitle(cssClasses) : null;

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Survey } from "./reactSurvey";
-import { ReactSurveyModel, ReactWindowModel } from "./reactsurveymodel";
-import { SurveyModel } from "../survey";
+import { ReactWindowModel } from "./reactsurveymodel";
 import { SurveyElementBase } from "./reactquestionelement";
 
 export class SurveyWindow extends Survey {
@@ -67,41 +66,20 @@ export class SurveyWindow extends Survey {
   }
   protected updateSurvey(newProps: any) {
     if (!newProps) newProps = {};
-    if (newProps.window) {
-      this.window = newProps.window;
-    } else {
-      if (newProps.json) {
-        this.window = new ReactWindowModel(newProps.json);
-      } else {
-        if (newProps.model) {
-          this.window = new ReactWindowModel(null, newProps.model);
-        }
-      }
-    }
-    if (!this.window) {
-      this.window = new ReactWindowModel();
-    }
+    super.updateSurvey(newProps);
+    this.window = new ReactWindowModel(null, this.survey);
     if (newProps.closeOnCompleteTimeout) {
       this.window.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
-
     if (newProps.expanded || newProps.isExpanded) this.window.expand();
     this.window.isShowing = true;
-
-    super.updateSurvey(newProps);
-    this.setState({
-      expanded: this.window.isExpanded,
-      isShowing: this.window.isShowing
-    });
     var self = this;
-    this.window.expandedChangedCallback = function() {
-      self.setState({ expanded: self.window.isExpanded });
-    };
-    this.window.showingChangedCallback = function() {
-      self.setState({ isShowing: self.window.isShowing });
-    };
     this.window.closeWindowOnCompleteCallback = function() {
       self.window.hide();
     };
+  }
+  componentWillMount() {
+    super.componentWillMount();
+    this.makeBaseElementReact(this.window);
   }
 }

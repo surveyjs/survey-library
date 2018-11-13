@@ -46,7 +46,6 @@ export class ReactWindowModel extends SurveyWindowModel {
   constructor(jsonObj: any = null, model: ReactSurveyModel = null) {
     super(jsonObj, model);
   }
-  //public get reactSurvey(): ReactSurveyModel { return <ReactSurveyModel>this.survey; }
   protected createSurvey(jsonObj: any): SurveyModel {
     return new ReactSurveyModel(jsonObj);
   }

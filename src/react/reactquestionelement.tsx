@@ -84,6 +84,17 @@ export class SurveyElementBase extends React.Component<any, any> {
       }
     };
   }
+  protected unMakeBaseElementReact(baseElement: Base) {
+    if (!baseElement) return;
+    baseElement.setPropertyValueCoreHandler = undefined;
+    baseElement.iteratePropertiesHash((hash, key) => {
+      var val: any = hash[key];
+      if (Array.isArray(val)) {
+        var val: any = val;
+        val["onArrayChanged"] = () => {};
+      }
+    });
+  }
 }
 
 export class ReactSurveyElement extends SurveyElementBase {

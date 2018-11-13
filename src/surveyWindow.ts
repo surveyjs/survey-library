@@ -7,8 +7,6 @@ import { LocalizableString } from "./localizablestring";
  */
 export class SurveyWindowModel extends Base {
   public static surveyElementName = "windowSurveyJS";
-  private isExpandedValue: boolean = false;
-  private isShowingValue: boolean;
   surveyValue: SurveyModel;
   windowElement: HTMLDivElement;
 
@@ -53,11 +51,11 @@ export class SurveyWindowModel extends Base {
    * @see hide
    */
   public get isShowing(): boolean {
-    return this.isShowingValue;
+    return this.getPropertyValue("isShowing", false);
   }
   public set isShowing(val: boolean) {
     if (this.isShowing == val) return;
-    this.isShowingValue = val;
+    this.setPropertyValue("isShowing", val);
     if (this.showingChangedCallback) this.showingChangedCallback();
   }
   /**
@@ -82,11 +80,12 @@ export class SurveyWindowModel extends Base {
    * @see collapse
    */
   public get isExpanded(): boolean {
-    return this.isExpandedValue;
+    return this.getPropertyValue("isExpanded", false);
   }
   public set isExpanded(val: boolean) {
-    if (val) this.expand();
-    else this.collapse();
+    this.setPropertyValue("isExpanded", val);
+    if (!this.isLoadingFromJson && this.expandedChangedCallback)
+      this.expandedChangedCallback();
   }
   /**
    * The window and survey title.
@@ -116,9 +115,7 @@ export class SurveyWindowModel extends Base {
     return new SurveyModel(jsonObj);
   }
   protected expandcollapse(value: boolean) {
-    if (this.isExpandedValue == value) return;
-    this.isExpandedValue = value;
-    if (this.expandedChangedCallback) this.expandedChangedCallback();
+    this.isExpanded = value;
   }
   protected onSurveyComplete() {
     if (this.closeOnCompleteTimeout < 0) return;
@@ -135,7 +132,7 @@ export class SurveyWindowModel extends Base {
     }
   }
   protected closeWindowOnComplete() {
-    if (this.closeWindowOnCompleteCallback) {
+    if (!!this.closeWindowOnCompleteCallback) {
       this.closeWindowOnCompleteCallback();
     }
   }

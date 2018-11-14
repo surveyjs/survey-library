@@ -2,7 +2,7 @@
     <h5 data-bind="css: koCss().title">
         <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
     </h5>
-    <div data-bind="css: koCss().description">
+    <div data-bind="visible: !locDescription.isEmpty, css: koCss().description">
         <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
     </div>
 </script>

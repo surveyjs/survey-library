@@ -2,7 +2,7 @@
     <div :class="getQuestionClass(element)">
         <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
             <h5 v-if="element.hasTitle" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
-            <div :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
+            <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description"><survey-string :locString="element.locDescription"/></div>
         </div>
         <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
             <survey-errors v-if="hasErrorsOnTop" :question="element"/>
@@ -13,7 +13,7 @@
             </div>
             <survey-errors v-if="hasErrorsOnBottom" :question="element"/>
             <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title"><survey-string :locString="element.locTitle"/></h5>
-            <div v-show="element.hasTitleOnBottom"><survey-string :locString="element.locDescription"/></div>
+            <div v-if="!element.locDescription.isEmpty" v-show="element.hasTitleOnBottom"><survey-string :locString="element.locDescription"/></div>
         </div>
     </div>
 </template>

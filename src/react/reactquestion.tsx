@@ -28,7 +28,6 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   private setQuestion(question: any) {
     this.question = question;
-    this.makeBaseElementReact(this.question);
   }
   private getState() {
     var value = this.question ? this.question.value : null;
@@ -36,11 +35,15 @@ export class SurveyQuestion extends SurveyElementBase {
       value: value
     };
   }
+  componentWillMount() {
+    this.makeBaseElementReact(this.question);
+  }
   componentDidMount() {
     this.doAfterRender();
   }
   componentWillUnmount() {
     if (this.question) {
+      this.unMakeBaseElementReact(this.question);
       var el: any = this.refs["root"];
       if (!!el) {
         el.removeAttribute("data-rendered");
@@ -234,7 +237,6 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   protected set question(val: Question) {
     this.questionValue = val;
-    this.makeBaseElementReact(this.question);
   }
   private getState(increaseError: boolean = false): any {
     if (!this.question) return;

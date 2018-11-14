@@ -31,12 +31,15 @@ export class SurveyPanelBase extends SurveyElementBase {
   }
   public set panelBase(val: PanelModelBase) {
     this.panelValue = val;
+  }
+  componentWillMount() {
     this.makeBaseElementReact(this.panelBase);
   }
   componentDidMount() {
     this.doAfterRender();
   }
   componentWillUnmount() {
+    this.unMakeBaseElementReact(this.panelBase);
     var el: any = this.refs["root"];
     if (!!el) {
       el.removeAttribute("data-rendered");
@@ -203,7 +206,12 @@ export class SurveyRow extends SurveyElementBase {
   constructor(props: any) {
     super(props);
     this.setProperties(props);
+  }
+  componentWillMount() {
     this.makeBaseElementReact(this.row);
+  }
+  componentWillUnmount() {
+    this.unMakeBaseElementReact(this.row);
   }
   componentWillReceiveProps(nextProps: any) {
     this.setProperties(nextProps);

@@ -82,4 +82,8 @@ export class SurveyWindow extends Survey {
     super.componentWillMount();
     this.makeBaseElementReact(this.window);
   }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.unMakeBaseElementReact(this.window);
+  }
 }

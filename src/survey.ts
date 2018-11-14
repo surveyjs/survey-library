@@ -73,10 +73,6 @@ export class SurveyModel extends Base
 
   private localeValue: string = "";
 
-  private isCompleted: boolean = false;
-  private isStartedState: boolean = false;
-  private isCompletedBefore: boolean = false;
-  private isLoading: boolean = false;
   private textPreProcessor: TextPreProcessor;
   private completedStateValue: string = "";
   private completedStateTextValue: string = "";
@@ -1464,6 +1460,31 @@ export class SurveyModel extends Base
       return "starting";
     return this.currentPage ? "running" : "empty";
   }
+  private get isCompleted(): boolean {
+    return this.getPropertyValue("isCompleted", false);
+  }
+  private set isCompleted(val: boolean) {
+    this.setPropertyValue("isCompleted", val);
+  }
+  private get isStartedState(): boolean {
+    return this.getPropertyValue("isStartedState", false);
+  }
+  private set isStartedState(val: boolean) {
+    this.setPropertyValue("isStartedState", val);
+  }
+  private get isCompletedBefore(): boolean {
+    return this.getPropertyValue("isCompletedBefore", false);
+  }
+  private set isCompletedBefore(val: boolean) {
+    this.setPropertyValue("isCompletedBefore", val);
+  }
+  private get isLoading(): boolean {
+    return this.getPropertyValue("isLoading", false);
+  }
+  private set isLoading(val: boolean) {
+    this.setPropertyValue("isLoading", val);
+  }
+
   public get completedState(): string {
     return this.completedStateValue;
   }

@@ -1254,6 +1254,24 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
+QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var matrix = new QuestionMatrixDropdownModel("bestCar");
+  matrix.addColumn("col1");
+  matrix.addColumn("col2");
+  matrix.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  matrix.rowsVisibleIf = "{row.col2} != 1";
+  page.addElement(matrix);
+  assert.equal(matrix.visibleRows.length, 4, "all rows are shown");
+  matrix.value = [{ Audi: { col2: 1 } }];
+  assert.equal(matrix.visibleRows.length, 3, "Audi is hidden");
+  matrix.value = [{ Audi: { col2: 1 } }, { BMW: { col2: 1 } }];
+  assert.equal(matrix.visibleRows.length, 2, "Audi and BMW is hidden");
+  matrix.value = null;
+  assert.equal(matrix.visibleRows.length, 4, "all rows are shown again");
+});
+
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function(assert) {

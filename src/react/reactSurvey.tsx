@@ -262,7 +262,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     var dummy = this.survey.currentPage;
   }
   private getState() {
-    return { pageIndexChange: 0, isCompleted: false, modelChanged: 0 };
+    return { pageIndexChange: 0, modelChanged: 0 };
   }
   protected setSurveyEvents(newProps: any) {
     var self = this;
@@ -270,20 +270,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.survey.renderCallback = function() {
       self.setState({ modelChanged: self.state.modelChanged + 1 });
     };
-    this.survey.onComplete.add(sender => {
-      self.setState({ isCompleted: true });
-    });
     this.survey.onPartialSend.add(sender => {
       self.setState(self.state);
     });
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
-    this.survey.onVisibleChanged.add((sender, options) => {
-      if (options.question && options.question.react) {
-        var state = options.question.react.state;
-        state.visible = options.question.visible;
-        options.question.react.setState(state);
-      }
-    });
     this.survey.onValueChanged.add((sender, options) => {
       if (options.question && options.question.react) {
         var state = options.question.react.state;

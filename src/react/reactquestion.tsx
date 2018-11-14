@@ -17,23 +17,20 @@ export class SurveyQuestion extends SurveyElementBase {
   private creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.setQuestion(props.question);
-    this.state = this.getState();
+    this.updateProps(props);
+  }
+  private updateProps(props: any) {
     this.creator = props.creator;
+    this.question = props.question;
   }
   componentWillReceiveProps(nextProps: any) {
-    this.creator = nextProps.creator;
-    this.setQuestion(nextProps.question);
-    this.setState(this.getState());
-  }
-  private setQuestion(question: any) {
-    this.question = question;
-  }
-  private getState() {
-    var value = this.question ? this.question.value : null;
-    return {
-      value: value
-    };
+    if (this.question) {
+      this.unMakeBaseElementReact(this.question);
+    }
+    this.updateProps(nextProps);
+    if (this.question) {
+      this.makeBaseElementReact(this.question);
+    }
   }
   componentWillMount() {
     this.makeBaseElementReact(this.question);
@@ -222,11 +219,16 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.setProperties(props);
-    this.state = this.getState();
   }
   componentWillReceiveProps(nextProps: any) {
+    if (this.question) {
+      this.unMakeBaseElementReact(this.question);
+    }
     super.componentWillReceiveProps(nextProps);
     this.setProperties(nextProps);
+    if (this.question) {
+      this.makeBaseElementReact(this.question);
+    }
   }
   protected setProperties(nextProps: any) {
     this.question = nextProps.question;
@@ -245,6 +247,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     if (increaseError) error++;
     return { isReadOnly: q.isReadOnly, visible: q.visible, error: error };
   }
+  componentWillMount() {
+    this.makeBaseElementReact(this.question);
+  }
   componentDidMount() {
     this.doAfterRender();
     if (this.question) {
@@ -260,6 +265,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   componentWillUnmount() {
     if (this.question) {
+      this.unMakeBaseElementReact(this.question);
       this.question.unRegisterFunctionOnPropertiesValueChanged(
         ["visible"],
         "react"

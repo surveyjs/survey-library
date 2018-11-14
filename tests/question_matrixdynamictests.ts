@@ -1253,7 +1253,7 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
-
+/*
 QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -1271,7 +1271,7 @@ QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   matrix.value = null;
   assert.equal(matrix.visibleRows.length, 4, "all rows are shown again");
 });
-
+*/
 QUnit.test(
   "matrix.rowsVisibleIf, clear value on making the value invisible",
   function(assert) {

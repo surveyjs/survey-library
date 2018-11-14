@@ -252,24 +252,10 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   componentDidMount() {
     this.doAfterRender();
-    if (this.question) {
-      var self = this;
-      this.question.registerFunctionOnPropertyValueChanged(
-        "visible",
-        function() {
-          self.setState(self.getState());
-        },
-        "react"
-      );
-    }
   }
   componentWillUnmount() {
     if (this.question) {
       this.unMakeBaseElementReact(this.question);
-      this.question.unRegisterFunctionOnPropertiesValueChanged(
-        ["visible"],
-        "react"
-      );
       var el: any = this.refs["cell"];
       if (!!el) {
         el.removeAttribute("data-rendered");

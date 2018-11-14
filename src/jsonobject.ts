@@ -65,7 +65,7 @@ export class JsonObjectProperty implements IObject {
   }
   public get defaultValue() {
     var result: any = this.defaultValueValue;
-    if (this.typeValue === "itemvalues") {
+    if (JsonObject.metaData.isDescendantOf(this.className, "itemvalue")) {
       result = [];
       ItemValue.setData(result, this.defaultValueValue || []);
     }
@@ -254,7 +254,7 @@ export class CustomPropertiesCollection {
     } else {
       var defaultValue = prop.defaultValue;
       if (
-        prop.type === "itemvalues" &&
+        JsonObject.metaData.isDescendantOf(prop.className, "itemvalue") &&
         typeof obj.createNewArray === "function"
       ) {
         obj.createNewArray(prop.name, function(item: any) {
@@ -263,15 +263,17 @@ export class CustomPropertiesCollection {
         obj.setPropertyValue(prop.name, defaultValue);
         defaultValue = null;
       }
-      var desc = {
-        get: () => {
-          return obj.getPropertyValue(prop.name, defaultValue);
-        },
-        set: function(v: any) {
-          obj.setPropertyValue(prop.name, v);
-        }
-      };
-      Object.defineProperty(obj, prop.name, desc);
+      if (!!obj.getPropertyValue && !!obj.setPropertyValue) {
+        var desc = {
+          get: () => {
+            return obj.getPropertyValue(prop.name, defaultValue);
+          },
+          set: function(v: any) {
+            obj.setPropertyValue(prop.name, v);
+          }
+        };
+        Object.defineProperty(obj, prop.name, desc);
+      }
     }
   }
 }
@@ -627,6 +629,25 @@ export class JsonMetadata {
     }
     return res;
   }
+  public isDescendantOf(className: string, ancestorClassName: string) {
+    if (!className || !ancestorClassName) {
+      return false;
+    }
+    className = className.toLowerCase();
+    ancestorClassName = ancestorClassName.toLowerCase();
+    var class_ = this.findClass(className);
+    if (!class_) {
+      return false;
+    }
+    var parentClass = class_;
+    do {
+      if (parentClass.name === ancestorClassName) {
+        return true;
+      }
+      parentClass = this.classes[parentClass.parentName];
+    } while (!!parentClass);
+    return false;
+  }
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
@@ -755,9 +776,12 @@ export class JsonObject {
     if (!jsonObj) return;
     var properties = null;
     var objType = undefined;
+    var needAddErrors = true;
     if (obj.getType) {
       objType = obj.getType();
       properties = JsonObject.metaData.getProperties(objType);
+      needAddErrors =
+        !!objType && !JsonObject.metaData.isDescendantOf(objType, "itemvalue");
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {
@@ -772,7 +796,7 @@ export class JsonObject {
       }
       var property = this.findProperty(properties, key);
       if (!property) {
-        if (!!objType && objType !== "itemvalue") {
+        if (needAddErrors) {
           this.addNewError(
             new JsonUnknownPropertyError(key.toString(), objType),
             jsonObj

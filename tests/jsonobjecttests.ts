@@ -290,17 +290,7 @@ JsonObject.metaData.addClass(
   "fast"
 );
 
-JsonObject.metaData.addClass("itemvaluelistowner", [
-  {
-    name: "items",
-    onGetValue: function(obj: any) {
-      return ItemValue.getData(obj.items);
-    },
-    onSetValue: function(obj: any, value: any) {
-      ItemValue.setData(obj.items, value);
-    }
-  }
-]);
+JsonObject.metaData.addClass("itemvaluelistowner", ["items:itemvalues"]);
 
 JsonObject.metaData.addClass("item_thelongpart", ["baseSt"]);
 JsonObject.metaData.addClass(
@@ -1621,4 +1611,26 @@ QUnit.test("itemvalues (array) save localized text", function(assert) {
   );
 
   JsonObject.metaData.removeProperty("questionbase", "customArray");
+});
+
+QUnit.test("ItemValue should be deserialized without errors", function(assert) {
+  var list = new ItemValueListOwner();
+
+  var jsonObject = new JsonObject();
+  jsonObject.toObject(
+    {
+      items: [
+        { value: 7, text: "Item 1", price: 55.5 },
+        5,
+        "item",
+        "value1|text1"
+      ]
+    },
+    list
+  );
+  assert.equal(
+    jsonObject.errors.length,
+    0,
+    "there are no errors on deserialization"
+  );
 });

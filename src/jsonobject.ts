@@ -754,8 +754,10 @@ export class JsonObject {
   public toObject(jsonObj: any, obj: any) {
     if (!jsonObj) return;
     var properties = null;
+    var objType = undefined;
     if (obj.getType) {
-      properties = JsonObject.metaData.getProperties(obj.getType());
+      objType = obj.getType();
+      properties = JsonObject.metaData.getProperties(objType);
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {
@@ -763,17 +765,19 @@ export class JsonObject {
     }
     properties = this.addDynamicProperties(obj, jsonObj, properties);
     for (var key in jsonObj) {
-      if (key == JsonObject.typePropertyName) continue;
-      if (key == JsonObject.positionPropertyName) {
+      if (key === JsonObject.typePropertyName) continue;
+      if (key === JsonObject.positionPropertyName) {
         obj[key] = jsonObj[key];
         continue;
       }
       var property = this.findProperty(properties, key);
       if (!property) {
-        this.addNewError(
-          new JsonUnknownPropertyError(key.toString(), obj.getType()),
-          jsonObj
-        );
+        if (!!objType && objType !== "itemvalue") {
+          this.addNewError(
+            new JsonUnknownPropertyError(key.toString(), objType),
+            jsonObj
+          );
+        }
         continue;
       }
       this.valueToObj(jsonObj[key], obj, property);

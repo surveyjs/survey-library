@@ -1117,6 +1117,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].onSurveyValueChanged();
     }
+    if (newValue === undefined) this.panelCount = 0;
   }
   protected onSetData() {
     super.onSetData();

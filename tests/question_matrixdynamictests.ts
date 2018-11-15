@@ -1253,7 +1253,8 @@ QUnit.test("matrix.rowsVisibleIf", function(assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
-/*
+
+/* Very likely we do not need this functional.
 QUnit.test("matrix.rowsVisibleIf, use 'row.' context", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

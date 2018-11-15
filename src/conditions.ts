@@ -145,6 +145,8 @@ export class ExpressionOperand extends Operand {
     super(null);
   }
   public getValue(processValue: ProcessValue): any {
+    if (!this.left) return null;
+    if (!this.right) return this.left.getValue(processValue);
     var l = this.left.getValue(processValue);
     var r = this.right.getValue(processValue);
     if (Helpers.isValueEmpty(l)) l = 0;

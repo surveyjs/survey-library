@@ -522,6 +522,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 JsonObject.metaData.addClass(
   "matrixdynamic",
   [
+    { name: "rowsVisibleIf:condition", visible: false },
     { name: "rowCount:number", default: 2 },
     { name: "minRowCount:number", default: 0 },
     {

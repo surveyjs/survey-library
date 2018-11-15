@@ -214,7 +214,9 @@ export class SurveyRow extends SurveyElementBase {
     this.unMakeBaseElementReact(this.row);
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.row);
     this.setProperties(nextProps);
+    this.makeBaseElementReact(this.row);
   }
   private setProperties(props: any) {
     this.row = props.row;

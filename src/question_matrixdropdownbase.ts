@@ -1100,7 +1100,7 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var cells = this.generatedVisibleRows[i].cells;
       if (!cells) continue;
-      for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
+      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         if (!cells[colIndex]) continue;
         var question = cells[colIndex].question;
         res =
@@ -1122,7 +1122,7 @@ export class QuestionMatrixDropdownModelBase
     if (!this.generatedVisibleRows) return null;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var cells = this.generatedVisibleRows[i].cells;
-      for (var colIndex = 0; colIndex < this.columns.length; colIndex++) {
+      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         if (!onError) return cells[colIndex].question;
         if (cells[colIndex].question.currentErrorCount > 0)
           return cells[colIndex].question;

@@ -159,3 +159,14 @@ QUnit.test("Fix the bug, when the default locale is set as specific", function(
     "Get the english locale"
   );
 });
+
+QUnit.test("Return English localization texts if text not exist", function(assert) {
+  surveyLocalization.locales["en"]["custom_test_key"] = "item";
+  var oldDl = surveyLocalization.defaultLocale;
+  var oldCl = surveyLocalization.currentLocale;
+  surveyLocalization.defaultLocale = "de";
+  surveyLocalization.currentLocale = "de";
+  assert.equal(surveyLocalization.getString("custom_test_key"), "item");
+  surveyLocalization.defaultLocale = oldDl;
+  surveyLocalization.currentLocale = oldCl;
+});

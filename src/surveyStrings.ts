@@ -25,7 +25,11 @@ export var surveyLocalization = {
       ? this.locales[this.currentLocale]
       : this.locales[this.defaultLocale];
     if (!loc || !loc[strName]) loc = this.locales[this.defaultLocale];
-    return loc[strName];
+    var result = loc[strName];
+    if(result === undefined) {
+      result = this.locales["en"][strName];
+    }
+    return result;
   },
   getLocales: function(): Array<string> {
     var res = [];

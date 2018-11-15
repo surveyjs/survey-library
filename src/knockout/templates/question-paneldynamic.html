@@ -16,7 +16,9 @@
             <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
             <!-- /ko -->
         </div>
-        <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
+        <!-- ko if: question.koPanel() -->
+            <!-- ko template: { name: 'survey-panel', data: question.koPanel(), as: 'question', afterRender: question.koPanelAfterRender } -->
+            <!-- /ko -->
         <!-- /ko -->
         <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
         />

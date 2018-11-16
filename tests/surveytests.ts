@@ -5214,5 +5214,17 @@ QUnit.test("getData for relation model", function(assert) {
   assert.equal(plainData[0].title, "text");
   assert.equal(plainData[0].value, "Answer 1");
   assert.equal(plainData[0].displayValue, "Answer 1");
+  assert.notOk(plainData[0].isNode);
+
+  assert.equal(plainData[1].name, "question3");
+  assert.equal(plainData[1].title, "checkbox");
+  assert.deepEqual(plainData[1].value, ["item1","item2"]);
+  assert.deepEqual(plainData[1].displayValue, "item1, item2");
+  assert.ok(plainData[1].isNode);
+  assert.equal(plainData[1].data.length, 2);
+  assert.equal(plainData[1].data[0].value, "item1");
+  assert.equal(plainData[1].data[0].displayValue, "item1");
+  assert.equal(plainData[1].data[1].value, "item2");
+  assert.equal(plainData[1].data[1].displayValue, "item2");
 });
 

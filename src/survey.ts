@@ -1263,17 +1263,48 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
+  private getQuestionPlainData(question: Question) {
+    var result: Array<any> = [];
+    var value = question.value;
+    var displayValue = question.displayValue;
+    if(question.getType() === "checkbox") {
+      displayValue = (displayValue || "").split(",").map((v: string) => v.trim());
+    }
+    var valueKeys = Object.keys(question.value);
+    var displayValueKeys = Object.keys(question.displayValue);
+    var isArray = Array.isArray(value);
+    valueKeys.forEach((key, index) => {
+      result.push({
+        name: key,
+        title: isArray ? "" : displayValueKeys[index],
+        value: value[key],
+        displayValue: displayValue[displayValueKeys[index]],
+        getString: (val: any) =>
+          typeof val === "object" ? JSON.stringify(val) : val,
+        isNode: false
+      });
+    });
+    return result;
+  }
   getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
     var result: Array<any> = [];
     var data = this.data;
     this.getAllQuestions().forEach(question => {
       if (options.includeEmpty || data[question.name] !== undefined) {
-        result.push({
+        var resultItem: any = {
           name: question.name,
           title: (<Question>question).title,
           value: question.value,
-          displayValue: (<Question>question).displayValue
-        });
+          displayValue: (<Question>question).displayValue,
+          isNode:
+            typeof question.value === "object" || Array.isArray(question.value),
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val
+        };
+        result.push(resultItem);
+        if (resultItem.isNode) {
+          resultItem.data = this.getQuestionPlainData(<Question>question);
+        }
       }
     });
     return result;

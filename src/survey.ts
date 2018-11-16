@@ -1267,8 +1267,10 @@ export class SurveyModel extends Base
     var result: Array<any> = [];
     var value = question.value;
     var displayValue = question.displayValue;
-    if(question.getType() === "checkbox") {
-      displayValue = (displayValue || "").split(",").map((v: string) => v.trim());
+    if (question.getType() === "checkbox") {
+      displayValue = (displayValue || "")
+        .split(",")
+        .map((v: string) => v.trim());
     }
     var valueKeys = Object.keys(question.value);
     var displayValueKeys = Object.keys(question.displayValue);
@@ -1286,7 +1288,12 @@ export class SurveyModel extends Base
     });
     return result;
   }
-  getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
+  /**
+   * Returns survey result data as an array of plain objects: with question title, name, value and displayValue.
+   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
+   * set options.includeEmpty to false if you want to skip empty answers
+   */
+  public getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
     var result: Array<any> = [];
     var data = this.data;
     this.getAllQuestions().forEach(question => {

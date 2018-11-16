@@ -1263,17 +1263,55 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
-  getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
+  private getQuestionPlainData(question: Question) {
+    var result: Array<any> = [];
+    var value = question.value;
+    var displayValue = question.displayValue;
+    if (question.getType() === "checkbox") {
+      displayValue = (displayValue || "")
+        .split(",")
+        .map((v: string) => v.trim());
+    }
+    var valueKeys = Object.keys(question.value);
+    var displayValueKeys = Object.keys(question.displayValue);
+    var isArray = Array.isArray(value);
+    valueKeys.forEach((key, index) => {
+      result.push({
+        name: key,
+        title: isArray ? "" : displayValueKeys[index],
+        value: value[key],
+        displayValue: displayValue[displayValueKeys[index]],
+        getString: (val: any) =>
+          typeof val === "object" ? JSON.stringify(val) : val,
+        isNode: false
+      });
+    });
+    return result;
+  }
+  /**
+   * Returns survey result data as an array of plain objects: with question title, name, value and displayValue.
+   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
+   * set options.includeEmpty to false if you want to skip empty answers
+   */
+  public getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
     var result: Array<any> = [];
     var data = this.data;
     this.getAllQuestions().forEach(question => {
       if (options.includeEmpty || data[question.name] !== undefined) {
-        result.push({
+        var resultItem: any = {
           name: question.name,
           title: (<Question>question).title,
           value: question.value,
-          displayValue: (<Question>question).displayValue
-        });
+          displayValue: (<Question>question).displayValue,
+          isNode:
+            typeof question.value === "object" || Array.isArray(question.value),
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val
+        };
+        result.push(resultItem);
+        if (resultItem.isNode) {
+          resultItem.data = this.getQuestionPlainData(<Question>question);
+        }
       }
     });
     return result;

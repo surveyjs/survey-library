@@ -4990,3 +4990,229 @@ QUnit.test("Call onValueChanged event onComplete event only one for real field, 
   survey.doComplete();
   assert.equal(counter, 1, "onValueChanged called still two times");
 });
+
+QUnit.test("getData for relation model", function(assert) {
+  var survey = new SurveyModel( {
+    pages: [
+     {
+      name: "page1",
+      elements: [
+       {
+        type: "text",
+        title: "text",
+        name: "question1"
+       },
+       {
+        type: "checkbox",
+        title: "checkbox",
+        name: "question3",
+        choices: [
+         "item1",
+         "item2",
+         "item3"
+        ]
+       },
+       {
+        type: "radiogroup",
+        title: "radiogroup",
+        name: "question4",
+        choices: [
+         "item1",
+         "item2",
+         "item3"
+        ]
+       },
+       {
+        type: "dropdown",
+        title: "dropdown",
+        name: "question5",
+        choices: [
+         "item1",
+         "item2",
+         "item3"
+        ]
+       },
+       {
+        type: "comment",
+        title: "comment",
+        name: "question6"
+       },
+       {
+        type: "rating",
+        title: "rating",
+        name: "question7"
+       },
+       {
+        type: "imagepicker",
+        title: "imagepicker",
+        name: "question8",
+        choices: [
+         {
+          value: "lion",
+          imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+         },
+         {
+          value: "giraffe",
+          imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+         },
+         {
+          value: "panda",
+          imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+         },
+         {
+          value: "camel",
+          imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+         }
+        ]
+       },
+       {
+        type: "boolean",
+        title: "boolean",
+        name: "question9"
+       },
+       {
+        type: "file",
+        title: "file",
+        name: "question10",
+        maxSize: 0
+       },
+       {
+        type: "matrix",
+        title: "matrix",
+        name: "question11",
+        columns: [
+         "Column 1",
+         "Column 2",
+         "Column 3"
+        ],
+        rows: [
+         "Row 1",
+         "Row 2"
+        ]
+       },
+       {
+        type: "matrixdropdown",
+        title: "matrixdropdown",
+        name: "question12",
+        columns: [
+         {
+          name: "Column 1"
+         },
+         {
+          name: "Column 2",
+          cellType: "radiogroup"
+         },
+         {
+          name: "Column 3",
+          cellType: "text"
+         }
+        ],
+        choices: [
+         1,
+         2,
+         3,
+         4,
+         5
+        ],
+        rows: [
+         "Row 1",
+         "Row 2"
+        ]
+       },
+       {
+        type: "matrixdynamic",
+        title: "matrixdynamic",
+        name: "question13",
+        columns: [
+         {
+          name: "Column 1"
+         },
+         {
+          name: "Column 2",
+          cellType: "boolean"
+         },
+         {
+          name: "Column 3",
+          cellType: "radiogroup"
+         }
+        ],
+        choices: [
+         1,
+         2,
+         3,
+         4,
+         5
+        ]
+       },
+       {
+        type: "multipletext",
+        title: "multipletext",
+        name: "question14",
+        items: [
+         {
+          name: "text1"
+         },
+         {
+          name: "text2"
+         }
+        ]
+       },
+       {
+        type: "paneldynamic",
+        title: "paneldynamic",
+        name: "question15",
+        templateElements: [
+         {
+          type: "text",
+          name: "question16"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      name: "page2",
+      elements: [
+       {
+        type: "radiogroup",
+        name: "question2",
+        title: "empty radiogroup",
+        isRequired: true,
+        choices: [
+         {
+          value: "M",
+          text: "Male"
+         },
+         {
+          value: "F",
+          text: "Female"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   });
+  survey.data = {"question1":"Answer 1",
+  "question3":["item1","item2"],
+  "question4":"item3",
+  "question5":"item2",
+  "question6":"Answer 5",
+  "question7":3,
+  "question8":"giraffe",
+  "question9":true,
+  "question10":[{"name":"favicon.ico","type":"image/x-icon","content":"data:image/x-icon;base64,A="}],
+  "question11":{"Row 1":"Column 1","Row 2":"Column 2"},
+  "question12":{"Row 1":{"Column 1":1,"Column 2":"2","Column 3":"Col 3"},"Row 2":{"Column 1":4,"Column 2":"5","Column 3":"Col 3 - 6"}},
+  "question13":[{"Column 1":1,"Column 3":"2"},{"Column 1":3,"Column 3":"4","Column 2":false}],
+  "question14":{"text1":"Line 1","text2":"Line 2"},
+  "question15":[{"question16":"Panel dynamic content 1"},{"question16":"Panel dynamic content 2"}]};
+
+  var plainData = survey.getPlainData();
+  assert.equal(plainData.length, survey.getAllQuestions().length, "all questions are present");
+  assert.equal(plainData[0].name, "question1");
+  assert.equal(plainData[0].title, "text");
+  assert.equal(plainData[0].value, "Answer 1");
+  assert.equal(plainData[0].displayValue, "Answer 1");
+});
+

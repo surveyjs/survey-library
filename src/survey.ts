@@ -1263,6 +1263,21 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
+  getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
+    var result: Array<any> = [];
+    var data = this.data;
+    this.getAllQuestions().forEach(question => {
+      if (options.includeEmpty || data[question.name] !== undefined) {
+        result.push({
+          name: question.name,
+          title: (<Question>question).title,
+          value: question.value,
+          displayValue: (<Question>question).displayValue
+        });
+      }
+    });
+    return result;
+  }
   private conditionVersion = 0;
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};

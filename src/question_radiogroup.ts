@@ -13,6 +13,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public getType(): string {
     return "radiogroup";
   }
+  protected getFirstInputElementId(): string {
+    return this.inputId + "_0";
+  }
   /**
    * Show "clear button" flag.
    */

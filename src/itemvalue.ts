@@ -1,7 +1,8 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, JsonObjectProperty } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
+import { Base } from "./base";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -294,6 +295,25 @@ export class ItemValue {
     return result;
   }
 }
+
+Base.createItemValue = function(dest: any): any {
+  var item = null;
+  if (typeof dest.getType === "function") {
+    item = new ItemValue(null, undefined, dest.getType());
+  } else {
+    item = new ItemValue(null);
+  }
+  item.setData(dest);
+  return item;
+};
+Base.itemValueLocStrChanged = function(arr: Array<any>): void {
+  ItemValue.locStrsChanged(arr);
+};
+JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
+  var res = new Array<ItemValue>();
+  ItemValue.setData(res, val || []);
+  return res;
+};
 
 JsonObject.metaData.addClass(
   "itemvalue",

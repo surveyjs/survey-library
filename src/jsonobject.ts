@@ -1,11 +1,11 @@
 import { Helpers, HashTable } from "./helpers";
-import { ItemValue } from "./itemvalue";
 
 export interface IObject {
   [key: string]: any;
 }
 
 export class JsonObjectProperty implements IObject {
+  public static getItemValuesDefaultValue: (val: any) => any;
   [key: string]: any;
   private static mergableValues = [
     "typeValue",
@@ -65,9 +65,13 @@ export class JsonObjectProperty implements IObject {
   }
   public get defaultValue() {
     var result: any = this.defaultValueValue;
-    if (JsonObject.metaData.isDescendantOf(this.className, "itemvalue")) {
-      result = [];
-      ItemValue.setData(result, this.defaultValueValue || []);
+    if (
+      !!JsonObjectProperty.getItemValuesDefaultValue &&
+      JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
+    ) {
+      result = JsonObjectProperty.getItemValuesDefaultValue(
+        this.defaultValueValue || []
+      );
     }
     return result;
   }

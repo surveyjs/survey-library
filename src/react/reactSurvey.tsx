@@ -33,8 +33,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.setSurveyEvents(props);
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.survey);
     this.setState(this.getState());
     this.updateSurvey(nextProps);
+    this.makeBaseElementReact(this.survey);
   }
   componentDidUpdate() {
     if (this.isCurrentPageChanged) {

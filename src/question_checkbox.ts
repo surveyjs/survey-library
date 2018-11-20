@@ -40,6 +40,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  protected getFirstInputElementId(): string {
+    return this.inputId + "_0";
+  }
   /**
    * Returns the select all item. By using this property, you may change programmatically it's value and text.
    * @see hasSelectAll

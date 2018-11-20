@@ -16,6 +16,7 @@ const json = {
       title: "Please upload your photo",
       name: "image",
       storeDataAsText: true,
+      allowMultiple: true,
       showPreview: true,
       imageWidth: 150,
       maxSize: 102400

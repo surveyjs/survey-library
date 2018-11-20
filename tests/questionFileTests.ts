@@ -452,3 +452,37 @@ QUnit.test(
     assert.equal(state, "loaded");
   }
 );
+
+QUnit.test("QuestionFile replace file for single file mode", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "file",
+        name: "image1",
+        storeDataAsText: false
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map(file => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  var files1: any = [{ name: "f1", type: "t1" }];
+  q1.loadFiles(files1);
+  assert.equal(q1.value.length, 1, "first file");
+  assert.equal(q1.value[0].name, "f1", "first file name");
+
+  var files2: any = [{ name: "f2", type: "t2", size: 100000 }];
+  q1.loadFiles(files2);
+  assert.equal(q1.value.length, 1, "the only single file");
+  assert.equal(q1.value[0].name, "f2", "second file name");
+});

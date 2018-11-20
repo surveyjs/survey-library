@@ -124,11 +124,12 @@ export class QuestionFileModel extends Question {
   /**
    * Clear value programmatically.
    */
-  public clear() {
+  public clear(doneCallback?: () => void) {
     this.survey.clearFiles(this.name, this.value, null, (status, data) => {
       if (status === "success") {
         this.value = undefined;
         this.errors = [];
+        !!doneCallback && doneCallback();
       }
     });
   }
@@ -166,37 +167,45 @@ export class QuestionFileModel extends Question {
     }
 
     this.stateChanged("loading");
-    var content = <Array<any>>[];
-    if (this.storeDataAsText) {
-      files.forEach(file => {
-        let fileReader = new FileReader();
-        fileReader.onload = e => {
-          content = content.concat([
-            { name: file.name, type: file.type, content: fileReader.result }
-          ]);
-          if (content.length === files.length) {
-            this.value = (this.value || []).concat(content);
+
+    var loadFilesProc = () => {
+      var content = <Array<any>>[];
+      if (this.storeDataAsText) {
+        files.forEach(file => {
+          let fileReader = new FileReader();
+          fileReader.onload = e => {
+            content = content.concat([
+              { name: file.name, type: file.type, content: fileReader.result }
+            ]);
+            if (content.length === files.length) {
+              this.value = (this.value || []).concat(content);
+            }
+          };
+          fileReader.readAsDataURL(file);
+        });
+      } else {
+        this.survey.uploadFiles(this.name, files, (status, data) => {
+          if (status === "error") {
+            this.stateChanged("error");
           }
-        };
-        fileReader.readAsDataURL(file);
-      });
+          if (status === "success") {
+            this.value = (this.value || []).concat(
+              data.map((r: any) => {
+                return {
+                  name: r.file.name,
+                  type: r.file.type,
+                  content: r.content
+                };
+              })
+            );
+          }
+        });
+      }
+    };
+    if (this.allowMultiple) {
+      loadFilesProc();
     } else {
-      this.survey.uploadFiles(this.name, files, (status, data) => {
-        if (status === "error") {
-          this.stateChanged("error");
-        }
-        if (status === "success") {
-          this.value = (this.value || []).concat(
-            data.map((r:any) => {
-              return {
-                name: r.file.name,
-                type: r.file.type,
-                content: r.content
-              };
-            })
-          );
-        }
-      });
+      this.clear(loadFilesProc);
     }
   }
   public canPreviewImage(fileItem: any): boolean {

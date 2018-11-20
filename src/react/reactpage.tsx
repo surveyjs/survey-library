@@ -86,8 +86,10 @@ export class SurveyPage extends SurveyPanelBase {
     this.panelBase = props.page;
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.panelBase);
     super.componentWillReceiveProps(nextProps);
     this.panelBase = nextProps.page;
+    this.makeBaseElementReact(this.panelBase);
   }
   public get page(): PageModel {
     return this.panelBase as PageModel;
@@ -124,8 +126,10 @@ export class SurveyPanel extends SurveyPanelBase {
     this.panelBase = props.panel;
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.panelBase);
     super.componentWillReceiveProps(nextProps);
     this.panelBase = nextProps.panel;
+    this.makeBaseElementReact(this.panelBase);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;

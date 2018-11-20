@@ -10,7 +10,9 @@ export class SurveyWindow extends Survey {
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.window);
     this.updateSurvey(nextProps);
+    this.makeBaseElementReact(this.window);
   }
   handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;

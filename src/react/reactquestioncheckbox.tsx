@@ -130,7 +130,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.question.inputId + "-" + this.index;
+    var id = this.question.inputId + "_" + this.index;
     var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +

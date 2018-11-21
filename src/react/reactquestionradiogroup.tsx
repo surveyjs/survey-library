@@ -93,7 +93,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     cssClasses: any,
     index: number
   ): JSX.Element {
-    var id = this.question.inputId + "-" + index;
+    var id = this.question.inputId + "_" + index;
     var itemText = this.renderLocString(item.locText, this.textStyle);
     let itemClass =
       cssClasses.item +

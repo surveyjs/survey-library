@@ -40,10 +40,8 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
+        <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.getItems(cssClasses)}
-        <legend style={{ display: "none" }}>
-          {this.question.locTitle.renderedHtml}
-        </legend>
       </fieldset>
     );
   }

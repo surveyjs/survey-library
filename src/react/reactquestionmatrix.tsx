@@ -59,6 +59,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
     return (
       <fieldset>
+        <legend aria-label={this.question.locTitle.renderedHtml} />
         <table className={cssClasses.root}>
           <thead>
             <tr>
@@ -68,9 +69,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           </thead>
           <tbody>{rows}</tbody>
         </table>
-        <legend style={{ display: "none" }}>
-          {this.question.locTitle.renderedHtml}
-        </legend>
       </fieldset>
     );
   }

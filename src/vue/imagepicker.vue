@@ -1,5 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
+        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
                 <input v-if="question.multiSelect" style="display: none;" type="checkbox" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + item.value" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="question.locTitle.renderedHtml" :class="question.cssClasses.itemControl"/>
@@ -11,7 +12,6 @@
                 </div>
             </label>
         </div>
-        <legend style="display: none;">{{question.locTitle.renderedHtml}}</legend>
     </fieldset>
 </template>
 

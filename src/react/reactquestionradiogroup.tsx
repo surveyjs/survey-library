@@ -44,11 +44,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     }
     return (
       <fieldset className={cssClasses.root}>
+        <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.getItems(cssClasses)}
         {clearButton}
-        <legend style={{ display: "none" }}>
-          {this.question.locTitle.renderedHtml}
-        </legend>
       </fieldset>
     );
   }

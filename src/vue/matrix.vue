@@ -1,5 +1,6 @@
 <template>
     <fieldset>
+        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <table :class="question.cssClasses.root">
             <thead>
                 <tr>
@@ -25,7 +26,6 @@
                 </tr>
             </tbody>
         </table>
-        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
     </fieldset>
 </template>
 

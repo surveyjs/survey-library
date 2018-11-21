@@ -1,5 +1,6 @@
 <template>
     <fieldset :class="question.cssClasses.root">
+        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)" >
             <label :class="question.cssClasses.label">
                 <input type="radio" :name="question.name + '_' + question.id" :value="item.value" :id="question.inputId + '_' + index" v-model="question.value" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
@@ -12,7 +13,6 @@
         <div v-if="question.showClearButton">
             <input type="button" :class="question.cssClasses.clearButton" v-on:click="function() { question.clearValue(); }" :value="question.clearButtonCaption"/>
         </div>
-        <legend style="display: none;">{{question.locTitle.renderedHtml}}</legend>
     </fieldset>
 </template>
 

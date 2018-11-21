@@ -1,27 +1,27 @@
 ﻿<script type="text/html" id="survey-question-checkbox">
-    <fieldset data-bind="css: question.koCss().root">
-        <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-        <div data-bind="css: question.getItemClass(item)">
-            <label data-bind="css: question.koCss().label">
-                <!-- ko if: item == question.selectAllItem -->
-                <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
-                <!-- /ko -->
-                <!-- ko if: item != question.selectAllItem -->
-                <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koValue, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
-                <!-- /ko -->
-                <span data-bind="css: question.koCss().materialDecorator">
-                    <span class="check"></span>
-                </span>
-                <span data-bind="css: question.koCss().controlLabel">
-                    <!-- ko template: { name: 'survey-string', data: item.locText } -->
-                    <!-- /ko -->
-                </span>
-            </label>
-            <!-- ko if: question.hasOther && ($index() == question.koVisibleChoices().length-1) -->
-            <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
-            <!-- /ko -->
-        </div>
-        <!-- /ko -->
-        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
-    </fieldset>
+  <fieldset data-bind="css: question.koCss().root">
+      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+      <!-- ko foreach: { data: question.koVisibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+      <div data-bind="css: question.getItemClass(item)">
+          <label data-bind="css: question.koCss().label">
+              <!-- ko if: item == question.selectAllItem -->
+              <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
+              <!-- /ko -->
+              <!-- ko if: item != question.selectAllItem -->
+              <input type="checkbox" data-bind="attr: {name: question.name, value: item.value, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koValue, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
+              <!-- /ko -->
+              <span data-bind="css: question.koCss().materialDecorator">
+                  <span class="check"></span>
+              </span>
+              <span data-bind="css: question.koCss().controlLabel">
+                  <!-- ko template: { name: 'survey-string', data: item.locText } -->
+                  <!-- /ko -->
+              </span>
+          </label>
+          <!-- ko if: question.hasOther && ($index() == question.koVisibleChoices().length-1) -->
+          <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+          <!-- /ko -->
+      </div>
+      <!-- /ko -->
+  </fieldset>
 </script>

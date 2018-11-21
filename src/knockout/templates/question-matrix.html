@@ -1,51 +1,51 @@
 ﻿<script type="text/html" id="survey-question-matrix">
-    <fieldset>
-        <table data-bind="css: question.koCss().root">
-            <thead>
-                <tr>
-                    <td data-bind="visible: question.hasRows"></td>
-                    <!-- ko foreach: question.koVisibleColumns -->
-                    <th>
-                        <!-- ko template: { name: 'survey-string', data: locText } -->
-                        <!-- /ko -->
-                    </th>
-                    <!-- /ko -->
-                </tr>
-            </thead>
-            <tbody>
-                <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
-                <tr data-bind="css: question.koCss().row">
-                    <td data-bind="visible: question.hasRows">
-                        <!-- ko template: { name: 'survey-string', data: row.locText } -->
-                        <!-- /ko -->
-                    </td>
-                    <!-- ko foreach: question.koVisibleColumns -->
-                    <!-- ko if: question.hasCellText -->
-                    <td data-bind="css: question.getItemCss(row, $data), click: function() { if(!question.isReadOnly) {row.koCellClick($data); } }">
-                        <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
-                        <!-- /ko -->
-                    </td>
-                    <!-- /ko -->
-                    <!-- ko if: !question.hasCellText -->
-                    <td data-bind="attr: { headers: $data.locText.renderedHtml }">
-                        <label data-bind="css: question.getItemCss(row, $data)">
-                            <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.isReadOnly"
-                            />
-                            <span class="circle"></span>
-                            <span class="check"></span>
-                            <span style="display: none" data-bind="text: $data.locText.text"></span>
-                        </label>
-                        <label data-bind="css: question.koCss().cellLabel, attr: { for: question.inputId + '_' + row.name + '_' + $index() }"></label>
-                    </td>
-                    <!-- /ko -->
-                    <!-- /ko -->
-                </tr>
-                <!-- /ko -->
-            </tbody>
-        </table>
-        <legend style="display: none;" data-bind="text: question.locTitle.renderedHtml"></legend>
-    </fieldset>
+  <fieldset>
+      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+      <table data-bind="css: question.koCss().root">
+          <thead>
+              <tr>
+                  <td data-bind="visible: question.hasRows"></td>
+                  <!-- ko foreach: question.koVisibleColumns -->
+                  <th>
+                      <!-- ko template: { name: 'survey-string', data: locText } -->
+                      <!-- /ko -->
+                  </th>
+                  <!-- /ko -->
+              </tr>
+          </thead>
+          <tbody>
+              <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
+              <tr data-bind="css: question.koCss().row">
+                  <td data-bind="visible: question.hasRows">
+                      <!-- ko template: { name: 'survey-string', data: row.locText } -->
+                      <!-- /ko -->
+                  </td>
+                  <!-- ko foreach: question.koVisibleColumns -->
+                  <!-- ko if: question.hasCellText -->
+                  <td data-bind="css: question.getItemCss(row, $data), click: function() { if(!question.isReadOnly) {row.koCellClick($data); } }">
+                      <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
+                      <!-- /ko -->
+                  </td>
+                  <!-- /ko -->
+                  <!-- ko if: !question.hasCellText -->
+                  <td data-bind="attr: { headers: $data.locText.renderedHtml }">
+                      <label data-bind="css: question.getItemCss(row, $data)">
+                          <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-label': question.locTitle.renderedHtml, value: $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.isReadOnly"
+                          />
+                          <span class="circle"></span>
+                          <span class="check"></span>
+                          <span style="display: none" data-bind="text: $data.locText.text"></span>
+                      </label>
+                      <label data-bind="css: question.koCss().cellLabel, attr: { for: question.inputId + '_' + row.name + '_' + $index() }"></label>
+                  </td>
+                  <!-- /ko -->
+                  <!-- /ko -->
+              </tr>
+              <!-- /ko -->
+          </tbody>
+      </table>
+  </fieldset>
 </script>
 <script type="text/html" id="survey-text">
-    <span data-bind="text:$data.renderedHtml"></span>
+  <span data-bind="text:$data.renderedHtml"></span>
 </script>

@@ -62,7 +62,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`div:nth-child(5) label input`)
+      .click(`div:nth-child(6) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -73,8 +73,8 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`div:nth-child(8) label input`)
-      .click(`div:nth-child(5) label input`)
+      .click(`div:nth-child(9) label input`)
+      .click(`div:nth-child(6) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -229,7 +229,7 @@ frameworks.forEach(framework => {
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(`div:nth-child(12) label input`)
+      .click(`div:nth-child(13) label input`)
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 
@@ -245,14 +245,14 @@ frameworks.forEach(framework => {
         .classList.contains("checked")
     );
 
-    assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
+    assert.equal(await isCheckedClassExistsByIndex(4), false);
 
     await t
-      .click(`fieldset div:nth-child(2) label input`)
-      .click(`fieldset div:nth-child(3) label input`);
+      .click(`fieldset div:nth-child(3) label input`)
+      .click(`fieldset div:nth-child(4) label input`);
 
-    assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
+    assert.equal(await isCheckedClassExistsByIndex(4), true);
   });
 });

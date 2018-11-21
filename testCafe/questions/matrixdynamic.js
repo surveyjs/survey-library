@@ -157,7 +157,7 @@ frameworks.forEach(framework => {
       for (i = 2; i < 13; i++) {
         // answer radios
         await t.click(
-          `${baseSelectorFunc`${rowNumber}${i}`} div:nth-child(1) label input`
+          `${baseSelectorFunc`${rowNumber}${i}`} div:nth-child(2) label input`
         );
       }
 

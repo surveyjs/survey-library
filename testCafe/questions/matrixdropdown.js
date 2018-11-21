@@ -76,7 +76,7 @@ frameworks.forEach(framework => {
       .click(`${baseSelectorFunc`${1}${2}`} input[value=Yes]`)
       .click(`${baseSelectorFunc`${1}${3}`} select`)
       .click(`${baseSelectorFunc`${1}${3}`} select option[value="2"]`)
-      .click(`${baseSelectorFunc`${1}${4}`} div:nth-child(3) label input`)
+      .click(`${baseSelectorFunc`${1}${4}`} div:nth-child(4) label input`)
       .typeText(
         `${baseSelectorFunc`${1}${5}`} input`,
         `why hello world so hard`
@@ -89,8 +89,8 @@ frameworks.forEach(framework => {
       .click(`${baseSelectorFunc`${3}${2}`} input[value=No]`)
       .click(`${baseSelectorFunc`${3}${3}`} select`)
       .click(`${baseSelectorFunc`${3}${3}`} select option[value="5"]`)
-      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(1) label input`)
-      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(4) label input`)
+      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(2) label input`)
+      .click(`${baseSelectorFunc`${3}${4}`} div:nth-child(5) label input`)
       .typeText(`${baseSelectorFunc`${3}${5}`} input`, `it is not 2016`)
       .click(`${baseSelectorFunc`${3}${6}`} select`)
       .click(`${baseSelectorFunc`${3}${6}`} select option[value="Good"]`);

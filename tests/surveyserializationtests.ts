@@ -19,7 +19,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("SurveySerialization");
 
-QUnit.test("Serialize two pages", function (assert) {
+QUnit.test("Serialize two pages", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("Page 1");
   survey.addNewPage("Page 2");
@@ -30,7 +30,7 @@ QUnit.test("Serialize two pages", function (assert) {
     "serialize two pages"
   );
 });
-QUnit.test("Deserialize two pages", function (assert) {
+QUnit.test("Deserialize two pages", function(assert) {
   var survey = new SurveyModel();
   new JsonObject().toObject(
     { pages: [{ name: "Page1" }, { name: "Page2" }] },
@@ -41,7 +41,7 @@ QUnit.test("Deserialize two pages", function (assert) {
   assert.equal(survey.pages[0].data, survey, "data interface is set");
   assert.equal(survey.pages[1].getType(), "page", "it is a live object");
 });
-QUnit.test("Serialize two questions", function (assert) {
+QUnit.test("Serialize two questions", function(assert) {
   var page = new PageModel("Page1");
   var textQuestion = new QuestionTextModel("textQuestion");
   textQuestion.isRequired = true;
@@ -58,7 +58,7 @@ QUnit.test("Serialize two questions", function (assert) {
     "serialize two questions"
   );
 });
-QUnit.test("Deserialize two questions", function (assert) {
+QUnit.test("Deserialize two questions", function(assert) {
   var survey = new SurveyModel();
   var page = new PageModel("Page1");
   survey.addPage(page);
@@ -112,7 +112,7 @@ QUnit.test("Deserialize two questions", function (assert) {
     "data interface is working"
   );
 });
-QUnit.test("Full survey deserialize with one question", function (assert) {
+QUnit.test("Full survey deserialize with one question", function(assert) {
   var survey = new SurveyModel();
   new JsonObject().toObject(
     {
@@ -142,7 +142,7 @@ QUnit.test("Full survey deserialize with one question", function (assert) {
 });
 QUnit.test(
   "Full survey deserialize with one question bypass pages object",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel();
     new JsonObject().toObject(
       {
@@ -168,7 +168,7 @@ QUnit.test(
 );
 QUnit.test(
   "Full survey deserialize with one element bypass pages object",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel();
     new JsonObject().toObject(
       {
@@ -192,7 +192,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Serialize survey data", function (assert) {
+QUnit.test("Serialize survey data", function(assert) {
   var survey = new SurveyModel();
   survey.setValue("question1", "value1");
   survey.setValue("question2", true);
@@ -205,7 +205,7 @@ QUnit.test("Serialize survey data", function (assert) {
   };
   assert.deepEqual(data, expectedData, "check if get data works correctly");
 });
-QUnit.test("Deserialize survey data", function (assert) {
+QUnit.test("Deserialize survey data", function(assert) {
   var survey = new SurveyModel();
   var data = {
     question1: "value1",
@@ -229,7 +229,7 @@ QUnit.test("Deserialize survey data", function (assert) {
     "survey data for question 3"
   );
 });
-QUnit.test("Serialize mutltiple text question", function (assert) {
+QUnit.test("Serialize mutltiple text question", function(assert) {
   var mtQuestion = new QuestionMultipleTextModel("q1");
   mtQuestion.items.push(new MultipleTextItemModel("item1"));
   mtQuestion.items.push(new MultipleTextItemModel("item2", "text2"));
@@ -240,7 +240,7 @@ QUnit.test("Serialize mutltiple text question", function (assert) {
     "serialize multiple text question"
   );
 });
-QUnit.test("Serialize restfull choices", function (assert) {
+QUnit.test("Serialize restfull choices", function(assert) {
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.path = "name";
   var jsObj = new JsonObject().toJsonObject(question);
@@ -250,7 +250,7 @@ QUnit.test("Serialize restfull choices", function (assert) {
     "serialize choicesByUrl"
   );
 });
-QUnit.test("Deserialize question with missing name", function (assert) {
+QUnit.test("Deserialize question with missing name", function(assert) {
   var survey = new SurveyModel();
   var jsonObj = new JsonObject();
   jsonObj.toObject(
@@ -271,7 +271,7 @@ QUnit.test("Deserialize question with missing name", function (assert) {
     "The required property error"
   );
 });
-QUnit.test("Deserialize choicesByUrl", function (assert) {
+QUnit.test("Deserialize choicesByUrl", function(assert) {
   var question = new QuestionDropdownModel("q1");
   assert.equal(
     question.choicesByUrl.isEmpty,
@@ -302,7 +302,7 @@ QUnit.test("Deserialize choicesByUrl", function (assert) {
     "data is copied correctly"
   );
 });
-QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
+QUnit.test("MatrixDropdown serialize and deserialize", function(assert) {
   var matrix = new QuestionMatrixDropdownModelBase("q1");
   matrix.columns.push(new MatrixDropdownColumn("col1"));
   matrix.columns.push(new MatrixDropdownColumn("col2"));
@@ -319,7 +319,7 @@ QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
   );
 });
 
-QUnit.test("Survey serialize dropdown.choices localization", function (assert) {
+QUnit.test("Survey serialize dropdown.choices localization", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "question1");
@@ -348,7 +348,7 @@ QUnit.test("Survey serialize dropdown.choices localization", function (assert) {
   assert.deepEqual(json, checkedJson, "Jsons should be the same");
 });
 
-QUnit.test("Survey deserialize checkbox.choices localization", function (
+QUnit.test("Survey deserialize checkbox.choices localization", function(
   assert
 ) {
   //{ pages: [{elements: [], name: "page1"}]}
@@ -370,7 +370,7 @@ QUnit.test("Survey deserialize checkbox.choices localization", function (
   );
 });
 
-QUnit.test("Survey deserialize/serialize localization survey", function (
+QUnit.test("Survey deserialize/serialize localization survey", function(
   assert
 ) {
   var survey = new SurveyModel();
@@ -400,7 +400,7 @@ QUnit.test("Survey deserialize/serialize localization survey", function (
 
 QUnit.test(
   "Survey deserialize dynamic matrix with different locale, Issue #507",
-  function (assert) {
+  function(assert) {
     var survey = new SurveyModel({
       pages: [
         {
@@ -427,7 +427,8 @@ QUnit.test(
 
 QUnit.test(
   "Survey checkbox.choices serialize/deserialize custom properties",
-  function (assert) {
+  function(assert) {
+    JsonObject.metaData.addProperty("itemvalue", "imageLink");
     var question = new QuestionCheckboxModel("q1");
     var jsonObj = new JsonObject();
     var originalJson = {
@@ -451,9 +452,10 @@ QUnit.test(
       originalJson,
       "Custom property has serialized correctly"
     );
+    JsonObject.metaData.removeProperty("itemvalue", "imageLink");
   }
 );
-QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function (
+QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
   assert
 ) {
   var survey = new SurveyModel();
@@ -474,47 +476,44 @@ QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function (
   assert.deepEqual(json, originalJson, "minValue should be here");
 });
 
-QUnit.test("Expressions + markup https://surveyjs.answerdesk.io/ticket/details/T909", function (assert) {
-  var json = {
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "dropdown",
-            name: "Q1",
-            choices: [
-              "1",
-              "2",
-              "3"
-            ]
-          },
-          {
-            type: "radiogroup",
-            name: "Radio1",
-            choices: [
-              {
-                value: "{Q1} text",
-                text: "{Q1} text"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  };
+QUnit.test(
+  "Expressions + markup https://surveyjs.answerdesk.io/ticket/details/T909",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "dropdown",
+              name: "Q1",
+              choices: ["1", "2", "3"]
+            },
+            {
+              type: "radiogroup",
+              name: "Radio1",
+              choices: [
+                {
+                  value: "{Q1} text",
+                  text: "{Q1} text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
 
-  var survey = new SurveyModel(json);
-  var q1 = survey.getQuestionByName("Q1");
-  var q2: QuestionRadiogroupModel = <any>survey.getQuestionByName("Radio1");
-  survey
-    .onTextMarkdown
-    .add(function (survey, options) {
+    var survey = new SurveyModel(json);
+    var q1 = survey.getQuestionByName("Q1");
+    var q2: QuestionRadiogroupModel = <any>survey.getQuestionByName("Radio1");
+    survey.onTextMarkdown.add(function(survey, options) {
       options.html = options.text;
     });
 
-  assert.equal(q2.visibleChoices[0].locText.renderedHtml, " text");
+    assert.equal(q2.visibleChoices[0].locText.renderedHtml, " text");
 
-  q1.value = "1";
-  assert.equal(q2.visibleChoices[0].locText.renderedHtml, "1 text");
-});
+    q1.value = "1";
+    assert.equal(q2.visibleChoices[0].locText.renderedHtml, "1 text");
+  }
+);

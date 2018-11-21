@@ -671,6 +671,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
 QUnit.test(
   "ItemValueListOwner deserialization, custom property in ItemValue",
   function(assert) {
+    JsonObject.metaData.addProperty("itemvalue", "price:number");
     var list = new ItemValueListOwner();
 
     new JsonObject().toObject(
@@ -686,6 +687,7 @@ QUnit.test(
     );
     assert.equal(list.items.length, 4, "there are 4 items");
     assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
+    JsonObject.metaData.removeProperty("itemvalue", "price");
   }
 );
 QUnit.test(

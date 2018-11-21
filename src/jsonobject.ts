@@ -81,7 +81,11 @@ export class JsonObjectProperty implements IObject {
   public isDefaultValue(value: any): boolean {
     if (!Helpers.isValueEmpty(this.defaultValue))
       return this.defaultValue == value;
-    return value === false || value === "" || Helpers.isValueEmpty(value);
+    return (
+      (value === false && this.type == "boolean") ||
+      value === "" ||
+      Helpers.isValueEmpty(value)
+    );
   }
   public getValue(obj: any): any {
     if (this.onGetValue) return this.onGetValue(obj);
@@ -879,7 +883,7 @@ export class JsonObject {
       this.valueToJson(obj, json, properties[i], storeDefaults);
     }
   }
-  protected valueToJson(
+  public valueToJson(
     obj: any,
     result: any,
     property: JsonObjectProperty,

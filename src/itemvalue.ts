@@ -9,7 +9,7 @@ import { Base } from "./base";
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
-export class ItemValue {
+export class ItemValue extends Base {
   [index: string]: any;
   public static Separator = "|";
   public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
@@ -137,33 +137,17 @@ export class ItemValue {
     }
     return hasChanded;
   }
-  private static itemValueProp = [
-    "text",
-    "value",
-    "visibleIfValue",
-    "visibleIf",
-    "hasText",
-    "locOwner",
-    "locText",
-    "isValueEmpty",
-    "isVisible",
-    "isVisibleValue",
-    "locTextValue",
-    "conditionRunner",
-    "pos",
-    "survey"
-  ];
   private visibleIfValue: string = "";
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
   private conditionRunner: ConditionRunner;
 
-  constructor(value: any, text: string = null, typeName = "itemvalue") {
-    this.getType = () => typeName;
+  constructor(value: any, text: string = null, private typeName = "itemvalue") {
+    super();
     this.locTextValue = new LocalizableString(null, true);
     this.locTextValue.onGetTextCallback = txt => {
-      return txt ? txt : !this.isValueEmpty ? this.value.toString() : null;
+      return txt ? txt : !this.isValueItemEmpty ? this.value.toString() : null;
     };
     if (text) this.locText.text = text;
     if (!!value && typeof value === "object") {
@@ -172,7 +156,9 @@ export class ItemValue {
       this.value = value;
     }
   }
-  public getType: () => string;
+  public getType(): string {
+    return this.typeName;
+  }
   public get locText(): LocalizableString {
     return this.locTextValue;
   }
@@ -210,31 +196,37 @@ export class ItemValue {
     this.locText.text = newText;
   }
   public getData(): any {
-    var customAttributes = this.getCustomAttributes();
-    var textJson = this.locText.getJson();
-    if (!customAttributes && !textJson && !this.visibleIf) return this.value;
-    var value = this.value;
-    if (value && value["pos"]) delete value["pos"];
-    var result = { value: value };
-    if (textJson) (<any>result)["text"] = textJson;
-    if (this.visibleIf) (<any>result)["visibleIf"] = this.visibleIf;
-    if (customAttributes) {
-      for (var key in customAttributes) {
-        (<any>result)[key] = customAttributes[key];
-      }
+    var json = this.toJSON();
+    if (!!json["value"] && !!json["value"]["pos"]) {
+      delete json["value"]["pos"];
     }
-    return result;
+    if (Object.keys(json).length == 1 && !Helpers.isValueEmpty(json["value"]))
+      return this.value;
+    return json;
+  }
+  public toJSON(): any {
+    var res = {};
+    var properties = JsonObject.metaData.getProperties(this.getType());
+    if (!properties || properties.length == 0) {
+      properties = JsonObject.metaData.getProperties("itemvalue");
+    }
+    var jsoObj = new JsonObject();
+    for (var i = 0; i < properties.length; i++) {
+      jsoObj.valueToJson(this, res, properties[i]);
+    }
+    return res;
   }
   public setData(value: any) {
     if (typeof value.value !== "undefined") {
-      var exception = null;
-      if (this.isObjItemValue(value)) {
-        value.itemValue = value.itemValue;
-        this.locText.setJson(value.locText.getJson());
-        if (value.visibleIf) this.visibleIf = value.visibleIf;
-        exception = ItemValue.itemValueProp;
+      var json = null;
+      if (typeof value.toJSON === "function") {
+        json = (<Base>value).toJSON();
+      } else {
+        new JsonObject().toObject(value, this);
       }
-      this.copyAttributes(value, exception);
+      for (var key in json) {
+        this[key] = json[key];
+      }
     } else {
       this.value = value;
     }
@@ -258,41 +250,8 @@ export class ItemValue {
     this.conditionRunner.expression = this.visibleIf;
     return this.conditionRunner;
   }
-  private get isValueEmpty() {
+  private get isValueItemEmpty() {
     return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;
-  }
-  private isObjItemValue(obj: any) {
-    return typeof obj.getType !== "undefined" && obj.getType() == "itemvalue";
-  }
-  private copyAttributes(src: any, exceptons: Array<string>) {
-    for (var key in src) {
-      if (typeof src[key] == "function") continue;
-      if (exceptons && exceptons.indexOf(key) > -1) continue;
-      if (key === "text") {
-        this.locText.setJson(src[key]);
-      } else {
-        if (
-          ["locText", "hasText", "isVisible", "isValueEmpty"].indexOf(key) ===
-          -1
-        ) {
-          (<any>this)[key] = src[key];
-        }
-      }
-    }
-  }
-  private getCustomAttributes(): any {
-    var result = null;
-    for (var key in this) {
-      if (
-        typeof this[key] === "function" ||
-        ItemValue.itemValueProp.indexOf(key) > -1 ||
-        key === "itemValue"
-      )
-        continue;
-      if (result == null) result = {};
-      (<any>result)[key] = this[key];
-    }
-    return result;
   }
 }
 

@@ -1293,7 +1293,9 @@ export class SurveyModel extends Base
    * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
    * set options.includeEmpty to false if you want to skip empty answers
    */
-  public getPlainData(options: { includeEmpty?: boolean } = { includeEmpty: true }) {
+  public getPlainData(
+    options: { includeEmpty?: boolean } = { includeEmpty: true }
+  ) {
     var result: Array<any> = [];
     var data = this.data;
     this.getAllQuestions().forEach(question => {
@@ -3447,7 +3449,7 @@ JsonObject.metaData.addClass("survey", [
   },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
-  { name: "surveyShowDataSaving", visible: false },
+  { name: "surveyShowDataSaving:boolean", visible: false },
   "cookieName",
   "sendResultOnPageNext:boolean",
   { name: "showNavigationButtons:boolean", default: true },

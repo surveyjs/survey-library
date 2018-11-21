@@ -577,6 +577,8 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
 });
 
 QUnit.test("Load countries, custom itemvalue class", function(assert) {
+  JsonObject.metaData.addProperty("itemvalue", "alpha3_code");
+  JsonObject.metaData.addProperty("itemvalue", "customProperty");
   var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
     "imagepicker_choicesrest"
   );
@@ -596,6 +598,8 @@ QUnit.test("Load countries, custom itemvalue class", function(assert) {
     "AF",
     "Custom property is set via propertyName is set"
   );
+  JsonObject.metaData.removeProperty("itemvalue", "customProperty");
+  JsonObject.metaData.removeProperty("itemvalue", "alpha3_code");
 });
 
 QUnit.test(

@@ -1,8 +1,3 @@
 ﻿<script type="text/html" id="survey-question-text">
-    <!-- ko ifnot: question.isReadOnly -->
-    <input data-bind="attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' ? undefined : question.placeHolder, maxLength: question.getMaxLength(), 'aria-label': question.locTitle.renderedHtml}, value:question.koValue, css: question.koCss().root"/>
-    <!-- /ko -->
-    <!-- ko if: question.isReadOnly -->
-    <input disabled data-bind="attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' ? undefined : question.placeHolder, maxLength: question.getMaxLength(), 'aria-label': question.locTitle.renderedHtml}, value:question.koValue, css: question.koCss().root"/>
-    <!-- /ko -->
+  <input data-bind="disable: question.isReadOnly, attr: {type: question.inputType, size: question.size, id: question.inputId, placeholder: question.inputType === 'range' ? undefined : question.placeHolder, maxLength: question.getMaxLength(), 'aria-label': question.locTitle.renderedHtml}, value:question.koValue, css: question.koCss().root"/>
 </script>

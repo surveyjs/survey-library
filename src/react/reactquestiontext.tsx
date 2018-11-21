@@ -29,24 +29,10 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    if (this.isDisplayMode) {
-      return (
-        <input
-          disabled={true}
-          id={this.question.inputId}
-          className={cssClasses.root}
-          type={this.question.inputType}
-          value={this.state.value}
-          maxLength={this.question.getMaxLength()}
-          size={this.question.size}
-          placeholder={this.question.placeHolder}
-          aria-label={this.question.locTitle.renderedHtml}
-        />
-      );
-    }
     return (
       <input
         id={this.question.inputId}
+        disabled={this.isDisplayMode}
         className={cssClasses.root}
         type={this.question.inputType}
         value={this.state.value}

@@ -199,14 +199,14 @@ frameworks.forEach(framework => {
   });
 
   test(`choose other`, async t => {
-    const getOtherInput = Selector(
-      () => document.querySelector(".form-group .sv_q_radiogroup_other")
+    const getOtherInput = Selector(() =>
+      document.querySelector(".form-group .sv_q_radiogroup_other")
     );
     let surveyResult;
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(`div:nth-child(12) label input`)
+      .click(`div:nth-child(13) label input`)
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 

@@ -223,7 +223,7 @@ frameworks.forEach(framework => {
 
   test(`choose other`, async t => {
     const getOtherInput = Selector(
-      () => document.querySelectorAll("div:nth-child(12) input")[1]
+      () => document.querySelectorAll("div:nth-child(13) input")[1]
     );
     let surveyResult;
 

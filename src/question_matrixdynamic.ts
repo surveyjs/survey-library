@@ -473,6 +473,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows = null;
       this.generatedVisibleRows = this.visibleRows;
+      this.fireCallback(this.visibleRowsChangedCallback);
     }
   }
   protected createNewValue(curValue: any): any {

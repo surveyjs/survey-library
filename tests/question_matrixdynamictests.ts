@@ -1567,3 +1567,129 @@ QUnit.test("Text preprocessing with capital questions", function(assert) {
     "uppercase name is fine"
   );
 });
+
+QUnit.test(
+  "Shared matrix value name, Bug: Bug# https://surveyjs.answerdesk.io/ticket/details/T1322",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          valueName: "shared",
+          cellType: "text",
+          columns: [
+            {
+              name: "col1"
+            }
+          ]
+        },
+        {
+          type: "matrixdynamic",
+          name: "q2",
+          valueName: "shared",
+          cellType: "text",
+          columns: [
+            {
+              name: "col1"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+    assert.equal(q1.visibleRows.length, 2, "q1 - two rows are by default");
+    assert.equal(q2.visibleRows.length, 2, "q2 - two rows are by default");
+
+    var newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+    q1.value = newValue;
+    assert.deepEqual(q1.value, newValue, "set correctly to the first question");
+    assert.deepEqual(
+      q2.value,
+      newValue,
+      "shared correctly to the second question"
+    );
+    var rowsChangedCounter = 0;
+    q2.visibleRowsChangedCallback = function() {
+      rowsChangedCounter++;
+    };
+    q1.addRow();
+    q1.visibleRows[3].cells[0].value = 4;
+    newValue.push({ col1: 4 });
+    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
+    assert.deepEqual(
+      q2.visibleRows.length,
+      4,
+      "There are  4 rows in the second question"
+    );
+    assert.deepEqual(
+      q1.value,
+      newValue,
+      "2. set correctly to the first question"
+    );
+    assert.deepEqual(
+      q2.value,
+      newValue,
+      "2. shared correctly to the second question"
+    );
+  }
+);
+
+QUnit.test(
+  "Copy matrix value on trigger, Bug# https://surveyjs.answerdesk.io/ticket/details/T1322",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          cellType: "text",
+          columns: [
+            {
+              name: "col1"
+            }
+          ]
+        },
+        {
+          type: "matrixdynamic",
+          name: "q2",
+          cellType: "text",
+          columns: [
+            {
+              name: "col1"
+            }
+          ]
+        }
+      ],
+      triggers: [
+        {
+          type: "copyvalue",
+          expression: "{copyValue} = true",
+          setToName: "q2",
+          fromName: "q1"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    var q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+    assert.equal(q1.visibleRows.length, 2, "q1 - two rows are by default");
+    assert.equal(q2.visibleRows.length, 2, "q2 - two rows are by default");
+    var newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
+    q1.value = newValue;
+    assert.deepEqual(q1.value, newValue, "set correctly to the first question");
+    var rowsChangedCounter = 0;
+    q2.visibleRowsChangedCallback = function() {
+      rowsChangedCounter++;
+    };
+    survey.setValue("copyValue", true);
+    assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
+    assert.deepEqual(
+      q2.value,
+      newValue,
+      "set correctly to the second question on trigger"
+    );
+  }
+);

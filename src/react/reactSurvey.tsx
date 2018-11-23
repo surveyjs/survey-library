@@ -30,7 +30,6 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.state = this.getState();
     this.updateSurvey(props);
-    this.setSurveyEvents(props);
   }
   componentWillReceiveProps(nextProps: any) {
     this.unMakeBaseElementReact(this.survey);
@@ -259,9 +258,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
         }
       }
     }
-
     //set the first page
     var dummy = this.survey.currentPage;
+
+    this.setSurveyEvents(newProps);
   }
   private getState() {
     return { pageIndexChange: 0, modelChanged: 0 };

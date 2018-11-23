@@ -5228,3 +5228,16 @@ QUnit.test("getData for relation model", function(assert) {
   assert.equal(plainData[1].data[1].displayValue, "item2");
 });
 
+QUnit.test("question.valueName is numeric, Bug# 1432", function(assert) {
+  var survey = new SurveyModel( {
+              questions: [
+                  {
+                      name: "name",
+                      type: "text",
+                      valueName: 10
+                  }
+                    ]
+  });
+  var question = survey.getQuestionByValueName("10");
+  assert.equal(question.name, "name", "The question has been found")
+});

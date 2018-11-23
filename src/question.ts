@@ -79,7 +79,8 @@ export class Question extends SurveyElement
     );
   }
   public getValueName(): string {
-    return this.valueName ? this.valueName : this.name;
+    if (!!this.valueName) return this.valueName.toString();
+    return this.name;
   }
   /**
    * Use this property if you want to store the question result in the name different from the question name.

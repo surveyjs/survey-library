@@ -7,11 +7,6 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { choicesChanged: 0 };
-    var self = this;
-    this.question.choicesChangedCallback = function() {
-      self.setState({ choicesChanged: self.state.choicesChanged + 1 });
-    };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionImagePickerModel {

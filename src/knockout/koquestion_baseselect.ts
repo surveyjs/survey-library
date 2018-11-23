@@ -8,7 +8,6 @@ import {
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
   koOtherVisible: any;
-  koVisibleChoices: any;
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
@@ -18,16 +17,7 @@ export class QuestionSelectBaseImplementor extends QuestionImplementor {
       self.koValue();
       return self.isOtherSelected;
     });
-    this.koVisibleChoices = ko.observableArray(
-      (<QuestionCheckboxBase>self.question).visibleChoices
-    );
-    (<QuestionCheckboxBase>question).choicesChangedCallback = function() {
-      self.koVisibleChoices(
-        (<QuestionCheckboxBase>self.question).visibleChoices
-      );
-    };
     (<any>this.question)["koOtherVisible"] = this.koOtherVisible;
-    (<any>this.question)["koVisibleChoices"] = this.koVisibleChoices;
     this.onCreated();
   }
   protected get isOtherSelected(): boolean {

@@ -7,14 +7,7 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue(), choicesChanged: 0 };
-    var self = this;
-    this.question.choicesChangedCallback = function() {
-      self.setState({
-        choicesChanged: self.state.choicesChanged + 1,
-        value: self.question.value
-      });
-    };
+    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionDropdownModel {

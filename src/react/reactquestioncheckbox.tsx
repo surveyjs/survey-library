@@ -11,11 +11,6 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { choicesChanged: 0 };
-    var self = this;
-    this.question.choicesChangedCallback = function() {
-      self.setState({ choicesChanged: self.state.choicesChanged + 1 });
-    };
   }
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;

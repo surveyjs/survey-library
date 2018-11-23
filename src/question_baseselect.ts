@@ -8,12 +8,12 @@ import { CustomError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
+import { turkishSurveyStrings } from "./localization/turkish";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
  */
 export class QuestionSelectBase extends Question {
-  private visibleChoicesCache: Array<ItemValue> = null;
   private filteredChoicesValue: Array<ItemValue> = null;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private commentValue: string;
@@ -26,7 +26,6 @@ export class QuestionSelectBase extends Question {
    * @see choices
    */
   public choicesByUrl: ChoicesRestfull;
-  choicesChangedCallback: () => void;
   constructor(name: string) {
     super(name);
     var self = this;
@@ -42,6 +41,7 @@ export class QuestionSelectBase extends Question {
         self.updateVisibilityBasedOnChoices();
       }
     );
+    this.createNewArray("visibleChoices");
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
     var locOtherText = this.createLocalizableString("otherText", this, true);
@@ -127,7 +127,10 @@ export class QuestionSelectBase extends Question {
   ): boolean {
     this.setConditionalChoicesRunner();
     var hasChanges = this.runConditionsForItems(values, properties);
-    if (this.filteredChoicesValue.length === this.activeChoices.length) {
+    if (
+      !!this.filteredChoicesValue &&
+      this.filteredChoicesValue.length === this.activeChoices.length
+    ) {
       this.filteredChoicesValue = null;
     }
     if (hasChanges) {
@@ -305,14 +308,23 @@ export class QuestionSelectBase extends Question {
    * @see choicesOrder
    */
   public get visibleChoices(): Array<ItemValue> {
-    if (this.canUseFilteredChoices()) return this.filteredChoices;
-    if (!this.visibleChoicesCache) {
-      this.visibleChoicesCache = this.sortVisibleChoices(
-        this.filteredChoices.slice()
-      );
-      this.addToVisibleChoices(this.visibleChoicesCache);
+    return this.getPropertyValue("visibleChoices", []);
+  }
+  protected updateVisibleChoices() {
+    if (this.isLoadingFromJson) return;
+    var newValue = new Array<ItemValue>();
+    var calcValue = this.calcVisibleChoices();
+    if (!calcValue) calcValue = [];
+    for (var i = 0; i < calcValue.length; i++) {
+      newValue.push(calcValue[i]);
     }
-    return this.visibleChoicesCache;
+    this.setPropertyValue("visibleChoices", newValue);
+  }
+  private calcVisibleChoices(): Array<ItemValue> {
+    if (this.canUseFilteredChoices()) return this.filteredChoices;
+    var res = this.sortVisibleChoices(this.filteredChoices.slice());
+    this.addToVisibleChoices(res);
+    return res;
   }
   protected canUseFilteredChoices(): boolean {
     return !this.hasOther && this.choicesOrder == "none";
@@ -452,8 +464,7 @@ export class QuestionSelectBase extends Question {
   }
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
-    this.visibleChoicesCache = null;
-    this.fireCallback(this.choicesChangedCallback);
+    this.updateVisibleChoices();
     this.updateVisibilityBasedOnChoices();
   }
   private updateVisibilityBasedOnChoices() {

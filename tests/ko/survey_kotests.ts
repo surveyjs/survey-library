@@ -457,23 +457,23 @@ QUnit.test("Localization, choices.locText.koRenderedHtml, #349", function(
   var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
   q1.choices = [{ value: 1, text: { default: "text1", de: "text_de" } }];
   assert.equal(
-    q1["koVisibleChoices"]()[0].text,
+    q1.visibleChoices[0].text,
     "text1",
     "default locale, text property is 'text1'"
   );
   assert.equal(
-    q1["koVisibleChoices"]()[0].locText.koRenderedHtml(),
+    q1.visibleChoices[0].locText["koRenderedHtml"](),
     "text1",
     "default locale, locText.koRenderedHtml() is 'text1'"
   );
   survey.locale = "de";
   assert.equal(
-    q1["koVisibleChoices"]()[0].text,
+    q1.visibleChoices[0].text,
     "text_de",
     "default locale, text property is 'text_de'"
   );
   assert.equal(
-    q1["koVisibleChoices"]()[0].locText.koRenderedHtml(),
+    q1.visibleChoices[0].locText["koRenderedHtml"](),
     "text_de",
     "default locale, locText.koRenderedHtml() is 'text_de'"
   );
@@ -486,15 +486,15 @@ QUnit.test("Localization, otherItem", function(assert) {
   var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
   q1.choices = [1, 2];
   q1.hasOther = true;
-  var defaultText = q1["koVisibleChoices"]()[2].locText["koRenderedHtml"]();
+  var defaultText = q1.visibleChoices[2].locText["koRenderedHtml"]();
   assert.equal(
-    q1["koVisibleChoices"]()[2].locText["koRenderedHtml"](),
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
     surveyLocalization.getString("otherItemText"),
     "use default locale"
   );
   survey.locale = "de";
   assert.notEqual(
-    q1["koVisibleChoices"]()[2].locText["koRenderedHtml"](),
+    q1.visibleChoices[2].locText["koRenderedHtml"](),
     defaultText,
     "use another locale locale"
   );
@@ -515,7 +515,7 @@ QUnit.test("otherItem, set text, editor: #90", function(assert) {
   });
   var q1 = <QuestionCheckbox>survey.pages[0].questions[0];
   assert.equal(q1.name, "q1", "question load correctly");
-  assert.equal(q1["koVisibleChoices"]()[2].text, "my other", "use otherText");
+  assert.equal(q1.visibleChoices[2].text, "my other", "use otherText");
 });
 
 QUnit.test("Update page.title correctly with numbers", function(assert) {

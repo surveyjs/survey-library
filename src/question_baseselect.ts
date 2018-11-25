@@ -16,6 +16,7 @@ import { turkishSurveyStrings } from "./localization/turkish";
 export class QuestionSelectBase extends Question {
   private filteredChoicesValue: Array<ItemValue> = null;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
+  private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   protected cachedValue: any;
@@ -82,6 +83,7 @@ export class QuestionSelectBase extends Question {
   /**
    * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
    * @see visibleIf
+   * @see choicesEnableIf
    */
   public get choicesVisibleIf(): string {
     return this.getPropertyValue("choicesVisibleIf", "");
@@ -90,8 +92,20 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choicesVisibleIf", val);
     this.filterItems();
   }
+  /**
+   * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is enabled otherwise the item becomes disabled. Please use {item} to get the current item value in the expression.
+   * @see choicesVisibleIf
+   */
+  public get choicesEnableIf(): string {
+    return this.getPropertyValue("choicesEnableIf", "");
+  }
+  public set choicesEnableIf(val: string) {
+    this.setPropertyValue("choicesEnableIf", val);
+    this.filterItems();
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
+    this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
   protected setDefaultValue() {
@@ -116,10 +130,10 @@ export class QuestionSelectBase extends Question {
       this.areInvisibleElementsShowing
     )
       return false;
-    return this.runItemsCondition(
-      this.getDataFilteredValues(),
-      this.getDataFilteredProperties()
-    );
+    var values = this.getDataFilteredValues();
+    var properties = this.getDataFilteredProperties();
+    this.runItemsEnableCondition(values, properties);
+    return this.runItemsCondition(values, properties);
   }
   protected runItemsCondition(
     values: HashTable<any>,
@@ -141,6 +155,18 @@ export class QuestionSelectBase extends Question {
     }
     return hasChanges;
   }
+  protected runItemsEnableCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ): any {
+    this.setConditionalEnableChoicesRunner();
+    ItemValue.runEnabledConditionsForItems(
+      this.activeChoices,
+      this.conditionChoicesEnableIfRunner,
+      values,
+      properties
+    );
+  }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {
@@ -151,6 +177,18 @@ export class QuestionSelectBase extends Question {
       this.conditionChoicesVisibleIfRunner.expression = this.choicesVisibleIf;
     } else {
       this.conditionChoicesVisibleIfRunner = null;
+    }
+  }
+  private setConditionalEnableChoicesRunner() {
+    if (this.choicesEnableIf) {
+      if (!this.conditionChoicesEnableIfRunner) {
+        this.conditionChoicesEnableIfRunner = new ConditionRunner(
+          this.choicesEnableIf
+        );
+      }
+      this.conditionChoicesEnableIfRunner.expression = this.choicesEnableIf;
+    } else {
+      this.conditionChoicesEnableIfRunner = null;
     }
   }
   private runConditionsForItems(
@@ -301,14 +339,28 @@ export class QuestionSelectBase extends Question {
   get locOtherErrorText(): LocalizableString {
     return this.getLocalizableString("otherErrorText");
   }
-
   /**
    * The list of items as they will be rendered. If needed items are sorted and the other item is added.
    * @see hasOther
    * @see choicesOrder
+   * @see enabledChoices
    */
   public get visibleChoices(): Array<ItemValue> {
     return this.getPropertyValue("visibleChoices", []);
+  }
+  /**
+   * The list of enabled items as they will be rendered. The disabled items are not included
+   * @see hasOther
+   * @see choicesOrder
+   * @see visibleChoices
+   */
+  public get enabledChoices(): Array<ItemValue> {
+    var res = [];
+    var items = this.visibleChoices;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].isEnabled) res.push(items[i]);
+    }
+    return res;
   }
   protected updateVisibleChoices() {
     if (this.isLoadingFromJson) return;
@@ -555,6 +607,7 @@ JsonObject.metaData.addClass(
     },
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
+    { name: "choicesEnableIf:condition", visible: false },
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
     { name: "storeOthersAsComment:boolean", default: true }

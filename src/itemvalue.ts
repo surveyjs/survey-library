@@ -95,6 +95,38 @@ export class ItemValue extends Base {
     values: any,
     properties: any
   ): boolean {
+    return ItemValue.runConditionsForItemsCore(
+      items,
+      filteredItems,
+      runner,
+      values,
+      properties,
+      true
+    );
+  }
+  public static runEnabledConditionsForItems(
+    items: Array<ItemValue>,
+    runner: ConditionRunner,
+    values: any,
+    properties: any
+  ): boolean {
+    return ItemValue.runConditionsForItemsCore(
+      items,
+      null,
+      runner,
+      values,
+      properties,
+      false
+    );
+  }
+  private static runConditionsForItemsCore(
+    items: Array<ItemValue>,
+    filteredItems: Array<ItemValue>,
+    runner: ConditionRunner,
+    values: any,
+    properties: any,
+    isVisible: boolean
+  ): boolean {
     if (!values) {
       values = {};
     }
@@ -106,23 +138,26 @@ export class ItemValue extends Base {
       values["item"] = item.value;
       values["choice"] = item.value;
       var itemRunner = !!item.getConditionRunner
-        ? item.getConditionRunner()
+        ? item.getConditionRunner(isVisible)
         : false;
       if (!itemRunner) {
         itemRunner = runner;
       }
-      var vis = true;
+      var newValue = true;
       if (itemRunner) {
-        vis = itemRunner.run(values, properties);
-        if (vis) {
-          filteredItems.push(item);
-        }
-      } else {
+        newValue = itemRunner.run(values, properties);
+      }
+      if (!!filteredItems && newValue) {
         filteredItems.push(item);
       }
-      if (vis != item.isVisible) {
+      var oldValue = isVisible ? item.isVisible : item.isEnabled;
+      if (newValue != oldValue) {
         hasChanded = true;
-        if (!!item.setIsVisible) item.setIsVisible(vis);
+        if (isVisible) {
+          if (!!item.setIsVisible) item.setIsVisible(newValue);
+        } else {
+          if (!!item.setIsEnabled) item.setIsEnabled(newValue);
+        }
       }
     }
     if (itemValue) {
@@ -141,7 +176,8 @@ export class ItemValue extends Base {
   private itemValue: any;
   private locTextValue: LocalizableString;
   private isVisibleValue: boolean = true;
-  private conditionRunner: ConditionRunner;
+  private visibleConditionRunner: ConditionRunner;
+  private enableConditionRunner: ConditionRunner;
 
   constructor(value: any, text: string = null, private typeName = "itemvalue") {
     super();
@@ -243,12 +279,29 @@ export class ItemValue extends Base {
   public setIsVisible(val: boolean) {
     this.isVisibleValue = val;
   }
-  public getConditionRunner(): ConditionRunner {
+  public get isEnabled() {
+    return this.getPropertyValue("isEnabled", true);
+  }
+  public setIsEnabled(val: boolean) {
+    this.setPropertyValue("isEnabled", val);
+  }
+  protected getConditionRunner(isVisible: boolean) {
+    if (isVisible) return this.getVisibleConditionRunner();
+    return this.getEnableConditionRunner();
+  }
+  private getVisibleConditionRunner(): ConditionRunner {
     if (!this.visibleIf) return null;
-    if (!this.conditionRunner)
-      this.conditionRunner = new ConditionRunner(this.visibleIf);
-    this.conditionRunner.expression = this.visibleIf;
-    return this.conditionRunner;
+    if (!this.visibleConditionRunner)
+      this.visibleConditionRunner = new ConditionRunner(this.visibleIf);
+    this.visibleConditionRunner.expression = this.visibleIf;
+    return this.visibleConditionRunner;
+  }
+  private getEnableConditionRunner(): ConditionRunner {
+    if (!this.enableIf) return null;
+    if (!this.enableConditionRunner)
+      this.enableConditionRunner = new ConditionRunner(this.enableIf);
+    this.enableConditionRunner.expression = this.enableIf;
+    return this.enableConditionRunner;
   }
   private get isValueItemEmpty() {
     return !this.itemValue && this.itemValue !== 0 && this.itemValue !== false;
@@ -282,7 +335,8 @@ JsonObject.metaData.addClass(
       name: "text",
       serializationProperty: "locText"
     },
-    { name: "visibleIf:condition", visible: false }
+    { name: "visibleIf:condition", visible: false },
+    { name: "enableIf:condition", visible: false }
   ],
   (value: any) => new ItemValue(value)
 );

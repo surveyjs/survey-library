@@ -35,7 +35,7 @@ export var defaultBootstrapCss = {
   },
   panel: {
     title: "sv_p_title",
-    description: "small",
+    description: "small sv_p_description",
     container: "sv_p_container"
   },
   error: {

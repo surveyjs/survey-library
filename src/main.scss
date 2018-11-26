@@ -108,7 +108,7 @@ $base-line-height: 2em;
   .sv_q_other input,
   .sv_q_text_root,
   .sv_q_dropdown_control,
-  input[type="text"],
+  input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
     border: 1px solid $border-color;
@@ -371,7 +371,7 @@ $base-line-height: 2em;
           .sv_q_other input,
           .sv_q_text_root,
           .sv_q_dropdown_control,
-          input[type="text"],
+          input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
           select,
           textarea {
             position: relative;
@@ -393,7 +393,7 @@ $base-line-height: 2em;
 
           .sv_q_other input,
           .sv_q_dropdown_control,
-          input[type="text"],
+          input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
           select {
             height: calc(#{$base-line-height} + 1px);
           }

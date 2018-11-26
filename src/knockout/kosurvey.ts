@@ -11,7 +11,7 @@ import {
 } from "../questionCustomWidgets";
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
-import { QuestionRatingModel } from "../question_rating";
+import { ImplementorBase } from "./kobase";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -61,25 +61,7 @@ export class Survey extends SurveyModel {
     css: any = null
   ) {
     super(jsonObj);
-    this.iteratePropertiesHash((hash, key) => {
-      var val = hash[key];
-      if (Array.isArray(val)) {
-        hash[key] = ko.observableArray(val);
-        (<any>val)["onArrayChanged"] = () => hash[key].notifySubscribers();
-      } else {
-        hash[key] = ko.observable(val);
-      }
-    });
-    this.getPropertyValueCoreHandler = (hash, key) => {
-      if (hash[key] === undefined) {
-        hash[key] = ko.observable();
-      }
-      return ko.unwrap(hash[key]);
-    };
-    this.setPropertyValueCoreHandler = (hash, key, val) =>
-      hash[key] !== undefined
-        ? hash[key](val)
-        : (hash[key] = ko.observable(val));
+    new ImplementorBase(this);
     if (css) {
       this.css = css;
     }
@@ -300,6 +282,10 @@ LocalizableString.prototype["onCreating"] = function() {
     self.koReRender();
     return self.renderedHtml;
   });
+};
+
+ItemValue.prototype["onCreating"] = function() {
+  new ImplementorBase(this);
 };
 
 LocalizableString.prototype["onChanged"] = function() {

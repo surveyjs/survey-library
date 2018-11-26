@@ -607,7 +607,7 @@ JsonObject.metaData.addClass(
     },
     "hideIfChoicesEmpty:boolean",
     "choicesVisibleIf:condition",
-    { name: "choicesEnableIf:condition", visible: false },
+    "choicesEnableIf:condition",
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
     { name: "storeOthersAsComment:boolean", default: true }

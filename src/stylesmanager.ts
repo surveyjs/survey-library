@@ -335,11 +335,14 @@ export class StylesManager {
 
     ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
 
-    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
+
+    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
   };
 
   public static bootstrapThemeCss: { [key: string]: string } = {
-    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color"
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
+    ".sv_main .sv_p_description": "padding-left: 1.66em;"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -417,7 +420,7 @@ export class StylesManager {
     themeName: string = "default",
     themeSelector: string = ".sv_main"
   ) {
-    let ThemeCss:any;
+    let ThemeCss: any;
     if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
       ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;

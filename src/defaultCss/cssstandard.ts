@@ -42,7 +42,7 @@ export var defaultStandardCss = {
     indent: 20,
     footer: "sv_q_footer"
   },
-  panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
+  panel: { title: "sv_p_title", description: "sv_p_description", container: "sv_p_container" },
   error: { root: "sv_q_erbox", icon: "", item: "" },
 
   boolean: {

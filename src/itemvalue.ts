@@ -191,7 +191,9 @@ export class ItemValue extends Base {
     } else {
       this.value = value;
     }
+    this.onCreating();
   }
+  public onCreating(): any {}
   public getType(): string {
     return this.typeName;
   }

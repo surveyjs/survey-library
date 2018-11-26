@@ -88,6 +88,12 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.question = nextProps.question;
     this.isFirst = nextProps.isFirst;
   }
+  componentWillMount() {
+    this.makeBaseElementReact(this.item);
+  }
+  componentWillUnmount() {
+    this.unMakeBaseElementReact(this.item);
+  }
   handleOnChange(event: any) {
     var newValue = this.question.value;
     if (!newValue) {
@@ -148,7 +154,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             value={this.item.value}
             id={id}
             style={this.inputStyle}
-            disabled={this.isDisplayMode}
+            disabled={this.isDisplayMode || !this.item.isEnabled}
             checked={isChecked}
             onChange={onItemChanged}
             aria-label={this.item.locText.renderedHtml}

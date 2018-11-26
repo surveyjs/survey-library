@@ -1,8 +1,12 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import {
+  SurveyQuestionElementBase,
+  ReactSurveyElement
+} from "./reactquestionelement";
 import { QuestionDropdownModel } from "../question_dropdown";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { ItemValue } from "../itemvalue";
 
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -53,11 +57,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      var option = (
-        <option key={key} value={item.value}>
-          {item.text}
-        </option>
-      );
+      var option = <SurveyQuestionOptionItem key={key} item={item} />;
       options.push(option);
     }
 
@@ -91,6 +91,32 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   }
   private getStateValue(): any {
     return !this.question.isEmpty() ? this.question.value : "";
+  }
+}
+
+export class SurveyQuestionOptionItem extends ReactSurveyElement {
+  private item: ItemValue;
+  constructor(props: any) {
+    super(props);
+    this.item = props.item;
+  }
+  componentWillMount() {
+    this.makeBaseElementReact(this.item);
+  }
+  componentWillUnmount() {
+    this.unMakeBaseElementReact(this.item);
+  }
+  componentWillReceiveProps(nextProps: any) {
+    super.componentWillReceiveProps(nextProps);
+    this.item = nextProps.item;
+  }
+  render(): JSX.Element {
+    if (!this.item) return;
+    return (
+      <option value={this.item.value} disabled={!this.item.isEnabled}>
+        {this.item.text}
+      </option>
+    );
   }
 }
 

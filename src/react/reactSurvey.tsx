@@ -278,7 +278,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
     this.survey.onValueChanged.add((sender, options) => {
       if (options.question && options.question.react) {
-        var state = options.question.react.state;
+        var state = options.question.react.state || {};
         state.value = options.value;
         options.question.react.setState(state);
       }

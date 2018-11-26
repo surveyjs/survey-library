@@ -1,5 +1,8 @@
 import * as React from "react";
-import { SurveyQuestionElementBase } from "./reactquestionelement";
+import {
+  SurveyQuestionElementBase,
+  ReactSurveyElement
+} from "./reactquestionelement";
 import { QuestionRadiogroupModel } from "../question_radiogroup";
 import { ItemValue } from "../itemvalue";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
@@ -8,18 +11,14 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
+    this.state = { value: this.getStateValue() };
   }
   protected get question(): QuestionRadiogroupModel {
     return this.questionBase as QuestionRadiogroupModel;
   }
   componentWillReceiveProps(nextProps: any) {
     super.componentWillReceiveProps(nextProps);
-    this.handleOnChange = this.handleOnChange.bind(this);
-  }
-  handleOnChange(event: any) {
-    this.question.value = event.target.value;
-    this.setState({ value: this.question.value });
+    this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -49,8 +48,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     var items = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var key = "item" + i;
-      items.push(this.renderItem(key, item, i === 0, cssClasses, i));
+      items.push(this.renderItem(item, cssClasses, i));
     }
     return items;
   }
@@ -58,63 +56,103 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return { marginLeft: "3px", display: "inline", position: "static" };
   }
   private renderItem(
-    key: string,
     item: ItemValue,
-    isFirst: boolean,
     cssClasses: any,
     index: number
   ): JSX.Element {
-    var isChecked = this.question.value == item.value;
-    var otherItem =
-      isChecked && item.value === this.question.otherItem.value
-        ? this.renderOther(cssClasses)
-        : null;
-    return this.renderRadio(
-      key,
-      item,
-      isChecked,
-      otherItem,
-      isFirst,
-      cssClasses,
-      index
+    var key = "item" + index;
+    return (
+      <SurveyQuestionRadioItem
+        key={key}
+        question={this.question}
+        cssClasses={cssClasses}
+        isDisplayMode={this.isDisplayMode}
+        item={item}
+        textStyle={this.textStyle}
+        index={index}
+        isChecked={this.state.value == item.value}
+      />
     );
   }
-  protected renderRadio(
-    key: string,
-    item: ItemValue,
-    isChecked: boolean,
-    otherItem: JSX.Element,
-    isFirst: boolean,
-    cssClasses: any,
-    index: number
-  ): JSX.Element {
-    var id = this.question.inputId + "_" + index;
-    var itemText = this.renderLocString(item.locText, this.textStyle);
+  private getStateValue(): any {
+    return !this.question.isEmpty() ? this.question.value : "";
+  }
+}
+
+export class SurveyQuestionRadioItem extends ReactSurveyElement {
+  protected question: QuestionRadiogroupModel;
+  protected item: ItemValue;
+  protected textStyle: any;
+  protected index: number;
+  protected isChecked: boolean;
+  constructor(props: any) {
+    super(props);
+    this.updateProps(props);
+  }
+  public shouldComponentUpdate(): boolean {
+    return (
+      !this.question.customWidget ||
+      !!this.question.customWidgetData.isNeedRender ||
+      !!this.question.customWidget.widgetJson.render
+    );
+  }
+  componentWillMount() {
+    this.makeBaseElementReact(this.item);
+  }
+  componentWillUnmount() {
+    this.unMakeBaseElementReact(this.item);
+  }
+  componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.item);
+    super.componentWillReceiveProps(nextProps);
+    this.updateProps(nextProps);
+    this.makeBaseElementReact(this.item);
+  }
+  private updateProps(props: any) {
+    this.item = props.item;
+    this.question = props.question;
+    this.textStyle = props.textStyle;
+    this.index = props.index;
+    this.isChecked = props.isChecked;
+    this.handleOnChange = this.handleOnChange.bind(this);
+  }
+  handleOnChange(event: any) {
+    this.question.value = this.item.value;
+  }
+  render(): JSX.Element {
+    if (!this.item || !this.question) return null;
+    var otherItem =
+      this.isChecked && this.item.value === this.question.otherItem.value
+        ? this.renderOther(this.cssClasses)
+        : null;
+
+    var id = this.question.inputId + "_" + this.index;
+    var itemText = this.renderLocString(this.item.locText, this.textStyle);
     let itemClass =
-      cssClasses.item +
+      this.cssClasses.item +
       (this.question.colCount === 0
         ? " sv_q_radiogroup_inline"
         : " sv-q-col-" + this.question.colCount);
 
-    if (isChecked) itemClass += " checked";
+    if (this.isChecked) itemClass += " checked";
 
     return (
-      <div key={key} className={itemClass}>
-        <label className={cssClasses.label}>
+      <div className={itemClass}>
+        <label className={this.cssClasses.label}>
           <input
-            className={cssClasses.itemControl}
+            className={this.cssClasses.itemControl}
             id={id}
             type="radio"
-            name={this.question.name + "_" + this.questionBase.id}
-            checked={isChecked}
-            value={item.value}
-            disabled={this.isDisplayMode}
+            name={this.question.name + "_" + this.question.id}
+            checked={this.isChecked}
+            value={this.item.value}
+            disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
-            aria-label={item.locText.renderedHtml}
+            aria-label={this.item.locText.renderedHtml}
           />
-          <span className={cssClasses.materialDecorator} />
+          <span className={this.cssClasses.materialDecorator} />
           <span className="check" />
-          <span className={cssClasses.controlLabel}>{itemText}</span>
+          <span className={this.cssClasses.controlLabel}>{itemText}</span>
         </label>
         {otherItem}
       </div>

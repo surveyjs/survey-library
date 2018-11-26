@@ -24,27 +24,27 @@ export class SurveyQuestion extends SurveyElementBase {
     this.question = props.question;
   }
   componentWillReceiveProps(nextProps: any) {
-    if (this.question) {
-      this.unMakeBaseElementReact(this.question);
-    }
+    this.unMakeBaseElementReact(this.question);
     this.updateProps(nextProps);
-    if (this.question) {
-      this.makeBaseElementReact(this.question);
-    }
+    this.makeBaseElementReact(this.question);
   }
   componentWillMount() {
     this.makeBaseElementReact(this.question);
   }
   componentDidMount() {
+    if (!!this.question) {
+      this.question["react"] = this;
+    }
     this.doAfterRender();
   }
   componentWillUnmount() {
-    if (this.question) {
-      this.unMakeBaseElementReact(this.question);
-      var el: any = this.refs["root"];
-      if (!!el) {
-        el.removeAttribute("data-rendered");
-      }
+    if (!!this.question) {
+      this.question["react"] = null;
+    }
+    this.unMakeBaseElementReact(this.question);
+    var el: any = this.refs["root"];
+    if (!!el) {
+      el.removeAttribute("data-rendered");
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {

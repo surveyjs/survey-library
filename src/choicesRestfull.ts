@@ -184,7 +184,8 @@ export class ChoicesRestfull extends Base {
       if (
         properties[i].name === "value" ||
         properties[i].name === "text" ||
-        properties[i].name === "visibleIf"
+        properties[i].name === "visibleIf" ||
+        properties[i].name === "enableIf"
       )
         continue;
       res.push(properties[i]);
@@ -246,7 +247,7 @@ export class ChoicesRestfull extends Base {
       "choices"
     );
     if (!prop) return "itemvalue";
-    if (prop.type == "itemvalues") return "itemvalue";
+    if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
   public clear() {

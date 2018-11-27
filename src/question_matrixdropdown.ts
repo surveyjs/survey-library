@@ -123,7 +123,7 @@ JsonObject.metaData.addClass(
   "matrixdropdown",
   [
     {
-      name: "rows:itemvalues"
+      name: "rows:itemvalue[]"
     },
     "rowsVisibleIf:condition"
   ],

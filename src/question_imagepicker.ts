@@ -79,10 +79,12 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-JsonObject.metaData.addClass("imageitemvalue", [], null, "itemvalue");
-JsonObject.metaData.addProperty("imageitemvalue", {
-  name: "imageLink"
-});
+JsonObject.metaData.addClass(
+  "imageitemvalue",
+  ["imageLink"],
+  null,
+  "itemvalue"
+);
 
 JsonObject.metaData.addClass(
   "imagepicker",
@@ -124,13 +126,7 @@ JsonObject.metaData.addProperty("imagepicker", {
   default: false
 });
 JsonObject.metaData.addProperty("imagepicker", {
-  name: "choices:imageitemvalue",
-  onGetValue: function(obj:any) {
-    return ItemValue.getData(obj.choices);
-  },
-  onSetValue: function(obj:any, value:any) {
-    obj.choices = value;
-  }
+  name: "choices:imageitemvalue[]"
 });
 
 QuestionFactory.Instance.registerQuestion("imagepicker", name => {

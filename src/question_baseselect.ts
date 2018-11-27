@@ -588,7 +588,7 @@ JsonObject.metaData.addClass(
     "hasComment:boolean",
     "hasOther:boolean",
     {
-      name: "choices:itemvalues"
+      name: "choices:itemvalue[]"
     },
     {
       name: "choicesOrder",

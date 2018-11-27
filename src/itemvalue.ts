@@ -55,7 +55,7 @@ export class ItemValue extends Base {
       var value = values[i];
       var item;
       if (typeof value.getType === "function") {
-        item = new ItemValue(null, undefined, value.getType());
+        item = JsonObject.metaData.createClass(value.getType());
       } else {
         item = new ItemValue(null);
       }
@@ -255,16 +255,13 @@ export class ItemValue extends Base {
     return res;
   }
   public setData(value: any) {
+    if (Helpers.isValueEmpty(value)) return;
     if (typeof value.value !== "undefined") {
-      var json = null;
+      var json = value;
       if (typeof value.toJSON === "function") {
         json = (<Base>value).toJSON();
-      } else {
-        new JsonObject().toObject(value, this);
       }
-      for (var key in json) {
-        this[key] = json[key];
-      }
+      new JsonObject().toObject(json, this);
     } else {
       this.value = value;
     }

@@ -1334,7 +1334,11 @@ JsonObject.metaData.addClass(
       isSerializable: false,
       choices: function(obj: any) {
         var survey = obj ? obj.survey : null;
-        return survey ? survey.pages : [];
+        return survey
+          ? survey.pages.map((p: any) => {
+              return { value: p.name, text: p.title };
+            })
+          : [];
       }
     }
   ],

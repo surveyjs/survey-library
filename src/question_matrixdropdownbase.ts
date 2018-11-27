@@ -1309,7 +1309,7 @@ JsonObject.metaData.addClass(
     },
     "horizontalScroll:boolean",
     {
-      name: "choices:itemvalues"
+      name: "choices:itemvalue[]"
     },
     { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
     {

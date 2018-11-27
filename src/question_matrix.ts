@@ -381,10 +381,10 @@ JsonObject.metaData.addClass(
   "matrix",
   [
     {
-      name: "columns:itemvalues"
+      name: "columns:itemvalue[]"
     },
     {
-      name: "rows:itemvalues"
+      name: "rows:itemvalue[]"
     },
     { name: "cells:cells", serializationProperty: "cells" },
     "isAllRowRequired:boolean"

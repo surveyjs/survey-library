@@ -126,7 +126,7 @@ JsonObject.metaData.addProperty("imagepicker", {
   default: false
 });
 JsonObject.metaData.addProperty("imagepicker", {
-  name: "choices:imageitemvalue"
+  name: "choices:imageitemvalue[]"
 });
 
 QuestionFactory.Instance.registerQuestion("imagepicker", name => {

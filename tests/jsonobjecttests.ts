@@ -1428,7 +1428,7 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
   );
   assert.equal(
     property.type,
-    "itemvalues",
+    "itemvalue[]",
     "Property should have correct type"
   );
   assert.equal(

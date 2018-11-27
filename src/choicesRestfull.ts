@@ -247,7 +247,7 @@ export class ChoicesRestfull extends Base {
       "choices"
     );
     if (!prop) return "itemvalue";
-    if (prop.type == "itemvalues") return "itemvalue";
+    if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
   public clear() {

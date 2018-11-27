@@ -49,11 +49,14 @@ export class JsonObjectProperty implements IObject {
     return this.typeValue ? this.typeValue : "string";
   }
   public set type(value: string) {
+    if (value === "itemvalues") value = "itemvalue[]";
     this.typeValue = value;
-    if (this.typeValue === "itemvalues") {
-      this.className = "itemvalue";
+    if (this.typeValue.indexOf("[]") === this.typeValue.length - 2) {
+      this.isArray = true;
+      this.className = this.typeValue.substr(0, this.typeValue.length - 2);
     }
   }
+  public isArray = false;
   public get isRequired() {
     return this.isRequiredValue;
   }

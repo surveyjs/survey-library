@@ -166,7 +166,7 @@ JsonObject.metaData.addClass(
   [
     "hasComment:boolean",
     {
-      name: "rateValues:itemvalues"
+      name: "rateValues:itemvalue[]"
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },

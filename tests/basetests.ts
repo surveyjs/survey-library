@@ -1,6 +1,7 @@
 import { Base, Event } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
+import { JsonObject } from "../src/jsonobject";
 
 export default QUnit.module("Base");
 
@@ -153,6 +154,7 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
   );
 });
 QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
+  JsonObject.metaData.addClass("imageitemvalue", [], null, "itemvalue");
   var items = new Array<ItemValue>();
   var data = [
     new ItemValue(true, "Yes", "imageitemvalue"),

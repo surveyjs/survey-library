@@ -12,7 +12,7 @@ export class StylesManager {
     // ".sv_bootstrap_css .panel-body":
     //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
 
-    ".sv_main span": "word-break: keep-all;",
+    ".sv_main span": "word-break: break-word;",
 
     ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
@@ -79,15 +79,15 @@ export class StylesManager {
     ".sv_q_dd_other input": "width: 100%;",
 
     ".sv_qstn .sv-q-col-1":
-      "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+      "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-2":
-      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-3":
-      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-4":
-      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
     ".sv_qstn .sv-q-col-5":
-      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-all;",
+      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
     ".sv_qstn .sv_q_file_input": "color: transparent;",
 

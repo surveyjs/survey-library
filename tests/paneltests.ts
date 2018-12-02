@@ -4,7 +4,8 @@ import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
-import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
+import { JsonObject } from "../src/jsonobject";
+import { FlowPanelModel } from "../src/flowpanel";
 
 export default QUnit.module("Panel");
 
@@ -354,4 +355,12 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
     "q7",
     "The first question for focusing with errors is q7"
   );
+});
+
+QUnit.test("Flow Panel, add new element", function(assert) {
+  var panel = new FlowPanelModel("p");
+  panel.addNewQuestion("text", "q1");
+  assert.equal(panel.content, "{element:q1}", "element was added into content");
+  panel.removeElement(panel.elements[0]);
+  assert.equal(panel.content, "", "element is removed from content");
 });

@@ -608,7 +608,7 @@ export class PanelModelBase extends SurveyElement
     if (this.isLoadingFromJson) return;
     this.setPropertyValue("rows", this.buildRows());
   }
-  private onAddElement(element: IElement, index: number) {
+  protected onAddElement(element: IElement, index: number) {
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
@@ -642,7 +642,7 @@ export class PanelModelBase extends SurveyElement
     );
     this.onElementVisibilityChanged(this);
   }
-  private onRemoveElement(element: IElement) {
+  protected onRemoveElement(element: IElement) {
     element.parent = null;
     this.markQuestionListDirty();
     (<Base>(<any>element)).unRegisterFunctionOnPropertiesValueChanged(

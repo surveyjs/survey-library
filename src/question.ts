@@ -710,6 +710,7 @@ export class Question extends SurveyElement
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
+    this.updateDisplayValue();
   }
   protected onSetData() {
     super.onSetData();
@@ -759,6 +760,7 @@ export class Question extends SurveyElement
     return this.getPropertyValue("displayValue", "");
   }
   protected updateDisplayValue(): any {
+    if (this.isLoadingFromJson) return;
     this.setPropertyValue("displayValue", this.getDisplayValue(true));
   }
   public getDisplayValue(keysAsText: boolean): any {

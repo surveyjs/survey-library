@@ -3,11 +3,7 @@ import { IElement } from "./base";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
-
-export class FlowPanelItem {
-  public locText: LocalizableString;
-  public question: Question;
-}
+import { start } from "repl";
 
 /**
  * The flow panel object. It is a container with flow layout where you can mix questions with mardown text.
@@ -17,7 +13,6 @@ export class FlowPanelModel extends PanelModel {
   static contentElementNamePrefix = "element:";
   constructor(name: string = "") {
     super(name);
-    this.createNewArray("items");
     this.createLocalizableString("content", this, true);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("content", function() {
@@ -40,15 +35,14 @@ export class FlowPanelModel extends PanelModel {
   public get locContent(): LocalizableString {
     return this.getLocalizableString("content");
   }
-  public get items(): Array<FlowPanelItem> {
-    return this.getPropertyValue("items", []);
+  public get html(): string {
+    return this.getPropertyValue("html", "");
   }
-  public set items(val: Array<FlowPanelItem>) {
-    if (!val) val = [];
-    this.setPropertyValue("items", val);
+  public set html(val: string) {
+    this.setPropertyValue("html", val);
   }
   protected onContentChanged(): any {
-    var items = new Array<FlowPanelItem>();
+    var html = [];
     //contentElementNamePrefix
     var regEx = /{(.*?(element:)[^$].*?)}/g;
     var str = this.content;
@@ -56,43 +50,34 @@ export class FlowPanelModel extends PanelModel {
     var res = null;
     while ((res = regEx.exec(str)) !== null) {
       if (res.index > startIndex) {
-        items.push(this.createTextItem(str, startIndex, res.index));
+        html.push(str.substr(startIndex, res.index - startIndex));
         startIndex = res.index;
       }
       var question = this.getQuestionFromText(res[0]);
       if (!!question) {
-        items.push(this.createQuestionItem(question));
+        html.push(this.getHtmlForQuestion(question));
       } else {
-        items.push(
-          this.createTextItem(str, startIndex, res.index + res[0].length)
+        html.push(
+          str.substr(startIndex, res.index + res[0].length - startIndex)
         );
       }
       startIndex = res.index + res[0].length;
     }
     if (startIndex < str.length) {
-      items.push(this.createTextItem(str, startIndex, str.length));
+      html.push(str.substr(startIndex, str.length - startIndex));
     }
-    this.items = items;
+    this.html = html.join("");
   }
   private getQuestionFromText(str: string): Question {
     str = str.substr(1, str.length - 2);
     str = str.replace(FlowPanelModel.contentElementNamePrefix, "").trim();
     return this.getQuestionByName(str);
   }
-  protected createTextItem(
-    str: string,
-    startPos: number,
-    endPos: number
-  ): FlowPanelItem {
-    var res = new FlowPanelItem();
-    res.locText = new LocalizableString(this, true);
-    res.locText.text = str.substr(startPos, endPos - startPos);
-    return res;
+  protected getHtmlForQuestion(question: Question): string {
+    return "<span id='" + this.getQuestionHtmlId(question) + "'></span>";
   }
-  protected createQuestionItem(question: Question): FlowPanelItem {
-    var res = new FlowPanelItem();
-    res.question = question;
-    return res;
+  protected getQuestionHtmlId(question: Question): string {
+    return this.name + "_" + question.id;
   }
   protected onAddElement(element: IElement, index: number) {
     super.onAddElement(element, index);

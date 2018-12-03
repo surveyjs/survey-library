@@ -364,17 +364,3 @@ QUnit.test("Flow Panel, add new element/remove element", function(assert) {
   panel.removeElement(panel.elements[0]);
   assert.equal(panel.content, "", "element is removed from content");
 });
-
-QUnit.test("Flow Panel, build items", function(assert) {
-  var panel = new FlowPanelModel("p");
-  panel.addNewQuestion("text", "q1");
-  panel.addNewQuestion("text", "q2");
-  assert.equal(panel.items.length, 2, "There are two items");
-  panel.content = "ewrewr{element: q1} asdfjsdfj {element:q2}d";
-  assert.equal(panel.items.length, 5, "There are five items");
-  assert.equal(panel.items[0].locText.text, "ewrewr", "items[0] value");
-  assert.equal(panel.items[1].question.name, "q1", "items[1] value");
-  assert.equal(panel.items[2].locText.text, " asdfjsdfj ", "items[2] value");
-  assert.equal(panel.items[3].question.name, "q2", "items[3] value");
-  assert.equal(panel.items[4].locText.text, "d", "items[4] value");
-});

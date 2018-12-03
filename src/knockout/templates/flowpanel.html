@@ -8,15 +8,16 @@
           <!-- ko template: { name: 'survey-string', data: locDescription } -->
           <!-- /ko -->
       </div>
-      <div data-bind="style: { paddingLeft: innerPaddingLeft}">
-      <!-- ko foreach: { data: items, as: 'item' } -->
-      <!-- ko if: !!item.question && item.question.isVisible -->
-      <!-- ko template: { name: item.question.koTemplateName(), data: item.question, as: "question", afterRender: item.question.koQuestionAfterRender } --><!-- /ko -->
+      <div data-bind="style: { paddingLeft: innerPaddingLeft}"></div>
+      <!-- ko foreach: { data: elements, as: 'question' } -->
+      <div data-bind="attr: {id: question.id}" style="display:inline;">
+      <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } --><!-- /ko -->
+      </div>
       <!-- /ko -->
-      <!-- ko if: !item.question -->
-      <span data-bind="html: item.locText.koRenderedHtml"></span>
-      <!-- /ko -->
-      <!-- /ko -->
+      <!-- ko template: { name: "survey-flowpanel-content", data: question, afterRender: koContentAfterRender } --><!-- /ko -->
+      <div>
   </div>
-  </div>
+</script>
+<script type="text/html" id="survey-flowpanel-content">
+  <div data-bind="html: question.html"></div>
 </script>

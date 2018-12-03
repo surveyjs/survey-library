@@ -1,0 +1,22 @@
+<script type="text/html" id="survey-flowpanel">
+  <div data-bind="style:{ width: renderWidth }, attr: {id: id}, css: cssClasses.panel.container">
+      <h4 data-bind="visible: (processedTitle.length > 0)">
+          <!-- ko template: { name: 'survey-string', data: locTitle } -->
+          <!-- /ko -->
+      </h4>
+      <div data-bind="css: cssClasses.panel.description">
+          <!-- ko template: { name: 'survey-string', data: locDescription } -->
+          <!-- /ko -->
+      </div>
+      <div data-bind="style: { paddingLeft: innerPaddingLeft}">
+      <!-- ko foreach: { data: items, as: 'item' } -->
+      <!-- ko if: !!item.question && item.question.isVisible -->
+      <!-- ko template: { name: item.question.koTemplateName(), data: item.question, as: "question", afterRender: item.question.koQuestionAfterRender } --><!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: !item.question -->
+      <span data-bind="html: item.locText.koRenderedHtml"></span>
+      <!-- /ko -->
+      <!-- /ko -->
+  </div>
+  </div>
+</script>

@@ -789,9 +789,13 @@ QUnit.test("SelectBase visibleChoices order", function(assert) {
 QUnit.test("Question callbacks test", function(assert) {
   var question = new QuestionTextModel("textQuestion");
   var valueChanged = 0;
+  var _valueChanged = 0;
   var commentChanged = 0;
   var visibleChanged = 0;
   var visibleIndexChanged = 0;
+  question._valueChangedCallback = function() {
+    _valueChanged++;
+  };
   question.valueChangedCallback = function() {
     valueChanged++;
   };
@@ -808,10 +812,15 @@ QUnit.test("Question callbacks test", function(assert) {
   question.comment = "comment";
   question.visible = false;
   question.setVisibleIndex(5);
-  assert.equal(valueChanged, 1, "value changed on time");
-  assert.equal(commentChanged, 1, "comment changed on time");
-  assert.equal(visibleChanged, 1, "visibiblity changed on time");
-  assert.equal(visibleIndexChanged, 1, "visibleIndex changed on time");
+  assert.equal(
+    _valueChanged,
+    1,
+    "value changed aux callbacl is called one time"
+  );
+  assert.equal(valueChanged, 1, "value changed one time");
+  assert.equal(commentChanged, 1, "comment changed one time");
+  assert.equal(visibleChanged, 1, "visibiblity changed one time");
+  assert.equal(visibleIndexChanged, 1, "visibleIndex changed one time");
 });
 QUnit.test("Init SelectBase with comment comment", function(assert) {
   var survey = new SurveyModel();

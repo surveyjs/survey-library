@@ -29,7 +29,6 @@ import { StylesManager } from "./stylesmanager";
 import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
-import { Hash } from "crypto";
 import { PanelModelBase } from "./panel";
 
 /**

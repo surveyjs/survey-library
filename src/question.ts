@@ -20,7 +20,7 @@ import { ConditionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { timingSafeEqual } from "crypto";
+
 /**
  * A base class for all questions.
  */
@@ -711,6 +711,7 @@ export class Question extends SurveyElement
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
+    this.updateDisplayValue();
   }
   protected onSetData() {
     super.onSetData();
@@ -757,7 +758,12 @@ export class Question extends SurveyElement
     }
   }
   public get displayValue(): any {
-    return this.getDisplayValue(true);
+    this.updateDisplayValue();
+    return this.getPropertyValue("displayValue", "");
+  }
+  protected updateDisplayValue(): any {
+    if (this.isLoadingFromJson) return;
+    this.setPropertyValue("displayValue", this.getDisplayValue(true));
   }
   public getDisplayValue(keysAsText: boolean): any {
     if (this.customWidget) {
@@ -970,6 +976,7 @@ export class Question extends SurveyElement
     this.value = this.valueFromData(newValue);
     this.fireCallback(this.commentChangedCallback);
     this.isValueChangedInSurvey = false;
+    this.updateDisplayValue();
   }
   public setVisibleIndex(val: number): number {
     if (!this.isVisible || !this.hasTitle) {

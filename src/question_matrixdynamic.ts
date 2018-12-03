@@ -371,7 +371,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
     var values = this.value;
-    if (!values) return values;
+    if (!values || !Array.isArray(values)) return values;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length && i < values.length; i++) {
       var val = values[i];

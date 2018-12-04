@@ -74,7 +74,7 @@ export class FlowPanelModel extends PanelModel {
     return this.getQuestionByName(str);
   }
   protected getHtmlForQuestion(question: Question): string {
-    return "<span id='" + this.getQuestionHtmlId(question) + "'></span>";
+    return "";
   }
   protected getQuestionHtmlId(question: Question): string {
     return this.name + "_" + question.id;

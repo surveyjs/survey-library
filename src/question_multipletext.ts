@@ -31,6 +31,7 @@ export class MultipleTextItemModel extends Base
   private editorValue: QuestionTextModel;
   private data: IMultipleTextData;
 
+  _valueChangedCallback: (newValue: any) => void;
   valueChangedCallback: (newValue: any) => void;
   validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
@@ -159,6 +160,7 @@ export class MultipleTextItemModel extends Base
     return Helpers.isValueEmpty(this.value);
   }
   public onValueChanged(newValue: any) {
+    if (this._valueChangedCallback) this._valueChangedCallback(newValue);
     if (this.valueChangedCallback) this.valueChangedCallback(newValue);
   }
   //ISurveyImpl

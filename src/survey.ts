@@ -2494,7 +2494,7 @@ export class SurveyModel extends Base
     return result;
   }
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (this.isCompleted) return;
+    if (this.isCompleted || this.triggers.length == 0) return;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {

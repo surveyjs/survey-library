@@ -593,12 +593,17 @@ export class PanelModelBase extends SurveyElement
   protected createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
-  onSurveyLoad() {
+  public onSurveyLoad() {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
-    this.onRowsChanged();
     this.onElementVisibilityChanged(this);
+  }
+  public onFirstRendering() {
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].onFirstRendering();
+    }
+    this.onRowsChanged();
   }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");

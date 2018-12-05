@@ -120,6 +120,7 @@ export interface ISurveyElement {
   isPage: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
+  onFirstRendering(): any;
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
@@ -184,13 +185,13 @@ export class Base {
   }
 
   private propertyHash: { [index: string]: any } = {};
-  private localizableStrings: { [index: string]: LocalizableString } = {};
-  private arraysInfo: { [index: string]: any } = {};
+  private localizableStrings: { [index: string]: LocalizableString };
+  private arraysInfo: { [index: string]: any };
   private onPropChangeFunctions: Array<{
     name: string;
     func: (...args: any[]) => void;
     key: string;
-  }> = [];
+  }>;
   protected isLoadingFromJsonValue: boolean = false;
   public onPropertyChanged: Event<
     (sender: Base, options: any) => any,
@@ -240,17 +241,21 @@ export class Base {
     return new JsonObject().toJsonObject(this);
   }
   public locStrsChanged() {
-    for (let key in this.arraysInfo) {
-      let item = this.arraysInfo[key];
-      if (item && item.isItemValues) {
-        var arr = this.getPropertyValue(key);
-        if (arr && !!Base.itemValueLocStrChanged)
-          Base.itemValueLocStrChanged(arr);
+    if (!!this.arraysInfo) {
+      for (let key in this.arraysInfo) {
+        let item = this.arraysInfo[key];
+        if (item && item.isItemValues) {
+          var arr = this.getPropertyValue(key);
+          if (arr && !!Base.itemValueLocStrChanged)
+            Base.itemValueLocStrChanged(arr);
+        }
       }
     }
-    for (let key in this.localizableStrings) {
-      let item = this.getLocalizableString(key);
-      if (item) item.strChanged();
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
+        let item = this.getLocalizableString(key);
+        if (item) item.strChanged();
+      }
     }
   }
   /**
@@ -310,6 +315,7 @@ export class Base {
       oldValue: oldValue,
       newValue: newValue
     });
+    if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue);
@@ -326,6 +332,9 @@ export class Base {
     func: any,
     key: string = null
   ) {
+    if (!this.onPropChangeFunctions) {
+      this.onPropChangeFunctions = [];
+    }
     if (key) {
       for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
         var item = this.onPropChangeFunctions[i];
@@ -361,6 +370,7 @@ export class Base {
     name: string,
     key: string = null
   ) {
+    if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       var item = this.onPropChangeFunctions[i];
       if (item.name == name && item.key == key) {
@@ -393,11 +403,14 @@ export class Base {
     useMarkDown: boolean = false
   ): LocalizableString {
     var locStr = new LocalizableString(owner, useMarkDown);
+    if (!this.localizableStrings) {
+      this.localizableStrings = {};
+    }
     this.localizableStrings[name] = locStr;
     return locStr;
   }
   public getLocalizableString(name: string): LocalizableString {
-    return this.localizableStrings[name];
+    return !!this.localizableStrings ? this.localizableStrings[name] : null;
   }
   public getLocalizableStringText(
     name: string,
@@ -434,6 +447,9 @@ export class Base {
   ): Array<any> {
     var newArray = new Array<any>();
     this.setPropertyValueCore(this.propertyHash, name, newArray);
+    if (!this.arraysInfo) {
+      this.arraysInfo = {};
+    }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
     newArray.push = function(value): number {
@@ -636,6 +652,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public updateCustomWidgets() {}
 
   public onSurveyLoad() {}
+  public onFirstRendering() {}
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.survey) {

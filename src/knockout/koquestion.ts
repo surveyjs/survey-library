@@ -39,7 +39,7 @@ export class QuestionImplementor extends ImplementorBase {
       return result;
     });
 
-    question.valueChangedCallback = function() {
+    question._valueChangedCallback = function() {
       self.onValueChanged();
     };
     question.commentChangedCallback = function() {
@@ -59,7 +59,10 @@ export class QuestionImplementor extends ImplementorBase {
     });
     (<any>this.question)["koValue"] = this.koValue;
     (<any>this.question)["koComment"] = this.koComment;
-    (<any>this.question)["koQuestionAfterRender"] = function(el: any, con: any) {
+    (<any>this.question)["koQuestionAfterRender"] = function(
+      el: any,
+      con: any
+    ) {
       self.koQuestionAfterRender(el, con);
     };
   }

@@ -1436,8 +1436,11 @@ export class SurveyModel extends Base
     if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
     if (!this.currentPageChanging(newPage, oldValue)) return;
+    if (!!newPage) {
+      newPage.onFirstRendering();
+    }
     this.currentPageValue = newPage;
-    if (newPage) {
+    if (!!newPage) {
       newPage.updateCustomWidgets();
       newPage.setWasShown(true);
     }
@@ -1672,6 +1675,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("isDesignMode", value);
     this.onIsSinglePageChanged();
   }
+  /**
+   * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
+   */
   public get showInvisibleElements(): boolean {
     return this.getPropertyValue("showInvisibleElements", false);
   }
@@ -2449,10 +2455,13 @@ export class SurveyModel extends Base
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
+    if (this.isEndLoadingFromJson === "processing") return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
-    this.locStrsChanged();
+    if (!this.isEndLoadingFromJson) {
+      this.locStrsChanged();
+    }
   }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();
@@ -2488,7 +2497,7 @@ export class SurveyModel extends Base
     return result;
   }
   private checkTriggers(key: any, isOnNextPage: boolean) {
-    if (this.isCompleted) return;
+    if (this.isCompleted || this.triggers.length == 0) return;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i: number = 0; i < this.triggers.length; i++) {
@@ -2685,6 +2694,7 @@ export class SurveyModel extends Base
     this.doElementsOnLoad();
     this.isEndLoadingFromJson = "conditions";
     this.runConditions();
+    this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
@@ -2865,7 +2875,12 @@ export class SurveyModel extends Base
     return baseName + index;
   }
   protected tryGoNextPageAutomatic(name: string) {
-    if (!this.goNextPageAutomatic || !this.currentPage) return;
+    if (
+      !!this.isEndLoadingFromJson ||
+      !this.goNextPageAutomatic ||
+      !this.currentPage
+    )
+      return;
     var question = <Question>this.getQuestionByValueName(name);
     if (
       !question ||

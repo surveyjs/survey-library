@@ -33,6 +33,10 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isPage() {
     return true;
   }
+  public onFirstRendering() {
+    if (this.wasShown) return;
+    super.onFirstRendering();
+  }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
    * @see SurveyModel.visiblePages
@@ -82,12 +86,12 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.wasShown;
   }
   public setWasShown(val: boolean) {
-    if (this.isDesignMode) return;
     if (val == this.hasShownValue) return;
+    this.hasShownValue = val;
+    if (this.isDesignMode) return;
     if (val == true && this.areQuestionsRandomized) {
       this.randomizeElements();
     }
-    this.hasShownValue = val;
   }
   private isRandomizing = false;
   private randomizeElements() {

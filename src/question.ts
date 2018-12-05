@@ -47,6 +47,7 @@ export class Question extends SurveyElement
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   valueChangedCallback: () => void;
+  _valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
@@ -710,6 +711,7 @@ export class Question extends SurveyElement
   public onSurveyLoad() {
     this.fireCallback(this.surveyLoadCallback);
     this.updateValueWithDefaults();
+    this.updateDisplayValue();
   }
   protected onSetData() {
     super.onSetData();
@@ -729,6 +731,7 @@ export class Question extends SurveyElement
     this.setNewValue(newValue);
     if (this.isvalueChangedCallbackFiring) return;
     this.isvalueChangedCallbackFiring = true;
+    this.fireCallback(this._valueChangedCallback);
     this.fireCallback(this.valueChangedCallback);
     this.isvalueChangedCallbackFiring = false;
   }
@@ -759,6 +762,7 @@ export class Question extends SurveyElement
     return this.getPropertyValue("displayValue", "");
   }
   protected updateDisplayValue(): any {
+    if (this.isLoadingFromJson) return;
     this.setPropertyValue("displayValue", this.getDisplayValue(true));
   }
   public getDisplayValue(keysAsText: boolean): any {
@@ -947,9 +951,12 @@ export class Question extends SurveyElement
       ? this.data.getValue(this.getValueName())
       : this.questionValue;
   }
+  private isSettingValueInData = false;
   private setValueCore(newValue: any) {
     if (this.data != null) {
+      this.isSettingValueInData = true;
       this.data.setValue(this.getValueName(), newValue);
+      this.isSettingValueInData = false;
     } else {
       this.questionValue = newValue;
     }
@@ -968,9 +975,12 @@ export class Question extends SurveyElement
   }
   //IQuestion
   onSurveyValueChanged(newValue: any) {
+    if (this.isLoadingFromJson) return;
     this.isValueChangedInSurvey = true;
     this.value = this.valueFromData(newValue);
-    this.fireCallback(this.commentChangedCallback);
+    if (!this.isSettingValueInData) {
+      this.fireCallback(this.commentChangedCallback);
+    }
     this.isValueChangedInSurvey = false;
     this.updateDisplayValue();
   }

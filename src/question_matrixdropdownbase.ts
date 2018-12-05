@@ -905,15 +905,14 @@ export class QuestionMatrixDropdownModelBase
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    var rows = this.generatedVisibleRows;
+    if (!rows) return;
     var columns = this.columns;
     for (var i = 0; i < columns.length; i++) {
       columns[i].locStrsChanged();
     }
-    var rows = this.generatedVisibleRows;
-    if (rows) {
-      for (var i = 0; i < rows.length; i++) {
-        rows[i].locStrsChanged();
-      }
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].locStrsChanged();
     }
   }
   /**
@@ -1159,7 +1158,12 @@ export class QuestionMatrixDropdownModelBase
   }
   private isDoingonAnyValueChanged = false;
   onAnyValueChanged(name: string) {
-    if (this.isLoadingFromJson || this.isDoingonAnyValueChanged) return;
+    if (
+      this.isLoadingFromJson ||
+      this.isDoingonAnyValueChanged ||
+      !this.generatedVisibleRows
+    )
+      return;
     this.isDoingonAnyValueChanged = true;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length; i++) {

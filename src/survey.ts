@@ -1675,6 +1675,9 @@ export class SurveyModel extends Base
     this.setPropertyValue("isDesignMode", value);
     this.onIsSinglePageChanged();
   }
+  /**
+   * Set this property to true, to show all elements in the survey, regardless their visibility. It is false by default.
+   */
   public get showInvisibleElements(): boolean {
     return this.getPropertyValue("showInvisibleElements", false);
   }

@@ -11,7 +11,9 @@ export class FlowPanel extends FlowPanelModel {
     super(name);
     this.koElementType = ko.observable("survey-flowpanel");
     new ImplementorBase(this);
+    this.onCreating();
   }
+  protected onCreating() {}
   protected getHtmlForQuestion(question: Question): string {
     return (
       '<!-- ko template: { name: "survey-flowpanel-question", data: "' +
@@ -34,6 +36,21 @@ ko.components.register("f-panel", {
     createViewModel: function(params: any, componentInfo: any) {
       var question = ko.unwrap(params.question);
       componentInfo.element.innerHTML = question.html;
+      componentInfo.element.contenteditable = question.isDesignMode;
+      var config = { attributes: true, childList: true, subtree: true };
+      var callback = function(mutationsList: any, observer: any) {
+        for (var mutation of mutationsList) {
+          if (mutation.type == "childList") {
+            console.log("A child node has been added or removed.");
+          } else if (mutation.type == "attributes") {
+            console.log(
+              "The " + mutation.attributeName + " attribute was modified."
+            );
+          }
+        }
+      };
+      var observer = new MutationObserver(callback);
+      observer.observe(componentInfo.element, config);
       return { question };
     }
   },

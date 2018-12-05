@@ -60,7 +60,7 @@ QUnit.test("Create rows", function(assert) {
     { questions: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
     survey
   );
-  var page = <Page>survey.pages[0];
+  var page = <Page>survey.currentPage;
   assert.equal(page.rows.length, 2, "There are two rows");
 });
 

@@ -120,6 +120,7 @@ export interface ISurveyElement {
   isPage: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
+  onFirstRendering(): any;
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
@@ -636,6 +637,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public updateCustomWidgets() {}
 
   public onSurveyLoad() {}
+  public onFirstRendering() {}
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.survey) {

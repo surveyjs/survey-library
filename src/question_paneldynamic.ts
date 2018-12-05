@@ -992,6 +992,13 @@ export class QuestionPanelDynamicModel extends Question
     this.assignOnPropertyChangedToTemplate();
     super.onSurveyLoad();
   }
+  public onFirstRendering() {
+    this.template.onFirstRendering();
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].panel.onFirstRendering();
+    }
+    super.onFirstRendering();
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runPanelsCondition(values, properties);

@@ -1436,8 +1436,11 @@ export class SurveyModel extends Base
     if (newPage == this.currentPageValue) return;
     var oldValue = this.currentPageValue;
     if (!this.currentPageChanging(newPage, oldValue)) return;
+    if (!!newPage) {
+      newPage.onFirstRendering();
+    }
     this.currentPageValue = newPage;
-    if (newPage) {
+    if (!!newPage) {
       newPage.updateCustomWidgets();
       newPage.setWasShown(true);
     }
@@ -2453,7 +2456,9 @@ export class SurveyModel extends Base
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
-    this.locStrsChanged();
+    if (!this.isEndLoadingFromJson) {
+      this.locStrsChanged();
+    }
   }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();
@@ -2686,8 +2691,8 @@ export class SurveyModel extends Base
     this.doElementsOnLoad();
     this.isEndLoadingFromJson = "conditions";
     this.runConditions();
-    this.isEndLoadingFromJson = null;
     this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
   protected onBeforeCreating() {}

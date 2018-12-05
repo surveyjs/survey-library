@@ -949,9 +949,12 @@ export class Question extends SurveyElement
       ? this.data.getValue(this.getValueName())
       : this.questionValue;
   }
+  private isSettingValueInData = false;
   private setValueCore(newValue: any) {
     if (this.data != null) {
+      this.isSettingValueInData = true;
       this.data.setValue(this.getValueName(), newValue);
+      this.isSettingValueInData = false;
     } else {
       this.questionValue = newValue;
     }
@@ -970,9 +973,12 @@ export class Question extends SurveyElement
   }
   //IQuestion
   onSurveyValueChanged(newValue: any) {
+    if (this.isLoadingFromJson) return;
     this.isValueChangedInSurvey = true;
     this.value = this.valueFromData(newValue);
-    this.fireCallback(this.commentChangedCallback);
+    if (!this.isSettingValueInData) {
+      this.fireCallback(this.commentChangedCallback);
+    }
     this.isValueChangedInSurvey = false;
     this.updateDisplayValue();
   }

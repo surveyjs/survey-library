@@ -1159,7 +1159,12 @@ export class QuestionMatrixDropdownModelBase
   }
   private isDoingonAnyValueChanged = false;
   onAnyValueChanged(name: string) {
-    if (this.isLoadingFromJson || this.isDoingonAnyValueChanged) return;
+    if (
+      this.isLoadingFromJson ||
+      this.isDoingonAnyValueChanged ||
+      !this.generatedVisibleRows
+    )
+      return;
     this.isDoingonAnyValueChanged = true;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length; i++) {

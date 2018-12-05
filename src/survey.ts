@@ -2449,6 +2449,7 @@ export class SurveyModel extends Base
     this.notifyElementsOnAnyValueOrVariableChanged(valueName);
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string) {
+    if (this.isEndLoadingFromJson === "processing") return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name);
     }
@@ -2686,6 +2687,7 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = "conditions";
     this.runConditions();
     this.isEndLoadingFromJson = null;
+    this.notifyElementsOnAnyValueOrVariableChanged("");
     this.updateVisibleIndexes();
   }
   protected onBeforeCreating() {}
@@ -2865,7 +2867,12 @@ export class SurveyModel extends Base
     return baseName + index;
   }
   protected tryGoNextPageAutomatic(name: string) {
-    if (!this.goNextPageAutomatic || !this.currentPage) return;
+    if (
+      !!this.isEndLoadingFromJson ||
+      !this.goNextPageAutomatic ||
+      !this.currentPage
+    )
+      return;
     var question = <Question>this.getQuestionByValueName(name);
     if (
       !question ||

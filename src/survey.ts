@@ -1255,7 +1255,7 @@ export class SurveyModel extends Base
   public get data(): any {
     var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
-      result[key] = this.valuesHash[key];
+      result[key] = this.getDataValueCore(this.valuesHash, key);
     }
     return result;
   }
@@ -1321,7 +1321,7 @@ export class SurveyModel extends Base
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    for (var key in this.valuesHash) values[key] = this.valuesHash[key];
+    for (var key in this.valuesHash) values[key] = this.getDataValueCore(this.valuesHash, key);
     values["conditionVersion"] = ++this.conditionVersion;
     return values;
   }
@@ -1341,6 +1341,9 @@ export class SurveyModel extends Base
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
   }
+  public getDataValueCore(valuesHash: any, key: string) {
+    return valuesHash[key];
+  }
   public setDataValueCore(valuesHash: any, key: string, value: any) {
     valuesHash[key] = value;
   }
@@ -1355,7 +1358,7 @@ export class SurveyModel extends Base
     var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
       if (key.indexOf(this.commentPrefix) > 0) {
-        result[key] = this.valuesHash[key];
+        result[key] = this.getDataValueCore(this.valuesHash, key);
       }
     }
     return result;
@@ -2825,7 +2828,7 @@ export class SurveyModel extends Base
    */
   public getValue(name: string): any {
     if (!name || name.length == 0) return null;
-    var value = this.valuesHash[name];
+    var value = this.getDataValueCore(this.valuesHash, name);
     return this.getUnbindValue(value);
   }
   /**

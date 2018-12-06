@@ -9,11 +9,11 @@
           <!-- /ko -->
       </div>
       <div data-bind="style: { paddingLeft: innerPaddingLeft}"></div>
-      <f-panel params="question: question"></f-panel>
+      <f-panel params="question: question" data-bind="attr: {contenteditable : question.isDesignMode}"></f-panel>
   </div>
 </script>
 <script type="text/html" id="survey-flowpanel-question">
-  <!-- ko with: question.getQuestionByName($data) -->
+  <!-- ko with: $parent.question.getQuestionByName($data) -->
   <!-- ko template: { name: koTemplateName(), data: $data, as: 'question', afterRender: koQuestionAfterRender } --><!-- /ko -->
   <!-- /ko -->
 </script>

@@ -3,7 +3,6 @@ import { IElement } from "./base";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
-import { start } from "repl";
 
 /**
  * The flow panel object. It is a container with flow layout where you can mix questions with mardown text.
@@ -11,6 +10,7 @@ import { start } from "repl";
  */
 export class FlowPanelModel extends PanelModel {
   static contentElementNamePrefix = "element:";
+  public contentChangedCallback: () => void;
   constructor(name: string = "") {
     super(name);
     this.createLocalizableString("content", this, true);
@@ -67,6 +67,7 @@ export class FlowPanelModel extends PanelModel {
       html.push(str.substr(startIndex, str.length - startIndex));
     }
     this.html = html.join("");
+    if (!!this.contentChangedCallback) this.contentChangedCallback();
   }
   private getQuestionFromText(str: string): Question {
     str = str.substr(1, str.length - 2);
@@ -92,14 +93,14 @@ export class FlowPanelModel extends PanelModel {
     if (this.isLoadingFromJson) return;
     this.content = this.content + this.getElementContentText(element);
   }
-  private getElementContentText(element: IElement) {
+  public getElementContentText(element: IElement) {
     return "{" + FlowPanelModel.contentElementNamePrefix + element.name + "}";
   }
 }
 
 JsonObject.metaData.addClass(
   "flowpanel",
-  [{ name: "content:text", serializationProperty: "locContent" }],
+  [{ name: "content:html", serializationProperty: "locContent" }],
   function() {
     return new FlowPanelModel();
   },

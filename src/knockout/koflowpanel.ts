@@ -4,6 +4,7 @@ import { Question } from "../question";
 import { JsonObject } from "../jsonobject";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
+import { QuestionNonValue } from "../questionnonvalue";
 
 export class FlowPanel extends FlowPanelModel {
   koElementType: any;
@@ -16,9 +17,11 @@ export class FlowPanel extends FlowPanelModel {
   protected onCreating() {}
   protected getHtmlForQuestion(question: Question): string {
     return (
-      '<!-- ko template: { name: "survey-flowpanel-question", data: "' +
+      '<span question="true" id="flowpanel_' +
       question.name +
-      '"} --><!-- /ko -->'
+      '"><!-- ko template: { name: "survey-flowpanel-question", data: "' +
+      question.name +
+      '"} --><!-- /ko --></span>'
     );
   }
 }
@@ -34,23 +37,52 @@ ElementFactory.Instance.registerElement("flowpanel", name => {
 ko.components.register("f-panel", {
   viewModel: {
     createViewModel: function(params: any, componentInfo: any) {
+      var self = this;
       var question = ko.unwrap(params.question);
-      componentInfo.element.innerHTML = question.html;
-      componentInfo.element.contenteditable = question.isDesignMode;
-      var config = { attributes: true, childList: true, subtree: true };
-      var callback = function(mutationsList: any, observer: any) {
-        for (var mutation of mutationsList) {
-          if (mutation.type == "childList") {
-            console.log("A child node has been added or removed.");
-          } else if (mutation.type == "attributes") {
-            console.log(
-              "The " + mutation.attributeName + " attribute was modified."
-            );
-          }
+      self.element = componentInfo.element;
+      self.element.innerHTML = question.html;
+      self.isOnFocus = false;
+      self.wasChanged = false;
+      self.isContentUpdating = false;
+      question.contentChangedCallback = function() {
+        if (self.isContentUpdating) return;
+        ko.cleanNode(self.element);
+        self.element.innerHTML = question.html;
+        ko.applyBindings({ question }, self.element);
+      };
+      self.element.onfocus = function() {
+        self.isOnFocus = true;
+      };
+      self.element.onblur = function() {
+        if (self.wasChanged) self.updateContent();
+        self.isOnFocus = false;
+        self.wasChanged = false;
+      };
+      self.updateContent = function() {
+        var content = document.createElement("DIV");
+        content.innerHTML = self.element.innerHTML;
+        var cps = content.querySelectorAll('span[question="true"]');
+        for (var i = 0; i < cps.length; i++) {
+          var name = cps[i].id.replace("flowpanel_", "");
+          var el = question.getQuestionByName(name);
+          cps[i].outerHTML = !!el ? question.getElementContentText(el) : "";
         }
+        self.isContentUpdating = true;
+        question.content = content.innerHTML;
+        self.isContentUpdating = false;
+      };
+      var config = {
+        characterData: true,
+        attributes: true,
+        childList: true,
+        subtree: true
+      };
+      var callback = function(mutationsList: any, observer: any) {
+        if (!self.isOnFocus) return;
+        self.wasChanged = true;
       };
       var observer = new MutationObserver(callback);
-      observer.observe(componentInfo.element, config);
+      observer.observe(self.element, config);
       return { question };
     }
   },

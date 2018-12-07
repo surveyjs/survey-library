@@ -160,12 +160,15 @@ export class QuestionSelectBase extends Question {
     properties: HashTable<any>
   ): any {
     this.setConditionalEnableChoicesRunner();
-    ItemValue.runEnabledConditionsForItems(
+    var hasChanged = ItemValue.runEnabledConditionsForItems(
       this.activeChoices,
       this.conditionChoicesEnableIfRunner,
       values,
       properties
     );
+    if (hasChanged) {
+      this.clearDisabledValues();
+    }
   }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
@@ -266,6 +269,10 @@ export class QuestionSelectBase extends Question {
     if (Helpers.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     return ItemValue.getItemByValue(this.filteredChoices, val) == null;
+  }
+  protected isValueDisabled(val: any): boolean {
+    var itemValue = ItemValue.getItemByValue(this.filteredChoices, val);
+    return !!itemValue && !itemValue.isEnabled;
   }
   /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
@@ -549,9 +556,18 @@ export class QuestionSelectBase extends Question {
       return;
     this.clearIncorrectValuesCore();
   }
+  private clearDisabledValues() {
+    if (!this.survey || !this.survey.clearValueOnDisableItems) return;
+    this.clearDisabledValuesCore();
+  }
   protected clearIncorrectValuesCore() {
     var val = this.value;
     if (this.hasUnknownValue(val, true)) {
+      this.clearValue();
+    }
+  }
+  protected clearDisabledValuesCore() {
+    if (this.isValueDisabled(this.value)) {
       this.clearValue();
     }
   }

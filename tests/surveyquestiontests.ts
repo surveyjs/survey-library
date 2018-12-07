@@ -1539,6 +1539,23 @@ QUnit.test(
   }
 );
 QUnit.test(
+  "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.clearValueOnDisableItems = true;
+    var page = survey.addNewPage("p1");
+    var qBestCar = new QuestionRadiogroupModel("bestCar");
+    qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+    qBestCar.choicesEnableIf = "{cars} contains {item}";
+    page.addElement(qBestCar);
+    survey.setValue("cars", ["BMW", "Audi"]);
+    qBestCar.value = "Audi";
+    assert.equal(qBestCar.value, "Audi", "Audi is selected");
+    survey.setValue("cars", ["BMW"]);
+    assert.equal(qBestCar.isEmpty(), true, "Audi is cleared");
+  }
+);
+QUnit.test(
   "checkbox.choicesVisibleIf, clear value on making the value invisible, bug #1093",
   function(assert) {
     var survey = new SurveyModel();
@@ -1546,6 +1563,25 @@ QUnit.test(
     var qBestCar = new QuestionCheckboxModel("bestCar");
     qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
     qBestCar.choicesVisibleIf = "{cars} contains {item}";
+    page.addElement(qBestCar);
+    survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
+    qBestCar.value = ["BMW", "Audi"];
+    assert.deepEqual(qBestCar.value, ["BMW", "Audi"], "Audi is selected");
+    survey.setValue("cars", ["BMW"]);
+    assert.deepEqual(qBestCar.value, ["BMW"], "Audi is removed");
+    survey.setValue("cars", ["Mercedes"]);
+    assert.deepEqual(qBestCar.isEmpty(), true, "All checks are removed");
+  }
+);
+QUnit.test(
+  "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.clearValueOnDisableItems = true;
+    var page = survey.addNewPage("p1");
+    var qBestCar = new QuestionCheckboxModel("bestCar");
+    qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+    qBestCar.choicesEnableIf = "{cars} contains {item}";
     page.addElement(qBestCar);
     survey.setValue("cars", ["BMW", "Audi", "Mercedes"]);
     qBestCar.value = ["BMW", "Audi"];

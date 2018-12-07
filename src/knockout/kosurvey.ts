@@ -55,6 +55,25 @@ export class Survey extends SurveyModel {
   koCompletedStateCss: any;
   koTimerInfoText: any;
 
+  // public getDataValueCore(valuesHash: any, key: string) {
+  //   if (valuesHash[key] === undefined) {
+  //     valuesHash[key] = ko.observable();
+  //   }
+  //   return ko.unwrap(valuesHash[key]);
+  // }
+  // public setDataValueCore(valuesHash: any, key: string, value: any) {
+  //   valuesHash[key] !== undefined
+  //     ? valuesHash[key](value)
+  //     : (valuesHash[key] = ko.observable(value));
+  // }
+  // public deleteDataValueCore(valuesHash: any, key: string) {
+  //   if (ko.isWriteableObservable(valuesHash[key])) {
+  //     valuesHash[key](undefined);
+  //   } else {
+  //     delete valuesHash[key];
+  //   }
+  // }
+
   constructor(
     jsonObj: any = null,
     renderedElement: any = null,

@@ -1321,7 +1321,8 @@ export class SurveyModel extends Base
   getFilteredValues(): any {
     var values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    for (var key in this.valuesHash) values[key] = this.getDataValueCore(this.valuesHash, key);
+    for (var key in this.valuesHash)
+      values[key] = this.getDataValueCore(this.valuesHash, key);
     values["conditionVersion"] = ++this.conditionVersion;
     return values;
   }
@@ -2948,6 +2949,16 @@ export class SurveyModel extends Base
   public clearValue(name: string) {
     this.setValue(name, null);
     this.setComment(name, null);
+  }
+  /**
+   * Set this value to true, to clear value on disable items in checkbox, dropdown and radiogroup questions.
+   * By default values are not cleared on disabled the corresponded items. This property is not persisted in survey json and you have to set it in code.
+   */
+  public get clearValueOnDisableItems(): boolean {
+    return this.getPropertyValue("clearValueOnDisableItems", false);
+  }
+  public set clearValueOnDisableItems(val: boolean) {
+    this.setPropertyValue("clearValueOnDisableItems", val);
   }
   questionVisibilityChanged(question: IQuestion, newValue: boolean) {
     this.updateVisibleIndexes();

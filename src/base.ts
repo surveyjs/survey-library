@@ -64,6 +64,7 @@ export interface ISurvey extends ITextProcessor {
 
   maxTextLength: number;
   maxOthersLength: number;
+  clearValueOnDisableItems: boolean;
 
   uploadFiles(
     name: string,

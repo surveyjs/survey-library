@@ -1,4 +1,4 @@
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { JsonObject } from "./jsonobject";
 import { SurveyError } from "./base";
 
@@ -31,6 +31,10 @@ export class QuestionNonValue extends Question {
     return false;
   }
   public addConditionNames(names: Array<string>) {}
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {}
   public getConditionJson(operator: string = null, path: string = null): any {
     return null;
   }

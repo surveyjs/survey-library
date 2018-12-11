@@ -8,7 +8,7 @@ import {
   ITextProcessor
 } from "./base";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -294,6 +294,19 @@ export class QuestionMultipleTextModel extends Question
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.items.length; i++) {
       names.push(this.name + "." + this.items[i].name);
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    for (var i = 0; i < this.items.length; i++) {
+      var item = this.items[i];
+      objects.push({
+        name: this.name + "." + item.name,
+        text: this.processedTitle + "." + item.fullTitle,
+        question: this
+      });
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {

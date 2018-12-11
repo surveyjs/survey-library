@@ -1214,21 +1214,34 @@ QUnit.test("question.addConditionNames", function(assert) {
     "addConditionNames work correctly"
   );
 });
-QUnit.test("question.addConditionNames", function(assert) {
-  var names = [];
-  new QuestionHtmlModel("q_html").addConditionNames(names);
-  new QuestionCheckboxModel("q_check").addConditionNames(names);
+QUnit.test("question.addConditionObjectsByContext", function(assert) {
+  var objs = [];
+  var html = new QuestionHtmlModel("q_html");
+  html.addConditionObjectsByContext(objs, null);
+  var checkbox = new QuestionCheckboxModel("q_check");
+  checkbox.title = "My check title";
+  checkbox.addConditionObjectsByContext(objs, null);
   var q_mt = new QuestionMultipleTextModel("q_mt");
-  q_mt.addItem("item1");
+  q_mt.addItem("item1", "Item 1 title");
   q_mt.addItem("item2");
-  q_mt.addConditionNames(names);
+  q_mt.addConditionObjectsByContext(objs, null);
   var q_matrix = new QuestionMatrixModel("q_matrix");
   q_matrix.rows = ["row1", "row2"];
-  q_matrix.addConditionNames(names);
+  q_matrix.rows[0].text = "Row 1";
+  q_matrix.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
   assert.deepEqual(
-    names,
-    ["q_check", "q_mt.item1", "q_mt.item2", "q_matrix.row1", "q_matrix.row2"],
-    "addConditionNames work correctly"
+    objs,
+    [
+      { name: "q_check", text: "My check title", question: "q_check" },
+      { name: "q_mt.item1", text: "q_mt.Item 1 title", question: "q_mt" },
+      { name: "q_mt.item2", text: "q_mt.item2", question: "q_mt" },
+      { name: "q_matrix.row1", text: "q_matrix.Row 1", question: "q_matrix" },
+      { name: "q_matrix.row2", text: "q_matrix.row2", question: "q_matrix" }
+    ],
+    "addConditionObjectsByContext work correctly"
   );
 });
 

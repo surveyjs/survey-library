@@ -6,10 +6,8 @@ import {
 import { JsonObject } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
-import { HashTable } from "./helpers";
-import { ConditionRunner } from "./conditions";
+import { IConditionObject } from "./question";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -80,6 +78,38 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
+    for (var i = 0; i < this.rows.length; i++) {
+      var row = this.rows[i];
+      if (!row.value) continue;
+      var prefixName = this.name + "." + row.value + ".";
+      var prefixTitle = this.processedTitle + "." + row.text + ".";
+      for (var j = 0; j < this.columns.length; j++) {
+        var column = this.columns[j];
+        objects.push({
+          name: prefixName + column.name,
+          text: prefixTitle + column.fullTitle,
+          question: this
+        });
+      }
+    }
+    if (hasContext) {
+      for (var i = 0; i < this.columns.length; i++) {
+        var column = this.columns[i];
+        if (column == context) continue;
+        objects.push({
+          name: "row." + column.name,
+          text: "row." + column.fullTitle,
+          question: this
+        });
+      }
+    }
+  }
+
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;

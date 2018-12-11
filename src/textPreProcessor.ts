@@ -17,7 +17,11 @@ export class TextPreProcessor {
   private hasAllValuesOnLastRunValue: boolean = false;
   public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor() {}
-  public process(text: string, returnDisplayValue: boolean = false): string {
+  public process(
+    text: string,
+    returnDisplayValue: boolean = false,
+    doEncoding: boolean = false
+  ): string {
     this.hasAllValuesOnLastRunValue = true;
     if (!text) return text;
     if (!this.onProcess) return text;
@@ -34,14 +38,15 @@ export class TextPreProcessor {
         }
         continue;
       }
-      if (textValue.value == null) {
-        textValue.value = "";
+      if (!textValue.value) {
         this.hasAllValuesOnLastRunValue = false;
       }
+      var replacedValue = !!textValue.value ? textValue.value : "";
+      if (doEncoding) {
+        replacedValue = encodeURIComponent(replacedValue);
+      }
       text =
-        text.substr(0, item.start) +
-        textValue.value +
-        text.substr(item.end + 1);
+        text.substr(0, item.start) + replacedValue + text.substr(item.end + 1);
     }
     return text;
   }

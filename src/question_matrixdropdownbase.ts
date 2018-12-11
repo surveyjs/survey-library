@@ -688,7 +688,7 @@ export class MatrixDropdownRowModelBase
     text = this.processText(text, returnDisplayValue);
     if (!this.getSurvey()) return text;
     var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
-    var res = this.getSurvey().processTextEx(text, returnDisplayValue);
+    var res = this.getSurvey().processTextEx(text, returnDisplayValue, false);
     res.hasAllValuesOnLastRun =
       res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;
     return res;

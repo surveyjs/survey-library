@@ -3168,17 +3168,25 @@ export class SurveyModel extends Base
   processText(text: string, returnDisplayValue: boolean): string {
     return this.processTextCore(text, returnDisplayValue);
   }
-  processTextEx(text: string, returnDisplayValue: boolean): any {
+  processTextEx(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean
+  ): any {
     var res = {
-      text: this.processTextCore(text, returnDisplayValue),
+      text: this.processTextCore(text, returnDisplayValue, doEncoding),
       hasAllValuesOnLastRun: true
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
   }
-  private processTextCore(text: string, returnDisplayValue: boolean): string {
+  private processTextCore(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean = false
+  ): string {
     if (this.isDesignMode) return text;
-    return this.textPreProcessor.process(text, returnDisplayValue);
+    return this.textPreProcessor.process(text, returnDisplayValue, doEncoding);
   }
   getSurveyMarkdownHtml(element: Base, text: string): string {
     var options = { element: element, text: text, html: <any>null };

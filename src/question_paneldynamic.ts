@@ -150,7 +150,7 @@ export class QuestionPanelDynamicItem
     var hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     var res = { hasAllValuesOnLastRun: true, text: text };
     if (this.getSurvey()) {
-      res = this.getSurvey().processTextEx(text, returnDisplayValue);
+      res = this.getSurvey().processTextEx(text, returnDisplayValue, false);
     }
     res.hasAllValuesOnLastRun =
       res.hasAllValuesOnLastRun && hasAllValuesOnLastRun;

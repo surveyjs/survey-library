@@ -9,7 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { Base, SurveyError } from "./base";
 import { CustomError } from "./error";
-import { LocalizableString } from "./localizablestring";
+import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
@@ -383,6 +383,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.columns.length; i++) {
       names.push(this.name + "[0]." + this.columns[i].name);
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
+    for (var i = 0; i < this.columns.length; i++) {
+      var column = this.columns[i];
+      objects.push({
+        name: this.name + "[0]." + column.name,
+        text: this.processedTitle + "[0]." + column.fullTitle,
+        question: this
+      });
+      if (hasContext && column != context) {
+        objects.push({
+          name: "row." + column.name,
+          text: "row." + column.fullTitle,
+          question: this
+        });
+      }
     }
   }
   public supportGoNextPageAutomatic() {

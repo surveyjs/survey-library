@@ -13,7 +13,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
-import { Question } from "./question";
+import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -965,6 +965,38 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < panelNames.length; i++) {
       names.push(prefix + panelNames[i]);
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    var hasContext = !!context
+      ? this.template.questions.indexOf(context) > -1
+      : false;
+    var prefixName = this.name + "[0].";
+    var prefixText = this.processedTitle + "[0].";
+    var panelObjs = new Array<IConditionObject>();
+    var questions = this.template.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].addConditionObjectsByContext(panelObjs, context);
+    }
+    for (var i = 0; i < panelObjs.length; i++) {
+      objects.push({
+        name: prefixName + panelObjs[i].name,
+        text: prefixText + panelObjs[i].text,
+        question: panelObjs[i].question
+      });
+    }
+    if (hasContext) {
+      for (var i = 0; i < panelObjs.length; i++) {
+        if (panelObjs[i].question == context) continue;
+        objects.push({
+          name: "panel." + panelObjs[i].name,
+          text: "panel." + panelObjs[i].text,
+          question: panelObjs[i].question
+        });
+      }
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {

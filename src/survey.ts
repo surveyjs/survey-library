@@ -1350,6 +1350,14 @@ export class SurveyModel extends Base
   public deleteDataValueCore(valuesHash: any, key: string) {
     delete valuesHash[key];
   }
+  // protected iterateDataValuesHash(func: (hash: any, key: any) => void) {
+  //   var keys: any[] = [];
+  //   for (var key in this.valuesHash) {
+  //     keys.push(key);
+  //   }
+  //   keys.forEach(key => func(this.valuesHash, key));
+  // }
+
   /**
    * Returns all comments from the data.
    * @see data

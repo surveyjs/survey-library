@@ -301,6 +301,16 @@ QUnit.test("Question titleLocation", function(assert) {
     "the second question has visible index 0 now"
   );
 });
+QUnit.skip("Use value of checkbox question as an array", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var question = new QuestionCheckboxModel("checkboxQuestion");
+  question.choices = ["One", "Two", "Three"];
+  page.addQuestion(question);
+
+  question.value.push("One");
+  assert.deepEqual(question.value, ["One"], "convert value to array");
+});
 QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
@@ -812,13 +822,9 @@ QUnit.test("SelectBase visibleChoices order", function(assert) {
 QUnit.test("Question callbacks test", function(assert) {
   var question = new QuestionTextModel("textQuestion");
   var valueChanged = 0;
-  var _valueChanged = 0;
   var commentChanged = 0;
   var visibleChanged = 0;
   var visibleIndexChanged = 0;
-  question._valueChangedCallback = function() {
-    _valueChanged++;
-  };
   question.valueChangedCallback = function() {
     valueChanged++;
   };
@@ -835,11 +841,6 @@ QUnit.test("Question callbacks test", function(assert) {
   question.comment = "comment";
   question.visible = false;
   question.setVisibleIndex(5);
-  assert.equal(
-    _valueChanged,
-    1,
-    "value changed aux callbacl is called one time"
-  );
   assert.equal(valueChanged, 1, "value changed one time");
   assert.equal(commentChanged, 1, "comment changed one time");
   assert.equal(visibleChanged, 1, "visibiblity changed one time");

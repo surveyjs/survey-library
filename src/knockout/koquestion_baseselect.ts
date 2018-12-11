@@ -11,11 +11,10 @@ export class QuestionSelectBaseImplementor extends QuestionImplementor {
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
-    var self = this;
 
-    this.koOtherVisible = ko.computed(function() {
-      self.koValue();
-      return self.isOtherSelected;
+    this.koOtherVisible = ko.computed(() => {
+      var val = this.question.value; //trigger dependencies from koValue for knockout
+      return this.isOtherSelected;
     });
     (<any>this.question)["koOtherVisible"] = this.koOtherVisible;
     this.onCreated();

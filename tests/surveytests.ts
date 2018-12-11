@@ -4590,10 +4590,10 @@ QUnit.test("ProcessTextEx returnedDisplayValue is false, Bug#1243", function(
   var page = survey.addNewPage("page1");
   var q = <QuestionDropdownModel>page.addNewQuestion("dropdown", "region");
   q.choices = ["1", "2", "3"];
-  var res = survey.processTextEx("{region}", false);
+  var res = survey.processTextEx("{region}", false, false);
   assert.ok(res.hasAllValuesOnLastRun === false, "region doesn't exists");
   q.value = 1;
-  res = survey.processTextEx("{region}", false);
+  res = survey.processTextEx("{region}", false, false);
   assert.ok(res.hasAllValuesOnLastRun === true, "region exists");
 });
 

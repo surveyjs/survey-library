@@ -7,6 +7,7 @@ import { CustomError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { IConditionObject } from "./question";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -348,6 +349,21 @@ export class QuestionMatrixModel
     for (var i = 0; i < this.rows.length; i++) {
       if (this.rows[i].value) {
         names.push(this.name + "." + this.rows[i].value);
+      }
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    for (var i = 0; i < this.rows.length; i++) {
+      var row = this.rows[i];
+      if (!!row.value) {
+        objects.push({
+          name: this.name + "." + row.value,
+          text: this.processedTitle + "." + row.text,
+          question: this
+        });
       }
     }
   }

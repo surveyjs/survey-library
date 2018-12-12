@@ -1,4 +1,4 @@
-import { ITextProcessor } from "../src/base";
+import { ITextProcessor, SurveyElement } from "../src/base";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestfull } from "../src/choicesRestfull";
@@ -19,6 +19,9 @@ export default QUnit.module("choicesRestfull");
 class ChoicesRestfullTester extends ChoicesRestfull {
   public noCaching: boolean = false;
   public lastProcesedUrl: string;
+  public get testProcessedUrl() {
+    return this.processedUrl;
+  }
   protected sendRequest() {
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("countries") > -1)
@@ -38,9 +41,13 @@ class ChoicesRestfullTester extends ChoicesRestfull {
 
 class TextProcessorTester implements ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string {
-    return text;
+    return this.processTextEx(text, returnDisplayValue, true).text;
   }
-  processTextEx(text: string): any {
+  processTextEx(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean
+  ): any {
     return { text: text, hasAllValuesOnLastRun: true };
   }
 }
@@ -205,25 +212,29 @@ QUnit.test("Load countries", function(assert) {
   );
 });
 
-// This test cann't be runned under nodejs due to the lack of DOMParser support in the nodejs
-QUnit.skip("Load from xml", function(assert) {
+QUnit.test("encode parameters", function(assert) {
+  var survey = new SurveyModel();
+  survey.setValue("q1", "R&D");
   var test = new ChoicesRestfullTester();
-  var items = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "xml";
-  test.path = "NSurveyDataSource;XmlDataSource;XmlAnswers;XmlAnswer";
-  test.valueName = "AnswerValue";
-  test.titleName = "AnswerDescription";
-  test.run();
-  assert.equal(items.length, 6, "there are 6 items");
-  assert.equal(items[0].value, "", "the item is empty");
-  assert.equal(
-    items[5].text,
-    "Optimizes Work Processes",
-    "the sixth item text is 'Optimizes Work Processes'"
-  );
+  test.url = "TestUrl/{q1}";
+  test.getResultCallback = function(res: Array<ItemValue>) {};
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
+});
+
+QUnit.test("Process text in event", function(assert) {
+  var survey = new SurveyModel();
+  survey.onProcessTextValue.add(function(sender, options) {
+    if (options.name == "q1") {
+      options.value = "R&D";
+      //options.isExists = true;
+    }
+  });
+  var test = new ChoicesRestfullTester();
+  test.url = "TestUrl/{q1}";
+  test.getResultCallback = function(res: Array<ItemValue>) {};
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
 });
 
 QUnit.test("Load from plain text", function(assert) {

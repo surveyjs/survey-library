@@ -1132,7 +1132,7 @@ QUnit.test("Two PanelDynamic questions bound to the same value", function(
   assert.equal(q1.panelCount, 1, "q1: One panel was removed");
   assert.equal(q2.panelCount, 1, "q2: One panel was removed");
 });
-QUnit.test("matrixDynamic.addConditionNames", function(assert) {
+QUnit.test("panelDynamic.addConditionNames", function(assert) {
   var names = [];
   var panel = new QuestionPanelDynamicModel("panel");
   panel.template.addNewQuestion("text", "q1");
@@ -1145,6 +1145,71 @@ QUnit.test("matrixDynamic.addConditionNames", function(assert) {
     names,
     ["panel[0].q1", "panel[0].q2.item1", "panel[0].q2.item2"],
     "addConditionNames work correctly for panel dynamic"
+  );
+});
+
+QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
+  var objs = [];
+  var panel = new QuestionPanelDynamicModel("panel");
+  panel.title = "Panel";
+  var q1 = panel.template.addNewQuestion("text", "q1");
+  var question = new QuestionMultipleTextModel("q2");
+  question.title = "Question 2";
+  question.addItem("item1");
+  question.addItem("item2");
+  panel.template.addQuestion(question);
+  panel.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      {
+        name: "panel[0].q2.item1",
+        text: "Panel[0].Question 2.item1",
+        question: "q2"
+      },
+      {
+        name: "panel[0].q2.item2",
+        text: "Panel[0].Question 2.item2",
+        question: "q2"
+      }
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic"
+  );
+  objs = [];
+  panel.addConditionObjectsByContext(objs, q1);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      { name: "panel[0].q1", text: "Panel[0].q1", question: "q1" },
+      {
+        name: "panel[0].q2.item1",
+        text: "Panel[0].Question 2.item1",
+        question: "q2"
+      },
+      {
+        name: "panel[0].q2.item2",
+        text: "Panel[0].Question 2.item2",
+        question: "q2"
+      },
+      {
+        name: "panel.q2.item1",
+        text: "panel.Question 2.item1",
+        question: "q2"
+      },
+      {
+        name: "panel.q2.item2",
+        text: "panel.Question 2.item2",
+        question: "q2"
+      }
+    ],
+    "addConditionObjectsByContext work correctly for panel dynamic"
   );
 });
 

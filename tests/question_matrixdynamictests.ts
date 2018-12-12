@@ -1043,6 +1043,119 @@ QUnit.test("matrixDynamic.addConditionNames", function(assert) {
     "addConditionNames work correctly for matrix dynamic"
   );
 });
+QUnit.test("matrixDynamic.addConditionObjectsByContext", function(assert) {
+  var objs = [];
+  var question = new QuestionMatrixDynamicModel("matrix");
+  question.title = "Matrix";
+  question.addColumn("col1", "Column 1");
+  question.addColumn("col2");
+  question.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix[0].col1",
+        text: "Matrix[0].Column 1",
+        question: "matrix"
+      },
+      { name: "matrix[0].col2", text: "Matrix[0].col2", question: "matrix" }
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, question.columns[0]);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix[0].col1",
+        text: "Matrix[0].Column 1",
+        question: "matrix"
+      },
+      { name: "matrix[0].col2", text: "Matrix[0].col2", question: "matrix" },
+      { name: "row.col2", text: "row.col2", question: "matrix" }
+    ],
+    "addConditionObjectsByContext work correctly for matrix dynamic with context"
+  );
+});
+QUnit.test("matrixDropdown.addConditionObjectsByContext", function(assert) {
+  var objs = [];
+  var question = new QuestionMatrixDropdownModel("matrix");
+  question.addColumn("col1", "Column 1");
+  question.addColumn("col2");
+  question.rows = ["row1", "row2"];
+  question.title = "Matrix";
+  question.rows[0].text = "Row 1";
+  question.addConditionObjectsByContext(objs, null);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix.row1.col1",
+        text: "Matrix.Row 1.Column 1",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row1.col2",
+        text: "Matrix.Row 1.col2",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row2.col1",
+        text: "Matrix.row2.Column 1",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row2.col2",
+        text: "Matrix.row2.col2",
+        question: "matrix"
+      }
+    ],
+    "addConditionObjectsByContext work correctly for matrix dropdown"
+  );
+  objs = [];
+  question.addConditionObjectsByContext(objs, question.columns[0]);
+  for (var i = 0; i < objs.length; i++) {
+    objs[i].question = objs[i].question.name;
+  }
+  assert.deepEqual(
+    objs,
+    [
+      {
+        name: "matrix.row1.col1",
+        text: "Matrix.Row 1.Column 1",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row1.col2",
+        text: "Matrix.Row 1.col2",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row2.col1",
+        text: "Matrix.row2.Column 1",
+        question: "matrix"
+      },
+      {
+        name: "matrix.row2.col2",
+        text: "Matrix.row2.col2",
+        question: "matrix"
+      },
+      { name: "row.col2", text: "row.col2", question: "matrix" }
+    ],
+    "addConditionObjectsByContext work correctly for matrix dropdown with context"
+  );
+});
+
 QUnit.test("matrixDropdown.addConditionNames", function(assert) {
   var names = [];
   var question = new QuestionMatrixDropdownModel("matrix");

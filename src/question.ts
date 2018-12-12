@@ -21,6 +21,12 @@ import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 
+export interface IConditionObject {
+  name: string;
+  text: string;
+  question: Question;
+}
+
 /**
  * A base class for all questions.
  */
@@ -855,6 +861,16 @@ export class Question extends SurveyElement
   }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    objects.push({
+      name: this.name,
+      text: this.processedTitle,
+      question: this
+    });
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = new JsonObject().toJsonObject(this);

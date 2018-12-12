@@ -8,6 +8,7 @@ import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { Base, SurveyError } from "./base";
+import { LocalizableString } from "./localizablestring";
 import { CustomError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";

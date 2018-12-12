@@ -458,10 +458,11 @@ export class QuestionSelectBase extends Question {
   }
   private isFirstLoadChoicesFromUrl = true;
   private onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    this.errors = [];
+    var errors = [];
     if (this.choicesByUrl && this.choicesByUrl.error) {
-      this.errors.push(this.choicesByUrl.error);
+      errors.push(this.choicesByUrl.error);
     }
+    this.errors = errors;
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
     if (

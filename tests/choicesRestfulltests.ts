@@ -222,6 +222,21 @@ QUnit.test("encode parameters", function(assert) {
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
 });
 
+QUnit.test("Process text in event", function(assert) {
+  var survey = new SurveyModel();
+  survey.onProcessTextValue.add(function(sender, options) {
+    if (options.name == "q1") {
+      options.value = "R&D";
+      //options.isExists = true;
+    }
+  });
+  var test = new ChoicesRestfullTester();
+  test.url = "TestUrl/{q1}";
+  test.getResultCallback = function(res: Array<ItemValue>) {};
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
+});
+
 QUnit.test("Load from plain text", function(assert) {
   var test = new ChoicesRestfullTester();
   var items = [];

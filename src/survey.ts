@@ -421,6 +421,18 @@ export class SurveyModel extends Base
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
+   * The event is fired on processing the text when it finds a text in brackets: {somevalue}. By default it uses the value of survey question values and variables.
+   * For example, you may use the text processing in loading choices from the web. If your choicesByUrl.url equals to "UrlToServiceToGetAllCities/{country}/{state}",
+   * you may set on this event options.value to "all" or empty string when the "state" value/question is non selected by a user.
+   * <br/> name - the name of the processing value, for example, "state" in our example
+   * <br/> value - the value of the processing text
+   * <br/> isExists - a boolean value. Set it to true if you want to use the value and set it to false if you don't.
+   */
+  public onProcessTextValue: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
    * The event is fired before rendering a question. Use it to override the default question css classes.
    * There are two parameters in options: options.question and options.cssClasses
    * <br/> sender the survey object that fires the event
@@ -2704,7 +2716,16 @@ export class SurveyModel extends Base
   }
   protected onBeforeCreating() {}
   protected onCreating() {}
-  private getProcessedTextValue(textValue: TextPreProcessorValue): any {
+  private getProcessedTextValue(textValue: TextPreProcessorValue): void {
+    this.getProcessedTextValueCore(textValue);
+    if (!this.onProcessTextValue.isEmpty) {
+      var wasEmpty = this.isValueEmpty(textValue.value);
+      this.onProcessTextValue.fire(this, textValue);
+      textValue.isExists =
+        textValue.isExists || (wasEmpty && !this.isValueEmpty(textValue.value));
+    }
+  }
+  private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
     var name = textValue.name.toLocaleLowerCase();
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
@@ -3166,7 +3187,7 @@ export class SurveyModel extends Base
     return this.processText(options.html, true);
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextCore(text, returnDisplayValue);
+    return this.processTextEx(text, returnDisplayValue, false).text;
   }
   processTextEx(
     text: string,

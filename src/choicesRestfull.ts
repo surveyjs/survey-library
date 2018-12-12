@@ -46,7 +46,7 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
-  private static itemsResult:{ [index: string]: any } = {};
+  private static itemsResult: { [index: string]: any } = {};
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
@@ -83,8 +83,8 @@ export class ChoicesRestfull extends Base {
     }
     if (this.lastObjHash == this.objHash) return;
     this.lastObjHash = this.objHash;
-    if (this.useChangedItemsResults()) return;
     this.error = null;
+    if (this.useChangedItemsResults()) return;
     this.sendRequest();
   }
   public get isRunning() {
@@ -119,7 +119,7 @@ export class ChoicesRestfull extends Base {
       this.processedPath = this.path;
     }
   }
-  protected parseResponse(response:any) {
+  protected parseResponse(response: any) {
     let parsedResponse;
     if (
       !!response &&
@@ -134,8 +134,8 @@ export class ChoicesRestfull extends Base {
       } catch {
         parsedResponse = (response || "")
           .split("\n")
-          .map((s:any) => s.trim(" "))
-          .filter((s:any) => !!s);
+          .map((s: any) => s.trim(" "))
+          .filter((s: any) => !!s);
       }
     }
     return parsedResponse;
@@ -212,7 +212,8 @@ export class ChoicesRestfull extends Base {
     if (this.titleName) res["titleName"] = this.titleName;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if ((<any>this)[properties[i]]) res[properties[i]] = (<any>this)[properties[i]];
+      if ((<any>this)[properties[i]])
+        res[properties[i]] = (<any>this)[properties[i]];
     }
     return res;
   }

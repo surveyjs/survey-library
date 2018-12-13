@@ -113,7 +113,7 @@ QUnit.test("koOtherVisible for multi choice items", function(assert) {
     true,
     "Other visible is true after selecting it"
   );
-  question.value.pop();
+  question.koValue.pop();
   assert.equal(
     question["koOtherVisible"](),
     false,

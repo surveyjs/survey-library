@@ -5,12 +5,35 @@ import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
 
+class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
+  private _koValue = ko.observableArray<any>();
+
+  constructor(question: Question) {
+    super(question);
+    this._koValue.subscribe(newValue => {
+      this.question.value = newValue;
+    });
+    Object.defineProperty(this.question, "koValue", {
+      get: () => {
+        this._koValue(this.question.value || []);
+        return this._koValue;
+      },
+      set: (newValue: Array<any> | KnockoutObservableArray<any>) => {
+        var newVal = [].concat(ko.unwrap(newValue));
+        this.question.value = newVal;
+      },
+      enumerable: true,
+      configurable: true
+    });
+  }
+}
+
 export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
   constructor(public name: string) {
     super(name);
-    new QuestionCheckboxBaseImplementor(this);
+    new QuestionCheckboxImplementor(this);
     this.koAllSelected = ko.observable(this.isAllSelected);
     var self = this;
     this.koAllSelected.subscribe(function(newValue: any) {

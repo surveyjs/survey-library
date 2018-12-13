@@ -64,7 +64,9 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
   assert.equal(survey.koIsLastPage(), true, "is last page");
 });
 QUnit.test("koOtherVisible for one choice items", function(assert) {
-  var question = new QuestionDropdown("q");
+  var survey = new Survey();
+  var question = new QuestionCheckbox("q");
+  question.setSurveyImpl(survey);
   assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
   question.value = question.otherItem.value;
   assert.equal(
@@ -75,10 +77,10 @@ QUnit.test("koOtherVisible for one choice items", function(assert) {
 });
 QUnit.test("Create koValue as observable array for checkbox", function(assert) {
   var question = new QuestionCheckbox("q");
-  question.value.push("test1");
-  question.value.push("test2");
+  question.koValue.push("test1");
+  question.koValue.push("test2");
   assert.deepEqual(
-    question.value,
+    question.koValue(),
     ["test1", "test2"],
     "koValue is observable array"
   );
@@ -100,10 +102,12 @@ QUnit.test("Default value for checkbox", function(assert) {
   );
 });
 QUnit.test("koOtherVisible for multi choice items", function(assert) {
+  var survey = new Survey();
   var question = new QuestionCheckbox("q");
+  question.setSurveyImpl(survey);
   assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
-  question.value.push("test1");
-  question.value.push(question.otherItem.value);
+  question.koValue.push("test1");
+  question.koValue.push(question.otherItem.value);
   assert.equal(
     question["koOtherVisible"](),
     true,
@@ -267,8 +271,8 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   });
   var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
   var rows = question.visibleRows;
-  rows[0].cells[0].question.value = ["1"];
-  rows[0].cells[0].question.value = ["1", "2"];
+  rows[0].cells[0].question.koValue = ["1"];
+  rows[0].cells[0].question.koValue = ["1", "2"];
   assert.deepEqual(
     survey.data,
     { q1: [{ col1: ["1", "2"] }] },

@@ -7,7 +7,7 @@ import {
 } from "../question_baseselect";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
-  koOtherVisible: any;
+  koOtherVisible: KnockoutComputed<boolean>;
   protected onCreated() {}
   constructor(question: Question) {
     super(question);

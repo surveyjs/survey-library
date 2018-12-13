@@ -14,6 +14,11 @@
 </script>
 <script type="text/html" id="survey-flowpanel-question">
   <!-- ko with: $parent.question.getQuestionByName($data) -->
-  <!-- ko template: { name: koTemplateName(), data: $data, as: 'question', afterRender: koQuestionAfterRender } --><!-- /ko -->
+    <!-- ko if: $data.isDesignMode -->
+    <!-- ko template: { name: koElementType(), data: $data, as: 'question', afterRender: parent.koElementAfterRender } --><!-- /ko -->
+    <!-- /ko -->
+    <!-- ko ifnot: $data.isDesignMode -->
+    <!-- ko template: { name: koTemplateName(), data: $data, as: 'question', afterRender: koQuestionAfterRender } --><!-- /ko -->
+    <!-- /ko -->
   <!-- /ko -->
 </script>

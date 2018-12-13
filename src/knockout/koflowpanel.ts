@@ -4,15 +4,20 @@ import { Question } from "../question";
 import { JsonObject } from "../jsonobject";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
-import { QuestionNonValue } from "../questionnonvalue";
+import { SurveyElement, IElement } from "../base";
 
 export class FlowPanel extends FlowPanelModel {
   koElementType: any;
+  koElementAfterRender: any;
   constructor(name: string = "") {
     super(name);
     this.koElementType = ko.observable("survey-flowpanel");
     new ImplementorBase(this);
     this.onCreating();
+    var self = this;
+    this.koElementAfterRender = function(el: any, con: any) {
+      return self.elementAfterRender(el, con);
+    };
   }
   protected onCreating() {}
   protected getHtmlForQuestion(question: Question): string {
@@ -23,6 +28,13 @@ export class FlowPanel extends FlowPanelModel {
       question.name +
       '"} --><!-- /ko --></span>'
     );
+  }
+  private elementAfterRender(elements: any, con: any) {
+    if (!this.survey) return;
+    var el = SurveyElement.GetFirstNonTextElement(elements);
+    if (!!el) {
+      this.survey.afterRenderQuestion(con, el);
+    }
   }
 }
 

@@ -67,10 +67,10 @@ QUnit.test("koOtherVisible for one choice items", function(assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
   question.setSurveyImpl(survey);
-  assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
+  assert.equal(question.isOtherSelected, false, "Initially is not visible");
   question.value = question.otherItem.value;
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     true,
     "Other visible is true after selecting it"
   );
@@ -105,17 +105,17 @@ QUnit.test("koOtherVisible for multi choice items", function(assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
   question.setSurveyImpl(survey);
-  assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
+  assert.equal(question.isOtherSelected, false, "Initially is not visible");
   question.koValue.push("test1");
   question.koValue.push(question.otherItem.value);
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     true,
     "Other visible is true after selecting it"
   );
   question.koValue.pop();
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     false,
     "Other visible is true after selecting it"
   );

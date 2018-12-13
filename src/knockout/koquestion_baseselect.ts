@@ -7,15 +7,10 @@ import {
 } from "../question_baseselect";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
-  koOtherVisible: KnockoutComputed<boolean>;
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
 
-    this.koOtherVisible = ko.pureComputed(() => {
-      return this.isOtherSelected;
-    });
-    (<any>this.question)["koOtherVisible"] = this.koOtherVisible;
     this.onCreated();
   }
   protected get isOtherSelected(): boolean {

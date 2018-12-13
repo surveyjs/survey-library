@@ -208,7 +208,7 @@ export class QuestionSelectBase extends Question {
     );
   }
   protected getHasOther(val: any): boolean {
-    return val == this.otherItem.value;
+    return val === this.otherItem.value;
   }
   get validatedValue(): any {
     return this.valueToDataCore(this.value);

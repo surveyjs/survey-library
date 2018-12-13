@@ -53,7 +53,6 @@ export class Question extends SurveyElement
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   valueChangedCallback: () => void;
-  _valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
@@ -745,7 +744,6 @@ export class Question extends SurveyElement
     this.setNewValue(newValue);
     if (this.isvalueChangedCallbackFiring) return;
     this.isvalueChangedCallbackFiring = true;
-    this.fireCallback(this._valueChangedCallback);
     this.fireCallback(this.valueChangedCallback);
     this.isvalueChangedCallbackFiring = false;
   }

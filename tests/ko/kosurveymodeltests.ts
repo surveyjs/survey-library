@@ -69,13 +69,13 @@ QUnit.test("Change value onValueChanged", function(assert) {
   var page = survey.addNewPage("p1");
   var q = <QuestionText>page.addNewQuestion("text", "q1");
   survey.onValueChanged.add(function(sender, options) {
-    if (options.value == "aaa") {
+    if (options.value === "aaa") {
       options.question.value = "bbb";
     }
   });
-  q["koValue"]("aaa");
+  q.value = "aaa";
   assert.equal(q.value, "bbb", "value is 'bbb'");
-  assert.equal(q["koValue"](), "bbb", "koValue() is 'bbb'");
+  assert.equal(q.value, "bbb", "value is 'bbb'");
 });
 QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
   var survey = new Survey();
@@ -88,7 +88,7 @@ QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
       options.question.value = options.value;
     }
   });
-  q["koValue"]([1, 2, 3]);
+  q.value = [1, 2, 3];
   assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
-  assert.deepEqual(q["koValue"](), [2, 3], "value is [2, 3]");
+  assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
 });

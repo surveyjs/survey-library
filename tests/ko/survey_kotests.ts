@@ -63,27 +63,24 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
   assert.equal(survey.koIsFirstPage(), false, "is last page");
   assert.equal(survey.koIsLastPage(), true, "is last page");
 });
-QUnit.test("Set value through observable value", function(assert) {
-  var question = new QuestionText("q");
-  question["koValue"]("test");
-  assert.equal(question.value, "test", "value is set correctly.");
-});
 QUnit.test("koOtherVisible for one choice items", function(assert) {
-  var question = new QuestionDropdown("q");
-  assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
-  question["koValue"](question.otherItem.value);
+  var survey = new Survey();
+  var question = new QuestionCheckbox("q");
+  question.setSurveyImpl(survey);
+  assert.equal(question.isOtherSelected, false, "Initially is not visible");
+  question.value = question.otherItem.value;
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     true,
     "Other visible is true after selecting it"
   );
 });
 QUnit.test("Create koValue as observable array for checkbox", function(assert) {
   var question = new QuestionCheckbox("q");
-  question["koValue"].push("test1");
-  question["koValue"].push("test2");
+  question.koValue.push("test1");
+  question.koValue.push("test2");
   assert.deepEqual(
-    question["koValue"](),
+    question.koValue(),
     ["test1", "test2"],
     "koValue is observable array"
   );
@@ -99,24 +96,26 @@ QUnit.test("Default value for checkbox", function(assert) {
   var question = new QuestionCheckbox("q");
   survey.pages[0].addQuestion(question);
   assert.deepEqual(
-    question["koValue"](),
+    question.value,
     [],
     "the koValue by default should be empty array"
   );
 });
 QUnit.test("koOtherVisible for multi choice items", function(assert) {
+  var survey = new Survey();
   var question = new QuestionCheckbox("q");
-  assert.equal(question["koOtherVisible"](), false, "Initially is not visible");
-  question["koValue"].push("test1");
-  question["koValue"].push(question.otherItem.value);
+  question.setSurveyImpl(survey);
+  assert.equal(question.isOtherSelected, false, "Initially is not visible");
+  question.koValue.push("test1");
+  question.koValue.push(question.otherItem.value);
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     true,
     "Other visible is true after selecting it"
   );
-  question["koValue"].pop();
+  question.koValue.pop();
   assert.equal(
-    question["koOtherVisible"](),
+    question.isOtherSelected,
     false,
     "Other visible is true after selecting it"
   );
@@ -128,15 +127,11 @@ QUnit.test(
     survey.setValue("textQuestion", "initialValue");
     var page = survey.addNewPage("my page");
     var question = <Question>page.addNewQuestion("text", "textQuestion");
-    assert.equal(question["koValue"](), "initialValue", "get initial value");
+    assert.equal(question.value, "initialValue", "get initial value");
     question.value = "setFromValue";
-    assert.equal(
-      question["koValue"](),
-      "setFromValue",
-      "set from question value"
-    );
+    assert.equal(question.value, "setFromValue", "set from question value");
     survey.setValue("textQuestion", "setFromSurvey");
-    assert.equal(question["koValue"](), "setFromSurvey", "set from survey");
+    assert.equal(question.value, "setFromSurvey", "set from survey");
   }
 );
 QUnit.test(
@@ -149,23 +144,15 @@ QUnit.test(
       "checkbox",
       "checkboxQuestion"
     );
-    assert.deepEqual(
-      question["koValue"](),
-      ["initialValue"],
-      "get initial value"
-    );
+    assert.deepEqual(question.value, ["initialValue"], "get initial value");
     question.value = "setFromValue";
     assert.deepEqual(
-      question["koValue"](),
+      question.value,
       ["setFromValue"],
       "set from question value"
     );
     survey.setValue("checkboxQuestion", "setFromSurvey");
-    assert.deepEqual(
-      question["koValue"](),
-      ["setFromSurvey"],
-      "set from survey"
-    );
+    assert.deepEqual(question.value, ["setFromSurvey"], "set from survey");
   }
 );
 QUnit.test("Question Matrix: koValue in MatrixValue", function(assert) {
@@ -205,11 +192,7 @@ QUnit.test(
     matrix.columns[1]["choices"] = [4, 5];
     var visibleRows = matrix.visibleRows;
     matrix.value = { row2: { column1: 2 } };
-    assert.equal(
-      visibleRows[1].cells[0].question["koValue"](),
-      2,
-      "value was set"
-    );
+    assert.equal(visibleRows[1].cells[0].question.value, 2, "value was set");
   }
 );
 
@@ -288,8 +271,8 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   });
   var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
   var rows = question.visibleRows;
-  (<any>rows[0].cells[0].question).koValue(["1"]);
-  (<any>rows[0].cells[0].question).koValue(["1", "2"]);
+  rows[0].cells[0].question.koValue = ["1"];
+  rows[0].cells[0].question.koValue = ["1", "2"];
   assert.deepEqual(
     survey.data,
     { q1: [{ col1: ["1", "2"] }] },
@@ -303,13 +286,13 @@ QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
   mQuestion.items.push(new MultipleTextItem("i2"));
   mQuestion.value = { i1: 10 };
   assert.equal(
-    mQuestion.items[0]["koValue"](),
+    mQuestion.items[0].value,
     10,
     "set the correct value to item.koValue from question"
   );
-  mQuestion.items[0]["koValue"](20);
+  mQuestion.items[0].value = 20;
   assert.equal(
-    mQuestion.items[0]["koValue"](),
+    mQuestion.items[0].value,
     20,
     "set the correct value to item.koValue from question item"
   );
@@ -319,7 +302,7 @@ QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
     "set the correct value to question.Value from question item"
   );
   mQuestion.value = null;
-  assert.equal(mQuestion.items[0]["koValue"](), null, "empty the value");
+  assert.equal(mQuestion.items[0].value, null, "empty the value");
 });
 QUnit.test("Question MultipleText: koRows", function(assert) {
   var mQuestion = new QuestionMultipleText("q1");
@@ -363,10 +346,10 @@ QUnit.test("Set notification on setting survey data", function(assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");
   var question = page.addNewQuestion("text", "q1");
-  question["koValue"]("value1");
+  question.value = "value1";
   survey.data = { q1: "value2" };
   assert.equal(survey.getValue("q1"), "value2", "survey data for q1");
-  assert.equal(question["koValue"](), "value2", "knockout value is updated.");
+  assert.equal(question.value, "value2", "knockout value is updated.");
 });
 QUnit.test("On make survey data empy for Multiple text question", function(
   assert
@@ -379,7 +362,7 @@ QUnit.test("On make survey data empy for Multiple text question", function(
   question.items.push(new MultipleTextItem("i2"));
   question.value = { i1: 10 };
   survey.data = null;
-  assert.equal(question.items[0]["koValue"](), null, "Make the data empty");
+  assert.equal(question.items[0].value, null, "Make the data empty");
 });
 QUnit.test("isVisible property", function(assert) {
   var survey = new Survey();
@@ -728,7 +711,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
   assert.ok(row, "the first row is created");
   assert.equal(row.elements.length, 1, "there is one question in the row");
   assert.equal(row.elements[0].visible, true, "question is visible");
-  <Question>panel.questions[0].koValue("val1");
+  panel.questions[0].value = "val1";
   assert.deepEqual(
     question.value,
     [{ q1: "val1" }, {}, {}],
@@ -741,7 +724,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
     {}
   ];
   assert.equal(
-    <Question>panel.questions[0].koValue(),
+    <Question>panel.questions[0].value,
     "item1_1",
     "knockout question in panel get notification"
   );
@@ -1039,16 +1022,6 @@ QUnit.test("Default value doesn't set in PanelDynamic , bug#910", function(
   var q2 = <Question>panel.panels[0].questions[1];
   assert.equal(q1.value, "value1", "The default value set to q1.value");
   assert.equal(q2.value, "item2", "The default value set to q2.value");
-  assert.equal(
-    q1["koValue"](),
-    "value1",
-    "The default value set to q1.koValue()"
-  );
-  assert.equal(
-    q2["koValue"](),
-    "item2",
-    "The default value set to q2.koValue()"
-  );
 });
 
 QUnit.test(
@@ -1430,12 +1403,12 @@ QUnit.test("Could not assign value into mutlipletext question, #1229", function(
   page.addQuestion(question);
   survey.data = { q1: { item1: "val1", item2: "val2" } };
   assert.equal(
-    question.items[0].editor["koValue"](),
+    question.items[0].editor.value,
     "val1",
     "val1 is set to the question item"
   );
   assert.equal(
-    question.items[1].editor["koValue"](),
+    question.items[1].editor.value,
     "val2",
     "val1 is set to the question item"
   );

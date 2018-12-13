@@ -7,17 +7,10 @@ import {
 } from "../question_baseselect";
 
 export class QuestionSelectBaseImplementor extends QuestionImplementor {
-  koOtherVisible: any;
   protected onCreated() {}
   constructor(question: Question) {
     super(question);
-    var self = this;
 
-    this.koOtherVisible = ko.computed(function() {
-      self.koValue();
-      return self.isOtherSelected;
-    });
-    (<any>this.question)["koOtherVisible"] = this.koOtherVisible;
     this.onCreated();
   }
   protected get isOtherSelected(): boolean {

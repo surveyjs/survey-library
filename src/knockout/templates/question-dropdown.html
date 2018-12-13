@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.koCss().selectWrapper">
-      <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.koValue, valueAllowUnset: true, css: question.koCss().control">
+      <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.value, valueAllowUnset: true, css: question.koCss().control">
         <option data-bind="text:question.optionsCaption, value: null"></option>
         <!-- ko foreach: question.visibleChoices -->
         <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
@@ -12,5 +12,5 @@
   <!-- ko if: question.isReadOnly -->
   <div data-bind="text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.koCss().control"></div>
   <!-- /ko -->
-  <div class="form-group" data-bind="template: { visible: question.hasOther, name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }"></div>
+  <div class="form-group" data-bind="template: { visible: question.hasOther, name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
 </script>

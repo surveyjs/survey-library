@@ -4,24 +4,33 @@ import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
+import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
+  private _koValue = ko.observableArray<any>();
+
   constructor(question: Question) {
     super(question);
-  }
-  protected createkoValue(): any {
-    return this.question.value
-      ? ko.observableArray(this.question.value)
-      : ko.observableArray();
-  }
-  protected setkoValue(newValue: any) {
-    if (newValue) {
-      this.koValue([].concat(newValue));
-    } else {
-      this.koValue([]);
-    }
+    this._koValue.subscribe(newValue => {
+      this.question.value = newValue;
+    });
+    Object.defineProperty(this.question, "koValue", {
+      get: () => {
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
+          this._koValue(this.question.value || []);
+        }
+        return this._koValue;
+      },
+      set: (newValue: Array<any> | KnockoutObservableArray<any>) => {
+        var newVal = [].concat(ko.unwrap(newValue));
+        this.question.value = newVal;
+      },
+      enumerable: true,
+      configurable: true
+    });
   }
 }
+
 export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
@@ -50,7 +59,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.isAllSelectedUpdating = false;
   }
   getItemClass(item: any) {
-    var val = (<any>this)["koValue"](); //trigger dependencies from koValue for knockout
+    var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
     var itemClass =
       this.cssClasses.item +

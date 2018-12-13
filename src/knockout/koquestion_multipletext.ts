@@ -11,25 +11,11 @@ import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 
 export class MultipleTextItem extends MultipleTextItemModel {
-  private isKOValueUpdating = false;
-  koValue: any;
   constructor(public name: any = null, title: string = null) {
     super(name, title);
-    this.koValue = ko.observable(this.value);
-    var self = this;
-    this.koValue.subscribe(function(newValue:any) {
-      if (!self.isKOValueUpdating) {
-        self.value = newValue;
-      }
-    });
   }
   protected createEditor(name: string): QuestionTextModel {
     return new QuestionText(name);
-  }
-  onValueChanged(newValue: any) {
-    this.isKOValueUpdating = true;
-    this.koValue(newValue);
-    this.isKOValueUpdating = false;
   }
 }
 

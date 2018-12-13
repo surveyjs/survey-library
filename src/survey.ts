@@ -1267,7 +1267,10 @@ export class SurveyModel extends Base
   public get data(): any {
     var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
-      result[key] = this.getDataValueCore(this.valuesHash, key);
+      var dataValue = this.getDataValueCore(this.valuesHash, key);
+      if(dataValue !== undefined) {
+        result[key] = dataValue;
+      }
     }
     return result;
   }
@@ -1363,6 +1366,14 @@ export class SurveyModel extends Base
   public deleteDataValueCore(valuesHash: any, key: string) {
     delete valuesHash[key];
   }
+  // protected iterateDataValuesHash(func: (hash: any, key: any) => void) {
+  //   var keys: any[] = [];
+  //   for (var key in this.valuesHash) {
+  //     keys.push(key);
+  //   }
+  //   keys.forEach(key => func(this.valuesHash, key));
+  // }
+
   /**
    * Returns all comments from the data.
    * @see data

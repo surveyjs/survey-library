@@ -55,24 +55,33 @@ export class Survey extends SurveyModel {
   koCompletedStateCss: any;
   koTimerInfoText: any;
 
-  // public getDataValueCore(valuesHash: any, key: string) {
-  //   if (valuesHash[key] === undefined) {
-  //     valuesHash[key] = ko.observable();
-  //   }
-  //   return ko.unwrap(valuesHash[key]);
-  // }
-  // public setDataValueCore(valuesHash: any, key: string, value: any) {
-  //   valuesHash[key] !== undefined
-  //     ? valuesHash[key](value)
-  //     : (valuesHash[key] = ko.observable(value));
-  // }
-  // public deleteDataValueCore(valuesHash: any, key: string) {
-  //   if (ko.isWriteableObservable(valuesHash[key])) {
-  //     valuesHash[key](undefined);
-  //   } else {
-  //     delete valuesHash[key];
-  //   }
-  // }
+  public getDataValueCore(valuesHash: any, key: string) {
+    if (valuesHash[key] === undefined) {
+      valuesHash[key] = ko.observable();
+    }
+    return ko.unwrap(valuesHash[key]);
+  }
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
+    if (ko.isWriteableObservable(valuesHash[key])) {
+      valuesHash[key](value);
+    } else {
+      valuesHash[key] = ko.observable(value);
+      // if (Array.isArray(value)) {
+      //   valuesHash[key] = ko.observableArray(value);
+      //   (<any>value)["onArrayChanged"] = () =>
+      //     valuesHash[key].notifySubscribers();
+      // } else {
+      //   valuesHash[key] = ko.observable(value);
+      // }
+    }
+  }
+  public deleteDataValueCore(valuesHash: any, key: string) {
+    if (ko.isWriteableObservable(valuesHash[key])) {
+      valuesHash[key](undefined);
+    } else {
+      delete valuesHash[key];
+    }
+  }
 
   constructor(
     jsonObj: any = null,
@@ -81,15 +90,21 @@ export class Survey extends SurveyModel {
   ) {
     super(jsonObj);
     new ImplementorBase(this);
+    if (typeof ko === "undefined")
+      throw new Error("knockoutjs library is not loaded.");
+    var self = this;
+    // this.iterateDataValuesHash((hash: any, key: string) => {
+    //   var val = hash[key];
+    //   if (!ko.isWriteableObservable(val)) {
+    //     hash[key] = ko.observable(val);
+    //   }
+    // });
     if (css) {
       this.css = css;
     }
     if (renderedElement) {
       this.renderedElement = renderedElement;
     }
-    if (typeof ko === "undefined")
-      throw new Error("knockoutjs library is not loaded.");
-    var self = this;
     this.registerFunctionOnPropertyValueChanged("timeSpent", function() {
       self.onTimeSpentChanged();
     });

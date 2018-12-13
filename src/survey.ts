@@ -1267,7 +1267,10 @@ export class SurveyModel extends Base
   public get data(): any {
     var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
-      result[key] = this.getDataValueCore(this.valuesHash, key);
+      var dataVelue = this.getDataValueCore(this.valuesHash, key);
+      if(dataVelue !== undefined) {
+        result[key] = dataVelue;
+      }
     }
     return result;
   }

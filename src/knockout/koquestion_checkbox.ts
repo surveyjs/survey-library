@@ -4,6 +4,7 @@ import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
+import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   private _koValue = ko.observableArray<any>();
@@ -15,7 +16,9 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
     });
     Object.defineProperty(this.question, "koValue", {
       get: () => {
-        this._koValue(this.question.value || []);
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
+          this._koValue(this.question.value || []);
+        }
         return this._koValue;
       },
       set: (newValue: Array<any> | KnockoutObservableArray<any>) => {

@@ -14,7 +14,7 @@ export var englishStrings = {
   completingSurvey: "Thank you for completing the survey!",
   completingSurveyBefore:
     "Our records show that you have already completed this survey.",
-  loadingSurvey: "Survey is loading...",
+  loadingSurvey: "Loading Survey...",
   optionsCaption: "Choose...",
   value: "value",
   requiredError: "Please answer the question.",

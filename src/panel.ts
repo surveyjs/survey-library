@@ -690,7 +690,11 @@ export class PanelModelBase extends SurveyElement
       }
     }
   }
+  private canBuildRows() {
+    return !this.isLoadingFromJson && this.getChildrenLayoutType() == "row";
+  }
   private buildRows(): Array<QuestionRowModel> {
+    if (!this.canBuildRows()) return [];
     var result = new Array<QuestionRowModel>();
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
@@ -705,7 +709,7 @@ export class PanelModelBase extends SurveyElement
     return result;
   }
   private updateRowsOnElementAdded(element: IElement, index: number) {
-    if (this.isLoadingFromJson) return;
+    if (!this.canBuildRows()) return;
     var dragDropInfo = new DragDropInfo(null, element);
     dragDropInfo.target = element;
     dragDropInfo.isEdge = this.elements.length > 1;
@@ -722,7 +726,7 @@ export class PanelModelBase extends SurveyElement
     this.dragDropAddTargetToRow(dragDropInfo, null);
   }
   private updateRowsOnElementRemoved(element: IElement) {
-    if (this.isLoadingFromJson) return;
+    if (!this.canBuildRows()) return;
     this.updateRowsRemoveElementFromRow(
       element,
       this.findRowByElement(element)

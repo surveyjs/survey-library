@@ -390,3 +390,9 @@ QUnit.test("Hide question title for flow layout", function(assert) {
   var q = flowPanel.addNewQuestion("text", "q");
   assert.equal(q.getTitleLocation(), "hidden", "Hide for flow layout");
 });
+QUnit.test("Do not generate rows and do not set renderWidth", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  var q = flowPanel.addNewQuestion("text", "q");
+  assert.equal(flowPanel.rows.length, 0, "There is no rows");
+  assert.equal(q.renderWidth, "", "render width is empty");
+});

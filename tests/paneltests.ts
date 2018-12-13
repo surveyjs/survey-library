@@ -364,3 +364,29 @@ QUnit.test("Flow Panel, add new element/remove element", function(assert) {
   panel.removeElement(panel.elements[0]);
   assert.equal(panel.content, "", "element is removed from content");
 });
+
+QUnit.test("getLayoutType()", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var q1 = page.addNewQuestion("text", "q1");
+  var flowPanel = new FlowPanelModel("flowPanel");
+  page.addElement(flowPanel);
+  var panel = page.addNewPanel("panel");
+  var q2 = panel.addNewQuestion("text", "q2");
+  var q3 = flowPanel.addNewQuestion("text", "q3");
+
+  assert.equal(page.getLayoutType(), "row");
+  assert.equal(panel.getLayoutType(), "row");
+  assert.equal(flowPanel.getLayoutType(), "row");
+  assert.equal(panel.getChildrenLayoutType(), "row");
+  assert.equal(flowPanel.getChildrenLayoutType(), "flow");
+  assert.equal(q1.getLayoutType(), "row");
+  assert.equal(q2.getLayoutType(), "row");
+  assert.equal(q3.getLayoutType(), "flow");
+});
+
+QUnit.test("Hide question title for flow layout", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  var q = flowPanel.addNewQuestion("text", "q");
+  assert.equal(q.getTitleLocation(), "hidden", "Hide for flow layout");
+});

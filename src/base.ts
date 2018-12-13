@@ -13,7 +13,11 @@ export interface ISurveyData {
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
-  processTextEx(text: string, returnDisplayValue: boolean, doEncoding: boolean): any;
+  processTextEx(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean
+  ): any;
 }
 export interface ISurvey extends ITextProcessor {
   currentPage: IPage;
@@ -135,6 +139,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   startWithNewLine: boolean;
   isPanel: boolean;
   getPanel(): IPanel;
+  getLayoutType(): string;
   removeElement(el: IElement): boolean;
   onAnyValueChanged(name: string): any;
   updateCustomWidgets(): any;
@@ -162,6 +167,7 @@ export interface IParentElement {
 }
 
 export interface IPanel extends ISurveyElement, IParentElement {
+  getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;

@@ -136,6 +136,13 @@ export class Question extends SurveyElement
   public getPanel(): IPanel {
     return null;
   }
+  public get isFlowLayout(): boolean {
+    return this.getLayoutType() === "flow";
+  }
+  public getLayoutType(): string {
+    if (!!this.parent) return this.parent.getChildrenLayoutType();
+    return "row";
+  }
   /**
    * Use it to get/set the question visibility.
    * @see visibleIf
@@ -283,6 +290,7 @@ export class Question extends SurveyElement
    * @see SurveyModel.QuestionTitleLocation
    */
   public getTitleLocation(): string {
+    if (this.isFlowLayout) return "hidden";
     var location = this.getTitleLocationCore();
     if (location === "left" && !this.isAllowTitleLeft) location = "top";
     return location;

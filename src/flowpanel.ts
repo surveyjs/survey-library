@@ -22,6 +22,9 @@ export class FlowPanelModel extends PanelModel {
   public getType(): string {
     return "flowpanel";
   }
+  getChildrenLayoutType(): string {
+    return "flow";
+  }
   onSurveyLoad(): any {
     super.onSurveyLoad();
     this.onContentChanged();

@@ -241,6 +241,9 @@ export class PanelModelBase extends SurveyElement
   public getPanel(): IPanel {
     return this;
   }
+  getLayoutType(): string {
+    return "row";
+  }
   /**
    * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
    * @see Question
@@ -577,6 +580,9 @@ export class PanelModelBase extends SurveyElement
       return this.questionTitleLocation;
     if (this.parent) return this.parent.getQuestionTitleLocation();
     return this.survey ? this.survey.questionTitleLocation : "top";
+  }
+  getChildrenLayoutType(): string {
+    return "row";
   }
   protected get root(): PanelModelBase {
     var res = <PanelModelBase>this;

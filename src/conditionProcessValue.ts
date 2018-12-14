@@ -30,7 +30,7 @@ export class ProcessValue {
     return res.value;
   }
   private getValueCore(text: string, values: any): any {
-    var res:ValueCore = { hasValue: false, value: null };
+    var res: ValueCore = { hasValue: false, value: null };
     var curValue = values;
     if (!curValue) return res;
     if (
@@ -71,10 +71,15 @@ export class ProcessValue {
     return res;
   }
   private getObjectValue(obj: any, name: string): any {
-    if (!!obj[name]) return obj[name];
+    if (obj.hasOwnProperty(name)) return obj[name];
     name = name.toLowerCase();
+    var A = name[0];
+    var a = A.toUpperCase();
     for (var key in obj) {
-      if (key.toLowerCase() == name) return obj[key];
+      var first = key[0];
+      if (first === a || first === A) {
+        if (key.toLowerCase() == name) return obj[key];
+      }
     }
     return null;
   }

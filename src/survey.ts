@@ -169,12 +169,15 @@ export class SurveyModel extends Base
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * The event is fired when the question value is changed. It can be done via UI by a user or programmatically on calling setValue method.
+   * Please use onDynamicPanelItemValueChanged and onMatrixCellValueChanged events to handle changes a question in the Panel Dynamic and a cell question in matrices.
    * <br/> sender the survey object that fires the event
    * <br/> options.name the value name that has been changed
    * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
    * <br/> options.value a new value
    * @see setValue
    * @see onValueChanging
+   * @see onDynamicPanelItemValueChanged
+   * @see onMatrixCellValueChanged
    */
   public onValueChanged: Event<
     (sender: SurveyModel, options: any) => any,
@@ -1268,7 +1271,7 @@ export class SurveyModel extends Base
     var result: { [index: string]: any } = {};
     for (var key in this.valuesHash) {
       var dataValue = this.getDataValueCore(this.valuesHash, key);
-      if(dataValue !== undefined) {
+      if (dataValue !== undefined) {
         result[key] = dataValue;
       }
     }

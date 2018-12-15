@@ -91,14 +91,15 @@ export class Question extends SurveyElement
   /**
    * Use this property if you want to store the question result in the name different from the question name.
    * Question name should be unique in the survey and valueName could be not unique. It allows to share data between several questions with the same valueName.
-   * This sets automatically if name has symbols like '.' period. You can't use '.' symbols to store the results.
+   * The library may set the value automatically if the question.name property is not valid. For example, it contains the period '.' symbol.
+   * In this case if you set the question.name property to 'x.y' then the valueName becomes 'x y'.
    */
   public get valueName(): string {
     return this.getPropertyValue("valueName", "");
   }
   public set valueName(val: string) {
     var oldValueName = this.getValueName();
-    this.setPropertyValue("valueName", val);
+    this.setPropertyValue("valueName", this.getCorrectedName(val));
     this.onValueNameChanged(oldValueName);
   }
   protected onValueNameChanged(oldValue: string) {
@@ -198,7 +199,7 @@ export class Question extends SurveyElement
     if (!newValue) return;
     if (newValue.indexOf(".") > -1) {
       if (!this.valueName || this.isCorrectedNameEqualsValueName(oldValue))
-        this.valueName = this.getCorrectedName(newValue);
+        this.valueName = newValue;
     } else {
       if (!!this.valueName && this.isCorrectedNameEqualsValueName(oldValue)) {
         this.valueName = "";
@@ -206,6 +207,7 @@ export class Question extends SurveyElement
     }
   }
   private getCorrectedName(name: string): string {
+    if (!name || typeof name !== "string") return name;
     while (name.indexOf(".") > -1) name = name.replace(".", " ");
     return name.trim();
   }

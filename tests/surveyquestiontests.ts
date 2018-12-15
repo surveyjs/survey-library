@@ -1849,6 +1849,14 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Replace period '.' with space ' ' on setting a string with '.' into valueName",
+  function(assert) {
+    var question = new Question("q1");
+    question.valueName = "q.1.";
+    assert.equal(question.valueName, "q 1", "Correct the value name");
+  }
+);
 
 QUnit.test(
   "readOnly property doesn't work for multipletext question, #1217",

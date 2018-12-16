@@ -1662,13 +1662,13 @@ function doTimer(count: number) {
   }
 }
 QUnit.test(
-  "Complete pages by timer and questionsOrder = 'random', Bug#1406",
+  "Complete pages by timer and questionsOrder = 'random', Bug#1406, Bug#1482",
   function(assert) {
     var survey = new Survey({
       pages: [
         {
           name: "startPage",
-          element: [{ type: "text", name: "startQuestion" }]
+          elements: [{ type: "text", name: "startQuestion" }]
         },
         {
           name: "page1",
@@ -1688,6 +1688,12 @@ QUnit.test(
       questionsOrder: "random",
       showTimerPanel: "top"
     });
+    assert.equal(survey.startedPage.name, "startPage", "The start page");
+    assert.equal(
+      survey.startedPage.rows.length,
+      1,
+      "One row in the started page"
+    );
     survey.start();
     assert.equal(survey.state, "running", "The state is running");
     assert.equal(survey.currentPage.name, "page1", "The first page");

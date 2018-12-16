@@ -9,6 +9,7 @@ import { SurveyElement, IElement } from "../base";
 export class FlowPanel extends FlowPanelModel {
   koElementType: any;
   koElementAfterRender: any;
+  placeHolder: string;
   constructor(name: string = "") {
     super(name);
     this.koElementType = ko.observable("survey-flowpanel");

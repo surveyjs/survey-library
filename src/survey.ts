@@ -1439,9 +1439,12 @@ export class SurveyModel extends Base
    * @see firstPageIsStarted
    */
   public get startedPage(): PageModel {
-    return this.firstPageIsStarted && this.pages.length > 0
-      ? this.pages[0]
-      : null;
+    var page =
+      this.firstPageIsStarted && this.pages.length > 0 ? this.pages[0] : null;
+    if (!!page) {
+      page.onFirstRendering();
+    }
+    return page;
   }
   /**
    * Returns the current survey page. If survey is rendred then it is a page that a user can see/edit.

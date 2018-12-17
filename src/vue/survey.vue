@@ -61,6 +61,8 @@ export class Survey extends Vue {
   }
 
   mounted() {
+    var el = this.$el;
+    if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     this.survey.renderCallback = this.forceUpdate;
     this.survey.startTimerFromUI();
   }

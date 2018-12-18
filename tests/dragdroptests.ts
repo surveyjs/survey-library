@@ -3,6 +3,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextModel } from "../src/question_text";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { FlowPanelModel } from "../src/flowpanel";
 
 export default QUnit.module("Drag and Drop Tests");
 
@@ -779,4 +780,22 @@ QUnit.test("survey onDragDropAllow event", function(assert) {
   canInsertIntoPanel2 = true;
   page.dragDropMoveTo(panel2, true);
   assert.equal(panel2.rows.length, 1, "can insert into panel2 now");
+});
+
+QUnit.test("survey onDragDropAllow event", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.content = "abcd";
+  page.addElement(panel);
+
+  var target = new QuestionTextModel("q1");
+  assert.equal(page.rows.length, 1, "one row");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(panel, true, true),
+    true,
+    "Move to end of the page"
+  );
+  assert.equal(page.rows.length, 2, "target is under panel");
 });

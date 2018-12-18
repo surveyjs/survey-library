@@ -14,6 +14,8 @@ export class StylesManager {
 
     ".sv_main span": "word-break: break-word;",
 
+    ".sv_main legend": "border: none; margin: 0;",
+
     ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
       "vertical-align: middle; margin-top: -1px",

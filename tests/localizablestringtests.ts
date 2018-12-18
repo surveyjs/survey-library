@@ -112,7 +112,7 @@ QUnit.test("Test set JSON", function(assert) {
   assert.equal(locString.getLocaleText("fr"), "val5", "Check6");
 });
 
-QUnit.test("Test get JSON", function(assert) {
+QUnit.test("Test getJson", function(assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);
 
@@ -146,6 +146,43 @@ QUnit.test("Test get JSON", function(assert) {
   assert.deepEqual(
     locString.getJson(),
     "val1",
+    "'en' and default are the same"
+  );
+});
+
+QUnit.test("Test hasNonDefaultText", function(assert) {
+  var owner = new LocalizableOwnerTester("");
+  var locString = new LocalizableString(owner);
+
+  assert.equal(locString.hasNonDefaultText(), false, "There is no values");
+  locString.setLocaleText("en", "value1");
+  assert.deepEqual(
+    locString.hasNonDefaultText(),
+    true,
+    "There is one value, but 'en'"
+  );
+
+  locString.setJson({ default: "val2", en: "val3" });
+  assert.deepEqual(locString.hasNonDefaultText(), true, "Several values");
+
+  locString.setLocaleText("en", "val2");
+  assert.deepEqual(
+    locString.hasNonDefaultText(),
+    false,
+    "There is one value again, 'en' was equaled to default"
+  );
+
+  locString.setLocaleText("en", "val1");
+  assert.deepEqual(
+    locString.hasNonDefaultText(),
+    true,
+    "'en' is different from default now"
+  );
+
+  locString.setLocaleText("", "val1");
+  assert.deepEqual(
+    locString.hasNonDefaultText(),
+    false,
     "'en' and default are the same"
   );
 });

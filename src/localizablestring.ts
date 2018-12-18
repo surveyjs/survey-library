@@ -123,6 +123,11 @@ export class LocalizableString {
     }
     this.strChanged();
   }
+  public hasNonDefaultText(): boolean {
+    var keys = Object.keys(this.values);
+    if (keys.length == 0) return false;
+    return keys.length > 1 || keys[0] != LocalizableString.defaultLocale;
+  }
   public getJson(): any {
     var keys = Object.keys(this.values);
     if (keys.length == 0) return null;
@@ -170,7 +175,8 @@ export class LocalizableString {
     var keys = Object.keys(this.values);
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == LocalizableString.defaultLocale) continue;
-      if ((<any>this).values[keys[i]] == defaultValue) delete (<any>this).values[keys[i]];
+      if ((<any>this).values[keys[i]] == defaultValue)
+        delete (<any>this).values[keys[i]];
     }
   }
 }

@@ -384,15 +384,17 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  protected runValidators(): SurveyError {
-    var error = super.runValidators();
-    if (error != null) return error;
+  protected runValidators(): Array<SurveyError> {
+    var errors = super.runValidators();
     for (var i = 0; i < this.items.length; i++) {
       if (this.items[i].isEmpty()) continue;
-      error = new ValidatorRunner().run(this.items[i]);
-      if (error != null) return error;
+
+      var itemErrors = new ValidatorRunner().run(this.items[i]);
+      for (var j = 0; j < itemErrors.length; j++) {
+        errors.push(itemErrors[j]);
+      }
     }
-    return null;
+    return errors;
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);

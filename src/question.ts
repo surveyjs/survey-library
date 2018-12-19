@@ -922,11 +922,13 @@ export class Question extends SurveyElement
   private collectErrors(qErrors: Array<SurveyError>) {
     this.onCheckForErrors(qErrors);
     if (qErrors.length == 0) {
-      var error = this.runValidators();
-      if (error) {
+      var errors = this.runValidators();
+      if (errors.length > 0) {
         //validators may change the question value.
         qErrors.length = 0;
-        qErrors.push(error);
+        for (var i = 0; i < errors.length; i++) {
+          qErrors.push(errors[i]);
+        }
       }
     }
     if (this.survey && qErrors.length == 0) {
@@ -948,7 +950,7 @@ export class Question extends SurveyElement
   protected hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
-  protected runValidators(): SurveyError {
+  protected runValidators(): Array<SurveyError> {
     return new ValidatorRunner().run(this);
   }
   private isValueChangedInSurvey = false;

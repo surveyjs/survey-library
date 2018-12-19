@@ -5241,3 +5241,56 @@ QUnit.test("question.valueName is numeric, Bug# 1432", function(assert) {
   var question = survey.getQuestionByValueName("10");
   assert.equal(question.name, "name", "The question has been found")
 });
+
+QUnit.test("Show several errors based on validation", function(assert) {
+  var survey = new SurveyModel({
+    questions: [{
+        "type": "multipletext",
+        "name": "q1",
+        "title": "Question 1 - Score",
+        "isRequired": true,
+        "requiredErrorText": "You must enter a response to the 'Question 1 - Score' question.",
+        "validators": [{
+          "type": "expression",
+          "text": "You must enter a response to the 'Question 1 - Score' question.",
+          "expression": "{q1.Field1} notempty or ({q1.Field1} empty and {q1.Field1} = 0) or {q1.Field2} notempty or ({q1.Field2} empty and {q1.Field2} = 0)"
+        }, {
+          "type": "expression",
+          "text": "The response to 'Field 1' must be a number between 0 and 48.",
+          "expression": "{q1.Field1} <= 48"
+        }, {
+          "type": "expression",
+          "text": "The response to 'Field 2' must be a number between 0 and 52.",
+          "expression": "{q1.Field2} <= 52"
+        }, {
+          "type": "expression",
+          "text": "The response to 'Question 1 - Score' must be an even number between 0 and 100.",
+          "expression": "({q1.Field1} + {q1.Field2}) <= 100"
+        }, {
+          "type": "expression",
+          "expression": "({q1.Field1} + {q1.Field2}) % 2 = 0"
+        }],
+        "items": [{
+          "name": "Field1",
+          "title": "Field 1",
+          "validators": [{
+            "type": "regex",
+            "text": "The response to 'Field 1' must be a number between 0 and 48.",
+            "regex": "^\\d*\\.?\\d*$"
+          }]
+        }, {
+          "name": "Field2",
+          "title": "Field 2",
+          "validators": [{
+            "type": "regex",
+            "text": "The response to 'Field 2' must be a number between 0 and 52.",
+            "regex": "^\\d*\\.?\\d*$"
+          }]
+        }]
+    }]
+  });
+  var question = <Question>survey.getQuestionByValueName("q1");
+  question.value = {Field1: 51, Field2: 60};
+  question.hasErrors(true);
+  assert.equal(question.errors.length, 4, "There are 4 errors should be shown");
+});

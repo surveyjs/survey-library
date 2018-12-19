@@ -69,7 +69,8 @@ export interface IValidatorOwner {
   getDataFilteredProperties(): any;
 }
 export class ValidatorRunner {
-  public run(owner: IValidatorOwner): SurveyError {
+  public run(owner: IValidatorOwner): Array<SurveyError> {
+    var res = [];
     for (var i = 0; i < owner.validators.length; i++) {
       var validatorResult = null;
       var validator = owner.validators[i];
@@ -86,14 +87,11 @@ export class ValidatorRunner {
           owner.getValidatorTitle()
         );
       }
-      if (validatorResult != null) {
-        if (validatorResult.error) return validatorResult.error;
-        if (validatorResult.value) {
-          owner.validatedValue = validatorResult.value;
-        }
+      if (!!validatorResult && !!validatorResult.error) {
+        res.push(validatorResult.error);
       }
     }
-    return null;
+    return res;
   }
 }
 /**
@@ -139,7 +137,7 @@ export class NumericValidator extends SurveyValidator {
         ["format"](vName, this.maxValue);
     }
   }
-  private isNumber(value:any): boolean {
+  private isNumber(value: any): boolean {
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }

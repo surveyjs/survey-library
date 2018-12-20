@@ -1882,3 +1882,64 @@ QUnit.test("Panel dynamic and survey.data setup", function(assert) {
     "Remove panels if set empty data"
   );
 });
+QUnit.test(
+  "Panel dynamic nested dynamic panel and display mode, Bug#1488",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "question2",
+              title: "Inner dynamic panel",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question3"
+                }
+              ],
+              panelCount: 2
+            },
+            {
+              type: "checkbox",
+              name: "question4",
+              title: "Checkbox question",
+              choices: ["item1", "item2", "item3"]
+            }
+          ],
+          panelCount: 1
+        }
+      ],
+      mode: "display"
+    };
+
+    var survey = new SurveyModel(json);
+    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "question1"
+    );
+    var question4 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName(
+      "question4"
+    );
+    assert.equal(question4.isReadOnly, true, "The question should be readonly");
+    var panel2 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName(
+      "question2"
+    );
+    assert.ok(
+      panel2.survey,
+      "survey is set correctly to the nest dynamic panel"
+    );
+    var question3 = panel2.panels[0].getQuestionByName("question3");
+    assert.ok(
+      question3.survey,
+      "survey is set correctly to the nest dynamic panel question"
+    );
+    assert.equal(
+      question3.isReadOnly,
+      true,
+      "The question inside the nested dynamic panel should be readonly"
+    );
+  }
+);

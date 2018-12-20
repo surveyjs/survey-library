@@ -13,7 +13,11 @@ export interface ISurveyData {
 }
 export interface ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string;
-  processTextEx(text: string, returnDisplayValue: boolean, doEncoding: boolean): any;
+  processTextEx(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean
+  ): any;
 }
 export interface ISurvey extends ITextProcessor {
   currentPage: IPage;
@@ -602,6 +606,10 @@ export class SurveyElement extends Base implements ISurveyElement {
    * Returns the survey object.
    */
   public get survey(): ISurvey {
+    if (!!this.surveyValue) return this.surveyValue;
+    if (!!this.surveyImplValue) {
+      this.surveyValue = this.surveyImplValue.getSurvey();
+    }
     return this.surveyValue;
   }
   /**

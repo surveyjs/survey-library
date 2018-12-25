@@ -72,6 +72,11 @@ ko.components.register("f-panel", {
         self.wasChanged = false;
       };
       self.updateContent = function() {
+        self.isContentUpdating = true;
+        question.content = self.getContent();
+        self.isContentUpdating = false;
+      };
+      question.getContent = self.getContent = function() {
         var content = document.createElement("DIV");
         content.innerHTML = self.element.innerHTML;
         var cps = content.querySelectorAll('span[question="true"]');
@@ -80,9 +85,7 @@ ko.components.register("f-panel", {
           var el = question.getQuestionByName(name);
           cps[i].outerHTML = !!el ? question.getElementContentText(el) : "";
         }
-        self.isContentUpdating = true;
-        question.content = content.innerHTML;
-        self.isContentUpdating = false;
+        return content.innerHTML;
       };
       var config = {
         characterData: true,

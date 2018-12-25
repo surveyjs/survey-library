@@ -264,15 +264,21 @@ export class PageModel extends PanelModelBase implements IPage {
     var target = this.dragDropInfo.target;
     var row = this.dragDropFindRow(target);
     if (!isCancel) {
+      var isFlow = !!row && row.panel.getChildrenLayoutType() == "flow";
       var targetIndex = this.dragDropGetElementIndex(target, row);
       var src = this.dragDropInfo.source;
+      var isSamePanel = false;
       if (!!src && !!src.parent) {
+        isSamePanel = !!row && row.panel == src.parent;
         var srcIndex = (<PanelModelBase>src.parent).elements.indexOf(src);
-        if (!!row && row.panel == src.parent && targetIndex > srcIndex) {
+        if (isSamePanel && targetIndex > srcIndex) {
           targetIndex--;
         }
-        if (!!row) {
+        if (!!row && (!isSamePanel || !isFlow)) {
           src.parent.removeElement(src);
+        }
+        if (isFlow && isSamePanel) {
+          targetIndex = -1;
         }
       }
       this.updateRowsRemoveElementFromRow(target, row);

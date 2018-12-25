@@ -86,6 +86,7 @@ export class FlowPanelModel extends PanelModel {
   protected onAddElement(element: IElement, index: number) {
     super.onAddElement(element, index);
     this.addElementToContent(element);
+    element.renderWidth = "";
   }
   protected onRemoveElement(element: IElement) {
     var searchStr = this.getElementContentText(element);
@@ -94,7 +95,25 @@ export class FlowPanelModel extends PanelModel {
   }
   private addElementToContent(element: IElement) {
     if (this.isLoadingFromJson) return;
-    this.content = this.content + this.getElementContentText(element);
+    var text = this.getElementContentText(element);
+    if (!this.insertTextAtCursor(text)) {
+      this.content = this.content + text;
+    }
+  }
+  private insertTextAtCursor(text: string): boolean {
+    if (!this.isDesignMode || (!window && !window.getSelection)) return false;
+    let sel = window.getSelection();
+    if (sel.getRangeAt && sel.rangeCount) {
+      let range = sel.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(text));
+      var self = <any>this;
+      if (self.getContent) {
+        this.content = self.getContent();
+      }
+      return true;
+    }
+    return false;
   }
   public getElementContentText(element: IElement) {
     return "{" + FlowPanelModel.contentElementNamePrefix + element.name + "}";

@@ -71,19 +71,34 @@ ko.components.register("f-panel", {
         self.isOnFocus = false;
         self.wasChanged = false;
       };
+      self.element.ondragend = function(event: any) {
+        var regEx = /{(.*?(element:)[^$].*?)}/g;
+        var str = self.element.innerHTML;
+        var res = regEx.exec(str);
+        if (res !== null) {
+          var q = question.getQuestionFromText(res[0]);
+          if (!!q) {
+            question.content = self.getContent(q.name);
+          }
+        }
+      };
       self.updateContent = function() {
         self.isContentUpdating = true;
         question.content = self.getContent();
         self.isContentUpdating = false;
       };
-      question.getContent = self.getContent = function() {
+      question.getContent = self.getContent = function(deletedName: string) {
         var content = document.createElement("DIV");
         content.innerHTML = self.element.innerHTML;
         var cps = content.querySelectorAll('span[question="true"]');
         for (var i = 0; i < cps.length; i++) {
           var name = cps[i].id.replace("flowpanel_", "");
-          var el = question.getQuestionByName(name);
-          cps[i].outerHTML = !!el ? question.getElementContentText(el) : "";
+          var html = "";
+          if (name !== deletedName) {
+            var el = question.getQuestionByName(name);
+            html = !!el ? question.getElementContentText(el) : "";
+          }
+          cps[i].outerHTML = html;
         }
         return content.innerHTML;
       };

@@ -1,5 +1,5 @@
 import { JsonObject } from "./jsonobject";
-import { IElement } from "./base";
+import { IElement, IQuestion } from "./base";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
@@ -72,7 +72,7 @@ export class FlowPanelModel extends PanelModel {
     this.html = html.join("");
     if (!!this.contentChangedCallback) this.contentChangedCallback();
   }
-  private getQuestionFromText(str: string): Question {
+  public getQuestionFromText(str: string): Question {
     str = str.substr(1, str.length - 2);
     str = str.replace(FlowPanelModel.contentElementNamePrefix, "").trim();
     return this.getQuestionByName(str);
@@ -93,6 +93,7 @@ export class FlowPanelModel extends PanelModel {
     this.content = this.content.replace(searchStr, "");
     super.onRemoveElement(element);
   }
+  dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {}
   private addElementToContent(element: IElement) {
     if (this.isLoadingFromJson) return;
     var text = this.getElementContentText(element);
@@ -100,7 +101,7 @@ export class FlowPanelModel extends PanelModel {
       this.content = this.content + text;
     }
   }
-  private insertTextAtCursor(text: string): boolean {
+  private insertTextAtCursor(text: string, prevName: string = null): boolean {
     if (!this.isDesignMode || (!window && !window.getSelection)) return false;
     let sel = window.getSelection();
     if (sel.getRangeAt && sel.rangeCount) {
@@ -109,7 +110,8 @@ export class FlowPanelModel extends PanelModel {
       range.insertNode(document.createTextNode(text));
       var self = <any>this;
       if (self.getContent) {
-        this.content = self.getContent();
+        var str = self.getContent(prevName);
+        this.content = str;
       }
       return true;
     }

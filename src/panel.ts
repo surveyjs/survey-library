@@ -1110,6 +1110,14 @@ export class PanelModelBase extends SurveyElement
       panel.rows.splice(0, 0, targetRow);
     }
   }
+  dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {
+    var srcIndex = (<PanelModelBase>src.parent).elements.indexOf(src);
+    if (targetIndex > srcIndex) {
+      targetIndex--;
+    }
+    this.removeElement(src);
+    this.addElement(target, targetIndex);
+  }
 }
 
 /**

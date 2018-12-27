@@ -303,7 +303,10 @@ export class SurveyModel extends Base
    * @see onValidateQuestion
    * @see onValidatePanel
    */
-  public onServerValidateQuestions: (sender: SurveyModel, options: any) => any;
+  public onServerValidateQuestions: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
   /**
    * Use this event to modify the html before rendering, for example html on 'Thank you' page. Options has one parameter: options.html.
    * <br/> sender the survey object that fires the event
@@ -1956,7 +1959,7 @@ export class SurveyModel extends Base
   }
   protected onIsValidatingOnServerChanged() {}
   protected doServerValidation(): boolean {
-    if (!this.onServerValidateQuestions) return false;
+    if (this.onServerValidateQuestions.isEmpty) return false;
     var self = this;
     var options = {
       data: <{ [index: string]: any }>{},
@@ -1974,7 +1977,7 @@ export class SurveyModel extends Base
         options.data[question.getValueName()] = value;
     }
     this.setIsValidatingOnServer(true);
-    this.onServerValidateQuestions(this, options);
+    this.onServerValidateQuestions.fire(this, options);
     return true;
   }
   private completeServerValidation(options: any) {

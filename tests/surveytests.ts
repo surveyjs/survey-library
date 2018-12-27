@@ -1125,9 +1125,9 @@ QUnit.test("Server validation", function(assert) {
     }
     options.complete();
   };
-  survey.onServerValidateQuestions = function(sender, options) {
+  survey.onServerValidateQuestions.add(function(sender, options) {
     serverFunction(options);
-  };
+  });
   survey.setValue("question1", 101);
   survey.nextPage();
   assert.equal(survey.currentPage.visibleIndex, 0, "Get server error");

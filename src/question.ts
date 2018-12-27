@@ -779,6 +779,10 @@ export class Question extends SurveyElement
     if (this.isLoadingFromJson) return;
     this.setPropertyValue("displayValue", this.getDisplayValue(true));
   }
+  /**
+   * Return the question value as a display text. For example, for dropdown, it would return the item text instead of item value.
+   * @param keysAsText Set this value to true, to return key (in matrices questions) as display text as well.
+   */
   public getDisplayValue(keysAsText: boolean): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this);

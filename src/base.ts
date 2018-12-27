@@ -608,6 +608,10 @@ export class SurveyElement extends Base implements ISurveyElement {
    * Returns the survey object.
    */
   public get survey(): ISurvey {
+    if (!!this.surveyValue) return this.surveyValue;
+    if (!!this.surveyImplValue) {
+      this.surveyValue = this.surveyImplValue.getSurvey();
+    }
     return this.surveyValue;
   }
   /**

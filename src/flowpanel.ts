@@ -11,6 +11,8 @@ import { Question } from "./question";
 export class FlowPanelModel extends PanelModel {
   static contentElementNamePrefix = "element:";
   public contentChangedCallback: () => void;
+  public onGetHtmlForQuestion: (question: Question) => string;
+  public onCustomHtmlProducing: () => string;
   constructor(name: string = "") {
     super(name);
     this.createLocalizableString("content", this, true);
@@ -45,6 +47,16 @@ export class FlowPanelModel extends PanelModel {
     this.setPropertyValue("html", val);
   }
   protected onContentChanged(): any {
+    var html = "";
+    if (!!this.onCustomHtmlProducing) {
+      html = this.onCustomHtmlProducing();
+    } else {
+      html = this.produceHtml();
+    }
+    this.html = html;
+    if (!!this.contentChangedCallback) this.contentChangedCallback();
+  }
+  public produceHtml(): string {
     var html = [];
     //contentElementNamePrefix
     var regEx = /{(.*?(element:)[^$].*?)}/g;
@@ -69,8 +81,7 @@ export class FlowPanelModel extends PanelModel {
     if (startIndex < str.length) {
       html.push(str.substr(startIndex, str.length - startIndex));
     }
-    this.html = html.join("");
-    if (!!this.contentChangedCallback) this.contentChangedCallback();
+    return html.join("");
   }
   public getQuestionFromText(str: string): Question {
     str = str.substr(1, str.length - 2);
@@ -78,6 +89,7 @@ export class FlowPanelModel extends PanelModel {
     return this.getQuestionByName(str);
   }
   protected getHtmlForQuestion(question: Question): string {
+    if (!!this.onGetHtmlForQuestion) return this.onGetHtmlForQuestion(question);
     return "";
   }
   protected getQuestionHtmlId(question: Question): string {

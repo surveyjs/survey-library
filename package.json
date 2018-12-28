@@ -2,6 +2,7 @@
   "scripts": {
     "start": "npm run build_dev && live-server --port=7777",
     "test": "karma start",
+    "testsingle": "karma start --single-run",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s\" ",
@@ -26,7 +27,7 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.62",
+  "version": "1.0.63",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
@@ -47,6 +48,7 @@
     "github-api": "^3.0.0",
     "html-loader": "0.4.4",
     "http-server": "0.9.0",
+    "husky": "^1.2.1",
     "jquery": "3.1.1",
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
@@ -83,5 +85,10 @@
     "vue-property-decorator": "4.0.0",
     "vue-template-compiler": "2.1.10",
     "webpack": "2.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run testsingle"
+    }
   }
 }

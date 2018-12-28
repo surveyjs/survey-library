@@ -1135,6 +1135,24 @@ QUnit.test("Server validation", function(assert) {
   survey.nextPage();
   assert.equal(survey.currentPage.visibleIndex, 1, "No errors server error");
 });
+QUnit.test("Server validation (old api version)", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var serverFunction = function(options) {
+    if (options.data["question1"] && options.data["question1"] > 100) {
+      options.errors["question1"] = "Question 1 should be higher than 100";
+    }
+    options.complete();
+  };
+  survey.onServerValidateQuestions = function(sender, options) {
+    serverFunction(options);
+  };
+  survey.setValue("question1", 101);
+  survey.nextPage();
+  assert.equal(survey.currentPage.visibleIndex, 0, "Get server error");
+  survey.setValue("question1", 10);
+  survey.nextPage();
+  assert.equal(survey.currentPage.visibleIndex, 1, "No errors server error");
+});
 QUnit.test("onVisibleChanged call validation", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.onValidateQuestion.add(function(sender, options) {

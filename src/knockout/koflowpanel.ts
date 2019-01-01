@@ -23,7 +23,7 @@ export class FlowPanel extends FlowPanelModel {
   protected onCreating() {}
   protected getHtmlForQuestion(question: Question): string {
     return (
-      '<span question="true" id="flowpanel_' +
+      '<span question="true" contenteditable="false" id="flowpanel_' +
       question.name +
       '"><!-- ko template: { name: "survey-flowpanel-question", data: "' +
       question.name +

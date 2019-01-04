@@ -6,25 +6,8 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionBooleanImplementor extends QuestionImplementor {
-  koIndeterminate: any;
-  koCheckedValue: any;
   constructor(public question: Question) {
     super(question);
-    this.koIndeterminate = ko.observable(
-      (<QuestionBoolean>this.question).isIndeterminate
-    );
-    this.koCheckedValue = ko.observable(
-      (<QuestionBoolean>this.question).checkedValue
-    );
-    var self = this;
-    this.koCheckedValue.subscribe(function(newValue: any) {
-      self.updateCheckedValue(newValue);
-    });
-    (<any>this.question)["koIndeterminate"] = this.koIndeterminate;
-    (<any>this.question)["koCheckedValue"] = this.koCheckedValue;
-  }
-  protected updateCheckedValue(newValue: any) {
-    (<QuestionBoolean>this.question).checkedValue = newValue;
   }
 }
 
@@ -34,7 +17,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
     new QuestionBooleanImplementor(this);
   }
   public getItemCss(row: any, column: any) {
-    let isChecked = (<any>this)["koCheckedValue"]();
+    let isChecked = this.checkedValue;
     let itemClass = (<any>this)["koCss"]().item + (isChecked ? " checked" : "");
     return itemClass;
   }

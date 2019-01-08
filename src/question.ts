@@ -63,7 +63,7 @@ export class Question extends SurveyElement
     this.onCreating();
     var self = this;
     this.createNewArray("validators", function(validator: any) {
-      validator.locOwner = self;
+      validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
     locTitleValue.onRenderedHtmlCallback = function(text) {
@@ -948,7 +948,7 @@ export class Question extends SurveyElement
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     if (this.hasRequiredError()) {
-      errors.push(new AnswerRequiredError(this.requiredErrorText));
+      errors.push(new AnswerRequiredError(this.requiredErrorText, this));
     }
   }
   protected hasRequiredError(): boolean {
@@ -1052,7 +1052,11 @@ export class Question extends SurveyElement
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
-
+  //ISurveyErrorOwner
+  getErrorCustomText(text: string, error: SurveyError): string {
+    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    return text;
+  }
   //IValidatorOwner
   getValidatorTitle(): string {
     return null;

@@ -401,7 +401,7 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.isRequired && Helpers.isValueEmpty(item.value)) {
-        errors.push(new AnswerRequiredError());
+        errors.push(new AnswerRequiredError(null, this));
       }
     }
   }

@@ -29,13 +29,13 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();
   var validators1 = [];
   var validator1 = new EmailValidator();
-  validator1.locOwner = survey;
+  validator1.errorOwner = survey;
   validator1.text = "en-text";
   validators1.push(validator1);
 
   var validators2 = [];
   var validator2 = new EmailValidator();
-  validator2.locOwner = survey;
+  validator2.errorOwner = survey;
   validator2.text = "en-text";
   validators2.push(validator2);
   survey.locale = "de";

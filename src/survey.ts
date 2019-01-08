@@ -14,6 +14,7 @@ import {
   IPage,
   SurveyError,
   Event,
+  ISurveyErrorOwner,
   ISurveyElement
 } from "./base";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
@@ -40,6 +41,7 @@ export class SurveyModel extends Base
     ISurveyData,
     ISurveyImpl,
     ISurveyTriggerOwner,
+    ISurveyErrorOwner,
     ILocalizableOwner {
   [index: string]: any;
   private static stylesManager = new StylesManager();
@@ -323,6 +325,18 @@ export class SurveyModel extends Base
    * @see onValidateQuestion
    */
   public onValidatePanel: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use the event to change the default error text.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.text an error text
+   * <br/> options.name the error name. The following error name are available: 
+   * required, requireoneanswer, requirenumeric, exceedsize,
+   * custom
+   */
+  public onErrorCustomText: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -1031,6 +1045,12 @@ export class SurveyModel extends Base
   }
   getLocString(str: string) {
     return surveyLocalization.getString(str);
+  }
+  //ISurveyErrorOwner
+  getErrorCustomText(text: string, error: SurveyError): string {
+    var options = {text: text, name: error.getErrorType()};
+    this.onErrorCustomText.fire(this, options);
+    return options.text;
   }
   /**
    * Returns the text that renders when there is no any visible page and question.

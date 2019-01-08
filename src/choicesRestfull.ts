@@ -1,4 +1,4 @@
-import { Base, SurveyError, ITextProcessor } from "./base";
+import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
 import { ItemValue } from "./itemvalue";
 import { JsonObject, JsonObjectProperty } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
@@ -70,7 +70,7 @@ export class ChoicesRestfull extends Base {
     serverResult: any
   ) => Array<ItemValue>;
   public error: SurveyError = null;
-  public owner: Base;
+  public owner: IQuestion;
   constructor() {
     super();
   }
@@ -276,7 +276,8 @@ export class ChoicesRestfull extends Base {
       }
     } else {
       this.error = new CustomError(
-        surveyLocalization.getString("urlGetChoicesError")
+        surveyLocalization.getString("urlGetChoicesError"),
+        this.owner
       );
     }
     if (this.updateResultCallback) {
@@ -308,7 +309,8 @@ export class ChoicesRestfull extends Base {
     this.error = new CustomError(
       surveyLocalization
         .getString("urlRequestError")
-        ["format"](status, response)
+        ["format"](status, response),
+      this.owner
     );
     this.doEmptyResultCallback(response);
   }

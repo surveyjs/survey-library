@@ -148,7 +148,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearIncorrectValues(): any;
 }
 
-export interface IQuestion extends IElement {
+export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;

@@ -285,7 +285,7 @@ export class QuestionFileModel extends Question {
     var errorLength = this.errors ? this.errors.length : 0;
     (files || []).forEach(file => {
       if (this.maxSize > 0 && file.size > this.maxSize) {
-        this.errors.push(new ExceedSizeError(this.maxSize));
+        this.errors.push(new ExceedSizeError(this.maxSize, this));
       }
     });
     return errorLength === this.errors.length;

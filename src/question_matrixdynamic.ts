@@ -417,7 +417,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         new CustomError(
           surveyLocalization
             .getString("minRowCountError")
-            ["format"](this.minRowCount)
+            ["format"](this.minRowCount),
+          this
         )
       );
     }

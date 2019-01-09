@@ -19,7 +19,6 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
-  protected cachedValue: any;
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
   /**
@@ -289,6 +288,12 @@ export class QuestionSelectBase extends Question {
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
+  }
+  protected get cachedValue(): boolean {
+    return this.getPropertyValue("cachedValue", false);
+  }
+  protected set cachedValue(val: boolean) {
+    this.setPropertyValue("cachedValue", val);
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.

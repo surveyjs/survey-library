@@ -3,7 +3,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject } from "./jsonobject";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
-import { CustomError } from "./error";
+import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
@@ -280,12 +280,7 @@ export class QuestionMatrixModel
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
-      errors.push(
-        new CustomError(
-          surveyLocalization.getString("requiredInAllRowsError"),
-          this
-        )
-      );
+      errors.push(new RequiredInAllRowsError(null, this));
     }
   }
   private hasErrorInRows(): boolean {

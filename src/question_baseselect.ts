@@ -4,7 +4,7 @@ import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
-import { CustomError } from "./error";
+import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
@@ -423,7 +423,7 @@ export class QuestionSelectBase extends Question {
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
-    errors.push(new CustomError(this.otherErrorText, this));
+    errors.push(new OtherEmptyError(this.otherErrorText, this));
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);

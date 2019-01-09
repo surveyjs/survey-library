@@ -332,9 +332,10 @@ export class SurveyModel extends Base
    * Use the event to change the default error text.
    * <br/> sender the survey object that fires the event
    * <br/> options.text an error text
+   * <br/> options.error an instance of SurveyError object
    * <br/> options.name the error name. The following error name are available: 
-   * required, requireoneanswer, requirenumeric, exceedsize,
-   * custom
+   * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
+   * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
    */
   public onErrorCustomText: Event<
     (sender: SurveyModel, options: any) => any,
@@ -1048,7 +1049,7 @@ export class SurveyModel extends Base
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    var options = {text: text, name: error.getErrorType()};
+    var options = {text: text, name: error.getErrorType(), error: error};
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }

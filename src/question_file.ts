@@ -2,7 +2,7 @@ import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError, Event } from "./base";
-import { CustomError, ExceedSizeError } from "./error";
+import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 
 /**
@@ -267,7 +267,10 @@ export class QuestionFileModel extends Question {
     super.onCheckForErrors(errors);
     if (this.isUploading && this.waitForUpload) {
       errors.push(
-        new CustomError(surveyLocalization.getString("uploadingFile"), this)
+        new UploadingFileError(
+          surveyLocalization.getString("uploadingFile"),
+          this
+        )
       );
     }
   }

@@ -9,7 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { Base, SurveyError } from "./base";
 import { LocalizableString } from "./localizablestring";
-import { CustomError } from "./error";
+import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
 
@@ -413,13 +413,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
-      errors.push(
-        new CustomError(
-          surveyLocalization
-            .getString("minRowCountError")
-            ["format"](this.minRowCount)
-        )
-      );
+      errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
   public hasErrors(fireCallback: boolean = true): boolean {
@@ -466,7 +460,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(new CustomError(this.keyDuplicationError, this));
+        question.addError(
+          new KeyDuplicationError(this.keyDuplicationError, this)
+        );
         return true;
       }
     }

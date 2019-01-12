@@ -19,7 +19,10 @@ export interface ITextProcessor {
     doEncoding: boolean
   ): any;
 }
-export interface ISurvey extends ITextProcessor {
+export interface ISurveyErrorOwner extends ILocalizableOwner {
+  getErrorCustomText(text: string, error: SurveyError): string;
+}
+export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentPage: IPage;
   pages: Array<IPage>;
   isPageStarted(page: IPage): boolean;
@@ -146,7 +149,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   clearIncorrectValues(): any;
 }
 
-export interface IQuestion extends IElement {
+export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
@@ -536,8 +539,11 @@ export class Base {
 }
 export class SurveyError {
   private locTextValue: LocalizableString;
-  constructor(public text: string = null, locOwner: ILocalizableOwner = null) {
-    this.locTextValue = new LocalizableString(locOwner, true);
+  constructor(
+    public text: string = null,
+    protected errorOwner: ISurveyErrorOwner = null
+  ) {
+    this.locTextValue = new LocalizableString(errorOwner, true);
     this.locText.text = this.getText();
   }
   public get locText() {
@@ -546,7 +552,13 @@ export class SurveyError {
   public getText(): string {
     var res = this.text;
     if (!res) res = this.getDefaultText();
+    if (!!this.errorOwner) {
+      res = this.errorOwner.getErrorCustomText(res, this);
+    }
     return res;
+  }
+  public getErrorType(): string {
+    return "base";
   }
   protected getDefaultText(): string {
     return "";

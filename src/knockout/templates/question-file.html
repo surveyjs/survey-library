@@ -1,32 +1,32 @@
 ﻿<script type="text/html" id="survey-question-file">
-    <div data-bind="css: question.cssClasses.root">
-        <!-- ko ifnot: question.isReadOnly -->
-        <input type="file" data-bind="css: question.cssClasses.fileInput, attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
-        <!-- ko if: question.koHasValue -->
-        <button data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>
-        <!-- /ko -->
-        <!-- /ko -->
-        <!-- ko if: question.isReadOnly -->
-        <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
-        <!-- /ko -->
-        <div data-bind="foreach: question.koData, visible: question.koHasValue">
-            <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
-                <!-- ko if: $data.name -->
-                <div>
-                <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
-                </div>
-                <!-- /ko -->
-                <!-- ko if: question.canPreviewImage($data) -->
-                <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
-                <!-- /ko -->
-                <!-- ko if: $data.name -->
-                <div>
-                <!-- ko ifnot: question.isReadOnly -->
-                <span data-bind="css: question.cssClasses.removeFile, click: question.doremovefile, text: question.removeFileCaption"></span>
-                <!-- /ko -->
-                </div>
-                <!-- /ko -->
-            </span>
-        </div>
-    </div>
+  <div data-bind="css: question.cssClasses.root">
+      <!-- ko ifnot: question.isReadOnly -->
+      <input type="file" data-bind="css: question.cssClasses.fileInput, attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
+      <!-- ko if: question.koHasValue -->
+      <button type="button" data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>
+      <!-- /ko -->
+      <!-- /ko -->
+      <!-- ko if: question.isReadOnly -->
+      <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
+      <!-- /ko -->
+      <div data-bind="foreach: question.koData, visible: question.koHasValue">
+          <span data-bind="visible: question.showPreview, css: question.cssClasses.preview">
+              <!-- ko if: $data.name -->
+              <div>
+              <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
+              </div>
+              <!-- /ko -->
+              <!-- ko if: question.canPreviewImage($data) -->
+              <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
+              <!-- /ko -->
+              <!-- ko if: $data.name -->
+              <div>
+              <!-- ko ifnot: question.isReadOnly -->
+              <span data-bind="css: question.cssClasses.removeFile, click: question.doremovefile, text: question.removeFileCaption"></span>
+              <!-- /ko -->
+              </div>
+              <!-- /ko -->
+          </span>
+      </div>
+  </div>
 </script>

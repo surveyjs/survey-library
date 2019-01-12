@@ -5312,3 +5312,23 @@ QUnit.test("Show several errors based on validation", function(assert) {
   question.hasErrors(true);
   assert.equal(question.errors.length, 4, "There are 4 errors should be shown");
 });
+
+QUnit.test("getCustomErrorText for error", function(assert) {
+  var survey = new SurveyModel( {
+              questions: [
+                  {
+                      name: "name",
+                      type: "text",
+                      isRequired: true
+                  }
+      ]
+  });
+  survey.onErrorCustomText.add(function(sender, options){
+    if(options.name == "required") {
+      options.text = "!!!";
+    }
+  });
+  var question = survey.currentPage.questions[0];
+  survey.pages[0].hasErrors(true);
+  assert.equal(question.errors[0].getText(), "!!!", "survey.onErrorCustomText works");
+});

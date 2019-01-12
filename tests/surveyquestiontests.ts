@@ -2007,3 +2007,37 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Load survey with requiredIf expression", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValue: 1
+      },
+      {
+        type: "text",
+        name: "q2",
+        requiredIf: "{q1} = 1"
+      }
+    ]
+  });
+  var question = <Question>survey.getQuestionByName("q2");
+  assert.equal(
+    question.isRequired,
+    true,
+    "The question becomes required on loading"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    question.isRequired,
+    false,
+    "The question becomes unrequired on changing value"
+  );
+  survey.setValue("q1", 1);
+  assert.equal(
+    question.isRequired,
+    true,
+    "The question becomes required on changing value"
+  );
+});

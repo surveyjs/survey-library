@@ -1,15 +1,15 @@
 <script type="text/html" id="survey-question-boolean">
-    <div data-bind="css: question.koCss().root">
-        <label data-bind="css: question.getItemCss()">
-            <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, checked: question.koCheckedValue, surveyProp: {indeterminate: question.koIndeterminate}, enable: !question.isReadOnly"
-            />
-            <span data-bind="css: question.koCss().materialDecorator">
-                <span class="check"></span>
-            </span>
-            <span data-bind="css: question.koCss().label">
-                <!-- ko template: { name: 'survey-string', data: locDisplayLabel } -->
-                <!-- /ko -->
-            </span>
-        </label>
-    </div>
+  <div data-bind="css: question.koCss().root">
+      <label data-bind="css: question.getItemCss()">
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isReadOnly"
+          />
+          <span data-bind="css: question.koCss().materialDecorator">
+              <span class="check"></span>
+          </span>
+          <span data-bind="css: question.koCss().label">
+              <!-- ko template: { name: 'survey-string', data: locDisplayLabel } -->
+              <!-- /ko -->
+          </span>
+      </label>
+  </div>
 </script>

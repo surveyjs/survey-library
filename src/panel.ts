@@ -12,7 +12,8 @@ import {
   ISurveyElement,
   IQuestion,
   SurveyElement,
-  SurveyError
+  SurveyError,
+  ISurveyErrorOwner
 } from "./base";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
@@ -89,7 +90,7 @@ export class QuestionRowModel extends Base {
  * A base class for a Panel and Page objects.
  */
 export class PanelModelBase extends SurveyElement
-  implements IPanel, IConditionRunner, ILocalizableOwner {
+  implements IPanel, IConditionRunner, ILocalizableOwner, ISurveyErrorOwner {
   private static panelCounter = 100;
   private static getPanelId(): string {
     return "sp_" + PanelModelBase.panelCounter++;
@@ -417,6 +418,12 @@ export class PanelModelBase extends SurveyElement
       this.errors = errors;
     }
   }
+  //ISurveyErrorOwner
+  getErrorCustomText(text: string, error: SurveyError): string {
+    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    return text;
+  }
+
   private hasRequiredError(rec: any, errors: Array<SurveyError>) {
     if (!this.isRequired) return;
     var visQuestions = <Array<any>>[];
@@ -426,7 +433,7 @@ export class PanelModelBase extends SurveyElement
       if (!visQuestions[i].isEmpty()) return;
     }
     rec.result = true;
-    errors.push(new OneAnswerRequiredError(this.requiredErrorText));
+    errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
     if (!rec.firstErrorQuestion) {
       rec.firstErrorQuestion = visQuestions[0];
     }

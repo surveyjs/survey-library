@@ -59,6 +59,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       if (!!this.question.value) {
         clearButton = (
           <button
+            type="button"
             onClick={this.handleOnClean}
             className={this.question.cssClasses.removeButton}
           >

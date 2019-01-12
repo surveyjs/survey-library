@@ -4,7 +4,7 @@ import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
-import { CustomError } from "./error";
+import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
@@ -19,7 +19,6 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
-  protected cachedValue: any;
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
   /**
@@ -290,6 +289,12 @@ export class QuestionSelectBase extends Question {
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
+  protected get cachedValue(): boolean {
+    return this.getPropertyValue("cachedValue", false);
+  }
+  protected set cachedValue(val: boolean) {
+    this.setPropertyValue("cachedValue", val);
+  }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
    * @see SurveyModel.storeOthersAsComment
@@ -423,7 +428,7 @@ export class QuestionSelectBase extends Question {
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (!this.hasOther || !this.isOtherSelected || this.comment) return;
-    errors.push(new CustomError(this.otherErrorText, this));
+    errors.push(new OtherEmptyError(this.otherErrorText, this));
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);

@@ -1,4 +1,4 @@
-import { Base, SurveyError } from "./base";
+import { Base, SurveyError, ISurveyErrorOwner } from "./base";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -13,7 +13,7 @@ export class ValidatorResult {
  * Base SurveyJS validator class.
  */
 export class SurveyValidator extends Base {
-  public locOwner: ILocalizableOwner;
+  public errorOwner: ISurveyErrorOwner;
   constructor() {
     super();
     this.createLocalizableString("text", this, true);
@@ -49,16 +49,16 @@ export class SurveyValidator extends Base {
     return null;
   }
   getLocale(): string {
-    return this.locOwner ? this.locOwner.getLocale() : "";
+    return !!this.errorOwner ? this.errorOwner.getLocale() : "";
   }
   getMarkdownHtml(text: string): string {
-    return this.locOwner ? this.locOwner.getMarkdownHtml(text) : null;
+    return !!this.errorOwner ? this.errorOwner.getMarkdownHtml(text) : null;
   }
   getProcessedText(text: string): string {
-    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+    return !!this.errorOwner ? this.errorOwner.getProcessedText(text) : text;
   }
   protected createCustomError(name: string): SurveyError {
-    return new CustomError(this.getErrorText(name), this.locOwner);
+    return new CustomError(this.getErrorText(name), this.errorOwner);
   }
 }
 export interface IValidatorOwner {
@@ -107,7 +107,10 @@ export class NumericValidator extends SurveyValidator {
   public validate(value: any, name: string = null): ValidatorResult {
     if (Helpers.isValueEmpty(value)) return null;
     if (!this.isNumber(value)) {
-      return new ValidatorResult(null, new RequreNumericError());
+      return new ValidatorResult(
+        null,
+        new RequreNumericError(null, this.errorOwner)
+      );
     }
     var result = new ValidatorResult(parseFloat(value));
     if (this.minValue !== null && this.minValue > result.value) {

@@ -17,7 +17,7 @@ import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { CustomError } from "./error";
+import { KeyDuplicationError } from "./error";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: QuestionPanelDynamicItem): number;
@@ -1111,7 +1111,9 @@ export class QuestionPanelDynamicModel extends Question
     var value = question.value;
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        question.addError(new CustomError(this.keyDuplicationError, this));
+        question.addError(
+          new KeyDuplicationError(this.keyDuplicationError, this)
+        );
         return true;
       }
     }

@@ -52,6 +52,7 @@ export class Question extends SurveyElement
   private questionComment: string;
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
+  private conditionRequiredRunner: ConditionRunner;
   valueChangedCallback: () => void;
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
@@ -63,7 +64,7 @@ export class Question extends SurveyElement
     this.onCreating();
     var self = this;
     this.createNewArray("validators", function(validator: any) {
-      validator.locOwner = self;
+      validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
     locTitleValue.onRenderedHtmlCallback = function(text) {
@@ -613,6 +614,18 @@ export class Question extends SurveyElement
     }
   }
   /**
+   * An expression that returns true or false. If it returns true the Question becomes required and an end-user has to answer it.
+   * If it returns false the Question then an end-user may not answer it the Question maybe empty.
+   * The library runs the expression on survey start and on changing a question value. If the property is empty then isRequired property is used.
+   * @see isRequired
+   */
+  public get requiredIf(): string {
+    return this.getPropertyValue("requiredIf", "");
+  }
+  public set requiredIf(val: string) {
+    this.setPropertyValue("requiredIf", val);
+  }
+  /**
    * Set it to true, to add a comment for the question.
    */
   public get hasComment(): boolean {
@@ -689,6 +702,7 @@ export class Question extends SurveyElement
       this.runVisibleIfCondition(values, properties);
     }
     this.runEnableIfCondition(values, properties);
+    this.runRequiredIfCondition(values, properties);
   }
   private runVisibleIfCondition(
     values: HashTable<any>,
@@ -709,6 +723,16 @@ export class Question extends SurveyElement
       this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
     this.conditionEnabelRunner.expression = this.enableIf;
     this.readOnly = !this.conditionEnabelRunner.run(values, properties);
+  }
+  private runRequiredIfCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.requiredIf) return;
+    if (!this.conditionRequiredRunner)
+      this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
+    this.conditionRequiredRunner.expression = this.requiredIf;
+    this.isRequired = this.conditionRequiredRunner.run(values, properties);
   }
   protected get no(): string {
     if (this.visibleIndex < 0) return "";
@@ -956,7 +980,7 @@ export class Question extends SurveyElement
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     if (this.hasRequiredError()) {
-      errors.push(new AnswerRequiredError(this.requiredErrorText));
+      errors.push(new AnswerRequiredError(this.requiredErrorText, this));
     }
   }
   protected hasRequiredError(): boolean {
@@ -1060,7 +1084,11 @@ export class Question extends SurveyElement
     if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
-
+  //ISurveyErrorOwner
+  getErrorCustomText(text: string, error: SurveyError): string {
+    if (!!this.survey) return this.survey.getErrorCustomText(text, error);
+    return text;
+  }
   //IValidatorOwner
   getValidatorTitle(): string {
     return null;
@@ -1103,6 +1131,7 @@ JsonObject.metaData.addClass("question", [
   "defaultValue:value",
   "correctAnswer:value",
   "isRequired:boolean",
+  "requiredIf:condition",
   {
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText"

@@ -1707,3 +1707,28 @@ QUnit.test(
     assert.equal(survey.state, "completed", "The survey is completed");
   }
 );
+
+QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function(
+  assert
+) {
+  var survey = new Survey();
+  var page = survey.addNewPage("page");
+  var q1 = <QuestionCheckbox>page.addNewQuestion("checkbox", "q1");
+  q1.choices = [1, 2];
+  q1.hasOther = true;
+  q1.storeOthersAsComment = false;
+  var counter = 0;
+
+  ko.computed(() => {
+    var v = q1.isOtherSelected;
+    counter++;
+  });
+
+  q1.value = "other";
+
+  assert.equal(
+    counter,
+    2,
+    "computed has been triggered"
+  );
+});

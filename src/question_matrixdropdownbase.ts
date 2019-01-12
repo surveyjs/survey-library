@@ -294,6 +294,12 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   public set enableIf(val: string) {
     this.templateQuestion.enableIf = val;
   }
+  public get requiredIf(): string {
+    return this.templateQuestion.requiredIf;
+  }
+  public set requiredIf(val: string) {
+    this.templateQuestion.requiredIf = val;
+  }
   public get validators(): Array<SurveyValidator> {
     return this.templateQuestion.validators;
   }
@@ -1304,6 +1310,7 @@ JsonObject.metaData.addClass(
     "minWidth",
     "visibleIf:condition",
     "enableIf:condition",
+    "requiredIf:condition",
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",

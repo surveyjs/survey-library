@@ -46,12 +46,12 @@ export class SurveyPanelBase extends SurveyElementBase {
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
+    if (prevProps.page.name === this.survey.currentPage.name) return;
     this.doAfterRender();
   }
   private doAfterRender() {
     var el: any = this.refs["root"];
-    if (el && this.survey && el.getAttribute("data-rendered") !== "r") {
-      el.setAttribute("data-rendered", "r");
+    if (el && this.survey) {
       if (this.panelBase.isPanel) {
         this.survey.afterRenderPanel(this.panelBase as PanelModel, el);
       } else {

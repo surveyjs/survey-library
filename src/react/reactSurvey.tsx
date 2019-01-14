@@ -252,6 +252,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
           let func = function(sender: any, options: any) {
             funcBody(sender, options);
           };
+          this.survey[key].clear();
           this.survey[key].add(func);
         } else {
           this.survey[key] = newProps[key];

@@ -5,6 +5,7 @@ import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Panel");
 
@@ -208,6 +209,42 @@ QUnit.test("Panel.isRequired", function(assert) {
     panel.hasErrors(),
     false,
     "There is no visible questions in the panel"
+  );
+});
+
+QUnit.test("Panel with paneldynamic error focus", function(assert) {
+  var json = {
+    elements: [
+      {
+        name: "p1",
+        type: "panel",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "paneldynamic1",
+            panelCount: 1,
+            templateElements: [
+              { type: "text", name: "textinpd", isRequired: true }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var rec = {
+    focuseOnFirstError: true,
+    firstErrorQuestion: <any>null
+  };
+  var panel = survey.getPanelByName("p1");
+
+  survey.isCurrentPageHasErrors;
+  panel["hasErrorsCore"](rec);
+
+  assert.equal(
+    rec.firstErrorQuestion.name,
+    "textinpd",
+    "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
   );
 });
 

@@ -14,6 +14,8 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1132,6 +1134,36 @@ QUnit.test("Two PanelDynamic questions bound to the same value", function(
   assert.equal(q1.panelCount, 1, "q1: One panel was removed");
   assert.equal(q2.panelCount, 1, "q2: One panel was removed");
 });
+QUnit.test(
+  "PanelDynamic vs MatrixDynamic questions bound to the same value on different pages, bug#T464",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage("p1");
+    var page2 = survey.addNewPage("p2");
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    matrix.valueName = "val";
+    matrix.addColumn("t1");
+    matrix.rowCount = 1;
+    var panel = new QuestionPanelDynamicModel("q2");
+    panel.valueName = "val";
+    panel.template.addNewQuestion("text", "t1");
+    panel.template.addNewQuestion("text", "t2");
+    page1.addElement(matrix);
+    page2.addElement(panel);
+
+    matrix.value = [{ t1: "test" }];
+    assert.equal(
+      panel.panelCount,
+      1,
+      "By default there are two panels in panel2"
+    );
+    matrix.value = [{ t1: "test" }, { t1: "test2" }];
+    assert.equal(panel.panelCount, 2, "One row and one panel were added");
+    matrix.removeRow(1);
+    assert.equal(panel.panelCount, 1, "matrix: One row was removed");
+    assert.equal(panel.panelCount, 1, "panel: One panel was removed");
+  }
+);
 QUnit.test("panelDynamic.addConditionNames", function(assert) {
   var names = [];
   var panel = new QuestionPanelDynamicModel("panel");

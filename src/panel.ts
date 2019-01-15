@@ -21,6 +21,7 @@ import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
+import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 
 export class DragDropInfo {
   constructor(
@@ -436,12 +437,24 @@ export class PanelModelBase extends SurveyElement
     }
   }
   protected hasErrorsCore(rec: any) {
-    for (var i = 0; i < this.elements.length; i++) {
-      if (!this.elements[i].isVisible) continue;
-      if (this.elements[i].isPanel) {
-        (<PanelModelBase>(<any>this.elements[i])).hasErrorsCore(rec);
+    var elements = this.elements;
+    var element = null;
+
+    for (var i = 0; i < elements.length; i++) {
+      element = elements[i];
+
+      if (!element.isVisible) continue;
+
+      if (element.isPanel) {
+        (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
+      } else if (element.getType() === "paneldynamic") {
+        (<QuestionPanelDynamic>element).panels.forEach(
+          (panel: PanelModelBase) => {
+            panel.hasErrorsCore(rec);
+          }
+        );
       } else {
-        var question = <Question>this.elements[i];
+        var question = <Question>element;
         if (question.isReadOnly) continue;
         if (question.hasErrors(rec.fireCallback)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {

@@ -1,7 +1,8 @@
 <template>
     <td :class="question.cssClasses.itemValue" :headers="cell.question.isVisible ? cell.column.locTitle.renderedHtml : ''">
-        <survey-errors :question="cell.question" />
+        <survey-errors v-if="hasErrorsOnTop" :question="cell.question" />
         <component v-show="isVisible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
+        <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" />
     </td>
 </template>
 
@@ -22,6 +23,12 @@ export class MatrixCell extends Vue {
       return "survey-customwidget";
     }
     return "survey-" + element.getType();
+  }
+  get hasErrorsOnTop() {
+    return this.cell.question.survey.questionErrorLocation === "top";
+  }
+  get hasErrorsOnBottom() {
+    return this.cell.question.survey.questionErrorLocation === "bottom"
   }
   mounted() {
     if (!this.cell || !this.cell.question || !this.cell.question.survey) return;

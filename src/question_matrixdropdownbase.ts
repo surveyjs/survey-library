@@ -147,7 +147,7 @@ export var matrixDropdownColumnTypes = {
     }
   },
   expression: {
-    properties: ["expression"],
+    properties: ["expression", "displayStyle", "currency"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,

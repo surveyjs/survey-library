@@ -2,7 +2,9 @@
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.koCss().selectWrapper">
       <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.value, valueAllowUnset: true, css: question.koCss().control">
+        <!-- ko if: question.showOptionsCaption -->
         <option data-bind="text:question.optionsCaption, value: null"></option>
+        <!-- /ko -->
         <!-- ko foreach: question.visibleChoices -->
         <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
         <!-- /ko -->

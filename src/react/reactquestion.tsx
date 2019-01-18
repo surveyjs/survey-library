@@ -278,6 +278,10 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
         creator={this.creator}
       />
     );
+    var errorsTop =
+      this.creator.questionErrorLocation() === "top" ? errors : null;
+    var errorsBottom =
+      this.creator.questionErrorLocation() === "bottom" ? errors : null;
     var renderedCell = this.renderCell();
     return (
       <td
@@ -289,8 +293,9 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
             : ""
         }
       >
-        {errors}
+        {errorsTop}
         {renderedCell}
+        {errorsBottom}
       </td>
     );
   }

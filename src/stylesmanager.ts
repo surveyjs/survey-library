@@ -356,7 +356,8 @@ export class StylesManager {
 
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
-    ".sv_main .sv_p_description": "padding-left: 1.66em;"
+    ".sv_main .sv_p_description": "padding-left: 1.66em;",
+    ".sv_main .sv_qstn_error_bottom": "margin-top: 20px; margin-bottom: 0;"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {

@@ -41,9 +41,10 @@ export var defaultBootstrapCss = {
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
-    item: ""
+    item: "",
+    locationTop: "sv_qstn_error_top",
+    locationBottom: "sv_qstn_error_bottom"
   },
-
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",

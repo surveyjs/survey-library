@@ -303,8 +303,11 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     cssClasses: any
   ): JSX.Element {
     return (
-      <div key={key} className={cssClasses.error.item}>
-        <SurveyLocString locStr={error.locText} />
+      <div key={key}>
+        <span className={cssClasses.error.icon} aria-hidden="true" />
+        <span className={cssClasses.error.item}>
+          <SurveyLocString locStr={error.locText} />
+        </span>
       </div>
     );
   }

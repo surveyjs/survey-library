@@ -90,11 +90,14 @@ export class SurveyQuestion extends SurveyElementBase {
       this.question && this.question.hasComment
         ? this.renderComment(cssClasses)
         : null;
-    var errors = this.renderErrors(cssClasses);
     var errorsTop =
-      this.creator.questionErrorLocation() === "top" ? errors : null;
+      this.creator.questionErrorLocation() === "top"
+        ? this.renderErrors(cssClasses, "top")
+        : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom" ? errors : null;
+      this.creator.questionErrorLocation() === "bottom"
+        ? this.renderErrors(cssClasses, "bottom")
+        : null;
     let rootStyle: { [index: string]: any } = {};
     if (this.question.renderWidth)
       rootStyle["width"] = this.question.renderWidth;
@@ -164,12 +167,13 @@ export class SurveyQuestion extends SurveyElementBase {
       </div>
     );
   }
-  protected renderErrors(cssClasses: any): JSX.Element {
+  protected renderErrors(cssClasses: any, location: string): JSX.Element {
     return (
       <SurveyElementErrors
         element={this.question}
         cssClasses={cssClasses}
         creator={this.creator}
+        location={location}
       />
     );
   }
@@ -178,16 +182,20 @@ export class SurveyQuestion extends SurveyElementBase {
 export class SurveyElementErrors extends ReactSurveyElement {
   protected element: SurveyElement;
   private creator: ISurveyCreator;
+  protected location: String;
+
   constructor(props: any) {
     super(props);
     this.setElement(props.element);
     this.state = this.getState();
     this.creator = props.creator;
+    this.location = props.location;
   }
   componentWillReceiveProps(nextProps: any) {
     this.setElement(nextProps.element);
     this.setState(this.getState());
     this.creator = nextProps.creator;
+    this.location = nextProps.location;
   }
   private setElement(element: any) {
     this.element = element instanceof SurveyElement ? element : null;
@@ -204,8 +212,16 @@ export class SurveyElementErrors extends ReactSurveyElement {
         this.creator.renderError(key, this.element.errors[i], this.cssClasses)
       );
     }
+    var classes = this.cssClasses.error.root;
+
+    if (this.location === "top") {
+      classes += " " + this.cssClasses.error.locationTop;
+    } else if (this.location === "bottom") {
+      classes += " " + this.cssClasses.error.locationBottom;
+    }
+
     return (
-      <div role="alert" className={this.cssClasses.error.root}>
+      <div role="alert" className={classes}>
         {errors}
       </div>
     );
@@ -271,17 +287,26 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   render(): JSX.Element {
     if (!this.question) return null;
-    var errors = (
+    var errorsTop = (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
         creator={this.creator}
+        location={"top"}
+      />
+    );
+    var errorsBottom = (
+      <SurveyElementErrors
+        element={this.question}
+        cssClasses={this.cssClasses}
+        creator={this.creator}
+        location={"bottom"}
       />
     );
     var errorsTop =
-      this.creator.questionErrorLocation() === "top" ? errors : null;
+      this.creator.questionErrorLocation() === "top" ? errorsTop : null;
     var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom" ? errors : null;
+      this.creator.questionErrorLocation() === "bottom" ? errorsBottom : null;
     var renderedCell = this.renderCell();
     return (
       <td

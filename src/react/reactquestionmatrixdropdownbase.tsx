@@ -215,6 +215,12 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     }
   }
   protected getCellClass(): any {
-    return this.cssClasses.itemValue;
+    var cellClass = this.cell.question.cssClasses.itemValue;
+    var question = this.cell.question;
+
+    if (question.errors.length !== 0)
+      cellClass += " " + question.cssClasses.hasError;
+
+    return cellClass;
   }
 }

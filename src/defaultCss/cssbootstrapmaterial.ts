@@ -41,7 +41,9 @@ export var defaultBootstrapMaterialCss = {
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
-    item: ""
+    item: "",
+    locationTop: "sv_qstn_error_top",
+    locationBottom: "sv_qstn_error_bottom"
   },
 
   boolean: {

@@ -1118,14 +1118,40 @@ export class QuestionPanelDynamicModel extends Question
     keyValues.push(value);
     return false;
   }
+  private isAddingNewPanel: boolean = false;
+  private addingNewPanelValue: any;
+  private addingNewPanelValueChanged: boolean;
   protected createNewPanel(): PanelModel {
+    this.isAddingNewPanel = true;
+    this.addingNewPanelValue = this.value;
+    this.addingNewPanelValueChanged = false;
     var panel = this.createAndSetupNewPanelObject();
     var json = this.template.toJSON();
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     new QuestionPanelDynamicItem(this, panel);
+    this.isAddingNewPanel = false;
+    if (this.addingNewPanelValueChanged) {
+      this.isValueChangingInternally = true;
+      this.value = this.addingNewPanelValue;
+      this.isValueChangingInternally = false;
+    }
     return panel;
   }
+  protected getValueCore() {
+    return this.isAddingNewPanel
+      ? this.addingNewPanelValue
+      : super.getValueCore();
+  }
+  protected setValueCore(newValue: any) {
+    this.addingNewPanelValueChanged = true;
+    if (this.isAddingNewPanel) {
+      this.addingNewPanelValue = newValue;
+    } else {
+      super.setValueCore(newValue);
+    }
+  }
+
   protected createAndSetupNewPanelObject(): PanelModel {
     var panel = this.createNewPanelObject();
     var self = this;

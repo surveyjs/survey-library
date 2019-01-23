@@ -39,6 +39,7 @@ export class StylesManager {
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
+    ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
     ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
     ".sv_qstn td": "position: relative;",

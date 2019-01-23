@@ -1475,6 +1475,97 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
   assert.ok(panel.panels[0].questions[0].survey, "The survey is set for panel");
 });
 
+QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrixdynamic",
+            rowCount: 1,
+            name: "employer_names",
+            valueName: "employers",
+            columns: [
+              {
+                name: "name",
+                cellType: "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "paneldynamic",
+            renderMode: "list",
+            name: "arrray_employer_info",
+            valueName: "employers",
+            templateElements: [
+              {
+                type: "panel",
+                name: "panel_employer_role",
+                elements: [
+                  {
+                    type: "radiogroup",
+                    choices: ["Full time", "Part time", "Casual", "Seasonal"],
+                    name: "employer_role",
+                    valueName: "role"
+                  }
+                ]
+              },
+              {
+                type: "panel",
+                name: "panel_employer_hours_work",
+                title: "What hours do you work?",
+                elements: [
+                  {
+                    type: "text",
+                    inputType: "number",
+                    name: "member_hours_worked",
+                    valueName: "hours_worked",
+                    title: "Hours:"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.mode = "display";
+
+  survey.data = {
+    employers: [
+      {
+        name: "aaaa",
+        address: "sasa",
+        role: "Full time",
+        hours_worked: 4
+      },
+      {
+        name: "bbbb",
+        address: "aaaaa",
+        role: "Part time",
+        hours_worked: 4
+      }
+    ]
+  };
+
+  survey.isSinglePage = true;
+  var dPanel = <QuestionPanelDynamicModel>survey.getQuestionByName(
+    "arrray_employer_info"
+  );
+  assert.ok(dPanel, "Get question correctly");
+  assert.equal(dPanel.panelCount, 2, "There should be two panels");
+});
+
 QUnit.test(
   "Nested dynamic panel doesn't set data correctly, Bug#1096",
   function(assert) {

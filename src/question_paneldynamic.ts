@@ -45,7 +45,6 @@ export class QuestionPanelDynamicItem
       self.getProcessedTextValue(textValue);
     };
     this.setSurveyImpl();
-    this.panel.updateCustomWidgets();
   }
   public get panel(): PanelModel {
     return this.panelValue;
@@ -148,6 +147,19 @@ export class QuestionPanelDynamicItem
   }
 }
 
+export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
+  constructor(public data: IQuestionPanelDynamicData) {}
+  geSurveyData(): ISurveyData {
+    return null;
+  }
+  getSurvey(): ISurvey {
+    return this.data.getSurvey();
+  }
+  getTextProcessor(): ITextProcessor {
+    return null;
+  }
+}
+
 /**
  * A Model for a panel dymanic question. You setup the template panel, but adding elements (any question or a panel) and assign a text to it's title, and this panel will be used as a template on creating dynamic panels. The number of panels is defined by panelCount property.
  * An end-user may dynamically add/remove panels, unless you forbidden this.
@@ -192,7 +204,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    this.template.setSurveyImpl(this.surveyImpl);
+    this.setTemplatePanelSurveyImpl();
+    this.setPanelsSurveyImpl();
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -553,6 +566,13 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set panelsState(val: string) {
     this.setPropertyValue("panelsState", val);
+  }
+  private setTemplatePanelSurveyImpl() {
+    this.template.setSurveyImpl(
+      this.isDesignMode
+        ? this.surveyImpl
+        : new QuestionPanelDynamicTemplateSurveyImpl(this)
+    );
   }
   private setPanelsSurveyImpl() {
     for (var i = 0; i < this.panels.length; i++) {
@@ -1129,6 +1149,7 @@ export class QuestionPanelDynamicModel extends Question
     var json = this.template.toJSON();
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
+    panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
     this.isAddingNewPanel = false;
     if (this.addingNewPanelValueChanged) {
@@ -1144,8 +1165,8 @@ export class QuestionPanelDynamicModel extends Question
       : super.getValueCore();
   }
   protected setValueCore(newValue: any) {
-    this.addingNewPanelValueChanged = true;
     if (this.isAddingNewPanel) {
+      this.addingNewPanelValueChanged = true;
       this.addingNewPanelValue = newValue;
     } else {
       super.setValueCore(newValue);
@@ -1200,7 +1221,7 @@ export class QuestionPanelDynamicModel extends Question
   protected onSetData() {
     super.onSetData();
     if (this.isDesignMode) {
-      this.template.setSurveyImpl(this.surveyImpl);
+      this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }
   }

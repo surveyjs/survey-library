@@ -2066,3 +2066,101 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
+  assert
+) {
+  var ljson = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "dp1",
+            templateElements: [
+              {
+                type: "paneldynamic",
+                name: "dp2",
+                templateElements: [
+                  {
+                    type: "text",
+                    name: "q1"
+                  }
+                ],
+                panelCount: 1
+              }
+            ],
+            panelCount: 1
+          }
+        ]
+      }
+    ]
+  };
+  var lsurvey = new SurveyModel(ljson);
+  assert.deepEqual(
+    lsurvey.data,
+    { dp1: [{ dp2: [{}] }] },
+    "Has only one element in they array"
+  );
+
+  var dp1 = <QuestionPanelDynamicModel>lsurvey.currentPage.getQuestionByName(
+    "dp1"
+  );
+  var dp2 = <QuestionPanelDynamicModel>dp1.panels[0].getQuestionByName("dp2");
+  var q1 = dp2.panels[0].questions[0];
+  q1.value = "val1";
+  assert.deepEqual(
+    lsurvey.data,
+    { dp1: [{ dp2: [{ q1: "val1" }] }] },
+    "The result is correct"
+  );
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "dp1",
+            templateElements: [
+              {
+                type: "paneldynamic",
+                name: "dp2",
+                templateElements: [
+                  {
+                    type: "paneldynamic",
+                    name: "dp3",
+                    templateElements: [
+                      {
+                        type: "paneldynamic",
+                        name: "dp4",
+                        templateElements: [
+                          {
+                            type: "text",
+                            name: "q1",
+                            defaultValue: "val1"
+                          }
+                        ],
+                        panelCount: 1
+                      }
+                    ],
+                    panelCount: 1
+                  }
+                ],
+                panelCount: 1
+              }
+            ],
+            panelCount: 1
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.deepEqual(
+    survey.data,
+    { dp1: [{ dp2: [{ dp3: [{ dp4: [{ q1: "val1" }] }] }] }] },
+    "The result is correct"
+  );
+});

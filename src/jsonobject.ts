@@ -132,8 +132,14 @@ export class JsonObjectProperty implements IObject {
       ? className + this.classNamePart
       : className;
   }
+  /**
+   * Depricated, please use getChoices
+   */
   public get choices(): Array<any> {
     return this.getChoices(null);
+  }
+  public get hasChoices(): boolean {
+    return !!this.choicesValue || !!this.choicesfunc;
   }
   public getChoices(obj: any): Array<any> {
     if (this.choicesValue != null) return this.choicesValue;

@@ -240,7 +240,7 @@ export class Question extends SurveyElement
     if (this.survey && this.survey.isDesignMode) {
       this.onVisibleChanged();
     }
-    if (this.data && !this.isLoadingFromJson) {
+    if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()

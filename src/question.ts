@@ -230,7 +230,7 @@ export class Question extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    if (this.survey && this.survey.isDesignMode) {
+    if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
       this.onVisibleChanged();
     }
     if (this.data && !this.isLoadingFromJson) {

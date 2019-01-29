@@ -1,26 +1,26 @@
 <template>
-  <div :class="questionRootClass">
-    <div v-if="question.hasTitleOnLeftTop" :class="question.hasTitleOnLeft ? 'title-left' : ''">
-      <h5 v-if="question.hasTitle" :class="question.cssClasses.title">
-        <survey-string :locString="question.locTitle"/>
+  <div :class="getQuestionClass(element)">
+    <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
+      <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
+        <survey-string :locString="element.locTitle"/>
       </h5>
-      <div v-if="!question.locDescription.isEmpty" :class="question.cssClasses.description">
-        <survey-string :locString="question.locDescription"/>
+      <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description">
+        <survey-string :locString="element.locDescription"/>
       </div>
     </div>
-    <div :class="question.hasTitleOnLeft ? 'content-left' : ''">
-      <survey-errors v-if="hasErrorsOnTop" :question="question"/>
-      <component :is="widgetComponentName" :question="question" :css="css"/>
-      <div v-if="question.hasComment">
-        <div>{{question.commentText}}</div>
-        <survey-other-choice :commentClass="css.comment" :question="question"/>
+    <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
+      <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'"/>
+      <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
+      <div v-if="element.hasComment">
+        <div>{{element.commentText}}</div>
+        <survey-other-choice :commentClass="css.comment" :question="element"/>
       </div>
-      <survey-errors v-if="hasErrorsOnBottom" :question="question"/>
-      <h5 v-if="question.hasTitleOnBottom" :class="question.cssClasses.title">
-        <survey-string :locString="question.locTitle"/>
+      <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'"/>
+      <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title">
+        <survey-string :locString="element.locTitle"/>
       </h5>
-      <div v-if="!question.locDescription.isEmpty" v-show="question.hasTitleOnBottom">
-        <survey-string :locString="question.locDescription"/>
+      <div v-if="!element.locDescription.isEmpty" v-show="element.hasTitleOnBottom">
+        <survey-string :locString="element.locDescription"/>
       </div>
     </div>
   </div>

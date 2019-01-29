@@ -42,8 +42,18 @@ export var defaultStandardCss = {
     indent: 20,
     footer: "sv_q_footer"
   },
-  panel: { title: "sv_p_title", description: "sv_p_description", container: "sv_p_container" },
-  error: { root: "sv_q_erbox", icon: "", item: "" },
+  panel: {
+    title: "sv_p_title",
+    description: "sv_p_description",
+    container: "sv_p_container"
+  },
+  error: {
+    root: "sv_q_erbox",
+    icon: "",
+    item: "",
+    locationTop: "sv_qstn_error_top",
+    locationBottom: "sv_qstn_error_bottom"
+  },
 
   boolean: {
     root: "sv_qcbc sv_qbln",

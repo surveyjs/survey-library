@@ -147,7 +147,7 @@ export var matrixDropdownColumnTypes = {
     }
   },
   expression: {
-    properties: ["expression"],
+    properties: ["expression", "displayStyle", "currency"],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -299,6 +299,9 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public set requiredIf(val: string) {
     this.templateQuestion.requiredIf = val;
+  }
+  public get hasCondition(): boolean {
+    return !!this.visibleIf || !this.enableIf || !this.requiredIf;
   }
   public get validators(): Array<SurveyValidator> {
     return this.templateQuestion.validators;
@@ -915,7 +918,7 @@ export class QuestionMatrixDropdownModelBase
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if (!this.generatedVisibleRows) return;
+    if (!this.generatedVisibleRows || !this.hasCellsCondition) return;
     var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
@@ -925,6 +928,12 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < rows.length; i++) {
       rows[i].runCondition(newValues, properties);
     }
+  }
+  private get hasCellsCondition(): boolean {
+    for (var i = 0; i < this.columns.length; i++) {
+      if (this.columns[i].hasCondition) return true;
+    }
+    return false;
   }
   public locStrsChanged() {
     super.locStrsChanged();

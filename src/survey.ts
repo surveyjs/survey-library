@@ -1883,6 +1883,7 @@ export class SurveyModel extends Base
       this.pages.splice(startIndex, deletedLen, singlePage);
       super.endLoadingFromJson();
       singlePage.endLoadingFromJson();
+      singlePage.setSurveyImpl(this);
       this.doElementsOnLoad();
     }
     this.updateVisibleIndexes();

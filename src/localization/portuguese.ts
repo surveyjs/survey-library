@@ -4,7 +4,10 @@ export var portugueseSurveyStrings = {
   pagePrevText: "Anterior",
   pageNextText: "Próximo",
   completeText: "Finalizar",
+  startSurveyText: "Começar",
   otherItemText: "Outros (descrever)",
+  noneItemText: "Nenhum",
+  selectAllItemText: "Selecionar Todos",
   progressText: "Pagina {0} de {1}",
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   completingSurvey: "Obrigado por finalizar a pesquisa!",
@@ -14,8 +17,8 @@ export var portugueseSurveyStrings = {
   optionsCaption: "Selecione...",
   value: "valor",
   requiredError: "Por favor, responda a pergunta.",
-  requiredInAllRowsError:
-    "Por favor, responda as perguntas em todas as linhas.",
+  requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
+  requiredInAllRowsError: "Por favor, responda as perguntas em todas as linhas.",
   numericError: "O valor deve ser numérico.",
   textMinLength: "Por favor, insira pelo menos {0} caracteres.",
   textMaxLength: "Por favor, insira menos de {0} caracteres.",
@@ -28,6 +31,7 @@ export var portugueseSurveyStrings = {
   numericMin: "O '{0}' deve ser igual ou superior a {1}",
   numericMax: "O '{0}' deve ser igual ou inferior a {1}",
   invalidEmail: "Por favor, informe um e-mail válido.",
+  invalidExpression: "A expressão: {0} deve retornar 'verdadeiro'.",
   urlRequestError: "A requisição retornou o erro '{0}'. {1}",
   urlGetChoicesError:
     "A requisição não retornou dados ou o 'caminho' da requisição não está correto",
@@ -35,6 +39,11 @@ export var portugueseSurveyStrings = {
   otherRequiredError: "Por favor, informe o outro valor.",
   uploadingFile:
     "Seu arquivo está sendo carregado. Por favor, aguarde alguns segundos e tente novamente.",
+  loadingFile: "Carregando...",
+  chooseFile: "Selecione o(s) arquivo(s)...",
+  confirmDelete: "Tem certeza que deseja deletar?",
+  keyDuplicationError: "Esse valor deve ser único.",
+  addColumn: "Adicionar coluna",
   addRow: "Adicionar linha",
   removeRow: "Remover linha",
   addPanel: "Adicionar novo",
@@ -45,7 +54,19 @@ export var portugueseSurveyStrings = {
   savingData: "Os resultados esto sendo salvos no servidor...",
   savingDataError: "Ocorreu um erro e não foi possível salvar os resultados.",
   savingDataSuccess: "Os resultados foram salvos com sucesso!",
-  saveAgainButton: "Tente novamente"
+  saveAgainButton: "Tente novamente",
+  timerMin: "min",
+  timerSec: "seg",
+  timerSpentAll: "Você gastou {0} nesta página e {1} no total.",
+  timerSpentPage: "Você gastou {0} nesta página.",
+  timerSpentSurvey: "Você gastou {0} no total.",
+  timerLimitAll:
+    "Você gastou {0} de {1} nesta página e {2} de {3} no total.",
+  timerLimitPage: "Você gastou {0} de {1} nesta página.",
+  timerLimitSurvey: "Você gastou {0} de {1} no total.",
+  cleanCaption: "Limpar",
+  clearCaption: "Limpar",
+  removeFileCaption: "Remover este arquivo"
 };
 
 surveyLocalization.locales["pt"] = portugueseSurveyStrings;

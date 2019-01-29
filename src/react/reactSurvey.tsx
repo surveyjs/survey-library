@@ -29,12 +29,12 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.state = this.getState();
-    this.updateSurvey(props);
+    this.updateSurvey(props, null);
   }
   componentWillReceiveProps(nextProps: any) {
     this.unMakeBaseElementReact(this.survey);
     this.setState(this.getState());
-    this.updateSurvey(nextProps);
+    this.updateSurvey(nextProps, this.props);
     this.makeBaseElementReact(this.survey);
   }
   componentDidUpdate() {
@@ -224,7 +224,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     return <span>{this.survey.emptySurveyText}</span>;
   }
 
-  protected updateSurvey(newProps: any) {
+  protected updateSurvey(newProps: any, oldProps: any) {
     if (newProps) {
       if (newProps.model) {
         this.survey = newProps.model;
@@ -248,11 +248,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
           this.survey[key] &&
           this.survey[key].add
         ) {
-          let funcBody = newProps[key];
-          let func = function(sender: any, options: any) {
-            funcBody(sender, options);
-          };
-          this.survey[key].add(func);
+          if (oldProps) {
+            this.survey[key].remove(oldProps[key]);
+          }
+          this.survey[key].add(newProps[key]);
         } else {
           this.survey[key] = newProps[key];
         }
@@ -304,8 +303,11 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     cssClasses: any
   ): JSX.Element {
     return (
-      <div key={key} className={cssClasses.error.item}>
-        <SurveyLocString locStr={error.locText} />
+      <div key={key}>
+        <span className={cssClasses.error.icon} aria-hidden="true" />
+        <span className={cssClasses.error.item}>
+          <SurveyLocString locStr={error.locText} />
+        </span>
       </div>
     );
   }

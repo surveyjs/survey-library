@@ -12,7 +12,6 @@ import { PanelModel } from "../panel";
 import { Panel } from "./kopage";
 
 export class QuestionPanelDynamicImplementor extends QuestionImplementor {
-  koPanels: any;
   koRecalc: any;
   koAddPanelClick: any;
   koRemovePanelClick: any;
@@ -32,12 +31,6 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     this.koRecalc = ko.observable(0);
-    this.koPanels = ko.pureComputed(function() {
-      this.koRecalc();
-      return (<QuestionPanelDynamic>this.question).panels;
-    }, this);
-
-    (<any>this.question)["koPanels"] = this.koPanels;
     var self = this;
     this.koAddPanelClick = function() {
       self.addPanel();

@@ -71,7 +71,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
         >
-          <option value="">{this.question.optionsCaption}</option>
+          (this.question.showOptionsCaption ? (<option value="">
+            {this.question.optionsCaption}
+          </option>) : null)
           {options}
         </select>
       </div>

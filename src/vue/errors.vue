@@ -1,8 +1,11 @@
 <template>
-  <div role="alert" v-show="errors.length > 0" :class="errorsClass">
-    <div v-for="error in errors">
-      <span :class="errorIcon" aria-hidden="true"></span>
-      <span :class="errorItem">
+  <div role="alert" v-show="isShow" :class="classes">
+    <div v-for="error in question.errors">
+      <span
+        :class="question.cssClasses ? question.cssClasses.error.icon : 'panel-error-icon'"
+        aria-hidden="true"
+      ></span>
+      <span :class="question.cssClasses ? question.cssClasses.error.item : 'panel-error-item'">
         <survey-string :locString="error.locText"/>
       </span>
     </div>
@@ -18,28 +21,29 @@ import { SurveyError } from "../base";
 @Component
 export class Errors extends Vue {
   @Prop question: Question;
-  get errors(): Array<SurveyError> {
-    return !!this.question ? this.question.errors : [];
+  @Prop location: String;
+
+  get isShow() {
+    return !!this.question.errors && this.question.errors.length > 0
   }
-  get questionCss(): any {
-    return !!this.question && !!this.question.cssClasses
-      ? this.question.cssClasses
-      : null;
-  }
-  get errorsClass(): string {
-    return !!this.questionCss
-      ? this.questionCss.error.root
+
+  get classes() {
+    var question = this.question;
+    var classes = question.cssClasses
+      ? question.cssClasses.error.root
       : "panel-error-root";
-  }
-  get errorIcon(): string {
-    return !!this.questionCss
-      ? this.questionCss.error.icon
-      : "panel-error-icon";
-  }
-  get errorItem(): string {
-    return !!this.questionCss
-      ? this.questionCss.error.item
-      : "panel-error-item";
+
+    var additionalClasses = "";
+
+    if (this.location === "top") {
+      additionalClasses = question.cssClasses.error.locationTop;
+    } else if (this.location === "bottom") {
+      additionalClasses = question.cssClasses.error.locationBottom;
+    }
+
+    if (additionalClasses) classes += " " + additionalClasses;
+
+    return classes;
   }
 }
 Vue.component("survey-errors", Errors);

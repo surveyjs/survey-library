@@ -13,6 +13,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.createLocalizableString("optionsCaption", this);
   }
   /**
+   * This flag controls whether to show options caption item ('Choose...').
+   */
+  public get showOptionsCaption(): boolean {
+    return this.getPropertyValue("showOptionsCaption", true);
+  }
+  public set showOptionsCaption(val: boolean) {
+    this.setPropertyValue("showOptionsCaption", val);
+  }
+  /**
    * Use this property to set the options caption different from the default value. The default value is taken from localization strings.
    */
   public get optionsCaption() {
@@ -36,7 +45,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 }
 JsonObject.metaData.addClass(
   "dropdown",
-  [{ name: "optionsCaption", serializationProperty: "locOptionsCaption" }],
+  [
+    { name: "optionsCaption", serializationProperty: "locOptionsCaption" },
+    { name: "showOptionsCaption:boolean", default: true }
+  ],
   function() {
     return new QuestionDropdownModel("");
   },

@@ -14,6 +14,8 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -1132,6 +1134,36 @@ QUnit.test("Two PanelDynamic questions bound to the same value", function(
   assert.equal(q1.panelCount, 1, "q1: One panel was removed");
   assert.equal(q2.panelCount, 1, "q2: One panel was removed");
 });
+QUnit.test(
+  "PanelDynamic vs MatrixDynamic questions bound to the same value on different pages, bug#T464",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage("p1");
+    var page2 = survey.addNewPage("p2");
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    matrix.valueName = "val";
+    matrix.addColumn("t1");
+    matrix.rowCount = 1;
+    var panel = new QuestionPanelDynamicModel("q2");
+    panel.valueName = "val";
+    panel.template.addNewQuestion("text", "t1");
+    panel.template.addNewQuestion("text", "t2");
+    page1.addElement(matrix);
+    page2.addElement(panel);
+
+    matrix.value = [{ t1: "test" }];
+    assert.equal(
+      panel.panelCount,
+      1,
+      "By default there are two panels in panel2"
+    );
+    matrix.value = [{ t1: "test" }, { t1: "test2" }];
+    assert.equal(panel.panelCount, 2, "One row and one panel were added");
+    matrix.removeRow(1);
+    assert.equal(panel.panelCount, 1, "matrix: One row was removed");
+    assert.equal(panel.panelCount, 1, "panel: One panel was removed");
+  }
+);
 QUnit.test("panelDynamic.addConditionNames", function(assert) {
   var names = [];
   var panel = new QuestionPanelDynamicModel("panel");
@@ -1441,6 +1473,97 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
   var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   assert.ok(panel.template.survey, "The survey is set for template");
   assert.ok(panel.panels[0].questions[0].survey, "The survey is set for panel");
+});
+
+QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
+  assert
+) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrixdynamic",
+            rowCount: 1,
+            name: "employer_names",
+            valueName: "employers",
+            columns: [
+              {
+                name: "name",
+                cellType: "text"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "paneldynamic",
+            renderMode: "list",
+            name: "arrray_employer_info",
+            valueName: "employers",
+            templateElements: [
+              {
+                type: "panel",
+                name: "panel_employer_role",
+                elements: [
+                  {
+                    type: "radiogroup",
+                    choices: ["Full time", "Part time", "Casual", "Seasonal"],
+                    name: "employer_role",
+                    valueName: "role"
+                  }
+                ]
+              },
+              {
+                type: "panel",
+                name: "panel_employer_hours_work",
+                title: "What hours do you work?",
+                elements: [
+                  {
+                    type: "text",
+                    inputType: "number",
+                    name: "member_hours_worked",
+                    valueName: "hours_worked",
+                    title: "Hours:"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.mode = "display";
+
+  survey.data = {
+    employers: [
+      {
+        name: "aaaa",
+        address: "sasa",
+        role: "Full time",
+        hours_worked: 4
+      },
+      {
+        name: "bbbb",
+        address: "aaaaa",
+        role: "Part time",
+        hours_worked: 4
+      }
+    ]
+  };
+
+  survey.isSinglePage = true;
+  var dPanel = <QuestionPanelDynamicModel>survey.getQuestionByName(
+    "arrray_employer_info"
+  );
+  assert.ok(dPanel, "Get question correctly");
+  assert.equal(dPanel.panelCount, 2, "There should be two panels");
 });
 
 QUnit.test(
@@ -1943,3 +2066,101 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
+  assert
+) {
+  var ljson = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "dp1",
+            templateElements: [
+              {
+                type: "paneldynamic",
+                name: "dp2",
+                templateElements: [
+                  {
+                    type: "text",
+                    name: "q1"
+                  }
+                ],
+                panelCount: 1
+              }
+            ],
+            panelCount: 1
+          }
+        ]
+      }
+    ]
+  };
+  var lsurvey = new SurveyModel(ljson);
+  assert.deepEqual(
+    lsurvey.data,
+    { dp1: [{ dp2: [{}] }] },
+    "Has only one element in they array"
+  );
+
+  var dp1 = <QuestionPanelDynamicModel>lsurvey.currentPage.getQuestionByName(
+    "dp1"
+  );
+  var dp2 = <QuestionPanelDynamicModel>dp1.panels[0].getQuestionByName("dp2");
+  var q1 = dp2.panels[0].questions[0];
+  q1.value = "val1";
+  assert.deepEqual(
+    lsurvey.data,
+    { dp1: [{ dp2: [{ q1: "val1" }] }] },
+    "The result is correct"
+  );
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "dp1",
+            templateElements: [
+              {
+                type: "paneldynamic",
+                name: "dp2",
+                templateElements: [
+                  {
+                    type: "paneldynamic",
+                    name: "dp3",
+                    templateElements: [
+                      {
+                        type: "paneldynamic",
+                        name: "dp4",
+                        templateElements: [
+                          {
+                            type: "text",
+                            name: "q1",
+                            defaultValue: "val1"
+                          }
+                        ],
+                        panelCount: 1
+                      }
+                    ],
+                    panelCount: 1
+                  }
+                ],
+                panelCount: 1
+              }
+            ],
+            panelCount: 1
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.deepEqual(
+    survey.data,
+    { dp1: [{ dp2: [{ dp3: [{ dp4: [{ q1: "val1" }] }] }] }] },
+    "The result is correct"
+  );
+});

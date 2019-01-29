@@ -1,8 +1,16 @@
 <template>
-    <td :class="question.cssClasses.itemValue" :headers="cell.question.isVisible ? cell.column.locTitle.renderedHtml : ''">
-        <survey-errors :question="cell.question" />
-        <component v-show="isVisible" :is="getWidgetComponentName(cell.question)" :question="cell.question" />
-    </td>
+  <td
+    :class="getQuestionClass(cell.question)"
+    :headers="cell.question.isVisible ? cell.column.locTitle.renderedHtml : ''"
+  >
+    <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'"/>
+    <component
+      v-show="isVisible"
+      :is="getWidgetComponentName(cell.question)"
+      :question="cell.question"
+    />
+    <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'"/>
+  </td>
 </template>
 
 <script lang="ts">
@@ -23,6 +31,23 @@ export class MatrixCell extends Vue {
     }
     return "survey-" + element.getType();
   }
+  get hasErrorsOnTop() {
+    return this.cell.question.survey.questionErrorLocation === "top";
+  }
+  get hasErrorsOnBottom() {
+    return this.cell.question.survey.questionErrorLocation === "bottom";
+  }
+
+  getQuestionClass(element: Question) {
+    var classes = element.cssClasses.itemValue;
+
+    if (!!element.errors && element.errors.length > 0) {
+      classes += " " + element.cssClasses.hasError;
+    }
+
+    return classes;
+  }
+
   mounted() {
     if (!this.cell || !this.cell.question || !this.cell.question.survey) return;
     this.onVisibilityChanged();

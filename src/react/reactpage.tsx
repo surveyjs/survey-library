@@ -48,7 +48,12 @@ export class SurveyPanelBase extends SurveyElementBase {
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    if (prevProps.page.name === this.survey.currentPage.name) return;
+    if (
+      !!prevProps.page &&
+      !!this.survey &&
+      prevProps.page.name === this.survey.currentPage.name
+    )
+      return;
     this.doAfterRender();
   }
   private doAfterRender() {

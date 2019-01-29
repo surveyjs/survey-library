@@ -703,8 +703,8 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
     "the name of the second question is 'q2'"
   );
   assert.equal(question.panelCount, 3, "panelCount loaded correctly");
-  assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
-  var panel = question["koPanels"]()[0];
+  assert.equal(question.panels.length, 3, "There are 3 panels now");
+  var panel = question.panels[0];
   assert.equal(panel.isVisible, true, "Panel is visible");
   assert.equal(panel.rows.length, 2, "Two questions - two rows");
   var row = <QuestionRow>panel.rows[0];
@@ -729,11 +729,7 @@ QUnit.test("Load PanelDynamic from Json", function(assert) {
     "knockout question in panel get notification"
   );
   question.removePanel(0);
-  assert.equal(
-    question["koPanels"]().length,
-    2,
-    "2 panels, koPanels has been updated"
-  );
+  assert.equal(question.panels.length, 2, "2 panels, panels has been updated");
 });
 
 QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
@@ -768,8 +764,8 @@ QUnit.test("Load PanelDynamic from Json, nested panel", function(assert) {
     "the name of the second element is 'pn1'"
   );
   assert.equal(question.panelCount, 3, "panelCount loaded correctly");
-  assert.equal(question["koPanels"]().length, 3, "There are 3 panels now");
-  var panel = question["koPanels"]()[0];
+  assert.equal(question.panels.length, 3, "There are 3 panels now");
+  var panel = question.panels[0];
   assert.equal(
     panel.elements.length,
     2,
@@ -1726,9 +1722,5 @@ QUnit.test("https://github.com/surveyjs/surveyjs/issues/1501", function(
 
   q1.value = "other";
 
-  assert.equal(
-    counter,
-    2,
-    "computed has been triggered"
-  );
+  assert.equal(counter, 2, "computed has been triggered");
 });

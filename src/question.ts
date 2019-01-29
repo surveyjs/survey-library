@@ -1006,7 +1006,7 @@ export class Question extends SurveyElement
       : this.questionValue;
   }
   private isSettingValueInData = false;
-  private setValueCore(newValue: any) {
+  protected setValueCore(newValue: any) {
     if (this.data != null) {
       this.isSettingValueInData = true;
       this.data.setValue(this.getValueName(), newValue);

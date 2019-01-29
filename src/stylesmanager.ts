@@ -39,6 +39,7 @@ export class StylesManager {
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
+    ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
     ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
     ".sv_qstn td": "position: relative;",
@@ -356,7 +357,11 @@ export class StylesManager {
 
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
-    ".sv_main .sv_p_description": "padding-left: 1.66em;"
+    ".sv_main .sv_p_description": "padding-left: 1.66em;",
+    ".sv_main .sv_qstn_error_bottom": "margin-top: 20px; margin-bottom: 0;",
+    ".sv_main .progress": "width: 60%;",
+    ".sv_main .progress-bar":
+      "width: auto; margin-left: 2px; margin-right: 2px;"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -402,7 +407,10 @@ export class StylesManager {
       "color: $main-color;",
 
     ".sv_main.sv_bootstrapmaterial_css .form-group input[type=file]":
-      "position: relative; opacity: 1;"
+      "position: relative; opacity: 1;",
+    ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%;",
+    ".sv_main.sv_bootstrapmaterial_css .progress-bar":
+      "width: auto; margin-left: 2px; margin-right: 2px;"
   };
 
   private sheet: CSSStyleSheet = null;

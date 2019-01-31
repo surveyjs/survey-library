@@ -1160,7 +1160,7 @@ QUnit.test(
     matrix.value = [{ t1: "test" }, { t1: "test2" }];
     assert.equal(panel.panelCount, 2, "One row and one panel were added");
     matrix.removeRow(1);
-    assert.equal(panel.panelCount, 1, "matrix: One row was removed");
+    assert.equal(matrix.rowCount, 1, "matrix: One row was removed");
     assert.equal(panel.panelCount, 1, "panel: One panel was removed");
   }
 );
@@ -2164,3 +2164,41 @@ QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
     "The result is correct"
   );
 });
+
+QUnit.test(
+  "Bug on caching panel data during onValueChanged event, Bug#T1533",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dp1",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            },
+            {
+              type: "checkbox",
+              valueName: "v2",
+              name: "q2"
+            }
+          ],
+          panelCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var changedValue = null;
+    survey.onDynamicPanelItemValueChanged.add(function(sender, options) {
+      if (options.name != "q1") return;
+      var q2 = options.panel.getQuestionByName("q2");
+      q2.value = [1, 2, 3];
+      changedValue = q2.value;
+    });
+    var dp1 = <QuestionPanelDynamicModel>survey.getQuestionByName("dp1");
+    var q1 = dp1.panels[0].getQuestionByName("q1");
+    q1.value = "val1";
+    assert.deepEqual(changedValue, [1, 2, 3], "value set correctly");
+  }
+);

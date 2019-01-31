@@ -141,8 +141,12 @@ QUnit.test("QuestionFile value initialization array of objects", function(
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    assert.equal(q1.inputTitle, "Loading...");
-    assert.equal(q2.inputTitle, " ");
+    if (options.name == "image1") {
+      assert.equal(q1.inputTitle, "Loading...");
+    }
+    if (options.name == "image2") {
+      assert.equal(q2.inputTitle, " ");
+    }
     options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
   });
 

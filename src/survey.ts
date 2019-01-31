@@ -333,7 +333,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.text an error text
    * <br/> options.error an instance of SurveyError object
-   * <br/> options.name the error name. The following error name are available: 
+   * <br/> options.name the error name. The following error name are available:
    * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
    * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
    */
@@ -1049,7 +1049,7 @@ export class SurveyModel extends Base
   }
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
-    var options = {text: text, name: error.getErrorType(), error: error};
+    var options = { text: text, name: error.getErrorType(), error: error };
     this.onErrorCustomText.fire(this, options);
     return options.text;
   }
@@ -1379,6 +1379,7 @@ export class SurveyModel extends Base
         this.setDataValueCore(this.valuesHash, key, data[key]);
       }
     }
+    this.updateAllQuestionsValue();
     this.checkTriggers(this.valuesHash, false);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
@@ -2497,6 +2498,15 @@ export class SurveyModel extends Base
     this.onValueChanging.fire(this, options);
     return options.value;
   }
+  protected updateQuestionValue(valueName: string, newValue: any) {
+    if (this.isLoadingFromJson) return;
+    var questions = this.getQuestionsByValueNameCore(valueName);
+    if (!!questions) {
+      for (var i: number = 0; i < questions.length; i++) {
+        questions[i].updateValueFromSurvey(newValue);
+      }
+    }
+  }
   protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueNameCore(valueName);
@@ -2506,7 +2516,7 @@ export class SurveyModel extends Base
         if (this.checkErrorsMode == "onValueChanged") {
           question.hasErrors(true);
         }
-        this.doSurveyValueChanged(question, newValue);
+        question.onSurveyValueChanged(newValue);
         this.onValueChanged.fire(this, {
           name: valueName,
           question: question,
@@ -2531,17 +2541,21 @@ export class SurveyModel extends Base
       this.locStrsChanged();
     }
   }
+  private updateAllQuestionsValue() {
+    var questions = this.getAllQuestions();
+    for (var i: number = 0; i < questions.length; i++) {
+      var q = questions[i];
+      q.updateValueFromSurvey(this.getValue(q.getValueName()));
+      q.updateCommentFromSurvey(this.getComment(q.getValueName()));
+    }
+  }
   private notifyAllQuestionsOnValueChanged() {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      this.doSurveyValueChanged(
-        questions[i],
+      questions[i].onSurveyValueChanged(
         this.getValue(questions[i].getValueName())
       );
     }
-  }
-  protected doSurveyValueChanged(question: IQuestion, newValue: any) {
-    question.onSurveyValueChanged(newValue);
   }
   private checkOnPageTriggers() {
     var questions = this.getCurrentPageQuestions();
@@ -2924,6 +2938,7 @@ export class SurveyModel extends Base
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
+    this.updateQuestionValue(name, newValue);
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);
@@ -3004,8 +3019,14 @@ export class SurveyModel extends Base
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
       this.setDataValueCore(this.valuesHash, commentName, newValue);
-      this.tryGoNextPageAutomatic(name);
     }
+    var questions = this.getQuestionsByValueNameCore(name);
+    if (!!questions) {
+      for (var i: number = 0; i < questions.length; i++) {
+        questions[i].updateCommentFromSurvey(newValue);
+      }
+    }
+    this.tryGoNextPageAutomatic(name);
     var question = this.getQuestionByName(name);
     if (question) {
       this.onValueChanged.fire(this, {

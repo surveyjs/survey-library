@@ -8,6 +8,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IConditionObject } from "./question";
+import { Helpers } from "./helpers";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -19,7 +20,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   ) {
     super(data, value);
     this.item = item;
-    this.buildCells();
+    this.buildCells(value);
   }
   public get rowName(): string {
     return this.name;
@@ -48,7 +49,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return "matrixdropdown";
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
-    var values = this.value;
+    var values = this.createValueCopy();
     if (!values) return values;
     var rows = this.visibleRows;
     var res = {};

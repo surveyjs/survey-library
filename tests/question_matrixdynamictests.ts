@@ -112,7 +112,11 @@ QUnit.test("Matrixdynamic cells tests", function(assert) {
     "set the cell value correctly"
   );
   visibleRows[1].cells[1].value = null;
-  assert.deepEqual(question.value, null, "set to null if all cells are null");
+  assert.deepEqual(
+    question.value,
+    [],
+    "set to null if all cells are null - array is empty"
+  );
 });
 QUnit.test(
   "Matrixdynamic make the question empty on null cell value, Bug #608",
@@ -131,8 +135,8 @@ QUnit.test(
     visibleRows[1].cells[0].question.value = null;
     assert.deepEqual(
       question.value,
-      null,
-      "Clear the question value if all cells are empty"
+      [],
+      "Clear the question value if all cells are empty - empty array"
     );
   }
 );
@@ -190,14 +194,23 @@ QUnit.test("Matrixdynamic set text to rowCount property, bug #439", function(
   assert.equal(question.rowCount, 2, "Row count should b 2 now");
 });
 QUnit.test("Matrixdynamic add/remove rows", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
+  question.name = "q1";
+  page.addQuestion(question);
   question.rowCount = 3;
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.value = [{}, { column1: 2 }, {}];
   question.removeRow(1);
   assert.equal(question.rowCount, 2, "one row is removed");
-  assert.equal(question.value, null, "value is null now");
+  assert.deepEqual(question.value, [], "value is null now - array is empty");
+  assert.equal(
+    survey.getValue("q1"),
+    null,
+    "survey value is underfined or null"
+  );
   question.addRow();
   assert.equal(question.rowCount, 3, "one row is added");
 });
@@ -1777,7 +1790,7 @@ QUnit.test(
     };
     q1.addRow();
     q1.visibleRows[3].cells[0].value = 4;
-    newValue.push({ col1: 4 });
+    newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }, { col1: 4 }];
     assert.equal(rowsChangedCounter, 1, "q2 rows should be rebuilt");
     assert.deepEqual(
       q2.visibleRows.length,

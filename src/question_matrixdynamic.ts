@@ -16,7 +16,7 @@ import { Helpers } from "./helpers";
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
     super(data, value);
-    this.buildCells();
+    this.buildCells(value);
   }
   public get rowName() {
     return this.id;
@@ -202,7 +202,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
     if (!this.isValueEmpty(defaultValue)) {
-      var newValue = this.createNewValue(this.value);
+      var newValue = this.createNewValue();
       if (newValue.length == this.rowCount) {
         newValue[newValue.length - 1] = defaultValue;
         this.value = newValue;
@@ -276,10 +276,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.generatedVisibleRows.splice(index, 1);
     }
     if (this.value) {
-      var val = this.createNewValue(this.value);
+      var val = this.createNewValue();
       val.splice(index, 1);
       val = this.deleteRowValue(val, null);
+      this.isRowChanging = true;
       this.value = val;
+      this.isRowChanging = false;
     }
     this.rowCountValue--;
     this.fireCallback(this.visibleRowsChangedCallback);
@@ -371,7 +373,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getLocalizableString("removeRowText");
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
-    var values = this.value;
+    var values = this.createValueCopy();
     if (!values || !Array.isArray(values)) return values;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length && i < values.length; i++) {
@@ -472,7 +474,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected generateRows(): Array<MatrixDynamicRowModel> {
     var result = new Array<MatrixDynamicRowModel>();
     if (this.rowCount === 0) return result;
-    var val = this.createNewValue(this.value);
+    var val = this.createNewValue();
     for (var i = 0; i < this.rowCount; i++) {
       result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
     }
@@ -494,8 +496,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.fireCallback(this.visibleRowsChangedCallback);
     }
   }
-  protected createNewValue(curValue: any): any {
-    var result = curValue;
+  protected createNewValue(): any {
+    var result = this.createValueCopy();
     if (!result || !Array.isArray(result)) result = [];
     var r = [];
     if (result.length > this.rowCount) result.splice(this.rowCount - 1);

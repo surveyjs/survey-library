@@ -164,6 +164,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return val.indexOf(item.value) > -1;
   }
   protected setNewValue(newValue: any) {
+    newValue = this.valueFromData(newValue);
     if (this.hasNone) {
       var value = this.value;
       if (!Helpers.isTwoValueEquals(value, newValue)) {
@@ -205,7 +206,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";
     var items = this.visibleChoices;
-    var values = this.value;
+    var values = this.createValueCopy();
     var str = "";
     for (var i = 0; i < values.length; i++) {
       var valStr = this.getChoicesDisplayValue(items, values[i]);

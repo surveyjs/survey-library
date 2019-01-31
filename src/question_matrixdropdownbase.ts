@@ -491,7 +491,6 @@ export class MatrixDropdownRowModelBase
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
   protected data: IMatrixDropdownData;
-  private rowValues: HashTable<any> = {};
   private isSettingValue: boolean = false;
   private idValue: string;
   private textPreProcessor: TextPreProcessor;
@@ -500,7 +499,6 @@ export class MatrixDropdownRowModelBase
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
-    this.value = value;
     this.textPreProcessor = new TextPreProcessor();
     var self = this;
     this.textPreProcessor.onProcess = function(
@@ -508,14 +506,6 @@ export class MatrixDropdownRowModelBase
     ) {
       self.getProcessedTextValue(textValue);
     };
-    for (var i = 0; i < this.data.columns.length; i++) {
-      if (
-        this.getDataValueCore(this.rowValues, this.data.columns[i].name) ===
-        undefined
-      ) {
-        this.setDataValueCore(this.rowValues, this.data.columns[i].name, null);
-      }
-    }
     this.idValue = MatrixDropdownRowModelBase.getId();
   }
   public get id(): string {
@@ -526,8 +516,11 @@ export class MatrixDropdownRowModelBase
   }
   public get value(): any {
     var result: any = {};
-    for (var valueName in this.rowValues) {
-      result[valueName] = this.getDataValueCore(this.rowValues, valueName);
+    for (var i = 0; i < this.cells.length; i++) {
+      var question = this.cells[i].question;
+      if (!question.isEmpty()) {
+        result[question.getValueName()] = question.value;
+      }
     }
     return result;
   }
@@ -547,18 +540,11 @@ export class MatrixDropdownRowModelBase
   }
   public set value(value: any) {
     this.isSettingValue = true;
-    for (var valueName in this.rowValues) {
-      this.deleteDataValueCore(this.rowValues, valueName);
-    }
-    if (value != null) {
-      for (var key in value) {
-        this.setDataValueCore(this.rowValues, key, value[key]);
-      }
-    }
     for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].question.onSurveyValueChanged(
-        this.getValue(this.cells[i].column.name)
-      );
+      var question = this.cells[i].question;
+      var val = !!value ? value[question.getValueName()] : null;
+      question.updateValueFromSurvey(val);
+      question.onSurveyValueChanged(val);
     }
     this.isSettingValue = false;
   }
@@ -575,34 +561,12 @@ export class MatrixDropdownRowModelBase
       return valuesHash[key];
     }
   }
-  public setDataValueCore(valuesHash: any, key: string, value: any) {
-    var survey = this.getSurvey();
-    if (!!survey) {
-      (<any>survey).setDataValueCore(valuesHash, key, value);
-    } else {
-      valuesHash[key] = value;
-    }
-  }
-  public deleteDataValueCore(valuesHash: any, key: string) {
-    var survey = this.getSurvey();
-    if (!!survey) {
-      (<any>survey).deleteDataValueCore(valuesHash, key);
-    } else {
-      delete valuesHash[key];
-    }
-  }
-
   public getValue(name: string): any {
-    return this.getDataValueCore(this.rowValues, name);
+    var question = this.getQuestionByColumnName(name);
+    return !!question ? question.value : null;
   }
   public setValue(name: string, newValue: any) {
     if (this.isSettingValue) return;
-    if (newValue === "") newValue = null;
-    if (newValue != null) {
-      this.setDataValueCore(this.rowValues, name, newValue);
-    } else {
-      this.deleteDataValueCore(this.rowValues, name);
-    }
     this.data.onRowChanged(this, name, this.value);
     this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
   }
@@ -634,9 +598,7 @@ export class MatrixDropdownRowModelBase
     }
     return null;
   }
-  public clearIncorrectValues() {
-    var val = this.value;
-    var newVal = {};
+  public clearIncorrectValues(val: any) {
     for (var key in val) {
       var question = this.getQuestionByColumnName(key);
       if (question) {
@@ -671,12 +633,31 @@ export class MatrixDropdownRowModelBase
       this.cells[i].runCondition(values, properties);
     }
   }
-  protected buildCells() {
+  protected buildCells(value: any) {
+    this.isSettingValue = true;
     var columns = this.data.columns;
     for (var i = 0; i < columns.length; i++) {
       var column = columns[i];
       if (column.isVisible) {
-        this.cells.push(this.createCell(column));
+        var cell = this.createCell(column);
+        this.cells.push(cell);
+        if (!!value && !Helpers.isValueEmpty(value[column.name])) {
+          cell.question.value = value[column.name];
+        }
+      }
+    }
+    this.isSettingValue = false;
+    for (var i = 0; i < this.cells.length; i++) {
+      var cell = this.cells[i];
+      if (
+        !cell.question.isEmpty() &&
+        (!value ||
+          !Helpers.isTwoValueEquals(
+            cell.question.value,
+            value[cell.column.name]
+          ))
+      ) {
+        this.setValue(cell.column.name, cell.question.value);
       }
     }
   }
@@ -735,7 +716,7 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private choicesValue: Array<ItemValue>;
-  private isRowChanging = false;
+  protected isRowChanging = false;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
   columnLayoutChangedCallback: () => void;
@@ -872,7 +853,6 @@ export class QuestionMatrixDropdownModelBase
   public set horizontalScroll(val: boolean) {
     this.setPropertyValue("horizontalScroll", val);
   }
-
   public getRequiredText(): string {
     return this.survey ? this.survey.requiredText : "";
   }
@@ -907,7 +887,7 @@ export class QuestionMatrixDropdownModelBase
     var rows = this.visibleRows;
     if (!rows) return;
     for (var i = 0; i < rows.length; i++) {
-      rows[i].clearIncorrectValues();
+      rows[i].clearIncorrectValues(this.getRowValue(i));
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
@@ -1030,7 +1010,7 @@ export class QuestionMatrixDropdownModelBase
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
-    var newValue = this.createNewValue(this.value);
+    var newValue = this.createNewValue();
     return this.getRowValueCore(visRows[rowIndex], newValue);
   }
   /**
@@ -1048,8 +1028,8 @@ export class QuestionMatrixDropdownModelBase
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
   }
-  protected createNewValue(curValue: any): any {
-    return !curValue ? {} : curValue;
+  protected createNewValue(): any {
+    return !this.value ? {} : this.createValueCopy();
   }
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,
@@ -1076,18 +1056,22 @@ export class QuestionMatrixDropdownModelBase
     return rowValue;
   }
   protected onBeforeValueChanged(val: any) {}
-  protected onValueChanged() {
+  private onSetQuestionValue() {
     if (this.isRowChanging) return;
     this.onBeforeValueChanged(this.value);
     if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
       return;
     this.isRowChanging = true;
-    var val = this.createNewValue(this.value);
+    var val = this.createNewValue();
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var row = this.generatedVisibleRows[i];
       this.generatedVisibleRows[i].value = this.getRowValueCore(row, val);
     }
     this.isRowChanging = false;
+  }
+  protected setQuestionValue(newValue: any) {
+    super.setQuestionValue(newValue);
+    this.onSetQuestionValue();
   }
   supportGoNextPageAutomatic() {
     var rows = this.generatedVisibleRows;
@@ -1250,9 +1234,9 @@ export class QuestionMatrixDropdownModelBase
     columnName: string,
     newRowValue: any
   ) {
-    var oldValue = this.createNewValue(this.value);
+    var oldValue = this.createNewValue();
     if (this.isMatrixValueEmpty(oldValue)) oldValue = null;
-    var newValue = this.createNewValue(this.value);
+    var newValue = this.createNewValue();
     var rowValue = this.getRowValueCore(row, newValue, true);
     if (!rowValue) rowValue = {};
     for (var key in rowValue) delete rowValue[key];

@@ -1313,7 +1313,7 @@ export class SurveyModel extends Base
         .split(",")
         .map((v: string) => v.trim());
     }
-    var valueKeys = Object.keys(question.value);
+    var valueKeys = Object.keys(question.createValueCopy());
     var displayValueKeys = Object.keys(question.displayValue);
     var isArray = Array.isArray(value);
     valueKeys.forEach((key, index) => {

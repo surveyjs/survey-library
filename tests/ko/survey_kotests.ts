@@ -75,14 +75,14 @@ QUnit.test("koOtherVisible for one choice items", function(assert) {
     "Other visible is true after selecting it"
   );
 });
-QUnit.test("Create koValue as observable array for checkbox", function(assert) {
+QUnit.test("Create value as observable array for checkbox", function(assert) {
   var question = new QuestionCheckbox("q");
-  question.koValue.push("test1");
-  question.koValue.push("test2");
+  question.value.push("test1");
+  question.value.push("test2");
   assert.deepEqual(
-    question.koValue(),
+    question.value,
     ["test1", "test2"],
-    "koValue is observable array"
+    "value is observable array"
   );
   assert.deepEqual(
     question.value,
@@ -98,7 +98,7 @@ QUnit.test("Default value for checkbox", function(assert) {
   assert.deepEqual(
     question.value,
     [],
-    "the koValue by default should be empty array"
+    "the value by default should be empty array"
   );
 });
 QUnit.test("koOtherVisible for multi choice items", function(assert) {
@@ -106,14 +106,14 @@ QUnit.test("koOtherVisible for multi choice items", function(assert) {
   var question = new QuestionCheckbox("q");
   question.setSurveyImpl(survey);
   assert.equal(question.isOtherSelected, false, "Initially is not visible");
-  question.koValue.push("test1");
-  question.koValue.push(question.otherItem.value);
+  question.value.push("test1");
+  question.value.push(question.otherItem.value);
   assert.equal(
     question.isOtherSelected,
     true,
     "Other visible is true after selecting it"
   );
-  question.koValue.pop();
+  question.value.pop();
   assert.equal(
     question.isOtherSelected,
     false,
@@ -121,7 +121,7 @@ QUnit.test("koOtherVisible for multi choice items", function(assert) {
   );
 });
 QUnit.test(
-  "Update koValue on changing data in Survey or Question.value ",
+  "Update value on changing data in Survey or Question.value ",
   function(assert) {
     var survey = new Survey();
     survey.setValue("textQuestion", "initialValue");
@@ -135,7 +135,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Update koValue on changing data in Survey or Question.value for Multiple Answer Question ",
+  "Update value on changing data in Survey or Question.value for Multiple Answer Question ",
   function(assert) {
     var survey = new Survey();
     survey.setValue("checkboxQuestion", "initialValue");
@@ -271,8 +271,8 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   });
   var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
   var rows = question.visibleRows;
-  rows[0].cells[0].question.koValue = ["1"];
-  rows[0].cells[0].question.koValue = ["1", "2"];
+  rows[0].cells[0].question.value = ["1"];
+  rows[0].cells[0].question.value = ["1", "2"];
   assert.deepEqual(
     survey.data,
     { q1: [{ col1: ["1", "2"] }] },
@@ -280,7 +280,7 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   );
 });
 
-QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
+QUnit.test("Question MultipleText: value in TextItem", function(assert) {
   var mQuestion = new QuestionMultipleText("q1");
   mQuestion.items.push(new MultipleTextItem("i1"));
   mQuestion.items.push(new MultipleTextItem("i2"));
@@ -288,13 +288,13 @@ QUnit.test("Question MultipleText: koValue in TextItem", function(assert) {
   assert.equal(
     mQuestion.items[0].value,
     10,
-    "set the correct value to item.koValue from question"
+    "set the correct value to item.value from question"
   );
   mQuestion.items[0].value = 20;
   assert.equal(
     mQuestion.items[0].value,
     20,
-    "set the correct value to item.koValue from question item"
+    "set the correct value to item.value from question item"
   );
   assert.deepEqual(
     mQuestion.value,

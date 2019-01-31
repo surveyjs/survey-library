@@ -40,6 +40,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  protected onCreating() {
+    super.onCreating();
+    this.createNewArray("questionValue");
+  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }

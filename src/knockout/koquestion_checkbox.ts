@@ -7,27 +7,8 @@ import { Question } from "../question";
 import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
-  private _koValue = ko.observableArray<any>();
-
   constructor(question: Question) {
     super(question);
-    this._koValue.subscribe(newValue => {
-      this.question.value = newValue;
-    });
-    Object.defineProperty(this.question, "koValue", {
-      get: () => {
-        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
-          this._koValue(this.question.value || []);
-        }
-        return this._koValue;
-      },
-      set: (newValue: Array<any> | KnockoutObservableArray<any>) => {
-        var newVal = [].concat(ko.unwrap(newValue));
-        this.question.value = newVal;
-      },
-      enumerable: true,
-      configurable: true
-    });
   }
 }
 

@@ -2503,6 +2503,7 @@ export class SurveyModel extends Base
     var questions = this.getQuestionsByValueNameCore(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
+        if (this.isTwoValueEquals(questions[i].value, newValue)) continue;
         questions[i].updateValueFromSurvey(newValue);
       }
     }

@@ -789,8 +789,7 @@ export class Question extends SurveyElement
     this.comment = null;
   }
   public createValueCopy(): any {
-    if (this.isEmpty()) return this.value;
-    return JSON.parse(JSON.stringify(this.value));
+    return Helpers.getUnbindValue(this.value);
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
@@ -1015,14 +1014,11 @@ export class Question extends SurveyElement
   protected getValueCore() {
     return this.questionValue;
   }
-  private isSettingValueInData = false;
   protected setValueCore(newValue: any) {
-    this.isSettingValueInData = true;
     this.setQuestionValue(newValue);
     if (this.data != null) {
       this.data.setValue(this.getValueName(), newValue);
     }
-    this.isSettingValueInData = false;
   }
   protected valueFromData(val: any): any {
     return val;

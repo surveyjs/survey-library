@@ -372,14 +372,14 @@ QUnit.test("isVisible property", function(assert) {
   question.visible = false;
   assert.equal(question.isVisible, false, "it is false now");
 });
-QUnit.test("koComment property", function(assert) {
+QUnit.test("comment property", function(assert) {
   var survey = new Survey();
   survey.data = { q: "other", "q-Comment": "aaaa" };
   var page = survey.addNewPage("page1");
   var question = new QuestionDropdown("q");
   page.addQuestion(question);
   question.choices = ["A", "B", "C", "D"];
-  assert.equal(question["koComment"](), "aaaa", "Set ko Comment");
+  assert.equal(question.comment, "aaaa", "Set ko Comment");
 });
 QUnit.test("Load title correctly from JSON", function(assert) {
   var survey = new Survey({ questions: [{ type: "text", name: "question1" }] });

@@ -8,7 +8,6 @@ export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
   koTemplateName: any;
   koElementType: any;
-  koComment: any;
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
@@ -59,19 +58,10 @@ export class QuestionImplementor extends ImplementorBase {
       }
       return result;
     });
-
-    question.commentChangedCallback = function() {
-      self.onCommentChanged();
-    };
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });
     this.koDummy = ko.observable(0);
-    this.koComment = ko.observable(this.question.comment);
-    this.koComment.subscribe(function(newValue: any) {
-      self.updateComment(newValue);
-    });
-    (<any>this.question)["koComment"] = this.koComment;
     (<any>this.question)["koQuestionAfterRender"] = function(
       el: any,
       con: any
@@ -81,11 +71,6 @@ export class QuestionImplementor extends ImplementorBase {
   }
   protected updateQuestion() {
     this.updateKoDummy();
-  }
-  protected onCommentChanged() {
-    var val = this.question.comment;
-    if (Helpers.isTwoValueEquals(val, this.question.value)) return;
-    this.koComment(val);
   }
   protected onVisibleIndexChanged() {
     this.updateKoDummy();
@@ -101,9 +86,6 @@ export class QuestionImplementor extends ImplementorBase {
     )
       return "survey-widget-" + this.question.customWidget.name;
     return "survey-question-" + this.getQuestionTemplate();
-  }
-  protected updateComment(newValue: any) {
-    this.question.comment = newValue;
   }
   protected getNo(): string {
     return this.question.visibleIndex > -1

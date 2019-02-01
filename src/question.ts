@@ -763,10 +763,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
-    return this.getPropertyValue("questionComment");
+    return this.getPropertyValue("comment");
   }
   private set questionComment(val: string) {
-    this.setPropertyValue("questionComment", val);
+    this.setPropertyValue("comment", val);
     this.fireCallback(this.commentChangedCallback);
   }
   /**

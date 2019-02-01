@@ -757,10 +757,10 @@ export class Question extends SurveyElement
   }
   private isvalueChangedCallbackFiring: boolean = false;
   private get questionValue(): any {
-    return this.getPropertyValue("questionValue");
+    return this.getPropertyValue("value");
   }
   private set questionValue(val: any) {
-    this.setPropertyValue("questionValue", val);
+    this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
     return this.getPropertyValue("questionComment");

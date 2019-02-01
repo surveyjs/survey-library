@@ -9,8 +9,30 @@ export class QuestionImplementor extends ImplementorBase {
   koTemplateName: any;
   koElementType: any;
   koComment: any;
+  private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
+    this._koValue.subscribe(newValue => {
+      this.question.value = newValue;
+    });
+    Object.defineProperty(this.question, "koValue", {
+      get: () => {
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
+          this._koValue(this.question.value);
+        }
+        return this._koValue;
+      },
+      set: (newValue: any) => {
+        if (Array.isArray(this.question.value)) {
+          var newVal = [].concat(ko.unwrap(newValue));
+          this.question.value = newVal;
+        } else {
+          this.question.value = ko.unwrap(newValue);
+        }
+      },
+      enumerable: true,
+      configurable: true
+    });
     var self = this;
     question.surveyLoadCallback = function() {
       self.onSurveyLoad();

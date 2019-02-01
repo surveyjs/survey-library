@@ -42,7 +42,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected onCreating() {
     super.onCreating();
-    this.createNewArray("questionValue");
+    this.createNewArray("value");
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
@@ -258,9 +258,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       json["type"] = "radiogroup";
     }
     return json;
-  }
-  protected getValueCore() {
-    return super.getValueCore() || [];
   }
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);

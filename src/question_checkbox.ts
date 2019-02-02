@@ -202,10 +202,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasSelectAll) {
       items.unshift(this.selectAllItem);
     }
+    super.addToVisibleChoices(items);
     if (this.hasNone) {
       items.push(this.noneItem);
     }
-    super.addToVisibleChoices(items);
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";

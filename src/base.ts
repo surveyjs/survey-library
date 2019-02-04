@@ -282,6 +282,9 @@ export class Base {
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
   }
+  public geValueFromHash(): any {
+    return this.propertyHash["value"];
+  }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
     if (this.setPropertyValueCoreHandler)
       this.setPropertyValueCoreHandler(propertiesHash, name, val);

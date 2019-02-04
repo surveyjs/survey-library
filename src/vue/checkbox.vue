@@ -7,7 +7,7 @@
                 <input v-if="item != question.selectAllItem" type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId + '_' + index" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
                 <span :class="question.cssClasses.materialDecorator"><span class="check"></span></span>
                 <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
-                <survey-other-choice v-show="question.hasOther && question.value && question.isOtherSelected" v-if="index == choicesCount" :question="question" />
+                <survey-other-choice v-show="question.hasOther && question.value && question.isOtherSelected" v-if="item.value == question.otherItem.value" :question="question" />
             </label>
         </div>
     </fieldset>
@@ -21,9 +21,6 @@ import { QuestionCheckboxModel } from "../question_checkbox";
 
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
-  get choicesCount() {
-    return this.question.visibleChoices.length - 1;
-  }
   getItemClass(item: any) {
     var itemClass =
       this.question.cssClasses.item +

@@ -1313,7 +1313,7 @@ export class SurveyModel extends Base
         .split(",")
         .map((v: string) => v.trim());
     }
-    var valueKeys = Object.keys(question.value);
+    var valueKeys = Object.keys(question.createValueCopy());
     var displayValueKeys = Object.keys(question.displayValue);
     var isArray = Array.isArray(value);
     valueKeys.forEach((key, index) => {
@@ -2503,6 +2503,7 @@ export class SurveyModel extends Base
     var questions = this.getQuestionsByValueNameCore(valueName);
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
+        if (this.isTwoValueEquals(questions[i].value, newValue)) continue;
         questions[i].updateValueFromSurvey(newValue);
       }
     }

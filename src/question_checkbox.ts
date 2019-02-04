@@ -40,6 +40,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  protected onCreating() {
+    super.onCreating();
+    this.createNewArray("value");
+  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -198,10 +202,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasSelectAll) {
       items.unshift(this.selectAllItem);
     }
+    super.addToVisibleChoices(items);
     if (this.hasNone) {
       items.push(this.noneItem);
     }
-    super.addToVisibleChoices(items);
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";
@@ -254,9 +258,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       json["type"] = "radiogroup";
     }
     return json;
-  }
-  protected getValueCore() {
-    return super.getValueCore() || [];
   }
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);

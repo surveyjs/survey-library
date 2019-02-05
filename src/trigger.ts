@@ -177,7 +177,7 @@ export class Trigger extends Base {
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  doComplete(): any;
+  setCompleted(): any;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string): any;
 }
@@ -244,7 +244,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return true;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
-    if (this.owner) this.owner.doComplete();
+    if (this.owner) this.owner.setCompleted();
   }
 }
 export class SurveyTriggerSetValue extends SurveyTrigger {

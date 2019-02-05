@@ -2034,16 +2034,18 @@ export class SurveyModel extends Base
   }
   protected doNextPage() {
     this.checkOnPageTriggers();
-    if (this.sendResultOnPageNext) {
-      this.sendResult(this.surveyPostId, this.clientId, true);
-    }
     if (!this.isCompleted) {
+      if (this.sendResultOnPageNext) {
+        this.sendResult(this.surveyPostId, this.clientId, true);
+      }
       var vPages = this.visiblePages;
       var index = vPages.indexOf(this.currentPage);
       this.currentPage = vPages[index + 1];
+    } else {
+      this.doComplete();
     }
   }
-  protected setCompleted() {
+  public setCompleted() {
     this.isCompleted = true;
   }
   /**

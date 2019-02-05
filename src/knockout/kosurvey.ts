@@ -198,7 +198,7 @@ export class Survey extends SurveyModel {
     }
     super.loadSurveyFromService(surveyId, clientId);
   }
-  protected setCompleted() {
+  public setCompleted() {
     super.setCompleted();
     this.updateKoCurrentPage();
   }

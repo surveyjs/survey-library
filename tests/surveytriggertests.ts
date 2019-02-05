@@ -28,7 +28,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[] {
     return this.items;
   }
-  doComplete() {}
+  setCompleted() {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
   copyTriggerValue(name: string, fromName: string) {}
 }

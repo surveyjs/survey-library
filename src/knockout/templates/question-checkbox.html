@@ -18,7 +18,7 @@
                   <!-- /ko -->
               </span>
           </label>
-          <!-- ko if: question.hasOther && ($index() == question.visibleChoices.length-1) -->
+          <!-- ko if: question.hasOther && (item.value == question.otherItem.value) -->
           <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
           <!-- /ko -->
       </div>

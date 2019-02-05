@@ -40,6 +40,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     );
   }
+  protected onCreating() {
+    super.onCreating();
+    this.createNewArray("value");
+  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -164,6 +168,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return val.indexOf(item.value) > -1;
   }
   protected setNewValue(newValue: any) {
+    newValue = this.valueFromData(newValue);
     if (this.hasNone) {
       var value = this.value;
       if (!Helpers.isTwoValueEquals(value, newValue)) {
@@ -197,15 +202,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.hasSelectAll) {
       items.unshift(this.selectAllItem);
     }
+    super.addToVisibleChoices(items);
     if (this.hasNone) {
       items.push(this.noneItem);
     }
-    super.addToVisibleChoices(items);
   }
   protected getDisplayValueCore(keysAsText: boolean): any {
     if (this.isEmpty()) return "";
     var items = this.visibleChoices;
-    var values = this.value;
+    var values = this.createValueCopy();
     var str = "";
     for (var i = 0; i < values.length; i++) {
       var valStr = this.getChoicesDisplayValue(items, values[i]);
@@ -253,9 +258,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       json["type"] = "radiogroup";
     }
     return json;
-  }
-  protected getValueCore() {
-    return super.getValueCore() || [];
   }
   public isAnswerCorrect(): boolean {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);

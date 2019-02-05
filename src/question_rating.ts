@@ -109,7 +109,7 @@ export class QuestionRatingModel extends Question {
       this.visibleRateValues,
       this.value
     );
-    return !!res ? res : this.value;
+    return !!res ? res : this.createValueCopy();
   }
   get visibleRateValues(): ItemValue[] {
     if (this.rateValues.length > 0) return this.rateValues;

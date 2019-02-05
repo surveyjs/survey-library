@@ -6,46 +6,13 @@ import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 import { Question } from "../question";
 import { Helpers } from "../helpers";
 
-class QuestionImagePickerImplementor extends QuestionCheckboxBaseImplementor {
-  private _koValue = ko.observableArray<any>();
-
-  constructor(question: Question) {
-    super(question);
-    this._koValue.subscribe(newValue => {
-      this.question.value = newValue;
-    });
-    Object.defineProperty(this.question, "koValue", {
-      get: () => {
-        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
-          if(this.question.multiSelect) {
-            this._koValue(this.question.value || []);
-          } else {
-            this._koValue(this.question.value);
-          }
-        }
-        return this._koValue;
-      },
-      set: (newValue: Array<any> | KnockoutObservableArray<any> | any) => {
-        if(this.question.multiSelect) {
-          var newVal = [].concat(ko.unwrap(newValue));
-          this.question.value = newVal;
-        } else {
-          this.question.value = ko.unwrap(newValue);
-        }
-      },
-      enumerable: true,
-      configurable: true
-    });
-  }
-}
-
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
     super(name);
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    new QuestionImagePickerImplementor(this);
+    new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {
     var itemClass =

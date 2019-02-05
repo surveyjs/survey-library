@@ -14,7 +14,7 @@ export class TextPreProcessorValue {
 }
 
 export class TextPreProcessor {
-  private hasAllValuesOnLastRunValue: boolean = false;
+  private hasAllValuesOnLastRunValue: boolean;
   public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor() {}
   public process(
@@ -51,7 +51,7 @@ export class TextPreProcessor {
     return text;
   }
   public get hasAllValuesOnLastRun() {
-    return this.hasAllValuesOnLastRunValue;
+    return !!this.hasAllValuesOnLastRunValue;
   }
   private getItems(text: string): Array<TextPreProcessorItem> {
     var items = [];

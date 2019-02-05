@@ -304,7 +304,8 @@ export class QuestionMatrixModel
   ): MatrixRowModel {
     return new MatrixRowModel(item, fullName, this, value);
   }
-  protected onValueChanged() {
+  protected setQuestionValue(newValue: any) {
+    super.setQuestionValue(newValue);
     if (
       this.isRowChanging ||
       !this.generatedVisibleRows ||
@@ -326,7 +327,7 @@ export class QuestionMatrixModel
     this.isRowChanging = false;
   }
   public getDisplayValueCore(keysAsText: boolean): any {
-    var values = this.value;
+    var values = this.createValueCopy();
     if (!values) return values;
     var res: { [index: string]: any } = {};
     for (var key in values) {

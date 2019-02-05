@@ -153,6 +153,8 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
+  updateValueFromSurvey(newValue: any): any;
+  updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;
   getDisplayValue(keysAsText: boolean): any;
@@ -281,6 +283,9 @@ export class Base {
     if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
+  }
+  public geValueFromHash(): any {
+    return this.propertyHash["value"];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
     if (this.setPropertyValueCoreHandler)

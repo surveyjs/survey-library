@@ -48,8 +48,6 @@ export class Question extends SurveyElement
   focusCallback: () => void;
   surveyLoadCallback: () => void;
 
-  private questionValue: any;
-  private questionComment: string;
   private textPreProcessor: TextPreProcessor;
   private conditionEnabelRunner: ConditionRunner;
   private conditionRequiredRunner: ConditionRunner;
@@ -110,6 +108,7 @@ export class Question extends SurveyElement
       this.name,
       !!oldValue ? oldValue : this.name
     );
+    this.initDataFromSurvey();
   }
   protected onNameChanged(oldValue: string) {
     if (!this.survey) return;
@@ -237,7 +236,7 @@ export class Question extends SurveyElement
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
-    if (this.survey && this.survey.isDesignMode) {
+    if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
       this.onVisibleChanged();
     }
     if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
@@ -754,17 +753,37 @@ export class Question extends SurveyElement
   }
   protected onSetData() {
     super.onSetData();
+    this.initDataFromSurvey();
     this.onSurveyValueChanged(this.value);
     this.updateValueWithDefaults();
   }
+  protected initDataFromSurvey() {
+    if (!!this.data) {
+      this.updateValueFromSurvey(this.data.getValue(this.getValueName()));
+      this.updateCommentFromSurvey(this.data.getComment(this.getValueName()));
+    }
+  }
   private isvalueChangedCallbackFiring: boolean = false;
+  private get questionValue(): any {
+    return this.getPropertyValue("value");
+  }
+  private set questionValue(val: any) {
+    this.setPropertyValue("value", val);
+  }
+  private get questionComment(): string {
+    return this.getPropertyValue("comment");
+  }
+  private set questionComment(val: string) {
+    this.setPropertyValue("comment", val);
+    this.fireCallback(this.commentChangedCallback);
+  }
   /**
    * Get/Set the question value.
    * @see SurveyMode.setValue
    * @see SurveyMode.getValue
    */
   public get value(): any {
-    return this.valueFromData(this.getValueCore());
+    return this.getValueCore();
   }
   public set value(newValue: any) {
     this.setNewValue(newValue);
@@ -776,6 +795,9 @@ export class Question extends SurveyElement
   public clearValue() {
     this.value = null;
     this.comment = null;
+  }
+  public createValueCopy(): any {
+    return Helpers.getUnbindValue(this.value);
   }
   private canClearValueAsInvisible(): boolean {
     if (this.isVisible && this.isParentVisible) return false;
@@ -872,12 +894,9 @@ export class Question extends SurveyElement
     if (!!newValue) newValue = newValue.trim();
     if (this.comment == newValue) return;
     this.setComment(newValue);
-    this.fireCallback(this.commentChangedCallback);
   }
   protected getComment(): string {
-    return this.data != null
-      ? this.data.getComment(this.getValueName())
-      : this.questionComment;
+    return this.questionComment;
   }
   protected setComment(newValue: string) {
     this.setNewComment(newValue);
@@ -995,24 +1014,18 @@ export class Question extends SurveyElement
     this.onValueChanged();
   }
   protected setNewValueInData(newValue: any) {
+    newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
-      newValue = this.valueToData(newValue);
       this.setValueCore(newValue);
     }
   }
   protected getValueCore() {
-    return this.data != null
-      ? this.data.getValue(this.getValueName())
-      : this.questionValue;
+    return this.questionValue;
   }
-  private isSettingValueInData = false;
   protected setValueCore(newValue: any) {
+    this.setQuestionValue(newValue);
     if (this.data != null) {
-      this.isSettingValueInData = true;
       this.data.setValue(this.getValueName(), newValue);
-      this.isSettingValueInData = false;
-    } else {
-      this.questionValue = newValue;
     }
   }
   protected valueFromData(val: any): any {
@@ -1023,19 +1036,24 @@ export class Question extends SurveyElement
   }
   protected onValueChanged() {}
   protected setNewComment(newValue: string) {
+    this.questionComment = newValue;
     if (this.data != null) {
       this.data.setComment(this.getValueName(), newValue);
-    } else this.questionComment = newValue;
+    }
   }
   //IQuestion
+  updateValueFromSurvey(newValue: any) {
+    this.setQuestionValue(this.valueFromData(newValue));
+  }
+  updateCommentFromSurvey(newValue: any): any {
+    this.questionComment = newValue;
+  }
+
+  protected setQuestionValue(newValue: any) {
+    this.questionValue = newValue;
+  }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;
-    this.isValueChangedInSurvey = true;
-    this.value = this.valueFromData(newValue);
-    if (!this.isSettingValueInData) {
-      this.fireCallback(this.commentChangedCallback);
-    }
-    this.isValueChangedInSurvey = false;
     this.updateDisplayValue();
   }
   public setVisibleIndex(val: number): number {

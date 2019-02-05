@@ -290,10 +290,10 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
   protected get cachedValue(): boolean {
-    return this.getPropertyValue("cachedValue", false);
+    return Helpers.getUnbindValue(this.getPropertyValue("cachedValue", false));
   }
   protected set cachedValue(val: boolean) {
-    this.setPropertyValue("cachedValue", val);
+    this.setPropertyValue("cachedValue", Helpers.getUnbindValue(val));
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.

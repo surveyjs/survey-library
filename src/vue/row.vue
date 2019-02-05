@@ -1,13 +1,14 @@
 <template>
   <div>
-    <component
+    <survey-element
       v-if="element.visible"
       v-for="element in row.elements"
       :key="element.idValue"
-      v-bind:is="getElementName(element)"
+      :class="questionRootClass"
       :id="element.id"
       :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth }"
-      :question="element"
+      :element="element"
+      :survey="survey"
       :css="css"
     />
   </div>
@@ -19,8 +20,6 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { VueSurveyModel } from "./surveyModel";
-import { IElement } from "../base";
-
 @Component
 export class Row extends Vue {
   @Prop row: any;
@@ -31,9 +30,11 @@ export class Row extends Vue {
       VueSurveyModel.updatePropertiesHash(this.row);
     }
   }
-  getElementName(element: IElement): string {
-    if (!element.isPanel) return "survey-element";
-    return "survey-" + element.getType();
+  get questionRootClass() {
+    if (this.survey.questionTitleLocation === "left") {
+      return this.css.question.mainRoot + " sv_qstn_left";
+    }
+    return this.css.question.mainRoot;
   }
 }
 Vue.component("survey-row", Row);

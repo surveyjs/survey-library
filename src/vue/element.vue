@@ -30,42 +30,36 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
-import { IElement, IQuestion, ISurvey } from "../base";
+import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
-
 @Component
 export class SurveyElementVue extends Vue {
   @Prop css: any;
-  @Prop question: Question;
-
-  get widgetComponentName() {
-    if (this.question.customWidget) {
+  @Prop survey: SurveyModel;
+  @Prop element: IElement;
+  getWidgetComponentName(element: Question) {
+    if (element.customWidget) {
       return "survey-customwidget";
     }
-    return "survey-" + this.question.getTemplate();
+    return "survey-" + element.getTemplate();
   }
-  get questionRootClass() {
-    var res = this.css.question.mainRoot;
-    if (!!this.survey && this.survey.questionTitleLocation === "left") {
-      return res + " sv_qstn_left";
+  getQuestionClass(element: Question) {
+    if (!!element.errors && element.errors.length > 0) {
+      return this.css.question.hasError;
     }
-    if (!!this.question.errors && this.question.errors.length > 0) {
-      res += " " + this.css.question.hasError;
-    }
-    return res;
-  }
-  get survey(): ISurvey {
-    return !!this.question ? this.question.survey : null;
+    return "";
   }
   get hasErrorsOnTop() {
-    return !!this.survey && this.survey.questionErrorLocation === "top";
+    return !this.element.isPanel && this.survey.questionErrorLocation === "top";
   }
   get hasErrorsOnBottom() {
-    return !!this.survey && this.survey.questionErrorLocation === "bottom";
+    return (
+      !this.element.isPanel && this.survey.questionErrorLocation === "bottom"
+    );
   }
   mounted() {
-    if (!!this.survey) {
-      this.survey.afterRenderQuestion(<IQuestion>this.question, this.$el);
+    if (this.survey && !this.element.isPanel) {
+      this.survey.afterRenderQuestion(<IQuestion>this.element, this.$el);
     }
   }
 }

@@ -78,7 +78,8 @@ export var matrixDropdownColumnTypes = {
       "choicesOrder",
       "choicesByUrl",
       "optionsCaption",
-      "otherText"
+      "otherText",
+      "choicesVisibleIf"
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,
@@ -92,7 +93,13 @@ export var matrixDropdownColumnTypes = {
     }
   },
   checkbox: {
-    properties: ["choices", "choicesOrder", "choicesByUrl", "otherText"],
+    properties: [
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf"
+    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -105,7 +112,13 @@ export var matrixDropdownColumnTypes = {
     }
   },
   radiogroup: {
-    properties: ["choices", "choicesOrder", "choicesByUrl", "otherText"],
+    properties: [
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf"
+    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,

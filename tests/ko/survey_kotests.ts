@@ -271,8 +271,8 @@ QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   });
   var question: QuestionMatrixDynamic = <any>survey.getQuestionByName("q1");
   var rows = question.visibleRows;
-  rows[0].cells[0].question.koValue = ["1"];
-  rows[0].cells[0].question.koValue = ["1", "2"];
+  rows[0].cells[0].question.koValue(["1"]);
+  rows[0].cells[0].question.koValue(["1", "2"]);
   assert.deepEqual(
     survey.data,
     { q1: [{ col1: ["1", "2"] }] },

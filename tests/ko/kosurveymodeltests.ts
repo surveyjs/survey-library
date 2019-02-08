@@ -92,3 +92,62 @@ QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
   assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
   assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
 });
+
+QUnit.test(
+  "Checkbox hasNone, bug https://surveyjs.answerdesk.io/ticket/details/T1593",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          hasNone: true,
+          choices: [1, 2, 3, 4, 5]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var q = <QuestionCheckbox>survey.getQuestionByName("q1");
+    q.koValue([1, 2]);
+    assert.deepEqual(q.value, [1, 2], "values");
+    assert.deepEqual(q.koValue(), [1, 2], "ko values");
+    q.koValue([1, 2, "none"]);
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values is none");
+    q.koValue([1, "none"]);
+    assert.deepEqual(q.value, [1], "none should gone");
+    assert.deepEqual(q.koValue(), [1], "ko values none should gone");
+    q.koValue([1, "none"]);
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
+  }
+);
+QUnit.test(
+  "Checkbox hasNone, bug https://surveyjs.answerdesk.io/ticket/details/T1593 (from model)",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          hasNone: true,
+          choices: [1, 2, 3, 4, 5]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var q = <QuestionCheckbox>survey.getQuestionByName("q1");
+    q.value = [1, 2];
+    assert.deepEqual(q.value, [1, 2], "values");
+    assert.deepEqual(q.koValue(), [1, 2], "ko values");
+    q.value = [1, 2, "none"];
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values is none");
+    q.value = [1, "none"];
+    assert.deepEqual(q.value, [1], "none should gone");
+    assert.deepEqual(q.koValue(), [1], "ko values none should gone");
+    q.value = [1, "none"];
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
+  }
+);

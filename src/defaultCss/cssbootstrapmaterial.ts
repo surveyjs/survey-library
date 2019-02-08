@@ -25,6 +25,8 @@ export var defaultBootstrapMaterialCss = {
   row: "sv_row",
   question: {
     mainRoot: "sv_qstn form-group",
+    flowRoot: "form-group",
+    titleLeftRoot: "sv_qstn_left",
     title: "",
     description: "small",
     comment: "form-control",

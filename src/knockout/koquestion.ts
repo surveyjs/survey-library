@@ -49,14 +49,7 @@ export class QuestionImplementor extends ImplementorBase {
       return self.question.cssClasses;
     });
     (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
-      var result = self.question.cssClasses.mainRoot;
-      if (self.question.getTitleLocation() === "left") {
-        result += " sv_qstn_left";
-      }
-      if (self.question.errors.length > 0) {
-        result += " " + self.question.cssClasses.hasError;
-      }
-      return result;
+      return self.question.cssMainRoot;
     });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();

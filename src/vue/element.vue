@@ -44,8 +44,8 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getQuestionClass(element: Question) {
-    if (!!element.errors && element.errors.length > 0) {
-      return this.css.question.hasError;
+    if (!!element.cssMainRoot) {
+      return element.cssMainRoot;
     }
     return "";
   }

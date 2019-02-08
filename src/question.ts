@@ -476,6 +476,21 @@ export class Question extends SurveyElement
     }
     return classes;
   }
+  public get cssMainRoot(): any {
+    var classes = this.cssClasses;
+    var res =
+      this.isFlowLayout && !this.isDesignMode
+        ? classes.flowRoot
+        : classes.mainRoot;
+    if (!this.isFlowLayout && this.getTitleLocation() == "left") {
+      res += " " + classes.titleLeftRoot;
+    }
+    if (this.errors.length > 0) {
+      res += " " + classes.hasError;
+    }
+
+    return res;
+  }
   protected getRootCss(classes: any) {
     return classes.question.root;
   }

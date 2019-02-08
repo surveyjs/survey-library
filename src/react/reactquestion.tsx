@@ -90,13 +90,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var descriptionLeft = titleLocation === "left" ? description : null;
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
-    let questionRootClass =
-      titleLocation === "left"
-        ? cssClasses.mainRoot + " sv_qstn_left"
-        : cssClasses.mainRoot;
-    if (!!this.question.errors && this.question.errors.length > 0) {
-      questionRootClass += " " + cssClasses.hasError;
-    }
+    let questionRootClass = this.question.cssMainRoot;
     var comment =
       this.question && this.question.hasComment
         ? this.renderComment(cssClasses)

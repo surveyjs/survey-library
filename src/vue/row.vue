@@ -4,7 +4,6 @@
       v-if="element.visible"
       v-for="element in row.elements"
       :key="element.idValue"
-      :class="questionRootClass"
       :id="element.id"
       :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth }"
       :element="element"
@@ -29,12 +28,6 @@ export class Row extends Vue {
     if (!!this.row) {
       VueSurveyModel.updatePropertiesHash(this.row);
     }
-  }
-  get questionRootClass() {
-    if (this.survey.questionTitleLocation === "left") {
-      return this.css.question.mainRoot + " sv_qstn_left";
-    }
-    return this.css.question.mainRoot;
   }
 }
 Vue.component("survey-row", Row);

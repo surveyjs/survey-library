@@ -261,7 +261,9 @@ export class Question extends SurveyElement
   }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
+    this.onParentChanged();
   }
+  protected onParentChanged() {}
   /**
    * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"
    * @see titleLocation

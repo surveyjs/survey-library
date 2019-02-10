@@ -7,6 +7,8 @@ import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { FlowPanelModel } from "../src/flowpanel";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("Panel");
 
@@ -451,3 +453,25 @@ QUnit.test("question.cssMainRootClass", function(assert) {
     "non flow question.cssMainRoot"
   );
 });
+QUnit.test(
+  "FlowPanel: checkbox and radiogroup - always keep colCount to 0",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var flowPanel = new FlowPanelModel("flowPanel");
+    page.addElement(flowPanel);
+    var q1 = <QuestionCheckboxModel>flowPanel.addNewQuestion("checkbox", "q1");
+    var q2 = <QuestionRadiogroupModel>flowPanel.addNewQuestion(
+      "radiogroup",
+      "q2"
+    );
+    assert.equal(q1.colCount, 0, "checkbox.colCount is 0 now");
+    assert.equal(q2.colCount, 0, "radiogroup.colCount is 0 now");
+    var q3 = new QuestionCheckboxModel("q3");
+    q3.colCount = 2;
+    flowPanel.addElement(q3);
+    assert.equal(q3.colCount, 0, "q3.colCount is 0 now");
+    q2.colCount = 2;
+    assert.equal(q2.colCount, 0, "radiogroup.colCount is still 0");
+  }
+);

@@ -852,14 +852,20 @@ export class SurveyModel extends Base
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
+   * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
    * @see goNextPageAutomatic
    * @see showPrevButton
    */
-  public get showNavigationButtons(): boolean {
-    return this.getPropertyValue("showNavigationButtons", true);
+  public get showNavigationButtons(): string | any {
+    return this.getPropertyValue("showNavigationButtons", "bottom");
   }
-  public set showNavigationButtons(val: boolean) {
+  public set showNavigationButtons(val: string | any) {
+    if (val === true || val === undefined) {
+      val = "bottom";
+    }
+    if (val === false) {
+      val = "none";
+    }
     this.setPropertyValue("showNavigationButtons", val);
   }
   /**
@@ -1695,13 +1701,14 @@ export class SurveyModel extends Base
   /**
    * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
    */
-  public get isNavigationButtonsShowing(): boolean {
-    if (this.isDesignMode) return false;
+  public get isNavigationButtonsShowing(): string {
+    if (this.isDesignMode) return "none";
     var page = this.currentPage;
-    if (!page) return false;
+    if (!page) return "none";
     return (
-      page.navigationButtonsVisibility == "show" ||
-      (page.navigationButtonsVisibility != "hide" && this.showNavigationButtons)
+      page.navigationButtonsVisibility === "show" ||
+      (page.navigationButtonsVisibility !== "hide" &&
+        this.showNavigationButtons)
     );
   }
   /**
@@ -3585,7 +3592,11 @@ JsonObject.metaData.addClass("survey", [
   { name: "surveyShowDataSaving:boolean", visible: false },
   "cookieName",
   "sendResultOnPageNext:boolean",
-  { name: "showNavigationButtons:boolean", default: true },
+  {
+    name: "showNavigationButtons",
+    default: "bottom",
+    choices: ["none", "top", "bottom", "both"]
+  },
   { name: "showPrevButton:boolean", default: true },
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },

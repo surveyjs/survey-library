@@ -1049,8 +1049,9 @@ export class QuestionMatrixDropdownModelBase
   ): any {
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
-      if (rowValue[column.name]) {
-        rowValue[column.name] = row.cells[i].question.displayValue;
+      var question = !!row.cells[i] ? row.cells[i].question : null;
+      if (!!question && rowValue[column.name]) {
+        rowValue[column.name] = question.displayValue;
       }
     }
     return rowValue;

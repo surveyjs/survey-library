@@ -15,6 +15,9 @@ export class QuestionBooleanModel extends Question {
   public getType(): string {
     return "boolean";
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
+  }
   /**
    * Returns true if the question check will be rendered in indeterminate mode. value is empty.
    */

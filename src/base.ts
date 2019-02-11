@@ -143,6 +143,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   isPanel: boolean;
   getPanel(): IPanel;
   getLayoutType(): string;
+  isLayoutTypeSupported(layoutType: string): boolean;
   removeElement(el: IElement): boolean;
   onAnyValueChanged(name: string): any;
   updateCustomWidgets(): any;

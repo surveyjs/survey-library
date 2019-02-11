@@ -143,6 +143,9 @@ export class Question extends SurveyElement
     if (!!this.parent) return this.parent.getChildrenLayoutType();
     return "row";
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return layoutType !== "flow";
+  }
   /**
    * Use it to get/set the question visibility.
    * @see visibleIf

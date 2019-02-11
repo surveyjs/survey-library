@@ -4,6 +4,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { FlowPanelModel } from "../src/flowpanel";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Drag and Drop Tests");
 
@@ -875,5 +876,33 @@ QUnit.test("survey drop move question in FlowPanel", function(assert) {
     panel.questions[0].renderWidth,
     "",
     "clear question render width"
+  );
+});
+
+QUnit.test("Do not all elements support flow layout", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.addNewQuestion("text", "q1");
+  panel.content = "{element:q1}abcd";
+  page.addElement(panel);
+
+  var target = new QuestionMatrixModel("matrix");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(panel, false, false),
+    false,
+    "Do not support matrix in flow panel"
+  );
+  page.dragDropFinish();
+  assert.equal(
+    panel.elements.length,
+    1,
+    "there is one element in the flowpanel"
+  );
+  assert.equal(
+    panel.content,
+    "{element:q1}abcd",
+    "flowpanel.content doesn't changed"
   );
 });

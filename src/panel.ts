@@ -246,6 +246,9 @@ export class PanelModelBase extends SurveyElement
   getLayoutType(): string {
     return "row";
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return layoutType !== "flow";
+  }
   /**
    * Returns the list of all questions located in the Panel/Page, including in the nested Panels.
    * @see Question
@@ -871,51 +874,57 @@ export class PanelModelBase extends SurveyElement
     this.setPropertyValue("enableIf", val);
   }
   /**
-   * Add an elememnt into Panel or Page.
+   * Add an element into Panel or Page. Returns true if the element added successfully. Otherwise returns false.
    * @param element
    * @param index element index in the elements array
    */
-  public addElement(element: IElement, index: number = -1) {
-    if (element == null) return;
+  public addElement(element: IElement, index: number = -1): boolean {
+    if (!this.canAddElement(element)) return false;
     if (index < 0 || index >= this.elements.length) {
       this.elements.push(element);
     } else {
       this.elements.splice(index, 0, element);
     }
+    return true;
+  }
+  protected canAddElement(element: IElement): boolean {
+    return (
+      !!element && element.isLayoutTypeSupported(this.getChildrenLayoutType())
+    );
   }
   /**
-   * Add a question into Panel or Page.
+   * Add a question into Panel or Page. Returns true if the question added successfully. Otherwise returns false.
    * @param question
    * @param index element index in the elements array
    */
-  public addQuestion(question: Question, index: number = -1) {
-    this.addElement(question, index);
+  public addQuestion(question: Question, index: number = -1): boolean {
+    return this.addElement(question, index);
   }
   /**
-   * Add a panel into Panel or Page.
+   * Add a panel into Panel or Page.  Returns true if the panel added successfully. Otherwise returns false.
    * @param panel
    * @param index element index in the elements array
    */
-  public addPanel(panel: PanelModel, index: number = -1) {
-    this.addElement(panel, index);
+  public addPanel(panel: PanelModel, index: number = -1): boolean {
+    return this.addElement(panel, index);
   }
   /**
-   * Creates a new question and adds it into the end of the elements list.
+   * Creates a new question and adds it into the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
    * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
    * @param name a question name
    */
   public addNewQuestion(questionType: string, name: string = null): Question {
     var question = QuestionFactory.Instance.createQuestion(questionType, name);
-    this.addQuestion(question);
+    if (!this.addQuestion(question)) return null;
     return question;
   }
   /**
-   * Creates a new panel and adds it into the end of the elements list.
+   * Creates a new panel and adds it into the end of the elements list. Returns null, if the panel could not be created or could not be added into page or panel.
    * @param name a panel name
    */
   public addNewPanel(name: string = null): PanelModel {
     var panel = this.createNewPanel(name);
-    this.addPanel(panel);
+    if (!this.addPanel(panel)) return null;
     return panel;
   }
   protected createNewPanel(name: string): PanelModel {

@@ -298,6 +298,13 @@ export class PageModel extends PanelModelBase implements IPage {
   private dragDropCanDropTagert(): boolean {
     var destination = this.dragDropInfo.destination;
     if (!destination || destination.isPage) return true;
+    if (
+      (<IElement>destination).isPanel &&
+      !this.dragDropInfo.target.isLayoutTypeSupported(
+        (<IPanel>destination).getChildrenLayoutType()
+      )
+    )
+      return false;
     return this.dragDropCanDropCore(
       this.dragDropInfo.target,
       <IElement>destination

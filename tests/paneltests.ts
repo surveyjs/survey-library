@@ -475,3 +475,9 @@ QUnit.test(
     assert.equal(q2.colCount, 0, "radiogroup.colCount is still 0");
   }
 );
+QUnit.test("FlowPanel: support limited number of questions", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  assert.notOk(flowPanel.addNewPanel("p1"), "We can't add panel");
+  assert.notOk(flowPanel.addNewQuestion("matrix", "q1"), "We can't add matrix");
+  assert.ok(flowPanel.addNewQuestion("boolean", "q1"), "We can add boolean");
+});

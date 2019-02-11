@@ -65,6 +65,9 @@ export class QuestionSelectBase extends Question {
       return items;
     };
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
+  }
   /**
    * Returns the other item. By using this property, you may change programmatically it's value and text.
    * @see hasOther

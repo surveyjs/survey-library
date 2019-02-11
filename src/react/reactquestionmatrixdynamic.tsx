@@ -80,12 +80,14 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   protected renderAddRowButton(cssClasses: any): JSX.Element {
     return (
       <div className={cssClasses.footer}>
-        <input
+        <button
           className={cssClasses.button + " " + cssClasses.buttonAdd}
           type="button"
           onClick={this.handleOnRowAddClick}
-          value={this.matrix.addRowText}
-        />
+        >
+          <span>{this.matrix.addRowText}</span>
+          <span className={cssClasses.iconAdd} />
+        </button>
       </div>
     );
   }
@@ -132,12 +134,14 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
   }
   render(): JSX.Element {
     return (
-      <input
+      <button
         className={this.cssClasses.button + " " + this.cssClasses.buttonRemove}
         type="button"
         onClick={this.handleOnRowRemoveClick}
-        value={this.question.removeRowText}
-      />
+      >
+        <span>{this.question.removeRowText}</span>
+        <span className={this.cssClasses.iconRemove} />
+      </button>
     );
   }
 }

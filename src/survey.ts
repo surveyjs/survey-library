@@ -1705,11 +1705,13 @@ export class SurveyModel extends Base
     if (this.isDesignMode) return "none";
     var page = this.currentPage;
     if (!page) return "none";
-    return (
-      page.navigationButtonsVisibility === "show" ||
-      (page.navigationButtonsVisibility !== "hide" &&
-        this.showNavigationButtons)
-    );
+    if (page.navigationButtonsVisibility === "show") {
+      return "bottom";
+    }
+    if (page.navigationButtonsVisibility === "hide") {
+      return "none";
+    }
+    return this.showNavigationButtons;
   }
   /**
    * Returns true if the survey in the edit mode.

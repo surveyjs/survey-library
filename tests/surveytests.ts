@@ -825,6 +825,20 @@ QUnit.test("onValueChanging event", function(assert) {
   survey.setValue("q1", "value0");
   assert.equal(survey.getValue("q1"), "value", "onValueChanging event allows to change value");
 });
+QUnit.test("onValueChanging event - do not allow clear value, #1542", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var q1 = page.addNewQuestion("text", "q1");
+  survey.onValueChanging.add(function(sender, options){
+    if(options.name == "q1" && !options.value) {
+      options.value = options.oldValue;
+    }
+  });
+  q1.value = 1;
+  assert.equal(q1.value, 1, "The value is 1");
+  q1.clearValue();
+  assert.equal(q1.value, 1, "The value is still 1, onValueChanging does not allow to change the value");
+});
 QUnit.test("adding, inserting Multiple Text Item correctly", function(assert) {
   var survey = twoPageSimplestSurvey();
   var multiTextQuestion = new QuestionMultipleTextModel("multitext");

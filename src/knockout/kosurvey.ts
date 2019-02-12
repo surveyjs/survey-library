@@ -104,10 +104,6 @@ export class Survey extends SurveyModel {
     if (renderedElement) {
       this.renderedElement = renderedElement;
     }
-    this.registerFunctionOnPropertyValueChanged("timeSpent", function() {
-      self.onTimeSpentChanged();
-    });
-
     this.render(renderedElement);
   }
   public nextPageUIClick() {
@@ -264,7 +260,8 @@ export class Survey extends SurveyModel {
       this.completedState !== "" ? this.css.saveData[this.completedState] : ""
     );
   }
-  protected onTimeSpentChanged() {
+  protected doTimer() {
+    super.doTimer();
     this.koTimerInfoText(this.timerInfoText);
   }
   private applyBinding() {

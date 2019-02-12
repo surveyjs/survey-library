@@ -202,7 +202,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;
-    return <SurveyTimerPanel survey={this.survey} css={this.css} />;
+    return <SurveyTimerPanel survey={this.survey} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
     return (

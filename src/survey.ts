@@ -3465,12 +3465,7 @@ export class SurveyModel extends Base
    * @see startTimer
    * @see PageModel.timeSpent
    */
-  public get timeSpent() {
-    return this.getPropertyValue("timeSpent", 0);
-  }
-  public set timeSpent(val: number) {
-    this.setPropertyValue("timeSpent", val);
-  }
+  public timeSpent = 0;
   /**
    * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.
    * @see startTimer

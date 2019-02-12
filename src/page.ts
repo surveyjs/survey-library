@@ -160,12 +160,13 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * Time in seconds end-user spent on this page
    */
-  public get timeSpent(): number {
-    return this.getPropertyValue("timeSpent", 0);
-  }
-  public set timeSpent(val: number) {
-    this.setPropertyValue("timeSpent", val);
-  }
+  public timeSpent = 0;
+  // public get timeSpent(): number {
+  //   return this.getPropertyValue("timeSpent", 0);
+  // }
+  // public set timeSpent(val: number) {
+  //   this.setPropertyValue("timeSpent", val);
+  // }
   /**
    * Returns the list of all panels in the page
    */

@@ -6,8 +6,6 @@ import { QuestionTextModel } from "../question_text";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 
 export class SurveyQuestionText extends SurveyQuestionElementBase {
-  textInput: HTMLInputElement;
-
   constructor(props: any) {
     super(props);
     this.state = { value: this.getValue(this.question.value) };
@@ -16,11 +14,6 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
   }
   protected get question(): QuestionTextModel {
     return this.questionBase as QuestionTextModel;
-  }
-  componentWillUpdate() {
-    if (this.textInput.value !== this.question.value) {
-      this.question.value = this.textInput.value;
-    }
   }
   componentWillReceiveProps(nextProps: any) {
     super.componentWillReceiveProps(nextProps);
@@ -49,9 +42,6 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         onBlur={this.handleOnBlur}
         onChange={this.handleOnChange}
         aria-label={this.question.locTitle.renderedHtml}
-        ref={input => {
-          this.textInput = input;
-        }}
       />
     );
   }

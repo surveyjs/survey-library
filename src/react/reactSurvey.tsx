@@ -153,12 +153,12 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       ? this.renderPage(this.survey.startedPage)
       : null;
     var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
-    var startButton = this.renderNavigation();
     return (
       <div>
         <div id={pageId} className={this.css.body}>
+          {this.renderNavigation("top")}
           {startedPage}
-          {startButton}
+          {this.renderNavigation("bottom")}
         </div>
       </div>
     );
@@ -174,7 +174,6 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     var bottomProgress = this.survey.isShowProgressBarOnBottom
       ? this.renderProgress(false)
       : null;
-    var buttons = currentPage ? this.renderNavigation() : null;
     if (!currentPage) {
       currentPage = this.renderEmptySurvey();
     }
@@ -182,10 +181,11 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       <div id={pageId} className={this.css.body}>
         {topProgress}
         {this.renderTimerPanel("top")}
+        {this.renderNavigation("top")}
         {currentPage}
         {this.renderTimerPanel("bottom")}
         {bottomProgress}
-        {buttons}
+        {this.renderNavigation("bottom")}
       </div>
     );
   }
@@ -202,7 +202,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;
-    return <SurveyTimerPanel survey={this.survey} css={this.css} />;
+    return <SurveyTimerPanel survey={this.survey} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
     return (
@@ -217,7 +217,14 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   protected renderProgress(isTop: boolean): JSX.Element {
     return <SurveyProgress survey={this.survey} css={this.css} isTop={isTop} />;
   }
-  protected renderNavigation(): JSX.Element {
+  protected renderNavigation(navPosition: string): JSX.Element {
+    if (
+      this.survey.isNavigationButtonsShowing !== "both" &&
+      (this.survey.isNavigationButtonsShowing === "none" ||
+        this.survey.isNavigationButtonsShowing !== navPosition)
+    ) {
+      return null;
+    }
     return <SurveyNavigation survey={this.survey} css={this.css} />;
   }
   protected renderEmptySurvey(): JSX.Element {

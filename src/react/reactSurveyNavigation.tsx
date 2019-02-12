@@ -33,7 +33,8 @@ export class SurveyNavigation extends SurveyNavigationBase {
     this.survey.start();
   }
   render(): JSX.Element {
-    if (!this.survey || !this.survey.isNavigationButtonsShowing) return null;
+    if (!this.survey || this.survey.isNavigationButtonsShowing === "none")
+      return null;
     var isStartedPage = this.survey.state === "starting";
     var prevButton =
       !isStartedPage && !this.survey.isFirstPage && this.survey.isShowPrevButton

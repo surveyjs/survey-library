@@ -2056,45 +2056,45 @@ QUnit.test("isNavigationButtonsShowing", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "by default buttons are shown"
   );
   survey.setDesignMode(true);
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
+    "none",
     "do not show buttons at design time"
   );
   survey.setDesignMode(false);
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "by default buttons are shown"
   );
   survey.showNavigationButtons = false;
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
-    "showNavigationButtons = false"
+    "none",
+    "showNavigationButtons = none"
   );
   survey.pages[0].navigationButtonsVisibility = "show";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "navigationButtonsVisibility = 'show' && showNavigationButtons = false"
   );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "hide";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
+    "none",
     "navigationButtonsVisibility = 'hide' && showNavigationButtons = true"
   );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "inherit";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true"
   );
 });

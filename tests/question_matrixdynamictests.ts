@@ -561,6 +561,51 @@ QUnit.test(
     assert.equal(cellQuestions[1].errors.length, 0, "There no errors again");
   }
 );
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - control the value in the cell",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "using",
+              choices: ["Yes", "No"],
+              cellType: "radiogroup"
+            },
+            {
+              name: "experience",
+              cellType: "text",
+              visibleIf: "{row.using} = 'Yes'"
+            }
+          ]
+        }
+      ],
+      clearInvisibleValues: "onHidden"
+    };
+    var survey = new SurveyModel(json);
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      if (options.columnName == "experience" && !options.value) {
+        options.value = options.oldValue;
+      }
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    matrix.value = [{ using: "Yes", experience: "3" }];
+    assert.equal(
+      matrix.visibleRows[0].cells[1].question.value,
+      "3",
+      "Value is 3"
+    );
+    matrix.visibleRows[0].cells[0].question.value = "No";
+    assert.equal(
+      matrix.visibleRows[0].cells[1].question.value,
+      "3",
+      "Value is still 3"
+    );
+  }
+);
 
 QUnit.test("Matrixdropdown different cell types", function(assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");

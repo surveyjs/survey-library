@@ -161,6 +161,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.name the value name that has being changed
    * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
+   * <br/> options.oldValue old, previous value.
    * <br/> options.value a new value. You may change it
    * @see setValue
    * @see onValueChanged
@@ -591,12 +592,31 @@ export class SurveyModel extends Base
    * <br/> options.value - a new value
    * <br/> options.row - the matrix row object
    * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanging
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValueChanged: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on changing cell value in Matrix Dymic and Matrix Dropdown questions. You may change the options.value property to change the value in the cell.
+   * <br/> options.question - the matrix question
+   * <br/> options.columName - the matrix column name
+   * <br/> options.value - a new value
+   * <br/> options.oldValue - the old value
+   * <br/> options.row - the matrix row object
+   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanged
+   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdded
+   * @see QuestionMatrixDynamicModel
+   * @see QuestionMatrixDropdownModel
+   */
+  public onMatrixCellValueChanging: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -2157,6 +2177,10 @@ export class SurveyModel extends Base
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
   }
+  matrixCellValueChanging(question: IQuestion, options: any) {
+    options.question = question;
+    this.onMatrixCellValueChanging.fire(this, options);
+  }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
@@ -2501,10 +2525,12 @@ export class SurveyModel extends Base
     return new PageModel(name);
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
+    if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: newValue
+      value: newValue,
+      oldValue: this.getValue(valueName)
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -2941,9 +2967,13 @@ export class SurveyModel extends Base
    * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
-  public setValue(name: string, newValue: any) {
-    newValue = this.questionOnValueChanging(name, newValue);
-    if (this.isValueEqual(name, newValue)) return;
+  public setValue(name: string, newQuestionValue: any) {
+    var newValue = this.questionOnValueChanging(name, newQuestionValue);
+    if (
+      this.isValueEqual(name, newValue) &&
+      this.isTwoValueEquals(newValue, newQuestionValue)
+    )
+      return;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {

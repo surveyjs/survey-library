@@ -1,6 +1,6 @@
 <template>
     <div :class="css.root">
-      <form>
+      <form onsubmit="return false;">
         <div class="sv_custom_header"></div>
         <div class="sv_container">
           <div v-if="hasTitle" :class="css.header"><h3><survey-string :locString="survey.locTitle"/></h3></div>

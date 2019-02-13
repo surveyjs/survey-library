@@ -3,7 +3,7 @@
 <script type="text/html" id="survey-content">
 
   <div data-bind="css: css.root, afterRender: koEventAfterRender">
-      <form>
+      <form onsubmit="return false;">
           <div class="sv_custom_header"></div>
           <div class="sv_container">
               <!-- ko if: (title.length > 0) && showTitle && koState() == 'running' -->

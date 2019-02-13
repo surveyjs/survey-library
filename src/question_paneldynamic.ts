@@ -618,9 +618,12 @@ export class QuestionPanelDynamicModel extends Question
     if (!value || !Array.isArray(value)) value = [];
     if (value.length == this.panelCount) return;
     for (var i = value.length; i < this.panelCount; i++) value.push({});
-    if (value.length > this.panelCount)
+    if (value.length > this.panelCount) {
       value.splice(this.panelCount, value.length - this.panelCount);
+    }
+    this.isValueChangingInternally = true;
     this.value = value;
+    this.isValueChangingInternally = false;
   }
   /**
    * The minimum panel count. A user could not delete a panel if the panelCount equals to minPanelCount
@@ -1268,9 +1271,7 @@ export class QuestionPanelDynamicModel extends Question
     } else {
       delete qValue[index][name];
     }
-    this.isValueChangingInternally = true;
     this.value = qValue;
-    this.isValueChangingInternally = false;
     if (this.survey) {
       var options = {
         question: this,

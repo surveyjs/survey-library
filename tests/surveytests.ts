@@ -644,6 +644,79 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612",
+  function(assert) {
+    var json = {
+      checkErrorsMode: "onValueChanged",
+      pages: [
+       {
+        name: "generalquestions",
+        elements: [
+         {
+          type: "paneldynamic",
+          name: "question2",
+          templateElements: [
+           {
+            type: "matrixdropdown",
+            name: "question1",
+            validators: [
+             {
+              type: "expression",
+              text: "Error!!!",
+              expression: "{question1.Row1.Column1} > 10"
+             }
+            ],
+            columns: [
+             {
+              name: "Column1"
+             }
+            ],
+            choices: [
+             1,
+             2,
+             30
+            ],
+            rows: [
+             "Row1",
+             "Row2"
+            ]
+           }
+          ],
+          panelCount: 1,
+          minPanelCount: 1
+         }
+        ]
+       }
+      ]
+     };
+    var survey = new SurveyModel(json);
+    var panel: any = survey.getQuestionByName("question2");
+    var question = panel.panels[0].elements[0];
+
+    //survey.data = {"question2":[{"question1":{"Row1":{"Column1":30}}}]}
+
+    assert.equal(
+      question.errors.length,
+      0,
+      "No errors at the start"
+    );
+
+    question.value = {"Row1":{"Column1":2}};
+    assert.equal(
+      question.errors.length,
+      1,
+      "The error about invalid value"
+    );
+
+    question.value = {"Row1":{"Column1":30}};
+    assert.equal(
+      question.errors.length,
+      0,
+      "No errors - choosen right value"
+    );
+  }
+);
 QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
   var survey = new SurveyModel();
   survey.goNextPageAutomatic = true;

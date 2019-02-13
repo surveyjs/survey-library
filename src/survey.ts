@@ -592,12 +592,31 @@ export class SurveyModel extends Base
    * <br/> options.value - a new value
    * <br/> options.row - the matrix row object
    * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanging
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValueChanged: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on changing cell value in Matrix Dymic and Matrix Dropdown questions. You may change the options.value property to change the value in the cell.
+   * <br/> options.question - the matrix question
+   * <br/> options.columName - the matrix column name
+   * <br/> options.value - a new value
+   * <br/> options.oldValue - the old value
+   * <br/> options.row - the matrix row object
+   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanged
+   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdded
+   * @see QuestionMatrixDynamicModel
+   * @see QuestionMatrixDropdownModel
+   */
+  public onMatrixCellValueChanging: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -2157,6 +2176,10 @@ export class SurveyModel extends Base
   matrixCellValueChanged(question: IQuestion, options: any) {
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
+  }
+  matrixCellValueChanging(question: IQuestion, options: any) {
+    options.question = question;
+    this.onMatrixCellValueChanging.fire(this, options);
   }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;

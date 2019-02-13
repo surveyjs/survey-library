@@ -309,7 +309,7 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
   }
   /**
-   * Use this property to render items in a specific order.
+   * Use this property to render items in a specific order: "asc", "desc", "random". Default value is "none".
    */
   public get choicesOrder(): string {
     return this.getPropertyValue("choicesOrder", "none");

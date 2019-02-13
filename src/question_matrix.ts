@@ -1,3 +1,4 @@
+import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject } from "./jsonobject";
@@ -210,6 +211,18 @@ export class QuestionMatrixModel
   public get hasRows(): boolean {
     return this.rows.length > 0;
   }
+  /**
+   * Use this property to render items in a specific order: "random" or "initial". Default is "initial".
+   */
+  public get rowsOrder(): string {
+    return this.getPropertyValue("rowsOrder", "initial");
+  }
+  public set rowsOrder(val: string) {
+    val = val.toLowerCase();
+    if (val == this.rowsOrder) return;
+    this.setPropertyValue("rowsOrder", val);
+    this.onRowsChanged();
+  }
   getRows(): Array<any> {
     return this.rows;
   }
@@ -235,8 +248,17 @@ export class QuestionMatrixModel
     if (result.length == 0 && !this.filteredRows) {
       result.push(this.createMatrixRow(new ItemValue(null), this.name, val));
     }
+    result = this.sortVisibleRows(result);
     this.generatedVisibleRows = result;
     return result;
+  }
+  protected sortVisibleRows(
+    array: Array<MatrixRowModel>
+  ): Array<MatrixRowModel> {
+    var order = this.rowsOrder.toLowerCase();
+    if (order == "random")
+      return Helpers.randomizeArray<MatrixRowModel>(array);
+    return array;
   }
   /**
    * Returns the list of visible rows as model objects.
@@ -399,6 +421,11 @@ JsonObject.metaData.addClass(
       name: "rows:itemvalue[]"
     },
     { name: "cells:cells", serializationProperty: "cells" },
+    {
+      name: "rowsOrder",
+      default: "initial",
+      choices: ["initial", "random"]
+    },
     "isAllRowRequired:boolean"
   ],
   function() {

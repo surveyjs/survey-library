@@ -149,7 +149,7 @@ module.exports = function(options) {
   var mainFile =
     options.platform === "vue"
       ? "survey-vue.js"
-      : "survey." + options.platformPrefix + ".js";
+      : "survey." + options.platformPrefix + (options.buildType === "prod" ? ".min" : "") + ".js";
   var packagePlatformJson = {
     name: "survey-" + options.platform,
     version: packageJson.version,

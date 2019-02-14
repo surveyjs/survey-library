@@ -37,7 +37,7 @@
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
     "@types/react": "16.4.2",
-    "@types/react-dom": "^16.0.4",
+    "@types/react-dom": "16.8.0",
     "ajv": "4.11.2",
     "concurrently": "3.1.0",
     "css-loader": "0.26.1",

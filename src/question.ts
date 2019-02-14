@@ -136,6 +136,16 @@ export class Question extends SurveyElement
   public getPanel(): IPanel {
     return null;
   }
+  public get isFlowLayout(): boolean {
+    return this.getLayoutType() === "flow";
+  }
+  public getLayoutType(): string {
+    if (!!this.parent) return this.parent.getChildrenLayoutType();
+    return "row";
+  }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return layoutType !== "flow";
+  }
   /**
    * Use it to get/set the question visibility.
    * @see visibleIf
@@ -232,7 +242,7 @@ export class Question extends SurveyElement
     if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
       this.onVisibleChanged();
     }
-    if (!!this.data && !this.isLoadingFromJson) {
+    if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
@@ -254,7 +264,9 @@ export class Question extends SurveyElement
   }
   public set parent(val: IPanel) {
     this.setPropertyValue("parent", val);
+    this.onParentChanged();
   }
+  protected onParentChanged() {}
   /**
    * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"
    * @see titleLocation
@@ -284,6 +296,7 @@ export class Question extends SurveyElement
    * @see SurveyModel.QuestionTitleLocation
    */
   public getTitleLocation(): string {
+    if (this.isFlowLayout) return "hidden";
     var location = this.getTitleLocationCore();
     if (location === "left" && !this.isAllowTitleLeft) location = "top";
     return location;
@@ -467,6 +480,21 @@ export class Question extends SurveyElement
       this.survey.updateQuestionCssClasses(this, classes);
     }
     return classes;
+  }
+  public get cssMainRoot(): any {
+    var classes = this.cssClasses;
+    var res =
+      this.isFlowLayout && !this.isDesignMode
+        ? classes.flowRoot
+        : classes.mainRoot;
+    if (!this.isFlowLayout && this.getTitleLocation() == "left") {
+      res += " " + classes.titleLeftRoot;
+    }
+    if (this.errors.length > 0) {
+      res += " " + classes.hasError;
+    }
+
+    return res;
   }
   protected getRootCss(classes: any) {
     return classes.question.root;

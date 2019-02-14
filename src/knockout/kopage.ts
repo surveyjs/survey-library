@@ -108,7 +108,7 @@ export class Panel extends PanelModel {
 export class Page extends PageModel {
   constructor(name: string = "") {
     super(name);
-    new PanelImplementorBase(this);
+    new ImplementorBase(this);
     this.onCreating();
   }
   protected createRow(): QuestionRowModel {

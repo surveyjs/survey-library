@@ -264,24 +264,23 @@ export class PageModel extends PanelModelBase implements IPage {
     if (!this.dragDropInfo) return;
     var target = this.dragDropInfo.target;
     var row = this.dragDropFindRow(target);
-    if (!isCancel) {
-      var targetIndex = this.dragDropGetElementIndex(target, row);
+    var targetIndex = this.dragDropGetElementIndex(target, row);
+    this.updateRowsRemoveElementFromRow(target, row);
+    if (!isCancel && !!row) {
       var src = this.dragDropInfo.source;
+      var isSamePanel = false;
       if (!!src && !!src.parent) {
-        var srcIndex = (<PanelModelBase>src.parent).elements.indexOf(src);
-        if (!!row && row.panel == src.parent && targetIndex > srcIndex) {
-          targetIndex--;
-        }
-        if (!!row) {
+        isSamePanel = row.panel == src.parent;
+        if (isSamePanel) {
+          row.panel.dragDropMoveElement(src, target, targetIndex);
+          targetIndex = -1;
+        } else {
           src.parent.removeElement(src);
         }
       }
-      this.updateRowsRemoveElementFromRow(target, row);
-      if (!!row && targetIndex > -1) {
+      if (targetIndex > -1) {
         row.panel.addElement(target, targetIndex);
       }
-    } else {
-      this.updateRowsRemoveElementFromRow(target, row);
     }
     this.dragDropInfo = null;
     return !isCancel ? target : null;
@@ -300,6 +299,13 @@ export class PageModel extends PanelModelBase implements IPage {
   private dragDropCanDropTagert(): boolean {
     var destination = this.dragDropInfo.destination;
     if (!destination || destination.isPage) return true;
+    if (
+      (<IElement>destination).isPanel &&
+      !this.dragDropInfo.target.isLayoutTypeSupported(
+        (<IPanel>destination).getChildrenLayoutType()
+      )
+    )
+      return false;
     return this.dragDropCanDropCore(
       this.dragDropInfo.target,
       <IElement>destination

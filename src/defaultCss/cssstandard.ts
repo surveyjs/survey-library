@@ -33,6 +33,8 @@ export var defaultStandardCss = {
   row: "sv_row",
   question: {
     mainRoot: "sv_q sv_qstn",
+    flowRoot: "sv_qstn",
+    titleLeftRoot: "sv_qstn_left",
     title: "sv_q_title",
     description: "sv_q_description",
     comment: "",

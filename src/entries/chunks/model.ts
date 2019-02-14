@@ -72,6 +72,7 @@ export {
   QuestionMultipleTextModel
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
+export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
 export { Question } from "../../question";
 export { QuestionNonValue } from "../../questionnonvalue";

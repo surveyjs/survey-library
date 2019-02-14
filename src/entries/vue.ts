@@ -52,4 +52,6 @@ export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { Progress } from "../vue/progress.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";
+export { FlowPanel } from "../vue/flowpanel.vue";
+export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";

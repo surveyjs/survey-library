@@ -13,6 +13,17 @@ export interface ISurveyCreator {
 }
 
 export class SurveyQuestion extends SurveyElementBase {
+  public static renderQuestionBody(
+    creator: ISurveyCreator,
+    question: Question
+  ): JSX.Element {
+    if (!question.visible) return null;
+    var customWidget = question.customWidget;
+    if (!customWidget) {
+      return creator.createQuestionElement(question);
+    }
+    return <SurveyCustomWidget creator={creator} question={question} />;
+  }
   protected question: Question;
   private creator: ISurveyCreator;
   constructor(props: any) {
@@ -79,13 +90,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var descriptionLeft = titleLocation === "left" ? description : null;
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
-    let questionRootClass =
-      titleLocation === "left"
-        ? cssClasses.mainRoot + " sv_qstn_left"
-        : cssClasses.mainRoot;
-    if (!!this.question.errors && this.question.errors.length > 0) {
-      questionRootClass += " " + cssClasses.hasError;
-    }
+    let questionRootClass = this.question.cssMainRoot;
     var comment =
       this.question && this.question.hasComment
         ? this.renderComment(cssClasses)
@@ -132,13 +137,7 @@ export class SurveyQuestion extends SurveyElementBase {
     );
   }
   protected renderQuestion(): JSX.Element {
-    var customWidget = this.question.customWidget;
-    if (!customWidget) {
-      return this.creator.createQuestionElement(this.question);
-    }
-    return (
-      <SurveyCustomWidget creator={this.creator} question={this.question} />
-    );
+    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
   protected renderTitle(cssClasses: any): JSX.Element {
     var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
@@ -256,13 +255,6 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected set question(val: Question) {
     this.questionValue = val;
   }
-  private getState(increaseError: boolean = false): any {
-    if (!this.question) return;
-    var q = this.question;
-    var error = !!this.state && !!this.state.error ? this.state.error : 0;
-    if (increaseError) error++;
-    return { isReadOnly: q.isReadOnly, visible: q.visible, error: error };
-  }
   componentWillMount() {
     this.makeBaseElementReact(this.question);
   }
@@ -307,7 +299,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       this.creator.questionErrorLocation() === "top" ? errorsTop : null;
     var errorsBottom =
       this.creator.questionErrorLocation() === "bottom" ? errorsBottom : null;
-    var renderedCell = this.renderCell();
+    var renderedCell = this.renderQuestion();
     return (
       <td
         ref="cell"
@@ -324,14 +316,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
       </td>
     );
   }
-  renderCell(): JSX.Element {
-    if (!this.question.visible) return null;
-    var customWidget = this.question.customWidget;
-    if (!customWidget) {
-      return this.creator.createQuestionElement(this.question);
-    }
-    return (
-      <SurveyCustomWidget creator={this.creator} question={this.question} />
-    );
+  private renderQuestion(): JSX.Element {
+    return SurveyQuestion.renderQuestionBody(this.creator, this.question);
   }
 }

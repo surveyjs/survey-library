@@ -32,13 +32,11 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
-
 @Component
 export class SurveyElementVue extends Vue {
   @Prop css: any;
   @Prop survey: SurveyModel;
   @Prop element: IElement;
-
   getWidgetComponentName(element: Question) {
     if (element.customWidget) {
       return "survey-customwidget";
@@ -46,8 +44,8 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getQuestionClass(element: Question) {
-    if (!!element.errors && element.errors.length > 0) {
-      return this.css.question.hasError;
+    if (!!element.cssMainRoot) {
+      return element.cssMainRoot;
     }
     return "";
   }

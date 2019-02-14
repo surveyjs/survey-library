@@ -6,6 +6,9 @@ import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { FlowPanelModel } from "../src/flowpanel";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("Panel");
 
@@ -391,4 +394,90 @@ QUnit.test("Get first focused question correctly, Bug#1417", function(assert) {
     "q7",
     "The first question for focusing with errors is q7"
   );
+});
+
+QUnit.test("Flow Panel, add new element/remove element", function(assert) {
+  var panel = new FlowPanelModel("p");
+  panel.addNewQuestion("text", "q1");
+  assert.equal(panel.content, "{element:q1}", "element was added into content");
+  panel.removeElement(panel.elements[0]);
+  assert.equal(panel.content, "", "element is removed from content");
+});
+
+QUnit.test("getLayoutType()", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var q1 = page.addNewQuestion("text", "q1");
+  var flowPanel = new FlowPanelModel("flowPanel");
+  page.addElement(flowPanel);
+  var panel = page.addNewPanel("panel");
+  var q2 = panel.addNewQuestion("text", "q2");
+  var q3 = flowPanel.addNewQuestion("text", "q3");
+
+  assert.equal(page.getLayoutType(), "row");
+  assert.equal(panel.getLayoutType(), "row");
+  assert.equal(flowPanel.getLayoutType(), "row");
+  assert.equal(panel.getChildrenLayoutType(), "row");
+  assert.equal(flowPanel.getChildrenLayoutType(), "flow");
+  assert.equal(q1.getLayoutType(), "row");
+  assert.equal(q2.getLayoutType(), "row");
+  assert.equal(q3.getLayoutType(), "flow");
+});
+
+QUnit.test("Hide question title for flow layout", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  var q = flowPanel.addNewQuestion("text", "q");
+  assert.equal(q.getTitleLocation(), "hidden", "Hide for flow layout");
+});
+QUnit.test("Do not generate rows and do not set renderWidth", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  var q = flowPanel.addNewQuestion("text", "q");
+  assert.equal(flowPanel.rows.length, 0, "There is no rows");
+  assert.equal(q.renderWidth, "", "render width is empty");
+});
+QUnit.test("question.cssMainRootClass", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var flowPanel = new FlowPanelModel("flowPanel");
+  page.addElement(flowPanel);
+  var q1 = flowPanel.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  assert.equal(q1.cssMainRoot, "sv_qstn", "flow question.cssMainRoot");
+  assert.equal(q2.cssMainRoot, "sv_q sv_qstn", "non flow question.cssMainRoot");
+  q1.titleLocation = "left";
+  q2.titleLocation = "left";
+  assert.equal(q1.cssMainRoot, "sv_qstn", "flow question.cssMainRoot");
+  assert.equal(
+    q2.cssMainRoot,
+    "sv_q sv_qstn sv_qstn_left",
+    "non flow question.cssMainRoot"
+  );
+});
+QUnit.test(
+  "FlowPanel: checkbox and radiogroup - always keep colCount to 0",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var flowPanel = new FlowPanelModel("flowPanel");
+    page.addElement(flowPanel);
+    var q1 = <QuestionCheckboxModel>flowPanel.addNewQuestion("checkbox", "q1");
+    var q2 = <QuestionRadiogroupModel>flowPanel.addNewQuestion(
+      "radiogroup",
+      "q2"
+    );
+    assert.equal(q1.colCount, 0, "checkbox.colCount is 0 now");
+    assert.equal(q2.colCount, 0, "radiogroup.colCount is 0 now");
+    var q3 = new QuestionCheckboxModel("q3");
+    q3.colCount = 2;
+    flowPanel.addElement(q3);
+    assert.equal(q3.colCount, 0, "q3.colCount is 0 now");
+    q2.colCount = 2;
+    assert.equal(q2.colCount, 0, "radiogroup.colCount is still 0");
+  }
+);
+QUnit.test("FlowPanel: support limited number of questions", function(assert) {
+  var flowPanel = new FlowPanelModel("flowPanel");
+  assert.notOk(flowPanel.addNewPanel("p1"), "We can't add panel");
+  assert.notOk(flowPanel.addNewQuestion("matrix", "q1"), "We can't add matrix");
+  assert.ok(flowPanel.addNewQuestion("boolean", "q1"), "We can add boolean");
 });

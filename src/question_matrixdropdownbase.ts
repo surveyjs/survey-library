@@ -22,6 +22,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
+import { russianSurveyStrings } from "./localization/russian";
 
 export interface IMatrixDropdownData {
   onRowChanged(
@@ -29,6 +30,11 @@ export interface IMatrixDropdownData {
     columnName: string,
     newRowValue: any
   ): void;
+  onRowChanging(
+    row: MatrixDropdownRowModelBase,
+    columnName: string,
+    rowValue: any
+  ): any;
   getRowIndex(row: MatrixDropdownRowModelBase): number;
   validateCell(
     row: MatrixDropdownRowModelBase,
@@ -78,7 +84,8 @@ export var matrixDropdownColumnTypes = {
       "choicesOrder",
       "choicesByUrl",
       "optionsCaption",
-      "otherText"
+      "otherText",
+      "choicesVisibleIf"
     ],
     onCellQuestionUpdate: (
       cellQuestion: any,
@@ -92,7 +99,13 @@ export var matrixDropdownColumnTypes = {
     }
   },
   checkbox: {
-    properties: ["choices", "choicesOrder", "choicesByUrl", "otherText"],
+    properties: [
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf"
+    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -105,7 +118,13 @@ export var matrixDropdownColumnTypes = {
     }
   },
   radiogroup: {
-    properties: ["choices", "choicesOrder", "choicesByUrl", "otherText"],
+    properties: [
+      "choices",
+      "choicesOrder",
+      "choicesByUrl",
+      "otherText",
+      "choicesVisibleIf"
+    ],
     onCellQuestionUpdate: (
       cellQuestion: any,
       column: any,
@@ -567,8 +586,19 @@ export class MatrixDropdownRowModelBase
   }
   public setValue(name: string, newValue: any) {
     if (this.isSettingValue) return;
-    this.data.onRowChanged(this, name, this.value);
-    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+    var newValue = this.value;
+    var changedValue = this.getValue(name);
+    var changedQuestion = this.getQuestionByColumnName(name);
+    var changingValue = this.data.onRowChanging(this, name, newValue);
+    if (
+      !!changedQuestion &&
+      !Helpers.isTwoValueEquals(changingValue, changedValue)
+    ) {
+      this.getQuestionByColumnName(name).value = changingValue;
+    } else {
+      this.data.onRowChanged(this, name, newValue);
+      this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+    }
   }
   public getComment(name: string): string {
     var result = this.getValue(name + Base.commentPrefix);
@@ -1049,8 +1079,9 @@ export class QuestionMatrixDropdownModelBase
   ): any {
     for (var i = 0; i < this.columns.length; i++) {
       var column = this.columns[i];
-      if (rowValue[column.name]) {
-        rowValue[column.name] = row.cells[i].question.displayValue;
+      var question = !!row.cells[i] ? row.cells[i].question : null;
+      if (!!question && rowValue[column.name]) {
+        rowValue[column.name] = question.displayValue;
       }
     }
     return rowValue;
@@ -1190,12 +1221,11 @@ export class QuestionMatrixDropdownModelBase
   protected isObject(value: any) {
     return value !== null && typeof value === "object";
   }
-  protected onCellValueChanged(
+  private getOnCellValueChangedOptions(
     row: MatrixDropdownRowModelBase,
     columnName: string,
     rowValue: any
-  ) {
-    if (!this.survey) return;
+  ): any {
     var self = this;
     var getQuestion = function(colName: any) {
       for (var i = 0; self.columns.length; i++) {
@@ -1205,13 +1235,21 @@ export class QuestionMatrixDropdownModelBase
       }
       return null;
     };
-    var options = {
+    return {
       row: row,
       columnName: columnName,
       rowValue: rowValue,
-      value: rowValue[columnName],
+      value: !!rowValue ? rowValue[columnName] : null,
       getCellQuestion: getQuestion
     };
+  }
+  protected onCellValueChanged(
+    row: MatrixDropdownRowModelBase,
+    columnName: string,
+    rowValue: any
+  ) {
+    if (!this.survey) return;
+    var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     this.survey.matrixCellValueChanged(this, options);
   }
   validateCell(
@@ -1228,6 +1266,18 @@ export class QuestionMatrixDropdownModelBase
       value: rowValue[columnName]
     };
     return this.survey.matrixCellValidate(this, options);
+  }
+  onRowChanging(
+    row: MatrixDropdownRowModelBase,
+    columnName: string,
+    rowValue: any
+  ): any {
+    if (!this.survey) return !!rowValue ? rowValue[columnName] : null;
+    var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
+    var oldRowValue = this.getRowValueCore(row, this.createNewValue(), true);
+    options.oldValue = !!oldRowValue ? oldRowValue[columnName] : null;
+    this.survey.matrixCellValueChanging(this, options);
+    return options.value;
   }
   onRowChanged(
     row: MatrixDropdownRowModelBase,

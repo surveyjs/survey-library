@@ -180,7 +180,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           }
         } else {
           if (newNoneIndex > -1) {
-            newValue = [this.noneItem.value];
+            newValue.splice(0, newValue.length);
+            newValue.push(this.noneItem.value);
           }
         }
       }

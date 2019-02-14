@@ -161,6 +161,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.name the value name that has being changed
    * <br/> options.question a question which question.name equals to the value name. If there are several questions with the same name, the first question is taken. If there is no such questions, the options.question is null.
+   * <br/> options.oldValue old, previous value.
    * <br/> options.value a new value. You may change it
    * @see setValue
    * @see onValueChanged
@@ -591,12 +592,31 @@ export class SurveyModel extends Base
    * <br/> options.value - a new value
    * <br/> options.row - the matrix row object
    * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanging
    * @see onMatrixBeforeRowAdded
    * @see onMatrixRowAdded
    * @see QuestionMatrixDynamicModel
    * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValueChanged: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired on changing cell value in Matrix Dymic and Matrix Dropdown questions. You may change the options.value property to change the value in the cell.
+   * <br/> options.question - the matrix question
+   * <br/> options.columName - the matrix column name
+   * <br/> options.value - a new value
+   * <br/> options.oldValue - the old value
+   * <br/> options.row - the matrix row object
+   * <br/> options.getCellQuestion(columnName) - the function that returns the cell question by column name.
+   * @see onMatrixCellValueChanged
+   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdded
+   * @see QuestionMatrixDynamicModel
+   * @see QuestionMatrixDropdownModel
+   */
+  public onMatrixCellValueChanging: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -852,14 +872,20 @@ export class SurveyModel extends Base
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Set it to false to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
+   * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
    * @see goNextPageAutomatic
    * @see showPrevButton
    */
-  public get showNavigationButtons(): boolean {
-    return this.getPropertyValue("showNavigationButtons", true);
+  public get showNavigationButtons(): string | any {
+    return this.getPropertyValue("showNavigationButtons", "bottom");
   }
-  public set showNavigationButtons(val: boolean) {
+  public set showNavigationButtons(val: string | any) {
+    if (val === true || val === undefined) {
+      val = "bottom";
+    }
+    if (val === false) {
+      val = "none";
+    }
     this.setPropertyValue("showNavigationButtons", val);
   }
   /**
@@ -1695,14 +1721,17 @@ export class SurveyModel extends Base
   /**
    * Returns true if navigation buttons: 'Prev', 'Next' or 'Complete' are shown.
    */
-  public get isNavigationButtonsShowing(): boolean {
-    if (this.isDesignMode) return false;
+  public get isNavigationButtonsShowing(): string {
+    if (this.isDesignMode) return "none";
     var page = this.currentPage;
-    if (!page) return false;
-    return (
-      page.navigationButtonsVisibility == "show" ||
-      (page.navigationButtonsVisibility != "hide" && this.showNavigationButtons)
-    );
+    if (!page) return "none";
+    if (page.navigationButtonsVisibility === "show") {
+      return "bottom";
+    }
+    if (page.navigationButtonsVisibility === "hide") {
+      return "none";
+    }
+    return this.showNavigationButtons;
   }
   /**
    * Returns true if the survey in the edit mode.
@@ -2148,6 +2177,10 @@ export class SurveyModel extends Base
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
   }
+  matrixCellValueChanging(question: IQuestion, options: any) {
+    options.question = question;
+    this.onMatrixCellValueChanging.fire(this, options);
+  }
   matrixCellValidate(question: IQuestion, options: any): SurveyError {
     options.question = question;
     this.onMatrixCellValidate.fire(this, options);
@@ -2492,10 +2525,12 @@ export class SurveyModel extends Base
     return new PageModel(name);
   }
   protected questionOnValueChanging(valueName: string, newValue: any): any {
+    if (this.onValueChanging.isEmpty) return newValue;
     var options = {
       name: valueName,
       question: this.getQuestionByValueName(valueName),
-      value: newValue
+      value: newValue,
+      oldValue: this.getValue(valueName)
     };
     this.onValueChanging.fire(this, options);
     return options.value;
@@ -2932,9 +2967,13 @@ export class SurveyModel extends Base
    * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
-  public setValue(name: string, newValue: any) {
-    newValue = this.questionOnValueChanging(name, newValue);
-    if (this.isValueEqual(name, newValue)) return;
+  public setValue(name: string, newQuestionValue: any) {
+    var newValue = this.questionOnValueChanging(name, newQuestionValue);
+    if (
+      this.isValueEqual(name, newValue) &&
+      this.isTwoValueEquals(newValue, newQuestionValue)
+    )
+      return;
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
@@ -3456,12 +3495,7 @@ export class SurveyModel extends Base
    * @see startTimer
    * @see PageModel.timeSpent
    */
-  public get timeSpent() {
-    return this.getPropertyValue("timeSpent", 0);
-  }
-  public set timeSpent(val: number) {
-    this.setPropertyValue("timeSpent", val);
-  }
+  public timeSpent = 0;
   /**
    * The maximum time in seconds that end-user has to complete the survey. If the value is 0 or less, the end-user has unlimited number of time to finish the survey.
    * @see startTimer
@@ -3585,7 +3619,11 @@ JsonObject.metaData.addClass("survey", [
   { name: "surveyShowDataSaving:boolean", visible: false },
   "cookieName",
   "sendResultOnPageNext:boolean",
-  { name: "showNavigationButtons:boolean", default: true },
+  {
+    name: "showNavigationButtons",
+    default: "bottom",
+    choices: ["none", "top", "bottom", "both"]
+  },
   { name: "showPrevButton:boolean", default: true },
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },

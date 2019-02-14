@@ -95,10 +95,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.unMakeBaseElementReact(this.item);
   }
   handleOnChange(event: any) {
-    var newValue = this.question.value;
-    if (!newValue) {
-      newValue = [];
-    }
+    var newValue = [].concat(this.question.value || []);
     var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
       if (index < 0) {
@@ -110,7 +107,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       }
     }
     this.question.value = newValue;
-    this.setState({ value: this.question.value });
   }
   selectAllChanged(event: any) {
     this.question.toggleSelectAll();

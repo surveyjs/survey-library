@@ -644,6 +644,79 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612",
+  function(assert) {
+    var json = {
+      checkErrorsMode: "onValueChanged",
+      pages: [
+       {
+        name: "generalquestions",
+        elements: [
+         {
+          type: "paneldynamic",
+          name: "question2",
+          templateElements: [
+           {
+            type: "matrixdropdown",
+            name: "question1",
+            validators: [
+             {
+              type: "expression",
+              text: "Error!!!",
+              expression: "{question1.Row1.Column1} > 10"
+             }
+            ],
+            columns: [
+             {
+              name: "Column1"
+             }
+            ],
+            choices: [
+             1,
+             2,
+             30
+            ],
+            rows: [
+             "Row1",
+             "Row2"
+            ]
+           }
+          ],
+          panelCount: 1,
+          minPanelCount: 1
+         }
+        ]
+       }
+      ]
+     };
+    var survey = new SurveyModel(json);
+    var panel: any = survey.getQuestionByName("question2");
+    var question = panel.panels[0].elements[0];
+
+    //survey.data = {"question2":[{"question1":{"Row1":{"Column1":30}}}]}
+
+    assert.equal(
+      question.errors.length,
+      0,
+      "No errors at the start"
+    );
+
+    question.value = {"Row1":{"Column1":2}};
+    assert.equal(
+      question.errors.length,
+      1,
+      "The error about invalid value"
+    );
+
+    question.value = {"Row1":{"Column1":30}};
+    assert.equal(
+      question.errors.length,
+      0,
+      "No errors - choosen right value"
+    );
+  }
+);
 QUnit.test("Should not be errors after prevPage bug#151", function(assert) {
   var survey = new SurveyModel();
   survey.goNextPageAutomatic = true;
@@ -824,6 +897,20 @@ QUnit.test("onValueChanging event", function(assert) {
   assert.equal(counter, 3, "onValueChanging event is called three time");
   survey.setValue("q1", "value0");
   assert.equal(survey.getValue("q1"), "value", "onValueChanging event allows to change value");
+});
+QUnit.test("onValueChanging event - do not allow clear value, #1542", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page");
+  var q1 = page.addNewQuestion("text", "q1");
+  survey.onValueChanging.add(function(sender, options){
+    if(options.name == "q1" && !options.value) {
+      options.value = options.oldValue;
+    }
+  });
+  q1.value = 1;
+  assert.equal(q1.value, 1, "The value is 1");
+  q1.clearValue();
+  assert.equal(q1.value, 1, "The value is still 1, onValueChanging does not allow to change the value");
 });
 QUnit.test("adding, inserting Multiple Text Item correctly", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -2042,45 +2129,45 @@ QUnit.test("isNavigationButtonsShowing", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "by default buttons are shown"
   );
   survey.setDesignMode(true);
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
+    "none",
     "do not show buttons at design time"
   );
   survey.setDesignMode(false);
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "by default buttons are shown"
   );
   survey.showNavigationButtons = false;
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
-    "showNavigationButtons = false"
+    "none",
+    "showNavigationButtons = none"
   );
   survey.pages[0].navigationButtonsVisibility = "show";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "navigationButtonsVisibility = 'show' && showNavigationButtons = false"
   );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "hide";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    false,
+    "none",
     "navigationButtonsVisibility = 'hide' && showNavigationButtons = true"
   );
   survey.showNavigationButtons = true;
   survey.pages[0].navigationButtonsVisibility = "inherit";
   assert.equal(
     survey.isNavigationButtonsShowing,
-    true,
+    "bottom",
     "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true"
   );
 });

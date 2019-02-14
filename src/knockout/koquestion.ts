@@ -11,23 +11,23 @@ export class QuestionImplementor extends ImplementorBase {
   private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
+    var isSynchronizing = false;
     this._koValue.subscribe(newValue => {
-      this.question.value = newValue;
+      if (!isSynchronizing) {
+        this.question.value = newValue;
+      }
     });
     Object.defineProperty(this.question, "koValue", {
       get: () => {
         if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
-          this._koValue(this.question.value);
+          try {
+            isSynchronizing = true;
+            this._koValue(this.question.value);
+          } finally {
+            isSynchronizing = false;
+          }
         }
         return this._koValue;
-      },
-      set: (newValue: any) => {
-        if (Array.isArray(this.question.value)) {
-          var newVal = [].concat(ko.unwrap(newValue));
-          this.question.value = newVal;
-        } else {
-          this.question.value = ko.unwrap(newValue);
-        }
       },
       enumerable: true,
       configurable: true

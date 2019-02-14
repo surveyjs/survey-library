@@ -561,6 +561,51 @@ QUnit.test(
     assert.equal(cellQuestions[1].errors.length, 0, "There no errors again");
   }
 );
+QUnit.test(
+  "Matrixdynamic onMatrixValueChanging - control the value in the cell",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "using",
+              choices: ["Yes", "No"],
+              cellType: "radiogroup"
+            },
+            {
+              name: "experience",
+              cellType: "text",
+              visibleIf: "{row.using} = 'Yes'"
+            }
+          ]
+        }
+      ],
+      clearInvisibleValues: "onHidden"
+    };
+    var survey = new SurveyModel(json);
+    survey.onMatrixCellValueChanging.add(function(sender, options) {
+      if (options.columnName == "experience" && !options.value) {
+        options.value = options.oldValue;
+      }
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    matrix.value = [{ using: "Yes", experience: "3" }];
+    assert.equal(
+      matrix.visibleRows[0].cells[1].question.value,
+      "3",
+      "Value is 3"
+    );
+    matrix.visibleRows[0].cells[0].question.value = "No";
+    assert.equal(
+      matrix.visibleRows[0].cells[1].question.value,
+      "3",
+      "Value is still 3"
+    );
+  }
+);
 
 QUnit.test("Matrixdropdown different cell types", function(assert) {
   var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -1866,3 +1911,100 @@ QUnit.test(
     );
   }
 );
+QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function(assert) {
+  var json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "group_clinician_user_attributes",
+            title: "Clinician members",
+            columnsVisibleIf: "{item} != 'id'",
+            columns: [
+              {
+                name: "id",
+                cellType: "text"
+              },
+              {
+                name: "user_id",
+                title: "user",
+                cellType: "dropdown",
+                choices: [
+                  {
+                    value: "2",
+                    text: "Test User 1"
+                  },
+                  {
+                    value: "4",
+                    text: "Test User 2"
+                  },
+                  {
+                    value: "6",
+                    text: "Test User 3"
+                  },
+                  {
+                    value: "8",
+                    text: "Test User 4"
+                  },
+                  {
+                    value: "10",
+                    text: "Test User 5"
+                  }
+                ]
+              },
+              {
+                name: "role",
+                cellType: "dropdown",
+                visibleIf: "{row.user_id} notempty and {roles} notempty",
+                choices: [
+                  "PI",
+                  "Collaborator",
+                  "Co-Investigator",
+                  "Technician",
+                  "PhD-Student",
+                  "Student",
+                  "Post-Doc",
+                  "Researcher",
+                  "MD"
+                ],
+                optionsCaption: "not specified",
+                choicesVisibleIf: "{roles} contains {item}"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = {
+    name: "excepturidd",
+    roles: ["Co-Investigator", "Collaborator"],
+    acl: [
+      {
+        group_id: "4",
+        actions: ["read"]
+      }
+    ],
+    owner_id: 1,
+    group_clinician_user_attributes: [
+      {
+        id: 61,
+        role: "Collaborator",
+        user_id: 4
+      },
+      {
+        id: 63,
+        role: null,
+        user_id: 8
+      }
+    ]
+  };
+  assert.equal(
+    survey.getQuestionByName("group_clinician_user_attributes").name,
+    "group_clinician_user_attributes",
+    "There is no exception"
+  );
+});

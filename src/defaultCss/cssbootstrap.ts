@@ -79,7 +79,9 @@ export var defaultBootstrapCss = {
     root: "table",
     button: "button",
     buttonAdd: "",
-    buttonRemove: ""
+    buttonRemove: "",
+    iconAdd: "",
+    iconRemove: ""
   },
   paneldynamic: {
     root: "",

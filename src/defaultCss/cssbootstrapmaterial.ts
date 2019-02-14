@@ -83,7 +83,9 @@ export var defaultBootstrapMaterialCss = {
     button: "btn btn-primary",
     itemValue: "form-group",
     buttonAdd: "",
-    buttonRemove: ""
+    buttonRemove: "",
+    iconAdd: "",
+    iconRemove: ""
   },
   paneldynamic: {
     root: "",

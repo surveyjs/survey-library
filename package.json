@@ -18,8 +18,8 @@
     "build_jquery_prod": "webpack --env.buildType prod --env.platform jquery",
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\"",
-    "doc_gen": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docgenerator.ts src/entries/chunks/model.ts",
-    "doc_update": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docupdater.ts",
+    "doc_gen": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\", \"importHelpers\":false, \"noImplicitAny\":false} && ts-node doc_generator/lib_docgenerator.ts src/entries/chunks/model.ts",
+    "doc_update": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\", \"importHelpers\":false, \"noImplicitAny\":false} && ts-node doc_generator/lib_docupdater.ts",
     "lint": "tslint ./src/**/*.ts -t verbose",
     "watch_knockout_dev": "webpack --env.buildType dev --env.platform knockout --watch",
     "watch_react_dev": "webpack --env.buildType dev --env.platform react --watch",
@@ -27,7 +27,7 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.67",
+  "version": "1.0.69",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {

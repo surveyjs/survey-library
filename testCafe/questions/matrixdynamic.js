@@ -233,7 +233,7 @@ frameworks.forEach(framework => {
       .click(
         `${baseSelectorFunc`${2}${1}`} select option[value="Science: Chemistry"]`
       )
-      .click(`${baseSelectorFunc`${2}${16}`} input[type=button][value=Remove]`);
+      .click(Selector(`${baseSelectorFunc`${2}${16}`} button[type=button]`).withText('Remove'));
 
     newCount = await getRowCount();
     assert(newCount === oldCount - 1);
@@ -256,7 +256,7 @@ frameworks.forEach(framework => {
     };
 
     await t
-      .click(`input[type=button][value="Add Subject"]`)
+      .click(Selector(`button[type=button]`).withText('Add Subject'))
       .click(`${baseSelectorFunc`${1}${1}`} select`)
       .click(
         `${baseSelectorFunc`${1}${1}`} select option[value="Science: Physical Science"]`

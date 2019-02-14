@@ -1,13 +1,27 @@
 <template>
-    <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
-        <div v-if="question.isAddRowOnTop" :class="question.cssClasses.footer">
-            <input type="button" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd" :value="question.addRowText" @click="addRowClick"/>
-        </div>
-        <survey-matrixtable :question="question" />
-        <div v-if="question.isAddRowOnBottom" :class="question.cssClasses.footer">
-            <input type="button" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd" :value="question.addRowText" @click="addRowClick"/>
-        </div>
+  <div :style="{overflowX: question.horizontalScroll? 'scroll': ''}">
+    <div v-if="question.isAddRowOnTop" :class="question.cssClasses.footer">
+      <button
+        type="button"
+        :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+        @click="addRowClick"
+      >
+        <span>{{question.addRowText}}</span>
+        <span :class="question.cssClasses.iconAdd"></span>
+      </button>
     </div>
+    <survey-matrixtable :question="question"/>
+    <div v-if="question.isAddRowOnBottom" :class="question.cssClasses.footer">
+      <button
+        type="button"
+        :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd"
+        @click="addRowClick"
+      >
+        <span>{{question.addRowText}}</span>
+        <span :class="question.cssClasses.iconAdd"></span>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">

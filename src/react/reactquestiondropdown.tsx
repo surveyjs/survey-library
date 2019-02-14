@@ -60,6 +60,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       var option = <SurveyQuestionOptionItem key={key} item={item} />;
       options.push(option);
     }
+    var captionOption = this.question.showOptionsCaption ? (
+      <option value="">{this.question.optionsCaption}</option>
+    ) : null;
 
     return (
       <div className={cssClasses.selectWrapper}>
@@ -71,9 +74,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
         >
-          (this.question.showOptionsCaption ? (<option value="">
-            {this.question.optionsCaption}
-          </option>) : null)
+          {captionOption}
           {options}
         </select>
       </div>

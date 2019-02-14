@@ -42,11 +42,11 @@ export class FlowPanel extends FlowPanelModel {
 JsonObject.metaData.overrideClassCreatore("flowpanel", function() {
   return new FlowPanel();
 });
-
+/*
 ElementFactory.Instance.registerElement("flowpanel", name => {
   return new FlowPanel(name);
 });
-
+*/
 ko.components.register("f-panel", {
   viewModel: {
     createViewModel: function(params: any, componentInfo: any) {

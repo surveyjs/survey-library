@@ -447,6 +447,9 @@ export class QuestionMultipleTextModel extends Question
   getQuestionTitleLocation(): string {
     return "left";
   }
+  getChildrenLayoutType(): string {
+    return "row";
+  }
   elementWidthChanged(el: IElement) {}
 }
 

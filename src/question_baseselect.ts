@@ -9,6 +9,7 @@ import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { turkishSurveyStrings } from "./localization/turkish";
+import { basename } from "path";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -63,6 +64,9 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
+  }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
   }
   /**
    * Returns the other item. By using this property, you may change programmatically it's value and text.
@@ -596,12 +600,18 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
    * The number of columns for radiogroup and checkbox questions. Items are rendred in one line if the value is 0.
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount", 1);
+    return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : 1);
   }
   public set colCount(value: number) {
-    if (value < 0 || value > 5) return;
+    if (value < 0 || value > 5 || this.isFlowLayout) return;
     this.setPropertyValue("colCount", value);
     this.fireCallback(this.colCountChangedCallback);
+  }
+  protected onParentChanged() {
+    super.onParentChanged();
+    if (this.isFlowLayout) {
+      this.setPropertyValue("colCount", null);
+    }
   }
 }
 JsonObject.metaData.addClass(

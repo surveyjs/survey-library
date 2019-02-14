@@ -34,6 +34,9 @@ export class QuestionTextModel extends Question {
       this.validators.push(new EmailValidator());
     }
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
+  }
   /**
    * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
    * If it is 0, then the value is unlimited

@@ -16,6 +16,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
+import { SurveyError } from "../base";
 
 @Component
 export class Errors extends Vue {

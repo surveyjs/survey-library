@@ -23,6 +23,7 @@ export { Survey } from "../knockout/kosurvey";
 export { Survey as Model } from "../knockout/kosurvey";
 export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
+export { FlowPanel } from "../knockout/koflowpanel";
 export { QuestionImplementor } from "../knockout/koquestion";
 export {
   QuestionSelectBaseImplementor

@@ -3,6 +3,8 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextModel } from "../src/question_text";
 import { PanelModel } from "../src/panel";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { FlowPanelModel } from "../src/flowpanel";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Drag and Drop Tests");
 
@@ -779,4 +781,128 @@ QUnit.test("survey onDragDropAllow event", function(assert) {
   canInsertIntoPanel2 = true;
   page.dragDropMoveTo(panel2, true);
   assert.equal(panel2.rows.length, 1, "can insert into panel2 now");
+});
+
+QUnit.test("survey onDragDropAllow event", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.content = "abcd";
+  page.addElement(panel);
+
+  var target = new QuestionTextModel("q1");
+  assert.equal(page.rows.length, 1, "one row");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(panel, true, true),
+    true,
+    "Move to end of the page"
+  );
+  assert.equal(page.rows.length, 2, "target is under panel");
+});
+
+QUnit.test("survey drop new question into FlowPanel", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.content = "abcd";
+  page.addElement(panel);
+
+  assert.equal(
+    panel.elements.length,
+    0,
+    "there is no elements in the flowpanel"
+  );
+  var target = new QuestionTextModel("q1");
+  assert.equal(page.rows.length, 1, "one row");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(panel, false, false),
+    true,
+    "Move into flow panel"
+  );
+  page.dragDropFinish();
+  assert.equal(
+    panel.elements.length,
+    1,
+    "there is one element in the flowpanel"
+  );
+  assert.equal(
+    panel.content,
+    "abcd{element:q1}",
+    "flowpanel.content changed correctly"
+  );
+  assert.equal(
+    panel.questions[0].renderWidth,
+    "",
+    "clear question render width"
+  );
+  assert.equal(panel.rows.length, 0, "there is no rows in the flowpanel");
+});
+
+QUnit.test("survey drop move question in FlowPanel", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.addNewQuestion("text", "q1");
+  panel.content = "{element:q1}abcd";
+  page.addElement(panel);
+
+  assert.equal(
+    panel.elements.length,
+    1,
+    "there is one element in the flowpanel"
+  );
+  var target = new QuestionTextModel("q1");
+  page.dragDropStart(panel.questions[0], target);
+  assert.equal(
+    page.dragDropMoveTo(panel, false, false),
+    true,
+    "Move in flow panel"
+  );
+  page.dragDropFinish();
+  assert.equal(panel.rows.length, 0, "there is no rows in the flowpanel");
+  assert.equal(
+    panel.elements.length,
+    1,
+    "there is one element in the flowpanel"
+  );
+  assert.equal(
+    panel.content,
+    "{element:q1}abcd",
+    "flowpanel.content doesn't changed"
+  );
+  assert.equal(
+    panel.questions[0].renderWidth,
+    "",
+    "clear question render width"
+  );
+});
+
+QUnit.test("Do not all elements support flow layout", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var panel = new FlowPanelModel("panel1");
+  panel.addNewQuestion("text", "q1");
+  panel.content = "{element:q1}abcd";
+  page.addElement(panel);
+
+  var target = new QuestionMatrixModel("matrix");
+  page.dragDropStart(null, target);
+  assert.equal(
+    page.dragDropMoveTo(panel, false, false),
+    false,
+    "Do not support matrix in flow panel"
+  );
+  page.dragDropFinish();
+  assert.equal(
+    panel.elements.length,
+    1,
+    "there is one element in the flowpanel"
+  );
+  assert.equal(
+    panel.content,
+    "{element:q1}abcd",
+    "flowpanel.content doesn't changed"
+  );
 });

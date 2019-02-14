@@ -74,11 +74,9 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       renderResult = this.renderSurvey();
     }
     var title = this.renderTitle();
-
     var onSubmit = function() {
       return false;
-    }
-
+    };
     return (
       <div ref="root" className={this.css.root}>
         <form onSubmit={onSubmit}>

@@ -987,6 +987,15 @@ export class Question extends SurveyElement
   public addError(error: SurveyError) {
     this.errors.push(error);
   }
+  /**
+   * Remove a particular error from the question error list.
+   * @param error
+   */
+  public removeError (error: SurveyError) {
+    var errors = this.errors;
+    var index = errors.indexOf(error);
+    if (index !== -1) errors.splice(index, 1);
+  }
   private checkForErrors(): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
     if (this.isVisible && !this.isReadOnly) {

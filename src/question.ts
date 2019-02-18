@@ -911,7 +911,9 @@ export class Question extends SurveyElement
     return this.getComment();
   }
   public set comment(newValue: string) {
-    if (!!newValue) newValue = newValue.trim();
+    if (!!newValue) {
+      newValue = newValue.toString().trim();
+    }
     if (this.comment == newValue) return;
     this.setComment(newValue);
   }
@@ -991,7 +993,7 @@ export class Question extends SurveyElement
    * Remove a particular error from the question error list.
    * @param error
    */
-  public removeError (error: SurveyError) {
+  public removeError(error: SurveyError) {
     var errors = this.errors;
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);

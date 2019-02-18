@@ -2,12 +2,12 @@ import * as ko from "knockout";
 import { QuestionDropdownModel } from "../question_dropdown";
 import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
-import { QuestionSelectBaseImplementor } from "./koquestion_baseselect";
+import { QuestionImplementor } from "./koquestion";
 
 export class QuestionDropdown extends QuestionDropdownModel {
   constructor(public name: string) {
     super(name);
-    new QuestionSelectBaseImplementor(this);
+    new QuestionImplementor(this);
   }
 }
 

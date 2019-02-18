@@ -10,6 +10,9 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
     super(question);
   }
+  protected getKoValue() {
+    return this.question.renderedValue;
+  }
 }
 
 export class QuestionCheckbox extends QuestionCheckboxModel {

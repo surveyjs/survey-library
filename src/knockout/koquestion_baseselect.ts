@@ -6,18 +6,7 @@ import {
   QuestionCheckboxBase
 } from "../question_baseselect";
 
-export class QuestionSelectBaseImplementor extends QuestionImplementor {
-  protected onCreated() {}
-  constructor(question: Question) {
-    super(question);
-
-    this.onCreated();
-  }
-  protected get isOtherSelected(): boolean {
-    return (<QuestionSelectBase>this.question).isOtherSelected;
-  }
-}
-export class QuestionCheckboxBaseImplementor extends QuestionSelectBaseImplementor {
+export class QuestionCheckboxBaseImplementor extends QuestionImplementor {
   constructor(question: Question) {
     super(question);
     (<any>this.question)["koAfterRender"] = this.koAfterRender;

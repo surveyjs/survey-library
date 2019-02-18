@@ -75,7 +75,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     );
   }
   private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.value : "";
+    return !this.question.isEmpty() ? this.question.renderedValue : "";
   }
 }
 
@@ -117,7 +117,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event: any) {
-    this.question.value = this.item.value;
+    this.question.renderedValue = this.item.value;
   }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;

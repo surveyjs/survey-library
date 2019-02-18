@@ -901,10 +901,12 @@ QUnit.test("SelectBase store others value not in comment", function(assert) {
   survey.setValue("q", "FF");
   assert.equal(question.isOtherSelected, true, "set other from survey");
   assert.equal(
-    question.value,
+    question.renderedValue,
     question.otherItem.value,
     "value is otherItem.value"
   );
+  assert.equal(question.value, "FF", "value equals to survey.getValue");
+  assert.equal(question.comment, "FF", "comment set correctly");
 
   question.value = "B";
   assert.equal(question.isOtherSelected, false, "Others is not selected");
@@ -961,6 +963,11 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
   assert.equal(question.isOtherSelected, true, "set other from survey");
   assert.deepEqual(
     question.value,
+    ["A", "FF"],
+    "value equals to survey.getValue"
+  );
+  assert.deepEqual(
+    question.renderedValue,
     ["A", question.otherItem.value],
     "value is otherItem.value"
   );
@@ -968,6 +975,220 @@ QUnit.test("Checkbox store others value not in comment", function(assert) {
   question.value = ["A", "B"];
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
+});
+
+QUnit.test("radiogroup.renderedValue - simple synhronization", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("page1");
+  var question = new QuestionSelectBase("q");
+  question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
+  survey.pages[0].addQuestion(question);
+
+  question.value = "A";
+  assert.equal(
+    question.renderedValue,
+    "A",
+    "renderedValue set correctly, question.value"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "A",
+    "survey has correct value, question.value"
+  );
+  survey.setValue("q", "B");
+  assert.equal(
+    question.renderedValue,
+    "B",
+    "renderedValue set correctly, survey.setValue"
+  );
+  assert.equal(
+    question.value,
+    "B",
+    "question.value set correctly, survey.setValue"
+  );
+  question.renderedValue = "C";
+  assert.equal(
+    question.value,
+    "C",
+    "question.value set correctly, survey.rendredValue"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "C",
+    "survey has correct value, question.rendredValue"
+  );
+});
+QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("page1");
+  var question = new QuestionSelectBase("q");
+  question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
+  survey.storeOthersAsComment = false;
+  survey.pages[0].addQuestion(question);
+
+  question.value = "A";
+  assert.equal(
+    question.renderedValue,
+    "A",
+    "renderedValue set correctly, question.value"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "A",
+    "survey has correct value, question.value"
+  );
+  survey.setValue("q", "B");
+  assert.equal(
+    question.renderedValue,
+    "B",
+    "renderedValue set correctly, survey.setValue"
+  );
+  assert.equal(
+    question.value,
+    "B",
+    "question.value set correctly, survey.setValue"
+  );
+  question.renderedValue = "C";
+  assert.equal(
+    question.value,
+    "C",
+    "question.value set correctly, survey.rendredValue"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "C",
+    "survey has correct value, question.rendredValue"
+  );
+
+  question.renderedValue = "other";
+  assert.equal(
+    question.value,
+    "other",
+    "question.value set correctly, survey.rendredValue"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "other",
+    "survey has correct value, question.rendredValue"
+  );
+  question.comment = "Some value";
+  assert.equal(
+    question.value,
+    "Some value",
+    "question.value, comment as value"
+  );
+  assert.equal(
+    survey.getValue("q"),
+    "Some value",
+    "survey.getValue, comment as value"
+  );
+  question.value = "A";
+  assert.equal(
+    question.renderedValue,
+    "A",
+    "renderedValue set correctly, survey.setValue"
+  );
+  survey.setValue("q", "X");
+  assert.equal(question.value, "X", "question.value = survey.getValue");
+  assert.equal(question.renderedValue, "other", "renderedValue is other");
+  assert.equal(question.comment, "X", "set comment");
+});
+QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.addNewPage("page1");
+  var question = new QuestionCheckboxModel("q");
+  question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
+  survey.storeOthersAsComment = false;
+  survey.pages[0].addQuestion(question);
+
+  question.value = ["A", "B"];
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "B"],
+    "renderedValue set correctly, question.value"
+  );
+  assert.deepEqual(
+    survey.getValue("q"),
+    ["A", "B"],
+    "survey has correct value, question.value"
+  );
+  survey.setValue("q", ["B", "C"]);
+  assert.deepEqual(
+    question.renderedValue,
+    ["B", "C"],
+    "renderedValue set correctly, survey.setValue"
+  );
+  assert.deepEqual(
+    question.value,
+    ["B", "C"],
+    "question.value set correctly, survey.setValue"
+  );
+  question.renderedValue = ["A", "C"];
+  assert.deepEqual(
+    question.value,
+    ["A", "C"],
+    "question.value set correctly, survey.rendredValue"
+  );
+  assert.deepEqual(
+    survey.getValue("q"),
+    ["A", "C"],
+    "survey has correct value, question.rendredValue"
+  );
+
+  question.renderedValue = ["B", "other"];
+  assert.deepEqual(
+    question.value,
+    ["B", "other"],
+    "question.value set correctly, survey.rendredValue"
+  );
+  assert.deepEqual(
+    survey.getValue("q"),
+    ["B", "other"],
+    "survey has correct value, question.rendredValue"
+  );
+  question.comment = "Some value";
+  assert.deepEqual(
+    question.renderedValue,
+    ["B", "other"],
+    "question.value, comment as value"
+  );
+  assert.deepEqual(
+    question.value,
+    ["B", "Some value"],
+    "question.value, comment as value"
+  );
+  assert.deepEqual(
+    survey.getValue("q"),
+    ["B", "Some value"],
+    "survey.getValue, comment as value"
+  );
+  question.value = ["A", "C"];
+  assert.deepEqual(
+    question.renderedValue,
+    ["A", "C"],
+    "renderedValue set correctly, survey.setValue"
+  );
+  survey.setValue("q", ["B", "X"]);
+  assert.deepEqual(
+    question.value,
+    ["B", "X"],
+    "question.value = survey.getValue"
+  );
+  assert.deepEqual(
+    question.renderedValue,
+    ["B", "other"],
+    "renderedValue is other"
+  );
+  assert.equal(question.comment, "X", "set comment");
 });
 
 QUnit.test("Text inputType=number", function(assert) {
@@ -1125,7 +1346,12 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function(
   var survey = new SurveyModel(json);
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   assert.equal(question.isOtherSelected, true, "The other is selected");
-  assert.deepEqual(question.value, [2, "other"], "value set correctly");
+  assert.deepEqual(
+    question.renderedValue,
+    [2, "other"],
+    "rendredValue set correctly"
+  );
+  assert.deepEqual(question.value, [2, "otherValue"], "value set correctly");
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 

@@ -76,15 +76,13 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.question) return null;
     if (this.isDisplayMode)
-      return (
-        <div className={this.cssClasses.comment}>{this.question.comment}</div>
-      );
+      return <div className={this.cssClasses.comment}>{this.comment}</div>;
     var className = this.otherCss ? this.otherCss : this.cssClasses.comment;
     return (
       <input
         type="text"
         className={className}
-        value={this.question.comment}
+        value={this.comment}
         maxLength={this.question.getOthersMaxLength()}
         onChange={this.handleOnChange}
         onBlur={this.handleOnBlur}

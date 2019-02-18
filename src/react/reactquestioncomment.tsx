@@ -60,15 +60,12 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.question = props.question;
-    this.comment = this.question.comment;
     this.otherCss = props.otherCss;
-    this.state = { value: this.comment };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   handleOnChange(event: any) {
     this.comment = event.target.value;
-    this.setState({ value: this.comment });
   }
   handleOnBlur(event: any) {
     this.question.comment = this.comment;
@@ -79,13 +76,15 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.question) return null;
     if (this.isDisplayMode)
-      return <div className={this.cssClasses.comment}>{this.comment}</div>;
+      return (
+        <div className={this.cssClasses.comment}>{this.question.comment}</div>
+      );
     var className = this.otherCss ? this.otherCss : this.cssClasses.comment;
     return (
       <input
         type="text"
         className={className}
-        value={this.state.value}
+        value={this.question.comment}
         maxLength={this.question.getOthersMaxLength()}
         onChange={this.handleOnChange}
         onBlur={this.handleOnBlur}

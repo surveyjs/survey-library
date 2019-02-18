@@ -164,7 +164,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    */
   public isItemSelected(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
-    var val = this.value;
+    var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
     return val.indexOf(item.value) > -1;
   }

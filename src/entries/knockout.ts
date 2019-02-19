@@ -26,6 +26,9 @@ export { QuestionRow, Page, Panel } from "../knockout/kopage";
 export { FlowPanel } from "../knockout/koflowpanel";
 export { QuestionImplementor } from "../knockout/koquestion";
 export {
+  QuestionSelectBaseImplementor
+} from "../knockout/koquestion_baseselect";
+export {
   QuestionCheckboxBaseImplementor
 } from "../knockout/koquestion_baseselect";
 export { QuestionCheckbox } from "../knockout/koquestion_checkbox";

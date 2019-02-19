@@ -55,7 +55,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
   componentWillMount() {
-    this.setState({ comment: this.props.question.comment });
+    this.setState({ comment: this.props.question.comment || "" });
   }
   render(): JSX.Element {
     let question = this.props.question;

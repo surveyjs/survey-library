@@ -17,6 +17,7 @@ export class JsonObjectProperty implements IObject {
     "isLocalizableValue",
     "className",
     "alternativeName",
+    "layout",
     "classNamePart",
     "baseClassName",
     "defaultValue",
@@ -39,6 +40,7 @@ export class JsonObjectProperty implements IObject {
   public baseClassName: string = null;
   public defaultValueValue: any = null;
   public serializationProperty: string = null;
+  public layout: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
 
@@ -155,6 +157,10 @@ export class JsonObjectProperty implements IObject {
   }
   public set readOnly(val: boolean) {
     this.readOnlyValue = val;
+  }
+  public isVisible(layout: string): boolean {
+    let isLayout = !this.layout || this.layout == layout;
+    return this.visible && isLayout;
   }
   public get visible(): boolean {
     return this.visibleValue != null ? this.visibleValue : true;
@@ -395,6 +401,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.alternativeName) {
         prop.alternativeName = propInfo.alternativeName;
+      }
+      if (propInfo.layout) {
+        prop.layout = propInfo.layout;
       }
     }
     return prop;

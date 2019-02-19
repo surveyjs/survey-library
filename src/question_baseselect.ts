@@ -622,7 +622,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 JsonObject.metaData.addClass(
   "selectbase",
   [
-    "hasComment:boolean",
+    { name: "hasComment:boolean", layout: "row" },
     "hasOther:boolean",
     {
       name: "choices:itemvalue[]"
@@ -655,7 +655,14 @@ JsonObject.metaData.addClass(
 
 JsonObject.metaData.addClass(
   "checkboxbase",
-  [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4, 5] }],
+  [
+    {
+      name: "colCount:number",
+      default: 1,
+      choices: [0, 1, 2, 3, 4, 5],
+      layout: "row"
+    }
+  ],
   null,
   "selectbase"
 );

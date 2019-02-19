@@ -226,7 +226,7 @@ JsonObject.metaData.addClass(
   "dealer",
   [
     "name:string",
-    "dummyname",
+    { name: "dummyname", layout: "row" },
     "car",
     "cars",
     "stringArray",
@@ -1716,5 +1716,19 @@ QUnit.test("isDescendantOf", function(assert) {
   assert.ok(
     JsonObject.metaData.isDescendantOf("itemvalue", "itemvalue"),
     "itemvalue is a descendant of the itemvalue"
+  );
+});
+QUnit.test("property.isVisible", function(assert) {
+  var property = JsonObject.metaData.findProperty("dealer", "dummyname");
+  assert.equal(property.visible, true, "Property is visible");
+  assert.equal(
+    property.isVisible("row"),
+    true,
+    "Property is visible in row layout"
+  );
+  assert.equal(
+    property.isVisible("flow"),
+    false,
+    "Property is invisible in flow layout"
   );
 });

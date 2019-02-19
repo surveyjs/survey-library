@@ -1155,11 +1155,11 @@ export class Question extends SurveyElement
 JsonObject.metaData.addClass("question", [
   "!name",
   { name: "visible:boolean", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true },
+  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "startWithNewLine:boolean", default: true },
-  { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
+  { name: "startWithNewLine:boolean", default: true, layout: "row" },
+  { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {
     name: "page",
     isSerializable: false,
@@ -1172,9 +1172,17 @@ JsonObject.metaData.addClass("question", [
         : [];
     }
   },
-  { name: "title:text", serializationProperty: "locTitle" },
-  { name: "description:text", serializationProperty: "locDescription" },
-  { name: "commentText", serializationProperty: "locCommentText" },
+  { name: "title:text", serializationProperty: "locTitle", layout: "row" },
+  {
+    name: "description:text",
+    serializationProperty: "locDescription",
+    layout: "row"
+  },
+  {
+    name: "commentText",
+    serializationProperty: "locCommentText",
+    layout: "row"
+  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",
@@ -1194,7 +1202,8 @@ JsonObject.metaData.addClass("question", [
   {
     name: "titleLocation",
     default: "default",
-    choices: ["default", "top", "bottom", "left", "hidden"]
+    choices: ["default", "top", "bottom", "left", "hidden"],
+    layout: "row"
   }
 ]);
 JsonObject.metaData.addAlterNativeClassName("question", "questionbase");

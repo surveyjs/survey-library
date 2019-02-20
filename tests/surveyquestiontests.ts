@@ -2286,3 +2286,62 @@ QUnit.test(
     assert.deepEqual(json, checkedJson, "showOptionsCaption is serialized");
   }
 );
+QUnit.test(
+  "multipletext could not load default value correctly, https://surveyjs.answerdesk.io/ticket/details/T1659",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "p1",
+          elements: [
+            {
+              type: "multipletext",
+              name: "_metaData",
+              defaultValue: {
+                _metaQuestVersion: "1.0.1",
+                _metaQuestName: "Packaging",
+                _metaQuestDateTime: "2019-02-20",
+                _metaQuestAuthor: "Someone"
+              },
+              items: [
+                {
+                  name: "_metaQuestVersion"
+                },
+                {
+                  name: "_metaQuestName"
+                },
+                {
+                  name: "_metaQuestDateTime"
+                },
+                {
+                  name: "_metaQuestAuthor"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.setJsonObject(json);
+    var question = <QuestionMultipleTextModel>survey.getQuestionByName(
+      "_metaData"
+    );
+    assert.equal(
+      question.items[0].editor.isDesignMode,
+      true,
+      "Question has design mode"
+    );
+    assert.deepEqual(
+      question.defaultValue,
+      {
+        _metaQuestVersion: "1.0.1",
+        _metaQuestName: "Packaging",
+        _metaQuestDateTime: "2019-02-20",
+        _metaQuestAuthor: "Someone"
+      },
+      "Default value loads correctly"
+    );
+  }
+);

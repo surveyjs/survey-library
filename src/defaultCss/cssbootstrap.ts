@@ -25,7 +25,7 @@ export var defaultBootstrapCss = {
   row: "sv_row",
   question: {
     mainRoot: "sv_qstn",
-    flowRoot: "",
+    flowRoot: "sv_q_flow sv_qstn",
     titleLeftRoot: "sv_qstn_left",
     title: "",
     description: "small",

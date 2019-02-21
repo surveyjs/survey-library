@@ -442,11 +442,19 @@ QUnit.test("question.cssMainRootClass", function(assert) {
   page.addElement(flowPanel);
   var q1 = flowPanel.addNewQuestion("text", "q1");
   var q2 = page.addNewQuestion("text", "q2");
-  assert.equal(q1.cssMainRoot, "sv_qstn", "flow question.cssMainRoot");
+  assert.equal(
+    q1.cssMainRoot,
+    "sv_q_flow sv_qstn",
+    "flow question.cssMainRoot"
+  );
   assert.equal(q2.cssMainRoot, "sv_q sv_qstn", "non flow question.cssMainRoot");
   q1.titleLocation = "left";
   q2.titleLocation = "left";
-  assert.equal(q1.cssMainRoot, "sv_qstn", "flow question.cssMainRoot");
+  assert.equal(
+    q1.cssMainRoot,
+    "sv_q_flow sv_qstn",
+    "flow question.cssMainRoot"
+  );
   assert.equal(
     q2.cssMainRoot,
     "sv_q sv_qstn sv_qstn_left",

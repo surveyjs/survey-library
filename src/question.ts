@@ -685,18 +685,6 @@ export class Question extends SurveyElement
     return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
   /**
-   * Set it to true to make a question readonly.
-   * @see enableIf
-   * @see isReadOnly
-   */
-  public get readOnly(): boolean {
-    return this.getPropertyValue("readOnly", false);
-  }
-  public set readOnly(val: boolean) {
-    if (this.readOnly == val) return;
-    this.setPropertyValue("readOnly", val);
-  }
-  /**
    * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
    * @see readOnly
    * @see isReadOnly

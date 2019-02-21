@@ -168,7 +168,6 @@ export class Survey extends SurveyModel {
     }
     element = this.renderedElement;
     if (!element) return;
-    element.innerHTML = this.getHtmlTemplate();
     self.startTimerFromUI();
     self.applyBinding();
   }
@@ -264,6 +263,14 @@ export class Survey extends SurveyModel {
     super.doTimer();
     this.koTimerInfoText(this.timerInfoText);
   }
+  private createTemplates() {
+    if (!document.getElementById("survey-content")) {
+      var templates = document.createElement("div");
+      templates.style.display = "none";
+      templates.innerHTML = this.getHtmlTemplate();
+      document.body.appendChild(templates);
+    }
+  }
   private applyBinding() {
     if (!this.renderedElement) return;
     this.updateKoCurrentPage();
@@ -272,7 +279,13 @@ export class Survey extends SurveyModel {
       this.updateCurrentPageQuestions();
     }
     this.isFirstRender = false;
-    ko.applyBindings(this, this.renderedElement);
+    this.createTemplates();
+    ko.renderTemplate(
+      "survey-content",
+      this,
+      { afterRender: this.koEventAfterRender },
+      this.renderedElement
+    );
   }
   private updateKoCurrentPage() {
     if (this.isLoadingFromJson) return;

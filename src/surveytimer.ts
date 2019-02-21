@@ -1,11 +1,11 @@
 import { Event } from "./base";
 
 export var surveyTimerFunctions = {
-  setInterval: function(func: () => any): number {
-    return window.setInterval(func, 1000);
+  setTimeout: function(func: () => any): number {
+    return window.setTimeout(func, 1000);
   },
-  clearInterval: function(timerId: number) {
-    window.clearInterval(timerId);
+  clearTimeout: function(timerId: number) {
+    window.clearTimeout(timerId);
   }
 };
 
@@ -25,9 +25,8 @@ export class SurveyTimer {
       this.onTimer.add(func);
     }
     if (this.timerId < 0) {
-      var self = this;
-      this.timerId = surveyTimerFunctions.setInterval(function() {
-        self.doTimer();
+      this.timerId = surveyTimerFunctions.setTimeout(() => {
+        this.doTimer();
       });
     }
     this.listenerCounter++;
@@ -38,12 +37,15 @@ export class SurveyTimer {
     }
     this.listenerCounter--;
     if (this.listenerCounter == 0 && this.timerId > -1) {
-      surveyTimerFunctions.clearInterval(this.timerId);
+      surveyTimerFunctions.clearTimeout(this.timerId);
       this.timerId = -1;
     }
   }
   public doTimer() {
     if (this.timerId < 0) return;
     this.onTimer.fire(this, {});
+    this.timerId = surveyTimerFunctions.setTimeout(() => {
+      this.doTimer();
+    });
   }
 }

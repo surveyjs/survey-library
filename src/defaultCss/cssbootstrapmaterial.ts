@@ -28,6 +28,7 @@ export var defaultBootstrapMaterialCss = {
     flowRoot: "sv_q_flow form-group",
     titleLeftRoot: "sv_qstn_left",
     title: "",
+    number: "sv_q_num",
     description: "small",
     comment: "form-control",
     required: "",

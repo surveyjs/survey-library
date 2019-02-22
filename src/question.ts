@@ -452,9 +452,7 @@ export class Question extends SurveyElement
     }
     var requireText = this.requiredText;
     if (requireText) requireText += " ";
-    var no = this.no;
-    if (no) no += ". ";
-    return no + requireText + this.processedTitle;
+    return requireText + this.processedTitle;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.

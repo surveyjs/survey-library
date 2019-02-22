@@ -155,12 +155,14 @@ QUnit.test("Fix the bug, when the default locale is set as specific", function(
   var question = <Question>survey.getQuestionByName("q1");
   assert.equal(
     question.locTitle.renderedHtml,
-    "1. English 1",
+    "English 1",
     "Get the english locale"
   );
 });
 
-QUnit.test("Return English localization texts if text not exist", function(assert) {
+QUnit.test("Return English localization texts if text not exist", function(
+  assert
+) {
   surveyLocalization.locales["en"]["custom_test_key"] = "item";
   var oldDl = surveyLocalization.defaultLocale;
   var oldCl = surveyLocalization.currentLocale;

@@ -527,7 +527,7 @@ QUnit.test("Process text in titles", function(assert) {
   var panel_q2 = <Question>panel.questions[1];
   assert.equal(
     survey_q2.locTitle.renderedHtml,
-    "2. q1:val_q1",
+    "q1:val_q1",
     "process root question title correclty"
   );
   assert.equal(

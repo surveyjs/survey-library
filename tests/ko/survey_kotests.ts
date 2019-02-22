@@ -385,7 +385,7 @@ QUnit.test("Load title correctly from JSON", function(assert) {
   var survey = new Survey({ questions: [{ type: "text", name: "question1" }] });
   assert.equal(
     survey.pages[0].questions[0]["locTitle"]["koRenderedHtml"](),
-    "1. question1",
+    "question1",
     "title is getting from name"
   );
 });
@@ -598,19 +598,19 @@ QUnit.test("Text preprocessing variable and value. Fix the bug#461", function(
   question.title = "{var1}{val1}";
   assert.equal(
     question.locTitle["koRenderedHtml"](),
-    "1. {val1}",
+    "{val1}",
     "The title is empty by default"
   );
   survey.setValue("val1", "[val1]");
   assert.equal(
     question.locTitle["koRenderedHtml"](),
-    "1. [val1]",
+    "[val1]",
     "The val1 is set"
   );
   survey.setVariable("var1", "[var1]");
   assert.equal(
     question.locTitle["koRenderedHtml"](),
-    "1. [var1][val1]",
+    "[var1][val1]",
     "The var1 and val1 are set"
   );
 });
@@ -1586,7 +1586,7 @@ QUnit.test("Loc string text preprocessing update on change value", function(
   survey.setValue("name", "a");
   assert.equal(
     commentQuestion.locTitle["koRenderedHtml"](),
-    "2. a, text",
+    "a, text",
     "The first value"
   );
 
@@ -1594,7 +1594,7 @@ QUnit.test("Loc string text preprocessing update on change value", function(
   survey.nextPage();
   assert.equal(
     commentQuestion.locTitle["koRenderedHtml"](),
-    "2. b, text",
+    "b, text",
     "The first value"
   );
 });

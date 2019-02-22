@@ -143,9 +143,7 @@ frameworks.forEach(framework => {
 
   test(`set question numbers on page`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(
-        "1. * Plese select from the list"
-      )
+      document.documentElement.innerHTML.indexOf("1")
     );
 
     await t.click(`input[type=checkbox]`).click(`input[value="Next"]`);
@@ -157,9 +155,7 @@ frameworks.forEach(framework => {
 
   test(`set question numbers off`, async t => {
     const getPosition = ClientFunction(() =>
-      document.documentElement.innerHTML.indexOf(
-        "1. * Plese select from the list"
-      )
+      document.documentElement.innerHTML.indexOf("1")
     );
 
     await set_question_numbers_off();

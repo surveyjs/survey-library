@@ -442,7 +442,12 @@ export class Question extends SurveyElement
         this.textPreProcessor.onProcess = function(
           textValue: TextPreProcessorValue
         ) {
-          self.getProcessedTextValue(textValue);
+          if (textValue.name === "no") {
+            textValue.isExists = true;
+            textValue.value = "";
+          } else {
+            self.getProcessedTextValue(textValue);
+          }
         };
       }
       return this.textPreProcessor.process(

@@ -279,9 +279,13 @@ export class SurveyFlowPanel extends SurveyPanel {
     if (nodeType == "question") {
       var question = this.flowPanel.getQuestionByName(node.textContent);
       if (!question) return null;
-      var questionBody = SurveyQuestion.renderQuestionBody(
-        this.creator,
-        question
+      var questionBody = (
+        <SurveyQuestion
+          key={question.name}
+          question={question}
+          creator={this.creator}
+          css={this.css}
+        />
       );
       return <span key={this.getNodeIndex()}>{questionBody}</span>;
     }

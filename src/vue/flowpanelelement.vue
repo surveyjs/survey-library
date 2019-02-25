@@ -11,8 +11,14 @@
       {{text}}
     </component>
     <span v-if="!!question">
-      <survey-errors v-if="question.errors.length > 0" v:question="question"/>
-      <component :is="getWidgetComponentName(question)" :question="question" css="css"/>
+      <survey-element
+        :key="question.idValue"
+        :id="question.id"
+        :style="{ width: question.renderWidth }"
+        :element="question"
+        :survey="survey"
+        :css="css"
+      />
     </span>
   </span>
 </template>
@@ -21,6 +27,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question } from "../question";
+import { SurveyModel } from "../survey";
 import { FlowPanelModel } from "../flowpanel";
 
 @Component
@@ -44,6 +51,9 @@ export class FlowPanelElement extends Vue {
       this.elementIdValue = "fp_el" + FlowPanelElement.idValue;
     }
     return this.elementIdValue;
+  }
+  public get survey(): SurveyModel {
+    return <SurveyModel>this.panel.survey;
   }
   beforeMount() {
     if (!this.panel || !this.node) return;

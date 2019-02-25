@@ -79,9 +79,7 @@ export class QuestionSelectBase extends Question {
    * Returns true if a user select the 'other' item.
    */
   public get isOtherSelected(): boolean {
-    return this.getStoreOthersAsComment()
-      ? this.getHasOther(this.value)
-      : this.getHasOther(this.cachedValue);
+    return this.getHasOther(this.renderedValue);
   }
   /**
    * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
@@ -111,20 +109,13 @@ export class QuestionSelectBase extends Question {
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
+  isSettingDefaultValue: boolean = false;
   protected setDefaultValue() {
-    if (
-      !this.hasOther ||
-      !this.getStoreOthersAsComment() ||
-      !this.hasUnknownValue(this.defaultValue, true)
-    ) {
-      super.setDefaultValue();
-    } else {
-      this.setDefaultValueWithOthers();
-    }
-  }
-  protected setDefaultValueWithOthers() {
-    this.value = this.otherItem.value;
-    this.comment = this.defaultValue;
+    this.isSettingDefaultValue =
+      !this.isValueEmpty(this.defaultValue) &&
+      this.hasUnknownValue(this.defaultValue);
+    super.setDefaultValue();
+    this.isSettingDefaultValue = false;
   }
   protected filterItems(): boolean {
     if (
@@ -214,12 +205,13 @@ export class QuestionSelectBase extends Question {
     return val === this.otherItem.value;
   }
   get validatedValue(): any {
-    return this.valueToDataCore(this.value);
+    return this.rendredValueToDataCore(this.value);
   }
   protected createRestfull(): ChoicesRestfull {
     return new ChoicesRestfull();
   }
   protected getComment(): string {
+    if (!!this.commentValue) return this.commentValue;
     if (this.getStoreOthersAsComment()) return super.getComment();
     return this.commentValue;
   }
@@ -230,11 +222,31 @@ export class QuestionSelectBase extends Question {
       if (!this.isSettingComment && newValue != this.commentValue) {
         this.isSettingComment = true;
         this.commentValue = newValue;
-        if (this.isOtherSelected) {
-          this.setNewValueInData(this.cachedValue);
+        if (this.isOtherSelected && !this.isRenderedValueSetting) {
+          this.value = this.rendredValueToData(this.renderedValue);
         }
         this.isSettingComment = false;
       }
+    }
+  }
+  public get renderedValue(): any {
+    return this.getPropertyValue("renderedValue", null);
+  }
+  isRenderedValueSetting: boolean = false;
+  public set renderedValue(val: any) {
+    this.setPropertyValue("renderedValue", val);
+    if (!this.isRenderedValueSetting) {
+      this.isRenderedValueSetting = true;
+      this.value = this.rendredValueToData(val);
+      this.isRenderedValueSetting = false;
+    }
+  }
+  protected setQuestionValue(newValue: any) {
+    super.setQuestionValue(newValue);
+    if (!this.isRenderedValueSetting) {
+      this.isRenderedValueSetting = true;
+      this.renderedValue = this.rendredValueFromData(newValue);
+      this.isRenderedValueSetting = false;
     }
   }
   protected setNewValue(newValue: any) {
@@ -247,22 +259,20 @@ export class QuestionSelectBase extends Question {
     }
     super.setNewValue(newValue);
   }
-  protected valueFromData(val: any): any {
-    if (this.getStoreOthersAsComment()) return super.valueFromData(val);
-    this.cachedValue = this.valueFromDataCore(val);
-    return this.cachedValue;
+  protected rendredValueFromData(val: any): any {
+    if (this.getStoreOthersAsComment()) return val;
+    return this.rendredValueFromDataCore(val);
   }
-  protected valueToData(val: any): any {
-    if (this.getStoreOthersAsComment()) return super.valueToData(val);
-    this.cachedValue = val;
-    return this.valueToDataCore(val);
+  protected rendredValueToData(val: any): any {
+    if (this.getStoreOthersAsComment()) return val;
+    return this.rendredValueToDataCore(val);
   }
-  protected valueFromDataCore(val: any): any {
+  protected rendredValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true)) return val;
     this.comment = val;
     return this.otherItem.value;
   }
-  protected valueToDataCore(val: any): any {
+  protected rendredValueToDataCore(val: any): any {
     if (val == this.otherItem.value && this.getComment()) {
       val = this.getComment();
     }
@@ -292,12 +302,6 @@ export class QuestionSelectBase extends Question {
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
-  }
-  protected get cachedValue(): boolean {
-    return Helpers.getUnbindValue(this.getPropertyValue("cachedValue", false));
-  }
-  protected set cachedValue(val: boolean) {
-    this.setPropertyValue("cachedValue", Helpers.getUnbindValue(val));
   }
   /**
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
@@ -439,6 +443,7 @@ export class QuestionSelectBase extends Question {
     this.runChoicesByUrl();
   }
   protected getStoreOthersAsComment() {
+    if (this.isSettingDefaultValue) return false;
     return (
       (this.storeOthersAsComment &&
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
@@ -617,7 +622,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
 JsonObject.metaData.addClass(
   "selectbase",
   [
-    "hasComment:boolean",
+    { name: "hasComment:boolean", layout: "row" },
     "hasOther:boolean",
     {
       name: "choices:itemvalue[]"
@@ -650,7 +655,14 @@ JsonObject.metaData.addClass(
 
 JsonObject.metaData.addClass(
   "checkboxbase",
-  [{ name: "colCount:number", default: 1, choices: [0, 1, 2, 3, 4, 5] }],
+  [
+    {
+      name: "colCount:number",
+      default: 1,
+      choices: [0, 1, 2, 3, 4, 5],
+      layout: "row"
+    }
+  ],
   null,
   "selectbase"
 );

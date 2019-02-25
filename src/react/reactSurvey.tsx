@@ -284,6 +284,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       self.setState(self.state);
     });
     this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
+    /*
     this.survey.onValueChanged.add((sender, options) => {
       if (options.question && options.question.react) {
         var state = options.question.react.state || {};
@@ -293,6 +294,7 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       if (newProps && newProps.data)
         newProps.data[options.name] = options.value;
     });
+    */
   }
 
   //ISurveyCreator

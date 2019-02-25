@@ -1213,6 +1213,16 @@ export class SurveyModel extends Base
     return this.getLocalizableStringText("questionTitleTemplate");
   }
   public set questionTitleTemplate(value: string) {
+    if (!!value && value.indexOf("{no}") !== -1) {
+      var noIndex = value.indexOf("{no}");
+      var prevBrIndex = noIndex;
+      var nextBrIndex = noIndex + 4;
+      while (prevBrIndex >= 0 && value[prevBrIndex] !== "}") prevBrIndex--;
+      while (nextBrIndex < value.length && value[nextBrIndex] !== "{")
+        nextBrIndex++;
+      value =
+        value.substring(0, prevBrIndex + 1) + value.substring(nextBrIndex);
+    }
     this.setLocalizableStringText("questionTitleTemplate", value);
   }
   private questionTitleTemplateCache: string = undefined;

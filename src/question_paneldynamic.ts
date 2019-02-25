@@ -1052,7 +1052,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!question) return null;
     return question.getConditionJson(operator, path);
   }
+  protected onReadOnlyChanged() {
+    var readOnly = this.isReadOnly;
+    this.template.readOnly = readOnly;
+    for (var i = 0; i < this.panels.length; i++) {
+      this.panels[i].readOnly = readOnly;
+    }
+  }
   public onSurveyLoad() {
+    this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
     if (this.loadingPanelCount > 0) {
       this.panelCount = this.loadingPanelCount;

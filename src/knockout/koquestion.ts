@@ -19,10 +19,10 @@ export class QuestionImplementor extends ImplementorBase {
     });
     Object.defineProperty(this.question, "koValue", {
       get: () => {
-        if (!Helpers.isTwoValueEquals(this._koValue(), this.question.value)) {
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue())) {
           try {
             isSynchronizing = true;
-            this._koValue(this.question.value);
+            this._koValue(this.getKoValue());
           } finally {
             isSynchronizing = false;
           }
@@ -61,6 +61,9 @@ export class QuestionImplementor extends ImplementorBase {
     ) {
       self.koQuestionAfterRender(el, con);
     };
+  }
+  protected getKoValue() {
+    return this.question.value;
   }
   protected updateQuestion() {
     this.updateKoDummy();

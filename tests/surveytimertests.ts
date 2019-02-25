@@ -3,10 +3,10 @@ import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
 
 export default QUnit.module("Survey");
 
-surveyTimerFunctions.setInterval = function(func: () => any): number {
+surveyTimerFunctions.setTimeout = function(func: () => any): number {
   return 1;
 };
-surveyTimerFunctions.clearInterval = function(timerId: number) {};
+surveyTimerFunctions.clearTimeout = function(timerId: number) {};
 
 QUnit.test("Test timer event", function(assert) {
   var counter = 0;

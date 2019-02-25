@@ -527,7 +527,7 @@ QUnit.test("Process text in titles", function(assert) {
   var panel_q2 = <Question>panel.questions[1];
   assert.equal(
     survey_q2.locTitle.renderedHtml,
-    "2. q1:val_q1",
+    "q1:val_q1",
     "process root question title correclty"
   );
   assert.equal(
@@ -1449,6 +1449,60 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
     "The question in dynamic panel should be readonly"
   );
 });
+
+QUnit.test(
+  "Dynamic Panel readOnly, Bug#https://surveyjs.answerdesk.io/ticket/details/T1663",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          readOnly: true,
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    var question = panel.panels[0].questions[0];
+    assert.equal(
+      question.isReadOnly,
+      true,
+      "The question is readonly initially"
+    );
+    panel.readOnly = false;
+    assert.equal(
+      question.isReadOnly,
+      false,
+      "The question is not readonly, panel is not readOnly"
+    );
+    survey.pages[0].readOnly = true;
+    assert.equal(
+      question.isReadOnly,
+      true,
+      "The question is readonly, page is readOnly"
+    );
+    survey.pages[0].readOnly = false;
+    assert.equal(
+      question.isReadOnly,
+      false,
+      "The question is not readonly again"
+    );
+    survey.mode = "display";
+    assert.equal(
+      question.isReadOnly,
+      true,
+      "The question is readonly, survey mode is display"
+    );
+  }
+);
 
 QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
   assert

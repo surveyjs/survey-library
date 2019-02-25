@@ -25,9 +25,10 @@ export var defaultBootstrapMaterialCss = {
   row: "sv_row",
   question: {
     mainRoot: "sv_qstn form-group",
-    flowRoot: "form-group",
+    flowRoot: "sv_q_flow form-group",
     titleLeftRoot: "sv_qstn_left",
     title: "",
+    number: "sv_q_num",
     description: "small",
     comment: "form-control",
     required: "",

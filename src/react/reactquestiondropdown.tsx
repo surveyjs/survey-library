@@ -22,7 +22,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
-    this.question.value = event.target.value;
+    this.question.renderedValue = event.target.value;
     this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
@@ -30,7 +30,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var comment =
       this.question.hasOther &&
-      this.question.value === this.question.otherItem.value
+      this.question.renderedValue === this.question.otherItem.value
         ? this.renderOther(cssClasses)
         : null;
     var select = this.renderSelect(cssClasses);
@@ -44,7 +44,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   protected renderSelect(cssClasses: any): JSX.Element {
     if (this.isDisplayMode) {
       var isOtherSelected =
-        this.question.value === this.question.otherItem.value;
+        this.question.renderedValue === this.question.otherItem.value;
       return (
         <div id={this.question.inputId} className={cssClasses.control}>
           {isOtherSelected
@@ -93,7 +93,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     );
   }
   private getStateValue(): any {
-    return !this.question.isEmpty() ? this.question.value : "";
+    return !this.question.isEmpty() ? this.question.renderedValue : "";
   }
 }
 

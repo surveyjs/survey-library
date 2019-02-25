@@ -141,7 +141,24 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   protected renderTitle(cssClasses: any): JSX.Element {
     var titleText = SurveyElementBase.renderLocString(this.question.locTitle);
-    return <h5 className={cssClasses.title}>{titleText}</h5>;
+    var number = null;
+    var delimiter = null;
+    var questionNumber = this.question["no"];
+    if (questionNumber) {
+      number = (
+        <span className={cssClasses.number} style={{ position: "static" }}>
+          {questionNumber}
+        </span>
+      );
+      delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
+    }
+    return (
+      <h5 className={cssClasses.title}>
+        {number}
+        {delimiter}
+        {titleText}
+      </h5>
+    );
   }
   protected renderDescription(cssClasses: any): JSX.Element {
     if (this.question.locDescription.isEmpty) return null;

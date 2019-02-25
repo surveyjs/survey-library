@@ -939,7 +939,7 @@ QUnit.test("Multiple Text required items", function(assert) {
   var item1 = multiTextQuestion.addItem("item1");
   var item2 = multiTextQuestion.addItem("item2");
   item1.isRequired = true;
-  assert.equal(item1.fullTitle, "* item1", "Add isRequired Text");
+  assert.equal(item1.fullTitle, "item1 *", "Add isRequired Text");
   assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
   assert.equal(
     multiTextQuestion.hasErrors(),
@@ -1107,31 +1107,55 @@ QUnit.test(
 QUnit.test("showQuestionNumbers - question fullTitle", function(assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(
+    (<Question>survey.getQuestionByName("question1"))["no"],
+    1
+  );
+  assert.equal(
     (<Question>survey.getQuestionByName("question1")).fullTitle,
-    "1. question1",
+    "question1",
     "the first question showQuestionNumbers=on"
   );
   assert.equal(
+    (<Question>survey.getQuestionByName("question3"))["no"],
+    3
+  );
+  assert.equal(
     (<Question>survey.getQuestionByName("question3")).fullTitle,
-    "3. question3",
+    "question3",
     "the thrid question showQuestionNumbers=on"
   );
   survey.showQuestionNumbers = "onPage";
   assert.equal(
-    (<Question>survey.getQuestionByName("question1")).fullTitle,
-    "1. question1",
-    "the first question showQuestionNumbers=onPage"
+    (<Question>survey.getQuestionByName("question1"))["no"],
+    1
   );
-  assert.equal(
-    (<Question>survey.getQuestionByName("question3")).fullTitle,
-    "1. question3",
-    "the thrid question showQuestionNumbers=onPage"
-  );
-  survey.showQuestionNumbers = "off";
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).fullTitle,
     "question1",
     "the first question showQuestionNumbers=onPage"
+  );
+  assert.equal(
+    (<Question>survey.getQuestionByName("question3"))["no"],
+    1
+  );
+  assert.equal(
+    (<Question>survey.getQuestionByName("question3")).fullTitle,
+    "question3",
+    "the thrid question showQuestionNumbers=onPage"
+  );
+  survey.showQuestionNumbers = "off";
+  assert.equal(
+    (<Question>survey.getQuestionByName("question1"))["no"],
+    ""
+  );
+  assert.equal(
+    (<Question>survey.getQuestionByName("question1")).fullTitle,
+    "question1",
+    "the first question showQuestionNumbers=onPage"
+  );
+  assert.equal(
+    (<Question>survey.getQuestionByName("question3"))["no"],
+    ""
   );
   assert.equal(
     (<Question>survey.getQuestionByName("question3")).fullTitle,
@@ -1715,15 +1739,26 @@ QUnit.test("question fullTitle", function(assert) {
   var survey = twoPageSimplestSurvey();
   var question = <Question>survey.pages[0].questions[1];
   question.title = "My Title";
-  assert.equal(question.fullTitle, "2. My Title");
+  assert.equal(question.fullTitle, "My Title");
   question.isRequired = true;
-  assert.equal(question.fullTitle, "2. * My Title");
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionStartIndex = "100";
-  assert.equal(question.fullTitle, "101. * My Title");
+  assert.equal(question["no"], 101);
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionStartIndex = "A";
-  assert.equal(question.fullTitle, "B. * My Title");
+  assert.equal(question["no"], "B");
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
-  assert.equal(question.fullTitle, "B) My Title (*)");
+  assert.equal(question.fullTitle, "My Title (*)");
+});
+QUnit.test("remove {no} from title template", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.questionTitleTemplate = "{no}) {title} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{title} ({require})");
+  survey.questionTitleTemplate = "{require} - ({no}) {title} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{require}{title} ({require})");
+  survey.questionTitleTemplate = "{require} - ({no}) {title} {no} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{require}{title} {no} ({require})");
 });
 QUnit.test("clearInvisibleValues", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -2976,17 +3011,17 @@ QUnit.test(
     q2.choices = [{ value: 3, text: "Item 3" }, { value: 4, text: "Item 4" }];
     var q3 = <Question>page.addNewQuestion("text", "q3");
     q3.title = "{q1}-{q2}";
-    assert.equal(q3.locTitle.renderedHtml, "3. -", "There is no values");
+    assert.equal(q3.locTitle.renderedHtml, "-", "There is no values");
     q1.value = 1;
     assert.equal(
       q3.locTitle.renderedHtml,
-      "3. Item 1-",
+      "Item 1-",
       "Drop down value is set"
     );
     q2.value = [3, 4];
     assert.equal(
       q3.locTitle.renderedHtml,
-      "3. Item 1-Item 3, Item 4",
+      "Item 1-Item 3, Item 4",
       "Drop down value is set"
     );
   }
@@ -3004,7 +3039,7 @@ QUnit.test("Survey text preprocessing, matrix, issue #499", function(assert) {
   var q2 = <Question>page.addNewQuestion("text", "q2");
   q2.title = "{q1.row1}";
   q1.value = { row1: 1, row2: 2 };
-  assert.equal(q2.locTitle.renderedHtml, "2. Col 1", "Matrix use text");
+  assert.equal(q2.locTitle.renderedHtml, "Col 1", "Matrix use text");
 });
 
 QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function(
@@ -3031,7 +3066,7 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function(
   q1.value = { row1: { col1: 1 } };
   assert.equal(
     q2.locTitle.renderedHtml,
-    "2. Item 1",
+    "Item 1",
     "Dropdown Matrix Column use text"
   );
 });
@@ -3057,7 +3092,7 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function(
   q1.value = [{ col1: 1 }, {}];
   assert.equal(
     q2.locTitle.renderedHtml,
-    "2. Item 1",
+    "Item 1",
     "Dropdown Matrix Column use text"
   );
 });
@@ -3083,7 +3118,7 @@ QUnit.test("Survey text preprocessing with camella case, issue #913", function(
   var question1 = <QuestionTextModel>survey.getQuestionByName("question1");
   assert.equal(
     question1.fullTitle,
-    "2. john.snow@nightwatch.com",
+    "john.snow@nightwatch.com",
     "The value is preprocessed correctly"
   );
 });
@@ -3121,25 +3156,30 @@ QUnit.test("Survey Markdown - question title", function(assert) {
   q1.title = "title1, q2.value is {q2}markdown";
   assert.equal(
     q1.fullTitle,
-    "1. title1, q2.value is value2!",
+    "title1, q2.value is value2!",
     "question.title, use markdown and text preprocessing"
   );
   assert.equal(
     loc.renderedHtml,
-    "1. title1, q2.value is value2!",
+    "title1, q2.value is value2!",
     "question.locTitle.renderedHtml, use markdown and text preprocessing"
   );
 
   survey.questionTitleTemplate = "{no}) {title} ({require})markdown";
+  assert.equal(
+    survey.questionTitleTemplate,
+    "{title} ({require})markdown",
+    "{no}) should be removed"
+  );
   q1.isRequired = true;
   assert.equal(
     q1.fullTitle,
-    "1) title1, q2.value is value2! (*)!",
+    "title1, q2.value is value2! (*)!",
     "question.title with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
   assert.equal(
     loc.renderedHtml,
-    "1) title1, q2.value is value2! (*)!",
+    "title1, q2.value is value2! (*)!",
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });
@@ -3638,7 +3678,7 @@ QUnit.test(
     survey.setVariable("var1", "It is var1");
     assert.equal(
       question.locTitle.renderedHtml,
-      "1. It is var1",
+      "It is var1",
       "Title: Variable is applied"
     );
     assert.equal(
@@ -3984,17 +4024,17 @@ QUnit.test(
     q2.choices = [{ value: 3, text: "Item 3" }, { value: 4, text: "Item 4" }];
     var q3 = <Question>page.addNewQuestion("text", "q3");
     q3.title = "{name1}-{name2}";
-    assert.equal(q3.locTitle.renderedHtml, "3. -", "There is no values");
+    assert.equal(q3.locTitle.renderedHtml, "-", "There is no values");
     q1.value = 1;
     assert.equal(
       q3.locTitle.renderedHtml,
-      "3. Item 1-",
+      "Item 1-",
       "Drop down value is set"
     );
     q2.value = [3, 4];
     assert.equal(
       q3.locTitle.renderedHtml,
-      "3. Item 1-Item 3, Item 4",
+      "Item 1-Item 3, Item 4",
       "Drop down value is set"
     );
   }
@@ -4364,7 +4404,7 @@ QUnit.test("survey.onGetQuestionTitle event. ", function(assert) {
   var question = <Question>page.addNewQuestion("text", "question1");
   assert.equal(
     question.fullTitle,
-    "1. question1",
+    "question1",
     "by default it is question name if title is empty"
   );
   survey.onGetQuestionTitle.add(function(survey, options) {
@@ -4500,7 +4540,7 @@ QUnit.test(
     assert.equal(qAge.isVisible, true, "It is visible now");
     assert.equal(
       qAge.locTitle.renderedHtml,
-      "2. Hi, John",
+      "Hi, John",
       "title processed correctly"
     );
   }
@@ -4661,9 +4701,9 @@ QUnit.test("Hide question numbers on particular page", function(assert) {
   survey.pages[1].addNewQuestion("text", "q2");
   survey.pages[2].addNewQuestion("text", "q3");
   var question = <Question>survey.getQuestionByName("q3");
-  assert.equal(question.fullTitle, "3. q3", "It has number 3");
+  assert.equal(question.fullTitle, "q3", "It has number 3");
   survey.pages[1].questionTitleLocation = "hidden";
-  assert.equal(question.fullTitle, "2. q3", "It has number 2 now");
+  assert.equal(question.fullTitle, "q3", "It has number 2 now");
 });
 
 QUnit.test("Could not assign value into mutlipletext question, #1229", function(
@@ -4860,7 +4900,7 @@ QUnit.test("Do not process html in design time, bug #396 (in Editor)", function(
   var survey = new SurveyModel(json);
   survey.setDesignMode(true);
   var question = <Question>survey.getQuestionByName("question2");
-  assert.equal(question.locTitle.renderedHtml, "2. {question1} test", "Do not process anything at design time");
+  assert.equal(question.locTitle.renderedHtml, "{question1} test", "Do not process anything at design time");
 });
 
 QUnit.test("survey.showInvisibleElements property", function(

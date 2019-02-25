@@ -339,7 +339,14 @@ $base-line-height: 2em;
         .sv_q_description {
           margin-top: -0.6em;
         }
-
+        .sv_q_flow {
+          .sv_q_checkbox_inline,
+          .sv_q_radiogroup_inline,
+          .sv_q_imagepicker_inline {
+            line-height: $base-line-height;
+            display: inline-block;
+          }
+        }
         .sv_q {
           padding: 0.5em 1em 1.5em 1em;
           box-sizing: border-box;

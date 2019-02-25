@@ -214,6 +214,7 @@ export class PageModel extends PanelModelBase implements IPage {
     this.dragDropInfo.destination = destination;
     this.dragDropInfo.isBottom = isBottom;
     this.dragDropInfo.isEdge = isEdge;
+    this.correctDragDropInfo(this.dragDropInfo);
     if (!this.dragDropCanDropTagert()) return false;
     if (!this.dragDropCanDropSource() || !this.dragDropAllowFromSurvey()) {
       if (!!this.dragDropInfo.source) {
@@ -224,6 +225,18 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     this.dragDropAddTarget(this.dragDropInfo);
     return true;
+  }
+  private correctDragDropInfo(dragDropInfo: DragDropInfo) {
+    if (!dragDropInfo.destination) return;
+    var panel = (<IElement>dragDropInfo.destination).isPanel
+      ? <IPanel>(<any>dragDropInfo.destination)
+      : null;
+    if (!panel) return;
+    if (
+      !dragDropInfo.target.isLayoutTypeSupported(panel.getChildrenLayoutType())
+    ) {
+      dragDropInfo.isEdge = true;
+    }
   }
   private dragDropAllowFromSurvey(): boolean {
     var dest = this.dragDropInfo.destination;
@@ -299,13 +312,6 @@ export class PageModel extends PanelModelBase implements IPage {
   private dragDropCanDropTagert(): boolean {
     var destination = this.dragDropInfo.destination;
     if (!destination || destination.isPage) return true;
-    if (
-      (<IElement>destination).isPanel &&
-      !this.dragDropInfo.target.isLayoutTypeSupported(
-        (<IPanel>destination).getChildrenLayoutType()
-      )
-    )
-      return false;
     return this.dragDropCanDropCore(
       this.dragDropInfo.target,
       <IElement>destination

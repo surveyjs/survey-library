@@ -889,12 +889,15 @@ QUnit.test("Do not all elements support flow layout", function(assert) {
 
   var target = new QuestionMatrixModel("matrix");
   page.dragDropStart(null, target);
+  assert.equal(page.rows.length, 1, "There is one row");
   assert.equal(
     page.dragDropMoveTo(panel, false, false),
-    false,
-    "Do not support matrix in flow panel"
+    true,
+    "Do support matrix in flow panel, but allow drop on page"
   );
+  assert.equal(page.rows.length, 2, "There are two rows");
   page.dragDropFinish();
+  assert.equal(page.rows.length, 2, "There are two rows");
   assert.equal(
     panel.elements.length,
     1,
@@ -905,4 +908,35 @@ QUnit.test("Do not all elements support flow layout", function(assert) {
     "{element:q1}abcd",
     "flowpanel.content doesn't changed"
   );
+  assert.equal(page.elements.length, 2, "There are two elements in page");
+  assert.equal(page.elements[0].name, "matrix", "The first element is matrix");
+});
+
+QUnit.test("Move flow panel up", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var question = page.addNewQuestion("text", "q1");
+  var panel = new FlowPanelModel("panel1");
+  panel.addNewQuestion("text", "pq1");
+  panel.content = "{element:pq1}abcd";
+  page.addElement(panel);
+
+  var target = new FlowPanelModel("panel1");
+  page.dragDropStart(panel, target);
+  assert.equal(page.rows.length, 2, "There are two rows");
+  assert.equal(
+    page.dragDropMoveTo(question, false, false),
+    true,
+    "Can drop the question"
+  );
+  assert.equal(page.rows.length, 3, "There are three rows now");
+  page.dragDropFinish();
+  assert.equal(page.rows.length, 2, "There are two rows");
+  assert.equal(page.elements.length, 2, "There are two elements in page");
+  assert.equal(
+    page.elements[0].name,
+    "panel1",
+    "The first element is the flow panel"
+  );
+  assert.equal(page.elements[1].name, "q1", "The second element is a question");
 });

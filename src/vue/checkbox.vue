@@ -1,16 +1,48 @@
 <template>
-    <fieldset :class="question.cssClasses.root">
-        <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
-        <div v-for="(item, index) in question.visibleChoices" :key="item.value" :class="getItemClass(item)">
-            <label :class="question.cssClasses.label">
-                <input v-if="item == question.selectAllItem" type="checkbox" :name="question.name" :value="isAllSelected" v-model="isAllSelected" :id="question.inputId + '_' + index" :disabled="question.isReadOnly" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <input v-if="item != question.selectAllItem" type="checkbox" :name="question.name" :value="item.value" v-model="question.value" :id="question.inputId + '_' + index" :disabled="question.isReadOnly || !item.isEnabled" v-bind:aria-label="item.locText.renderedHtml" :class="question.cssClasses.itemControl"/>
-                <span :class="question.cssClasses.materialDecorator"><span class="check"></span></span>
-                <span :class="question.cssClasses.controlLabel"><survey-string :locString="item.locText"/></span>
-                <survey-other-choice v-show="question.hasOther && question.value && question.isOtherSelected" v-if="item.value == question.otherItem.value" :question="question" />
-            </label>
-        </div>
-    </fieldset>
+  <fieldset :class="question.cssClasses.root">
+    <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+    <div
+      v-for="(item, index) in question.visibleChoices"
+      :key="item.value"
+      :class="getItemClass(item)"
+    >
+      <label :class="question.cssClasses.label">
+        <input
+          v-if="item == question.selectAllItem"
+          type="checkbox"
+          :name="question.name"
+          :value="isAllSelected"
+          v-model="isAllSelected"
+          :id="question.inputId + '_' + index"
+          :disabled="question.isReadOnly"
+          v-bind:aria-label="item.locText.renderedHtml"
+          :class="question.cssClasses.itemControl"
+        >
+        <input
+          v-if="item != question.selectAllItem"
+          type="checkbox"
+          :name="question.name"
+          :value="item.value"
+          v-model="question.renderedValue"
+          :id="question.inputId + '_' + index"
+          :disabled="question.isReadOnly || !item.isEnabled"
+          v-bind:aria-label="item.locText.renderedHtml"
+          :class="question.cssClasses.itemControl"
+        >
+        <span :class="question.cssClasses.materialDecorator">
+          <span class="check"></span>
+        </span>
+        <span :class="question.cssClasses.controlLabel">
+          <survey-string :locString="item.locText"/>
+        </span>
+        <survey-other-choice
+          v-show="question.hasOther && question.renderedValue && question.isOtherSelected"
+          v-if="item.value == question.otherItem.value"
+          :question="question"
+        />
+      </label>
+    </div>
+  </fieldset>
 </template>
 
 <script lang="ts">

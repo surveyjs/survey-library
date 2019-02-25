@@ -245,8 +245,8 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   onSurveyLoad() {
+    this.editorsOnSurveyLoad();
     super.onSurveyLoad();
-    this.callEditorFunction("onSurveyLoad");
     this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any) {
@@ -263,11 +263,11 @@ export class QuestionMultipleTextModel extends Question
       if (item.editor) item.editor.onSurveyValueChanged(item.value);
     }
   }
-  private callEditorFunction(funcName: string) {
+  private editorsOnSurveyLoad() {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
-      if (item.editor && (<any>item).editor[funcName]) {
-        (<any>item).editor[funcName]();
+      if (item.editor) {
+        (<any>item).editor.onSurveyLoad();
       }
     }
   }

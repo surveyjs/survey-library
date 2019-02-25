@@ -22,6 +22,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
+import { timingSafeEqual } from "crypto";
 
 export class DragDropInfo {
   constructor(
@@ -849,17 +850,11 @@ export class PanelModelBase extends SurveyElement
     var isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
     return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
-  /**
-   * Set it to true to make a panel/page readonly.
-   * @see enableIf
-   * @see isReadOnly
-   */
-  public get readOnly(): boolean {
-    return this.getPropertyValue("readOnly", false);
-  }
-  public set readOnly(val: boolean) {
-    if (this.readOnly == val) return;
-    this.setPropertyValue("readOnly", val);
+  protected onReadOnlyChanged() {
+    for (var i = 0; i < this.elements.length; i++) {
+      var el = <SurveyElement>(<any>this.elements[i]);
+      el.setPropertyValue("isReadOnly", el.isReadOnly);
+    }
   }
   /**
    * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.

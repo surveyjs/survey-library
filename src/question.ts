@@ -451,10 +451,8 @@ export class Question extends SurveyElement
       );
     }
     var requireText = this.requiredText;
-    if (requireText) requireText += " ";
-    var no = this.no;
-    if (no) no += ". ";
-    return no + requireText + this.processedTitle;
+    if (requireText) requireText = " " + requireText;
+    return this.processedTitle + requireText;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
@@ -685,18 +683,6 @@ export class Question extends SurveyElement
     return this.readOnly || isParentReadOnly || isSurveyReadOnly;
   }
   /**
-   * Set it to true to make a question readonly.
-   * @see enableIf
-   * @see isReadOnly
-   */
-  public get readOnly(): boolean {
-    return this.getPropertyValue("readOnly", false);
-  }
-  public set readOnly(val: boolean) {
-    if (this.readOnly == val) return;
-    this.setPropertyValue("readOnly", val);
-  }
-  /**
    * An expression that returns true or false. If it returns false the Question becomes read only and an end-user will not able to answer on the qustion. The library runs the expression on survey start and on changing a question value. If the property is empty then readOnly property is used.
    * @see readOnly
    * @see isReadOnly
@@ -911,7 +897,9 @@ export class Question extends SurveyElement
     return this.getComment();
   }
   public set comment(newValue: string) {
-    if (!!newValue) newValue = newValue.trim();
+    if (!!newValue) {
+      newValue = newValue.toString().trim();
+    }
     if (this.comment == newValue) return;
     this.setComment(newValue);
   }
@@ -991,7 +979,7 @@ export class Question extends SurveyElement
    * Remove a particular error from the question error list.
    * @param error
    */
-  public removeError (error: SurveyError) {
+  public removeError(error: SurveyError) {
     var errors = this.errors;
     var index = errors.indexOf(error);
     if (index !== -1) errors.splice(index, 1);
@@ -1153,11 +1141,11 @@ export class Question extends SurveyElement
 JsonObject.metaData.addClass("question", [
   "!name",
   { name: "visible:boolean", default: true },
-  { name: "useDisplayValuesInTitle:boolean", default: true },
+  { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "startWithNewLine:boolean", default: true },
-  { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
+  { name: "startWithNewLine:boolean", default: true, layout: "row" },
+  { name: "indent:number", default: 0, choices: [0, 1, 2, 3], layout: "row" },
   {
     name: "page",
     isSerializable: false,
@@ -1170,9 +1158,17 @@ JsonObject.metaData.addClass("question", [
         : [];
     }
   },
-  { name: "title:text", serializationProperty: "locTitle" },
-  { name: "description:text", serializationProperty: "locDescription" },
-  { name: "commentText", serializationProperty: "locCommentText" },
+  { name: "title:text", serializationProperty: "locTitle", layout: "row" },
+  {
+    name: "description:text",
+    serializationProperty: "locDescription",
+    layout: "row"
+  },
+  {
+    name: "commentText",
+    serializationProperty: "locCommentText",
+    layout: "row"
+  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",
@@ -1192,7 +1188,8 @@ JsonObject.metaData.addClass("question", [
   {
     name: "titleLocation",
     default: "default",
-    choices: ["default", "top", "bottom", "left", "hidden"]
+    choices: ["default", "top", "bottom", "left", "hidden"],
+    layout: "row"
   }
 ]);
 JsonObject.metaData.addAlterNativeClassName("question", "questionbase");

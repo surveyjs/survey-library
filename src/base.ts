@@ -126,6 +126,7 @@ export interface IConditionRunner {
 export interface ISurveyElement {
   name: string;
   isVisible: boolean;
+  isReadOnly: boolean;
   isPage: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
@@ -608,6 +609,10 @@ export class SurveyElement extends Base implements ISurveyElement {
     super();
     this.name = name;
     this.createNewArray("errors");
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
+      self.onReadOnlyChanged();
+    });
   }
   public setSurveyImpl(value: ISurveyImpl) {
     this.surveyImplValue = value;
@@ -645,6 +650,25 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isVisible(): boolean {
     return true;
   }
+  public get isReadOnly(): boolean {
+    return false;
+  }
+  /**
+   * Set it to true to make an element question/panel/page readonly.
+   * @see enableIf
+   * @see isReadOnly
+   */
+  public get readOnly(): boolean {
+    return this.getPropertyValue("readOnly", false);
+  }
+  public set readOnly(val: boolean) {
+    if (this.readOnly == val) return;
+    this.setPropertyValue("readOnly", val);
+    if (!this.isLoadingFromJson) {
+      this.setPropertyValue("isReadOnly", this.isReadOnly);
+    }
+  }
+  protected onReadOnlyChanged() {}
   public get isLoadingFromJson() {
     if (this.survey) return this.survey.isLoadingFromJson;
     return this.isLoadingFromJsonValue;

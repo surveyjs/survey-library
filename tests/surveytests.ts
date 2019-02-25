@@ -1749,7 +1749,16 @@ QUnit.test("question fullTitle", function(assert) {
   assert.equal(question["no"], "B");
   assert.equal(question.fullTitle, "My Title *");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
-  assert.equal(question.fullTitle, ") My Title (*)");
+  assert.equal(question.fullTitle, "My Title (*)");
+});
+QUnit.test("remove {no} from title template", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.questionTitleTemplate = "{no}) {title} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{title} ({require})");
+  survey.questionTitleTemplate = "{require} - ({no}) {title} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{require}{title} ({require})");
+  survey.questionTitleTemplate = "{require} - ({no}) {title} {no} ({require})";
+  assert.equal(survey.questionTitleTemplate, "{require}{title} {no} ({require})");
 });
 QUnit.test("clearInvisibleValues", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -3157,15 +3166,20 @@ QUnit.test("Survey Markdown - question title", function(assert) {
   );
 
   survey.questionTitleTemplate = "{no}) {title} ({require})markdown";
+  assert.equal(
+    survey.questionTitleTemplate,
+    "{title} ({require})markdown",
+    "{no}) should be removed"
+  );
   q1.isRequired = true;
   assert.equal(
     q1.fullTitle,
-    ") title1, q2.value is value2! (*)!",
+    "title1, q2.value is value2! (*)!",
     "question.title with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
   assert.equal(
     loc.renderedHtml,
-    ") title1, q2.value is value2! (*)!",
+    "title1, q2.value is value2! (*)!",
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });

@@ -319,6 +319,12 @@ export class StylesManager {
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css textarea":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
+      "border: 1px solid $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
+      "border: 1px solid $main-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
+      "background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus":

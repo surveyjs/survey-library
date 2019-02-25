@@ -36,6 +36,7 @@ export var defaultStandardCss = {
     flowRoot: "sv_q_flow sv_qstn",
     titleLeftRoot: "sv_qstn_left",
     title: "sv_q_title",
+    number: "sv_q_num",
     description: "sv_q_description",
     comment: "",
     required: "",

@@ -939,7 +939,7 @@ QUnit.test("Multiple Text required items", function(assert) {
   var item1 = multiTextQuestion.addItem("item1");
   var item2 = multiTextQuestion.addItem("item2");
   item1.isRequired = true;
-  assert.equal(item1.fullTitle, "* item1", "Add isRequired Text");
+  assert.equal(item1.fullTitle, "item1 *", "Add isRequired Text");
   assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
   assert.equal(
     multiTextQuestion.hasErrors(),
@@ -1741,13 +1741,13 @@ QUnit.test("question fullTitle", function(assert) {
   question.title = "My Title";
   assert.equal(question.fullTitle, "My Title");
   question.isRequired = true;
-  assert.equal(question.fullTitle, "* My Title");
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionStartIndex = "100";
   assert.equal(question["no"], 101);
-  assert.equal(question.fullTitle, "* My Title");
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionStartIndex = "A";
   assert.equal(question["no"], "B");
-  assert.equal(question.fullTitle, "* My Title");
+  assert.equal(question.fullTitle, "My Title *");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
   assert.equal(question.fullTitle, "B) My Title (*)");
 });

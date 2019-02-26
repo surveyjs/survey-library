@@ -550,11 +550,12 @@ export class SurveyError {
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null
-  ) {
-    this.locTextValue = new LocalizableString(errorOwner, true);
-    this.locText.text = this.getText();
-  }
+  ) {}
   public get locText() {
+    if (!this.locTextValue) {
+      this.locTextValue = new LocalizableString(this.errorOwner, true);
+      this.locTextValue.text = this.getText();
+    }
     return this.locTextValue;
   }
   public getText(): string {

@@ -1084,6 +1084,33 @@ QUnit.test("Add a new number property with default value", function(assert) {
   JsonObject.metaData.removeProperty("car", "tag");
 });
 
+QUnit.test("Add a boolean property default value", function(assert) {
+  JsonObject.metaData.addProperty("car", {
+    name: "isNew:boolean",
+    default: true
+  });
+  JsonObject.metaData.addProperty("itemvalue", {
+    name: "isNew:boolean",
+    default: true
+  });
+  var car = new Truck();
+  assert.equal(
+    car["isNew"],
+    true,
+    "New boolean property is added with correct default value"
+  );
+
+  var item = new ItemValue(1);
+  assert.equal(
+    item["isNew"],
+    true,
+    "New boolean property is added with correct default value into itemvalue"
+  );
+
+  JsonObject.metaData.removeProperty("itemvalue", "isNew");
+  JsonObject.metaData.removeProperty("car", "isNew");
+});
+
 QUnit.test("A non serializable property", function(assert) {
   var dealer = new Dealer();
   new JsonObject().toObject({ truck: { maxWeight: 10000 } }, dealer);

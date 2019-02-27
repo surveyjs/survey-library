@@ -195,7 +195,7 @@ export class ItemValue extends Base {
   }
   public onCreating(): any {}
   public getType(): string {
-    return this.typeName;
+    return !!this.typeName ? this.typeName : "itemvalue";
   }
   public get locText(): LocalizableString {
     return this.locTextValue;

@@ -70,7 +70,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         item={item}
         textStyle={this.textStyle}
         index={index}
-        isChecked={this.state.value == item.value}
+        isChecked={this.state.value === item.value}
       />
     );
   }

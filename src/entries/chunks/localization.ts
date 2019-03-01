@@ -11,6 +11,7 @@ import "../../localization/greek";
 import "../../localization/hebrew";
 import "../../localization/hungarian";
 import "../../localization/icelandic";
+import "../../localization/indonesian";
 import "../../localization/italian";
 import "../../localization/japanese";
 import "../../localization/korean";

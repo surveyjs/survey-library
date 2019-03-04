@@ -319,7 +319,14 @@ export class PanelModelBase extends SurveyElement
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       if (q.isEmpty()) continue;
-      (<any>data)[q.getValueName()] = q["value"];
+      var valueName = q.getValueName();
+      (<any>data)[valueName] = q.value;
+      if (!!this.data) {
+        var comment = this.data.getComment(valueName);
+        if (!!comment) {
+          (<any>data)[valueName + Base.commentPrefix] = comment;
+        }
+      }
     }
     return data;
   }

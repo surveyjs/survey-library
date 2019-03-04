@@ -287,6 +287,62 @@ QUnit.test("Panel.getValue()", function(assert) {
   );
 });
 
+QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "spread",
+        hasOther: true,
+        choices: [
+          {
+            value: "butter",
+            text: "Butter"
+          }
+        ]
+      }
+    ]
+  });
+  survey.setValue("spread", "other");
+  survey.setComment("spread", "Jam");
+  assert.deepEqual(
+    survey.data,
+    { spread: "other", "spread-Comment": "Jam" },
+    "survey.data is correct"
+  );
+  assert.deepEqual(
+    survey.currentPage.getValue(),
+    { spread: "other", "spread-Comment": "Jam" },
+    "survey.currentPage.getValue() is correct"
+  );
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("spread");
+  question.comment = "";
+  question.value = "butter";
+  assert.deepEqual(
+    survey.data,
+    { spread: "butter" },
+    "survey.data is correct, not other"
+  );
+  assert.deepEqual(
+    survey.currentPage.getValue(),
+    { spread: "butter" },
+    "survey.currentPage.getValue() is correct, not other"
+  );
+  survey.storeOthersAsComment = false;
+  question.value = "other";
+  question.comment = "Jam";
+  assert.deepEqual(
+    survey.data,
+    { spread: "Jam" },
+    "survey.data is correct, other +  storeOthersAsComment = false"
+  );
+  assert.deepEqual(
+    survey.currentPage.getValue(),
+    { spread: "Jam" },
+    "survey.currentPage.getValue() is correct + storeOthersAsComment = false"
+  );
+});
+
 QUnit.test("Panel.getComments()", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");

@@ -12,7 +12,7 @@ var replace = require("replace-in-file");
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)"
 ].join("\n");
 

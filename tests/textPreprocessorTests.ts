@@ -89,7 +89,7 @@ QUnit.test("ProcessValue getValue/hasValue, arrays and nested values", function(
   assert.equal(process.getValue("b[1].c[1].d", value), 4, "c[0].d=4");
 });
 
-QUnit.test("Question process any propery", function(assert) {
+QUnit.test("Question process any property", function(assert) {
   var question = new Question("q1");
   var processor = new TextPreProcessor();
   processor.onProcess = val => question["getProcessedTextValue"](val);
@@ -97,5 +97,28 @@ QUnit.test("Question process any propery", function(assert) {
     processor.process("test1 {name} test2"),
     "test1 q1 test2",
     "name is the same"
+  );
+});
+
+QUnit.test("ProcessValue setValue function", function(assert) {
+  var processor = new ProcessValue();
+  var data = { a: [{}], b: { c: 2 } };
+  processor.setValue(data, "name", 1);
+  assert.deepEqual(
+    data,
+    { a: [{}], b: { c: 2 }, name: 1 },
+    "set the simple value correctly"
+  );
+  processor.setValue(data, "a[0].name", 1);
+  assert.deepEqual(
+    data,
+    { a: [{ name: 1 }], b: { c: 2 }, name: 1 },
+    "set the array value correctly"
+  );
+  processor.setValue(data, "b.c", 5);
+  assert.deepEqual(
+    data,
+    { a: [{ name: 1 }], b: { c: 5 }, name: 1 },
+    "set the nested object value correctly"
   );
 });

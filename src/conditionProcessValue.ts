@@ -24,6 +24,16 @@ export class ProcessValue {
     var res = this.getValueCore(text, values);
     return res.hasValue;
   }
+  public setValue(obj: any, text: string, value: any) {
+    if (!text) return;
+    var nonNestedObj = this.getNonNestedObject(obj, text);
+    if (!nonNestedObj) return;
+    obj = nonNestedObj.value;
+    text = nonNestedObj.text;
+    if (!!obj && !!text) {
+      obj[text] = value;
+    }
+  }
   public getValue(text: string, values: HashTable<any> = null): any {
     if (!values) values = this.values;
     var res = this.getValueCore(text, values);
@@ -41,34 +51,46 @@ export class ProcessValue {
       res.value = 0;
       res.hasValue = true;
     }
-    var isFirst = true;
-    while (text && text.length > 0) {
-      var isArray = !isFirst && text[0] == "[";
+    var nonNestedObj = this.getNonNestedObject(curValue, text);
+    if (!nonNestedObj) return res;
+    res.value = !!nonNestedObj.text
+      ? this.getObjectValue(nonNestedObj.value, nonNestedObj.text)
+      : nonNestedObj.value;
+    res.hasValue = !Helpers.isValueEmpty(res.value);
+    return res;
+  }
+  private getNonNestedObject(obj: any, text: string): any {
+    while (text != this.getFirstName(text) && !!obj) {
+      var isArray = text[0] == "[";
       if (!isArray) {
-        if (!isFirst) text = text.substr(1);
         var curName = this.getFirstName(text);
-        if (!curName) return res;
-        curValue = this.getObjectValue(curValue, curName);
-        if (Helpers.isValueEmpty(curValue)) return res;
+        obj = this.getObjectValue(obj, curName);
+        if (!obj) return null;
         text = text.substr(curName.length);
       } else {
-        if (!Array.isArray(curValue)) return res;
-        var index = 1;
-        var str = "";
-        while (index < text.length && text[index] != "]") {
-          str += text[index];
-          index++;
-        }
-        text = index < text.length ? text.substr(index + 1) : "";
-        index = this.getIntValue(str);
-        if (index < 0 || index >= curValue.length) return res;
-        curValue = curValue[index];
+        var objInArray = this.getObjInArray(obj, text);
+        if (!objInArray) return null;
+        obj = objInArray.value;
+        text = objInArray.text;
       }
-      isFirst = false;
+      if (!!text && text[0] == ".") {
+        text = text.substr(1);
+      }
     }
-    res.value = curValue;
-    res.hasValue = true;
-    return res;
+    return { value: obj, text: text };
+  }
+  private getObjInArray(curValue: any, text: string): any {
+    if (!Array.isArray(curValue)) return null;
+    var index = 1;
+    var str = "";
+    while (index < text.length && text[index] != "]") {
+      str += text[index];
+      index++;
+    }
+    text = index < text.length ? text.substr(index + 1) : "";
+    index = this.getIntValue(str);
+    if (index < 0 || index >= curValue.length) return null;
+    return { value: curValue[index], text: text };
   }
   private getObjectValue(obj: any, name: string): any {
     if (obj.hasOwnProperty(name)) return obj[name];

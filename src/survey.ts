@@ -3578,12 +3578,23 @@ export class SurveyModel extends Base
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      this.setValue(name, value);
+      var processor = new ProcessValue();
+      var firstName = processor.getFirstName(name);
+      if (firstName == name) {
+        this.setValue(name, value);
+      } else {
+        if (!this.getValue(firstName)) return;
+        var data = this.getUnbindValue(this.getFilteredValues());
+        processor.setValue(data, name, value);
+        this.setValue(firstName, data[firstName]);
+      }
     }
   }
   copyTriggerValue(name: string, fromName: string) {
     if (!name || !fromName) return;
-    this.setValue(name, this.getValue(fromName));
+    var processor = new ProcessValue();
+    var value = processor.getValue(fromName, this.getFilteredValues());
+    this.setTriggerValue(name, value, false);
   }
 }
 

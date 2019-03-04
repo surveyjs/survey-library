@@ -19,7 +19,7 @@ var banner = [
 // TODO add to dts_bundler
 var dts_banner = [
   "Type definitions for Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
   ""
 ].join("\n");

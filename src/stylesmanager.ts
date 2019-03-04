@@ -320,7 +320,7 @@ export class StylesManager {
     ".sv_default_css textarea":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
-      "border: 1px solid $border-color; background-color: $inputs-background-color;",
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
     ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
       "border: 1px solid $main-color;",
     ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":

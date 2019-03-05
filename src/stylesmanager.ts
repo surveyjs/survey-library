@@ -100,7 +100,9 @@ export class StylesManager {
       "display: block;",
 
     ".sv_qstn table tr td .sv_q_m_cell_label":
-      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;"
+      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
+
+    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

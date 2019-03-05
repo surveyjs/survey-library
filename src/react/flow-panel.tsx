@@ -105,6 +105,9 @@ export class SurveyFlowPanel extends SurveyPanel {
     }
     return true;
   }
+  protected renderContent(style: any, rows: JSX.Element[]): JSX.Element {
+    return React.createElement("f-panel", { style: style }, rows);
+  }
 }
 
 ReactElementFactory.Instance.registerElement("flowpanel", props => {

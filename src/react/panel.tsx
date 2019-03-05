@@ -47,10 +47,13 @@ export class SurveyPanel extends SurveyPanelBase {
         {title}
         {description}
         {errors}
-        <div style={style}>{rows}</div>
+        {this.renderContent(style, rows)}
         {bottom}
       </div>
     );
+  }
+  protected renderContent(style: any, rows: JSX.Element[]): JSX.Element {
+    return <div style={style}>{rows}</div>;
   }
   protected renderTitle(): JSX.Element {
     if (!this.panelBase.title) return null;

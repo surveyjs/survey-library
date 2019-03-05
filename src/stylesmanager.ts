@@ -370,7 +370,8 @@ export class StylesManager {
     ".sv_main .progress": "width: 60%;",
     ".sv_main .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
-    ".sv_main .table>tbody>tr>td": "min-width: 90px;"
+    ".sv_main .table>tbody>tr>td": "min-width: 90px;",
+    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {

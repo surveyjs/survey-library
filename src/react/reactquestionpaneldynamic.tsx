@@ -8,7 +8,7 @@ import {
   QuestionPanelDynamicItem
 } from "../question_paneldynamic";
 import { PanelModel } from "../panel";
-import { SurveyPanel } from "./reactpage";
+import { SurveyPanel } from "./panel";
 import { ISurveyCreator } from "./reactquestion";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { ReactQuestionFactory } from "./reactquestionfactory";

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { SurveyPage } from "./reactpage";
+import { SurveyPage } from "./page";
 import { SurveyNavigation } from "./reactSurveyNavigation";
 import { SurveyError } from "../base";
 import { Question } from "../question";

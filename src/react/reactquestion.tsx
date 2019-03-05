@@ -4,6 +4,7 @@ import { SurveyElement, SurveyError } from "../base";
 import { SurveyQuestionCommentItem } from "./reactquestioncomment";
 import { SurveyElementBase, ReactSurveyElement } from "./reactquestionelement";
 import { SurveyCustomWidget } from "./custom-widget";
+import { ReactElementFactory } from "./element-factory";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): JSX.Element;
@@ -32,7 +33,7 @@ export class SurveyQuestion extends SurveyElementBase {
   }
   private updateProps(props: any) {
     this.creator = props.creator;
-    this.question = props.question;
+    this.question = props.element;
   }
   componentWillReceiveProps(nextProps: any) {
     this.unMakeBaseElementReact(this.question);
@@ -194,6 +195,10 @@ export class SurveyQuestion extends SurveyElementBase {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement("question", props => {
+  return React.createElement(SurveyQuestion, props);
+});
 
 export class SurveyElementErrors extends ReactSurveyElement {
   protected element: SurveyElement;

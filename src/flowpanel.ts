@@ -81,7 +81,7 @@ export class FlowPanelModel extends PanelModel {
     if (startIndex < str.length) {
       html.push(str.substr(startIndex, str.length - startIndex));
     }
-    return html.join("");
+    return html.join("").replace(new RegExp("<br>", "g"), "<br/>");
   }
   public getQuestionFromText(str: string): Question {
     str = str.substr(1, str.length - 2);

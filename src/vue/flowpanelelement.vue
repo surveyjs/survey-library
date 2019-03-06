@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span :style="style">
     <component v-if="!question" :is="tagName">
       <survey-flowpanelelement
         v-for="elNode in nodes"
@@ -41,7 +41,21 @@ export class FlowPanelElement extends Vue {
   public tagName: string = "span";
   public nodes: Array<Node> = [];
   public text: string = "";
+  public style: any = {};
 
+  private getStyle(nodeType: string) {
+    var style: any = {};
+    if (nodeType.toLowerCase() === "b") {
+      style.fontWeight = "bold";
+    }
+    if (nodeType.toLowerCase() === "i") {
+      style.fontStyle = "italic";
+    }
+    if (nodeType.toLowerCase() === "u") {
+      style.textDecoration = "underline";
+    }
+    return style;
+  }
   public get elementId(): string {
     if (!this.elementIdValue) {
       if (!FlowPanelElement.idValue) {
@@ -70,6 +84,7 @@ export class FlowPanelElement extends Vue {
     if (nodeType == "div" && !this.question) {
       this.tagName = "div";
     }
+    this.style = this.getStyle(nodeType);
   }
   //duplicated code from element.vue
   getWidgetComponentName(element: Question) {

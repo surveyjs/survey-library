@@ -1060,6 +1060,7 @@ export class Question extends SurveyElement
   }
   //IQuestion
   updateValueFromSurvey(newValue: any) {
+    newValue = Helpers.getUnbindValue(newValue);
     this.setQuestionValue(this.valueFromData(newValue));
   }
   updateCommentFromSurvey(newValue: any): any {

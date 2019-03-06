@@ -16,6 +16,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -2254,5 +2255,60 @@ QUnit.test(
     var q1 = dp1.panels[0].getQuestionByName("q1");
     q1.value = "val1";
     assert.deepEqual(changedValue, [1, 2, 3], "value set correctly");
+  }
+);
+
+QUnit.test(
+  "Bug on visibleIf in dynamic panel + dynamic matrix, Bug#T1716",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "entities",
+          columns: [
+            {
+              name: "q3",
+              cellType: "text",
+              isRequired: true
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          type: "paneldynamic",
+          name: "entities_info",
+          valueName: "entities",
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              choices: ["a", "b"]
+            },
+            {
+              type: "text",
+              name: "q2",
+              visibleIf: "{panel.q1} = 'b'"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.setValue("entities", [{ q3: "some text" }]);
+    var panel = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "entities_info"
+    );
+    assert.equal(
+      panel.panels[0].getQuestionByName("q2").isVisible,
+      false,
+      "By default, q2 is invisible"
+    );
+    panel.panels[0].getQuestionByName("q1").value = "b";
+    assert.equal(
+      panel.panels[0].getQuestionByName("q2").isVisible,
+      true,
+      "q2 is visible now"
+    );
   }
 );

@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import {
   IElement,
   Base,
@@ -1264,7 +1264,7 @@ export class QuestionPanelDynamicModel extends Question
     var items = this.items;
     var index = items.indexOf(item);
     if (index < 0) index = items.length;
-    var qValue = this.value;
+    var qValue = Helpers.getUnbindValue(this.value);
     if (!qValue || !Array.isArray(qValue)) {
       qValue = [];
     }

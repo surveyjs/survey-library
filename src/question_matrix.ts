@@ -240,13 +240,19 @@ export class QuestionMatrixModel
       result.push(
         this.createMatrixRow(
           row,
-          this.id + "_" + row.value.toString(),
+          this.id + "_" + row.value.toString().replace(/\s/g, "_"),
           val[row.value]
         )
       );
     }
     if (result.length == 0 && !this.filteredRows) {
-      result.push(this.createMatrixRow(new ItemValue(null), this.name, val));
+      result.push(
+        this.createMatrixRow(
+          new ItemValue(null),
+          this.name.replace(/\s/g, "_"),
+          val
+        )
+      );
     }
     result = this.sortVisibleRows(result);
     this.generatedVisibleRows = result;

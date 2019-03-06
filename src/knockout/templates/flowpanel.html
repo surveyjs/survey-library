@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-flowpanel">
   <div data-bind="style:{ width: renderWidth }, attr: {id: id}, css: cssClasses.panel.container">
-      <h4 data-bind="visible: (processedTitle.length > 0)">
+      <h4 data-bind="visible: (processedTitle.length > 0), css: cssClasses.panel.title">
           <!-- ko template: { name: 'survey-string', data: locTitle } -->
           <!-- /ko -->
       </h4>

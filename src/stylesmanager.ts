@@ -100,7 +100,9 @@ export class StylesManager {
       "display: block;",
 
     ".sv_qstn table tr td .sv_q_m_cell_label":
-      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;"
+      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
+
+    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -368,7 +370,8 @@ export class StylesManager {
     ".sv_main .progress": "width: 60%;",
     ".sv_main .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
-    ".sv_main .table>tbody>tr>td": "min-width: 90px;"
+    ".sv_main .table>tbody>tr>td": "min-width: 90px;",
+    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;"
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {

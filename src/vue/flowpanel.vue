@@ -8,9 +8,9 @@
       <survey-string :locString="question.locDescription"/>
     </div>
     <survey-errors :question="question"/>
-    <div :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
+    <f-panel :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
       <survey-flowpanelelement :node="rootNode" :panel="question" css="css"/>
-    </div>
+    </f-panel>
   </div>
 </template>
 

@@ -27,13 +27,14 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.72",
+  "version": "1.0.73",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
     "@types/angular": "1.6.2",
     "@types/jquery": "2.0.39",
     "@types/knockout": "3.4.46",
+    "@types/lodash": "4.14.121",
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
     "@types/react": "16.4.2",

@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -58,8 +58,8 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`input[name="sq_100_does what it claims"][value="4"]`)
-      .click(`input[name="sq_100_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -89,9 +89,9 @@ frameworks.forEach(framework => {
 
     await t
       .click(`input[name="sq_100_affordable"][value="3"]`)
-      .click(`input[name="sq_100_does what it claims"][value="4"]`)
-      .click(`input[name="sq_100_better then others"][value="2"]`)
-      .click(`input[name="sq_100_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
+      .click(`input[name="sq_100_better_then_others"][value="2"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();

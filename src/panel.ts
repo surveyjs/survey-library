@@ -23,6 +23,7 @@ import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { timingSafeEqual } from "crypto";
+import { PageModel } from "./page";
 
 export class DragDropInfo {
   constructor(
@@ -586,8 +587,8 @@ export class PanelModelBase extends SurveyElement
   /**
    * Returns true if the current object is Page and it is the current page.
    */
-  public get isActive() {
-    return !this.survey || this.survey.currentPage == this.root;
+  public get isActive(): boolean {
+    return !this.survey || <PageModel>this.survey.currentPage == this.root;
   }
   public updateCustomWidgets() {
     for (var i = 0; i < this.elements.length; i++) {

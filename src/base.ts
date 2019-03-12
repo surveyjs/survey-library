@@ -180,7 +180,9 @@ export interface IPanel extends ISurveyElement, IParentElement {
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
 }
-export interface IPage extends IPanel, IConditionRunner {}
+export interface IPage extends IPanel, IConditionRunner {
+  isStarted: boolean;
+}
 /**
  * The base class for SurveyJS objects.
  */
@@ -472,6 +474,16 @@ export class Base {
     var self = this;
     newArray.push = function(value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
+      if (onPush) onPush(value, newArray.length - 1);
+      self.propertyValueChanged(name, newArray, newArray);
+      self.notifyArrayChanged(newArray);
+      return result;
+    };
+    newArray.unshift = function(value): number {
+      var result = Object.getPrototypeOf(newArray).unshift.call(
+        newArray,
+        value
+      );
       if (onPush) onPush(value, newArray.length - 1);
       self.propertyValueChanged(name, newArray, newArray);
       self.notifyArrayChanged(newArray);

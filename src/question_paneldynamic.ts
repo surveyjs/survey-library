@@ -943,6 +943,21 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   /**
+   * Goes to the next panel in the PanelDynamic
+   *
+   */
+  public goToNextPanel() {
+    if (this.renderMode !== "list" && this.currentPanel.hasErrors()) return;
+    this.currentIndex++;
+  }
+  /**
+   * Goes to the previous panel in the PanelDynamic
+   *
+   */
+  public goToPrevPanel() {
+    this.currentIndex--;
+  }
+  /**
    * Removes a dynamic panel from the panels array.
    * @param value a panel or panel index
    * @see panels

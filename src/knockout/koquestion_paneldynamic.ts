@@ -39,10 +39,10 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       self.removePanel(data);
     };
     this.koPrevPanelClick = function() {
-      (<QuestionPanelDynamic>self.question).currentIndex--;
+      (<QuestionPanelDynamic>self.question).goToPrevPanel();
     };
     this.koNextPanelClick = function() {
-      (<QuestionPanelDynamic>self.question).currentIndex++;
+      (<QuestionPanelDynamic>self.question).goToNextPanel();
     };
 
     this.koCanAddPanel = ko.pureComputed(function() {

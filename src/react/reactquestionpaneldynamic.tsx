@@ -59,10 +59,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.addPanelUI();
   }
   handleOnPanelPrevClick(event: any) {
-    this.question.currentIndex--;
+    this.question.goToPrevPanel();
   }
   handleOnPanelNextClick(event: any) {
-    this.question.currentIndex++;
+    this.question.goToNextPanel();
   }
   handleOnRangeChange(event: any) {
     this.question.currentIndex = event.target.value;

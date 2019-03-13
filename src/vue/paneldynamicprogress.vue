@@ -24,10 +24,10 @@ export class PanelDynamicProgress extends Vue {
     this.question.addPanelUI();
   }
   prevPanelClick() {
-    this.question.currentIndex--;
+    this.question.goToPrevPanel();
   }
   nextPanelClick() {
-    this.question.currentIndex++;
+    this.question.goToNextPanel();
   }
 
   changeRange(event: any) {

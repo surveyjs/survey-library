@@ -2312,3 +2312,72 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("goToNextPanel method", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "pd",
+        renderMode: "progressTop",
+        panelCount: 2,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            isRequired: true,
+            choices: ["a", "b"]
+          }
+        ]
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
+
+  panelDynamic.goToNextPanel();
+  assert.equal(
+    panelDynamic.currentIndex,
+    0,
+    "first panel is current because of validation errors"
+  );
+  assert.equal(panelDynamic.currentPanel.hasErrors(), true);
+
+  survey.data = { pd: [{ q1: "a" },{ q1: "b" }] };
+  assert.equal(panelDynamic.currentPanel.hasErrors(), false);
+
+  panelDynamic.goToNextPanel();
+  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+});
+
+QUnit.test("goToPrevPanel method", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "pd",
+        renderMode: "progressTop",
+        panelCount: 2,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            isRequired: true,
+            choices: ["a", "b"]
+          }
+        ]
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(json);
+  var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
+
+  panelDynamic.currentIndex = 1;
+  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+
+  panelDynamic.goToPrevPanel();
+  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
+});

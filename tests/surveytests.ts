@@ -4318,19 +4318,26 @@ QUnit.test("Questions are randomized", function(assert) {
   );
 });
 QUnit.test("Quiz, correct, incorrect answers", function(assert) {
-  var survey = twoPageSimplestSurvey();
+  var survey = new SurveyModel({
+    pages: [
+      {elements:[{type: "text", name : "q1"}, {type: "text", name : "q2"}]}, 
+      {elements:[{type: "text", name : "q3"}, {type: "text", name : "q4"}]}
+    ]
+  });
+  assert.equal(survey.getAllQuestions().length, 4, "There are 4 questions in total");
+  for (var i = 1; i <= 4; i++) {
+    (<Question>survey.getQuestionByName("q" + i)).correctAnswer =
+      "q" + i;
+  }
   var page = new PageModel("start");
   page.addNewQuestion("text", "name");
   page.addNewQuestion("text", "email");
   survey.pages.unshift(page);
   survey.firstPageIsStarted = true;
-  for (var i = 1; i <= 4; i++) {
-    (<Question>survey.getQuestionByName("question" + i)).correctAnswer =
-      "q" + i;
-  }
   survey.completedHtml =
     "{correctedAnswers}, {inCorrectedAnswers}, {questionCount}";
   survey.start();
+  assert.equal(survey.getAllQuestions().length, 6, "There are 6 questions in total");
   assert.equal(
     survey.getCorrectedAnswers(),
     0,
@@ -4339,54 +4346,72 @@ QUnit.test("Quiz, correct, incorrect answers", function(assert) {
   assert.equal(
     survey.getInCorrectedAnswers(),
     4,
-    "The number of corrected answers is 0"
+    "The number of incorrected answers is 4"
   );
-  survey.getQuestionByName("question1").visible = false;
+  survey.getQuestionByName("q1").visible = false;
   assert.equal(
     survey.getInCorrectedAnswers(),
     3,
-    "The number of corrected answers is 0"
+    "The number of incorrected answers is 3"
   );
-  (<Question>survey.getQuestionByName("question2")).value = "q2";
+  (<Question>survey.getQuestionByName("q2")).value = "q2";
   assert.equal(
     survey.getCorrectedAnswers(),
     1,
-    "The number of corrected answers is 0"
+    "The number of corrected answers is 1"
   );
   assert.equal(
     survey.getInCorrectedAnswers(),
     2,
-    "The number of corrected answers is 0"
+    "The number of incorrected answers is 2"
   );
-  (<Question>survey.getQuestionByName("question3")).value = "q10";
-  (<Question>survey.getQuestionByName("question4")).value = "q4";
+  (<Question>survey.getQuestionByName("q3")).value = "q10";
+  (<Question>survey.getQuestionByName("q4")).value = "q4";
   assert.equal(
     survey.getCorrectedAnswers(),
     2,
-    "The number of corrected answers is 0"
+    "The number of corrected answers is 2"
   );
   assert.equal(
     survey.getInCorrectedAnswers(),
     1,
-    "The number of corrected answers is 0"
+    "The number of incorrected answers is 1"
   );
-  (<Question>survey.getQuestionByName("question4")).visible = false;
+  (<Question>survey.getQuestionByName("q4")).visible = false;
   assert.equal(
     survey.getCorrectedAnswers(),
     1,
-    "The number of corrected answers is 0"
+    "The number of corrected answers is 1"
   );
   assert.equal(
     survey.getInCorrectedAnswers(),
     1,
-    "The number of corrected answers is 0"
+    "The number of incorrected answers is 1"
   );
-  (<Question>survey.getQuestionByName("question4")).visible = true;
+  (<Question>survey.getQuestionByName("q4")).visible = true;
   assert.equal(
     survey.processedCompletedHtml,
     "2, 1, 3",
     "competed html is correct"
   );
+});
+QUnit.test("Store data on the first page, firstPageIsStarted = true, Bug # 1580", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var questionCount = survey.getAllQuestions().length;
+  var page = new PageModel("start");
+  page.addNewQuestion("text", "name");
+  page.addNewQuestion("text", "email");
+  survey.pages.unshift(page);
+  assert.equal(questionCount + 2, survey.getAllQuestions().length, "Two questions have been added");
+  survey.firstPageIsStarted = true;
+  assert.equal(questionCount + 2, survey.getAllQuestions().length, "Two questions on the first page are still here");
+  assert.equal(survey.getQuestionByName("name").name, "name", "Question is here");
+  survey.getQuestionByName("name").value = "John";
+  survey.getQuestionByName("email").value = "john@gmail.com";
+  survey.start();
+  assert.deepEqual(survey.data, {name: "John", email: "john@gmail.com"}, "Data on the first page is saved");
+  survey.doComplete();
+  assert.deepEqual(survey.data, {name: "John", email: "john@gmail.com"}, "Data on the first page is still here after complete.");
 });
 
 QUnit.test(

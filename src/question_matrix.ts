@@ -206,6 +206,15 @@ export class QuestionMatrixModel
     this.setPropertyValue("isAllRowRequired", val);
   }
   /**
+   * Set this property to false, if you want to hide column headers.
+   */
+  public get showHeaders(): boolean {
+    return this.getPropertyValue("showHeaders", true);
+  }
+  public set showHeaders(val: boolean) {
+    this.setPropertyValue("showHeaders", val);
+  }
+  /**
    * Returns true, if there is at least one row.
    */
   public get hasRows(): boolean {
@@ -431,6 +440,10 @@ JsonObject.metaData.addClass(
       name: "rowsOrder",
       default: "initial",
       choices: ["initial", "random"]
+    },
+    {
+      name: "showHeaders:boolean",
+      default: true
     },
     "isAllRowRequired:boolean"
   ],

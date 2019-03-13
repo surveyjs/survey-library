@@ -57,16 +57,18 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         />
       );
     }
+    var header = !this.question.showHeaders ? null :
+                  <thead>
+                    <tr>
+                      {firstTH}
+                      {headers}
+                    </tr>
+                  </thead>;
     return (
       <fieldset>
         <legend aria-label={this.question.locTitle.renderedHtml} />
         <table className={cssClasses.root}>
-          <thead>
-            <tr>
-              {firstTH}
-              {headers}
-            </tr>
-          </thead>
+          {header}
           <tbody>{rows}</tbody>
         </table>
       </fieldset>

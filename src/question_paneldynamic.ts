@@ -1243,6 +1243,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
+      q.updateCommentFromSurvey(values[q.getValueName() + Base.commentPrefix]);
     }
   }
   private panelSurveyValueChanged(panel: PanelModel) {

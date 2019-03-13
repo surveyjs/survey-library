@@ -2381,3 +2381,35 @@ QUnit.test("goToPrevPanel method", function(assert) {
   panelDynamic.goToPrevPanel();
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
 });
+
+QUnit.test(
+  "paneldynamic + radiogroup + others, Bug# https://github.com/surveyjs/editor/issues/480",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "radio",
+              choices: ["item1", "item2", "item3"],
+              hasOther: true
+            }
+          ]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    survey.data = { panel1: [{ radio: "other", "radio-Comment": "Comment" }] };
+
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var question = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName(
+      "radio"
+    );
+    assert.equal(question.isOtherSelected, true, "Other is selected");
+    assert.equal(question.comment, "Comment", "Comment is set correctly");
+  }
+);

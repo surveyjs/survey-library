@@ -2492,7 +2492,11 @@ export class SurveyModel extends Base
       var questions = this.pages[i].questions;
       for (var j = 0; j < questions.length; j++) {
         var q = questions[j];
-        if (q.isVisible && q.hasInput) {
+        if (
+          q.isVisible &&
+          q.hasInput &&
+          !Helpers.isValueEmpty(q.correctAnswer)
+        ) {
           result.push(q);
         }
       }

@@ -2,17 +2,19 @@
   <fieldset>
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <table data-bind="css: question.koCss().root">
-          <thead>
-              <tr>
-                  <td data-bind="visible: question.hasRows"></td>
-                  <!-- ko foreach: question.koVisibleColumns -->
-                  <th>
-                      <!-- ko template: { name: 'survey-string', data: locText } -->
-                      <!-- /ko -->
-                  </th>
-                  <!-- /ko -->
-              </tr>
-          </thead>
+            <!-- ko if: question.showHeaders -->
+            <thead>
+                <tr>
+                    <td data-bind="visible: question.hasRows"></td>
+                    <!-- ko foreach: question.koVisibleColumns -->
+                    <th>
+                        <!-- ko template: { name: 'survey-string', data: locText } -->
+                        <!-- /ko -->
+                    </th>
+                    <!-- /ko -->
+                </tr>
+            </thead>
+            <!-- /ko -->
           <tbody>
               <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
               <tr data-bind="css: question.koCss().row">

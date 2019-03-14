@@ -2,7 +2,7 @@
   <fieldset>
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <table data-bind="css: question.koCss().root">
-            <!-- ko if: question.showHeaders -->
+            <!-- ko if: question.showHeader -->
             <thead>
                 <tr>
                     <td data-bind="visible: question.hasRows"></td>

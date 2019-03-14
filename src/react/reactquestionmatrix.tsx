@@ -57,7 +57,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         />
       );
     }
-    var header = !this.question.showHeaders ? null :
+    var header = !this.question.showHeader ? null :
                   <thead>
                     <tr>
                       {firstTH}

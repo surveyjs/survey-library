@@ -31,6 +31,15 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public get isAllowTitleLeft(): boolean {
     return false;
   }
+    /**
+   * Set this property to false, to hide table header. The default value is true.
+   */
+  public get showHeader(): boolean {
+    return this.getPropertyValue("showHeader", true);
+  }
+  public set showHeader(val: boolean) {
+    this.setPropertyValue("showHeader", val);
+  }
   /**
    * The list of columns. A column has a value and an optional text
    */
@@ -186,7 +195,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
 
 JsonObject.metaData.addClass(
   "matrixbase",
-  ["columnsVisibleIf:condition", "rowsVisibleIf:condition"],
+  ["columnsVisibleIf:condition", "rowsVisibleIf:condition",
+  { name: "showHeader:boolean", default: true }],
   undefined,
   "question"
 );

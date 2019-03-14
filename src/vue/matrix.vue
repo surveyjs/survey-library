@@ -2,7 +2,7 @@
     <fieldset>
         <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
         <table :class="question.cssClasses.root">
-            <thead v-if="question.showHeaders">
+            <thead v-if="question.showHeader">
                 <tr>
                     <td v-show="question.hasRows"></td>
                     <th v-for="column in question.visibleColumns"><survey-string :locString="column.locText"/></th>

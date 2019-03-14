@@ -77,7 +77,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={panel.id}
-            panel={panel}
+            element={panel}
             question={this.question}
             index={i}
             cssClasses={cssClasses}
@@ -92,7 +92,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         panels.push(
           <SurveyQuestionPanelDynamicItem
             key={this.question.currentIndex}
-            panel={panel}
+            element={panel}
             question={this.question}
             index={this.question.currentIndex}
             cssClasses={cssClasses}

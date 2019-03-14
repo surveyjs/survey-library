@@ -51,6 +51,10 @@ export class ChoicesRestfull extends Base {
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
   ) => void;
+  public beforeSendRequestCallback: (
+    sender: ChoicesRestfull,
+    options: { request: XMLHttpRequest }
+  ) => void;
   private static getCachedItemsResult(obj: ChoicesRestfull): boolean {
     var hash = obj.objHash;
     var res = ChoicesRestfull.itemsResult[hash];
@@ -157,6 +161,9 @@ export class ChoicesRestfull extends Base {
     var options = { request: xhr };
     if (!!ChoicesRestfull.onBeforeSendRequest) {
       ChoicesRestfull.onBeforeSendRequest(this, options);
+    }
+    if (!!this.beforeSendRequestCallback) {
+      this.beforeSendRequestCallback(this, options);
     }
     options.request.send();
   }

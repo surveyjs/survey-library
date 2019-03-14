@@ -161,6 +161,7 @@ export class QuestionPanelDynamicModel extends Question
   private templateValue: PanelModel;
   private loadingPanelCount: number = 0;
   private isValueChangingInternally: boolean;
+  private changingValueQuestion: Question;
   private currentIndexValue: number = -1;
 
   renderModeChangedCallback: () => void;
@@ -1132,8 +1133,12 @@ export class QuestionPanelDynamicModel extends Question
   }
   public hasErrors(fireCallback: boolean = true): boolean {
     if (this.isValueChangingInternally) return false;
-    var errosInPanels = this.hasErrorInPanels(fireCallback);
-    return super.hasErrors(fireCallback) || errosInPanels;
+    if (!!this.changingValueQuestion) {
+      return this.changingValueQuestion.hasErrors(fireCallback);
+    } else {
+      var errosInPanels = this.hasErrorInPanels(fireCallback);
+      return super.hasErrors(fireCallback) || errosInPanels;
+    }
   }
   public clearValueIfInvisible() {
     for (var i = 0; i < this.panels.length; i++) {
@@ -1295,7 +1300,13 @@ export class QuestionPanelDynamicModel extends Question
     } else {
       delete qValue[index][name];
     }
+    if (index >= 0 && index < this.panels.length) {
+      this.changingValueQuestion = this.panels[index].getQuestionByValueName(
+        name
+      );
+    }
     this.value = qValue;
+    this.changingValueQuestion = null;
     if (this.survey) {
       var options = {
         question: this,

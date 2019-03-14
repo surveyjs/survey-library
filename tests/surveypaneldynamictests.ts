@@ -2345,7 +2345,7 @@ QUnit.test("goToNextPanel method", function(assert) {
   );
   assert.equal(panelDynamic.currentPanel.hasErrors(), true);
 
-  survey.data = { pd: [{ q1: "a" },{ q1: "b" }] };
+  survey.data = { pd: [{ q1: "a" }, { q1: "b" }] };
   assert.equal(panelDynamic.currentPanel.hasErrors(), false);
 
   panelDynamic.goToNextPanel();
@@ -2381,7 +2381,6 @@ QUnit.test("goToPrevPanel method", function(assert) {
   panelDynamic.goToPrevPanel();
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
 });
-
 QUnit.test(
   "paneldynamic + radiogroup + others, Bug# https://github.com/surveyjs/editor/issues/480",
   function(assert) {
@@ -2411,5 +2410,55 @@ QUnit.test(
     );
     assert.equal(question.isOtherSelected, true, "Other is selected");
     assert.equal(question.comment, "Comment", "Comment is set correctly");
+  }
+);
+QUnit.test(
+  "paneldynamic + survey.checkErrorsMode='onValueChanged', Bug# https://surveyjs.answerdesk.io/ticket/details/T1758",
+  function(assert) {
+    var json = {
+      checkErrorsMode: "onValueChanged",
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              isRequired: true
+            },
+            {
+              type: "text",
+              name: "q2",
+              isRequired: true
+            }
+          ]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
+    var q2 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+    assert.equal(
+      q2.errors.length,
+      0,
+      "There are no errors in the second question"
+    );
+    q1.value = "test";
+    assert.equal(
+      q2.errors.length,
+      0,
+      "There are still no errors in the second question"
+    );
+    q1.value = "";
+    assert.equal(q1.errors.length, 1, "There is error in the first question");
+    assert.equal(
+      q2.errors.length,
+      0,
+      "But there are no errors in the second question"
+    );
   }
 );

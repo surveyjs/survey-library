@@ -5,7 +5,6 @@ import { ProcessValue } from "../conditionProcessValue";
 export interface Operand {
     toString(): string;
     evaluate(processValue?: ProcessValue): any;
-    // equals(that: Operand): boolean;
 }
 
 export class BinaryOperand implements Operand {
@@ -52,16 +51,6 @@ export class BinaryOperand implements Operand {
             ")"
         );
     }
-
-    // public equals(that: Operand): boolean {
-    //     if (that instanceof BinaryOperand) {
-    //         return (
-    //             this.operatorName === that.operatorName &&
-    //             this.left.equal(that.left) &&
-    //             this.right.equal(that.right)
-    //         );
-    //     }
-    // }
 }
 
 export class UnaryOperand implements Operand {
@@ -84,16 +73,6 @@ export class UnaryOperand implements Operand {
         let value = this.expression.evaluate(processValue);
         return this.consumer.call(this, value);
     }
-
-    // public equals(that: Operand): boolean {
-    //     if (that instanceof UnaryOperand) {
-    //         return (
-    //             this.operatorName === that.operatorName &&
-    //             this.expression.equals(that.expression)
-    //         );
-    //     }
-    //     return false;
-    // }
 }
 
 export class ArrayOperand implements Operand {
@@ -116,19 +95,6 @@ export class ArrayOperand implements Operand {
             return el.evaluate(processValue);
         });
     }
-
-    // public equals(that: Operand): boolean {
-    //     if (that instanceof ArrayOperand) {
-    //         if (this.values.length != that.values.length) return false;
-
-    //         for (var i = 0; i != this.values.length; i++) {
-    //             if (!this.values[i].equals(that.values[i])) return false;
-    //         }
-
-    //         return true;
-    //     }
-    //     return false;
-    // }
 }
 
 export class Const implements Operand {
@@ -141,13 +107,6 @@ export class Const implements Operand {
     public evaluate(): any {
         return this.value;
     }
-
-    // public equals(that: Operand): boolean {
-    //     if (that instanceof Const) {
-    //         return this.value === that.value;
-    //     }
-    //     return false;
-    // }
 }
 
 export class Variable implements Operand {
@@ -162,13 +121,6 @@ export class Variable implements Operand {
             ? processValue.getValue(this.variableName)
             : null;
     }
-
-    // public equals(that: Operand): boolean {
-    //     if (that instanceof Variable) {
-    //         return this.variableName === that.variableName;
-    //     }
-    //     return false;
-    // }
 }
 
 export class FunctionOperand implements Operand {
@@ -188,10 +140,6 @@ export class FunctionOperand implements Operand {
     public toString() {
         return this.origionalValue + "(" + this.parameters.toString() + ")";
     }
-
-    // public equals(that: Operand): boolean {
-    //     return this == that;
-    // }
 }
 
 export class OperandMaker {

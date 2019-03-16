@@ -29,7 +29,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  public static MaxRowCount = 100;
+  public static MaxRowCount = 1000;
   private rowCounter = 0;
   private rowCountValue: number = 2;
 

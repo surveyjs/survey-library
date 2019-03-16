@@ -1,7 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject, JsonObjectProperty } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./expressions/parserRunners";
 import { Base } from "./base";
 
 /**

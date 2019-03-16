@@ -1,7 +1,6 @@
 // common
 export * from "../basetests";
 export * from "../choicesRestfulltests";
-export * from "../conditionstests";
 export * from "../jsonobjecttests";
 export * from "../surveyLocalizationTests";
 export * from "../surveyquestiontests";
@@ -11,6 +10,8 @@ export * from "../paneltests";
 export * from "../surveytriggertests";
 export * from "../surveyvalidatortests";
 export * from "../textPreprocessorTests";
+export * from "../expressions/expressionsTest";
+export * from "../expressions/expressionParserTest";
 export { Survey } from "../../src/knockout/kosurvey";
 export {
   QuestionMatrixDynamic

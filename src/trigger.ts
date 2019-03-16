@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { JsonObject } from "./jsonobject";
-import { ConditionRunner, ExpressionRunner, Operand } from "./conditions";
+import { ConditionRunner, ExpressionRunner, Сonst } from "./expressions/expressions.ts";
 import { ProcessValue } from "./conditionProcessValue";
 
 /**
@@ -144,7 +144,7 @@ export class Trigger extends Base {
       "} " +
       this.operator +
       " " +
-      new Operand(this.value).toString()
+      new Const(this.value).toString()
     );
   }
   private isCheckRequired(keys: any): boolean {

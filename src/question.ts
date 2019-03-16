@@ -16,7 +16,7 @@ import { AnswerRequiredError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./expressions/parserRunners";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { CustomWidgetCollection } from "./questionCustomWidgets";

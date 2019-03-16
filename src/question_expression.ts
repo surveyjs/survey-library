@@ -3,7 +3,7 @@ import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./expressions/parserRunners";
 
 /**
  * A Model for expression question. It is a read-only question. It calculates value based on epxression property.

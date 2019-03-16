@@ -20,6 +20,9 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
+export * from "../expressions/expressionsTest";
+export * from "../expressions/expressionParserTest"
+
 
 // localization
 import "../../src/localization/russian";

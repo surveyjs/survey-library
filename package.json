@@ -48,19 +48,20 @@
     "generate-json-webpack-plugin": "0.2.1",
     "github-api": "^3.0.0",
     "html-loader": "0.4.4",
-    "http-server": "0.9.0",
+    "http-server": "^0.11.1",
     "husky": "^1.2.1",
     "jquery": "3.1.1",
-    "karma": "^2.0.0",
+    "karma": "^4.0.1",
     "karma-chrome-launcher": "^2.2.0",
-    "karma-junit-reporter": "1.0.0",
+    "karma-junit-reporter": "^2.0.0",
     "karma-qunit": "1.2.1",
     "karma-sourcemap-loader": "0.3.7",
-    "karma-webpack": "2.0.2",
+    "karma-webpack": "^3.0.5",
     "knockout": "3.4.0",
-    "live-server": "1.2.0",
+    "live-server": "^1.2.1",
     "node-sass": "4.9.2",
     "node-uuid": "1.4.7",
+    "pegjs": "0.10.0",
     "prettier": "~1.12.0",
     "puppeteer": "^1.0.0",
     "qunitjs": "2.2.0",
@@ -72,10 +73,11 @@
     "standard-version": "4.0.0",
     "style-loader": "0.13.1",
     "surveyjs-doc-generator": "git+https://github.com/surveyjs/surveyjs-doc-generator.git",
-    "testcafe": "0.15.0",
+    "testcafe": "^15.1.317922",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.3.4",
     "ts-node": "3.3.0",
+    "ts-pegjs": "0.2.2",
     "tslint": "4.5.1",
     "typescript": "2.6.1",
     "url-loader": "^0.6.2",
@@ -91,5 +93,8 @@
     "hooks": {
       "pre-push": "npm run testsingle"
     }
+  },
+  "dependencies": {
+    "survey-angular": "^1.0.73"
   }
 }

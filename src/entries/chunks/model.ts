@@ -28,11 +28,10 @@ export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";
 export {
-  Condition,
-  ConditionNode,
   ConditionRunner,
   ExpressionRunner
 } from "../../conditions";
+export { Operand } from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
 export {

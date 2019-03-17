@@ -77,8 +77,6 @@ BinaryFuncOp
 BinFunctions
   = ("*=" / "contains"i / "contain"i) { return "contains"; }
   / ("notcontains"i / "notcontain"i)  { return "notcontains"; }
-  / ("empty"i)                        { return "empty"; }
-  / ("notempty"i)                     { return "notempty"; }
 
 Factor
   = "(" _ expr:Expression _ ")"? { return expr; }
@@ -88,21 +86,27 @@ Factor
   / ArrayOp
 
 FunctionOp
-  = name:FunctionsName "(" params:Sequence ")"? { return new FunctionOperand(name, params); }
+  = name:LettersAndDigits "(" params:Sequence ")"? { return new FunctionOperand(name, params); }
 
 UnaryFunctionOp
-  = ("!" / "negate"i) expr:Expression  { return new UnaryOperand(expr, "negate"); }
+  = ("!" / "negate"i) _ expr:Expression  { return new UnaryOperand(expr, "negate"); }
+  / expr:Atom _ op:UnFunctions           { return new UnaryOperand(expr, op); }
+
+UnFunctions
+  = ("empty"i)    { return "empty"; }
+  / ("notempty"i) { return "notempty"; }
 
 Atom 
-  = _ value:ConstValue        { return new Const(value); }
-  / _ "{" value:AnyValues "}" { return new Variable(value); }
-  / _ ("undefined" / "null")  { return null; }
+  = _ ("undefined" / "null") { return null; }
+  / _ value:ConstValue       { return new Const(value); }
+  / _ "{" value:AnyInput "}" { return new Variable(value); }
 
 ConstValue
-  = value:LogicValue          { return value; }
-  / value:ArithmeticValue     { return value; }
-  / "'" value:AnyValues "'"   { return value; }
-  / "\"" value:AnyValues "\"" { return value; }
+  = LogicValue
+  / ArithmeticValue
+  / LettersAndDigits
+  / "'" value:AnyInput "'"   { return value; }
+  / "\"" value:AnyInput "\"" { return value; }
 
 ArrayOp
   = "[" sequence:Sequence "]" { return sequence; }
@@ -136,22 +140,22 @@ Number
   / NonZeroDigits Digits? { return parseInt(text(), 10); }
   / "0"                   { return 0; }
 
+AnyInput
+  = chars:AnyCharacters+ { return chars.join(""); }
+
+AnyCharacters
+  = "\\'"       { return "'"; }
+  / "\\\""      { return "\""; }
+  / [^\"\'\{\}] { return text(); }
+
+LettersAndDigits
+  = Letters (Digits Letters*)* { return text(); }
+
 Digits
   = [0-9]+
 
 NonZeroDigits
   = [1-9]+
-
-AnyValues
-  = values:AnyValue+ { return values.join(""); }
-
-AnyValue
-  = "\\'"       { return "'"; }
-  / "\\\""      { return "\""; }
-  / [^\"\'\{\}] { return text(); }
-
-FunctionsName
-  = Letters (Digits Letters*)* { return text(); }
 
 Letters
   = [a-zA-Z]+

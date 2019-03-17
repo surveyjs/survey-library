@@ -5,6 +5,7 @@ import { ProcessValue } from "../conditionProcessValue";
 export interface Operand {
     toString(): string;
     evaluate(processValue?: ProcessValue): any;
+    setVariables(variables: Array<string>): any;
 }
 
 export class BinaryOperand implements Operand {
@@ -13,7 +14,7 @@ export class BinaryOperand implements Operand {
         private operatorName: string,
         private left: any = null,
         private right: any = null,
-        private isArithmeticOp: boolean = false
+        isArithmeticOp: boolean = false
     ) {
         if (isArithmeticOp) {
             this.consumer = OperandMaker.binaryFunctions["arithmeticOp"](
@@ -51,6 +52,11 @@ export class BinaryOperand implements Operand {
             ")"
         );
     }
+
+    public setVariables(variables: Array<string>) {
+        if (this.left != null) this.left.setVariables(variables);
+        if (this.right != null) this.right.setVariables(variables);
+    }
 }
 
 export class UnaryOperand implements Operand {
@@ -72,6 +78,10 @@ export class UnaryOperand implements Operand {
     public evaluate(processValue?: ProcessValue): boolean {
         let value = this.expression.evaluate(processValue);
         return this.consumer.call(this, value);
+    }
+
+    public setVariables(variables: Array<string>) {
+        this.expression.setVariables(variables);
     }
 }
 
@@ -95,6 +105,12 @@ export class ArrayOperand implements Operand {
             return el.evaluate(processValue);
         });
     }
+
+    public setVariables(variables: Array<string>) {
+        this.values.forEach(el => {
+            el.setVariables(variables);
+        });
+    }
 }
 
 export class Const implements Operand {
@@ -107,6 +123,8 @@ export class Const implements Operand {
     public evaluate(): any {
         return this.value;
     }
+
+    public setVariables(variables: Array<string>) {}
 }
 
 export class Variable implements Operand {
@@ -120,6 +138,10 @@ export class Variable implements Operand {
         return processValue.hasValue(this.variableName)
             ? processValue.getValue(this.variableName)
             : null;
+    }
+
+    public setVariables(variables: Array<string>) {
+        variables.push(this.variableName);
     }
 }
 
@@ -140,6 +162,10 @@ export class FunctionOperand implements Operand {
     public toString() {
         return this.origionalValue + "(" + this.parameters.toString() + ")";
     }
+
+    public setVariables(variables: Array<string>) {
+        this.parameters.setVariables(variables);
+    }
 }
 
 export class OperandMaker {
@@ -151,7 +177,47 @@ export class OperandMaker {
         return operand == null ? "" : operand.toString();
     }
 
+    static toOperandString(value: string): string {
+        if (
+            !!value &&
+            (!OperandMaker.isNumeric(value) &&
+                !OperandMaker.isBooleanValue(value))
+        )
+            value = "'" + value + "'";
+        return value;
+    }
+
+    static isNumeric(value: string): boolean {
+        if (
+            !!value &&
+            (value.indexOf("-") > -1 ||
+                value.indexOf("+") > 1 ||
+                value.indexOf("*") > -1 ||
+                value.indexOf("^") > -1 ||
+                value.indexOf("/") > -1 ||
+                value.indexOf("%") > -1)
+        )
+            return false;
+        var val = Number(value);
+        if (isNaN(val)) return false;
+        return isFinite(val);
+    }
+
+    static isBooleanValue(value: string): boolean {
+        return (
+            !!value &&
+            (value.toLowerCase() === "true" || value.toLowerCase() === "false")
+        );
+    }
+
     static unaryFunctions: HashTable<Function> = {
+        empty: function(value: any): boolean {
+            if (value == null) return true;
+            return !value;
+        },
+        notempty: function(value: any): boolean {
+            return !OperandMaker.unaryFunctions.empty(value);
+        },
         negate: function(value: boolean): boolean {
             return !value;
         }
@@ -214,13 +280,6 @@ export class OperandMaker {
         },
         notequal: function(left: any, right: any): boolean {
             return !Helpers.isTwoValueEquals(left, right, true);
-        },
-        empty: function(value: any): boolean {
-            if (value == null) return true;
-            return !value;
-        },
-        notempty: function(value: any): boolean {
-            return !OperandMaker.binaryFunctions.empty(value);
         },
         contains: function(left: any, right: any): boolean {
             return OperandMaker.binaryFunctions.containsCore(left, right, true);

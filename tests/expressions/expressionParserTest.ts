@@ -7,7 +7,7 @@ import {
 import {
     ConditionRunner,
     ExpressionRunner
-} from "../../src/expressions/parserRunners";
+} from "../../src/conditions";
 
 import {
     Const,
@@ -148,6 +148,8 @@ QUnit.test("Parse item conditions", function(assert) {
 QUnit.test("Condition: without right condition", function(assert) {
     assert.ok(parse("'a' empty"), "empty");
     assert.ok(parse("'a' notempty"), "notempty");
+
+    assert.ok(parse("{row.user_id} notempty and {roles} notempty"));
 });
 
 QUnit.test("Condition: on item - no spaces", function(assert) {
@@ -683,8 +685,18 @@ QUnit.test("0x digits", function(assert) {
 
 QUnit.test("dont fault in invalid input", function(assert) {
     var condRunner = new ConditionRunner("2 @ 2");
-    assert.ok(condRunner.getParserError() != null);
+    assert.notOk(condRunner.canRun());
     
     var exprRunner = new ExpressionRunner("00101 @@ 0101");
-    assert.ok(exprRunner.getParserError() != null);
+    assert.notOk(exprRunner.canRun());
 });
+
+QUnit.test("Get variables in expression", function(assert) {
+    var runner = new ConditionRunner(
+      "{val1} - {val2} + myFunc({val3}, {val4.prop}) < {val5} and {val6}=1"
+    );
+    var vars = runner.getVariables();
+    assert.equal(vars.length, 6, "There are 6 variables in expression");
+    assert.equal(vars[0], "val1", "the first variable");
+    assert.equal(vars[5], "val6", "the last variable");
+  });

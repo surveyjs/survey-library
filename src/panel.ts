@@ -16,7 +16,7 @@ import {
   ISurveyErrorOwner
 } from "./base";
 import { Question } from "./question";
-import { ConditionRunner } from "./expressions/parserRunners";
+import { ConditionRunner } from "./conditions";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";

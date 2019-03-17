@@ -2,7 +2,7 @@ import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
-import { ConditionRunner } from "./expressions/parserRunners";
+import { ConditionRunner } from "./conditions";
 
 /**
  * A Model for a matrix base question.

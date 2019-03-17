@@ -7,7 +7,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./expressions/parserRunners";
+import { ConditionRunner } from "./conditions";
 import { turkishSurveyStrings } from "./localization/turkish";
 import { basename } from "path";
 

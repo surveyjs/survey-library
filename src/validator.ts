@@ -3,7 +3,7 @@ import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { JsonObject } from "./jsonobject";
-import { ConditionRunner } from "./expressions/parserRunners";
+import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 
 export class ValidatorResult {

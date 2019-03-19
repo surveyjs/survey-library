@@ -25,7 +25,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
         itemClass += " checked";
       }
     } else {
-      if (!!item.value && item.value === this["koValue"]()) {
+      if (!!item.value && item.value == this["koValue"]()) {
         itemClass += " checked";
       }
     }

@@ -4566,7 +4566,6 @@ QUnit.test(
       }
     });
 
-    survey.setValue("q1", null);
     assert.equal(q2.isVisible, false, "Initially q2 is invisible");
     assert.equal(q3.isVisible, false, "Initially q3 is invisible");
     survey.setValue("q1", 2);
@@ -5552,3 +5551,25 @@ QUnit.test("getCustomErrorText for error", function(assert) {
     "survey.onErrorCustomText works"
   );
 });
+QUnit.test(
+  "Value changing/changed call count for empty values, #1564",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    page.addNewQuestion("text", "q1");
+    let valueChangedCount = 0;
+    let valueChangingCount = 0;
+    survey.onValueChanging.add(function(sender, options) {
+      valueChangingCount++;
+    });
+    survey.onValueChanged.add(function(sender, options) {
+      valueChangedCount++;
+    });
+    survey.setValue("q1", null);
+    assert.equal(valueChangingCount, 1, "value changing call count should be 1");
+    assert.equal(valueChangedCount, 0, "value changed call count should be 0"); 
+    survey.setValue("q1", "");
+    assert.equal(valueChangingCount, 2, "value changing call count should be 2");
+    assert.equal(valueChangedCount, 0, "value changed call count should be 0"); 
+  }
+);

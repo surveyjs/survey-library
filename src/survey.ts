@@ -3005,6 +3005,7 @@ export class SurveyModel extends Base
   private isValueEqual(name: string, newValue: any): boolean {
     if (newValue === "" || newValue === undefined) newValue = null;
     var oldValue = this.getValue(name);
+    if (oldValue === "" || oldValue === undefined) oldValue = null;
     if (newValue === null || oldValue === null) return newValue === oldValue;
     return this.isTwoValueEquals(newValue, oldValue);
   }

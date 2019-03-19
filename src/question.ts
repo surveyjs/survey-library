@@ -185,6 +185,7 @@ export class Question extends SurveyElement
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
+    this.runConditions();
   }
   /**
    * Returns true if the question is visible or survey is in design mode right now.
@@ -237,11 +238,7 @@ export class Question extends SurveyElement
   public getType(): string {
     return "question";
   }
-  public setSurveyImpl(value: ISurveyImpl) {
-    super.setSurveyImpl(value);
-    if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
-      this.onVisibleChanged();
-    }
+  private runConditions() {
     if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(
         this.getDataFilteredValues(),
@@ -249,6 +246,13 @@ export class Question extends SurveyElement
       );
       this.locStrsChanged();
     }
+  }
+  public setSurveyImpl(value: ISurveyImpl) {
+    super.setSurveyImpl(value);
+    if (this.survey && this.survey.isDesignMode && !this.isDesignMode) {
+      this.onVisibleChanged();
+    }
+    this.runConditions();
   }
   public getDataFilteredValues(): any {
     return !!this.data ? this.data.getFilteredValues() : null;
@@ -641,6 +645,7 @@ export class Question extends SurveyElement
   }
   public set requiredIf(val: string) {
     this.setPropertyValue("requiredIf", val);
+    this.runConditions();
   }
   /**
    * Set it to true, to add a comment for the question.
@@ -692,6 +697,7 @@ export class Question extends SurveyElement
   }
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
+    this.runConditions();
   }
   /**
    * Run visibleIf and enableIf expressions. If visibleIf or/and enabledIf are not empty, then the results of performing the expression (true or false) set to the visible/readOnly properties.

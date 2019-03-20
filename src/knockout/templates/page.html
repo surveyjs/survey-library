@@ -1,11 +1,9 @@
 ﻿<script type="text/html" id="survey-page">
   <div data-bind="css: data.css.page.root">
-      <!-- ko if: (processedTitle.length > 0) && data.showPageTitles -->
-      <h4 data-bind="css: data.css.pageTitle">
+      <h4 data-bind="visible: data.showPageTitles, css: data.css.pageTitle">
           <!-- ko template: { name: 'survey-string', data: locTitle } -->
           <!-- /ko -->
       </h4>
-      <!-- /ko -->
       <div data-bind="css: data.css.pageDescription">
           <!-- ko template: { name: 'survey-string', data: locDescription } -->
           <!-- /ko -->

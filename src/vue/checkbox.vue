@@ -35,12 +35,12 @@
         <span :class="question.cssClasses.controlLabel">
           <survey-string :locString="item.locText"/>
         </span>
-        <survey-other-choice
+      </label>
+      <survey-other-choice
           v-show="question.hasOther && question.renderedValue && question.isOtherSelected"
           v-if="item.value == question.otherItem.value"
           :question="question"
         />
-      </label>
     </div>
   </fieldset>
 </template>

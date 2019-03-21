@@ -120,10 +120,10 @@ export class MultipleTextItemModel extends Base
    * @see SurveyModel.maxTextLength
    */
   public get maxLength(): number {
-    return this.getPropertyValue("maxLength", -1);
+    return this.editor.maxLength;
   }
   public set maxLength(val: number) {
-    this.setPropertyValue("maxLength", val);
+    this.editor.maxLength = val;
   }
   public getMaxLength(): any {
     var survey = this.getSurvey();

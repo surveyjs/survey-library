@@ -7,7 +7,7 @@ import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 
 /**
- * A Model for a checkbox question
+ * A Model for a checkbox question.
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private noneItemValue: ItemValue = new ItemValue("none");

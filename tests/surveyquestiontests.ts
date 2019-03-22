@@ -846,6 +846,23 @@ QUnit.test("Question callbacks test", function(assert) {
   assert.equal(visibleChanged, 1, "visibiblity changed one time");
   assert.equal(visibleIndexChanged, 1, "visibleIndex changed one time");
 });
+QUnit.test(
+  "Call valueChangedCallback on survey.setValue(), Bug# 1599",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage();
+    var question = page.addNewQuestion("text", "q1");
+    var valueChanged = 0;
+    question.valueChangedCallback = function() {
+      valueChanged++;
+    };
+    assert.equal(valueChanged, 0, "value changed is not called");
+    question.value = "va1";
+    assert.equal(valueChanged, 1, "value changed is called the first time");
+    survey.setValue("q1", "val2");
+    assert.equal(valueChanged, 2, "value changed is called the second time");
+  }
+);
 QUnit.test("Init SelectBase with comment comment", function(assert) {
   var survey = new SurveyModel();
   survey.data = { q: "other", "q-Comment": "aaaa" };
@@ -1309,7 +1326,9 @@ QUnit.test("Boolean question defaultValue", function(assert) {
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
-QUnit.test("Boolean question defaultValue as a boolean values", function(assert) {
+QUnit.test("Boolean question defaultValue as a boolean values", function(
+  assert
+) {
   var question = new QuestionBooleanModel("bool");
   assert.equal(question.checkedValue, null, "Indertemenated by default");
   question.defaultValue = true;
@@ -1332,7 +1351,6 @@ QUnit.test("Boolean question defaultValue as a boolean values", function(assert)
   survey.pages[0].addQuestion(question);
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
-
 
 QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function(
   assert

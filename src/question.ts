@@ -775,7 +775,6 @@ export class Question extends SurveyElement
       this.updateCommentFromSurvey(this.data.getComment(this.getValueName()));
     }
   }
-  private isvalueChangedCallbackFiring: boolean = false;
   private get questionValue(): any {
     return this.getPropertyValue("value");
   }
@@ -799,10 +798,6 @@ export class Question extends SurveyElement
   }
   public set value(newValue: any) {
     this.setNewValue(newValue);
-    if (this.isvalueChangedCallbackFiring) return;
-    this.isvalueChangedCallbackFiring = true;
-    this.fireCallback(this.valueChangedCallback);
-    this.isvalueChangedCallbackFiring = false;
   }
   public clearValue() {
     this.value = null;
@@ -1073,9 +1068,9 @@ export class Question extends SurveyElement
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
-
   protected setQuestionValue(newValue: any) {
     this.questionValue = newValue;
+    this.fireCallback(this.valueChangedCallback);
   }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;

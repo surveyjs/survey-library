@@ -53,6 +53,8 @@ export class QuestionBooleanModel extends Question {
     return this.getPropertyValue("defaultValue", "indeterminate");
   }
   public set defaultValue(val: any) {
+    if (val === true) val = "true";
+    if (val === false) val = "false";
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }

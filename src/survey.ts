@@ -1340,7 +1340,7 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
-  private getQuestionPlainData(question: Question) {
+  private getQuestionPlainData(question: Question, calculations?: Array<{ propertyName: string, method?: (val: any) => any }>) {
     var result: Array<any> = [];
     var value = question.value;
     var displayValue = question.displayValue;
@@ -1353,7 +1353,7 @@ export class SurveyModel extends Base
     var displayValueKeys = Object.keys(question.displayValue);
     var isArray = Array.isArray(value);
     valueKeys.forEach((key, index) => {
-      result.push({
+      var item = {
         name: key,
         title: isArray ? "" : displayValueKeys[index],
         value: value[key],
@@ -1361,7 +1361,11 @@ export class SurveyModel extends Base
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val,
         isNode: false
-      });
+      };
+      // (calculations || []).forEach(calculation => {
+      //   (<any>item)[calculation.propertyName] = value[calculation.propertyName];
+      // });
+    result.push(item);
     });
     return result;
   }
@@ -1371,7 +1375,12 @@ export class SurveyModel extends Base
    * set options.includeEmpty to false if you want to skip empty answers
    */
   public getPlainData(
-    options: { includeEmpty?: boolean } = { includeEmpty: true }
+    options: {
+      includeEmpty?: boolean,
+      calculations?: Array<{ propertyName: string, method?: (val: any) => any }>
+    } = {
+      includeEmpty: true
+    }
   ) {
     var result: Array<any> = [];
     var data = this.data;
@@ -1387,9 +1396,12 @@ export class SurveyModel extends Base
           getString: (val: any) =>
             typeof val === "object" ? JSON.stringify(val) : val
         };
+        (options.calculations || []).forEach(calculation => {
+          resultItem[calculation.propertyName] = (<any>question)[calculation.propertyName];
+        });
         result.push(resultItem);
         if (resultItem.isNode) {
-          resultItem.data = this.getQuestionPlainData(<Question>question);
+          resultItem.data = this.getQuestionPlainData(<Question>question, options.calculations);
         }
       }
     });

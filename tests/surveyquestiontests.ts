@@ -1309,6 +1309,31 @@ QUnit.test("Boolean question defaultValue", function(assert) {
   assert.deepEqual(survey.data, { bool: false }, "add question into survey");
 });
 
+QUnit.test("Boolean question defaultValue as a boolean values", function(assert) {
+  var question = new QuestionBooleanModel("bool");
+  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  question.defaultValue = true;
+  assert.equal(question.defaultValue, "true", "default value is true");
+  assert.equal(
+    question.checkedValue,
+    true,
+    "defaultValue is set to 'true', checkedvalue == true"
+  );
+  question.defaultValue = false;
+  assert.equal(question.defaultValue, "false", "default value is false");
+  assert.equal(
+    question.checkedValue,
+    true,
+    "defaultValue is set to 'false', but value has been already set to checkedvalue == true"
+  );
+
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.pages[0].addQuestion(question);
+  assert.deepEqual(survey.data, { bool: false }, "add question into survey");
+});
+
+
 QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function(
   assert
 ) {

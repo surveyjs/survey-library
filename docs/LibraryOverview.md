@@ -557,6 +557,7 @@ It is common task when the choices/items from dropdown list, or check boxes and 
 We make it easy for you to bind the data from a web service with our choice list. There is a dialog that helps you to perform the binding.
 
 ![Choices By Url Property Editor](https://github.com/surveyjs/surveyjs/blob/master/docs/images/choicesbyurl.png)
+
 _Choices By Url Property Editor_
 
 | Property Name | Description |
@@ -628,6 +629,7 @@ The same code in JSON will be as:
 To change the default error text, you must set the validator text property.
 
 Here is the list of standard validators
+
 | Name | Validator Class | Description |
 | --- | --- | --- |
 | numeric | NumericValidator | It raises error, if there is value and it is not a numeric or it is less than minValue (if minValue is defined) or bigger than maxValue (if maxValue is defined).|
@@ -739,6 +741,7 @@ Every type of a trigger overrides this success function in its own way.
 Based on our customers survey Jsons, we may say, that “complete” trigger is the most used right now. Before going to the next page, the survey runs all “complete” trigger, in case their expression depends at least on one question on the current page, and if expression returns true the survey is completed.
 
 Here the list of all available triggers
+
 | Trigger Name | Description |
 | --- | --- |
 | **complete** | Complete the survey if the expression returns true. It performs on changing the current page into the next.

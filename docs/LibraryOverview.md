@@ -475,10 +475,11 @@ Please note, since v1.0.21, you are able to get access to your survey object as 
 As result you may, for example, pass a question name to your function: _myFunc('myQuestionName')_ and then get it as: <pre><code class="language-js">questionInstance = this.survey.getQuestionByName(params[0]);</code></pre>
 
 Here is the list of built-in functions:
+
 | Function name | Description |
 | --- | --- |
 | age({birthdate}) | Returns the age by birth date. |
-| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br /><pre><code class="language-js">iif({question1} + {question2} > 20, 'high', 'low')</code> |
+| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br /><pre><code class="language-js">iif({question1} + {question2} > 20, 'high', 'low')</code></pre> |
 | isContainerReady("panelname/pagename") | Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful. |
 | isDisplayMode() | Returns true if the survey is in display mode. Here is the example of usage: <pre><code class="language-js">isDisplayMode() <> true</code></pre> |
 | sum(par1, par2, ...) | Returns the summary of passed parameters. |

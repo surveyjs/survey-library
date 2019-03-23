@@ -423,16 +423,16 @@ Before rendering the first page, SurveyJS parses all visibleIf expressions, crea
 
 Here are some examples.
 
-| Expression                                                       | Description                                                                                                                             |
-| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| _"{age} >= 21"_                                                  | Return true if question age has value 21 or higher                                                                                      |
-| _"({rank1} + {rank2} + {rank3}) > 21 and {isLoayl} == ‘yes’"_    | Use "or" and "and" operators, squares and arithmetic operations                                                                         |
-| _"!({isLoayl} == ‘yes’ and ({rank1} + {rank2} + {rank3}) > 21)"_ | Use "!" or "not" to change the result on opposite                                                                                       |
-| _"{name} notempty"_                                              | Returns true if name has a value                                                                                                        |
-| _{name} empty_                                                   | Returns true if name has no value                                                                                                       |
-| _"{speakinglanguages} = [‘English’, ‘Spanish’]"_                 | Returns true, if a user selects these two valus in speakinglanguages question. It is typically a checkbox.                              |
-| _"{speakinglanguages} contains ‘Spanish’"_                       | Returns true, if a user select 'Spanish' in checkbox. He may or may not select other values.                                            |
-| _age({birthdate}) >= 21_                                         | Returns true, if function age returns 21 and greater. The function age calculates the age based on the birth date and the current date. |
+| Expression | Description |
+| --- | --- |
+| _"{age} >= 21"_ | Return true if question age has value 21 or higher |
+| _"({rank1} + {rank2} + {rank3}) > 21 and {isLoayl} == ‘yes’"_   | Use "or" and "and" operators, squares and arithmetic operations |
+| _"!({isLoayl} == ‘yes’ and ({rank1} + {rank2} + {rank3}) > 21)"_ | Use "!" or "not" to change the result on opposite |
+| _"{name} notempty"_ | Returns true if name has a value |
+| _{name} empty_ | Returns true if name has no value |
+| _"{speakinglanguages} = [‘English’, ‘Spanish’]"_ | Returns true, if a user selects these two valus in speakinglanguages question. It is typically a checkbox. |
+| _"{speakinglanguages} contains ‘Spanish’"_ | Returns true, if a user select 'Spanish' in checkbox. He may or may not select other values. |
+| _age({birthdate}) >= 21_ | Returns true, if function age returns 21 and greater. The function age calculates the age based on the birth date and the current date. |
 
 If your question has the complex values, then you may use dot "." to access the child value.
 
@@ -475,18 +475,15 @@ Please note, since v1.0.21, you are able to get access to your survey object as 
 As result you may, for example, pass a question name to your function: _myFunc('myQuestionName')_ and then get it as: <pre><code class="language-js">questionInstance = this.survey.getQuestionByName(params[0]);</code></pre>
 
 Here is the list of built-in functions:
-|Function name|Description|
-|---|---|
-|age({birthdate})|Returns the age by birth date.|
-|iif("expression", trueValue, falseValue)|Returns trueValue if expression returns true and falseValue if expression returns false. <br />
-
-  <pre><code class="language-js">iif({question1} + {question2} > 20, 'high', 'low')</code>|
-|isContainerReady("panelname/pagename")|Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful.|
-|isDisplayMode()|Returns true if the survey is in display mode. Here is the example of usage: <pre><code class="language-js">isDisplayMode() <> true</code></pre>|
-
-|sum(par1, par2, ...)|Returns the summary of passed parameters.|
-|avg(par1, par2, ...)|Returns the average value for passed parameters.|
-|sumInArray({questionName}, 'propertyName')|Returns the summary for array of objects {questionName} by property 'propertyName'. <pre><code class="language-js">sumInArray('matrixdynamic', 'total') > 1000</code></pre>|
+| Function name | Description |
+| --- | --- |
+| age({birthdate}) | Returns the age by birth date. |
+| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br /><pre><code class="language-js">iif({question1} + {question2} > 20, 'high', 'low')</code> |
+| isContainerReady("panelname/pagename") | Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful. |
+| isDisplayMode() | Returns true if the survey is in display mode. Here is the example of usage: <pre><code class="language-js">isDisplayMode() <> true</code></pre> |
+| sum(par1, par2, ...) | Returns the summary of passed parameters. |
+| avg(par1, par2, ...) | Returns the average value for passed parameters. |
+| sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. <pre><code class="language-js">sumInArray('matrixdynamic', 'total') > 1000</code></pre> |
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 
@@ -561,12 +558,12 @@ We make it easy for you to bind the data from a web service with our choice list
 ![Choices By Url Property Editor](https://github.com/surveyjs/surveyjs/blob/master/docs/images/choicesbyurl.png)
 _Choices By Url Property Editor_
 
-| Property Name | Description                                                                                                                                                                                                                                                                                                                                                |
-| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **url**       | The link to the web service. You may use the text preprocessing here. For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ will be changed based on _region_ question value. SurveyJS will automatically get the data from web service on changing the _region_ changing and do nothing if it is undefined.                  |
-| **path**      | You need this property, if the web service returns a lot of information and you need only a part of it. For example, the service returns the list of countries and list of capitals. You may need only one list, for example countries, in this case you need to set the correct path from where SurveyJS should get the data, like: _DataList1\DataList2_ |
-| **valueName** | The property name in your returning data, that SurveyJS should bind with the value.                                                                                                                                                                                                                                                                        |
-| **titleName** | The property name in your returning data, that SurveyJS should bind with the text. It can be empty.                                                                                                                                                                                                                                                        |
+| Property Name | Description |
+| --- | --- |
+| **url** | The link to the web service. You may use the text preprocessing here. For example, the following url: _https://restcountries.eu/rest/v2/region/{region}_ will be changed based on _region_ question value. SurveyJS will automatically get the data from web service on changing the _region_ changing and do nothing if it is undefined.|
+| **path** | You need this property, if the web service returns a lot of information and you need only a part of it. For example, the service returns the list of countries and list of capitals. You may need only one list, for example countries, in this case you need to set the correct path from where SurveyJS should get the data, like: _DataList1\DataList2_ |
+| **valueName** | The property name in your returning data, that SurveyJS should bind with the value. |
+| **titleName** | The property name in your returning data, that SurveyJS should bind with the text. It can be empty. |
 
 **Please note**, during the user session, if the same url is requested, then SurveyJS will return the data from the cached list and would not send another request.
 
@@ -630,14 +627,14 @@ The same code in JSON will be as:
 To change the default error text, you must set the validator text property.
 
 Here is the list of standard validators
-|Name|Validator Class|Description|
-|---|---|---|
-|numeric|NumericValidator|It raises error, if there is value and it is not a numeric or it is less than minValue (if minValue is defined) or bigger than maxValue (if maxValue is defined).|
-|text|TextValidator|It raises error, if there is a text value and its length is less them minLength (if minLength is defined) or bigger than maxLength (if maxLength is defined).|
-|expression|ExpressionValidator|This validator was added in v1.0.23. It has **expression** property. If it is not empty, then the validator runs this expression and raises error if the expression returns false.<br/>The following expression validator raises error if the summary is less then 100: _expression: "{price} \* {quantity} >= 100"_.|
-|answercount|AnswerCountValidator|It works for questions which value is array, for example: checkbox. It will raise error if a user selects less choices that minCount (if minCount defined) or more than maxCount (if maxCount is defined).|
-|regex|RegexValidator|It raises error, if there is a value it doesn’t fit the regular expression defined in the regex property.|
-|email|EmailValidator|It raises error, if there is a string value and it is not an e-mail.|
+| Name | Validator Class | Description |
+| --- | --- | --- |
+| numeric | NumericValidator | It raises error, if there is value and it is not a numeric or it is less than minValue (if minValue is defined) or bigger than maxValue (if maxValue is defined).|
+| text | TextValidator| It raises error, if there is a text value and its length is less them minLength (if minLength is defined) or bigger than maxLength (if maxLength is defined).|
+| expression |ExpressionValidator |This validator was added in v1.0.23. It has **expression** property. If it is not empty, then the validator runs this expression and raises error if the expression returns false.<br/>The following expression validator raises error if the summary is less then 100: _expression: "{price} \* {quantity} >= 100"_. |
+| answercount | AnswerCountValidator | It works for questions which value is array, for example: checkbox. It will raise error if a user selects less choices that minCount (if minCount defined) or more than maxCount (if maxCount is defined). |
+| regex | RegexValidator | It raises error, if there is a value it doesn’t fit the regular expression defined in the regex property. |
+| email | EmailValidator | It raises error, if there is a string value and it is not an e-mail. |
 
 Please review [the standard validators](https://surveyjs.io/Examples/Library/?id=validators-standard) and [the expression validator](https://surveyjs.io/Examples/Library/?id=validators-expression) demos.
 
@@ -741,22 +738,13 @@ Every type of a trigger overrides this success function in its own way.
 Based on our customers survey Jsons, we may say, that “complete” trigger is the most used right now. Before going to the next page, the survey runs all “complete” trigger, in case their expression depends at least on one question on the current page, and if expression returns true the survey is completed.
 
 Here the list of all available triggers
-|Trigger Name|Description|
-|---|---|
-|**complete**|Complete the survey if the expression returns true. It performs on changing the current page into the next.
-<br/> The following trigger completes the survey if the question "age" on this page will have value less than 18
-
-  <pre><code class="language-js">{ "type": "complete", "expression": "{age} < 18" }</code></pre>|
-
-|**setvalue**|If expression returns true, then copy a value from **setValue** property into the value/question **setToName**.
-<br /> The following triggers set the value "ageType" to child or adult based on the "age" question.
-
-  <pre><code class="language-js">[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" },
-  { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]</code></pre>|
-
-|**copyvalue**|It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".
-
-  <pre><code class="language-js">{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }</code></pre>|
-
-|**runexpression**|If the expression is successful, then it runs the expression in the **runExpression** property. If the property **setToName** is not empty, then the result of the **runExpression** would be set into this value. Here is [the example](https://surveyjs.io/Examples/Library/?id=trigger-runexpression) of using this trigger.|
-|**visible**|Obsolete, use the [visibleIf](#visibility) property instead.|
+| Trigger Name | Description |
+| --- | --- |
+| **complete** | Complete the survey if the expression returns true. It performs on changing the current page into the next.
+<br/> The following trigger completes the survey if the question "age" on this page will have value less than 18 <pre><code class="language-js">{ "type": "complete", "expression": "{age} < 18" }</code></pre> |
+| **setvalue** | If expression returns true, then copy a value from **setValue** property into the value/question **setToName**.
+<br /> The following triggers set the value "ageType" to child or adult based on the "age" question.<pre><code class="language-js">[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" },
+  { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]</code></pre> |
+| **copyvalue** | It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".<pre><code class="language-js">{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }</code></pre> |
+| **runexpression** | If the expression is successful, then it runs the expression in the **runExpression** property. If the property **setToName** is not empty, then the result of the **runExpression** would be set into this value. Here is [the example](https://surveyjs.io/Examples/Library/?id=trigger-runexpression) of using this trigger. |
+| **visible** | Obsolete, use the [visibleIf](#visibility) property instead. |

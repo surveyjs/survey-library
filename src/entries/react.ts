@@ -76,6 +76,7 @@ export { SurveyQuestionRating } from "../react/reactquestionrating";
 export { SurveyQuestionExpression } from "../react/reactquestionexpression";
 export { SurveyWindow } from "../react/reactSurveyWindow";
 export { ReactQuestionFactory } from "../react/reactquestionfactory";
+export { ReactElementFactory } from "../react/element-factory";
 export { SurveyQuestionImagePicker } from "../react/imagepicker";
 
 //Uncomment to include the "date" question type.

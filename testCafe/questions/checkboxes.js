@@ -18,6 +18,7 @@ const json = {
       isRequired: true,
       colCount: 4,
       hasOther: true,
+      hasNone: true,
       choices: [
         "None",
         "Ford",
@@ -56,6 +57,20 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.equal(typeof surveyResult, `undefined`);
+  });
+
+  test(`choose none`, async t => {
+    let surveyResult; 
+
+    await t
+    .click(`div:nth-child(9) label input`)
+    .click(`div:nth-child(12) label input`)
+    .click(`div:nth-child(6) label input`)
+    .click(`div:nth-child(14) label input`)
+    .click(`input[value=Complete]`);
+    
+    surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult.car, ["none"]);
   });
 
   test(`choose value`, async t => {
@@ -182,7 +197,7 @@ frameworks.forEach(framework => {
     let choicesCount, choicesExistence;
     let checkIntegrity = async () => {
       choicesCount = await getChoicesCount();
-      assert.equal(choicesCount, 12);
+      assert.equal(choicesCount, 13);
       choicesExistence = await getChoicesExistence();
       assert(choicesExistence);
     };

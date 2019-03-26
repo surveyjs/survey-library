@@ -46,8 +46,8 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
     this.choicesByUrl.beforeSendRequestCallback = (_, __) => {
-      setTimeout(() => this.value = null, 1);
-    }
+      setTimeout(() => (this.value = null), 1);
+    };
     var locOtherText = this.createLocalizableString("otherText", this, true);
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
@@ -235,22 +235,13 @@ export class QuestionSelectBase extends Question {
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
   }
-  isRenderedValueSetting: boolean = false;
   public set renderedValue(val: any) {
     this.setPropertyValue("renderedValue", val);
-    if (!this.isRenderedValueSetting) {
-      this.isRenderedValueSetting = true;
-      this.value = this.rendredValueToData(val);
-      this.isRenderedValueSetting = false;
-    }
+    this.value = this.rendredValueToData(val);
   }
   protected setQuestionValue(newValue: any) {
     super.setQuestionValue(newValue);
-    if (!this.isRenderedValueSetting) {
-      this.isRenderedValueSetting = true;
-      this.renderedValue = this.rendredValueFromData(newValue);
-      this.isRenderedValueSetting = false;
-    }
+    this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
   }
   protected setNewValue(newValue: any) {
     if (

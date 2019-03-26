@@ -400,6 +400,46 @@ export class QuestionSelectBase extends Question {
       items.push(this.otherItem);
     }
   }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+        method?: (val: any) => any;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      var values = Array.isArray(this.value) ? this.value : [this.value];
+      questionPlainData.data = values.map((dataValue, index) => {
+        var choice = this.visibleChoices.filter(c => c.value === dataValue)[0];
+        var choiceDataItem = <any>{
+          name: index,
+          title: "Choice",
+          value: dataValue,
+          displayValue: this.getChoicesDisplayValue(
+            this.visibleChoices,
+            dataValue
+          ),
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val,
+          isNode: false
+        };
+        if (!!choice) {
+          (options.calculations || []).forEach(calculation => {
+            choiceDataItem[calculation.propertyName] =
+              choice[calculation.propertyName];
+          });
+        }
+        return choiceDataItem;
+      });
+    }
+    return questionPlainData;
+  }
+
   /**
    * Returns the text for the current value. If the value is null then returns empty string. If 'other' is selected then returns the text for other value.
    */

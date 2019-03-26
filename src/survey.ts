@@ -44,7 +44,7 @@ export class SurveyModel extends Base
     ISurveyErrorOwner,
     ILocalizableOwner {
   [index: string]: any;
-  private static stylesManager: StylesManager = null;
+  private static stylesManager = new StylesManager();
   public static platform: string = "unknown";
   public get platformName(): string {
     return SurveyModel.platform;
@@ -729,9 +729,6 @@ export class SurveyModel extends Base
   constructor(jsonObj: any = null) {
     super();
     var self = this;
-    if (typeof document !== "undefined") {
-      this.stylesManager = new StylesManager();
-    }
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);

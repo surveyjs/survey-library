@@ -1064,6 +1064,7 @@ export class QuestionMatrixDropdownModelBase
     }
     return result;
   }
+
   protected getRowDisplayValue(
     row: MatrixDropdownRowModelBase,
     rowValue: any
@@ -1077,6 +1078,46 @@ export class QuestionMatrixDropdownModelBase
     }
     return rowValue;
   }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+        method?: (val: any) => any;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      questionPlainData.data = this.visibleRows.map(
+        (row: MatrixDropdownRowModelBase) => {
+          var rowDataItem = <any>{
+            name: row.rowName,
+            title: row.rowName,
+            value: row.value,
+            displayValue: this.getRowDisplayValue(row, row.value),
+            getString: (val: any) =>
+              typeof val === "object" ? JSON.stringify(val) : val,
+            isNode: true,
+            data: this.columns.map((column: any, index: number) => {
+              var cell: MatrixDropdownCell = row.cells[index];
+              return cell.question.getPlainData(options);
+            })
+          };
+          (options.calculations || []).forEach(calculation => {
+            rowDataItem[calculation.propertyName] = (<any>row)[
+              calculation.propertyName
+            ];
+          });
+          return rowDataItem;
+        }
+      );
+    }
+    return questionPlainData;
+  }
+
   protected onBeforeValueChanged(val: any) {}
   private onSetQuestionValue() {
     if (this.isRowChanging) return;

@@ -1322,6 +1322,44 @@ export class QuestionPanelDynamicModel extends Question
   getSurvey(): ISurvey {
     return this.survey;
   }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+        method?: (val: any) => any;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      questionPlainData.data = this.panels.map(
+        (panel: PanelModel, index: number) => {
+          var panelDataItem = <any>{
+            name: panel.name || index,
+            title: panel.title || "Panel",
+            value: panel.getValue(),
+            displayValue: panel.getValue(),
+            getString: (val: any) =>
+              typeof val === "object" ? JSON.stringify(val) : val,
+            isNode: true,
+            data: panel.questions.map((question: Question) =>
+              question.getPlainData(options)
+            )
+          };
+          (options.calculations || []).forEach(calculation => {
+            panelDataItem[calculation.propertyName] = (<any>panel)[
+              calculation.propertyName
+            ];
+          });
+          return panelDataItem;
+        }
+      );
+    }
+    return questionPlainData;
+  }
 }
 
 JsonObject.metaData.addClass(

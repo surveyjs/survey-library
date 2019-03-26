@@ -1,11 +1,11 @@
-import * as fs from 'fs';
-import * as Github from 'github-api';
+var fs = require('fs');
+var Github = require('github-api');
 
 require('dotenv').config();
 
 var github = new Github({
-  username: process.env.GITUSER,
-  password: process.env.GITPASS,
+  username: process.env.GIT_USER,
+  password: process.env.GIT_PASS,
   auth: 'basic'
 });
 

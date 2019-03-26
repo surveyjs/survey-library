@@ -69,7 +69,6 @@ frameworks.forEach(framework => {
     .click(`div:nth-child(14) label input`)
     .click(`input[value=Complete]`);
     
-    debugger;
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.car, ["none"]);
   });

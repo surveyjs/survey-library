@@ -5771,11 +5771,15 @@ QUnit.test(
       "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 }
     });
     assert.equal(plainData[9].score, 9);
+
     assert.deepEqual(plainData[10].value, {
       "Row 1": "Column 1",
       "Row 2": "Column 2"
     });
     assert.equal(plainData[10].score, 10);
+    assert.equal(plainData[10].data[0].score, 1);
+    assert.equal(plainData[10].data[1].score, 2);
+
     assert.deepEqual(plainData[11].value, [
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" }
@@ -5966,6 +5970,9 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   JsonObject.metaData.addProperty("question", {
     name: "score:number"
   });
+  JsonObject.metaData.addProperty("itemvalue", {
+    name: "score:number"
+  });
 
   var question = new QuestionMatrixModel("q1");
   new JsonObject().toObject(
@@ -6009,11 +6016,14 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   assert.deepEqual(plainData.data[0].title, "Row 1 title");
   assert.deepEqual(plainData.data[0].value, "Column 1");
   assert.deepEqual(plainData.data[0].displayValue, "Column 1");
+  assert.deepEqual(plainData.data[0].score, 1);
   assert.deepEqual(plainData.data[1].name, "Row 2");
   assert.deepEqual(plainData.data[1].value, "Column 2");
   assert.deepEqual(plainData.data[1].displayValue, "Column 2");
+  assert.deepEqual(plainData.data[1].score, 2);
 
   JsonObject.metaData.removeProperty("question", "score");
+  JsonObject.metaData.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - matrixdropdown", function(assert) {

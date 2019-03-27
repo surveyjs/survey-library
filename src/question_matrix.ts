@@ -398,10 +398,14 @@ export class QuestionMatrixModel
             typeof val === "object" ? JSON.stringify(val) : val,
           isNode: false
         };
-        if (!!row) {
+        var item = ItemValue.getItemByValue(
+          this.visibleColumns,
+          values[rowName]
+        );
+        if (!!item) {
           (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] =
-              row[calculation.propertyName];
+              item[calculation.propertyName];
           });
         }
         return rowDataItem;

@@ -18,7 +18,14 @@ function commit(inputPath, outputPath, comment) {
       content,
       comment,
       function(err) {
-         console.log(err);
+         let log = 'inputPath=' + inputPath +
+            ', outputPath=' + outputPath + ', comment=' + comment;
+         if (!err) {
+            console.log('Success: ' + log);
+         }
+         else{ 
+            console.log('Failure: ' + log);
+         }
       }
    );
 }

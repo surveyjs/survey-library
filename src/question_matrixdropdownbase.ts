@@ -1101,9 +1101,11 @@ export class QuestionMatrixDropdownModelBase
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
             isNode: true,
-            data: row.cells.map((cell: MatrixDropdownCell) =>
-              cell.question.getPlainData(options)
-            )
+            data: row.cells
+              .map((cell: MatrixDropdownCell) =>
+                cell.question.getPlainData(options)
+              )
+              .filter((d: any) => !!d)
           };
           (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] = (<any>row)[

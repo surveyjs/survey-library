@@ -1345,9 +1345,9 @@ export class QuestionPanelDynamicModel extends Question
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
             isNode: true,
-            data: panel.questions.map((question: Question) =>
-              question.getPlainData(options)
-            )
+            data: panel.questions
+              .map((question: Question) => question.getPlainData(options))
+              .filter((d: any) => !!d)
           };
           (options.calculations || []).forEach(calculation => {
             panelDataItem[calculation.propertyName] = (<any>panel)[

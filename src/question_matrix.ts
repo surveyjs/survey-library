@@ -373,7 +373,6 @@ export class QuestionMatrixModel
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true

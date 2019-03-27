@@ -1353,7 +1353,6 @@ export class SurveyModel extends Base
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true

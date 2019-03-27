@@ -312,7 +312,6 @@ export class QuestionFileModel extends Question {
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true

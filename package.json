@@ -19,7 +19,7 @@
     "build_jquery_prod": "webpack --env.buildType prod --env.platform jquery",
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\"",
-    "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
+    "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts && node doc_generator/lib_docgensidebar.js",
     "doc_update": "node doc_generator/lib_docupdater.js",
     "lint": "tslint ./src/**/*.ts -t verbose",
     "watch_knockout_dev": "webpack --env.buildType dev --env.platform knockout --watch",

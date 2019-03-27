@@ -37,7 +37,9 @@ script:
 - testcafe chrome testCafe/ --reporter minimal
 #- npm run testcafe_sauce
 - if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then echo "Starting functional tests on SauceLabs..."; npm run testcafe_sauce; fi
-before_deploy: tar -zcvf surveyjs.tar.gz packages
+before_deploy: 
+- tar -zcvf surveyjs.tar.gz packages
+- npm run doc_gen
 deploy:
 - provider: releases
   api_key:
@@ -53,7 +55,7 @@ deploy:
   on:
     tags: true
 - provider: script
-  script: npm run doc_gen && npm run doc_update
+  script: npm run doc_update
   skip_cleanup: true
 notifications:
   email:

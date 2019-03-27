@@ -47,7 +47,8 @@ There are three main types of objects in SurveyJS: survey, containers (pages and
 
 There are two ways of creating the survey model. You may pass a survey definition JSON into survey constructor or create survey model totally in the code. Here is the example of creating the simples survey model using json. This survey contains one page and one text question on it:
 
-<pre><code class="language-js">var json = {
+```javascript
+var json = {
 pages: [
 {
 name: "page1",
@@ -58,28 +59,31 @@ elements: [
 
 }
 var survey = new Survey.Survey(json);
-</code></pre>
+```
 
 Since there is only one page, you may remove the "pages" and "page1" definition. Survey will create a page automatically for you. As result the JSON may look like the following:
 
-<pre><code class="language-js">var json = {
+```javascript
+var json = {
   elements: [
   { type: "text", name: "question1" }
   ]
   }
   var survey = new Survey.Survey(json);
-  </code></pre>
+```
 
 You may achieve the same result by writing the following code:
 
-<pre><code class="language-js">var survey = new Survey.Survey();
+```javascript
+var survey = new Survey.Survey();
   var page = survey.addNewPage("page1");
   page.addNewQuestion("text", "question1");
-</code></pre>
+```
 
 As you can imagine, you may combine these two approaches. You may initially create survey by using JSON and then modify the model in the code. Here is the example:
 
-<pre><code class="language-js">var json = {
+```javascript
+var json = {
   pages: [
   {
   name: "customerContact", elements: [
@@ -101,7 +105,7 @@ As you can imagine, you may combine these two approaches. You may initially crea
   fbPageQuestion.title = "Please enter your facebook page:"
   }
   //You may create a new page or remove/add pages, add/remove questions, panels, modify them and so on.
-</code></pre>
+```
 
 <div id="objects-loadfromservice"></div>
 
@@ -109,11 +113,12 @@ As you can imagine, you may combine these two approaches. You may initially crea
 
 There is an additional way of creating the Survey Model. It is loading the survey JSON from our [SurveyJS Service](https://surveyjs.io/Service/MySurveys). The main benefit from this approach – you can modify the survey without modifying your web page. All you need to do, is to register on our web site. Create a new Survey in our [Service](https://surveyjs.io/Service/MySurveys), and use Survey Id. Your code will look like:
 
-<pre><code class="language-js">var json = {
+```javascript
+var json = {
   surveyId: '5af48e08-a0a5-44a5-83f4-1c90e8e98de1'
   };
   var survey = new Survey.Survey(json);
-</code></pre>
+```
 
 You may play with a live [demo, that loads the survey from our Service](https://surveyjs.io/Examples/Library/?id=service-load).
 
@@ -131,22 +136,24 @@ The simplest one is to use our backend [SurveyJS Service](https://surveyjs.io/Se
 
 To store survey results on our backend, you must register on our web site and [create a new survey](https://surveyjs.io/Service/MySurveys). If you do not want to load the survey from our service, then you do not need to keep the survey definition in our service. All you need is to get a Post Id for a new created survey and add one line into your code:
 
-<pre><code class="language-js">var survey = new Survey.Survey(json);
+```javascript
+var survey = new Survey.Survey(json);
   survey.surveyPostId = "YourPostIdGuid";
   //Optionally, show saving progress and show an error and "Save Again" button if the results can't be stored
   survey.surveyShowDataSaving = true;
-</code></pre>
+```
 
 And you are done. Here is [the example of saving survey results on our backend](https://surveyjs.io/Examples/Library/?id=service-send)
 
 There is an additional option, as show in the code snippet. You may optionally show the saving progress. It will show the "Saving..." message and after the callback from our service come, it will show if the operation was successful or there was an error. A user will be able to press "Save Again" button.
 If you do not like the default text you may override it as show in the following code:
 
-<pre><code class="language-js">Survey.surveyStrings.savingData = "Please wait. We are validating and saving your reponse";
+```javascript
+Survey.surveyStrings.savingData = "Please wait. We are validating and saving your reponse";
   Survey.surveyStrings.savingDataError = "That is my own text on error";
   Survey.surveyStrings.savingDataSuccess = "That is my own text on success";
   Survey.surveyStrings.saveAgainButton = "Try to save again";
-</code></pre>
+```
 
 To find out more about SurveyJS strings and localizations go to [Localization and Multilanguages support section](#localization).
 
@@ -158,17 +165,19 @@ To store the survey results in your own storage, you must use **onComplete** eve
 
 The implementation of the storing survey results in the database is fully depends on your server backend and database. Unfortunately, this is the code that you must write by yourself. Here is the simplest implementation, in case you have implemented the services on your web site:
 
-<pre><code class="language-js">survey.onComplete.add(function (sender, options) {
+```javascript
+survey.onComplete.add(function (sender, options) {
       var xhr = new XMLHttpRequest();
       xhr.open("POST", "YourServiceForStoringSurveyResultsAsJSON_URL");
       xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
       xhr.send(JSON.stringify(sender.data));
 });
-</code></pre>
+```
 
 Again, you may show the progress and errors. That makes a code a little more complicated:
 
-<pre><code class="language-js">survey.onComplete.add(function (sender, options) {
+```javascript
+  survey.onComplete.add(function (sender, options) {
   //Show message about "Saving..." the results
   options.showDataSaving();//you may pass a text parameter to show your own text
   var xhr = new XMLHttpRequest();
@@ -186,7 +195,7 @@ Again, you may show the progress and errors. That makes a code a little more com
   };
   xhr.send(JSON.stringify(sender.data));
   });
-</code></pre>
+```
 
 As you see, there are not a lot of code on the client for storing the survey results in your own data storage. However, the main part, the server code that stores the data into database, is not here. We can’t provide it to you since it is highly depending on your server platforms and database. Likely it is a typical task for every platform.
 
@@ -202,13 +211,17 @@ Survey may have five different states. To get the current state you have to chec
 
 If there is no any visible questions/pages in the survey, then the survey is in the "empty" state. The widget shows the message that survey is empty: "There is no visible page or question in the survey.". You may change this text by changing this property:
 
-<pre><code class="language-js">Survey.surveyStrings.emptySurvey = "The current survey is empty";</code></pre>
+```javascript
+Survey.surveyStrings.emptySurvey = "The current survey is empty";
+```
 
 ### State loading
 
 The survey is loading the survey JSON from [SurveyJS Service](https://surveyjs.io/Service/). The message about survey loading is showing. Please use the following property to change the text:
 
-<pre><code class="language-js">Survey.surveyStrings.loadingSurvey = "Please wait. Your survey is loading…";</code></pre>
+```javascript
+Survey.surveyStrings.loadingSurvey = "Please wait. Your survey is loading…";
+```
 
 ### State starting
 
@@ -234,14 +247,15 @@ You may change the completed html by setting survey **completedHtml** property. 
 When the survey goes into completed state the **survey.onCompleted** event is fired. Commonly it is used to save data in [your own database](#storeresults).
 However, there are other scenarios. For example, you may show the same survey to the user from the beginning, but in display (read-only) mode. The following code would perform this task:
 
-<pre><code class="language-js">survey.onComplete.add(function (sender, options) {
+```javascript
+survey.onComplete.add(function (sender, options) {
   //By default clear methods clear all data and go to the first page
   //Here we tell survey keep the data by passing the first parameter as false
   sender.clear(false);
   //Put survey into read-only mode
   sender.mode = "display";
-  });
-</code></pre>
+});
+```
 
 <div id="data"></div>
 
@@ -266,9 +280,10 @@ Of course, you may always use **question.value** property or **survey.setValue(n
 
 If you store the survey results in your own database, then you should implement a module, where an admin may review all results. Typically, it is tabular data with posting result date, client/user name and "View Results…" button/link. On clicking this button, you may show on your page or in modal window a survey with user’s answers. The code is simple. You are creating a survey, as you commonly do, then load the survey results from your database (commonly it stores as text) and set it into survey.data:
 
-<pre><code class="language-js">survey.data = JSON.parse(YourResultAsStringFromDatabase);
-  survey.mode = "display"; //make the survey readonly
-</code></pre>
+```javascript
+survey.data = JSON.parse(YourResultAsStringFromDatabase);
+survey.mode = "display"; //make the survey readonly
+```
 
 <div id="data-restoreanswers"></div>
 
@@ -278,28 +293,29 @@ Another common scenario, when you have a large survey and a user may not want to
 
 Below is the code that implements restoring answered questions and current page from local storage. We are setting the **survey.sendResultOnPageNext** property to true. As result, **survey.onPartialSend** event will be fired, to make our life easier.
 
-<pre><code class="language-js">survey.sendResultOnPageNext = true;
-  var storageName = "yourSurveyUniqueNameOrId";
-  function saveSurveyData(survey) {
+```javascript
+survey.sendResultOnPageNext = true;
+var storageName = "yourSurveyUniqueNameOrId";
+function saveSurveyData(survey) {
   var data = survey.data;
   data.pageNo = survey.currentPageNo;
   window.localStorage.setItem(storageName, JSON.stringify(data));
-  }
-  survey.onPartialSend.add(function (survey) {
+}
+survey.onPartialSend.add(function (survey) {
   saveSurveyData(survey);
-  });
-  survey.onComplete.add(function (survey, options) {
+});
+survey.onComplete.add(function (survey, options) {
   saveSurveyData(survey);
-  });
-  var prevData = window.localStorage.getItem(storageName) || null;
-  if (prevData) {
+});
+var prevData = window.localStorage.getItem(storageName) || null;
+if (prevData) {
   var data = JSON.parse(prevData);
   survey.data = data;
   if (data.pageNo) {
   survey.currentPageNo = data.pageNo;
   }
-  }
-</code></pre>
+}
+```
 
 You may see this functionality in action by playing with [this example (the real survey)](https://surveyjs.io/Examples/Library/?id=real-patient-history).
 
@@ -325,22 +341,23 @@ There are numerous scenarios when on changing a question value, you must modify 
 
 Here is the opposite example. The first question is "Please select the language(s) you are speaking" and the second question "Please select the language(s) you want to learn". The choices from the second question do not contain selected choices from the first question. Here is [the example on plunker](https://plnkr.co/edit/AtodHh?p=preview) and code
 
-<pre><code class="language-js">survey.onValueChanged.add(function(survey, options){
-      if(options.name !== "know") return;
-      knownChoices = options.question.choices;
-      var choices = [];
-      for(var i = 0; i < knownChoices.length; i ++) {
-          var item = knownChoices[i];
-          //the item is not selected
-          if(options.value.indexOf(item.value) < 0) {
-              choices.push(item);
-          }
-      }
-      var learnQuestion = survey.getQuestionByName("learn");
-      learnQuestion.choices = choices;
-      learnQuestion.visible = choices.length > 0;
-  });
-</code></pre>
+```javascript
+survey.onValueChanged.add(function(survey, options){
+if(options.name !== "know") return;
+knownChoices = options.question.choices;
+var choices = [];
+for(var i = 0; i < knownChoices.length; i ++) {
+    var item = knownChoices[i];
+    //the item is not selected
+    if(options.value.indexOf(item.value) < 0) {
+        choices.push(item);
+    }
+}
+var learnQuestion = survey.getQuestionByName("learn");
+learnQuestion.choices = choices;
+learnQuestion.visible = choices.length > 0;
+});
+```
 
 **Please Note:** The following scenario can be implemented without coding, by setting **choicesVisibleIf** property, that we have introduced in v1.0.21. Please review the [Dynamically filter choices, columns and rows](#itemvaluesfiltering) section for more information.
 
@@ -372,13 +389,14 @@ To get the current page, you may use **survey.currentPage** property. If there i
 
 To change the current page from the code you may call:
 
-<pre><code class="language-js">survey.currentPage = myPage;
+```javascript
+survey.currentPage = myPage;
 
 //or change the current page using visible page index (from 0 to visible page count – 1)
 survey.currentPage = visiblePageIndex;  
  //or change the current page by setting the page name
 survey.currentPage = "myCurrentPage";
-</code></pre>
+```
 
 To go to the previous page, call **survey.prevPage()**, to go to the next page, call **survey.nextPage()** and to complete the survey, call **survey.completeLastPage()**.
 
@@ -456,35 +474,39 @@ Additionally, SurveyJS expressions supports functions with unlimited parameters 
 
 Here is the code for the age function:
 
-<pre><code class="language-js">// The age() function accepts a birth date
-  // and returns the number of full years
-  function age(params) {
+```javascript
+// The age() function accepts a birth date
+// and returns the number of full years
+function age(params) {
   if (!params && params.length < 1) return -1;
   var birthDay = new Date(params[0]);
   var ageDifMs = Date.now() - birthDay.getTime();
   var ageDate = new Date(ageDifMs); // miliseconds from epoch
   return Math.abs(ageDate.getUTCFullYear() - 1970);
-  }
-  // Register the function for use in SurveyJS expressions
-  Survey.FunctionFactory.Instance.register("age", age);
-</code></pre>
+}
+// Register the function for use in SurveyJS expressions
+Survey.FunctionFactory.Instance.register("age", age);
+```
 
 You may write, register and use your own functions.
 
 Please note, since v1.0.21, you are able to get access to your survey object as _this.survey_ inside the custom function.
-As result you may, for example, pass a question name to your function: _myFunc('myQuestionName')_ and then get it as: <pre><code class="language-js">questionInstance = this.survey.getQuestionByName(params[0]);</code></pre>
+As result you may, for example, pass a question name to your function: _myFunc('myQuestionName')_ and then get it as: 
+```javascript
+questionInstance = this.survey.getQuestionByName(params[0]);
+```
 
 Here is the list of built-in functions:
 
 | Function name | Description |
 | --- | --- |
 | age({birthdate}) | Returns the age by birth date. |
-| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br /><pre><code class="language-js">iif({question1} + {question2} > 20, 'high', 'low')</code></pre> |
+| iif("expression", trueValue, falseValue) | Returns trueValue if expression returns true and falseValue if expression returns false. <br />`iif({question1} + {question2} > 20, 'high', 'low')` |
 | isContainerReady("panelname/pagename") | Returns true, if all questions in container (panel or page) are answered correctly. It validates (silently) all questions recursively in the container. If there is an error it returns false, otherwise true. If a question value is empty, but it doesn’t have validators and it is not required then validation would pass successful. |
-| isDisplayMode() | Returns true if the survey is in display mode. Here is the example of usage: <pre><code class="language-js">isDisplayMode() <> true</code></pre> |
+| isDisplayMode() | Returns true if the survey is in display mode. Here is the example of usage: `isDisplayMode() <> true` |
 | sum(par1, par2, ...) | Returns the summary of passed parameters. |
 | avg(par1, par2, ...) | Returns the average value for passed parameters. |
-| sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. <pre><code class="language-js">sumInArray('matrixdynamic', 'total') > 1000</code></pre> |
+| sumInArray({questionName}, 'propertyName') | Returns the summary for array of objects {questionName} by property 'propertyName'. `sumInArray('matrixdynamic', 'total') > 1000</` |
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 
@@ -516,11 +538,13 @@ Take a look at the following example. There are several communication channel op
 
 This behavior can now be enabled without having to write code. We've introduced the "visibleIf" property for answer choices and you'll find the following lines in JSON above:
 
-<pre><code class="language-js">choices: [
+```
+choices: [
   "Email",
   { value: "Text Messages", visibleIf: "{phone} notempty"},
   { value: "WhatsApp", visibleIf: "{phone} notempty"}
-  ]</code></pre>
+  ]
+```  
 
 ### Method #2: Display Options Selected in Previous Questions
 
@@ -529,17 +553,23 @@ Questions in this example progressively filter out browsers based on user answer
 Here's the logic breakdown.
 
 * Display the complete browser list.
-  <pre><code class="language-js">name: "installed",
-  choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]</code></pre>
+  ```
+  name: "installed",
+  choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]
+  ```
 * Display only browsers checked in the previous question.
-    <pre><code class="language-js">name: "default",
-    choicesVisibleIf: "{installed} contains {item}",
-    choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]</code></pre>
+```
+  name: "default",
+  choicesVisibleIf: "{installed} contains {item}",
+  choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]
+```
   SurveyJS iterates all "choices" and substitutes each as an "{item}" into "choicesVisibleIf". Only choices that make the expression true will appear on the list.
 * Display browsers checked in #1, exclude browser that matches #2.
-  <pre><code class="language-js">name: "secondChoice",
+  ```
+  name: "secondChoice",
   choicesVisibleIf: "{installed} contains {item} and {item} != {default}",
   choices: ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"]</code></pre>
+  ```
 
 Please review the following examples:
 
@@ -615,7 +645,7 @@ Before proceeding to the next page or before completing the survey, SurveyJS Lib
 
 If you want to validate the value and display an error immediately after a user entered the value into the question, then change the survey property **checkErrorsMode** from the default "onNextPage" to "onValueChanged".
 
-<pre><code class="language-js">survey.checkErrorsMode = "onValueChanged";</code></pre>
+`survey.checkErrorsMode = "onValueChanged";`
 
 <div id="validation-standard"></div>
 
@@ -625,11 +655,11 @@ The simplest and most used validation is a required value. You must set **questi
 
 Except required validation, there is a list of built-in validation classes, that you may use by adding them into question.validators array property. For example, the following code will add validation for e-mail input:
 
-<pre><code class="language-js">question.validators.push(new Survey.EmailValidator());</code></pre>
+`question.validators.push(new Survey.EmailValidator());`
 
 The same code in JSON will be as:
 
-<pre><code class="language-js">validators: [{ type: "email"}]</code></pre>
+`validators: [{ type: "email"}]`
 
 To change the default error text, you must set the validator text property.
 
@@ -654,12 +684,13 @@ If there is no built validator you need, and you want to use this particular val
 
 Here is the example of using it. The following code shows the error if the value in rateMe is not in the rage from 1 till 9.
 
-<pre><code class="language-js">survey.onValidateQuestion.add(function(sender, options) {
-if(options.name == "rateMe") {
-if(options.value < 1 || options.value > 9) options.error = "Please enter value from 1 till 9.";
-}
+```javascript
+survey.onValidateQuestion.add(function(sender, options) {
+  if(options.name == "rateMe") {
+    if(options.value < 1 || options.value > 9) options.error = "Please enter value from 1 till 9.";
+  }
 });
-</code></pre>
+```
 
 Please review [the example of validating data using a client event](https://surveyjs.io/Examples/Library/?id=validators-event).
 
@@ -679,18 +710,19 @@ Sometimes, there is no way you may validate the answers on the client and valida
 
 The [following example](https://surveyjs.io/Examples/Library/?id=validators-server) shows how to use the service to validate the country name.
 
-<pre><code class="language-js">survey.onServerValidateQuestions.add(function(sender, options) {
-  //You must call this function to tell the survey that your server callback has been processed
-  //options.complete();
-  //question values on the current page in format: questionName: value
-  //You have to send this json object into your server
-  //options.data
-  //errors on the current page. You have to set this json object as "questionName": "ErrorText".
-  //Leave it empty, if there is no error on the current page.
-  //options.errors
-  //Your code is here.
-  });
-</code></pre>
+```javascript
+survey.onServerValidateQuestions.add(function(sender, options) {
+//You must call this function to tell the survey that your server callback has been processed
+//options.complete();
+//question values on the current page in format: questionName: value
+//You have to send this json object into your server
+//options.data
+//errors on the current page. You have to set this json object as "questionName": "ErrorText".
+//Leave it empty, if there is no error on the current page.
+//options.errors
+//Your code is here.
+});
+```
 
 <div id="localization"></div>
 
@@ -702,9 +734,10 @@ Use survey **locale** property in runtime to set to your locale. For example, _s
 
 The localization is supported by the community. If you see that there is a non-localized string on your language or do not like the current translation, you may change it locally as:
 
-<pre><code class="language-js">var myloc = Survey. surveyLocalization.locales["localename"];
-  myloc.stringName = "My New Localized string";
-</code></pre>
+```javascript>
+var myloc = Survey. surveyLocalization.locales["localename"];
+myloc.stringName = "My New Localized string";
+```
 
 The list of all localized strings you may find in the default, [English localization](https://github.com/surveyjs/surveyjs/blob/master/src/localization/english.ts).
 
@@ -749,8 +782,8 @@ Here the list of all available triggers
 
 | Trigger Name | Description |
 | --- | --- |
-| **complete** | Complete the survey if the expression returns true. It performs on changing the current page into the next. <br/> The following trigger completes the survey if the question "age" on this page will have value less than 18 <pre><code class="language-js">{ "type": "complete", "expression": "{age} < 18" }</code></pre> |
-| **setvalue** | If expression returns true, then copy a value from **setValue** property into the value/question **setToName**. <br /> The following triggers set the value "ageType" to child or adult based on the "age" question.<pre><code class="language-js">[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" }, { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]</code></pre> |
-| **copyvalue** | It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".<pre><code class="language-js">{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }</code></pre> |
+| **complete** | Complete the survey if the expression returns true. It performs on changing the current page into the next. <br/> The following trigger completes the survey if the question "age" on this page will have value less than 18 `{ "type": "complete", "expression": "{age} < 18" }` |
+| **setvalue** | If expression returns true, then copy a value from **setValue** property into the value/question **setToName**. <br /> The following triggers set the value "ageType" to child or adult based on the "age" question.```javascript>[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" }, { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]`> |
+| **copyvalue** | It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".`{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }` |
 | **runexpression** | If the expression is successful, then it runs the expression in the **runExpression** property. If the property **setToName** is not empty, then the result of the **runExpression** would be set into this value. Here is [the example](https://surveyjs.io/Examples/Library/?id=trigger-runexpression) of using this trigger. |
 | **visible** | Obsolete, use the [visibleIf](#visibility) property instead. |

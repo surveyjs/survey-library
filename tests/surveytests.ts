@@ -5744,8 +5744,11 @@ QUnit.test(
     assert.equal(plainData.length, 12, "all questions are present");
     assert.deepEqual(plainData[0].value, 3);
     assert.equal(plainData[0].score, 11);
+    assert.equal(plainData[0].isNode, false);
     assert.deepEqual(plainData[1].value, "item2");
     assert.equal(plainData[1].score, 12);
+    assert.equal(plainData[1].isNode, true);
+    assert.equal(plainData[1].data[0].score, 2);
     assert.deepEqual(plainData[2].value, "some text 13");
     assert.equal(plainData[2].score, 13);
     assert.deepEqual(plainData[3].value, ["item2", "item3"]);
@@ -5771,11 +5774,15 @@ QUnit.test(
       "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 }
     });
     assert.equal(plainData[9].score, 9);
+
     assert.deepEqual(plainData[10].value, {
       "Row 1": "Column 1",
       "Row 2": "Column 2"
     });
     assert.equal(plainData[10].score, 10);
+    assert.equal(plainData[10].data[0].score, 1);
+    assert.equal(plainData[10].data[1].score, 2);
+
     assert.deepEqual(plainData[11].value, [
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" }
@@ -5847,7 +5854,7 @@ QUnit.test("question.getPlainData - select base - single", function(assert) {
   });
   assert.equal(plainData.score, 3);
   assert.deepEqual(plainData.value, "giraffe");
-  assert.equal(plainData.isNode, false);
+  assert.equal(plainData.isNode, true);
   assert.equal(plainData.data[0].score, 2);
   assert.deepEqual(plainData.data[0].value, "giraffe");
 
@@ -5955,7 +5962,7 @@ QUnit.test("question.getPlainData - file", function(assert) {
       content: "data:image/x-icon;base64,A="
     }
   ]);
-  assert.equal(plainData.isNode, true);
+  assert.equal(plainData.isNode, false);
   assert.deepEqual(plainData.data[0].value, "data:image/x-icon;base64,A=");
   assert.deepEqual(plainData.data[0].displayValue, "favicon.ico");
 
@@ -5964,6 +5971,9 @@ QUnit.test("question.getPlainData - file", function(assert) {
 
 QUnit.test("question.getPlainData - matrix", function(assert) {
   JsonObject.metaData.addProperty("question", {
+    name: "score:number"
+  });
+  JsonObject.metaData.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -6009,11 +6019,14 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   assert.deepEqual(plainData.data[0].title, "Row 1 title");
   assert.deepEqual(plainData.data[0].value, "Column 1");
   assert.deepEqual(plainData.data[0].displayValue, "Column 1");
+  assert.deepEqual(plainData.data[0].score, 1);
   assert.deepEqual(plainData.data[1].name, "Row 2");
   assert.deepEqual(plainData.data[1].value, "Column 2");
   assert.deepEqual(plainData.data[1].displayValue, "Column 2");
+  assert.deepEqual(plainData.data[1].score, 2);
 
   JsonObject.metaData.removeProperty("question", "score");
+  JsonObject.metaData.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
@@ -6092,6 +6105,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
     }
   });
   assert.equal(plainData.isNode, true);
+  assert.equal(plainData.data.length, 2, "Two rows in matrix");
   assert.deepEqual(plainData.data[0].name, "Row 1");
   assert.deepEqual(plainData.data[0].title, "Row 1");
   assert.deepEqual(plainData.data[0].value, {
@@ -6117,18 +6131,33 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   });
 
   assert.equal(plainData.data[0].isNode, true);
+  assert.equal(plainData.data[0].data.length, 3, "Three columns (questions) in matrix row");
 
   assert.equal(plainData.data[0].data[0].name, "Column 1");
   assert.equal(plainData.data[0].data[0].title, "Column 1");
   assert.equal(plainData.data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].displayValue, "1");
   assert.equal(plainData.data[0].data[0].score, undefined);
+  assert.equal(plainData.data[0].data[0].isNode, true);
 
   assert.equal(plainData.data[0].data[0].data[0].score, 1);
   assert.equal(plainData.data[0].data[0].data[0].name, 0);
   assert.equal(plainData.data[0].data[0].data[0].title, "Choice");
   assert.equal(plainData.data[0].data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].data[0].displayValue, "1");
+
+  assert.equal(plainData.data[0].data[1].name, "Column 2");
+  assert.equal(plainData.data[0].data[1].title, "Column 2");
+  assert.equal(plainData.data[0].data[1].value, 2);
+  assert.equal(plainData.data[0].data[1].displayValue, "2");
+  assert.equal(plainData.data[0].data[1].score, undefined);
+  assert.equal(plainData.data[0].data[1].isNode, true);
+
+  assert.equal(plainData.data[0].data[1].data[0].score, 2);
+  assert.equal(plainData.data[0].data[1].data[0].name, 0);
+  assert.equal(plainData.data[0].data[1].data[0].title, "Choice");
+  assert.equal(plainData.data[0].data[1].data[0].value, 2);
+  assert.equal(plainData.data[0].data[1].data[0].displayValue, "2");
 
   JsonObject.metaData.removeProperty("question", "score");
   JsonObject.metaData.removeProperty("itemvalue", "score");
@@ -6179,23 +6208,336 @@ QUnit.test("question.getPlainData - panel dynamic", function(assert) {
   assert.equal(plainData.isNode, true);
   assert.deepEqual(plainData.data[0].name, 0);
   assert.deepEqual(plainData.data[0].title, "Panel");
-  assert.deepEqual(plainData.data[0].value, { question21: "Panel dynamic content 1" });
-  assert.deepEqual(plainData.data[0].displayValue, { question21: "Panel dynamic content 1" });
+  assert.deepEqual(plainData.data[0].value, {
+    question21: "Panel dynamic content 1"
+  });
+  assert.deepEqual(plainData.data[0].displayValue, {
+    question21: "Panel dynamic content 1"
+  });
   assert.deepEqual(plainData.data[1].name, 1);
-  assert.deepEqual(plainData.data[1].value, { question21: "Panel dynamic content 2" });
-  assert.deepEqual(plainData.data[1].displayValue, { question21: "Panel dynamic content 2" });
+  assert.deepEqual(plainData.data[1].value, {
+    question21: "Panel dynamic content 2"
+  });
+  assert.deepEqual(plainData.data[1].displayValue, {
+    question21: "Panel dynamic content 2"
+  });
 
   assert.equal(plainData.data[0].isNode, true);
 
   assert.equal(plainData.data[0].data[0].name, "question21");
   assert.equal(plainData.data[0].data[0].title, "question21");
   assert.equal(plainData.data[0].data[0].value, "Panel dynamic content 1");
-  assert.equal(plainData.data[0].data[0].displayValue, "Panel dynamic content 1");
+  assert.equal(
+    plainData.data[0].data[0].displayValue,
+    "Panel dynamic content 1"
+  );
   assert.equal(plainData.data[0].data[0].score, 21);
 
   JsonObject.metaData.removeProperty("question", "score");
   JsonObject.metaData.removeProperty("itemvalue", "score");
 });
+
+QUnit.test(
+  "getPlainData - calculate score - https://surveyjs.answerdesk.io/ticket/details/T1778",
+  function(assert) {
+    JsonObject.metaData.addProperty("question", {
+      name: "score:number"
+    });
+
+    JsonObject.metaData.addProperty("itemvalue", {
+      name: "score:number"
+    });
+
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "rating",
+          name: "question11",
+          score: 11
+        },
+        {
+          type: "dropdown",
+          name: "question12",
+          score: 12,
+          choices: [
+            {
+              value: "item1",
+              score: 1
+            },
+            {
+              value: "item2",
+              score: 2
+            },
+            {
+              value: "item3",
+              score: 3
+            }
+          ]
+        },
+        {
+          type: "text",
+          name: "question13",
+          score: 13
+        },
+        {
+          type: "checkbox",
+          name: "question14",
+          score: 14,
+          choices: [
+            {
+              value: "item1",
+              score: 1
+            },
+            {
+              value: "item2",
+              score: 2
+            },
+            {
+              value: "item3",
+              score: 3
+            }
+          ]
+        },
+        {
+          type: "radiogroup",
+          name: "question1",
+          score: 1,
+          choices: [
+            {
+              value: "item1",
+              score: 1
+            },
+            {
+              value: "item2",
+              score: 2
+            },
+            {
+              value: "item3",
+              score: 3
+            }
+          ]
+        },
+        {
+          type: "comment",
+          name: "question2",
+          score: 2
+        },
+        {
+          type: "imagepicker",
+          name: "question3",
+          score: 3,
+          choices: [
+            {
+              value: "lion",
+              score: 1,
+              imageLink:
+                "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+            },
+            {
+              value: "giraffe",
+              text: "giraffe22",
+              score: 2,
+              imageLink:
+                "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            },
+            {
+              value: "panda",
+              score: 3,
+              imageLink:
+                "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+            },
+            {
+              value: "camel",
+              score: 4,
+              imageLink:
+                "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg"
+            }
+          ]
+        },
+        {
+          type: "file",
+          name: "question4",
+          score: 4
+        },
+        {
+          type: "multipletext",
+          name: "question5",
+          score: 5,
+          items: [
+            {
+              name: "text1"
+            },
+            {
+              name: "text2"
+            }
+          ]
+        },
+        {
+          type: "matrixdropdown",
+          name: "question9",
+          score: 9,
+          columns: [
+            {
+              name: "Column 1"
+            },
+            {
+              name: "Column 2"
+            },
+            {
+              name: "Column 3"
+            }
+          ],
+          choices: [
+            {
+              value: 1,
+              score: 1
+            },
+            {
+              value: 2,
+              score: 2
+            },
+            {
+              value: 3,
+              score: 3
+            },
+            {
+              value: 4,
+              score: 4
+            },
+            {
+              value: 5,
+              score: 5
+            }
+          ],
+          rows: ["Row 1", "Row 2"]
+        },
+        {
+          type: "matrix",
+          name: "question10",
+          score: 10,
+          columns: [
+            {
+              value: "Column 1",
+              score: 1
+            },
+            {
+              value: "Column 2",
+              score: 2
+            },
+            {
+              value: "Column 3",
+              score: 3
+            }
+          ],
+          rows: ["Row 1", "Row 2"]
+        },
+        {
+          type: "panel",
+          name: "panel1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "question6",
+              score: 6,
+              choices: [
+                {
+                  value: "item1",
+                  score: 1
+                },
+                {
+                  value: "item2",
+                  score: 2
+                },
+                {
+                  value: "item3",
+                  score: 3
+                }
+              ]
+            },
+            {
+              type: "file",
+              name: "question7",
+              score: 7
+            }
+          ]
+        },
+        {
+          type: "paneldynamic",
+          name: "question8",
+          score: 8,
+          templateElements: [
+            {
+              type: "text",
+              score: 4,
+              name: "question21"
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      question11: 3,
+      question12: "item2",
+      question13: "some text 13",
+      question14: ["item2", "item3"],
+      question1: "item1",
+      question2: "comment2",
+      question3: "giraffe",
+      question4: [
+        {
+          name: "favicon.ico",
+          type: "image/x-icon",
+          content: "data:image/x-icon;base64,A="
+        }
+      ],
+      question5: { text1: "a", text2: "b" },
+      question9: {
+        "Row 1": { "Column 1": 1, "Column 2": "2", "Column 3": 3 },
+        "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 }
+      },
+      question10: { "Row 1": "Column 1", "Row 2": "Column 2" },
+      question8: [
+        { question21: "Panel dynamic content 1" },
+        { question21: "Panel dynamic content 2" }
+      ]
+    };
+
+    var plainData = survey.getPlainData({
+      includeEmpty: false,
+      calculations: [{ propertyName: "score" }]
+    });
+
+    var calculate = (
+      plainData: Array<{
+        isNode: boolean;
+        score?: number;
+        data?: Array<any>;
+      }> = []
+    ): number => {
+      return plainData.reduce((result, current) => {
+        var currentScore = current.score;
+        if (current.isNode) {
+          currentScore = calculate(current.data);
+        }
+        if (currentScore) {
+          return result + currentScore;
+        }
+        return result;
+      }, 0);
+    };
+
+    var surveyScore = calculate(plainData);
+
+    assert.equal(
+      surveyScore,
+      75,
+      "overall survey score for answered questions"
+    );
+
+    JsonObject.metaData.removeProperty("question", "score");
+    JsonObject.metaData.removeProperty("itemvalue", "score");
+  }
+);
 
 QUnit.test("question.valueName is numeric, Bug# 1432", function(assert) {
   var survey = new SurveyModel({

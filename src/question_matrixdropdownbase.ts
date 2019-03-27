@@ -1083,7 +1083,6 @@ export class QuestionMatrixDropdownModelBase
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true
@@ -1091,6 +1090,7 @@ export class QuestionMatrixDropdownModelBase
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
+      questionPlainData.isNode = true;
       questionPlainData.data = this.visibleRows.map(
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
@@ -1101,10 +1101,9 @@ export class QuestionMatrixDropdownModelBase
             getString: (val: any) =>
               typeof val === "object" ? JSON.stringify(val) : val,
             isNode: true,
-            data: this.columns.map((column: any, index: number) => {
-              var cell: MatrixDropdownCell = row.cells[index];
-              return cell.question.getPlainData(options);
-            })
+            data: row.cells.map((cell: MatrixDropdownCell) =>
+              cell.question.getPlainData(options)
+            )
           };
           (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] = (<any>row)[

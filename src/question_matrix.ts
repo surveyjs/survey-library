@@ -373,7 +373,6 @@ export class QuestionMatrixModel
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true
@@ -382,6 +381,7 @@ export class QuestionMatrixModel
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();
+      questionPlainData.isNode = true;
       questionPlainData.data = Object.keys(values || {}).map(rowName => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName
@@ -398,10 +398,14 @@ export class QuestionMatrixModel
             typeof val === "object" ? JSON.stringify(val) : val,
           isNode: false
         };
-        if (!!row) {
+        var item = ItemValue.getItemByValue(
+          this.visibleColumns,
+          values[rowName]
+        );
+        if (!!item) {
           (options.calculations || []).forEach(calculation => {
             rowDataItem[calculation.propertyName] =
-              row[calculation.propertyName];
+              item[calculation.propertyName];
           });
         }
         return rowDataItem;

@@ -405,7 +405,6 @@ export class QuestionSelectBase extends Question {
       includeEmpty?: boolean;
       calculations?: Array<{
         propertyName: string;
-        method?: (val: any) => any;
       }>;
     } = {
       includeEmpty: true
@@ -414,8 +413,9 @@ export class QuestionSelectBase extends Question {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = Array.isArray(this.value) ? this.value : [this.value];
+      questionPlainData.isNode = true;
       questionPlainData.data = values.map((dataValue, index) => {
-        var choice = this.visibleChoices.filter(c => c.value === dataValue)[0];
+        var choice = ItemValue.getItemByValue(this.visibleChoices, dataValue);
         var choiceDataItem = <any>{
           name: index,
           title: "Choice",

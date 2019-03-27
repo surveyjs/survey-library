@@ -2,7 +2,6 @@
 .vs/*
 node_modules/*
 src/**/*.js
-doc_generator/**/*.js
 doc_generator/**/*.json
 tmp/*
 .vscode/*

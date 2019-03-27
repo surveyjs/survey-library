@@ -262,8 +262,7 @@ export class QuestionMatrixModel
     array: Array<MatrixRowModel>
   ): Array<MatrixRowModel> {
     var order = this.rowsOrder.toLowerCase();
-    if (order == "random")
-      return Helpers.randomizeArray<MatrixRowModel>(array);
+    if (order == "random") return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
   }
   /**
@@ -368,6 +367,51 @@ export class QuestionMatrixModel
       res[newKey] = newValue;
     }
     return res;
+  }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      var values = this.createValueCopy();
+      questionPlainData.isNode = true;
+      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+        var row = this.rows.filter(
+          (r: MatrixRowModel) => r.value === rowName
+        )[0];
+        var rowDataItem = <any>{
+          name: rowName,
+          title: !!row ? row.text : "row",
+          value: values[rowName],
+          displayValue: ItemValue.getTextOrHtmlByValue(
+            this.visibleColumns,
+            values[rowName]
+          ),
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val,
+          isNode: false
+        };
+        var item = ItemValue.getItemByValue(
+          this.visibleColumns,
+          values[rowName]
+        );
+        if (!!item) {
+          (options.calculations || []).forEach(calculation => {
+            rowDataItem[calculation.propertyName] =
+              item[calculation.propertyName];
+          });
+        }
+        return rowDataItem;
+      });
+    }
+    return questionPlainData;
   }
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.rows.length; i++) {

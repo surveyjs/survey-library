@@ -858,6 +858,40 @@ export class Question extends SurveyElement
     this.updateValueWithDefaults();
   }
   /**
+   * Returns question answer data as a plain object: with question title, name, value and displayValue.
+   * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
+   * set options.includeEmpty to false if you want to skip empty answers
+   */
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    if (options.includeEmpty || !this.isEmpty()) {
+      var questionPlainData = <any>{
+        name: this.name,
+        title: this.title,
+        value: this.value,
+        displayValue: this.displayValue,
+        isNode: false,
+        getString: (val: any) =>
+          typeof val === "object" ? JSON.stringify(val) : val
+      };
+      (options.calculations || []).forEach(calculation => {
+        questionPlainData[calculation.propertyName] = this[
+          calculation.propertyName
+        ];
+      });
+      return questionPlainData;
+    }
+    return undefined;
+  }
+  /**
    * The correct answer on the question. Set this value if you are doing a quiz.
    * @see SurveyModel.correctAnswers
    * @see SurveyModel.inCorrectAnswers

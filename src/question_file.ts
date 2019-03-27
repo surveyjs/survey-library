@@ -307,6 +307,34 @@ export class QuestionFileModel extends Question {
       (!!file.type && file.type.toLowerCase().indexOf("image/") === 0);
     return result;
   }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      questionPlainData.isNode = false;
+      var values = Array.isArray(this.value) ? this.value : [this.value];
+      questionPlainData.data = values.map((dataValue, index) => {
+        return {
+          name: index,
+          title: "File",
+          value: (dataValue.content && dataValue.content) || dataValue,
+          displayValue: (dataValue.name && dataValue.name) || dataValue,
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val,
+          isNode: false
+        };
+      });
+    }
+    return questionPlainData;
+  }
 }
 JsonObject.metaData.addClass(
   "file",

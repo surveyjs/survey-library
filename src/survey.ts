@@ -44,7 +44,7 @@ export class SurveyModel extends Base
     ISurveyErrorOwner,
     ILocalizableOwner {
   [index: string]: any;
-  private static stylesManager = new StylesManager();
+  private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
   public get platformName(): string {
     return SurveyModel.platform;
@@ -729,6 +729,9 @@ export class SurveyModel extends Base
   constructor(jsonObj: any = null) {
     super();
     var self = this;
+    if (typeof document !== "undefined") {
+      this.stylesManager = new StylesManager();
+    }
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
@@ -1340,35 +1343,6 @@ export class SurveyModel extends Base
   getAllValues(): any {
     return this.data;
   }
-  private getQuestionPlainData(question: Question, calculations?: Array<{ propertyName: string, method?: (val: any) => any }>) {
-    var result: Array<any> = [];
-    var value = question.value;
-    var displayValue = question.displayValue;
-    if (question.getType() === "checkbox") {
-      displayValue = (displayValue || "")
-        .split(",")
-        .map((v: string) => v.trim());
-    }
-    var valueKeys = Object.keys(question.createValueCopy());
-    var displayValueKeys = Object.keys(question.displayValue);
-    var isArray = Array.isArray(value);
-    valueKeys.forEach((key, index) => {
-      var item = {
-        name: key,
-        title: isArray ? "" : displayValueKeys[index],
-        value: value[key],
-        displayValue: displayValue[displayValueKeys[index]],
-        getString: (val: any) =>
-          typeof val === "object" ? JSON.stringify(val) : val,
-        isNode: false
-      };
-      // (calculations || []).forEach(calculation => {
-      //   (<any>item)[calculation.propertyName] = value[calculation.propertyName];
-      // });
-    result.push(item);
-    });
-    return result;
-  }
   /**
    * Returns survey result data as an array of plain objects: with question title, name, value and displayValue.
    * For complex questions (like matrix, etc.) isNode flag is set to true and data contains array of nested objects (rows)
@@ -1376,33 +1350,19 @@ export class SurveyModel extends Base
    */
   public getPlainData(
     options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{ propertyName: string, method?: (val: any) => any }>
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
     } = {
       includeEmpty: true
     }
   ) {
     var result: Array<any> = [];
-    var data = this.data;
     this.getAllQuestions().forEach(question => {
-      if (options.includeEmpty || data[question.name] !== undefined) {
-        var resultItem: any = {
-          name: question.name,
-          title: (<Question>question).title,
-          value: question.value,
-          displayValue: (<Question>question).displayValue,
-          isNode:
-            typeof question.value === "object" || Array.isArray(question.value),
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val
-        };
-        (options.calculations || []).forEach(calculation => {
-          resultItem[calculation.propertyName] = (<any>question)[calculation.propertyName];
-        });
+      var resultItem = (<Question>question).getPlainData(options);
+      if (!!resultItem) {
         result.push(resultItem);
-        if (resultItem.isNode) {
-          resultItem.data = this.getQuestionPlainData(<Question>question, options.calculations);
-        }
       }
     });
     return result;

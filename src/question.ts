@@ -878,7 +878,7 @@ export class Question extends SurveyElement
         title: this.title,
         value: this.value,
         displayValue: this.displayValue,
-        isNode: typeof this.value === "object" || Array.isArray(this.value),
+        isNode: false,
         getString: (val: any) =>
           typeof val === "object" ? JSON.stringify(val) : val
       };

@@ -381,6 +381,7 @@ export class QuestionMatrixModel
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();
+      questionPlainData.isNode = true;
       questionPlainData.data = Object.keys(values || {}).map(rowName => {
         var row = this.rows.filter(
           (r: MatrixRowModel) => r.value === rowName

@@ -319,6 +319,7 @@ export class QuestionFileModel extends Question {
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
+      questionPlainData.isNode = false;
       var values = Array.isArray(this.value) ? this.value : [this.value];
       questionPlainData.data = values.map((dataValue, index) => {
         return {

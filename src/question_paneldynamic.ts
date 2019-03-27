@@ -1334,6 +1334,7 @@ export class QuestionPanelDynamicModel extends Question
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
+      questionPlainData.isNode = true;
       questionPlainData.data = this.panels.map(
         (panel: PanelModel, index: number) => {
           var panelDataItem = <any>{

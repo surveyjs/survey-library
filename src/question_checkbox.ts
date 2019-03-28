@@ -170,20 +170,21 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected setNewValue(newValue: any) {
     newValue = this.valueFromData(newValue);
+    var value = this.value;
+    if (!newValue) newValue = [];
+    if (!value) value = [];
+    if (Helpers.isTwoValueEquals(value, newValue)) return;
     if (this.hasNone) {
-      var value = this.value;
-      if (!Helpers.isTwoValueEquals(value, newValue)) {
-        var prevNoneIndex = this.noneIndexInArray(value);
-        var newNoneIndex = this.noneIndexInArray(newValue);
-        if (prevNoneIndex > -1) {
-          if (newNoneIndex > -1 && newValue.length > 1) {
-            newValue.splice(newNoneIndex, 1);
-          }
-        } else {
-          if (newNoneIndex > -1) {
-            newValue.splice(0, newValue.length);
-            newValue.push(this.noneItem.value);
-          }
+      var prevNoneIndex = this.noneIndexInArray(value);
+      var newNoneIndex = this.noneIndexInArray(newValue);
+      if (prevNoneIndex > -1) {
+        if (newNoneIndex > -1 && newValue.length > 1) {
+          newValue.splice(newNoneIndex, 1);
+        }
+      } else {
+        if (newNoneIndex > -1) {
+          newValue.splice(0, newValue.length);
+          newValue.push(this.noneItem.value);
         }
       }
     }

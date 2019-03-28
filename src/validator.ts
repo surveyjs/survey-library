@@ -145,7 +145,7 @@ export class NumericValidator extends SurveyValidator {
   }
 }
 /**
- * Validate text values
+ * Validate text values.
  */
 export class TextValidator extends SurveyValidator {
   constructor(

@@ -37,3 +37,4 @@ You may use arithmetic operation as: +, -, _ or / :
 `({price} _ {quantity} > 1000)`
 
 ---
+

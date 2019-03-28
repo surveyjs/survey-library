@@ -67,7 +67,7 @@ Of course, by using **onComplete** event, you may change **completedHtml** dynam
 
 ## Step 3. Setup a time limit.
 
-You may set the maximum time a user may spend on your quiz in total or on every page
+You may set the maximum time a user may spend on your quiz in total or on every page.
 Set survey **maxTimeToFinish** property to 60 (seconds), for example, to allow your users spending maximum one minute on your quiz. The default value is 0 and it means that there is no time limit. 
 You may set the survey **maxTimeToFinishPage** property, for example to 30, to limit your users on answering every page in 30 seconds in maximum. 
 Finally, every page has its own **maxTimeToFinish** property, that allows you to set the different time limit for a particular page. 

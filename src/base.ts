@@ -233,7 +233,7 @@ export class Base {
     return "base";
   }
   /**
-   * Returns the element template name without prefix. Typically it equals to getType()
+   * Returns the element template name without prefix. Typically it equals to getType().
    * @see getType
    */
   public getTemplate(): string {

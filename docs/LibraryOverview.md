@@ -139,7 +139,7 @@ To store survey results on our backend, you must register on our web site and [c
 ```javascript
 var survey = new Survey.Survey(json);
   survey.surveyPostId = "YourPostIdGuid";
-  //Optionally, show saving progress and show an error and "Save Again" button if the results can't be stored
+  //Optionally, show saving progress and show an error and "Save Again" button if the results can't be stored.
   survey.surveyShowDataSaving = true;
 ```
 

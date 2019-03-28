@@ -15,7 +15,8 @@
     {
       "Name": "api",
       "Title": "Survey API",
-      "Items": [
+      "Items": 
+      [
         {
           "Name": "surveymodel",
           "Title": "Survey"

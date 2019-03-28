@@ -25,6 +25,7 @@ import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { AssertionError } from "assert";
 import { QuestionNonValue } from "../src/questionnonvalue";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1232,6 +1233,32 @@ QUnit.test("checkbox.renderedValue - hasNone = true, Bug #1609", function(
     "renderedValue set correctly - 'none'"
   );
 });
+QUnit.test(
+  "checkbox.renderedValue - hasNone = true and survey.storeOthersAsComment = false, Bug #1609",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.storeOthersAsComment = false;
+    survey.addNewPage("page1");
+    var question = new QuestionCheckboxModel("q");
+    question.choices = ["A", "B", "C", "D"];
+    question.hasNone = true;
+    survey.pages[0].addQuestion(question);
+
+    question.value = ["A", "B"];
+    assert.deepEqual(
+      question.renderedValue,
+      ["A", "B"],
+      "renderedValue set correctly, question.value"
+    );
+    question.renderedValue = ["A", "B", "none"];
+    assert.deepEqual(question.value, ["none"], "value set correctly - 'none'");
+    assert.deepEqual(
+      question.renderedValue,
+      ["none"],
+      "renderedValue set correctly - 'none'"
+    );
+  }
+);
 QUnit.test("Text inputType=number", function(assert) {
   var question = new QuestionTextModel("text");
   question.inputType = "number";

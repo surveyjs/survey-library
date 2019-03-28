@@ -266,7 +266,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
   protected setDefaultValueWithOthers() {
-    this.value = this.rendredValueFromDataCore(this.defaultValue);
+    this.value = this.renderedValueFromDataCore(this.defaultValue);
   }
   protected getHasOther(val: any): boolean {
     if (!val || !Array.isArray(val)) return false;
@@ -277,7 +277,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!Array.isArray(val)) return [val];
     return super.valueFromData(val);
   }
-  protected rendredValueFromDataCore(val: any): any {
+  protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
@@ -303,6 +303,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return val;
   }
+  protected hasUnknownValue(val: any, includeOther: boolean = false): boolean {
+    if (this.hasNone && val == this.noneItemValue.value) return false;
+    return super.hasUnknownValue(val, includeOther);
+  }
+
   public getType(): string {
     return "checkbox";
   }

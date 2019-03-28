@@ -255,13 +255,13 @@ export class QuestionSelectBase extends Question {
   }
   protected rendredValueFromData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
-    return this.rendredValueFromDataCore(val);
+    return this.renderedValueFromDataCore(val);
   }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
     return this.rendredValueToDataCore(val);
   }
-  protected rendredValueFromDataCore(val: any): any {
+  protected renderedValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true)) return val;
     this.comment = val;
     return this.otherItem.value;

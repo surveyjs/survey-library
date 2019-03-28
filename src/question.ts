@@ -914,6 +914,7 @@ export class Question extends SurveyElement
     )
       return;
     if (!this.isDesignMode && !this.isEmpty()) return;
+    if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
   public getDefaultValue(): any {

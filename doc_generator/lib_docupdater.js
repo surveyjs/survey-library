@@ -39,7 +39,4 @@ commit('doc_generator/classes.json', 'surveyjs.io/App_Data/Docs/classes.json', '
  () => commit('docs/sidebar.json', 'surveyjs.io/App_Data/Docs/sidebar.json', 'Updated SideBar')).then(
  () => commit('docs/CreateQuiz.md', 'surveyjs.io/App_Data/Docs/CreateQuiz.md', 'Updated CreadQuiz.md')).then(
  () => commit('docs/LibraryOverview.md', 'surveyjs.io/App_Data/Docs/LibraryOverview.md', 'Updated LibraryOverview.md')).then(
- () => commit('docs/Question/visibleIf.md', 'surveyjs.io/App_Data/Docs/Question/visibleIf.md', 'Updated visibleIf.md')).then(
- () => commit('docs/images/builder-adorners.png', 'surveyjs.io/Content/Images/docs/builder-adorners.png', 'Updated builder-adorners.png')).then(
- () => commit('docs/images/builder-question-editor.png', 'surveyjs.io/Content/Images/docs/builder-question-editor.png', 'Updated builder-question-editor.png')).then(
- () => commit('docs/images/choicesbyurl.png', 'surveyjs.io/Content/Images/docs/choicesbyurl.png', 'Updated choicesbyurl.png'));
+ () => commit('docs/Question/visibleIf.md', 'surveyjs.io/App_Data/Docs/Question/visibleIf.md', 'Updated visibleIf.md'));

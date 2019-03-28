@@ -24,28 +24,28 @@ Finally you may select one of our npm packages, based on your JavaScript platfor
 | Platform |  |
 |---|---|
 | [Angular2+](https://angular.io/) | `import { Component } from '@@angular/core';` |
-| [jQuery](https://jquery.com/) |  `&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"&gt;&lt;/script&gt;` |
-| [Knockout.js](http://knockoutjs.com) |  `&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"&gt;&lt;/script&gt;` |
+| [jQuery](https://jquery.com/) |  `<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>` |
+| [Knockout.js](http://knockoutjs.com) |  `<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.0/knockout-min.js"></script>` |
 | [React](https://facebook.github.io/react/) |  `import React from 'react';` and  `import ReactDOM from 'react-dom';` |
-| [Vue.js](https://vuejs.org/) |  `&lt;script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"&gt;&lt;/script&gt;` |
+| [Vue.js](https://vuejs.org/) |  `<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.1.10/vue.min.js"></script>` |
 
 ## Step 2. Add link to SurveyJS files.
 
 | Platform | JavaScript section  |
 |---|---|
-| [Angular2+](https://angular.io/) | `&lt;script src="https://unpkg.com/survey-angular"&gt;&lt;/script&gt;` |
-| [jQuery](https://jquery.com/) |  `&lt;script src="https://unpkg.com/survey-jquery"&gt;&lt;/script&gt;` |
-| [Knockout.js](http://knockoutjs.com) |  `&lt;script src="https://unpkg.com/survey-knockout"&gt;&lt;/script&gt;` |
-| [React](https://facebook.github.io/react/) |  `&lt;script src="https://unpkg.com/survey-react"&gt;&lt;/script&gt;` |
-| [Vue.js](https://vuejs.org/) |  `&lt;script src="https://unpkg.com/survey-vue"&gt;&lt;/script&gt;` |
+| [Angular2+](https://angular.io/) | `<script src="https://unpkg.com/survey-angular"></script>` |
+| [jQuery](https://jquery.com/) |  `<script src="https://unpkg.com/survey-jquery"></script>` |
+| [Knockout.js](http://knockoutjs.com) |  `<script src="https://unpkg.com/survey-knockout"></script>` |
+| [React](https://facebook.github.io/react/) |  `<script src="https://unpkg.com/survey-react"></script>` |
+| [Vue.js](https://vuejs.org/) |  `<script src="https://unpkg.com/survey-vue"></script>` |
 
 | Platform | css section  |
 |---|---|
-| [Angular2+](https://angular.io/) | `&lt;script src="https://unpkg.com/survey-angular/survey.min.css"&gt;&lt;/script&gt;` |
-| [jQuery](https://jquery.com/) |  `&lt;script src="https://unpkg.com/survey-jquery/survey.min.css"&gt;&lt;/script&gt;` |
-| [Knockout.js](http://knockoutjs.com) |  `&lt;script src="https://unpkg.com/survey-knockout/survey.min.css"&gt;&lt;/script&gt;` |
-| [React](https://facebook.github.io/react/) |  `&lt;script src="https://unpkg.com/survey-react/survey.min.css"&gt;&lt;/script&gt;` |
-| [Vue.js](https://vuejs.org/) |  `&lt;script src="https://unpkg.com/survey-vue/survey.min.css"&gt;&lt;/script&gt;` |
+| [Angular2+](https://angular.io/) | `<script src="https://unpkg.com/survey-angular/survey.min.css"></script>` |
+| [jQuery](https://jquery.com/) |  `<script src="https://unpkg.com/survey-jquery/survey.min.css"></script>` |
+| [Knockout.js](http://knockoutjs.com) |  `<script src="https://unpkg.com/survey-knockout/survey.min.css"></script>` |
+| [React](https://facebook.github.io/react/) |  `<script src="https://unpkg.com/survey-react/survey.min.css"></script>` |
+| [Vue.js](https://vuejs.org/) |  `<script src="https://unpkg.com/survey-vue/survey.min.css"></script>` |
 
 ## Step 3. Build Survey JSON
                     
@@ -77,12 +77,12 @@ Survey.StylesManager.applyTheme("bootstrap");
 
 #### [Angular2+](https://angular.io/) - As Survey Window.
 ```
-&lt;ng-app&gt;&lt;/ng-app&gt;
+<ng-app></ng-app>
 ```
 ```javascript
 @@Component({
   selector: 'ng-app',
-  template: `&lt;div id='surveyElement'&gt;&lt;/div&gt;`,
+  template: `<div id='surveyElement'></div>`,
 })
 export class AppComponent  {
   ngOnInit() {
@@ -96,12 +96,12 @@ export class AppComponent  {
 
 #### [Angular2+](https://angular.io/) - Inside your web page.
 ```
-&lt;ng-app&gt;&lt;/ng-app&gt;
+<ng-app></ng-app>
 ```
 ```javascript
 @@Component({
   selector: 'ng-app',
-  template: `&lt;div id='surveyElement'&gt;&lt;/div&gt;`,
+  template: `<div id='surveyElement'></div>`,
 })
 export class AppComponent  {
   ngOnInit() {
@@ -125,7 +125,7 @@ $("#surveyContainer").SurveyWindow({
 
 #### [jQuery](https://jquery.com/)  - Inside your web page.
 ```
-&lt;div id="surveyContainer"&gt;&lt;/div&gt;
+<div id="surveyContainer"></div>
 ```
 ```javascript
 var survey = new Survey.Model(surveyJSON);
@@ -147,7 +147,7 @@ surveyWindow.survey.onComplete.add(sendDataToServer);
 
 #### [Knockout.js](http://knockoutjs.com)  - Inside your web page.
 ```
-&lt;div id="surveyContainer"&gt;&lt;/div&gt;
+<div id="surveyContainer"></div>
 ```
 ```javascript
 var survey = new Survey.Model(surveyJSON, "surveyContainer");
@@ -158,29 +158,29 @@ survey.onComplete.add(sendDataToServer);
 
 #### [React](https://facebook.github.io/react/) - As Survey Window.
 ```
-&lt;div id="surveyContainer"&gt;&lt;/div&gt;
+<div id="surveyContainer"></div>
 ```
 ```javascript
 ReactDOM.render(
-  &lt;Survey.SurveyWindow json={surveyJSON} onComplete={sendDataToServer}/&gt;,
+  <Survey.SurveyWindow json={surveyJSON} onComplete={sendDataToServer}/>,
   document.getElementById("surveyContainer"));
 ```
 -----
 
 #### [React](https://facebook.github.io/react/)  - Inside your web page.
 ```
-&lt;div id="surveyContainer"&gt;&lt;/div&gt;
+<div id="surveyContainer"></div>
 ```
 ```javascript
 ReactDOM.render(
-  &lt;Survey.Survey json={surveyJSON} onComplete={sendDataToServer}/&gt;,
+  <Survey.Survey json={surveyJSON} onComplete={sendDataToServer}/>,
   document.getElementById("surveyContainer"));
 ```
 -----
 
 #### [Vue.js](https://vuejs.org/) - As Survey Window.
 ```
-&lt;div id="surveyContainer"&gt;&lt;survey-window :survey="survey"&gt;&lt;/survey-window&gt;&lt;/div&gt;
+<div id="surveyContainer"><survey-window :survey="survey"></survey-window></div>
 ```
 ```javascript
 var survey = new Survey.Model(surveyJSON);
@@ -190,7 +190,7 @@ new Vue({ el: '#surveyContainer', data: { survey: survey } });
 
 #### [Vue.js](https://vuejs.org/)  - Inside your web page.
 ```
-&lt;div id="surveyContainer"&gt;&lt;survey :survey="survey"&gt;&lt;/survey&gt;&lt;/div&gt;
+<div id="surveyContainer"><survey :survey="survey"></survey></div>
 ```
 ```javascript
 var survey = new Survey.Model(surveyJSON);

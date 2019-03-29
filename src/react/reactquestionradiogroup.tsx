@@ -24,7 +24,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     var clearButton = null;
-    if (this.question.showClearButton) {
+    if (this.question.canShowClearButton) {
       clearButton = (
         <div>
           <input

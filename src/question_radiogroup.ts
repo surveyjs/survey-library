@@ -25,6 +25,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public set showClearButton(val: boolean) {
     this.setPropertyValue("showClearButton", val);
   }
+  public get canShowClearButton(): boolean {
+    return this.showClearButton && !this.isReadOnly;
+  }
   public get clearButtonCaption() {
     return surveyLocalization.getString("clearCaption");
   }

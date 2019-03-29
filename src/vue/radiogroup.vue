@@ -29,7 +29,7 @@
           :question="question"
         />
     </div>
-    <div v-if="question.showClearButton">
+    <div v-if="question.canShowClearButton">
       <input
         type="button"
         :class="question.cssClasses.clearButton"

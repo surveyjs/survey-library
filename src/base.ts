@@ -683,8 +683,8 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   protected onReadOnlyChanged() {}
   public get isLoadingFromJson() {
-    if (this.survey) return this.survey.isLoadingFromJson;
-    return this.isLoadingFromJsonValue;
+    if (this.isLoadingFromJsonValue) return true;
+    return this.survey ? this.survey.isLoadingFromJson : false;
   }
   public get name(): string {
     return this.getPropertyValue("name", "");

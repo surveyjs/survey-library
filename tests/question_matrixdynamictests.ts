@@ -2008,3 +2008,37 @@ QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function(assert) {
     "There is no exception"
   );
 });
+
+QUnit.test(
+  "register function on visibleChoices change calls many times, Bug#1622",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          columns: [
+            {
+              name: "q1",
+              choices: ["1", "2"]
+            }
+          ],
+          rowCount: 2
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    var question = matrix.visibleRows[0].cells[0].question;
+    var counter = 0;
+    question.registerFunctionOnPropertyValueChanged(
+      "visibleChoices",
+      function() {
+        counter++;
+      }
+    );
+    matrix.columns[0].choices = ["1", "2", "3"];
+    assert.deepEqual(question.choices.length, 3, "Choices set correctly");
+    assert.equal(counter, 1, "There was only one change");
+  }
+);

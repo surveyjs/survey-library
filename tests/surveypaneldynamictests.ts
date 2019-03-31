@@ -2462,3 +2462,51 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "paneldynamic + expression value + clear data on survey.isSinglePage = true', Bug# 1625",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "Dynamic Panel",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "Input"
+                },
+                {
+                  type: "expression",
+                  name: "Expression",
+                  expression: "1"
+                }
+              ],
+              panelCount: 1
+            }
+          ]
+        }
+      ]
+    };
+    var data = {
+      "Dynamic Panel": [
+        { Expression: 1, Input: "Test1" },
+        { Expression: 1, Input: "Test2" },
+        { Expression: 1, Input: "Test3" }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    survey.data = data;
+    assert.deepEqual(survey.data, data, "Data set correctly");
+    survey.isSinglePage = true;
+    assert.deepEqual(
+      survey.data,
+      data,
+      "Data is not changed after setting single page"
+    );
+  }
+);

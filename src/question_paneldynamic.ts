@@ -511,8 +511,8 @@ export class QuestionPanelDynamicModel extends Question
   private addingNewPanelsValue: any;
   private isNewPanelsValueChanged: boolean;
   private prepareValueForPanelCreating() {
-    this.isAddingNewPanels = true;
     this.addingNewPanelsValue = this.value;
+    this.isAddingNewPanels = true;
     this.isNewPanelsValueChanged = false;
   }
   private setValueAfterPanelsCreating() {

@@ -1067,7 +1067,7 @@ export class SurveyModel extends Base
       this.currentPage.locStrsChanged();
     }
   }
-  public getMarkdownHtml(text: string) {
+  public getMarkdownHtml(text: string): string {
     return this.getSurveyMarkdownHtml(this, text);
   }
   public getProcessedText(text: string) {
@@ -3378,7 +3378,9 @@ export class SurveyModel extends Base
   public get timerInfoText(): string {
     var options = { text: this.getTimerInfoText() };
     this.onTimerPanelInfoText.fire(this, options);
-    return options.text;
+    var loc = new LocalizableString(this, true);
+    loc.text = options.text;
+    return loc.textOrHtml;
   }
   private getTimerInfoText() {
     var page = this.currentPage;

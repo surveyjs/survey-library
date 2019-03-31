@@ -194,9 +194,13 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     "page limit, next page 65 sec passed"
   );
   survey.onTimerPanelInfoText.add(function(survey, options) {
-    options.text = survey.timeSpent;
+    options.text = "*" + String(survey.timeSpent) + "*";
   });
-  assert.equal(survey.timerInfoText, "65", "use onTimerPanelInfoText event.");
+  assert.equal(survey.timerInfoText, "*65*", "use onTimerPanelInfoText event.");
+  survey.onTextMarkdown.add(function(survey, options) {
+    options.html = options.text.replace("*", "!").replace("*", "!");
+  });
+  assert.equal(survey.timerInfoText, "!65!", "use onTextMarkdown event.");
 });
 
 QUnit.test("Start timer automatically if there is the start page", function(

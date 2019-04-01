@@ -203,7 +203,7 @@ As you see, there are not a lot of code on the client for storing the survey res
 
 ## Survey States, from running to completed
 
-Survey may have five different states. To get the current state you have to check survey.state read-only property. In this section we will describe all of them
+Survey may have five different states. To get the current state you have to check survey.state read-only property. In this section we will describe all of them.
 
 <div id="states-empty"></div>
 

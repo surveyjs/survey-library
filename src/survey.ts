@@ -875,6 +875,15 @@ export class SurveyModel extends Base
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
+   * Set this property to false (default value is true) if you do not want to bring the focus to the first question that has error on the page.
+   */
+  public get focusOnFirstError(): boolean {
+    return this.getPropertyValue("focusOnFirstError", true);
+  }
+  public set focusOnFirstError(val: boolean) {
+    this.setPropertyValue("focusOnFirstError", val);
+  }
+  /**
    * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons. It makes sense if you are going to create a custom navigation or have just one page or on setting goNextPageAutomatic property.
    * @see goNextPageAutomatic
    * @see showPrevButton
@@ -1822,7 +1831,7 @@ export class SurveyModel extends Base
    */
   public get isCurrentPageHasErrors(): boolean {
     if (this.currentPage == null) return true;
-    return this.currentPage.hasErrors(true, true);
+    return this.currentPage.hasErrors(true, this.focusOnFirstError);
   }
   /**
    * Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.
@@ -3589,6 +3598,7 @@ JsonObject.metaData.addClass("survey", [
   },
   { name: "title:text", serializationProperty: "locTitle" },
   { name: "focusFirstQuestionAutomatic:boolean", default: true },
+  { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {
     name: "completedBeforeHtml:html",

@@ -1,6 +1,6 @@
 import { surveyLocalization } from "../surveyStrings";
 
-export var romanianSurveyStrings = {
+export var romanianSurveyStrings: any = {
   pagePrevText: "Precedent",
   pageNextText: "Următor",
   completeText: "Finalizare",

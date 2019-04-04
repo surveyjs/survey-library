@@ -16,6 +16,7 @@ const json = {
       name: "frameworksRate",
       title: "Please rate your teachers",
       addRowText: "Add Subject",
+      addRowLocation: "top",
       horizontalScroll: true,
       columnMinWidth: "120px",
       columnColCount: 1,
@@ -150,15 +151,13 @@ frameworks.forEach(framework => {
       await t
         .click(`${baseSelectorFunc`${rowNumber}${1}`} select`)
         .click(
-          `${baseSelectorFunc`${
-            rowNumber
-          }${1}`} select option[value="Science: Physical Science"]`
+          `${baseSelectorFunc`${rowNumber}${1}`} select option[value="Science: Physical Science"]`
         );
 
       for (i = 2; i < 13; i++) {
         // answer radios
         await t.click(
-          `${baseSelectorFunc`${rowNumber}${i}`} div:nth-child(1) label input`
+          `${baseSelectorFunc`${rowNumber}${i}`} div:nth-child(2) label input`
         );
       }
 
@@ -234,7 +233,7 @@ frameworks.forEach(framework => {
       .click(
         `${baseSelectorFunc`${2}${1}`} select option[value="Science: Chemistry"]`
       )
-      .click(`${baseSelectorFunc`${2}${16}`} input[type=button][value=Remove]`);
+      .click(Selector(`${baseSelectorFunc`${2}${16}`} button[type=button]`).withText('Remove'));
 
     newCount = await getRowCount();
     assert(newCount === oldCount - 1);
@@ -257,7 +256,7 @@ frameworks.forEach(framework => {
     };
 
     await t
-      .click(`input[type=button][value="Add Subject"]`)
+      .click(Selector(`button[type=button]`).withText('Add Subject'))
       .click(`${baseSelectorFunc`${1}${1}`} select`)
       .click(
         `${baseSelectorFunc`${1}${1}`} select option[value="Science: Physical Science"]`

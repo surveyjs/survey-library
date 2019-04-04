@@ -1,3 +1,4 @@
+import { surveyCss } from "./defaultCss/cssstandard";
 export class StylesManager {
   private static SurveyJSStylesSheetId = "surveyjs";
 
@@ -10,14 +11,27 @@ export class StylesManager {
     //   "max-width: 80%; margin: auto; position: relative; color: #6d7072; padding: 0 1em;",
     // ".sv_bootstrap_css .panel-body":
     //   "background-color: white; padding: 1em 1em 5em 1em; border-top: 2px solid lightgray;",
+
+    ".sv_main span": "word-break: break-word;",
+
+    ".sv_main legend": "border: none; margin: 0;",
+
     ".sv_bootstrap_css .sv_qstn": "padding: 0.5em 1em 1.5em 1em;",
     ".sv_bootstrap_css .sv_qcbc input[type=checkbox], .sv_bootstrap_css .sv_qcbc input[type=radio]":
       "vertical-align: middle; margin-top: -1px",
+    ".sv_bootstrap_css .sv_qstn fieldset": "display: block;",
+    ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline":
+      "display: inline-block;",
 
-    ".sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
+    ".sv_main.sv_bootstrapmaterial_css .checkbox":
+      "margin-top:10px;margin-bottom:10px;",
 
-    ".sv_qstn": "display: inline-block; vertical-align: top;",
+    ".sv_row": "clear: both;",
+    ".sv_row .sv_qstn": "float: left",
+    ".sv_row .sv_qstn:last-child": "float: none",
+    ".sv_qstn": "display: inline-block; vertical-align: top; overflow: auto;",
     ".progress": "width: 60%;",
     ".progress-bar": "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_p_container": "display: inline-block; vertical-align: top;",
@@ -25,16 +39,22 @@ export class StylesManager {
     ".sv_qcbx .checkbox-material": "margin-right: 5px;",
     ".sv_qcbx .checkbox label": "justify-content: left; display: inline-block;",
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
+    ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
+    ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
     ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
+    ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
     ".sv_qstn .title-left": "float: left; margin-right: 1em;",
     ".sv_qstn .content-left": "overflow: hidden",
     ".sv_q_radiogroup_inline .sv_q_radiogroup_other": "display: inline-block;",
     ".sv_q_checkbox_inline .sv_q_checkbox_other": "display: inline-block;",
-    ".sv_q_checkbox_inline, .sv_q_radiogroup_inline": "line-height: 2.5em;",
+    ".sv_q_checkbox_inline, .sv_q_radiogroup_inline, .sv_q_imagepicker_inline":
+      "line-height: 2.5em;",
     ".form-inline .sv_q_checkbox_inline:not(:last-child)": "margin-right: 1em;",
     ".form-inline .sv_q_radiogroup_inline:not(:last-child)":
+      "margin-right: 1em;",
+    ".sv_imgsel .sv_q_imagepicker_inline:not(:last-child)":
       "margin-right: 1em;",
     ".sv_qstn fieldset": "border: none; margin: 0; padding: 0;",
     ".sv_qstn .sv_q_file_placeholder": "display:none",
@@ -49,10 +69,112 @@ export class StylesManager {
 
     ".sv_q_file > input[type=file], .sv_q_file > button":
       "display: inline-block;",
-    ".sv_q_file_preview": "display: inline-block;",
+    ".sv_q_file_preview":
+      "display: inline-block; vertical-align: top; border: 1px solid lightgray; padding: 5px; margin-top: 10px;",
+    ".sv_q_file_preview > a":
+      "display: block; overflow: hidden; vertical-align: top; white-space: nowrap; text-overflow: ellipsis;",
     ".sv_q_file_remove_button": "line-height: normal;",
+    ".sv_q_file_remove": "display: block; cursor: pointer;",
 
-    ".sv_q_m_cell_text": "cursor: pointer;"
+    ".sv_q_m_cell_text": "cursor: pointer;",
+
+    ".sv_q_dd_other": "margin-top: 1em;",
+    ".sv_q_dd_other input": "width: 100%;",
+
+    ".sv_qstn .sv-q-col-1":
+      "width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-col-2":
+      "width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-col-3":
+      "width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-col-4":
+      "width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-col-5":
+      "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+
+    ".sv_qstn .sv_q_file_input": "color: transparent;",
+
+    ".sv_qstn .sv_q_imgsel label > div":
+      "overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 4px; border: 1px solid lightgray; border-radius: 4px;",
+    ".sv_qstn .sv_q_imgsel label > div > img, .sv_qstn .sv_q_imgsel label > div > embed":
+      "display: block;",
+
+    ".sv_qstn table tr td .sv_q_m_cell_label":
+      "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
+
+    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;"
+  };
+
+  public static Media: { [key: string]: { media: string; style: string } } = {
+    ".sv_qstn fieldset .sv-q-col-1": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-2": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-3": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-4": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+    ".sv_qstn fieldset .sv-q-col-5": {
+      style: "width: 100%;",
+      media: "@media only screen and (max-width: 480px)"
+    },
+
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn": {
+      style: "display: block; width: 100% !important;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .title-left": {
+      style: "float: none;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_radiogroup_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_checkbox_inline, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .sv_q_imagepicker_inline": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table thead": {
+      style: "display: none;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tbody, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table tr, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table td": {
+      style: "display: block;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.table:not(.sv_q_matrix) td:before": {
+      style: "content: attr(headers);",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn table.sv_q_matrix td:after": {
+      style: "content: attr(headers); padding-left: 1em",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .radio label, .sv_main .sv_container .panel-body.card-block .sv_row .sv_qstn .checkbox label": {
+      style: "line-height: 12px; vertical-align: top;",
+      media: "@media (max-width: 600px)"
+    },
+    ".sv_main .sv_custom_header": {
+      style: "display: none;",
+      media: "@media (max-width: 1300px)"
+    },
+    ".sv_main .sv_container .sv_header h3": {
+      style: "font-size: 1.5em;",
+      media: "@media (max-width: 1300px)"
+    },
+    ".sv_main .sv_container .sv_header h3 span": {
+      style: "font-size: 0.75em;",
+      media: "@media (max-width: 700px)"
+    }
   };
 
   public static ThemeColors: { [key: string]: { [key: string]: string } } = {
@@ -199,6 +321,12 @@ export class StylesManager {
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
     ".sv_default_css textarea":
       "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
+      "border: 1px solid $main-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
+      "background-color: $inputs-background-color;",
     ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
     ".sv_default_css .sv_q_dropdown_control:focus":
@@ -226,14 +354,83 @@ export class StylesManager {
       "border-color: $border-color;",
 
     ".sv_default_css .sv_q_m_cell_selected":
-      "color: $body-background-color; background-color: $main-hover-color;"
+      "color: $body-background-color; background-color: $main-hover-color;",
+
+    ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
+
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
+
+    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
+  };
+
+  public static bootstrapThemeCss: { [key: string]: string } = {
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
+    ".sv_main .sv_p_description": "padding-left: 1.66em;",
+    ".sv_main .sv_qstn_error_bottom": "margin-top: 20px; margin-bottom: 0;",
+    ".sv_main .progress": "width: 60%;",
+    ".sv_main .progress-bar":
+      "width: auto; margin-left: 2px; margin-right: 2px;",
+    ".sv_main .table>tbody>tr>td": "min-width: 90px;",
+    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;"
+  };
+
+  public static bootstrapmaterialThemeCss: { [key: string]: string } = {
+    ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused .form-control":
+      "background-image: linear-gradient($main-color, $main-color), linear-gradient(#D2D2D2, #D2D2D2);",
+    ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
+      "color:$main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
+      "border-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check":
+      "border-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check:before":
+      "color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check:before":
+      "color: $main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .circle":
+      "border-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .circle":
+      "border-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css .radio input[type=radio]:checked ~ .check":
+      "background-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css label.radio-inline input[type=radio]:checked ~ .check":
+      "background-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css .btn-default.active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css .btn-default:active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css .btn-secondary.active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css .btn-secondary:active":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css .open>.dropdown-toggle.btn-default":
+      "background-color: $main-color; color: $body-background-color;",
+    ".sv_main.sv_bootstrapmaterial_css input[type='button'].btn-primary, .sv_main.sv_bootstrapmaterial_css button.btn-primary":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_main.sv_bootstrapmaterial_css input[type='button'].btn-primary:hover, .sv_main.sv_bootstrapmaterial_css button.btn-primary:hover":
+      "background-color: $main-hover-color;",
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .sv_q_file_remove:hover":
+      "color: $main-color;",
+
+    ".sv_main.sv_bootstrapmaterial_css .form-group input[type=file]":
+      "position: relative; opacity: 1;",
+    ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%;",
+    ".sv_main.sv_bootstrapmaterial_css .progress-bar":
+      "width: auto; margin-left: 2px; margin-right: 2px;"
   };
 
   private sheet: CSSStyleSheet = null;
 
   static findSheet(styleSheetId: string) {
     for (let i = 0; i < document.styleSheets.length; i++) {
-      if (document.styleSheets[i].ownerNode["id"] === styleSheetId) {
+      if (
+        !!document.styleSheets[i].ownerNode &&
+        (<any>document).styleSheets[i].ownerNode["id"] === styleSheetId
+      ) {
         return <CSSStyleSheet>document.styleSheets[i];
       }
     }
@@ -255,14 +452,24 @@ export class StylesManager {
     themeName: string = "default",
     themeSelector: string = ".sv_main"
   ) {
+    let ThemeCss: any;
+    if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
+      ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
+      surveyCss.currentType = themeName;
+    } else {
+      ThemeCss = StylesManager.ThemeCss;
+      surveyCss.currentType = "standard";
+    }
+
     let sheet = StylesManager.findSheet(themeName + themeSelector);
     if (!sheet) {
       sheet = StylesManager.createSheet(themeName + themeSelector);
       let theme =
         StylesManager.ThemeColors[themeName] ||
         StylesManager.ThemeColors["default"];
-      Object.keys(StylesManager.ThemeCss).forEach(selector => {
-        let cssRuleText = StylesManager.ThemeCss[selector];
+
+      Object.keys(ThemeCss).forEach(selector => {
+        let cssRuleText = ThemeCss[selector];
         Object.keys(theme).forEach(
           colorVariableName =>
             (cssRuleText = cssRuleText.replace(
@@ -295,5 +502,16 @@ export class StylesManager {
         0
       )
     );
+    Object.keys(StylesManager.Media).forEach(selector => {
+      sheet.insertRule(
+        StylesManager.Media[selector].media +
+          " { " +
+          selector +
+          " { " +
+          StylesManager.Media[selector].style +
+          " } }",
+        0
+      );
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { ITextProcessor } from "../src/base";
+import { ITextProcessor, SurveyElement } from "../src/base";
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { ChoicesRestfull } from "../src/choicesRestfull";
@@ -18,7 +18,12 @@ export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
   public noCaching: boolean = false;
+  public lastProcesedUrl: string;
+  public get testProcessedUrl() {
+    return this.processedUrl;
+  }
   protected sendRequest() {
+    this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("countries") > -1)
       this.onLoad(getCountries());
     if (this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
@@ -36,22 +41,48 @@ class ChoicesRestfullTester extends ChoicesRestfull {
 
 class TextProcessorTester implements ITextProcessor {
   processText(text: string, returnDisplayValue: boolean): string {
-    return text;
+    return this.processTextEx(text, returnDisplayValue, true).text;
   }
-  processTextEx(text: string): any {
+  processTextEx(
+    text: string,
+    returnDisplayValue: boolean,
+    doEncoding: boolean
+  ): any {
     return { text: text, hasAllValuesOnLastRun: true };
   }
 }
 
 class QuestionDropdownModelTester extends QuestionDropdownModel {
+  oldGetResultCallback: any;
   constructor(name: string) {
     super(name);
+    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+    var self = this;
+    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+      self.newGetResultCallback(items);
+    };
   }
   public getType(): string {
     return "dropdownrestfulltester";
   }
   protected createRestfull(): ChoicesRestfull {
-    return new ChoicesRestfullTester();
+    var res = new ChoicesRestfullTester();
+    res.noCaching = true;
+    return res;
+  }
+  public hasItemsCallbackDelay: boolean = false;
+  private loadedItems: Array<ItemValue>;
+  public doResultsCallback() {
+    if (this.loadedItems) {
+      this.oldGetResultCallback(this.loadedItems);
+    }
+    this.loadedItems = null;
+  }
+  protected newGetResultCallback(items: Array<ItemValue>) {
+    this.loadedItems = items;
+    if (!this.hasItemsCallbackDelay) {
+      this.doResultsCallback();
+    }
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
@@ -181,25 +212,29 @@ QUnit.test("Load countries", function(assert) {
   );
 });
 
-// This test cann't be runned under nodejs due to the lack of DOMParser support in the nodejs
-QUnit.skip("Load from xml", function(assert) {
+QUnit.test("encode parameters", function(assert) {
+  var survey = new SurveyModel();
+  survey.setValue("q1", "R&D");
   var test = new ChoicesRestfullTester();
-  var items = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "xml";
-  test.path = "NSurveyDataSource;XmlDataSource;XmlAnswers;XmlAnswer";
-  test.valueName = "AnswerValue";
-  test.titleName = "AnswerDescription";
-  test.run();
-  assert.equal(items.length, 6, "there are 6 items");
-  assert.equal(items[0].value, "", "the item is empty");
-  assert.equal(
-    items[5].text,
-    "Optimizes Work Processes",
-    "the sixth item text is 'Optimizes Work Processes'"
-  );
+  test.url = "TestUrl/{q1}";
+  test.getResultCallback = function(res: Array<ItemValue>) {};
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
+});
+
+QUnit.test("Process text in event", function(assert) {
+  var survey = new SurveyModel();
+  survey.onProcessTextValue.add(function(sender, options) {
+    if (options.name == "q1") {
+      options.value = "R&D";
+      //options.isExists = true;
+    }
+  });
+  var test = new ChoicesRestfullTester();
+  test.url = "TestUrl/{q1}";
+  test.getResultCallback = function(res: Array<ItemValue>) {};
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
 });
 
 QUnit.test("Load from plain text", function(assert) {
@@ -279,6 +314,74 @@ QUnit.test("Use variables", function(assert) {
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
 });
+
+QUnit.test("onLoadItemsFromServer event", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+  question.choicesByUrl.url = "{state}";
+
+  survey.onLoadChoicesFromServer.add(function(survey, options) {
+    if (options.question.name != "q1") return;
+    options.question.visible = options.choices.length > 0;
+    if (options.choices.length > 1) {
+      options.choices.shift();
+    }
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 0, "It is empty");
+  assert.equal(question.visible, false, "make it invisible on event");
+  stateQuestion.value = "ca_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    1,
+    "We have two cities and we remove on event one, CA"
+  );
+  assert.equal(question.visible, true, "make it visible on event");
+  stateQuestion.value = "tx_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    2,
+    "We have three cities now and we remove on event one, TX"
+  );
+  stateQuestion.value = "";
+  assert.equal(question.visibleChoices.length, 0, "It is empty again");
+  assert.equal(question.visible, false, "And it is again invisible");
+});
+
+QUnit.test("Set value before loading data, bug #1089", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  survey.setValue("q1", "CA");
+  question.doResultsCallback();
+  assert.equal(question.value, "CA", "'CA' value is still here");
+});
+
+QUnit.test(
+  "Set value before loading data + storeOthersAsComment, bug #1089",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.storeOthersAsComment = false;
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.hasItemsCallbackDelay = true;
+    question.onSurveyLoad();
+    survey.setValue("q1", "CA");
+    assert.equal(question.isOtherSelected, false, "There shuld not be other#1");
+    question.doResultsCallback();
+    assert.equal(question.isOtherSelected, false, "There shuld not be other#2");
+    assert.equal(question.value, "CA", "'CA' value is still here");
+  }
+);
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {
   var survey = new SurveyModel();
@@ -420,6 +523,53 @@ QUnit.test("Cascad dropdown in panel dynamic", function(assert) {
   assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
 });
 
+QUnit.test(
+  "Question in panel dynamic where url is depend on value outside panel, bug#1064",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    page.addNewQuestion("text", "state");
+    var question = new QuestionPanelDynamicModel("panel");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{state}";
+    question.template.addQuestion(dropDown);
+    page.addElement(question);
+    question.panelCount = 1;
+
+    var qCity = <QuestionDropdownModelTester>question.panels[0].questions[0];
+
+    assert.equal(qCity.visibleChoices.length, 0, "It is empty");
+    survey.setValue("state", "ca_cities");
+    assert.equal(qCity.visibleChoices.length, 2, "We have two cities now, CA");
+    survey.setValue("state", "tx_cities");
+    assert.equal(
+      qCity.visibleChoices.length,
+      3,
+      "We have three cities now, TX"
+    );
+    survey.clearValue("state");
+    assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
+  }
+);
+
+QUnit.test(
+  "Question in panel dynamic where url is depend on value outside panel, bug#1089",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{state}";
+    page.addQuestion(dropDown);
+    assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
+    survey.data = { state: "ca_cities" };
+    assert.equal(
+      dropDown.visibleChoices.length,
+      2,
+      "We have two cities now, CA"
+    );
+  }
+);
+
 QUnit.test("Load countries, custom properties, #615", function(assert) {
   var test = new ChoicesRestfullTester();
   test.noCaching = true;
@@ -438,6 +588,8 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
 });
 
 QUnit.test("Load countries, custom itemvalue class", function(assert) {
+  JsonObject.metaData.addProperty("itemvalue", "alpha3_code");
+  JsonObject.metaData.addProperty("itemvalue", "customProperty");
   var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
     "imagepicker_choicesrest"
   );
@@ -457,6 +609,8 @@ QUnit.test("Load countries, custom itemvalue class", function(assert) {
     "AF",
     "Custom property is set via propertyName is set"
   );
+  JsonObject.metaData.removeProperty("itemvalue", "customProperty");
+  JsonObject.metaData.removeProperty("itemvalue", "alpha3_code");
 });
 
 QUnit.test(

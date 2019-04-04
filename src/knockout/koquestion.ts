@@ -1,96 +1,87 @@
 import * as ko from "knockout";
-import { QuestionImplementorBase } from "./koquestionbase";
 import { Question } from "../question";
 import { SurveyElement } from "../base";
 import { Helpers } from "../helpers";
+import { ImplementorBase } from "./kobase";
 
-export class QuestionImplementor extends QuestionImplementorBase {
+export class QuestionImplementor extends ImplementorBase {
   private koDummy: any;
-  koValue: any;
-  koComment: any;
-  koIsReadOnly: any;
+  koTemplateName: any;
+  koElementType: any;
+  private _koValue = ko.observableArray<any>();
   constructor(public question: Question) {
     super(question);
+    var isSynchronizing = false;
+    this._koValue.subscribe(newValue => {
+      if (!isSynchronizing) {
+        this.question.value = newValue;
+      }
+    });
+    Object.defineProperty(this.question, "koValue", {
+      get: () => {
+        if (!Helpers.isTwoValueEquals(this._koValue(), this.getKoValue())) {
+          try {
+            isSynchronizing = true;
+            this._koValue(this.getKoValue());
+          } finally {
+            isSynchronizing = false;
+          }
+        }
+        return this._koValue;
+      },
+      enumerable: true,
+      configurable: true
+    });
     var self = this;
-    question.valueChangedCallback = function() {
-      self.onValueChanged();
+    question.surveyLoadCallback = function() {
+      self.onSurveyLoad();
     };
-    question.commentChangedCallback = function() {
-      self.onCommentChanged();
+    this.koTemplateName = ko.pureComputed(function() {
+      return self.getTemplateName();
+    });
+    this.koElementType = ko.observable("survey-question");
+    (<any>this.question)["koElementType"] = this.koElementType;
+    (<any>this.question)["koTemplateName"] = this.koTemplateName;
+    (<any>this.question)["updateQuestion"] = function() {
+      self.updateQuestion();
     };
-    question.errorsChangedCallback = function() {
-      self.onErrorsChanged();
-    };
-    question.titleChangedCallback = function() {
-      self.onVisibleIndexChanged();
-    };
+    (<any>this.question)["koCss"] = ko.pureComputed(function() {
+      return self.question.cssClasses;
+    });
+    (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
+      return self.question.cssMainRoot;
+    });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();
     });
-    question.registerFunctionOnPropertyValueChanged("isReadOnly", function() {
-      self.onReadOnlyChanged();
-    });
     this.koDummy = ko.observable(0);
-    this.koValue = this.createkoValue();
-    this.koComment = ko.observable(this.question.comment);
-    this.koErrors(this.question.errors);
-    this.koIsReadOnly = ko.observable(this.question.isReadOnly);
-    this.koValue.subscribe(function(newValue) {
-      self.updateValue(newValue);
-    });
-    this.koComment.subscribe(function(newValue) {
-      self.updateComment(newValue);
-    });
-    this.question["koValue"] = this.koValue;
-    this.question["koComment"] = this.koComment;
-    this.question["koIsReadOnly"] = this.koIsReadOnly;
-    this.question["koQuestionAfterRender"] = function(el, con) {
+    (<any>this.question)["koQuestionAfterRender"] = function(
+      el: any,
+      con: any
+    ) {
       self.koQuestionAfterRender(el, con);
     };
+  }
+  protected getKoValue() {
+    return this.question.value;
   }
   protected updateQuestion() {
     this.updateKoDummy();
   }
-  private isValueChangedPerforming = false;
-  protected onValueChanged() {
-    var val = this.question.value;
-    if (Helpers.isTwoValueEquals(val, this.koValue())) return;
-    this.isValueChangedPerforming = true;
-    this.setkoValue(val);
-    this.isValueChangedPerforming = false;
-  }
-  protected onCommentChanged() {
-    var val = this.question.comment;
-    if (Helpers.isTwoValueEquals(val, this.koValue())) return;
-    this.koComment(val);
-  }
   protected onVisibleIndexChanged() {
     this.updateKoDummy();
   }
-  protected onSurveyLoad() {
-    super.onSurveyLoad();
-    this.onReadOnlyChanged();
+  protected onSurveyLoad() {}
+  protected getQuestionTemplate(): string {
+    return this.question.getTemplate();
   }
-  protected onReadOnlyChanged() {
-    this.koIsReadOnly(this.question.isReadOnly);
-  }
-  protected onErrorsChanged() {
-    this.koErrors(this.question.errors);
-  }
-  protected createkoValue(): any {
-    return ko.observable(this.question.value);
-  }
-  protected setkoValue(newValue: any) {
-    this.koValue(newValue);
-  }
-  protected updateValue(newValue: any) {
-    if (this.isValueChangedPerforming) return;
-    if (!Helpers.isTwoValueEquals(this.question.value, newValue)) {
-      this.question.value = Helpers.getUnbindValue(newValue);
-    }
-  }
-  protected updateComment(newValue: any) {
-    this.question.comment = newValue;
+  private getTemplateName(): string {
+    if (
+      this.question.customWidget &&
+      !this.question.customWidget.widgetJson.isDefaultRender
+    )
+      return "survey-widget-" + this.question.customWidget.name;
+    return "survey-question-" + this.getQuestionTemplate();
   }
   protected getNo(): string {
     return this.question.visibleIndex > -1
@@ -101,7 +92,7 @@ export class QuestionImplementor extends QuestionImplementorBase {
     this.koDummy(this.koDummy() + 1);
     this.question.locTitle.onChanged();
   }
-  protected koQuestionAfterRender(elements, con) {
+  protected koQuestionAfterRender(elements: any, con: any) {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     var tEl = elements[0];
     if (tEl.nodeName === "#text") tEl.data = "";

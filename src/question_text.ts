@@ -3,6 +3,7 @@ import { JsonObject } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
+import { EmailValidator } from "./validator";
 
 /**
  * A Model for an input text question.
@@ -25,6 +26,16 @@ export class QuestionTextModel extends Question {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
+    if (
+      !this.isLoadingFromJson &&
+      val === "email" &&
+      !this.validators.some(v => v.getType() === "emailvalidator")
+    ) {
+      this.validators.push(new EmailValidator());
+    }
+  }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
   }
   /**
    * The maximim text length. If it is -1, defaul value, then the survey maxTextLength property will be used.
@@ -81,7 +92,7 @@ export class QuestionTextModel extends Question {
     }
     return newValue;
   }
-  private isNumber(value): boolean {
+  private isNumber(value:any): boolean {
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }

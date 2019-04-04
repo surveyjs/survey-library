@@ -32,7 +32,25 @@ export var polishSurveyStrings = {
   uploadingFile:
     "Trwa przenoszenie Twojego pliku, proszę spróbować ponownie za kilka sekund.",
   addRow: "Dodaj wiersz",
-  removeRow: "Usuń"
+  removeRow: "Usuń",
+  addPanel: "Dodaj panel",
+  removePanel: "Usuń",
+  choices_Item: "element",
+  matrix_column: "Kolumna",
+  matrix_row: "Wiersz",
+  savingData: "Zapisuję wyniki ankiety na serwerze...",
+  savingDataError: "Wystąpił błąd i wyniki nie mogły zostać zapisane.",
+  savingDataSuccess: "Wyniki zostały poprawnie zapisane!",
+  saveAgainButton: "Spróbuj ponownie",
+  timerMin: "min",
+  timerSec: "sek",
+  timerSpentAll: "Spędziłeś {0} na tej stronie a w sumie {1}.",
+  timerSpentPage: "Spędziłeś {0} na tej stronie.",
+  timerSpentSurvey: "Spędziłeś w smumie {0}.",
+  timerLimitAll: "Spędziłeś {0} z {1} na tej stronie a w sumie {2} z {3}.",
+  timerLimitPage: "Spędziłeś {0} z {1} na tej stronie",
+  timerLimitSurvey: "Spędziłeś {0} z {1}.",
+  cleanCaption: "Wyczyść"
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;

@@ -4,7 +4,7 @@ import { Component, Prop, Watch } from "vue-property-decorator";
 
 @Component
 export class QuestionVue<T extends Question> extends Vue {
-  public innerValue = null;
+  public innerValue:any = null;
 
   @Prop question: T;
   // css prop need only for panel. When panel will have cssClasses property this prop will need to remove

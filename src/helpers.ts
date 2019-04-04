@@ -57,6 +57,7 @@ export class Helpers {
   ): boolean {
     if (x === y) return true;
     if ((x && !y) || (!x && y)) return false;
+    if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y))
@@ -84,9 +85,30 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
-    if (value && value instanceof Object) {
+    if (!!value && value instanceof Object) {
       //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
+      /*
+      if (value instanceof Date) {
+        let res = new Date();
+        res.setTime(value.getTime());
+        return res;
+      }
+      if (value instanceof Array) {
+        let res = [];
+        for (let i = 0, len = value.length; i < len; i++) {
+          res[i] = Helpers.getUnbindValue(value[i]);
+        }
+        return res;
+      }
+      let res = {};
+      for (var attr in value) {
+        if (value.hasOwnProperty(attr)) {
+          (<any>res)[attr] = Helpers.getUnbindValue(value[attr]);
+        }
+      }
+      return res;
+      */
     }
     return value;
   }
@@ -97,10 +119,10 @@ export class Helpers {
     return maxLength > 0 ? maxLength : null;
   }
 }
-if (!String.prototype["format"]) {
-  String.prototype["format"] = function() {
+if (!(<any>String.prototype)["format"]) {
+  (<any>String.prototype)["format"] = function() {
     var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) {
+    return this.replace(/{(\d+)}/g, function(match: any, number: any) {
       return typeof args[number] != "undefined" ? args[number] : match;
     });
   };

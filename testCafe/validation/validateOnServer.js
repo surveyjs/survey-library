@@ -9,7 +9,7 @@ import { Selector, ClientFunction } from "testcafe";
 const assert = require("assert");
 const title = `validateOnServer`;
 const setupSurvey = ClientFunction(() => {
-  window.survey.onServerValidateQuestions = function(survey, options) {
+  window.survey.onServerValidateQuestions.add(function(survey, options) {
     //options.data contains the data for the current page.
     var countryName = options.data["country"];
     //If the question is empty then do nothing
@@ -35,7 +35,7 @@ const setupSurvey = ClientFunction(() => {
       //tell survey that we are done with the server validation
       options.complete();
     });
-  };
+  });
 });
 
 const json = {

@@ -3,10 +3,10 @@ import { SurveyTimer, surveyTimerFunctions } from "../src/surveytimer";
 
 export default QUnit.module("Survey");
 
-surveyTimerFunctions.setInterval = function(func: () => any): number {
+surveyTimerFunctions.setTimeout = function(func: () => any): number {
   return 1;
 };
-surveyTimerFunctions.clearInterval = function(timerId: number) {};
+surveyTimerFunctions.clearTimeout = function(timerId: number) {};
 
 QUnit.test("Test timer event", function(assert) {
   var counter = 0;
@@ -194,9 +194,13 @@ QUnit.test("Showing prev button, showTimerInfo='all'", function(assert) {
     "page limit, next page 65 sec passed"
   );
   survey.onTimerPanelInfoText.add(function(survey, options) {
-    options.text = survey.timeSpent;
+    options.text = "*" + String(survey.timeSpent) + "*";
   });
-  assert.equal(survey.timerInfoText, "65", "use onTimerPanelInfoText event.");
+  assert.equal(survey.timerInfoText, "*65*", "use onTimerPanelInfoText event.");
+  survey.onTextMarkdown.add(function(survey, options) {
+    options.html = options.text.replace("*", "!").replace("*", "!");
+  });
+  assert.equal(survey.timerInfoText, "!65!", "use onTextMarkdown event.");
 });
 
 QUnit.test("Start timer automatically if there is the start page", function(

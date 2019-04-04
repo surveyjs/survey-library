@@ -1,6 +1,6 @@
 export var __assign =
-  Object["assign"] ||
-  function(target) {
+  (<any>Object)["assign"] ||
+  function(target: any) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
       s = arguments[i];
       for (var p in s)
@@ -9,7 +9,7 @@ export var __assign =
     return target;
   };
 
-export function __extends(thisClass, baseClass) {
+export function __extends(thisClass: any, baseClass: any) {
   for (var p in baseClass)
     if (baseClass.hasOwnProperty(p)) thisClass[p] = baseClass[p];
   function __() {
@@ -18,12 +18,17 @@ export function __extends(thisClass, baseClass) {
   thisClass.prototype =
     baseClass === null
       ? Object.create(baseClass)
-      : ((__.prototype = baseClass.prototype), new __());
+      : ((__.prototype = baseClass.prototype), new (<any>__)());
 }
 
-declare var Reflect;
+declare var Reflect:any;
 
-export var __decorate = function(decorators, target, key, desc) {
+export var __decorate = function(
+  decorators: any,
+  target: any,
+  key: any,
+  desc: any
+) {
   var c = arguments.length,
     r =
       c < 3

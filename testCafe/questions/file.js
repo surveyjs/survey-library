@@ -16,6 +16,7 @@ const json = {
       title: "Please upload your photo",
       name: "image",
       storeDataAsText: true,
+      allowMultiple: true,
       showPreview: true,
       imageWidth: 150,
       maxSize: 102400
@@ -31,22 +32,39 @@ frameworks.forEach(framework => {
   );
 
   test(`choose file`, async t => {
-    const getFileName = ClientFunction(
-      () => document.querySelector("input[type=file]").files[0].name
-    );
     let surveyResult;
-    let fileName;
 
     await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
-    fileName = await getFileName();
-    assert.equal(fileName, `stub.txt`);
 
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
-      image: ["data:text/plain;base64,V29tYmF0"]
+      image: [
+        {
+          name: "stub.txt",
+          type: "text/plain",
+          content: "data:text/plain;base64,V29tYmF0"
+        }
+      ]
     });
+  });
+
+  test(`choose multiple files`, async t => {
+    let surveyResult;
+
+    await t.setFilesToUpload(`input[type=file]`, `../resources/stub.txt`);
+    await t.setFilesToUpload(
+      `input[type=file]`,
+      `../resources/small_Dashka.jpg`
+    );
+
+    await t.click(`input[value=Complete]`);
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.image.length, 2);
+    assert.equal(surveyResult.image[0].name, "stub.txt");
+    assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
   });
 
   test(`choose image`, async t => {
@@ -58,7 +76,7 @@ frameworks.forEach(framework => {
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].indexOf("image/jpeg") !== -1);
+    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
   test(`without preview`, async t => {
@@ -80,7 +98,7 @@ frameworks.forEach(framework => {
     await t.click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
-    assert(surveyResult.image[0].indexOf("image/jpeg") !== -1);
+    assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
 
   test(`file not in data`, async t => {

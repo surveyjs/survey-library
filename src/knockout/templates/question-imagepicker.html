@@ -1,0 +1,24 @@
+﻿<script type="text/html" id="survey-question-imagepicker">
+  <fieldset data-bind="css: question.koCss().root">
+      <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
+      <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
+      <div data-bind="css: question.getItemClass(item)">
+          <label data-bind="css: question.koCss().label">
+              <input style="display: none;" data-bind="attr: {type: question.multiSelect ? 'checkbox' : 'radio', name: question.name + '_' + question.id, value: item.value, id: ($index() == 0) ? question.inputId : '', 'aria-label': question.locTitle.renderedHtml}, checked: question.koValue, enable: !question.isReadOnly, css: question.koCss().itemControl"
+              />
+              <div>
+                  <!-- ko if: question.contentMode === "image" -->
+                  <img data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+                  <!-- /ko -->
+                  <!-- ko if: question.contentMode === "video" -->
+                  <embed data-bind="css: question.koCss().image, attr: { src: $data.imageLink, width: question.imageWidth ? question.imageWidth + 'px' : undefined, height: question.imageHeight ? question.imageHeight + 'px' : undefined }, style: { objectFit: question.imageFit }"/>
+                  <!-- /ko -->
+                  <!-- ko if: question.showLabel -->
+                  <span data-bind="text: text || value, attr: { title: text || value }, css: question.koCss().itemText"></span>
+                  <!-- /ko -->
+              </div>
+          </label>
+      </div>
+      <!-- /ko -->
+  </fieldset>
+</script>

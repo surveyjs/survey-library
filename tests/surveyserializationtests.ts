@@ -15,6 +15,7 @@ import {
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { NumericValidator } from "../src/validator";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("SurveySerialization");
 
@@ -427,6 +428,7 @@ QUnit.test(
 QUnit.test(
   "Survey checkbox.choices serialize/deserialize custom properties",
   function(assert) {
+    JsonObject.metaData.addProperty("itemvalue", "imageLink");
     var question = new QuestionCheckboxModel("q1");
     var jsonObj = new JsonObject();
     var originalJson = {
@@ -450,6 +452,7 @@ QUnit.test(
       originalJson,
       "Custom property has serialized correctly"
     );
+    JsonObject.metaData.removeProperty("itemvalue", "imageLink");
   }
 );
 QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
@@ -472,3 +475,45 @@ QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(
   };
   assert.deepEqual(json, originalJson, "minValue should be here");
 });
+
+QUnit.test(
+  "Expressions + markup https://surveyjs.answerdesk.io/ticket/details/T909",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "dropdown",
+              name: "Q1",
+              choices: ["1", "2", "3"]
+            },
+            {
+              type: "radiogroup",
+              name: "Radio1",
+              choices: [
+                {
+                  value: "{Q1} text",
+                  text: "{Q1} text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    var survey = new SurveyModel(json);
+    var q1 = survey.getQuestionByName("Q1");
+    var q2: QuestionRadiogroupModel = <any>survey.getQuestionByName("Radio1");
+    survey.onTextMarkdown.add(function(survey, options) {
+      options.html = options.text;
+    });
+
+    assert.equal(q2.visibleChoices[0].locText.renderedHtml, " text");
+
+    q1.value = "1";
+    assert.equal(q2.visibleChoices[0].locText.renderedHtml, "1 text");
+  }
+);

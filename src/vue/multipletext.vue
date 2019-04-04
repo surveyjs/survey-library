@@ -2,10 +2,10 @@
     <table :class="question.cssClasses.root">
         <tr v-for="(row, rowindex) in question.getRows()" :key="question.inputId + 'rowkey' + rowindex" :class="question.cssClasses.row">
             <template v-for="item in row">
-                <td :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
-                <td>
-                    <input v-if="!question.isReadOnly" :id="item.id" :class="question.cssClasses.itemValue" :type="item.inputType" :maxLength="item.getMaxLength()" :size="question.itemSize" :placeholder="item.placeHolder" :value="item.value" @change="change(item, $event)" v-bind:aria-label="question.locTitle.renderedHtml"/>
-                    <div v-else :class="question.cssClasses.itemValue" :id="item.id" :size="question.itemSize">{{item.value}}</div>
+                <td :key="'label' + item.editor.id" :class="question.cssClasses.itemTitle"><survey-string :locString="item.locTitle"/></td>
+                <td :key="item.editor.id">
+                    <survey-errors :question="item.editor" />
+                    <component :is="getWidgetComponentName(item.editor)" :question="item.editor" />
                 </td>
             </template>
         </tr>
@@ -16,12 +16,16 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
+import { Question } from "../question";
 import { QuestionMultipleTextModel } from "../question_multipletext";
 
 @Component
 export class MultipleText extends QuestionVue<QuestionMultipleTextModel> {
-  change(item, event) {
-    item.value = event.target.value;
+  getWidgetComponentName(question: Question) {
+    if (question.customWidget) {
+      return "survey-customwidget";
+    }
+    return "survey-text";
   }
 }
 Vue.component("survey-multipletext", MultipleText);

@@ -18,6 +18,7 @@ const json = {
       isRequired: true,
       colCount: 4,
       hasOther: true,
+      hasNone: true,
       choices: [
         "None",
         "Ford",
@@ -58,11 +59,25 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
   });
 
+  test(`choose none`, async t => {
+    let surveyResult; 
+
+    await t
+    .click(`div:nth-child(9) label input`)
+    .click(`div:nth-child(12) label input`)
+    .click(`div:nth-child(6) label input`)
+    .click(`div:nth-child(14) label input`)
+    .click(`input[value=Complete]`);
+    
+    surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult.car, ["none"]);
+  });
+
   test(`choose value`, async t => {
     let surveyResult;
 
     await t
-      .click(`div:nth-child(5) label input`)
+      .click(`div:nth-child(6) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -73,8 +88,8 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`div:nth-child(8) label input`)
-      .click(`div:nth-child(5) label input`)
+      .click(`div:nth-child(9) label input`)
+      .click(`div:nth-child(6) label input`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -82,21 +97,21 @@ frameworks.forEach(framework => {
   });
 
   test(`change column count`, async t => {
-    const getStyleWidth = ClientFunction(
-      () => document.querySelector(`div[id*=sq_1] fieldset > div`).style.width
+    const getClassName = ClientFunction(
+      () => document.querySelector(`div[id*=sq_1] fieldset > div`).className
     );
-    let styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "25%");
+    let className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-4"), -1);
 
     await setOptions("car", { colCount: 1 });
 
-    styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "100%");
+    className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-1"), -1);
 
     await setOptions("car", { colCount: 2 });
 
-    styleWidth = await getStyleWidth();
-    assert.equal(styleWidth, "50%");
+    className = await getClassName();
+    assert.notEqual(className.indexOf("sv-q-col-2"), -1);
   });
 
   test(`change choices order`, async t => {
@@ -182,7 +197,7 @@ frameworks.forEach(framework => {
     let choicesCount, choicesExistence;
     let checkIntegrity = async () => {
       choicesCount = await getChoicesCount();
-      assert.equal(choicesCount, 12);
+      assert.equal(choicesCount, 13);
       choicesExistence = await getChoicesExistence();
       assert(choicesExistence);
     };
@@ -223,13 +238,13 @@ frameworks.forEach(framework => {
 
   test(`choose other`, async t => {
     const getOtherInput = Selector(
-      () => document.querySelectorAll("div:nth-child(12) input")[1]
+      () => document.querySelectorAll("div:nth-child(13) input")[1]
     );
     let surveyResult;
 
     await setOptions("car", { hasOther: true });
     await t
-      .click(`div:nth-child(12) label input`)
+      .click(`div:nth-child(13) label input`)
       .typeText(getOtherInput, "Zaporozec")
       .click(`input[value=Complete]`);
 
@@ -245,14 +260,14 @@ frameworks.forEach(framework => {
         .classList.contains("checked")
     );
 
-    assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
+    assert.equal(await isCheckedClassExistsByIndex(4), false);
 
     await t
-      .click(`fieldset div:nth-child(2) label input`)
-      .click(`fieldset div:nth-child(3) label input`);
+      .click(`fieldset div:nth-child(3) label input`)
+      .click(`fieldset div:nth-child(4) label input`);
 
-    assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), true);
+    assert.equal(await isCheckedClassExistsByIndex(4), true);
   });
 });

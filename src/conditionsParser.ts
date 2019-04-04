@@ -100,7 +100,7 @@ export class ConditionsParser {
     c.left = left;
     c.operator = op;
     if (!Condition.isNoRightOperation(op)) {
-      var right = this.readExpressionOperand();
+      var right = this.readExpressionOperand(true);
       if (!right) {
         this.createError(this.ERROR_RightPartExpected);
         return false;
@@ -123,8 +123,16 @@ export class ConditionsParser {
     }
     return new Operand(str);
   }
-  private readExpression(): number {
+  private readNotOperand(): boolean {
     this.skip();
+    var savedAt = this.at;
+    var str = this.readString();
+    if (!!str && (str.toLowerCase() == "not" || str == "!")) return true;
+    this.at = savedAt;
+    return false;
+  }
+  private readExpression(): number {
+    var isNot = this.readNotOperand();
     if (this.at >= this.length || this.ch != "(") return 0;
     this.at++;
     this.pushExpression();
@@ -133,80 +141,127 @@ export class ConditionsParser {
       this.skip();
       res = this.ch == <string>")";
       this.at++;
-      this.popExpression();
+      this.popExpression(isNot);
       return 1;
     }
     return -1;
   }
-  private readExpressionOperand(
-    prevExpr: ExpressionOperand = null,
-    stack: Array<ExpressionOperand> = null
-  ): Operand {
-    this.skip();
-    if (this.at >= this.length) return null;
-    var isOpenBracket = this.isOpenBracket(this.ch);
-    if (isOpenBracket) {
-      this.at++;
-      this.pushExpression();
+  private readExpressionOperand(isRightCondition: boolean = false): Operand {
+    var expr = this.readExpressionOperandCore(0, isRightCondition);
+    if (expr == null) return null;
+    if (!expr.right) return expr.left;
+    return expr;
+  }
+  private readExpressionOperandCore(
+    brackets: number = 0,
+    isRightCondition: boolean = false
+  ): ExpressionOperand {
+    var expressions = this.readExpressionOperandsCore(
+      brackets,
+      isRightCondition
+    );
+    return this.makeExpressionOperandCore(expressions);
+  }
+  private makeExpressionOperandCore(
+    expressions: Array<ExpressionOperand>
+  ): ExpressionOperand {
+    if (expressions.length == 0) return null;
+    if (expressions.length == 1) return expressions[0];
+    var res = new ExpressionOperand();
+    res.left = expressions[0].left;
+    res.operator = expressions[0].operator;
+    this.buildExpressionBinaryTree(expressions, 1, res);
+    return res;
+  }
+  private buildExpressionBinaryTree(
+    list: Array<ExpressionOperand>,
+    index: number,
+    parent: ExpressionOperand
+  ) {
+    if (index >= list.length) return;
+    var right = list[index].left;
+    if (index == list.length - 1) {
+      parent.right = right;
+      return;
     }
-    var a = this.readOperand();
-    if (!a) return null;
-    var operator = this.readOperandOperator();
-    if (!operator) {
-      if (prevExpr != null) {
-        prevExpr.right = a;
-        a = prevExpr;
-      }
-      if (this.isCloseBracket(this.ch)) {
-        prevExpr = stack && stack.length > 0 ? stack.pop() : null;
-        var saveAt = this.at;
-        this.at++;
-        operator = this.readOperandOperator();
-        var doPopExpression =
-          operator || (prevExpr && prevExpr["isOpenBracket"]);
-        if (!operator) {
-          this.at = saveAt + (doPopExpression ? 1 : 0);
-        }
-        if (doPopExpression) {
-          this.popExpression();
-        }
-      }
-      if (operator) {
-        var expr = new ExpressionOperand();
-        expr.left = prevExpr ? prevExpr : a;
-        expr.operator = operator;
-        return this.readExpressionOperand(expr, stack);
-      }
-      return a;
-    }
+    var operator = list[index].operator;
     var expr = new ExpressionOperand();
-    expr["isOpenBracket"] = isOpenBracket;
-    expr.left = a;
-    expr.operator = operator;
-    if (!stack) {
-      stack = [];
+    if (
+      this.isHighPriorityOperand(parent.operator) &&
+      !this.isHighPriorityOperand(operator)
+    ) {
+      expr.left = parent.left;
+      expr.right = right;
+      expr.operator = parent.operator;
+      parent.operator = operator;
+      parent.left = expr;
+      this.buildExpressionBinaryTree(list, index + 1, parent);
+    } else {
+      expr.left = right;
+      expr.operator = operator;
+      parent.right = expr;
+      this.buildExpressionBinaryTree(list, index + 1, expr);
     }
-    if (stack.length == 0 || isOpenBracket) {
-      stack.push(expr);
-    }
-    if (prevExpr) {
-      if (
-        !isOpenBracket &&
-        (this.isHighPriorityOperand(prevExpr.operator) ||
-          !this.isHighPriorityOperand(operator))
-      ) {
-        prevExpr.right = a;
-        expr.left = prevExpr;
-        var index = stack.indexOf(prevExpr);
-        if (index > -1) {
-          stack[index] = expr;
-        }
-      } else {
-        prevExpr.right = this.readExpressionOperand(expr, stack);
-        return prevExpr;
+  }
+  private readExpressionOperandsCore(
+    brackets: number,
+    isRightCondition: boolean
+  ): Array<ExpressionOperand> {
+    var res = new Array<ExpressionOperand>();
+    var operand = null;
+    var operator = null;
+    while (this.at <= this.length) {
+      if (this.isCloseBracket(this.ch)) {
+        this.at++;
+        break;
       }
+      this.skip();
+      if (this.isOpenBracket(this.ch)) {
+        this.at++;
+        operand = this.readExpressionOperandCore(brackets + 1);
+      } else {
+        operand = this.readOperand();
+      }
+      if (!operand) {
+        this.nextOnCloseBrackets();
+        break;
+      }
+      operator = this.readOperandOperator();
+      if (!operator) {
+        if (
+          !isRightCondition &&
+          this.nextOnCloseBrackets() &&
+          brackets == 0 &&
+          this.expressionNodes.length > 0
+        ) {
+          this.popExpression(false);
+          var expr = new ExpressionOperand();
+          expr.left = operand;
+          res.push(expr);
+          operand = this.makeExpressionOperandCore(res);
+          res = [];
+          operator = this.readOperandOperator();
+        }
+        if (!operator) break;
+      }
+      var expr = new ExpressionOperand();
+      expr.left = operand;
+      expr.operator = operator;
+      res.push(expr);
     }
-    return this.readExpressionOperand(expr, stack);
+    if (!!operand) {
+      var expr = new ExpressionOperand();
+      expr.left = operand;
+      res.push(expr);
+    }
+    return res;
+  }
+  private nextOnCloseBrackets(): boolean {
+    if (this.isCloseBracket(this.ch)) {
+      this.at++;
+      return true;
+    }
+    return false;
   }
   private get ch(): string {
     return this.text.charAt(this.at);
@@ -232,6 +287,7 @@ export class ConditionsParser {
       c == "+" ||
       c == "-" ||
       c == "*" ||
+      c == "^" ||
       c == "/" ||
       c == "%"
     );
@@ -338,7 +394,7 @@ export class ConditionsParser {
     return params;
   }
   private isHighPriorityOperand(op: string): boolean {
-    return op == "*" || op == "/" || op == "%";
+    return op == "*" || op == "^" || op == "/" || op == "%";
   }
   private readOperandOperator(): string {
     this.skip();
@@ -346,6 +402,7 @@ export class ConditionsParser {
       this.ch == "+" ||
       this.ch == "-" ||
       this.ch == "*" ||
+      this.ch == "^" ||
       this.ch == "/" ||
       this.ch == "%"
     ) {
@@ -395,10 +452,11 @@ export class ConditionsParser {
       this.expressionNodes[this.expressionNodes.length - 1] = this.node;
     }
   }
-  private popExpression() {
+  private popExpression(isNot: boolean) {
     var node = this.expressionNodes.pop();
     this.node = this.expressionNodes[this.expressionNodes.length - 1];
     if (node) {
+      node.isNot = isNot;
       this.makeNodeCondition();
       this.node.children.push(node);
     }

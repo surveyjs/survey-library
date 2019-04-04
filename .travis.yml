@@ -1,13 +1,14 @@
 language: node_js
 node_js:
-- '6'
+- '8'
 
 before_install:
   - stty cols 80
 
 env:
   global:
-    secure: orU+oZpgaGeR1IDirCe87msd2HemNCLS+8WgcHccPxLZcc81ZACoTAUg3kA+en0xrJQ6Dm/GP3OOv2Xj30dl7ufzm6dcr0ivgkcq+p0eq38qiO0ZKlW6GwcAU1hfirU7HfRbWipIDyclzDOV5LdLFZ1C6/9BmoBb/Dbjb4dlXURW3SJ+Wl/wFqcIRpZ8gHnXDt80uBF3i+fXi4sh3QRtbUE4iIPlMVPJiOvW6poS2OF0U5fJ9DawE9fIC6jmFzfXSyaU5PLdoZWYuPnlSKQsuOGL419RW8DcmDJnf86i90BCVg1L5lIzNmPS1xYFaJoZbMY1fFeUFJ+i/nlZ+nTRW7G638C4BU7NCtgo5PzN6KbTSimLLe+0xpBRiejGllYcoARRn3PKKeyll29o65PQC690IR8hXchY725kik24RAKkfWRLhfcoV01q7NsweUW8zFvwjmZsXPvvdEDAVTYwJVw1aREMetiCzgsWFDzwEUT5D9f7I83+rfpKEzoVqgCeGUbnl2sbplwIg70pGSKq+gLHxppe5M/tLHQs37JLWML6AXt7YAXy32sNGQF4cMGF7z1Aj6Svfq3rOeZdWADl+HvQYi2GY+BbQiTpeBqobybYLcnonKccgqN4L8WAWKX35jqTcgbQx5wablkQFerzK1thg9/DkNZXHpnERr4QwrY=
+  - secure: L5vNGeb6J1ny0hZ4GX5DzC4usAswY6tm6mNHURiry1O+mHA5J44I6ORjere7fumK+DMnP/7SM5TjZ54kyjgP5sfp1U713atCxjhxL4rxgCDQy9mPQkrVohubmpuzlkTGjW1N/dWLUk3+HLSo+ze++DBpwryqxQxTenlkMAtVBDuTMbaLzJ+Nr2TLaqTLp053q9vBmM0c/VFL5kfFwUO/+pbVsScVL3c0B/KKPs0OMJKyjYRSH/m+5DBgB81meAZeSzS7vcvM8W1yKv1zTBW8fUQTh4+jWAIXWz8COSoeuPSA8yHax0UJ7CkqdlzZ8qT1+hKIIuiSSnlYGtET9/UUJPVeONk2sAHayfVqBqkQiD0m/cksaiiUYUUJf/4kcLjKMJWMAnbjRpUlhQFa+KJPbDVOVWyRrVmVpkrobGAmlU9gc1Ca+ceJ1ynLncixomYuZHcIV+RDX2eqZRxPw+FvcSAx5umzVAjHrKEEqa1m06V0aUWIozhXPIsUbWyc4Kx/tJ+qAMmOo8cohgmH+HWefeKxyVvwuiyI5xZZUigX0wMYFLim4bZS1s9C0ifhdBmKgJgcv0ZB0C+8IYavoMyfmnoMuDRpuTpoi7EDlcfhvs5Ec+VFUzMz2asA3aSDDsNnOun0RivWPG4uNCmYfrzCji4t4dYv0MIILBj9l7n9X2g=
+  - secure: OUGXCRBVAR5i+mAtZlisCGLwXFZr4hzU0liwWTf7I/yGG9kWJk3BOpYqCGbrHA98RkfgTeIyBYspGPPXLX46J4Z1kk/rHOmkKaYk5A4oQ8lbgzn4qQO2r5GxD/4SAUJiodV2ymUqARhb+wl8VEBud5lq+GzNmJ51nPahLl1ikYd/qve2IBeYgRwHhSVNwrpXeSQTuERxfXJvj4/GztZo7X3/VG4faLLj40RllocEuZdZX8fi1g9XNPAiOpITmJ2xuXT8FQPjhhERsSaqE5wZnabwLfQFLYjL13/taMAcKsRLBJtHOjcUuo87HG7n0KX913yi/4SF73x7WtfVtMwYnrp8z7+1u21ba3t+ClkA3NNCe8kx5UDZ6Yri9Ai1mU+uux15RDTm9GeeuHb+vKDDeE5uCYYqoYDvFFMQ8CJHunRhBR/s0unIrQFsTbE9VoIWfmS+QeSNswhKOlEwi9NcSnlh5oQb/zeptGSWW+MCHrBMWOu0ImbuWEjqaGsvsAw4mAamNENLF5MvRXJapnshC9hnTHjLa6+B+e3Zbycyd2fIyO7Yv1d1ZbMdzEFfrirS9JRHote84HpcXCKjT4a7m78Ma5l14Ce12M2FTzTMi5Cfjz33x6uiHzX36Aj/GO3l6M4r2TwVhY/lcC1/jyHVgccsYLGol5f5+Q1EGO73Vd0=
 dist: trusty
 sudo: required
 addons:
@@ -35,7 +36,9 @@ script:
 - testcafe chrome testCafe/ --reporter minimal
 #- npm run testcafe_sauce
 - if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then echo "Starting functional tests on SauceLabs..."; npm run testcafe_sauce; fi
-before_deploy: tar -zcvf surveyjs.tar.gz packages
+before_deploy: 
+- tar -zcvf surveyjs.tar.gz packages
+- npm run doc_gen
 deploy:
 - provider: releases
   api_key:
@@ -50,6 +53,11 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+- provider: script
+  script: npm run doc_update
+  skip_cleanup: true
+  on:
+    branch: master
 notifications:
   email:
     recipients:

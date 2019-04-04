@@ -6,8 +6,9 @@ import {
 import { JsonObject } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
+import { IConditionObject } from "./question";
+import { Helpers } from "./helpers";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -19,7 +20,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   ) {
     super(data, value);
     this.item = item;
-    this.buildCells();
+    this.buildCells(value);
   }
   public get rowName(): string {
     return this.name;
@@ -36,28 +37,36 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  private rowsValue: Array<ItemValue>;
-
   constructor(public name: string) {
     super(name);
-    this.rowsValue = this.createItemValues("rows");
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function() {
       self.generatedVisibleRows = null;
+      self.filterItems();
     });
   }
   public getType(): string {
     return "matrixdropdown";
   }
-  public get displayValue(): any {
-    var values = this.value;
+  protected getDisplayValueCore(keysAsText: boolean): any {
+    var values = this.createValueCopy();
     if (!values) return values;
     var rows = this.visibleRows;
+    var res = {};
     for (var i = 0; i < rows.length; i++) {
       var rowValue = this.rows[i].value;
       var val = values[rowValue];
       if (!val) continue;
-      values[rowValue] = this.getRowDisplayValue(rows[i], val);
+      if (keysAsText) {
+        var displayRowValue = ItemValue.getTextOrHtmlByValue(
+          this.rows,
+          rowValue
+        );
+        if (!!displayRowValue) {
+          rowValue = displayRowValue;
+        }
+      }
+      (<any>res)[rowValue] = this.getRowDisplayValue(rows[i], val);
     }
     return values;
   }
@@ -70,23 +79,48 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
-  /**
-   * The list of rows. A row has a value and an optional text
-   */
-  public get rows(): Array<any> {
-    return this.rowsValue;
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    var hasContext = !!context ? this.columns.indexOf(context) > -1 : false;
+    for (var i = 0; i < this.rows.length; i++) {
+      var row = this.rows[i];
+      if (!row.value) continue;
+      var prefixName = this.name + "." + row.value + ".";
+      var prefixTitle = this.processedTitle + "." + row.text + ".";
+      for (var j = 0; j < this.columns.length; j++) {
+        var column = this.columns[j];
+        objects.push({
+          name: prefixName + column.name,
+          text: prefixTitle + column.fullTitle,
+          question: this
+        });
+      }
+    }
+    if (hasContext) {
+      for (var i = 0; i < this.columns.length; i++) {
+        var column = this.columns[i];
+        if (column == context) continue;
+        objects.push({
+          name: "row." + column.name,
+          text: "row." + column.fullTitle,
+          question: this
+        });
+      }
+    }
   }
-  public set rows(val: Array<any>) {
-    this.setPropertyValue("rows", val);
-  }
+
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;
-    var newVal = {};
+    var newVal = null;
     var isChanged = false;
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
     for (var key in val) {
-      if (ItemValue.getItemByValue(this.rows, key)) {
-        newVal[key] = val[key];
+      if (ItemValue.getItemByValue(rows, key)) {
+        if (newVal == null) newVal = {};
+        (<any>newVal)[key] = val[key];
       } else {
         isChanged = true;
       }
@@ -98,12 +132,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
-    if (!this.rows || this.rows.length === 0) return result;
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    if (!rows || rows.length === 0) return result;
     var val = this.value;
     if (!val) val = {};
-    for (var i = 0; i < this.rows.length; i++) {
-      if (!this.rows[i].value) continue;
-      result.push(this.createMatrixRow(this.rows[i], val[this.rows[i].value]));
+    for (var i = 0; i < rows.length; i++) {
+      if (!rows[i].value) continue;
+      result.push(this.createMatrixRow(rows[i], val[rows[i].value]));
     }
     return result;
   }
@@ -111,9 +146,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     item: ItemValue,
     value: any
   ): MatrixDropdownRowModel {
-    var row = new MatrixDropdownRowModel(item.value, item, this, value);
-    this.onMatrixRowCreated(row);
-    return row;
+    return new MatrixDropdownRowModel(item.value, item, this, value);
   }
 }
 
@@ -121,14 +154,9 @@ JsonObject.metaData.addClass(
   "matrixdropdown",
   [
     {
-      name: "rows:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rows);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rows = value;
-      }
-    }
+      name: "rows:itemvalue[]"
+    },
+    "rowsVisibleIf:condition"
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

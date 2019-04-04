@@ -1,4 +1,5 @@
 import * as ko from "knockout";
+export * from "./knockout";
 import { SurveyModel } from "../survey";
 import { Survey } from "../knockout/kosurvey";
 import { SurveyWindow } from "../knockout/koSurveyWindow";
@@ -6,7 +7,7 @@ import jQuery from "jquery";
 import { updateSurveyProps } from "../utils/updateSurveyProps";
 
 jQuery["fn"].extend({
-  Survey: function(props) {
+  Survey: function(props: any) {
     return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);
@@ -14,7 +15,7 @@ jQuery["fn"].extend({
     });
   },
 
-  SurveyWindow: function(props) {
+  SurveyWindow: function(props: any) {
     return this.each(function() {
       var model = props.model;
       updateSurveyProps(model, props);
@@ -34,5 +35,3 @@ jQuery["fn"].extend({
 });
 
 SurveyModel.platform = "jquery";
-
-export * from "./knockout";

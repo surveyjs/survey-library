@@ -20,7 +20,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertyValueChanged("rates", function() {
       self.fireCallback(self.rateValuesChangedCallback);
     });
-    this.onPropertyChanged.add(function(sender, options) {
+    this.onPropertyChanged.add(function(sender: any, options: any) {
       if (
         options.name == "rateMin" ||
         options.name == "rateMax" ||
@@ -103,6 +103,14 @@ export class QuestionRatingModel extends Question {
     if (val > this.rateMax - this.rateMin) val = this.rateMax - this.rateMin;
     this.setPropertyValue("rateStep", val);
   }
+  protected getDisplayValueCore(keysAsText: boolean): any {
+    if (this.isEmpty()) return "";
+    var res = ItemValue.getTextOrHtmlByValue(
+      this.visibleRateValues,
+      this.value
+    );
+    return !!res ? res : this.createValueCopy();
+  }
   get visibleRateValues(): ItemValue[] {
     if (this.rateValues.length > 0) return this.rateValues;
     var res = [];
@@ -158,13 +166,7 @@ JsonObject.metaData.addClass(
   [
     "hasComment:boolean",
     {
-      name: "rateValues:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rateValues);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rateValues = value;
-      }
+      name: "rateValues:itemvalue[]"
     },
     { name: "rateMin:number", default: 1 },
     { name: "rateMax:number", default: 5 },

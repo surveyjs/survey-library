@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Survey } from "./reactSurvey";
-import { ReactSurveyModel, ReactWindowModel } from "./reactsurveymodel";
-import { SurveyModel } from "../survey";
+import { ReactWindowModel } from "./reactsurveymodel";
 import { SurveyElementBase } from "./reactquestionelement";
 
 export class SurveyWindow extends Survey {
@@ -11,9 +10,11 @@ export class SurveyWindow extends Survey {
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
   }
   componentWillReceiveProps(nextProps: any) {
-    this.updateSurvey(nextProps);
+    this.unMakeBaseElementReact(this.window);
+    this.updateSurvey(nextProps, this.props);
+    this.makeBaseElementReact(this.window);
   }
-  handleOnExpanded(event) {
+  handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;
   }
   render(): JSX.Element {
@@ -23,7 +24,8 @@ export class SurveyWindow extends Survey {
     let style: React.CSSProperties = {
       position: "fixed",
       bottom: 3,
-      right: 10
+      right: 10,
+      maxWidth: "60%"
     };
     return (
       <div className={this.css.window.root} style={style}>
@@ -48,49 +50,42 @@ export class SurveyWindow extends Survey {
           </span>
           <span className={glyphClassName} aria-hidden="true" />
         </span>
+        {this.window.isExpanded ? (
+          <span
+            onClick={this.handleOnExpanded}
+            style={{ float: "right", cursor: "pointer" }}
+          >
+            <span className={this.css.window.header.title} style={styleTitle}>
+              X
+            </span>
+          </span>
+        ) : null}
       </div>
     );
   }
   protected renderBody(): JSX.Element {
     return <div className={this.css.window.body}>{this.doRender()}</div>;
   }
-  protected updateSurvey(newProps: any) {
+  protected updateSurvey(newProps: any, prevProps: any) {
     if (!newProps) newProps = {};
-    if (newProps.window) {
-      this.window = newProps.window;
-    } else {
-      if (newProps.json) {
-        this.window = new ReactWindowModel(newProps.json);
-      } else {
-        if (newProps.model) {
-          this.window = new ReactWindowModel(null, newProps.model);
-        }
-      }
-    }
-    if (!this.window) {
-      this.window = new ReactWindowModel();
-    }
+    super.updateSurvey(newProps, prevProps);
+    this.window = new ReactWindowModel(null, this.survey);
     if (newProps.closeOnCompleteTimeout) {
       this.window.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
-
     if (newProps.expanded || newProps.isExpanded) this.window.expand();
     this.window.isShowing = true;
-
-    super.updateSurvey(newProps);
-    this.setState({
-      expanded: this.window.isExpanded,
-      isShowing: this.window.isShowing
-    });
     var self = this;
-    this.window.expandedChangedCallback = function() {
-      self.setState({ expanded: self.window.isExpanded });
-    };
-    this.window.showingChangedCallback = function() {
-      self.setState({ isShowing: self.window.isShowing });
-    };
     this.window.closeWindowOnCompleteCallback = function() {
       self.window.hide();
     };
+  }
+  componentWillMount() {
+    super.componentWillMount();
+    this.makeBaseElementReact(this.window);
+  }
+  componentWillUnmount() {
+    super.componentWillUnmount();
+    this.unMakeBaseElementReact(this.window);
   }
 }

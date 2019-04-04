@@ -11,11 +11,6 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { choicesChanged: 0 };
-    var self = this;
-    this.question.choicesChangedCallback = function() {
-      self.setState({ choicesChanged: self.state.choicesChanged + 1 });
-    };
   }
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;
@@ -25,10 +20,8 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset className={cssClasses.root}>
+        <legend aria-label={this.question.locTitle.renderedHtml} />
         {this.getItems(cssClasses)}
-        <legend style={{ display: "none" }}>
-          {this.question.locTitle.renderedHtml}
-        </legend>
       </fieldset>
     );
   }
@@ -37,7 +30,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
-      items.push(this.renderItem(key, item, i == 0, cssClasses));
+      items.push(this.renderItem(key, item, i == 0, cssClasses, i));
     }
     return items;
   }
@@ -48,7 +41,8 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     key: string,
     item: any,
     isFirst: boolean,
-    cssClasses: any
+    cssClasses: any,
+    index: number
   ): JSX.Element {
     return (
       <SurveyQuestionCheckboxItem
@@ -59,6 +53,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         item={item}
         textStyle={this.textStyle}
         isFirst={isFirst}
+        index={index}
       />
     );
   }
@@ -68,13 +63,16 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   protected item: ItemValue;
   protected textStyle: any;
   protected isFirst: any;
+  protected index: number;
   constructor(props: any) {
     super(props);
     this.item = props.item;
     this.question = props.question;
     this.textStyle = props.textStyle;
     this.isFirst = props.isFirst;
+    this.index = props.index;
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.selectAllChanged = this.selectAllChanged.bind(this);
   }
   public shouldComponentUpdate(): boolean {
     return (
@@ -90,11 +88,14 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.question = nextProps.question;
     this.isFirst = nextProps.isFirst;
   }
-  handleOnChange(event) {
-    var newValue = this.question.value;
-    if (!newValue) {
-      newValue = [];
-    }
+  componentWillMount() {
+    this.makeBaseElementReact(this.item);
+  }
+  componentWillUnmount() {
+    this.unMakeBaseElementReact(this.item);
+  }
+  handleOnChange(event: any) {
+    var newValue = [].concat(this.question.renderedValue || []);
     var index = newValue.indexOf(this.item.value);
     if (event.target.checked) {
       if (index < 0) {
@@ -105,45 +106,43 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         newValue.splice(index, 1);
       }
     }
-    this.question.value = newValue;
-    this.setState({ value: this.question.value });
+    this.question.renderedValue = newValue;
+  }
+  selectAllChanged(event: any) {
+    this.question.toggleSelectAll();
   }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
-    var itemWidth =
-      this.question.colCount > 0 ? 100 / this.question.colCount + "%" : "";
-    var divStyle = { display: "inline-block" };
-    if (itemWidth) {
-      divStyle["width"] = itemWidth;
-    }
-    var isChecked =
-      (this.question.value &&
-        this.question.value.indexOf(this.item.value) > -1) ||
-      false;
+    var isChecked = this.question.isItemSelected(this.item);
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
         : null;
-    return this.renderCheckbox(isChecked, divStyle, otherItem);
+    return this.renderCheckbox(isChecked, otherItem);
   }
   protected get inputStyle(): any {
     return { marginRight: "3px" };
   }
   protected renderCheckbox(
     isChecked: boolean,
-    divStyle: any,
     otherItem: JSX.Element
   ): JSX.Element {
-    var id = this.isFirst ? this.question.inputId : null;
+    var id = this.question.inputId + "_" + this.index;
     var text = this.renderLocString(this.item.locText);
     let itemClass =
       this.cssClasses.item +
-      (this.question.colCount === 0 ? " sv_q_checkbox_inline" : "");
+      (this.question.colCount === 0
+        ? " sv_q_checkbox_inline"
+        : " sv-q-col-" + this.question.colCount);
 
     if (isChecked) itemClass += " checked";
+    var onItemChanged =
+      this.item == this.question.selectAllItem
+        ? this.selectAllChanged
+        : this.handleOnChange;
 
     return (
-      <div className={itemClass} style={divStyle}>
+      <div className={itemClass}>
         <label className={this.cssClasses.label}>
           <input
             className={this.cssClasses.itemControl}
@@ -151,12 +150,12 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             value={this.item.value}
             id={id}
             style={this.inputStyle}
-            disabled={this.isDisplayMode}
+            disabled={this.isDisplayMode || !this.item.isEnabled}
             checked={isChecked}
-            onChange={this.handleOnChange}
-            aria-label={this.question.locTitle.renderedHtml}
+            onChange={onItemChanged}
+            aria-label={this.item.locText.renderedHtml}
           />
-          <span className="checkbox-material">
+          <span className={this.cssClasses.materialDecorator}>
             <span className="check" />
           </span>
           <span className={this.cssClasses.controlLabel}>{text}</span>
@@ -167,7 +166,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderOther(): JSX.Element {
     return (
-      <div className={this.cssClasses.other}>
+      <div className="form-group">
         <SurveyQuestionCommentItem
           question={this.question}
           otherCss={this.cssClasses.other}

@@ -52,7 +52,7 @@ export class SurveyWindow extends SurveyWindowModel {
     return koTemplate;
   }
   public get css(): any {
-    return this.survey["css"];
+    return (<any>this).survey["css"];
   }
   private changeExpanded() {
     this.expandcollapse(!this.isExpanded);

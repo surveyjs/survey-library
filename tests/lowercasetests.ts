@@ -117,6 +117,7 @@ QUnit.test("SurveyModel showProgressBar value is always lower-case", function(
   var survey = new SurveyModel();
   survey.showProgressBar = "TOP";
   assert.strictEqual(survey.showProgressBar, "top");
+  assert.equal(survey.isShowProgressBarOnTop, true);
 });
 
 QUnit.test("SurveyModel mode value is always lower-case", function(assert) {

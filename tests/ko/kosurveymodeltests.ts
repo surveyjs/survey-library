@@ -11,7 +11,7 @@ QUnit.test("Serialize two pages", function(assert) {
   var survey = new Survey();
   survey.addNewPage("Page 1");
   survey.addNewPage("Page 2");
-  assert.ok(survey.pages[0]["koRows"], "creates the koPage class");
+  assert.ok(survey.pages[0].rows, "creates the koPage class");
   var jsObj = new JsonObject().toJsonObject(survey);
   assert.equal(
     JSON.stringify(jsObj),
@@ -26,7 +26,7 @@ QUnit.test("Deserialize two pages", function(assert) {
     survey
   );
   assert.equal(survey.pages.length, 2, "Two pages from json");
-  assert.ok(survey.pages[0]["koRows"], "creates the koPage class");
+  assert.ok(survey.pages[0].rows, "creates the koPage class");
 });
 QUnit.test("Deserialize rate widget, custom rateValues", function(assert) {
   var survey = new Survey();
@@ -60,8 +60,8 @@ QUnit.test("Create rows", function(assert) {
     { questions: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
     survey
   );
-  var page = <Page>survey.pages[0];
-  assert.equal(page["koRows"]().length, 2, "There are two rows");
+  var page = <Page>survey.currentPage;
+  assert.equal(page.rows.length, 2, "There are two rows");
 });
 
 QUnit.test("Change value onValueChanged", function(assert) {
@@ -69,13 +69,13 @@ QUnit.test("Change value onValueChanged", function(assert) {
   var page = survey.addNewPage("p1");
   var q = <QuestionText>page.addNewQuestion("text", "q1");
   survey.onValueChanged.add(function(sender, options) {
-    if (options.value == "aaa") {
+    if (options.value === "aaa") {
       options.question.value = "bbb";
     }
   });
-  q["koValue"]("aaa");
+  q.value = "aaa";
   assert.equal(q.value, "bbb", "value is 'bbb'");
-  assert.equal(q["koValue"](), "bbb", "koValue() is 'bbb'");
+  assert.equal(q.value, "bbb", "value is 'bbb'");
 });
 QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
   var survey = new Survey();
@@ -88,7 +88,66 @@ QUnit.test("Change checkbox value onValueChanged, Bug#881", function(assert) {
       options.question.value = options.value;
     }
   });
-  q["koValue"]([1, 2, 3]);
+  q.value = [1, 2, 3];
   assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
-  assert.deepEqual(q["koValue"](), [2, 3], "value is [2, 3]");
+  assert.deepEqual(q.value, [2, 3], "value is [2, 3]");
 });
+
+QUnit.test(
+  "Checkbox hasNone, bug https://surveyjs.answerdesk.io/ticket/details/T1593",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          hasNone: true,
+          choices: [1, 2, 3, 4, 5]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var q = <QuestionCheckbox>survey.getQuestionByName("q1");
+    q.koValue([1, 2]);
+    assert.deepEqual(q.value, [1, 2], "values");
+    assert.deepEqual(q.koValue(), [1, 2], "ko values");
+    q.koValue([1, 2, "none"]);
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values is none");
+    q.koValue([1, "none"]);
+    assert.deepEqual(q.value, [1], "none should gone");
+    assert.deepEqual(q.koValue(), [1], "ko values none should gone");
+    q.koValue([1, "none"]);
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
+  }
+);
+QUnit.test(
+  "Checkbox hasNone, bug https://surveyjs.answerdesk.io/ticket/details/T1593 (from model)",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          hasNone: true,
+          choices: [1, 2, 3, 4, 5]
+        }
+      ]
+    };
+    var survey = new Survey(json);
+    var q = <QuestionCheckbox>survey.getQuestionByName("q1");
+    q.value = [1, 2];
+    assert.deepEqual(q.value, [1, 2], "values");
+    assert.deepEqual(q.koValue(), [1, 2], "ko values");
+    q.value = [1, 2, "none"];
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values is none");
+    q.value = [1, "none"];
+    assert.deepEqual(q.value, [1], "none should gone");
+    assert.deepEqual(q.koValue(), [1], "ko values none should gone");
+    q.value = [1, "none"];
+    assert.deepEqual(q.value, ["none"], "we keep only none");
+    assert.deepEqual(q.koValue(), ["none"], "ko values keeps none");
+  }
+);

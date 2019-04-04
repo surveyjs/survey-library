@@ -1,4 +1,5 @@
-import { QuestionBase } from "./questionbase";
+import { Question } from "./question";
+import { QuestionNonValue } from "./questionnonvalue";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -6,14 +7,21 @@ import { LocalizableString } from "./localizablestring";
 /**
  * A Model for html question. Unlike other questions it doesn't have value and title.
  */
-export class QuestionHtmlModel extends QuestionBase {
+export class QuestionHtmlModel extends QuestionNonValue {
   constructor(public name: string) {
     super(name);
-    this.createLocalizableString("html", this);
+    var locHtml = this.createLocalizableString("html", this);
+    var self = this;
+    locHtml.onGetTextCallback = function(str: string): string {
+      return !!self.survey ? self.survey.processHtml(str) : str;
+    };
   }
   public getType(): string {
     return "html";
   }
+  /**
+   * Set html to display it
+   */
   public get html(): string {
     return this.getLocalizableStringText("html", "");
   }
@@ -33,7 +41,7 @@ JsonObject.metaData.addClass(
   function() {
     return new QuestionHtmlModel("");
   },
-  "questionbase"
+  "nonvalue"
 );
 QuestionFactory.Instance.registerQuestion("html", name => {
   return new QuestionHtmlModel(name);

@@ -10,11 +10,10 @@ export class QuestionExpressionImplementor extends QuestionImplementor {
   constructor(public question: Question) {
     super(question);
     this.koDisplayValue = ko.observable(this.question.displayValue);
-    this.question["koDisplayValue"] = this.koDisplayValue;
-  }
-  protected onValueChanged() {
-    super.onValueChanged();
-    this.koDisplayValue(this.question.displayValue);
+    (<any>this.question)["koDisplayValue"] = this.koDisplayValue;
+    ko.computed(() => {
+      this.koDisplayValue(this.question.displayValue);
+    });
   }
 }
 

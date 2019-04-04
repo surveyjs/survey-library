@@ -12,7 +12,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
   }
   render(): JSX.Element {
     if (!this.question || !this.question.html) return null;
-    var htmlValue = { __html: this.question.processedHtml };
+    var htmlValue = { __html: this.question.locHtml.renderedHtml };
     return <div dangerouslySetInnerHTML={htmlValue} />;
   }
 }

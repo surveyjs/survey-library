@@ -59,17 +59,30 @@ QUnit.test("Display text + defaltValue", function(assert) {
   survey.data = { q1: 1, q2: 3 };
   assert.equal(expression.value, 4, "do not use default value");
 });
-/* Can't run them on Karma :(
-QUnit.test("Display text + displayStyle", function (assert) {
-    var survey = createSurveyWith3Questions();
-    var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion("expression", "exp");
-    assert.notOk(expression.value, "expression is empty");
-    expression.expression = "{q1} + {q2}";
-    survey.data = {q1: 1, q2: 3}
-    expression.displayStyle = "currency";
-    assert.equal(expression.displayValue, "$4.00", "format is empty");
+QUnit.test("Display text + displayStyle", function(assert) {
+  var survey = createSurveyWith3Questions();
+  var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion(
+    "expression",
+    "exp"
+  );
+  assert.notOk(expression.value, "expression is empty");
+  expression.expression = "{q1} + {q2}";
+  survey.data = { q1: 1, q2: 3 };
+  expression.displayStyle = "currency";
+  assert.equal(expression.displayValue, "$4.00", "format is empty");
 });
-*/
+QUnit.test("Display text + fraction digitals", function(assert) {
+  var survey = createSurveyWith3Questions();
+  var expression = <QuestionExpressionModel>survey.pages[0].addNewQuestion(
+    "expression",
+    "exp"
+  );
+  expression.expression = "64/3";
+  survey.data = { q1: 4 };
+  expression.displayStyle = "decimal";
+  expression.maximumFractionDigits = 2;
+  assert.equal(expression.displayValue, "21.33", "2 digits");
+});
 function createSurveyWith3Questions(): SurveyModel {
   var survey = new SurveyModel();
   var page = survey.addNewPage();

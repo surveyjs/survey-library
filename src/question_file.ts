@@ -1,8 +1,8 @@
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { SurveyError } from "./base";
-import { CustomError, ExceedSizeError } from "./error";
+import { SurveyError, Event } from "./base";
+import { UploadingFileError, ExceedSizeError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 
 /**
@@ -10,8 +10,17 @@ import { surveyLocalization } from "./surveyStrings";
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
-  previewValueLoadedCallback: () => void;
+  /**
+   * The event is fired after question state has been changed.
+   * <br/> sender the question object that fires the event
+   * <br/> options.state new question state value.
+   */
+  public onStateChanged: Event<
+    (sender: QuestionFileModel, options: any) => any,
+    any
+  > = new Event<(sender: QuestionFileModel, options: any) => any, any>();
   public previewValue: any[] = [];
+  public currentState = "empty";
   constructor(public name: string) {
     super(name);
   }
@@ -22,7 +31,7 @@ export class QuestionFileModel extends Question {
    * Set it to true, to show the preview for the image files.
    */
   public get showPreview() {
-    return this.getPropertyValue("showPreview", false);
+    return this.getPropertyValue("showPreview", true);
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);
@@ -55,15 +64,33 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("imageWidth", val);
   }
   /**
+   * Accepted file types. Passed to the 'accept' attribute of the file input tag. See https://www.w3schools.com/tags/att_input_accept.asp for more details.
+   */
+  public get acceptedTypes(): string {
+    return this.getPropertyValue("acceptedTypes");
+  }
+  public set acceptedTypes(val: string) {
+    this.setPropertyValue("acceptedTypes", val);
+  }
+  /**
    * Set it to false if you do not want to serialize file content as text in the survey.data.
-   * In this case, you have to write the code onUploadFile event to store the file content.
-   * @see SurveyModel.onUploadFile
+   * In this case, you have to write the code onUploadFiles event to store the file content.
+   * @see SurveyModel.onUploadFiles
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText", true);
   }
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
+  }
+  /**
+   * Set it to true if you want to wait until files will be uploaded to your server.
+   */
+  public get waitForUpload(): boolean {
+    return this.getPropertyValue("waitForUpload", false);
+  }
+  public set waitForUpload(val: boolean) {
+    this.setPropertyValue("waitForUpload", val);
   }
   /**
    * Use this property to setup the maximum allowed file size.
@@ -81,101 +108,244 @@ export class QuestionFileModel extends Question {
     return surveyLocalization.getString("cleanCaption");
   }
   /**
-   * Clear value programmatically.
+   * The remove file button caption.
    */
-  public clear() {
-    this.value = undefined;
-    this.previewValue = [];
-    this.fireCallback(this.previewValueLoadedCallback);
+  get removeFileCaption(): string {
+    return surveyLocalization.getString("removeFileCaption");
   }
   /**
-   * Load file programmatically.
-   * @param file
+   * The input title value.
    */
-  public loadFile(file: File) {
-    this.loadFiles([file]);
+  get inputTitle(): string {
+    if (this.isUploading) return surveyLocalization.getString("loadingFile");
+    if (this.isEmpty()) return surveyLocalization.getString("chooseFile");
+    return " ";
+  }
+  /**
+   * Clear value programmatically.
+   */
+  public clear(doneCallback?: () => void) {
+    this.survey.clearFiles(this.name, this.value, null, (status, data) => {
+      if (status === "success") {
+        this.value = undefined;
+        this.errors = [];
+        !!doneCallback && doneCallback();
+      }
+    });
+  }
+  /**
+   * Remove file item programmatically.
+   */
+  public removeFile(content: { name: string }) {
+    this.survey.clearFiles(
+      this.name,
+      this.value,
+      content.name,
+      (status, data) => {
+        if (status === "success") {
+          var oldValue = this.value;
+          if (Array.isArray(oldValue)) {
+            this.value = oldValue.filter(f => f.name !== content.name);
+          } else {
+            this.value = undefined;
+          }
+        }
+      }
+    );
   }
   /**
    * Load multiple files programmatically.
    * @param files
    */
   public loadFiles(files: File[]) {
-    if (
-      this.survey &&
-      !files.every(file =>
-        this.survey.uploadFile(
-          this.name,
-          file,
-          this.storeDataAsText,
-          status => (this.isUploading = status === "uploading")
-        )
-      )
-    ) {
+    if (!this.survey) {
       return;
     }
-    this.setFilesValue(files);
+    this.errors = [];
+    if (!this.allFilesOk(files)) {
+      return;
+    }
+
+    this.stateChanged("loading");
+
+    var loadFilesProc = () => {
+      var content = <Array<any>>[];
+      if (this.storeDataAsText) {
+        files.forEach(file => {
+          let fileReader = new FileReader();
+          fileReader.onload = e => {
+            content = content.concat([
+              { name: file.name, type: file.type, content: fileReader.result }
+            ]);
+            if (content.length === files.length) {
+              this.value = (this.value || []).concat(content);
+            }
+          };
+          fileReader.readAsDataURL(file);
+        });
+      } else {
+        this.survey.uploadFiles(this.name, files, (status, data) => {
+          if (status === "error") {
+            this.stateChanged("error");
+          }
+          if (status === "success") {
+            this.value = (this.value || []).concat(
+              data.map((r: any) => {
+                return {
+                  name: r.file.name,
+                  type: r.file.type,
+                  content: r.content
+                };
+              })
+            );
+          }
+        });
+      }
+    };
+    if (this.allowMultiple) {
+      loadFilesProc();
+    } else {
+      this.clear(loadFilesProc);
+    }
   }
-  protected setFileValue(file: File) {
-    this.setFilesValue([file]);
+  public canPreviewImage(fileItem: any): boolean {
+    return !!fileItem && this.isFileImage(fileItem);
   }
-  protected setFilesValue(files: File[]) {
-    if (!FileReader) {
-      return;
-    }
-    if (!this.showPreview && !this.storeDataAsText) {
-      return;
-    }
-    if (files.every(file => this.checkFileForErrors(file))) {
-      return;
-    }
+  protected setQuestionValue(newValue: any) {
+    super.setQuestionValue(newValue);
     this.previewValue = [];
-    files.forEach(file => {
-      let fileReader = new FileReader();
-      fileReader.onload = e => {
-        if (this.storeDataAsText) {
-          this.value = (this.value || []).concat([fileReader.result]);
-        }
-        if (this.showPreview && this.isFileImage(file)) {
-          this.previewValue = this.previewValue.concat([fileReader.result]);
-          this.fireCallback(this.previewValueLoadedCallback);
-        }
-      };
-      fileReader.readAsDataURL(file);
-    });
+    var state =
+      (!Array.isArray(newValue) && !!newValue) ||
+      (Array.isArray(newValue) && newValue.length > 0)
+        ? this.showPreview
+          ? "loading"
+          : "loaded"
+        : "empty";
+    this.stateChanged(state);
+    if (!this.showPreview || !newValue) return;
+    var newValues = Array.isArray(newValue)
+      ? newValue
+      : !!newValue
+        ? [newValue]
+        : [];
+
+    if (this.storeDataAsText) {
+      newValues.forEach(value => {
+        var content = value.content || value;
+        this.previewValue = this.previewValue.concat([
+          {
+            name: value.name,
+            type: value.type,
+            content: content
+          }
+        ]);
+      });
+      if (state === "loading") this.stateChanged("loaded");
+    } else {
+      newValues.forEach(value => {
+        var content = value.content || value;
+        this.survey.downloadFile(this.name, value, (status, data) => {
+          if (status === "success") {
+            this.previewValue = this.previewValue.concat([
+              {
+                content: data,
+                name: value.name,
+                type: value.type
+              }
+            ]);
+            if (this.previewValue.length === newValues.length) {
+              this.stateChanged("loaded");
+            }
+          } else {
+            this.stateChanged("error");
+          }
+        });
+      });
+    }
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
-    if (this.isUploading) {
+    if (this.isUploading && this.waitForUpload) {
       errors.push(
-        new CustomError(surveyLocalization.getString("uploadingFile"))
+        new UploadingFileError(
+          surveyLocalization.getString("uploadingFile"),
+          this
+        )
       );
     }
   }
-  private checkFileForErrors(file: File): boolean {
-    var errorLength = this.errors ? this.errors.length : 0;
-    this.errors = [];
-    if (this.maxSize > 0 && file.size > this.maxSize) {
-      this.errors.push(new ExceedSizeError(this.maxSize));
+  protected stateChanged(state: string) {
+    if (state === "loading") {
+      this.isUploading = true;
     }
-    if (errorLength != this.errors.length || this.errors.length > 0) {
-      this.fireCallback(this.errorsChangedCallback);
+    if (state === "loaded") {
+      this.isUploading = false;
     }
-    return this.errors.length > 0;
+    this.currentState = state;
+    this.onStateChanged.fire(this, { state: state });
   }
-  private isFileImage(file: File) {
-    if (!file || !file.type) return;
-    var str = file.type.toLowerCase();
-    return str.indexOf("image") == 0;
+  private allFilesOk(files: File[]): boolean {
+    var errorLength = this.errors ? this.errors.length : 0;
+    (files || []).forEach(file => {
+      if (this.maxSize > 0 && file.size > this.maxSize) {
+        this.errors.push(new ExceedSizeError(this.maxSize, this));
+      }
+    });
+    return errorLength === this.errors.length;
+  }
+  private isFileImage(file: {
+    content: string;
+    name?: string;
+    type?: string;
+  }): boolean {
+    if (!file) return false;
+    const imagePrefix = "data:image";
+    var subStr = file.content && file.content.substr(0, imagePrefix.length);
+    subStr = subStr && subStr.toLowerCase();
+    var result =
+      subStr === imagePrefix ||
+      (!!file.type && file.type.toLowerCase().indexOf("image/") === 0);
+    return result;
+  }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData && !this.isEmpty()) {
+      questionPlainData.isNode = false;
+      var values = Array.isArray(this.value) ? this.value : [this.value];
+      questionPlainData.data = values.map((dataValue, index) => {
+        return {
+          name: index,
+          title: "File",
+          value: (dataValue.content && dataValue.content) || dataValue,
+          displayValue: (dataValue.name && dataValue.name) || dataValue,
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val,
+          isNode: false
+        };
+      });
+    }
+    return questionPlainData;
   }
 }
 JsonObject.metaData.addClass(
   "file",
   [
-    "showPreview:boolean",
+    { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
     "imageHeight",
     "imageWidth",
+    "acceptedTypes",
     { name: "storeDataAsText:boolean", default: true },
+    { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
   function() {

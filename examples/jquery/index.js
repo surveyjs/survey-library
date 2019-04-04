@@ -1,7 +1,4 @@
 function init() {
-  // Survey.Survey.cssType = "bootstrap";
-  // Survey.defaultBootstrapCss.navigationButton = "btn btn-green";
-
   var json = {
     title: "Product Feedback Survey Example",
     showProgressBar: "top",
@@ -114,17 +111,6 @@ function init() {
     document.querySelector("#surveyResult").innerHTML =
       "result: " + JSON.stringify(result.data);
   });
-
-  var defaultThemeColors = Survey.StylesManager.ThemeColors["default"];
-  defaultThemeColors["$main-color"] = "#7ff07f";
-  defaultThemeColors["$main-hover-color"] = "#6fe06f";
-  defaultThemeColors["$text-color"] = "#4a4a4a";
-  defaultThemeColors["$header-color"] = "#7ff07f";
-
-  defaultThemeColors["$header-background-color"] = "#4a4a4a";
-  defaultThemeColors["$body-container-background-color"] = "#f8f8f8";
-
-  Survey.StylesManager.applyTheme();
 
   $("#surveyElement").Survey({
     model: survey

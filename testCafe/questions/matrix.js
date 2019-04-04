@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`input[name="Quality_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -58,8 +58,8 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`input[name="Quality_does what it claims"][value="4"]`)
-      .click(`input[name="Quality_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -88,10 +88,10 @@ frameworks.forEach(framework => {
     assert.equal(typeof surveyResult, `undefined`);
 
     await t
-      .click(`input[name="Quality_affordable"][value="3"]`)
-      .click(`input[name="Quality_does what it claims"][value="4"]`)
-      .click(`input[name="Quality_better then others"][value="2"]`)
-      .click(`input[name="Quality_easy to use"][value="5"]`)
+      .click(`input[name="sq_100_affordable"][value="3"]`)
+      .click(`input[name="sq_100_does_what_it_claims"][value="4"]`)
+      .click(`input[name="sq_100_better_then_others"][value="2"]`)
+      .click(`input[name="sq_100_easy_to_use"][value="5"]`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();
@@ -113,12 +113,12 @@ frameworks.forEach(framework => {
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
-    await t.click(`input[name="Quality_affordable"][value="2"]`);
+    await t.click(`input[name="sq_100_affordable"][value="2"]`);
 
     assert.equal(await isCheckedClassExistsByIndex(2), true);
     assert.equal(await isCheckedClassExistsByIndex(3), false);
 
-    await t.click(`input[name="Quality_affordable"][value="3"]`);
+    await t.click(`input[name="sq_100_affordable"][value="3"]`);
 
     assert.equal(await isCheckedClassExistsByIndex(2), false);
     assert.equal(await isCheckedClassExistsByIndex(3), true);

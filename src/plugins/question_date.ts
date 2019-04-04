@@ -26,7 +26,7 @@ export default class QuestionDateModel extends Question {
     return "$('#" + selectorId + "').datepicker(" + JSON.stringify(json) + ");";
   }
   private getOptions(): any {
-    var options = {};
+    var options: { [index: string]: any } = {};
     if (this.showOtherMonths) options["showOtherMonths"] = this.showOtherMonths;
     if (this.selectOtherMonths)
       options["selectOtherMonths"] = this.selectOtherMonths;

@@ -21,8 +21,9 @@ import "../main.scss";
 // knockout
 export { Survey } from "../knockout/kosurvey";
 export { Survey as Model } from "../knockout/kosurvey";
+export { ImplementorBase } from "../knockout/kobase";
 export { QuestionRow, Page, Panel } from "../knockout/kopage";
-export { QuestionImplementorBase } from "../knockout/koquestionbase";
+export { FlowPanel } from "../knockout/koflowpanel";
 export { QuestionImplementor } from "../knockout/koquestion";
 export {
   QuestionSelectBaseImplementor
@@ -53,6 +54,7 @@ export { QuestionText } from "../knockout/koquestion_text";
 export { QuestionBoolean } from "../knockout/koquestion_boolean";
 export { QuestionEmpty } from "../knockout/koquestion_empty";
 export { QuestionExpression } from "../knockout/koquestion_expression";
+export { QuestionImagePicker } from "../knockout/koquestion_imagepicker";
 export { SurveyWindow } from "../knockout/koSurveyWindow";
 export { SurveyTemplateText } from "../knockout/templateText";
 

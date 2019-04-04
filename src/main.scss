@@ -108,7 +108,7 @@ $base-line-height: 2em;
   .sv_q_other input,
   .sv_q_text_root,
   .sv_q_dropdown_control,
-  input[type="text"],
+  input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
   select,
   textarea {
     border: 1px solid $border-color;
@@ -208,6 +208,14 @@ $base-line-height: 2em;
       }
     }
   }
+
+  .sv_q_imgsel.checked label > div {
+    background-color: $main-color;
+  }
+
+  .sv_q_file_remove:hover {
+    color: $main-color;
+  }
 }
 
 .sv_main {
@@ -285,6 +293,7 @@ $base-line-height: 2em;
 
         .sv_progress_bar {
           height: 100%;
+          min-width: 100px;
           //background-color: $main-color;
           position: relative;
           margin-top: 2em;
@@ -330,7 +339,14 @@ $base-line-height: 2em;
         .sv_q_description {
           margin-top: -0.6em;
         }
-
+        .sv_q_flow {
+          .sv_q_checkbox_inline,
+          .sv_q_radiogroup_inline,
+          .sv_q_imagepicker_inline {
+            line-height: $base-line-height;
+            display: inline-block;
+          }
+        }
         .sv_q {
           padding: 0.5em 1em 1.5em 1em;
           box-sizing: border-box;
@@ -362,7 +378,7 @@ $base-line-height: 2em;
           .sv_q_other input,
           .sv_q_text_root,
           .sv_q_dropdown_control,
-          input[type="text"],
+          input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
           select,
           textarea {
             position: relative;
@@ -380,6 +396,13 @@ $base-line-height: 2em;
               outline: none;
               //border: 1px solid $main-color;
             }
+          }
+
+          .sv_q_other input,
+          .sv_q_dropdown_control,
+          input:not([type="button"]):not([type="reset"]):not([type="submit"]):not([type="image"]):not([type="checkbox"]):not([type="radio"]),
+          select {
+            height: calc(#{$base-line-height} + 1px);
           }
 
           div.sv_q_text_root,
@@ -438,20 +461,48 @@ $base-line-height: 2em;
               outline: none;
             }
           }
+
           .sv_q_radiogroup.sv_q_radiogroup_inline:not(:last-child),
-          .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child) {
+          .sv_q_checkbox.sv_q_checkbox_inline:not(:last-child),
+          .sv_q_imgsel.sv_q_imagepicker_inline:not(:last-child) {
             margin-right: 1.5em;
           }
-          .sv_q_radiogroup,
-          .sv_q_checkbox {
-            & > label {
-              white-space: nowrap;
+
+          .sv_q_imgsel label > div {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding: 4px;
+            border: 1px solid lightgray;
+            border-radius: 4px;
+            > img {
+              display: block;
             }
           }
 
+          // .sv_q_radiogroup,
+          // .sv_q_checkbox {
+          //   $total-columns: 5;
+          //   @for $i from 1 through $total-columns {
+          //     &.sv-q-col-#{$i} {
+          //       width: 100% / $i;
+          //       display: inline-block;
+          //       @media only screen and (max-width: 480px) {
+          //         width: 100%;
+          //       }
+          //     }
+          //   }
+          // }
+
+          .sv_q_radiogroup_clear {
+            margin-top: 0.5em;
+          }
+
           .sv_q_checkbox_inline,
-          .sv_q_radiogroup_inline {
+          .sv_q_radiogroup_inline,
+          .sv_q_imagepicker_inline {
             line-height: $base-line-height;
+            display: inline-block;
           }
 
           .sv_q_footer {
@@ -469,17 +520,15 @@ $base-line-height: 2em;
             .sv_matrix_dynamic_button {
               padding: 0.3em 2em;
             }
-            .sv_q_checkbox_label,
-            .sv_q_radiogroup_label {
-              margin-right: 1.5em;
-            }
             tr {
               //border-bottom: 1px solid $header-background-color;
             }
           }
           &.sv_q_matrix {
             td {
-              min-width: 10em;
+              @media (min-width: 768px) {
+                min-width: 10em;
+              }
               .sv_q_m_label {
                 position: static;
               }
@@ -501,14 +550,13 @@ $base-line-height: 2em;
 
           td {
             padding: 0.5em;
-            padding-right: $base-line-height;
           }
 
           th {
             line-height: 1.3em;
             padding: 0.5em;
             vertical-align: bottom;
-            font-weight: normal;
+            font-weight: bold;
           }
         }
 
@@ -578,6 +626,60 @@ $base-line-height: 2em;
         }
         .sv_prev_btn {
           float: left;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .sv_main {
+    .sv_container {
+      .sv_body {
+        .sv_p_root {
+          .sv_row {
+            .sv_q,
+            .sv_qstn {
+              display: block;
+              width: 100% !important;
+              .title-left {
+                float: none;
+              }
+              .sv_q_radiogroup_inline,
+              .sv_q_checkbox_inline,
+              .sv_q_imagepicker_inline {
+                display: block;
+              }
+              table.sv_q_matrix,
+              table.sv_q_matrix_dropdown,
+              table.sv_q_matrix_dynamic {
+                display: block;
+                thead {
+                  display: none;
+                }
+                tbody,
+                tr,
+                td {
+                  display: block;
+                }
+              }
+              table.sv_q_matrix_dropdown,
+              table.sv_q_matrix_dynamic {
+                td {
+                  &:before {
+                    content: attr(headers);
+                  }
+                }
+              }
+              table.sv_q_matrix {
+                td {
+                  &:after {
+                    content: attr(headers);
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

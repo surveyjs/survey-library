@@ -19,7 +19,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;
   }
-  handleOnChange(event) {
+  handleOnChange(event: any) {
     this.question.checkedValue = event.target.checked;
     this.setState({ value: this.question.checkedValue });
   }
@@ -31,7 +31,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
   private updateIndeterminate() {
     if (!this.question) return;
-    var el = this.refs["check"];
+    var el: any = this.refs["check"];
     if (el) {
       el["indeterminate"] = this.question.isIndeterminate;
     }
@@ -58,7 +58,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className="checkbox-material">
+          <span className={cssClasses.materialDecorator}>
             <span className="check" />
           </span>
           <span className={cssClasses.label}>{text}</span>

@@ -1,9 +1,9 @@
 <script type="text/html" id="survey-rows">
-    <!-- ko foreach: { data: koRows, as: 'row'} -->
-    <!-- ko if: row.koVisible -->
+    <!-- ko foreach: { data: rows, as: 'row'} -->
+    <!-- ko if: row.visible -->
     <div data-bind="css: panel.cssClasses.row">
-        <!-- ko foreach: { data: row.koElements, as: 'question' , afterRender: row.koAfterRender } -->
-        <!-- ko if: question.koVisible -->
+        <!-- ko foreach: { data: row.elements, as: 'question' , afterRender: row.koAfterRender } -->
+        <!-- ko if: question.isVisible -->
         <!-- ko template: { name: question.koElementType, data: question, afterRender: $parent.koElementAfterRender } -->
         <!-- /ko -->
         <!-- /ko -->

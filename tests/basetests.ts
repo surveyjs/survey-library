@@ -1,6 +1,7 @@
 import { Base, Event } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
+import { JsonObject } from "../src/jsonobject";
 
 export default QUnit.module("Base");
 
@@ -39,6 +40,24 @@ QUnit.test("Event with parameters", function(assert) {
   assert.equal(options.allow, true, "function should change allow to true");
   assert.equal(counter, 5, "function should increase counter on 5");
 });
+QUnit.test("Do not add function with the same instance several times", function(
+  assert
+) {
+  var event = new Event<() => any, any>();
+  var counter = 0;
+  var func = () => {
+    counter++;
+  };
+  event.add(func);
+  event.add(func);
+  event.add(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function called one time");
+  event.remove(func);
+  event.fire(null, null);
+  assert.equal(counter, 1, "function should not be called the second time");
+});
+
 QUnit.test("Item value", function(assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
@@ -134,6 +153,36 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     "set correct text property for the second item"
   );
 });
+QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
+  JsonObject.metaData.addClass("imageitemvalue", [], null, "itemvalue");
+  var items = new Array<ItemValue>();
+  var data = [
+    new ItemValue(true, "Yes", "imageitemvalue"),
+    new ItemValue(false, "No", "imageitemvalue")
+  ];
+  ItemValue.setData(items, data);
+  assert.equal(items.length, 2, "there are 2 items");
+  assert.equal(
+    items[0].value,
+    true,
+    "set correct value property for the first item"
+  );
+  assert.equal(
+    items[0].text,
+    "Yes",
+    "set correct text property for the first item"
+  );
+  assert.equal(
+    items[1].value,
+    false,
+    "set correct value property for the second item"
+  );
+  assert.equal(
+    items[1].text,
+    "No",
+    "set correct text property for the second item"
+  );
+});
 QUnit.test("ItemValue.getData()", function(assert) {
   var items = new Array<ItemValue>();
   items.push(new ItemValue(7, "Item 1"));
@@ -145,6 +194,14 @@ QUnit.test("ItemValue.getData()", function(assert) {
     data,
     [{ value: 7, text: "Item 1" }, 5, "item"],
     "convert some items to simple values"
+  );
+  var item = new ItemValue(1);
+  assert.equal(item.getData(), 1, "Just value");
+  item.visibleIf = "{item}=1";
+  assert.deepEqual(
+    item.getData(),
+    { value: 1, visibleIf: "{item}=1" },
+    "Object value + visibleIf"
   );
 });
 QUnit.test("ItemValue.getItemByValue()", function(assert) {
@@ -196,6 +253,9 @@ class BaseTester extends Base implements ILocalizableOwner {
   getMarkdownHtml(text: string): string {
     return text;
   }
+  getProcessedText(text: string): string {
+    return text;
+  }
 }
 
 QUnit.test("Base simple propety value", function(assert) {
@@ -216,6 +276,28 @@ QUnit.test("Base simple propety value", function(assert) {
   assert.equal(propertyName, "value1", "value1 has been changed");
   assert.notOk(oldValue, "oldValue is underfined");
   assert.equal(newValue, 5, "newValue is 5");
+});
+
+QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function(
+  assert
+) {
+  var base = new BaseTester();
+  var counter = 0;
+  var val;
+  base.setPropertyValueCoreHandler = (h, k, v) => {
+    counter++;
+    val = v;
+  };
+  base.getPropertyValueCoreHandler = (h, k) => {
+    counter++;
+    return val;
+  };
+
+  base.value1 = 5;
+  assert.equal(counter, 2);
+  assert.equal(val, 5);
+  assert.equal(base.value1, 5);
+  assert.equal(counter, 3);
 });
 
 QUnit.test("Base localizable string", function(assert) {

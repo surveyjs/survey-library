@@ -1,35 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Welcome to Vue</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+    <!-- need for validateOnServer functional test -->
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/bootstrap@3.3.7/dist/css/bootstrap.min.css"> -->
 
-    <!-- dx charts -->
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/globalize/0.1.1/globalize.min.js"></script>
-    <script type="text/javascript" src="http://cdn3.devexpress.com/jslib/15.1.5/js/dx.chartjs.js"></script>
-
+    <link rel="stylesheet" href="../../packages/survey-vue/survey.css" />
     <script src="../../packages/survey-vue/survey.vue.js"></script>
-
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/js/bootstrap.min.js"></script>-->
-
-    <!-- Material Design fonts -->
-    <!--<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,700">
-    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/icon?family=Material+Icons">-->
-
-    <!-- Bootstrap Material Design -->
-    <!--<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@0.5.10/dist/css/bootstrap-material-design.css" />
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@0.5.10/dist/css/ripples.css" />
-    <script src="https://unpkg.com/bootstrap-material-design@0.5.10/dist/js/material.js"></script>
-    <script src="https://unpkg.com/bootstrap-material-design@0.5.10/dist/js/ripples.js"></script>-->
-
 </head>
 
 <body>
     <div id="surveyElement">
-        <survey :survey='survey'/>
+        <survey :survey='survey' />
     </div>
     <script src="./index.js"></script>
 </body>
+
 </html>

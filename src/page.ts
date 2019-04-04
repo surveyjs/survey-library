@@ -1,18 +1,16 @@
 import { JsonObject } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
-  Base,
   IPage,
-  IConditionRunner,
-  ISurvey,
+  IPanel,
   IElement,
+  ISurveyElement,
   IQuestion,
   SurveyElement
 } from "./base";
-import { QuestionBase } from "./questionbase";
-import { ConditionRunner } from "./conditions";
-import { QuestionFactory } from "./questionfactory";
-import { PanelModel, PanelModelBase, QuestionRowModel } from "./panel";
+import { Question } from "./question";
+import { DragDropInfo, PanelModelBase, QuestionRowModel } from "./panel";
+
 /**
  * The page object. It has elements collection, that contains questions and panels.
  */
@@ -20,12 +18,24 @@ export class PageModel extends PanelModelBase implements IPage {
   private hasShownValue: boolean = false;
   constructor(public name: string = "") {
     super(name);
+    var self = this;
+    this.locTitle.onRenderedHtmlCallback = function(text) {
+      if (self.num > 0) return self.num + ". " + text;
+      return text;
+    };
   }
   public getType(): string {
     return "page";
   }
   public toString(): string {
     return this.name;
+  }
+  public get isPage() {
+    return true;
+  }
+  public onFirstRendering() {
+    if (this.wasShown) return;
+    super.onFirstRendering();
   }
   /**
    * The visible index of the page. It has values from 0 to visible page count - 1.
@@ -66,13 +76,6 @@ export class PageModel extends PanelModelBase implements IPage {
   public set navigationButtonsVisibility(val: string) {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
   }
-  protected getRenderedTitle(str: string): string {
-    str = super.getRenderedTitle(str);
-    if (this.num > 0) {
-      str = this.num + ". " + str;
-    }
-    return str;
-  }
   /**
    * The property returns true, if the page has been shown to the end-user.
    */
@@ -83,23 +86,28 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.wasShown;
   }
   public setWasShown(val: boolean) {
-    if (this.survey.isDesignMode) return;
     if (val == this.hasShownValue) return;
+    this.hasShownValue = val;
+    if (this.isDesignMode) return;
     if (val == true && this.areQuestionsRandomized) {
       this.randomizeElements();
     }
-    this.hasShownValue = val;
   }
+  private isRandomizing = false;
   private randomizeElements() {
+    if (this.isRandomizing) return;
+    this.isRandomizing = true;
     var oldElements = [];
-    for (var i = 0; i < this.elements.length; i++) {
-      oldElements.push(this.elements[i]);
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      oldElements.push(elements[i]);
     }
     var newElements = Helpers.randomizeArray<IElement>(oldElements);
     this.elements.splice(0, this.elements.length);
     for (var i = 0; i < newElements.length; i++) {
       this.elements.push(newElements[i]);
     }
+    this.isRandomizing = false;
   }
   /**
    * The property returns true, if the elements are randomized on the page
@@ -129,25 +137,18 @@ export class PageModel extends PanelModelBase implements IPage {
    * Call it to focus the input on the first question
    */
   public focusFirstQuestion() {
-    for (var i = 0; i < this.questions.length; i++) {
-      var question = this.questions[i];
-      if (!question.visible || !question.hasInput) continue;
-      this.questions[i].focus();
-      break;
+    var q = this.getFirstQuestionToFocus();
+    if (!!q) {
+      q.focus();
     }
   }
   /**
    * Call it to focus the input of the first question that has an error.
    */
   public focusFirstErrorQuestion() {
-    for (var i = 0; i < this.questions.length; i++) {
-      if (
-        !this.questions[i].visible ||
-        this.questions[i].currentErrorCount == 0
-      )
-        continue;
-      this.questions[i].focus(true);
-      break;
+    var q = this.getFirstQuestionToFocus(true);
+    if (!!q) {
+      q.focus();
     }
   }
   /**
@@ -159,11 +160,23 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * Time in seconds end-user spent on this page
    */
-  public get timeSpent(): number {
-    return this.getPropertyValue("timeSpent", 0);
-  }
-  public set timeSpent(val: number) {
-    this.setPropertyValue("timeSpent", val);
+  public timeSpent = 0;
+  // public get timeSpent(): number {
+  //   return this.getPropertyValue("timeSpent", 0);
+  // }
+  // public set timeSpent(val: number) {
+  //   this.setPropertyValue("timeSpent", val);
+  // }
+  /**
+   * Returns the list of all panels in the page
+   */
+  public getPanels(
+    visibleOnly: boolean = false,
+    includingDesignTime: boolean = false
+  ): Array<IPanel> {
+    var result = new Array<IPanel>();
+    this.addPanelsIntoList(result, visibleOnly, includingDesignTime);
+    return result;
   }
   /**
    * The maximum time in seconds that end-user has to complete the page. If the value is 0 or less, the end-user has unlimited number of time to finish the page.
@@ -178,10 +191,180 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   protected onNumChanged(value: number) {}
   protected onVisibleChanged() {
+    if (this.isRandomizing) return;
     super.onVisibleChanged();
     if (this.survey != null) {
-      this.survey.pageVisibilityChanged(this, this.visible);
+      this.survey.pageVisibilityChanged(this, this.isVisible);
     }
+  }
+  private dragDropInfo: DragDropInfo;
+  public dragDropStart(
+    src: IElement,
+    target: IElement,
+    nestedPanelDepth: number = -1
+  ) {
+    this.dragDropInfo = new DragDropInfo(src, target, nestedPanelDepth);
+  }
+  public dragDropMoveTo(
+    destination: ISurveyElement,
+    isBottom: boolean = false,
+    isEdge: boolean = false
+  ): boolean {
+    if (!this.dragDropInfo) return false;
+    this.dragDropInfo.destination = destination;
+    this.dragDropInfo.isBottom = isBottom;
+    this.dragDropInfo.isEdge = isEdge;
+    this.correctDragDropInfo(this.dragDropInfo);
+    if (!this.dragDropCanDropTagert()) return false;
+    if (!this.dragDropCanDropSource() || !this.dragDropAllowFromSurvey()) {
+      if (!!this.dragDropInfo.source) {
+        var row = this.dragDropFindRow(this.dragDropInfo.target);
+        this.updateRowsRemoveElementFromRow(this.dragDropInfo.target, row);
+      }
+      return false;
+    }
+    this.dragDropAddTarget(this.dragDropInfo);
+    return true;
+  }
+  private correctDragDropInfo(dragDropInfo: DragDropInfo) {
+    if (!dragDropInfo.destination) return;
+    var panel = (<IElement>dragDropInfo.destination).isPanel
+      ? <IPanel>(<any>dragDropInfo.destination)
+      : null;
+    if (!panel) return;
+    if (
+      !dragDropInfo.target.isLayoutTypeSupported(panel.getChildrenLayoutType())
+    ) {
+      dragDropInfo.isEdge = true;
+    }
+  }
+  private dragDropAllowFromSurvey(): boolean {
+    var dest = this.dragDropInfo.destination;
+    if (!dest || !this.survey) return true;
+    var insertBefore: IElement = null;
+    var insertAfter: IElement = null;
+    var parent =
+      dest.isPage || (!this.dragDropInfo.isEdge && (<IElement>dest).isPanel)
+        ? dest
+        : (<IElement>dest).parent;
+    if (!dest.isPage) {
+      var container = (<IElement>dest).parent;
+      if (!!container) {
+        var elements = (<PanelModelBase>container).elements;
+        var index = elements.indexOf(<IElement>dest);
+        if (index > -1) {
+          insertBefore = <IElement>dest;
+          insertAfter = <IElement>dest;
+          if (this.dragDropInfo.isBottom) {
+            insertBefore =
+              index < elements.length - 1 ? elements[index + 1] : null;
+          } else {
+            insertAfter = index > 0 ? elements[index - 1] : null;
+          }
+        }
+      }
+    }
+    var options = {
+      target: this.dragDropInfo.target,
+      source: this.dragDropInfo.source,
+      parent: parent,
+      insertAfter: insertAfter,
+      insertBefore: insertBefore
+    };
+    return this.survey.dragAndDropAllow(options);
+  }
+  public dragDropFinish(isCancel: boolean = false): IElement {
+    if (!this.dragDropInfo) return;
+    var target = this.dragDropInfo.target;
+    var row = this.dragDropFindRow(target);
+    var targetIndex = this.dragDropGetElementIndex(target, row);
+    this.updateRowsRemoveElementFromRow(target, row);
+    if (!isCancel && !!row) {
+      var src = this.dragDropInfo.source;
+      var isSamePanel = false;
+      if (!!src && !!src.parent) {
+        isSamePanel = row.panel == src.parent;
+        if (isSamePanel) {
+          row.panel.dragDropMoveElement(src, target, targetIndex);
+          targetIndex = -1;
+        } else {
+          src.parent.removeElement(src);
+        }
+      }
+      if (targetIndex > -1) {
+        row.panel.addElement(target, targetIndex);
+      }
+    }
+    this.dragDropInfo = null;
+    return !isCancel ? target : null;
+  }
+  private dragDropGetElementIndex(
+    target: IElement,
+    row: QuestionRowModel
+  ): number {
+    if (!row) return -1;
+    var index = row.elements.indexOf(target);
+    if (row.index == 0) return index;
+    var prevRow = row.panel.rows[row.index - 1];
+    var prevElement = prevRow.elements[prevRow.elements.length - 1];
+    return index + row.panel.elements.indexOf(prevElement) + 1;
+  }
+  private dragDropCanDropTagert(): boolean {
+    var destination = this.dragDropInfo.destination;
+    if (!destination || destination.isPage) return true;
+    return this.dragDropCanDropCore(
+      this.dragDropInfo.target,
+      <IElement>destination
+    );
+  }
+  private dragDropCanDropSource(): boolean {
+    var source = this.dragDropInfo.source;
+    if (!source) return true;
+    var destination = <IElement>this.dragDropInfo.destination;
+    if (!this.dragDropCanDropCore(source, destination)) return false;
+    return this.dragDropCanDropNotNext(
+      source,
+      destination,
+      this.dragDropInfo.isEdge,
+      this.dragDropInfo.isBottom
+    );
+  }
+  private dragDropCanDropCore(
+    target: IElement,
+    destination: IElement
+  ): boolean {
+    if (!destination) return true;
+    if (this.dragDropIsSameElement(destination, target)) return false;
+    if (target.isPanel) {
+      var pnl = <PanelModelBase>(<any>target);
+      if (
+        pnl.containsElement(destination) ||
+        !!pnl.getElementByName(destination.name)
+      )
+        return false;
+    }
+    return true;
+  }
+  private dragDropCanDropNotNext(
+    source: IElement,
+    destination: IElement,
+    isEdge: boolean,
+    isBottom: boolean
+  ): boolean {
+    if (!destination || (destination.isPanel && !isEdge)) return true;
+    if (source.parent !== destination.parent) return true;
+    var pnl = <PanelModelBase>source.parent;
+    var srcIndex = pnl.elements.indexOf(source);
+    var destIndex = pnl.elements.indexOf(destination);
+    if (destIndex < srcIndex && !isBottom) destIndex--;
+    if (isBottom) destIndex++;
+    return srcIndex < destIndex
+      ? destIndex - srcIndex > 1
+      : srcIndex - destIndex > 0;
+  }
+
+  private dragDropIsSameElement(el1: IElement, el2: IElement) {
+    return el1 == el2 || el1.name == el2.name;
   }
 }
 

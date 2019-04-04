@@ -1,17 +1,17 @@
 import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapMaterialCss = {
-  root: "sv_bootstrapmaterial_css",
+  root: "sv_main sv_bootstrapmaterial_css",
   header: "panel-heading",
   body: "panel-body",
   footer: "panel-footer",
   navigationButton: "",
   completedPage: "",
   navigation: {
-    complete: "sv_complete_btn",
-    prev: "sv_prev_btn",
-    next: "sv_next_btn",
-    start: "sv_start_btn"
+    complete: "btn sv_complete_btn btn-primary",
+    prev: "btn sv_prev_btn btn-primary",
+    next: "btn sv_next_btn btn-primary",
+    start: "btn sv_start_btn btn-primary"
   },
   progress: "progress center-block mx-auto mb-4",
   progressBar: "progress-bar",
@@ -22,10 +22,13 @@ export var defaultBootstrapMaterialCss = {
   },
   pageTitle: "",
   pageDescription: "small",
-  row: "",
+  row: "sv_row",
   question: {
     mainRoot: "sv_qstn form-group",
+    flowRoot: "sv_q_flow form-group",
+    titleLeftRoot: "sv_qstn_left",
     title: "",
+    number: "sv_q_num",
     description: "small",
     comment: "form-control",
     required: "",
@@ -35,36 +38,64 @@ export var defaultBootstrapMaterialCss = {
   },
   panel: {
     title: "sv_p_title",
-    description: "small",
+    description: "small sv_p_description",
     container: "sv_p_container"
   },
   error: {
     root: "alert alert-danger",
     icon: "glyphicon glyphicon-exclamation-sign",
-    item: ""
+    item: "",
+    locationTop: "sv_qstn_error_top",
+    locationBottom: "sv_qstn_error_bottom"
   },
 
-  boolean: { root: "sv_qbln form-inline checkbox", item: "", label: "" },
+  boolean: {
+    root: "sv_qbln form-inline checkbox",
+    item: "",
+    label: "",
+    materialDecorator: "checkbox-material"
+  },
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
     itemControl: "",
     controlLabel: "",
-    other: "sv_q_checkbox_other"
+    materialDecorator: "checkbox-material",
+    other: "sv_q_checkbox_other form-control"
   },
   comment: "form-control",
-  dropdown: { root: "", control: "form-control", other: "" },
+  dropdown: {
+    root: "",
+    control: "form-control",
+    other: "sv_q_dd_other form-control"
+  },
   matrix: {
-    root: "table",
+    root: "table sv_q_matrix",
     row: "form-group",
     label: "sv_q_m_label radio-inline",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
+    cellLabel: "sv_q_m_cell_label",
     itemValue: "form-control"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
-  matrixdynamic: { root: "table", button: "button", itemValue: "form-group" },
-  paneldynamic: { root: "", button: "button" },
+  matrixdynamic: {
+    root: "table",
+    button: "btn btn-primary",
+    itemValue: "form-group",
+    buttonAdd: "",
+    buttonRemove: "",
+    iconAdd: "",
+    iconRemove: ""
+  },
+  paneldynamic: {
+    root: "",
+    button: "btn btn-primary",
+    buttonPrev: "",
+    buttonNext: "",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   multipletext: {
     root: "table",
     itemTitle: "",
@@ -77,7 +108,18 @@ export var defaultBootstrapMaterialCss = {
     label: "",
     itemControl: "",
     controlLabel: "sv_q_radiogroup_control_label",
-    other: "sv_q_radiogroup_other"
+    materialDecorator: "circle",
+    other: "sv_q_radiogroup_other form-control",
+    clearButton: "sv_q_radiogroup_clear button btn btn-primary"
+  },
+  imagepicker: {
+    root: "sv_imgsel",
+    item: "sv_q_imgsel",
+    label: "sv_q_imgsel_label",
+    itemControl: "sv_q_imgsel_control_item",
+    image: "sv_q_imgsel_image",
+    itemText: "sv_q_imgsel_text",
+    clearButton: "sv_q_radiogroup_clear"
   },
   rating: {
     root: "btn-group",
@@ -93,7 +135,9 @@ export var defaultBootstrapMaterialCss = {
     root: "form-group is-fileinput sv_q_file",
     placeholderInput: "",
     preview: "sv_q_file_preview",
-    removeButton: "sv_q_file_remove_button"
+    removeButton: "sv_q_file_remove_button",
+    fileInput: "sv_q_file_input",
+    removeFile: "sv_q_file_remove"
   },
   saveData: {
     root: "",
@@ -114,4 +158,4 @@ export var defaultBootstrapMaterialCss = {
     }
   }
 };
-surveyCss["bootstrapmaterial"] = defaultBootstrapMaterialCss;
+(<any>surveyCss)["bootstrapmaterial"] = defaultBootstrapMaterialCss;

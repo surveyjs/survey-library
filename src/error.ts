@@ -1,41 +1,58 @@
 import { surveyLocalization } from "./surveyStrings";
-import { SurveyError } from "./base";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { SurveyError, ISurveyErrorOwner } from "./base";
 
 export class AnswerRequiredError extends SurveyError {
-  constructor(public customErrorText: string = null) {
-    super();
+  constructor(
+    public text: string = null,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(text, errorOwner);
   }
-  public getText(): string {
-    return this.customErrorText
-      ? this.customErrorText
-      : surveyLocalization.getString("requiredError");
+  public getErrorType(): string {
+    return "required";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("requiredError");
   }
 }
 export class OneAnswerRequiredError extends SurveyError {
-  constructor(public customErrorText: string = null) {
-    super();
+  constructor(
+    public text: string = null,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(text, errorOwner);
   }
-  public getText(): string {
-    return this.customErrorText
-      ? this.customErrorText
-      : surveyLocalization.getString("requiredErrorInPanel");
+  public getErrorType(): string {
+    return "requireoneanswer";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("requiredErrorInPanel");
   }
 }
 export class RequreNumericError extends SurveyError {
-  constructor() {
-    super();
+  constructor(
+    public text: string = null,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(text, errorOwner);
   }
-  public getText(): string {
+  public getErrorType(): string {
+    return "requirenumeric";
+  }
+  protected getDefaultText(): string {
     return surveyLocalization.getString("numericError");
   }
 }
 export class ExceedSizeError extends SurveyError {
-  private maxSize: number;
-  constructor(maxSize: number) {
-    super();
-    this.maxSize = maxSize;
+  constructor(private maxSize: number, errorOwner: ISurveyErrorOwner = null) {
+    super(null, errorOwner);
+    this.locText.text = this.getText();
   }
-  public getText(): string {
+  public getErrorType(): string {
+    return "exceedsize";
+  }
+  public getDefaultText(): string {
     return surveyLocalization
       .getString("exceedMaxSize")
       ["format"](this.getTextSize());
@@ -43,20 +60,107 @@ export class ExceedSizeError extends SurveyError {
   private getTextSize() {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     var fixed = [0, 0, 2, 3, 3];
-    if (this.maxSize == 0) return "0 Byte";
+    if (this.maxSize === 0) {
+      return "0 Byte";
+    }
     var i = Math.floor(Math.log(this.maxSize) / Math.log(1024));
     var value = this.maxSize / Math.pow(1024, i);
     return value.toFixed(fixed[i]) + " " + sizes[i];
   }
 }
-
-export class CustomError extends SurveyError {
-  private text: string;
-  constructor(text: string) {
-    super();
-    this.text = text;
+export class WebRequestError extends SurveyError {
+  constructor(
+    public status: string,
+    public response: string,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(null, errorOwner);
   }
-  public getText(): string {
-    return this.text;
+  public getErrorType(): string {
+    return "webrequest";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization
+      .getString("urlRequestError")
+      ["format"](this.status, this.response);
+  }
+}
+export class WebRequestEmptyError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "webrequestempty";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("urlGetChoicesError");
+  }
+}
+export class OtherEmptyError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "otherempty";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("otherRequiredError");
+  }
+}
+export class UploadingFileError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "uploadingfile";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("uploadingFile");
+  }
+}
+export class RequiredInAllRowsError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "requiredinallrowserror";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("requiredInAllRowsError");
+  }
+}
+export class MinRowCountError extends SurveyError {
+  constructor(
+    public minRowCount: number,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(null, errorOwner);
+  }
+  public getErrorType(): string {
+    return "minrowcounterror";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization
+      .getString("minRowCountError")
+      ["format"](this.minRowCount);
+  }
+}
+export class KeyDuplicationError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "keyduplicationerror";
+  }
+  protected getDefaultText(): string {
+    return surveyLocalization.getString("keyDuplicationError");
+  }
+}
+export class CustomError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "custom";
   }
 }

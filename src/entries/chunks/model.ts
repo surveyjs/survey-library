@@ -17,13 +17,24 @@ export {
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
+export {
+  CustomError,
+  AnswerRequiredError,
+  OneAnswerRequiredError,
+  RequreNumericError,
+  ExceedSizeError
+} from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";
-export { Condition, ConditionNode, ConditionRunner } from "../../conditions";
+export {
+  Condition,
+  ConditionNode,
+  ConditionRunner,
+  ExpressionRunner
+} from "../../conditions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";
-export { CustomError, ExceedSizeError, RequreNumericError } from "../../error";
 export {
   JsonError,
   JsonIncorrectTypeError,
@@ -61,9 +72,10 @@ export {
   QuestionMultipleTextModel
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
+export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
 export { Question } from "../../question";
-export { QuestionBase } from "../../questionbase";
+export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {
   QuestionCheckboxBase,
@@ -80,6 +92,7 @@ export { QuestionRatingModel } from "../../question_rating";
 export { QuestionExpressionModel } from "../../question_expression";
 export { QuestionTextModel } from "../../question_text";
 export { QuestionBooleanModel } from "../../question_boolean";
+export { QuestionImagePickerModel } from "../../question_imagepicker";
 export {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem

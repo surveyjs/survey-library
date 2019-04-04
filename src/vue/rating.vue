@@ -20,14 +20,14 @@ import { QuestionRatingModel } from "../question_rating";
 
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {
-  getCss(question: QuestionRatingModel, item) {
+  getCss(question: QuestionRatingModel, item:any) {
     let css = question.cssClasses.item;
     if (question.value == item.value) {
       css = css + " " + question.cssClasses.selected;
     }
     return css;
   }
-  change(e) {
+  change(e:any) {
     this.question.value = e.target.value;
   }
 }

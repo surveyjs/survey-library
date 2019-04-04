@@ -11,9 +11,7 @@ import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "../survey";
 import { IElement, IQuestion } from "../base";
 import { Question } from "../question";
-import { QuestionBase } from "../questionbase";
 import { QuestionCustomWidget } from "../questionCustomWidgets";
-import { helpers } from "./helpers";
 
 @Component
 export class CustomWidget extends Vue {
@@ -29,7 +27,7 @@ export class CustomWidget extends Vue {
     return this.question.customWidget.htmlTemplate;
   }
   get hasVueComponent(): boolean {
-    var options = Vue["options"];
+    var options = (<any>Vue)["options"];
     if (!options) return false;
     return (
       options.components && options.components[this.question.customWidget.name]

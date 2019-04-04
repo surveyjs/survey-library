@@ -188,9 +188,9 @@ frameworks.forEach(framework => {
     await t
       .typeText(`#clientId`, clientID)
       .click(`#btnStartSurvey`)
-      .click(`div:nth-child(1) label input`)
+      .click(`div:nth-child(2) label input`)
       .click(`input[value=Next]`)
-      .click(`div:nth-child(1) label input`)
+      .click(`div:nth-child(2) label input`)
       .click(`input[value=Next]`)
       .click(`input[value=Complete]`);
 
@@ -217,7 +217,7 @@ frameworks.forEach(framework => {
       .click(`#sendResultOnPageNext`)
       .typeText(`#clientId`, clientID)
       .click(`#btnStartSurvey`)
-      .click(`div:nth-child(1) label input`)
+      .click(`div:nth-child(2) label input`)
       .click(`input[value=Next]`);
 
     resultTextArea = await getResultTextArea();

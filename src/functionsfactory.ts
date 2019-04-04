@@ -7,6 +7,9 @@ export class FunctionFactory {
   public register(name: string, func: (params: any[]) => any) {
     this.functionHash[name] = func;
   }
+  public unregister(name: string) {
+    delete this.functionHash[name];
+  }
   public clear() {
     this.functionHash = {};
   }
@@ -17,10 +20,23 @@ export class FunctionFactory {
     }
     return result.sort();
   }
-  public run(name: string, params: any[]): any {
+  public run(
+    name: string,
+    params: any[],
+    properties: HashTable<any> = null
+  ): any {
     var func = this.functionHash[name];
     if (!func) return null;
-    return func(params);
+    let classRunner = {
+      func: func
+    };
+
+    if (properties) {
+      for (var key in properties) {
+        (<any>classRunner)[key] = properties[key];
+      }
+    }
+    return classRunner.func(params);
   }
 }
 
@@ -32,6 +48,15 @@ function sum(params: any[]): any {
   return res;
 }
 FunctionFactory.Instance.register("sum", sum);
+
+function avg(params: any[]): any {
+  var res = 0;
+  for (var i = 0; i < params.length; i++) {
+    res += params[i];
+  }
+  return params.length > 0 ? res / params.length : 0;
+}
+FunctionFactory.Instance.register("avg", avg);
 
 function sumInArray(params: any[]): any {
   if (params.length != 2) return 0;
@@ -65,3 +90,28 @@ function age(params: any[]): any {
   return Math.abs(ageDate.getUTCFullYear() - 1970);
 }
 FunctionFactory.Instance.register("age", age);
+
+function isContainerReady(params: any[]): any {
+  if (!params && params.length < 1) return false;
+  if (!params[0] || !this.survey) return false;
+  var name = params[0];
+  var container = this.survey.getPageByName(name);
+  if (!container) container = this.survey.getPanelByName(name);
+  if (!container) return false;
+  var questions = container.questions;
+  for (var i = 0; i < questions.length; i++) {
+    if (questions[i].hasErrors(false)) return false;
+  }
+  return true;
+}
+FunctionFactory.Instance.register("isContainerReady", isContainerReady);
+
+function isDisplayMode() {
+  return this.survey && this.survey.isDisplayMode;
+}
+FunctionFactory.Instance.register("isDisplayMode", isDisplayMode);
+
+function currentDate() {
+  return new Date();
+}
+FunctionFactory.Instance.register("currentDate", currentDate);

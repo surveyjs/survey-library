@@ -12,14 +12,14 @@ var replace = require("replace-in-file");
 
 var banner = [
   "surveyjs - Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)"
 ].join("\n");
 
 // TODO add to dts_bundler
 var dts_banner = [
   "Type definitions for Survey JavaScript library v" + packageJson.version,
-  "Copyright (c) 2015-2018 Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-2019 Devsoft Baltic OÜ  - http://surveyjs.io/",
   "Definitions by: Devsoft Baltic OÜ <https://github.com/surveyjs/>",
   ""
 ].join("\n");
@@ -98,7 +98,9 @@ module.exports = function(options) {
     options.platform == "knockout" ? "ko" : options.platform;
   var packagePath = "./packages/survey-" + options.platform + "/";
   var extractCSS = new ExtractTextPlugin({
-    filename: packagePath + "survey.css"
+    filename:
+      packagePath +
+      (options.buildType === "prod" ? "survey.min.css" : "survey.css")
   });
 
   var percentage_handler = function handler(percentage, msg) {
@@ -116,7 +118,7 @@ module.exports = function(options) {
         if (options.platform === "vue") {
           replace(
             {
-              files: packagePath + "survey." + options.platform + ".d.ts",
+              files: packagePath + "survey.vue.d.ts",
               from: /export default\s+\w+;/g,
               to: ""
             },
@@ -127,6 +129,13 @@ module.exports = function(options) {
               console.log("Modified files:", changes.join(", "));
             }
           );
+
+          fs
+            .createReadStream(packagePath + "survey.vue.js")
+            .pipe(fs.createWriteStream(packagePath + "survey-vue.js"));
+          fs
+            .createReadStream(packagePath + "survey.vue.min.js")
+            .pipe(fs.createWriteStream(packagePath + "survey-vue.min.js"));
         }
 
         rimraf.sync(packagePath + "typings");
@@ -137,6 +146,10 @@ module.exports = function(options) {
     }
   };
 
+  var mainFile =
+    options.platform === "vue"
+      ? "survey-vue.js"
+      : "survey." + options.platformPrefix + ".js";
   var packagePlatformJson = {
     name: "survey-" + options.platform,
     version: packageJson.version,
@@ -149,11 +162,12 @@ module.exports = function(options) {
     license: "MIT",
     files: [
       "survey.css",
+      "survey.min.css",
       "survey." + options.platformPrefix + ".d.ts",
       "survey." + options.platformPrefix + ".js",
       "survey." + options.platformPrefix + ".min.js"
     ],
-    main: "survey." + options.platformPrefix + ".js",
+    main: mainFile,
     repository: {
       type: "git",
       url: "https://github.com/surveyjs/surveyjs.git"
@@ -211,6 +225,7 @@ module.exports = function(options) {
                 loader: "css-loader",
                 options: {
                   sourceMap: true,
+                  minimize: options.buildType === "prod",
                   importLoaders: true
                 }
               },

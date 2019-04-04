@@ -6,6 +6,15 @@ import { IQuestion, IElement } from "../base";
 import { surveyCss } from "../defaultCss/cssstandard";
 
 export class VueSurveyModel extends SurveyModel {
+  public static updatePropertiesHash(obj: any) {
+    obj.setPropertyValueCoreHandler = function(
+      propertiesHash: any,
+      name: string,
+      val: any
+    ) {
+      Vue.set(propertiesHash, name, val);
+    };
+  }
   renderCallback: () => void;
   public render() {
     if (this.renderCallback) {
@@ -24,9 +33,13 @@ export class VueSurveyModel extends SurveyModel {
   set css(value: any) {
     this.mergeValues(value, this.css);
   }
-  protected setDataValueCore(valuesHash: any, key: string, value: any) {
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
     Vue.set(valuesHash, key, value);
   }
+  public deleteDataValueCore(valuesHash: any, key: string) {
+    Vue.delete(valuesHash, key);
+  }
+
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any) {
     Vue.set(propertiesHash, name, val);
   }
@@ -36,39 +49,18 @@ export class VueSurveyModel extends SurveyModel {
     parentPanel: any,
     rootPanel: any
   ) {
-    var q: any;
-    q = question;
-    q.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
+    VueSurveyModel.updatePropertiesHash(question);
     super.questionAdded(question, index, parentPanel, rootPanel);
   }
   protected doOnPageAdded(page: PageModel) {
-    var p: any;
-    p = page;
-    p.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
+    VueSurveyModel.updatePropertiesHash(page);
     super.doOnPageAdded(page);
   }
+  public doAfterRenderSurvey(el: any) {
+    this.afterRenderSurvey(el);
+  }
   panelAdded(panel: IElement, index: number, parentPanel: any, rootPanel: any) {
-    var p: any;
-    p = panel;
-    p.setPropertyValueCoreHandler = function(
-      propertiesHash: any,
-      name: string,
-      val: any
-    ) {
-      Vue.set(propertiesHash, name, val);
-    };
+    VueSurveyModel.updatePropertiesHash(panel);
     super.panelAdded(panel, index, parentPanel, rootPanel);
   }
 }

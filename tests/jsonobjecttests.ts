@@ -3,6 +3,8 @@ import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
 import { ILocalizableOwner } from "../src/localizablestring";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { Question } from "../src/question";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -17,6 +19,9 @@ class Car extends Base implements ILocalizableOwner {
     return this.locale;
   }
   getMarkdownHtml(text: string): string {
+    return text;
+  }
+  getProcessedText(text: string): string {
     return text;
   }
 }
@@ -221,7 +226,7 @@ JsonObject.metaData.addClass(
   "dealer",
   [
     "name:string",
-    "dummyname",
+    { name: "dummyname", layout: "row" },
     "car",
     "cars",
     "stringArray",
@@ -285,17 +290,7 @@ JsonObject.metaData.addClass(
   "fast"
 );
 
-JsonObject.metaData.addClass("itemvaluelistowner", [
-  {
-    name: "items",
-    onGetValue: function(obj: any) {
-      return ItemValue.getData(obj.items);
-    },
-    onSetValue: function(obj: any, value: any) {
-      ItemValue.setData(obj.items, value);
-    }
-  }
-]);
+JsonObject.metaData.addClass("itemvaluelistowner", ["items:itemvalues"]);
 
 JsonObject.metaData.addClass("item_thelongpart", ["baseSt"]);
 JsonObject.metaData.addClass(
@@ -352,6 +347,13 @@ JsonObject.metaData.addProperty("customtruck", {
 
 JsonObject.metaData.addClass(
   "customdealer",
+  [{ name: "defaultValue", visible: false }],
+  null,
+  "dealer"
+);
+
+JsonObject.metaData.addClass(
+  "camelDealer",
   [{ name: "defaultValue", visible: false }],
   null,
   "dealer"
@@ -669,6 +671,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
 QUnit.test(
   "ItemValueListOwner deserialization, custom property in ItemValue",
   function(assert) {
+    JsonObject.metaData.addProperty("itemvalue", "price:number");
     var list = new ItemValueListOwner();
 
     new JsonObject().toObject(
@@ -684,6 +687,7 @@ QUnit.test(
     );
     assert.equal(list.items.length, 4, "there are 4 items");
     assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
+    JsonObject.metaData.removeProperty("itemvalue", "price");
   }
 );
 QUnit.test(
@@ -698,6 +702,31 @@ QUnit.test(
     assert.deepEqual(
       jsObj,
       { items: [{ value: { id: 1, city: "NY" }, text: "Item 1" }] },
+      "serialize ItemValueListOwner"
+    );
+  }
+);
+QUnit.test(
+  "defaultValue and defaultRowValue deserialization, remove pos",
+  function(assert) {
+    var json = {
+      name: "q1",
+      defaultValue: [
+        { pos: { start: 1, end: 5 }, column1: 1, column2: 2 },
+        { column1: 3, column2: 4 }
+      ],
+      defaultRowValue: { pos: { start: 1, end: 5 }, column1: 1, column2: 2 }
+    };
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    new JsonObject().toObject(json, matrix);
+    var jsObj = new JsonObject().toJsonObject(matrix);
+    assert.deepEqual(
+      jsObj,
+      {
+        name: "q1",
+        defaultValue: [{ column1: 1, column2: 2 }, { column1: 3, column2: 4 }],
+        defaultRowValue: { column1: 1, column2: 2 }
+      },
       "serialize ItemValueListOwner"
     );
   }
@@ -986,6 +1015,45 @@ QUnit.test("Add new property to object", function(assert) {
   );
 });
 
+QUnit.test("Add property into alternative name of class", function(assert) {
+  JsonObject.metaData.addAlterNativeClassName("truck", "trick");
+  assert.equal(
+    JsonObject.metaData.findClass("trick").name,
+    "truck",
+    "Find class by alternative name"
+  );
+  var propertiesCount = JsonObject.metaData.getProperties("truck").length;
+  JsonObject.metaData.addProperty("trick", "isUsed:boolean");
+  assert.equal(
+    propertiesCount + 1,
+    JsonObject.metaData.getProperties("truck").length,
+    "there is on one property more"
+  );
+  assert.equal(
+    propertiesCount + 1,
+    JsonObject.metaData.getProperties("trick").length,
+    "alternative name returns correct properties as well"
+  );
+  var dealer = new Dealer();
+  new JsonObject().toObject(
+    { truck: { isUsed: true, maxWeight: 10000 } },
+    dealer
+  );
+  assert.equal(dealer.truck["isUsed"], true, "new property is here");
+  var jsObj = new JsonObject().toJsonObject(dealer);
+  assert.deepEqual(
+    jsObj,
+    { truck: { isUsed: true, maxWeight: 10000 } },
+    "property is serialized"
+  );
+  JsonObject.metaData.removeProperty("trick", "isUsed");
+  assert.equal(
+    propertiesCount,
+    JsonObject.metaData.getProperties("truck").length,
+    "the additional property is removed"
+  );
+});
+
 QUnit.test("Add a new number property with default value", function(assert) {
   JsonObject.metaData.addProperty("car", { name: "tag:number", default: 1 });
   var dealer = new Dealer();
@@ -1014,6 +1082,33 @@ QUnit.test("Add a new number property with default value", function(assert) {
   );
 
   JsonObject.metaData.removeProperty("car", "tag");
+});
+
+QUnit.test("Add a boolean property default value", function(assert) {
+  JsonObject.metaData.addProperty("car", {
+    name: "isNew:boolean",
+    default: true
+  });
+  JsonObject.metaData.addProperty("itemvalue", {
+    name: "isNew:boolean",
+    default: true
+  });
+  var car = new Truck();
+  assert.equal(
+    car["isNew"],
+    true,
+    "New boolean property is added with correct default value"
+  );
+
+  var item = new ItemValue(1);
+  assert.equal(
+    item["isNew"],
+    true,
+    "New boolean property is added with correct default value into itemvalue"
+  );
+
+  JsonObject.metaData.removeProperty("itemvalue", "isNew");
+  JsonObject.metaData.removeProperty("car", "isNew");
 });
 
 QUnit.test("A non serializable property", function(assert) {
@@ -1275,6 +1370,11 @@ QUnit.test(
   }
 );
 
+QUnit.test("Create class with camel name", function(assert) {
+  var dealer = <Dealer>JsonObject.metaData.createClass("Cameldealer");
+  assert.ok(dealer, "The object is created");
+});
+
 QUnit.test("Generate properties on the fly", function(assert) {
   var carOwner = <CarOwner>JsonObject.metaData.createClass("carowner");
   assert.ok(carOwner, "The object is created");
@@ -1327,5 +1427,335 @@ QUnit.test("Serialize/deserialize dynamic properties", function(assert) {
     carOwner.car["maxWeight"],
     200,
     "The dynamic property set correctly"
+  );
+});
+
+QUnit.test("Add property into questionbase", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", "custom");
+  var question = new Question("q1");
+  new JsonObject().toObject({ name: "q2", custom: "customValue1" }, question);
+  assert.equal(question.name, "q2", "name serialzied successful");
+  assert.equal(
+    question["custom"],
+    "customValue1",
+    "custom serialzied successful"
+  );
+  JsonObject.metaData.removeProperty("questionbase", "custom");
+});
+
+QUnit.test("Add itemvalues (array) property into questionbase", function(
+  assert
+) {
+  JsonObject.metaData.addProperty("questionbase", "customArray:itemvalues");
+  var question = new Question("q1");
+
+  var property = JsonObject.metaData.findProperty(
+    "questionbase",
+    "customArray"
+  );
+  assert.equal(
+    property.type,
+    "itemvalue[]",
+    "Property should have correct type"
+  );
+  assert.equal(
+    property.className,
+    "itemvalue",
+    "Property should have correct className"
+  );
+
+  assert.equal(
+    question["customArray"].length,
+    0,
+    "customArray deserialzied successful"
+  );
+  new JsonObject().toObject(
+    { name: "q2", custom: "customValue1", customArray: [1, 2, 3, 4] },
+    question
+  );
+  assert.equal(
+    question["customArray"].length,
+    4,
+    "customArray deserialzied successful"
+  );
+  assert.equal(
+    question["customArray"][0].value,
+    1,
+    "customArray content deserialzied successful"
+  );
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [1, 2, 3, 4],
+    "customArray serialzied successful"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [1, 3, 5]
+  });
+  question = new Question("q2");
+  assert.equal(
+    question["customArray"].length,
+    3,
+    "defaultValue loaded successful"
+  );
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});
+
+QUnit.test(
+  "Serialize default values - https://github.com/surveyjs/surveyjs/issues/1386",
+  function(assert) {
+    var q1 = new Question("q1");
+    var q2 = new Question("q2");
+
+    q1.readOnly = false;
+    var json = new JsonObject().toJsonObject(q1, true);
+
+    assert.equal(
+      json["readOnly"],
+      false,
+      "default value for readOnly proeprty has been serialzied successfully"
+    );
+
+    q2.readOnly = true;
+    new JsonObject().toObject(json, q2);
+    assert.notOk(
+      q2.readOnly,
+      "default value for readOnly proeprty has been deserialzied successfully"
+    );
+  }
+);
+
+QUnit.test("itemvalues (array) default value", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [0, 25, 50, 75, 100]
+  });
+  var question = new Question("q1");
+
+  assert.equal(
+    question["customArray"].length,
+    5,
+    "customArray defaults applied successfully"
+  );
+
+  question["customArray"][0].text = "text 1";
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 1",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 1"
+  );
+
+  question = new Question("q1");
+
+  new JsonObject().toObject(json, question);
+  assert.equal(
+    question["customArray"][0].text,
+    "text 1",
+    "text deserialized ok"
+  );
+
+  json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 1",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 2"
+  );
+
+  question["customArray"][0].text = "text 2";
+  json = new JsonObject().toJsonObject(question);
+
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: "text 2",
+        value: 0
+      },
+      25,
+      50,
+      75,
+      100
+    ],
+    "customArray serialzied successful 2"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});
+
+QUnit.test("itemvalues (array) save localized text", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [0]
+  });
+  var question = new Question("q1");
+
+  assert.equal(
+    question["customArray"].length,
+    1,
+    "customArray defaults applied successfully"
+  );
+
+  question["customArray"][0].text = "text 1";
+  question.locOwner = <any>{ getLocale: () => "de" };
+  question["customArray"][0].text = "text de";
+
+  var json = new JsonObject().toJsonObject(question);
+  assert.deepEqual(
+    json.customArray,
+    [
+      {
+        text: {
+          default: "text 1",
+          de: "text de"
+        },
+        value: 0
+      }
+    ],
+    "customArray serialzied successful 1"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+});
+
+QUnit.test("ItemValue should be deserialized without errors", function(assert) {
+  var list = new ItemValueListOwner();
+
+  var jsonObject = new JsonObject();
+  jsonObject.toObject(
+    {
+      items: [
+        { value: 7, text: "Item 1", price: 55.5 },
+        5,
+        "item",
+        "value1|text1"
+      ]
+    },
+    list
+  );
+  assert.equal(
+    jsonObject.errors.length,
+    0,
+    "there are no errors on deserialization"
+  );
+});
+
+QUnit.test("Extend ItemValue via inheritance with custom property", function(
+  assert
+) {
+  JsonObject.metaData.addClass(
+    "itemvaluesWithPoints",
+    ["points:number"],
+    null,
+    "itemvalue"
+  );
+  JsonObject.metaData.addProperty("itemvalue", "guid");
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "customArray:itemvalues",
+    default: [0]
+  });
+  var p1 = JsonObject.metaData.findProperty("questionbase", "customArray");
+  p1["typeValue"] = "itemvaluesWithPoints";
+  p1["className"] = "itemvaluesWithPoints";
+  var question = new Question("q1");
+
+  question["customArray"][0]["points"] = 1;
+  assert.equal(
+    question["customArray"][0]["points"],
+    1,
+    "one should be able to read and write the custom property"
+  );
+  question["customArray"][0]["guid"] = "2";
+  assert.equal(
+    question["customArray"][0]["guid"],
+    "2",
+    "one should be able to read and write the inherited custom property"
+  );
+
+  var jsonObject = new JsonObject();
+  jsonObject.toObject(
+    {
+      customArray: [
+        { value: 7, text: "Item 1", points: 5 },
+        5,
+        "item",
+        "value1|text1"
+      ]
+    },
+    question
+  );
+  assert.equal(
+    question["customArray"].length,
+    4,
+    "custom array should be deserialized"
+  );
+  assert.equal(
+    question["customArray"][0]["points"],
+    5,
+    "custom property value should be deserialized"
+  );
+  assert.equal(
+    jsonObject.errors.length,
+    0,
+    "there are no errors on deserialization"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "customArray");
+  JsonObject.metaData.removeProperty("itemvalue", "guid");
+});
+
+QUnit.test("isDescendantOf", function(assert) {
+  JsonObject.metaData.addClass(
+    "itemvaluesWithPoints",
+    ["points:number"],
+    null,
+    "itemvalue"
+  );
+
+  assert.ok(
+    JsonObject.metaData.isDescendantOf("itemvaluesWithPoints", "itemvalue"),
+    "itemvaluesWithPoints is a descendant of the itemvalue"
+  );
+  assert.ok(
+    JsonObject.metaData.isDescendantOf("itemvalue", "itemvalue"),
+    "itemvalue is a descendant of the itemvalue"
+  );
+});
+QUnit.test("property.isVisible", function(assert) {
+  var property = JsonObject.metaData.findProperty("dealer", "dummyname");
+  assert.equal(property.visible, true, "Property is visible");
+  assert.equal(
+    property.isVisible("row"),
+    true,
+    "Property is visible in row layout"
+  );
+  assert.equal(
+    property.isVisible("flow"),
+    false,
+    "Property is invisible in flow layout"
   );
 });

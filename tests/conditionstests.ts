@@ -8,6 +8,7 @@ import {
   ExpressionRunner
 } from "../src/conditions";
 import { parse } from "querystring";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Conditions");
 
@@ -475,6 +476,21 @@ QUnit.test("Run age function with empty value", function(assert) {
   assert.equal(runner2.run(values), false, "2. false, bithday is empty");
 });
 
+QUnit.test("Run function with properties", function(assert) {
+  function isEqual(params: any[]): any {
+    return this.propValue == params[0];
+  }
+  FunctionFactory.Instance.register("isEqual", isEqual);
+
+  var runner = new ConditionRunner("isEqual({val}) == true");
+  var values = { val: 3 };
+  var properties = { propValue: 3 };
+  assert.equal(runner.run(values, properties), true, "3 = 3");
+  properties.propValue = 5;
+  assert.equal(runner.run(values, properties), false, "3 != 5");
+  FunctionFactory.Instance.unregister("isEqual");
+});
+
 QUnit.test("Support true/false constants, #643", function(assert) {
   var runner = new ConditionRunner("true && {year} >= 21");
   var values = { year: 22 };
@@ -550,6 +566,17 @@ QUnit.test("Bug with contains, bug#1039", function(assert) {
   assert.equal(runner.run(values), true, "['3b'] contains '3b'");
   values = { ValueType: ["1"] };
   assert.equal(runner.run(values), false, "['1'] contains '3b'");
+});
+QUnit.test("Add support for array for cotains operator, issue#1366", function(
+  assert
+) {
+  var runner = new ConditionRunner("{value} contains ['a', 'b']");
+  var values = { value: ["a", "b"] };
+  assert.equal(runner.run(values), true, "['a', 'b'] contains ['a', 'b']");
+  values = { value: ["a", "c"] };
+  assert.equal(runner.run(values), false, "['a', 'c'] contains ['a', 'b']");
+  values = { value: ["a", "b", "c"] };
+  assert.equal(runner.run(values), true, "['a', 'b', 'c'] contains ['a', 'b']");
 });
 
 QUnit.test("Escape quotes, bug#786", function(assert) {
@@ -644,12 +671,12 @@ QUnit.test("ExpressionOperand: parser, 1 + 2 + 3", function(assert) {
   parser.parse("1 + 2 - 3 >= 10", node);
   assert.equal(node.children.length, 1);
   var left = <ExpressionOperand>node.children[0].left;
-  var leftLeft = <ExpressionOperand>left.left;
-  assert.equal(leftLeft.left.origionalValue, 1);
-  assert.equal(leftLeft.right.origionalValue, 2);
-  assert.equal(leftLeft.operator, "+");
-  assert.equal(left.operator, "-");
-  assert.equal(left.right.origionalValue, 3);
+  var leftright = <ExpressionOperand>left.right;
+  assert.equal(left.left.origionalValue, 1);
+  assert.equal(left.operator, "+");
+  assert.equal(leftright.left.origionalValue, 2);
+  assert.equal(leftright.operator, "-");
+  assert.equal(leftright.right.origionalValue, 3);
   assert.equal(node.children[0].operator, "greaterorequal");
   assert.equal(node.children[0].right.origionalValue, 10);
   assert.equal(node.connective, "and");
@@ -714,6 +741,42 @@ QUnit.test("ExpressionOperand: brackets 2", function(assert) {
   values.c = 5;
   assert.equal(runner.run(values), true, "(1 + 3 + 4) / 3 >= 3");
 });
+
+QUnit.test("ExpressionOperand: not operator", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  parser.parse("({a} + {b}) * 2 >= 10", node);
+  assert.equal(node.isNot, false, "there is no not");
+  parser.parse("not(({a} + {b}) * 2 >= 10)", node);
+  assert.equal(node.isNot, true, "not is 'not'");
+  parser.parse("!(({a} + {b}) * 2 >= 10)", node);
+  assert.equal(node.isNot, true, "not is '!'");
+});
+QUnit.test("ExpressionOperand: not operator 2", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  parser.parse("({a} + {b} >= 10) and !({a} - {b} < 0)", node);
+  assert.equal(node.children.length, 2, "there two children");
+  assert.equal(node.isNot, false, "there is no not in the root");
+  assert.equal(
+    node.children[0].isNot,
+    false,
+    "there is no not in first children"
+  );
+  assert.equal(node.children[1].isNot, true, "there is not in second children");
+});
+
+QUnit.test("ConditionRunner, not operator simple", function(assert) {
+  var parser = new ConditionsParser();
+  var node = new ConditionNode();
+  var runner = new ConditionRunner("not({a} + {b} > 20)");
+
+  var values = { a: 10, b: 20 };
+  assert.equal(runner.run(values), false, "10 + 20 > 20");
+  values.b = 5;
+  assert.equal(runner.run(values), true, "10 + 5 > 20");
+});
+
 QUnit.test("ExpressionRunner: (1+2)*3", function(assert) {
   var runner = new ExpressionRunner("(1+2)*3");
   assert.equal(runner.run({}), 9, "(1+2)*3 is 9");
@@ -756,6 +819,58 @@ QUnit.test("ExpressionRunner, iif nested using", function(assert) {
   assert.equal(runner.run(values), "medium", "10 + 5 > 10 && 10 + 5 < 20");
   values.a = 1;
   assert.equal(runner.run(values), "low", "1 + 5 < 10");
+});
+
+QUnit.test("ExpressionRunner, iif nested using 2", function(assert) {
+  var runner = new ExpressionRunner(
+    "iif(({a} + {b}) > 20, ({a} * 5 + {b}), iif({a} + {b} > 10, 5*({a}+ {b}), {a}))"
+  );
+  var values = { a: 10, b: 20 };
+  assert.equal(runner.run(values), 10 * 5 + 20, "10 + 20 > 20");
+  values.b = 5;
+  assert.equal(runner.run(values), 5 * (10 + 5), "10 + 5 > 10 && 10 + 5 < 20");
+  values.a = 1;
+  assert.equal(runner.run(values), 1, "1 + 5 < 10");
+});
+
+function avg(params: any[]): any {
+  var res = 0;
+  for (var i = 0; i < params.length; i++) {
+    res += params[i];
+  }
+  return params.length > 0 ? res / params.length : 0;
+}
+
+QUnit.test(
+  "ExpressionRunner, iif nested using with function, Bug T1302, (https://surveyjs.answerdesk.io/ticket/details/T1302)",
+  function(assert) {
+    function incValue(params: any[]): any {
+      return params[0] + 1;
+    }
+    FunctionFactory.Instance.register("incValue", incValue);
+
+    var runner = new ExpressionRunner(
+      'incValue(iif(({REVIEW_COVER} contains "REVIEW_SM") and ({REVIEW_COVER} contains "REVIEW_GL"), ({RATES_PROPERTY_SD}+{RATES_LIABILITY_SD}+{RATES_SEXUAL_MOL_END_SD}), iif(({REVIEW_COVER} notcontains "REVIEW_SM") and ({REVIEW_COVER} contains "REVIEW_GL"), ({RATES_PROPERTY_SD}+{RATES_LIABILITY_SD}), ({RATES_PROPERTY_SD}))))'
+    );
+    var values = {
+      REVIEW_COVER: ["REVIEW_SM", "REVIEW_GL"],
+      RATES_PROPERTY_SD: 1,
+      RATES_LIABILITY_SD: 2,
+      RATES_SEXUAL_MOL_END_SD: 3
+    };
+    assert.equal(
+      runner.run(values),
+      1 + 2 + 3 + 1,
+      "the first condition is calling"
+    );
+    FunctionFactory.Instance.unregister("incValue");
+  }
+);
+
+QUnit.test("ExpressionRunner, ^ operator", function(assert) {
+  var runner = new ExpressionRunner("{a} ^ 3 + {b} ^ 0.5");
+  var values = { a: 10, b: 400 };
+  assert.equal(runner.run(values), 1020, "10^3 + 400^0.5 = 1000 + 20");
 });
 
 QUnit.test("ConditionsParser, report error: Operator expected", function(
@@ -818,3 +933,107 @@ QUnit.test("ConditionsParser, parse array successfully", function(assert) {
   assert.ok(parser.createCondition("{a} = ['item1', 'item2']"));
   assert.notOk(parser.error, "There is no errors");
 });
+
+QUnit.test("Variable may have '-' and '+' in their names", function(assert) {
+  var runner = new ConditionRunner("{2-3+4} = 1");
+  var values = { "2-3+4": 1 };
+  assert.equal(runner.run(values), true, "1 = 1");
+  values = { "2-3+4": 2 };
+  assert.equal(runner.run(values), false, "2 != 1");
+});
+
+QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
+  var runner = new ConditionRunner("{val} notempty");
+  var values = { val: "0x1" };
+  assert.equal(runner.run(values), true, "0x1 is not empty");
+
+  runner = new ConditionRunner("{val} = 2");
+  values = { val: "0x1" };
+  assert.equal(runner.run(values), false, "0x1 is not 2");
+  values = { val: "0x2" };
+  assert.equal(runner.run(values), true, "0x2 is not 2");
+});
+
+QUnit.test("Get variables in expression", function(assert) {
+  var parser = new ConditionsParser();
+  var node = parser.createCondition(
+    "{val1} - {val2} + myFunc({val3}, {val4.prop}) < {val5} and {val6}=1"
+  );
+  var vars = node.getVariables();
+  assert.equal(vars.length, 6, "There are 6 variables in expression");
+  assert.equal(vars[0], "val1", "the first variable");
+  assert.equal(vars[5], "val6", "the last variable");
+});
+
+QUnit.test("contain and noncontain for null arrays", function(assert) {
+  var runner = new ConditionRunner("{val} contain 1");
+  var values = {};
+  assert.equal(
+    runner.run(values),
+    false,
+    "underfined doesn't contain 1 - false"
+  );
+  runner = new ConditionRunner("{val} notcontain 1");
+  values = {};
+  assert.equal(runner.run(values), true, "underfined doesn't contain 1 - true");
+});
+
+QUnit.test("length for undefined arrays", function(assert) {
+  var runner = new ConditionRunner("{val.length} = 0");
+  assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
+  assert.equal(runner.run({}), true, "underfined length returns 0");
+});
+
+QUnit.test("contain and noncontain for strings", function(assert) {
+  var runner = new ConditionRunner("{val} contain 'ab'");
+  var values = {};
+  assert.equal(
+    runner.run(values),
+    false,
+    "contains: underfined doesn't contain 'ab' - false"
+  );
+  values = { val: "ba" };
+  assert.equal(
+    runner.run(values),
+    false,
+    "contains: 'ba' doesn't contain 'ab' - false"
+  );
+  values = { val: "babc" };
+  assert.equal(
+    runner.run(values),
+    true,
+    "contains: 'babc' contains 'ab' - true"
+  );
+
+  runner = new ConditionRunner("{val} notcontain 'ab'");
+  values = {};
+  assert.equal(
+    runner.run(values),
+    true,
+    "notcontains: underfined doesn't contain 'ab' - true"
+  );
+  values = { val: "ba" };
+  assert.equal(
+    runner.run(values),
+    true,
+    "notcontains: 'ba' doesn't contain 'ab' - true"
+  );
+  values = { val: "babc" };
+  assert.equal(
+    runner.run(values),
+    false,
+    "notcontains: 'babc' contains 'ab' - false"
+  );
+});
+
+QUnit.test(
+  "ExpressionRunner: 7 * (({q1} * 0.4) + ({q2} * 0.6)), bug# 1423",
+  function(assert) {
+    var runner = new ExpressionRunner("7 * ((10 * 0.4) + (20 * 0.6))");
+    assert.equal(
+      runner.run({}),
+      7 * (4 + 12),
+      "7 * ((10 * 0.4) + (20 * 0.6)) is 112"
+    );
+  }
+);

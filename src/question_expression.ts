@@ -46,21 +46,41 @@ export class QuestionExpressionModel extends Question {
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
   }
-  public runCondition(values: HashTable<any>) {
-    super.runCondition(values);
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
     this.expressionIsRunning = true;
     if (!this.expressionRunner)
       this.expressionRunner = new ExpressionRunner(this.expression);
-    this.value = this.expressionRunner.run(values);
+    this.value = this.expressionRunner.run(values, properties);
     this.expressionIsRunning = false;
   }
-  public get displayValue(): any {
+  /**
+   * The maximum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   */
+  public get maximumFractionDigits(): number {
+    return this.getPropertyValue("maximumFractionDigits", -1);
+  }
+  public set maximumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("maximumFractionDigits", val);
+  }
+  /**
+   * The minimum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   */
+  public get minimumFractionDigits(): number {
+    return this.getPropertyValue("minimumFractionDigits", -1);
+  }
+  public set minimumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("minimumFractionDigits", val);
+  }
+  protected getDisplayValueCore(keysAsText: boolean): any {
     var val = this.isValueEmpty(this.value) ? this.defaultValue : this.value;
     if (this.isValueEmpty(val)) return "";
     var str = this.getValueAsStr(val);
     if (!this.format) return str;
-    return this.format["format"](str);
+    return (<any>this.format)["format"](str);
   }
   /**
    * You may set this property to "decimal", "currency" or "percent". If you set it to "currency", you may use the currency property to display the value in currency different from USD.
@@ -102,6 +122,12 @@ export class QuestionExpressionModel extends Question {
         currency: this.currency,
         useGrouping: this.useGrouping
       };
+      if (this.maximumFractionDigits > -1) {
+        (<any>options)["maximumFractionDigits"] = this.maximumFractionDigits;
+      }
+      if (this.minimumFractionDigits > -1) {
+        (<any>options)["minimumFractionDigits"] = this.minimumFractionDigits;
+      }
       return val.toLocaleString(locale, options);
     }
     return val.toString();
@@ -298,7 +324,7 @@ JsonObject.metaData.addClass(
     { name: "format", serializationProperty: "locFormat" },
     {
       name: "displayStyle",
-      default: "decimal",
+      default: "none",
       choices: ["none", "decimal", "currency", "percent"]
     },
     {
@@ -308,6 +334,8 @@ JsonObject.metaData.addClass(
       },
       default: "USD"
     },
+    { name: "maximumFractionDigits:number", default: -1 },
+    { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
     { name: "commentText", visible: false },
     { name: "enableIf", visible: false },

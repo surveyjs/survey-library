@@ -1,6 +1,8 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { JsonObject } from "./jsonobject";
+import { ConditionRunner, ExpressionRunner, Operand } from "./conditions";
+import { ProcessValue } from "./conditionProcessValue";
 
 /**
  * A base class for all triggers.
@@ -12,80 +14,178 @@ export class Trigger extends Base {
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
-      empty: function(value, expectedValue) {
+      empty: function(value:any, expectedValue:any) {
         return !value;
       },
-      notempty: function(value, expectedValue) {
+      notempty: function(value:any, expectedValue:any) {
         return !!value;
       },
-      equal: function(value, expectedValue) {
+      equal: function(value:any, expectedValue:any) {
         return value == expectedValue;
       },
-      notequal: function(value, expectedValue) {
+      notequal: function(value:any, expectedValue:any) {
         return value != expectedValue;
       },
-      contains: function(value, expectedValue) {
+      contains: function(value:any, expectedValue:any) {
         return value && value["indexOf"] && value.indexOf(expectedValue) > -1;
       },
-      notcontains: function(value, expectedValue) {
+      notcontains: function(value:any, expectedValue:any) {
         return (
           !value || !value["indexOf"] || value.indexOf(expectedValue) == -1
         );
       },
-      greater: function(value, expectedValue) {
+      greater: function(value:any, expectedValue:any) {
         return value > expectedValue;
       },
-      less: function(value, expectedValue) {
+      less: function(value:any, expectedValue:any) {
         return value < expectedValue;
       },
-      greaterorequal: function(value, expectedValue) {
+      greaterorequal: function(value:any, expectedValue:any) {
         return value >= expectedValue;
       },
-      lessorequal: function(value, expectedValue) {
+      lessorequal: function(value:any, expectedValue:any) {
         return value <= expectedValue;
       }
     };
     return Trigger.operatorsValue;
   }
-  private opValue: string = "equal";
-  public value: any;
+  private conditionRunner: ConditionRunner;
+  private usedNames: Array<string>;
   constructor() {
     super();
+    this.usedNames = [];
+    var self = this;
+    this.registerFunctionOnPropertiesValueChanged(
+      ["operator", "value", "name"],
+      function() {
+        self.oldPropertiesChanged();
+      }
+    );
+    this.registerFunctionOnPropertyValueChanged("expression", function() {
+      self.onExpressionChanged();
+    });
   }
   public getType(): string {
     return "triggerbase";
   }
   public get operator(): string {
-    return this.opValue;
+    return this.getPropertyValue("operator", "equal");
   }
   public set operator(value: string) {
     if (!value) return;
     value = value.toLowerCase();
     if (!Trigger.operators[value]) return;
-    this.opValue = value;
+    this.setPropertyValue("operator", value);
+  }
+  public get value(): any {
+    return this.getPropertyValue("value", null);
+  }
+  public set value(val: any) {
+    this.setPropertyValue("value", val);
+  }
+  public get name(): string {
+    return this.getPropertyValue("name", "");
+  }
+  public set name(val: string) {
+    this.setPropertyValue("name", val);
+  }
+
+  public get expression(): string {
+    return this.getPropertyValue("expression", "");
+  }
+  public set expression(val: string) {
+    this.setPropertyValue("expression", val);
+  }
+  public checkExpression(
+    keys: any,
+    values: HashTable<any>,
+    properties: HashTable<any> = null
+  ) {
+    if (!this.isCheckRequired(keys)) return;
+    if (!!this.conditionRunner) {
+      this.perform(values, properties);
+    }
   }
   public check(value: any) {
-    if (Trigger.operators[this.operator](value, this.value)) {
-      this.onSuccess();
+    var triggerResult = Trigger.operators[this.operator](value, this.value);
+    if (triggerResult) {
+      this.onSuccess({}, null);
     } else {
       this.onFailure();
     }
   }
-  protected onSuccess() {}
+  private perform(values: HashTable<any>, properties: HashTable<any>) {
+    var triggerResult = this.conditionRunner.run(values, properties);
+    if (triggerResult) {
+      this.onSuccess(values, properties);
+    } else {
+      this.onFailure();
+    }
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {}
   protected onFailure() {}
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.oldPropertiesChanged();
+  }
+  private oldPropertiesChanged() {
+    this.onExpressionChanged();
+  }
+  private onExpressionChanged() {
+    this.usedNames = [];
+    this.conditionRunner = null;
+  }
+  public buildExpression(): string {
+    if (!this.name) return "";
+    if (Helpers.isValueEmpty(this.value) && this.isRequireValue) return "";
+    return (
+      "{" +
+      this.name +
+      "} " +
+      this.operator +
+      " " +
+      new Operand(this.value).toString()
+    );
+  }
+  private isCheckRequired(keys: any): boolean {
+    if (!keys) return false;
+    this.buildUsedNames();
+    for (var i = 0; i < this.usedNames.length; i++) {
+      if (keys.hasOwnProperty(this.usedNames[i])) return true;
+      //if (keys[this.usedNames[i]] != undefined) return true;
+    }
+    return false;
+  }
+  private buildUsedNames() {
+    if (!!this.conditionRunner) return;
+    var expression = this.expression;
+    if (!expression) {
+      expression = this.buildExpression();
+    }
+    if (!expression) return;
+    this.conditionRunner = new ConditionRunner(expression);
+    this.usedNames = this.conditionRunner.getVariables();
+    var processValue = new ProcessValue();
+    for (var i = 0; i < this.usedNames.length; i++) {
+      this.usedNames[i] = processValue.getFirstName(this.usedNames[i]);
+    }
+  }
+  private get isRequireValue(): boolean {
+    return this.operator !== "empty" && this.operator != "notempty";
+  }
 }
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  doComplete();
-  setTriggerValue(name: string, value: any, isVariable: boolean);
+  setCompleted(): any;
+  setTriggerValue(name: string, value: any, isVariable: boolean): any;
+  copyTriggerValue(name: string, fromName: string): any;
 }
 
 /**
  * It extends the Trigger base class and add properties required for SurveyJS classes.
  */
 export class SurveyTrigger extends Trigger {
-  public name: string;
   protected owner: ISurveyTriggerOwner = null;
   constructor() {
     super();
@@ -110,7 +210,7 @@ export class SurveyTriggerVisible extends SurveyTrigger {
   public getType(): string {
     return "visibletrigger";
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     this.onTrigger(this.onItemSuccess);
   }
   protected onFailure() {
@@ -143,8 +243,8 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   public get isOnNextPage() {
     return true;
   }
-  protected onSuccess() {
-    if (this.owner) this.owner.doComplete();
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+    if (this.owner) this.owner.setCompleted();
   }
 }
 export class SurveyTriggerSetValue extends SurveyTrigger {
@@ -157,14 +257,55 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   public getType(): string {
     return "setvaluetrigger";
   }
-  protected onSuccess() {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
 
-JsonObject.metaData.addClass("trigger", ["operator", "!value"]);
-JsonObject.metaData.addClass("surveytrigger", ["!name"], null, "trigger");
+export class SurveyTriggerRunExpression extends SurveyTrigger {
+  public setToName: string;
+  public runExpression: any;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "runexpressiontrigger";
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+    if (!this.owner || !this.runExpression) return;
+    var newValue = undefined;
+    var expression = new ExpressionRunner(this.runExpression);
+    if (expression.canRun) {
+      newValue = expression.run(values, properties);
+    }
+    if (!this.setToName || newValue !== undefined) {
+      this.owner.setTriggerValue(this.setToName, newValue, false);
+    }
+  }
+}
+
+export class SurveyTriggerCopyValue extends SurveyTrigger {
+  public setToName: string;
+  public fromName: any;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "copyvaluetrigger";
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+    if (!this.setToName || !this.owner) return;
+    this.owner.copyTriggerValue(this.setToName, this.fromName);
+  }
+}
+
+JsonObject.metaData.addClass("trigger", [
+  { name: "operator", default: "equal" },
+  "value",
+  "expression:condition"
+]);
+JsonObject.metaData.addClass("surveytrigger", ["name"], null, "trigger");
 JsonObject.metaData.addClass(
   "visibletrigger",
   ["pages", "questions"],
@@ -186,6 +327,23 @@ JsonObject.metaData.addClass(
   ["!setToName", "setValue", "isVariable:boolean"],
   function() {
     return new SurveyTriggerSetValue();
+  },
+  "surveytrigger"
+);
+
+JsonObject.metaData.addClass(
+  "copyvaluetrigger",
+  ["!setToName", "!fromName"],
+  function() {
+    return new SurveyTriggerCopyValue();
+  },
+  "surveytrigger"
+);
+JsonObject.metaData.addClass(
+  "runExpressiontrigger",
+  ["setToName", "runExpression"],
+  function() {
+    return new SurveyTriggerRunExpression();
   },
   "surveytrigger"
 );

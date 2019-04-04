@@ -44,17 +44,18 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`
-    .page`${url}${framework}/customWidget.html`.beforeEach(async ctx => {
-    await initSurvey(framework, json, "bootstrap");
-  });
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json);
+    }
+  );
 
   test(`check integrity`, async t => {
     await t
-      .hover(`li:nth-child(1) .image_picker_image`)
-      .hover(`li:nth-child(2) .image_picker_image`)
-      .hover(`li:nth-child(3) .image_picker_image`)
-      .hover(`li:nth-child(4) .image_picker_image`);
+      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(2)`)
+      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)`)
+      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(4)`)
+      .hover(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(5)`);
   });
 
   test(`choose empty`, async t => {
@@ -77,7 +78,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .click(`li:nth-child(2) .image_picker_image`)
+      .click(`fieldset.sv_imgsel .sv_q_imgsel:nth-child(3)`)
       .click(`input[value=Complete]`);
 
     surveyResult = await getSurveyResult();

@@ -1,18 +1,18 @@
 import * as React from "react";
 import { ReactSurveyModel } from "./reactsurveymodel";
-import { SurveyPage } from "./reactpage";
+import { SurveyPage } from "./page";
 import { SurveyNavigation } from "./reactSurveyNavigation";
-import { QuestionBase } from "../questionbase";
+import { SurveyError } from "../base";
+import { Question } from "../question";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
-import { SurveyElementBase } from "./reactquestionelement";
+import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
 
-export class Survey extends React.Component<any, any>
-  implements ISurveyCreator {
+export class Survey extends SurveyElementBase implements ISurveyCreator {
   public static get cssType(): string {
     return surveyCss.currentType;
   }
@@ -21,21 +21,30 @@ export class Survey extends React.Component<any, any>
   }
   protected survey: ReactSurveyModel;
   private isCurrentPageChanged: boolean = false;
+  private onCurrentPageChangedHandler = (sender: any, options: any): any => {
+    this.isCurrentPageChanged = true;
+  };
+
   constructor(props: any) {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
     this.state = this.getState();
-    this.updateSurvey(props);
+    this.updateSurvey(props, null);
   }
   componentWillReceiveProps(nextProps: any) {
+    this.unMakeBaseElementReact(this.survey);
     this.setState(this.getState());
-    this.updateSurvey(nextProps);
+    this.updateSurvey(nextProps, this.props);
+    this.makeBaseElementReact(this.survey);
   }
   componentDidUpdate() {
     if (this.isCurrentPageChanged) {
       this.isCurrentPageChanged = false;
       this.survey.scrollToTopOnPageChange();
     }
+  }
+  componentWillMount() {
+    this.makeBaseElementReact(this.survey);
   }
   componentDidMount() {
     var el = this.refs["root"];
@@ -45,8 +54,10 @@ export class Survey extends React.Component<any, any>
     }
   }
   componentWillUnmount() {
+    this.unMakeBaseElementReact(this.survey);
     if (this.survey) {
       this.survey.stopTimer();
+      this.survey.onCurrentPageChanged.remove(this.onCurrentPageChangedHandler);
     }
   }
   doRender(): JSX.Element {
@@ -63,14 +74,18 @@ export class Survey extends React.Component<any, any>
       renderResult = this.renderSurvey();
     }
     var title = this.renderTitle();
-
+    var onSubmit = function() {
+      return false;
+    };
     return (
       <div ref="root" className={this.css.root}>
-        <div className="sv_custom_header" />
-        <div className="sv_container">
-          {title}
-          {renderResult}
-        </div>
+        <form onSubmit={onSubmit}>
+          <div className="sv_custom_header" />
+          <div className="sv_container">
+            {title}
+            {renderResult}
+          </div>
+        </form>
       </div>
     );
   }
@@ -83,7 +98,7 @@ export class Survey extends React.Component<any, any>
   public set css(value: any) {
     this.survey.mergeCss(value, this.css);
   }
-  handleTryAgainClick(event) {
+  handleTryAgainClick(event: any) {
     this.survey.doComplete();
   }
   protected renderCompleted(): JSX.Element {
@@ -140,12 +155,12 @@ export class Survey extends React.Component<any, any>
       ? this.renderPage(this.survey.startedPage)
       : null;
     var pageId = this.survey.startedPage ? this.survey.startedPage.id : "";
-    var startButton = this.renderNavigation();
     return (
       <div>
         <div id={pageId} className={this.css.body}>
+          {this.renderNavigation("top")}
           {startedPage}
-          {startButton}
+          {this.renderNavigation("bottom")}
         </div>
       </div>
     );
@@ -155,13 +170,12 @@ export class Survey extends React.Component<any, any>
       ? this.renderPage(this.survey.currentPage)
       : null;
     var pageId = this.survey.currentPage ? this.survey.currentPage.id : "";
-    var topProgress =
-      this.survey.showProgressBar == "top" ? this.renderProgress(true) : null;
-    var bottomProgress =
-      this.survey.showProgressBar == "bottom"
-        ? this.renderProgress(false)
-        : null;
-    var buttons = currentPage ? this.renderNavigation() : null;
+    var topProgress = this.survey.isShowProgressBarOnTop
+      ? this.renderProgress(true)
+      : null;
+    var bottomProgress = this.survey.isShowProgressBarOnBottom
+      ? this.renderProgress(false)
+      : null;
     if (!currentPage) {
       currentPage = this.renderEmptySurvey();
     }
@@ -169,10 +183,11 @@ export class Survey extends React.Component<any, any>
       <div id={pageId} className={this.css.body}>
         {topProgress}
         {this.renderTimerPanel("top")}
+        {this.renderNavigation("top")}
         {currentPage}
         {this.renderTimerPanel("bottom")}
         {bottomProgress}
-        {buttons}
+        {this.renderNavigation("bottom")}
       </div>
     );
   }
@@ -189,7 +204,7 @@ export class Survey extends React.Component<any, any>
   }
   protected renderTimerPanel(location: string) {
     if (this.survey.showTimerPanel != location) return null;
-    return <SurveyTimerPanel survey={this.survey} css={this.css} />;
+    return <SurveyTimerPanel survey={this.survey} />;
   }
   protected renderPage(page: PageModel): JSX.Element {
     return (
@@ -204,14 +219,21 @@ export class Survey extends React.Component<any, any>
   protected renderProgress(isTop: boolean): JSX.Element {
     return <SurveyProgress survey={this.survey} css={this.css} isTop={isTop} />;
   }
-  protected renderNavigation(): JSX.Element {
+  protected renderNavigation(navPosition: string): JSX.Element {
+    if (
+      this.survey.isNavigationButtonsShowing !== "both" &&
+      (this.survey.isNavigationButtonsShowing === "none" ||
+        this.survey.isNavigationButtonsShowing !== navPosition)
+    ) {
+      return null;
+    }
     return <SurveyNavigation survey={this.survey} css={this.css} />;
   }
   protected renderEmptySurvey(): JSX.Element {
     return <span>{this.survey.emptySurveyText}</span>;
   }
 
-  protected updateSurvey(newProps: any) {
+  protected updateSurvey(newProps: any, oldProps: any) {
     if (newProps) {
       if (newProps.model) {
         this.survey = newProps.model;
@@ -235,60 +257,48 @@ export class Survey extends React.Component<any, any>
           this.survey[key] &&
           this.survey[key].add
         ) {
-          let funcBody = newProps[key];
-          let func = function(sender, options) {
-            funcBody(sender, options);
-          };
-          this.survey[key].add(func);
+          if (oldProps) {
+            this.survey[key].remove(oldProps[key]);
+          }
+          this.survey[key].add(newProps[key]);
         } else {
           this.survey[key] = newProps[key];
         }
       }
     }
-
     //set the first page
     var dummy = this.survey.currentPage;
 
     this.setSurveyEvents(newProps);
   }
   private getState() {
-    return { pageIndexChange: 0, isCompleted: false, modelChanged: 0 };
+    return { pageIndexChange: 0, modelChanged: 0 };
   }
   protected setSurveyEvents(newProps: any) {
     var self = this;
+
     this.survey.renderCallback = function() {
       self.setState({ modelChanged: self.state.modelChanged + 1 });
     };
-    this.survey.onComplete.add(sender => {
-      self.setState({ isCompleted: true });
-    });
     this.survey.onPartialSend.add(sender => {
       self.setState(self.state);
     });
-    this.survey.onCurrentPageChanged.add((sender, options) => {
-      self.isCurrentPageChanged = true;
-      self.setState({ pageIndexChange: self.state.pageIndexChange + 1 });
-    });
-    this.survey.onVisibleChanged.add((sender, options) => {
-      if (options.question && options.question.react) {
-        var state = options.question.react.state;
-        state.visible = options.question.visible;
-        options.question.react.setState(state);
-      }
-    });
+    this.survey.onCurrentPageChanged.add(this.onCurrentPageChangedHandler);
+    /*
     this.survey.onValueChanged.add((sender, options) => {
       if (options.question && options.question.react) {
-        var state = options.question.react.state;
+        var state = options.question.react.state || {};
         state.value = options.value;
         options.question.react.setState(state);
       }
       if (newProps && newProps.data)
         newProps.data[options.name] = options.value;
     });
+    */
   }
 
   //ISurveyCreator
-  public createQuestionElement(question: QuestionBase): JSX.Element {
+  public createQuestionElement(question: Question): JSX.Element {
     return ReactQuestionFactory.Instance.createQuestion(
       question.getTemplate(),
       {
@@ -300,12 +310,15 @@ export class Survey extends React.Component<any, any>
   }
   public renderError(
     key: string,
-    errorText: string,
+    error: SurveyError,
     cssClasses: any
   ): JSX.Element {
     return (
-      <div key={key} className={cssClasses.error.item}>
-        {errorText}
+      <div key={key}>
+        <span className={cssClasses.error.icon} aria-hidden="true" />
+        <span className={cssClasses.error.item}>
+          <SurveyLocString locStr={error.locText} />
+        </span>
       </div>
     );
   }

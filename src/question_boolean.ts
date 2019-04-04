@@ -15,6 +15,9 @@ export class QuestionBooleanModel extends Question {
   public getType(): string {
     return "boolean";
   }
+  isLayoutTypeSupported(layoutType: string): boolean {
+    return true;
+  }
   /**
    * Returns true if the question check will be rendered in indeterminate mode. value is empty.
    */
@@ -50,8 +53,16 @@ export class QuestionBooleanModel extends Question {
     return this.getPropertyValue("defaultValue", "indeterminate");
   }
   public set defaultValue(val: any) {
+    if (val === true) val = "true";
+    if (val === false) val = "false";
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
+  }
+  public getDefaultValue(): any {
+    if (this.defaultValue == "indeterminate") return null;
+    return this.defaultValue == "true"
+      ? this.getValueTrue()
+      : this.getValueFalse();
   }
   /**
    * The checkbox label. If it is empty and showTitle is false then title is rendered

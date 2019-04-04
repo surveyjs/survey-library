@@ -11,7 +11,7 @@ import {
 } from "../questionCustomWidgets";
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
-import { QuestionRatingModel } from "../question_rating";
+import { ImplementorBase } from "./kobase";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -39,11 +39,11 @@ export class Survey extends SurveyModel {
     any
   >();
   private isFirstRender: boolean = true;
+  private mouseDownPage: any = null;
 
   koCurrentPage: any;
   koIsFirstPage: any;
   koIsLastPage: any;
-  koIsNavigationButtonsShowing: any;
   dummyObservable: any;
   koState: any;
   koProgress: any;
@@ -54,26 +54,67 @@ export class Survey extends SurveyModel {
   koCompletedStateCss: any;
   koTimerInfoText: any;
 
+  public getDataValueCore(valuesHash: any, key: string) {
+    if (valuesHash[key] === undefined) {
+      valuesHash[key] = ko.observable();
+    }
+    return ko.unwrap(valuesHash[key]);
+  }
+  public setDataValueCore(valuesHash: any, key: string, value: any) {
+    if (ko.isWriteableObservable(valuesHash[key])) {
+      valuesHash[key](value);
+    } else {
+      valuesHash[key] = ko.observable(value);
+      // if (Array.isArray(value)) {
+      //   valuesHash[key] = ko.observableArray(value);
+      //   (<any>value)["onArrayChanged"] = () =>
+      //     valuesHash[key].notifySubscribers();
+      // } else {
+      //   valuesHash[key] = ko.observable(value);
+      // }
+    }
+  }
+  public deleteDataValueCore(valuesHash: any, key: string) {
+    if (ko.isWriteableObservable(valuesHash[key])) {
+      valuesHash[key](undefined);
+    } else {
+      delete valuesHash[key];
+    }
+  }
+
   constructor(
     jsonObj: any = null,
     renderedElement: any = null,
     css: any = null
   ) {
     super(jsonObj);
+    new ImplementorBase(this);
+    if (typeof ko === "undefined")
+      throw new Error("knockoutjs library is not loaded.");
+    var self = this;
+    // this.iterateDataValuesHash((hash: any, key: string) => {
+    //   var val = hash[key];
+    //   if (!ko.isWriteableObservable(val)) {
+    //     hash[key] = ko.observable(val);
+    //   }
+    // });
     if (css) {
       this.css = css;
     }
     if (renderedElement) {
       this.renderedElement = renderedElement;
     }
-    if (typeof ko === "undefined")
-      throw new Error("knockoutjs library is not loaded.");
-    var self = this;
-    this.registerFunctionOnPropertyValueChanged("timeSpent", function() {
-      self.onTimeSpentChanged();
-    });
-
     this.render(renderedElement);
+  }
+  public nextPageUIClick() {
+    if (!!this.mouseDownPage && this.mouseDownPage !== this.currentPage) return;
+    this.mouseDownPage = null;
+    this.nextPage();
+  }
+  public nextPageMouseDown() {
+    this.mouseDownPage = this.currentPage;
+    var el = <any>document.activeElement;
+    if (!!el && !!el.blur) el.blur();
   }
   public get cssNavigationComplete() {
     return this.getNavigationCss(
@@ -116,6 +157,7 @@ export class Survey extends SurveyModel {
     this.mergeValues(value, this.css);
   }
   public render(element: any = null) {
+    this.updateKoCurrentPage();
     this.updateCustomWidgets(this.currentPage);
     var self = this;
     if (element && typeof element == "string") {
@@ -126,11 +168,17 @@ export class Survey extends SurveyModel {
     }
     element = this.renderedElement;
     if (!element) return;
-    element.innerHTML = this.getHtmlTemplate();
     self.startTimerFromUI();
     self.applyBinding();
   }
-  public koEventAfterRender(element, survey) {
+  public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+    super.clear(clearData, gotoFirstPage);
+    this.render();
+  }
+  protected onLocaleChanged() {
+    this.render();
+  }
+  public koEventAfterRender(element: any, survey: any) {
     survey.onRendered.fire(self, {});
     survey.afterRenderSurvey(element);
   }
@@ -144,7 +192,7 @@ export class Survey extends SurveyModel {
     }
     super.loadSurveyFromService(surveyId, clientId);
   }
-  protected setCompleted() {
+  public setCompleted() {
     super.setCompleted();
     this.updateKoCurrentPage();
   }
@@ -162,10 +210,6 @@ export class Survey extends SurveyModel {
     var self = this;
     this.dummyObservable = ko.observable(0);
     this.koCurrentPage = ko.observable(this.currentPage);
-    this.koIsNavigationButtonsShowing = ko.computed(() => {
-      this.dummyObservable();
-      return this.isNavigationButtonsShowing;
-    });
     this.koIsFirstPage = ko.computed(() => {
       this.dummyObservable();
       return this.isFirstPage;
@@ -187,7 +231,7 @@ export class Survey extends SurveyModel {
     this.koCompletedStateText = ko.observable("");
     this.koCompletedStateCss = ko.observable("");
     this.koTimerInfoText = ko.observable(this.timerInfoText);
-    this.koAfterRenderPage = function(elements, con) {
+    this.koAfterRenderPage = function(elements: any, con: any) {
       var el = SurveyElement.GetFirstNonTextElement(elements);
       if (el) self.afterRenderPage(el);
     };
@@ -215,8 +259,17 @@ export class Survey extends SurveyModel {
       this.completedState !== "" ? this.css.saveData[this.completedState] : ""
     );
   }
-  protected onTimeSpentChanged() {
+  protected doTimer() {
+    super.doTimer();
     this.koTimerInfoText(this.timerInfoText);
+  }
+  private createTemplates() {
+    if (!document.getElementById("survey-content")) {
+      var templates = document.createElement("div");
+      templates.style.display = "none";
+      templates.innerHTML = this.getHtmlTemplate();
+      document.body.appendChild(templates);
+    }
   }
   private applyBinding() {
     if (!this.renderedElement) return;
@@ -226,7 +279,13 @@ export class Survey extends SurveyModel {
       this.updateCurrentPageQuestions();
     }
     this.isFirstRender = false;
-    ko.applyBindings(this, this.renderedElement);
+    this.createTemplates();
+    ko.renderTemplate(
+      "survey-content",
+      this,
+      { afterRender: this.koEventAfterRender },
+      this.renderedElement
+    );
   }
   private updateKoCurrentPage() {
     if (this.isLoadingFromJson) return;
@@ -252,6 +311,10 @@ LocalizableString.prototype["onCreating"] = function() {
     self.koReRender();
     return self.renderedHtml;
   });
+};
+
+ItemValue.prototype["onCreating"] = function() {
+  new ImplementorBase(this);
 };
 
 LocalizableString.prototype["onChanged"] = function() {

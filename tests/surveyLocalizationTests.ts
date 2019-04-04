@@ -1,5 +1,6 @@
 import { surveyLocalization } from "../src/surveyStrings";
 import { SurveyModel } from "../src/survey";
+import { Question } from "../src/question";
 
 import "../src/localization/russian";
 import "../src/localization/french";
@@ -53,7 +54,7 @@ QUnit.test("set german localization", function(assert) {
 QUnit.test("set german localization", function(assert) {
   var survey = new SurveyModel();
   survey.locale = "de";
-  assert.equal(survey.completeText, "Absenden");
+  assert.equal(survey.completeText, "Abschließen");
   surveyLocalization.currentLocale = "";
 });
 QUnit.test("set finnish localization", function(assert) {
@@ -92,4 +93,82 @@ QUnit.test("Supported locales", function(assert) {
     localesCounts,
     "Support all locales"
   );
+});
+QUnit.test("Do not have empty locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.title = "Title_DE";
+  survey.locale = "en";
+  survey.title = "Title_EN";
+  survey.locale = "";
+  assert.deepEqual(survey.toJSON(), {
+    title: { en: "Title_EN", default: "Title_DE" }
+  });
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test("Do not serialize default locale", function(assert) {
+  var survey = new SurveyModel();
+  surveyLocalization.defaultLocale = "de";
+  survey.locale = "de";
+  assert.deepEqual(survey.toJSON(), {});
+  survey.locale = "";
+  surveyLocalization.defaultLocale = "en";
+});
+
+QUnit.test(
+  "surveyLocalization returns empty on currentLocale if it equals to defaultLocale",
+  function(assert) {
+    assert.equal(
+      surveyLocalization.currentLocale,
+      "",
+      "It is empty by default"
+    );
+    surveyLocalization.currentLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de'");
+    surveyLocalization.defaultLocale = "de";
+    assert.equal(surveyLocalization.currentLocale, "", "It is empty again");
+    surveyLocalization.defaultLocale = "en";
+    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de' again");
+    surveyLocalization.currentLocale = "";
+    var survey = new SurveyModel();
+    survey.locale = "en";
+    assert.equal(survey.locale, "", "Locale is empty, since 'en' is default");
+  }
+);
+
+QUnit.test("Fix the bug, when the default locale is set as specific", function(
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: {
+          en: "English 1"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <Question>survey.getQuestionByName("q1");
+  assert.equal(
+    question.locTitle.renderedHtml,
+    "English 1",
+    "Get the english locale"
+  );
+});
+
+QUnit.test("Return English localization texts if text not exist", function(
+  assert
+) {
+  surveyLocalization.locales["en"]["custom_test_key"] = "item";
+  var oldDl = surveyLocalization.defaultLocale;
+  var oldCl = surveyLocalization.currentLocale;
+  surveyLocalization.defaultLocale = "de";
+  surveyLocalization.currentLocale = "de";
+  assert.equal(surveyLocalization.getString("custom_test_key"), "item");
+  surveyLocalization.defaultLocale = oldDl;
+  surveyLocalization.currentLocale = oldCl;
 });

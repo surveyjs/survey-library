@@ -6,16 +6,22 @@ export class TextPreProcessorItem {
 export class TextPreProcessorValue {
   constructor(public name: string, public returnDisplayValue: boolean) {
     this.isExists = false;
+    this.canProcess = true;
   }
   public value: any;
   public isExists: boolean;
+  public canProcess: boolean;
 }
 
 export class TextPreProcessor {
-  private hasAllValuesOnLastRunValue: boolean = false;
+  private hasAllValuesOnLastRunValue: boolean;
   public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor() {}
-  public process(text: string, returnDisplayValue: boolean = false): string {
+  public process(
+    text: string,
+    returnDisplayValue: boolean = false,
+    doEncoding: boolean = false
+  ): string {
     this.hasAllValuesOnLastRunValue = true;
     if (!text) return text;
     if (!this.onProcess) return text;
@@ -23,26 +29,29 @@ export class TextPreProcessor {
     for (var i = items.length - 1; i >= 0; i--) {
       var item = items[i];
       var name = this.getName(text.substring(item.start + 1, item.end));
-      if (!this.canProcessName(name)) continue;
+      if (!name) continue;
       var textValue = new TextPreProcessorValue(name, returnDisplayValue);
       this.onProcess(textValue);
       if (!textValue.isExists) {
-        this.hasAllValuesOnLastRunValue = false;
+        if (textValue.canProcess) {
+          this.hasAllValuesOnLastRunValue = false;
+        }
         continue;
       }
-      if (textValue.value == null) {
-        textValue.value = "";
+      if (!textValue.value) {
         this.hasAllValuesOnLastRunValue = false;
       }
+      var replacedValue = !!textValue.value ? textValue.value : "";
+      if (doEncoding) {
+        replacedValue = encodeURIComponent(replacedValue);
+      }
       text =
-        text.substr(0, item.start) +
-        textValue.value +
-        text.substr(item.end + 1);
+        text.substr(0, item.start) + replacedValue + text.substr(item.end + 1);
     }
     return text;
   }
   public get hasAllValuesOnLastRun() {
-    return this.hasAllValuesOnLastRunValue;
+    return !!this.hasAllValuesOnLastRunValue;
   }
   private getItems(text: string): Array<TextPreProcessorItem> {
     var items = [];
@@ -67,13 +76,5 @@ export class TextPreProcessor {
   private getName(name: string): string {
     if (!name) return;
     return name.trim();
-  }
-  private canProcessName(name: string): boolean {
-    if (!name) return false;
-    for (var i = 0; i < name.length; i++) {
-      var ch = name[i];
-      if (ch == " " || ch == "-" || ch == "&") return false;
-    }
-    return true;
   }
 }

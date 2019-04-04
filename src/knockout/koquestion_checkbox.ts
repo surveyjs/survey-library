@@ -4,34 +4,52 @@ import { JsonObject } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
+import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
     super(question);
   }
-  protected createkoValue(): any {
-    return this.question.value
-      ? ko.observableArray(this.question.value)
-      : ko.observableArray();
-  }
-  protected setkoValue(newValue: any) {
-    if (newValue) {
-      this.koValue([].concat(newValue));
-    } else {
-      this.koValue([]);
-    }
+  protected getKoValue() {
+    return this.question.renderedValue;
   }
 }
+
 export class QuestionCheckbox extends QuestionCheckboxModel {
+  koAllSelected: any;
+  private isAllSelectedUpdating = false;
   constructor(public name: string) {
     super(name);
     new QuestionCheckboxImplementor(this);
+    this.koAllSelected = ko.observable(this.isAllSelected);
+    var self = this;
+    this.koAllSelected.subscribe(function(newValue: any) {
+      if (self.isAllSelectedUpdating) return;
+      if (newValue) self.selectAll();
+      else self.clearValue();
+    });
   }
-  getItemClass(item) {
-    var isChecked = this["koValue"]() && this["koValue"]().indexOf(item.value) !== -1;
+  protected onValueChanged() {
+    super.onValueChanged();
+    this.updateAllSelected();
+  }
+  protected onVisibleChoicesChanged() {
+    super.onVisibleChoicesChanged();
+    this.updateAllSelected();
+  }
+  protected updateAllSelected() {
+    this.isAllSelectedUpdating = true;
+    this.koAllSelected(this.isAllSelected);
+    this.isAllSelectedUpdating = false;
+  }
+  getItemClass(item: any) {
+    var val = this.value; //trigger dependencies from koValue for knockout
+    var isChecked = this.isItemSelected(item);
     var itemClass =
       this.cssClasses.item +
-      (this.colCount === 0 ? " sv_q_checkbox_inline" : "");
+      (this.colCount === 0
+        ? " sv_q_checkbox_inline"
+        : " sv-q-col-" + this.colCount);
 
     if (isChecked) itemClass += " checked";
 

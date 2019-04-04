@@ -1,13 +1,20 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
-    <!-- ko ifnot: question.koIsReadOnly -->
-    <div data-bind="css: question.koCss().selectWrapper">
-        <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, options: question.koVisibleChoices, optionsText: 'text', optionsValue: 'value', value: question.koValue, optionsCaption: question.optionsCaption, css: question.koCss().control"></select>
-    </div>
-    <!-- /ko -->
-    <!-- ko if: question.koIsReadOnly -->
-    <div data-bind="text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.koCss().control"></div>
-    <!-- /ko -->
-    <div data-bind="visible: question.hasOther">
-        <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.koOtherVisible } }, css: question.koCss().other"></div>
-    </div>
+  <!-- ko ifnot: question.isReadOnly -->
+  <div data-bind="css: question.koCss().selectWrapper">
+      <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.renderedValue, valueAllowUnset: true, css: question.koCss().control">
+        <!-- ko if: question.showOptionsCaption -->
+        <option data-bind="text:question.optionsCaption, value: null"></option>
+        <!-- /ko -->
+        <!-- ko foreach: question.visibleChoices -->
+        <option data-bind="value: $data.value, text: $data.text, attr: { disabled: !$data.isEnabled }"></option>
+        <!-- /ko -->
+      </select>
+  </div>
+  <!-- /ko -->
+  <!-- ko if: question.isReadOnly -->
+  <div data-bind="text: question.hasOther && question.isOtherSelected ? question.otherText : question.displayValue, css: question.koCss().control"></div>
+  <!-- /ko -->
+  <!-- ko if: question.hasOther -->
+  <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}"></div>
+  <!-- /ko -->
 </script>

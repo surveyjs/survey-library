@@ -2,46 +2,35 @@ import * as ko from "knockout";
 import { PageModel } from "../page";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
 import { JsonObject } from "../jsonobject";
-import { QuestionBase } from "../questionbase";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
+import { ImplementorBase } from "./kobase";
 
 export class QuestionRow extends QuestionRowModel {
-  koVisible: any;
-  koElements: any;
   koGetType: any;
   koElementAfterRender: any;
   constructor(public panel: PanelModelBase) {
     super(panel);
-    this.koVisible = ko.observable(this.visible);
-    this.koElements = ko.observableArray();
+    new ImplementorBase(this);
     var self = this;
-    this.koGetType = function(el) {
+    this.koGetType = function(el: any) {
       return self.getElementType(el);
     };
-    this.koElementAfterRender = function(el, con) {
+    this.koElementAfterRender = function(el: any, con: any) {
       return self.elementAfterRender(el, con);
     };
   }
-  public addElement(q: IElement) {
-    super.addElement(q);
-    this.koElements(this.elements);
-  }
-  protected onVisibleChanged() {
-    this.koVisible(this.visible);
-    super.onVisibleChanged();
-  }
-  public getElementType(el) {
+  public getElementType(el: any) {
     return el.isPanel ? "survey-panel" : "survey-question";
   }
-  public koAfterRender(el, con) {
+  public koAfterRender(el: any, con: any) {
     for (var i = 0; i < el.length; i++) {
       var tEl = el[i];
       var nName = tEl.nodeName;
       if (nName == "#text") tEl.data = "";
     }
   }
-  private elementAfterRender(elements, con) {
+  private elementAfterRender(elements: any, con: any) {
     if (!this.panel || !this.panel.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
@@ -54,24 +43,14 @@ export class QuestionRow extends QuestionRowModel {
   }
 }
 
-export class PanelImplementorBase {
-  koRows: any;
+export class PanelImplementorBase extends ImplementorBase {
   constructor(public panel: PanelModelBase) {
-    var self = this;
-    this.koRows = ko.observableArray();
-    this.panel.rowsChangedCallback = function() {
-      self.koRows(self.panel.rows);
-    };
-    this.panel["koRows"] = this.koRows;
+    super(panel);
   }
 }
 
 export class Panel extends PanelModel {
-  koVisible: any;
-  koInnerMargin: any;
-  koRenderWidth: any;
   koElementType: any;
-  koErrors: any;
   koCss: any;
   koIsExpanded: any;
   koIsCollapsed: any;
@@ -82,9 +61,6 @@ export class Panel extends PanelModel {
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koVisible = ko.observable(this.isVisible);
-    this.koRenderWidth = ko.observable(this.renderWidth);
-    this.koErrors = ko.observable(this.errors);
     this.koCss = ko.pureComputed(function() {
       return self.cssClasses;
     });
@@ -93,19 +69,9 @@ export class Panel extends PanelModel {
     this.stateChangedCallback = function() {
       self.onStateChanged();
     };
-    this.errorsChangedCallback = function() {
-      self.koErrors(self.errors);
-    };
     this.doExpand = function() {
       self.changeExpanded();
     };
-    this.registerFunctionOnPropertiesValueChanged(
-      ["renderWidth", "innerIndent", "rightIndent"],
-      function() {
-        self.onRenderWidthChanged();
-      }
-    );
-    this.koInnerMargin = ko.observable(this.getIndentSize(this.innerIndent));
   }
   protected createRow(): QuestionRowModel {
     return new QuestionRow(this);
@@ -113,10 +79,6 @@ export class Panel extends PanelModel {
   protected onCreating() {}
   protected onNumChanged(value: number) {
     this.locTitle.onChanged();
-  }
-  protected onRenderWidthChanged() {
-    this.koRenderWidth(this.renderWidth);
-    this.koInnerMargin(this.getIndentSize(this.innerIndent));
   }
   private onStateChanged() {
     this.koIsCollapsed(this.isCollapsed);
@@ -131,7 +93,7 @@ export class Panel extends PanelModel {
     }
   }
   getTitleStyle() {
-    var result = this.koCss().panel.title;
+    var result = this.cssClasses.panel.title;
     if (this.koIsCollapsed() || this.koIsExpanded()) {
       result += " sv_p_title_expandable";
     }
@@ -139,26 +101,14 @@ export class Panel extends PanelModel {
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    this.koVisible(this.isVisible);
     this.onStateChanged();
-  }
-  protected onVisibleChanged() {
-    super.onVisibleChanged();
-    this.koVisible(this.isVisible);
-  }
-  private getIndentSize(indent: number): string {
-    if (indent < 1) return "";
-    if (!this.data) return "";
-    var css = this.survey["css"];
-    if (!css) return "";
-    return indent * css.question.indent + "px";
   }
 }
 
 export class Page extends PageModel {
   constructor(name: string = "") {
     super(name);
-    new PanelImplementorBase(this);
+    new ImplementorBase(this);
     this.onCreating();
   }
   protected createRow(): QuestionRowModel {

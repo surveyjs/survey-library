@@ -1,17 +1,35 @@
 import { englishStrings } from "./localization/english";
 
 export var surveyLocalization = {
-  currentLocale: "",
-  defaultLocale: "en",
-  locales: {},
-  localeNames: {},
-  supportedLocales: [],
+  currentLocaleValue: "",
+  defaultLocaleValue: "en",
+  locales: <{[index: string]: any}>{},
+  localeNames: <{[index: string]: any}>{},
+  supportedLocales: <Array<any>>[],
+  get currentLocale() {
+    return this.currentLocaleValue === this.defaultLocaleValue
+      ? ""
+      : this.currentLocaleValue;
+  },
+  set currentLocale(val: string) {
+    this.currentLocaleValue = val;
+  },
+  get defaultLocale() {
+    return this.defaultLocaleValue;
+  },
+  set defaultLocale(val: string) {
+    this.defaultLocaleValue = val;
+  },
   getString: function(strName: string) {
     var loc = this.currentLocale
       ? this.locales[this.currentLocale]
       : this.locales[this.defaultLocale];
     if (!loc || !loc[strName]) loc = this.locales[this.defaultLocale];
-    return loc[strName];
+    var result = loc[strName];
+    if(result === undefined) {
+      result = this.locales["en"][strName];
+    }
+    return result;
   },
   getLocales: function(): Array<string> {
     var res = [];
@@ -31,5 +49,5 @@ export var surveyLocalization = {
 };
 
 export var surveyStrings = englishStrings;
-surveyLocalization.locales["en"] = englishStrings;
-surveyLocalization.localeNames["en"] = "english";
+(<any>surveyLocalization).locales["en"] = englishStrings;
+(<any>surveyLocalization).localeNames["en"] = "english";

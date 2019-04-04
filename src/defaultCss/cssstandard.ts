@@ -1,4 +1,4 @@
-export var surveyCss = {
+export var surveyCss: any = {
   currentType: "",
   getCss: function() {
     var loc = this.currentType ? this[this.currentType] : defaultStandardCss;
@@ -33,7 +33,10 @@ export var defaultStandardCss = {
   row: "sv_row",
   question: {
     mainRoot: "sv_q sv_qstn",
+    flowRoot: "sv_q_flow sv_qstn",
+    titleLeftRoot: "sv_qstn_left",
     title: "sv_q_title",
+    number: "sv_q_num",
     description: "sv_q_description",
     comment: "",
     required: "",
@@ -42,16 +45,32 @@ export var defaultStandardCss = {
     indent: 20,
     footer: "sv_q_footer"
   },
-  panel: { title: "sv_p_title", description: "", container: "sv_p_container" },
-  error: { root: "sv_q_erbox", icon: "", item: "" },
+  panel: {
+    title: "sv_p_title",
+    description: "sv_p_description",
+    container: "sv_p_container"
+  },
+  error: {
+    root: "sv_q_erbox",
+    icon: "",
+    item: "",
+    locationTop: "sv_qstn_error_top",
+    locationBottom: "sv_qstn_error_bottom"
+  },
 
-  boolean: { root: "sv_qcbc sv_qbln", item: "sv_q_checkbox", label: "" },
+  boolean: {
+    root: "sv_qcbc sv_qbln",
+    item: "sv_q_checkbox",
+    label: "",
+    materialDecorator: "checkbox-material"
+  },
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
     controlLabel: "sv_q_checkbox_control_label",
+    materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other"
   },
   comment: "",
@@ -59,20 +78,33 @@ export var defaultStandardCss = {
     root: "",
     control: "sv_q_dropdown_control",
     selectWrapper: "sv_select_wrapper",
-    other: "sv_q_other"
+    other: "sv_q_dd_other"
   },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
     cellText: "sv_q_m_cell_text",
-    cellTextSelected: "sv_q_m_cell_selected"
+    cellTextSelected: "sv_q_m_cell_selected",
+    cellLabel: "sv_q_m_cell_label"
   },
   matrixdropdown: { root: "sv_q_matrix_dropdown" },
   matrixdynamic: {
     root: "sv_q_matrix_dynamic",
-    button: "sv_matrix_dynamic_button"
+    button: "sv_matrix_dynamic_button",
+    buttonAdd: "",
+    buttonRemove: "",
+    iconAdd: "",
+    iconRemove: ""
   },
-  paneldynamic: { root: "sv_panel_dynamic", title: "sv_p_title", button: "" },
+  paneldynamic: {
+    root: "sv_panel_dynamic",
+    title: "sv_p_title",
+    button: "",
+    buttonPrev: "",
+    buttonNext: "",
+    buttonAdd: "",
+    buttonRemove: ""
+  },
   multipletext: {
     root: "sv_q_mt",
     itemTitle: "sv_q_mt_title",
@@ -85,7 +117,18 @@ export var defaultStandardCss = {
     label: "sv_q_radiogroup_label",
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
-    other: "sv_q_other sv_q_radiogroup_other"
+    materialDecorator: "circle",
+    other: "sv_q_other sv_q_radiogroup_other",
+    clearButton: "sv_q_radiogroup_clear"
+  },
+  imagepicker: {
+    root: "sv_imgsel",
+    item: "sv_q_imgsel",
+    label: "sv_q_imgsel_label",
+    itemControl: "sv_q_imgsel_control_item",
+    image: "sv_q_imgsel_image",
+    itemText: "sv_q_imgsel_text",
+    clearButton: "sv_q_radiogroup_clear"
   },
   rating: {
     root: "sv_q_rating",
@@ -101,7 +144,9 @@ export var defaultStandardCss = {
     root: "sv_q_file",
     placeholderInput: "sv_q_file_placeholder",
     preview: "sv_q_file_preview",
-    removeButton: "sv_q_file_remove_button"
+    removeButton: "sv_q_file_remove_button",
+    fileInput: "sv_q_file_input",
+    removeFile: "sv_q_file_remove"
   },
   saveData: {
     root: "",

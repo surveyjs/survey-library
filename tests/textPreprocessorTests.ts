@@ -2,6 +2,7 @@ import {
   TextPreProcessor,
   TextPreProcessorValue
 } from "../src/textPreProcessor";
+import { Question } from "../src/question";
 import { ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("TextPreprocessorTests");
@@ -19,13 +20,9 @@ QUnit.test("Replace simple names", function(assert) {
   result = processor.process("test1{111}");
   assert.equal(result, "test1aaa111", "at the end");
   result = processor.process("test1{aaa bbb}");
-  assert.equal(result, "test1{aaa bbb}", "do not process several words");
+  assert.equal(result, "test1aaaaaa bbb", "several words");
   result = processor.process("test1{aaa-bbb}");
-  assert.equal(
-    result,
-    "test1{aaa-bbb}",
-    "do not process several words separed by any symbols"
-  );
+  assert.equal(result, "test1aaaaaa-bbb", "complex name");
   result = processor.process("test1{   bbb   }");
   assert.equal(result, "test1aaabbb", "removespaces");
   result = processor.process("test1{ }");
@@ -90,4 +87,38 @@ QUnit.test("ProcessValue getValue/hasValue, arrays and nested values", function(
   assert.equal(process.getValue("b[0].d", value), 2, "b[0].d=2");
   assert.equal(process.getValue("b[1].c[0]", value), 3, "c[0]=3");
   assert.equal(process.getValue("b[1].c[1].d", value), 4, "c[0].d=4");
+});
+
+QUnit.test("Question process any property", function(assert) {
+  var question = new Question("q1");
+  var processor = new TextPreProcessor();
+  processor.onProcess = val => question["getProcessedTextValue"](val);
+  assert.equal(
+    processor.process("test1 {name} test2"),
+    "test1 q1 test2",
+    "name is the same"
+  );
+});
+
+QUnit.test("ProcessValue setValue function", function(assert) {
+  var processor = new ProcessValue();
+  var data = { a: [{}], b: { c: 2 } };
+  processor.setValue(data, "name", 1);
+  assert.deepEqual(
+    data,
+    { a: [{}], b: { c: 2 }, name: 1 },
+    "set the simple value correctly"
+  );
+  processor.setValue(data, "a[0].name", 1);
+  assert.deepEqual(
+    data,
+    { a: [{ name: 1 }], b: { c: 2 }, name: 1 },
+    "set the array value correctly"
+  );
+  processor.setValue(data, "b.c", 5);
+  assert.deepEqual(
+    data,
+    { a: [{ name: 1 }], b: { c: 5 }, name: 1 },
+    "set the nested object value correctly"
+  );
 });

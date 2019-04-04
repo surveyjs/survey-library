@@ -1,17 +1,17 @@
 <script type="text/html" id="survey-panel">
-    <div data-bind="style:{ width: koRenderWidth }, attr: {id: id}, css: cssClasses.panel.container">
+    <div data-bind="style:{ width: renderWidth }, attr: {id: id}, css: cssClasses.panel.container">
         <h4 data-bind="visible: (processedTitle.length > 0), css: $data.getTitleStyle(), click: doExpand">
             <!-- ko template: { name: 'survey-string', data: locTitle } -->
             <!-- /ko -->
             <span class="sv_panel_icon" data-bind="visible: koIsCollapsed() || koIsExpanded(), css: {sv_expanded: !koIsCollapsed()}"></span>
         </h4>
-        <div data-bind="visible: hasDescription, css: cssClasses.panel.description">
+        <div data-bind="css: cssClasses.panel.description">
             <!-- ko template: { name: 'survey-string', data: locDescription } -->
             <!-- /ko -->
         </div>
         <!-- ko template: { name: 'survey-question-errors', data: $data } -->
         <!-- /ko -->
-        <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: koInnerMargin }">
+        <div data-bind="visible: !koIsCollapsed(), style: { paddingLeft: innerPaddingLeft}">
             <!-- ko template: { name: 'survey-rows', data: $data} -->
             <!-- /ko -->
         </div>

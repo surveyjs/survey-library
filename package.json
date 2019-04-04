@@ -1,7 +1,9 @@
 {
   "scripts": {
     "start": "npm run build_dev && live-server --port=7777",
+    "serve": "live-server --port=7777",
     "test": "karma start",
+    "testsingle": "karma start --single-run",
     "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s\" ",
@@ -17,21 +19,27 @@
     "build_jquery_prod": "webpack --env.buildType prod --env.platform jquery",
     "build_vue_prod": "webpack --env.buildType prod --env.platform vue",
     "build_prod": "npm run build_dev && concurrently \"npm run build_knockout_prod\" \"npm run build_react_prod\" \"npm run build_angular_prod\" \"npm run build_jquery_prod\" \"npm run build_vue_prod\"",
-    "doc_gen": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docgenerator.ts src/entries/chunks/model.ts",
-    "doc_update": "set TS_NODE_COMPILER_OPTIONS={\"module\":\"commonjs\"} && ts-node doc_generator/lib_docupdater.ts",
-    "lint": "tslint ./src/**/*.ts -t verbose"
+    "doc_gen": "node doc_generator/lib_docgenerator.js src/entries/chunks/model.ts",
+    "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
+    "lint": "tslint ./src/**/*.ts -t verbose",
+    "watch_knockout_dev": "webpack --env.buildType dev --env.platform knockout --watch",
+    "watch_react_dev": "webpack --env.buildType dev --env.platform react --watch",
+    "watch_angular_dev": "webpack --env.buildType dev --env.platform angular --watch",
+    "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
+    "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.16",
+  "version": "1.0.78",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
     "@types/angular": "1.6.2",
     "@types/jquery": "2.0.39",
     "@types/knockout": "3.4.46",
+    "@types/lodash": "4.14.121",
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
-    "@types/react": "^16.0.38",
-    "@types/react-dom": "^16.0.4",
+    "@types/react": "16.4.2",
+    "@types/react-dom": "16.8.0",
     "ajv": "4.11.2",
     "concurrently": "3.1.0",
     "css-loader": "0.26.1",
@@ -42,6 +50,7 @@
     "github-api": "^3.0.0",
     "html-loader": "0.4.4",
     "http-server": "0.9.0",
+    "husky": "^1.2.1",
     "jquery": "3.1.1",
     "karma": "^2.0.0",
     "karma-chrome-launcher": "^2.2.0",
@@ -51,8 +60,9 @@
     "karma-webpack": "2.0.2",
     "knockout": "3.4.0",
     "live-server": "1.2.0",
-    "node-sass": "4.4.0",
+    "node-sass": "4.9.2",
     "node-uuid": "1.4.7",
+    "prettier": "~1.12.0",
     "puppeteer": "^1.0.0",
     "qunitjs": "2.2.0",
     "react": "^16.2.0",
@@ -66,7 +76,6 @@
     "testcafe": "0.15.0",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.3.4",
-    "ts-node": "3.3.0",
     "tslint": "4.5.1",
     "typescript": "2.6.1",
     "url-loader": "^0.6.2",
@@ -77,5 +86,10 @@
     "vue-property-decorator": "4.0.0",
     "vue-template-compiler": "2.1.10",
     "webpack": "2.2.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "npm run testsingle"
+    }
   }
 }

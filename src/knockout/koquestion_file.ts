@@ -6,44 +6,53 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionFileImplementor extends QuestionImplementor {
-  koDataUpdater = ko.observable(0);
-  koData: any;
-  koHasValue = ko.observable(false);
+  koState = ko.observable<string>("empty");
+  koHasValue = ko.computed(() => this.koState() === "loaded");
+  koData = ko.computed(() => {
+    if (this.koHasValue()) {
+      return (<QuestionFileModel>this.question).previewValue;
+    }
+    return [];
+  });
+  koInputTitle = ko.observable<string>();
+
   constructor(question: Question) {
     super(question);
     var self = this;
-    this.koData = ko.computed(() => {
-      self.koDataUpdater();
-      return (<QuestionFileModel>self.question).previewValue;
+    (<any>this.question)["koData"] = this.koData;
+    (<any>this.question)["koHasValue"] = this.koHasValue;
+    (<any>this.question)["koInputTitle"] = this.koInputTitle;
+    var updateState = (state: any) => {
+      this.koState(state);
+      this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
+    };
+    (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
+      updateState(options.state);
     });
-    this.question["koData"] = this.koData;
-    this.question["koHasValue"] = this.koHasValue;
-    (<QuestionFileModel>this.question).previewValueLoadedCallback =
-      self.onLoadPreview;
-    this.question["dochange"] = (data, event) => {
+    (<any>this.question)["dochange"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
     };
-    this.question["doclean"] = (data, event) => {
+    (<any>this.question)["doclean"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
+      var input = src.parentElement.querySelectorAll("input")[0];
       (<QuestionFileModel>this.question).clear();
-      src.parentElement.querySelectorAll("input")[0].value = "";
-      this.koHasValue(false);
+      input.value = "";
+    };
+    (<any>this.question)["doremovefile"] = (data: any, event: any) => {
+      (<QuestionFileModel>this.question).removeFile(data);
     };
   }
   private onChange(src: any) {
-    if (!window["FileReader"]) return;
+    if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {
       files.push(src.files[i]);
     }
+    src.value = "";
     (<QuestionFileModel>this.question).loadFiles(files);
-    this.koHasValue(true);
   }
-  onLoadPreview = () => {
-    this.koDataUpdater(this.koDataUpdater() + 1);
-  };
 }
 
 export class QuestionFile extends QuestionFileModel {

@@ -1,8 +1,8 @@
-import { Base, SurveyError, ITextProcessor } from "./base";
+import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
 import { ItemValue } from "./itemvalue";
 import { JsonObject, JsonObjectProperty } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
-import { CustomError } from "./error";
+import { WebRequestError, WebRequestEmptyError } from "./error";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -43,11 +43,15 @@ class XmlParser {
 
 /**
  * A definition for filling choices for checkbox, dropdown and radiogroup questions from resfull services.
- * The run method call a restfull service and results can be get on getREsultCallback.
+ * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
-  private static itemsResult = {};
+  private static itemsResult: { [index: string]: any } = {};
   public static onBeforeSendRequest: (
+    sender: ChoicesRestfull,
+    options: { request: XMLHttpRequest }
+  ) => void;
+  public beforeSendRequestCallback: (
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
   ) => void;
@@ -61,11 +65,16 @@ export class ChoicesRestfull extends Base {
     return true;
   }
   private lastObjHash: string = "";
+  private isRunningValue: boolean = false;
   protected processedUrl: string = "";
   protected processedPath: string = "";
   public getResultCallback: (items: Array<ItemValue>) => void;
+  public updateResultCallback: (
+    items: Array<ItemValue>,
+    serverResult: any
+  ) => Array<ItemValue>;
   public error: SurveyError = null;
-  public owner: Base;
+  public owner: IQuestion;
   constructor() {
     super();
   }
@@ -73,22 +82,35 @@ export class ChoicesRestfull extends Base {
     if (!this.url || !this.getResultCallback) return;
     this.processedText(textProcessor);
     if (!this.processedUrl) {
-      this.getResultCallback([]);
+      this.doEmptyResultCallback({});
       return;
     }
     if (this.lastObjHash == this.objHash) return;
     this.lastObjHash = this.objHash;
-    if (this.useChangedItemsResults()) return;
     this.error = null;
+    if (this.useChangedItemsResults()) return;
     this.sendRequest();
+  }
+  public get isRunning() {
+    return this.isRunningValue;
+  }
+  public get isWaitingForParameters() {
+    return this.url && !this.processedUrl;
   }
   protected useChangedItemsResults(): boolean {
     return ChoicesRestfull.getCachedItemsResult(this);
   }
+  private doEmptyResultCallback(serverResult: any) {
+    var items: Array<any> = [];
+    if (this.updateResultCallback) {
+      items = this.updateResultCallback(items, serverResult);
+    }
+    this.getResultCallback(items);
+  }
   private processedText(textProcessor: ITextProcessor) {
     if (textProcessor) {
-      var pUrl = textProcessor.processTextEx(this.url, false);
-      var pPath = textProcessor.processTextEx(this.path, false);
+      var pUrl = textProcessor.processTextEx(this.url, false, true);
+      var pPath = textProcessor.processTextEx(this.path, false, true);
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";
@@ -101,7 +123,7 @@ export class ChoicesRestfull extends Base {
       this.processedPath = this.path;
     }
   }
-  protected parseResponse(response) {
+  protected parseResponse(response: any) {
     let parsedResponse;
     if (
       !!response &&
@@ -116,18 +138,20 @@ export class ChoicesRestfull extends Base {
       } catch {
         parsedResponse = (response || "")
           .split("\n")
-          .map(s => s.trim(" "))
-          .filter(s => !!s);
+          .map((s: any) => s.trim(" "))
+          .filter((s: any) => !!s);
       }
     }
     return parsedResponse;
   }
   protected sendRequest() {
+    this.isRunningValue = true;
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
     xhr.onload = function() {
+      self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response));
       } else {
@@ -137,6 +161,9 @@ export class ChoicesRestfull extends Base {
     var options = { request: xhr };
     if (!!ChoicesRestfull.onBeforeSendRequest) {
       ChoicesRestfull.onBeforeSendRequest(this, options);
+    }
+    if (!!this.beforeSendRequestCallback) {
+      this.beforeSendRequestCallback(this, options);
     }
     options.request.send();
   }
@@ -161,7 +188,12 @@ export class ChoicesRestfull extends Base {
     var properties = JsonObject.metaData.getProperties(this.itemValueType);
     var res = [];
     for (var i = 0; i < properties.length; i++) {
-      if (properties[i].name === "value" || properties[i].name === "text")
+      if (
+        properties[i].name === "value" ||
+        properties[i].name === "text" ||
+        properties[i].name === "visibleIf" ||
+        properties[i].name === "enableIf"
+      )
         continue;
       res.push(properties[i]);
     }
@@ -175,19 +207,20 @@ export class ChoicesRestfull extends Base {
     if (json.titleName) this.titleName = json.titleName;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (json[properties[i]]) this[properties[i]] = json[properties[i]];
+      if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
     }
   }
   public getData(): any {
     if (this.isEmpty) return null;
-    var res = {};
+    var res: any = {};
     if (this.url) res["url"] = this.url;
     if (this.path) res["path"] = this.path;
     if (this.valueName) res["valueName"] = this.valueName;
     if (this.titleName) res["titleName"] = this.titleName;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (this[properties[i]]) res[properties[i]] = this[properties[i]];
+      if ((<any>this)[properties[i]])
+        res[properties[i]] = (<any>this)[properties[i]];
     }
     return res;
   }
@@ -222,7 +255,7 @@ export class ChoicesRestfull extends Base {
       "choices"
     );
     if (!prop) return "itemvalue";
-    if (prop.type == "itemvalues") return "itemvalue";
+    if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
   public clear() {
@@ -232,15 +265,15 @@ export class ChoicesRestfull extends Base {
     this.titleName = "";
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
-      if (this[properties[i]]) this[properties[i]] = "";
+      if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
     }
   }
   protected onLoad(result: any) {
     var items = [];
-    result = this.getResultAfterPath(result);
-    if (result && result["length"]) {
-      for (var i = 0; i < result.length; i++) {
-        var itemValue = result[i];
+    var updatedResult = this.getResultAfterPath(result);
+    if (updatedResult && updatedResult["length"]) {
+      for (var i = 0; i < updatedResult.length; i++) {
+        var itemValue = updatedResult[i];
         if (!itemValue) continue;
         var value = this.getValue(itemValue);
         var title = this.getTitle(itemValue);
@@ -249,9 +282,10 @@ export class ChoicesRestfull extends Base {
         items.push(item);
       }
     } else {
-      this.error = new CustomError(
-        surveyLocalization.getString("urlGetChoicesError")
-      );
+      this.error = new WebRequestEmptyError(null, this.owner);
+    }
+    if (this.updateResultCallback) {
+      items = this.updateResultCallback(items, result);
     }
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
@@ -265,23 +299,19 @@ export class ChoicesRestfull extends Base {
         this.getPropertyBinding(prop.name)
       );
       if (!this.isValueEmpty(val)) {
-        item[prop.name] = val;
+        (<any>item)[prop.name] = val;
       }
     }
   }
   private getPropertyBinding(propertyName: string) {
-    if (this[this.getCustomPropertyName(propertyName)])
-      return this[this.getCustomPropertyName(propertyName)];
-    if (this[propertyName]) return this[propertyName];
+    if ((<any>this)[this.getCustomPropertyName(propertyName)])
+      return (<any>this)[this.getCustomPropertyName(propertyName)];
+    if ((<any>this)[propertyName]) return (<any>this)[propertyName];
     return propertyName;
   }
   private onError(status: string, response: string) {
-    this.error = new CustomError(
-      surveyLocalization
-        .getString("urlRequestError")
-        ["format"](status, response)
-    );
-    this.getResultCallback([]);
+    this.error = new WebRequestError(status, response, this.owner);
+    this.doEmptyResultCallback(response);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;

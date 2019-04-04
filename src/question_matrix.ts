@@ -1,16 +1,17 @@
-import { Base } from "./base";
+import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { Question } from "./question";
+import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject } from "./jsonobject";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
-import { CustomError } from "./error";
+import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { IConditionObject } from "./question";
 
 export interface IMatrixData {
-  onMatrixRowChanged(row: MatrixRowModel);
+  onMatrixRowChanged(row: MatrixRowModel): void;
 }
 
 export class MatrixRowModel {
@@ -55,7 +56,7 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
 
 export class MartrixCells {
   public static DefaultRowName = "default";
-  private values = {};
+  private values: { [index: string]: any } = {};
   public constructor(public cellsOwner: IMatrixCellsOwner) {}
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
@@ -138,9 +139,9 @@ export class MartrixCells {
   }
   public getJson(): any {
     if (this.isEmpty) return null;
-    var res = {};
+    var res: { [index: string]: any } = {};
     for (var row in this.values) {
-      var resRow = {};
+      var resRow: { [index: string]: any } = {};
       var rowValues = this.values[row];
       for (var col in rowValues) {
         resRow[col] = rowValues[col].getJson();
@@ -172,24 +173,28 @@ export class MartrixCells {
 /**
  * A Model for a simple matrix question.
  */
-export class QuestionMatrixModel extends Question
+export class QuestionMatrixModel
+  extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
   implements IMatrixData, IMatrixCellsOwner {
-  private columnsValue: Array<ItemValue>;
-  private rowsValue: Array<ItemValue>;
   private isRowChanging = false;
-  private generatedVisibleRows: Array<MatrixRowModel>;
-  private cellsValue;
+  private cellsValue: MartrixCells;
+
+  protected createColumnValues() {
+    return this.createItemValues("columns");
+  }
+
   constructor(public name: string) {
     super(name);
-    this.columnsValue = this.createItemValues("columns");
-    this.rowsValue = this.createItemValues("rows");
     this.cellsValue = new MartrixCells(this);
+    var self = this;
+    this.registerFunctionOnPropertyValueChanged("rows", function() {
+      if (!self.filterItems()) {
+        self.onRowsChanged();
+      }
+    });
   }
   public getType(): string {
     return "matrix";
-  }
-  public get isAllowTitleLeft(): boolean {
-    return false;
   }
   /**
    * Set this property to true, if you want a user to answer all rows.
@@ -204,54 +209,68 @@ export class QuestionMatrixModel extends Question
    * Returns true, if there is at least one row.
    */
   public get hasRows(): boolean {
-    return this.rowsValue.length > 0;
+    return this.rows.length > 0;
   }
   /**
-   * The list of columns. A column has a value and an optional text
+   * Use this property to render items in a specific order: "random" or "initial". Default is "initial".
    */
-  get columns(): Array<any> {
-    return this.columnsValue;
+  public get rowsOrder(): string {
+    return this.getPropertyValue("rowsOrder", "initial");
   }
-  set columns(newValue: Array<any>) {
-    this.setPropertyValue("columns", newValue);
-  }
-  /**
-   * The list of rows. A row has a value and an optional text
-   */
-  get rows(): Array<any> {
-    return this.rowsValue;
-  }
-  set rows(newValue: Array<any>) {
-    this.setPropertyValue("rows", newValue);
-  }
-  /**
-   * Returns the list of rows as model objects.
-   */
-  public get visibleRows(): Array<MatrixRowModel> {
-    var result = new Array<MatrixRowModel>();
-    var val = this.value;
-    if (!val) val = {};
-    for (var i = 0; i < this.rows.length; i++) {
-      if (!this.rows[i].value) continue;
-      result.push(
-        this.createMatrixRow(
-          this.rows[i],
-          this.name + "_" + this.rows[i].value.toString(),
-          val[this.rows[i].value]
-        )
-      );
-    }
-    if (result.length == 0) {
-      result.push(this.createMatrixRow(new ItemValue(null), this.name, val));
-    }
-    this.generatedVisibleRows = result;
-    return result;
+  public set rowsOrder(val: string) {
+    val = val.toLowerCase();
+    if (val == this.rowsOrder) return;
+    this.setPropertyValue("rowsOrder", val);
+    this.onRowsChanged();
   }
   getRows(): Array<any> {
     return this.rows;
   }
   getColumns(): Array<any> {
-    return this.columns;
+    return this.visibleColumns;
+  }
+  protected getVisibleRows(): Array<MatrixRowModel> {
+    var result = new Array<MatrixRowModel>();
+    var val = this.value;
+    if (!val) val = {};
+    var rows = !!this.filteredRows ? this.filteredRows : this.rows;
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      if (this.isValueEmpty(row.value)) continue;
+      result.push(
+        this.createMatrixRow(
+          row,
+          this.id + "_" + row.value.toString().replace(/\s/g, "_"),
+          val[row.value]
+        )
+      );
+    }
+    if (result.length == 0 && !this.filteredRows) {
+      result.push(
+        this.createMatrixRow(
+          new ItemValue(null),
+          this.name.replace(/\s/g, "_"),
+          val
+        )
+      );
+    }
+    result = this.sortVisibleRows(result);
+    this.generatedVisibleRows = result;
+    return result;
+  }
+  protected sortVisibleRows(
+    array: Array<MatrixRowModel>
+  ): Array<MatrixRowModel> {
+    var order = this.rowsOrder.toLowerCase();
+    if (order == "random") return Helpers.randomizeArray<MatrixRowModel>(array);
+    return array;
+  }
+  /**
+   * Returns the list of visible rows as model objects.
+   * @see rowsVisibleIf
+   */
+  public get visibleRows(): Array<MatrixRowModel> {
+    return this.getVisibleRows();
   }
   public get cells(): MartrixCells {
     return this.cellsValue;
@@ -282,34 +301,13 @@ export class QuestionMatrixModel extends Question
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  public clearIncorrectValues() {
-    var val = this.value;
-    if (!val) return;
-    var newVal = {};
-    var isChanged = false;
-    for (var key in val) {
-      if (
-        ItemValue.getItemByValue(this.rows, key) &&
-        ItemValue.getItemByValue(this.columns, val[key])
-      ) {
-        newVal[key] = val[key];
-      } else {
-        isChanged = true;
-      }
-    }
-    if (isChanged) {
-      this.value = newVal;
-    }
-  }
   supportGoNextPageAutomatic() {
     return this.hasValuesInAllRows();
   }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
-      errors.push(
-        new CustomError(surveyLocalization.getString("requiredInAllRowsError"))
-      );
+      errors.push(new RequiredInAllRowsError(null, this));
     }
   }
   private hasErrorInRows(): boolean {
@@ -333,7 +331,8 @@ export class QuestionMatrixModel extends Question
   ): MatrixRowModel {
     return new MatrixRowModel(item, fullName, this, value);
   }
-  protected onValueChanged() {
+  protected setQuestionValue(newValue: any) {
+    super.setQuestionValue(newValue);
     if (
       this.isRowChanging ||
       !this.generatedVisibleRows ||
@@ -354,18 +353,85 @@ export class QuestionMatrixModel extends Question
     }
     this.isRowChanging = false;
   }
-  public get displayValue(): any {
-    var values = this.value;
+  public getDisplayValueCore(keysAsText: boolean): any {
+    var values = this.createValueCopy();
     if (!values) return values;
+    var res: { [index: string]: any } = {};
     for (var key in values) {
-      values[key] = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
+      var newKey = keysAsText
+        ? ItemValue.getTextOrHtmlByValue(this.rows, key)
+        : key;
+      if (!newKey) newKey = key;
+      var newValue = ItemValue.getTextOrHtmlByValue(this.columns, values[key]);
+      if (!newValue) newValue = values[key];
+      res[newKey] = newValue;
     }
-    return values;
+    return res;
+  }
+  public getPlainData(
+    options: {
+      includeEmpty?: boolean;
+      calculations?: Array<{
+        propertyName: string;
+      }>;
+    } = {
+      includeEmpty: true
+    }
+  ) {
+    var questionPlainData = super.getPlainData(options);
+    if (!!questionPlainData) {
+      var values = this.createValueCopy();
+      questionPlainData.isNode = true;
+      questionPlainData.data = Object.keys(values || {}).map(rowName => {
+        var row = this.rows.filter(
+          (r: MatrixRowModel) => r.value === rowName
+        )[0];
+        var rowDataItem = <any>{
+          name: rowName,
+          title: !!row ? row.text : "row",
+          value: values[rowName],
+          displayValue: ItemValue.getTextOrHtmlByValue(
+            this.visibleColumns,
+            values[rowName]
+          ),
+          getString: (val: any) =>
+            typeof val === "object" ? JSON.stringify(val) : val,
+          isNode: false
+        };
+        var item = ItemValue.getItemByValue(
+          this.visibleColumns,
+          values[rowName]
+        );
+        if (!!item) {
+          (options.calculations || []).forEach(calculation => {
+            rowDataItem[calculation.propertyName] =
+              item[calculation.propertyName];
+          });
+        }
+        return rowDataItem;
+      });
+    }
+    return questionPlainData;
   }
   public addConditionNames(names: Array<string>) {
     for (var i = 0; i < this.rows.length; i++) {
       if (this.rows[i].value) {
         names.push(this.name + "." + this.rows[i].value);
+      }
+    }
+  }
+  public addConditionObjectsByContext(
+    objects: Array<IConditionObject>,
+    context: any
+  ) {
+    for (var i = 0; i < this.rows.length; i++) {
+      var row = this.rows[i];
+      if (!!row.value) {
+        objects.push({
+          name: this.name + "." + row.value,
+          text: this.processedTitle + "." + row.text,
+          question: this
+        });
       }
     }
   }
@@ -399,30 +465,23 @@ JsonObject.metaData.addClass(
   "matrix",
   [
     {
-      name: "columns:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.columns);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.columns = value;
-      }
+      name: "columns:itemvalue[]"
     },
     {
-      name: "rows:itemvalues",
-      onGetValue: function(obj: any) {
-        return ItemValue.getData(obj.rows);
-      },
-      onSetValue: function(obj: any, value: any) {
-        obj.rows = value;
-      }
+      name: "rows:itemvalue[]"
     },
     { name: "cells:cells", serializationProperty: "cells" },
+    {
+      name: "rowsOrder",
+      default: "initial",
+      choices: ["initial", "random"]
+    },
     "isAllRowRequired:boolean"
   ],
   function() {
     return new QuestionMatrixModel("");
   },
-  "question"
+  "matrixbase"
 );
 
 QuestionFactory.Instance.registerQuestion("matrix", name => {

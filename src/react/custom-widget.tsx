@@ -52,7 +52,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
 
     let widget = null;
     if (customWidget.widgetJson.render) {
-      widget = customWidget.widgetJson.render(this.questionBase);
+      widget = customWidget.widgetJson.render(this.questionBase,this.creator);
     } else {
       if (customWidget.htmlTemplate) {
         let htmlValue = { __html: customWidget.htmlTemplate };

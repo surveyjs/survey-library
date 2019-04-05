@@ -194,7 +194,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   private question: QuestionPanelDynamicModel;
   private index: number;
-  protected creator: ISurveyCreator;
+  public creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
     this.setProperties(props);

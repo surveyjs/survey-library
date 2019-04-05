@@ -26,7 +26,7 @@ export class SurveyQuestion extends SurveyElementBase {
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
   protected question: Question;
-  private creator: ISurveyCreator;
+  public creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
     this.updateProps(props);
@@ -252,7 +252,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   [index: string]: any;
   private questionValue: Question;
-  protected creator: ISurveyCreator;
+  public creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
     this.setProperties(props);

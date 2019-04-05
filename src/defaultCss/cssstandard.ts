@@ -80,6 +80,7 @@ export var defaultStandardCss = {
     selectWrapper: "sv_select_wrapper",
     other: "sv_q_dd_other"
   },
+  html: { root: "" },
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",

@@ -146,7 +146,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
 
 export class SurveyQuestionMatrixDropdownRowBase extends ReactSurveyElement {
   protected row: MatrixDropdownRowModelBase;
-  public creator: ISurveyCreator;
+  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
     this.setProperties(props);

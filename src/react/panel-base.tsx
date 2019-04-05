@@ -8,7 +8,7 @@ import { SurveyRow } from "./row";
 export class SurveyPanelBase extends SurveyElementBase {
   private panelValue: PanelModelBase;
   protected survey: SurveyModel;
-  public creator: ISurveyCreator;
+  protected creator: ISurveyCreator;
   protected css: any;
   constructor(props: any) {
     super(props);

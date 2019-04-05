@@ -111,7 +111,7 @@ export class ReactSurveyElement extends SurveyElementBase {
 
 export class SurveyQuestionElementBase extends SurveyElementBase {
   protected questionBase: Question;
-  public creator: ISurveyCreator;
+  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
     this.questionBase = props.question;

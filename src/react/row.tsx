@@ -10,7 +10,7 @@ import { ReactElementFactory } from "./element-factory";
 export class SurveyRow extends SurveyElementBase {
   private row: QuestionRowModel;
   private survey: SurveyModel;
-  public creator: ISurveyCreator;
+  private creator: ISurveyCreator;
   protected css: any;
   constructor(props: any) {
     super(props);

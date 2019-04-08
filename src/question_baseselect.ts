@@ -681,7 +681,7 @@ JsonObject.metaData.addClass(
     "choicesEnableIf:condition",
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
-    { name: "storeOthersAsComment:boolean", default: true }
+    { name: "storeOthersAsComment:boolean", default: true, visible: false }
   ],
   null,
   "question"

@@ -89,6 +89,11 @@ var platformOptions = {
     },
     keywords: ["vue"],
     dependencies: { vue: "^2.1.10" }
+  },
+  core: {
+    externals: {},
+    keywords: ["survey", "library"],
+    dependencies: {}
   }
 };
 

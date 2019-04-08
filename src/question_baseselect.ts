@@ -298,13 +298,15 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("hideIfChoicesEmpty", val);
   }
   /**
+   * Please user survey.storeOthersAsComment to change the behavior on the survey level. This property is depricated and invisible in Survey Creator.
    * By default the entered text in the others input in the checkbox/radiogroup/dropdown are stored as "question name " + "-Comment". The value itself is "question name": "others". Set this property to false, to store the entered text directly in the "question name" key.
+   * Possible values are: "default", true, false
    * @see SurveyModel.storeOthersAsComment
    */
-  public get storeOthersAsComment(): boolean {
-    return this.getPropertyValue("storeOthersAsComment", true);
+  public get storeOthersAsComment(): any {
+    return this.getPropertyValue("storeOthersAsComment", "default");
   }
-  public set storeOthersAsComment(val: boolean) {
+  public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
   }
   protected hasOtherChanged() {
@@ -479,7 +481,8 @@ export class QuestionSelectBase extends Question {
   protected getStoreOthersAsComment() {
     if (this.isSettingDefaultValue) return false;
     return (
-      (this.storeOthersAsComment &&
+      this.storeOthersAsComment === true ||
+      (this.storeOthersAsComment == "default" &&
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
       (!this.choicesByUrl.isEmpty && !this.choicesFromUrl)
     );
@@ -681,7 +684,12 @@ JsonObject.metaData.addClass(
     "choicesEnableIf:condition",
     { name: "otherText", serializationProperty: "locOtherText" },
     { name: "otherErrorText", serializationProperty: "locOtherErrorText" },
-    { name: "storeOthersAsComment:boolean", default: true, visible: false }
+    {
+      name: "storeOthersAsComment",
+      default: "default",
+      choices: ["default", true, false],
+      visible: false
+    }
   ],
   null,
   "question"

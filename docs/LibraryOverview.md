@@ -760,7 +760,7 @@ Please go to [this demo](https://surveyjs.io/Examples/Library/?id=survey-multila
 
 ## Extend SurveyJS Elements by adding properties
 
-Since this topic is mostly for our SurveyJS Builder (Editor) users, it is described in [Builder Documentation](https://surveyjs.io/Documentation/Builder/?id=Survey-Builder-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Builder (Editor).
+Since this topic is mostly for our Survey Builder users, it is described in [Builder Documentation](https://surveyjs.io/Documentation/Builder/?id=Survey-Builder-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Builder.
 
 <div id="triggers"></div>
 

@@ -863,6 +863,7 @@ export class PanelModelBase extends SurveyElement
       var el = <SurveyElement>(<any>this.elements[i]);
       el.setPropertyValue("isReadOnly", el.isReadOnly);
     }
+    super.onReadOnlyChanged();
   }
   /**
    * An expression that returns true or false. If it returns false the Panel/Page becomes read only and an end-user will not able to answer on qustions inside it.

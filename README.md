@@ -2,12 +2,12 @@
 
 **SurveyJS** is a modern way to add surveys and forms to your website. It has versions for angular2+, jQuery, knockout, react and vue.
 
-[![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
+[![Build Status](https://travis-ci.org/surveyjs/survey-library.svg?branch=master)](https://travis-ci.org/surveyjs/survey-library) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
 </a>
 <a href="https://github.com/surveyjs/survey-library/issues">
-<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/surveyjs.svg">
+<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
 </a>
 <a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
 <img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">

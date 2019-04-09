@@ -307,6 +307,12 @@ export class Survey extends SurveyModel {
 LocalizableString.prototype["onCreating"] = function() {
   var self = this;
   this.koReRender = ko.observable(0);
+  Object.defineProperty(self, "koHasHtml", {
+    get: () => {
+      self.koReRender();
+      return self.hasHtml;
+    }
+  });
   this.koRenderedHtml = ko.pureComputed(function() {
     self.koReRender();
     return self.renderedHtml;

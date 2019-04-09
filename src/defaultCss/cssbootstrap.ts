@@ -68,6 +68,7 @@ export var defaultBootstrapCss = {
     control: "form-control",
     other: "sv_q_dd_other form-control"
   },
+  html: { root: "" },
   matrix: {
     root: "table sv_q_matrix",
     label: "sv_q_m_label",

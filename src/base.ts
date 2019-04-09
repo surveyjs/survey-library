@@ -592,6 +592,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   private surveyValue: ISurvey;
   private textProcessorValue: ITextProcessor;
   private selectedElementInDesignValue: SurveyElement = this;
+  public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
     if (!elementId) return false;
@@ -681,7 +682,11 @@ export class SurveyElement extends Base implements ISurveyElement {
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
-  protected onReadOnlyChanged() {}
+  protected onReadOnlyChanged() {
+    if (!!this.readOnlyChangedCallback) {
+      this.readOnlyChangedCallback();
+    }
+  }
   public get isLoadingFromJson() {
     if (this.isLoadingFromJsonValue) return true;
     return this.survey ? this.survey.isLoadingFromJson : false;

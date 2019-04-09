@@ -6,7 +6,7 @@ There are three sections inside **Embed Survey** tab: _head_, _html_, _javascrip
 
 Another easy way, is to go to  [one of our examples](https://surveyjs.io/Examples/Library/), click on plunker button and copy the code from plunker editors into your web application.
 
-If you do not want to use our Azure CDN, you may download our script files from GitHub: [SurveyJS library](https://github.com/surveyjs/surveyjs/releases), or go to our [cdn repository](https://github.com/surveyjs/builds). It contains all versions since 0.12.0 (early 2017).
+If you do not want to use our Azure CDN, you may download our script files from GitHub: [Survey library](https://github.com/surveyjs/survey-library/releases), or go to our [cdn repository](https://github.com/surveyjs/builds). It contains all versions since 0.12.0 (early 2017).
 
 
 Finally you may select one of our npm packages, based on your JavaScript platform, and install it.

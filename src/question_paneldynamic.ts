@@ -1074,6 +1074,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < this.panels.length; i++) {
       this.panels[i].readOnly = readOnly;
     }
+    super.onReadOnlyChanged();
   }
   public onSurveyLoad() {
     this.template.readOnly = this.isReadOnly;

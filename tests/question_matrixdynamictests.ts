@@ -21,6 +21,10 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
+import {
+  CustomWidgetCollection,
+  QuestionCustomWidget
+} from "../src/questionCustomWidgets";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -2040,5 +2044,58 @@ QUnit.test(
     matrix.columns[0].choices = ["1", "2", "3"];
     assert.deepEqual(question.choices.length, 3, "Choices set correctly");
     assert.equal(counter, 1, "There was only one change");
+  }
+);
+
+QUnit.test(
+  "customwidget.readOnlyChangedCallback doesn't work correctly, https://surveyjs.answerdesk.io/ticket/details/T1869",
+  function(assert) {
+    var isReadOnly = false;
+    var isFitValue = false;
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({
+      name: "customWidget",
+      isFit: question => {
+        var res = question.getType() == "text";
+        if (res) {
+          isFitValue = true;
+          const onReadOnlyChangedCallback = function() {
+            isReadOnly = question.isReadOnly;
+          };
+          question.readOnlyChangedCallback = onReadOnlyChangedCallback;
+          onReadOnlyChangedCallback();
+        }
+        return res;
+      }
+    });
+    var json = {
+      elements: [
+        {
+          type: "dropdown",
+          name: "renVer",
+          choices: [1, 2],
+          defaultValue: 1
+        },
+        {
+          type: "matrixdynamic",
+          name: "m",
+          columns: [
+            {
+              name: "DESC",
+              cellType: "text",
+              enableIf: "{renVer} = 2"
+            }
+          ],
+          rowCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("m");
+    var rows = matrix.visibleRows;
+    assert.equal(rows.length, 1, "rows are created");
+    assert.equal(isFitValue, true, "cell text question is a custom widget");
+    assert.equal(isReadOnly, true, "cell text question is readonly");
+    CustomWidgetCollection.Instance.clear();
   }
 );

@@ -1,5 +1,5 @@
 <template>
-    <div v-html="question.locHtml.renderedHtml"></div>
+  <div :class="question.cssClasses.root" v-html="question.locHtml.renderedHtml"></div>
 </template>
 
 <script lang="ts">

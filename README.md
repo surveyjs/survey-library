@@ -2,18 +2,16 @@
 
 **SurveyJS** is a modern way to add surveys and forms to your website. It has versions for angular2+, jQuery, knockout, react and vue.
 
-[![Build Status](https://travis-ci.org/surveyjs/surveyjs.svg?branch=master)](https://travis-ci.org/surveyjs/surveyjs) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
+[![Build Status](https://travis-ci.org/surveyjs/survey-library.svg?branch=master)](https://travis-ci.org/surveyjs/survey-library) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">
 <img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
 </a>
-<a href="https://github.com/surveyjs/surveyjs/issues">
-<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/surveyjs.svg">
+<a href="https://github.com/surveyjs/survey-library/issues">
+<img alt="Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
 </a>
-<a href="https://github.com/surveyjs/surveyjs/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
-<img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/surveyjs.svg">
+<a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
+<img alt="Closed issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
 </a>
-
-[![Join the chat at https://gitter.im/andrewtelnov/surveyjs](https://badges.gitter.im/andrewtelnov/surveyjs.svg)](https://gitter.im/andrewtelnov/surveyjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Documentation
 
@@ -23,11 +21,11 @@
 
 [SurveyJS Library Live Examples](https://surveyjs.io/Examples/Library/)
 
-## Visual Survey / Form Builder
+## Survey Creator / Form Builder
 
-[Build your Survey or Form now](https://surveyjs.io/survey/Builder/)
+[Create your Survey or Form now](https://surveyjs.io/survey/Builder/)
 
-Visual Editor sources are [here](https://github.com/surveyjs/editor)
+Survey Creator sources are [here](https://github.com/surveyjs/survey-creator)
 
 ## More info about SurveyJS
 
@@ -98,7 +96,7 @@ You may create a very complex forms with a lot of pages, like [this one](https:/
 
 * to the [SurveyJS Library Site](https://surveyjs.io/Library)
 * explore the live [Examples](https://www.surveyjs.io/Examples/Library)
-* and build a survey or form using [Visual Form Builder](https://surveyjs.io/survey/Builder/)
+* and create a survey or form using [Survey Creator](https://surveyjs.io/survey/Builder/)
 
 #### You can use our quickstart repos:
 
@@ -151,7 +149,7 @@ Or use Azure CDN:
 
 You find all versions/builds in the [surveyjs/build repo](https://github.com/surveyjs/builds).
 
-Or dowload a version as zip file from [Releases](https://github.com/surveyjs/surveyjs/releases)
+Or dowload a version as zip file from [Releases](https://github.com/surveyjs/survey-library/releases)
 
 If you want to import it in another script:
 
@@ -166,8 +164,8 @@ To build library yourself:
 1.  **Clone the repo from GitHub**
 
     ```
-    git clone https://github.com/surveyjs/surveyjs.git
-    cd surveyjs
+    git clone https://github.com/surveyjs/survey-library.git
+    cd survey-library
     ```
 
 2.  **Acquire build dependencies.** Make sure you have [Node.js](http://nodejs.org/) installed on your workstation. You need a version of Node.js greater than 6.0.0 and npm greater than 2.7.0. This is only needed to _build_ surveyjs from sources.
@@ -206,4 +204,4 @@ To build library yourself:
 
 ## License
 
-[MIT license](https://github.com/surveyjs/surveyjs/blob/master/LICENSE)
+[MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE)

@@ -2439,3 +2439,62 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Options do not work correctly together: survey.storeOthersAsComment and question.storeOthersAsComment, Bug#1635",
+  function(assert) {
+    var json = {
+      storeOthersAsComment: false,
+      questions: [
+        {
+          storeOthersAsComment: true,
+          type: "radiogroup",
+          name: "q1",
+          hasOther: true,
+          choices: [1, 2]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    q.value = "other";
+    q.comment = "Other text";
+    assert.deepEqual(
+      survey.data,
+      { q1: "other", "q1-Comment": "Other text" },
+      "Store other in comment"
+    );
+
+    survey.clear();
+    q.storeOthersAsComment = false;
+    q.value = "other";
+    q.comment = "Other text2";
+    assert.deepEqual(
+      survey.data,
+      { q1: "Other text2" },
+      "Store other in value"
+    );
+
+    survey.clear();
+    survey.storeOthersAsComment = false;
+    q.storeOthersAsComment = "default";
+    q.value = "other";
+    q.comment = "Other text3";
+    assert.deepEqual(
+      survey.data,
+      { q1: "Other text3" },
+      "Store other in value, take the opton from survey"
+    );
+
+    survey.clear();
+    survey.storeOthersAsComment = true;
+    q.storeOthersAsComment = "default";
+    q.value = "other";
+    q.comment = "Other text4";
+    assert.deepEqual(
+      survey.data,
+      { q1: "other", "q1-Comment": "Other text4" },
+      "Store other in comment, take the opton from survey"
+    );
+  }
+);

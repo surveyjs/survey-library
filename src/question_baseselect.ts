@@ -45,9 +45,6 @@ export class QuestionSelectBase extends Question {
     this.createNewArray("visibleChoices");
     this.choicesByUrl = this.createRestfull();
     this.choicesByUrl.owner = this;
-    this.choicesByUrl.beforeSendRequestCallback = (_, __) => {
-      setTimeout(() => (this.value = null), 1);
-    };
     var locOtherText = this.createLocalizableString("otherText", this, true);
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;

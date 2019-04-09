@@ -588,7 +588,7 @@ We make it easy for you to bind the data from a web service with our choice list
 
 <p align="center">
 
-![Choices By Url Property Editor](https://github.com/surveyjs/surveyjs/blob/master/docs/images/choicesbyurl.png)
+![Choices By Url Property Editor](https://github.com/surveyjs/surveyjs/blob/master/docs/images/choicesbyurl.png?raw=true)
 
 _Choices By Url Property Editor_
 
@@ -778,12 +778,29 @@ Every type of a trigger overrides this success function in its own way.
 
 Based on our customers survey Jsons, we may say, that “complete” trigger is the most used right now. Before going to the next page, the survey runs all “complete” trigger, in case their expression depends at least on one question on the current page, and if expression returns true the survey is completed.
 
-Here the list of all available triggers
+#### Here the list of all available triggers
 
-| Trigger Name | Description |
-| --- | --- |
-| **complete** | Complete the survey if the expression returns true. It performs on changing the current page into the next. <br/> The following trigger completes the survey if the question "age" on this page will have value less than 18 `{ "type": "complete", "expression": "{age} < 18" }` |
-| **setvalue** | If expression returns true, then copy a value from **setValue** property into the value/question **setToName**. <br /> The following triggers set the value "ageType" to child or adult based on the "age" question.```javascript>[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" }, { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]`> |
-| **copyvalue** | It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".`{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }` |
-| **runexpression** | If the expression is successful, then it runs the expression in the **runExpression** property. If the property **setToName** is not empty, then the result of the **runExpression** would be set into this value. Here is [the example](https://surveyjs.io/Examples/Library/?id=trigger-runexpression) of using this trigger. |
-| **visible** | Obsolete, use the [visibleIf](#visibility) property instead. |
+---
+**complete**
+
+Complete the survey if the expression returns true. It performs on changing the current page into the next. <br/> The following trigger completes the survey if the question "age" on this page will have value less than 18 `{ "type": "complete", "expression": "{age} < 18" }`
+
+---
+**setvalue**
+
+If expression returns true, then copy a value from **setValue** property into the value/question **setToName**. <br /> The following triggers set the value "ageType" to child or adult based on the "age" question.```javascript>[{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" }, { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]`
+
+---
+**copyvalue**
+
+It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".`{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }`
+
+---
+**runexpression**
+
+If the expression is successful, then it runs the expression in the **runExpression** property. If the property **setToName** is not empty, then the result of the **runExpression** would be set into this value. Here is [the example](https://surveyjs.io/Examples/Library/?id=trigger-runexpression) of using this trigger.
+
+---
+**visible**
+
+Obsolete, use the [visibleIf](#visibility) property instead.

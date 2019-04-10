@@ -735,7 +735,7 @@ Use survey **locale** property in runtime to set to your locale. For example, _s
 The localization is supported by the community. If you see that there is a non-localized string on your language or do not like the current translation, you may change it locally as:
 
 ```javascript>
-var myloc = Survey. surveyLocalization.locales["localename"];
+var myloc = Survey.surveyLocalization.locales["localename"];
 myloc.stringName = "My New Localized string";
 ```
 
@@ -784,12 +784,16 @@ Based on our customers survey Jsons, we may say, that “complete” trigger is 
 **complete**
 
 Complete the survey if the expression returns true. It performs on changing the current page into the next. <br/> The following trigger completes the survey if the question "age" on this page will have value less than 18
-`{ "type": "complete", "expression": "{age} < 18" }`
+
+```
+{ "type": "complete", "expression": "{age} < 18" }
+```
 
 ---
 **setvalue**
 
 If expression returns true, then copy a value from **setValue** property into the value/question **setToName**. <br /> The following triggers set the value "ageType" to child or adult based on the "age" question.
+
 ```
 [{ type: "setvalue", expression: "{age} < 18", setToName: "ageType", setValue: "child" }, 
  { type: "setvalue", expression: "{age} >= 18", setToName: "ageType", setValue: "adult" }]
@@ -799,7 +803,10 @@ If expression returns true, then copy a value from **setValue** property into th
 **copyvalue**
 
 It works like **setvalue** trigger. It takes a value from a question **fromName** and copy it into **setToName**. The following trigger copies the billing address into delivery address if the question “Shipping address same as billing” is set to "Yes".
-`{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }`
+
+```
+{ "type": "copyvalue", "expression": "{sameAsBilling} = 'Yes'", setToName: "shippingAddress", fromName: "billingAddress" }
+```
 
 ---
 **runexpression**

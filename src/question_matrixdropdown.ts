@@ -110,7 +110,21 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       }
     }
   }
-
+  public clearUnusedValues() {
+    super.clearUnusedValues();
+    if (this.isEmpty()) return;
+    var oldData = Helpers.getUnbindValue(this.value);
+    var newData = {};
+    var rows = this.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      var key = rows[i].rowName;
+      if (!!oldData[key]) {
+        (<any>newData)[key] = oldData[key];
+      }
+    }
+    if (Helpers.isTwoValueEquals(newData, this.value)) return;
+    this.value = newData;
+  }
   public clearIncorrectValues() {
     var val = this.value;
     if (!val) return;

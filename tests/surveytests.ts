@@ -6131,7 +6131,11 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   });
 
   assert.equal(plainData.data[0].isNode, true);
-  assert.equal(plainData.data[0].data.length, 3, "Three columns (questions) in matrix row");
+  assert.equal(
+    plainData.data[0].data.length,
+    3,
+    "Three columns (questions) in matrix row"
+  );
 
   assert.equal(plainData.data[0].data[0].name, "Column 1");
   assert.equal(plainData.data[0].data[0].title, "Column 1");
@@ -6682,3 +6686,27 @@ QUnit.test(
     assert.equal(valueChangedCount, 0, "value changed call count should be 0");
   }
 );
+
+QUnit.test("Values from invisible rows should be removed, #1644", function(
+  assert
+) {
+  var json = {
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "matrix",
+        name: "q2",
+        columns: ["col1", "col2"],
+        rows: [{ name: "row1", visibleIf: "{q1} = 1" }, "row2"]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = { q1: 2, q2: { row1: "col1", row2: "col2" } };
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { q1: 2, q2: { row2: "col2" } },
+    "Remove value for invisible row"
+  );
+});

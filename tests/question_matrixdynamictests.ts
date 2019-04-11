@@ -2099,3 +2099,27 @@ QUnit.test(
     CustomWidgetCollection.Instance.clear();
   }
 );
+
+QUnit.test("Values from invisible rows should be removed, #1644", function(
+  assert
+) {
+  var json = {
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "matrixdropdown",
+        name: "q2",
+        columns: [{ name: "col1" }, { name: "col2" }],
+        rows: [{ name: "row1", visibleIf: "{q1} = 1" }, "row2"]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = { q1: 2, q2: { row1: "col1", row2: "col2" } };
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { q1: 2, q2: { row2: "col2" } },
+    "Remove value for invisible row"
+  );
+});

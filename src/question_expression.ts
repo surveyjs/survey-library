@@ -214,6 +214,7 @@ function getCurrecyCodes(): Array<string> {
     "KHR",
     "KMF",
     "KPW",
+    "KRW",
     "KWD",
     "KYD",
     "KZT",

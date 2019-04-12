@@ -605,6 +605,11 @@ export class QuestionSelectBase extends Question {
       return;
     this.clearIncorrectValuesCore();
   }
+  public clearValueIfInvisible() {
+    super.clearValueIfInvisible();
+    this.clearIncorrectValues();
+  }
+
   private clearDisabledValues() {
     if (!this.survey || !this.survey.clearValueOnDisableItems) return;
     this.clearDisabledValuesCore();

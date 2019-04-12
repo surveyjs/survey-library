@@ -1856,6 +1856,7 @@ QUnit.test(
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+    q1.choices = [1];
     q1.hasOther = true;
     q1.value = q1.otherItem.value;
     q1.comment = "comment1";
@@ -6708,5 +6709,33 @@ QUnit.test("Values from invisible rows should be removed, #1644", function(
     survey.data,
     { q1: 2, q2: { row2: "col2" } },
     "Remove value for invisible row"
+  );
+});
+
+QUnit.test("Values from invisible choices should be removed, #1644", function(
+  assert
+) {
+  var json = {
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: [{ value: "val1", visibleIf: "{q1} = 1" }, "val2"]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: [{ value: "val1", visibleIf: "{q1} = 1" }, "val2"]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = { q1: 2, q2: "val1", q3: ["val1", "val2"] };
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { q1: 2, q3: ["val2"] },
+    "Remove values for invisible choices"
   );
 });

@@ -3,6 +3,7 @@ import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
+import { Helpers } from "./helpers";
 
 /**
  * A Model for a matrix base question.
@@ -31,7 +32,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-    /**
+  /**
    * Set this property to false, to hide table header. The default value is true.
    */
   public get showHeader(): boolean {
@@ -191,12 +192,32 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     }
     super.clearIncorrectValues();
   }
+  protected clearInvisibleValuesInRows() {
+    if (this.isEmpty()) return;
+    var oldData = Helpers.getUnbindValue(this.value);
+    var newData = {};
+    var rows = this.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      var key = this.getRowName(rows[i]);
+      if (!!oldData[key]) {
+        (<any>newData)[key] = oldData[key];
+      }
+    }
+    if (Helpers.isTwoValueEquals(newData, this.value)) return;
+    this.value = newData;
+  }
+  protected getRowName(row: any) {
+    return row.name;
+  }
 }
 
 JsonObject.metaData.addClass(
   "matrixbase",
-  ["columnsVisibleIf:condition", "rowsVisibleIf:condition",
-  { name: "showHeader:boolean", default: true }],
+  [
+    "columnsVisibleIf:condition",
+    "rowsVisibleIf:condition",
+    { name: "showHeader:boolean", default: true }
+  ],
   undefined,
   "question"
 );

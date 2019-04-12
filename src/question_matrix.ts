@@ -443,20 +443,11 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
-  public clearUnusedValues() {
-    super.clearUnusedValues();
-    if (!this.hasRows || this.isEmpty()) return;
-    var oldData = Helpers.getUnbindValue(this.value);
-    var newData = {};
-    var rows = this.visibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      var key = rows[i].name;
-      if (!!oldData[key]) {
-        (<any>newData)[key] = oldData[key];
-      }
+  public clearValueIfInvisible() {
+    super.clearValueIfInvisible();
+    if (this.hasRows) {
+      this.clearInvisibleValuesInRows();
     }
-    if (Helpers.isTwoValueEquals(newData, this.value)) return;
-    this.value = newData;
   }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {

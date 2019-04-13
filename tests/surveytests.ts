@@ -6739,3 +6739,75 @@ QUnit.test("Values from invisible choices should be removed, #1644", function(
     "Remove values for invisible choices"
   );
 });
+
+QUnit.test("Test onValidatedErrorsOnCurrentPage event", function(assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1", isRequired: true },
+          { type: "text", name: "q2", isRequired: true }
+        ]
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q3",
+            isRequired: true,
+            validators: [{ type: "email" }]
+          },
+          { type: "text", name: "q4", isRequired: true }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var counter = 0;
+  var errors = null;
+  var questions = null;
+  survey.onValidatedErrorsOnCurrentPage.add(function(sender, options) {
+    counter++;
+    errors = options.errors;
+    questions = options.questions;
+  });
+  assert.equal(counter, 0, "Nothing yet heppend");
+  survey.nextPage();
+  assert.equal(counter, 1, "called one time");
+  assert.equal(errors.length, 2, "there are two errors");
+  assert.equal(questions.length, 2, "there are two questions have errors");
+
+  survey.setValue("q1", "val1");
+  survey.nextPage();
+  assert.equal(counter, 2, "called two times");
+  assert.equal(errors.length, 1, "there is one error");
+  assert.equal(questions.length, 1, "there is one error");
+
+  survey.setValue("q2", "val2");
+  survey.nextPage();
+  assert.equal(counter, 3, "called three times");
+  assert.equal(errors.length, 0, "there is no errors");
+  assert.equal(questions.length, 0, "there is no errors");
+
+  survey.checkErrorsMode = "onValueChanged";
+
+  survey.setValue("q3", "val3");
+  assert.equal(counter, 4, "called four times");
+  assert.equal(errors.length, 1, "there is one error");
+  assert.equal(questions.length, 1, "there is one error");
+
+  survey.setValue("q3", "a@b.com");
+  assert.equal(counter, 5, "called five times");
+  assert.equal(errors.length, 0, "there is no errors");
+  assert.equal(questions.length, 0, "there is no errors");
+
+  survey.setValue("q3", "a@b.com");
+  assert.equal(counter, 5, "called five times - it doesn't called this time");
+  assert.equal(errors.length, 0, "there is no errors");
+  assert.equal(questions.length, 0, "there is no errors");
+
+  survey.clearValue("q3");
+  assert.equal(counter, 6, "called six times");
+  assert.equal(errors.length, 1, "there is one error");
+  assert.equal(questions.length, 1, "there is one error");
+});

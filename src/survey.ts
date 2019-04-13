@@ -342,6 +342,22 @@ export class SurveyModel extends Base
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
+   * options.questions - the list of questions that have errors
+   * options.errors - the list of errors
+   */
+  public onValidatedErrorsOnCurrentPage: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+
+  /**
+   * Use this event to modify the html before rendering, for example completeHtml or loadingHtml.
+   * options.html - change this html property before the library rendered it
+   * @see completedHtml
+   * @see loadingHtml
+   */
   public onProcessHtml: Event<
     (sender: SurveyModel, options: any) => any,
     any
@@ -1830,8 +1846,37 @@ export class SurveyModel extends Base
    * @see nextPage
    */
   public get isCurrentPageHasErrors(): boolean {
+    return this.checkIsCurrentPageHasErrors();
+  }
+  private checkIsCurrentPageHasErrors(
+    isFocuseOnFirstError: boolean = undefined
+  ): boolean {
+    if (isFocuseOnFirstError === undefined) {
+      isFocuseOnFirstError = this.focusOnFirstError;
+    }
     if (this.currentPage == null) return true;
-    return this.currentPage.hasErrors(true, this.focusOnFirstError);
+    var res = this.currentPage.hasErrors(true, isFocuseOnFirstError);
+    this.fireValidatedErrorsOnCurrentPage();
+    return res;
+  }
+  private fireValidatedErrorsOnCurrentPage() {
+    if (this.onValidatedErrorsOnCurrentPage.isEmpty) return;
+    var questionsOnPage = this.currentPage.questions;
+    var questions = new Array<Question>();
+    var errors = new Array<SurveyError>();
+    for (var i = 0; i < questionsOnPage.length; i++) {
+      var q = questionsOnPage[i];
+      if (q.errors.length > 0) {
+        questions.push(q);
+        for (var j = 0; j < q.errors.length; j++) {
+          errors.push(q.errors[j]);
+        }
+      }
+    }
+    this.onValidatedErrorsOnCurrentPage.fire(this, {
+      questions: questions,
+      errors: errors
+    });
   }
   /**
    * Call it to go to the previous page. It returns false if the current page is the first page already. It doesn't perform any checks, required questions can be empty.
@@ -2547,7 +2592,11 @@ export class SurveyModel extends Base
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
         if (this.checkErrorsMode == "onValueChanged") {
+          var oldErrorCount = question.errors.length;
           question.hasErrors(true);
+          if (oldErrorCount > 0 || question.errors.length > 0) {
+            this.fireValidatedErrorsOnCurrentPage();
+          }
         }
         question.onSurveyValueChanged(newValue);
         this.onValueChanged.fire(this, {
@@ -3023,7 +3072,7 @@ export class SurveyModel extends Base
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (!this.currentPage.hasErrors(true, false)) {
+    if (!this.checkIsCurrentPageHasErrors(false)) {
       if (!this.isLastPage) {
         this.nextPage();
       } else {

@@ -6801,7 +6801,7 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function(assert) {
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");
 
-  survey.setValue("q3", "a@b.com");
+  survey.setValue("q3", "a@c.com");
   assert.equal(counter, 5, "called five times - it doesn't called this time");
   assert.equal(errors.length, 0, "there is no errors");
   assert.equal(questions.length, 0, "there is no errors");

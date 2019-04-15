@@ -745,7 +745,12 @@ export class Question extends SurveyElement
     this.conditionRequiredRunner.expression = this.requiredIf;
     this.isRequired = this.conditionRequiredRunner.run(values, properties);
   }
-  protected get no(): string {
+  /**
+   * The property returns the question number. If question is invisible then it returns empty string.
+   * If visibleIndex is 1, then no is 2, or 'B' if survey.questionStartIndex is 'A'.
+   * @see SurveyModel.questionStartIndex
+   */
+  public get no(): string {
     if (this.visibleIndex < 0) return "";
     var startIndex = 1;
     var isNumeric = true;

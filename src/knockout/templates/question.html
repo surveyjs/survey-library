@@ -16,11 +16,13 @@
           <!-- /ko -->
           <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
           <!-- /ko -->
-          <div class="form-group" data-bind="visible: question.hasComment">
+          <!-- ko if: question.hasComment -->
+          <div class="form-group">
             <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
             <!-- /ko -->
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
           </div>
+          <!-- /ko -->
           <!-- ko if: question.errorLocation == 'bottom' -->
               <div data-bind="css: question.koCss().error.locationBottom">
                   <!-- ko template: { name: 'survey-question-errors', data: question } -->

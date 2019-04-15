@@ -2,7 +2,11 @@
   <div :class="getQuestionClass(element)">
     <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
       <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
-        <span v-if="element.no" style="position: static;" :class="element.cssClasses.number">{{element.no}}</span>
+        <span
+          v-if="element.no"
+          style="position: static;"
+          :class="element.cssClasses.number"
+        >{{element.no}}</span>
         <span v-if="element.no" style="position: static;">.&nbsp</span>
         <survey-string :locString="element.locTitle"/>
       </h5>
@@ -19,7 +23,11 @@
       </div>
       <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'"/>
       <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title">
-        <span v-if="element.no" style="position: static;" :class="element.cssClasses.number">{{element.no}}</span>
+        <span
+          v-if="element.no"
+          style="position: static;"
+          :class="element.cssClasses.number"
+        >{{element.no}}</span>
         <span v-if="element.no" style="position: static;">.&nbsp</span>
         <survey-string :locString="element.locTitle"/>
       </h5>

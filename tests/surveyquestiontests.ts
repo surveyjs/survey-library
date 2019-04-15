@@ -140,6 +140,21 @@ QUnit.test("Comment and other could not be set together", function(assert) {
   assert.equal(questionDropDown.hasComment, false, "After set other to true");
   assert.equal(questionDropDown.hasOther, true, "After set other to true");
 });
+QUnit.test("Keep comment if question value is null", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
+  question.choices = [1, 2, 3];
+  question.hasComment = true;
+  question.comment = "Comment";
+  assert.deepEqual(survey.data, { "q1-Comment": "Comment" }, "Comment is here");
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { "q1-Comment": "Comment" },
+    "Comment is still here after complete"
+  );
+});
 QUnit.test("set choices from another question", function(assert) {
   JsonObject.metaData.addProperty("itemvalue", "price");
   var q1 = new QuestionSelectBase("q1");
@@ -2003,6 +2018,24 @@ QUnit.test(
     assert.equal(q.items[0].locTitle.renderedHtml, "text1", "There is no .");
   }
 );
+QUnit.test(
+  "Question.locCommentText.renderedHtml should return the default text correctly",
+  function(assert) {
+    var question = new Question("q1");
+    assert.equal(
+      question.locCommentText.renderedHtml,
+      surveyLocalization.getString("otherItemText"),
+      "Get the default value correctly"
+    );
+    question.commentText = "New Comment Text";
+    assert.equal(
+      question.locCommentText.renderedHtml,
+      "New Comment Text",
+      "Do not use the default text"
+    );
+  }
+);
+
 QUnit.test(
   "multipletext item is not readonly when survey is readonly, bug #1177",
   function(assert) {

@@ -69,9 +69,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let handleOnBlur = (event: any) => {
       question.comment = event.target.value;
     };
+
     return (
-      <input
-        type="text"
+      <textarea
         className={className}
         value={this.state.comment}
         maxLength={question.getOthersMaxLength()}

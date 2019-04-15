@@ -235,7 +235,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val) return;
     if (!Array.isArray(val) || val.length == 0) {
       if (!clearDisabled) {
-        this.clearValue();
+        if (this.hasComment) {
+          this.value = null;
+        } else {
+          this.clearValue();
+        }
       }
       return;
     }

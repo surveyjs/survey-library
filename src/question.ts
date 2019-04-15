@@ -69,7 +69,15 @@ export class Question extends SurveyElement
       return self.fullTitle;
     };
     this.createLocalizableString("description", this, true);
-    this.createLocalizableString("commentText", this, true);
+    var locCommentText = this.createLocalizableString(
+      "commentText",
+      this,
+      true
+    );
+    locCommentText.onGetTextCallback = function(text) {
+      return !!text ? text : surveyLocalization.getString("otherItemText");
+    };
+
     this.createLocalizableString("requiredErrorText", this);
     this.registerFunctionOnPropertyValueChanged("width", function() {
       if (!!self.parent) {

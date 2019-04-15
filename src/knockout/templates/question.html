@@ -17,8 +17,9 @@
           <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
           <!-- /ko -->
           <div class="form-group" data-bind="visible: question.hasComment">
-              <div data-bind="text:question.commentText"></div>
-              <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
+            <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
+            <!-- /ko -->
+            <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
           </div>
           <!-- ko if: question.errorLocation == 'bottom' -->
               <div data-bind="css: question.koCss().error.locationBottom">

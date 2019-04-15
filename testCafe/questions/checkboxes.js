@@ -60,15 +60,15 @@ frameworks.forEach(framework => {
   });
 
   test(`choose none`, async t => {
-    let surveyResult; 
+    let surveyResult;
 
     await t
-    .click(`div:nth-child(9) label input`)
-    .click(`div:nth-child(12) label input`)
-    .click(`div:nth-child(6) label input`)
-    .click(`div:nth-child(14) label input`)
-    .click(`input[value=Complete]`);
-    
+      .click(`div:nth-child(9) label input`)
+      .click(`div:nth-child(12) label input`)
+      .click(`div:nth-child(6) label input`)
+      .click(`div:nth-child(14) label input`)
+      .click(`input[value=Complete]`);
+
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.car, ["none"]);
   });
@@ -238,7 +238,7 @@ frameworks.forEach(framework => {
 
   test(`choose other`, async t => {
     const getOtherInput = Selector(
-      () => document.querySelectorAll("div:nth-child(13) input")[1]
+      () => document.querySelectorAll("textarea")[0]
     );
     let surveyResult;
 

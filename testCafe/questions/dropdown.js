@@ -180,7 +180,9 @@ frameworks.forEach(framework => {
   });
 
   test(`choose other`, async t => {
-    const getOtherInput = Selector(() => document.querySelectorAll("input")[0]);
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
+    );
 
     await setOptions("car", { hasOther: true, otherText: "Other" });
     await t

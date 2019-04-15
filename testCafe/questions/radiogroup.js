@@ -199,8 +199,8 @@ frameworks.forEach(framework => {
   });
 
   test(`choose other`, async t => {
-    const getOtherInput = Selector(() =>
-      document.querySelector(".form-group .sv_q_radiogroup_other")
+    const getOtherInput = Selector(
+      () => document.querySelectorAll("textarea")[0]
     );
     let surveyResult;
 

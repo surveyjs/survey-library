@@ -1202,11 +1202,6 @@ JsonObject.metaData.addClass("question", [
     serializationProperty: "locDescription",
     layout: "row"
   },
-  {
-    name: "commentText",
-    serializationProperty: "locCommentText",
-    layout: "row"
-  },
   "valueName",
   "enableIf:condition",
   "defaultValue:value",

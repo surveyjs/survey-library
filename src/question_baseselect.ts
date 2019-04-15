@@ -662,6 +662,11 @@ JsonObject.metaData.addClass(
   "selectbase",
   [
     { name: "hasComment:boolean", layout: "row" },
+    {
+      name: "commentText",
+      serializationProperty: "locCommentText",
+      layout: "row"
+    },
     "hasOther:boolean",
     {
       name: "choices:itemvalue[]"

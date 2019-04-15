@@ -164,7 +164,12 @@ export class QuestionRatingModel extends Question {
 JsonObject.metaData.addClass(
   "rating",
   [
-    "hasComment:boolean",
+    { name: "hasComment:boolean", layout: "row" },
+    {
+      name: "commentText",
+      serializationProperty: "locCommentText",
+      layout: "row"
+    },
     {
       name: "rateValues:itemvalue[]"
     },

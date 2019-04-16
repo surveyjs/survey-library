@@ -517,3 +517,28 @@ QUnit.test(
     assert.equal(q2.visibleChoices[0].locText.renderedHtml, "1 text");
   }
 );
+
+QUnit.test("Do not deseriabled default other text", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+  var q = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+  q.choices = [];
+  var originalJson = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "dropdown",
+            name: "q1"
+          }
+        ]
+      }
+    ]
+  };
+  assert.deepEqual(
+    survey.toJSON(),
+    originalJson,
+    "in question we should have only type and name"
+  );
+});

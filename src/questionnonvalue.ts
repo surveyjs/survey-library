@@ -44,7 +44,6 @@ JsonObject.metaData.addClass(
   [
     { name: "title", visible: false },
     { name: "description", visible: false },
-    { name: "commentText", visible: false },
     { name: "valueName", visible: false },
     { name: "enableIf", visible: false },
     { name: "defaultValue", visible: false },

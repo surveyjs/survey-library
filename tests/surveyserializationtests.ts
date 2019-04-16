@@ -518,11 +518,14 @@ QUnit.test(
   }
 );
 
-QUnit.test("Do not deseriabled default other text", function(assert) {
+QUnit.test("Do not deseriabled default comment text - 'Other text:'", function(
+  assert
+) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");
-  var q = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
-  q.choices = [];
+  var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
+  q1.choices = [];
+  page.addNewQuestion("html", "q2");
   var originalJson = {
     pages: [
       {
@@ -531,6 +534,10 @@ QUnit.test("Do not deseriabled default other text", function(assert) {
           {
             type: "dropdown",
             name: "q1"
+          },
+          {
+            type: "html",
+            name: "q2"
           }
         ]
       }
@@ -539,6 +546,6 @@ QUnit.test("Do not deseriabled default other text", function(assert) {
   assert.deepEqual(
     survey.toJSON(),
     originalJson,
-    "in question we should have only type and name"
+    "in questions we should have only type and name"
   );
 });

@@ -532,7 +532,7 @@ export class Question extends SurveyElement
     return surveyCss.getCss();
   }
   /**
-   * Use it to set the specific width to the question.
+   * Use it to set the specific width to the question like css style (%, px, em etc).
    */
   public get width(): string {
     return this.getPropertyValue("width", "");

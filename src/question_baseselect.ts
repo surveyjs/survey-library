@@ -669,7 +669,10 @@ JsonObject.metaData.addClass(
     },
     "hasOther:boolean",
     {
-      name: "choices:itemvalue[]"
+      name: "choices:itemvalue[]",
+      baseValue: function() {
+        return surveyLocalization.getString("choices_Item");
+      }
     },
     {
       name: "choicesOrder",

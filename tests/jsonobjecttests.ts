@@ -2,7 +2,7 @@
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
-import { ILocalizableOwner } from "../src/localizablestring";
+import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { Question } from "../src/question";
 
@@ -1758,4 +1758,49 @@ QUnit.test("property.isVisible", function(assert) {
     false,
     "Property is invisible in flow layout"
   );
+});
+
+QUnit.test("property.baseValue", function(assert) {
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "newChoices1:itemvalues",
+    baseValue: function() {
+      return "Column";
+    }
+  });
+  JsonObject.metaData.addProperty("questionbase", {
+    name: "newChoices2:itemvalues",
+    baseValue: "Row"
+  });
+  assert.equal(
+    JsonObject.metaData
+      .findProperty("questionbase", "newChoices2")
+      .getBaseValue(),
+    "Row",
+    "getBaseValue works fine with constant"
+  );
+  assert.equal(
+    JsonObject.metaData
+      .findProperty("questionbase", "newChoices1")
+      .getBaseValue(),
+    "Column",
+    "getBaseValue works fine with function"
+  );
+  assert.equal(
+    JsonObject.metaData.findProperty("selectbase", "choices").getBaseValue(),
+    "item",
+    "it is item for choices"
+  );
+  assert.equal(
+    JsonObject.metaData.findProperty("matrix", "rows").getBaseValue(),
+    "Row",
+    "it is Row for rows"
+  );
+  assert.equal(
+    JsonObject.metaData.findProperty("matrix", "columns").getBaseValue(),
+    "Column",
+    "it is Column for columns"
+  );
+
+  JsonObject.metaData.removeProperty("questionbase", "newChoices1");
+  JsonObject.metaData.removeProperty("questionbase", "newChoices2");
 });

@@ -471,10 +471,16 @@ JsonObject.metaData.addClass(
   "matrix",
   [
     {
-      name: "columns:itemvalue[]"
+      name: "columns:itemvalue[]",
+      baseValue: function() {
+        return surveyLocalization.getString("matrix_column");
+      }
     },
     {
-      name: "rows:itemvalue[]"
+      name: "rows:itemvalue[]",
+      baseValue: function() {
+        return surveyLocalization.getString("matrix_row");
+      }
     },
     { name: "cells:cells", serializationProperty: "cells" },
     {

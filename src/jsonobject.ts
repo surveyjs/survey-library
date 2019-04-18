@@ -10,6 +10,7 @@ export class JsonObjectProperty implements IObject {
   private static mergableValues = [
     "typeValue",
     "choicesValue",
+    "baseValue",
     "readOnlyValue",
     "visibleValue",
     "isSerializable",
@@ -27,6 +28,7 @@ export class JsonObjectProperty implements IObject {
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
+  private baseValue: any = null;
   private isRequiredValue: boolean = false;
   private readOnlyValue: boolean | null = null;
   private visibleValue: boolean | null = null;
@@ -151,6 +153,14 @@ export class JsonObjectProperty implements IObject {
   public setChoices(value: Array<any>, valueFunc: () => Array<any>) {
     this.choicesValue = value;
     this.choicesfunc = valueFunc;
+  }
+  public getBaseValue(): string {
+    if (!this.baseValue) return "";
+    if (typeof this.baseValue == "function") return this.baseValue();
+    return this.baseValue;
+  }
+  public setBaseValue(val: any) {
+    this.baseValue = val;
   }
   public get readOnly(): boolean {
     return this.readOnlyValue != null ? this.readOnlyValue : false;
@@ -367,6 +377,9 @@ export class JsonMetadataClass {
         var choicesValue =
           typeof propInfo.choices !== "function" ? propInfo.choices : null;
         prop.setChoices(choicesValue, choicesFunc);
+      }
+      if (!!propInfo.baseValue) {
+        prop.setBaseValue(propInfo.baseValue);
       }
       if (propInfo.onGetValue) {
         prop.onGetValue = propInfo.onGetValue;

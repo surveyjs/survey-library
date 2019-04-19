@@ -2151,8 +2151,9 @@ export class SurveyModel extends Base
    * @see completedHtml
    */
   public get processedCompletedHtml(): string {
-    if (this.completedHtml) {
-      return this.processHtml(this.completedHtml);
+    var html = this.renderedCompletedHtml;
+    if (html) {
+      return this.processHtml(html);
     }
     return "<h3>" + this.getLocString("completingSurvey") + "</h3>";
   }

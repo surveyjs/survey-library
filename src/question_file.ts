@@ -93,6 +93,15 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
   /**
+   * Set it to false if you want to disable images preview.
+   */
+  public get allowImagesPreview(): boolean {
+    return this.getPropertyValue("allowImagesPreview", true);
+  }
+  public set allowImagesPreview(val: boolean) {
+    this.setPropertyValue("allowImagesPreview", val);
+  }
+  /**
    * Use this property to setup the maximum allowed file size.
    */
   public get maxSize(): number {
@@ -209,14 +218,14 @@ export class QuestionFileModel extends Question {
     }
   }
   public canPreviewImage(fileItem: any): boolean {
-    return !!fileItem && this.isFileImage(fileItem);
+    return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
   }
   protected setQuestionValue(newValue: any) {
     super.setQuestionValue(newValue);
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-      (Array.isArray(newValue) && newValue.length > 0)
+        (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -314,8 +323,8 @@ export class QuestionFileModel extends Question {
         propertyName: string;
       }>;
     } = {
-      includeEmpty: true
-    }
+        includeEmpty: true
+      }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
@@ -341,6 +350,7 @@ JsonObject.metaData.addClass(
   [
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
+    "allowImagesPreview:boolean",
     "imageHeight",
     "imageWidth",
     "acceptedTypes",
@@ -348,7 +358,7 @@ JsonObject.metaData.addClass(
     { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
-  function() {
+  function () {
     return new QuestionFileModel("");
   },
   "question"

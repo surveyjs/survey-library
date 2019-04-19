@@ -822,6 +822,47 @@ QUnit.test("Show errors if others value is selected, but not entered", function(
   radio.comment = "Many";
   assert.equal(radio.hasErrors(), false, "We have entered the comment");
 });
+
+QUnit.test(
+  "Clear comment on unset the other value, Bug: https://surveyjs.answerdesk.io/ticket/details/T1916",
+  function(assert) {
+    var singleSelection = new QuestionDropdownModel("q1");
+    var multipleSelection = new QuestionCheckboxModel("q2");
+    var survey = new SurveyModel();
+    survey.addNewPage("p1").addQuestion(singleSelection);
+    survey.pages[0].addQuestion(multipleSelection);
+
+    singleSelection.choices = ["one"];
+    singleSelection.hasOther = true;
+    singleSelection.value = singleSelection.otherItem.value;
+    singleSelection.comment = "Comment1 is here";
+
+    multipleSelection.choices = ["one"];
+    multipleSelection.hasOther = true;
+    multipleSelection.value = [multipleSelection.otherItem.value];
+    multipleSelection.comment = "Comment2 is here";
+
+    assert.equal(
+      survey.getComment("q1"),
+      "Comment1 is here",
+      "Comment1 is in survey"
+    );
+    assert.equal(
+      survey.getComment("q2"),
+      "Comment2 is here",
+      "Comment2 is in survey"
+    );
+
+    singleSelection.value = "one";
+    assert.notOk(survey.getComment("q1"), "Comment1 is cleaned in survey");
+    assert.notOk(singleSelection.comment, "Comment1 is cleaned in question1");
+
+    multipleSelection.value = ["one"];
+    assert.notOk(survey.getComment("q2"), "Comment2 is cleaned in survey");
+    assert.notOk(multipleSelection.comment, "Comment2 is cleaned in question2");
+  }
+);
+
 QUnit.test("SelectBase visibleChoices order", function(assert) {
   var question = new QuestionSelectBase("dropdownQuestion");
   question.choices = ["B", "A", "D", "C"];

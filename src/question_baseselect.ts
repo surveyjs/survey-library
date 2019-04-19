@@ -239,6 +239,9 @@ export class QuestionSelectBase extends Question {
   protected setQuestionValue(newValue: any) {
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
+    if (!this.isOtherSelected && !!this.comment) {
+      this.comment = "";
+    }
   }
   protected setNewValue(newValue: any) {
     if (

@@ -1861,7 +1861,7 @@ QUnit.test(
     q1.value = q1.otherItem.value;
     q1.comment = "comment1";
     q1.value = 1;
-    assert.notDeepEqual(survey.data, { q1: 1 }, "There is a comment yet");
+    assert.deepEqual(survey.data, { q1: 1 }, "There is no comment already");
     survey.doComplete();
     assert.deepEqual(survey.data, { q1: 1 }, "There no comment");
   }

@@ -6843,3 +6843,38 @@ QUnit.test("survey.completedHtmlOnCondition", function(assert) {
     "get from completed html again"
   );
 });
+
+QUnit.test("survey.completedHtmlOnCondition + localization", function(assert) {
+  var json = {
+    completedHtml: "1",
+    completedHtmlOnCondition: [
+      {
+        expression: "{q1} = 2",
+        html: {
+          default: "en-condition",
+          fr: "fr-condition"
+        }
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  assert.equal(
+    survey.completedHtmlOnCondition.length,
+    1,
+    "OnCondition restored correctly"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "en-condition",
+    "get on condition en"
+  );
+  var prevLocale = survey.locale;
+  survey.locale = "fr";
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "fr-condition",
+    "get on condition fr"
+  );
+  survey.locale = prevLocale;
+});

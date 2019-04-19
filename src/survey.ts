@@ -3687,7 +3687,8 @@ JsonObject.metaData.addClass("survey", [
     serializationProperty: "locCompletedBeforeHtml"
   },
   {
-    name: "completedHtmlOnCondition:htmlconditions"
+    name: "completedHtmlOnCondition:htmlconditions",
+    className: "htmlconditionitem"
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
   { name: "pages", className: "page", visible: false },

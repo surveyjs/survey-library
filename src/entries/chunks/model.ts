@@ -25,6 +25,7 @@ export {
   ExceedSizeError
 } from "../../error";
 export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
+export { HtmlConditionItem } from "../../htmlConditionItem";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";
 export {

@@ -31,6 +31,7 @@ import { SurveyTimer } from "./surveytimer";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
+import { HtmlConditionItem } from "./htmlConditionItem";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -62,6 +63,7 @@ export class SurveyModel extends Base
 
   private pagesValue: Array<PageModel>;
   private triggersValue: Array<SurveyTrigger>;
+  private completedHtmlOnConditionValue: Array<HtmlConditionItem>;
   private get currentPageValue(): PageModel {
     return this.getPropertyValue("currentPageValue", null);
   }
@@ -770,6 +772,12 @@ export class SurveyModel extends Base
     this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
+    this.completedHtmlOnConditionValue = this.createNewArray(
+      "completedHtmlOnCondition",
+      function(value: any) {
+        value.locOwner = self;
+      }
+    );
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleTemplate",
       function() {
@@ -1128,6 +1136,7 @@ export class SurveyModel extends Base
   /**
    * The html that shows on completed ('Thank you') page. Set it to change the default text.
    * @see showCompletedPage
+   * @see completedHtmlOnCondition
    * @see locale
    */
   public get completedHtml(): string {
@@ -1139,6 +1148,30 @@ export class SurveyModel extends Base
   get locCompletedHtml(): LocalizableString {
     return this.getLocalizableString("completedHtml");
   }
+  /**
+   * The list of html condition items. If the expression of this item returns true, then survey will use this item html instead of completedHtml
+   * @see HtmlConditionItem
+   * @see completeHtml
+   */
+  public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
+    return this.completedHtmlOnConditionValue;
+  }
+  public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
+    this.setPropertyValue("completedHtmlOnCondition", val);
+  }
+  public get renderedCompletedHtml(): string {
+    if (this.completedHtmlOnCondition.length == 0) return this.completedHtml;
+    var values = this.getFilteredValues();
+    var properties = this.getFilteredProperties();
+    for (var i = 0; i < this.completedHtmlOnCondition.length; i++) {
+      var item = this.completedHtmlOnCondition[i];
+      if (item.runCondition(values, properties)) {
+        return item.html;
+      }
+    }
+    return this.completedHtml;
+  }
+
   /**
    * The html that shows if the end user has already completed the survey.
    * @see clientId
@@ -3652,6 +3685,9 @@ JsonObject.metaData.addClass("survey", [
   {
     name: "completedBeforeHtml:html",
     serializationProperty: "locCompletedBeforeHtml"
+  },
+  {
+    name: "completedHtmlOnCondition:htmlconditions"
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
   { name: "pages", className: "page", visible: false },

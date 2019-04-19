@@ -40,6 +40,7 @@ import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamic } from "../src/knockout/koquestion_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { HtmlConditionItem } from "../src/htmlConditionItem";
 
 export default QUnit.module("Survey");
 
@@ -6810,4 +6811,35 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function(assert) {
   assert.equal(counter, 6, "called six times");
   assert.equal(errors.length, 1, "there is one error");
   assert.equal(questions.length, 1, "there is one error");
+});
+
+QUnit.test("survey.completedHtmlOnCondition", function(assert) {
+  var survey = new SurveyModel();
+  survey.completedHtml = "1";
+  assert.equal(survey.renderedCompletedHtml, "1", "get from completed html");
+  survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 2", "2"));
+  survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 3", "3"));
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "1",
+    "still get from completed html"
+  );
+  survey.setValue("q1", 2);
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "2",
+    "get from first on Condition"
+  );
+  survey.setValue("q1", 3);
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "3",
+    "get from second on Condition"
+  );
+  survey.setValue("q1", 5);
+  assert.equal(
+    survey.renderedCompletedHtml,
+    "1",
+    "get from completed html again"
+  );
 });

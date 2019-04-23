@@ -1315,6 +1315,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "radiogroup.hasOthers = true and survey.storeOthersAsComment = false, Bug https://surveyjs.answerdesk.io/ticket/details/T1789",
+  function(assert) {
+    var json = {
+      storeOthersAsComment: false,
+      questions: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: [1, 2],
+          hasOther: true
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: [1, 2],
+          hasOther: true
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var data = { q1: "other 1", q2: [1, "other 2"] };
+    survey.data = data;
+    survey.doComplete();
+    assert.deepEqual(survey.data, data, "The data is correct");
+  }
+);
+
 QUnit.test("Text inputType=number", function(assert) {
   var question = new QuestionTextModel("text");
   question.inputType = "number";

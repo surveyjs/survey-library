@@ -246,7 +246,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
       if (
-        (!clearDisabled && !this.hasUnknownValue(val[i], true)) ||
+        (!clearDisabled && !this.canClearValueAnUnknow(val[i])) ||
         (clearDisabled && !this.isValueDisabled(val[i]))
       ) {
         newValue.push(val[i]);

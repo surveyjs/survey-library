@@ -66,6 +66,7 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
 QUnit.test("koOtherVisible for one choice items", function(assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
+  question.hasOther = true;
   question.setSurveyImpl(survey);
   assert.equal(question.isOtherSelected, false, "Initially is not visible");
   question.value = question.otherItem.value;
@@ -104,6 +105,7 @@ QUnit.test("Default value for checkbox", function(assert) {
 QUnit.test("koOtherVisible for multi choice items", function(assert) {
   var survey = new Survey();
   var question = new QuestionCheckbox("q");
+  question.hasOther = true;
   question.setSurveyImpl(survey);
   assert.equal(question.isOtherSelected, false, "Initially is not visible");
   question.koValue.push("test1");

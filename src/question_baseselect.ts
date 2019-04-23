@@ -79,7 +79,7 @@ export class QuestionSelectBase extends Question {
    * Returns true if a user select the 'other' item.
    */
   public get isOtherSelected(): boolean {
-    return this.getHasOther(this.renderedValue);
+    return this.hasOther && this.getHasOther(this.renderedValue);
   }
   /**
    * An expression that returns true or false. It runs against each choices item and if for this item it returns true, then the item is visible otherwise the item becomes invisible. Please use {item} to get the current item value in the expression.
@@ -619,9 +619,13 @@ export class QuestionSelectBase extends Question {
   }
   protected clearIncorrectValuesCore() {
     var val = this.value;
-    if (this.hasUnknownValue(val, true)) {
+    if (this.canClearValueAnUnknow(val)) {
       this.clearValue();
     }
+  }
+  protected canClearValueAnUnknow(val: any): boolean {
+    if (!this.getStoreOthersAsComment() && this.isOtherSelected) return false;
+    return this.hasUnknownValue(val, true);
   }
   protected clearDisabledValuesCore() {
     if (this.isValueDisabled(this.value)) {

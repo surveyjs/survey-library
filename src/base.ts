@@ -150,6 +150,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   onAnyValueChanged(name: string): any;
   updateCustomWidgets(): any;
   clearIncorrectValues(): any;
+  clearErrors(): any;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

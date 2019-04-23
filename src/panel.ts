@@ -358,6 +358,15 @@ export class PanelModelBase extends SurveyElement
       this.elements[i].clearIncorrectValues();
     }
   }
+  /**
+   * Call this function to clear all errors in the panel / page and all its child elements (panels and questions)
+   */
+  public clearErrors() {
+    for (var i = 0; i < this.elements.length; i++) {
+      this.elements[i].clearErrors();
+    }
+    this.errors = [];
+  }
   private markQuestionListDirty() {
     this.isQuestionsReady = false;
     if (this.parent) this.parent.markQuestionListDirty();

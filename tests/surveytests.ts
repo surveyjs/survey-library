@@ -38,7 +38,7 @@ import { surveyCss } from "../src/defaultCss/cssstandard";
 import { dxSurveyService } from "../src/dxSurveyService";
 import { FunctionFactory } from "../src/functionsfactory";
 import { QuestionExpressionModel } from "../src/question_expression";
-import { QuestionPanelDynamic } from "../src/knockout/koquestion_paneldynamic";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem } from "../src/htmlConditionItem";
 
@@ -1666,7 +1666,7 @@ QUnit.test("Copy value trigger in dynamic panel, Bug# 1574", function(assert) {
       }
     ]
   });
-  var panel = <QuestionPanelDynamic>survey.getQuestionByName("panel1");
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   panel.panels[0].getQuestionByName("question1").value = "valueQ2";
   assert.deepEqual(
     survey.data,
@@ -6177,7 +6177,7 @@ QUnit.test("question.getPlainData - panel dynamic", function(assert) {
     name: "score:number"
   });
 
-  var question = new QuestionPanelDynamic("q1");
+  var question = new QuestionPanelDynamicModel("q1");
   new JsonObject().toObject(
     {
       type: "paneldynamic",
@@ -6877,4 +6877,59 @@ QUnit.test("survey.completedHtmlOnCondition + localization", function(assert) {
     "get on condition fr"
   );
   survey.locale = prevLocale;
+});
+
+QUnit.test("page.clearErrors function", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var question = page.addNewQuestion("text", "q1");
+  question.isRequired = true;
+  var dPanel = <QuestionPanelDynamicModel>page.addNewQuestion(
+    "paneldynamic",
+    "q2"
+  );
+  dPanel.template.addNewQuestion("text", "q2_q1").isRequired = true;
+  dPanel.panelCount = 2;
+  var dMatrix = <QuestionMatrixDynamicModel>page.addNewQuestion(
+    "matrixdynamic",
+    "q3"
+  );
+  dMatrix.columns = [];
+  var col = dMatrix.addColumn("col1");
+  col.isRequired = true;
+  dMatrix.rowCount = 2;
+  var rows = dMatrix.visibleRows;
+  assert.equal(
+    rows[0].cells[0].question.isRequired,
+    true,
+    "The matrix cell question is required."
+  );
+  page.hasErrors();
+  assert.equal(
+    question.errors.length,
+    1,
+    "There is one error in text question"
+  );
+  assert.equal(
+    dPanel.panels[0].questions[0].errors.length,
+    1,
+    "There is one error in question in dynamic panel"
+  );
+  assert.equal(
+    rows[0].cells[0].question.errors.length,
+    1,
+    "There is one error in question cell"
+  );
+  page.clearErrors();
+  assert.equal(question.errors.length, 0, "Error is cleared in text question");
+  assert.equal(
+    dPanel.panels[0].questions[0].errors.length,
+    0,
+    "Error is cleared in question in dynamic panel"
+  );
+  assert.equal(
+    rows[0].cells[0].question.errors.length,
+    0,
+    "Error is cleared in question cell"
+  );
 });

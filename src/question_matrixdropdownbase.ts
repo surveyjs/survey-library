@@ -23,6 +23,7 @@ import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
 import { russianSurveyStrings } from "./localization/russian";
+import { basename } from "path";
 
 export interface IMatrixDropdownData {
   onRowChanged(
@@ -923,6 +924,18 @@ export class QuestionMatrixDropdownModelBase
       rows[i].clearIncorrectValues(this.getRowValue(i));
     }
   }
+  public clearErrors() {
+    super.clearErrors();
+    if (!!this.generatedVisibleRows) {
+      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+        var row = this.generatedVisibleRows[i];
+        for (var j = 0; j < row.cells.length; j++) {
+          row.cells[j].question.clearErrors();
+        }
+      }
+    }
+  }
+
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runCellsCondition(values, properties);

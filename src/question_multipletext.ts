@@ -412,6 +412,13 @@ export class QuestionMultipleTextModel extends Question
       }
     }
   }
+  public clearErrors() {
+    super.clearErrors();
+    for (var i = 0; i < this.items.length; i++) {
+      this.items[i].editor.clearErrors();
+    }
+  }
+
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;

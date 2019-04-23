@@ -1142,6 +1142,12 @@ export class Question extends SurveyElement
    * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
    */
   public clearIncorrectValues() {}
+  /**
+   * Call this function to clear all errors in the question
+   */
+  public clearErrors() {
+    this.errors = [];
+  }
   public clearUnusedValues() {}
   onAnyValueChanged(name: string) {}
   //ILocalizableOwner

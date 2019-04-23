@@ -995,6 +995,12 @@ export class QuestionPanelDynamicModel extends Question
       this.clearIncorrectValuesInPanel(i);
     }
   }
+  public clearErrors() {
+    super.clearErrors();
+    for (var i = 0; i < this.panels.length; i++) {
+      this.panels[i].clearErrors();
+    }
+  }
   private clearIncorrectValuesInPanel(index: number) {
     var panel = this.panels[index];
     panel.clearIncorrectValues();

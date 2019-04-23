@@ -5,7 +5,7 @@
       v-for="element in row.elements"
       :key="element.idValue"
       :id="element.id"
-      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth }"
+      :style="{ paddingLeft: element.paddingLeft, paddingRight: element.paddingRight, width: element.renderWidth, display: 'inline-block' }"
       :element="element"
       :survey="survey"
       :css="css"

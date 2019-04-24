@@ -954,6 +954,20 @@ QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
   assert.equal(runner.run(values), true, "0x2 is not 2");
 });
 
+QUnit.test("Variable equals 0/false for notempty and empty, Bug#1663", function(
+  assert
+) {
+  var runner_nonEmpty = new ConditionRunner("{val} notempty");
+  var runner_empty = new ConditionRunner("{val} empty");
+  var values = {};
+  values["val"] = 0;
+  assert.equal(runner_nonEmpty.run(values), true, "0 is not empty");
+  assert.equal(runner_empty.run(values), false, "not (0 is empty)");
+  values["val"] = false;
+  assert.equal(runner_nonEmpty.run(values), true, "false is not empty");
+  assert.equal(runner_empty.run(values), false, "not (false is empty)");
+});
+
 QUnit.test("Get variables in expression", function(assert) {
   var parser = new ConditionsParser();
   var node = parser.createCondition(

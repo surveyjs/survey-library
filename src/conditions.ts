@@ -2,6 +2,7 @@ import { HashTable, Helpers } from "./helpers";
 import { ConditionsParser } from "./conditionsParser";
 import { FunctionFactory } from "./functionsfactory";
 import { ProcessValue } from "./conditionProcessValue";
+import { timingSafeEqual } from "crypto";
 
 export class Operand {
   constructor(public origionalValue: any) {}
@@ -233,12 +234,10 @@ export class Condition {
     if (Condition.operatorsValue != null) return Condition.operatorsValue;
     Condition.operatorsValue = {
       empty: function(left: any, right: any) {
-        if (left == null) return true;
-        return !left;
+        return Helpers.isValueEmpty(left);
       },
       notempty: function(left: any, right: any) {
-        if (left == null) return false;
-        return !!left;
+        return !this.empty(left, right);
       },
       equal: function(left: any, right: any) {
         return Helpers.isTwoValueEquals(left, right, true);
@@ -350,7 +349,12 @@ export class Condition {
     processValue: ProcessValue
   ): boolean {
     var leftValue = left ? left.getValue(processValue) : null;
-    if (!right && (leftValue === true || leftValue === false)) return leftValue;
+    if (
+      !right &&
+      (leftValue === true || leftValue === false) &&
+      !Condition.isNoRightOperation(this.operator)
+    )
+      return leftValue;
     var rightValue = right ? right.getValue(processValue) : null;
     return Condition.operators[this.operator](leftValue, rightValue);
   }

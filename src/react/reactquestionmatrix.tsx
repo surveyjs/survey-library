@@ -19,7 +19,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   componentDidMount() {
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function() {
+      this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -58,12 +58,12 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       );
     }
     var header = !this.question.showHeader ? null :
-                  <thead>
-                    <tr>
-                      {firstTH}
-                      {headers}
-                    </tr>
-                  </thead>;
+      <thead>
+        <tr>
+          {firstTH}
+          {headers}
+        </tr>
+      </thead>;
     return (
       <fieldset>
         <legend aria-label={this.question.locTitle.renderedHtml} />
@@ -158,10 +158,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 {this.question.locTitle.renderedHtml}
               </span>
             </label>
-            <label
-              className={this.question.cssClasses.cellLabel}
-              htmlFor={inputId}
-            />
           </td>
         );
       }

@@ -21,7 +21,6 @@
                             <span class="check"></span>
                             <span :style="{ 'display': 'none' }">{{question.locTitle.renderedHtml}}</span>
                         </label>
-                        <label :class="question.cssClasses.cellLabel" :for="question.inputId + '_' + row.name + '_' + columnIndex"></label>
                     </td>
                 </tr>
             </tbody>

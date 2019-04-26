@@ -41,7 +41,7 @@ export class StylesManager {
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
     ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
     ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
-    ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0;",
+    ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
@@ -380,6 +380,8 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
       "color:$main-color;",
 
+    ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label": "height: 100%;",
+
     ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
     ".sv_main.sv_bootstrapmaterial_css label.checkbox-inline input[type=checkbox]:checked + .checkbox-material .check":
@@ -505,11 +507,11 @@ export class StylesManager {
     Object.keys(StylesManager.Media).forEach(selector => {
       sheet.insertRule(
         StylesManager.Media[selector].media +
-          " { " +
-          selector +
-          " { " +
-          StylesManager.Media[selector].style +
-          " } }",
+        " { " +
+        selector +
+        " { " +
+        StylesManager.Media[selector].style +
+        " } }",
         0
       );
     });

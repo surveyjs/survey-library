@@ -193,12 +193,17 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   }
   protected renderTitle(): JSX.Element {
     let title = null;
+    let description = null;
     if (this.survey.title && this.survey.showTitle) {
       title = SurveyElementBase.renderLocString(this.survey.locTitle);
+      description = SurveyElementBase.renderLocString(
+        this.survey.locDescription
+      );
     }
     return title ? (
       <div className={this.css.header}>
         <h3>{title}</h3>
+        <h5>{description}</h5>
       </div>
     ) : null;
   }

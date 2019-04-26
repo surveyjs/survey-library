@@ -751,6 +751,7 @@ export class SurveyModel extends Base
       this.stylesManager = new StylesManager();
     }
     this.createLocalizableString("title", this, true);
+    this.createLocalizableString("description", this, true);
     this.createLocalizableString("completedHtml", this);
     this.createLocalizableString("completedBeforeHtml", this);
     this.createLocalizableString("loadingHtml", this);
@@ -1123,6 +1124,7 @@ export class SurveyModel extends Base
   }
   /**
    * Survey title.
+   * @see description
    */
   public get title(): string {
     return this.getLocalizableStringText("title");
@@ -1132,6 +1134,19 @@ export class SurveyModel extends Base
   }
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
+  }
+  /**
+   * Survey description. It shows under survey title
+   * @see title
+   */
+  public get description(): string {
+    return this.getLocalizableStringText("description");
+  }
+  public set description(value: string) {
+    this.setLocalizableStringText("description", value);
+  }
+  get locDescription(): LocalizableString {
+    return this.getLocalizableString("description");
   }
   /**
    * The html that shows on completed ('Thank you') page. Set it to change the default text.
@@ -3679,7 +3694,8 @@ JsonObject.metaData.addClass("survey", [
       return obj.locale == surveyLocalization.defaultLocale ? null : obj.locale;
     }
   },
-  { name: "title:text", serializationProperty: "locTitle" },
+  { name: "title", serializationProperty: "locTitle" },
+  { name: "description:text", serializationProperty: "locDescription" },
   { name: "focusFirstQuestionAutomatic:boolean", default: true },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },

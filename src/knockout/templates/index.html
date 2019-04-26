@@ -6,10 +6,8 @@
           <div class="sv_container">
               <!-- ko if: (title.length > 0) && showTitle && koState() == 'running' -->
               <div data-bind="css: css.header">
-                  <h3>
-                      <!-- ko template: { name: 'survey-string', data: locTitle } -->
-                      <!-- /ko -->
-                  </h3>
+                  <h3><!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko --></h3>
+                  <h5><!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko --></h5>
               </div>
               <!-- /ko -->
               <!-- ko if: koState() == "starting" -->

@@ -1370,7 +1370,7 @@ JsonObject.metaData.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left", "hidden"]
     },
-    { name: "title:text", serializationProperty: "locTitle" },
+    { name: "title", serializationProperty: "locTitle" },
     { name: "description:text", serializationProperty: "locDescription" }
   ],
   function() {

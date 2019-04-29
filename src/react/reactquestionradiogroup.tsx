@@ -93,6 +93,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
+      !!this.question.customWidget.widgetJson.isDefaultRender ||
       !!this.question.customWidget.widgetJson.render
     );
   }

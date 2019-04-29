@@ -126,6 +126,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase {
     return (
       !this.questionBase.customWidget ||
       !!this.questionBase.customWidgetData.isNeedRender ||
+      !!this.questionBase.customWidget.widgetJson.isDefaultRender ||
       !!this.questionBase.customWidget.widgetJson.render
     );
   }

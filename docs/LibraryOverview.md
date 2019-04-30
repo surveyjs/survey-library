@@ -2,8 +2,8 @@
 
 This paper is for developers, who want to get a deep understanding how SurveyJS Library works, understand its concepts and main functionality.
 
-If you want to use SurveyJS library on your website just couple times, then we recommend you go to the SurveyJS [Builder page](https://surveyjs.io/Survey/Builder/),
-create a survey using our visual builder and then go to "Embed Survey" to insert the code into your web page.
+If you want to use SurveyJS library on your website just couple times, then we recommend you go to the [SurveyJS Creator page](https://surveyjs.io/Survey/Creator/),
+create a survey using our visual Survey Creator and then go to "Embed Survey" to insert the code into your web page.
 More information about integrating survey into your web page, you may find in the [Add Survey into your Web Page article](https://surveyjs.io/Documentation/Library/?id=Add-Survey-into-your-Web-Page).
 
 If you want to get the most from our library, then we hope that the following article helps you.
@@ -199,6 +199,41 @@ Again, you may show the progress and errors. That makes a code a little more com
 
 As you see, there are not a lot of code on the client for storing the survey results in your own data storage. However, the main part, the server code that stores the data into database, is not here. We can’t provide it to you since it is highly depending on your server platforms and database. Likely it is a typical task for every platform.
 
+<div id="changesurveyresults"></div>
+
+### Modify Survey results
+
+When you are storing the data in your own database, you may do not want to store the data in the given format: _{questionName: questionValue, ... }_. For example, you may decide to additionally store the question title and it's display value. It means that you can’t just use survey.data as it is but write some code. Here is the code that change the standard format to { questionName: {value: questionValue, title: questionTitle, displayValue: questionDisplayValue, tag: question.tag}, tag is a custom property added into question class. 
+```javascript
+//Example of adding custom numeric property into question
+//Survey.JsonObject.metaData.addProperty("question", "tag:number")
+function modifySurveyResults(survey) {
+  var resultData = [];
+  for(var key in survey.data) {
+    var question = survey.getQuestionByValueName(key);
+    if(!!question) {
+      var item = {value: question.value};
+      //If question name (question.valueName) doesn't equal to question.title
+      if(key !== question.title) {
+        item.title = question.title;
+      }
+      //If question value different from displayValue
+      if(item.value != question.displayValue) {
+        item.displayValue = question.displayValue
+      }
+      //If the custom property tag is defined set
+      if(question.tag !== undefined) {
+        item.tag = question.tag;
+      }
+      resultData.push(item);
+    }
+  }
+  return resultData;
+}
+```
+
+You may use _modifySurveyResults_ function as _modifySurveyResults(survey)_ instead of _survey.data_ in _survey.onComplete_ event.
+
 <div id="states"></div>
 
 ## Survey States, from running to completed
@@ -272,7 +307,7 @@ To be more precise, the **question.name** is used, unless **question.valueName**
 
 ### Predefined answers
 
-You may need to have predefined answers. For example, you should have predefined rows in the dynamic matrix (table) or want to have a default value for Boolean question as True, and so on. The easiest solution for it, is to use **question.defaultValue** property. This property could be set in JSON, in our [Survey Builder](https://surveyjs.io/Survey/Builder/). After loading the JSON, on starting the survey, the defaultValue property is copied into **question.value**
+You may need to have predefined answers. For example, you should have predefined rows in the dynamic matrix (table) or want to have a default value for Boolean question as True, and so on. The easiest solution for it, is to use **question.defaultValue** property. This property could be set in JSON, in our [Survey Creator](https://surveyjs.io/Survey/Creator/). After loading the JSON, on starting the survey, the defaultValue property is copied into **question.value**
 
 Of course, you may always use **question.value** property or **survey.setValue(name, newValue)** function to set the needed value in the code in any moment.
 
@@ -651,7 +686,7 @@ If you want to validate the value and display an error immediately after a user 
 
 ### Standard Validators
 
-The simplest and most used validation is a required value. You must set **question.isRequired** to true and SurveyJS will require the user answer the question. In [SurveyJS Builder](https://surveyjs.io/Survey/Builder) you may simply toggle exclamation mark (!) to make a question a required. To override the error text on required error, please change the survey **requiredText** property.
+The simplest and most used validation is a required value. You must set **question.isRequired** to true and SurveyJS will require the user answer the question. In [SurveyJS Creator](https://surveyjs.io/Survey/Creator) you may simply toggle exclamation mark (!) to make a question a required. To override the error text on required error, please change the survey **requiredText** property.
 
 Except required validation, there is a list of built-in validation classes, that you may use by adding them into question.validators array property. For example, the following code will add validation for e-mail input:
 
@@ -698,7 +733,7 @@ Please review [the example of validating data using a client event](https://surv
 
 ### Custom Validators
 
-You may introduce your own validator, if you want your power users use them in [SurveyJS Builder](https://surveyjs.io/Survey/Builder), for example, or going to use it in many your own surveys.
+You may introduce your own validator, if you want your power users use them in [SurveyJS Creator](https://surveyjs.io/Survey/Creator), for example, or going to use it in many your own surveys.
 
 Please go to this link to see the [example of writing a custom validator](https://surveyjs.io/Examples/Library/?id=validators-custom#content-js).
 
@@ -730,7 +765,7 @@ survey.onServerValidateQuestions.add(function(sender, options) {
 
 At the current moment, SurveyJS strings have been translated into 26 languages.
 
-Use survey **locale** property in runtime to set to your locale. For example, _survey.locale="es";_ will tell survey to use the Spanish localization. The list of all available localization you may see in our [SurveyJS Builder](https://surveyjs.io/Survey/Builder). Click on Survey Settings button and set the Default Language.
+Use survey **locale** property in runtime to set to your locale. For example, _survey.locale="es";_ will tell survey to use the Spanish localization. The list of all available localization you may see in our [SurveyJS Creator](https://surveyjs.io/Survey/Creator). Click on Survey Settings button and set the Default Language.
 
 The localization is supported by the community. If you see that there is a non-localized string on your language or do not like the current translation, you may change it locally as:
 
@@ -752,7 +787,7 @@ However, the most strings in SurveyJS are localizable and you may write in JSON.
 _text: { "default": "Dog", "de": "Der Hund" }_
 Please note, that _text: {"default: "Dog"}_ is the same as: _text: "Dog"_.
 
-In the code, or in SurveyJS Builder, you should not worry about the locale a lot. If you want to get/set strings into default locale, then set survey.locale to empty string. If you want to get/set strings into Spanish locale, then set survey **locale** into "es" (Spanish).
+In the code, or in SurveyJS Creator, you should not worry about the locale a lot. If you want to get/set strings into default locale, then set survey.locale to empty string. If you want to get/set strings into Spanish locale, then set survey **locale** into "es" (Spanish).
 
 Please go to [this demo](https://surveyjs.io/Examples/Library/?id=survey-multilanguages) to find out more.
 
@@ -760,7 +795,7 @@ Please go to [this demo](https://surveyjs.io/Examples/Library/?id=survey-multila
 
 ## Extend SurveyJS Elements by adding properties
 
-Since this topic is mostly for our Survey Builder users, it is described in [Builder Documentation](https://surveyjs.io/Documentation/Builder/?id=Survey-Builder-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Builder.
+Since this topic is mostly for our Survey Creator users, it is described in [Survey Creator Documentation](https://surveyjs.io/Documentation/Creator/?id=Survey-Creator-Overview#addproperties). However, for some scenarios, the described functionality maybe useful for SurveyJS Library without using the Creator.
 
 <div id="triggers"></div>
 

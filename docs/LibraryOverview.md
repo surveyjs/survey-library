@@ -199,7 +199,7 @@ Again, you may show the progress and errors. That makes a code a little more com
 
 As you see, there are not a lot of code on the client for storing the survey results in your own data storage. However, the main part, the server code that stores the data into database, is not here. We can’t provide it to you since it is highly depending on your server platforms and database. Likely it is a typical task for every platform.
 
-<div id="changesurveyresults"></div>
+<div id="modifysurveyresults"></div>
 
 ### Modify Survey results
 

@@ -669,6 +669,20 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
   );
 });
 QUnit.test(
+  "ItemValueListOwner deserialization with empty object, #1667",
+  function(assert) {
+    var list = new ItemValueListOwner();
+    new JsonObject().toObject({ items: [{}, 1] }, list);
+    assert.equal(list.items.length, 2, "there are two items");
+    assert.equal(
+      list.items[0].getType(),
+      "itemvalue",
+      "the type created correct"
+    );
+    assert.equal(list.items[0].value, null, "The value is null");
+  }
+);
+QUnit.test(
   "ItemValueListOwner deserialization, custom property in ItemValue",
   function(assert) {
     JsonObject.metaData.addProperty("itemvalue", "price:number");

@@ -16,6 +16,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   supportGoNextPageAutomatic() {
     return true;
   }
+
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */
@@ -25,6 +26,32 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set multiSelect(newValue: boolean) {
     this.setPropertyValue("multiSelect", newValue);
   }
+
+  public clearIncorrectValues() {
+    if (this.multiSelect) {
+      var val = this.value;
+      if (!val) return;
+      if (!Array.isArray(val) || val.length == 0) {
+        this.clearValue();
+        return;
+      }
+      var newValue = [];
+      for (var i = 0; i < val.length; i++) {
+        if (!this.hasUnknownValue(val[i], true)) {
+          newValue.push(val[i]);
+        }
+      }
+      if (newValue.length == val.length) return;
+      if (newValue.length == 0) {
+        this.clearValue();
+      } else {
+        this.value = newValue;
+      }
+    } else {
+      super.clearIncorrectValues();
+    }
+  }
+
   /**
    * Show label under the image.
    */

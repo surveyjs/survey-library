@@ -1386,8 +1386,8 @@ QUnit.test(
     page.addElement(panel);
     survey.onValidateQuestion.add(function(survey, options) {
       if (options.name != "q1") return;
-      var v1 = options.value["item1"];
-      var v2 = options.value["item2"];
+      var v1 = !!options.value ? options.value["item1"] : null;
+      var v2 = !!options.value ? options.value["item2"] : null;
       if (!v1 || !v2) {
         options.error = "all items should be set";
         return;

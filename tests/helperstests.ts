@@ -25,6 +25,19 @@ QUnit.test("Event hasEvents property", function(assert) {
     "Ignore Order = false: We believe it is not the same arrays"
   );
 });
+QUnit.test("Helpers.isValueEmpty function", function(assert) {
+  assert.equal(Helpers.isValueEmpty(false), false, "false is not empty value");
+  assert.equal(Helpers.isValueEmpty(0), false, "0 is not empty value");
+  assert.equal(Helpers.isValueEmpty(null), true, "null is empty value");
+  assert.equal(Helpers.isValueEmpty(""), true, "empty string is empty value");
+  assert.equal(Helpers.isValueEmpty([]), true, "empty array is empty value");
+  assert.equal(Helpers.isValueEmpty({}), true, "empty object is empty value");
+  assert.equal(
+    Helpers.isValueEmpty(new Date()),
+    false,
+    "date is not empty value"
+  );
+});
 QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();
   var validators1 = [];

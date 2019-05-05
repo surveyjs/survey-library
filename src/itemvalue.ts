@@ -256,9 +256,6 @@ export class ItemValue extends Base {
   }
   public setData(value: any) {
     if (Helpers.isValueEmpty(value)) return;
-    //TODO probably move to isValueEmpty?
-    if (!!value && typeof value === "object" && Object.keys(value).length == 0)
-      return;
     if (typeof value.value !== "undefined") {
       var json = value;
       if (typeof value.toJSON === "function") {

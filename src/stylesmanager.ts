@@ -463,57 +463,65 @@ export class StylesManager {
       surveyCss.currentType = "standard";
     }
 
-    let sheet = StylesManager.findSheet(themeName + themeSelector);
-    if (!sheet) {
-      sheet = StylesManager.createSheet(themeName + themeSelector);
-      let theme =
-        StylesManager.ThemeColors[themeName] ||
-        StylesManager.ThemeColors["default"];
+    if (StylesManager.Enabled) {
+      let sheet = StylesManager.findSheet(themeName + themeSelector);
+      if (!sheet) {
+        sheet = StylesManager.createSheet(themeName + themeSelector);
+        let theme =
+          StylesManager.ThemeColors[themeName] ||
+          StylesManager.ThemeColors["default"];
 
-      Object.keys(ThemeCss).forEach(selector => {
-        let cssRuleText = ThemeCss[selector];
-        Object.keys(theme).forEach(
-          colorVariableName =>
-            (cssRuleText = cssRuleText.replace(
-              new RegExp("\\" + colorVariableName, "g"),
-              theme[colorVariableName]
-            ))
-        );
-        sheet.insertRule(
-          themeSelector + selector + " { " + cssRuleText + " }",
-          0
-        );
-      });
+        Object.keys(ThemeCss).forEach(selector => {
+          let cssRuleText = ThemeCss[selector];
+          Object.keys(theme).forEach(
+            colorVariableName =>
+              (cssRuleText = cssRuleText.replace(
+                new RegExp("\\" + colorVariableName, "g"),
+                theme[colorVariableName]
+              ))
+          );
+          sheet.insertRule(
+            themeSelector + selector + " { " + cssRuleText + " }",
+            0
+          );
+        });
+      }
     }
   }
 
+  public static Enabled = true;
+
   constructor() {
-    this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
-    if (!this.sheet) {
-      this.sheet = StylesManager.createSheet(
-        StylesManager.SurveyJSStylesSheetId
-      );
-      this.initializeStyles(this.sheet);
+    if (StylesManager.Enabled) {
+      this.sheet = StylesManager.findSheet(StylesManager.SurveyJSStylesSheetId);
+      if (!this.sheet) {
+        this.sheet = StylesManager.createSheet(
+          StylesManager.SurveyJSStylesSheetId
+        );
+        this.initializeStyles(this.sheet);
+      }
     }
   }
 
   public initializeStyles(sheet: CSSStyleSheet) {
-    Object.keys(StylesManager.Styles).forEach(selector =>
-      sheet.insertRule(
-        selector + " { " + StylesManager.Styles[selector] + " }",
-        0
-      )
-    );
-    Object.keys(StylesManager.Media).forEach(selector => {
-      sheet.insertRule(
-        StylesManager.Media[selector].media +
-        " { " +
-        selector +
-        " { " +
-        StylesManager.Media[selector].style +
-        " } }",
-        0
+    if (StylesManager.Enabled) {
+      Object.keys(StylesManager.Styles).forEach(selector =>
+        sheet.insertRule(
+          selector + " { " + StylesManager.Styles[selector] + " }",
+          0
+        )
       );
-    });
+      Object.keys(StylesManager.Media).forEach(selector => {
+        sheet.insertRule(
+          StylesManager.Media[selector].media +
+          " { " +
+          selector +
+          " { " +
+          StylesManager.Media[selector].style +
+          " } }",
+          0
+        );
+      });
+    }
   }
 }

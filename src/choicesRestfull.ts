@@ -146,7 +146,7 @@ export class ChoicesRestfull extends Base {
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function() {
+    xhr.onload = function () {
       self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response));
@@ -241,6 +241,12 @@ export class ChoicesRestfull extends Base {
   public set titleName(val: string) {
     this.setPropertyValue("titleName", val);
   }
+  public get allowEmptyResponse(): boolean {
+    return this.getPropertyValue("allowEmptyResponse", false);
+  }
+  public set allowEmptyResponse(val: boolean) {
+    this.setPropertyValue("allowEmptyResponse", val);
+  }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
     var prop = JsonObject.metaData.findProperty(
@@ -275,7 +281,9 @@ export class ChoicesRestfull extends Base {
         items.push(item);
       }
     } else {
-      this.error = new WebRequestEmptyError(null, this.owner);
+      if (!this.allowEmptyResponse) {
+        this.error = new WebRequestEmptyError(null, this.owner);
+      }
     }
     if (this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
@@ -362,8 +370,8 @@ export class ChoicesRestfull extends Base {
 }
 JsonObject.metaData.addClass(
   "choicesByUrl",
-  ["url", "path", "valueName", "titleName"],
-  function() {
+  ["url", "path", "valueName", "titleName", { name: "allowEmptyResponse:boolean", default: false }],
+  function () {
     return new ChoicesRestfull();
   }
 );

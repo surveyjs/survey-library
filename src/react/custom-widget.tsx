@@ -20,7 +20,8 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     }
   }
   componentDidUpdate() {
-    if (this.questionBase) {
+    var isDefaultRender = !!this.questionBase.customWidget && this.questionBase.customWidget.isDefaultRender;
+    if (this.questionBase && !isDefaultRender) {
       this._afterRender();
     }
   }

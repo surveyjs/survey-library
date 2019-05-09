@@ -1607,6 +1607,49 @@ QUnit.test("RunExpression trigger test", function(assert) {
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), 5, "value is still 5");
 });
+QUnit.test(
+  "RunExpression trigger test with custom function, bug#T1734",
+  function(assert) {
+    function getQuestionValueByTitle(params) {
+      if (!params && params.length < 1) return undefined;
+      var question = this.survey.getAllQuestions().filter(function(q) {
+        return q.title === params[0];
+      })[0];
+      return question.value;
+    }
+    function abortSurvey() {
+      this.survey.doComplete();
+    }
+    FunctionFactory.Instance.register(
+      "getQuestionValueByTitle",
+      getQuestionValueByTitle
+    );
+    FunctionFactory.Instance.register("abort", abortSurvey);
+
+    var survey = new SurveyModel({
+      pages: [
+        {
+          elements: [{ type: "boolean", name: "q1", title: "abort survey" }]
+        },
+        {
+          elements: [{ type: "text", name: "q2" }]
+        }
+      ],
+      triggers: [
+        {
+          type: "runexpression",
+          expression: "getQuestionValueByTitle('abort survey') = true",
+          runExpression: "abort()"
+        }
+      ]
+    });
+    survey.setValue("q1", true);
+    survey.nextPage();
+    assert.equal(survey.state, "completed", "The survey is completed");
+    FunctionFactory.Instance.unregister("getQuestionValueByTitle");
+    FunctionFactory.Instance.unregister("abort");
+  }
+);
 
 QUnit.test("Copy value trigger test", function(assert) {
   var survey = twoPageSimplestSurvey();

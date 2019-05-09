@@ -37,6 +37,9 @@ export class Operand {
       vars.push(name);
     }
   }
+  public hasFunction(): boolean {
+    return false;
+  }
   public toString(): string {
     var val = this.origionalValue;
     if (val && (!this.isNumeric(val) && !this.isBooleanValue(val)))
@@ -128,6 +131,9 @@ export class FunctionOperand extends Operand {
     for (var i = 0; i < this.parameters.length; i++) {
       this.parameters[i].fillVariables(vars);
     }
+  }
+  public hasFunction(): boolean {
+    return true;
   }
   public toString() {
     var res = this.origionalValue + "(";
@@ -362,6 +368,10 @@ export class Condition {
     if (this.left) this.left.fillVariables(vars);
     if (this.right) this.right.fillVariables(vars);
   }
+  public hasFunction(): boolean {
+    if (!!this.left && this.left.hasFunction()) return true;
+    return !!this.right && this.right.hasFunction();
+  }
   public toString(): string {
     if (!this.right || !this.operator) return "";
     var left = this.left.toString();
@@ -408,6 +418,12 @@ export class ConditionNode {
     var vars: Array<any> = [];
     this.fillVariables(vars);
     return vars;
+  }
+  public hasFunction(): boolean {
+    for (var i = 0; i < this.children.length; i++) {
+      if (this.children[i].hasFunction()) return true;
+    }
+    return false;
   }
   public fillVariables(vars: Array<string>) {
     for (var i = 0; i < this.children.length; i++) {
@@ -474,6 +490,9 @@ export class ConditionRunner {
   }
   public getVariables(): Array<string> {
     return !!this.root ? this.root.getVariables() : [];
+  }
+  public hasFunction(): boolean {
+    return !!this.root ? this.root.hasFunction() : false;
   }
   public run(
     values: HashTable<any>,

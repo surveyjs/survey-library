@@ -14,36 +14,36 @@ export class Trigger extends Base {
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
-      empty: function(value:any, expectedValue:any) {
+      empty: function(value: any, expectedValue: any) {
         return !value;
       },
-      notempty: function(value:any, expectedValue:any) {
+      notempty: function(value: any, expectedValue: any) {
         return !!value;
       },
-      equal: function(value:any, expectedValue:any) {
+      equal: function(value: any, expectedValue: any) {
         return value == expectedValue;
       },
-      notequal: function(value:any, expectedValue:any) {
+      notequal: function(value: any, expectedValue: any) {
         return value != expectedValue;
       },
-      contains: function(value:any, expectedValue:any) {
+      contains: function(value: any, expectedValue: any) {
         return value && value["indexOf"] && value.indexOf(expectedValue) > -1;
       },
-      notcontains: function(value:any, expectedValue:any) {
+      notcontains: function(value: any, expectedValue: any) {
         return (
           !value || !value["indexOf"] || value.indexOf(expectedValue) == -1
         );
       },
-      greater: function(value:any, expectedValue:any) {
+      greater: function(value: any, expectedValue: any) {
         return value > expectedValue;
       },
-      less: function(value:any, expectedValue:any) {
+      less: function(value: any, expectedValue: any) {
         return value < expectedValue;
       },
-      greaterorequal: function(value:any, expectedValue:any) {
+      greaterorequal: function(value: any, expectedValue: any) {
         return value >= expectedValue;
       },
-      lessorequal: function(value:any, expectedValue:any) {
+      lessorequal: function(value: any, expectedValue: any) {
         return value <= expectedValue;
       }
     };
@@ -51,6 +51,7 @@ export class Trigger extends Base {
   }
   private conditionRunner: ConditionRunner;
   private usedNames: Array<string>;
+  private hasFunction: boolean;
   constructor() {
     super();
     this.usedNames = [];
@@ -133,6 +134,7 @@ export class Trigger extends Base {
   }
   private onExpressionChanged() {
     this.usedNames = [];
+    this.hasFunction = false;
     this.conditionRunner = null;
   }
   public buildExpression(): string {
@@ -150,6 +152,7 @@ export class Trigger extends Base {
   private isCheckRequired(keys: any): boolean {
     if (!keys) return false;
     this.buildUsedNames();
+    if (this.hasFunction === true) return true;
     for (var i = 0; i < this.usedNames.length; i++) {
       if (keys.hasOwnProperty(this.usedNames[i])) return true;
       //if (keys[this.usedNames[i]] != undefined) return true;
@@ -164,6 +167,7 @@ export class Trigger extends Base {
     }
     if (!expression) return;
     this.conditionRunner = new ConditionRunner(expression);
+    this.hasFunction = this.conditionRunner.hasFunction();
     this.usedNames = this.conditionRunner.getVariables();
     var processValue = new ProcessValue();
     for (var i = 0; i < this.usedNames.length; i++) {

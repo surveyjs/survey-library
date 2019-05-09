@@ -6976,3 +6976,25 @@ QUnit.test("page.clearErrors function", function(assert) {
     "Error is cleared in question cell"
   );
 });
+QUnit.test(
+  "multipletext - question is empty for empty string, bug# https://surveyjs.answerdesk.io/ticket/details/T2000",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question = <QuestionMultipleTextModel>page.addNewQuestion(
+      "multipletext",
+      "q1"
+    );
+    question.addItem("text1");
+    question.addItem("text2");
+    question.value = { text1: "val1" };
+    assert.deepEqual(
+      survey.data,
+      { q1: { text1: "val1" } },
+      "The data is here"
+    );
+    question.items[0].value = "";
+    assert.deepEqual(survey.data, {}, "survey is empty");
+    assert.equal(question.isEmpty(), true, "question is empty");
+  }
+);

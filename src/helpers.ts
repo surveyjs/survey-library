@@ -9,13 +9,12 @@ export class Helpers {
    */
   public static isValueEmpty(value: any) {
     if (Array.isArray(value) && value.length === 0) return true;
-    if (
-      !!value &&
-      typeof value === "object" &&
-      value.constructor === Object &&
-      Object.keys(value).length == 0
-    )
+    if (!!value && typeof value === "object" && value.constructor === Object) {
+      for (var key in value) {
+        if (!Helpers.isValueEmpty(value[key])) return false;
+      }
       return true;
+    }
     if (!!value && (typeof value === "string" || value instanceof String)) {
       value = value.trim();
     }

@@ -37,6 +37,21 @@ QUnit.test("Helpers.isValueEmpty function", function(assert) {
     false,
     "date is not empty value"
   );
+  assert.equal(
+    Helpers.isValueEmpty({ val: "something" }),
+    false,
+    "the object is not empty"
+  );
+  assert.equal(
+    Helpers.isValueEmpty({ val: false }),
+    false,
+    "the object is not empty, false"
+  );
+  assert.equal(
+    Helpers.isValueEmpty({ val: "" }),
+    true,
+    "the object is empty, empty string"
+  );
 });
 QUnit.test("isTwoValueEquals with validators", function(assert) {
   var survey = new SurveyModel();

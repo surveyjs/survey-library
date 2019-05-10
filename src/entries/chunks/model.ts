@@ -105,6 +105,8 @@ export {
   SurveyTriggerComplete,
   SurveyTriggerSetValue,
   SurveyTriggerVisible,
+  SurveyTriggerCopyValue,
+  SurveyTriggerRunExpression,
   Trigger
 } from "../../trigger";
 export { SurveyWindowModel } from "../../surveyWindow";

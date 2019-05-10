@@ -46,7 +46,8 @@ export {
   JsonObject,
   JsonObjectProperty,
   JsonRequiredPropertyError,
-  JsonUnknownPropertyError
+  JsonUnknownPropertyError,
+  Serializer
 } from "../../jsonobject";
 export {
   MatrixDropdownCell,

@@ -1083,3 +1083,5 @@ export class JsonObject {
     return null;
   }
 }
+
+export var Serializer = JsonObject.metaData;

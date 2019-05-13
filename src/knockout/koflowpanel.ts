@@ -39,7 +39,7 @@ export class FlowPanel extends FlowPanelModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("flowpanel", function() {
+JsonObject.metaData.overrideClassCreator("flowpanel", function() {
   return new FlowPanel();
 });
 /*

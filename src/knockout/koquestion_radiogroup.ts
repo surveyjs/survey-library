@@ -20,7 +20,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("radiogroup", function() {
+JsonObject.metaData.overrideClassCreator("radiogroup", function() {
   return new QuestionRadiogroup("");
 });
 

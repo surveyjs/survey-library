@@ -11,7 +11,7 @@ export class QuestionComment extends QuestionCommentModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("comment", function() {
+JsonObject.metaData.overrideClassCreator("comment", function() {
   return new QuestionComment("");
 });
 QuestionFactory.Instance.registerQuestion("comment", name => {

@@ -11,7 +11,7 @@ export class QuestionHtml extends QuestionHtmlModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("html", function() {
+JsonObject.metaData.overrideClassCreator("html", function() {
   return new QuestionHtml("");
 });
 QuestionFactory.Instance.registerQuestion("html", name => {

@@ -11,6 +11,6 @@ export class QuestionEmpty extends QuestionEmptyModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("empty", function() {
+JsonObject.metaData.overrideClassCreator("empty", function() {
   return new QuestionEmpty("");
 });

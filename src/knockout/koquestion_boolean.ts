@@ -23,7 +23,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("boolean", function() {
+JsonObject.metaData.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });
 

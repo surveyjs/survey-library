@@ -54,7 +54,7 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("matrixdynamic", function() {
+JsonObject.metaData.overrideClassCreator("matrixdynamic", function() {
   return new QuestionMatrixDynamic("");
 });
 

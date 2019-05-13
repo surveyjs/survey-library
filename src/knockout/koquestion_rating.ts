@@ -42,7 +42,7 @@ export class QuestionRating extends QuestionRatingModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("rating", function() {
+JsonObject.metaData.overrideClassCreator("rating", function() {
   return new QuestionRating("");
 });
 

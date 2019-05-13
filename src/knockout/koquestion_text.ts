@@ -10,7 +10,7 @@ export class QuestionText extends QuestionTextModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("text", function() {
+JsonObject.metaData.overrideClassCreator("text", function() {
   return new QuestionText("");
 });
 

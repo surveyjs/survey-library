@@ -123,6 +123,9 @@ export class PanelModelBase extends SurveyElement
     this.createLocalizableString("description", this, true);
     this.createLocalizableString("requiredErrorText", this);
   }
+  public getType(): string {
+    return "panelbase";
+  }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
     if (this.isDesignMode) this.onVisibleChanged();

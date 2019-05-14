@@ -251,6 +251,9 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     if (this.owner) this.owner.setCompleted();
   }
 }
+/**
+ * If expression returns true, the value from property **setValue** will be set to **setToName**
+ */
 export class SurveyTriggerSetValue extends SurveyTrigger {
   public setToName: string;
   public setValue: any;
@@ -266,7 +269,9 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
-
+/**
+ * If expression returns true, the **runExpression** will be run. If **setToName** property is not empty then the result of **runExpression** will be set to it.
+ */
 export class SurveyTriggerRunExpression extends SurveyTrigger {
   public setToName: string;
   public runExpression: any;
@@ -289,6 +294,9 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   }
 }
 
+/**
+ * If expression returns true, the value from question **fromName** will be set into **setToName**.
+ */
 export class SurveyTriggerCopyValue extends SurveyTrigger {
   public setToName: string;
   public fromName: any;

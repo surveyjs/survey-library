@@ -163,6 +163,10 @@ export class StylesManager {
       style: "line-height: 12px; vertical-align: top;",
       media: "@media (max-width: 600px)"
     },
+    ".sv_qstn label.sv_q_m_label": {
+      style: "display: inline;",
+      media: "@media (max-width: 600px)"
+    },
     ".sv_main .sv_custom_header": {
       style: "display: none;",
       media: "@media (max-width: 1300px)"

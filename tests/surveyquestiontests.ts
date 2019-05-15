@@ -750,6 +750,17 @@ QUnit.test("Validators for array value question", function(assert) {
   question.value = ["item1", "item3"];
   assert.equal(question.hasErrors(), false, "There is two items in value");
 });
+QUnit.test("validator.toString()", function(assert) {
+  var validator = new RegexValidator("[0-9]+");
+  assert.equal(validator.toString(), "regex", "validator type");
+  validator.text = "incorrect number";
+  assert.equal(
+    validator.toString(),
+    "regex, incorrect number",
+    "validator type + text"
+  );
+});
+
 QUnit.test("Validators for other values - dropdown, Bug #722", function(
   assert
 ) {

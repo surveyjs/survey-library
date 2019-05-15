@@ -69,6 +69,14 @@ export class Trigger extends Base {
   public getType(): string {
     return "triggerbase";
   }
+  public toString(): string {
+    var res = this.getType().replace("trigger", "");
+    var exp = !!this.expression ? this.expression : this.buildExpression();
+    if (exp) {
+      res += ", " + exp;
+    }
+    return res;
+  }
   public get operator(): string {
     return this.getPropertyValue("operator", "equal");
   }

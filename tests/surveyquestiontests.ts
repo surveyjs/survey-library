@@ -834,6 +834,30 @@ QUnit.test("Show errors if others value is selected, but not entered", function(
   assert.equal(radio.hasErrors(), false, "We have entered the comment");
 });
 
+QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function(
+  assert
+) {
+  var q = new QuestionDropdownModel("q1");
+  q.choices = ["one", "two"];
+  q.choicesMin = 1;
+  q.choicesMax = 20;
+  assert.equal(
+    q.visibleChoices.length,
+    22,
+    "genereated choices have been aded"
+  );
+  assert.equal(q.visibleChoices[0].value, "one", "from choices");
+  assert.equal(q.visibleChoices[2].value, 1, "auto generated");
+  q.hasOther = true;
+  assert.equal(q.visibleChoices.length, 2 + 20 + 1, "has other has been aded");
+  q.choicesStep = 2;
+  assert.equal(
+    q.visibleChoices.length,
+    2 + 10 + 1,
+    "we have in two less autogeneated items"
+  );
+});
+
 QUnit.test(
   "Clear comment on unset the other value, Bug: https://surveyjs.answerdesk.io/ticket/details/T1916",
   function(assert) {

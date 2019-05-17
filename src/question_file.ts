@@ -350,7 +350,7 @@ JsonObject.metaData.addClass(
   [
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
-    "allowImagesPreview:boolean",
+    { name: "allowImagesPreview:boolean", default: true },
     "imageHeight",
     "imageWidth",
     "acceptedTypes",

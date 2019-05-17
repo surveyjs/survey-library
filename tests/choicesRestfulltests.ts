@@ -219,7 +219,11 @@ QUnit.test("encode parameters", function(assert) {
   test.url = "TestUrl/{q1}";
   test.getResultCallback = function(res: Array<ItemValue>) {};
   test.run(survey);
-  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
+  assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
+  ChoicesRestfull.EncodeParameters = false;
+  test.run(survey);
+  assert.equal(test.testProcessedUrl, "TestUrl/R&D", "stop encoding");
+  ChoicesRestfull.EncodeParameters = true;
 });
 
 QUnit.test("Process text in event", function(assert) {

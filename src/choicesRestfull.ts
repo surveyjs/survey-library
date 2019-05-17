@@ -46,6 +46,7 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
+  public static EncodeParameters: boolean = true;
   private static itemsResult: { [index: string]: any } = {};
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
@@ -105,8 +106,16 @@ export class ChoicesRestfull extends Base {
   }
   private processedText(textProcessor: ITextProcessor) {
     if (textProcessor) {
-      var pUrl = textProcessor.processTextEx(this.url, false, true);
-      var pPath = textProcessor.processTextEx(this.path, false, true);
+      var pUrl = textProcessor.processTextEx(
+        this.url,
+        false,
+        ChoicesRestfull.EncodeParameters
+      );
+      var pPath = textProcessor.processTextEx(
+        this.path,
+        false,
+        ChoicesRestfull.EncodeParameters
+      );
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";
@@ -146,7 +155,7 @@ export class ChoicesRestfull extends Base {
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function () {
+    xhr.onload = function() {
       self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response));
@@ -370,8 +379,14 @@ export class ChoicesRestfull extends Base {
 }
 JsonObject.metaData.addClass(
   "choicesByUrl",
-  ["url", "path", "valueName", "titleName", { name: "allowEmptyResponse:boolean", default: false }],
-  function () {
+  [
+    "url",
+    "path",
+    "valueName",
+    "titleName",
+    { name: "allowEmptyResponse:boolean", default: false }
+  ],
+  function() {
     return new ChoicesRestfull();
   }
 );

@@ -32,18 +32,19 @@ import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
 import { HtmlConditionItem } from "./htmlConditionItem";
+import { ExpressionRunner, ConditionRunner } from "./conditions";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
  */
 export class SurveyModel extends Base
   implements
-  ISurvey,
-  ISurveyData,
-  ISurveyImpl,
-  ISurveyTriggerOwner,
-  ISurveyErrorOwner,
-  ILocalizableOwner {
+    ISurvey,
+    ISurveyData,
+    ISurveyImpl,
+    ISurveyTriggerOwner,
+    ISurveyErrorOwner,
+    ILocalizableOwner {
   [index: string]: any;
   private static stylesManager: StylesManager = null;
   public static platform: string = "unknown";
@@ -762,36 +763,36 @@ export class SurveyModel extends Base
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = function (
+    this.textPreProcessor.onProcess = function(
       textValue: TextPreProcessorValue
     ) {
       self.getProcessedTextValue(textValue);
     };
-    this.pagesValue = this.createNewArray("pages", function (value: any) {
+    this.pagesValue = this.createNewArray("pages", function(value: any) {
       self.doOnPageAdded(value);
     });
-    this.triggersValue = this.createNewArray("triggers", function (value: any) {
+    this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
     this.completedHtmlOnConditionValue = this.createNewArray(
       "completedHtmlOnCondition",
-      function (value: any) {
+      function(value: any) {
         value.locOwner = self;
       }
     );
     this.registerFunctionOnPropertyValueChanged(
       "questionTitleTemplate",
-      function () {
+      function() {
         self.questionTitleTemplateCache = undefined;
       }
     );
     this.registerFunctionOnPropertyValueChanged(
       "firstPageIsStarted",
-      function () {
+      function() {
         self.onFirstPageIsStartedChanged();
       }
     );
-    this.registerFunctionOnPropertyValueChanged("isSinglePage", function () {
+    this.registerFunctionOnPropertyValueChanged("isSinglePage", function() {
       self.onIsSinglePageChanged();
     });
     this.onBeforeCreating();
@@ -1090,7 +1091,7 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.onLocaleChanged();
   }
-  protected onLocaleChanged() { }
+  protected onLocaleChanged() {}
   //ILocalizableOwner
   getLocale() {
     return this.locale;
@@ -1173,6 +1174,26 @@ export class SurveyModel extends Base
   }
   public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
     this.setPropertyValue("completedHtmlOnCondition", val);
+  }
+  /**
+   * Perform the calculation of the given expression and returns the result value
+   * @param expression
+   */
+  public runExpression(expression: string): any {
+    if (!expression) return null;
+    var values = this.getFilteredValues();
+    var properties = this.getFilteredProperties();
+    return new ExpressionRunner(expression).run(values, properties);
+  }
+  /**
+   * Perform the calculation of the given expression and true or false
+   * @param expression
+   */
+  public runCondition(expression: string): boolean {
+    if (!expression) return false;
+    var values = this.getFilteredValues();
+    var properties = this.getFilteredProperties();
+    return new ConditionRunner(expression).run(values, properties);
   }
   public get renderedCompletedHtml(): string {
     if (this.completedHtmlOnCondition.length == 0) return this.completedHtml;
@@ -1428,8 +1449,8 @@ export class SurveyModel extends Base
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true
-      }
+      includeEmpty: true
+    }
   ) {
     var result: Array<any> = [];
     this.getAllQuestions().forEach(question => {
@@ -2053,16 +2074,16 @@ export class SurveyModel extends Base
     this.setCookie();
     var self = this;
     var onCompleteOptions = {
-      showDataSaving: function (text: string) {
+      showDataSaving: function(text: string) {
         self.setCompletedState("saving", text);
       },
-      showDataSavingError: function (text: string) {
+      showDataSavingError: function(text: string) {
         self.setCompletedState("error", text);
       },
-      showDataSavingSuccess: function (text: string) {
+      showDataSavingSuccess: function(text: string) {
         self.setCompletedState("success", text);
       },
-      showDataSavingClear: function (text: string) {
+      showDataSavingClear: function(text: string) {
         self.setCompletedState("", "");
       }
     };
@@ -2093,7 +2114,7 @@ export class SurveyModel extends Base
     this.setPropertyValue("isValidatingOnServer", val);
     this.onIsValidatingOnServerChanged();
   }
-  protected onIsValidatingOnServerChanged() { }
+  protected onIsValidatingOnServerChanged() {}
   protected doServerValidation(): boolean {
     if (
       !this.onServerValidateQuestions ||
@@ -2105,7 +2126,7 @@ export class SurveyModel extends Base
       data: <{ [index: string]: any }>{},
       errors: {},
       survey: this,
-      complete: function () {
+      complete: function() {
         self.completeServerValidation(options);
       }
     };
@@ -2767,7 +2788,7 @@ export class SurveyModel extends Base
     this.createSurveyService().sendResult(
       postId,
       this.data,
-      function (success: boolean, response: any, request: any) {
+      function(success: boolean, response: any, request: any) {
         if (self.surveyShowDataSaving) {
           if (success) {
             self.setCompletedState("success", "");
@@ -2775,7 +2796,11 @@ export class SurveyModel extends Base
             self.setCompletedState("error", "");
           }
         }
-        self.onSendResult.fire(self, { success: success, response: response, request: request });
+        self.onSendResult.fire(self, {
+          success: success,
+          response: response,
+          request: request
+        });
       },
       this.clientId,
       isPartialCompleted
@@ -2789,7 +2814,7 @@ export class SurveyModel extends Base
    */
   public getResult(resultId: string, name: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function (
+    this.createSurveyService().getResult(resultId, name, function(
       success: boolean,
       data: any,
       dataList: any[],
@@ -2826,7 +2851,7 @@ export class SurveyModel extends Base
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
-        function (
+        function(
           success: boolean,
           json: string,
           isCompleted: string,
@@ -2840,7 +2865,7 @@ export class SurveyModel extends Base
         }
       );
     } else {
-      this.createSurveyService().loadSurvey(this.surveyId, function (
+      this.createSurveyService().loadSurvey(this.surveyId, function(
         success: boolean,
         result: string,
         response: any
@@ -2858,8 +2883,8 @@ export class SurveyModel extends Base
     this.notifyAllQuestionsOnValueChanged();
     this.onLoadSurveyFromService();
   }
-  protected onLoadingSurveyFromService() { }
-  protected onLoadSurveyFromService() { }
+  protected onLoadingSurveyFromService() {}
+  protected onLoadSurveyFromService() {}
   private updateVisibleIndexes() {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     this.updatePageVisibleIndexes(this.showPageNumbers);
@@ -2911,8 +2936,8 @@ export class SurveyModel extends Base
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
   }
-  protected onBeforeCreating() { }
-  protected onCreating() { }
+  protected onBeforeCreating() {}
+  protected onCreating() {}
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessTextValue.isEmpty) {
@@ -3537,13 +3562,13 @@ export class SurveyModel extends Base
   ): string {
     return this.maxTimeToFinish > 0
       ? this.getLocString("timerLimitSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      )
+          surveySpent,
+          surveyLimit
+        )
       : this.getLocString("timerSpentSurvey")["format"](
-        surveySpent,
-        surveyLimit
-      );
+          surveySpent,
+          surveyLimit
+        );
   }
   private getDisplayTime(val: number): string {
     var min = Math.floor(val / 60);
@@ -3565,7 +3590,7 @@ export class SurveyModel extends Base
   public startTimer() {
     if (this.isTimerStarted || this.isDesignMode) return;
     var self = this;
-    this.timerFunc = function () {
+    this.timerFunc = function() {
       self.doTimer();
     };
     this.isTimerStarted = true;
@@ -3714,10 +3739,10 @@ JsonObject.metaData.addClass("survey", [
     alternativeName: "elements",
     baseClassName: "question",
     visible: false,
-    onGetValue: function (obj: any): any {
+    onGetValue: function(obj: any): any {
       return null;
     },
-    onSetValue: function (obj: any, value: any, jsonConverter: any) {
+    onSetValue: function(obj: any, value: any, jsonConverter: any) {
       var page = obj.addNewPage("");
       jsonConverter.toObject({ questions: value }, page);
     }

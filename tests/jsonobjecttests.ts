@@ -324,7 +324,7 @@ JsonObject.metaData.addClass("container", [
   { name: "obj", className: "shouldnotcreate" },
   { name: "items", className: "shouldnotcreate" }
 ]);
-JsonObject.metaData.overrideClassCreatore("shouldnotcreate", function() {
+JsonObject.metaData.overrideClassCreator("shouldnotcreate", function() {
   return new CreatingObject();
 });
 

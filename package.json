@@ -30,7 +30,7 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.84",
+  "version": "1.0.85",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {
@@ -65,6 +65,7 @@
     "node-sass": "4.9.2",
     "node-uuid": "1.4.7",
     "prettier": "~1.12.0",
+    "pegjs": "0.10.0",
     "puppeteer": "^1.0.0",
     "qunitjs": "2.2.0",
     "react": "^16.2.0",
@@ -78,6 +79,8 @@
     "testcafe": "0.15.0",
     "testcafe-browser-provider-saucelabs": "1.1.0",
     "ts-loader": "2.3.4",
+    "ts-node": "3.3.0",
+    "ts-pegjs": "0.2.3",
     "tslint": "4.5.1",
     "typescript": "2.6.1",
     "url-loader": "^0.6.2",

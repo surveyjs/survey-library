@@ -57,7 +57,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("checkbox", function() {
+JsonObject.metaData.overrideClassCreator("checkbox", function() {
   return new QuestionCheckbox("");
 });
 QuestionFactory.Instance.registerQuestion("checkbox", name => {

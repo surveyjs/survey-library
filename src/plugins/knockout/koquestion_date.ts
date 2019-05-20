@@ -25,7 +25,7 @@ export class QuestionDate extends QuestionDateModel {
 }
 
 //Tell json serializer and survey editor to create exactly this class. Override it from the model that doesn't have any rendering functionality.
-JsonObject.metaData.overrideClassCreatore("date", function() {
+JsonObject.metaData.overrideClassCreator("date", function() {
   return new QuestionDate("");
 });
 QuestionFactory.Instance.registerQuestion("date", name => {

@@ -149,7 +149,7 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("matrixdropdown", function() {
+JsonObject.metaData.overrideClassCreator("matrixdropdown", function() {
   return new QuestionMatrixDropdown("");
 });
 

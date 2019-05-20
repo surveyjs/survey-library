@@ -24,7 +24,7 @@ export class QuestionExpression extends QuestionExpressionModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("expression", function() {
+JsonObject.metaData.overrideClassCreator("expression", function() {
   return new QuestionExpression("");
 });
 QuestionFactory.Instance.registerQuestion("expression", name => {

@@ -1430,6 +1430,16 @@ QUnit.test("Complete trigger test", function(assert) {
   survey.nextPage();
   assert.equal(survey.state, "completed");
 });
+QUnit.test("CompleteTrigger.toString()", function(assert) {
+  var trigger = new SurveyTriggerComplete();
+  trigger.name = "question1";
+  trigger.value = "Hello";
+  assert.equal(
+    trigger.toString(),
+    "complete, {question1} equal 'Hello'",
+    "toString function returns correct value"
+  );
+});
 QUnit.test("Complete trigger + matrix test", function(assert) {
   var survey = twoPageSimplestSurvey();
   var matrix = <QuestionMatrixModel>survey.pages[0].addNewQuestion(

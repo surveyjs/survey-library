@@ -62,7 +62,7 @@ export class QuestionFile extends QuestionFileModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("file", function() {
+JsonObject.metaData.overrideClassCreator("file", function() {
   return new QuestionFile("");
 });
 QuestionFactory.Instance.registerQuestion("file", name => {

@@ -1,0 +1,20 @@
+{
+    "tspegjs": {
+        "noTslint": false,
+        "customHeader": "import {\nConst,\nBinaryOperand,\nVariable,\nOperand,\nUnaryOperand,\nFunctionOperand,\nArrayOperand\n} from \"./expressions\";"
+    },
+    "returnTypes": {
+        "Expression" : "Operand",
+        "LogicOr" : "BinaryOperand",
+        "LogicAnd" : "BinaryOperand",
+        "CompOps" : "BinaryOperand",
+        "PlusMinusOps" : "BinaryOperand",
+        "MulDivOps" : "BinaryOperand",
+        "Const" : "Const",
+        "Variable" : "Variable",
+        "Factor" : "Operand",
+        "Negate" : "UnaryOperand",
+        "Array" : "ArrayOperand",
+        "Sequence" : "ArrayOperand"
+    }
+}

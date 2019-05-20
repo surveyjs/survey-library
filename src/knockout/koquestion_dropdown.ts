@@ -11,7 +11,7 @@ export class QuestionDropdown extends QuestionDropdownModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("dropdown", function() {
+JsonObject.metaData.overrideClassCreator("dropdown", function() {
   return new QuestionDropdown("");
 });
 QuestionFactory.Instance.registerQuestion("dropdown", name => {

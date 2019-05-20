@@ -49,11 +49,11 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("multipletextitem", function() {
+JsonObject.metaData.overrideClassCreator("multipletextitem", function() {
   return new MultipleTextItem("");
 });
 
-JsonObject.metaData.overrideClassCreatore("multipletext", function() {
+JsonObject.metaData.overrideClassCreator("multipletext", function() {
   return new QuestionMultipleText("");
 });
 

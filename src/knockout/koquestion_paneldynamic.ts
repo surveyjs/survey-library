@@ -162,7 +162,7 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("paneldynamic", function() {
+JsonObject.metaData.overrideClassCreator("paneldynamic", function() {
   return new QuestionPanelDynamic("");
 });
 

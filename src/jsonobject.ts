@@ -463,6 +463,9 @@ export class JsonMetadata {
     return metaDataClass;
   }
   public overrideClassCreatore(name: string, creator: () => any) {
+    this.overrideClassCreator(name, creator);
+  }
+  public overrideClassCreator(name: string, creator: () => any) {
     name = name.toLowerCase();
     var metaDataClass = this.findClass(name);
     if (metaDataClass) {

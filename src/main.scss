@@ -675,6 +675,9 @@ $base-line-height: 2em;
               }
               table.sv_q_matrix {
                 td {
+                  label.sv_q_m_label {
+                    display: inline;
+                  }
                   &:after {
                     content: attr(headers);
                   }

@@ -23,11 +23,11 @@ export class MatrixRow extends MatrixRowModel {
     super(item, fullName, data, value);
     this.koValue = ko.observable(this.value);
     var self = this;
-    this.koValue.subscribe(function(newValue:any) {
+    this.koValue.subscribe(function(newValue: any) {
       if (self.isValueUpdating) true;
       self.value = newValue;
     });
-    this.koCellClick = function(column:any) {
+    this.koCellClick = function(column: any) {
       self.koValue(column.value);
     };
   }
@@ -64,7 +64,7 @@ export class QuestionMatrix extends QuestionMatrixModel {
   ): MatrixRowModel {
     return new MatrixRow(item, fullName, this, value);
   }
-  public getItemCss(row:any, column:any) {
+  public getItemCss(row: any, column: any) {
     var isChecked = row.koValue() == column.value;
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
@@ -77,7 +77,7 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("matrix", function() {
+JsonObject.metaData.overrideClassCreator("matrix", function() {
   return new QuestionMatrix("");
 });
 QuestionFactory.Instance.registerQuestion("matrix", name => {

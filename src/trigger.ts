@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { JsonObject } from "./jsonobject";
-import { ConditionRunner, ExpressionRunner, Operand } from "./conditions";
+import { ConditionRunner, ExpressionRunner } from "./conditions";
+import { OperandMaker } from "./expressions/expressions";
 import { ProcessValue } from "./conditionProcessValue";
 
 /**
@@ -68,6 +69,14 @@ export class Trigger extends Base {
   }
   public getType(): string {
     return "triggerbase";
+  }
+  public toString(): string {
+    var res = this.getType().replace("trigger", "");
+    var exp = !!this.expression ? this.expression : this.buildExpression();
+    if (exp) {
+      res += ", " + exp;
+    }
+    return res;
   }
   public get operator(): string {
     return this.getPropertyValue("operator", "equal");
@@ -146,7 +155,7 @@ export class Trigger extends Base {
       "} " +
       this.operator +
       " " +
-      new Operand(this.value).toString()
+      OperandMaker.toOperandString(this.value)
     );
   }
   private isCheckRequired(keys: any): boolean {
@@ -251,6 +260,9 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     if (this.owner) this.owner.setCompleted();
   }
 }
+/**
+ * If expression returns true, the value from property **setValue** will be set to **setToName**
+ */
 export class SurveyTriggerSetValue extends SurveyTrigger {
   public setToName: string;
   public setValue: any;
@@ -266,7 +278,9 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
-
+/**
+ * If expression returns true, the **runExpression** will be run. If **setToName** property is not empty then the result of **runExpression** will be set to it.
+ */
 export class SurveyTriggerRunExpression extends SurveyTrigger {
   public setToName: string;
   public runExpression: any;
@@ -289,6 +303,9 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   }
 }
 
+/**
+ * If expression returns true, the value from question **fromName** will be set into **setToName**.
+ */
 export class SurveyTriggerCopyValue extends SurveyTrigger {
   public setToName: string;
   public fromName: any;

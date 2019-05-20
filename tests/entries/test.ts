@@ -3,7 +3,6 @@ export * from "../helperstests";
 export * from "../basetests";
 export * from "../localizablestringtests";
 export * from "../choicesRestfulltests";
-export * from "../conditionstests";
 export * from "../jsonobjecttests";
 export * from "../surveyLocalizationTests";
 export * from "../surveyquestiontests";
@@ -20,6 +19,9 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
+export * from "../expressions/expressionsTest";
+export * from "../expressions/expressionParserTest"
+
 
 // localization
 import "../../src/localization/russian";

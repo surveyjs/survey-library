@@ -282,6 +282,10 @@ export class QuestionSelectBase extends Question {
     return !!itemValue && !itemValue.isEnabled;
   }
   /**
+   * If the clearIncorrectValuesCallback is set, it is used to clear incorrrect values instead of default behaviour.
+   */
+  public clearIncorrectValuesCallback: () => void;
+  /**
    * The list of items. Every item has value and text. If text is empty, the value is rendered. The item text supports markdown.
    * @see choicesByUrl
    */
@@ -461,7 +465,10 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   private get activeChoices(): Array<ItemValue> {
-    return this.choicesFromUrl ? this.choicesFromUrl : this.choices;
+    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  protected getChoices(): Array<ItemValue> {
+    return this.choices;
   }
   public supportComment(): boolean {
     return true;
@@ -606,7 +613,11 @@ export class QuestionSelectBase extends Question {
       this.survey.questionCountByValueName(this.getValueName()) > 1
     )
       return;
-    this.clearIncorrectValuesCore();
+    if (this.clearIncorrectValuesCallback) {
+      this.clearIncorrectValuesCallback();
+    } else {
+      this.clearIncorrectValuesCore();
+    }
   }
   public clearValueIfInvisible() {
     super.clearValueIfInvisible();

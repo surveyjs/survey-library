@@ -60,6 +60,13 @@ export class SurveyValidator extends Base {
   protected createCustomError(name: string): SurveyError {
     return new CustomError(this.getErrorText(name), this.errorOwner);
   }
+  public toString(): string {
+    var res = this.getType().replace("validator", "");
+    if (!!this.text) {
+      res += ", " + this.text;
+    }
+    return res;
+  }
 }
 export interface IValidatorOwner {
   validators: Array<SurveyValidator>;

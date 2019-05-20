@@ -33,7 +33,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("imagepicker", function() {
+JsonObject.metaData.overrideClassCreator("imagepicker", function() {
   return new QuestionImagePicker("");
 });
 

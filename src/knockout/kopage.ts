@@ -124,10 +124,10 @@ export class Page extends PageModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreatore("panel", function() {
+JsonObject.metaData.overrideClassCreator("panel", function() {
   return new Panel();
 });
-JsonObject.metaData.overrideClassCreatore("page", function() {
+JsonObject.metaData.overrideClassCreator("page", function() {
   return new Page();
 });
 

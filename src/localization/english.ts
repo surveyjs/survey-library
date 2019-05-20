@@ -42,6 +42,7 @@ export var englishStrings = {
     "Your file is uploading. Please wait several seconds and try again.",
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
+  noFileChosen: "No file chosen",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addColumn: "Add column",

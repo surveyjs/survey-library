@@ -455,6 +455,19 @@ QUnit.test("Matrix Question clearIncorrectValues", function(assert) {
   );
 });
 
+QUnit.test("Matrix Question getFirstInputElementId - https://surveyjs.answerdesk.io/ticket/details/T2048", function(assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  matrix.value = { row1: "col2", row2: "col3", row3: "col1" };
+
+  assert.equal(
+    matrix["getFirstInputElementId"](),
+    matrix.inputId + "_row1_0",
+    "First row name 0th control"
+  );
+});
+
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];

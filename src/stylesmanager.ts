@@ -336,6 +336,7 @@ export class StylesManager {
     ".sv_default_css .sv_q_dropdown_control:focus":
       "border-color: $main-color;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type=\"radio\"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type=\"checkbox\"]:focus": "outline: 1px dotted $main-color;",
     ".sv_default_css select:focus": "border-color: $main-color;",
     ".sv_default_css textarea:focus": "border-color: $main-color;",
 

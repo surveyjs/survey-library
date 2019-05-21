@@ -450,8 +450,10 @@ export class QuestionMatrixModel
     }
   }
   protected getFirstInputElementId(): string {
-    if(this.visibleRows.length > 0 && this.visibleColumns.length > 0) {
-      return this.inputId + '_' + this.visibleRows[0].name + '_' + 0;
+    var rows = this.generatedVisibleRows;
+    if (!rows) rows = this.visibleRows;
+    if(rows.length > 0 && this.visibleColumns.length > 0) {
+      return this.inputId + '_' + rows[0].name + '_' + 0;
     }
     return super.getFirstInputElementId();;
   }

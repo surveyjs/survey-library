@@ -549,7 +549,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     row: MatrixDropdownRowModelBase,
     data: IMatrixDropdownData
   ): Question {
-    return new QuestionExpressionModel("");
+    var res = <Question>JsonObject.metaData.createClass("expression");
+    res.setSurveyImpl(row);
+    return res;
   }
   public updateCellQuestion() {
     this.column.updateCellQuestion(this.question, null);
@@ -989,6 +991,7 @@ export class QuestionMatrixDropdownModelBase
     return this.survey ? this.survey.requiredText : "";
   }
   onColumnPropertiesChanged(column: MatrixDropdownColumn) {
+    this.updateHasFooter();
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(column);
@@ -996,6 +999,12 @@ export class QuestionMatrixDropdownModelBase
     if (!!this.generatedTotalRow) {
       this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
     }
+  }
+  public get hasFooter(): boolean {
+    return this.getPropertyValue("hasFooter", false);
+  }
+  protected updateHasFooter() {
+    this.setPropertyValue("hasFooter", this.hasTotal);
   }
   public get hasTotal(): boolean {
     for (var i = 0; i < this.columns.length; i++) {
@@ -1163,6 +1172,7 @@ export class QuestionMatrixDropdownModelBase
     this.updateColumnsIndexes(this.columns);
     this.generatedVisibleRows = null;
     this.generatedTotalRow = null;
+    this.updateHasFooter();
   }
   /**
    * Returns the row value. If the row value is empty, the object is empty: {}.

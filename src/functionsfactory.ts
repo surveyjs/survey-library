@@ -87,10 +87,11 @@ function calcInArray(
 }
 
 function sumInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+  var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     return res + val;
   });
+  return res !== undefined ? res : 0;
 }
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
@@ -111,10 +112,11 @@ function maxInArray(params: any[]): any {
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[]): any {
-  return calcInArray(params, function(res: number, val: number): number {
+  var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     return res + 1;
   });
+  return res !== undefined ? res : 0;
 }
 FunctionFactory.Instance.register("countInArray", countInArray);
 

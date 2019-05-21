@@ -40,7 +40,25 @@
               </tr>
               <!-- /ko -->
           </tbody>
-      </table>
+          <!-- ko if:question.hasFooter -->
+          <tfoot>
+            <tr>
+                <!-- ko if: question.hasRowText --><td></td><!-- /ko -->
+                <!-- ko foreach: question.visibleTotalRow.cells-->
+                  <td>
+                    <!-- ko if: $data.question -->
+                    <!-- ko template: { name: "survey-question-expression", data: $data.question, as: 'question' } -->
+                    <!-- /ko -->
+                    <!-- /ko -->
+                  </td>
+                <!-- /ko -->
+                <!-- ko if: question.koCanRemoveRow -->
+                <td></td>
+                <!-- /ko -->
+            </tr>
+        </tfoot>
+        <!-- /ko -->
+    </table>
       <!-- ko if: !question.koIsHorizontalColumnLayout() -->
       <table data-bind="css: question.koCss().root">
           <!-- ko if: question.hasRowText -->
@@ -49,6 +67,9 @@
                       <th data-bind="visible: question.showHeader"></th>
                       <!-- ko foreach: { data: question.koRows, as: 'row' } -->
                           <th><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></th>
+                      <!-- /ko -->
+                      <!-- ko if:question.hasFooter -->
+                      <th></th>
                       <!-- /ko -->
                   </tr>
               </thead>
@@ -64,6 +85,14 @@
                           <!-- ko template: { name: 'survey-matrixcell', data: row.cells[column.index], as: "cell", afterRender: row.data.koCellAfterRender } -->
                           <!-- /ko -->
                       <!-- /ko -->
+                    <!-- ko if:question.hasFooter -->
+                    <td>
+                    <!-- ko if: column.hasTotal -->
+                        <!-- ko template: { name: "survey-question-expression", data: question.visibleTotalRow.cells[column.index].question, as: 'question' } -->
+                        <!-- /ko -->
+                    <!-- /ko -->
+                    </td>
+                    <!-- /ko -->
                   </tr>
               <!-- /ko -->
               <!-- ko if: question.koCanRemoveRow -->
@@ -77,6 +106,9 @@
                               <span data-bind="css: question.koCss().iconRemove"></span>
                            </button>
                       </td>
+                  <!-- /ko -->
+                  <!-- ko if:question.hasFooter -->
+                  <td></td>
                   <!-- /ko -->
               </tr>
               <!-- /ko -->

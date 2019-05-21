@@ -23,6 +23,7 @@ import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
 import { QuestionExpressionModel } from "./question_expression";
+import { FunctionFactory } from "./functionsfactory";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -192,6 +193,13 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
 
   constructor(name: string, title: string = null) {
     super();
+    var self = this;
+    this.registerFunctionOnPropertiesValueChanged(
+      ["totalType", "totalExpression"],
+      function() {
+        self.doColumnPropertiesChanged();
+      }
+    );
     this.updateTemplateQuestion();
     this.name = name;
     if (title) this.title = title;
@@ -550,7 +558,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
     if (this.column.totalType == "none") return "";
-    return "sumInArray({self}, '" + this.column.name + "')";
+    var funName = this.column.totalType + "InArray";
+    if (!FunctionFactory.Instance.hasFunction(funName)) return "";
+    return funName + "({self}, '" + this.column.name + "')";
   }
 }
 
@@ -721,6 +731,17 @@ export class MatrixDropdownRowModelBase
       this.cells[i].runCondition(values, properties);
     }
   }
+  public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn) {
+    for (var i = 0; i < this.cells.length; i++) {
+      if (this.cells[i].column === column) {
+        this.updateCellOnColumnChanged(this.cells[i]);
+        return;
+      }
+    }
+  }
+  protected updateCellOnColumnChanged(cell: MatrixDropdownCell) {
+    cell.column.updateCellQuestion(cell.question, this);
+  }
   protected buildCells(value: any) {
     this.isSettingValue = true;
     var columns = this.data.columns;
@@ -806,6 +827,9 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
       super.runCondition(values, properties);
       counter++;
     } while (!Helpers.isTwoValueEquals(prevValue, this.value) && counter < 3);
+  }
+  protected updateCellOnColumnChanged(cell: MatrixDropdownCell) {
+    (<MatrixDropdownTotalCell>cell).updateCellQuestion();
   }
 }
 
@@ -967,25 +991,10 @@ export class QuestionMatrixDropdownModelBase
   onColumnPropertiesChanged(column: MatrixDropdownColumn) {
     if (!this.generatedVisibleRows) return;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
-      this.updateCellQuestionOnColumnChanged(
-        this.generatedVisibleRows[i],
-        column
-      );
+      this.generatedVisibleRows[i].updateCellQuestionOnColumnChanged(column);
     }
     if (!!this.generatedTotalRow) {
-      this.updateCellQuestionOnColumnChanged(this.generatedTotalRow, column);
-    }
-  }
-  private updateCellQuestionOnColumnChanged(
-    row: MatrixDropdownRowModelBase,
-    column: MatrixDropdownColumn
-  ) {
-    if (!row) return;
-    for (var i = 0; i < row.cells.length; i++) {
-      if (row.cells[i].column === column) {
-        column.updateCellQuestion(row.cells[i].question, row);
-        return;
-      }
+      this.generatedTotalRow.updateCellQuestionOnColumnChanged(column);
     }
   }
   public get hasTotal(): boolean {
@@ -1526,7 +1535,13 @@ JsonObject.metaData.addClass(
       name: "validators:validators",
       baseClassName: "surveyvalidator",
       classNamePart: "validator"
-    }
+    },
+    {
+      name: "totalType",
+      default: "none",
+      choices: ["none", "sum", "count", "min", "max", "avg"]
+    },
+    "totalExpression:expression"
   ],
   function() {
     return new MatrixDropdownColumn("");

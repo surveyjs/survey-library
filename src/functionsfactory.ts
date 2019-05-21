@@ -10,6 +10,9 @@ export class FunctionFactory {
   public unregister(name: string) {
     delete this.functionHash[name];
   }
+  public hasFunction(name: string): boolean {
+    return !!this.functionHash[name];
+  }
   public clear() {
     this.functionHash = {};
   }
@@ -67,19 +70,60 @@ function getInArrayParams(params: any[]): any {
   return { data: arr, name: name };
 }
 
-function sumInArray(params: any[]): any {
+function calcInArray(
+  params: any[],
+  func: (res: number, val: number) => number
+): any {
   var v = getInArrayParams(params);
   if (!v) return null;
-  var res = 0;
+  var res = undefined;
   for (var i = 0; i < v.data.length; i++) {
     var item = v.data[i];
     if (item && item[<string>v.name]) {
-      res += item[<string>v.name];
+      res = func(res, item[<string>v.name]);
     }
   }
   return res;
 }
+
+function sumInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) res = 0;
+    return res + val;
+  });
+}
 FunctionFactory.Instance.register("sumInArray", sumInArray);
+
+function minInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) return val;
+    return res < val ? res : val;
+  });
+}
+FunctionFactory.Instance.register("minInArray", minInArray);
+
+function maxInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) return val;
+    return res > val ? res : val;
+  });
+}
+FunctionFactory.Instance.register("maxInArray", maxInArray);
+
+function countInArray(params: any[]): any {
+  return calcInArray(params, function(res: number, val: number): number {
+    if (res == undefined) res = 0;
+    return res + 1;
+  });
+}
+FunctionFactory.Instance.register("countInArray", countInArray);
+
+function avgInArray(params: any[]): any {
+  var count = countInArray(params);
+  if (count == 0) return 0;
+  return sumInArray(params) / count;
+}
+FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
   if (!params && params.length !== 3) return "";

@@ -2179,3 +2179,31 @@ QUnit.test("Test totalValue, expression question", function(assert) {
     "Calculated correctly, {row.col1} + {row.col2}"
   );
 });
+
+QUnit.test("Test totalValue, different value types", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  page.addElement(matrix);
+  matrix.addColumn("col1");
+  matrix.columns[0].totalType = "count";
+  var value = [
+    { col1: 1, col2: 10 },
+    { col1: 2, col2: 20 },
+    {},
+    { col1: 3, col2: 40 }
+  ];
+  matrix.value = value;
+  var row = matrix.visibleTotalRow;
+  var question = row.cells[0].question;
+  assert.equal(question.value, 3, "There are 3 values");
+  matrix.columns[0].totalType = "min";
+  survey.setValue("q2", 1);
+  assert.equal(question.value, 1, "Min is 1");
+  matrix.columns[0].totalType = "max";
+  survey.setValue("q2", 2);
+  assert.equal(question.value, 3, "Max is 4");
+  matrix.columns[0].totalType = "avg";
+  survey.setValue("q2", 3);
+  assert.equal(question.value, 2, "Average is 2");
+});

@@ -13,6 +13,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected filteredColumns: Array<TColumn>;
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
+  protected generatedTotalRow: TRow = null;
   public visibleRowsChangedCallback: () => void;
 
   protected createColumnValues(): any {

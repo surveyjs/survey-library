@@ -58,17 +58,23 @@ function avg(params: any[]): any {
 }
 FunctionFactory.Instance.register("avg", avg);
 
-function sumInArray(params: any[]): any {
-  if (params.length != 2) return 0;
+function getInArrayParams(params: any[]): any {
+  if (params.length != 2) return null;
   var arr = params[0];
-  if (!Array.isArray(arr)) return;
+  if (!Array.isArray(arr)) return null;
   var name = params[1];
-  if (typeof name !== "string" && !(name instanceof String)) return 0;
+  if (typeof name !== "string" && !(name instanceof String)) return null;
+  return { data: arr, name: name };
+}
+
+function sumInArray(params: any[]): any {
+  var v = getInArrayParams(params);
+  if (!v) return null;
   var res = 0;
-  for (var i = 0; i < arr.length; i++) {
-    var item = arr[i];
-    if (item && item[<string>name]) {
-      res += item[<string>name];
+  for (var i = 0; i < v.data.length; i++) {
+    var item = v.data[i];
+    if (item && item[<string>v.name]) {
+      res += item[<string>v.name];
     }
   }
   return res;

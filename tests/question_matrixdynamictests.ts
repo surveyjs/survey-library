@@ -2123,3 +2123,59 @@ QUnit.test("Values from invisible rows should be removed, #1644", function(
     "Remove value for invisible row"
   );
 });
+
+QUnit.test("matrix.hasTotal property", function(assert) {
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  assert.equal(matrix.hasTotal, false, "There is no total");
+  matrix.columns[0].totalType = "sum";
+  assert.equal(matrix.hasTotal, true, "There is total now, totalType");
+  matrix.columns[0].totalType = "none";
+  assert.equal(matrix.hasTotal, false, "There is no total again");
+  matrix.columns[0].totalExpression = "sumInArray({q1}, 'col1')";
+  assert.equal(matrix.hasTotal, true, "There is total, total expression");
+});
+
+QUnit.test("Test totalValue, expression question", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  page.addElement(matrix);
+  matrix.addColumn("col1");
+  matrix.addColumn("col2");
+  matrix.addColumn("col3");
+  matrix.columns[0].totalType = "sum";
+  matrix.columns[1].totalType = "sum";
+  matrix.columns[2].totalExpression = "{row.col1} + {row.col2}";
+  matrix.value = [
+    { col1: 1, col2: 10 },
+    { col1: 2, col2: 20 },
+    {},
+    { col1: 4, col2: 40 }
+  ];
+  var row = matrix.visibleTotalRow;
+  assert.ok(row, "Total row is not empty");
+  assert.equal(row.cells.length, 3, "There are three cells here");
+  var question = row.cells[0].question;
+  assert.equal(
+    question.getType(),
+    "expression",
+    "We can have only expression type cells in total"
+  );
+  assert.equal(
+    question.expression,
+    "sumInArray({self}, 'col1')",
+    "Set expression correctly"
+  );
+  assert.equal(question.value, 1 + 2 + 4, "Calculated correctly");
+  assert.equal(
+    row.cells[1].value,
+    10 + 20 + 40,
+    "Calculated correctly, the second cell"
+  );
+  assert.equal(
+    row.cells[2].value,
+    1 + 2 + 4 + 10 + 20 + 40,
+    "Calculated correctly, {row.col1} + {row.col2}"
+  );
+});

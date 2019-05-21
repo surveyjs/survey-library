@@ -449,6 +449,12 @@ export class QuestionMatrixModel
       this.clearInvisibleValuesInRows();
     }
   }
+  protected getFirstInputElementId(): string {
+    if(this.visibleRows.length > 0 && this.visibleColumns.length > 0) {
+      return this.inputId + '_' + this.visibleRows[0].name + '_' + 0;
+    }
+    return super.getFirstInputElementId();;
+  }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
     if (this.isRowChanging) return;

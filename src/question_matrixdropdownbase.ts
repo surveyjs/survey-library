@@ -1050,28 +1050,36 @@ export class QuestionMatrixDropdownModelBase
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     this.runCellsCondition(values, properties);
+    this.runTotalsCondition(values, properties);
   }
   protected runCellsCondition(
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if (
-      !this.generatedVisibleRows ||
-      (!this.hasCellsCondition && !this.visibleTotalRow)
-    )
-      return;
+    if (!this.generatedVisibleRows || !this.hasCellsCondition) return;
+    var newValues = this.getRowConditionValues(values);
+    var rows = this.generatedVisibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].runCondition(newValues, properties);
+    }
+  }
+  protected runTotalsCondition(
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (!this.generatedTotalRow) return;
+    this.generatedTotalRow.runCondition(
+      this.getRowConditionValues(values),
+      properties
+    );
+  }
+  private getRowConditionValues(values: HashTable<any>): HashTable<any> {
     var newValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       newValues = JSON.parse(JSON.stringify(values));
     }
     newValues["row"] = {};
-    var rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      rows[i].runCondition(newValues, properties);
-    }
-    if (!!this.visibleTotalRow) {
-      this.visibleTotalRow.runCondition(newValues, properties);
-    }
+    return newValues;
   }
   private get hasCellsCondition(): boolean {
     for (var i = 0; i < this.columns.length; i++) {
@@ -1159,6 +1167,10 @@ export class QuestionMatrixDropdownModelBase
     if (this.isLoadingFromJson) return null;
     if (!this.generatedTotalRow && this.hasTotal) {
       this.generatedTotalRow = this.generateTotalRow();
+      if (this.data) {
+        var properties = { survey: this.survey };
+        this.runTotalsCondition(this.data.getAllValues(), properties);
+      }
     } else {
       this.generateTotalRow = null;
     }

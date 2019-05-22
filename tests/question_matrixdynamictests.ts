@@ -2207,3 +2207,26 @@ QUnit.test("Test totalValue, different value types", function(assert) {
   survey.setValue("q2", 3);
   assert.equal(question.value, 2, "Average is 2");
 });
+
+QUnit.test("Test totalValue, load from JSON", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [
+          {
+            name: "Column 1",
+            totalType: "count"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  var row = matrix.visibleTotalRow;
+  var question = row.cells[0].question;
+  assert.equal(question.value, 0, "The initial value is zero");
+});

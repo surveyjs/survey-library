@@ -488,6 +488,8 @@ QUnit.test("ExpressionRunner: countInArray", function(assert) {
   assert.equal(runner.run(values), 2, "10 + 20");
   values = { a: [{ val2: 1 }] };
   assert.equal(runner.run(values), 0, "There is no values");
+  var emptyValue = { a: {} };
+  assert.equal(runner.run(emptyValue), 0, "object is empty");
 });
 
 QUnit.test("ConditionRunner, iif simple", function(assert) {

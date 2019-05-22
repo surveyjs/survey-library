@@ -64,6 +64,7 @@ FunctionFactory.Instance.register("avg", avg);
 function getInArrayParams(params: any[]): any {
   if (params.length != 2) return null;
   var arr = params[0];
+  if (!arr) return null;
   if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
   var name = params[1];
   if (typeof name !== "string" && !(name instanceof String)) return null;
@@ -75,7 +76,7 @@ function calcInArray(
   func: (res: number, val: number) => number
 ): any {
   var v = getInArrayParams(params);
-  if (!v) return null;
+  if (!v) return undefined;
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {

@@ -66,6 +66,9 @@ export class Helpers {
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
     if (!(x instanceof Object) || !(y instanceof Object)) return false;
     if (x["equals"]) return x.equals(y);
+    if (!!x.toJSON && !!y.toJSON) {
+      return this.isTwoValueEquals(x.toJSON(), y.toJSON());
+    }
     if (Array.isArray(x) && Array.isArray(y))
       return Helpers.isArraysEqual(x, y, ignoreOrder);
     for (var p in x) {

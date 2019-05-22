@@ -1660,7 +1660,10 @@ QUnit.test(
       ],
       "Initial value set correctly"
     );
-    assert.ok(question.value[0] === question.choices[1].value, "Choosen exactly choice item value");
+    assert.ok(
+      question.value[0] === question.choices[1].value,
+      "Choosen exactly choice item value"
+    );
   }
 );
 
@@ -2731,3 +2734,14 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Could not assign validators", function(assert) {
+  var question = new QuestionTextModel("q1");
+  question.validators.push(new NumericValidator(1, 10));
+  question.validators = [new NumericValidator(1, 10)];
+  assert.equal(
+    (<NumericValidator>question.validators[0]).minValue,
+    1,
+    "MinValue is correct"
+  );
+});

@@ -56,7 +56,7 @@ export class QuestionExpressionModel extends Question {
     this.expressionIsRunning = false;
   }
   /**
-   * The maximum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits", -1);
@@ -66,7 +66,7 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("maximumFractionDigits", val);
   }
   /**
-   * The minimum number of fraction digits to use. Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
+   * The minimum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
    */
   public get minimumFractionDigits(): number {
     return this.getPropertyValue("minimumFractionDigits", -1);

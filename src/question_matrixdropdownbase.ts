@@ -400,7 +400,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   protected calcCellQuestionType(): string {
     if (this.cellType !== "default") return this.cellType;
     if (this.colOwner) return this.colOwner.getCellType();
-    return "dropdown";
+    return QuestionMatrixDropdownModelBase.defaultCellType;
   }
   protected updateTemplateQuestion() {
     var prevCellType = this.templateQuestion
@@ -844,6 +844,7 @@ export class QuestionMatrixDropdownModelBase
     MatrixDropdownColumn
   >
   implements IMatrixDropdownData {
+  public static defaultCellType = "dropdown";
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
@@ -939,7 +940,10 @@ export class QuestionMatrixDropdownModelBase
    * Use this property to change the default cell type.
    */
   public get cellType(): string {
-    return this.getPropertyValue("cellType", "dropdown");
+    return this.getPropertyValue(
+      "cellType",
+      QuestionMatrixDropdownModelBase.defaultCellType
+    );
   }
   public set cellType(val: string) {
     val = val.toLowerCase();

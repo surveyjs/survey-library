@@ -282,7 +282,16 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected valueFromData(val: any): any {
     if (!val) return val;
     if (!Array.isArray(val)) return [val];
-    return super.valueFromData(val);
+    let value = [];
+    for(let i = 0; i < val.length; i++) {
+      let choiceitem = ItemValue.getItemByValue(this.choices, val[i]);
+      if (!!choiceitem) {
+        value.push(choiceitem.value);
+      } else {
+        value.push(val[i]);
+      }
+    }
+    return value;
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];

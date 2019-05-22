@@ -1660,6 +1660,7 @@ QUnit.test(
       ],
       "Initial value set correctly"
     );
+    assert.ok(question.value[0] === question.choices[1].value, "Choosen exactly choice item value");
   }
 );
 

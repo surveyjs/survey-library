@@ -166,7 +166,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;
     if (!val || !Array.isArray(val)) return false;
-    return val.indexOf(item.value) > -1;
+    for (var i = 0; i < val.length; i++) {
+      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+    }
+    return false;
   }
   protected setNewValue(newValue: any) {
     newValue = this.valueFromData(newValue);

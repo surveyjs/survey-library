@@ -458,7 +458,7 @@ $base-line-height: 2em;
             margin-top: -0.1em;
 
             &:focus {
-              outline: none;
+              outline: 1px dotted $main-color;
             }
           }
 

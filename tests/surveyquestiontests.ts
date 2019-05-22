@@ -23,7 +23,6 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
-import { AssertionError } from "assert";
 import { QuestionNonValue } from "../src/questionnonvalue";
 import { surveyLocalization } from "../src/surveyStrings";
 
@@ -455,18 +454,21 @@ QUnit.test("Matrix Question clearIncorrectValues", function(assert) {
   );
 });
 
-QUnit.test("Matrix Question getFirstInputElementId - https://surveyjs.answerdesk.io/ticket/details/T2048", function(assert) {
-  var matrix = new QuestionMatrixModel("q1");
-  matrix.rows = ["row1", "row2"];
-  matrix.columns = ["col1", "col2"];
-  matrix.value = { row1: "col2", row2: "col3", row3: "col1" };
+QUnit.test(
+  "Matrix Question getFirstInputElementId - https://surveyjs.answerdesk.io/ticket/details/T2048",
+  function(assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.rows = ["row1", "row2"];
+    matrix.columns = ["col1", "col2"];
+    matrix.value = { row1: "col2", row2: "col3", row3: "col1" };
 
-  assert.equal(
-    matrix["getFirstInputElementId"](),
-    matrix.inputId + "_row1_0",
-    "First row name 0th control"
-  );
-});
+    assert.equal(
+      matrix["getFirstInputElementId"](),
+      matrix.inputId + "_row1_0",
+      "First row name 0th control"
+    );
+  }
+);
 
 QUnit.test("Rubric Matrix Question cells get/set cell text", function(assert) {
   var matrix = new QuestionMatrixModel("q1");
@@ -1580,6 +1582,86 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function(
   assert.deepEqual(question.value, [2, "otherValue"], "value set correctly");
   assert.equal(question.comment, "otherValue", "other value is set");
 });
+
+QUnit.test(
+  "defaultValue for checkbox where value is object, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "checkbox",
+              name: "q1",
+              defaultValue: [
+                {
+                  id: "2",
+                  test: "a2"
+                },
+                {
+                  id: "3",
+                  test: "a2"
+                }
+              ],
+              choices: [
+                {
+                  value: {
+                    id: "1",
+                    test: "a1"
+                  },
+                  text: "a1"
+                },
+                {
+                  value: {
+                    id: "2",
+                    test: "a2"
+                  },
+                  text: "a2"
+                },
+                {
+                  value: {
+                    id: "3",
+                    test: "a3"
+                  },
+                  text: "a3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    assert.equal(
+      question.isItemSelected(question.choices[0]),
+      false,
+      "Item[0] is not selected"
+    );
+    assert.equal(
+      question.isItemSelected(question.choices[1]),
+      true,
+      "Item[1] is selected"
+    );
+    assert.equal(
+      question.isItemSelected(question.choices[2]),
+      false,
+      "Item[2] is not selected"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      [
+        {
+          id: "2",
+          test: "a2"
+        }
+      ],
+      "Initial value set correctly"
+    );
+  }
+);
 
 QUnit.test("Rating question, visibleRateValues property", function(assert) {
   var rate = new QuestionRatingModel("q1");

@@ -4,7 +4,7 @@
     "serve": "live-server --port=7777",
     "test": "karma start",
     "testsingle": "karma start --single-run",
-    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/\"",
+    "testcafe": "concurrently \"http-server\" \"testcafe chrome testCafe/questions/matrix.js\"",
     "testcafe_sauce": "testcafe \"saucelabs:Chrome@56.0:Windows 10\" testCafe/",
     "release": "standard-version --message \"Release: %s\" ",
     "build_knockout_dev": "webpack --env.buildType dev --env.platform knockout",
@@ -30,7 +30,7 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.85",
+  "version": "1.0.86",
   "name": "surveyjs",
   "private": true,
   "devDependencies": {

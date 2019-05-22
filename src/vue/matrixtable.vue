@@ -14,10 +14,11 @@
     </thead>
     <thead v-if="showVerticalHeader">
       <tr>
-        <td v-if="this.question.showHeader"></td>
+        <th v-if="question.showHeader"></th>
         <th v-for="row in rows">
           <survey-string :locString="row.locText"/>
         </th>
+        <th v-if="question.showFooter"></th>
       </tr>
     </thead>
     <tbody v-if="isColumnsHorizontal">
@@ -42,6 +43,13 @@
           </button>
         </td>
       </tr>
+      <tr v-if="question.hasFooter">
+        <td v-if="!isDynamic"></td>
+        <td v-for="cell in question.visibleTotalRow.cells" :key="'footer_' + cell.question.id">
+          <survey-expression v-if="cell.column.hasTotal" :question="cell.question"/>
+        </td>
+        <td v-if="!canRemoveRow"></td>
+      </tr>
     </tbody>
     <tbody v-if="!isColumnsHorizontal">
       <tr
@@ -57,6 +65,12 @@
           v-for="cell in getCellsByColumn(columnIndex)"
           :key="columnIndex + '_' + cell.question.id"
         />
+        <td v-if="question.hasFooter">
+          <survey-expression
+            v-if="column.hasTotal"
+            :question="question.visibleTotalRow.cells[columnIndex].question"
+          />
+        </td>
       </tr>
       <tr v-if="canRemoveRow">
         <td v-if="question.showHeader"></td>

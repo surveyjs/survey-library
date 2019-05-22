@@ -27,6 +27,9 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
   protected addHeaderLeft(elements: Array<JSX.Element>) {
     elements.push(<td key="header-left-1" />);
   }
+  protected addFooterLeft(elements: Array<JSX.Element>) {
+    elements.push(<td key="footer-left-1" />);
+  }
   renderRow(
     index: number,
     row: MatrixDropdownRowModelBase,

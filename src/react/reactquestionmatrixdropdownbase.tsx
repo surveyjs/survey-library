@@ -44,6 +44,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var header = this.question.isColumnLayoutHorizontal
       ? this.renderHeader()
       : this.renderRowsAsHeaders();
+    var footers = this.question.isColumnLayoutHorizontal
+      ? this.renderFooter()
+      : null;
     var rows = this.question.isColumnLayoutHorizontal
       ? this.renderRows()
       : this.renderColumnsAsRows();
@@ -55,6 +58,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         <table className={this.question.cssClasses.root}>
           {header}
           {rows}
+          {footers}
         </table>
       </div>
     );
@@ -75,12 +79,44 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         </th>
       );
     }
-    this.addHeaderRight(headers);
     return (
       <thead>
         <tr>{headers}</tr>
       </thead>
     );
+  }
+  renderFooter(): JSX.Element {
+    if (!this.question.hasFooter) return null;
+    var footers: any[] = [];
+    this.addFooterLeft(footers);
+    var cells = this.question.visibleTotalRow.cells;
+    var cssClasses = this.question.cssClasses;
+    for (var i = 0; i < cells.length; i++) {
+      footers.push(this.renderFooterCell(cells[i], "footer" + i, cssClasses));
+    }
+    return (
+      <thead>
+        <tr>{footers}</tr>
+      </thead>
+    );
+  }
+  renderFooterCell(
+    cell: MatrixDropdownCell,
+    key: string,
+    cssClasses: any
+  ): JSX.Element {
+    if (cell.column.hasTotal) {
+      return (
+        <SurveyQuestionMatrixDropdownCell
+          key={key}
+          cssClasses={cssClasses}
+          cell={cell}
+          creator={this.creator}
+        />
+      );
+    } else {
+      return <td key={key} />;
+    }
   }
   renderRowsAsHeaders(): JSX.Element {
     return null;
@@ -137,10 +173,19 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       );
       tds.push(cellElement);
     }
+    if (this.question.hasFooter) {
+      tds.push(
+        this.renderFooterCell(
+          this.question.visibleTotalRow.cells[index],
+          "footer" + index,
+          cssClasses
+        )
+      );
+    }
     return <tr key={"columnAsrow" + index}>{tds}</tr>;
   }
   protected addHeaderLeft(elements: Array<JSX.Element>) {}
-  protected addHeaderRight(elements: Array<JSX.Element>) {}
+  protected addFooterLeft(elements: Array<JSX.Element>) {}
   protected addBottomColumnAsRows(elements: Array<JSX.Element>) {}
 }
 

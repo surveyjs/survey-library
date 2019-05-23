@@ -7008,3 +7008,130 @@ QUnit.test(
     assert.equal(question.isEmpty(), true, "question is empty");
   }
 );
+
+QUnit.test(
+  "valueName for matrix dynamic and panel dynamic with different question set, bug# https://surveyjs.answerdesk.io/ticket/details/T2059",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          name: "matrix1",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "elementId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "col1",
+              cellType: "text"
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "matrix2",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "col2",
+              cellType: "text"
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "panel1",
+          valueName: "shared",
+          type: "paneldynamic",
+          templateElements: [
+            {
+              name: "ed1",
+              type: "text"
+            },
+            {
+              name: "ed2",
+              type: "text"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix1"
+    );
+    var matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix2"
+    );
+    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var rows1 = matrix1.visibleRows;
+    var rows2 = matrix2.visibleRows;
+    var panels1 = panel1.panels;
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1 }] },
+      "The initial value"
+    );
+    rows1[0].cells[1].value = "col1_Value";
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: "col1_Value" }] },
+      "set matrix1 col1"
+    );
+    rows2[0].cells[0].value = "col2_Value";
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: "col1_Value", col2: "col2_Value" }] },
+      "set matrix2 col2"
+    );
+    panels1[0].getQuestionByName("ed1").value = "ed1_Value";
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "set panel1 ed1"
+    );
+    rows2[0].cells[0].value = "col2_Value2";
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value2",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "replace matrix2 col2"
+    );
+    survey.clearIncorrectValues();
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value2",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "keep all data since they are all correct"
+    );
+  }
+);

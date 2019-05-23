@@ -2264,6 +2264,19 @@ export class SurveyModel extends Base
   matrixRowAdded(question: IQuestion) {
     this.onMatrixRowAdded.fire(this, { question: question });
   }
+  getQuestionByValueNameFromArray(
+    valueName: string,
+    name: string,
+    index: number
+  ): IQuestion {
+    var questions = this.getQuestionsByValueNameCore(valueName);
+    if (!questions) return;
+    for (var i = 0; i < questions.length; i++) {
+      var res = questions[i].getQuestionFromArray(name, index);
+      if (!!res) return res;
+    }
+    return null;
+  }
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any) {
     this.onMatrixRowRemoved.fire(this, {
       question: question,

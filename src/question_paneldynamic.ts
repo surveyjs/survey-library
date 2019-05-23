@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import {
   IElement,
+  IQuestion,
   Base,
   IPanel,
   SurveyError,
@@ -1001,6 +1002,10 @@ export class QuestionPanelDynamicModel extends Question
       this.panels[i].clearErrors();
     }
   }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (index >= this.panelCount) return null;
+    return this.panels[index].getQuestionByName(name);
+  }
   private clearIncorrectValuesInPanel(index: number) {
     var panel = this.panels[index];
     panel.clearIncorrectValues();
@@ -1009,7 +1014,10 @@ export class QuestionPanelDynamicModel extends Question
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (!panel.getQuestionByName(key)) {
+      if (
+        !panel.getQuestionByName(key) &&
+        !this.getSharedQuestionFromArray(key, index)
+      ) {
         delete values[key];
         isChanged = true;
       }
@@ -1018,6 +1026,15 @@ export class QuestionPanelDynamicModel extends Question
       val[index] = values;
       this.value = val;
     }
+  }
+  private getSharedQuestionFromArray(name: string, index: number): Question {
+    return !!this.survey && !!this.valueName
+      ? <Question>this.survey.getQuestionByValueNameFromArray(
+          this.valueName,
+          name,
+          index
+        )
+      : null;
   }
   public addConditionNames(names: Array<string>) {
     var prefix = this.name + "[0].";

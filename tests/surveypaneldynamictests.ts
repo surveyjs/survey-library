@@ -15,8 +15,6 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { matrixDropdownColumnTypes } from "../src/question_matrixdropdownbase";
-import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 

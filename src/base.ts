@@ -99,6 +99,12 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   afterRenderQuestion(question: IQuestion, htmlElement: any): any;
   afterRenderPanel(panel: IElement, htmlElement: any): any;
   afterRenderPage(htmlElement: any): any;
+
+  getQuestionByValueNameFromArray(
+    valueName: string,
+    name: string,
+    index: number
+  ): IQuestion;
   matrixRowAdded(question: IQuestion): any;
   matrixBeforeRowAdded(options: {
     question: IQuestion;
@@ -113,6 +119,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelAdded(question: IQuestion): any;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number): any;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
+
   dragAndDropAllow(options: any): boolean;
 }
 export interface ISurveyImpl {
@@ -167,6 +174,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   clearValueIfInvisible(): any;
   isAnswerCorrect(): boolean;
   updateValueWithDefaults(): any;
+  getQuestionFromArray(name: string, index: number): IQuestion;
   value: any;
 }
 export interface IParentElement {

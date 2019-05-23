@@ -8,6 +8,7 @@ import { Question } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import {
   Base,
+  IQuestion,
   ISurveyData,
   ISurvey,
   ISurveyImpl,
@@ -30,7 +31,8 @@ export interface IMatrixDropdownData {
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
-    newRowValue: any
+    newRowValue: any,
+    isDeletingValue: boolean
   ): void;
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -51,6 +53,10 @@ export interface IMatrixDropdownData {
   getLocale(): string;
   getMarkdownHtml(text: string): string;
   getProcessedText(text: string): string;
+  getSharedQuestionByName(
+    columnName: string,
+    row: MatrixDropdownRowModelBase
+  ): Question;
   getSurvey(): ISurvey;
 }
 
@@ -651,7 +657,7 @@ export class MatrixDropdownRowModelBase
     var question = this.getQuestionByColumnName(name);
     return !!question ? question.value : null;
   }
-  public setValue(name: string, newValue: any) {
+  public setValue(name: string, newColumnValue: any) {
     if (this.isSettingValue) return;
     var newValue = this.value;
     var changedValue = this.getValue(name);
@@ -663,7 +669,12 @@ export class MatrixDropdownRowModelBase
     ) {
       this.getQuestionByColumnName(name).value = changingValue;
     } else {
-      this.data.onRowChanged(this, name, newValue);
+      this.data.onRowChanged(
+        this,
+        name,
+        newValue,
+        newColumnValue == null && !changedQuestion
+      );
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
@@ -695,6 +706,11 @@ export class MatrixDropdownRowModelBase
     }
     return null;
   }
+  protected getSharedQuestionByName(columnName: string): Question {
+    return !!this.data
+      ? this.data.getSharedQuestionByName(columnName, this)
+      : null;
+  }
   public clearIncorrectValues(val: any) {
     for (var key in val) {
       var question = this.getQuestionByColumnName(key);
@@ -705,7 +721,9 @@ export class MatrixDropdownRowModelBase
           this.setValue(key, question.value);
         }
       } else {
-        this.setValue(key, null);
+        if (!this.getSharedQuestionByName(key)) {
+          this.setValue(key, null);
+        }
       }
     }
   }
@@ -1210,7 +1228,7 @@ export class QuestionMatrixDropdownModelBase
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
-    this.onRowChanged(visRows[rowIndex], "", rowValue);
+    this.onRowChanged(visRows[rowIndex], "", rowValue, false);
     this.onValueChanged();
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
@@ -1485,14 +1503,21 @@ export class QuestionMatrixDropdownModelBase
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
-    newRowValue: any
+    newRowValue: any,
+    isDeletingValue: boolean
   ) {
     var oldValue = this.createNewValue();
     if (this.isMatrixValueEmpty(oldValue)) oldValue = null;
     var newValue = this.createNewValue();
     var rowValue = this.getRowValueCore(row, newValue, true);
     if (!rowValue) rowValue = {};
-    for (var key in rowValue) delete rowValue[key];
+    if (isDeletingValue) {
+      delete rowValue[columnName];
+    }
+    for (var i = 0; i < row.cells.length; i++) {
+      var key = row.cells[i].question.getValueName();
+      delete rowValue[key];
+    }
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));
       for (var key in newRowValue) {
@@ -1514,6 +1539,23 @@ export class QuestionMatrixDropdownModelBase
   }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
     return this.visibleRows.indexOf(row);
+  }
+  getSharedQuestionByName(
+    columnName: string,
+    row: MatrixDropdownRowModelBase
+  ): Question {
+    if (!this.survey || !this.valueName) return null;
+    var index = this.getRowIndex(row);
+    if (index < 0) return null;
+    return <Question>this.survey.getQuestionByValueNameFromArray(
+      this.valueName,
+      columnName,
+      index
+    );
+  }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (index >= this.visibleRows.length) return null;
+    return this.visibleRows[index].getQuestionByColumnName(name);
   }
   private isMatrixValueEmpty(val: any) {
     if (!val) return;

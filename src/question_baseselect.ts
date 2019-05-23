@@ -244,6 +244,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected setNewValue(newValue: any) {
+    newValue = this.valueFromData(newValue);
     if (
       (!this.choicesByUrl.isRunning &&
         !this.choicesByUrl.isWaitingForParameters) ||
@@ -252,6 +253,13 @@ export class QuestionSelectBase extends Question {
       this.cachedValueForUrlRequests = newValue;
     }
     super.setNewValue(newValue);
+  }
+  protected valueFromData(val: any): any {
+    let choiceitem = ItemValue.getItemByValue(this.choices, val);
+    if (!!choiceitem)  {
+      return choiceitem.value;
+    }
+    return super.valueFromData(val);
   }
   protected rendredValueFromData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
@@ -262,7 +270,7 @@ export class QuestionSelectBase extends Question {
     return this.rendredValueToDataCore(val);
   }
   protected renderedValueFromDataCore(val: any): any {
-    if (!this.hasUnknownValue(val, true)) return val;
+    if (!this.hasUnknownValue(val, true)) return this.valueFromData(val);
     this.comment = val;
     return this.otherItem.value;
   }

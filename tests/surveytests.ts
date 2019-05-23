@@ -6165,7 +6165,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.deepEqual(plainData.data[0].title, "Row 1");
   assert.deepEqual(plainData.data[0].value, {
     "Column 1": 1,
-    "Column 2": "2",
+    "Column 2": 2,
     "Column 3": 3
   });
   assert.deepEqual(plainData.data[0].displayValue, {
@@ -6176,7 +6176,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.deepEqual(plainData.data[1].name, "Row 2");
   assert.deepEqual(plainData.data[1].value, {
     "Column 1": 4,
-    "Column 2": "5",
+    "Column 2": 5,
     "Column 3": 4
   });
   assert.deepEqual(plainData.data[1].displayValue, {

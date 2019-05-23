@@ -1667,6 +1667,67 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "defaultValue for radiogroup where value is object, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              defaultValue: {
+                  id: "2",
+                  test: "a2"
+                },
+              choices: [
+                {
+                  value: {
+                    id: "1",
+                    test: "a1"
+                  },
+                  text: "a1"
+                },
+                {
+                  value: {
+                    id: "2",
+                    test: "a2"
+                  },
+                  text: "a2"
+                },
+                {
+                  value: {
+                    id: "3",
+                    test: "a3"
+                  },
+                  text: "a3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    assert.ok(
+      question.value === question.choices[1].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+        {
+          id: "2",
+          test: "a2"
+        },
+      "Initial value is set correctly"
+    );
+  }
+);
+
 QUnit.test("Rating question, visibleRateValues property", function(assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(

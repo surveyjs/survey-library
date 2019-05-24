@@ -2136,7 +2136,7 @@ QUnit.test("matrix.hasTotal property", function(assert) {
   assert.equal(matrix.hasTotal, true, "There is total, total expression");
 });
 
-QUnit.test("Test totalValue, expression question", function(assert) {
+QUnit.test("Test matrix.totalValue, expression question", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var matrix = new QuestionMatrixDropdownModel("q1");
@@ -2178,9 +2178,19 @@ QUnit.test("Test totalValue, expression question", function(assert) {
     1 + 2 + 4 + 10 + 20 + 40,
     "Calculated correctly, {row.col1} + {row.col2}"
   );
+  assert.deepEqual(
+    matrix.totalValue,
+    { col1: 7, col2: 70, col3: 77 },
+    "Total value calculated correctly"
+  );
+  assert.deepEqual(
+    survey.getValue("q1-total"),
+    { col1: 7, col2: 70, col3: 77 },
+    "Total value set into survey correctly"
+  );
 });
 
-QUnit.test("Test totalValue, different value types", function(assert) {
+QUnit.test("Test totals, different value types", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var matrix = new QuestionMatrixDropdownModel("q1");
@@ -2217,7 +2227,7 @@ QUnit.test("Test totalValue, different value types", function(assert) {
   );
 });
 
-QUnit.test("Test totalValue, load from JSON", function(assert) {
+QUnit.test("Test totals, load from JSON", function(assert) {
   var json = {
     elements: [
       {

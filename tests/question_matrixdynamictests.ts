@@ -2225,8 +2225,60 @@ QUnit.test("Test totalValue, load from JSON", function(assert) {
     ]
   };
   var survey = new SurveyModel(json);
-  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
   var row = matrix.visibleTotalRow;
   var question = row.cells[0].question;
   assert.equal(question.value, 0, "The initial value is zero");
 });
+
+QUnit.test(
+  "enableIf for new rows, Bug# https://surveyjs.answerdesk.io/ticket/details/T2065",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "text"
+            }
+          ],
+          enableIf: "{q} = 'a'"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      true,
+      "It is readOnly by default"
+    );
+    survey.setValue("q", "a");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      false,
+      "It is not readOnly now"
+    );
+    matrix.addRow();
+    assert.equal(
+      matrix.visibleRows[2].cells[0].question.isReadOnly,
+      false,
+      "New added row is not readonly"
+    );
+    survey.clearValue("q");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      true,
+      "The first row is readOnly again"
+    );
+    assert.equal(
+      matrix.visibleRows[2].cells[0].question.isReadOnly,
+      true,
+      "The last row is readOnly"
+    );
+  }
+);

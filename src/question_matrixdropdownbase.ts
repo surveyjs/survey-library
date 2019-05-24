@@ -759,6 +759,13 @@ export class MatrixDropdownRowModelBase
       }
     }
   }
+  public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
+    for (var i = 0; i < this.cells.length; i++) {
+      if (!!this.cells[i].question) {
+        this.cells[i].question.readOnly = parentIsReadOnly;
+      }
+    }
+  }
   protected updateCellOnColumnChanged(cell: MatrixDropdownCell) {
     cell.column.updateCellQuestion(cell.question, this);
   }
@@ -1400,6 +1407,14 @@ export class QuestionMatrixDropdownModelBase
     }
     return null;
   }
+  protected onReadOnlyChanged() {
+    super.onReadOnlyChanged();
+    if (!this.generateRows) return;
+    for (var i = 0; i < this.visibleRows.length; i++) {
+      this.visibleRows[i].onQuestionReadOnlyChanged(this.isReadOnly);
+    }
+  }
+
   //IMatrixDropdownData
   public createQuestion(
     row: MatrixDropdownRowModelBase,

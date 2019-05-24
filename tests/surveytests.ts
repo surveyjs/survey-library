@@ -7135,3 +7135,73 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "valueName for matrix dynamic and panel dynamic with different question and display text processing, bug# https://surveyjs.answerdesk.io/ticket/details/T2053",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          name: "matrix1",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "elementId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "col1",
+              cellType: "dropdown",
+              choices: [
+                { value: 1, text: "Item 1" },
+                { value: 2, text: "Item 2" }
+              ]
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "panel1",
+          valueName: "shared",
+          type: "paneldynamic",
+          templateTitle: "{panel.col1}",
+          templateElements: [
+            {
+              name: "ed1",
+              type: "dropdown",
+              choices: [
+                { value: 1, text: "Item 10" },
+                { value: 2, text: "Item 20" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix1"
+    );
+    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var rows1 = matrix1.visibleRows;
+    rows1[0].cells[1].value = 1;
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: 1 }] },
+      "set matrix1 col1"
+    );
+    panel1.panels[0].getQuestionByName("ed1").value = 1;
+    assert.deepEqual(matrix1.getDisplayValue(false), [
+      { elementId: "1", col1: "Item 1", ed1: "Item 10" }
+    ]);
+    assert.deepEqual(panel1.getDisplayValue(false), [
+      { elementId: "1", col1: "Item 1", ed1: "Item 10" }
+    ]);
+    assert.equal(
+      panel1.panels[0].locTitle.renderedHtml,
+      "Item 1",
+      "Get the display text"
+    );
+  }
+);

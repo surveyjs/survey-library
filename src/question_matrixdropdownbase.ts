@@ -1257,11 +1257,14 @@ export class QuestionMatrixDropdownModelBase
     row: MatrixDropdownRowModelBase,
     rowValue: any
   ): any {
-    for (var i = 0; i < this.columns.length; i++) {
-      var column = this.columns[i];
-      var question = !!row.cells[i] ? row.cells[i].question : null;
-      if (!!question && rowValue[column.name]) {
-        rowValue[column.name] = question.displayValue;
+    if (!rowValue) return rowValue;
+    for (var key in rowValue) {
+      var question = row.getQuestionByColumnName(key);
+      if (!question) {
+        question = this.getSharedQuestionByName(key, row);
+      }
+      if (!!question) {
+        rowValue[key] = question.displayValue;
       }
     }
     return rowValue;

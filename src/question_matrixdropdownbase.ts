@@ -23,7 +23,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
-import { QuestionExpressionModel } from "./question_expression";
+import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
 
 export interface IMatrixDropdownData {
@@ -200,8 +200,17 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   constructor(name: string, title: string = null) {
     super();
     var self = this;
+    this.createLocalizableString("totalFormat", this);
     this.registerFunctionOnPropertiesValueChanged(
-      ["totalType", "totalExpression"],
+      [
+        "totalType",
+        "totalExpression",
+        "totalFormat",
+        "totalCurrency",
+        "totalDisplayStyle",
+        "totalMaximumFractionDigits",
+        "totalMinimumFractionDigits"
+      ],
       function() {
         self.doColumnPropertiesChanged();
       }
@@ -357,6 +366,42 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public get hasTotal(): boolean {
     return this.totalType != "none" || !!this.totalExpression;
+  }
+  public get totalFormat(): string {
+    return this.getLocalizableStringText("totalFormat", "");
+  }
+  public set totalFormat(val: string) {
+    this.setLocalizableStringText("totalFormat", val);
+  }
+  get locTotalFormat(): LocalizableString {
+    return this.getLocalizableString("totalFormat");
+  }
+  public get totalMaximumFractionDigits(): number {
+    return this.getPropertyValue("totalMaximumFractionDigits", -1);
+  }
+  public set totalMaximumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("totalMaximumFractionDigits", val);
+  }
+  public get totalMinimumFractionDigits(): number {
+    return this.getPropertyValue("totalMinimumFractionDigits", -1);
+  }
+  public set totalMinimumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("totalMinimumFractionDigits", val);
+  }
+  public get totalDisplayStyle(): string {
+    return this.getPropertyValue("totalDisplayStyle", "none");
+  }
+  public set totalDisplayStyle(val: string) {
+    this.setPropertyValue("totalDisplayStyle", val);
+  }
+  public get totalCurrency(): string {
+    return this.getPropertyValue("totalCurrency", "USD");
+  }
+  public set totalCurrency(val: string) {
+    if (getCurrecyCodes().indexOf(val) < 0) return;
+    this.setPropertyValue("totalCurrency", val);
   }
 
   public get minWidth(): string {
@@ -562,6 +607,11 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   public updateCellQuestion() {
     this.column.updateCellQuestion(this.question, null);
     this.question.expression = this.getTotalExpression();
+    this.question.format = this.column.totalFormat;
+    this.question.currency = this.column.totalCurrency;
+    this.question.displayStyle = this.column.totalDisplayStyle;
+    this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+    this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
@@ -1627,7 +1677,22 @@ JsonObject.metaData.addClass(
       default: "none",
       choices: ["none", "sum", "count", "min", "max", "avg"]
     },
-    "totalExpression:expression"
+    "totalExpression:expression",
+    { name: "totalFormat", serializationProperty: "locTotalFormat" },
+    {
+      name: "totalDisplayStyle",
+      default: "none",
+      choices: ["none", "decimal", "currency", "percent"]
+    },
+    {
+      name: "totalCurrency",
+      choices: () => {
+        return getCurrecyCodes();
+      },
+      default: "USD"
+    },
+    { name: "totalMaximumFractionDigits:number", default: -1 },
+    { name: "totalMinimumFractionDigits:number", default: -1 }
   ],
   function() {
     return new MatrixDropdownColumn("");

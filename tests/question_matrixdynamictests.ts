@@ -2202,10 +2202,19 @@ QUnit.test("Test totalValue, different value types", function(assert) {
   assert.equal(question.value, 1, "Min is 1");
   matrix.columns[0].totalType = "max";
   survey.setValue("q2", 2);
-  assert.equal(question.value, 3, "Max is 4");
+  assert.equal(question.value, 3, "Max is 3");
   matrix.columns[0].totalType = "avg";
   survey.setValue("q2", 3);
   assert.equal(question.value, 2, "Average is 2");
+  matrix.columns[0].totalType = "sum";
+  matrix.columns[0].totalFormat = "Sum: {0}";
+  matrix.columns[0].totalDisplayStyle = "currency";
+  survey.setValue("q2", 4);
+  assert.equal(
+    question.displayValue,
+    "Sum: $6.00",
+    "Use total column properties"
+  );
 });
 
 QUnit.test("Test totalValue, load from JSON", function(assert) {

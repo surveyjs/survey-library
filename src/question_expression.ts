@@ -134,7 +134,7 @@ export class QuestionExpressionModel extends Question {
   }
 }
 
-function getCurrecyCodes(): Array<string> {
+export function getCurrecyCodes(): Array<string> {
   return [
     "AED",
     "AFN",

@@ -18,7 +18,9 @@
         <th v-for="row in rows">
           <survey-string :locString="row.locText"/>
         </th>
-        <th v-if="question.showFooter"></th>
+        <th v-if="question.hasFooter">
+          <survey-string :locString="question.locTotalText"/>
+        </th>
       </tr>
     </thead>
     <tbody v-if="isColumnsHorizontal">
@@ -44,7 +46,9 @@
         </td>
       </tr>
       <tr v-if="question.hasFooter">
-        <td v-if="!isDynamic"></td>
+        <td v-if="!isDynamic">
+          <survey-string :locString="question.locTotalText"/>
+        </td>
         <td v-for="cell in question.visibleTotalRow.cells" :key="'footer_' + cell.question.id">
           <survey-expression v-if="cell.column.hasTotal" :question="cell.question"/>
         </td>

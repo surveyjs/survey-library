@@ -39,6 +39,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   constructor(public name: string) {
     super(name);
+    this.createLocalizableString("totalText", this, true);
     var self = this;
     this.registerFunctionOnPropertyValueChanged("rows", function() {
       self.generatedVisibleRows = null;
@@ -48,6 +49,19 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdown";
   }
+  /**
+   * Set this property to show it on the first column for the total row.
+   */
+  public get totalText() {
+    return this.getLocalizableStringText("totalText", "");
+  }
+  public set totalText(val: string) {
+    this.setLocalizableStringText("totalText", val);
+  }
+  public get locTotalText() {
+    return this.getLocalizableString("totalText");
+  }
+
   protected getDisplayValueCore(keysAsText: boolean): any {
     var values = this.createValueCopy();
     if (!values) return values;
@@ -162,7 +176,8 @@ JsonObject.metaData.addClass(
     {
       name: "rows:itemvalue[]"
     },
-    "rowsVisibleIf:condition"
+    "rowsVisibleIf:condition",
+    { name: "totalText", serializationProperty: "locTotalText" }
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

@@ -28,7 +28,11 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
     elements.push(<td key="header-left-1" />);
   }
   protected addFooterLeft(elements: Array<JSX.Element>) {
-    elements.push(<td key="footer-left-1" />);
+    var text = this.renderTotalText();
+    elements.push(<td key="footer-left-1">{text}</td>);
+  }
+  private renderTotalText(): JSX.Element {
+    return this.renderLocString(this.matrix.locTotalText);
   }
   renderRow(
     index: number,
@@ -56,6 +60,10 @@ export class SurveyQuestionMatrixDropdown extends SurveyQuestionMatrixDropdownBa
       var row = rows[i] as MatrixDropdownRowModel;
       var columnTitle = this.renderLocString(row.locText);
       headers.push(<th key={key}>{columnTitle}</th>);
+    }
+    if (this.matrix.hasFooter) {
+      var text = this.renderTotalText();
+      headers.push(<th key="header-total">{text}</th>);
     }
     return (
       <thead>

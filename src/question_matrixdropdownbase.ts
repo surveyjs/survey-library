@@ -12,6 +12,7 @@ import {
   ISurveyData,
   ISurvey,
   ISurveyImpl,
+  IConditionProperties,
   ITextProcessor,
   SurveyError
 } from "./base";
@@ -606,6 +607,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     return res;
   }
   public updateCellQuestion() {
+    this.question.locCalculation();
     this.column.updateCellQuestion(this.question, null);
     this.question.expression = this.getTotalExpression();
     this.question.format = this.column.totalFormat;
@@ -613,6 +615,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.question.displayStyle = this.column.totalDisplayStyle;
     this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
     this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    this.question.unlocCalculation();
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
@@ -624,7 +627,12 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 }
 
 export class MatrixDropdownRowModelBase
-  implements ISurveyData, ISurveyImpl, ILocalizableOwner, ITextProcessor {
+  implements
+    ISurveyData,
+    ISurveyImpl,
+    ILocalizableOwner,
+    ITextProcessor,
+    IConditionProperties {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
@@ -791,6 +799,9 @@ export class MatrixDropdownRowModelBase
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].question.locStrsChanged();
     }
+  }
+  public getConditionProperties(): HashTable<any> {
+    return { row: this };
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     values[MatrixDropdownRowModelBase.RowVariableName] = this.value;

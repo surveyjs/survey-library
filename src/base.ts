@@ -1,6 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
+import { Hash } from "crypto";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -126,6 +127,9 @@ export interface ISurveyImpl {
   geSurveyData(): ISurveyData;
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
+}
+export interface IConditionProperties {
+  getConditionProperties(): HashTable<any>;
 }
 export interface IConditionRunner {
   runCondition(values: HashTable<any>, properties: HashTable<any>): any;

@@ -25,6 +25,7 @@ import {
   CustomWidgetCollection,
   QuestionCustomWidget
 } from "../src/questionCustomWidgets";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1616,6 +1617,41 @@ QUnit.test("rowIndex variable, in text processing", function(assert) {
   var rows = question.visibleRows;
   assert.equal(rows[0].cells[0].question.value, 1, "The first row has index 1");
   assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
+});
+
+QUnit.test("row property in custom function", function(assert) {
+  var rowCustomFunc = function(params: any) {
+    var val = this.row.getValue(params[0]);
+    return !!val ? val + val : "";
+  };
+  FunctionFactory.Instance.register("rowCustomFunc", rowCustomFunc);
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "rowCustomFunc('col1')"
+          }
+        ],
+        rowCount: 2
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  rows[0].cells[0].question.value = "abc";
+  assert.equal(
+    rows[0].cells[1].question.value,
+    "abcabc",
+    "Custom function with row property works correctly"
+  );
+  FunctionFactory.Instance.unregister("rowCustomFunc");
 });
 
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(

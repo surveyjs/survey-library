@@ -1,31 +1,15 @@
-import { Question } from "../src/question";
-import { QuestionFactory } from "../src/questionfactory";
-import { QuestionSelectBase } from "../src/question_baseselect";
-import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionMatrixModel } from "../src/question_matrix";
-import {
-  MultipleTextItemModel,
-  QuestionMultipleTextModel
-} from "../src/question_multipletext";
-import {
-  NumericValidator,
-  AnswerCountValidator,
-  EmailValidator,
-  RegexValidator
-} from "../src/validator";
+import { EmailValidator } from "../src/validator";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget
-} from "../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1653,6 +1637,102 @@ QUnit.test("row property in custom function", function(assert) {
   );
   FunctionFactory.Instance.unregister("rowCustomFunc");
 });
+
+QUnit.test(
+  "Complete example with totals and expressions: invoice example",
+  function(assert) {
+    Serializer.addProperty("itemvalue", "price:number");
+
+    var getItemPrice = function(params) {
+      var question = !!this.row
+        ? this.row.getQuestionByColumnName(params[0])
+        : null;
+      if (!question) return 0;
+      var selItem = question.selectedItem;
+      return !!selItem ? selItem.price : 0;
+    };
+    FunctionFactory.Instance.register("getItemPrice", getItemPrice);
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "id",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "phone_model",
+              totalType: "count",
+              totalFormat: "Items count: {0}",
+              choices: [
+                { value: "item1", price: 10 },
+                { value: "item2", price: 20 }
+              ]
+            },
+            {
+              name: "price",
+              cellType: "expression",
+              expression: "getItemPrice('phone_model')",
+              displayStyle: "currency"
+            },
+            {
+              name: "quantity",
+              cellType: "text",
+              inputType: "number",
+              totalType: "sum",
+              totalFormat: "Total phones: {0}"
+            },
+            {
+              name: "total",
+              cellType: "expression",
+              expression: "{row.quantity} * {row.price}",
+              displayStyle: "currency",
+              totalType: "sum",
+              totalDisplayStyle: "currency",
+              totalFormat: "Total: {0}"
+            }
+          ],
+          rowCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+
+    var rows = question.visibleRows;
+    assert.equal(rows[0].cells[2].question.value, 0, "By default price is 0");
+    rows[0].cells[1].question.value = "item1";
+    assert.equal(rows[0].cells[2].question.value, 10, "Price is ten now");
+    rows[0].cells[3].question.value = 5;
+    assert.equal(
+      rows[0].cells[4].question.value,
+      10 * 5,
+      "row totals calculated correctely"
+    );
+
+    question.addRow();
+    assert.equal(rows.length, 2, "There are two rows now");
+    rows[1].cells[3].question.value = 3;
+    rows[1].cells[1].question.value = "item2";
+    assert.equal(
+      rows[1].cells[2].question.value,
+      20,
+      "Price is 20 for second row"
+    );
+    /*
+    assert.equal(
+      rows[1].cells[4].question.value,
+      20 * 3,
+      "row totals calculated correctely for the second row"
+    );
+*/
+    FunctionFactory.Instance.unregister("getItemPrice");
+    Serializer.removeProperty("itemvalue", "price");
+  }
+);
 
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert

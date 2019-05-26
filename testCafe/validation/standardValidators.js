@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
       .click(`input[value="Complete"]`)
       .hover(
         getError(
-          `The 'The least amount you have ever paid for a computer' should be equal or more than 10 and equal or less than 10000`,
+          `The 'value' should be equal or more than 10 and equal or less than 10000`,
           0
         )
       )

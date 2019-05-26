@@ -128,9 +128,6 @@ export interface ISurveyImpl {
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
 }
-export interface IConditionProperties {
-  getConditionProperties(): HashTable<any>;
-}
 export interface IConditionRunner {
   runCondition(values: HashTable<any>, properties: HashTable<any>): any;
 }

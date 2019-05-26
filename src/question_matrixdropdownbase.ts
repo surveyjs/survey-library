@@ -12,7 +12,6 @@ import {
   ISurveyData,
   ISurvey,
   ISurveyImpl,
-  IConditionProperties,
   ITextProcessor,
   SurveyError
 } from "./base";
@@ -627,12 +626,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 }
 
 export class MatrixDropdownRowModelBase
-  implements
-    ISurveyData,
-    ISurveyImpl,
-    ILocalizableOwner,
-    ITextProcessor,
-    IConditionProperties {
+  implements ISurveyData, ISurveyImpl, ILocalizableOwner, ITextProcessor {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";
@@ -687,7 +681,19 @@ export class MatrixDropdownRowModelBase
     return values;
   }
   getFilteredProperties(): any {
-    return { survey: this.getSurvey() };
+    return { survey: this.getSurvey(), row: this };
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    if (!!this.data) {
+      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
+    }
+    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
+    if (!properties) properties = {};
+    properties[MatrixDropdownRowModelBase.RowVariableName] = this;
+    for (var i = 0; i < this.cells.length; i++) {
+      values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
+      this.cells[i].runCondition(values, properties);
+    }
   }
   public set value(value: any) {
     this.isSettingValue = true;
@@ -798,19 +804,6 @@ export class MatrixDropdownRowModelBase
   public locStrsChanged() {
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].question.locStrsChanged();
-    }
-  }
-  public getConditionProperties(): HashTable<any> {
-    return { row: this };
-  }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
-    if (!!this.data) {
-      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
-    }
-    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
-    for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].runCondition(values, properties);
     }
   }
   public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn) {

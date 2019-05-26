@@ -4,7 +4,6 @@ import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
-import { IConditionProperties } from "./base";
 
 /**
  * A Model for expression question. It is a read-only question. It calculates value based on epxression property.
@@ -53,30 +52,16 @@ export class QuestionExpressionModel extends Question {
   public unlocCalculation() {
     this.expressionIsRunning = false;
   }
-  protected getConditionProperties(properties: HashTable<any>): HashTable<any> {
-    var conditionProperties =
-      !!this.data && !!(<any>this.data)["getConditionProperties"]
-        ? <IConditionProperties>(<any>this.data)
-        : null;
-    if (!conditionProperties) return properties;
-    var newProperties: any = {};
-    var condionalProperties = conditionProperties.getConditionProperties();
-    for (var key in properties) {
-      newProperties[key] = properties[key];
-    }
-    for (var key in condionalProperties) {
-      newProperties[key] = condionalProperties[key];
-    }
-    return newProperties;
-  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    var properties = this.getConditionProperties(properties);
     super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
     this.locCalculation();
     if (!this.expressionRunner)
       this.expressionRunner = new ExpressionRunner(this.expression);
-    this.value = this.expressionRunner.run(values, properties);
+    var newValue = this.expressionRunner.run(values, properties);
+    if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+      this.value = newValue;
+    }
     this.unlocCalculation();
   }
   /**

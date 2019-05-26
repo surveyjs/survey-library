@@ -1722,13 +1722,11 @@ QUnit.test(
       20,
       "Price is 20 for second row"
     );
-    /*
     assert.equal(
       rows[1].cells[4].question.value,
       20 * 3,
-      "row totals calculated correctely for the second row"
+      "row totals calculated correctly for the second row"
     );
-*/
     FunctionFactory.Instance.unregister("getItemPrice");
     Serializer.removeProperty("itemvalue", "price");
   }

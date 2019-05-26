@@ -737,11 +737,6 @@ QUnit.test("Validators for multiple text question", function(assert) {
     true,
     "The value should be between 10 and 20"
   );
-  assert.equal(
-    mText.errors[0].locText.textOrHtml.indexOf("t1") >= 0,
-    true,
-    "Error contains information about item name"
-  );
   mText.value = { t1: 15 };
   assert.equal(mText.hasErrors(), false, "The value is fine now.");
   assert.equal(mText.items[0].value, 15, "Convert to numeric");
@@ -1679,9 +1674,9 @@ QUnit.test(
               type: "radiogroup",
               name: "q1",
               defaultValue: {
-                  id: "2",
-                  test: "a2"
-                },
+                id: "2",
+                test: "a2"
+              },
               choices: [
                 {
                   value: {
@@ -1719,10 +1714,10 @@ QUnit.test(
     survey.doComplete();
     assert.deepEqual(
       question.value,
-        {
-          id: "2",
-          test: "a2"
-        },
+      {
+        id: "2",
+        test: "a2"
+      },
       "Initial value is set correctly"
     );
   }

@@ -32,7 +32,6 @@ export class MultipleTextItemModel extends Base
   private data: IMultipleTextData;
 
   valueChangedCallback: (newValue: any) => void;
-  validators: Array<SurveyValidator> = new Array<SurveyValidator>();
 
   constructor(name: any = null, title: string = null) {
     super();
@@ -143,6 +142,27 @@ export class MultipleTextItemModel extends Base
   }
   get locPlaceHolder(): LocalizableString {
     return this.editor.locPlaceHolder;
+  }
+  /**
+   * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
+   */
+  public get requiredErrorText(): string {
+    return this.editor.requiredErrorText;
+  }
+  public set requiredErrorText(val: string) {
+    this.editor.requiredErrorText = val;
+  }
+  get locRequiredErrorText(): LocalizableString {
+    return this.editor.locRequiredErrorText;
+  }
+  /**
+   * The list of question validators.
+   */
+  public get validators(): Array<SurveyValidator> {
+    return this.editor.validators;
+  }
+  public set validators(val: Array<SurveyValidator>) {
+    this.editor.validators = val;
   }
   /**
    * The item value.
@@ -391,26 +411,22 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  protected runValidators(): Array<SurveyError> {
-    var errors = super.runValidators();
+  public hasErrors(fireCallback: boolean = true): boolean {
+    var res = super.hasErrors(fireCallback);
     for (var i = 0; i < this.items.length; i++) {
-      if (this.items[i].isEmpty()) continue;
-
-      var itemErrors = new ValidatorRunner().run(this.items[i]);
-      for (var j = 0; j < itemErrors.length; j++) {
-        errors.push(itemErrors[j]);
-      }
+      res = this.items[i].editor.hasErrors(fireCallback) || res;
     }
-    return errors;
+    return res;
   }
-  protected onCheckForErrors(errors: Array<SurveyError>) {
-    super.onCheckForErrors(errors);
+  public getAllErrors(): Array<SurveyError> {
+    var result = super.getAllErrors();
     for (var i = 0; i < this.items.length; i++) {
-      var item = this.items[i];
-      if (item.isRequired && Helpers.isValueEmpty(item.value)) {
-        errors.push(new AnswerRequiredError(null, this));
+      var errors = this.items[i].editor.getAllErrors();
+      if (errors && errors.length > 0) {
+        result = result.concat(errors);
       }
     }
+    return result;
   }
   public clearErrors() {
     super.clearErrors();
@@ -488,6 +504,10 @@ JsonObject.metaData.addClass(
     },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
+    {
+      name: "requiredErrorText:text",
+      serializationProperty: "locRequiredErrorText"
+    },
     {
       name: "validators:validators",
       baseClassName: "surveyvalidator",

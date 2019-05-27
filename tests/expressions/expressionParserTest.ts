@@ -696,6 +696,10 @@ QUnit.test("Test binary operator anyof", function(assert) {
   assert.equal(runner.run(values), true, "['a', 'b'] anyof ['a', 'b']");
   values = { value: ["c", "d"] };
   assert.equal(runner.run(values), false, "['c', 'd'] anyof ['a', 'b']");
+  values = { value: [] };
+  assert.equal(runner.run(values), false, "[] anyof ['a', 'b']");
+  values = { value: null };
+  assert.equal(runner.run(values), false, "null anyof ['a', 'b']");
 });
 QUnit.test("Test binary operator allof", function(assert) {
   var runner = new ConditionRunner("{value} allof ['a', 'b']");

@@ -319,7 +319,9 @@ export class OperandMaker {
       return OperandMaker.binaryFunctions.containsCore(left, right, false);
     },
     anyof: function(left: any, right: any): boolean {
-      if (!left && !Helpers.isValueEmpty(right)) return true;
+      if (!left && Helpers.isValueEmpty(right)) return true;
+      if (!left || !Array.isArray(left) || left.length === 0) return false;
+      if (Helpers.isValueEmpty(right)) return true;
       if (!Array.isArray(right))
         return OperandMaker.binaryFunctions.contains(left, right);
       for (var i = 0; i < right.length; i++) {

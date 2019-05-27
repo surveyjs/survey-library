@@ -688,3 +688,21 @@ QUnit.test("Get variables in expression", function(assert) {
   assert.equal(vars[0], "val1", "the first variable");
   assert.equal(vars[5], "val6", "the last variable");
 });
+QUnit.test("Test binary operator anyof", function(assert) {
+  var runner = new ConditionRunner("{value} anyof ['a', 'b']");
+  var values = { value: ["a", "c"] };
+  assert.equal(runner.run(values), true, "['a', 'c'] anyof ['a', 'b']");
+  values = { value: ["a", "b"] };
+  assert.equal(runner.run(values), true, "['a', 'b'] anyof ['a', 'b']");
+  values = { value: ["c", "d"] };
+  assert.equal(runner.run(values), false, "['c', 'd'] anyof ['a', 'b']");
+});
+QUnit.test("Test binary operator allof", function(assert) {
+  var runner = new ConditionRunner("{value} allof ['a', 'b']");
+  var values = { value: ["a", "c"] };
+  assert.equal(runner.run(values), false, "['a', 'c'] allof ['a', 'b']");
+  values = { value: ["a", "b", "c"] };
+  assert.equal(runner.run(values), true, "['a', 'b', 'c'] allof ['a', 'b']");
+  values = { value: ["c", "d"] };
+  assert.equal(runner.run(values), false, "['c', 'd'] allof ['a', 'b']");
+});

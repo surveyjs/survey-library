@@ -76,6 +76,8 @@ BinaryFuncOp
 BinFunctions
   = ("*=" / "contains"i / "contain"i) { return "contains"; }
   / ("notcontains"i / "notcontain"i)  { return "notcontains"; }
+  / ("anyof"i)  {return "anyof"; }
+  / ("allof"i)  {return "allof"; }
 
 Factor
   = "(" _ expr:Expression _ ")"? { return expr; }

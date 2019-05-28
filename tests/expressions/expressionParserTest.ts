@@ -350,6 +350,12 @@ QUnit.test("Bug with contains, bug#781", function(assert) {
   assert.equal(runner.run(values), false, "['2'] contains '1'");
 });
 
+QUnit.test("contains as equal", function(assert) {
+  var runner = new ConditionRunner("{val} contains 'value'");
+  var values = { val: "value" };
+  assert.equal(runner.run(values), true, "'value' contains 'value'");
+});
+
 QUnit.test("0 is not an empty value", function(assert) {
   var runner = new ConditionRunner("{val} = 0");
   var values = { val: 0 };

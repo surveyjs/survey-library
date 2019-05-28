@@ -356,6 +356,12 @@ QUnit.test("contains as equal", function(assert) {
   assert.equal(runner.run(values), true, "'value' contains 'value'");
 });
 
+QUnit.test("contains for complex object", function(assert) {
+  var runner = new ConditionRunner("{val} contains {item}");
+  var values = { val: [{ id: 1 }, { id: 2 }], item: { id: 1 } };
+  assert.equal(runner.run(values), true, "works with compelx object");
+});
+
 QUnit.test("0 is not an empty value", function(assert) {
   var runner = new ConditionRunner("{val} = 0");
   var values = { val: 0 };

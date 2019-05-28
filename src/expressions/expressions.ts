@@ -355,7 +355,7 @@ export class OperandMaker {
         var i = 0;
         right = rightArray[rIndex];
         for (; i < left.length; i++) {
-          if (left[i] == right) break;
+          if (Helpers.isTwoValueEquals(left[i], right)) break;
         }
         if (i == left.length) return !isContains;
       }

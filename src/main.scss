@@ -477,6 +477,8 @@ $base-line-height: 2em;
             border-radius: 4px;
             > img {
               display: block;
+              pointer-events: none;
+              position: relative;
             }
           }
 

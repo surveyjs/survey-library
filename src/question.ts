@@ -930,6 +930,9 @@ export class Question extends SurveyElement
     if (this.isEmpty() && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();
   }
+  getQuestionFromArray(name: string, index: number): IQuestion {
+    return null;
+  }
   public getDefaultValue(): any {
     return this.defaultValue;
   }

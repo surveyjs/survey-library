@@ -6165,7 +6165,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.deepEqual(plainData.data[0].title, "Row 1");
   assert.deepEqual(plainData.data[0].value, {
     "Column 1": 1,
-    "Column 2": "2",
+    "Column 2": 2,
     "Column 3": 3
   });
   assert.deepEqual(plainData.data[0].displayValue, {
@@ -6176,7 +6176,7 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.deepEqual(plainData.data[1].name, "Row 2");
   assert.deepEqual(plainData.data[1].value, {
     "Column 1": 4,
-    "Column 2": "5",
+    "Column 2": 5,
     "Column 3": 4
   });
   assert.deepEqual(plainData.data[1].displayValue, {
@@ -7006,5 +7006,202 @@ QUnit.test(
     question.items[0].value = "";
     assert.deepEqual(survey.data, {}, "survey is empty");
     assert.equal(question.isEmpty(), true, "question is empty");
+  }
+);
+
+QUnit.test(
+  "valueName for matrix dynamic and panel dynamic with different question set, bug# https://surveyjs.answerdesk.io/ticket/details/T2059",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          name: "matrix1",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "elementId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "col1",
+              cellType: "text"
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "matrix2",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "col2",
+              cellType: "text"
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "panel1",
+          valueName: "shared",
+          type: "paneldynamic",
+          templateElements: [
+            {
+              name: "ed1",
+              type: "text"
+            },
+            {
+              name: "ed2",
+              type: "text"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix1"
+    );
+    var matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix2"
+    );
+    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var rows1 = matrix1.visibleRows;
+    var rows2 = matrix2.visibleRows;
+    var panels1 = panel1.panels;
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1 }] },
+      "The initial value"
+    );
+    rows1[0].cells[1].value = "col1_Value";
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: "col1_Value" }] },
+      "set matrix1 col1"
+    );
+    rows2[0].cells[0].value = "col2_Value";
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: "col1_Value", col2: "col2_Value" }] },
+      "set matrix2 col2"
+    );
+    panels1[0].getQuestionByName("ed1").value = "ed1_Value";
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "set panel1 ed1"
+    );
+    rows2[0].cells[0].value = "col2_Value2";
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value2",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "replace matrix2 col2"
+    );
+    survey.clearIncorrectValues();
+    assert.deepEqual(
+      survey.data,
+      {
+        shared: [
+          {
+            elementId: 1,
+            col1: "col1_Value",
+            col2: "col2_Value2",
+            ed1: "ed1_Value"
+          }
+        ]
+      },
+      "keep all data since they are all correct"
+    );
+  }
+);
+QUnit.test(
+  "valueName for matrix dynamic and panel dynamic with different question and display text processing, bug# https://surveyjs.answerdesk.io/ticket/details/T2053",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          name: "matrix1",
+          valueName: "shared",
+          type: "matrixdynamic",
+          columns: [
+            {
+              name: "elementId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "col1",
+              cellType: "dropdown",
+              choices: [
+                { value: 1, text: "Item 1" },
+                { value: 2, text: "Item 2" }
+              ]
+            }
+          ],
+          rowCount: 1
+        },
+        {
+          name: "panel1",
+          valueName: "shared",
+          type: "paneldynamic",
+          templateTitle: "{panel.col1}",
+          templateElements: [
+            {
+              name: "ed1",
+              type: "dropdown",
+              choices: [
+                { value: 1, text: "Item 10" },
+                { value: 2, text: "Item 20" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "matrix1"
+    );
+    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var rows1 = matrix1.visibleRows;
+    rows1[0].cells[1].value = 1;
+    assert.deepEqual(
+      survey.data,
+      { shared: [{ elementId: 1, col1: 1 }] },
+      "set matrix1 col1"
+    );
+    panel1.panels[0].getQuestionByName("ed1").value = 1;
+    assert.deepEqual(matrix1.getDisplayValue(false), [
+      { elementId: "1", col1: "Item 1", ed1: "Item 10" }
+    ]);
+    assert.deepEqual(panel1.getDisplayValue(false), [
+      { elementId: "1", col1: "Item 1", ed1: "Item 10" }
+    ]);
+    assert.equal(
+      panel1.panels[0].locTitle.renderedHtml,
+      "Item 1",
+      "Get the display text"
+    );
   }
 );

@@ -1,30 +1,15 @@
-import { Question } from "../src/question";
-import { QuestionFactory } from "../src/questionfactory";
-import { QuestionSelectBase } from "../src/question_baseselect";
-import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionMatrixModel } from "../src/question_matrix";
-import {
-  MultipleTextItemModel,
-  QuestionMultipleTextModel
-} from "../src/question_multipletext";
-import {
-  NumericValidator,
-  AnswerCountValidator,
-  EmailValidator,
-  RegexValidator
-} from "../src/validator";
+import { EmailValidator } from "../src/validator";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { JsonObject } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget
-} from "../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { FunctionFactory } from "../src/functionsfactory";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1618,6 +1603,135 @@ QUnit.test("rowIndex variable, in text processing", function(assert) {
   assert.equal(rows[1].cells[0].question.value, 2, "The first row has index 2");
 });
 
+QUnit.test("row property in custom function", function(assert) {
+  var rowCustomFunc = function(params: any) {
+    var val = this.row.getValue(params[0]);
+    return !!val ? val + val : "";
+  };
+  FunctionFactory.Instance.register("rowCustomFunc", rowCustomFunc);
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          { name: "col1", cellType: "text" },
+          {
+            name: "col2",
+            cellType: "expression",
+            expression: "rowCustomFunc('col1')"
+          }
+        ],
+        rowCount: 2
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  var rows = question.visibleRows;
+  rows[0].cells[0].question.value = "abc";
+  assert.equal(
+    rows[0].cells[1].question.value,
+    "abcabc",
+    "Custom function with row property works correctly"
+  );
+  FunctionFactory.Instance.unregister("rowCustomFunc");
+});
+
+QUnit.test(
+  "Complete example with totals and expressions: invoice example",
+  function(assert) {
+    Serializer.addProperty("itemvalue", "price:number");
+
+    var getItemPrice = function(params) {
+      var question = !!this.row
+        ? this.row.getQuestionByColumnName(params[0])
+        : null;
+      if (!question) return 0;
+      var selItem = question.selectedItem;
+      return !!selItem ? selItem.price : 0;
+    };
+    FunctionFactory.Instance.register("getItemPrice", getItemPrice);
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          columns: [
+            {
+              name: "id",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "phone_model",
+              totalType: "count",
+              totalFormat: "Items count: {0}",
+              choices: [
+                { value: "item1", price: 10 },
+                { value: "item2", price: 20 }
+              ]
+            },
+            {
+              name: "price",
+              cellType: "expression",
+              expression: "getItemPrice('phone_model')",
+              displayStyle: "currency"
+            },
+            {
+              name: "quantity",
+              cellType: "text",
+              inputType: "number",
+              totalType: "sum",
+              totalFormat: "Total phones: {0}"
+            },
+            {
+              name: "total",
+              cellType: "expression",
+              expression: "{row.quantity} * {row.price}",
+              displayStyle: "currency",
+              totalType: "sum",
+              totalDisplayStyle: "currency",
+              totalFormat: "Total: {0}"
+            }
+          ],
+          rowCount: 1
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+
+    var rows = question.visibleRows;
+    assert.equal(rows[0].cells[2].question.value, 0, "By default price is 0");
+    rows[0].cells[1].question.value = "item1";
+    assert.equal(rows[0].cells[2].question.value, 10, "Price is ten now");
+    rows[0].cells[3].question.value = 5;
+    assert.equal(
+      rows[0].cells[4].question.value,
+      10 * 5,
+      "row totals calculated correctely"
+    );
+
+    question.addRow();
+    assert.equal(rows.length, 2, "There are two rows now");
+    rows[1].cells[3].question.value = 3;
+    rows[1].cells[1].question.value = "item2";
+    assert.equal(
+      rows[1].cells[2].question.value,
+      20,
+      "Price is 20 for second row"
+    );
+    assert.equal(
+      rows[1].cells[4].question.value,
+      20 * 3,
+      "row totals calculated correctly for the second row"
+    );
+    FunctionFactory.Instance.unregister("getItemPrice");
+    Serializer.removeProperty("itemvalue", "price");
+  }
+);
+
 QUnit.test("Expression with two columns doesn't work, bug#1199", function(
   assert
 ) {
@@ -2136,7 +2250,7 @@ QUnit.test("matrix.hasTotal property", function(assert) {
   assert.equal(matrix.hasTotal, true, "There is total, total expression");
 });
 
-QUnit.test("Test totalValue, expression question", function(assert) {
+QUnit.test("Test matrix.totalValue, expression question", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var matrix = new QuestionMatrixDropdownModel("q1");
@@ -2178,9 +2292,19 @@ QUnit.test("Test totalValue, expression question", function(assert) {
     1 + 2 + 4 + 10 + 20 + 40,
     "Calculated correctly, {row.col1} + {row.col2}"
   );
+  assert.deepEqual(
+    matrix.totalValue,
+    { col1: 7, col2: 70, col3: 77 },
+    "Total value calculated correctly"
+  );
+  assert.deepEqual(
+    survey.getValue("q1-total"),
+    { col1: 7, col2: 70, col3: 77 },
+    "Total value set into survey correctly"
+  );
 });
 
-QUnit.test("Test totalValue, different value types", function(assert) {
+QUnit.test("Test totals, different value types", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var matrix = new QuestionMatrixDropdownModel("q1");
@@ -2202,13 +2326,22 @@ QUnit.test("Test totalValue, different value types", function(assert) {
   assert.equal(question.value, 1, "Min is 1");
   matrix.columns[0].totalType = "max";
   survey.setValue("q2", 2);
-  assert.equal(question.value, 3, "Max is 4");
+  assert.equal(question.value, 3, "Max is 3");
   matrix.columns[0].totalType = "avg";
   survey.setValue("q2", 3);
   assert.equal(question.value, 2, "Average is 2");
+  matrix.columns[0].totalType = "sum";
+  matrix.columns[0].totalFormat = "Sum: {0}";
+  matrix.columns[0].totalDisplayStyle = "currency";
+  survey.setValue("q2", 4);
+  assert.equal(
+    question.displayValue,
+    "Sum: $6.00",
+    "Use total column properties"
+  );
 });
 
-QUnit.test("Test totalValue, load from JSON", function(assert) {
+QUnit.test("Test totals, load from JSON", function(assert) {
   var json = {
     elements: [
       {
@@ -2225,8 +2358,60 @@ QUnit.test("Test totalValue, load from JSON", function(assert) {
     ]
   };
   var survey = new SurveyModel(json);
-  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
   var row = matrix.visibleTotalRow;
   var question = row.cells[0].question;
   assert.equal(question.value, 0, "The initial value is zero");
 });
+
+QUnit.test(
+  "enableIf for new rows, Bug# https://surveyjs.answerdesk.io/ticket/details/T2065",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            {
+              name: "col1",
+              cellType: "text"
+            }
+          ],
+          enableIf: "{q} = 'a'"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      true,
+      "It is readOnly by default"
+    );
+    survey.setValue("q", "a");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      false,
+      "It is not readOnly now"
+    );
+    matrix.addRow();
+    assert.equal(
+      matrix.visibleRows[2].cells[0].question.isReadOnly,
+      false,
+      "New added row is not readonly"
+    );
+    survey.clearValue("q");
+    assert.equal(
+      matrix.visibleRows[0].cells[0].question.isReadOnly,
+      true,
+      "The first row is readOnly again"
+    );
+    assert.equal(
+      matrix.visibleRows[2].cells[0].question.isReadOnly,
+      true,
+      "The last row is readOnly"
+    );
+  }
+);

@@ -47,6 +47,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getType(): string {
     return "dropdown";
   }
+  public get selectedItem(): ItemValue {
+    if (this.isEmpty()) return null;
+    return ItemValue.getItemByValue(this.visibleChoices, this.value);
+  }
   supportGoNextPageAutomatic() {
     return true;
   }

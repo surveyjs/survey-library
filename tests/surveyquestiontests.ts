@@ -765,11 +765,6 @@ QUnit.test("Validators for multiple text question", function(assert) {
     true,
     "The value should be between 10 and 20"
   );
-  assert.equal(
-    mText.errors[0].locText.textOrHtml.indexOf("t1") >= 0,
-    true,
-    "Error contains information about item name"
-  );
   mText.value = { t1: 15 };
   assert.equal(mText.hasErrors(), false, "The value is fine now.");
   assert.equal(mText.items[0].value, 15, "Convert to numeric");
@@ -1691,6 +1686,67 @@ QUnit.test(
     assert.ok(
       question.value[0] === question.choices[1].value,
       "Choosen exactly choice item value"
+    );
+  }
+);
+
+QUnit.test(
+  "defaultValue for radiogroup where value is object, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              defaultValue: {
+                id: "2",
+                test: "a2"
+              },
+              choices: [
+                {
+                  value: {
+                    id: "1",
+                    test: "a1"
+                  },
+                  text: "a1"
+                },
+                {
+                  value: {
+                    id: "2",
+                    test: "a2"
+                  },
+                  text: "a2"
+                },
+                {
+                  value: {
+                    id: "3",
+                    test: "a3"
+                  },
+                  text: "a3"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    assert.ok(
+      question.value === question.choices[1].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      {
+        id: "2",
+        test: "a2"
+      },
+      "Initial value is set correctly"
     );
   }
 );

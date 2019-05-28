@@ -1,4 +1,4 @@
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { Question } from "./question";
 import { JsonObject } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -46,14 +46,23 @@ export class QuestionExpressionModel extends Question {
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
   }
+  public locCalculation() {
+    this.expressionIsRunning = true;
+  }
+  public unlocCalculation() {
+    this.expressionIsRunning = false;
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
-    this.expressionIsRunning = true;
+    this.locCalculation();
     if (!this.expressionRunner)
       this.expressionRunner = new ExpressionRunner(this.expression);
-    this.value = this.expressionRunner.run(values, properties);
-    this.expressionIsRunning = false;
+    var newValue = this.expressionRunner.run(values, properties);
+    if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+      this.value = newValue;
+    }
+    this.unlocCalculation();
   }
   /**
    * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.
@@ -134,7 +143,7 @@ export class QuestionExpressionModel extends Question {
   }
 }
 
-function getCurrecyCodes(): Array<string> {
+export function getCurrecyCodes(): Array<string> {
   return [
     "AED",
     "AFN",

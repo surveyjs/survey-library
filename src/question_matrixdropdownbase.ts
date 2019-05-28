@@ -8,6 +8,7 @@ import { Question } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import {
   Base,
+  IQuestion,
   ISurveyData,
   ISurvey,
   ISurveyImpl,
@@ -22,7 +23,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
-import { QuestionExpressionModel } from "./question_expression";
+import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
 
 export interface IMatrixDropdownData {
@@ -30,7 +31,8 @@ export interface IMatrixDropdownData {
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
-    newRowValue: any
+    newRowValue: any,
+    isDeletingValue: boolean
   ): void;
   onRowChanging(
     row: MatrixDropdownRowModelBase,
@@ -51,6 +53,11 @@ export interface IMatrixDropdownData {
   getLocale(): string;
   getMarkdownHtml(text: string): string;
   getProcessedText(text: string): string;
+  getSharedQuestionByName(
+    columnName: string,
+    row: MatrixDropdownRowModelBase
+  ): Question;
+  onTotalValueChanged(): any;
   getSurvey(): ISurvey;
 }
 
@@ -194,8 +201,17 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   constructor(name: string, title: string = null) {
     super();
     var self = this;
+    this.createLocalizableString("totalFormat", this);
     this.registerFunctionOnPropertiesValueChanged(
-      ["totalType", "totalExpression"],
+      [
+        "totalType",
+        "totalExpression",
+        "totalFormat",
+        "totalCurrency",
+        "totalDisplayStyle",
+        "totalMaximumFractionDigits",
+        "totalMinimumFractionDigits"
+      ],
       function() {
         self.doColumnPropertiesChanged();
       }
@@ -351,6 +367,42 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   }
   public get hasTotal(): boolean {
     return this.totalType != "none" || !!this.totalExpression;
+  }
+  public get totalFormat(): string {
+    return this.getLocalizableStringText("totalFormat", "");
+  }
+  public set totalFormat(val: string) {
+    this.setLocalizableStringText("totalFormat", val);
+  }
+  get locTotalFormat(): LocalizableString {
+    return this.getLocalizableString("totalFormat");
+  }
+  public get totalMaximumFractionDigits(): number {
+    return this.getPropertyValue("totalMaximumFractionDigits", -1);
+  }
+  public set totalMaximumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("totalMaximumFractionDigits", val);
+  }
+  public get totalMinimumFractionDigits(): number {
+    return this.getPropertyValue("totalMinimumFractionDigits", -1);
+  }
+  public set totalMinimumFractionDigits(val: number) {
+    if (val < -1 || val > 20) return;
+    this.setPropertyValue("totalMinimumFractionDigits", val);
+  }
+  public get totalDisplayStyle(): string {
+    return this.getPropertyValue("totalDisplayStyle", "none");
+  }
+  public set totalDisplayStyle(val: string) {
+    this.setPropertyValue("totalDisplayStyle", val);
+  }
+  public get totalCurrency(): string {
+    return this.getPropertyValue("totalCurrency", "USD");
+  }
+  public set totalCurrency(val: string) {
+    if (getCurrecyCodes().indexOf(val) < 0) return;
+    this.setPropertyValue("totalCurrency", val);
   }
 
   public get minWidth(): string {
@@ -554,8 +606,15 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     return res;
   }
   public updateCellQuestion() {
+    this.question.locCalculation();
     this.column.updateCellQuestion(this.question, null);
     this.question.expression = this.getTotalExpression();
+    this.question.format = this.column.totalFormat;
+    this.question.currency = this.column.totalCurrency;
+    this.question.displayStyle = this.column.totalDisplayStyle;
+    this.question.maximumFractionDigits = this.column.totalMaximumFractionDigits;
+    this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
+    this.question.unlocCalculation();
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;
@@ -622,7 +681,19 @@ export class MatrixDropdownRowModelBase
     return values;
   }
   getFilteredProperties(): any {
-    return { survey: this.getSurvey() };
+    return { survey: this.getSurvey(), row: this };
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+    if (!!this.data) {
+      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
+    }
+    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
+    if (!properties) properties = {};
+    properties[MatrixDropdownRowModelBase.RowVariableName] = this;
+    for (var i = 0; i < this.cells.length; i++) {
+      values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
+      this.cells[i].runCondition(values, properties);
+    }
   }
   public set value(value: any) {
     this.isSettingValue = true;
@@ -651,7 +722,7 @@ export class MatrixDropdownRowModelBase
     var question = this.getQuestionByColumnName(name);
     return !!question ? question.value : null;
   }
-  public setValue(name: string, newValue: any) {
+  public setValue(name: string, newColumnValue: any) {
     if (this.isSettingValue) return;
     var newValue = this.value;
     var changedValue = this.getValue(name);
@@ -663,7 +734,12 @@ export class MatrixDropdownRowModelBase
     ) {
       this.getQuestionByColumnName(name).value = changingValue;
     } else {
-      this.data.onRowChanged(this, name, newValue);
+      this.data.onRowChanged(
+        this,
+        name,
+        newValue,
+        newColumnValue == null && !changedQuestion
+      );
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
@@ -695,6 +771,11 @@ export class MatrixDropdownRowModelBase
     }
     return null;
   }
+  protected getSharedQuestionByName(columnName: string): Question {
+    return !!this.data
+      ? this.data.getSharedQuestionByName(columnName, this)
+      : null;
+  }
   public clearIncorrectValues(val: any) {
     for (var key in val) {
       var question = this.getQuestionByColumnName(key);
@@ -705,7 +786,9 @@ export class MatrixDropdownRowModelBase
           this.setValue(key, question.value);
         }
       } else {
-        this.setValue(key, null);
+        if (!this.getSharedQuestionByName(key)) {
+          this.setValue(key, null);
+        }
       }
     }
   }
@@ -723,21 +806,18 @@ export class MatrixDropdownRowModelBase
       this.cells[i].question.locStrsChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
-    values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
-    if (!!this.data) {
-      values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
-    }
-    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
-    for (var i = 0; i < this.cells.length; i++) {
-      this.cells[i].runCondition(values, properties);
-    }
-  }
   public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn) {
     for (var i = 0; i < this.cells.length; i++) {
       if (this.cells[i].column === column) {
         this.updateCellOnColumnChanged(this.cells[i]);
         return;
+      }
+    }
+  }
+  public onQuestionReadOnlyChanged(parentIsReadOnly: boolean) {
+    for (var i = 0; i < this.cells.length; i++) {
+      if (!!this.cells[i].question) {
+        this.cells[i].question.readOnly = parentIsReadOnly;
       }
     }
   }
@@ -820,7 +900,11 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownTotalCell(column, this, this.data);
   }
-  public setValue(name: string, newValue: any) {}
+  public setValue(name: string, newValue: any) {
+    if (!!this.data) {
+      this.data.onTotalValueChanged();
+    }
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     var counter = 0;
     var prevValue;
@@ -845,6 +929,7 @@ export class QuestionMatrixDropdownModelBase
   >
   implements IMatrixDropdownData {
   public static defaultCellType = "dropdown";
+  public static totalValuePostFix = "-total";
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
@@ -1167,6 +1252,10 @@ export class QuestionMatrixDropdownModelBase
     }
     return this.generatedVisibleRows;
   }
+  public get totalValue(): any {
+    if (!this.hasTotal) return {};
+    return this.visibleTotalRow.value;
+  }
   protected getVisibleTotalRow(): MatrixDropdownRowModelBase {
     if (this.isLoadingFromJson) return null;
     if (!this.generatedTotalRow && this.hasTotal) {
@@ -1210,7 +1299,7 @@ export class QuestionMatrixDropdownModelBase
     if (rowIndex < 0) return null;
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
-    this.onRowChanged(visRows[rowIndex], "", rowValue);
+    this.onRowChanged(visRows[rowIndex], "", rowValue, false);
     this.onValueChanged();
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
@@ -1239,11 +1328,14 @@ export class QuestionMatrixDropdownModelBase
     row: MatrixDropdownRowModelBase,
     rowValue: any
   ): any {
-    for (var i = 0; i < this.columns.length; i++) {
-      var column = this.columns[i];
-      var question = !!row.cells[i] ? row.cells[i].question : null;
-      if (!!question && rowValue[column.name]) {
-        rowValue[column.name] = question.displayValue;
+    if (!rowValue) return rowValue;
+    for (var key in rowValue) {
+      var question = row.getQuestionByColumnName(key);
+      if (!question) {
+        question = this.getSharedQuestionByName(key, row);
+      }
+      if (!!question) {
+        rowValue[key] = question.displayValue;
       }
     }
     return rowValue;
@@ -1379,6 +1471,14 @@ export class QuestionMatrixDropdownModelBase
     }
     return null;
   }
+  protected onReadOnlyChanged() {
+    super.onReadOnlyChanged();
+    if (!this.generateRows) return;
+    for (var i = 0; i < this.visibleRows.length; i++) {
+      this.visibleRows[i].onQuestionReadOnlyChanged(this.isReadOnly);
+    }
+  }
+
   //IMatrixDropdownData
   public createQuestion(
     row: MatrixDropdownRowModelBase,
@@ -1485,14 +1585,21 @@ export class QuestionMatrixDropdownModelBase
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
-    newRowValue: any
+    newRowValue: any,
+    isDeletingValue: boolean
   ) {
     var oldValue = this.createNewValue();
     if (this.isMatrixValueEmpty(oldValue)) oldValue = null;
     var newValue = this.createNewValue();
     var rowValue = this.getRowValueCore(row, newValue, true);
     if (!rowValue) rowValue = {};
-    for (var key in rowValue) delete rowValue[key];
+    if (isDeletingValue) {
+      delete rowValue[columnName];
+    }
+    for (var i = 0; i < row.cells.length; i++) {
+      var key = row.cells[i].question.getValueName();
+      delete rowValue[key];
+    }
     if (newRowValue) {
       newRowValue = JSON.parse(JSON.stringify(newRowValue));
       for (var key in newRowValue) {
@@ -1514,6 +1621,31 @@ export class QuestionMatrixDropdownModelBase
   }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
     return this.visibleRows.indexOf(row);
+  }
+  getSharedQuestionByName(
+    columnName: string,
+    row: MatrixDropdownRowModelBase
+  ): Question {
+    if (!this.survey || !this.valueName) return null;
+    var index = this.getRowIndex(row);
+    if (index < 0) return null;
+    return <Question>this.survey.getQuestionByValueNameFromArray(
+      this.valueName,
+      columnName,
+      index
+    );
+  }
+  onTotalValueChanged(): any {
+    if (!!this.data && !!this.visibleTotalRow) {
+      this.data.setValue(
+        this.getValueName() + QuestionMatrixDropdownModelBase.totalValuePostFix,
+        this.totalValue
+      );
+    }
+  }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (index >= this.visibleRows.length) return null;
+    return this.visibleRows[index].getQuestionByColumnName(name);
   }
   private isMatrixValueEmpty(val: any) {
     if (!val) return;
@@ -1567,7 +1699,22 @@ JsonObject.metaData.addClass(
       default: "none",
       choices: ["none", "sum", "count", "min", "max", "avg"]
     },
-    "totalExpression:expression"
+    "totalExpression:expression",
+    { name: "totalFormat", serializationProperty: "locTotalFormat" },
+    {
+      name: "totalDisplayStyle",
+      default: "none",
+      choices: ["none", "decimal", "currency", "percent"]
+    },
+    {
+      name: "totalCurrency",
+      choices: () => {
+        return getCurrecyCodes();
+      },
+      default: "USD"
+    },
+    { name: "totalMaximumFractionDigits:number", default: -1 },
+    { name: "totalMinimumFractionDigits:number", default: -1 }
   ],
   function() {
     return new MatrixDropdownColumn("");

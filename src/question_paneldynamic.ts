@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import {
   IElement,
+  IQuestion,
   Base,
   IPanel,
   SurveyError,
@@ -23,6 +24,7 @@ export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
   getPanelItemData(item: ISurveyData): any;
   setPanelItemData(item: ISurveyData, name: string, val: any): any;
+  getSharedQuestionFromArray(name: string, panelIndex: number): Question;
   getSurvey(): ISurvey;
 }
 
@@ -107,6 +109,12 @@ export class QuestionPanelDynamicItem
     );
     var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = <Question>this.panel.getQuestionByValueName(firstName);
+    if (!question && !!this.data) {
+      question = this.data.getSharedQuestionFromArray(
+        firstName,
+        this.data.getItemIndex(this)
+      );
+    }
     var values = {};
     if (question) {
       (<any>values)[firstName] = textValue.returnDisplayValue
@@ -1001,6 +1009,10 @@ export class QuestionPanelDynamicModel extends Question
       this.panels[i].clearErrors();
     }
   }
+  public getQuestionFromArray(name: string, index: number): IQuestion {
+    if (index >= this.panelCount) return null;
+    return this.panels[index].getQuestionByName(name);
+  }
   private clearIncorrectValuesInPanel(index: number) {
     var panel = this.panels[index];
     panel.clearIncorrectValues();
@@ -1009,7 +1021,10 @@ export class QuestionPanelDynamicModel extends Question
     if (!values) return;
     var isChanged = false;
     for (var key in values) {
-      if (!panel.getQuestionByName(key)) {
+      if (
+        !panel.getQuestionByName(key) &&
+        !this.getSharedQuestionFromArray(key, index)
+      ) {
         delete values[key];
         isChanged = true;
       }
@@ -1018,6 +1033,18 @@ export class QuestionPanelDynamicModel extends Question
       val[index] = values;
       this.value = val;
     }
+  }
+  public getSharedQuestionFromArray(
+    name: string,
+    panelIndex: number
+  ): Question {
+    return !!this.survey && !!this.valueName
+      ? <Question>this.survey.getQuestionByValueNameFromArray(
+          this.valueName,
+          name,
+          panelIndex
+        )
+      : null;
   }
   public addConditionNames(names: Array<string>) {
     var prefix = this.name + "[0].";
@@ -1169,6 +1196,36 @@ export class QuestionPanelDynamicModel extends Question
     }
     return result;
   }
+  protected getDisplayValueCore(keysAsText: boolean): any {
+    var values = this.createValueCopy();
+    if (!values || !Array.isArray(values)) return values;
+    for (var i = 0; i < this.panels.length && i < values.length; i++) {
+      var val = values[i];
+      if (!val) continue;
+      values[i] = this.getPanelDisplayValue(i, val, keysAsText);
+    }
+    return values;
+  }
+
+  private getPanelDisplayValue(
+    panelIndex: number,
+    val: any,
+    keysAsText: boolean
+  ): any {
+    if (!val) return val;
+    var panel = this.panels[panelIndex];
+    for (var key in val) {
+      var question = panel.getQuestionByValueName(key);
+      if (!question) {
+        question = this.getSharedQuestionFromArray(key, panelIndex);
+      }
+      if (!!question) {
+        val[key] = question.getDisplayValue(keysAsText);
+      }
+    }
+    return val;
+  }
+
   private hasErrorInPanels(fireCallback: boolean): boolean {
     var res = false;
     var panels = this.panels;

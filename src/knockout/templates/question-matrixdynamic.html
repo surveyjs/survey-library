@@ -43,7 +43,7 @@
           <!-- ko if:question.hasFooter -->
           <tfoot>
             <tr>
-                <!-- ko if: question.hasRowText --><td></td><!-- /ko -->
+                <!-- ko if: question.hasRowText --><td><!-- ko template: { name: 'survey-string', data: question.locTotalText } --><!-- /ko --></td><!-- /ko -->
                 <!-- ko foreach: question.visibleTotalRow.cells-->
                   <td>
                     <!-- ko if: $data.question -->
@@ -69,7 +69,7 @@
                           <th><!-- ko template: { name: 'survey-string', data: row.locText } --><!-- /ko --></th>
                       <!-- /ko -->
                       <!-- ko if:question.hasFooter -->
-                      <th></th>
+                      <th><!-- ko template: { name: 'survey-string', data: question.locTotalText } --><!-- /ko --></th>
                       <!-- /ko -->
                   </tr>
               </thead>

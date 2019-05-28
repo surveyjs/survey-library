@@ -327,6 +327,34 @@ QUnit.skip("Use value of checkbox question as an array", function(assert) {
   question.value.push("One");
   assert.deepEqual(question.value, ["One"], "convert value to array");
 });
+QUnit.test("Assign the same empty value", function(assert) {
+  var count = 0;
+  var question = new QuestionCheckboxModel("checkboxQuestion");
+  assert.deepEqual(question.value, [], "convert value to array");
+
+  question.valueChangedCallback = function() {
+    count++;
+  };
+
+  question.value = undefined;
+  assert.equal(count, 0, "valueChangedCallback doesn't trigger with undefined");
+
+  question.value = [];
+  assert.equal(
+    count,
+    0,
+    "valueChangedCallback doesn't trigger with empty array"
+  );
+
+  question.value = [1];
+  assert.equal(count, 1, "valueChangedCallback triggers");
+
+  question.value = [1];
+  assert.equal(count, 1, "array the same");
+
+  question.value = [1, 2];
+  assert.equal(count, 2, "valueChangedCallback triggers");
+});
 QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

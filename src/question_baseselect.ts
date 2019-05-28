@@ -237,6 +237,7 @@ export class QuestionSelectBase extends Question {
     this.value = this.rendredValueToData(val);
   }
   protected setQuestionValue(newValue: any) {
+    if (Helpers.isTwoValueEquals(this.value, newValue)) return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (!this.isOtherSelected && !!this.comment) {

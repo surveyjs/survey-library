@@ -70,6 +70,7 @@ export class ChoicesRestfull extends Base {
     items: Array<ItemValue>,
     serverResult: any
   ) => Array<ItemValue>;
+  public getItemValueCallback: (item: any) => any;
   public error: SurveyError = null;
   public owner: IQuestion;
   constructor() {
@@ -155,7 +156,7 @@ export class ChoicesRestfull extends Base {
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     var self = this;
-    xhr.onload = function() {
+    xhr.onload = function () {
       self.isRunningValue = false;
       if (xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response));
@@ -283,7 +284,7 @@ export class ChoicesRestfull extends Base {
       for (var i = 0; i < updatedResult.length; i++) {
         var itemValue = updatedResult[i];
         if (!itemValue) continue;
-        var value = this.getValue(itemValue);
+        var value = !!this.getItemValueCallback ? this.getItemValueCallback(itemValue) : this.getValue(itemValue);
         var title = this.getTitle(itemValue);
         var item = new ItemValue(value, title);
         this.setCustomProperties(item, itemValue);
@@ -386,7 +387,7 @@ JsonObject.metaData.addClass(
     "titleName",
     { name: "allowEmptyResponse:boolean", default: false }
   ],
-  function() {
+  function () {
     return new ChoicesRestfull();
   }
 );

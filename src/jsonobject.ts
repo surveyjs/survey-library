@@ -462,6 +462,17 @@ export class JsonMetadata {
     }
     return metaDataClass;
   }
+  public removeClass(name: string) {
+    var metaClass = this.findClass(name);
+    if (!metaClass) return;
+    delete this.classes[metaClass.name];
+    if (!!metaClass.parentName) {
+      var index = this.childrenClasses[metaClass.parentName].indexOf(metaClass);
+      if (index > -1) {
+        this.childrenClasses[metaClass.parentName].splice(index, 1);
+      }
+    }
+  }
   public overrideClassCreatore(name: string, creator: () => any) {
     this.overrideClassCreator(name, creator);
   }

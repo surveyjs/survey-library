@@ -1815,3 +1815,25 @@ QUnit.test("property.baseValue", function(assert) {
   Serializer.removeProperty("questionbase", "newChoices1");
   Serializer.removeProperty("questionbase", "newChoices2");
 });
+
+QUnit.test("Remove class", function(assert) {
+  assert.ok(Serializer.findClass("big"), "Class is here");
+  var classes = [];
+  Serializer.getChildrenClasses("car", false).forEach(item => {
+    classes.push(item.name);
+  });
+  assert.ok(classes.indexOf("big") > -1, "big is in children car classes");
+
+  Serializer.removeClass("big");
+  assert.notOk(Serializer.findClass("big"), "Class is not here");
+  classes = [];
+  Serializer.getChildrenClasses("car", false).forEach(item => {
+    classes.push(item.name);
+  });
+  assert.notOk(
+    classes.indexOf("big") > -1,
+    "big is not in children car classes"
+  );
+
+  Serializer.addClass("big", [], null, "car");
+});

@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import {
   IPage,
@@ -368,7 +368,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "page",
   [
     {

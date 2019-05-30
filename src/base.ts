@@ -1,7 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
-import { Hash } from "crypto";
 
 export interface ISurveyData {
   getValue(name: string): any;

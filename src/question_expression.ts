@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
@@ -327,7 +327,7 @@ export function getCurrecyCodes(): Array<string> {
   ];
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "expression",
   [
     "expression:expression",

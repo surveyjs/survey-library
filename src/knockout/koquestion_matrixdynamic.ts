@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionMatrixBaseImplementor } from "./koquestion_matrixdropdown";
@@ -54,7 +54,7 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("matrixdynamic", function() {
+Serializer.overrideClassCreator("matrixdynamic", function() {
   return new QuestionMatrixDynamic("");
 });
 

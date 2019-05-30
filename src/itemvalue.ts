@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject, JsonObjectProperty } from "./jsonobject";
+import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
@@ -55,7 +55,7 @@ export class ItemValue extends Base {
       var value = values[i];
       var item;
       if (typeof value.getType === "function") {
-        item = JsonObject.metaData.createClass(value.getType());
+        item = Serializer.createClass(value.getType());
       } else {
         item = new ItemValue(null);
       }
@@ -244,9 +244,9 @@ export class ItemValue extends Base {
   }
   public toJSON(): any {
     var res = {};
-    var properties = JsonObject.metaData.getProperties(this.getType());
+    var properties = Serializer.getProperties(this.getType());
     if (!properties || properties.length == 0) {
-      properties = JsonObject.metaData.getProperties("itemvalue");
+      properties = Serializer.getProperties("itemvalue");
     }
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
@@ -326,7 +326,7 @@ JsonObjectProperty.getItemValuesDefaultValue = function(val: any): any {
   return res;
 };
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "itemvalue",
   [
     "value",

@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { Helpers } from "./helpers";
@@ -283,7 +283,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val) return val;
     if (!Array.isArray(val)) return [super.valueFromData(val)];
     let value = [];
-    for(let i = 0; i < val.length; i++) {
+    for (let i = 0; i < val.length; i++) {
       let choiceitem = ItemValue.getItemByValue(this.choices, val[i]);
       if (!!choiceitem) {
         value.push(choiceitem.value);
@@ -328,7 +328,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return "checkbox";
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "checkbox",
   [
     "hasSelectAll:boolean",

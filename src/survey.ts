@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonMetadata } from "./jsonobject";
+import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import {
   Base,
   ISurvey,
@@ -22,7 +22,6 @@ import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
-import { JsonError } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -2028,7 +2027,7 @@ export class SurveyModel extends Base
     single.setSurveyImpl(this);
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
-      var panel = JsonObject.metaData.createClass("panel");
+      var panel = Serializer.createClass("panel");
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
@@ -3722,7 +3721,7 @@ export class SurveyModel extends Base
   }
 }
 
-JsonObject.metaData.addClass("survey", [
+Serializer.addClass("survey", [
   {
     name: "locale",
     choices: () => {

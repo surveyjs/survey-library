@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable } from "./helpers";
 import {
   Base,
@@ -1354,7 +1354,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panelbase",
   [
     "name",
@@ -1381,7 +1381,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panel",
   [
     {

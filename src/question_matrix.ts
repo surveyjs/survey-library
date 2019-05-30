@@ -1,7 +1,7 @@
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import { SurveyError } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { RequiredInAllRowsError } from "./error";
@@ -452,10 +452,10 @@ export class QuestionMatrixModel
   protected getFirstInputElementId(): string {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
-    if(rows.length > 0 && this.visibleColumns.length > 0) {
-      return this.inputId + '_' + rows[0].name + '_' + 0;
+    if (rows.length > 0 && this.visibleColumns.length > 0) {
+      return this.inputId + "_" + rows[0].name + "_" + 0;
     }
-    return super.getFirstInputElementId();;
+    return super.getFirstInputElementId();
   }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
@@ -475,7 +475,7 @@ export class QuestionMatrixModel
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrix",
   [
     {

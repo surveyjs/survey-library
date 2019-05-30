@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionRadiogroupModel } from "../question_radiogroup";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 
@@ -20,7 +20,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("radiogroup", function() {
+Serializer.overrideClassCreator("radiogroup", function() {
   return new QuestionRadiogroup("");
 });
 

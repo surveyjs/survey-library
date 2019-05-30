@@ -20,7 +20,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionBooleanModel } from "../src/question_boolean";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionNonValue } from "../src/questionnonvalue";
@@ -155,14 +155,14 @@ QUnit.test("Keep comment if question value is null", function(assert) {
   );
 });
 QUnit.test("set choices from another question", function(assert) {
-  JsonObject.metaData.addProperty("itemvalue", "price");
+  Serializer.addProperty("itemvalue", "price");
   var q1 = new QuestionSelectBase("q1");
   q1.choices = [{ value: 1, text: "One", price: 4 }, "Two", "Three"];
   var q2 = new QuestionSelectBase("q2");
   q2.choices = q1.choices;
   assert.equal(q2.choices.length, 3, "all three were copied");
   assert.equal(q2.choices[0]["price"], 4, "additional data is copied");
-  JsonObject.metaData.removeProperty("itemvalue", "price");
+  Serializer.removeProperty("itemvalue", "price");
 });
 QUnit.test("visibleChoices changes on setting others to true/false", function(
   assert

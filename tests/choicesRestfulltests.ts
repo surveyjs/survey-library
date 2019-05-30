@@ -12,7 +12,7 @@ import {
   MatrixDropdownColumn
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 
 export default QUnit.module("choicesRestfull");
 
@@ -91,7 +91,7 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "dropdownrestfulltester",
   [],
   function() {
@@ -159,7 +159,7 @@ class QuestionDropdownImageTester extends QuestionDropdownModel {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "dropdown_image",
   [],
   function() {
@@ -167,13 +167,13 @@ JsonObject.metaData.addClass(
   },
   "dropdown"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imageitemvalues_choicesrest",
   ["alpha3_code", "customProperty"],
   null,
   "itemvalue"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imagepicker_choicesrest",
   [
     {
@@ -578,7 +578,7 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
   var test = new ChoicesRestfullTester();
   test.noCaching = true;
   var items = [];
-  JsonObject.metaData.addProperty("itemvalue", "alpha2_code");
+  Serializer.addProperty("itemvalue", "alpha2_code");
   test.getResultCallback = function(res: Array<ItemValue>) {
     items = res;
   };
@@ -588,13 +588,13 @@ QUnit.test("Load countries, custom properties, #615", function(assert) {
   assert.equal(items.length, 5, "there are 5 countries");
   assert.equal(items[0]["alpha2_code"], "AF", "the first alpha2_code is AF");
   assert.equal(items[4]["alpha2_code"], "AS", "the fifth alpha2_code is AS");
-  JsonObject.metaData.removeProperty("itemvalue", "alpha2_code");
+  Serializer.removeProperty("itemvalue", "alpha2_code");
 });
 
 QUnit.test("Load countries, custom itemvalue class", function(assert) {
-  JsonObject.metaData.addProperty("itemvalue", "alpha3_code");
-  JsonObject.metaData.addProperty("itemvalue", "customProperty");
-  var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+  Serializer.addProperty("itemvalue", "alpha3_code");
+  Serializer.addProperty("itemvalue", "customProperty");
+  var question = <QuestionDropdownImageTester>Serializer.createClass(
     "imagepicker_choicesrest"
   );
   question.choicesByUrl.url = "allcountries";
@@ -613,14 +613,14 @@ QUnit.test("Load countries, custom itemvalue class", function(assert) {
     "AF",
     "Custom property is set via propertyName is set"
   );
-  JsonObject.metaData.removeProperty("itemvalue", "customProperty");
-  JsonObject.metaData.removeProperty("itemvalue", "alpha3_code");
+  Serializer.removeProperty("itemvalue", "customProperty");
+  Serializer.removeProperty("itemvalue", "alpha3_code");
 });
 
 QUnit.test(
   "choicesByUrl + custom itemvalue class, save/load to/from json",
   function(assert) {
-    var question = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+    var question = <QuestionDropdownImageTester>Serializer.createClass(
       "imagepicker_choicesrest"
     );
     question.choicesByUrl.url = "allcountries";
@@ -642,7 +642,7 @@ QUnit.test(
       "choicesByUrl + custom itemvalue class restore correctly"
     );
 
-    var loadedQuestion = <QuestionDropdownImageTester>JsonObject.metaData.createClass(
+    var loadedQuestion = <QuestionDropdownImageTester>Serializer.createClass(
       "imagepicker_choicesrest"
     );
     new JsonObject().toObject(json, loadedQuestion);

@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionFileModel } from "../question_file";
 import { QuestionImplementor } from "./koquestion";
@@ -62,7 +62,7 @@ export class QuestionFile extends QuestionFileModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("file", function() {
+Serializer.overrideClassCreator("file", function() {
   return new QuestionFile("");
 });
 QuestionFactory.Instance.registerQuestion("file", name => {

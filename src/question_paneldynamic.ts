@@ -16,7 +16,7 @@ import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { Question, IConditionObject } from "./question";
 import { PanelModel } from "./panel";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 
@@ -227,10 +227,7 @@ export class QuestionPanelDynamicModel extends Question
   private onTemplateElementPropertyChanged(element: any, options: any) {
     if (this.isLoadingFromJson || this.isDesignMode || this.panels.length == 0)
       return;
-    var property = JsonObject.metaData.findProperty(
-      element.getType(),
-      options.name
-    );
+    var property = Serializer.findProperty(element.getType(), options.name);
     if (!property) return;
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
@@ -1426,7 +1423,7 @@ export class QuestionPanelDynamicModel extends Question
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "paneldynamic",
   [
     { name: "templateElements", alternativeName: "questions", visible: false },

@@ -1,5 +1,5 @@
 import { QuestionTextModel } from "../question_text";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 
@@ -10,7 +10,7 @@ export class QuestionText extends QuestionTextModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("text", function() {
+Serializer.overrideClassCreator("text", function() {
   return new QuestionText("");
 });
 

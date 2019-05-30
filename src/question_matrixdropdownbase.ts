@@ -1,7 +1,8 @@
 import {
   JsonObject,
   CustomPropertiesCollection,
-  JsonObjectProperty
+  JsonObjectProperty,
+  Serializer
 } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question } from "./question";
@@ -475,7 +476,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     });
   }
   protected createNewQuestion(cellType: string): Question {
-    var question = <Question>JsonObject.metaData.createClass(cellType);
+    var question = <Question>Serializer.createClass(cellType);
     this.setQuestionProperties(question);
     return question;
   }
@@ -501,7 +502,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   private getProperties(curCellType: string): Array<JsonObjectProperty> {
     var qDef = (<any>matrixDropdownColumnTypes)[curCellType];
     if (!qDef || !qDef.properties) return [];
-    return JsonObject.metaData.findProperties(curCellType, qDef.properties);
+    return Serializer.findProperties(curCellType, qDef.properties);
   }
   private removeProperties(curCellType: string) {
     var properties = this.getProperties(curCellType);
@@ -601,7 +602,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     row: MatrixDropdownRowModelBase,
     data: IMatrixDropdownData
   ): Question {
-    var res = <Question>JsonObject.metaData.createClass("expression");
+    var res = <Question>Serializer.createClass("expression");
     res.setSurveyImpl(row);
     return res;
   }
@@ -1665,7 +1666,7 @@ export class QuestionMatrixDropdownModelBase
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixdropdowncolumn",
   [
     "!name",
@@ -1723,7 +1724,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixdropdownbase",
   [
     {

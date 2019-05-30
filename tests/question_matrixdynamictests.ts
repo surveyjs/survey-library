@@ -5,11 +5,10 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdownbase";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
-import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1037,10 +1036,7 @@ QUnit.test("MatrixDropdownColumn add/remove serialization properties", function(
   );
 });
 QUnit.test("MatrixDropdownColumn cellType property, choices", function(assert) {
-  var prop = JsonObject.metaData.findProperty(
-    "matrixdropdowncolumn",
-    "cellType"
-  );
+  var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
   assert.ok(prop, "Property is here");
   assert.equal(prop.choices.length, 8, "There are 8 cell types by default");
   assert.equal(prop.choices[0], "default", "The first value is default");

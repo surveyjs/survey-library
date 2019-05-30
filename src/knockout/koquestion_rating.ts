@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { QuestionImplementor } from "./koquestion";
 import { QuestionRatingModel } from "../question_rating";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 
@@ -42,7 +42,7 @@ export class QuestionRating extends QuestionRatingModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("rating", function() {
+Serializer.overrideClassCreator("rating", function() {
   return new QuestionRating("");
 });
 

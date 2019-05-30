@@ -3,12 +3,11 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData
 } from "./question_matrixdropdownbase";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IConditionObject } from "./question";
-import { Helpers } from "./helpers";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -170,7 +169,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixdropdown",
   [
     {

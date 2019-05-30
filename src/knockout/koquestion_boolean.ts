@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionBooleanModel } from "../question_boolean";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
@@ -23,7 +23,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("boolean", function() {
+Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });
 

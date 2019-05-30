@@ -6,7 +6,7 @@ import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase
 } from "../question_matrixdropdownbase";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 import { QuestionImplementor } from "./koquestion";
@@ -149,7 +149,7 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("matrixdropdown", function() {
+Serializer.overrideClassCreator("matrixdropdown", function() {
   return new QuestionMatrixDropdown("");
 });
 

@@ -5,7 +5,7 @@ import {
   IMatrixData
 } from "../question_matrix";
 import { QuestionImplementor } from "./koquestion";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { ItemValue } from "../itemvalue";
 import { Helpers } from "../helpers";
@@ -77,7 +77,7 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("matrix", function() {
+Serializer.overrideClassCreator("matrix", function() {
   return new QuestionMatrix("");
 });
 QuestionFactory.Instance.registerQuestion("matrix", name => {

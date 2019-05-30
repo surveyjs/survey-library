@@ -1261,10 +1261,10 @@ export class QuestionMatrixDropdownModelBase
     if (this.hasTotal) {
       if (!this.generatedTotalRow) {
         this.generatedTotalRow = this.generateTotalRow();
-      }
-      if (this.data) {
-        var properties = { survey: this.survey };
-        this.runTotalsCondition(this.data.getAllValues(), properties);
+        if (this.data) {
+          var properties = { survey: this.survey };
+          this.runTotalsCondition(this.data.getAllValues(), properties);
+        }
       }
     } else {
       this.generatedTotalRow = null;

@@ -48,7 +48,9 @@ SurveyModel.platform = "angular";
         break;
       }
     }
-    // var elem = templateElementRoot.getElementById(template);
+    if (!elem) {
+      elem = templateDocument.getElementById(template);
+    }
     if (!elem) {
       throw new Error("Cannot find template with ID " + template);
     }

@@ -1258,14 +1258,16 @@ export class QuestionMatrixDropdownModelBase
   }
   protected getVisibleTotalRow(): MatrixDropdownRowModelBase {
     if (this.isLoadingFromJson) return null;
-    if (!this.generatedTotalRow && this.hasTotal) {
-      this.generatedTotalRow = this.generateTotalRow();
+    if (this.hasTotal) {
+      if (!this.generatedTotalRow) {
+        this.generatedTotalRow = this.generateTotalRow();
+      }
       if (this.data) {
         var properties = { survey: this.survey };
         this.runTotalsCondition(this.data.getAllValues(), properties);
       }
     } else {
-      this.generateTotalRow = null;
+      this.generatedTotalRow = null;
     }
     return this.generatedTotalRow;
   }

@@ -264,8 +264,9 @@ export class Survey extends SurveyModel {
     this.koTimerInfoText(this.timerInfoText);
   }
   private createTemplates() {
-    if (!document.getElementById("survey-content")) {
+    if (!document.getElementById("survey-content-" + SurveyModel.platform)) {
       var templates = document.createElement("div");
+      templates.id = "survey-content-" + SurveyModel.platform;
       templates.style.display = "none";
       templates.innerHTML = this.getHtmlTemplate();
       document.body.appendChild(templates);

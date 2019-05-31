@@ -722,3 +722,15 @@ QUnit.test("Test binary operator allof", function(assert) {
   values = { value: ["c", "d"] };
   assert.equal(runner.run(values), false, "['c', 'd'] allof ['a', 'b']");
 });
+
+QUnit.test("Compare object with string", function(assert) {
+  var runner = new ConditionRunner("{value} = '1'");
+  var values: any = { value: 1 };
+  assert.equal(runner.run(values), true, "1 = '1'");
+});
+
+QUnit.test("Compare undefined object with string", function(assert) {
+  var runner = new ConditionRunner("{value} = 'undefined'");
+  var values: any = {};
+  assert.equal(runner.run(values), true, "undefined = 'undefined'");
+});

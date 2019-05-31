@@ -67,6 +67,8 @@ export class Helpers {
       return true;
     if (Array.isArray(y) && y.length === 0 && typeof x === "undefined")
       return true;
+    if ((x === undefined || x === null) && y === "undefined") return true;
+    if ((y === undefined || y === null) && x === "undefined") return true;
 
     if ((x && !y) || (!x && y)) return false;
     if (!(x instanceof Object) && !(y instanceof Object)) return x == y;

@@ -98,7 +98,11 @@ export class QuestionImplementor extends ImplementorBase {
     if (tEl.nodeName === "#text") tEl.data = "";
     tEl = elements[elements.length - 1];
     if (tEl.nodeName === "#text") tEl.data = "";
-    if (el && this.question.customWidget)
+    if (el && this.question.customWidget) {
       this.question.customWidget.afterRender(this.question, el);
+      ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
+        this.question.customWidget.willUnmount(this.question, el);
+      });
+    }
   }
 }

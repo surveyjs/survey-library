@@ -98,6 +98,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var cell = <MatrixDropdownCell>con;
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
+      ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
+        cell.question.customWidget.willUnmount(cell.question, el);
+      });
     }
     var options = {
       cell: cell,

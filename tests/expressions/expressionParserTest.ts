@@ -734,12 +734,11 @@ QUnit.test("Compare undefined object with string", function(assert) {
   var values: any = {};
   assert.equal(runner.run(values), true, "undefined = 'undefined'");
 });
-/*
-QUnit.test("Apostroph in value name", function(assert) {
-  var runner = new ConditionRunner("{a'b} = 1");
-  var values: any = { "a'b": 1 };
+
+QUnit.test("Support apostrophes in value name", function(assert) {
+  var runner = new ConditionRunner("{a'b\"c} = 1");
+  var values: any = { "a'b\"c": 1 };
   assert.equal(runner.run(values), true, "1 = 1");
-  values = { "a'b": 2 };
+  values = { "a'b\"c": 2 };
   assert.equal(runner.run(values), false, "2 = 1");
 });
-*/

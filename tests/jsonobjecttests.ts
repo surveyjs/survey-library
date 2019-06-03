@@ -180,13 +180,16 @@ class LongNamesOwner {
 }
 
 class NonCreatingObject {
-  public A: number;
+  constructor(public A: number = 0) {}
   public getType(): string {
     return "shouldnotcreate";
   }
 }
 class CreatingObject extends NonCreatingObject {
   public B: number;
+  constructor(public A: number = 0) {
+    super(A);
+  }
   public getType(): string {
     return "shouldcreate";
   }
@@ -326,7 +329,7 @@ Serializer.addClass("shouldnotcreate", ["A"], function() {
 });
 Serializer.addClass("container", [
   { name: "obj", className: "shouldnotcreate" },
-  { name: "items", className: "shouldnotcreate" }
+  { name: "items", className: "shouldnotcreate", isLightSerializable: false }
 ]);
 Serializer.overrideClassCreator("shouldnotcreate", function() {
   return new CreatingObject();
@@ -988,6 +991,18 @@ QUnit.test("Create inherited class instead of origional", function(assert) {
     "created the right class in property"
   );
 });
+
+QUnit.test("Optionally do not save all properties", function(assert) {
+  var container = new CreatingObjectContainer();
+  container.items.push(new NonCreatingObject(10));
+  container.items.push(new NonCreatingObject(20));
+  container.obj = new NonCreatingObject(30);
+  var jsonObj = new JsonObject();
+  jsonObj.lightSerializing = true;
+  var json = jsonObj.toJsonObject(container, false);
+  assert.deepEqual(json, { obj: { A: 30 } }, "Do not serialize items");
+});
+
 QUnit.test("toJsonObject should create new instance of objects", function(
   assert
 ) {

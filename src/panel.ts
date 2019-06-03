@@ -22,7 +22,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
-import { timingSafeEqual } from "crypto";
 import { PageModel } from "./page";
 
 export class DragDropInfo {
@@ -1362,7 +1361,8 @@ Serializer.addClass(
       name: "elements",
       alternativeName: "questions",
       baseClassName: "question",
-      visible: false
+      visible: false,
+      isLightSerializable: false
     },
     { name: "visible:boolean", default: true },
     "visibleIf:condition",

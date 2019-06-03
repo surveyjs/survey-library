@@ -1426,7 +1426,12 @@ export class QuestionPanelDynamicModel extends Question
 Serializer.addClass(
   "paneldynamic",
   [
-    { name: "templateElements", alternativeName: "questions", visible: false },
+    {
+      name: "templateElements",
+      alternativeName: "questions",
+      visible: false,
+      isLightSerializable: false
+    },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
     {
       name: "templateDescription:text",

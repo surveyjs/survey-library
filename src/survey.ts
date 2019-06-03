@@ -3751,6 +3751,7 @@ Serializer.addClass("survey", [
     alternativeName: "elements",
     baseClassName: "question",
     visible: false,
+    isLightSerializable: false,
     onGetValue: function(obj: any): any {
       return null;
     },

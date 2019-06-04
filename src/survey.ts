@@ -1799,6 +1799,19 @@ export class SurveyModel extends Base
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
+    if (this.progressBarType === "questions") {
+      var questions = this.getAllQuestions();
+      var answeredQuestionsCount = questions.reduce(
+        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
+        0
+      );
+      return Math.ceil(answeredQuestionsCount * 100 / questions.length);
+    }
+    if (this.progressBarType === "correctQuestions") {
+      var questions = this.getAllQuestions();
+      var correctAnswersCount = this.getCorrectedAnswerCount();
+      return Math.ceil(correctAnswersCount * 100 / questions.length);
+    }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
     return Math.ceil(index * 100 / this.visiblePageCount);
   }
@@ -2238,7 +2251,7 @@ export class SurveyModel extends Base
     }
     if (this.progressBarType === "correctQuestions") {
       var questions = this.getAllQuestions();
-      var correctAnswersCount = this.getCorrectedAnswerCount;
+      var correctAnswersCount = this.getCorrectedAnswerCount();
       return this.getLocString("questionsProgressText")["format"](
         correctAnswersCount,
         questions.length

@@ -41,7 +41,8 @@ export class StylesManager {
     ".sv_qstn .radio label": "justify-content: left; display: inline-block;",
     ".sv_qstn .sv_q_imgsel > label img": "pointer-events: none;",
     ".sv_qstn .sv_q_imgsel.sv_q_imagepicker_inline": "display: inline-block;",
-    ".sv_qstn label.sv_q_m_label": "position: absolute; margin: 0; display: block; width: 100%;",
+    ".sv_qstn label.sv_q_m_label":
+      "position: absolute; margin: 0; display: block; width: 100%;",
     ".sv_qstn td": "position: relative;",
     ".sv_q_mt_item_value": "float: left;",
     ".sv_qstn.sv_qstn_left": "margin-top: 0.75em;",
@@ -102,7 +103,9 @@ export class StylesManager {
     ".sv_qstn table tr td .sv_q_m_cell_label":
       "position: absolute; left: 0; right: 0; top: 0; bottom: 0;",
 
-    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;"
+    "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;",
+
+    ".sv_progress_bar > span": "white-space: nowrap;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -336,7 +339,8 @@ export class StylesManager {
     ".sv_default_css .sv_q_dropdown_control:focus":
       "border-color: $main-color;",
     ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type=\"radio\"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type=\"checkbox\"]:focus": "outline: 1px dotted $main-color;",
+    '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
+      "outline: 1px dotted $main-color;",
     ".sv_default_css select:focus": "border-color: $main-color;",
     ".sv_default_css textarea:focus": "border-color: $main-color;",
 
@@ -385,7 +389,8 @@ export class StylesManager {
     ".sv_main.sv_bootstrapmaterial_css .form-group.is-focused label":
       "color:$main-color;",
 
-    ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label": "height: 100%;",
+    ".sv_main.sv_bootstrapmaterial_css .sv_qstn label.sv_q_m_label":
+      "height: 100%;",
 
     ".sv_main.sv_bootstrapmaterial_css .checkbox input[type=checkbox]:checked + .checkbox-material .check":
       "border-color: $main-color;",
@@ -519,11 +524,11 @@ export class StylesManager {
       Object.keys(StylesManager.Media).forEach(selector => {
         sheet.insertRule(
           StylesManager.Media[selector].media +
-          " { " +
-          selector +
-          " { " +
-          StylesManager.Media[selector].style +
-          " } }",
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
           0
         );
       });

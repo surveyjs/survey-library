@@ -1375,6 +1375,15 @@ export class SurveyModel extends Base
   public set showProgressBar(newValue: string) {
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
+  /**
+   * Type of info in the progress bar: "pages" (default), "questions" or "correctQuestions".
+   */
+  public get progressBarType(): string {
+    return this.getPropertyValue("progressBarType", "pages");
+  }
+  public set progressBarType(newValue: string) {
+    this.setPropertyValue("progressBarType", newValue.toLowerCase());
+  }
   public get isShowProgressBarOnTop(): boolean {
     return this.showProgressBar === "top" || this.showProgressBar === "both";
   }
@@ -2216,6 +2225,25 @@ export class SurveyModel extends Base
    */
   public get progressText(): string {
     if (this.currentPage == null) return "";
+    if (this.progressBarType === "questions") {
+      var questions = this.getAllQuestions();
+      var answeredQuestionsCount = questions.reduce(
+        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
+        0
+      );
+      return this.getLocString("questionsProgressText")["format"](
+        answeredQuestionsCount,
+        questions.length
+      );
+    }
+    if (this.progressBarType === "correctQuestions") {
+      var questions = this.getAllQuestions();
+      var correctAnswersCount = this.getCorrectedAnswerCount;
+      return this.getLocString("questionsProgressText")["format"](
+        correctAnswersCount,
+        questions.length
+      );
+    }
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
@@ -3799,6 +3827,11 @@ Serializer.addClass("survey", [
     name: "showProgressBar",
     default: "off",
     choices: ["off", "top", "bottom", "both"]
+  },
+  {
+    name: "progressBarType",
+    default: "pages",
+    choices: ["pages", "questions", "correctQuestions"]
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-comment">
   <!-- ko ifnot: question.isReadOnly -->
-  <textarea type="text" data-bind="value: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml}"></textarea>
+  <textarea type="text" data-bind="value: $data.question.comment, visible: $data.visible, css: question.koCss().other, attr: {maxLength: question.getOthersMaxLength(), 'aria-label': !!question.locTitle && question.locTitle.renderedHtml, placeholder: question.placeHolder}"></textarea>
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->
   <div data-bind="text: $data.question.comment, visible: $data.visible, css: question.koCss().other"></div>

@@ -64,6 +64,7 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
+    this.createLocalizableString("placeHolder", this);
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -352,6 +353,18 @@ export class QuestionSelectBase extends Question {
   }
   get locOtherText(): LocalizableString {
     return this.getLocalizableString("otherText");
+  }
+  /**
+   *  Use this property to set the place holder text for other or comment field  .
+   */
+  public get placeHolder(): string {
+    return this.getLocalizableStringText("placeHolder");
+  }
+  public set placeHolder(val: string) {
+    this.setLocalizableStringText("placeHolder", val);
+  }
+  get locPlaceHolder(): LocalizableString {
+    return this.getLocalizableString("placeHolder");
   }
   /**
    * The text that shows when the other item is choosed by the other input is empty.
@@ -695,6 +708,7 @@ JsonObject.metaData.addClass(
       layout: "row"
     },
     "hasOther:boolean",
+    { name: "placeHolder", serializationProperty: "locPlaceHolder" },
     {
       name: "choices:itemvalue[]",
       baseValue: function() {

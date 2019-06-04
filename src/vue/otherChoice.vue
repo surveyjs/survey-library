@@ -5,6 +5,7 @@
       :class="question.cssClasses.other || commentClass"
       v-model="question.comment"
       :maxlength="question.getOthersMaxLength()"
+      :placeholder="question.placeHolder"
       v-bind:aria-label="question.locTitle.renderedHtml"
     />
     <div v-else :class="question.cssClasses.other">{{question.comment}}</div>

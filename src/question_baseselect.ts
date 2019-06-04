@@ -550,6 +550,7 @@ export class QuestionSelectBase extends Question {
       ItemValue.setData(newChoices, array);
     }
     this.choicesFromUrl = newChoices;
+    this.filterItems();
     this.onVisibleChoicesChanged();
     if (newChoices) {
       var newValue = this.updateCachedValueForUrlRequests(cachedValues);

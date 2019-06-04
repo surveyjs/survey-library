@@ -100,7 +100,7 @@ UnFunctions
 Atom 
   = _ ("undefined" / "null") { return null; }
   / _ value:ConstValue       { return new Const(value); }
-  / _ "{" value:AnyInput "}" { return new Variable(value); }
+  / _ "{" value:ValueInput "}" { return new Variable(value); }
 
 ConstValue
   = LogicValue
@@ -141,6 +141,9 @@ Number
   / NonZeroDigits Digits? { return parseInt(text(), 10); }
   / "0"                   { return 0; }
 
+ValueInput
+  = chars:ValueCharacters+ { return chars.join(""); }
+
 AnyInput
   = chars:AnyCharacters+ { return chars.join(""); }
 
@@ -148,6 +151,9 @@ AnyCharacters
   = "\\'"       { return "'"; }
   / "\\\""      { return "\""; }
   / [^\"\'\{\}] { return text(); }
+
+ValueCharacters
+  = [^\{\}] { return text(); }
 
 LettersAndDigits
   = Letters (Digits Letters*)* { return text(); }

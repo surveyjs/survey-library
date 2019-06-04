@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { HashTable } from "./helpers";
 import {
   Base,
@@ -22,7 +22,6 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
-import { timingSafeEqual } from "crypto";
 import { PageModel } from "./page";
 
 export class DragDropInfo {
@@ -1354,7 +1353,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panelbase",
   [
     "name",
@@ -1362,7 +1361,8 @@ JsonObject.metaData.addClass(
       name: "elements",
       alternativeName: "questions",
       baseClassName: "question",
-      visible: false
+      visible: false,
+      isLightSerializable: false
     },
     { name: "visible:boolean", default: true },
     "visibleIf:condition",
@@ -1381,7 +1381,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "panel",
   [
     {

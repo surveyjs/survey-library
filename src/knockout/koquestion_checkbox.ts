@@ -1,10 +1,9 @@
 import * as ko from "knockout";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxModel } from "../question_checkbox";
 import { Question } from "../question";
-import { Helpers } from "../helpers";
 
 class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
   constructor(question: Question) {
@@ -57,7 +56,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("checkbox", function() {
+Serializer.overrideClassCreator("checkbox", function() {
   return new QuestionCheckbox("");
 });
 QuestionFactory.Instance.registerQuestion("checkbox", name => {

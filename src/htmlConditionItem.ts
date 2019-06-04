@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
@@ -58,7 +58,7 @@ export class HtmlConditionItem extends Base implements ILocalizableOwner {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "htmlconditionitem",
   [
     "expression:condition",

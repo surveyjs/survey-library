@@ -255,7 +255,7 @@ QUnit.test("Condition check for undefined #518", function(assert) {
 });
 
 QUnit.test("Run sum function", function(assert) {
-  var runner = new ConditionRunner("sum({var1},{var2},{var3},{var4})");
+  var runner = new ExpressionRunner("sum({var1},{var2},{var3},{var4})");
   var values = { var1: 2, var2: 3, var3: 4, var4: 5 };
   assert.equal(runner.run(values), 14, "2 + 3 + 4 + 5 == 14");
   values.var1 = 1;
@@ -464,17 +464,17 @@ QUnit.test("ExpressionOperand: brackets 2", function(assert) {
 });
 
 QUnit.test("ConditionRunner: (1+2)*3", function(assert) {
-  var runner = new ConditionRunner("(1+2)*3");
+  var runner = new ExpressionRunner("(1+2)*3");
   assert.equal(runner.run({}), 9, "(1+2)*3 is 9");
 });
 
 QUnit.test("ConditionRunner: (1+2)*(3+2) / 5", function(assert) {
-  var runner = new ConditionRunner("(1+2)*(3+2) / 5");
+  var runner = new ExpressionRunner("(1+2)*(3+2) / 5");
   assert.equal(runner.run({}), 3, "(1+2)*(3+2) / 5 is 3");
 });
 
 QUnit.test("ConditionRunner: 10 % 3", function(assert) {
-  var runner = new ConditionRunner("10 % 3");
+  var runner = new ExpressionRunner("10 % 3");
   assert.equal(runner.run({}), 1, "10 % 3 is 1");
 });
 
@@ -505,15 +505,15 @@ QUnit.test("ExpressionRunner: countInArray", function(assert) {
 });
 
 QUnit.test("ConditionRunner, iif simple", function(assert) {
-  var runner = new ConditionRunner("iif({a}, 'high', 'low')");
+  var runner = new ExpressionRunner("iif({a}, 'high', 'low')");
   var values = { a: true };
   assert.equal(runner.run(values), "high", "true");
   values.a = false;
   assert.equal(runner.run(values), "low", "false");
 });
 
-QUnit.test("ConditionRunner, iif with expression", function(assert) {
-  var runner = new ConditionRunner("iif({a} + {b} > 20, 'high', 'low')");
+QUnit.test("ExpressionRunner, iif with expression", function(assert) {
+  var runner = new ExpressionRunner("iif({a} + {b} > 20, 'high', 'low')");
   var values = { a: 10, b: 20 };
   assert.equal(runner.run(values), "high", "10 + 20 > 20");
   values.b = 5;
@@ -521,7 +521,7 @@ QUnit.test("ConditionRunner, iif with expression", function(assert) {
 });
 
 QUnit.test("ConditionRunner, iif nested using", function(assert) {
-  var runner = new ConditionRunner(
+  var runner = new ExpressionRunner(
     "iif({a} + {b} > 20, 'high', iif({a} + {b} > 10, 'medium', 'low'))"
   );
   var values = { a: 10, b: 20 };
@@ -533,7 +533,7 @@ QUnit.test("ConditionRunner, iif nested using", function(assert) {
 });
 
 QUnit.test("ConditionRunner, iif nested using 2", function(assert) {
-  var runner = new ConditionRunner(
+  var runner = new ExpressionRunner(
     "iif(({a} + {b}) > 20, ({a} * 5 + {b}), iif({a} + {b} > 10, 5*({a}+ {b}), {a}))"
   );
   var values = { a: 10, b: 20 };
@@ -560,7 +560,7 @@ QUnit.test(
     }
     FunctionFactory.Instance.register("incValue", incValue);
 
-    var runner = new ConditionRunner(
+    var runner = new ExpressionRunner(
       'incValue(iif(({REVIEW_COVER} contains "REVIEW_SM") and ({REVIEW_COVER} contains "REVIEW_GL"), ({RATES_PROPERTY_SD}+{RATES_LIABILITY_SD}+{RATES_SEXUAL_MOL_END_SD}), iif(({REVIEW_COVER} notcontains "REVIEW_SM") and ({REVIEW_COVER} contains "REVIEW_GL"), ({RATES_PROPERTY_SD}+{RATES_LIABILITY_SD}), ({RATES_PROPERTY_SD}))))'
     );
     var values = {
@@ -579,7 +579,7 @@ QUnit.test(
 );
 
 QUnit.test("ConditionRunner, ^ operator", function(assert) {
-  var runner = new ConditionRunner("{a} ^ 3 + {b} ^ 0.5");
+  var runner = new ExpressionRunner("{a} ^ 3 + {b} ^ 0.5");
   var values = { a: 10, b: 400 };
   assert.equal(runner.run(values), 1020, "10^3 + 400^0.5 = 1000 + 20");
 });
@@ -668,7 +668,7 @@ QUnit.test("contain and noncontain for strings", function(assert) {
 QUnit.test(
   "ConditionRunner: 7 * (({q1} * 0.4) + ({q2} * 0.6)), bug# 1423",
   function(assert) {
-    var runner = new ConditionRunner("7 * ((10 * 0.4) + (20 * 0.6))");
+    var runner = new ExpressionRunner("7 * ((10 * 0.4) + (20 * 0.6))");
     assert.equal(
       runner.run({}),
       7 * (4 + 12),
@@ -678,7 +678,7 @@ QUnit.test(
 );
 
 QUnit.test("0x digits", function(assert) {
-  var runner = new ConditionRunner("0x1 + 0x2 + {x}");
+  var runner = new ExpressionRunner("0x1 + 0x2 + {x}");
   var values = { x: 0x3 };
   assert.equal(runner.run(values), 6, "0x: 1 + 2 + 3 equal 6");
 });
@@ -692,7 +692,7 @@ QUnit.test("dont fault in invalid input", function(assert) {
 });
 
 QUnit.test("Get variables in expression", function(assert) {
-  var runner = new ConditionRunner(
+  var runner = new ExpressionRunner(
     "{val1} - {val2} + myFunc({val3}, {val4.prop}) < {val5} and {val6}=1"
   );
   var vars = runner.getVariables();
@@ -721,4 +721,24 @@ QUnit.test("Test binary operator allof", function(assert) {
   assert.equal(runner.run(values), true, "['a', 'b', 'c'] allof ['a', 'b']");
   values = { value: ["c", "d"] };
   assert.equal(runner.run(values), false, "['c', 'd'] allof ['a', 'b']");
+});
+
+QUnit.test("Compare object with string", function(assert) {
+  var runner = new ConditionRunner("{value} = '1'");
+  var values: any = { value: 1 };
+  assert.equal(runner.run(values), true, "1 = '1'");
+});
+
+QUnit.test("Compare undefined object with string", function(assert) {
+  var runner = new ConditionRunner("{value} = 'undefined'");
+  var values: any = {};
+  assert.equal(runner.run(values), true, "undefined = 'undefined'");
+});
+
+QUnit.test("Support apostrophes in value name", function(assert) {
+  var runner = new ConditionRunner("{a'b\"c} = 1");
+  var values: any = { "a'b\"c": 1 };
+  assert.equal(runner.run(values), true, "1 = 1");
+  values = { "a'b\"c": 2 };
+  assert.equal(runner.run(values), false, "2 = 1");
 });

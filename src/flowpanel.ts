@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { IElement, IQuestion } from "./base";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
@@ -134,7 +134,7 @@ export class FlowPanelModel extends PanelModel {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "flowpanel",
   [{ name: "content:html", serializationProperty: "locContent" }],
   function() {

@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { PageModel } from "../page";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "../panel";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { SurveyElement, IElement } from "../base";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
@@ -124,10 +124,10 @@ export class Page extends PageModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("panel", function() {
+Serializer.overrideClassCreator("panel", function() {
   return new Panel();
 });
-JsonObject.metaData.overrideClassCreator("page", function() {
+Serializer.overrideClassCreator("page", function() {
   return new Page();
 });
 

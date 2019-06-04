@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError, Event } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
@@ -225,7 +225,7 @@ export class QuestionFileModel extends Question {
     this.previewValue = [];
     var state =
       (!Array.isArray(newValue) && !!newValue) ||
-        (Array.isArray(newValue) && newValue.length > 0)
+      (Array.isArray(newValue) && newValue.length > 0)
         ? this.showPreview
           ? "loading"
           : "loaded"
@@ -323,8 +323,8 @@ export class QuestionFileModel extends Question {
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true
-      }
+      includeEmpty: true
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
@@ -345,7 +345,7 @@ export class QuestionFileModel extends Question {
     return questionPlainData;
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "file",
   [
     { name: "showPreview:boolean", default: true },
@@ -358,7 +358,7 @@ JsonObject.metaData.addClass(
     { name: "waitForUpload:boolean", default: false },
     "maxSize:number"
   ],
-  function () {
+  function() {
     return new QuestionFileModel("");
   },
   "question"

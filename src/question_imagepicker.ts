@@ -1,7 +1,6 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
-import { ItemValue } from "./itemvalue";
 
 /**
  * A Model for a select image question.
@@ -106,14 +105,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-JsonObject.metaData.addClass(
-  "imageitemvalue",
-  ["imageLink"],
-  null,
-  "itemvalue"
-);
+Serializer.addClass("imageitemvalue", ["imageLink"], null, "itemvalue");
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "imagepicker",
   [
     { name: "hasOther", visible: false },
@@ -139,20 +133,20 @@ JsonObject.metaData.addClass(
   },
   "checkboxbase"
 );
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "showLabel:boolean",
   default: false
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "colCount:number",
   default: 0,
   choices: [0, 1, 2, 3, 4, 5]
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "multiSelect:boolean",
   default: false
 });
-JsonObject.metaData.addProperty("imagepicker", {
+Serializer.addProperty("imagepicker", {
   name: "choices:imageitemvalue[]"
 });
 

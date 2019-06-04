@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
@@ -258,7 +258,7 @@ export class QuestionSelectBase extends Question {
   }
   protected valueFromData(val: any): any {
     let choiceitem = ItemValue.getItemByValue(this.choices, val);
-    if (!!choiceitem)  {
+    if (!!choiceitem) {
       return choiceitem.value;
     }
     return super.valueFromData(val);
@@ -563,6 +563,7 @@ export class QuestionSelectBase extends Question {
       ItemValue.setData(newChoices, array);
     }
     this.choicesFromUrl = newChoices;
+    this.filterItems();
     this.onVisibleChoicesChanged();
     if (newChoices) {
       var newValue = this.updateCachedValueForUrlRequests(cachedValues);
@@ -698,7 +699,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     }
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "selectbase",
   [
     { name: "hasComment:boolean", layout: "row" },
@@ -746,7 +747,7 @@ JsonObject.metaData.addClass(
   "question"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "checkboxbase",
   [
     {

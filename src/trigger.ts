@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
 import { ProcessValue } from "./conditionProcessValue";
@@ -321,13 +321,13 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   }
 }
 
-JsonObject.metaData.addClass("trigger", [
+Serializer.addClass("trigger", [
   { name: "operator", default: "equal" },
   "value",
   "expression:condition"
 ]);
-JsonObject.metaData.addClass("surveytrigger", ["name"], null, "trigger");
-JsonObject.metaData.addClass(
+Serializer.addClass("surveytrigger", ["name"], null, "trigger");
+Serializer.addClass(
   "visibletrigger",
   ["pages", "questions"],
   function() {
@@ -335,7 +335,7 @@ JsonObject.metaData.addClass(
   },
   "surveytrigger"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "completetrigger",
   [],
   function() {
@@ -343,7 +343,7 @@ JsonObject.metaData.addClass(
   },
   "surveytrigger"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "setvaluetrigger",
   ["!setToName", "setValue", "isVariable:boolean"],
   function() {
@@ -352,7 +352,7 @@ JsonObject.metaData.addClass(
   "surveytrigger"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "copyvaluetrigger",
   ["!setToName", "!fromName"],
   function() {
@@ -360,7 +360,7 @@ JsonObject.metaData.addClass(
   },
   "surveytrigger"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "runExpressiontrigger",
   ["setToName", "runExpression"],
   function() {

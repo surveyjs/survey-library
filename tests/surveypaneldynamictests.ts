@@ -4,7 +4,7 @@ import {
   QuestionPanelDynamicModel,
   QuestionPanelDynamicItem
 } from "../src/question_paneldynamic";
-import { JsonObject } from "../src/jsonobject";
+import { Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import {
   CustomWidgetCollection,

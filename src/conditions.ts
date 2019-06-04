@@ -43,7 +43,10 @@ export class ExpressionRunnerBase {
     return !!this.operand;
   }
 
-  protected runCore(values: HashTable<any>, properties: HashTable<any> = null): any {
+  protected runCore(
+    values: HashTable<any>,
+    properties: HashTable<any> = null
+  ): any {
     if (!this.operand) return null;
 
     this.processValue.values = values;
@@ -53,8 +56,11 @@ export class ExpressionRunnerBase {
 }
 
 export class ConditionRunner extends ExpressionRunnerBase {
-  public run(values: HashTable<any>, properties: HashTable<any> = null): boolean {
-    return this.runCore(values, properties);
+  public run(
+    values: HashTable<any>,
+    properties: HashTable<any> = null
+  ): boolean {
+    return this.runCore(values, properties) == true;
   }
 }
 

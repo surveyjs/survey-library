@@ -11,7 +11,7 @@ import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
-import { JsonObject } from "../src/jsonobject";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Validators");
 
@@ -147,7 +147,7 @@ export class CamelCaseValidator extends SurveyValidator {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "CamelCaseValidator",
   [],
   function() {

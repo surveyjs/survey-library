@@ -1,6 +1,6 @@
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
@@ -161,7 +161,7 @@ export class QuestionRatingModel extends Question {
     return this.getLocalizableString("maxRateDescription");
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "rating",
   [
     { name: "hasComment:boolean", layout: "row" },

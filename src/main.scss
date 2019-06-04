@@ -301,6 +301,7 @@ $base-line-height: 2em;
             position: absolute;
             top: -1.5em;
             display: inline-block;
+            white-space: nowrap;
           }
         }
       }
@@ -533,8 +534,8 @@ $base-line-height: 2em;
               }
               .sv_q_m_label {
                 position: static;
-                display:block;
-                width:100%;
+                display: block;
+                width: 100%;
               }
             }
           }

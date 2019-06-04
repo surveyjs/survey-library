@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
@@ -92,12 +92,12 @@ export class QuestionTextModel extends Question {
     }
     return newValue;
   }
-  private isNumber(value:any): boolean {
+  private isNumber(value: any): boolean {
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "text",
   [
     {

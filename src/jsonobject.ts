@@ -14,6 +14,7 @@ export class JsonObjectProperty implements IObject {
     "readOnlyValue",
     "visibleValue",
     "isSerializable",
+    "isLightSerializable",
     "isDynamicChoices",
     "isLocalizableValue",
     "className",
@@ -35,6 +36,7 @@ export class JsonObjectProperty implements IObject {
   private isLocalizableValue: boolean | null = null;
   private choicesfunc: (obj: any) => Array<any> = null;
   public isSerializable: boolean = true;
+  public isLightSerializable: boolean = true;
   public isDynamicChoices: boolean = false;
   public className: string = null;
   public alternativeName: string = null;
@@ -365,6 +367,9 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.isSerializable)) {
         prop.isSerializable = propInfo.isSerializable;
       }
+      if (!Helpers.isValueEmpty(propInfo.isLightSerializable)) {
+        prop.isLightSerializable = propInfo.isLightSerializable;
+      }
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;
       }
@@ -461,6 +466,17 @@ export class JsonMetadata {
       this.childrenClasses[parentName].push(metaDataClass);
     }
     return metaDataClass;
+  }
+  public removeClass(name: string) {
+    var metaClass = this.findClass(name);
+    if (!metaClass) return;
+    delete this.classes[metaClass.name];
+    if (!!metaClass.parentName) {
+      var index = this.childrenClasses[metaClass.parentName].indexOf(metaClass);
+      if (index > -1) {
+        this.childrenClasses[metaClass.parentName].splice(index, 1);
+      }
+    }
   }
   public overrideClassCreatore(name: string, creator: () => any) {
     this.overrideClassCreator(name, creator);
@@ -811,6 +827,7 @@ export class JsonObject {
     return JsonObject.metaDataValue;
   }
   public errors = new Array<JsonError>();
+  public lightSerializing: boolean = false;
   public toJsonObject(obj: any, storeDefaults = false): any {
     return this.toJsonObjectCore(obj, null, storeDefaults);
   }
@@ -923,7 +940,11 @@ export class JsonObject {
     property: JsonObjectProperty,
     storeDefaults = false
   ) {
-    if (property.isSerializable === false) return;
+    if (
+      property.isSerializable === false ||
+      (property.isLightSerializable === false && this.lightSerializing)
+    )
+      return;
     var value = property.getValue(obj);
     if (!storeDefaults && property.isDefaultValue(value)) return;
     if (this.isValueArray(value)) {

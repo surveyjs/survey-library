@@ -4,7 +4,7 @@ import {
   IMatrixDropdownData,
   MatrixDropdownColumn
 } from "./question_matrixdropdownbase";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
 import { Base, SurveyError } from "./base";
@@ -540,7 +540,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixdynamic",
   [
     { name: "rowsVisibleIf:condition", visible: false },

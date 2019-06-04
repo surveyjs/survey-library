@@ -76,7 +76,7 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
   survey.locale = "";
 });
 
-QUnit.test("isTwoValueEquals", function(assert) {
+QUnit.test("isTwoValueEquals, undefined", function(assert) {
   assert.equal(
     Helpers.isTwoValueEquals([], undefined),
     true,
@@ -87,6 +87,21 @@ QUnit.test("isTwoValueEquals", function(assert) {
     Helpers.isTwoValueEquals(undefined, []),
     true,
     "Undefined equals empty array"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "undefined"),
+    true,
+    "undefined vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals("undefined", null),
+    true,
+    "null vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "null vs undefined"
   );
 });
 

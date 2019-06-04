@@ -13,7 +13,7 @@ import {
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
-import { JsonObject, JsonObjectProperty } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import {
   QuestionMultipleTextModel,
@@ -325,6 +325,11 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function(
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
+
+  survey.progressBarType = "questions";
+  assert.equal(survey.progressText, "Answered 0/3 questions", "Questions progress indicator");
+  survey.getAllQuestions()[0].value = "Answer 1";
+  assert.equal(survey.progressText, "Answered 3/3 questions", "Answered 1 question - but questions with the same name");
 });
 QUnit.test("Next, Prev, Next", function(assert) {
   var survey = new SurveyModel();
@@ -2802,8 +2807,8 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function(
       return question["renderAs"] === "testwidget";
     }
   });
-  JsonObject.metaData.addProperty("matrixdropdowncolumn", "renderAs");
-  JsonObject.metaData.addProperty("dropdown", {
+  Serializer.addProperty("matrixdropdowncolumn", "renderAs");
+  Serializer.addProperty("dropdown", {
     name: "renderAs",
     default: "standard",
     choices: ["standard", "chosen"]
@@ -2834,8 +2839,8 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function(
     "the second cell has no custom widget"
   );
 
-  JsonObject.metaData.removeProperty("matrixdropdowncolumn", "renderAs");
-  JsonObject.metaData.removeProperty("dropdown", "renderAs");
+  Serializer.removeProperty("matrixdropdowncolumn", "renderAs");
+  Serializer.removeProperty("dropdown", "renderAs");
   CustomWidgetCollection.Instance.clear();
 });
 
@@ -2880,8 +2885,8 @@ QUnit.test("customWidgets camel name", function(assert) {
       return question.getType() == "camelname";
     }
   });
-  if (!JsonObject.metaData.findClass("camelName")) {
-    JsonObject.metaData.addClass("camelName", [], null, "text");
+  if (!Serializer.findClass("camelName")) {
+    Serializer.addClass("camelName", [], null, "text");
   }
 
   var survey = new SurveyModel({
@@ -3664,7 +3669,7 @@ QUnit.test("Use send data to custom server", function(assert) {
 });
 
 QUnit.test("Pass custom properties to cell question", function(assert) {
-  JsonObject.metaData.addProperty("matrixdropdowncolumn", {
+  Serializer.addProperty("matrixdropdowncolumn", {
     name: "renderAs",
     default: "default",
     choices: ["default", "select2tagbox"]
@@ -4017,7 +4022,7 @@ QUnit.test("Define questionTitleLocation on Panel/Page level", function(
 });
 
 QUnit.test("Question property.page getChoices", function(assert) {
-  var property = JsonObject.metaData.findProperty("questionbase", "page");
+  var property = Serializer.findProperty("questionbase", "page");
   assert.ok(property, "page property is here");
   var survey = new SurveyModel();
   survey.addNewPage("p1");
@@ -5529,11 +5534,11 @@ QUnit.test("getPlainData", function(assert) {
 QUnit.test(
   "custom fields in getPlainData - https://surveyjs.answerdesk.io/ticket/details/T1778",
   function(assert) {
-    JsonObject.metaData.addProperty("question", {
+    Serializer.addProperty("question", {
       name: "score:number"
     });
 
-    JsonObject.metaData.addProperty("itemvalue", {
+    Serializer.addProperty("itemvalue", {
       name: "score:number"
     });
 
@@ -5851,17 +5856,17 @@ QUnit.test(
     assert.equal(plainData[3].data[1].value, "item3");
     assert.equal(plainData[3].data[1].displayValue, "item3");
 
-    JsonObject.metaData.removeProperty("question", "score");
-    JsonObject.metaData.removeProperty("itemvalue", "score");
+    Serializer.removeProperty("question", "score");
+    Serializer.removeProperty("itemvalue", "score");
   }
 );
 
 QUnit.test("question.getPlainData - select base - single", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
 
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -5913,16 +5918,16 @@ QUnit.test("question.getPlainData - select base - single", function(assert) {
   assert.equal(plainData.data[0].score, 2);
   assert.deepEqual(plainData.data[0].value, "giraffe");
 
-  JsonObject.metaData.removeProperty("question", "score");
-  JsonObject.metaData.removeProperty("itemvalue", "score");
+  Serializer.removeProperty("question", "score");
+  Serializer.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - select base - multiple", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
 
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -5979,12 +5984,12 @@ QUnit.test("question.getPlainData - select base - multiple", function(assert) {
   assert.equal(plainData.data[1].score, 3);
   assert.deepEqual(plainData.data[1].value, "panda");
 
-  JsonObject.metaData.removeProperty("question", "score");
-  JsonObject.metaData.removeProperty("itemvalue", "score");
+  Serializer.removeProperty("question", "score");
+  Serializer.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - file", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
 
@@ -6021,14 +6026,14 @@ QUnit.test("question.getPlainData - file", function(assert) {
   assert.deepEqual(plainData.data[0].value, "data:image/x-icon;base64,A=");
   assert.deepEqual(plainData.data[0].displayValue, "favicon.ico");
 
-  JsonObject.metaData.removeProperty("question", "score");
+  Serializer.removeProperty("question", "score");
 });
 
 QUnit.test("question.getPlainData - matrix", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -6080,15 +6085,15 @@ QUnit.test("question.getPlainData - matrix", function(assert) {
   assert.deepEqual(plainData.data[1].displayValue, "Column 2");
   assert.deepEqual(plainData.data[1].score, 2);
 
-  JsonObject.metaData.removeProperty("question", "score");
-  JsonObject.metaData.removeProperty("itemvalue", "score");
+  Serializer.removeProperty("question", "score");
+  Serializer.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -6218,15 +6223,15 @@ QUnit.test("question.getPlainData - matrixdropdown", function(assert) {
   assert.equal(plainData.data[0].data[1].data[0].value, 2);
   assert.equal(plainData.data[0].data[1].data[0].displayValue, "2");
 
-  JsonObject.metaData.removeProperty("question", "score");
-  JsonObject.metaData.removeProperty("itemvalue", "score");
+  Serializer.removeProperty("question", "score");
+  Serializer.removeProperty("itemvalue", "score");
 });
 
 QUnit.test("question.getPlainData - panel dynamic", function(assert) {
-  JsonObject.metaData.addProperty("question", {
+  Serializer.addProperty("question", {
     name: "score:number"
   });
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "score:number"
   });
 
@@ -6292,18 +6297,18 @@ QUnit.test("question.getPlainData - panel dynamic", function(assert) {
   );
   assert.equal(plainData.data[0].data[0].score, 21);
 
-  JsonObject.metaData.removeProperty("question", "score");
-  JsonObject.metaData.removeProperty("itemvalue", "score");
+  Serializer.removeProperty("question", "score");
+  Serializer.removeProperty("itemvalue", "score");
 });
 
 QUnit.test(
   "getPlainData - calculate score - https://surveyjs.answerdesk.io/ticket/details/T1778",
   function(assert) {
-    JsonObject.metaData.addProperty("question", {
+    Serializer.addProperty("question", {
       name: "score:number"
     });
 
-    JsonObject.metaData.addProperty("itemvalue", {
+    Serializer.addProperty("itemvalue", {
       name: "score:number"
     });
 
@@ -6593,8 +6598,8 @@ QUnit.test(
       "overall survey score for answered questions"
     );
 
-    JsonObject.metaData.removeProperty("question", "score");
-    JsonObject.metaData.removeProperty("itemvalue", "score");
+    Serializer.removeProperty("question", "score");
+    Serializer.removeProperty("itemvalue", "score");
   }
 );
 

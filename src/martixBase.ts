@@ -1,7 +1,7 @@
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 
@@ -212,7 +212,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "matrixbase",
   [
     "columnsVisibleIf:condition",

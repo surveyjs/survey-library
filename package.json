@@ -30,8 +30,8 @@
     "watch_jquery_dev": "webpack --env.buildType dev --env.platform jquery --watch",
     "watch_vue_dev": "webpack --env.buildType dev --env.platform vue --watch"
   },
-  "version": "1.0.88",
-  "name": "surveyjs",
+  "version": "1.0.89",
+  "name": "survey-library",
   "private": true,
   "devDependencies": {
     "@types/angular": "1.6.2",

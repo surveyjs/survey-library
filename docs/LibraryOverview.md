@@ -206,7 +206,7 @@ As you see, there are not a lot of code on the client for storing the survey res
 When you are storing the data in your own database, you may do not want to store the data in the given format: _{questionName: questionValue, ... }_. For example, you may decide to additionally store the question title and it's display value. It means that you can’t just use survey.data as it is but write some code. Here is the code that change the standard format to { questionName: {value: questionValue, title: questionTitle, displayValue: questionDisplayValue, tag: question.tag}, tag is a custom property added into question class. 
 ```javascript
 //Example of adding custom numeric property into question
-//Survey.JsonObject.metaData.addProperty("question", "tag:number")
+//Survey.Serializer.addProperty("question", "tag:number")
 function modifySurveyResults(survey) {
   var resultData = [];
   for(var key in survey.data) {

@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import {
   Base,
   SurveyError,
@@ -1198,7 +1198,7 @@ export class Question extends SurveyElement
     return !!this.data ? this.data.getAllValues() : null;
   }
 }
-JsonObject.metaData.addClass("question", [
+Serializer.addClass("question", [
   "!name",
   { name: "visible:boolean", default: true },
   { name: "useDisplayValuesInTitle:boolean", default: true, layout: "row" },
@@ -1247,4 +1247,4 @@ JsonObject.metaData.addClass("question", [
     layout: "row"
   }
 ]);
-JsonObject.metaData.addAlterNativeClassName("question", "questionbase");
+Serializer.addAlterNativeClassName("question", "questionbase");

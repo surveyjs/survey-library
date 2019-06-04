@@ -1,6 +1,6 @@
 import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
 import { ItemValue } from "./itemvalue";
-import { JsonObject, JsonObjectProperty } from "./jsonobject";
+import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 
@@ -70,6 +70,7 @@ export class ChoicesRestfull extends Base {
     items: Array<ItemValue>,
     serverResult: any
   ) => Array<ItemValue>;
+  public getItemValueCallback: (item: any) => any;
   public error: SurveyError = null;
   public owner: IQuestion;
   constructor() {
@@ -187,7 +188,7 @@ export class ChoicesRestfull extends Base {
     return propertyName + "Name";
   }
   private getCustomProperties(): Array<JsonObjectProperty> {
-    var properties = JsonObject.metaData.getProperties(this.itemValueType);
+    var properties = Serializer.getProperties(this.itemValueType);
     var res = [];
     for (var i = 0; i < properties.length; i++) {
       if (
@@ -258,10 +259,7 @@ export class ChoicesRestfull extends Base {
   }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
-    var prop = JsonObject.metaData.findProperty(
-      this.owner.getType(),
-      "choices"
-    );
+    var prop = Serializer.findProperty(this.owner.getType(), "choices");
     if (!prop) return "itemvalue";
     if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
@@ -283,7 +281,9 @@ export class ChoicesRestfull extends Base {
       for (var i = 0; i < updatedResult.length; i++) {
         var itemValue = updatedResult[i];
         if (!itemValue) continue;
-        var value = this.getValue(itemValue);
+        var value = !!this.getItemValueCallback
+          ? this.getItemValueCallback(itemValue)
+          : this.getValue(itemValue);
         var title = this.getTitle(itemValue);
         var item = new ItemValue(value, title);
         this.setCustomProperties(item, itemValue);
@@ -377,7 +377,7 @@ export class ChoicesRestfull extends Base {
     );
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "choicesByUrl",
   [
     "url",

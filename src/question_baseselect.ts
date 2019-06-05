@@ -486,7 +486,7 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private get activeChoices(): Array<ItemValue> {
+  protected get activeChoices(): Array<ItemValue> {
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   protected getChoices(): Array<ItemValue> {
@@ -537,7 +537,7 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;
-  private onLoadChoicesFromUrl(array: Array<ItemValue>) {
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
     var errors = [];
     if (this.choicesByUrl && this.choicesByUrl.error) {
       errors.push(this.choicesByUrl.error);
@@ -566,8 +566,12 @@ export class QuestionSelectBase extends Question {
     this.filterItems();
     this.onVisibleChoicesChanged();
     if (newChoices) {
-      var newValue = this.updateCachedValueForUrlRequests(cachedValues);
-      if (newValue) {
+      var newValue = this.updateCachedValueForUrlRequests(
+        cachedValues,
+        newChoices
+      );
+      if (!!newValue) {
+        this.value = undefined;
         this.value = newValue.value;
       }
     }
@@ -587,20 +591,35 @@ export class QuestionSelectBase extends Question {
     var isExists = checkOnExisting ? !this.hasUnknownValue(val) : true;
     return { value: val, isExists: isExists };
   }
-  private updateCachedValueForUrlRequests(val: any): any {
+  private updateCachedValueForUrlRequests(
+    val: any,
+    newChoices: Array<ItemValue>
+  ): any {
     if (this.isValueEmpty(val)) return null;
     if (Array.isArray(val)) {
       var res = [];
       for (var i = 0; i < val.length; i++) {
-        var updatedValue = this.updateCachedValueForUrlRequests(val[i]);
+        var updatedValue = this.updateCachedValueForUrlRequests(
+          val[i],
+          newChoices
+        );
         if (updatedValue && !this.isValueEmpty(updatedValue.value)) {
-          res.push(updatedValue.value);
+          var newValue = updatedValue.value;
+          var item = ItemValue.getItemByValue(newChoices, updatedValue.value);
+          if (!!item) {
+            newValue = item.value;
+          }
+          res.push(newValue);
         }
       }
       return { value: res };
     }
     var value =
       val.isExists && this.hasUnknownValue(val.value) ? null : val.value;
+    var item = ItemValue.getItemByValue(newChoices, value);
+    if (!!item) {
+      value = item.value;
+    }
     return { value: value };
   }
   protected onVisibleChoicesChanged() {

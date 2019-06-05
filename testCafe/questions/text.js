@@ -96,7 +96,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test(`fill text field`, async t => {
+  test.skip(`fill text field`, async t => {
     let surveyResult;
 
     await t

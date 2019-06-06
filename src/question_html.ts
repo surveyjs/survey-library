@@ -1,6 +1,5 @@
-import { Question } from "./question";
 import { QuestionNonValue } from "./questionnonvalue";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
@@ -35,7 +34,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
     return this.survey ? this.survey.processHtml(this.html) : this.html;
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "html",
   [{ name: "html:html", serializationProperty: "locHtml" }],
   function() {

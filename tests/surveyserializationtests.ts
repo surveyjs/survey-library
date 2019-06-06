@@ -1,5 +1,5 @@
 import { SurveyModel } from "../src/survey";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -428,7 +428,7 @@ QUnit.test(
 QUnit.test(
   "Survey checkbox.choices serialize/deserialize custom properties",
   function(assert) {
-    JsonObject.metaData.addProperty("itemvalue", "imageLink");
+    Serializer.addProperty("itemvalue", "imageLink");
     var question = new QuestionCheckboxModel("q1");
     var jsonObj = new JsonObject();
     var originalJson = {
@@ -452,7 +452,7 @@ QUnit.test(
       originalJson,
       "Custom property has serialized correctly"
     );
-    JsonObject.metaData.removeProperty("itemvalue", "imageLink");
+    Serializer.removeProperty("itemvalue", "imageLink");
   }
 );
 QUnit.test("Serialize numeric validation, minValue=0, Editor#239", function(

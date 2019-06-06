@@ -1,5 +1,5 @@
 import { QuestionFactory } from "../questionfactory";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { Question } from "../question";
 
 // Use the Question class as a base class.
@@ -45,7 +45,7 @@ export default class QuestionDateModel extends Question {
   }
 }
 //add class and it's properties into json meta data.
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "date", //"date" - question type identificator
   //list of properties with their types (string is default) and other options.
   //For example: choices option will used by survey editor. There will be a dropdown editor with 5 options.

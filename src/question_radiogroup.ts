@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
@@ -36,7 +36,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "radiogroup",
   [{ name: "showClearButton:boolean", default: false }],
   function() {

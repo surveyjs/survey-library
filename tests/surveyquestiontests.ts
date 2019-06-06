@@ -20,7 +20,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionBooleanModel } from "../src/question_boolean";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionNonValue } from "../src/questionnonvalue";
@@ -155,14 +155,14 @@ QUnit.test("Keep comment if question value is null", function(assert) {
   );
 });
 QUnit.test("set choices from another question", function(assert) {
-  JsonObject.metaData.addProperty("itemvalue", "price");
+  Serializer.addProperty("itemvalue", "price");
   var q1 = new QuestionSelectBase("q1");
   q1.choices = [{ value: 1, text: "One", price: 4 }, "Two", "Three"];
   var q2 = new QuestionSelectBase("q2");
   q2.choices = q1.choices;
   assert.equal(q2.choices.length, 3, "all three were copied");
   assert.equal(q2.choices[0]["price"], 4, "additional data is copied");
-  JsonObject.metaData.removeProperty("itemvalue", "price");
+  Serializer.removeProperty("itemvalue", "price");
 });
 QUnit.test("visibleChoices changes on setting others to true/false", function(
   assert
@@ -326,6 +326,34 @@ QUnit.skip("Use value of checkbox question as an array", function(assert) {
 
   question.value.push("One");
   assert.deepEqual(question.value, ["One"], "convert value to array");
+});
+QUnit.test("Assign the same empty value", function(assert) {
+  var count = 0;
+  var question = new QuestionCheckboxModel("checkboxQuestion");
+  assert.deepEqual(question.value, [], "convert value to array");
+
+  question.valueChangedCallback = function() {
+    count++;
+  };
+
+  question.value = undefined;
+  assert.equal(count, 0, "valueChangedCallback doesn't trigger with undefined");
+
+  question.value = [];
+  assert.equal(
+    count,
+    0,
+    "valueChangedCallback doesn't trigger with empty array"
+  );
+
+  question.value = [1];
+  assert.equal(count, 1, "valueChangedCallback triggers");
+
+  question.value = [1];
+  assert.equal(count, 1, "array the same");
+
+  question.value = [1, 2];
+  assert.equal(count, 2, "valueChangedCallback triggers");
 });
 QUnit.test("Pre-proccess value for Checkbox", function(assert) {
   var survey = new SurveyModel();
@@ -1717,6 +1745,54 @@ QUnit.test(
       {
         id: "2",
         test: "a2"
+      },
+      "Initial value is set correctly"
+    );
+  }
+);
+
+QUnit.test(
+  "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "test",
+              defaultValue: {
+                id: 1023
+              },
+              choicesByUrl: {
+                url: "",
+                valueName: "identity",
+                titleName: "localizedData.id"
+              }
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
+    var loadedItems = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ].map(i => new ItemValue(i.identity, i.localizedData.id));
+    question["onLoadChoicesFromUrl"](loadedItems);
+    assert.ok(
+      question.value === question["activeChoices"][2].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      {
+        id: 1023
       },
       "Initial value is set correctly"
     );

@@ -1,7 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { Question } from "../src/question";
 import { QuestionExpressionModel } from "../src/question_expression";
-import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 
 export default QUnit.module("QuestionExpression");
 

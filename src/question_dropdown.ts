@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionSelectBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
@@ -102,7 +102,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.setPropertyValue("choicesStep", val);
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "dropdown",
   [
     { name: "optionsCaption", serializationProperty: "locOptionsCaption" },

@@ -76,6 +76,35 @@ QUnit.test("isTwoValueEquals with validators", function(assert) {
   survey.locale = "";
 });
 
+QUnit.test("isTwoValueEquals, undefined", function(assert) {
+  assert.equal(
+    Helpers.isTwoValueEquals([], undefined),
+    true,
+    "Empty array equals undefined"
+  );
+
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, []),
+    true,
+    "Undefined equals empty array"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, "undefined"),
+    true,
+    "undefined vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals("undefined", null),
+    true,
+    "null vs 'undefined'"
+  );
+  assert.equal(
+    Helpers.isTwoValueEquals(undefined, null),
+    true,
+    "null vs undefined"
+  );
+});
+
 QUnit.test("Return correct value for array.length", function(assert) {
   var process = new ProcessValue();
   assert.equal(

@@ -1,10 +1,4 @@
-import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
-import { PanelModel, QuestionRowModel } from "../src/panel";
-import { QuestionFactory } from "../src/questionfactory";
-import { Question } from "../src/question";
-import { QuestionTextModel } from "../src/question_text";
-import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
 
 export default QUnit.module("ElementsLayout");
 

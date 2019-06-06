@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
@@ -64,6 +64,7 @@ export class QuestionSelectBase extends Question {
       }
       return items;
     };
+    this.createLocalizableString("otherPlaceHolder", this);
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -237,6 +238,7 @@ export class QuestionSelectBase extends Question {
     this.value = this.rendredValueToData(val);
   }
   protected setQuestionValue(newValue: any) {
+    if (Helpers.isTwoValueEquals(this.value, newValue)) return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     if (!this.isOtherSelected && !!this.comment) {
@@ -256,7 +258,7 @@ export class QuestionSelectBase extends Question {
   }
   protected valueFromData(val: any): any {
     let choiceitem = ItemValue.getItemByValue(this.choices, val);
-    if (!!choiceitem)  {
+    if (!!choiceitem) {
       return choiceitem.value;
     }
     return super.valueFromData(val);
@@ -351,6 +353,18 @@ export class QuestionSelectBase extends Question {
   }
   get locOtherText(): LocalizableString {
     return this.getLocalizableString("otherText");
+  }
+  /**
+   *  Use this property to set the place holder text for other or comment field  .
+   */
+  public get otherPlaceHolder(): string {
+    return this.getLocalizableStringText("otherPlaceHolder");
+  }
+  public set otherPlaceHolder(val: string) {
+    this.setLocalizableStringText("otherPlaceHolder", val);
+  }
+  get locOtherPlaceHolder(): LocalizableString {
+    return this.getLocalizableString("otherPlaceHolder");
   }
   /**
    * The text that shows when the other item is choosed by the other input is empty.
@@ -472,7 +486,7 @@ export class QuestionSelectBase extends Question {
       ? this.filteredChoicesValue
       : this.activeChoices;
   }
-  private get activeChoices(): Array<ItemValue> {
+  protected get activeChoices(): Array<ItemValue> {
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   protected getChoices(): Array<ItemValue> {
@@ -523,7 +537,7 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;
-  private onLoadChoicesFromUrl(array: Array<ItemValue>) {
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
     var errors = [];
     if (this.choicesByUrl && this.choicesByUrl.error) {
       errors.push(this.choicesByUrl.error);
@@ -549,10 +563,15 @@ export class QuestionSelectBase extends Question {
       ItemValue.setData(newChoices, array);
     }
     this.choicesFromUrl = newChoices;
+    this.filterItems();
     this.onVisibleChoicesChanged();
     if (newChoices) {
-      var newValue = this.updateCachedValueForUrlRequests(cachedValues);
-      if (newValue) {
+      var newValue = this.updateCachedValueForUrlRequests(
+        cachedValues,
+        newChoices
+      );
+      if (!!newValue) {
+        this.value = undefined;
         this.value = newValue.value;
       }
     }
@@ -572,20 +591,35 @@ export class QuestionSelectBase extends Question {
     var isExists = checkOnExisting ? !this.hasUnknownValue(val) : true;
     return { value: val, isExists: isExists };
   }
-  private updateCachedValueForUrlRequests(val: any): any {
+  private updateCachedValueForUrlRequests(
+    val: any,
+    newChoices: Array<ItemValue>
+  ): any {
     if (this.isValueEmpty(val)) return null;
     if (Array.isArray(val)) {
       var res = [];
       for (var i = 0; i < val.length; i++) {
-        var updatedValue = this.updateCachedValueForUrlRequests(val[i]);
+        var updatedValue = this.updateCachedValueForUrlRequests(
+          val[i],
+          newChoices
+        );
         if (updatedValue && !this.isValueEmpty(updatedValue.value)) {
-          res.push(updatedValue.value);
+          var newValue = updatedValue.value;
+          var item = ItemValue.getItemByValue(newChoices, updatedValue.value);
+          if (!!item) {
+            newValue = item.value;
+          }
+          res.push(newValue);
         }
       }
       return { value: res };
     }
     var value =
       val.isExists && this.hasUnknownValue(val.value) ? null : val.value;
+    var item = ItemValue.getItemByValue(newChoices, value);
+    if (!!item) {
+      value = item.value;
+    }
     return { value: value };
   }
   protected onVisibleChoicesChanged() {
@@ -684,7 +718,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     }
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "selectbase",
   [
     { name: "hasComment:boolean", layout: "row" },
@@ -694,6 +728,7 @@ JsonObject.metaData.addClass(
       layout: "row"
     },
     "hasOther:boolean",
+    { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
       baseValue: function() {
@@ -731,7 +766,7 @@ JsonObject.metaData.addClass(
   "question"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "checkboxbase",
   [
     {

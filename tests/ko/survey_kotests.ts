@@ -23,7 +23,7 @@ import { QuestionMatrixDynamic } from "../../src/knockout/koquestion_matrixdynam
 import { surveyLocalization } from "../../src/surveyStrings";
 import { QuestionRating } from "../../src/knockout/koquestion_rating";
 import { QuestionImagePicker } from "../../src/knockout/koquestion_imagepicker";
-import { JsonObject } from "../../src/jsonobject";
+import { JsonObject, Serializer } from "../../src/jsonobject";
 import { SurveyTimer } from "../../src/surveytimer";
 import * as ko from "knockout";
 
@@ -954,7 +954,7 @@ QUnit.test(
       ],
       name: "panel1"
     };
-    var newElement = JsonObject.metaData.createClass("panel");
+    var newElement = Serializer.createClass("panel");
     new JsonObject().toObject(json, newElement);
     page.addElement(newElement);
 

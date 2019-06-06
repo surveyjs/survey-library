@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonMetadata } from "./jsonobject";
+import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import {
   Base,
   ISurvey,
@@ -22,7 +22,6 @@ import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
-import { JsonError } from "./jsonobject";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -1376,6 +1375,15 @@ export class SurveyModel extends Base
   public set showProgressBar(newValue: string) {
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
+  /**
+   * Type of info in the progress bar: "pages" (default), "questions" or "correctQuestions".
+   */
+  public get progressBarType(): string {
+    return this.getPropertyValue("progressBarType", "pages");
+  }
+  public set progressBarType(newValue: string) {
+    this.setPropertyValue("progressBarType", newValue.toLowerCase());
+  }
   public get isShowProgressBarOnTop(): boolean {
     return this.showProgressBar === "top" || this.showProgressBar === "both";
   }
@@ -1791,6 +1799,19 @@ export class SurveyModel extends Base
    */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
+    if (this.progressBarType === "questions") {
+      var questions = this.getAllQuestions();
+      var answeredQuestionsCount = questions.reduce(
+        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
+        0
+      );
+      return Math.ceil(answeredQuestionsCount * 100 / questions.length);
+    }
+    if (this.progressBarType === "correctQuestions") {
+      var questions = this.getAllQuestions();
+      var correctAnswersCount = this.getCorrectedAnswerCount();
+      return Math.ceil(correctAnswersCount * 100 / questions.length);
+    }
     var index = this.visiblePages.indexOf(this.currentPage) + 1;
     return Math.ceil(index * 100 / this.visiblePageCount);
   }
@@ -2028,7 +2049,7 @@ export class SurveyModel extends Base
     single.setSurveyImpl(this);
     for (var i = startIndex; i < this.pages.length; i++) {
       var page = this.pages[i];
-      var panel = JsonObject.metaData.createClass("panel");
+      var panel = Serializer.createClass("panel");
       single.addPanel(panel);
       var json = new JsonObject().toJsonObject(page);
       new JsonObject().toObject(json, panel);
@@ -2217,6 +2238,25 @@ export class SurveyModel extends Base
    */
   public get progressText(): string {
     if (this.currentPage == null) return "";
+    if (this.progressBarType === "questions") {
+      var questions = this.getAllQuestions();
+      var answeredQuestionsCount = questions.reduce(
+        (a: number, b: Question) => a + (b.isEmpty() ? 0 : 1),
+        0
+      );
+      return this.getLocString("questionsProgressText")["format"](
+        answeredQuestionsCount,
+        questions.length
+      );
+    }
+    if (this.progressBarType === "correctQuestions") {
+      var questions = this.getAllQuestions();
+      var correctAnswersCount = this.getCorrectedAnswerCount();
+      return this.getLocString("questionsProgressText")["format"](
+        correctAnswersCount,
+        questions.length
+      );
+    }
     var vPages = this.visiblePages;
     var index = vPages.indexOf(this.currentPage) + 1;
     return this.getLocString("progressText")["format"](index, vPages.length);
@@ -3722,7 +3762,7 @@ export class SurveyModel extends Base
   }
 }
 
-JsonObject.metaData.addClass("survey", [
+Serializer.addClass("survey", [
   {
     name: "locale",
     choices: () => {
@@ -3752,6 +3792,7 @@ JsonObject.metaData.addClass("survey", [
     alternativeName: "elements",
     baseClassName: "question",
     visible: false,
+    isLightSerializable: false,
     onGetValue: function(obj: any): any {
       return null;
     },
@@ -3800,6 +3841,11 @@ JsonObject.metaData.addClass("survey", [
     name: "showProgressBar",
     default: "off",
     choices: ["off", "top", "bottom", "both"]
+  },
+  {
+    name: "progressBarType",
+    default: "pages",
+    choices: ["pages", "questions", "correctQuestions"]
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },

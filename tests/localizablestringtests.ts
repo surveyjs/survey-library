@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
 
@@ -58,7 +58,7 @@ class LocalizableObjectTester {
   }
 }
 
-JsonObject.metaData.addClass("locstringtester", [
+Serializer.addClass("locstringtester", [
   { name: "text", serializationProperty: "locText" }
 ]);
 

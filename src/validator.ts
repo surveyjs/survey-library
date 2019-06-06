@@ -2,7 +2,7 @@ import { Base, SurveyError, ISurveyErrorOwner } from "./base";
 import { CustomError, RequreNumericError } from "./error";
 import { surveyLocalization } from "./surveyStrings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 
@@ -318,10 +318,10 @@ export class ExpressionValidator extends SurveyValidator {
   }
 }
 
-JsonObject.metaData.addClass("surveyvalidator", [
+Serializer.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" }
 ]);
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "numericvalidator",
   ["minValue:number", "maxValue:number"],
   function() {
@@ -329,7 +329,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "textvalidator",
   ["minLength:number", "maxLength:number", "allowDigits:boolean"],
   function() {
@@ -337,7 +337,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "answercountvalidator",
   ["minCount:number", "maxCount:number"],
   function() {
@@ -345,7 +345,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "regexvalidator",
   ["regex"],
   function() {
@@ -353,7 +353,7 @@ JsonObject.metaData.addClass(
   },
   "surveyvalidator"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "emailvalidator",
   [],
   function() {
@@ -362,7 +362,7 @@ JsonObject.metaData.addClass(
   "surveyvalidator"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "expressionvalidator",
   ["expression:condition"],
   function() {

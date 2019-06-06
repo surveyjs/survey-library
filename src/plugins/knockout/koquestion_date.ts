@@ -1,6 +1,6 @@
 import QuestionDateModel from "../question_date";
 import { Question } from "../../question";
-import { JsonObject } from "../../jsonobject";
+import { Serializer } from "../../jsonobject";
 import { QuestionFactory } from "../../questionfactory";
 import { QuestionImplementor } from "../../knockout/koquestion";
 
@@ -25,7 +25,7 @@ export class QuestionDate extends QuestionDateModel {
 }
 
 //Tell json serializer and survey editor to create exactly this class. Override it from the model that doesn't have any rendering functionality.
-JsonObject.metaData.overrideClassCreator("date", function() {
+Serializer.overrideClassCreator("date", function() {
   return new QuestionDate("");
 });
 QuestionFactory.Instance.registerQuestion("date", name => {

@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { SurveyElement } from "../base";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionImplementor } from "./koquestion";
 import {
@@ -162,7 +162,7 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("paneldynamic", function() {
+Serializer.overrideClassCreator("paneldynamic", function() {
   return new QuestionPanelDynamic("");
 });
 

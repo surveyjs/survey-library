@@ -10,7 +10,7 @@ import {
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
-import { JsonObject } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./base";
 import { AnswerRequiredError } from "./error";
@@ -476,7 +476,7 @@ export class QuestionMultipleTextModel extends Question
   elementWidthChanged(el: IElement) {}
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "multipletextitem",
   [
     "name",
@@ -519,7 +519,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "multipletext",
   [
     { name: "!items:textitems", className: "multipletextitem" },

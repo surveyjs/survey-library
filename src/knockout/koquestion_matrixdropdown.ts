@@ -6,7 +6,7 @@ import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase
 } from "../question_matrixdropdownbase";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 import { QuestionImplementor } from "./koquestion";
@@ -98,6 +98,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var cell = <MatrixDropdownCell>con;
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
+      ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
+        cell.question.customWidget.willUnmount(cell.question, el);
+      });
     }
     var options = {
       cell: cell,
@@ -149,7 +152,7 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("matrixdropdown", function() {
+Serializer.overrideClassCreator("matrixdropdown", function() {
   return new QuestionMatrixDropdown("");
 });
 

@@ -1,4 +1,8 @@
-﻿import { JsonObject, JsonUnknownPropertyError } from "../src/jsonobject";
+﻿import {
+  JsonObject,
+  Serializer,
+  JsonUnknownPropertyError
+} from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";
@@ -91,7 +95,7 @@ class CarOwner extends Base {
   }
   public set carType(val: string) {
     if (val == this.carType || !CarOwner.supportedCars[val]) return;
-    var newCar = <Car>JsonObject.metaData.createClass(val);
+    var newCar = <Car>Serializer.createClass(val);
     if (!newCar) return;
     this.removeProperties();
     this.carValue = newCar;
@@ -176,13 +180,16 @@ class LongNamesOwner {
 }
 
 class NonCreatingObject {
-  public A: number;
+  constructor(public A: number = 0) {}
   public getType(): string {
     return "shouldnotcreate";
   }
 }
 class CreatingObject extends NonCreatingObject {
   public B: number;
+  constructor(public A: number = 0) {
+    super(A);
+  }
   public getType(): string {
     return "shouldcreate";
   }
@@ -222,7 +229,7 @@ class LoadingFromJsonObj extends LoadingFromJsonObjBase {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "dealer",
   [
     "name:string",
@@ -247,7 +254,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "carowner",
   [{ name: "carType", default: "fast" }, "name"],
   function() {
@@ -255,7 +262,7 @@ JsonObject.metaData.addClass(
   }
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "fast",
   [],
   function() {
@@ -263,10 +270,10 @@ JsonObject.metaData.addClass(
   },
   "car"
 );
-JsonObject.metaData.addClass("big", [], null, "car");
+Serializer.addClass("big", [], null, "car");
 
-JsonObject.metaData.addClass("car", ["name"]);
-JsonObject.metaData.addClass(
+Serializer.addClass("car", ["name"]);
+Serializer.addClass(
   "truck",
   [
     {
@@ -281,7 +288,7 @@ JsonObject.metaData.addClass(
   },
   "big"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "sport",
   [{ name: "!maxSpeed", choices: [100, 150, 200, 250] }],
   function() {
@@ -290,10 +297,10 @@ JsonObject.metaData.addClass(
   "fast"
 );
 
-JsonObject.metaData.addClass("itemvaluelistowner", ["items:itemvalues"]);
+Serializer.addClass("itemvaluelistowner", ["items:itemvalues"]);
 
-JsonObject.metaData.addClass("item_thelongpart", ["baseSt"]);
-JsonObject.metaData.addClass(
+Serializer.addClass("item_thelongpart", ["baseSt"]);
+Serializer.addClass(
   "itemA_thelongpart",
   ["A"],
   function() {
@@ -301,7 +308,7 @@ JsonObject.metaData.addClass(
   },
   "LongNameItemBase"
 );
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "itemB_thelongpart",
   ["B"],
   function() {
@@ -309,7 +316,7 @@ JsonObject.metaData.addClass(
   },
   "LongNameItemBase"
 );
-JsonObject.metaData.addClass("LongNamesOwner", [
+Serializer.addClass("LongNamesOwner", [
   {
     name: "items",
     baseClassName: "item_thelongpart",
@@ -317,42 +324,42 @@ JsonObject.metaData.addClass("LongNamesOwner", [
   }
 ]);
 
-JsonObject.metaData.addClass("shouldnotcreate", ["A"], function() {
+Serializer.addClass("shouldnotcreate", ["A"], function() {
   return new NonCreatingObject();
 });
-JsonObject.metaData.addClass("container", [
+Serializer.addClass("container", [
   { name: "obj", className: "shouldnotcreate" },
-  { name: "items", className: "shouldnotcreate" }
+  { name: "items", className: "shouldnotcreate", isLightSerializable: false }
 ]);
-JsonObject.metaData.overrideClassCreator("shouldnotcreate", function() {
+Serializer.overrideClassCreator("shouldnotcreate", function() {
   return new CreatingObject();
 });
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "loadingtest",
   ["name", { name: "items", className: "loadingtestitem" }],
   function() {
     return new LoadingFromJsonObj();
   }
 );
-JsonObject.metaData.addClass("loadingtestitem", ["name"], function() {
+Serializer.addClass("loadingtestitem", ["name"], function() {
   return new LoadingFromJsonObjItem();
 });
 
-JsonObject.metaData.addClass("customtruck", ["description"], null, "truck");
-JsonObject.metaData.addProperty("customtruck", {
+Serializer.addClass("customtruck", ["description"], null, "truck");
+Serializer.addProperty("customtruck", {
   name: "isCustom:boolean",
   default: true
 });
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "customdealer",
   [{ name: "defaultValue", visible: false }],
   null,
   "dealer"
 );
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "camelDealer",
   [{ name: "defaultValue", visible: false }],
   null,
@@ -379,7 +386,7 @@ class CheckGetPropertyValueGetter {
   }
 }
 
-JsonObject.metaData.addClass("getpropertyvalue", [
+Serializer.addClass("getpropertyvalue", [
   "directProp",
   {
     name: "getValueProp",
@@ -395,12 +402,12 @@ export default QUnit.module("JsonSerializationTests");
 
 QUnit.test("Metadata for non inherited class", function(assert) {
   assert.equal(
-    JsonObject.metaData.getProperties("dealer").length,
+    Serializer.getProperties("dealer").length,
     10,
     "Flat properties list"
   );
   assert.equal(
-    JsonObject.metaData.getProperties("dealer")[0].name,
+    Serializer.getProperties("dealer")[0].name,
     "name",
     "Name property"
   );
@@ -409,12 +416,12 @@ QUnit.test("Metadata add at the beginning parent class properties ", function(
   assert
 ) {
   assert.equal(
-    JsonObject.metaData.getProperties("truck").length,
+    Serializer.getProperties("truck").length,
     2,
     "1 + 1 parent propreties"
   );
   assert.equal(
-    JsonObject.metaData.getProperties("truck")[0].name,
+    Serializer.getProperties("truck")[0].name,
     "name",
     "parent properties first"
   );
@@ -470,12 +477,12 @@ QUnit.test("Serialize object with it's type", function(assert) {
 });
 QUnit.test("Check isRequired property", function(assert) {
   assert.equal(
-    JsonObject.metaData.findProperty("sport", "maxSpeed").isRequired,
+    Serializer.findProperty("sport", "maxSpeed").isRequired,
     true,
     "maxSpeed is required property"
   );
   assert.equal(
-    JsonObject.metaData.findProperty("truck", "maxWeight").isRequired,
+    Serializer.findProperty("truck", "maxWeight").isRequired,
     false,
     "maxWeight is not required property"
   );
@@ -685,7 +692,7 @@ QUnit.test(
 QUnit.test(
   "ItemValueListOwner deserialization, custom property in ItemValue",
   function(assert) {
-    JsonObject.metaData.addProperty("itemvalue", "price:number");
+    Serializer.addProperty("itemvalue", "price:number");
     var list = new ItemValueListOwner();
 
     new JsonObject().toObject(
@@ -701,7 +708,7 @@ QUnit.test(
     );
     assert.equal(list.items.length, 4, "there are 4 items");
     assert.equal(list.items[0]["price"], 55.5, "set custom value correctly");
-    JsonObject.metaData.removeProperty("itemvalue", "price");
+    Serializer.removeProperty("itemvalue", "price");
   }
 );
 QUnit.test(
@@ -924,9 +931,9 @@ QUnit.test("Deserialization - required property error", function(assert) {
   );
 });
 QUnit.test("Deserialization - required property error", function(assert) {
-  var children = JsonObject.metaData.getChildrenClasses("car");
+  var children = Serializer.getChildrenClasses("car");
   assert.equal(children.length, 5, "There are 5 children classes");
-  children = JsonObject.metaData.getChildrenClasses("car", true);
+  children = Serializer.getChildrenClasses("car", true);
   assert.equal(
     children.length,
     3,
@@ -934,21 +941,21 @@ QUnit.test("Deserialization - required property error", function(assert) {
   );
 });
 QUnit.test("Property Type test", function(assert) {
-  var properties = JsonObject.metaData.getProperties("truck");
+  var properties = Serializer.getProperties("truck");
   assert.equal(properties[0].name, "name", "It is a 'name' property");
   assert.equal(properties[0].type, "string", "Name property is string");
   assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
   assert.equal(properties[1].type, "number", "maxWeight property is number");
 });
 QUnit.test("Property Choices test", function(assert) {
-  var properties = JsonObject.metaData.getProperties("truck");
+  var properties = Serializer.getProperties("truck");
   assert.equal(properties[0].name, "name", "It is a 'name' property");
   assert.equal(properties[0].type, "string", "Name property is string");
   assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
   assert.equal(properties[1].type, "number", "maxWeight property is number");
 });
 QUnit.test("Property Choices test", function(assert) {
-  var properties = JsonObject.metaData.getProperties("sport");
+  var properties = Serializer.getProperties("sport");
   assert.equal(properties[1].name, "maxSpeed", "It is a 'maxSpeed' property");
   assert.deepEqual(
     properties[1].choices,
@@ -957,7 +964,7 @@ QUnit.test("Property Choices test", function(assert) {
   );
 });
 QUnit.test("Property Choices func test", function(assert) {
-  var properties = JsonObject.metaData.getProperties("truck");
+  var properties = Serializer.getProperties("truck");
   assert.equal(properties[1].name, "maxWeight", "It is a 'maxWeight' property");
   assert.deepEqual(
     properties[1].choices,
@@ -984,6 +991,18 @@ QUnit.test("Create inherited class instead of origional", function(assert) {
     "created the right class in property"
   );
 });
+
+QUnit.test("Optionally do not save all properties", function(assert) {
+  var container = new CreatingObjectContainer();
+  container.items.push(new NonCreatingObject(10));
+  container.items.push(new NonCreatingObject(20));
+  container.obj = new NonCreatingObject(30);
+  var jsonObj = new JsonObject();
+  jsonObj.lightSerializing = true;
+  var json = jsonObj.toJsonObject(container, false);
+  assert.deepEqual(json, { obj: { A: 30 } }, "Do not serialize items");
+});
+
 QUnit.test("toJsonObject should create new instance of objects", function(
   assert
 ) {
@@ -1002,8 +1021,8 @@ QUnit.test("toJsonObject should create new instance of objects", function(
 });
 
 QUnit.test("Add new property to object", function(assert) {
-  var propertiesCount = JsonObject.metaData.getProperties("truck").length;
-  JsonObject.metaData.addProperty("car", "isUsed:boolean");
+  var propertiesCount = Serializer.getProperties("truck").length;
+  Serializer.addProperty("car", "isUsed:boolean");
   var dealer = new Dealer();
   new JsonObject().toObject(
     { truck: { isUsed: true, maxWeight: 10000 } },
@@ -1012,7 +1031,7 @@ QUnit.test("Add new property to object", function(assert) {
   assert.equal(dealer.truck["isUsed"], true, "new property is here");
   assert.equal(
     propertiesCount + 1,
-    JsonObject.metaData.getProperties("truck").length,
+    Serializer.getProperties("truck").length,
     "there is on one property more"
   );
   var jsObj = new JsonObject().toJsonObject(dealer);
@@ -1021,31 +1040,31 @@ QUnit.test("Add new property to object", function(assert) {
     '{"truck":{"isUsed":true,"maxWeight":10000}}',
     "property is serialized"
   );
-  JsonObject.metaData.removeProperty("car", "isUsed");
+  Serializer.removeProperty("car", "isUsed");
   assert.equal(
     propertiesCount,
-    JsonObject.metaData.getProperties("truck").length,
+    Serializer.getProperties("truck").length,
     "the additional property is removed"
   );
 });
 
 QUnit.test("Add property into alternative name of class", function(assert) {
-  JsonObject.metaData.addAlterNativeClassName("truck", "trick");
+  Serializer.addAlterNativeClassName("truck", "trick");
   assert.equal(
-    JsonObject.metaData.findClass("trick").name,
+    Serializer.findClass("trick").name,
     "truck",
     "Find class by alternative name"
   );
-  var propertiesCount = JsonObject.metaData.getProperties("truck").length;
-  JsonObject.metaData.addProperty("trick", "isUsed:boolean");
+  var propertiesCount = Serializer.getProperties("truck").length;
+  Serializer.addProperty("trick", "isUsed:boolean");
   assert.equal(
     propertiesCount + 1,
-    JsonObject.metaData.getProperties("truck").length,
+    Serializer.getProperties("truck").length,
     "there is on one property more"
   );
   assert.equal(
     propertiesCount + 1,
-    JsonObject.metaData.getProperties("trick").length,
+    Serializer.getProperties("trick").length,
     "alternative name returns correct properties as well"
   );
   var dealer = new Dealer();
@@ -1060,16 +1079,16 @@ QUnit.test("Add property into alternative name of class", function(assert) {
     { truck: { isUsed: true, maxWeight: 10000 } },
     "property is serialized"
   );
-  JsonObject.metaData.removeProperty("trick", "isUsed");
+  Serializer.removeProperty("trick", "isUsed");
   assert.equal(
     propertiesCount,
-    JsonObject.metaData.getProperties("truck").length,
+    Serializer.getProperties("truck").length,
     "the additional property is removed"
   );
 });
 
 QUnit.test("Add a new number property with default value", function(assert) {
-  JsonObject.metaData.addProperty("car", { name: "tag:number", default: 1 });
+  Serializer.addProperty("car", { name: "tag:number", default: 1 });
   var dealer = new Dealer();
   new JsonObject().toObject({ truck: { tag: 10, maxWeight: 10000 } }, dealer);
   assert.equal(dealer.truck["tag"], 10, "new property is here");
@@ -1095,15 +1114,15 @@ QUnit.test("Add a new number property with default value", function(assert) {
     "property is serialized"
   );
 
-  JsonObject.metaData.removeProperty("car", "tag");
+  Serializer.removeProperty("car", "tag");
 });
 
 QUnit.test("Add a boolean property default value", function(assert) {
-  JsonObject.metaData.addProperty("car", {
+  Serializer.addProperty("car", {
     name: "isNew:boolean",
     default: true
   });
-  JsonObject.metaData.addProperty("itemvalue", {
+  Serializer.addProperty("itemvalue", {
     name: "isNew:boolean",
     default: true
   });
@@ -1121,8 +1140,8 @@ QUnit.test("Add a boolean property default value", function(assert) {
     "New boolean property is added with correct default value into itemvalue"
   );
 
-  JsonObject.metaData.removeProperty("itemvalue", "isNew");
-  JsonObject.metaData.removeProperty("car", "isNew");
+  Serializer.removeProperty("itemvalue", "isNew");
+  Serializer.removeProperty("car", "isNew");
 });
 
 QUnit.test("A non serializable property", function(assert) {
@@ -1138,17 +1157,17 @@ QUnit.test("A non serializable property", function(assert) {
 });
 
 QUnit.test("Get property and readonly", function(assert) {
-  var property = JsonObject.metaData.findProperty("truck", "name");
+  var property = Serializer.findProperty("truck", "name");
   assert.equal(property.readOnly, false, "readOnly is false by default");
   property.readOnly = true;
-  var property2 = JsonObject.metaData.findProperty("truck", "name");
+  var property2 = Serializer.findProperty("truck", "name");
   assert.equal(property2.readOnly, true, "readOnly is true now");
 });
 
 QUnit.test(
   "Add alternative/misspelled property support, https://github.com/surveyjs/surveyjs/issues/280",
   function(assert) {
-    JsonObject.metaData.findProperty("truck", "maxWeight").alternativeName =
+    Serializer.findProperty("truck", "maxWeight").alternativeName =
       "maxaWeight";
     var dealer = new Dealer();
     new JsonObject().toObject(
@@ -1167,12 +1186,12 @@ QUnit.test(
 
 QUnit.test("Check if visible is set", function(assert) {
   assert.equal(
-    JsonObject.metaData.findProperty("dealer", "name").visible,
+    Serializer.findProperty("dealer", "name").visible,
     true,
     "By default the property is visible"
   );
   assert.equal(
-    JsonObject.metaData.findProperty("dealer", "cars").visible,
+    Serializer.findProperty("dealer", "cars").visible,
     false,
     "Cars is invisible"
   );
@@ -1188,28 +1207,28 @@ QUnit.test("Test getPropertyValue and isLocalizable", function(assert) {
   obj.locProperty = "loc_no";
   obj.locPropertyGetter.text = "loc_yes";
 
-  var property = JsonObject.metaData.findProperty(obj.getType(), "directProp");
+  var property = Serializer.findProperty(obj.getType(), "directProp");
   assert.equal(
     property.getPropertyValue(obj),
     "dirValue",
     "dirProperty works correctly"
   );
 
-  property = JsonObject.metaData.findProperty(obj.getType(), "getValueProp");
+  property = Serializer.findProperty(obj.getType(), "getValueProp");
   assert.equal(
     property.getPropertyValue(obj),
     "getValue_yes",
     "getValueProp works correctly"
   );
 
-  property = JsonObject.metaData.findProperty(obj.getType(), "serProperty");
+  property = Serializer.findProperty(obj.getType(), "serProperty");
   assert.deepEqual(
     property.getPropertyValue(obj),
     { text: "serProperty_yes" },
     "getValueProp works correctly"
   );
 
-  property = JsonObject.metaData.findProperty(obj.getType(), "locProperty");
+  property = Serializer.findProperty(obj.getType(), "locProperty");
   assert.equal(
     property.getPropertyValue(obj),
     "loc_yes",
@@ -1219,7 +1238,7 @@ QUnit.test("Test getPropertyValue and isLocalizable", function(assert) {
 QUnit.test("Deserialize number and boolean correctly, bug #439", function(
   assert
 ) {
-  JsonObject.metaData.addProperty("car", "isUsed:boolean");
+  Serializer.addProperty("car", "isUsed:boolean");
   var truck = new Truck();
   new JsonObject().toObject(
     { type: "truck", maxWeight: "10", isUsed: "false" },
@@ -1231,7 +1250,7 @@ QUnit.test("Deserialize number and boolean correctly, bug #439", function(
   assert.equal(truck["isUsed"], false, "deserialize property as boolean");
   truck["isUsed"] = !truck["isUsed"];
   assert.equal(truck["isUsed"], true, "it should become true");
-  JsonObject.metaData.removeProperty("car", "isUsed");
+  Serializer.removeProperty("car", "isUsed");
 });
 
 QUnit.test("Loading test deserialization", function(assert) {
@@ -1266,11 +1285,11 @@ QUnit.test("Loading test deserialization", function(assert) {
 });
 
 QUnit.test("Override type property in a successor class", function(assert) {
-  var property = JsonObject.metaData.findProperty("fast", "name");
+  var property = Serializer.findProperty("fast", "name");
   assert.equal(property.type, "string", "The default type");
   function findProperty() {
     property = null;
-    var properties = JsonObject.metaData.getProperties("fast");
+    var properties = Serializer.getProperties("fast");
     for (var i = 0; i < properties.length; i++) {
       if (properties[i].name == "name") {
         property = properties[i];
@@ -1280,10 +1299,10 @@ QUnit.test("Override type property in a successor class", function(assert) {
   }
   findProperty();
   assert.equal(property.type, "string", "The default type");
-  JsonObject.metaData.addProperty("fast", "name:text");
-  property = JsonObject.metaData.findProperty("fast", "name");
+  Serializer.addProperty("fast", "name:text");
+  property = Serializer.findProperty("fast", "name");
   assert.equal(property.type, "text", "The type is text for fast car");
-  property = JsonObject.metaData.findProperty("car", "name");
+  property = Serializer.findProperty("car", "name");
   assert.equal(property.type, "string", "The type is string for car");
   findProperty();
   assert.equal(
@@ -1294,19 +1313,19 @@ QUnit.test("Override type property in a successor class", function(assert) {
 });
 
 QUnit.test("Set default value to the custom property", function(assert) {
-  JsonObject.metaData.addProperty("car", {
+  Serializer.addProperty("car", {
     name: "isUsed:boolean",
     default: true
   });
-  JsonObject.metaData.addProperty("car", { name: "tag:number", default: 0 });
+  Serializer.addProperty("car", { name: "tag:number", default: 0 });
   var truck = new Truck();
   assert.equal(truck["isUsed"], true, "the default boolean value is set");
   assert.equal(truck["tag"], 0, "the default numeric value is set");
-  JsonObject.metaData.removeProperty("car", "isUsed");
-  JsonObject.metaData.removeProperty("car", "tag");
+  Serializer.removeProperty("car", "isUsed");
+  Serializer.removeProperty("car", "tag");
 });
 QUnit.test("Create localizable property", function(assert) {
-  JsonObject.metaData.addProperty("car", {
+  Serializer.addProperty("car", {
     name: "myLocalizableProp:text",
     isLocalizable: true
   });
@@ -1332,7 +1351,7 @@ QUnit.test("Create localizable property", function(assert) {
     "Serialized correctly"
   );
 
-  JsonObject.metaData.removeProperty("car", "myLocalizableProp");
+  Serializer.removeProperty("car", "myLocalizableProp");
 });
 
 QUnit.test(
@@ -1369,7 +1388,7 @@ QUnit.test(
 QUnit.test(
   "Custom class - do not serialize invisible properties with default value",
   function(assert) {
-    var dealer = <Dealer>JsonObject.metaData.createClass("customdealer");
+    var dealer = <Dealer>Serializer.createClass("customdealer");
     assert.ok(dealer, "The object is created");
     assert.equal(dealer.getType(), "customdealer", "type is customdealer");
     assert.equal(dealer.getTemplate(), "dealer", "template is dealer");
@@ -1385,12 +1404,12 @@ QUnit.test(
 );
 
 QUnit.test("Create class with camel name", function(assert) {
-  var dealer = <Dealer>JsonObject.metaData.createClass("Cameldealer");
+  var dealer = <Dealer>Serializer.createClass("Cameldealer");
   assert.ok(dealer, "The object is created");
 });
 
 QUnit.test("Generate properties on the fly", function(assert) {
-  var carOwner = <CarOwner>JsonObject.metaData.createClass("carowner");
+  var carOwner = <CarOwner>Serializer.createClass("carowner");
   assert.ok(carOwner, "The object is created");
   assert.equal(carOwner.getType(), "carowner", "type is carowner");
   assert.equal(carOwner.carType, "fast", "the default value is fast");
@@ -1445,7 +1464,7 @@ QUnit.test("Serialize/deserialize dynamic properties", function(assert) {
 });
 
 QUnit.test("Add property into questionbase", function(assert) {
-  JsonObject.metaData.addProperty("questionbase", "custom");
+  Serializer.addProperty("questionbase", "custom");
   var question = new Question("q1");
   new JsonObject().toObject({ name: "q2", custom: "customValue1" }, question);
   assert.equal(question.name, "q2", "name serialzied successful");
@@ -1454,19 +1473,16 @@ QUnit.test("Add property into questionbase", function(assert) {
     "customValue1",
     "custom serialzied successful"
   );
-  JsonObject.metaData.removeProperty("questionbase", "custom");
+  Serializer.removeProperty("questionbase", "custom");
 });
 
 QUnit.test("Add itemvalues (array) property into questionbase", function(
   assert
 ) {
-  JsonObject.metaData.addProperty("questionbase", "customArray:itemvalues");
+  Serializer.addProperty("questionbase", "customArray:itemvalues");
   var question = new Question("q1");
 
-  var property = JsonObject.metaData.findProperty(
-    "questionbase",
-    "customArray"
-  );
+  var property = Serializer.findProperty("questionbase", "customArray");
   assert.equal(
     property.type,
     "itemvalue[]",
@@ -1505,9 +1521,9 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
     "customArray serialzied successful"
   );
 
-  JsonObject.metaData.removeProperty("questionbase", "customArray");
+  Serializer.removeProperty("questionbase", "customArray");
 
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("questionbase", {
     name: "customArray:itemvalues",
     default: [1, 3, 5]
   });
@@ -1517,7 +1533,7 @@ QUnit.test("Add itemvalues (array) property into questionbase", function(
     3,
     "defaultValue loaded successful"
   );
-  JsonObject.metaData.removeProperty("questionbase", "customArray");
+  Serializer.removeProperty("questionbase", "customArray");
 });
 
 QUnit.test(
@@ -1545,7 +1561,7 @@ QUnit.test(
 );
 
 QUnit.test("itemvalues (array) default value", function(assert) {
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("questionbase", {
     name: "customArray:itemvalues",
     default: [0, 25, 50, 75, 100]
   });
@@ -1618,11 +1634,11 @@ QUnit.test("itemvalues (array) default value", function(assert) {
     "customArray serialzied successful 2"
   );
 
-  JsonObject.metaData.removeProperty("questionbase", "customArray");
+  Serializer.removeProperty("questionbase", "customArray");
 });
 
 QUnit.test("itemvalues (array) save localized text", function(assert) {
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("questionbase", {
     name: "customArray:itemvalues",
     default: [0]
   });
@@ -1653,7 +1669,7 @@ QUnit.test("itemvalues (array) save localized text", function(assert) {
     "customArray serialzied successful 1"
   );
 
-  JsonObject.metaData.removeProperty("questionbase", "customArray");
+  Serializer.removeProperty("questionbase", "customArray");
 });
 
 QUnit.test("ItemValue should be deserialized without errors", function(assert) {
@@ -1681,18 +1697,18 @@ QUnit.test("ItemValue should be deserialized without errors", function(assert) {
 QUnit.test("Extend ItemValue via inheritance with custom property", function(
   assert
 ) {
-  JsonObject.metaData.addClass(
+  Serializer.addClass(
     "itemvaluesWithPoints",
     ["points:number"],
     null,
     "itemvalue"
   );
-  JsonObject.metaData.addProperty("itemvalue", "guid");
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("itemvalue", "guid");
+  Serializer.addProperty("questionbase", {
     name: "customArray:itemvalues",
     default: [0]
   });
-  var p1 = JsonObject.metaData.findProperty("questionbase", "customArray");
+  var p1 = Serializer.findProperty("questionbase", "customArray");
   p1["typeValue"] = "itemvaluesWithPoints";
   p1["className"] = "itemvaluesWithPoints";
   var question = new Question("q1");
@@ -1738,12 +1754,12 @@ QUnit.test("Extend ItemValue via inheritance with custom property", function(
     "there are no errors on deserialization"
   );
 
-  JsonObject.metaData.removeProperty("questionbase", "customArray");
-  JsonObject.metaData.removeProperty("itemvalue", "guid");
+  Serializer.removeProperty("questionbase", "customArray");
+  Serializer.removeProperty("itemvalue", "guid");
 });
 
 QUnit.test("isDescendantOf", function(assert) {
-  JsonObject.metaData.addClass(
+  Serializer.addClass(
     "itemvaluesWithPoints",
     ["points:number"],
     null,
@@ -1751,16 +1767,16 @@ QUnit.test("isDescendantOf", function(assert) {
   );
 
   assert.ok(
-    JsonObject.metaData.isDescendantOf("itemvaluesWithPoints", "itemvalue"),
+    Serializer.isDescendantOf("itemvaluesWithPoints", "itemvalue"),
     "itemvaluesWithPoints is a descendant of the itemvalue"
   );
   assert.ok(
-    JsonObject.metaData.isDescendantOf("itemvalue", "itemvalue"),
+    Serializer.isDescendantOf("itemvalue", "itemvalue"),
     "itemvalue is a descendant of the itemvalue"
   );
 });
 QUnit.test("property.isVisible", function(assert) {
-  var property = JsonObject.metaData.findProperty("dealer", "dummyname");
+  var property = Serializer.findProperty("dealer", "dummyname");
   assert.equal(property.visible, true, "Property is visible");
   assert.equal(
     property.isVisible("row"),
@@ -1775,46 +1791,64 @@ QUnit.test("property.isVisible", function(assert) {
 });
 
 QUnit.test("property.baseValue", function(assert) {
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("questionbase", {
     name: "newChoices1:itemvalues",
     baseValue: function() {
       return "Column";
     }
   });
-  JsonObject.metaData.addProperty("questionbase", {
+  Serializer.addProperty("questionbase", {
     name: "newChoices2:itemvalues",
     baseValue: "Row"
   });
   assert.equal(
-    JsonObject.metaData
-      .findProperty("questionbase", "newChoices2")
-      .getBaseValue(),
+    Serializer.findProperty("questionbase", "newChoices2").getBaseValue(),
     "Row",
     "getBaseValue works fine with constant"
   );
   assert.equal(
-    JsonObject.metaData
-      .findProperty("questionbase", "newChoices1")
-      .getBaseValue(),
+    Serializer.findProperty("questionbase", "newChoices1").getBaseValue(),
     "Column",
     "getBaseValue works fine with function"
   );
   assert.equal(
-    JsonObject.metaData.findProperty("selectbase", "choices").getBaseValue(),
+    Serializer.findProperty("selectbase", "choices").getBaseValue(),
     "item",
     "it is item for choices"
   );
   assert.equal(
-    JsonObject.metaData.findProperty("matrix", "rows").getBaseValue(),
+    Serializer.findProperty("matrix", "rows").getBaseValue(),
     "Row",
     "it is Row for rows"
   );
   assert.equal(
-    JsonObject.metaData.findProperty("matrix", "columns").getBaseValue(),
+    Serializer.findProperty("matrix", "columns").getBaseValue(),
     "Column",
     "it is Column for columns"
   );
 
-  JsonObject.metaData.removeProperty("questionbase", "newChoices1");
-  JsonObject.metaData.removeProperty("questionbase", "newChoices2");
+  Serializer.removeProperty("questionbase", "newChoices1");
+  Serializer.removeProperty("questionbase", "newChoices2");
+});
+
+QUnit.test("Remove class", function(assert) {
+  assert.ok(Serializer.findClass("big"), "Class is here");
+  var classes = [];
+  Serializer.getChildrenClasses("car", false).forEach(item => {
+    classes.push(item.name);
+  });
+  assert.ok(classes.indexOf("big") > -1, "big is in children car classes");
+
+  Serializer.removeClass("big");
+  assert.notOk(Serializer.findClass("big"), "Class is not here");
+  classes = [];
+  Serializer.getChildrenClasses("car", false).forEach(item => {
+    classes.push(item.name);
+  });
+  assert.notOk(
+    classes.indexOf("big") > -1,
+    "big is not in children car classes"
+  );
+
+  Serializer.addClass("big", [], null, "car");
 });

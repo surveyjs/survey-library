@@ -1,10 +1,8 @@
 import * as ko from "knockout";
 import { QuestionImagePickerModel } from "../question_imagepicker";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { Question } from "../question";
-import { Helpers } from "../helpers";
 
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
@@ -33,7 +31,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("imagepicker", function() {
+Serializer.overrideClassCreator("imagepicker", function() {
   return new QuestionImagePicker("");
 });
 

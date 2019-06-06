@@ -1,4 +1,4 @@
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 
 /**
@@ -13,7 +13,7 @@ export class QuestionEmptyModel extends Question {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "empty",
   [],
   function() {

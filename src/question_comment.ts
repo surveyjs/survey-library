@@ -1,5 +1,5 @@
 import { Question } from "./question";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
@@ -66,7 +66,7 @@ export class QuestionCommentModel extends Question {
     return super.isEmpty() || this.value === "";
   }
 }
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "comment",
   [
     { name: "maxLength:number", default: -1 },

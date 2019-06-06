@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { FlowPanelModel } from "../flowpanel";
 import { Question } from "../question";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { ElementFactory } from "../questionfactory";
 import { ImplementorBase } from "./kobase";
 import { SurveyElement, IElement } from "../base";
@@ -39,7 +39,7 @@ export class FlowPanel extends FlowPanelModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("flowpanel", function() {
+Serializer.overrideClassCreator("flowpanel", function() {
   return new FlowPanel();
 });
 /*

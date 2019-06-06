@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionEmptyModel } from "../question_empty";
-import { JsonObject } from "../jsonobject";
+import { Serializer } from "../jsonobject";
 import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
@@ -11,6 +11,6 @@ export class QuestionEmpty extends QuestionEmptyModel {
   }
 }
 
-JsonObject.metaData.overrideClassCreator("empty", function() {
+Serializer.overrideClassCreator("empty", function() {
   return new QuestionEmpty("");
 });

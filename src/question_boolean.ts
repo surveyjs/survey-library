@@ -1,6 +1,5 @@
-import { Base } from "./base";
 import { QuestionFactory } from "./questionfactory";
-import { JsonObject } from "./jsonobject";
+import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 
@@ -122,7 +121,7 @@ export class QuestionBooleanModel extends Question {
   }
 }
 
-JsonObject.metaData.addClass(
+Serializer.addClass(
   "boolean",
   [
     {

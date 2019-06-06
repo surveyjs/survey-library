@@ -2594,3 +2594,37 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "pq1",
+              validators: [
+                { type: "expression", expression: "{panel.pq1} = {q1}" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panels[0].getQuestionByName("pq1").value = "val1";
+    survey.getQuestionByName("q1").value = "val";
+    assert.equal(panel.hasErrors(), true, "There is an error");
+    panel.panels[0].getQuestionByName("pq1").value = "val";
+    assert.equal(panel.hasErrors(), false, "There is no errors");
+  }
+);

@@ -26,6 +26,7 @@ export interface IQuestionPanelDynamicData {
   setPanelItemData(item: ISurveyData, name: string, val: any): any;
   getSharedQuestionFromArray(name: string, panelIndex: number): Question;
   getSurvey(): ISurvey;
+  getRootData(): ISurveyData;
 }
 
 export class QuestionPanelDynamicItem
@@ -71,14 +72,19 @@ export class QuestionPanelDynamicItem
     return this.data.getPanelItemData(this);
   }
   getFilteredValues(): any {
-    var allValues = this.getAllValues();
-    var values: { [key: string]: any } = { panel: allValues };
-    for (var key in allValues) {
-      values[key] = allValues[key];
+    var values: { [key: string]: any } = { panel: this.getAllValues() };
+    var surveyValues =
+      !!this.data && !!this.data.getRootData()
+        ? this.data.getRootData().getFilteredValues()
+        : {};
+    for (var key in surveyValues) {
+      values[key] = surveyValues[key];
     }
     return values;
   }
   getFilteredProperties(): any {
+    if (!!this.data && !!this.data.getRootData())
+      return this.data.getRootData().getFilteredProperties();
     return { survey: this.getSurvey() };
   }
   geSurveyData(): ISurveyData {
@@ -1382,6 +1388,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   getSurvey(): ISurvey {
     return this.survey;
+  }
+  getRootData(): ISurveyData {
+    return this.data;
   }
   public getPlainData(
     options: {

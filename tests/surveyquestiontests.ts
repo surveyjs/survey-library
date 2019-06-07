@@ -1796,6 +1796,15 @@ QUnit.test(
       },
       "Initial value is set correctly"
     );
+    assert.deepEqual(
+      survey.data,
+      {
+        test: {
+          id: 1023
+        }
+      },
+      "Initial value is set correctly"
+    );
   }
 );
 

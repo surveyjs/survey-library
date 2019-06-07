@@ -25,7 +25,8 @@ export class JsonObjectProperty implements IObject {
     "defaultValue",
     "serializationProperty",
     "onGetValue",
-    "onSetValue"
+    "onSetValue",
+    "dependedProperties"
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -35,6 +36,7 @@ export class JsonObjectProperty implements IObject {
   private visibleValue: boolean | null = null;
   private isLocalizableValue: boolean | null = null;
   private choicesfunc: (obj: any) => Array<any> = null;
+  private dependedProperties: Array<string> = null;
   public isSerializable: boolean = true;
   public isLightSerializable: boolean = true;
   public isDynamicChoices: boolean = false;
@@ -192,6 +194,17 @@ export class JsonObjectProperty implements IObject {
       this.mergeValue(prop, valuesNames[i]);
     }
   }
+  public addDependedProperty(name: string) {
+    if (!this.dependedProperties) {
+      this.dependedProperties = [];
+    }
+    if (this.dependedProperties.indexOf(name) < 0) {
+      this.dependedProperties.push(name);
+    }
+  }
+  public getDependedProperties(): Array<string> {
+    return !!this.dependedProperties ? this.dependedProperties : [];
+  }
   private mergeValue(prop: JsonObjectProperty, valueName: string) {
     if (this[valueName] == null && prop[valueName] != null) {
       this[valueName] = prop[valueName];
@@ -324,9 +337,9 @@ export class JsonMetadataClass {
     public parentName: string = null
   ) {
     name = name.toLowerCase();
-    if (parentName) {
-      parentName = parentName.toLowerCase();
-      CustomPropertiesCollection.addClass(name, parentName);
+    if (this.parentName) {
+      this.parentName = this.parentName.toLowerCase();
+      CustomPropertiesCollection.addClass(name, this.parentName);
     }
     this.properties = new Array<JsonObjectProperty>();
     for (var i = 0; i < properties.length; i++) {
@@ -423,8 +436,28 @@ export class JsonMetadataClass {
       if (propInfo.layout) {
         prop.layout = propInfo.layout;
       }
+      if (propInfo.dependsOn) {
+        this.addDependsOnProperties(prop, propInfo.dependsOn);
+      }
     }
     return prop;
+  }
+  private addDependsOnProperties(prop: JsonObjectProperty, dependsOn: any) {
+    if (Array.isArray(dependsOn)) {
+      for (var i = 0; i < dependsOn.length; i++) {
+        this.addDependsOnProperty(prop, dependsOn[i]);
+      }
+    } else {
+      this.addDependsOnProperty(prop, dependsOn);
+    }
+  }
+  private addDependsOnProperty(prop: JsonObjectProperty, dependsOn: string) {
+    var property = this.find(dependsOn);
+    if (!property) {
+      property = Serializer.findProperty(this.parentName, dependsOn);
+    }
+    if (!property) return;
+    property.addDependedProperty(prop.name);
   }
   private getIsPropertyNameRequired(propertyName: string): boolean {
     return (

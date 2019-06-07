@@ -26,7 +26,8 @@ export class JsonObjectProperty implements IObject {
     "serializationProperty",
     "onGetValue",
     "onSetValue",
-    "dependedProperties"
+    "dependedProperties",
+    "visibleIf"
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -49,6 +50,7 @@ export class JsonObjectProperty implements IObject {
   public layout: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
+  public visibleIf: (obj: any) => boolean = null;
 
   constructor(public name: string, isRequired: boolean = false) {
     this.isRequiredValue = isRequired;
@@ -172,9 +174,11 @@ export class JsonObjectProperty implements IObject {
   public set readOnly(val: boolean) {
     this.readOnlyValue = val;
   }
-  public isVisible(layout: string): boolean {
+  public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
-    return this.visible && isLayout;
+    if (!this.visible || !isLayout) return false;
+    if (!!this.visibleIf && !!obj) return this.visibleIf(obj);
+    return true;
   }
   public get visible(): boolean {
     return this.visibleValue != null ? this.visibleValue : true;
@@ -388,6 +392,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.visible === false) {
         prop.visible = false;
+      }
+      if (!!propInfo.visibleIf) {
+        prop.visibleIf = propInfo.visibleIf;
       }
       if (propInfo.choices) {
         var choicesFunc =

@@ -239,7 +239,14 @@ Serializer.addClass(
     "stringArray",
     { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
-    { name: "truck", className: "truck", dependsOn: ["car"] },
+    {
+      name: "truck",
+      className: "truck",
+      dependsOn: ["car"],
+      visibleIf: function(obj: any) {
+        return obj.car != null && obj.car.name == "mycar";
+      }
+    },
     { name: "trucks", className: "truck", visible: false },
     { name: "definedNonSerializable", isSerializable: false },
     {
@@ -1869,4 +1876,20 @@ QUnit.test("Get properties dependedOn", function(assert) {
 
   Serializer.removeProperty("dealer", "dp1");
   Serializer.removeProperty("sport", "dp2");
+});
+QUnit.test("property.visibleIf functionality", function(assert) {
+  var dealer = new Dealer();
+  var propTruck = Serializer.findProperty("dealer", "truck");
+  assert.equal(
+    propTruck.isVisible("row", dealer),
+    false,
+    "It is invisible by default"
+  );
+  dealer.car = new Truck();
+  dealer.car.name = "mycar";
+  assert.equal(
+    propTruck.isVisible("row", dealer),
+    true,
+    "The visibleIf returns true"
+  );
 });

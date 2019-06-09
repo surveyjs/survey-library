@@ -19,6 +19,7 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private commentValue: string;
+  private prevCommentValue: string;
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
@@ -241,7 +242,16 @@ export class QuestionSelectBase extends Question {
     if (Helpers.isTwoValueEquals(this.value, newValue)) return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
-    if (!this.isOtherSelected && !!this.comment) {
+    var isOtherSel = this.isOtherSelected;
+    if (isOtherSel && !!this.prevCommentValue) {
+      var oldComment = this.prevCommentValue;
+      this.prevCommentValue = "";
+      this.comment = oldComment;
+    }
+    if (!isOtherSel && !!this.comment) {
+      if (this.getStoreOthersAsComment()) {
+        this.prevCommentValue = this.comment;
+      }
       this.comment = "";
     }
   }

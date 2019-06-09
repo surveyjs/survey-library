@@ -2886,3 +2886,24 @@ QUnit.test("Could not assign validators", function(assert) {
     "MinValue is correct"
   );
 });
+
+QUnit.test("Restore comment on uncheck/check others", function(assert) {
+  var qCheck = new QuestionCheckboxModel("q1");
+  qCheck.choices = ["1", "2", "3"];
+  qCheck.hasOther = true;
+  var qRadio = new QuestionRadiogroupModel("q2");
+  qRadio.choices = ["1", "2", "3"];
+  qRadio.hasOther = true;
+  qCheck.value = [qCheck.otherItem.value];
+  qRadio.value = qRadio.otherItem.value;
+  qCheck.comment = "comment-check";
+  qRadio.comment = "comment-radio";
+  qCheck.value = ["1"];
+  qRadio.value = "1";
+  assert.equal(qCheck.comment, "", "checkbox comment is empty");
+  assert.equal(qRadio.comment, "", "radiobox comment is empty");
+  qCheck.value = ["1", qCheck.otherItem.value];
+  qRadio.value = qRadio.otherItem.value;
+  assert.equal(qCheck.comment, "comment-check", "checkbox comment is restored");
+  assert.equal(qRadio.comment, "comment-radio", "radiobox comment is restored");
+});

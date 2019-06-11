@@ -179,14 +179,13 @@ export class QuestionMatrixModel
   private isRowChanging = false;
   private cellsValue: MartrixCells;
 
-  protected createColumnValues() {
-    return this.createItemValues("columns");
-  }
-
   constructor(public name: string) {
     super(name);
     this.cellsValue = new MartrixCells(this);
     var self = this;
+    this.registerFunctionOnPropertyValueChanged("columns", function() {
+      self.onColumnsChanged();
+    });
     this.registerFunctionOnPropertyValueChanged("rows", function() {
       if (!self.filterItems()) {
         self.onRowsChanged();

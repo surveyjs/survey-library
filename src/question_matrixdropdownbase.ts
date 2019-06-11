@@ -1238,7 +1238,7 @@ export class QuestionMatrixDropdownModelBase
   }
   public addColumn(name: string, title: string = null): MatrixDropdownColumn {
     var column = new MatrixDropdownColumn(name, title);
-    this.columnsValue.push(column);
+    this.columns.push(column);
     return column;
   }
   protected getVisibleRows(): Array<MatrixDropdownRowModelBase> {

@@ -48,6 +48,11 @@ export class QuestionMatrix extends QuestionMatrixModel {
     this.koVisibleRows = ko.observable(this.visibleRows);
     this.koVisibleColumns = ko.observable(this.visibleColumns);
   }
+  protected onColumnsChanged() {
+    super.onColumnsChanged();
+    this.koVisibleRows(this.visibleRows);
+    this.koVisibleColumns(this.visibleColumns);
+  }
   protected onRowsChanged() {
     super.onRowsChanged();
     this.koVisibleRows(this.visibleRows);

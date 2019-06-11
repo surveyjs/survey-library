@@ -275,6 +275,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }
+    this.rowCountValue--;
     if (this.value) {
       var val = this.createNewValue();
       val.splice(index, 1);
@@ -283,7 +284,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.value = val;
       this.isRowChanging = false;
     }
-    this.rowCountValue--;
     this.fireCallback(this.visibleRowsChangedCallback);
   }
   /**
@@ -499,8 +499,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createNewValue(): any {
     var result = this.createValueCopy();
     if (!result || !Array.isArray(result)) result = [];
-    var r = [];
-    if (result.length > this.rowCount) result.splice(this.rowCount - 1);
+    if (result.length > this.rowCount) result.splice(this.rowCount);
     var rowValue = this.getDefaultRowValue(false);
     rowValue = rowValue || {};
     for (var i = result.length; i < this.rowCount; i++) {

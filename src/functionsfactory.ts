@@ -143,6 +143,13 @@ function iif(params: any[]): any {
 }
 FunctionFactory.Instance.register("iif", iif);
 
+function getDate(params: any[]): any {
+  if (!params && params.length < 1) return null;
+  if (!params[0]) return null;
+  return new Date(params[0]);
+}
+FunctionFactory.Instance.register("getDate", getDate);
+
 function age(params: any[]): any {
   if (!params && params.length < 1) return null;
   if (!params[0]) return null;

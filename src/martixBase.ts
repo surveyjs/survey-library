@@ -9,7 +9,6 @@ import { Helpers } from "./helpers";
  * A Model for a matrix base question.
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
-  protected columnsValue: Array<TColumn>;
   protected filteredColumns: Array<TColumn>;
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
@@ -17,14 +16,14 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public visibleRowsChangedCallback: () => void;
 
   protected createColumnValues(): any {
-    return [];
+    return this.createItemValues("columns");
   }
 
   constructor(public name: string) {
     super(name);
     this.filteredRows = null;
     this.filteredColumns = null;
-    this.columnsValue = this.createColumnValues();
+    this.columns = this.createColumnValues();
     this.rows = this.createItemValues("rows");
   }
   public getType(): string {
@@ -46,7 +45,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * The list of columns. A column has a value and an optional text
    */
   get columns(): Array<any> {
-    return this.columnsValue;
+    return this.getPropertyValue("columns");
   }
   set columns(newValue: Array<any>) {
     this.setPropertyValue("columns", newValue);
@@ -112,6 +111,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.getDataFilteredProperties()
     );
   }
+  protected onColumnsChanged() {}
   protected onRowsChanged() {
     this.fireCallback(this.visibleRowsChangedCallback);
   }

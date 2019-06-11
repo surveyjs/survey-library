@@ -1,15 +1,8 @@
 import { Question } from "../src/question";
 import { PanelModel } from "../src/panel";
-import {
-  QuestionPanelDynamicModel,
-  QuestionPanelDynamicItem
-} from "../src/question_paneldynamic";
-import { Serializer } from "../src/jsonobject";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
-import {
-  CustomWidgetCollection,
-  QuestionCustomWidget
-} from "../src/questionCustomWidgets";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
@@ -1163,6 +1156,99 @@ QUnit.test(
     assert.equal(panel.panelCount, 1, "panel: One panel was removed");
   }
 );
+
+QUnit.test(
+  "PanelDynamic vs MatrixDynamic add/remove items, bug#T2130",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          rowCount: 1,
+          name: "employer_names",
+          valueName: "employers",
+          columns: [
+            {
+              name: "RowId",
+              cellType: "expression",
+              expression: "{rowIndex}"
+            },
+            {
+              name: "name",
+              isRequired: true,
+              cellType: "text"
+            }
+          ]
+        },
+        {
+          type: "paneldynamic",
+          renderMode: "list",
+          allowAddPanel: false,
+          allowRemovePanel: false,
+          name: "arrray_employer_info",
+          valueName: "employers",
+          templateTitle: "{panel.name}",
+          templateElements: [
+            {
+              type: "text",
+              name: "address"
+            },
+            {
+              type: "text",
+              name: "abn"
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName(
+      "employer_names"
+    );
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName(
+      "arrray_employer_info"
+    );
+    matrix.visibleRows[0].cells[1].question.value = 1;
+    matrix.addRow();
+    matrix.visibleRows[1].cells[1].question.value = 2;
+    matrix.addRow();
+    matrix.visibleRows[2].cells[1].question.value = 3;
+    assert.equal(panel.panels.length, 3, "There are 3 panels");
+    assert.equal(
+      panel.panels[0].locTitle.renderedHtml,
+      "1",
+      "The first panel title is correct"
+    );
+    assert.equal(
+      panel.panels[1].locTitle.renderedHtml,
+      "2",
+      "The second panel title is correct"
+    );
+    assert.equal(
+      panel.panels[2].locTitle.renderedHtml,
+      "3",
+      "The third panel title is correct"
+    );
+    matrix.removeRow(1);
+    assert.equal(panel.panels.length, 2, "There are two panels now");
+    assert.equal(
+      panel.panels[0].locTitle.renderedHtml,
+      "1",
+      "The first panel title is still correct"
+    );
+    assert.equal(
+      panel.panels[1].locTitle.renderedHtml,
+      "3",
+      "The second panel title is 3 now"
+    );
+    assert.deepEqual(
+      survey.data,
+      { employers: [{ RowId: 1, name: 1 }, { RowId: 2, name: 3 }] },
+      "The value is correct"
+    );
+  }
+);
+
 QUnit.test("panelDynamic.addConditionNames", function(assert) {
   var names = [];
   var panel = new QuestionPanelDynamicModel("panel");
@@ -2506,5 +2592,39 @@ QUnit.test(
       data,
       "Data is not changed after setting single page"
     );
+  }
+);
+QUnit.test(
+  "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "pq1",
+              validators: [
+                { type: "expression", expression: "{panel.pq1} = {q1}" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panels[0].getQuestionByName("pq1").value = "val1";
+    survey.getQuestionByName("q1").value = "val";
+    assert.equal(panel.hasErrors(), true, "There is an error");
+    panel.panels[0].getQuestionByName("pq1").value = "val";
+    assert.equal(panel.hasErrors(), false, "There is no errors");
   }
 );

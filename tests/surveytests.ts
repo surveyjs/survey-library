@@ -327,9 +327,17 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function(
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
 
   survey.progressBarType = "questions";
-  assert.equal(survey.progressText, "Answered 0/3 questions", "Questions progress indicator");
+  assert.equal(
+    survey.progressText,
+    "Answered 0/3 questions",
+    "Questions progress indicator"
+  );
   survey.getAllQuestions()[0].value = "Answer 1";
-  assert.equal(survey.progressText, "Answered 3/3 questions", "Answered 1 question - but questions with the same name");
+  assert.equal(
+    survey.progressText,
+    "Answered 3/3 questions",
+    "Answered 1 question - but questions with the same name"
+  );
 });
 QUnit.test("Next, Prev, Next", function(assert) {
   var survey = new SurveyModel();
@@ -672,7 +680,7 @@ QUnit.test(
                     {
                       type: "expression",
                       text: "Error!!!",
-                      expression: "{question1.Row1.Column1} > 10"
+                      expression: "{panel.question1.Row1.Column1} > 10"
                     }
                   ],
                   columns: [

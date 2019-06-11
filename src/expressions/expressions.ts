@@ -141,15 +141,45 @@ export class Const extends Operand {
   }
 
   public evaluate(): any {
-    return this.value;
+    return this.getCorrectValue(this.value);
   }
 
   public setVariables(variables: Array<string>) {}
+  protected getCorrectValue(value: any): any {
+    if (!value || typeof value != "string") return value;
+    if (this.isBooleanValue(value)) return value === "true";
+    if (this.isNumericValue(value)) {
+      if (value.indexOf("0x") == 0) return parseInt(value);
+      return parseFloat(value);
+    }
+    return value;
+  }
+  private isBooleanValue(value: any): boolean {
+    return (
+      value &&
+      (value.toLowerCase() === "true" || value.toLowerCase() === "false")
+    );
+  }
+  private isNumericValue(value: any): boolean {
+    if (
+      value &&
+      (value.indexOf("-") > -1 ||
+        value.indexOf("+") > 1 ||
+        value.indexOf("*") > -1 ||
+        value.indexOf("^") > -1 ||
+        value.indexOf("/") > -1 ||
+        value.indexOf("%") > -1)
+    )
+      return false;
+    var val = Number(value);
+    if (isNaN(val)) return false;
+    return isFinite(val);
+  }
 }
 
-export class Variable extends Operand {
+export class Variable extends Const {
   constructor(private variableName: string) {
-    super();
+    super(variableName);
   }
 
   public toString(): string {
@@ -158,10 +188,9 @@ export class Variable extends Operand {
 
   public evaluate(processValue?: ProcessValue): any {
     return processValue.hasValue(this.variableName)
-      ? processValue.getValue(this.variableName)
+      ? this.getCorrectValue(processValue.getValue(this.variableName))
       : null;
   }
-
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);
   }

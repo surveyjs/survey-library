@@ -25,7 +25,9 @@ export class JsonObjectProperty implements IObject {
     "defaultValue",
     "serializationProperty",
     "onGetValue",
-    "onSetValue"
+    "onSetValue",
+    "dependedProperties",
+    "visibleIf"
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -35,6 +37,7 @@ export class JsonObjectProperty implements IObject {
   private visibleValue: boolean | null = null;
   private isLocalizableValue: boolean | null = null;
   private choicesfunc: (obj: any) => Array<any> = null;
+  private dependedProperties: Array<string> = null;
   public isSerializable: boolean = true;
   public isLightSerializable: boolean = true;
   public isDynamicChoices: boolean = false;
@@ -47,6 +50,7 @@ export class JsonObjectProperty implements IObject {
   public layout: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
+  public visibleIf: (obj: any) => boolean = null;
 
   constructor(public name: string, isRequired: boolean = false) {
     this.isRequiredValue = isRequired;
@@ -170,9 +174,11 @@ export class JsonObjectProperty implements IObject {
   public set readOnly(val: boolean) {
     this.readOnlyValue = val;
   }
-  public isVisible(layout: string): boolean {
+  public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
-    return this.visible && isLayout;
+    if (!this.visible || !isLayout) return false;
+    if (!!this.visibleIf && !!obj) return this.visibleIf(obj);
+    return true;
   }
   public get visible(): boolean {
     return this.visibleValue != null ? this.visibleValue : true;
@@ -191,6 +197,17 @@ export class JsonObjectProperty implements IObject {
     for (var i = 0; i < valuesNames.length; i++) {
       this.mergeValue(prop, valuesNames[i]);
     }
+  }
+  public addDependedProperty(name: string) {
+    if (!this.dependedProperties) {
+      this.dependedProperties = [];
+    }
+    if (this.dependedProperties.indexOf(name) < 0) {
+      this.dependedProperties.push(name);
+    }
+  }
+  public getDependedProperties(): Array<string> {
+    return !!this.dependedProperties ? this.dependedProperties : [];
   }
   private mergeValue(prop: JsonObjectProperty, valueName: string) {
     if (this[valueName] == null && prop[valueName] != null) {
@@ -324,9 +341,9 @@ export class JsonMetadataClass {
     public parentName: string = null
   ) {
     name = name.toLowerCase();
-    if (parentName) {
-      parentName = parentName.toLowerCase();
-      CustomPropertiesCollection.addClass(name, parentName);
+    if (this.parentName) {
+      this.parentName = this.parentName.toLowerCase();
+      CustomPropertiesCollection.addClass(name, this.parentName);
     }
     this.properties = new Array<JsonObjectProperty>();
     for (var i = 0; i < properties.length; i++) {
@@ -376,6 +393,9 @@ export class JsonMetadataClass {
       if (propInfo.visible === false) {
         prop.visible = false;
       }
+      if (!!propInfo.visibleIf) {
+        prop.visibleIf = propInfo.visibleIf;
+      }
       if (propInfo.choices) {
         var choicesFunc =
           typeof propInfo.choices === "function" ? propInfo.choices : null;
@@ -423,8 +443,28 @@ export class JsonMetadataClass {
       if (propInfo.layout) {
         prop.layout = propInfo.layout;
       }
+      if (propInfo.dependsOn) {
+        this.addDependsOnProperties(prop, propInfo.dependsOn);
+      }
     }
     return prop;
+  }
+  private addDependsOnProperties(prop: JsonObjectProperty, dependsOn: any) {
+    if (Array.isArray(dependsOn)) {
+      for (var i = 0; i < dependsOn.length; i++) {
+        this.addDependsOnProperty(prop, dependsOn[i]);
+      }
+    } else {
+      this.addDependsOnProperty(prop, dependsOn);
+    }
+  }
+  private addDependsOnProperty(prop: JsonObjectProperty, dependsOn: string) {
+    var property = this.find(dependsOn);
+    if (!property) {
+      property = Serializer.findProperty(this.parentName, dependsOn);
+    }
+    if (!property) return;
+    property.addDependedProperty(prop.name);
   }
   private getIsPropertyNameRequired(propertyName: string): boolean {
     return (

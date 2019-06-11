@@ -742,3 +742,9 @@ QUnit.test("Support apostrophes in value name", function(assert) {
   values = { "a'b\"c": 2 };
   assert.equal(runner.run(values), false, "2 = 1");
 });
+
+QUnit.test("String as numbers", function(assert) {
+  var runner = new ExpressionRunner("({a} + {b}) * {c}");
+  var values: any = { a: "2", b: "3", c: "4" };
+  assert.equal(runner.run(values), 20, "convert strings to numbers");
+});

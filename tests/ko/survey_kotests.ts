@@ -172,6 +172,21 @@ QUnit.test("Question Matrix: koValue in MatrixValue", function(assert) {
     "the matrix value changed correctly"
   );
 });
+QUnit.test("Question Matrix: update koVisibleColumns on assign", function(
+  assert
+) {
+  var matrix = new QuestionMatrix("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.koVisibleColumns().length, 2, "initial columns");
+  matrix.columns = ["col1", "col2", "col3"];
+  assert.equal(matrix.koVisibleColumns().length, 3, "new columns");
+  assert.equal(
+    matrix.koVisibleColumns()[2].value,
+    "col3",
+    "new column value ok"
+  );
+});
 QUnit.test(
   "Question Matrix: change matrix value after visibleRows generation",
   function(assert) {

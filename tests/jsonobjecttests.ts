@@ -239,7 +239,14 @@ Serializer.addClass(
     "stringArray",
     { name: "defaultValue", default: "default" },
     { name: "cars", baseClassName: "car", visible: false },
-    { name: "truck", className: "truck" },
+    {
+      name: "truck",
+      className: "truck",
+      dependsOn: ["car"],
+      visibleIf: function(obj: any) {
+        return obj.car != null && obj.car.name == "mycar";
+      }
+    },
     { name: "trucks", className: "truck", visible: false },
     { name: "definedNonSerializable", isSerializable: false },
     {
@@ -1851,4 +1858,38 @@ QUnit.test("Remove class", function(assert) {
   );
 
   Serializer.addClass("big", [], null, "car");
+});
+
+QUnit.test("Get properties dependedOn", function(assert) {
+  var propCar = Serializer.findProperty("dealer", "car");
+  var propTruck = Serializer.findProperty("dealer", "truck");
+  assert.deepEqual(propCar.getDependedProperties(), ["truck"]);
+  assert.deepEqual(propTruck.getDependedProperties(), []);
+
+  Serializer.addProperty("dealer", { name: "dp1", dependsOn: "car" });
+  assert.deepEqual(propCar.getDependedProperties(), ["truck", "dp1"]);
+
+  //depends on property from a parent class
+  Serializer.addProperty("sport", { name: "dp2", dependsOn: ["name"] });
+  var propName = Serializer.findProperty("sport", "name");
+  assert.deepEqual(propName.getDependedProperties(), ["dp2"]);
+
+  Serializer.removeProperty("dealer", "dp1");
+  Serializer.removeProperty("sport", "dp2");
+});
+QUnit.test("property.visibleIf functionality", function(assert) {
+  var dealer = new Dealer();
+  var propTruck = Serializer.findProperty("dealer", "truck");
+  assert.equal(
+    propTruck.isVisible("row", dealer),
+    false,
+    "It is invisible by default"
+  );
+  dealer.car = new Truck();
+  dealer.car.name = "mycar";
+  assert.equal(
+    propTruck.isVisible("row", dealer),
+    true,
+    "The visibleIf returns true"
+  );
 });

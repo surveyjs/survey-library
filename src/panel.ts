@@ -50,6 +50,9 @@ export class QuestionRowModel extends Base {
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
   }
+  public get visibleElements(): Array<IElement> {
+    return this.elements.filter(e => e.isVisible);
+  }
   public updateVisible() {
     this.visible = this.calcVisible();
     this.setWidth();
@@ -62,7 +65,7 @@ export class QuestionRowModel extends Base {
     return this.panel.rows.indexOf(this);
   }
   private setWidth() {
-    var visCount = this.getVisibleCount();
+    var visCount = this.visibleElements.length;
     if (visCount == 0) return;
     var counter = 0;
     for (var i = 0; i < this.elements.length; i++) {
@@ -76,15 +79,8 @@ export class QuestionRowModel extends Base {
       }
     }
   }
-  private getVisibleCount(): number {
-    var res = 0;
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) res++;
-    }
-    return res;
-  }
   private calcVisible(): boolean {
-    return this.getVisibleCount() > 0;
+    return this.visibleElements.length > 0;
   }
 }
 

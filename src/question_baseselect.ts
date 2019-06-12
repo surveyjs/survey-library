@@ -563,6 +563,9 @@ export class QuestionSelectBase extends Question {
       this.cachedValueForUrlRequests = this.defaultValue;
       checkCachedValuesOnExisting = false;
     }
+    if (this.isValueEmpty(this.cachedValueForUrlRequests)) {
+      this.cachedValueForUrlRequests = this.value;
+    }
     this.isFirstLoadChoicesFromUrl = false;
     var cachedValues = this.createCachedValueForUrlRequests(
       this.cachedValueForUrlRequests,

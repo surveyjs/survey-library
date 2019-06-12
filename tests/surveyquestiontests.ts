@@ -1751,63 +1751,6 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
-  function(assert) {
-    var json = {
-      pages: [
-        {
-          name: "page1",
-          elements: [
-            {
-              type: "radiogroup",
-              name: "test",
-              defaultValue: {
-                id: 1023
-              },
-              choicesByUrl: {
-                url: "",
-                valueName: "identity",
-                titleName: "localizedData.id"
-              }
-            }
-          ]
-        }
-      ]
-    };
-    var survey = new SurveyModel(json);
-    var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
-    var loadedItems = [
-      { identity: { id: 1021 }, localizedData: { id: "A1" } },
-      { identity: { id: 1022 }, localizedData: { id: "A2" } },
-      { identity: { id: 1023 }, localizedData: { id: "A3" } },
-      { identity: { id: 1024 }, localizedData: { id: "A4" } }
-    ].map(i => new ItemValue(i.identity, i.localizedData.id));
-    question["onLoadChoicesFromUrl"](loadedItems);
-    assert.ok(
-      question.value === question["activeChoices"][2].value,
-      "Choosen exactly choice item value"
-    );
-    survey.doComplete();
-    assert.deepEqual(
-      question.value,
-      {
-        id: 1023
-      },
-      "Initial value is set correctly"
-    );
-    assert.deepEqual(
-      survey.data,
-      {
-        test: {
-          id: 1023
-        }
-      },
-      "Initial value is set correctly"
-    );
-  }
-);
-
 QUnit.test("Rating question, visibleRateValues property", function(assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(

@@ -7,18 +7,19 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import {
-  QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
   MatrixDropdownColumn
 } from "../src/question_matrixdropdownbase";
 import { ItemValue } from "../src/itemvalue";
 import { JsonObject, Serializer } from "../src/jsonobject";
+import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 
 export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
   public noCaching: boolean = false;
   public lastProcesedUrl: string;
+  public items: any = null;
   public get testProcessedUrl() {
     return this.processedUrl;
   }
@@ -26,6 +27,10 @@ class ChoicesRestfullTester extends ChoicesRestfull {
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("countries") > -1)
       this.onLoad(getCountries());
+    if (!!this.items) {
+      this.onLoad(this.items);
+      return;
+    }
     if (this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
     if (this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
     if (this.processedUrl.indexOf("xml") > -1)
@@ -64,6 +69,9 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   }
   public getType(): string {
     return "dropdownrestfulltester";
+  }
+  public get restFullTest(): ChoicesRestfullTester {
+    return <ChoicesRestfullTester>this.choicesByUrl;
   }
   protected createRestfull(): ChoicesRestfull {
     var res = new ChoicesRestfullTester();
@@ -384,6 +392,95 @@ QUnit.test(
     question.doResultsCallback();
     assert.equal(question.isOtherSelected, false, "There shuld not be other#2");
     assert.equal(question.value, "CA", "'CA' value is still here");
+  }
+);
+
+QUnit.test(
+  "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "radiogroup",
+              name: "test",
+              defaultValue: {
+                id: 1023
+              },
+              choicesByUrl: {
+                url: "",
+                valueName: "identity",
+                titleName: "localizedData.id"
+              }
+            }
+          ]
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
+    var loadedItems = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ].map(i => new ItemValue(i.identity, i.localizedData.id));
+    question["onLoadChoicesFromUrl"](loadedItems);
+    assert.ok(
+      question.value === question["activeChoices"][2].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      {
+        id: 1023
+      },
+      "Initial value is set correctly"
+    );
+    assert.deepEqual(
+      survey.data,
+      {
+        test: {
+          id: 1023
+        }
+      },
+      "Initial value is set correctly"
+    );
+  }
+);
+
+QUnit.test(
+  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2055",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFullTest.items = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ];
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    survey.setValue("q1", {
+      id: 1023
+    });
+    question.doResultsCallback();
+    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
+    assert.deepEqual(
+      question.value,
+      {
+        id: 1023
+      },
+      "Complex value set correctly"
+    );
   }
 );
 

@@ -9,6 +9,7 @@ import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
+import { Question } from "../src/question";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -1899,6 +1900,40 @@ QUnit.test("Text preprocessing with capital questions", function(assert) {
     "uppercase name is fine"
   );
 });
+
+QUnit.test(
+  "Text preprocessing with dot in question, column and row names",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "q.1",
+          columns: [
+            {
+              name: "c.1"
+            }
+          ],
+          cellType: "text",
+          rows: [
+            {
+              value: "r.1"
+            }
+          ]
+        },
+        {
+          type: "text",
+          name: "q1",
+          title: "{q.1.r.1.c.1}"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    survey.data = { "q.1": { "r.1": { "c.1": "val1" } } };
+    var q1 = <Question>survey.getQuestionByName("q1");
+    assert.equal(q1.locTitle.renderedHtml, "val1", "work with dots fine");
+  }
+);
 
 QUnit.test(
   "Shared matrix value name, Bug: Bug# https://surveyjs.answerdesk.io/ticket/details/T1322",

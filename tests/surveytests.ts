@@ -1780,6 +1780,16 @@ QUnit.test("pre process title", function(assert) {
     "<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>"
   );
 });
+QUnit.test("pre process title where name with dot", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.data = { "name.dot": "John" };
+  survey.title = "Hello {name.dot}";
+  assert.equal(
+    survey.processedTitle,
+    "Hello John",
+    "process survey title correctly"
+  );
+});
 
 QUnit.test("pre process title, 'locale' variable", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -1828,6 +1838,30 @@ QUnit.test("pre process completedHtml nested properties and arrays", function(
   dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
 
   survey.completedHtml = "{mt.t2}:{matrix[1].col2}";
+  assert.equal(survey.processedCompletedHtml, "Year:2017");
+});
+
+QUnit.test("pre process completedHtml nested properties and arrays + name with dot", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("page1");
+
+  var multipleText = new QuestionMultipleTextModel("m.t");
+  multipleText.addItem("t1");
+  multipleText.addItem("t2");
+  page.addQuestion(multipleText);
+
+  var dynamicMatrix = new QuestionMatrixDynamicModel("matri.x");
+  dynamicMatrix.addColumn("col1");
+  dynamicMatrix.addColumn("col2");
+  dynamicMatrix.addColumn("col3");
+  page.addQuestion(dynamicMatrix);
+
+  multipleText.value = { t2: "Year" };
+  dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
+
+  survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
   assert.equal(survey.processedCompletedHtml, "Year:2017");
 });
 
@@ -2506,6 +2540,31 @@ QUnit.test("visibleIf, bug#729", function(assert) {
   q1.value = "false";
   assert.equal(q2.visible, false, "q2 should be invisible again");
 });
+
+QUnit.test("visibleIf, allow dot in question name", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+      {
+        choices: [
+          { value: "true", text: "Yes" },
+          { value: "false", text: "No" }
+        ],
+        type: "radiogroup",
+        name: "q1.a"
+      },
+      { type: "text", name: "q2", visibleIf: "{q1.a} = 'true'" }
+    ]
+  });
+  var q1 = <Question>survey.getQuestionByName("q1.a");
+  var q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.visible, false, "q2 is not visible by default");
+  q1.value = "true";
+  assert.equal(q2.visible, true, "q2 should be visible now");
+  q1.value = "false";
+  assert.equal(q2.visible, false, "q2 should be invisible again");
+});
+
+
 QUnit.test("enableIf for question", function(assert) {
   var survey = new SurveyModel({
     pages: [

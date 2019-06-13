@@ -3038,13 +3038,14 @@ export class SurveyModel extends Base
       textValue.value = this.getQuizQuestions().length;
       return;
     }
-    var firstName = new ProcessValue().getFirstName(name);
+    var firstName = new ProcessValue().getFirstName(name, this.data);
     var variable = this.getVariable(name);
     if (variable !== undefined) {
       textValue.isExists = true;
       textValue.value = variable;
       return;
     }
+    if (!!firstName) firstName = firstName.toLowerCase();
     var question = this.getQuestionByValueName(firstName, true);
     if (question) {
       textValue.isExists = true;

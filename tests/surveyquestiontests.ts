@@ -2452,49 +2452,11 @@ QUnit.test("Checkbox hasSelectAll", function(assert) {
 });
 
 QUnit.test(
-  "Set valueName automatically if name property is not valid",
-  function(assert) {
-    var question = new Question("q1");
-    assert.equal(question.valueName, "", "It is empty by default");
-    question.name = "q1.";
-    assert.equal(question.valueName, "q1", "It has removed '.'");
-    question.name = "q.1.";
-    assert.equal(question.valueName, "q 1", "Removed and replaced '.'");
-    question.name = "q1";
-    assert.equal(question.valueName, "", "It is empty again");
-
-    question.valueName = "someValue";
-    question.name = "q1.";
-    assert.equal(
-      question.valueName,
-      "someValue",
-      "valueName was not assign automatically"
-    );
-    question.name = "q1";
-    assert.equal(question.valueName, "someValue", "keep custom value");
-
-    question = new Question("q.1.");
-    assert.equal(question.valueName, "q 1", "Removed and replaced '.'");
-
-    var json = {
-      elements: [{ type: "text", name: "q.1." }]
-    };
-    var survey = new SurveyModel(json);
-    question = <Question>survey.getQuestionByName("q.1.");
-    assert.ok(question, "question is loaded");
-    assert.equal(
-      question.valueName,
-      "q 1",
-      "Removed and replaced '.' on loading"
-    );
-  }
-);
-QUnit.test(
-  "Replace period '.' with space ' ' on setting a string with '.' into valueName",
+  "Do not replace period '.' with space ' ' on setting a string with '.' into valueName",
   function(assert) {
     var question = new Question("q1");
     question.valueName = "q.1.";
-    assert.equal(question.valueName, "q 1", "Correct the value name");
+    assert.equal(question.valueName, "q.1.", "Correct the value name");
   }
 );
 

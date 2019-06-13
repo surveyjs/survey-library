@@ -9,9 +9,13 @@ export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
   constructor() {}
-  public getFirstName(text: string): string {
+  public getFirstName(text: string, obj: any = null): string {
     if (!text) return text;
     var res = "";
+    if (!!obj) {
+      res = this.getFirstPropertyName(text, obj);
+      if (!!res) return res;
+    }
     for (var i = 0; i < text.length; i++) {
       var ch = text[i];
       if (ch == "." || ch == "[") break;
@@ -60,10 +64,12 @@ export class ProcessValue {
     return res;
   }
   private getNonNestedObject(obj: any, text: string): any {
-    while (text != this.getFirstName(text) && !!obj) {
+    var curName = this.getFirstPropertyName(text, obj);
+    while (text != curName && !!obj) {
       var isArray = text[0] == "[";
       if (!isArray) {
-        var curName = this.getFirstName(text);
+        if (!curName && text == this.getFirstName(text))
+          return { value: obj, text: text };
         obj = this.getObjectValue(obj, curName);
         if (!obj) return null;
         text = text.substr(curName.length);
@@ -76,6 +82,7 @@ export class ProcessValue {
       if (!!text && text[0] == ".") {
         text = text.substr(1);
       }
+      curName = this.getFirstPropertyName(text, obj);
     }
     return { value: obj, text: text };
   }
@@ -92,18 +99,28 @@ export class ProcessValue {
     if (index < 0 || index >= curValue.length) return null;
     return { value: curValue[index], text: text };
   }
-  private getObjectValue(obj: any, name: string): any {
-    if (obj.hasOwnProperty(name)) return obj[name];
+  private getFirstPropertyName(name: string, obj: any): string {
+    if (!name) return name;
+    if (obj.hasOwnProperty(name)) return name;
     name = name.toLowerCase();
     var A = name[0];
     var a = A.toUpperCase();
     for (var key in obj) {
       var first = key[0];
       if (first === a || first === A) {
-        if (key.toLowerCase() == name) return obj[key];
+        var keyName = key.toLowerCase();
+        if (keyName == name) return key;
+        if (name.length <= keyName.length) continue;
+        var ch = name[keyName.length];
+        if (ch != "." && ch != "[") continue;
+        if (keyName == name.substr(0, keyName.length)) return key;
       }
     }
-    return null;
+    return "";
+  }
+  private getObjectValue(obj: any, name: string): any {
+    if (!name) return null;
+    return obj[name];
   }
   private getIntValue(str: any) {
     if (str == "0" || ((str | 0) > 0 && str % 1 == 0)) return Number(str);

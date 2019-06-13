@@ -106,7 +106,7 @@ export class Question extends SurveyElement
   }
   public set valueName(val: string) {
     var oldValueName = this.getValueName();
-    this.setPropertyValue("valueName", this.getCorrectedName(val));
+    this.setPropertyValue("valueName", val);
     this.onValueNameChanged(oldValueName);
   }
   protected onValueNameChanged(oldValue: string) {
@@ -206,33 +206,6 @@ export class Question extends SurveyElement
    */
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
-  }
-
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any) {
-    if (name === "name") {
-      this.onNameValueChanged(oldValue, newValue);
-    }
-    super.propertyValueChanged(name, oldValue, newValue);
-  }
-  protected onNameValueChanged(oldValue: string, newValue: string) {
-    if (!newValue) return;
-    if (newValue.indexOf(".") > -1) {
-      if (!this.valueName || this.isCorrectedNameEqualsValueName(oldValue))
-        this.valueName = newValue;
-    } else {
-      if (!!this.valueName && this.isCorrectedNameEqualsValueName(oldValue)) {
-        this.valueName = "";
-      }
-    }
-  }
-  private getCorrectedName(name: string): string {
-    if (!name || typeof name !== "string") return name;
-    while (name.indexOf(".") > -1) name = name.replace(".", " ");
-    return name.trim();
-  }
-  private isCorrectedNameEqualsValueName(name: string): boolean {
-    if (!name || name.indexOf(".") < 0 || !this.valueName) return false;
-    return this.getCorrectedName(name) == this.valueName;
   }
   /**
    * Returns true if the question may have a title located on the left

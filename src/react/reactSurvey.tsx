@@ -180,7 +180,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       currentPage = this.renderEmptySurvey();
     }
     return (
-      <div id={pageId} className={this.css.body}>
+      <div
+        id={pageId}
+        className={!currentPage ? this.css.bodyEmpty : this.css.body}
+      >
         {topProgress}
         {this.renderTimerPanel("top")}
         {this.renderNavigation("top")}

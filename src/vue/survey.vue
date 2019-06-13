@@ -145,7 +145,7 @@
           :class="css.body"
           v-html="survey.processedLoadingHtml"
         ></div>
-        <div v-if="survey.state === 'empty'" :class="css.body">{{survey.emptySurveyText}}</div>
+        <div v-if="survey.state === 'empty'" :class="css.bodyEmpty">{{survey.emptySurveyText}}</div>
       </div>
     </form>
   </div>

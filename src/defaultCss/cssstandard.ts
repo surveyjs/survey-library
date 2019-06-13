@@ -11,6 +11,7 @@ export var defaultStandardCss = {
   root: "sv_main sv_default_css",
   header: "sv_header",
   body: "sv_body",
+  bodyEmpty: "sv_body sv_body_empty",
   footer: "sv_nav",
   navigationButton: "",
   completedPage: "sv_completed_page",

@@ -4,6 +4,7 @@ export var defaultBootstrapCss = {
   root: "sv_main sv_bootstrap_css",
   header: "panel-heading card-header",
   body: "panel-body card-block mt-4",
+  bodyEmpty: "panel-body card-block mt-4 sv_body_empty",
   footer: "panel-footer card-footer",
   navigationButton: "",
   completedPage: "",

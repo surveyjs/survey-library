@@ -748,7 +748,7 @@ export class SurveyModel extends Base
     super();
     var self = this;
     if (typeof document !== "undefined") {
-      this.stylesManager = new StylesManager();
+      SurveyModel.stylesManager = new StylesManager();
     }
     this.createLocalizableString("title", this, true);
     this.createLocalizableString("description", this, true);

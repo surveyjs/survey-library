@@ -203,6 +203,38 @@ QUnit.test("Matrixdynamic add/remove rows", function(assert) {
   question.addRow();
   assert.equal(question.rowCount, 3, "one row is added");
 });
+QUnit.test("Matrixdynamic isRequireConfirmOnRowDelete", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p");
+  var question = new QuestionMatrixDynamicModel("matrixDymanic");
+  question.name = "q1";
+  page.addQuestion(question);
+  question.rowCount = 3;
+  question.columns.push(new MatrixDropdownColumn("column1"));
+  question.columns.push(new MatrixDropdownColumn("column2"));
+  question.value = [{}, { column1: 2 }, {}];
+  assert.equal(
+    question.isRequireConfirmOnRowDelete(0),
+    false,
+    "empty row, confirmDelete = false"
+  );
+  assert.equal(
+    question.isRequireConfirmOnRowDelete(1),
+    false,
+    "non empty row, confirmDelete = false"
+  );
+  question.confirmDelete = true;
+  assert.equal(
+    question.isRequireConfirmOnRowDelete(0),
+    false,
+    "empty row, confirmDelete = true"
+  );
+  assert.equal(
+    question.isRequireConfirmOnRowDelete(1),
+    true,
+    "non empty row, confirmDelete = true"
+  );
+});
 QUnit.test("Matrixdynamic required column", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
   question.rowCount = 2;

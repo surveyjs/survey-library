@@ -26,19 +26,16 @@ export var indonesianStrings = {
   minRowCountError: "Silahkan isi setidaknya {0} baris.",
   minSelectError: "Silahkan pilih setidaknya {0} varian.",
   maxSelectError: "Silahkan pilih tidak lebih dari {0} varian.",
-  numericMinMax:
-    "'{0}' harus sama dengan atau lebih dari {1} dan harus sama dengan atau kurang dari {2}",
+  numericMinMax: "'{0}' harus sama dengan atau lebih dari {1} dan harus sama dengan atau kurang dari {2}",
   numericMin: "'{0}' harus sama dengan atau lebih dari {1}",
   numericMax: "'{0}' harus sama dengan atau kurang dari {1}",
   invalidEmail: "Silahkan masukkan e-mail yang benar.",
   invalidExpression: "Ekspresi: {0} harus mengembalikan 'benar'.",
   urlRequestError: "Permintaan mengembalikan kesalahan '{0}'. {1}",
-  urlGetChoicesError:
-    "Permintaan mengembalikan data kosong atau properti 'path' salah.",
+  urlGetChoicesError: "Permintaan mengembalikan data kosong atau properti 'path' salah.",
   exceedMaxSize: "Ukuran berkas tidak boleh melebihi {0}.",
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
-  uploadingFile:
-    "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
+  uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   loadingFile: "Memuat...",
   chooseFile: "Pilih berkas...",
   confirmDelete: "Apakah Anda ingin menghapus catatan?",

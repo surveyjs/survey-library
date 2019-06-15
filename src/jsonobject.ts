@@ -36,7 +36,7 @@ export class JsonObjectProperty implements IObject {
   private readOnlyValue: boolean | null = null;
   private visibleValue: boolean | null = null;
   private isLocalizableValue: boolean | null = null;
-  private choicesfunc: (obj: any) => Array<any> = null;
+  private choicesfunc: (obj: any, choicesCallback: any) => Array<any> = null;
   private dependedProperties: Array<string> = null;
   public isSerializable: boolean = true;
   public isLightSerializable: boolean = true;
@@ -151,9 +151,9 @@ export class JsonObjectProperty implements IObject {
   public get hasChoices(): boolean {
     return !!this.choicesValue || !!this.choicesfunc;
   }
-  public getChoices(obj: any): Array<any> {
+  public getChoices(obj: any, choicesCallback: any = null): Array<any> {
     if (this.choicesValue != null) return this.choicesValue;
-    if (this.choicesfunc != null) return this.choicesfunc(obj);
+    if (this.choicesfunc != null) return this.choicesfunc(obj, choicesCallback);
     return null;
   }
   public setChoices(value: Array<any>, valueFunc: () => Array<any>) {

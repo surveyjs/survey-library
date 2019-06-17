@@ -26,6 +26,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
+import {settings} from "./settings";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -745,11 +746,11 @@ export class MatrixDropdownRowModelBase
     }
   }
   public getComment(name: string): string {
-    var result = this.getValue(name + Base.commentPrefix);
+    var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
   }
   public setComment(name: string, newValue: string) {
-    this.setValue(name + Base.commentPrefix, newValue);
+    this.setValue(name + settings.commentPrefix, newValue);
   }
   public get isEmpty() {
     var val = this.value;

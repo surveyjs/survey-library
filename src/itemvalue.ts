@@ -3,6 +3,7 @@ import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
+import { settings } from "./settings";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -11,7 +12,12 @@ import { Base } from "./base";
  */
 export class ItemValue extends Base {
   [index: string]: any;
-  public static Separator = "|";
+  public static get Separator() {
+    return settings.itemValueSeparator;
+  }
+  public static set Separator(val: string) {
+    settings.itemValueSeparator = val;
+  }
   public static createArray(locOwner: ILocalizableOwner): Array<ItemValue> {
     var items: Array<ItemValue> = [];
     ItemValue.setupArray(items, locOwner);
@@ -216,7 +222,7 @@ export class ItemValue extends Base {
     this.itemValue = newValue;
     if (!this.itemValue) return;
     var str: string = this.itemValue.toString();
-    var index = str.indexOf(ItemValue.Separator);
+    var index = str.indexOf(settings.itemValueSeparator);
     if (index > -1) {
       this.itemValue = str.slice(0, index);
       this.text = str.slice(index + 1);

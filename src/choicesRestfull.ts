@@ -1,8 +1,8 @@
 import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
-import { surveyLocalization } from "./surveyStrings";
 import { WebRequestError, WebRequestEmptyError } from "./error";
+import { settings } from "./settings";
 
 class XmlParser {
   private parser = new DOMParser();
@@ -46,7 +46,12 @@ class XmlParser {
  * The run method call a restfull service and results can be get on getResultCallback.
  */
 export class ChoicesRestfull extends Base {
-  public static EncodeParameters: boolean = true;
+  public static get EncodeParameters(): boolean {
+    return settings.webserviceEncodeParameters;
+  }
+  public static set EncodeParameters(val: boolean) {
+    settings.webserviceEncodeParameters = val;
+  }
   private static itemsResult: { [index: string]: any } = {};
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
@@ -110,12 +115,12 @@ export class ChoicesRestfull extends Base {
       var pUrl = textProcessor.processTextEx(
         this.url,
         false,
-        ChoicesRestfull.EncodeParameters
+        settings.webserviceEncodeParameters
       );
       var pPath = textProcessor.processTextEx(
         this.path,
         false,
-        ChoicesRestfull.EncodeParameters
+        settings.webserviceEncodeParameters
       );
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";

@@ -4,6 +4,7 @@ import "../../main.scss";
 export let Version: string;
 Version = `${process.env.VERSION}`;
 
+export {settings} from "../../settings";
 export { Helpers } from "../../helpers";
 export {
   AnswerCountValidator,

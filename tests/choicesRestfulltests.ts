@@ -13,6 +13,7 @@ import {
 import { ItemValue } from "../src/itemvalue";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { settings } from "../src/settings";
 
 export default QUnit.module("choicesRestfull");
 
@@ -228,10 +229,10 @@ QUnit.test("encode parameters", function(assert) {
   test.getResultCallback = function(res: Array<ItemValue>) {};
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
-  ChoicesRestfull.EncodeParameters = false;
+  settings.webserviceEncodeParameters = false;
   test.run(survey);
   assert.equal(test.testProcessedUrl, "TestUrl/R&D", "stop encoding");
-  ChoicesRestfull.EncodeParameters = true;
+  settings.webserviceEncodeParameters = true;
 });
 
 QUnit.test("Process text in event", function(assert) {

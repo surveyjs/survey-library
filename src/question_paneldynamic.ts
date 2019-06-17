@@ -19,6 +19,7 @@ import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
+import {settings} from "./settings";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -62,11 +63,11 @@ export class QuestionPanelDynamicItem
     this.data.setPanelItemData(this, name, newValue);
   }
   public getComment(name: string): string {
-    var result = this.getValue(name + Base.commentPrefix);
+    var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
   }
   public setComment(name: string, newValue: string) {
-    this.setValue(name + Base.commentPrefix, newValue);
+    this.setValue(name + settings.commentPrefix, newValue);
   }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
@@ -1315,7 +1316,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
-      q.updateCommentFromSurvey(values[q.getValueName() + Base.commentPrefix]);
+      q.updateCommentFromSurvey(values[q.getValueName() + settings.commentPrefix]);
     }
   }
   private panelSurveyValueChanged(panel: PanelModel) {

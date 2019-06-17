@@ -1,6 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
+import { settings } from "./settings";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -196,7 +197,12 @@ export interface IPage extends IPanel, IConditionRunner {
  * The base class for SurveyJS objects.
  */
 export class Base {
-  public static commentPrefix: string = "-Comment";
+  public static get commentPrefix(): string {
+    return settings.commentPrefix;
+  }
+  public static set commentPrefix(val: string) {
+    settings.commentPrefix = val;
+  }
   public static createItemValue: (item: any) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**

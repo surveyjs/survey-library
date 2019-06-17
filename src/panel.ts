@@ -23,6 +23,7 @@ import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { PageModel } from "./page";
+import {settings} from "./settings";
 
 export class DragDropInfo {
   constructor(
@@ -323,7 +324,7 @@ export class PanelModelBase extends SurveyElement
       if (!!this.data) {
         var comment = this.data.getComment(valueName);
         if (!!comment) {
-          (<any>data)[valueName + Base.commentPrefix] = comment;
+          (<any>data)[valueName + settings.commentPrefix] = comment;
         }
       }
     }

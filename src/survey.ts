@@ -32,6 +32,7 @@ import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
 import { HtmlConditionItem } from "./htmlConditionItem";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
+import {settings} from "./settings";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -55,10 +56,10 @@ export class SurveyModel extends Base
    * @see data
    */
   public get commentPrefix(): string {
-    return Base.commentPrefix;
+    return settings.commentPrefix;
   }
   public set commentPrefix(val: string) {
-    Base.commentPrefix = val;
+    settings.commentPrefix = val;
   }
 
   private pagesValue: Array<PageModel>;

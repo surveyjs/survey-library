@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 export * from "./knockout";
 import { SurveyModel } from "../survey";
-import { Survey } from "../knockout/kosurvey";
+import { Survey, registerTemplateEngine } from "../knockout/kosurvey";
 import { SurveyWindow } from "../knockout/koSurveyWindow";
 import jQuery from "jquery";
 import { updateSurveyProps } from "../utils/updateSurveyProps";
@@ -35,3 +35,5 @@ jQuery["fn"].extend({
 });
 
 SurveyModel.platform = "jquery";
+
+registerTemplateEngine(ko, SurveyModel.platform);

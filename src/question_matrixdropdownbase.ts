@@ -26,7 +26,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { FunctionFactory } from "./functionsfactory";
-import {settings} from "./settings";
+import { settings } from "./settings";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -454,7 +454,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
   protected calcCellQuestionType(): string {
     if (this.cellType !== "default") return this.cellType;
     if (this.colOwner) return this.colOwner.getCellType();
-    return QuestionMatrixDropdownModelBase.defaultCellType;
+    return settings.matrixDefaultCellType;
   }
   protected updateTemplateQuestion() {
     var prevCellType = this.templateQuestion
@@ -930,8 +930,12 @@ export class QuestionMatrixDropdownModelBase
     MatrixDropdownColumn
   >
   implements IMatrixDropdownData {
-  public static defaultCellType = "dropdown";
-  public static totalValuePostFix = "-total";
+  public static get defaultCellType() {
+    return settings.matrixDefaultCellType;
+  }
+  public static set defaultCellType(val: string) {
+    settings.matrixDefaultCellType = val;
+  }
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
@@ -1027,10 +1031,7 @@ export class QuestionMatrixDropdownModelBase
    * Use this property to change the default cell type.
    */
   public get cellType(): string {
-    return this.getPropertyValue(
-      "cellType",
-      QuestionMatrixDropdownModelBase.defaultCellType
-    );
+    return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
@@ -1642,7 +1643,7 @@ export class QuestionMatrixDropdownModelBase
   onTotalValueChanged(): any {
     if (!!this.data && !!this.visibleTotalRow) {
       this.data.setValue(
-        this.getValueName() + QuestionMatrixDropdownModelBase.totalValuePostFix,
+        this.getValueName() + settings.matrixTotalValuePostFix,
         this.totalValue
       );
     }

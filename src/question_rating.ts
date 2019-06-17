@@ -3,12 +3,12 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
+import { settings } from "./settings";
 
 /**
  * A Model for a rating question.
  */
 export class QuestionRatingModel extends Question {
-  public static MaximumRateValueCount: number = 20;
   private rates: Array<ItemValue>;
 
   rateValuesChangedCallback: () => void;
@@ -117,7 +117,7 @@ export class QuestionRatingModel extends Question {
     var value = this.rateMin;
     while (
       value <= this.rateMax &&
-      res.length < QuestionRatingModel.MaximumRateValueCount
+      res.length < settings.ratingMaximumRateValueCount
     ) {
       res.push(new ItemValue(value));
       value += this.rateStep;

@@ -19,7 +19,7 @@ import { PanelModel } from "./panel";
 import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
-import {settings} from "./settings";
+import { settings } from "./settings";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -172,7 +172,6 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
  */
 export class QuestionPanelDynamicModel extends Question
   implements IQuestionPanelDynamicData {
-  public static MaxPanelCount = 100;
   private templateValue: PanelModel;
   private loadingPanelCount: number = 0;
   private isValueChangingInternally: boolean;
@@ -661,13 +660,13 @@ export class QuestionPanelDynamicModel extends Question
   public get maxPanelCount(): number {
     return this.getPropertyValue(
       "maxPanelCount",
-      QuestionPanelDynamicModel.MaxPanelCount
+      settings.panelMaximumPanelCount
     );
   }
   public set maxPanelCount(val: number) {
     if (val <= 0) return;
-    if (val > QuestionPanelDynamicModel.MaxPanelCount)
-      val = QuestionPanelDynamicModel.MaxPanelCount;
+    if (val > settings.panelMaximumPanelCount)
+      val = settings.panelMaximumPanelCount;
     if (val == this.maxPanelCount) return;
     this.setPropertyValue("maxPanelCount", val);
     if (val < this.minPanelCount) this.minPanelCount = val;
@@ -1316,7 +1315,9 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
-      q.updateCommentFromSurvey(values[q.getValueName() + settings.commentPrefix]);
+      q.updateCommentFromSurvey(
+        values[q.getValueName() + settings.commentPrefix]
+      );
     }
   }
   private panelSurveyValueChanged(panel: PanelModel) {
@@ -1457,7 +1458,7 @@ Serializer.addClass(
     { name: "minPanelCount:number", default: 0 },
     {
       name: "maxPanelCount:number",
-      default: QuestionPanelDynamicModel.MaxPanelCount
+      default: settings.panelMaximumPanelCount
     },
     "defaultPanelValue:panelvalue",
     "defaultValueFromLastPanel:boolean",

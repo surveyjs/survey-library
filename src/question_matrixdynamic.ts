@@ -12,6 +12,7 @@ import { LocalizableString } from "./localizablestring";
 import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";
 import { Helpers } from "./helpers";
+import { settings } from "./settings";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
   constructor(public index: number, data: IMatrixDropdownData, value: any) {
@@ -29,7 +30,6 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  public static MaxRowCount = 1000;
   private rowCounter = 0;
   private rowCountValue: number = 2;
 
@@ -118,7 +118,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.rowCountValue;
   }
   public set rowCount(val: number) {
-    if (val < 0 || val > QuestionMatrixDynamicModel.MaxRowCount) return;
+    if (val < 0 || val > settings.matrixMaximumRowCount) return;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
     if (this.value && this.value.length > val) {
@@ -157,15 +157,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see minRowCount
    */
   public get maxRowCount(): number {
-    return this.getPropertyValue(
-      "maxRowCount",
-      QuestionMatrixDynamicModel.MaxRowCount
-    );
+    return this.getPropertyValue("maxRowCount", settings.matrixMaximumRowCount);
   }
   public set maxRowCount(val: number) {
     if (val <= 0) return;
-    if (val > QuestionMatrixDynamicModel.MaxRowCount)
-      val = QuestionMatrixDynamicModel.MaxRowCount;
+    if (val > settings.matrixMaximumRowCount)
+      val = settings.matrixMaximumRowCount;
     if (val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
     if (val < this.minRowCount) this.minRowCount = val;
@@ -558,7 +555,7 @@ Serializer.addClass(
     { name: "minRowCount:number", default: 0 },
     {
       name: "maxRowCount:number",
-      default: QuestionMatrixDynamicModel.MaxRowCount
+      default: settings.matrixMaximumRowCount
     },
     { name: "keyName" },
     {

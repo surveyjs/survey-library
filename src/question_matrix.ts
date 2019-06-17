@@ -9,6 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { IConditionObject } from "./question";
+import { settings } from "./settings";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -55,7 +56,6 @@ export interface IMatrixCellsOwner extends ILocalizableOwner {
 }
 
 export class MartrixCells {
-  public static DefaultRowName = "default";
   private values: { [index: string]: any } = {};
   public constructor(public cellsOwner: IMatrixCellsOwner) {}
   public get isEmpty(): boolean {
@@ -84,7 +84,7 @@ export class MartrixCells {
     }
   }
   public setDefaultCellText(column: any, val: string) {
-    this.setCellText(MartrixCells.DefaultRowName, column, val);
+    this.setCellText(settings.matrixDefaultRowName, column, val);
   }
   public getCellLocText(row: any, column: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
@@ -95,12 +95,12 @@ export class MartrixCells {
     return this.values[row][column];
   }
   public getDefaultCellLocText(column: any, val: string): LocalizableString {
-    return this.getCellLocText(MartrixCells.DefaultRowName, column);
+    return this.getCellLocText(settings.matrixDefaultRowName, column);
   }
   public getCellDisplayLocText(row: any, column: any): LocalizableString {
     var cellText = this.getCellLocText(row, column);
     if (cellText && !cellText.isEmpty) return cellText;
-    cellText = this.getCellLocText(MartrixCells.DefaultRowName, column);
+    cellText = this.getCellLocText(settings.matrixDefaultRowName, column);
     if (cellText && !cellText.isEmpty) return cellText;
     if (typeof column == "number") {
       column =
@@ -116,7 +116,7 @@ export class MartrixCells {
     return loc ? loc.text : null;
   }
   public getDefaultCellText(column: any): string {
-    var loc = this.getCellLocText(MartrixCells.DefaultRowName, column);
+    var loc = this.getCellLocText(settings.matrixDefaultRowName, column);
     return loc ? loc.text : null;
   }
   public getCellDisplayText(row: any, column: any): string {

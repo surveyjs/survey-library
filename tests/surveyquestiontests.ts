@@ -23,8 +23,8 @@ import { QuestionBooleanModel } from "../src/question_boolean";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
-import { QuestionNonValue } from "../src/questionnonvalue";
 import { surveyLocalization } from "../src/surveyStrings";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1771,7 +1771,7 @@ QUnit.test("Rating question, visibleRateValues property", function(assert) {
   rate.rateMax = 200;
   assert.equal(
     rate.visibleRateValues.length,
-    QuestionRatingModel.MaximumRateValueCount,
+    settings.ratingMaximumRateValueCount,
     "Values can be more than MaximumRateValueCount."
   );
   rate.rateValues = [1, 2, 3];

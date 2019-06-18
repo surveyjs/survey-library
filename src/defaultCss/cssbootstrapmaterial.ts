@@ -62,7 +62,8 @@ export var defaultBootstrapMaterialCss = {
     itemControl: "",
     controlLabel: "",
     materialDecorator: "checkbox-material",
-    other: "sv_q_checkbox_other form-control"
+    other: "sv_q_checkbox_other form-control",
+    column: "sv_q_select_column"
   },
   comment: "form-control",
   dropdown: {
@@ -112,7 +113,8 @@ export var defaultBootstrapMaterialCss = {
     controlLabel: "sv_q_radiogroup_control_label",
     materialDecorator: "circle",
     other: "sv_q_radiogroup_other form-control",
-    clearButton: "sv_q_radiogroup_clear button btn btn-primary"
+    clearButton: "sv_q_radiogroup_clear button btn btn-primary",
+    column: "sv_q_select_column"
   },
   imagepicker: {
     root: "sv_imgsel",

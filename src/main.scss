@@ -574,6 +574,12 @@ $base-line-height: 2em;
           margin-left: 1em;
         }
 
+        .sv_q_select_column {
+          display: inline-block;
+          vertical-align: top;
+          min-width: 10%;
+        }
+
         .sv_q_rating {
           line-height: $base-line-height;
 

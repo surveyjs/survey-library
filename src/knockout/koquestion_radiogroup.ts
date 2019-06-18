@@ -10,11 +10,15 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {
-    var itemClass =
-      this.cssClasses.item +
-      (this.colCount === 0
-        ? " sv_q_radiogroup_inline"
-        : " sv-q-col-" + this.colCount);
+    var itemClass = this.cssClasses.item;
+
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " sv_q_radiogroup_inline"
+          : " sv-q-col-" + this.colCount;
+    }
+
     if (item.value === this.value) itemClass += " checked";
     return itemClass;
   }

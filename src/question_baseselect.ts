@@ -704,6 +704,30 @@ export class QuestionSelectBase extends Question {
       this.comment = "";
     }
   }
+  getColumnClass() {
+    var columnClass = this.cssClasses.column;
+    if (this.hasColumns) {
+      columnClass += " sv-q-column-" + this.colCount;
+    }
+    return columnClass;
+  }
+  get columns() {
+    var columns = [];
+    var colCount = this.colCount;
+    if (this.hasColumns && this.visibleChoices.length > 0) {
+      for (var i = 0; i < colCount; i++) {
+        var column = [];
+        for (var j = i; j < this.visibleChoices.length; j += colCount) {
+          column.push(this.visibleChoices[j]);
+        }
+        columns.push(column);
+      }
+    }
+    return columns;
+  }
+  get hasColumns() {
+    return this.colCount > 0;
+  }
 }
 /**
  * A base class for checkbox and radiogroup questions. It introduced a colCount property.

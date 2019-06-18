@@ -72,7 +72,8 @@ export var defaultStandardCss = {
     itemControl: "sv_q_checkbox_control_item",
     controlLabel: "sv_q_checkbox_control_label",
     materialDecorator: "checkbox-material",
-    other: "sv_q_other sv_q_checkbox_other"
+    other: "sv_q_other sv_q_checkbox_other",
+    column: "sv_q_select_column"
   },
   comment: "",
   dropdown: {
@@ -121,7 +122,8 @@ export var defaultStandardCss = {
     controlLabel: "",
     materialDecorator: "circle",
     other: "sv_q_other sv_q_radiogroup_other",
-    clearButton: "sv_q_radiogroup_clear"
+    clearButton: "sv_q_radiogroup_clear",
+    column: "sv_q_select_column"
   },
   imagepicker: {
     root: "sv_imgsel",

@@ -44,11 +44,14 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   getItemClass(item: any) {
     var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
-    var itemClass =
-      this.cssClasses.item +
-      (this.colCount === 0
-        ? " sv_q_checkbox_inline"
-        : " sv-q-col-" + this.colCount);
+    var itemClass = this.cssClasses.item;
+
+    if (!this.hasColumns) {
+      itemClass +=
+        this.colCount === 0
+          ? " sv_q_checkbox_inline"
+          : " sv-q-col-" + this.colCount;
+    }
 
     if (isChecked) itemClass += " checked";
 

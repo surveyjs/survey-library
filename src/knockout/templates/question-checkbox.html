@@ -1,27 +1,43 @@
 ﻿<script type="text/html" id="survey-question-checkbox">
   <fieldset data-bind="css: question.koCss().root">
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
-      <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
-      <div data-bind="css: question.getItemClass(item)">
-          <label data-bind="css: question.koCss().label">
-              <!-- ko if: item == question.selectAllItem -->
-              <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
-              <!-- /ko -->
-              <!-- ko if: item != question.selectAllItem -->
-              <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
-              <!-- /ko -->
-              <span data-bind="css: question.koCss().materialDecorator">
-                  <span class="check"></span>
-              </span>
-              <span data-bind="css: question.koCss().controlLabel">
-                  <!-- ko template: { name: 'survey-string', data: item.locText } -->
-                  <!-- /ko -->
-              </span>
-          </label>
-          <!-- ko if: question.hasOther && (item.value == question.otherItem.value) -->
-          <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
-          <!-- /ko -->
-      </div>
+      <!-- ko ifnot: question.hasColumns  -->
+        <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender }  -->
+            <!-- ko template: 'survey-checkbox-item' -->
+            <!-- /ko -->
+        <!-- /ko -->
       <!-- /ko -->
-  </fieldset>
+      <!-- ko if: question.hasColumns  -->
+        <!-- ko foreach: question.columns -->
+            <div data-bind="css: question.getColumnClass()">
+            <!-- ko foreach: { data: $data, as: 'item', afterRender: question.koAfterRender }  -->
+                <!-- ko template: 'survey-checkbox-item' -->
+                <!-- /ko -->
+            <!-- /ko -->
+            </div>
+        <!-- /ko -->
+      <!-- /ko -->
+    </fieldset>
+</script>
+<script type="text/html" id="survey-checkbox-item">
+  <div data-bind="css: question.getItemClass(item)">
+      <label data-bind="css: question.koCss().label">
+          <!-- ko if: item == question.selectAllItem -->
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
+          <!-- /ko -->
+          <!-- ko if: item != question.selectAllItem -->
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
+          <!-- /ko -->
+          <span data-bind="css: question.koCss().materialDecorator">
+              <span class="check"></span>
+          </span>
+          <span data-bind="css: question.koCss().controlLabel">
+              <!-- ko template: { name: 'survey-string', data: item.locText } -->
+              <!-- /ko -->
+          </span>
+      </label>
+      <!-- ko if: question.hasOther && (item.value == question.otherItem.value) -->
+      <div class="form-group" data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': question.isOtherSelected } }"></div>
+      <!-- /ko -->
+  </div>
 </script>

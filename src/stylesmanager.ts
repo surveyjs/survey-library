@@ -93,6 +93,17 @@ export class StylesManager {
     ".sv_qstn .sv-q-col-5":
       "width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
 
+    ".sv_qstn .sv-q-column-1":
+      "width: 100%; max-width: 100%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-2":
+      "max-width: 50%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-3":
+      "max-width: 33.33333%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-4":
+      "max-width: 25%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+    ".sv_qstn .sv-q-column-5":
+      "max-width: 20%; display: inline-block; padding-right: 1em; box-sizing: border-box; word-break: break-word;",
+
     ".sv_qstn .sv_q_file_input": "color: transparent;",
 
     ".sv_qstn .sv_q_imgsel label > div":
@@ -105,7 +116,13 @@ export class StylesManager {
 
     "f-panel": "padding: 0.5em 1em; display: inline-block; line-height: 2em;",
 
-    ".sv_progress_bar > span": "white-space: nowrap;"
+    ".sv_progress_bar > span": "white-space: nowrap;",
+
+    ".sv_qstn .sv_q_select_column":
+      "display: inline-block; vertical-align: top; min-width: 10%;",
+
+    ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
+      "margin-left: 0; padding-left: 0; line-height: initial;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

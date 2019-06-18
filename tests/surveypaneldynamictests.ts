@@ -8,6 +8,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -2626,5 +2627,40 @@ QUnit.test(
     assert.equal(panel.hasErrors(), true, "There is an error");
     panel.panels[0].getQuestionByName("pq1").value = "val";
     assert.equal(panel.hasErrors(), false, "There is no errors");
+  }
+);
+
+QUnit.test(
+  "Dropdown inside Dynamic Panel. ChoicesMax choicesMin properties",
+  function(assert) {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Please enter all blood relatives you know",
+          renderMode: "progressTop",
+          templateTitle: "Information about: {panel.relativeType}",
+          templateElements: [
+            {
+              name: "liveage",
+              type: "dropdown",
+              choicesMin: 1,
+              choicesMax: 115
+            }
+          ],
+          panelCount: 2,
+          panelAddText: "Add a blood relative",
+          panelRemoveText: "Remove the relative"
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+
+    var dropDownQuestion = survey.getAllQuestions()[0]["panels"][0].elements[0];
+
+    assert.equal(dropDownQuestion.choicesMin, 1, "choicesMin is ok");
+    assert.equal(dropDownQuestion.choicesMax, 115, "choicesMax is ok");
+    assert.equal(dropDownQuestion.visibleChoices.length, 115, "visibleChoices is ok");
   }
 );

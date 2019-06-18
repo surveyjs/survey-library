@@ -20,8 +20,8 @@ export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
 export * from "../expressions/expressionsTest";
-export * from "../expressions/expressionParserTest"
-
+export * from "../expressions/expressionParserTest";
+export * from "../questionDropdown";
 
 // localization
 import "../../src/localization/russian";

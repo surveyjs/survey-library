@@ -73,7 +73,8 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMin", 1);
   }
   public set rateMin(val: number) {
-    if (val > this.rateMax - this.rateStep) val = this.rateMax - this.rateStep;
+    if (!this.isLoadingFromJson && val > this.rateMax - this.rateStep)
+      val = this.rateMax - this.rateStep;
     this.setPropertyValue("rateMin", val);
   }
   /**
@@ -86,7 +87,8 @@ export class QuestionRatingModel extends Question {
     return this.getPropertyValue("rateMax", 5);
   }
   public set rateMax(val: number) {
-    if (val < this.rateMin + this.rateStep) val = this.rateMin + this.rateStep;
+    if (!this.isLoadingFromJson && val < this.rateMin + this.rateStep)
+      val = this.rateMin + this.rateStep;
     this.setPropertyValue("rateMax", val);
   }
   /**
@@ -100,7 +102,8 @@ export class QuestionRatingModel extends Question {
   }
   public set rateStep(val: number) {
     if (val <= 0) val = 1;
-    if (val > this.rateMax - this.rateMin) val = this.rateMax - this.rateMin;
+    if (!this.isLoadingFromJson && val > this.rateMax - this.rateMin)
+      val = this.rateMax - this.rateMin;
     this.setPropertyValue("rateStep", val);
   }
   protected getDisplayValueCore(keysAsText: boolean): any {

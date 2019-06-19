@@ -1,34 +1,15 @@
 <template>
   <fieldset :class="question.cssClasses.root">
     <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
-    <div
-      v-for="(item, index) in question.visibleChoices"
-      :key="item.value"
-      :class="getItemClass(item)"
-    >
-      <label :class="question.cssClasses.label">
-        <input
-          type="radio"
-          :name="question.name + '_' + question.id"
-          :value="item.value"
-          :id="question.inputId + '_' + index"
-          v-model="question.renderedValue"
-          :disabled="question.isReadOnly || !item.isEnabled"
-          v-bind:aria-label="item.locText.renderedHtml"
-          :class="question.cssClasses.itemControl"
-        >
-        <span :class="question.cssClasses.materialDecorator"></span>
-        <span class="check"></span>
-        <span :class="question.cssClasses.controlLabel">
-          <survey-string :locString="item.locText"/>
-        </span>
-      </label>
-      <survey-other-choice
-          v-show="question.hasOther && question.isOtherSelected && index === choicesCount"
-          v-if="index == choicesCount"
-          :question="question"
-        />
+    <survey-radiogroup-item v-if="!question.hasColumns" v-for="(item, index) in question.visibleChoices"
+      :key="item.value" :class="getItemClass(item)"
+      :question="question" :item="item" :index="index"></survey-radiogroup-item>
+    <div v-if="question.hasColumns" v-for="column in question.columns" :class="question.getColumnClass()">
+      <survey-radiogroup-item v-for="(item, index) in column"
+        :key="item.value" :class="getItemClass(item)"
+        :question="question" :item="item" :index="index"></survey-radiogroup-item>
     </div>
+
     <div v-if="question.canShowClearButton">
       <input
         type="button"
@@ -52,11 +33,13 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
     return this.question.visibleChoices.length - 1;
   }
   getItemClass(item: any) {
-    var itemClass =
-      this.question.cssClasses.item +
-      (this.question.colCount === 0
+    var itemClass = this.question.cssClasses.item
+
+    if(!this.question.hasColumns) {
+      itemClass += (this.question.colCount === 0
         ? " sv_q_radiogroup_inline"
         : " sv-q-col-" + this.question.colCount);
+    }
     if (item.value === this.question.renderedValue) itemClass += " checked";
     return itemClass;
   }

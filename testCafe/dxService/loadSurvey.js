@@ -30,7 +30,7 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult, {
-      langs: ["Javascript", "Python"]
+      langs: ["Javascript", "VimL"]
     });
   });
 });

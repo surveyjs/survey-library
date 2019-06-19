@@ -9,7 +9,7 @@ export var japaneseSurveyStrings = {
   otherItemText: "その他（説明）",
   noneItemText: "なし",
   selectAllItemText: "すべて選択",
-  progressText: "{０}/{1}頁",
+  progressText: "{0}/{1}頁",
   emptySurvey: "この調査に表示できるページや質問はありません",
   completingSurvey: "調査を完了してくれてありがとうございました",
   loadingSurvey: "調査をダウンロード中",

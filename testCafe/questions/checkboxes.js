@@ -106,7 +106,7 @@ frameworks.forEach(framework => {
     await setOptions("car", { colCount: 1 });
 
     className = await getClassName();
-    assert.notEqual(className.indexOf("sv-q-column-1"), -1);
+    assert.notEqual(className.indexOf("sv-q-col-1"), -1);
 
     await setOptions("car", { colCount: 2 });
 

@@ -726,8 +726,7 @@ export class QuestionSelectBase extends Question {
     return columns;
   }
   get hasColumns() {
-    return false;
-    //return this.colCount > 0;
+    return this.colCount > 1;
   }
 }
 /**

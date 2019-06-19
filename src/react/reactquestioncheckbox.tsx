@@ -21,9 +21,23 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     return (
       <fieldset className={cssClasses.root}>
         <legend aria-label={this.question.locTitle.renderedHtml} />
-        {this.getItems(cssClasses)}
+        {this.question.hasColumns
+          ? this.getColumns(cssClasses)
+          : this.getItems(cssClasses)}
       </fieldset>
     );
+  }
+  protected getColumns(cssClasses: any) {
+    return this.question.columns.map((column: any, ci: number) => {
+      var items = column.map((item: any, ii: number) =>
+        this.renderItem("item" + ii, item, ci === 0 && ii === 0, cssClasses, ii)
+      );
+      return (
+        <div key={"column" + ci} className={this.question.getColumnClass()}>
+          {items}
+        </div>
+      );
+    });
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
@@ -130,11 +144,14 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   ): JSX.Element {
     var id = this.question.inputId + "_" + this.index;
     var text = this.renderLocString(this.item.locText);
-    let itemClass =
-      this.cssClasses.item +
-      (this.question.colCount === 0
-        ? " sv_q_checkbox_inline"
-        : " sv-q-col-" + this.question.colCount);
+    let itemClass = this.cssClasses.item;
+
+    if (!this.question.hasColumns) {
+      itemClass +=
+        this.question.colCount === 0
+          ? " sv_q_checkbox_inline"
+          : " sv-q-col-" + this.question.colCount;
+    }
 
     if (isChecked) itemClass += " checked";
     var onItemChanged =

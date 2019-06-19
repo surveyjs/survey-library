@@ -39,10 +39,24 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return (
       <fieldset className={cssClasses.root}>
         <legend aria-label={this.question.locTitle.renderedHtml} />
-        {this.getItems(cssClasses)}
+        {this.question.hasColumns
+          ? this.getColumns(cssClasses)
+          : this.getItems(cssClasses)}
         {clearButton}
       </fieldset>
     );
+  }
+  protected getColumns(cssClasses: any) {
+    return this.question.columns.map((column: any, ci: number) => {
+      var items = column.map((item: any, ii: number) =>
+        this.renderItem(item, cssClasses, ii)
+      );
+      return (
+        <div key={"column" + ci} className={this.question.getColumnClass()}>
+          {items}
+        </div>
+      );
+    });
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
@@ -129,11 +143,14 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
 
     var id = this.question.inputId + "_" + this.index;
     var itemText = this.renderLocString(this.item.locText, this.textStyle);
-    let itemClass =
-      this.cssClasses.item +
-      (this.question.colCount === 0
-        ? " sv_q_radiogroup_inline"
-        : " sv-q-col-" + this.question.colCount);
+
+    let itemClass = this.cssClasses.item;
+    if (!this.question.hasColumns) {
+      itemClass +=
+        this.question.colCount === 0
+          ? " sv_q_radiogroup_inline"
+          : " sv-q-col-" + this.question.colCount;
+    }
 
     if (this.isChecked) itemClass += " checked";
 

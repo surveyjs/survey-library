@@ -1,13 +1,23 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
-    <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
-        <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
-            <td data-bind="css: question.koCss().itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
-            <td>
+  <table data-bind="css: question.koCss().root, foreach: { data:  question.koRows, as: 'row' }">
+      <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
+          <td data-bind="css: question.koCss().itemTitle"><!-- ko template: { name: 'survey-string', data: item.locTitle } --><!-- /ko --></td>
+          <td>
+            <!-- ko if: item.editor.errorLocation == 'top' -->
+            <div data-bind="css: question.koCss().error.locationTop">
                 <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                 <!-- /ko -->
-                <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question' } -->
+            </div>
+            <!-- /ko -->
+            <!-- ko template: { name: item.editor.koTemplateName(), data: item.editor, as: 'question' } -->
+            <!-- /ko -->
+            <!-- ko if: item.editor.errorLocation == 'bottom' -->
+            <div data-bind="css: question.koCss().error.locationBottom">
+                <!-- ko template: { name: 'survey-question-errors', data: item.editor } -->
                 <!-- /ko -->
-            </td>
-        </tr>
-    </table>
+            </div>
+            <!-- /ko -->
+        </td>
+      </tr>
+  </table>
 </script>

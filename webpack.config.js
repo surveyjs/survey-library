@@ -229,15 +229,15 @@ module.exports = function(options) {
               {
                 loader: "css-loader",
                 options: {
-                  sourceMap: true,
-                  minimize: options.buildType === "prod",
+                  sourceMap: options.buildType === "dev",
+                  // minimize: options.buildType === "prod",
                   importLoaders: true
                 }
               },
               {
                 loader: "sass-loader",
                 options: {
-                  sourceMap: true
+                  sourceMap: options.buildType === "dev"
                 }
               }
             ]

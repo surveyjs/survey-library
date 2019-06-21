@@ -1230,6 +1230,8 @@ QUnit.test(
       "3",
       "The third panel title is correct"
     );
+    panel.panels[0].getQuestionByName("address").value = "address: row1";
+    panel.panels[2].getQuestionByName("address").value = "address: row3";
     matrix.removeRow(1);
     assert.equal(panel.panels.length, 2, "There are two panels now");
     assert.equal(
@@ -1244,7 +1246,12 @@ QUnit.test(
     );
     assert.deepEqual(
       survey.data,
-      { employers: [{ RowId: 1, name: 1 }, { RowId: 2, name: 3 }] },
+      {
+        employers: [
+          { RowId: 1, name: 1, address: "address: row1" },
+          { RowId: 2, name: 3, address: "address: row3" }
+        ]
+      },
       "The value is correct"
     );
   }
@@ -2661,6 +2668,10 @@ QUnit.test(
 
     assert.equal(dropDownQuestion.choicesMin, 1, "choicesMin is ok");
     assert.equal(dropDownQuestion.choicesMax, 115, "choicesMax is ok");
-    assert.equal(dropDownQuestion.visibleChoices.length, 115, "visibleChoices is ok");
+    assert.equal(
+      dropDownQuestion.visibleChoices.length,
+      115,
+      "visibleChoices is ok"
+    );
   }
 );

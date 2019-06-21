@@ -285,7 +285,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.rowCountValue--;
     if (this.value) {
-      var val = this.createNewValue();
+      var val = [];
+      if (Array.isArray(this.value) && index < this.value.length) {
+        val = this.createValueCopy();
+      } else {
+        val = this.createNewValue();
+      }
       val.splice(index, 1);
       val = this.deleteRowValue(val, null);
       this.isRowChanging = true;

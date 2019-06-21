@@ -3464,6 +3464,12 @@ QUnit.test("html.html property, text preprocessing", function(assert) {
   assert.equal(html.locHtml.renderedHtml, "val: 10", "value is changed");
 });
 
+QUnit.test("Kebab-case variable in expressions - https://surveyjs.answerdesk.io/ticket/details/T2211", function(assert) {
+  var survey = new SurveyModel();
+  survey.setVariable('testVariable', false);
+  assert.ok(survey.runCondition("{testVariable} = false"), "Should be true");
+});
+
 QUnit.test("Survey Markdown - survey title", function(assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function(survey, options) {

@@ -1154,8 +1154,10 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < this.panels.length; i++) {
       var panelValues = this.getPanelItemData(this.panels[i].data);
-      newValues[QuestionPanelDynamicItem.ItemVariableName] = panelValues;
-      newValues[QuestionPanelDynamicItem.IndexVariableName] = i;
+      newValues[
+        QuestionPanelDynamicItem.ItemVariableName.toLowerCase()
+      ] = panelValues;
+      newValues[QuestionPanelDynamicItem.IndexVariableName.toLowerCase()] = i;
       this.panels[i].runCondition(newValues, properties);
     }
   }

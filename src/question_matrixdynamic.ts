@@ -135,7 +135,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.onMatrixRowCreated(newRow);
       }
     }
-    this.fireCallback(this.visibleRowsChangedCallback);
+    this.onRowsChanged();
   }
   /**
    * The minimum row count. A user could not delete a row if the rowCount equals to minRowCount
@@ -195,6 +195,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.survey.matrixBeforeRowAdded(options);
     }
     if (!options.canAddRow) return;
+    this.onStartRowAddingRemoving();
+    this.addRowCore();
+    this.onEndRowAdding();
+  }
+  private addRowCore() {
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
@@ -214,7 +219,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.survey) {
       if (prevRowCount + 1 == this.rowCount) {
         this.survey.matrixRowAdded(this);
-        this.fireCallback(this.visibleRowsChangedCallback);
+        this.onRowsChanged();
       }
     }
   }
@@ -274,6 +279,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public removeRow(index: number) {
     if (!this.canRemoveRow) return;
     if (index < 0 || index >= this.rowCount) return;
+    this.onStartRowAddingRemoving();
+    this.removeRowCore(index);
+    this.onEndRowRemoving(index);
+  }
+  private removeRowCore(index: number) {
     if (this.survey) {
       var row = this.generatedVisibleRows
         ? this.generatedVisibleRows[index]
@@ -297,7 +307,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.value = val;
       this.isRowChanging = false;
     }
-    this.fireCallback(this.visibleRowsChangedCallback);
+    this.onRowsChanged();
   }
   /**
    * Use this property to change the default text showing in the confirmation delete dialog on removing a row.
@@ -425,6 +435,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public supportGoNextPageAutomatic() {
     return false;
   }
+  public get hasRowText(): boolean {
+    return false;
+  }
   protected onCheckForErrors(errors: Array<SurveyError>) {
     super.onCheckForErrors(errors);
     if (this.hasErrorInRows()) {
@@ -506,7 +519,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.generatedVisibleRows) {
       this.generatedVisibleRows = null;
       this.generatedVisibleRows = this.visibleRows;
-      this.fireCallback(this.visibleRowsChangedCallback);
+      this.onRowsChanged();
     }
   }
   protected createNewValue(): any {

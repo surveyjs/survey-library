@@ -671,6 +671,9 @@ export class MatrixDropdownRowModelBase
     }
     return result;
   }
+  public get locText(): LocalizableString {
+    return null;
+  }
   getAllValues(): any {
     return this.value;
   }
@@ -921,6 +924,248 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   }
 }
 
+export class QuestionMatrixDropdownRenderedCell {
+  private static counter = 1;
+  private idValue: number;
+  public minWidth: string = "";
+  public locTitle: LocalizableString;
+  public cell: MatrixDropdownCell;
+  public row: MatrixDropdownRowModelBase;
+  public question: Question;
+  public isRemoveRow: boolean;
+  public constructor() {
+    this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
+  }
+  public get hasQuestion(): boolean {
+    return !!this.question;
+  }
+  public get hasTitle(): boolean {
+    return !!this.locTitle;
+  }
+  public get id(): number {
+    return this.idValue;
+  }
+}
+
+export class QuestionMatrixDropdownRenderedRow {
+  private static counter = 1;
+  private idValue: number;
+  public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
+  public constructor() {
+    this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
+  }
+  public get id(): number {
+    return this.idValue;
+  }
+}
+
+export class QuestionMatrixDropdownRenderedTable extends Base {
+  private headerRowValue: QuestionMatrixDropdownRenderedRow;
+  private footerRowValue: QuestionMatrixDropdownRenderedRow;
+  private hasRemoveRowValue: boolean;
+  public constructor(public matrix: QuestionMatrixDropdownModelBase) {
+    super();
+    this.createNewArray("rows");
+    this.build();
+  }
+  public get showHeader(): boolean {
+    return this.getPropertyValue("showHeader");
+  }
+  public get showFooter(): boolean {
+    return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
+  }
+  public get hasRemoveRow(): boolean {
+    return this.hasRemoveRowValue;
+  }
+  public isRequireReset(): boolean {
+    return (
+      this.hasRemoveRow != this.matrix.canRemoveRow ||
+      !this.matrix.isColumnLayoutHorizontal
+    );
+  }
+  public get headerRow(): QuestionMatrixDropdownRenderedRow {
+    return this.headerRowValue;
+  }
+  public get footerRow(): QuestionMatrixDropdownRenderedRow {
+    return this.footerRowValue;
+  }
+  public get rows(): Array<QuestionMatrixDropdownRenderedRow> {
+    return this.getPropertyValue("rows");
+  }
+  protected build() {
+    this.hasRemoveRowValue = this.matrix.canRemoveRow;
+    this.buildHeader();
+    this.buildRows();
+    this.buildFooter();
+  }
+  public onAddedRow() {
+    if (this.rows.length >= this.matrix.visibleRows.length) return;
+    this.rows.push(
+      this.createHorizontalRow(
+        this.matrix.visibleRows[this.matrix.visibleRows.length - 1]
+      )
+    );
+  }
+  public onRemovedRow(index: number) {
+    if (this.rows.length <= index) return;
+    this.rows.splice(index, 1);
+  }
+  protected buildHeader() {
+    var colHeaders =
+      this.matrix.isColumnLayoutHorizontal && this.matrix.showHeader;
+    var isShown =
+      colHeaders ||
+      (this.matrix.hasRowText && !this.matrix.isColumnLayoutHorizontal);
+    this.setPropertyValue("showHeader", isShown);
+    if (!isShown) return;
+    this.headerRowValue = new QuestionMatrixDropdownRenderedRow();
+    if (this.matrix.hasRowText && this.matrix.showHeader) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
+    if (this.matrix.isColumnLayoutHorizontal) {
+      for (var i = 0; i < this.matrix.visibleColumns.length; i++) {
+        this.headerRow.cells.push(
+          this.createHeaderCell(this.matrix.visibleColumns[i])
+        );
+      }
+    } else {
+      var rows = this.matrix.visibleRows;
+      for (var i = 0; i < rows.length; i++) {
+        this.headerRow.cells.push(this.createTextCell(rows[i].locText));
+      }
+    }
+    if (this.hasRemoveRow) {
+      this.headerRow.cells.push(this.createHeaderCell(null));
+    }
+  }
+  protected buildFooter() {
+    if (!this.showFooter) return;
+    this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
+    if (this.matrix.hasRowText) {
+      this.footerRow.cells.push(this.createHeaderCell(null));
+    }
+    var cells = this.matrix.visibleTotalRow.cells;
+    for (var i = 0; i < cells.length; i++) {
+      this.footerRow.cells.push(this.createQuestionCell(cells[i].question));
+    }
+    if (this.hasRemoveRow) {
+      this.footerRow.cells.push(this.createHeaderCell(null));
+    }
+  }
+  protected buildRows() {
+    var rows = this.matrix.isColumnLayoutHorizontal
+      ? this.buildHorizontalRows()
+      : this.buildVerticalRows();
+    this.setPropertyValue("rows", rows);
+  }
+  private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
+    var rows = this.matrix.visibleRows;
+    var renderedRows = [];
+    for (var i = 0; i < rows.length; i++) {
+      renderedRows.push(this.createHorizontalRow(rows[i]));
+    }
+    return renderedRows;
+  }
+  private createHorizontalRow(
+    row: MatrixDropdownRowModelBase
+  ): QuestionMatrixDropdownRenderedRow {
+    var res = new QuestionMatrixDropdownRenderedRow();
+    if (this.matrix.hasRowText) {
+      res.cells.push(this.createTextCell(row.locText));
+    }
+    for (var i = 0; i < row.cells.length; i++) {
+      res.cells.push(this.createEditCell(row.cells[i]));
+    }
+    if (this.hasRemoveRow) {
+      res.cells.push(this.createRemoveRowCell(row));
+    }
+    return res;
+  }
+  private buildVerticalRows(): Array<QuestionMatrixDropdownRenderedRow> {
+    var columns = this.matrix.visibleColumns;
+    var renderedRows = [];
+    for (var i = 0; i < columns.length; i++) {
+      renderedRows.push(this.createVerticalRow(columns[i], i));
+    }
+    if (this.hasRemoveRow) {
+      renderedRows.push(this.createVerticalRemoveRow());
+    }
+    return renderedRows;
+  }
+  private createVerticalRow(
+    column: MatrixDropdownColumn,
+    index: number
+  ): QuestionMatrixDropdownRenderedRow {
+    var res = new QuestionMatrixDropdownRenderedRow();
+    if (this.matrix.showHeader) {
+      res.cells.push(this.createTextCell(column.locTitle));
+    }
+    var rows = this.matrix.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      res.cells.push(this.createEditCell(rows[i].cells[index]));
+    }
+    if (this.matrix.hasTotal) {
+      res.cells.push(
+        this.createEditCell(this.matrix.visibleTotalRow.cells[index])
+      );
+    }
+    return res;
+  }
+  private createVerticalRemoveRow(): QuestionMatrixDropdownRenderedRow {
+    var res = new QuestionMatrixDropdownRenderedRow();
+    if (this.matrix.showHeader) {
+      res.cells.push(this.createTextCell(null));
+    }
+    var rows = this.matrix.visibleRows;
+    for (var i = 0; i < rows.length; i++) {
+      res.cells.push(this.createRemoveRowCell(rows[i]));
+    }
+    if (this.matrix.hasTotal) {
+      res.cells.push(this.createTextCell(null));
+    }
+    return res;
+  }
+  private createEditCell(
+    cell: MatrixDropdownCell
+  ): QuestionMatrixDropdownRenderedCell {
+    var res = new QuestionMatrixDropdownRenderedCell();
+    res.cell = cell;
+    res.question = cell.question;
+    return res;
+  }
+  private createQuestionCell(
+    question: Question
+  ): QuestionMatrixDropdownRenderedCell {
+    var cell = new QuestionMatrixDropdownRenderedCell();
+    cell.question = question;
+    return cell;
+  }
+  private createHeaderCell(
+    column: MatrixDropdownColumn
+  ): QuestionMatrixDropdownRenderedCell {
+    var cell = this.createTextCell(!!column ? column.locTitle : null);
+    cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
+    return cell;
+  }
+  private createRemoveRowCell(
+    row: MatrixDropdownRowModelBase
+  ): QuestionMatrixDropdownRenderedCell {
+    var res = new QuestionMatrixDropdownRenderedCell();
+    res.row = row;
+    res.isRemoveRow = true;
+    return res;
+  }
+  private createTextCell(
+    locTitle: LocalizableString
+  ): QuestionMatrixDropdownRenderedCell {
+    var cell = new QuestionMatrixDropdownRenderedCell();
+    cell.locTitle = !!locTitle
+      ? locTitle
+      : new LocalizableString(this.matrix, false);
+    return cell;
+  }
+}
+
 /**
  * A base class for matrix dropdown and matrix dynamic questions.
  */
@@ -941,6 +1186,7 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < colNames.length; i++) matrix.addColumn(colNames[i]);
   }
   private choicesValue: Array<ItemValue>;
+  private renderedTableValue: QuestionMatrixDropdownRenderedTable;
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
@@ -963,6 +1209,7 @@ export class QuestionMatrixDropdownModelBase
       self.updateColumnsIndexes(newColumns);
       self.generatedVisibleRows = null;
       self.generatedTotalRow = null;
+      self.resetRenderedTable();
       self.fireCallback(self.columnsChangedCallback);
     });
     this.registerFunctionOnPropertiesValueChanged(
@@ -975,6 +1222,20 @@ export class QuestionMatrixDropdownModelBase
       self.generatedVisibleRows = null;
       self.fireCallback(self.columnsChangedCallback);
     });
+    this.registerFunctionOnPropertiesValueChanged(
+      [
+        "columnLayout",
+        "showHeader",
+        "minRowCount",
+        "isReadOnly",
+        "rowCount",
+        "cellType",
+        "hasFooter"
+      ],
+      function() {
+        self.resetRenderedTable();
+      }
+    );
   }
   public getType(): string {
     return "matrixdropdownbase";
@@ -1005,6 +1266,48 @@ export class QuestionMatrixDropdownModelBase
    */
   public get isColumnLayoutHorizontal() {
     return this.columnLayout != "vertical";
+  }
+  public get hasRowText(): boolean {
+    return true;
+  }
+  public get canRemoveRow(): boolean {
+    return false;
+  }
+  private lockResetRenderedTable: boolean = false;
+  protected onStartRowAddingRemoving() {
+    this.lockResetRenderedTable = true;
+  }
+  protected onEndRowAdding() {
+    this.lockResetRenderedTable = false;
+    if (!this.renderedTable) return;
+    if (this.renderedTable.isRequireReset()) {
+      this.resetRenderedTable();
+    } else {
+      this.renderedTable.onAddedRow();
+    }
+  }
+  protected onEndRowRemoving(index: number) {
+    this.lockResetRenderedTable = false;
+    if (this.renderedTable.isRequireReset()) {
+      this.resetRenderedTable();
+    } else {
+      this.renderedTable.onRemovedRow(index);
+    }
+  }
+  protected onRowsChanged() {
+    this.resetRenderedTable();
+    super.onRowsChanged();
+  }
+  protected resetRenderedTable() {
+    if (this.lockResetRenderedTable) return;
+    this.renderedTableValue = null;
+  }
+  public get renderedTable(): QuestionMatrixDropdownRenderedTable {
+    if (!this.renderedTableValue) {
+      this.renderedTableValue = new QuestionMatrixDropdownRenderedTable(this);
+      this.setPropertyValue("renderedTable", this.renderedTableValue);
+    }
+    return this.getPropertyValue("renderedTable");
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
     if (!this.survey) return;

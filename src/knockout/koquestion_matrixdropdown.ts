@@ -22,6 +22,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koIsAddRowOnBottom: any;
   koCanRemoveRow: any;
   koIsHorizontalColumnLayout: any;
+  koTable: any;
   constructor(question: Question) {
     super(question);
     var self = this;
@@ -29,15 +30,18 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       return self.cellAfterRender(el, con);
     };
     this.koRecalc = ko.observable(0);
+    this.koTable = ko.pureComputed(function() {
+      self.koRecalc();
+      return (<QuestionMatrixDropdownModel>self.question).renderedTable;
+    });
     this.koRows = ko.pureComputed(function() {
-      this.koRecalc();
-      return (<QuestionMatrixDropdownModel>this.question).visibleRows;
-    }, this);
+      self.koRecalc();
+      return (<QuestionMatrixDropdownModel>self.question).visibleRows;
+    });
     this.koVisibleColumns = ko.pureComputed(function() {
-      this.koRecalc();
-      return (<QuestionMatrixDropdownModel>this.question).visibleColumns;
-    }, this);
-    var self = this;
+      self.koRecalc();
+      return (<QuestionMatrixDropdownModel>self.question).visibleColumns;
+    });
     (<QuestionMatrixDropdownModel>this
       .question).visibleRowsChangedCallback = function() {
       self.onVisibleRowsChanged();
@@ -46,7 +50,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.addRow();
     };
     this.koRemoveRowClick = function(data: any) {
-      self.removeRow(data);
+      self.removeRow(data.row);
     };
     this.koIsAddRowOnTop = ko.pureComputed(function() {
       self.koRecalc();
@@ -63,6 +67,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     this.koIsHorizontalColumnLayout = ko.observable(
       (<QuestionMatrixDropdownModel>this.question).isColumnLayoutHorizontal
     );
+    (<any>this.question)["koTable"] = this.koTable;
     (<any>this.question)["koRows"] = this.koRows;
     (<any>this.question)["koVisibleColumns"] = this.koVisibleColumns;
     (<any>this.question)["koCellAfterRender"] = this.koCellAfterRender;
@@ -74,7 +79,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     (<any>this.question)[
       "koIsHorizontalColumnLayout"
     ] = this.koIsHorizontalColumnLayout;
-    (<any>this.question)["hasRowText"] = this.hasRowText();
     (<QuestionMatrixDropdownModel>this
       .question).columnsChangedCallback = function() {
       self.onColumnChanged();
@@ -95,7 +99,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     if (!this.question.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
-    var cell = <MatrixDropdownCell>con;
+    var cell = <MatrixDropdownCell>con.cell;
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
@@ -114,9 +118,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   protected onSurveyLoad() {
     super.onSurveyLoad();
     this.onColumnLayoutChanged();
-  }
-  protected hasRowText(): boolean {
-    return true;
   }
   protected onColumnLayoutChanged() {
     this.koIsHorizontalColumnLayout(

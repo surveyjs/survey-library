@@ -10,6 +10,7 @@ import { ItemValue } from "../src/itemvalue";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
+import { AssertionError } from "assert";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -2478,3 +2479,371 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("matrix dropdown + renderedTable.headerRow", function(assert) {
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rows = ["row1", "row2", "row3"];
+  assert.equal(matrix.renderedTable.showHeader, true, "Header is shown");
+  var cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 3, "rows + 2 column");
+  assert.equal(cells[0].hasTitle, true, "header rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "", "Nothing to render");
+  assert.equal(cells[0].minWidth, "", "minWidth is empty for row header");
+  assert.equal(cells[1].hasTitle, true, "col1");
+  assert.equal(cells[1].hasQuestion, false, "no question");
+  assert.equal(cells[1].minWidth, "", "col1.minWidth");
+  assert.notOk(cells[1].isRemoveRow, "do not have remove row");
+  assert.equal(cells[1].locTitle.renderedHtml, "col1", "col1");
+  assert.equal(cells[2].locTitle.renderedHtml, "col2", "col2");
+  assert.equal(cells[2].minWidth, "100px", "col2.minWidth");
+  matrix.showHeader = false;
+  assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
+  assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
+
+  matrix.columnLayout = "vertical";
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 3, "3 rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "row1", "row1");
+  assert.equal(cells[2].locTitle.renderedHtml, "row3", "row1");
+
+  matrix.showHeader = true;
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 4, "3 rows + columns");
+  assert.equal(cells[0].locTitle.renderedHtml, "", "empty for header");
+  assert.equal(cells[1].locTitle.renderedHtml, "row1", "row1");
+  assert.equal(cells[3].locTitle.renderedHtml, "row3", "row1");
+});
+
+QUnit.test("matrix dynamic + renderedTable.headerRow", function(assert) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rowCount = 3;
+  assert.equal(matrix.renderedTable.showHeader, true, "Header is shown");
+  var cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 3, "2 column + remove row");
+  assert.equal(cells[0].hasTitle, true, "col1");
+  assert.equal(cells[0].hasQuestion, false, "no question");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1");
+  assert.notOk(cells[0].isRemoveRow, "do not have remove row");
+  assert.equal(cells[1].locTitle.renderedHtml, "col2", "col2");
+  assert.equal(cells[2].locTitle.renderedHtml, "", "remove row");
+  assert.equal(cells[2].hasTitle, true, "remove row");
+  matrix.minRowCount = 3;
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 2, "2 column");
+  assert.equal(cells[0].hasTitle, true, "col1");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1");
+  assert.equal(cells[1].locTitle.renderedHtml, "col2", "col2");
+  matrix.addRow();
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 3, "2 column + removeRow");
+  matrix.showHeader = false;
+  assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
+  assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
+
+  matrix.columnLayout = "vertical";
+  assert.equal(
+    matrix.renderedTable.showHeader,
+    false,
+    "Header is not shown, columnLayout is vertical"
+  );
+  matrix.showHeader = true;
+  assert.equal(
+    matrix.renderedTable.showHeader,
+    false,
+    "Header is not shown, columnLayout is still vertical"
+  );
+});
+
+QUnit.test("matrix dropdown + renderedTable.rows", function(assert) {
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rows = ["row1", "row2", "row3"];
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 3, "There are 3 rows");
+  var cells = rows[0].cells;
+  assert.equal(cells.length, 3, "rows + 2 column");
+  assert.equal(cells[0].hasTitle, true, "header rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "row1", "row1");
+  assert.equal(cells[1].hasTitle, false, "col1");
+  assert.equal(cells[1].hasQuestion, true, "col1 question");
+  assert.equal(cells[1].question.getType(), "text", "col1.cellType");
+  assert.notOk(cells[1].isRemoveRow, "col1 do not have remove row");
+
+  assert.equal(cells[2].hasTitle, false, "col2");
+  assert.equal(cells[2].hasQuestion, true, "col2 question");
+  assert.equal(cells[2].question.getType(), "dropdown", "col2.cellType");
+  assert.notOk(cells[2].isRemoveRow, "col1 do not have remove row");
+
+  cells = rows[2].cells;
+  assert.equal(cells[0].locTitle.renderedHtml, "row3", "row3");
+  assert.equal(cells[1].question.getType(), "text", "col1.cellType");
+  assert.equal(cells[2].question.getType(), "dropdown", "col2.cellType");
+
+  matrix.columnLayout = "vertical";
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 2, "2 columns");
+  cells = rows[0].cells;
+  assert.equal(cells.length, 4, "column + 3 rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1 title");
+  assert.equal(cells[0].hasQuestion, false, "col1 title, no question");
+  assert.equal(cells[1].question.getType(), "text", "row1.col1 cellType-text");
+  assert.equal(cells[1].cell.column.name, "col1", "row1.col1 correct column");
+  assert.equal(cells[3].question.getType(), "text", "row3.col1 cellType-text");
+  assert.equal(cells[3].cell.column.name, "col1", "row3.col1 correct column");
+  cells = rows[1].cells;
+  assert.equal(cells[0].locTitle.renderedHtml, "col2", "col2 title");
+  assert.equal(
+    cells[1].question.getType(),
+    "dropdown",
+    "row1.col2 cellType-text"
+  );
+  assert.equal(cells[1].cell.column.name, "col2", "row1.col2 correct column");
+  assert.equal(
+    cells[3].question.getType(),
+    "dropdown",
+    "row3.col2 cellType-text"
+  );
+  assert.equal(cells[3].cell.column.name, "col2", "row3.col2 correct column");
+});
+
+QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rowCount = 3;
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 3, "There are 3 rows");
+  var cells = rows[0].cells;
+  assert.equal(cells.length, 3, "2 column + remove");
+  assert.equal(cells[0].hasTitle, false, "col1");
+  assert.equal(cells[0].hasQuestion, true, "col1 question");
+  assert.equal(cells[0].question.getType(), "text", "col1.cellType");
+  assert.notOk(cells[0].isRemoveRow, "col1 do not have remove row");
+
+  assert.equal(cells[1].hasTitle, false, "col2");
+  assert.equal(cells[1].hasQuestion, true, "col2 question");
+  assert.equal(cells[1].question.getType(), "dropdown", "col2.cellType");
+  assert.notOk(cells[1].isRemoveRow, "col2 do not have remove row");
+
+  assert.equal(cells[2].hasTitle, false, "remove row");
+  assert.equal(cells[2].hasQuestion, false, "col2 question");
+  assert.equal(cells[2].isRemoveRow, true, "is Remove row");
+  assert.ok(!!cells[2].row, "is Remove has row property");
+
+  cells = rows[2].cells;
+  assert.equal(cells[0].question.getType(), "text", "col1.cellType");
+  assert.equal(cells[1].question.getType(), "dropdown", "col2.cellType");
+  assert.equal(cells[2].isRemoveRow, true, "is Remove row");
+
+  matrix.minRowCount = 3;
+  cells = matrix.renderedTable.rows[0].cells;
+  assert.equal(cells.length, 2, "2 columns only");
+  matrix.minRowCount = 2;
+  cells = matrix.renderedTable.rows[0].cells;
+  assert.equal(cells.length, 3, "2 columns + remove again");
+
+  matrix.columnLayout = "vertical";
+  rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 3, "2 columns + remove");
+  cells = rows[0].cells;
+  assert.equal(cells.length, 4, "column + 3 rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1 title");
+  assert.equal(cells[0].hasQuestion, false, "col1 title, no question");
+  assert.equal(cells[1].question.getType(), "text", "row1.col1 cellType-text");
+  assert.equal(cells[1].cell.column.name, "col1", "row1.col1 correct column");
+  assert.equal(cells[3].question.getType(), "text", "row3.col1 cellType-text");
+  assert.equal(cells[3].cell.column.name, "col1", "row3.col1 correct column");
+  cells = rows[1].cells;
+  assert.equal(cells[0].locTitle.renderedHtml, "col2", "col2 title");
+  assert.equal(
+    cells[1].question.getType(),
+    "dropdown",
+    "row1.col2 cellType-text"
+  );
+  assert.equal(cells[1].cell.column.name, "col2", "row1.col2 correct column");
+  assert.equal(
+    cells[3].question.getType(),
+    "dropdown",
+    "row3.col2 cellType-text"
+  );
+  assert.equal(cells[3].cell.column.name, "col2", "row3.col2 correct column");
+
+  cells = rows[2].cells;
+  assert.equal(cells.length, 4, "column + 3 rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.notOk(cells[0].isRemoveRow, "not a remove button");
+  assert.equal(cells[1].isRemoveRow, true, "row1: it is a remove row");
+  assert.ok(cells[1].row, "row1: it has a row");
+  assert.equal(cells[3].isRemoveRow, true, "row3: it is a remove row");
+  assert.ok(cells[3].row, "row3: it has a row");
+
+  matrix.minRowCount = 3;
+  rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 2, "2 columns");
+
+  matrix.showHeader = false;
+  cells = matrix.renderedTable.rows[0].cells;
+  assert.equal(cells.length, 3, "3 rows");
+  assert.equal(cells[0].question.getType(), "text", "row1.col1 cellType-text");
+  assert.equal(cells[2].question.getType(), "text", "row3.col1 cellType-text");
+});
+
+QUnit.test("matrix dropdown + renderedTable + totals", function(assert) {
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.columns[0].totalType = "count";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rows = ["row1", "row2", "row3"];
+
+  assert.equal(matrix.renderedTable.showFooter, true, "Footer is shown");
+  assert.ok(matrix.renderedTable.footerRow, "Footer row exists");
+  matrix.columns[0].totalType = "none";
+
+  assert.equal(matrix.renderedTable.showFooter, false, "Footer is not shown");
+  assert.notOk(matrix.renderedTable.footerRow, "Footer row not exists");
+
+  matrix.columns[0].totalType = "count";
+  matrix.columnLayout = "vertical";
+  assert.equal(
+    matrix.renderedTable.showFooter,
+    false,
+    "Footer is not shown, columnLayout is vertical"
+  );
+  assert.notOk(
+    matrix.renderedTable.footerRow,
+    "Footer row not exists, columnLayout is vertical"
+  );
+  matrix.columnLayout = "horizontal";
+  assert.equal(
+    matrix.renderedTable.showFooter,
+    true,
+    "Footer is not shown again"
+  );
+  assert.ok(matrix.renderedTable.footerRow, "Footer row exists");
+
+  var cells = matrix.renderedTable.footerRow.cells;
+  assert.equal(cells.length, 3, "rowHeader + 2 columns");
+  assert.equal(cells[0].hasTitle, true, "header rows");
+  assert.equal(cells[0].locTitle.renderedHtml, "", "header rows");
+  assert.equal(cells[0].hasQuestion, false, "header rows, no question");
+  assert.equal(cells[1].hasTitle, false, "total, not title");
+  assert.equal(
+    cells[1].question.getType(),
+    "expression",
+    "total, it is expression"
+  );
+  assert.equal(cells[2].hasTitle, false, "total, not title");
+  assert.equal(
+    cells[2].question.getType(),
+    "expression",
+    "total, it is expression"
+  );
+
+  matrix.columnLayout = "vertical";
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 2, "2 columns");
+  cells = rows[0].cells;
+  assert.equal(cells.length, 5, "column + 3 rows + total");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "col1 title");
+  assert.equal(cells[0].hasQuestion, false, "col1 title, no question");
+  assert.equal(cells[1].question.getType(), "text", "row1.col1 cellType-text");
+  assert.equal(cells[1].cell.column.name, "col1", "row1.col1 correct column");
+  assert.equal(cells[3].question.getType(), "text", "row3.col1 cellType-text");
+  assert.equal(cells[3].cell.column.name, "col1", "row3.col1 correct column");
+  assert.equal(cells[4].question.getType(), "expression", "total, question");
+  assert.equal(cells[4].hasTitle, false, "total, no title");
+});
+
+QUnit.test("matrix dynamic + renderedTable + totals", function(assert) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.columns[0].totalType = "count";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rowCount = 3;
+
+  var cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells.length, 3, "2 columns + total");
+  assert.equal(cells[0].hasTitle, true, "header, col1");
+  assert.equal(cells[0].locTitle.renderedHtml, "col1", "header, col1");
+  assert.equal(cells[1].locTitle.renderedHtml, "col2", "header, col2");
+  assert.equal(cells[2].hasTitle, true, "header total");
+  assert.equal(
+    cells[2].locTitle.renderedHtml,
+    "",
+    "header total, empty string"
+  );
+
+  matrix.columnLayout = "vertical";
+  var rows = matrix.renderedTable.rows;
+  assert.equal(rows.length, 3, "2 columns + remove");
+  cells = rows[2].cells;
+  assert.equal(cells.length, 5, "column + 3 rows + total");
+  assert.equal(cells[0].locTitle.renderedHtml, "", "for column header");
+  assert.notOk(cells[0].isRemoveRow, "not a remove button");
+  assert.equal(cells[1].isRemoveRow, true, "row1: it is a remove row");
+  assert.ok(cells[1].row, "row1: it has a row");
+  assert.equal(cells[3].isRemoveRow, true, "row3: it is a remove row");
+  assert.ok(cells[3].row, "row3: it has a row");
+  assert.equal(cells[4].locTitle.renderedHtml, "", "for total");
+});
+
+QUnit.test("matrix dynamic + renderedTable + add/remove rows", function(
+  assert
+) {
+  var matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.columns[0].totalType = "count";
+  matrix.addColumn("col2");
+  matrix.columns[1].minWidth = "100px";
+  matrix.rowCount = 3;
+
+  assert.equal(matrix.renderedTable.rows.length, 3, "There are 3 rows");
+  var firstRowId = matrix.renderedTable.rows[0].id;
+  var thirdRowId = matrix.renderedTable.rows[2].id;
+  matrix.addRow();
+  assert.equal(matrix.renderedTable.rows.length, 4, "There are 4 rows");
+  assert.equal(
+    matrix.renderedTable.rows[0].id,
+    firstRowId,
+    "Do not recreate row1 Id"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[2].id,
+    thirdRowId,
+    "Do not recreate row3 Id"
+  );
+  matrix.removeRow(1);
+  assert.equal(
+    matrix.renderedTable.rows.length,
+    3,
+    "There are 4 rows after remove"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[0].id,
+    firstRowId,
+    "Do not recreate row1 Id on remove"
+  );
+  assert.equal(
+    matrix.renderedTable.rows[1].id,
+    thirdRowId,
+    "Do not recreate row3 Id on remove"
+  );
+});

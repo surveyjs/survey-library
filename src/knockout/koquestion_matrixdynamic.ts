@@ -12,9 +12,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   constructor(question: Question) {
     super(question);
   }
-  protected hasRowText(): boolean {
-    return false;
-  }
   protected isAddRowTop(): boolean {
     return (<QuestionMatrixDynamic>this.question).isAddRowOnTop;
   }

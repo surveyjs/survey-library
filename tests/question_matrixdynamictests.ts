@@ -2847,3 +2847,43 @@ QUnit.test("matrix dynamic + renderedTable + add/remove rows", function(
     "Do not recreate row3 Id on remove"
   );
 });
+
+QUnit.test(
+  "matrix dynamic + renderedTable + optionsCaption and columnColCount",
+  function(assert) {
+    var matrix = new QuestionMatrixDynamicModel("q1");
+    matrix.addColumn("col1");
+    matrix.addColumn("col2");
+    matrix.addColumn("col3");
+    matrix.addColumn("col4");
+    matrix.columns[1].cellType = "radiogroup";
+    matrix.columns[2].optionsCaption = "col2 options";
+    matrix.columns[3].cellType = "radiogroup";
+    matrix.columns[3].colCount = 2;
+    matrix.rowCount = 3;
+
+    assert.equal(matrix.renderedTable.rows.length, 3, "There are 3 rows");
+    matrix.optionsCaption = "My Caption";
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[0].question["optionsCaption"],
+      "My Caption",
+      "options caption get from matrix"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[2].question["optionsCaption"],
+      "col2 options",
+      "options caption get from column"
+    );
+    matrix.columnColCount = 3;
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[1].question["colCount"],
+      3,
+      "question col count get from matrix"
+    );
+    assert.equal(
+      matrix.renderedTable.rows[0].cells[3].question["colCount"],
+      2,
+      "question col count get from column"
+    );
+  }
+);

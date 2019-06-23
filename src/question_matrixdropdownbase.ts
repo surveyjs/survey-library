@@ -105,7 +105,7 @@ export var matrixDropdownColumnTypes = {
       data: any
     ) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (!cellQuestion.optionsCaption)
+      if (cellQuestion.locOptionsCaption.isEmpty)
         cellQuestion.optionsCaption = question.optionsCaption;
     }
   },
@@ -1222,10 +1222,14 @@ export class QuestionMatrixDropdownModelBase
         self.fireCallback(self.columnLayoutChangedCallback);
       }
     );
-    this.registerFunctionOnPropertyValueChanged("cellType", function() {
-      self.generatedVisibleRows = null;
-      self.fireCallback(self.columnsChangedCallback);
-    });
+    this.registerFunctionOnPropertiesValueChanged(
+      ["cellType", "optionsCaption", "columnColCount"],
+      function() {
+        self.generatedVisibleRows = null;
+        self.resetRenderedTable();
+        self.fireCallback(self.columnsChangedCallback);
+      }
+    );
     this.registerFunctionOnPropertiesValueChanged(
       [
         "columnLayout",
@@ -1233,9 +1237,7 @@ export class QuestionMatrixDropdownModelBase
         "minRowCount",
         "isReadOnly",
         "rowCount",
-        "cellType",
-        "hasFooter",
-        "columnColCount"
+        "hasFooter"
       ],
       function() {
         self.resetRenderedTable();

@@ -1191,6 +1191,7 @@ export class QuestionMatrixDropdownModelBase
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
   columnLayoutChangedCallback: () => void;
+  onRenderedTableResetCallback: () => void;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
   ) => void;
@@ -1233,7 +1234,8 @@ export class QuestionMatrixDropdownModelBase
         "isReadOnly",
         "rowCount",
         "cellType",
-        "hasFooter"
+        "hasFooter",
+        "columnColCount"
       ],
       function() {
         self.resetRenderedTable();
@@ -1276,6 +1278,10 @@ export class QuestionMatrixDropdownModelBase
   public get canRemoveRow(): boolean {
     return false;
   }
+  protected onRowsChanged() {
+    this.resetRenderedTable();
+    super.onRowsChanged();
+  }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
     this.lockResetRenderedTable = true;
@@ -1297,23 +1303,19 @@ export class QuestionMatrixDropdownModelBase
       this.renderedTable.onRemovedRow(index);
     }
   }
-  protected onRowsChanged() {
-    this.resetRenderedTable();
-    super.onRowsChanged();
-  }
   protected resetRenderedTable() {
-    if (this.lockResetRenderedTable) return;
+    if (this.lockResetRenderedTable || this.isLoadingFromJson) return;
     this.renderedTableValue = null;
+    this.fireCallback(this.onRenderedTableResetCallback);
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
     if (!this.renderedTableValue) {
       this.renderedTableValue = this.createRenderedTable();
-      this.setPropertyValue("renderedTable", this.renderedTableValue);
       if (!!this.onRenderedTableCreatedCallback) {
         this.onRenderedTableCreatedCallback(this.renderedTableValue);
       }
     }
-    return this.getPropertyValue("renderedTable");
+    return this.renderedTableValue;
   }
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);

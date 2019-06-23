@@ -213,59 +213,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("Matrixdynamic lost last cell under certain circumstances", function(
-  assert
-) {
-  var survey = new Survey({
-    questions: [
-      {
-        type: "matrixdynamic",
-        name: "frameworksRate",
-        title: "Please enter two comments",
-        columns: [
-          {
-            name: "likeTheBest",
-            cellType: "comment",
-            title: "Comment 1"
-          },
-          {
-            name: "improvements",
-            cellType: "comment",
-            title: "Comment 2"
-          }
-        ],
-        rowCount: 2
-      }
-    ]
-  });
-  var question: QuestionMatrixDynamic = <any>survey.getQuestionByName(
-    "frameworksRate"
-  );
-  assert.equal(question.rowCount, 2, "It should be 2 rowCount");
-  assert.equal(question.columns.length, 2, "It should be 2 columns");
-  assert.equal(question["koRows"]().length, 2, "It should be 2 rows");
-  assert.equal(
-    question["koRows"]()[0].cells.length,
-    2,
-    "It should be 2 cells in 1st row"
-  );
-  assert.equal(
-    question["koRows"]()[1].cells.length,
-    2,
-    "It should be 2 cells in 2nd row"
-  );
-  assert.equal(
-    question["koRows"]()[0].cells[0].question.getType(),
-    "comment",
-    "Cell 1 should be comment"
-  );
-  assert.equal(
-    question["koRows"]()[0].cells[1].question.getType(),
-    "comment",
-    "Cell 2 should be comment"
-  );
-});
-
 QUnit.test("Matrixdynamic checkbox column does not work, Bug#1031", function(
   assert
 ) {

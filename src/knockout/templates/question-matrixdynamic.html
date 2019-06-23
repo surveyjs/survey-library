@@ -7,7 +7,8 @@
   </div>
   <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
       <table data-bind="css: question.koCss().root">
-          <thead data-bind="visible: question.koTable().showHeader">
+          <!-- ko if: question.koTable().showHeader -->
+          <thead>
               <tr>
                   <!-- ko foreach: question.koTable().headerRow.cells -->
                   <th data-bind="style: { minWidth: $data.minWidth }">
@@ -17,6 +18,7 @@
                   <!-- /ko -->
               </tr>
           </thead>
+          <!-- /ko -->
           <tbody>
               <!-- ko foreach: question.koTable().rows -->
               <tr>

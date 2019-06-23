@@ -15,15 +15,12 @@ import { ImplementorBase } from "./kobase";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koCellAfterRender: any;
-  koRows: any;
-  koVisibleColumns: any;
   koRecalc: any;
   koAddRowClick: any;
   koRemoveRowClick: any;
   koIsAddRowOnTop: any;
   koIsAddRowOnBottom: any;
   koCanRemoveRow: any;
-  koIsHorizontalColumnLayout: any;
   koTable: any;
   constructor(question: Question) {
     super(question);
@@ -36,14 +33,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.koRecalc();
       return (<QuestionMatrixDropdownModel>self.question).renderedTable;
     });
-    this.koRows = ko.pureComputed(function() {
-      self.koRecalc();
-      return (<QuestionMatrixDropdownModel>self.question).visibleRows;
-    });
-    this.koVisibleColumns = ko.pureComputed(function() {
-      self.koRecalc();
-      return (<QuestionMatrixDropdownModel>self.question).visibleColumns;
-    });
     (<QuestionMatrixDropdownModel>this
       .question).onRenderedTableCreatedCallback = function(
       table: QuestionMatrixDropdownRenderedTable
@@ -51,8 +40,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       new ImplementorBase(table);
     };
     (<QuestionMatrixDropdownModel>this
-      .question).visibleRowsChangedCallback = function() {
-      self.onVisibleRowsChanged();
+      .question).onRenderedTableResetCallback = function() {
+      self.koRecalc(self.koRecalc() + 1);
     };
     this.koAddRowClick = function() {
       self.addRow();
@@ -72,33 +61,13 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.koRecalc();
       return self.canRemoveRow();
     });
-    this.koIsHorizontalColumnLayout = ko.observable(
-      (<QuestionMatrixDropdownModel>this.question).isColumnLayoutHorizontal
-    );
     (<any>this.question)["koTable"] = this.koTable;
-    (<any>this.question)["koRows"] = this.koRows;
-    (<any>this.question)["koVisibleColumns"] = this.koVisibleColumns;
     (<any>this.question)["koCellAfterRender"] = this.koCellAfterRender;
     (<any>this.question)["koAddRowClick"] = this.koAddRowClick;
     (<any>this.question)["koRemoveRowClick"] = this.koRemoveRowClick;
     (<any>this.question)["koIsAddRowOnTop"] = this.koIsAddRowOnTop;
     (<any>this.question)["koIsAddRowOnBottom"] = this.koIsAddRowOnBottom;
     (<any>this.question)["koCanRemoveRow"] = this.koCanRemoveRow;
-    (<any>this.question)[
-      "koIsHorizontalColumnLayout"
-    ] = this.koIsHorizontalColumnLayout;
-    (<QuestionMatrixDropdownModel>this
-      .question).columnsChangedCallback = function() {
-      self.onColumnChanged();
-    };
-    (<QuestionMatrixDropdownModel>this
-      .question).updateCellsCallback = function() {
-      self.onUpdateCells();
-    };
-    (<QuestionMatrixDropdownModel>this
-      .question).columnLayoutChangedCallback = function() {
-      self.onColumnLayoutChanged();
-    };
   }
   protected getQuestionTemplate(): string {
     return "matrixdynamic";
@@ -123,16 +92,6 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
   }
-  protected onSurveyLoad() {
-    super.onSurveyLoad();
-    this.onColumnLayoutChanged();
-  }
-  protected onColumnLayoutChanged() {
-    this.koIsHorizontalColumnLayout(
-      (<QuestionMatrixDropdownModelBase>this.question).isColumnLayoutHorizontal
-    );
-    this.koRecalc(this.koRecalc() + 1);
-  }
   protected isAddRowTop(): boolean {
     return false;
   }
@@ -142,16 +101,8 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   protected canRemoveRow(): boolean {
     return false;
   }
-  protected onColumnChanged() {
-    var rows = (<QuestionMatrixDropdownModelBase>this.question).visibleRows;
-    this.onVisibleRowsChanged();
-  }
-  protected onVisibleRowsChanged() {
-    this.koRecalc(this.koRecalc() + 1);
-  }
   protected addRow() {}
   protected removeRow(row: MatrixDropdownRowModelBase) {}
-  protected onUpdateCells() {}
 }
 
 export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {

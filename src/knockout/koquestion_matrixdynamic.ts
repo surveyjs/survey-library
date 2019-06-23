@@ -24,13 +24,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
       (<QuestionMatrixDynamic>this.question).canRemoveRow
     );
   }
-  protected onUpdateCells() {
-    //Genereate rows again.
-    var rows = (<QuestionMatrixDynamic>this.question)["generatedVisibleRows"];
-    var columns = (<QuestionMatrixDynamic>this.question).columns;
-    if (rows && rows.length > 0 && columns && columns.length > 0)
-      this.onColumnChanged();
-  }
   protected addRow() {
     (<QuestionMatrixDynamic>this.question).addRow();
   }

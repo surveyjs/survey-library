@@ -1191,6 +1191,9 @@ export class QuestionMatrixDropdownModelBase
   columnsChangedCallback: () => void;
   updateCellsCallback: () => void;
   columnLayoutChangedCallback: () => void;
+  onRenderedTableCreatedCallback: (
+    table: QuestionMatrixDropdownRenderedTable
+  ) => void;
 
   protected createColumnValues() {
     return this.createNewArray("columns", (item: any) => {
@@ -1304,10 +1307,16 @@ export class QuestionMatrixDropdownModelBase
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
     if (!this.renderedTableValue) {
-      this.renderedTableValue = new QuestionMatrixDropdownRenderedTable(this);
+      this.renderedTableValue = this.createRenderedTable();
       this.setPropertyValue("renderedTable", this.renderedTableValue);
+      if (!!this.onRenderedTableCreatedCallback) {
+        this.onRenderedTableCreatedCallback(this.renderedTableValue);
+      }
     }
     return this.getPropertyValue("renderedTable");
+  }
+  protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
+    return new QuestionMatrixDropdownRenderedTable(this);
   }
   protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
     if (!this.survey) return;

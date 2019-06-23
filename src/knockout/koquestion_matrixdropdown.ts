@@ -4,12 +4,14 @@ import { QuestionMatrixDropdownModel } from "../question_matrixdropdown";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownCell,
-  MatrixDropdownRowModelBase
+  MatrixDropdownRowModelBase,
+  QuestionMatrixDropdownRenderedTable
 } from "../question_matrixdropdownbase";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
 import { Question } from "../question";
 import { QuestionImplementor } from "./koquestion";
+import { ImplementorBase } from "./kobase";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   koCellAfterRender: any;
@@ -42,6 +44,12 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       self.koRecalc();
       return (<QuestionMatrixDropdownModel>self.question).visibleColumns;
     });
+    (<QuestionMatrixDropdownModel>this
+      .question).onRenderedTableCreatedCallback = function(
+      table: QuestionMatrixDropdownRenderedTable
+    ) {
+      new ImplementorBase(table);
+    };
     (<QuestionMatrixDropdownModel>this
       .question).visibleRowsChangedCallback = function() {
       self.onVisibleRowsChanged();

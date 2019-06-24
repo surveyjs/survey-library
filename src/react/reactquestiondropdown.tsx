@@ -46,7 +46,8 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       var isOtherSelected =
         this.question.renderedValue === this.question.otherItem.value;
       return (
-        <div id={this.question.inputId} className={cssClasses.control}>
+        // @ts-ignore
+        <div id={this.question.inputId} className={cssClasses.control} disabled>
           {isOtherSelected
             ? this.question.otherText
             : this.question.displayValue}

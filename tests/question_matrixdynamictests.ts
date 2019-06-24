@@ -2887,3 +2887,23 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("matrix.rowsVisibleIf + renderedTable", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  qBestCar.addColumn("col1");
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(qBestCar.renderedTable.rows.length, 0, "cars are not selected yet");
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.renderedTable.rows.length, 1, "BMW is selected");
+  qCars.value = ["Audi", "BMW", "Mercedes"];
+  assert.equal(qBestCar.renderedTable.rows.length, 3, "3 cars are selected");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.renderedTable.rows.length, 4, "there is no filter");
+});

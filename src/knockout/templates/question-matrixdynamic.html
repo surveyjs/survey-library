@@ -42,13 +42,13 @@
           <!-- ko if:question.koTable().showFooter -->
           <tfoot>
             <tr>
-                <!-- ko foreach: question.koTable().footerRow.cells} -->
+                <!-- ko foreach: question.koTable().footerRow.cells -->
                 <td>
                     <!-- ko if: $data.hasQuestion -->
                         <!-- ko template: { name: $data.question.koTemplateName(), data: $data.question, as: 'question' } --><!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle --><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --><!-- /ko -->
-                  <td>
+                </td>
                 <!-- /ko -->
             </tr>
           </tfoot>

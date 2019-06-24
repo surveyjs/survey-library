@@ -51,7 +51,9 @@ Serializer.addClass(
     { name: "isRequired", visible: false },
     { name: "requiredErrorText", visible: false },
     { name: "readOnly", visible: false },
-    { name: "validators", visible: false }
+    { name: "validators", visible: false },
+    { name: "titleLocation", visible: false },
+    { name: "useDisplayValuesInTitle", visible: false }
   ],
   function() {
     return new QuestionNonValue("");

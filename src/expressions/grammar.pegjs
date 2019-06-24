@@ -34,12 +34,12 @@ LogicAnd
   }
 
 ComparableOperators
-  = ("<=" / "=<" / "lessorequal"i)             { return "lessorequal"; }
-  / (">=" / "=>" / "greaterorequal"i)          { return "greaterorequal"; }
-  / ("==" / "=" / "equals"i / "equal"i)        { return "equal"; }
-  / ("!=" / "<>" / "notequals"i / "notequal"i) { return "notequal"; }
-  / ("<" / "less"i)                            { return "less"; }
-  / (">" / "greater"i)                         { return "greater"; }
+  = ("<=" / "lessorequal"i)             { return "lessorequal"; }
+  / (">=" / "greaterorequal"i)          { return "greaterorequal"; }
+  / ("=" / "equal"i)                    { return "equal"; }
+  / ("!=" / "notequal"i)                { return "notequal"; }
+  / ("<" / "less"i)                     { return "less"; }
+  / (">" / "greater"i)                  { return "greater"; }
 
 CompOps
   = head:PlusMinusOps tail:(_ PlusMinusSigns _ PlusMinusOps)* {

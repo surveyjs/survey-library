@@ -12,7 +12,8 @@ import {
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
   QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedRow
+  QuestionMatrixDropdownRenderedRow,
+  QuestionMatrixDropdownRenderedCell
 } from "../question_matrixdropdownbase";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
@@ -79,28 +80,12 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   renderFooter(): JSX.Element {
     var table = this.question.renderedTable;
     if (!table.showFooter) return null;
-    var footers: any[] = [];
-    var cells = table.footerRow.cells;
-    for (var i = 0; i < cells.length; i++) {
-      var cell = cells[i];
-      var cellContent = null;
-      var key = "footer" + i;
-      if (cell.hasQuestion) {
-        cellContent = SurveyQuestion.renderQuestionBody(
-          this.creator,
-          cell.question
-        );
-      }
-      if (cell.hasTitle) {
-        cellContent = this.renderLocString(cell.locTitle);
-      }
-      footers.push(<td key={key}>{cellContent}</td>);
-    }
-    return (
-      <thead>
-        <tr>{footers}</tr>
-      </thead>
+    var row = this.renderRow(
+      "footer",
+      table.footerRow,
+      this.question.cssClasses
     );
+    return <tfoot>{row}</tfoot>;
   }
   renderRows(): JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -112,38 +97,42 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return <tbody>{rows}</tbody>;
   }
   renderRow(
-    index: number,
+    keyValue: any,
     row: QuestionMatrixDropdownRenderedRow,
     cssClasses: any
   ): JSX.Element {
     var matrixrow = [];
     var cells = row.cells;
     for (var i = 0; i < cells.length; i++) {
-      var cell = cells[i];
-      var matrixCell = null;
-      var key = "row" + i;
-      if (cell.hasQuestion) {
-        matrixCell = (
-          <SurveyQuestionMatrixDropdownCell
-            key={"cell" + i}
-            cssClasses={cssClasses}
-            cell={cell.cell}
-            creator={this.creator}
-          />
-        );
-      }
-      if (cell.hasTitle) {
-        var cellContent = this.renderLocString(cell.locTitle);
-        matrixCell = <td key={key}>{cellContent}</td>;
-      }
-      if (cell.isRemoveRow) {
-        var cellContent = this.renderRemoveButton(cell.row);
-        matrixCell = <td key={key}>{cellContent}</td>;
-      }
-      matrixrow.push(matrixCell);
+      matrixrow.push(this.renderCell(cells[i], i, cssClasses));
     }
-    var key = "row" + index;
+    var key = "row" + keyValue;
     return <tr key={key}>{matrixrow}</tr>;
+  }
+  renderCell(
+    cell: QuestionMatrixDropdownRenderedCell,
+    index: number,
+    cssClasses: any
+  ): JSX.Element {
+    var key = "cell" + index;
+    if (cell.hasQuestion) {
+      return (
+        <SurveyQuestionMatrixDropdownCell
+          key={key}
+          cssClasses={cssClasses}
+          cell={cell.cell}
+          creator={this.creator}
+        />
+      );
+    }
+    var cellContent = null;
+    if (cell.hasTitle) {
+      cellContent = this.renderLocString(cell.locTitle);
+    }
+    if (cell.isRemoveRow) {
+      cellContent = this.renderRemoveButton(cell.row);
+    }
+    return <td key={key}>{cellContent}</td>;
   }
   renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
     return null;

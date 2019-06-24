@@ -1046,7 +1046,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
-      this.footerRow.cells.push(this.createQuestionCell(cells[i].question));
+      this.footerRow.cells.push(this.createEditCell(cells[i]));
     }
     if (this.hasRemoveRow) {
       this.footerRow.cells.push(this.createHeaderCell(null));

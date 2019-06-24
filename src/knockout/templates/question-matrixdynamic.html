@@ -36,8 +36,8 @@
                     </td>
                     <!-- /ko -->
                   <!-- /ko -->
-                </tr>
-            <!-- /ko -->
+              </tr>
+              <!-- /ko -->
           </tbody>
           <!-- ko if:question.koTable().showFooter -->
           <tfoot>
@@ -45,13 +45,14 @@
                 <!-- ko foreach: question.koTable().footerRow.cells} -->
                 <td>
                     <!-- ko if: $data.hasQuestion -->
-                        <!-- ko template: { name: $data.question.koTemplateName(), data: $data.question, as: 'question' } -->
+                        <!-- ko template: { name: $data.question.koTemplateName(), data: $data.question, as: 'question' } --><!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle --><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --><!-- /ko -->
                   <td>
+                <!-- /ko -->
             </tr>
-        </tfoot>
-        <!-- /ko -->
+          </tfoot>
+          <!-- /ko -->
     </table>
   </div>
   <div data-bind="visible: question.koIsAddRowOnBottom(), css: question.koCss().footer">

@@ -257,6 +257,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see confirmDelete
    */
   public removeRowUI(value: any) {
+    if (!!value && !!value.rowName) {
+      var index = this.visibleRows.indexOf(value);
+      if (index < 0) return;
+      value = index;
+    }
     if (
       !this.isRequireConfirmOnRowDelete(value) ||
       confirm(this.confirmDeleteText)

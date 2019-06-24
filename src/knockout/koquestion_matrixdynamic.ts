@@ -28,11 +28,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
     (<QuestionMatrixDynamic>this.question).addRow();
   }
   protected removeRow(row: MatrixDynamicRowModel) {
-    var rows = (<QuestionMatrixDynamic>this.question).visibleRows;
-    var index = rows.indexOf(row);
-    if (index > -1) {
-      (<QuestionMatrixDynamic>this.question).removeRowUI(index);
-    }
+    (<QuestionMatrixDynamic>this.question).removeRowUI(row);
   }
 }
 

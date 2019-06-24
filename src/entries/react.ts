@@ -63,12 +63,10 @@ export {
   SurveyQuestionMatrixDropdownCell
 } from "../react/reactquestionmatrixdropdownbase";
 export {
-  SurveyQuestionMatrixDropdown,
-  SurveyQuestionMatrixDropdownRow
+  SurveyQuestionMatrixDropdown
 } from "../react/reactquestionmatrixdropdown";
 export {
-  SurveyQuestionMatrixDynamic,
-  SurveyQuestionMatrixDynamicRow
+  SurveyQuestionMatrixDynamic
 } from "../react/reactquestionmatrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestionpaneldynamic";
 export { SurveyProgress } from "../react/reactSurveyProgress";

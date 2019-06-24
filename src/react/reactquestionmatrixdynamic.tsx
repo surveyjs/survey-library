@@ -1,21 +1,9 @@
 import * as React from "react";
-import {
-  ReactSurveyElement,
-  SurveyQuestionElementBase
-} from "./reactquestionelement";
+import { ReactSurveyElement } from "./reactquestionelement";
+import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "../question_matrixdynamic";
-import { ISurveyCreator } from "./reactquestion";
-import { MatrixDynamicRowModel } from "../question_matrixdynamic";
-import {
-  MatrixDropdownCell,
-  MatrixDropdownRowModelBase
-} from "../question_matrixdropdownbase";
 import { ReactQuestionFactory } from "./reactquestionfactory";
-import { SurveyCustomWidget } from "./custom-widget";
-import {
-  SurveyQuestionMatrixDropdownBase,
-  SurveyQuestionMatrixDropdownRowBase
-} from "./reactquestionmatrixdropdownbase";
+import { SurveyQuestionMatrixDropdownBase } from "./reactquestionmatrixdropdownbase";
 
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
@@ -47,28 +35,6 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       </div>
     );
   }
-  renderRow(
-    index: number,
-    row: MatrixDropdownRowModelBase,
-    cssClasses: any
-  ): JSX.Element {
-    return (
-      <SurveyQuestionMatrixDynamicRow
-        key={row.id}
-        row={row}
-        index={index}
-        cssClasses={cssClasses}
-        isDisplayMode={this.isDisplayMode}
-        creator={this.creator}
-        question={this.question}
-      />
-    );
-  }
-  protected addHeaderRigth(elements: Array<JSX.Element>) {
-    if (this.matrix.canRemoveRow) {
-      elements.push(<td key="header-right-1" />);
-    }
-  }
   protected renderAddRowButtonOnTop(cssClasses: any): JSX.Element {
     if (!this.matrix.isAddRowOnTop) return null;
     return this.renderAddRowButton(cssClasses);
@@ -91,31 +57,20 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
       </div>
     );
   }
-  protected addBottomColumnAsRows(elements: Array<JSX.Element>) {
-    if (!this.matrix.canRemoveRow) return;
-    var cssClasses = this.question.cssClasses;
-    var tds = [];
-    if (this.question.showHeader) {
-      tds.push(<td key={"header"} />);
-    }
-    var rows = this.question.visibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      var removeButton = (
-        <SurveyQuestionMatrixDynamicRemoveButton
-          question={this.question}
-          index={i}
-          cssClasses={cssClasses}
-        />
-      );
-      tds.push(<td key={"cell" + i}>{removeButton}</td>);
-    }
-    elements.push(<tr key={"removeRow"}>{tds}</tr>);
+  renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
+    return (
+      <SurveyQuestionMatrixDynamicRemoveButton
+        question={this.question}
+        row={row}
+        cssClasses={this.question.cssClasses}
+      />
+    );
   }
 }
 
 export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement {
   private question: QuestionMatrixDynamicModel;
-  private index: number;
+  private row: MatrixDropdownRowModelBase;
   constructor(props: any) {
     super(props);
     this.setProperties(props);
@@ -126,11 +81,11 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
   }
   private setProperties(nextProps: any) {
     this.question = nextProps.question;
-    this.index = nextProps.index;
+    this.row = nextProps.row;
     this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
   }
   handleOnRowRemoveClick(event: any) {
-    this.question.removeRowUI(this.index);
+    this.question.removeRowUI(this.row);
   }
   render(): JSX.Element {
     return (
@@ -143,31 +98,6 @@ export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement 
         <span className={this.cssClasses.iconRemove} />
       </button>
     );
-  }
-}
-
-export class SurveyQuestionMatrixDynamicRow extends SurveyQuestionMatrixDropdownRowBase {
-  private question: QuestionMatrixDynamicModel;
-  private index: number;
-  constructor(props: any) {
-    super(props);
-  }
-  protected setProperties(nextProps: any) {
-    super.setProperties(nextProps);
-    this.question = nextProps.question;
-    this.index = nextProps.index;
-  }
-  protected AddRightCells(tds: Array<JSX.Element>) {
-    if (this.question.canRemoveRow) {
-      var removeButton = (
-        <SurveyQuestionMatrixDynamicRemoveButton
-          question={this.question}
-          index={this.index}
-          cssClasses={this.cssClasses}
-        />
-      );
-      tds.push(<td key={"row" + this.row.cells.length + 1}>{removeButton}</td>);
-    }
   }
 }
 

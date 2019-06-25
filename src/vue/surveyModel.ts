@@ -52,6 +52,10 @@ export class VueSurveyModel extends SurveyModel {
     VueSurveyModel.updatePropertiesHash(question);
     super.questionAdded(question, index, parentPanel, rootPanel);
   }
+  matrixCellCreated(question: IQuestion, options: any) {
+    VueSurveyModel.updatePropertiesHash(options.cellQuestion);
+    super.matrixCellCreated(question, options);
+  }
   protected doOnPageAdded(page: PageModel) {
     VueSurveyModel.updatePropertiesHash(page);
     super.doOnPageAdded(page);

@@ -1,15 +1,24 @@
 <template>
-  <td
-    :class="getQuestionClass(cell.question)"
-    :headers="cell.question.isVisible ? cell.column.locTitle.renderedHtml : ''"
-  >
-    <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'"/>
-    <component
-      v-show="isVisible"
-      :is="getWidgetComponentName(cell.question)"
-      :question="cell.question"
-    />
-    <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'"/>
+  <td :class="getQuestionClass()" :headers="getHeaders()">
+    <div v-if="cell.hasQuestion">
+      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'"/>
+      <component
+        v-show="isVisible"
+        :is="getWidgetComponentName(cell.question)"
+        :question="cell.question"
+      />
+      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'"/>
+    </div>
+    <button
+      v-if="cell.isRemoveRow"
+      type="button"
+      :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+      @click="removeRowClick()"
+    >
+      <span>{{question.removeRowText}}</span>
+      <span :class="question.cssClasses.iconRemove"></span>
+    </button>
+    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle"/>
   </td>
 </template>
 
@@ -18,12 +27,16 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { Question } from "../question";
-import { MatrixDropdownCell } from "../question_matrixdropdownbase";
+import {
+  MatrixDropdownCell,
+  QuestionMatrixDropdownRenderedCell
+} from "../question_matrixdropdownbase";
 
 @Component
 export class MatrixCell extends Vue {
   @Prop question: Question;
-  @Prop cell: MatrixDropdownCell;
+  @Prop cell: QuestionMatrixDropdownRenderedCell;
+
   isVisible: boolean = false;
   getWidgetComponentName(element: Question) {
     if (element.customWidget) {
@@ -37,8 +50,14 @@ export class MatrixCell extends Vue {
   get hasErrorsOnBottom() {
     return this.cell.question.survey.questionErrorLocation === "bottom";
   }
-
-  getQuestionClass(element: Question) {
+  getHeaders() {
+    var element = this.cell.question;
+    if (!element) return "";
+    return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
+  }
+  getQuestionClass() {
+    var element = this.cell.question;
+    if (!element) return "";
     var classes = element.cssClasses.itemValue;
 
     if (!!element.errors && element.errors.length > 0) {
@@ -47,9 +66,12 @@ export class MatrixCell extends Vue {
 
     return classes;
   }
-
+  removeRowClick() {
+    this.question.removeRowUI(this.cell.row);
+  }
   mounted() {
-    if (!this.cell || !this.cell.question || !this.cell.question.survey) return;
+    if (!this.cell.hasQuestion || !this.question || !this.question.survey)
+      return;
     this.onVisibilityChanged();
     var self = this;
     this.cell.question.registerFunctionOnPropertyValueChanged(
@@ -59,16 +81,13 @@ export class MatrixCell extends Vue {
       }
     );
     var options = {
-      cell: this.cell,
+      cell: this.cell.cell,
       cellQuestion: this.cell.question,
       htmlElement: this.$el,
       row: this.cell.row,
-      column: this.cell.column
+      column: this.cell.cell.column
     };
-    this.cell.question.survey.matrixAfterCellRender(
-      this.cell.question,
-      options
-    );
+    this.question.survey.matrixAfterCellRender(this.question, options);
   }
   private onVisibilityChanged() {
     this.isVisible = this.cell.question.isVisible;

@@ -6,6 +6,8 @@ import {
 
 import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
 
+import { ConditionsParser } from "../../src/conditionsParser";
+
 import {
   Const,
   Variable,
@@ -79,8 +81,8 @@ QUnit.test("Variable Const", function(assert) {
 });
 
 function checkItemCondition(op: string, expectedOp: string): boolean {
-  let expr = parse("'a'" + op + "2");
-  return expr.operatorName === expectedOp;
+  let expr = new ConditionsParser().createCondition("'a'" + op + "2");
+  return (<any>expr).operatorName === expectedOp;
 }
 
 QUnit.test("Parse item conditions", function(assert) {
@@ -88,9 +90,14 @@ QUnit.test("Parse item conditions", function(assert) {
   assert.ok(checkItemCondition("=", "equal"), "= is equal");
   assert.ok(checkItemCondition("==", "equal"), "== is equal");
   assert.ok(checkItemCondition(" Equal ", "equal"), "equal is equal");
+  assert.ok(checkItemCondition(" equals ", "equal"), "equals is equal");
   //not equal
   assert.ok(checkItemCondition("<>", "notequal"), "<> is notequal");
   assert.ok(checkItemCondition("!=", "notequal"), "!= is notequal");
+  assert.ok(
+    checkItemCondition(" notequals ", "notequal"),
+    "notequals is notequal"
+  );
   assert.ok(
     checkItemCondition(" NotEqual ", "notequal"),
     "NotEqual is notequal"

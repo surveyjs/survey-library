@@ -15,7 +15,7 @@
         >{{item.text}}</option>
       </select>
     </div>
-    <div
+    <div disabled
       v-else
       :class="question.cssClasses.control"
     >{{isOtherSelected ? question.otherText : question.displayValue}}</div>

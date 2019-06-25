@@ -24,7 +24,7 @@
               <tr>
                   <!-- ko foreach: $data.cells -->
                     <!-- ko if: $data.hasQuestion -->
-                        <!-- ko template: { name: 'survey-matrixcell', data: $data.question, as: "question", afterRender: $data.cell.koCellAfterRender } --><!-- /ko -->
+                        <!-- ko template: { name: 'survey-matrixcell', data: $data.question, as: "question", afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle --><td><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --></td><!-- /ko -->
                     <!-- ko if: $data.isRemoveRow -->
@@ -45,7 +45,7 @@
                 <!-- ko foreach: question.koTable().footerRow.cells -->
                 <td>
                     <!-- ko if: $data.hasQuestion -->
-                        <!-- ko template: { name: $data.question.koTemplateName(), data: $data.question, as: 'question' } --><!-- /ko -->
+                        <!-- ko template: { name: 'survey-matrixcell', data: $data.question, as: "question", afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle --><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --><!-- /ko -->
                 </td>

@@ -933,6 +933,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public row: MatrixDropdownRowModelBase;
   public question: Question;
   public isRemoveRow: boolean;
+  public matrix: QuestionMatrixDropdownModelBase;
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
   }
@@ -1130,15 +1131,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var res = new QuestionMatrixDropdownRenderedCell();
     res.cell = cell;
+    res.row = cell.row;
     res.question = cell.question;
+    res.matrix = this.matrix;
     return res;
-  }
-  private createQuestionCell(
-    question: Question
-  ): QuestionMatrixDropdownRenderedCell {
-    var cell = new QuestionMatrixDropdownRenderedCell();
-    cell.question = question;
-    return cell;
   }
   private createHeaderCell(
     column: MatrixDropdownColumn

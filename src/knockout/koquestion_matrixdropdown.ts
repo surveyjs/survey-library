@@ -5,7 +5,8 @@ import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownCell,
   MatrixDropdownRowModelBase,
-  QuestionMatrixDropdownRenderedTable
+  QuestionMatrixDropdownRenderedTable,
+  QuestionMatrixDropdownRenderedCell
 } from "../question_matrixdropdownbase";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";
@@ -76,7 +77,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     if (!this.question.survey) return;
     var el = SurveyElement.GetFirstNonTextElement(elements);
     if (!el) return;
-    var cell = <MatrixDropdownCell>con.cell;
+    var cell = <QuestionMatrixDropdownRenderedCell>con;
     if (cell.question.customWidget) {
       cell.question.customWidget.afterRender(cell.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
@@ -84,11 +85,11 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       });
     }
     var options = {
-      cell: cell,
+      cell: cell.cell,
       cellQuestion: cell.question,
       htmlElement: el,
       row: cell.row,
-      column: cell.column
+      column: !!cell.cell ? cell.cell.column : null
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
   }

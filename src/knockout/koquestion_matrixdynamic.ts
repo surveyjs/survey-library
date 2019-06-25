@@ -33,7 +33,6 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
 }
 
 export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
-  koCellAfterRender: any;
   constructor(public name: string) {
     super(name);
     new QuestionMatrixDynamicImplementor(this);

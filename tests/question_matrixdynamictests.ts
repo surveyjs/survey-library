@@ -2632,6 +2632,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
   assert.equal(cells[0].hasQuestion, true, "col1 question");
   assert.equal(cells[0].question.getType(), "text", "col1.cellType");
   assert.notOk(cells[0].isRemoveRow, "col1 do not have remove row");
+  assert.ok(cells[0].row, "col1 has row property set");
 
   assert.equal(cells[1].hasTitle, false, "col2");
   assert.equal(cells[1].hasQuestion, true, "col2 question");
@@ -2664,6 +2665,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
   assert.equal(cells[0].hasQuestion, false, "col1 title, no question");
   assert.equal(cells[1].question.getType(), "text", "row1.col1 cellType-text");
   assert.equal(cells[1].cell.column.name, "col1", "row1.col1 correct column");
+  assert.ok(cells[1].row, "col1 has row property set");
   assert.equal(cells[3].question.getType(), "text", "row3.col1 cellType-text");
   assert.equal(cells[3].cell.column.name, "col1", "row3.col1 correct column");
   cells = rows[1].cells;
@@ -2899,7 +2901,11 @@ QUnit.test("matrix.rowsVisibleIf + renderedTable", function(assert) {
   qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   qBestCar.rowsVisibleIf = "{cars} contains {item}";
   page.addElement(qBestCar);
-  assert.equal(qBestCar.renderedTable.rows.length, 0, "cars are not selected yet");
+  assert.equal(
+    qBestCar.renderedTable.rows.length,
+    0,
+    "cars are not selected yet"
+  );
   qCars.value = ["BMW"];
   assert.equal(qBestCar.renderedTable.rows.length, 1, "BMW is selected");
   qCars.value = ["Audi", "BMW", "Mercedes"];

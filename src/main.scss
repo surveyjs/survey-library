@@ -591,6 +591,10 @@ $base-line-height: 2em;
 
             > * {
               word-spacing: initial;
+              @media all and (-ms-high-contrast: none),
+                (-ms-high-contrast: active) {
+                word-spacing: normal;
+              }
             }
 
             &.active {

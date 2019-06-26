@@ -736,6 +736,19 @@ QUnit.test("Move item into empty paneldynamic", function(assert) {
   );
 });
 
+QUnit.test("Don't allow to move empty paneldynamic into itself", function(
+  assert
+) {
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  var page = survey.addNewPage("page1");
+  var panelDynamic = new QuestionPanelDynamicModel("panel1");
+  page.dragDropStart(null, panelDynamic, -1);
+  assert.equal(page.dragDropMoveTo(panelDynamic.template, true), true);
+  page.dragDropFinish();
+  assert.equal(panelDynamic.template.rows.length, 0, "The template is empty");
+});
+
 QUnit.test("survey onDragDropAllow event", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page1");

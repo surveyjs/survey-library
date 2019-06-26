@@ -23,7 +23,7 @@ import { surveyCss } from "./defaultCss/cssstandard";
 import { OneAnswerRequiredError } from "./error";
 import { QuestionPanelDynamic } from "./knockout/koquestion_paneldynamic";
 import { PageModel } from "./page";
-import {settings} from "./settings";
+import { settings } from "./settings";
 
 export class DragDropInfo {
   constructor(
@@ -1054,6 +1054,9 @@ export class PanelModelBase extends SurveyElement
     var dest = <IElement>dragDropInfo.destination;
     if (dest.isPanel && !dragDropInfo.isEdge) {
       var panel = <PanelModelBase>(<any>dest);
+      if ((<any>dragDropInfo.target)["template"] === dest) {
+        return false;
+      }
       if (
         dragDropInfo.nestedPanelDepth < 0 ||
         dragDropInfo.nestedPanelDepth >= panel.depth

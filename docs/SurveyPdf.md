@@ -78,4 +78,4 @@ surveyPDF.save();
 
 ### License
 
-Commercial
+[Commercial](https://surveyjs.io/Home/Licenses#PdfExport)

@@ -66,7 +66,7 @@ surveyPDF.save();
 
 ### Constraints
 
-* No support of dynamic elements (visibleI, buttons, validators, etc.)
+* No support of dynamic elements (visibleIf, buttons, validators, etc.)
 * Implied DPI 72 when set quesions width 
 * Question Text input types supported: text, password, color
 * Question Radiogroup not able to set readOnly for separate items

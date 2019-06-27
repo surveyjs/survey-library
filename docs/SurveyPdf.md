@@ -67,10 +67,10 @@ surveyPDF.save();
 ### Constraints
 
 * No support of dynamic elements (visibleIf, buttons, validators, etc.)
-* Implied DPI 72 when set quesions width 
+* Implied DPI 72 when set questions width 
 * Question Text input types supported: text, password, color
 * Question Radiogroup not able to set readOnly for separate items
-* Question Imagepicker imagefit in always fill
+* Question Imagepicker imagefit is always fill
 * Question Boolean values only true and false
 * Question File save files via RMB in Chrome only
 * Question Panel state is always expanded

@@ -4,7 +4,7 @@ SurveyJS PDF exporter library is easy way to render [SurveyJS Library](https://s
 
 ### Features
 
-* Render all SurveyJS questions (textboxes, checkboxes, dropdowns, etc.)
+* Render all SurveyJS questions (textboxes, checkboxes, dropdowns, etc.) with results
 * Generate PDF interactive forms which can be filled inside the PDF document
 * Automatic splitting into separate pages without cuts inside the questions
 * Customizable font and sizes of page and markdown text

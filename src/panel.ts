@@ -921,13 +921,14 @@ export class PanelModelBase extends SurveyElement
     return this.addElement(panel, index);
   }
   /**
-   * Creates a new question and adds it into the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
+   * Creates a new question and adds it at location of index, by default the end of the elements list. Returns null, if the question could not be created or could not be added into page or panel.
    * @param questionType the possible values are: "text", "checkbox", "dropdown", "matrix", "html", "matrixdynamic", "matrixdropdown" and so on.
    * @param name a question name
+   * @param index element index in the elements array
    */
-  public addNewQuestion(questionType: string, name: string = null): Question {
+  public addNewQuestion(questionType: string, name: string = null, index: number = -1): Question {
     var question = QuestionFactory.Instance.createQuestion(questionType, name);
-    if (!this.addQuestion(question)) return null;
+    if (!this.addQuestion(question, index)) return null;
     return question;
   }
   /**

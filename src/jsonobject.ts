@@ -368,7 +368,8 @@ export class JsonMetadataClass {
       propertyType = propertyName.substring(typeIndex + 1);
       propertyName = propertyName.substring(0, typeIndex);
     }
-    var isRequired = this.getIsPropertyNameRequired(propertyName);
+    var isRequired =
+      this.getIsPropertyNameRequired(propertyName) || !!propInfo.isRequired;
     propertyName = this.getPropertyName(propertyName);
     var prop = new JsonObjectProperty(propertyName, isRequired);
     if (propertyType) {

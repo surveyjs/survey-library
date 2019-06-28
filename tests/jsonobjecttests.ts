@@ -494,6 +494,24 @@ QUnit.test("Check isRequired property", function(assert) {
     "maxWeight is not required property"
   );
 });
+QUnit.test("Create isRequired properties", function(assert) {
+  Serializer.addProperty("sport", "!property1");
+  Serializer.addProperty("sport", { name: "property2", isRequired: true });
+
+  assert.equal(
+    Serializer.findProperty("sport", "property1").isRequired,
+    true,
+    "! makes property required"
+  );
+  assert.equal(
+    Serializer.findProperty("sport", "property2").isRequired,
+    true,
+    "attribute isRequired works"
+  );
+
+  Serializer.removeProperty("sport", "property1");
+  Serializer.removeProperty("sport", "property2");
+});
 QUnit.test("Serialize arrays with serializable objects", function(assert) {
   var dealer = new Dealer();
   var truck = new Truck();

@@ -255,7 +255,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     return "matrixdropdowncolumn";
   }
   public get cellType(): string {
-    return this.getPropertyValue("cellType", "default");
+    return this.getPropertyValue("cellType");
   }
   public set cellType(val: string) {
     val = val.toLocaleLowerCase();
@@ -394,13 +394,13 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.setPropertyValue("totalMinimumFractionDigits", val);
   }
   public get totalDisplayStyle(): string {
-    return this.getPropertyValue("totalDisplayStyle", "none");
+    return this.getPropertyValue("totalDisplayStyle");
   }
   public set totalDisplayStyle(val: string) {
     this.setPropertyValue("totalDisplayStyle", val);
   }
   public get totalCurrency(): string {
-    return this.getPropertyValue("totalCurrency", "USD");
+    return this.getPropertyValue("totalCurrency");
   }
   public set totalCurrency(val: string) {
     if (getCurrecyCodes().indexOf(val) < 0) return;
@@ -1252,7 +1252,7 @@ export class QuestionMatrixDropdownModelBase
    * @see rowCount
    */
   public get columnLayout(): string {
-    return this.getPropertyValue("columnLayout", "horizontal");
+    return this.getPropertyValue("columnLayout");
   }
   public set columnLayout(val: string) {
     this.setPropertyValue("columnLayout", val);

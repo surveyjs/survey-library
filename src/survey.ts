@@ -32,7 +32,7 @@ import { ItemValue } from "./itemvalue";
 import { PanelModelBase } from "./panel";
 import { HtmlConditionItem } from "./htmlConditionItem";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
-import {settings} from "./settings";
+import { settings } from "./settings";
 
 /**
  * Survey object contains information about the survey. Pages, Questions, flow logic and etc.
@@ -915,7 +915,7 @@ export class SurveyModel extends Base
    * @see showPrevButton
    */
   public get showNavigationButtons(): string | any {
-    return this.getPropertyValue("showNavigationButtons", "bottom");
+    return this.getPropertyValue("showNavigationButtons");
   }
   public set showNavigationButtons(val: string | any) {
     if (val === true || val === undefined) {
@@ -1041,7 +1041,7 @@ export class SurveyModel extends Base
    * By default, library checks errors on changing current page to the next or on completing the survey.
    */
   public get checkErrorsMode(): string {
-    return this.getPropertyValue("checkErrorsMode", "onNextPage");
+    return this.getPropertyValue("checkErrorsMode");
   }
   public set checkErrorsMode(val: string) {
     this.setPropertyValue("checkErrorsMode", val);
@@ -1055,7 +1055,7 @@ export class SurveyModel extends Base
    * @see onComplete
    */
   public get clearInvisibleValues(): any {
-    return this.getPropertyValue("clearInvisibleValues", "onComplete");
+    return this.getPropertyValue("clearInvisibleValues");
   }
   public set clearInvisibleValues(val: any) {
     if (val === true) val = "onComplete";
@@ -1358,7 +1358,7 @@ export class SurveyModel extends Base
    * Set this property to "off" to turn off the numbering on questions titles or "onpage" to start numbering on every page. The default value is "on".
    */
   public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers", "on");
+    return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(value: string) {
     value = value.toLowerCase();
@@ -1371,7 +1371,7 @@ export class SurveyModel extends Base
    * Set this property to "top" to show the progress bar on the bottom or to "bottom" to show it on the bottom.
    */
   public get showProgressBar(): string {
-    return this.getPropertyValue("showProgressBar", "off");
+    return this.getPropertyValue("showProgressBar");
   }
   public set showProgressBar(newValue: string) {
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
@@ -1380,7 +1380,7 @@ export class SurveyModel extends Base
    * Type of info in the progress bar: "pages" (default), "questions" or "correctQuestions".
    */
   public get progressBarType(): string {
-    return this.getPropertyValue("progressBarType", "pages");
+    return this.getPropertyValue("progressBarType");
   }
   public set progressBarType(newValue: string) {
     this.setPropertyValue("progressBarType", newValue.toLowerCase());
@@ -1402,7 +1402,7 @@ export class SurveyModel extends Base
    * <br/><b>Note:</b> Some questions, for example matrixes, do not support 'left' value. The title for them will be displayed on the top.
    */
   public get questionTitleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "top");
+    return this.getPropertyValue("questionTitleLocation");
   }
   public set questionTitleLocation(value: string) {
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
@@ -1411,7 +1411,7 @@ export class SurveyModel extends Base
    * Set this property to 'bottom' to show question error(s) under the question.
    */
   public get questionErrorLocation(): string {
-    return this.getPropertyValue("questionErrorLocation", "top");
+    return this.getPropertyValue("questionErrorLocation");
   }
   public set questionErrorLocation(value: string) {
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
@@ -1420,7 +1420,7 @@ export class SurveyModel extends Base
    * Set this mode to 'display' to make the survey read-only. The default value is 'edit'.
    */
   public get mode(): string {
-    return this.getPropertyValue("mode", "edit");
+    return this.getPropertyValue("mode");
   }
   public set mode(value: string) {
     value = value.toLowerCase();
@@ -1645,7 +1645,7 @@ export class SurveyModel extends Base
    * @see SurveyPage.questionsOrder
    */
   public get questionsOrder() {
-    return this.getPropertyValue("questionsOrder", "initial");
+    return this.getPropertyValue("questionsOrder");
   }
   public set questionsOrder(val: string) {
     this.setPropertyValue("questionsOrder", val);
@@ -2750,9 +2750,12 @@ export class SurveyModel extends Base
   private updateAllQuestionsValue() {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      var q = questions[i];
-      q.updateValueFromSurvey(this.getValue(q.getValueName()));
-      q.updateCommentFromSurvey(this.getComment(q.getValueName()));
+      var q = <Question>questions[i];
+      var valName = q.getValueName();
+      q.updateValueFromSurvey(this.getValue(valName));
+      if (q.requireUpdateCommentValue) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
     }
   }
   private notifyAllQuestionsOnValueChanged() {

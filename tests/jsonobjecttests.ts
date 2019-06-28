@@ -136,13 +136,18 @@ class Dealer extends Base {
   public definedNonSerializable: string;
   public cars = new Array<Car>();
   public stringArray: Array<string> = [];
-  public defaultValue: string = "default";
   public car: Car;
   public truck: Truck;
   public trucks = new Array<Truck>();
   public changeNameOnSet: string;
   public getType(): string {
     return "dealer";
+  }
+  public get defaultValue(): string {
+    return this.getPropertyValue("defaultValue");
+  }
+  public set defaultValue(val: string) {
+    this.setPropertyValue("defaultValue", val);
   }
 }
 
@@ -1911,3 +1916,15 @@ QUnit.test("property.visibleIf functionality", function(assert) {
     "The visibleIf returns true"
   );
 });
+
+QUnit.test(
+  "Apply defaultValue property serializer attribute for all object in constructor",
+  function(assert) {
+    var propDefaultValue = Serializer.findProperty("dealer", "defaultValue");
+    var oldValue = propDefaultValue.defaultValue;
+    propDefaultValue.defaultValue = "MyValue";
+    var dealer = new Dealer();
+    assert.equal(dealer.defaultValue, "MyValue");
+    propDefaultValue.defaultValue = oldValue;
+  }
+);

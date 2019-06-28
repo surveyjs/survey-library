@@ -71,7 +71,7 @@ export class PageModel extends PanelModelBase implements IPage {
    * @see SurveyMode.showNavigationButtons
    */
   public get navigationButtonsVisibility(): string {
-    return this.getPropertyValue("navigationButtonsVisibility", "inherit");
+    return this.getPropertyValue("navigationButtonsVisibility");
   }
   public set navigationButtonsVisibility(val: string) {
     this.setPropertyValue("navigationButtonsVisibility", val.toLowerCase());
@@ -128,7 +128,7 @@ export class PageModel extends PanelModelBase implements IPage {
    * @see areQuestionsRandomized
    */
   public get questionsOrder() {
-    return this.getPropertyValue("questionsOrder", "default");
+    return this.getPropertyValue("questionsOrder");
   }
   public set questionsOrder(val: string) {
     this.setPropertyValue("questionsOrder", val);

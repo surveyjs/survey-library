@@ -31,7 +31,7 @@ export class QuestionFileModel extends Question {
    * Set it to true, to show the preview for the image files.
    */
   public get showPreview() {
-    return this.getPropertyValue("showPreview", true);
+    return this.getPropertyValue("showPreview");
   }
   public set showPreview(val: boolean) {
     this.setPropertyValue("showPreview", val);
@@ -78,7 +78,7 @@ export class QuestionFileModel extends Question {
    * @see SurveyModel.onUploadFiles
    */
   public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText", true);
+    return this.getPropertyValue("storeDataAsText");
   }
   public set storeDataAsText(val: boolean) {
     this.setPropertyValue("storeDataAsText", val);
@@ -96,7 +96,7 @@ export class QuestionFileModel extends Question {
    * Set it to false if you want to disable images preview.
    */
   public get allowImagesPreview(): boolean {
-    return this.getPropertyValue("allowImagesPreview", true);
+    return this.getPropertyValue("allowImagesPreview");
   }
   public set allowImagesPreview(val: boolean) {
     this.setPropertyValue("allowImagesPreview", val);

@@ -8,8 +8,6 @@ import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
-import { turkishSurveyStrings } from "./localization/turkish";
-import { basename } from "path";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -32,14 +30,14 @@ export class QuestionSelectBase extends Question {
     super(name);
     var self = this;
     this.choices = this.createItemValues("choices");
-    this.registerFunctionOnPropertyValueChanged("choices", function () {
+    this.registerFunctionOnPropertyValueChanged("choices", function() {
       if (!self.filterItems()) {
         self.onVisibleChoicesChanged();
       }
     });
     this.registerFunctionOnPropertyValueChanged(
       "hideIfChoicesEmpty",
-      function () {
+      function() {
         self.updateVisibilityBasedOnChoices();
       }
     );
@@ -50,13 +48,13 @@ export class QuestionSelectBase extends Question {
     this.createLocalizableString("otherErrorText", this, true);
     this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
-    locOtherText.onGetTextCallback = function (text) {
+    locOtherText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
-    this.choicesByUrl.getResultCallback = function (items: Array<ItemValue>) {
+    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
     };
-    this.choicesByUrl.updateResultCallback = function (
+    this.choicesByUrl.updateResultCallback = function(
       items: Array<ItemValue>,
       serverResult: any
     ): Array<ItemValue> {
@@ -66,6 +64,9 @@ export class QuestionSelectBase extends Question {
       return items;
     };
     this.createLocalizableString("otherPlaceHolder", this);
+  }
+  public getType(): string {
+    return "selectbase";
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
@@ -347,7 +348,7 @@ export class QuestionSelectBase extends Question {
    * Use this property to render items in a specific order: "asc", "desc", "random". Default value is "none".
    */
   public get choicesOrder(): string {
-    return this.getPropertyValue("choicesOrder", "none");
+    return this.getPropertyValue("choicesOrder");
   }
   public set choicesOrder(val: string) {
     val = val.toLowerCase();
@@ -452,8 +453,8 @@ export class QuestionSelectBase extends Question {
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true
-      }
+      includeEmpty: true
+    }
   ) {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
@@ -660,7 +661,7 @@ export class QuestionSelectBase extends Question {
     return array;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
-    return array.sort(function (a, b) {
+    return array.sort(function(a, b) {
       if (a.text < b.text) return -1 * mult;
       if (a.text > b.text) return 1 * mult;
       return 0;
@@ -776,7 +777,7 @@ Serializer.addClass(
     { name: "otherPlaceHolder", serializationProperty: "locOtherPlaceHolder" },
     {
       name: "choices:itemvalue[]",
-      baseValue: function () {
+      baseValue: function() {
         return surveyLocalization.getString("choices_Item");
       }
     },
@@ -788,10 +789,10 @@ Serializer.addClass(
     {
       name: "choicesByUrl:restfull",
       className: "ChoicesRestfull",
-      onGetValue: function (obj: any) {
+      onGetValue: function(obj: any) {
         return obj.choicesByUrl.getData();
       },
-      onSetValue: function (obj: any, value: any) {
+      onSetValue: function(obj: any, value: any) {
         obj.choicesByUrl.setData(value);
       }
     },

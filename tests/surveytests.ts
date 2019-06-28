@@ -564,6 +564,7 @@ QUnit.test("Store comments in the survey", function(assert) {
   var survey = new SurveyModel();
   survey.addPage(new PageModel("Page 1"));
   var question = <Question>survey.pages[0].addNewQuestion("text", "question");
+  question.hasComment = true;
   assert.equal(survey.getComment("question"), "", "Comment is empty");
   assert.equal(question.comment, "", "Comment is empty");
 

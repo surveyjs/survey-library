@@ -90,6 +90,13 @@ export class Question extends SurveyElement
         self.onIndentChanged();
       }
     );
+
+    this.registerFunctionOnPropertiesValueChanged(
+      ["hasComment", "hasOther"],
+      function() {
+        self.initCommentFromSurvey();
+      }
+    );
   }
   public getValueName(): string {
     if (!!this.valueName) return this.valueName.toString();
@@ -264,12 +271,12 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionTitleLocation
    */
   public get titleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "default");
+    return this.getPropertyValue("titleLocation");
   }
   public set titleLocation(value: string) {
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
-    this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    this.setPropertyValue("titleLocation", value.toLowerCase());
     if (isVisibilityChanged && this.survey) {
       this.survey.questionVisibilityChanged(this, this.visible);
     }
@@ -658,6 +665,9 @@ export class Question extends SurveyElement
     this.hasOtherChanged();
   }
   protected hasOtherChanged() {}
+  public get requireUpdateCommentValue() {
+    return this.hasComment || this.hasOther;
+  }
   /**
    * Retuns true if readOnly property is true or survey is in display mode or parent panel/page is readOnly.
    * @see SurveyModel.model
@@ -758,7 +768,14 @@ export class Question extends SurveyElement
   protected initDataFromSurvey() {
     if (!!this.data) {
       this.updateValueFromSurvey(this.data.getValue(this.getValueName()));
+      this.initCommentFromSurvey();
+    }
+  }
+  protected initCommentFromSurvey() {
+    if (!!this.data && this.requireUpdateCommentValue) {
       this.updateCommentFromSurvey(this.data.getComment(this.getValueName()));
+    } else {
+      this.updateCommentFromSurvey("");
     }
   }
   private get questionValue(): any {

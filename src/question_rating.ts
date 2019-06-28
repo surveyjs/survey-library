@@ -70,7 +70,7 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateMin(): number {
-    return this.getPropertyValue("rateMin", 1);
+    return this.getPropertyValue("rateMin");
   }
   public set rateMin(val: number) {
     if (!this.isLoadingFromJson && val > this.rateMax - this.rateStep)
@@ -84,7 +84,7 @@ export class QuestionRatingModel extends Question {
    * @see rateStep
    */
   public get rateMax(): number {
-    return this.getPropertyValue("rateMax", 5);
+    return this.getPropertyValue("rateMax");
   }
   public set rateMax(val: number) {
     if (!this.isLoadingFromJson && val < this.rateMin + this.rateStep)
@@ -98,7 +98,7 @@ export class QuestionRatingModel extends Question {
    * @see rateMax
    */
   public get rateStep(): number {
-    return this.getPropertyValue("rateStep", 1);
+    return this.getPropertyValue("rateStep");
   }
   public set rateStep(val: number) {
     if (val <= 0) val = 1;

@@ -358,7 +358,7 @@ export class QuestionMultipleTextModel extends Question
    * The number of columns. Items are rendred in one line if the value is 0.
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount", 1);
+    return this.getPropertyValue("colCount");
   }
   public set colCount(val: number) {
     if (val < 1 || val > 5) return;
@@ -368,7 +368,7 @@ export class QuestionMultipleTextModel extends Question
    * The default text input size.
    */
   public get itemSize(): number {
-    return this.getPropertyValue("itemSize", 25);
+    return this.getPropertyValue("itemSize");
   }
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);

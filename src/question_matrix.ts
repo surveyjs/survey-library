@@ -214,7 +214,7 @@ export class QuestionMatrixModel
    * Use this property to render items in a specific order: "random" or "initial". Default is "initial".
    */
   public get rowsOrder(): string {
-    return this.getPropertyValue("rowsOrder", "initial");
+    return this.getPropertyValue("rowsOrder");
   }
   public set rowsOrder(val: string) {
     val = val.toLowerCase();

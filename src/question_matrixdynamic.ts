@@ -368,7 +368,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see columnLayout
    */
   public get addRowLocation(): string {
-    return this.getPropertyValue("addRowLocation", "default");
+    return this.getPropertyValue("addRowLocation");
   }
   public set addRowLocation(val: string) {
     this.setPropertyValue("addRowLocation", val);

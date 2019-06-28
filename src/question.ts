@@ -264,12 +264,12 @@ export class Question extends SurveyElement
    * @see SurveyModel.questionTitleLocation
    */
   public get titleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "default");
+    return this.getPropertyValue("titleLocation");
   }
   public set titleLocation(value: string) {
     var isVisibilityChanged =
       this.titleLocation == "hidden" || value == "hidden";
-    this.setPropertyValue("questionTitleLocation", value.toLowerCase());
+    this.setPropertyValue("titleLocation", value.toLowerCase());
     if (isVisibilityChanged && this.survey) {
       this.survey.questionVisibilityChanged(this, this.visible);
     }

@@ -24,7 +24,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * This flag controls whether to show options caption item ('Choose...').
    */
   public get showOptionsCaption(): boolean {
-    return this.getPropertyValue("showOptionsCaption", true);
+    return this.getPropertyValue("showOptionsCaption");
   }
   public set showOptionsCaption(val: boolean) {
     this.setPropertyValue("showOptionsCaption", val);

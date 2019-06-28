@@ -596,7 +596,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see templateTitle
    */
   public get panelsState(): string {
-    return this.getPropertyValue("panelsState", "default");
+    return this.getPropertyValue("panelsState");
   }
   public set panelsState(val: string) {
     this.setPropertyValue("panelsState", val);
@@ -677,7 +677,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see allowRemovePanel
    */
   public get allowAddPanel(): boolean {
-    return this.getPropertyValue("allowAddPanel", true);
+    return this.getPropertyValue("allowAddPanel");
   }
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
@@ -687,7 +687,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see allowAddPanel
    */
   public get allowRemovePanel(): boolean {
-    return this.getPropertyValue("allowRemovePanel", true);
+    return this.getPropertyValue("allowRemovePanel");
   }
   public set allowRemovePanel(val: boolean) {
     this.setPropertyValue("allowRemovePanel", val);
@@ -698,7 +698,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see PanelModelBase.questionTitleLocation
    */
   public get templateTitleLocation(): string {
-    return this.getPropertyValue("templateTitleLocation", "default");
+    return this.getPropertyValue("templateTitleLocation");
   }
   public set templateTitleLocation(value: string) {
     this.setPropertyValue("templateTitleLocation", value.toLowerCase());
@@ -708,7 +708,7 @@ export class QuestionPanelDynamicModel extends Question
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
    */
   public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers", "off");
+    return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(val: string) {
     this.setPropertyValue("showQuestionNumbers", val);
@@ -732,7 +732,7 @@ export class QuestionPanelDynamicModel extends Question
    * By default the property equals to "list" and all dynamic panels are rendered one by one on the page. You may change it to: "progressTop", "progressBottom" or "progressTopBottom" to render only one dynamic panel at once. The progress and navigation elements can be rendred on top, bottom or both.
    */
   public get renderMode(): string {
-    return this.getPropertyValue("renderMode", "list");
+    return this.getPropertyValue("renderMode");
   }
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);

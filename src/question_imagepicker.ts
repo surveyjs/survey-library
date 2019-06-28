@@ -68,7 +68,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image height.
    */
   public get imageHeight(): string {
-    return this.getPropertyValue("imageHeight", 150);
+    return this.getPropertyValue("imageHeight");
   }
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
@@ -77,7 +77,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image width.
    */
   public get imageWidth(): string {
-    return this.getPropertyValue("imageWidth", 200);
+    return this.getPropertyValue("imageWidth");
   }
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
@@ -86,7 +86,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The image fit mode.
    */
   public get imageFit(): string {
-    return this.getPropertyValue("imageFit", "contain");
+    return this.getPropertyValue("imageFit");
   }
   public set imageFit(val: string) {
     this.setPropertyValue("imageFit", val);
@@ -95,7 +95,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * The content mode.
    */
   public get contentMode(): string {
-    return this.getPropertyValue("contentMode", "image");
+    return this.getPropertyValue("contentMode");
   }
   public set contentMode(val: string) {
     this.setPropertyValue("contentMode", val);

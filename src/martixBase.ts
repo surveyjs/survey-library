@@ -36,7 +36,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Set this property to false, to hide table header. The default value is true.
    */
   public get showHeader(): boolean {
-    return this.getPropertyValue("showHeader", true);
+    return this.getPropertyValue("showHeader");
   }
   public set showHeader(val: boolean) {
     this.setPropertyValue("showHeader", val);

@@ -49,7 +49,7 @@ export class QuestionBooleanModel extends Question {
    * Set the default state of the check: "indeterminate" - default (value is empty/null), "true" - value equals valueTrue or true, "false" - value equals valueFalse or false.
    */
   public get defaultValue(): any {
-    return this.getPropertyValue("defaultValue", "indeterminate");
+    return this.getPropertyValue("defaultValue");
   }
   public set defaultValue(val: any) {
     if (val === true) val = "true";

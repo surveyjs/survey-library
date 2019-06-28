@@ -608,7 +608,7 @@ export class PanelModelBase extends SurveyElement
    * @see SurveyModel.questionTitleLocation
    */
   public get questionTitleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation", "default");
+    return this.getPropertyValue("questionTitleLocation");
   }
   public set questionTitleLocation(value: string) {
     this.setPropertyValue("questionTitleLocation", value.toLowerCase());
@@ -1211,7 +1211,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
    */
   public get state(): string {
-    return this.getPropertyValue("state", "default");
+    return this.getPropertyValue("state");
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);

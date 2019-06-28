@@ -1,6 +1,10 @@
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
-import { CustomPropertiesCollection, JsonObject } from "./jsonobject";
+import {
+  CustomPropertiesCollection,
+  JsonObject,
+  Serializer
+} from "./jsonobject";
 import { settings } from "./settings";
 
 export interface ISurveyData {
@@ -296,7 +300,12 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     var res = this.getPropertyValueCore(this.propertyHash, name);
-    if (this.IsPropertyEmpty(res) && defaultValue != null) return defaultValue;
+    if (this.IsPropertyEmpty(res)) {
+      if (defaultValue != null) return defaultValue;
+      var prop = Serializer.findProperty(this.getType(), name);
+      var serValue = !!prop && !prop.isCustom ? prop.defaultValue : null;
+      if (!this.IsPropertyEmpty(serValue)) return serValue;
+    }
     return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string) {

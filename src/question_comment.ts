@@ -18,7 +18,7 @@ export class QuestionCommentModel extends Question {
    * @see SurveyModel.maxTextLength
    */
   public get maxLength(): number {
-    return this.getPropertyValue("maxLength", -1);
+    return this.getPropertyValue("maxLength");
   }
   public set maxLength(val: number) {
     this.setPropertyValue("maxLength", val);
@@ -45,7 +45,7 @@ export class QuestionCommentModel extends Question {
    * The html rows attribute.
    */
   public get rows(): number {
-    return this.getPropertyValue("rows", 4);
+    return this.getPropertyValue("rows");
   }
   public set rows(val: number) {
     this.setPropertyValue("rows", val);
@@ -54,7 +54,7 @@ export class QuestionCommentModel extends Question {
    * The html cols attribute.
    */
   public get cols(): number {
-    return this.getPropertyValue("cols", 50);
+    return this.getPropertyValue("cols");
   }
   public set cols(val: number) {
     this.setPropertyValue("cols", val);

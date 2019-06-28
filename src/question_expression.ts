@@ -96,7 +96,7 @@ export class QuestionExpressionModel extends Question {
    * @see currency
    */
   public get displayStyle(): string {
-    return this.getPropertyValue("displayStyle", "none");
+    return this.getPropertyValue("displayStyle");
   }
   public set displayStyle(val: string) {
     this.setPropertyValue("displayStyle", val);
@@ -106,7 +106,7 @@ export class QuestionExpressionModel extends Question {
    * @see displayStyle
    */
   public get currency(): string {
-    return this.getPropertyValue("currency", "USD");
+    return this.getPropertyValue("currency");
   }
   public set currency(val: string) {
     if (getCurrecyCodes().indexOf(val) < 0) return;

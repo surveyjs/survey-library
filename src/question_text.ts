@@ -20,7 +20,7 @@ export class QuestionTextModel extends Question {
    * Use this property to change the default input type.
    */
   public get inputType(): string {
-    return this.getPropertyValue("inputType", "text");
+    return this.getPropertyValue("inputType");
   }
   public set inputType(val: string) {
     val = val.toLowerCase();
@@ -43,7 +43,7 @@ export class QuestionTextModel extends Question {
    * @see SurveyModel.maxTextLength
    */
   public get maxLength(): number {
-    return this.getPropertyValue("maxLength", -1);
+    return this.getPropertyValue("maxLength");
   }
   public set maxLength(val: number) {
     this.setPropertyValue("maxLength", val);
@@ -58,7 +58,7 @@ export class QuestionTextModel extends Question {
    * The text input size
    */
   public get size(): number {
-    return this.getPropertyValue("size", 25);
+    return this.getPropertyValue("size");
   }
   public set size(val: number) {
     this.setPropertyValue("size", val);

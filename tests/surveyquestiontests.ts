@@ -1000,6 +1000,7 @@ QUnit.test("Init SelectBase with comment comment", function(assert) {
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
   question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
   survey.pages[0].addQuestion(question);
   assert.equal(question.comment, "aaaa", "Set the initial comment");
 });
@@ -1777,45 +1778,35 @@ QUnit.test("Rating question, visibleRateValues property", function(assert) {
   rate.rateValues = [1, 2, 3];
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
-QUnit.test("Rating question, visibleRateValues property load from JSON", function(assert) {
-  var survey = new SurveyModel({
-    "elements": [
-      {
-          "type": "rating",
-          "name": "q1",
-          "rateMin": 40,
-          "rateMax": 90,
-          "rateStep":10
-      }
-  ]
-
-  })
-  var rate = <QuestionRatingModel>survey.getQuestionByName("q1");
-  assert.equal(rate.rateMin, 40, "the min is 40");
-  assert.equal(rate.rateMax, 90, "the max is 90");
-  assert.equal(rate.rateStep, 10, "the step is 10");
-  assert.equal(
-    rate.visibleRateValues.length,
-    6,
-    "There are 5 items by default"
-  );
-  var values = rate.visibleRateValues;
-  assert.equal(
-    values[0].value,
-    40,
-    "The first is 40"
-  );
-  assert.equal(
-    values[1].value,
-    50,
-    "The second is 50"
-  );
-  assert.equal(
-    values[5].value,
-    90,
-    "The last is 90"
-  );
-});
+QUnit.test(
+  "Rating question, visibleRateValues property load from JSON",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "rating",
+          name: "q1",
+          rateMin: 40,
+          rateMax: 90,
+          rateStep: 10
+        }
+      ]
+    });
+    var rate = <QuestionRatingModel>survey.getQuestionByName("q1");
+    assert.equal(rate.rateMin, 40, "the min is 40");
+    assert.equal(rate.rateMax, 90, "the max is 90");
+    assert.equal(rate.rateStep, 10, "the step is 10");
+    assert.equal(
+      rate.visibleRateValues.length,
+      6,
+      "There are 5 items by default"
+    );
+    var values = rate.visibleRateValues;
+    assert.equal(values[0].value, 40, "The first is 40");
+    assert.equal(values[1].value, 50, "The second is 50");
+    assert.equal(values[5].value, 90, "The last is 90");
+  }
+);
 QUnit.test("defaultValue propeprty as array", function(assert) {
   var question = new QuestionCheckboxModel("q1");
   assert.notOk(question.defaultValue, "It is empty by default");

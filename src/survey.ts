@@ -2750,9 +2750,12 @@ export class SurveyModel extends Base
   private updateAllQuestionsValue() {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
-      var q = questions[i];
-      q.updateValueFromSurvey(this.getValue(q.getValueName()));
-      q.updateCommentFromSurvey(this.getComment(q.getValueName()));
+      var q = <Question>questions[i];
+      var valName = q.getValueName();
+      q.updateValueFromSurvey(this.getValue(valName));
+      if (q.requireUpdateCommentValue) {
+        q.updateCommentFromSurvey(this.getComment(valName));
+      }
     }
   }
   private notifyAllQuestionsOnValueChanged() {

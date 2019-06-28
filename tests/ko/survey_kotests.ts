@@ -343,6 +343,7 @@ QUnit.test("comment property", function(assert) {
   var question = new QuestionDropdown("q");
   page.addQuestion(question);
   question.choices = ["A", "B", "C", "D"];
+  question.hasOther = true;
   assert.equal(question.comment, "aaaa", "Set ko Comment");
 });
 QUnit.test("Load title correctly from JSON", function(assert) {

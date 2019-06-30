@@ -193,6 +193,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getQuestionTitleLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
+  indexOf(el: IElement): number;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
@@ -774,6 +775,24 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (parent && parent.getType() == "page") return <IPage>(<any>parent);
     return null;
   }
+  protected moveToBase(
+    parent: IPanel,
+    container: IPanel,
+    insertBefore: any = null
+  ): boolean {
+    if (!container) return false;
+    parent.removeElement(<IElement>(<any>this));
+    var index = -1;
+    if (!isNaN(parseFloat(insertBefore)) && isFinite(insertBefore)) {
+      index = parseInt(insertBefore);
+    }
+    if (index == -1 && !!insertBefore && !!insertBefore.getType) {
+      index = container.indexOf(insertBefore);
+    }
+    container.addElement(<IElement>(<any>this), index);
+    return true;
+  }
+
   protected setPage(parent: IPanel, val: IPage) {
     var oldPage = this.getPage(parent);
     if (oldPage === val) return;

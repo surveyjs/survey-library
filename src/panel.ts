@@ -926,7 +926,11 @@ export class PanelModelBase extends SurveyElement
    * @param name a question name
    * @param index element index in the elements array
    */
-  public addNewQuestion(questionType: string, name: string = null, index: number = -1): Question {
+  public addNewQuestion(
+    questionType: string,
+    name: string = null,
+    index: number = -1
+  ): Question {
     var question = QuestionFactory.Instance.createQuestion(questionType, name);
     if (!this.addQuestion(question, index)) return null;
     return question;
@@ -939,6 +943,13 @@ export class PanelModelBase extends SurveyElement
     var panel = this.createNewPanel(name);
     if (!this.addPanel(panel)) return null;
     return panel;
+  }
+  /**
+   * Returns the index of element parameter in the elements list.
+   * @param element question or panel
+   */
+  public indexOf(element: IElement): number {
+    return this.elements.indexOf(element);
   }
   protected createNewPanel(name: string): PanelModel {
     return new PanelModel(name);
@@ -1250,6 +1261,15 @@ export class PanelModel extends PanelModelBase implements IElement {
    */
   public expand() {
     this.state = "expanded";
+  }
+  /**
+   * Move panel to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
+   * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel
+   * @param container Page or Panel to where a question is relocated.
+   * @param insertBefore Use it if you want to set the panel to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
+   */
+  public moveTo(container: IPanel, insertBefore: any = null): boolean {
+    return this.moveToBase(this.parent, container, insertBefore);
   }
   protected hasErrorsCore(rec: any) {
     super.hasErrorsCore(rec);

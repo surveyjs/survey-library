@@ -474,6 +474,9 @@ export class QuestionMultipleTextModel extends Question
     return "row";
   }
   elementWidthChanged(el: IElement) {}
+  indexOf(el: IElement): number {
+    return -1;
+  }
 }
 
 Serializer.addClass(

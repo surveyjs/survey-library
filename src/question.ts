@@ -226,6 +226,16 @@ export class Question extends SurveyElement
   public getType(): string {
     return "question";
   }
+  /**
+   * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
+  * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel   
+   * @param container Page or Panel to where a question is relocated.
+   * @param insertBefore Use it if you want to set the question to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
+   */
+  public moveTo(container: IPanel, insertBefore: any = null): boolean {
+    return this.moveToBase(this.parent, container, insertBefore);
+  }
+
   private runConditions() {
     if (this.data && !this.isLoadingFromJson && !this.isDesignMode) {
       this.runCondition(

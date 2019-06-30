@@ -7284,3 +7284,75 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Test element.moveTo function",
+  function(assert) {
+    var json = {
+      pages: [{
+        name: "page1",
+      elements: [
+        {
+          name: "q1", type : "text"
+        },
+        {
+          name: "p1", type: "panel",
+          elements: [
+            {name: "p2", type: "panel",
+            elements: [
+              {name: "q2", type : "text"}
+            ]
+          },
+          {
+            name: "q3", type : "text"
+          },
+  
+          ]
+        },
+        {
+          name: "q4", type : "text"
+        }
+      ]
+    },
+    {
+      name: "page2",
+      elements: [
+        {
+          name: "q5", type : "text"
+        },
+        {
+          name: "p3", type: "panel",
+          elements: [
+            {name: "q6", type : "text"}
+          ]
+        },
+          {
+            name: "q7", type : "text"
+          }
+  
+      ]
+    }
+    ]
+    };
+    var survey = new SurveyModel(json);
+    var page2 = survey.pages[1];
+    var panel2 = <PanelModel>survey.getPanelByName("p2");
+    var q1 = <Question>survey.getQuestionByName("q1");
+    assert.equal(q1.parent.name, "page1", "q1.parent = page1");
+    q1.moveTo(page2);
+    assert.equal(q1.parent.name, "page2", "q1.parent = page1");
+    assert.equal(page2.indexOf(q1), 3, "The last element on the page");
+    q1.moveTo(page2, survey.getQuestionByName("q5"));
+    assert.equal(page2.indexOf(q1), 0, "The first element on the page");
+    q1.moveTo(page2, -1);
+    assert.equal(page2.indexOf(q1), 3, "The last element on the page again");
+    q1.moveTo(page2, 1);
+    assert.equal(page2.indexOf(q1), 1, "The second element on the page");
+    q1.moveTo(panel2, survey.getQuestionByName("q2"));
+    assert.equal(q1.parent.name, "p2", "q1.parent = p1");
+    assert.equal(panel2.indexOf(q1), 0, "The first element on panel: p2");
+    panel2.moveTo(page2, survey.getPanelByName("p3"));
+    assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
+    assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
+
+  });

@@ -21,10 +21,10 @@ SurveyJS PDF exporter library is easy way to render [SurveyJS Library](https://s
 Add these scripts to your web page
 
 ```html
-<!-- SurveyPDF Exporter library -->
-<script src="https://surveyjs.azureedge.net/1.0.95/survey.pdf.js"></script>
 <!-- jsPDF library -->
 <script src="https://unpkg.com/jspdf@latest/dist/jspdf.debug.js"></script>
+<!-- SurveyPDF Exporter library -->
+<script src="https://surveyjs.azureedge.net/1.0.95/survey.pdf.js"></script>
 <!-- Uncomment next line to add html and markdown text support -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.6.4/showdown.min.js"></script> -->
 <!-- Uncomment next line to add IE11 support -->

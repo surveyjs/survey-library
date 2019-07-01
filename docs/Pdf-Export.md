@@ -75,6 +75,7 @@ surveyPDF.save();
 * Question File save files via RMB in Chrome only
 * Question Panel state is always expanded
 * Question Panel Dynamic mode is only list and state default
+* No support for default values in textfields
 
 ### License
 

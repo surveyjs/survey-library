@@ -36,7 +36,7 @@ Add these scripts to your web page
 
 Also you may load any of SurveyJS with framework scripts without loading SurveyJS Core. Look at simple package dependency diagram
 
-<img src="https://github.com/surveyjs/surveyjs/blob/master/docs/images/package-dependency.png?raw=true" alt="SurveyJS package dependency" width="100%"/>
+<img src="https://github.com/surveyjs/surveyjs/blob/master/docs/images/package-dependency.png?raw=true" alt="SurveyJS package dependency" width="50%"/>
 
 Example of export SurveyJS library JSON to PDF
 

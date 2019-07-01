@@ -22,14 +22,21 @@ Add these scripts to your web page
 
 ```html
 <!-- jsPDF library -->
-<script src="https://unpkg.com/jspdf@latest/dist/jspdf.debug.js"></script>
+<script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+<!-- SurveyJS Core library -->
+<script src="https://surveyjs.azureedge.net/1.0.95/survey.core.min.js"></script>
 <!-- SurveyPDF Exporter library -->
 <script src="https://surveyjs.azureedge.net/1.0.95/survey.pdf.js"></script>
+
 <!-- Uncomment next line to add html and markdown text support -->
 <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.6.4/showdown.min.js"></script> -->
 <!-- Uncomment next line to add IE11 support -->
 <!-- <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script> -->
 ```
+
+Also you may load any of SurveyJS with framework scripts without loading SurveyJS Core. Look at simple package dependency diagram
+
+![SurveyJS package dependency](https://github.com/surveyjs/surveyjs/blob/master/docs/images/package-dependency.png?raw=true)
 
 Example of export SurveyJS library JSON to PDF
 

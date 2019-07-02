@@ -76,7 +76,6 @@ surveyPDF.save();
 * No support of dynamic elements (visibleIf, buttons, validators, etc.)
 * Implied DPI 72 when set questions width 
 * Question Text input types supported: text, password, color
-* Question Text may incorrect display default value
 * Question Radiogroup not able to set readOnly for separate items
 * Question Imagepicker imagefit is always fill
 * Question Boolean values only true and false

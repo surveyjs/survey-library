@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.0.96"></a>
+## [1.0.96](https://github.com/surveyjs/survey-library/compare/v1.0.95...v1.0.96) (2019-07-02)
+
+
+
 <a name="1.0.95"></a>
 ## [1.0.95](https://github.com/surveyjs/survey-library/compare/v1.0.94...v1.0.95) (2019-06-25)
 

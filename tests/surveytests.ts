@@ -2037,6 +2037,17 @@ QUnit.test("Several questions in one row", function(assert) {
     assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
   }
 });
+QUnit.test("Render width should work for strings only - https://surveyjs.answerdesk.io/ticket/details/T2273", function(assert) {
+  var page = new PageModel();
+  var question = <any>page.addNewQuestion("text", "q1");
+  question.width = 300;
+
+  assert.equal(
+    question.renderWidth,
+    "100.000000%",
+    "the render width is 100%"
+  );
+});
 QUnit.test("test goNextPageAutomatic property", function(assert) {
   var survey = twoPageSimplestSurvey();
 

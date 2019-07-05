@@ -18,13 +18,27 @@ import { settings } from "../src/settings";
 export default QUnit.module("choicesRestfull");
 
 class ChoicesRestfullTester extends ChoicesRestfull {
+  private delaySentRequestValue: boolean = false;
   public noCaching: boolean = false;
   public lastProcesedUrl: string;
   public items: any = null;
+  public sentRequestCounter: number = 0;
   public get testProcessedUrl() {
     return this.processedUrl;
   }
+  public get delaySentRequest(): boolean {
+    return this.delaySentRequestValue;
+  }
+  public set delaySentRequest(val: boolean) {
+    if (this.delaySentRequest == val) return;
+    this.delaySentRequestValue = val;
+    if (!val) {
+      this.sendRequest();
+    }
+  }
   protected sendRequest() {
+    if (this.delaySentRequest) return;
+    this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("countries") > -1)
       this.onLoad(getCountries());
@@ -220,6 +234,36 @@ QUnit.test("Load countries", function(assert) {
     "the fifth country is American Samoa"
   );
 });
+
+QUnit.test(
+  "Do not run same request several times at the same time. Wait for the first one",
+  function(assert) {
+    ChoicesRestfull.clearCache();
+    var test1 = new ChoicesRestfullTester();
+    var test2 = new ChoicesRestfullTester();
+    var items1 = [],
+      items2 = [];
+    test1.getResultCallback = function(res: Array<ItemValue>) {
+      items1 = res;
+    };
+    test2.getResultCallback = function(res: Array<ItemValue>) {
+      items2 = res;
+    };
+    test1.url = "allcountries";
+    test1.path = "RestResponse;result";
+    test2.url = "allcountries";
+    test2.path = "RestResponse;result";
+    test1.delaySentRequest = true;
+    test1.run();
+    test2.run();
+    test1.delaySentRequest = false;
+
+    assert.equal(items1.length, 5, "there are 5 countries in items1");
+    assert.equal(items2.length, 5, "there are 5 countries in items2");
+    assert.equal(test1.sentRequestCounter, 1, "test1 send request one time");
+    assert.equal(test2.sentRequestCounter, 0, "test2 use requests");
+  }
+);
 
 QUnit.test("encode parameters", function(assert) {
   var survey = new SurveyModel();

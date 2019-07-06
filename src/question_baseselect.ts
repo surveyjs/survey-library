@@ -220,7 +220,8 @@ export class QuestionSelectBase extends Question {
   }
   private isSettingComment: boolean = false;
   protected setComment(newValue: string) {
-    if (this.getStoreOthersAsComment()) super.setComment(newValue);
+    if (this.hasComment || this.getStoreOthersAsComment())
+      super.setComment(newValue);
     else {
       if (!this.isSettingComment && newValue != this.commentValue) {
         this.isSettingComment = true;
@@ -243,6 +244,7 @@ export class QuestionSelectBase extends Question {
     if (Helpers.isTwoValueEquals(this.value, newValue)) return;
     super.setQuestionValue(newValue);
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
+    if (this.hasComment) return;
     var isOtherSel = this.isOtherSelected;
     if (isOtherSel && !!this.prevCommentValue) {
       var oldComment = this.prevCommentValue;

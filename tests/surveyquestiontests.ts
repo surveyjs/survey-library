@@ -2842,3 +2842,28 @@ QUnit.test("Restore comment on uncheck/check others", function(assert) {
   assert.equal(qCheck.comment, "comment-check", "checkbox comment is restored");
   assert.equal(qRadio.comment, "comment-radio", "radiobox comment is restored");
 });
+
+QUnit.test("Radio group comment without hasOther, Bug #1747", function(assert) {
+  var json = {
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        hasComment: true,
+        choices: [1, 2, 3, 4, 5]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  survey.data = { q1: 2, "q1-Comment": "Init data" };
+  var question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(question.comment, "Init data", "Initial data is here");
+  survey.data = { q1: 3, "q1-Comment": "Next data" };
+  assert.equal(question.comment, "Next data", "It is set correctley");
+  survey.doComplete();
+  assert.deepEqual(
+    survey.data,
+    { q1: 3, "q1-Comment": "Next data" },
+    "Comment is here"
+  );
+});

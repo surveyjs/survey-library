@@ -52,7 +52,32 @@ export class ChoicesRestfull extends Base {
   public static set EncodeParameters(val: boolean) {
     settings.webserviceEncodeParameters = val;
   }
+  public static clearCache() {
+    ChoicesRestfull.itemsResult = {};
+  }
   private static itemsResult: { [index: string]: any } = {};
+  private static sendingSameRequests: {
+    [index: string]: Array<ChoicesRestfull>;
+  } = {};
+  private static addSameRequest(obj: ChoicesRestfull): boolean {
+    var hash = obj.objHash;
+    var res = ChoicesRestfull.sendingSameRequests[hash];
+    if (!res) {
+      ChoicesRestfull.sendingSameRequests[obj.objHash] = [];
+      return false;
+    }
+    res.push(obj);
+    return true;
+  }
+  private static unregisterSameRequests(obj: ChoicesRestfull, items: any) {
+    var res = ChoicesRestfull.sendingSameRequests[obj.objHash];
+    delete ChoicesRestfull.sendingSameRequests[obj.objHash];
+    for (var i = 0; i < res.length; i++) {
+      if (!!res[i].getResultCallback) {
+        res[i].getResultCallback(items);
+      }
+    }
+  }
   public static onBeforeSendRequest: (
     sender: ChoicesRestfull,
     options: { request: XMLHttpRequest }
@@ -92,6 +117,7 @@ export class ChoicesRestfull extends Base {
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) return;
+    if (ChoicesRestfull.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isRunning() {
@@ -304,6 +330,7 @@ export class ChoicesRestfull extends Base {
     }
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
+    ChoicesRestfull.unregisterSameRequests(this, items);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();
@@ -327,6 +354,7 @@ export class ChoicesRestfull extends Base {
   private onError(status: string, response: string) {
     this.error = new WebRequestError(status, response, this.owner);
     this.doEmptyResultCallback(response);
+    ChoicesRestfull.unregisterSameRequests(this, []);
   }
   private getResultAfterPath(result: any) {
     if (!result) return result;

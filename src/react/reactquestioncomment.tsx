@@ -54,6 +54,10 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
+  componentWillReceiveProps(nextProps: any) {
+    super.componentWillReceiveProps(nextProps);
+    this.setState({ comment: this.props.question.comment || "" });
+  }
   componentWillMount() {
     this.setState({ comment: this.props.question.comment || "" });
   }

@@ -60,8 +60,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return this.getPropertyValue("rows");
   }
   set rows(newValue: Array<any>) {
-    this.setPropertyValue("rows", newValue);
+    var newRows = this.processRowsOnSet(newValue);
+    this.setPropertyValue("rows", newRows);
     this.filterItems();
+  }
+  protected processRowsOnSet(newRows: Array<any>) {
+    return newRows;
   }
   protected getVisibleRows(): Array<TRow> {
     return [];

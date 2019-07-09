@@ -253,7 +253,6 @@ export class QuestionMatrixModel
         )
       );
     }
-    result = this.sortVisibleRows(result);
     this.generatedVisibleRows = result;
     return result;
   }
@@ -261,9 +260,18 @@ export class QuestionMatrixModel
     array: Array<MatrixRowModel>
   ): Array<MatrixRowModel> {
     var order = this.rowsOrder.toLowerCase();
-    if (order == "random") return Helpers.randomizeArray<MatrixRowModel>(array);
+    if (order === "random")
+      return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
   }
+  endLoadingFromJson() {
+    super.endLoadingFromJson();
+    this.rows = this.sortVisibleRows(this.rows);
+  }
+  protected processRowsOnSet(newRows: Array<any>) {
+    return this.sortVisibleRows(newRows);
+  }
+
   /**
    * Returns the list of visible rows as model objects.
    * @see rowsVisibleIf

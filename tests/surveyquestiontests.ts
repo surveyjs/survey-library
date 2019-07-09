@@ -5,7 +5,7 @@ import { QuestionSelectBase } from "../src/question_baseselect";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
-import { QuestionMatrixModel } from "../src/question_matrix";
+import { QuestionMatrixModel, MatrixRowModel } from "../src/question_matrix";
 import {
   MultipleTextItemModel,
   QuestionMultipleTextModel
@@ -27,6 +27,17 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 
 export default QUnit.module("Survey_Questions");
+
+class QuestionMatrixRandomModel extends QuestionMatrixModel {
+  constructor(name: string) {
+    super(name);
+  }
+  protected sortVisibleRows(
+    array: Array<MatrixRowModel>
+  ): Array<MatrixRowModel> {
+    return array.length > 0 ? [array[1], array[0]] : array;
+  }
+}
 
 QUnit.test("Only some questions support comment", function(assert) {
   var questionText = <Question>QuestionFactory.Instance.createQuestion(
@@ -442,6 +453,14 @@ QUnit.test("Matrix Question set values after visible row generated", function(
   var rows = matrix.visibleRows;
   matrix.value = { row1: "col1" };
   assert.equal(rows[0].value, "col1", "set the row value correctly");
+});
+QUnit.test("Matrix Question sortVisibleRows", function(assert) {
+  var matrix = new QuestionMatrixRandomModel("q1");
+  matrix.rowsOrder = "random";
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  var rows = matrix.visibleRows;
+  assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
 QUnit.test("Matrix Question isAllRowRequired property", function(assert) {
   var matrix = new QuestionMatrixModel("q1");

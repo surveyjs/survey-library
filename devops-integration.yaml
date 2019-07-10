@@ -15,7 +15,6 @@ steps:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
 
-
 - script: |
     npm install
     npm run build_prod
@@ -24,6 +23,11 @@ steps:
 - script: |
     npm run testsingle
   displayName: 'npm run unit tests'
+
+- task: CopyFiles@2
+  inputs:
+    contents: 'packages/**'
+    targetFolder: $(Build.ArtifactStagingDirectory)
 
 - task: PublishBuildArtifacts@1
   inputs:

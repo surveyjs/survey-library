@@ -17,9 +17,10 @@ steps:
 
 
 - script: |
-    npm run test
+    npm install
+    npm run build_prod
   displayName: 'npm install and build'
 
 - script: |
-    npm run test
+    npm run testsingle
   displayName: 'npm run unit tests'

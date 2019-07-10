@@ -24,3 +24,9 @@ steps:
 - script: |
     npm run testsingle
   displayName: 'npm run unit tests'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'SurveyJSLibraryBuild'
+    publishLocation: 'Container'

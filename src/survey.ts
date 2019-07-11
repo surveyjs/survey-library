@@ -1430,8 +1430,10 @@ export class SurveyModel extends Base
   }
   /**
    * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }
+   * Note: If you are setting the data after creatig the survey, you may need to set the currentPageNo to 0, if you are using visibleIf properties for questions/pages/panels to ensure that you are starting from the first page.
    * @see setValue
    * @see getValue
+   * @see currentPageNo
    */
   public get data(): any {
     var result: { [index: string]: any } = {};

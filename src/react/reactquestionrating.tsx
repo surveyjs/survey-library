@@ -76,6 +76,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           disabled={this.isDisplayMode}
           checked={this.question.value == item.value}
           onChange={this.handleOnChange}
+          aria-required={this.question.isRequired}
           aria-label={item.locText.text}
         />
         {minTextBlock}

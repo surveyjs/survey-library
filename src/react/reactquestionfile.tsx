@@ -50,6 +50,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           id={this.question.inputId}
           type="file"
           onChange={this.handleOnChange}
+          aria-required={this.question.isRequired}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}
@@ -74,6 +75,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           className={this.question.cssClasses.fileInput}
           id={this.question.inputId}
           type="file"
+          aria-required={this.question.isRequired}
           aria-label={this.question.locTitle.renderedHtml}
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}

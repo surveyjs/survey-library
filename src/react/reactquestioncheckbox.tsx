@@ -171,6 +171,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={this.isDisplayMode || !this.item.isEnabled}
             checked={isChecked}
             onChange={onItemChanged}
+            aria-required={this.question.isRequired}
             aria-label={this.item.locText.renderedHtml}
           />
           <span className={this.cssClasses.materialDecorator}>

@@ -16,7 +16,7 @@
                     </td>
                     <td v-if="!question.hasCellText" v-for="(column, columnIndex) in question.visibleColumns" :headers="column.locText.renderedHtml">
                         <label :class="getItemClass(row, column)">
-                            <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="question.inputId + '_' + row.name + '_' + columnIndex" v-bind:aria-label="question.locTitle.renderedHtml"/>
+                            <input type="radio" :class="question.cssClasses.itemValue" :name="row.fullName" v-model="row.value" :value="column.value" :disabled="question.isReadOnly" :id="question.inputId + '_' + row.name + '_' + columnIndex" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml"/>
                             <span class="circle"></span>
                             <span class="check"></span>
                             <span :style="{ 'display': 'none' }">{{question.locTitle.renderedHtml}}</span>

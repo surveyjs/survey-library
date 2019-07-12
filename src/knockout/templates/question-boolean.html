@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-question-boolean">
   <div data-bind="css: question.koCss().root">
       <label data-bind="css: question.getItemCss()">
-          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isReadOnly"
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId, 'aria-required': question.isRequired,'aria-label': question.locTitle.renderedHtml}, checked: question.checkedValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isReadOnly"
           />
           <span data-bind="css: question.koCss().materialDecorator">
               <span class="check"></span>

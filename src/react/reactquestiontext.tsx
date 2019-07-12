@@ -41,6 +41,7 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}
         onChange={this.handleOnChange}
+        aria-required={this.question.isRequired}
         aria-label={this.question.locTitle.renderedHtml}
       />
     );

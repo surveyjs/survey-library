@@ -1,6 +1,6 @@
 <template>
     <div :class="question.cssClasses.root">
-        <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
+        <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
         <button type="button" v-if="!question.isReadOnly && !question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
         <div v-if="!question.isEmpty()">

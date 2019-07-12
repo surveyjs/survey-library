@@ -8,7 +8,8 @@
           :id="question.inputId + '_' + index"
           v-model="question.renderedValue"
           :disabled="question.isReadOnly || !item.isEnabled"
-          v-bind:aria-label="item.locText.renderedHtml"
+          v-bind:aria-required="question.isRequired"
+          :aria-label="item.locText.renderedHtml"
           :class="question.cssClasses.itemControl"
         >
         <span :class="question.cssClasses.materialDecorator"></span>

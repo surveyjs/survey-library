@@ -1,4 +1,4 @@
-import { Operand } from "./expressions/expressions";
+import { Operand, Const } from "./expressions/expressions";
 import { SyntaxError, parse } from "./expressions/expressionParser";
 
 export class ConditionsParserError {
@@ -7,6 +7,7 @@ export class ConditionsParserError {
 
 export class ConditionsParser {
   private conditionError: ConditionsParserError;
+  private static parserCache: { [index: string]: Operand } = {};
 
   private patchExpression(text: string) {
     return text
@@ -24,7 +25,12 @@ export class ConditionsParser {
 
   public parseExpression(text: string): Operand {
     try {
-      return parse(this.patchExpression(text));
+      var result = ConditionsParser.parserCache[text];
+      if (result === undefined) {
+        result = parse(this.patchExpression(text));
+        ConditionsParser.parserCache[text] = result;
+      }
+      return result;
     } catch (e) {
       if (e instanceof SyntaxError) {
         this.conditionError = new ConditionsParserError(

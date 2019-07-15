@@ -25,7 +25,7 @@ steps:
 
 - script: |
     npm run testsingle
-  displayName: 'npm run unit tests'
+  displayName: 'run unit tests'
 
 - task: CopyFiles@2
   inputs:

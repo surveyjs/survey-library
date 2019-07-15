@@ -290,6 +290,9 @@ export class ItemValue extends Base {
   public setIsEnabled(val: boolean) {
     this.setPropertyValue("isEnabled", val);
   }
+  public addUsedLocales(locales: Array<string>) {
+    this.AddLocStringToUsedLocales(this.locTextValue, locales);
+  }
   protected getConditionRunner(isVisible: boolean) {
     if (isVisible) return this.getVisibleConditionRunner();
     return this.getEnableConditionRunner();

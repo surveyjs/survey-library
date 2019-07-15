@@ -65,6 +65,10 @@ export class MultipleTextItemModel extends Base
   protected createEditor(name: string): QuestionTextModel {
     return new QuestionTextModel(name);
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.editor.addUsedLocales(locales);
+  }
   public locStrsChanged() {
     super.locStrsChanged();
     this.editor.locStrsChanged();

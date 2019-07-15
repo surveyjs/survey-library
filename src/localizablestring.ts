@@ -134,6 +134,11 @@ export class LocalizableString {
     if (keys.length == 0) return false;
     return keys.length > 1 || keys[0] != settings.defaultLocaleName;
   }
+  public getLocales(): Array<string> {
+    var keys = Object.keys(this.values);
+    if(keys.length == 0) return [];
+    return keys;
+  }
   public getJson(): any {
     var keys = Object.keys(this.values);
     if (keys.length == 0) return null;

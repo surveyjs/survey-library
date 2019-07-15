@@ -1091,6 +1091,14 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.onLocaleChanged();
   }
+  /**
+   * Return the array of locales that used in the current survey
+   */
+  public getUsedLocales(): Array<string> {
+    var locs = new Array<string>();
+    this.addUsedLocales(locs);
+    return locs;
+  }
   protected onLocaleChanged() {}
   //ILocalizableOwner
   getLocale() {

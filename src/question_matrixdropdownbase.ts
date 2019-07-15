@@ -245,6 +245,10 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     super.locStrsChanged();
     this.locTitle.strChanged();
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.templateQuestion.addUsedLocales(locales);
+  }
   public get index() {
     return this.indexValue;
   }

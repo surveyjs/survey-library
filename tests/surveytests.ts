@@ -3180,6 +3180,70 @@ QUnit.test(
 );
 
 QUnit.test(
+  "survey.getUsedLocales()",
+  function(assert) {
+    var json = {
+      title: {
+        fr: "fr-title"
+      },
+      pages: [ {
+        title: "My title",
+        elements: [
+          {
+            type: "panel",
+            elements: [
+              {
+                type: "multipletext",
+                name: "q1",
+                items: [
+                  {name: "q1_m1", title: {ru: "ru-item"}}
+                ]
+              },
+              {
+                type: "text",
+                name: "q2",
+                validators: [
+                  {type: "email", text: {es: "es-validator"}}
+                ]
+              }
+            ]
+          },
+          {
+            type: "dropdown",
+            name: "q3",
+              choices: [
+                {val: 1, text: { gr: "gr-choice-text"}}
+              ]
+          },          
+          {
+            type: "matrixdropdown",
+            name: "q4",
+            columns: [
+              {
+              name: "col1",
+              title: {pt: "pt-columns"},
+              cellType: "dropdown",
+              choices: [
+                {val: 1, text: {it: "it-choice-text"}}
+              ]
+              }
+            ]
+          }
+        ]
+      }
+      ]
+    }
+    var survey = new SurveyModel(json);
+    var locales = survey.getUsedLocales();
+    const checkLocales = ["default", "fr", "es", "ru", "gr", "pt", "it"];
+    assert.equal(locales.length, checkLocales.length, "Get all locales");
+    for(var i = 0; i < checkLocales.length; i ++) {
+      assert.ok(locales.indexOf(checkLocales[i]) > -1, "Locale: " + checkLocales[i] + " not found");
+    }
+  }
+);
+
+QUnit.test(
   "Survey text preprocessing, dropdown/checkbox/radiogroup, issue #499",
   function(assert) {
     var survey = new SurveyModel();

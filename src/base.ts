@@ -474,6 +474,37 @@ export class Base {
     locStr.text = value;
     this.propertyValueChanged(name, oldValue, value);
   }
+  public addUsedLocales(locales: Array<string>) {
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
+        let item = this.getLocalizableString(key);
+        if (item) this.AddLocStringToUsedLocales(item, locales);
+      }
+    }
+    if (!!this.arraysInfo) {
+      for (let key in this.arraysInfo) {
+        let items = this.getPropertyValue(key);
+        if (!items || !items.length) continue;
+        for (let i = 0; i < items.length; i++) {
+          let item = items[i];
+          if (item && item.addUsedLocales) {
+            item.addUsedLocales(locales);
+          }
+        }
+      }
+    }
+  }
+  protected AddLocStringToUsedLocales(
+    locStr: LocalizableString,
+    locales: Array<string>
+  ) {
+    var locs = locStr.getLocales();
+    for (var i = 0; i < locs.length; i++) {
+      if (locales.indexOf(locs[i]) < 0) {
+        locales.push(locs[i]);
+      }
+    }
+  }
   protected createItemValues(name: string): Array<any> {
     var self = this;
     var result = this.createNewArray(name, function(item: any) {

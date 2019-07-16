@@ -270,7 +270,7 @@ export class QuestionSelectBase extends Question {
     super.setNewValue(newValue);
   }
   protected valueFromData(val: any): any {
-    let choiceitem = ItemValue.getItemByValue(this.choices, val);
+    let choiceitem = ItemValue.getItemByValue(this.activeChoices, val);
     if (!!choiceitem) {
       return choiceitem.value;
     }

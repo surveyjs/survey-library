@@ -1097,6 +1097,18 @@ export class SurveyModel extends Base
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();
     this.addUsedLocales(locs);
+    //Replace the default locale with the real one
+    var index = locs.indexOf("default");
+    if (index > -1) {
+      var defaultLoc = surveyLocalization.defaultLocale;
+      //Remove the defaultLoc
+      var defIndex = locs.indexOf(defaultLoc);
+      if (defIndex > -1) {
+        locs.splice(defIndex, 1);
+      }
+      index = locs.indexOf("default");
+      locs[index] = defaultLoc;
+    }
     return locs;
   }
   protected onLocaleChanged() {}

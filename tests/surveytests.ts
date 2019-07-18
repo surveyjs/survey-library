@@ -3184,7 +3184,8 @@ QUnit.test(
   function(assert) {
     var json = {
       title: {
-        fr: "fr-title"
+        fr: "fr-title",
+        en: "en-title"
       },
       pages: [ {
         title: "My title",
@@ -3196,7 +3197,7 @@ QUnit.test(
                 type: "multipletext",
                 name: "q1",
                 items: [
-                  {name: "q1_m1", title: {ru: "ru-item"}}
+                  {name: "q1_m1", title: {default: "default-item", ru: "ru-item"}}
                 ]
               },
               {
@@ -3234,8 +3235,9 @@ QUnit.test(
       ]
     }
     var survey = new SurveyModel(json);
+    assert.equal(surveyLocalization.defaultLocale, "en", "En is default locale");
     var locales = survey.getUsedLocales();
-    const checkLocales = ["default", "fr", "es", "ru", "gr", "pt", "it"];
+    const checkLocales = ["en", "fr", "es", "ru", "gr", "pt", "it"];
     assert.equal(locales.length, checkLocales.length, "Get all locales");
     for(var i = 0; i < checkLocales.length; i ++) {
       assert.ok(locales.indexOf(checkLocales[i]) > -1, "Locale: " + checkLocales[i] + " not found");

@@ -23,6 +23,7 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getAllValues(): any;
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any): any;
+  getItemDefaultValue(name: string): any;
   getIsRequiredText(): string;
 }
 
@@ -75,7 +76,8 @@ export class MultipleTextItemModel extends Base
   }
   setData(data: IMultipleTextData) {
     this.data = data;
-    if (data) {
+    if (!!data) {
+      this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
     }
@@ -453,6 +455,9 @@ export class QuestionMultipleTextModel extends Question
     newValue[name] = value;
     this.setNewValue(newValue);
     this.isMultipleItemValueChanging = false;
+  }
+  getItemDefaultValue(name: string): any {
+    return !!this.defaultValue ? this.defaultValue[name] : null;
   }
   getSurvey(): ISurvey {
     return this.survey;

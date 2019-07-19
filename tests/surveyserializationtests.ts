@@ -16,6 +16,7 @@ import {
 import { ItemValue } from "../src/itemvalue";
 import { NumericValidator } from "../src/validator";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
+import { Helpers } from "../src/helpers";
 
 export default QUnit.module("SurveySerialization");
 
@@ -240,6 +241,31 @@ QUnit.test("Serialize mutltiple text question", function(assert) {
     "serialize multiple text question"
   );
 });
+QUnit.test(
+  "Deserialize/serialize mutltiple text question default value",
+  function(assert) {
+    var json = {
+      name: "q",
+      defaultValue: { item1: "11", item2: "22" },
+      items: [
+        { name: "item1", title: "Item 1" },
+        { name: "item2", title: "Item 2" }
+      ]
+    };
+    var q = new QuestionMultipleTextModel("q");
+    new JsonObject().toObject(Helpers.getUnbindValue(json), q);
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p");
+    survey.pages[0].addElement(q);
+    assert.deepEqual(
+      q.defaultValue,
+      json.defaultValue,
+      "Default value is in object"
+    );
+    assert.deepEqual(q.toJSON(), json, "Default value serialized correctly");
+  }
+);
 QUnit.test("Serialize restfull choices", function(assert) {
   var question = new QuestionDropdownModel("q1");
   question.choicesByUrl.path = "name";

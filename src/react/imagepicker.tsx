@@ -144,7 +144,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
             name={this.question.name + "_" + this.questionBase.id}
             checked={isChecked}
             value={item.value}
-            disabled={this.isDisplayMode}
+            disabled={this.isDisplayMode || !item.isEnabled}
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />

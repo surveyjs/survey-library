@@ -7,6 +7,7 @@ import { SurveyPanelBase } from "./panel-base";
 import { PanelModel } from "../panel";
 
 export class SurveyPanel extends SurveyPanelBase {
+  private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
     this.panelBase = props.element;
@@ -38,7 +39,8 @@ export class SurveyPanel extends SurveyPanelBase {
       display: !this.panel.isCollapsed ? "block" : "none"
     };
     var content = null;
-    if (!this.panel.isCollapsed) {
+    if (!this.panel.isCollapsed || this.hasBeenExpanded) {
+      this.hasBeenExpanded = true;
       var rows = this.renderRows();
       content = this.renderContent(style, rows);
     }

@@ -3165,7 +3165,7 @@ export class SurveyModel extends Base
    * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
-  public setValue(name: string, newQuestionValue: any) {
+  public setValue(name: string, newQuestionValue: any, locNotification: boolean = false) {
     var newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
       this.isValueEqual(name, newValue) &&
@@ -3179,6 +3179,7 @@ export class SurveyModel extends Base
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
     this.updateQuestionValue(name, newValue);
+    if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);

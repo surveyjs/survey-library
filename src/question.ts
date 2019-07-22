@@ -61,11 +61,11 @@ export class Question extends SurveyElement
     this.id = Question.getQuestionId();
     this.onCreating();
     var self = this;
-    this.createNewArray("validators", function (validator: any) {
+    this.createNewArray("validators", function(validator: any) {
       validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function (text) {
+    locTitleValue.onRenderedHtmlCallback = function(text) {
       return self.fullTitle;
     };
     this.createLocalizableString("description", this, true);
@@ -74,26 +74,26 @@ export class Question extends SurveyElement
       this,
       true
     );
-    locCommentText.onGetTextCallback = function (text) {
+    locCommentText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
     };
 
     this.createLocalizableString("requiredErrorText", this);
-    this.registerFunctionOnPropertyValueChanged("width", function () {
+    this.registerFunctionOnPropertyValueChanged("width", function() {
       if (!!self.parent) {
         self.parent.elementWidthChanged(self);
       }
     });
     this.registerFunctionOnPropertiesValueChanged(
       ["indent", "rightIndent"],
-      function () {
+      function() {
         self.onIndentChanged();
       }
     );
 
     this.registerFunctionOnPropertiesValueChanged(
       ["hasComment", "hasOther"],
-      function () {
+      function() {
         self.initCommentFromSurvey();
       }
     );
@@ -228,7 +228,7 @@ export class Question extends SurveyElement
   }
   /**
    * Move question to a new container Page/Panel. Add as a last element if insertBefore parameter is not used or inserted into the given index,
-  * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel   
+   * if insert parameter is number, or before the given element, if the insertBefore parameter is a question or panel
    * @param container Page or Panel to where a question is relocated.
    * @param insertBefore Use it if you want to set the question to a specific position. You may use a number (use 0 to insert int the beginning) or element, if you want to insert before this element.
    */
@@ -268,7 +268,7 @@ export class Question extends SurveyElement
     this.setPropertyValue("parent", val);
     this.onParentChanged();
   }
-  protected onParentChanged() { }
+  protected onParentChanged() {}
   /**
    * Returns false if the question doesn't have a title property, for example: QuestionHtmlModel, or titleLocation property equals to "hidden"
    * @see titleLocation
@@ -441,7 +441,7 @@ export class Question extends SurveyElement
       if (!this.textPreProcessor) {
         var self = this;
         this.textPreProcessor = new TextPreProcessor();
-        this.textPreProcessor.onProcess = function (
+        this.textPreProcessor.onProcess = function(
           textValue: TextPreProcessorValue
         ) {
           self.getProcessedTextValue(textValue);
@@ -597,7 +597,7 @@ export class Question extends SurveyElement
     if (!this.survey) return null;
     return this.survey.maxOthersLength > 0 ? this.survey.maxOthersLength : null;
   }
-  protected onCreating() { }
+  protected onCreating() {}
   protected getFirstInputElementId(): string {
     return this.inputId;
   }
@@ -674,7 +674,7 @@ export class Question extends SurveyElement
     if (this.hasOther) this.hasComment = false;
     this.hasOtherChanged();
   }
-  protected hasOtherChanged() { }
+  protected hasOtherChanged() {}
   public get requireUpdateCommentValue() {
     return this.hasComment || this.hasOther;
   }
@@ -882,8 +882,8 @@ export class Question extends SurveyElement
         propertyName: string;
       }>;
     } = {
-        includeEmpty: true
-      }
+      includeEmpty: true
+    }
   ) {
     if (options.includeEmpty || !this.isEmpty()) {
       var questionPlainData = <any>{
@@ -1083,6 +1083,7 @@ export class Question extends SurveyElement
     this.setNewValueInData(newValue);
     this.onValueChanged();
   }
+  protected locNotificationInData = false;
   protected setNewValueInData(newValue: any) {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
@@ -1095,7 +1096,11 @@ export class Question extends SurveyElement
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
     if (this.data != null) {
-      this.data.setValue(this.getValueName(), newValue);
+      this.data.setValue(
+        this.getValueName(),
+        newValue,
+        this.locNotificationInData
+      );
     }
   }
   protected valueFromData(val: any): any {
@@ -1104,7 +1109,7 @@ export class Question extends SurveyElement
   protected valueToData(val: any): any {
     return val;
   }
-  protected onValueChanged() { }
+  protected onValueChanged() {}
   protected setNewComment(newValue: string) {
     this.questionComment = newValue;
     if (this.data != null) {
@@ -1144,15 +1149,15 @@ export class Question extends SurveyElement
    * Call this function to remove values from the current question, that end-user will not be able to enter.
    * For example the value that doesn't exists in a radigroup/dropdown/checkbox choices or matrix rows/columns.
    */
-  public clearIncorrectValues() { }
+  public clearIncorrectValues() {}
   /**
    * Call this function to clear all errors in the question
    */
   public clearErrors() {
     this.errors = [];
   }
-  public clearUnusedValues() { }
-  onAnyValueChanged(name: string) { }
+  public clearUnusedValues() {}
+  onAnyValueChanged(name: string) {}
   //ILocalizableOwner
   locOwner: ILocalizableOwner = null;
   /**
@@ -1209,12 +1214,12 @@ Serializer.addClass("question", [
   {
     name: "page",
     isSerializable: false,
-    choices: function (obj: any) {
+    choices: function(obj: any) {
       var survey = obj ? obj.survey : null;
       return survey
         ? survey.pages.map((p: any) => {
-          return { value: p.name, text: p.title };
-        })
+            return { value: p.name, text: p.title };
+          })
         : [];
     }
   },

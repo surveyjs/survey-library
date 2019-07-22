@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { SurveyError, ISurveyImpl } from "./base";
+import { Base, SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -594,7 +594,9 @@ export class QuestionSelectBase extends Question {
         newChoices
       );
       if (!!newValue) {
+        this.locNotificationInData = true;
         this.value = undefined;
+        this.locNotificationInData = false;        
         this.value = newValue.value;
       }
     }

@@ -1960,7 +1960,8 @@ export class QuestionMatrixDropdownModelBase
     if (!!this.data && !!this.visibleTotalRow) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,
-        this.totalValue
+        this.totalValue,
+        true
       );
     }
   }

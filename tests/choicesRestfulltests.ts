@@ -591,6 +591,27 @@ QUnit.test(
   }
 );
 
+QUnit.test("Do not run conditions on resetting the value", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionCheckboxModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFullTest.items = [{ identity: 1 }, { identity: 2 }];
+  survey.pages[0].addQuestion(question);
+  survey.addNewPage("2");
+  survey.pages[1].addNewQuestion("text", "q2");
+  survey.pages[1].questions[0].visibleIf = "{q1} notempty";
+  question.onSurveyLoad();
+  question.value = [1];
+  survey.currentPageNo = 1;
+  assert.equal(survey.currentPageNo, 1, "The current page is second now");
+  question.doResultsCallback();
+  assert.deepEqual(question.value, [1], "Value is still here");
+  assert.equal(survey.currentPageNo, 1, "The current page doesn't chagned");
+});
+
 QUnit.test("Use values and not text, Bug #627", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

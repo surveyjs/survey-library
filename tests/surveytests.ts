@@ -532,8 +532,8 @@ QUnit.test("SurveyData interface implementation", function(assert) {
   surveyData = new SurveyModel();
   assert.equal(surveyData.getValue("test1"), null, "No data");
   assert.equal(surveyData.getValue("test2"), null, "No data");
-  surveyData.setValue("test1", 1);
-  surveyData.setValue("test2", "1");
+  surveyData.setValue("test1", 1, false);
+  surveyData.setValue("test2", "1", false);
   assert.equal(surveyData.getValue("test1"), 1, "Has value 1");
   assert.equal(surveyData.getValue("test2"), "1", "Has value '1'");
 });
@@ -3424,7 +3424,42 @@ QUnit.test("Survey Markdown - question title", function(assert) {
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });
+/* TODO
+QUnit.test("Survey Markdown - question title, if title is empty and question is required", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = <Question>page.addNewQuestion("text", "q1");
+  var q2 = <Question>page.addNewQuestion("text", "q2");
+  survey.onTextMarkdown.add(function(survey, options) {
+    if (options.text.indexOf("*") > -1)
+      options.html = options.text.replace("*", "!");
+  });
+  q1.isRequired = true;
+  q2.isRequired = true;
+  q2.title = "Q2";
 
+  assert.equal(
+    q1.locTitle.renderedHtml,
+    "q1 !",
+    "q1.title, use markdown for requried text, title is empty"
+  );
+  assert.equal(
+    q1.locTitle.hasHtml,
+    true,
+    "q1.title, use markdown for requried text - hasHtml, title is empty"
+  );
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "Q2 !",
+    "q2.title, use markdown for requried text, has title"
+  );
+  assert.equal(
+    q2.locTitle.hasHtml,
+    true,
+    "q2.title, use markdown for requried text - hasHtml, has title"
+  );
+});
+*/
 QUnit.test("Survey Markdown - page title", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

@@ -1928,3 +1928,20 @@ QUnit.test(
     propDefaultValue.defaultValue = oldValue;
   }
 );
+
+QUnit.test("custom property and onSetValue", function(assert) {
+  Serializer.addProperty("car", {
+    name: "onSetValueCheck",
+    onSetValue: function(obj, value) {
+      obj.dummyProperty = value;
+    }
+  });
+  var car = new Car();
+  car["onSetValueCheck"] = "dummy";
+  assert.equal(
+    car["dummyProperty"],
+    "dummy",
+    "onSetValue attribute is working"
+  );
+  Serializer.removeProperty("car", "onSetValueCheck");
+});

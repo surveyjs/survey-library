@@ -323,7 +323,11 @@ export class CustomPropertiesCollection {
             return obj.getPropertyValue(prop.name, defaultValue);
           },
           set: function(v: any) {
-            obj.setPropertyValue(prop.name, v);
+            if (!!prop.onSetValue) {
+              prop.onSetValue(obj, v, null);
+            } else {
+              obj.setPropertyValue(prop.name, v);
+            }
           }
         };
         Object.defineProperty(obj, prop.name, desc);

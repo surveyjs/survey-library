@@ -333,7 +333,7 @@ QUnit.test("Load from plain text", function(assert) {
   assert.equal(items.length, 5, "there are 5 items");
   assert.equal(items[0].value, "1", "the item is empty");
   assert.equal(
-    items[4].text,
+    items[4].calculatedText,
     "Optimizes Work Processes",
     "the 5th item text is 'Optimizes Work Processes'"
   );

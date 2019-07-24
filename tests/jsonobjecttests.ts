@@ -690,7 +690,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
     "set correct value property for the second item"
   );
   assert.equal(
-    list.items[1].text,
+    list.items[1].calculatedText,
     "5",
     "set correct text property for the second item"
   );
@@ -700,7 +700,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
     "set correct value property for the fourth item"
   );
   assert.equal(
-    list.items[3].text,
+    list.items[3].calculatedText,
     "text1",
     "set correct text property for the fourth item"
   );

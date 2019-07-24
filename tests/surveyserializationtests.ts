@@ -92,7 +92,7 @@ QUnit.test("Deserialize two questions", function(assert) {
     "property choices is set correctly: value"
   );
   assert.equal(
-    checkbox.choices[0].text,
+    checkbox.choices[0].locText.renderedHtml,
     "red",
     "property choices is set correctly: text"
   );
@@ -102,7 +102,7 @@ QUnit.test("Deserialize two questions", function(assert) {
     "property choices is set correctly: value"
   );
   assert.equal(
-    checkbox.choices[1].text,
+    checkbox.choices[1].locText.renderedHtml,
     "white",
     "property choices is set correctly: text"
   );
@@ -385,7 +385,7 @@ QUnit.test("Survey deserialize checkbox.choices localization", function(
     question
   );
   assert.equal(
-    (<ItemValue>question.choices[0]).text,
+    (<ItemValue>question.choices[0]).locText.renderedHtml,
     "2",
     "The default locale is 2"
   );
@@ -463,7 +463,7 @@ QUnit.test(
     };
     jsonObj.toObject(originalJson, question);
     assert.equal(
-      (<ItemValue>question.choices[0]).text,
+      (<ItemValue>question.choices[0]).locText.renderedHtml,
       "2",
       "The default locale is 2"
     );

@@ -596,7 +596,7 @@ export class QuestionSelectBase extends Question {
       if (!!newValue) {
         this.locNotificationInData = true;
         this.value = undefined;
-        this.locNotificationInData = false;        
+        this.locNotificationInData = false;
         this.value = newValue.value;
       }
     }
@@ -666,8 +666,8 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function(a, b) {
-      if (a.text < b.text) return -1 * mult;
-      if (a.text > b.text) return 1 * mult;
+      if (a.calculatedText < b.calculatedText) return -1 * mult;
+      if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
     });
   }

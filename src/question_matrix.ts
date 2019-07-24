@@ -113,15 +113,15 @@ export class MartrixCells {
   }
   public getCellText(row: any, column: any): string {
     var loc = this.getCellLocText(row, column);
-    return loc ? loc.text : null;
+    return loc ? loc.calculatedText : null;
   }
   public getDefaultCellText(column: any): string {
     var loc = this.getCellLocText(settings.matrixDefaultRowName, column);
-    return loc ? loc.text : null;
+    return loc ? loc.calculatedText : null;
   }
   public getCellDisplayText(row: any, column: any): string {
     var loc = this.getCellDisplayLocText(row, column);
-    return loc ? loc.text : null;
+    return loc ? loc.calculatedText : null;
   }
   public get rows(): Array<any> {
     return this.cellsOwner ? this.cellsOwner.getRows() : [];
@@ -436,7 +436,7 @@ export class QuestionMatrixModel
       if (!!row.value) {
         objects.push({
           name: this.name + "." + row.value,
-          text: this.processedTitle + "." + row.text,
+          text: this.processedTitle + "." + row.calculatedText,
           question: this
         });
       }

@@ -294,16 +294,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     return this.templateQuestion.locTitle;
   }
   public get fullTitle(): string {
-    return this.getFullTitle(this.locTitle.textOrHtml);
-  }
-  public getFullTitle(str: string): string {
-    if (!str) str = this.name;
-    if (this.isRequired) {
-      var requireText = this.colOwner ? this.colOwner.getRequiredText() : "";
-      if (requireText) requireText += " ";
-      str = requireText + str;
-    }
-    return str;
+    return this.locTitle.textOrHtml;
   }
   public get isRequired(): boolean {
     return this.templateQuestion.isRequired;
@@ -473,9 +464,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     var self = this;
-    this.templateQuestion.locTitle.onGetTextCallback = function(text) {
-      return self.getFullTitle(text);
-    };
     this.templateQuestion.onPropertyChanged.add(function() {
       self.doColumnPropertiesChanged();
     });

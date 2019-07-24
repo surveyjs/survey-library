@@ -55,6 +55,7 @@ export class Question extends SurveyElement
   commentChangedCallback: () => void;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
+  private locProcessedTitle: LocalizableString;
 
   constructor(public name: string) {
     super(name);
@@ -65,9 +66,13 @@ export class Question extends SurveyElement
       validator.errorOwner = self;
     });
     var locTitleValue = this.createLocalizableString("title", this, true);
-    locTitleValue.onRenderedHtmlCallback = function(text) {
-      return self.fullTitle;
+    locTitleValue.onGetTextCallback = function(text) {
+      var res = self.calcFullTitle(text);
+      if (!self.survey) return res;
+      return self.survey.getUpdatedQuestionTitle(this, res);
     };
+    this.locProcessedTitle = new LocalizableString(this, true);
+    this.locProcessedTitle.sharedData = locTitleValue;
     this.createLocalizableString("description", this, true);
     var locCommentText = this.createLocalizableString(
       "commentText",
@@ -417,25 +422,27 @@ export class Question extends SurveyElement
    * Returns the rendred question title.
    */
   public get processedTitle() {
-    var res = this.locTitle.textOrHtml;
+    var res = this.locProcessedTitle.textOrHtml;
     return res ? res : this.name;
-    //return this.getProcessedHtml(this.locTitleHtml);
   }
   /**
    * Returns the title after processing the question template.
    * @see SurveyModel.questionTitleTemplate
    */
   public get fullTitle(): string {
+    return this.locTitle.renderedHtml;
+    /*
     var res = this.calcFullTitle();
     if (!this.survey) return res;
     return this.survey.getUpdatedQuestionTitle(this, res);
+    */
   }
   protected getQuestionTitleTemplate() {
     if (this.questionTitleTemplateCallback)
       return this.questionTitleTemplateCallback();
     return !!this.survey ? this.survey.getQuestionTitleTemplate() : null;
   }
-  private calcFullTitle(): string {
+  private calcFullTitle(text: string): string {
     var titleTemplate = this.getQuestionTitleTemplate();
     if (titleTemplate) {
       if (!this.textPreProcessor) {
@@ -454,7 +461,10 @@ export class Question extends SurveyElement
     }
     var requireText = this.requiredText;
     if (requireText) requireText = " " + requireText;
-    return this.processedTitle + requireText;
+    if (!text) {
+      text = this.name;
+    }
+    return text + requireText;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.

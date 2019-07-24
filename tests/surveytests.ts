@@ -3424,19 +3424,24 @@ QUnit.test("Survey Markdown - question title", function(assert) {
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });
-/* TODO
+
 QUnit.test("Survey Markdown - question title, if title is empty and question is required", function(assert) {
   var survey = new SurveyModel();
+  survey.setValue("q1", "q1-Value");
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
+  var q3 = <Question>page.addNewQuestion("text", "q3");
   survey.onTextMarkdown.add(function(survey, options) {
-    if (options.text.indexOf("*") > -1)
-      options.html = options.text.replace("*", "!");
+    options.html = options.text;
+    while (options.html.indexOf("*") > -1)
+      options.html = options.html.replace("*", "!");
   });
   q1.isRequired = true;
   q2.isRequired = true;
   q2.title = "Q2";
+  q3.isRequired = true;
+  q3.title = "*Q3 {q1}";
 
   assert.equal(
     q1.locTitle.renderedHtml,
@@ -3458,8 +3463,33 @@ QUnit.test("Survey Markdown - question title, if title is empty and question is 
     true,
     "q2.title, use markdown for requried text - hasHtml, has title"
   );
+  assert.equal(
+    q3.locTitle.renderedHtml,
+    "!Q3 q1-Value !",
+    "q3.title, use markdown for requried text and inside title and process text"
+  );
+  assert.equal(
+    q3.locTitle.hasHtml,
+    true,
+    "q3.title, use markdown for requried text and inside title and process text, hasHtml"
+  );
 });
-*/
+
+QUnit.test(
+  "required question title test",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <Question>page.addNewQuestion("text", "q1");
+    q1.title = "title1";
+    assert.equal(q1.locTitle.renderedHtml, "title1", "Just title");
+    q1.isRequired = true;
+    assert.equal(q1.locTitle.renderedHtml, "title1 *", "title + required");
+    assert.equal(q1.title, "title1", "We do no have required");
+    }
+);
+
+
 QUnit.test("Survey Markdown - page title", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

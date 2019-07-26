@@ -243,7 +243,7 @@ export class RegexValidator extends SurveyValidator {
     return "regexvalidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
-    if (!this.regex || !value) return null;
+    if (!this.regex || Helpers.isValueEmpty(value)) return null;
     var re = new RegExp(this.regex);
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {

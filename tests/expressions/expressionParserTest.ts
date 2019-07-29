@@ -755,3 +755,28 @@ QUnit.test("String as numbers", function(assert) {
   var values: any = { a: "2", b: "3", c: "4" };
   assert.equal(runner.run(values), 20, "convert strings to numbers");
 });
+
+QUnit.test(
+  "True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425",
+  function(assert) {
+    var runner = new ConditionRunner("{a} = 'True'");
+    var values: any = { a: "False" };
+    assert.equal(runner.run(values), false, "'True' = 'False'");
+    values.a = "True";
+    assert.equal(runner.run(values), true, "'True' = 'True'");
+    values.a = false;
+    assert.equal(runner.run(values), false, "false = 'True'");
+    values.a = true;
+    assert.equal(runner.run(values), true, "true = 'True'");
+
+    runner = new ConditionRunner("{a} = 'False'");
+    values.a = "False";
+    assert.equal(runner.run(values), true, "'False' = 'False'");
+    values.a = "True";
+    assert.equal(runner.run(values), false, "'True' = 'False'");
+    values.a = false;
+    assert.equal(runner.run(values), true, "'False' = false");
+    values.a = true;
+    assert.equal(runner.run(values), false, "'False'=true");
+  }
+);

@@ -7015,6 +7015,45 @@ QUnit.test("Values from invisible choices should be removed, #1644", function(
   );
 });
 
+QUnit.test("True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425", function(
+  assert
+) {
+  var json = {
+    questions: [
+        {
+            name: "bool",
+            type: "dropdown",
+            isRequired: true,
+            choices: ["True", "False"]
+        }, {
+            name: "html1",
+            type: "html",
+            html: "True",
+            visibleIf: "{bool}='True'"
+        }, {
+            name: "html2",
+            type: "html",
+            html: "False",
+            visibleIf: "{bool}='False'"
+        }
+    ]
+};
+  var survey = new SurveyModel(json);
+  var boolQ = survey.getQuestionByName("bool");
+  var html1Q= survey.getQuestionByName("html1");
+  var html2Q= survey.getQuestionByName("html2");
+  assert.equal(html1Q.isVisible, false, "html1 is not visible by default");
+  assert.equal(html2Q.isVisible, false, "html2 is not visible by default");
+  boolQ.value = "True";
+  assert.equal(html1Q.isVisible, true, "True, html1 is visible");
+  assert.equal(html2Q.isVisible, false, "True, html2 is invisible");
+  boolQ.value = "False";
+  assert.equal(boolQ.value, "False", "Value set correctly");
+  assert.equal(survey.getValue("bool"), "False", "Value set correctly in survey");
+  assert.equal(html1Q.isVisible, false, "False, html1 is invisible");
+  assert.equal(html2Q.isVisible, true, "False, html2 is visible");
+});
+
 QUnit.test("Test onValidatedErrorsOnCurrentPage event", function(assert) {
   var json = {
     pages: [

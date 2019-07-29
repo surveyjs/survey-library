@@ -374,7 +374,7 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
         elem = templateDocument.getElementById(template);
       }
       if (!elem) {
-        throw new Error("Cannot find template with ID " + template);
+        ko.nativeTemplateEngine().makeTemplateSourc(template, templateDocument);
       }
       return new ko.templateSources.domElement(elem);
     } else if (template.nodeType === 1 || template.nodeType === 8) {

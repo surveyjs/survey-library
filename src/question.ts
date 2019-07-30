@@ -928,7 +928,7 @@ export class Question extends SurveyElement
   public isAnswerCorrect(): boolean {
     if (this.isValueEmpty(this.value) || this.isValueEmpty(this.correctAnswer))
       return false;
-    return this.isTwoValueEquals(this.value, this.correctAnswer);
+    return this.isTwoValueEquals(this.value, this.correctAnswer, true);
   }
   public updateValueWithDefaults() {
     if (

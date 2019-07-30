@@ -609,8 +609,20 @@ export class Base {
     }
     this.notifyArrayChanged(src);
   }
-  protected isTwoValueEquals(x: any, y: any): boolean {
+  protected isTwoValueEquals(
+    x: any,
+    y: any,
+    caseInSensitive: boolean = false
+  ): boolean {
+    if (caseInSensitive) {
+      x = this.getValueInLowCase(x);
+      y = this.getValueInLowCase(y);
+    }
     return Helpers.isTwoValueEquals(x, y);
+  }
+  private getValueInLowCase(val: any): any {
+    if (!!val && typeof val == "string") return val.toLowerCase();
+    return val;
   }
 }
 export class SurveyError {

@@ -4681,6 +4681,19 @@ QUnit.test("Quiz, correct, incorrect answers", function(assert) {
     "competed html is correct"
   );
 });
+QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function(assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1", correctAnswer: "MyAnswer" }] }
+    ]
+  });
+  assert.equal(survey.getCorrectedAnswers(), 0, "No correct answer");
+  survey.setValue("q1", "answer");
+  assert.equal(survey.getCorrectedAnswers(), 0, "Still no correct answer");
+  survey.setValue("q1", "myanswer");
+  assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
+});
 QUnit.test(
   "Store data on the first page, firstPageIsStarted = true, Bug # 1580",
   function(assert) {

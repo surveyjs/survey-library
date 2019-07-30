@@ -234,10 +234,13 @@ export class ItemValue extends Base {
     return this.locText.pureText ? true : false;
   }
   public get text(): string {
-    return this.locText.text;
+    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
   }
   public set text(newText: string) {
     this.locText.text = newText;
+  }
+  public get calculatedText() {
+    return this.locText.calculatedText;
   }
   public getData(): any {
     var json = this.toJSON();
@@ -289,6 +292,9 @@ export class ItemValue extends Base {
   }
   public setIsEnabled(val: boolean) {
     this.setPropertyValue("isEnabled", val);
+  }
+  public addUsedLocales(locales: Array<string>) {
+    this.AddLocStringToUsedLocales(this.locTextValue, locales);
   }
   protected getConditionRunner(isVisible: boolean) {
     if (isVisible) return this.getVisibleConditionRunner();

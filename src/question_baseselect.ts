@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
-import { SurveyError, ISurveyImpl } from "./base";
+import { Base, SurveyError, ISurveyImpl } from "./base";
 import { ItemValue } from "./itemvalue";
 import { Helpers, HashTable } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
@@ -270,7 +270,7 @@ export class QuestionSelectBase extends Question {
     super.setNewValue(newValue);
   }
   protected valueFromData(val: any): any {
-    let choiceitem = ItemValue.getItemByValue(this.choices, val);
+    let choiceitem = ItemValue.getItemByValue(this.activeChoices, val);
     if (!!choiceitem) {
       return choiceitem.value;
     }
@@ -594,7 +594,9 @@ export class QuestionSelectBase extends Question {
         newChoices
       );
       if (!!newValue) {
+        this.locNotificationInData = true;
         this.value = undefined;
+        this.locNotificationInData = false;
         this.value = newValue.value;
       }
     }
@@ -664,8 +666,8 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function(a, b) {
-      if (a.text < b.text) return -1 * mult;
-      if (a.text > b.text) return 1 * mult;
+      if (a.calculatedText < b.calculatedText) return -1 * mult;
+      if (a.calculatedText > b.calculatedText) return 1 * mult;
       return 0;
     });
   }

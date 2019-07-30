@@ -532,8 +532,8 @@ QUnit.test("SurveyData interface implementation", function(assert) {
   surveyData = new SurveyModel();
   assert.equal(surveyData.getValue("test1"), null, "No data");
   assert.equal(surveyData.getValue("test2"), null, "No data");
-  surveyData.setValue("test1", 1);
-  surveyData.setValue("test2", "1");
+  surveyData.setValue("test1", 1, false);
+  surveyData.setValue("test2", "1", false);
   assert.equal(surveyData.getValue("test1"), 1, "Has value 1");
   assert.equal(surveyData.getValue("test2"), "1", "Has value '1'");
 });
@@ -3180,6 +3180,72 @@ QUnit.test(
 );
 
 QUnit.test(
+  "survey.getUsedLocales()",
+  function(assert) {
+    var json = {
+      title: {
+        fr: "fr-title",
+        en: "en-title"
+      },
+      pages: [ {
+        title: "My title",
+        elements: [
+          {
+            type: "panel",
+            elements: [
+              {
+                type: "multipletext",
+                name: "q1",
+                items: [
+                  {name: "q1_m1", title: {default: "default-item", ru: "ru-item"}}
+                ]
+              },
+              {
+                type: "text",
+                name: "q2",
+                validators: [
+                  {type: "email", text: {es: "es-validator"}}
+                ]
+              }
+            ]
+          },
+          {
+            type: "dropdown",
+            name: "q3",
+              choices: [
+                {val: 1, text: { gr: "gr-choice-text"}}
+              ]
+          },          
+          {
+            type: "matrixdropdown",
+            name: "q4",
+            columns: [
+              {
+              name: "col1",
+              title: {pt: "pt-columns"},
+              cellType: "dropdown",
+              choices: [
+                {val: 1, text: {it: "it-choice-text"}}
+              ]
+              }
+            ]
+          }
+        ]
+      }
+      ]
+    }
+    var survey = new SurveyModel(json);
+    assert.equal(surveyLocalization.defaultLocale, "en", "En is default locale");
+    var locales = survey.getUsedLocales();
+    const checkLocales = ["en", "fr", "es", "ru", "gr", "pt", "it"];
+    assert.equal(locales.length, checkLocales.length, "Get all locales");
+    for(var i = 0; i < checkLocales.length; i ++) {
+      assert.ok(locales.indexOf(checkLocales[i]) > -1, "Locale: " + checkLocales[i] + " not found");
+    }
+  }
+);
+
+QUnit.test(
   "Survey text preprocessing, dropdown/checkbox/radiogroup, issue #499",
   function(assert) {
     var survey = new SurveyModel();
@@ -3358,6 +3424,71 @@ QUnit.test("Survey Markdown - question title", function(assert) {
     "question.locTitle.renderedHtml with chaqnged questionTitleTemplate, use markdown and text preprocessing"
   );
 });
+
+QUnit.test("Survey Markdown - question title, if title is empty and question is required", function(assert) {
+  var survey = new SurveyModel();
+  survey.setValue("q1", "q1-Value");
+  var page = survey.addNewPage("Page 1");
+  var q1 = <Question>page.addNewQuestion("text", "q1");
+  var q2 = <Question>page.addNewQuestion("text", "q2");
+  var q3 = <Question>page.addNewQuestion("text", "q3");
+  survey.onTextMarkdown.add(function(survey, options) {
+    options.html = options.text;
+    while (options.html.indexOf("*") > -1)
+      options.html = options.html.replace("*", "!");
+  });
+  q1.isRequired = true;
+  q2.isRequired = true;
+  q2.title = "Q2";
+  q3.isRequired = true;
+  q3.title = "*Q3 {q1}";
+
+  assert.equal(
+    q1.locTitle.renderedHtml,
+    "q1 !",
+    "q1.title, use markdown for requried text, title is empty"
+  );
+  assert.equal(
+    q1.locTitle.hasHtml,
+    true,
+    "q1.title, use markdown for requried text - hasHtml, title is empty"
+  );
+  assert.equal(
+    q2.locTitle.renderedHtml,
+    "Q2 !",
+    "q2.title, use markdown for requried text, has title"
+  );
+  assert.equal(
+    q2.locTitle.hasHtml,
+    true,
+    "q2.title, use markdown for requried text - hasHtml, has title"
+  );
+  assert.equal(
+    q3.locTitle.renderedHtml,
+    "!Q3 q1-Value !",
+    "q3.title, use markdown for requried text and inside title and process text"
+  );
+  assert.equal(
+    q3.locTitle.hasHtml,
+    true,
+    "q3.title, use markdown for requried text and inside title and process text, hasHtml"
+  );
+});
+
+QUnit.test(
+  "required question title test",
+  function(assert) {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("Page 1");
+    var q1 = <Question>page.addNewQuestion("text", "q1");
+    q1.title = "title1";
+    assert.equal(q1.locTitle.renderedHtml, "title1", "Just title");
+    q1.isRequired = true;
+    assert.equal(q1.locTitle.renderedHtml, "title1 *", "title + required");
+    assert.equal(q1.title, "title1", "We do no have required");
+    }
+);
+
 
 QUnit.test("Survey Markdown - page title", function(assert) {
   var survey = new SurveyModel();
@@ -4549,6 +4680,19 @@ QUnit.test("Quiz, correct, incorrect answers", function(assert) {
     "2, 1, 3",
     "competed html is correct"
   );
+});
+QUnit.test("Quiz, correct, incorrect answers - caseinsensitive", function(assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1", correctAnswer: "MyAnswer" }] }
+    ]
+  });
+  assert.equal(survey.getCorrectedAnswers(), 0, "No correct answer");
+  survey.setValue("q1", "answer");
+  assert.equal(survey.getCorrectedAnswers(), 0, "Still no correct answer");
+  survey.setValue("q1", "myanswer");
+  assert.equal(survey.getCorrectedAnswers(), 1, "the answer is correct");
 });
 QUnit.test(
   "Store data on the first page, firstPageIsStarted = true, Bug # 1580",
@@ -6882,6 +7026,45 @@ QUnit.test("Values from invisible choices should be removed, #1644", function(
     { q1: 2, q3: ["val2"] },
     "Remove values for invisible choices"
   );
+});
+
+QUnit.test("True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425", function(
+  assert
+) {
+  var json = {
+    questions: [
+        {
+            name: "bool",
+            type: "dropdown",
+            isRequired: true,
+            choices: ["True", "False"]
+        }, {
+            name: "html1",
+            type: "html",
+            html: "True",
+            visibleIf: "{bool}='True'"
+        }, {
+            name: "html2",
+            type: "html",
+            html: "False",
+            visibleIf: "{bool}='False'"
+        }
+    ]
+};
+  var survey = new SurveyModel(json);
+  var boolQ = survey.getQuestionByName("bool");
+  var html1Q= survey.getQuestionByName("html1");
+  var html2Q= survey.getQuestionByName("html2");
+  assert.equal(html1Q.isVisible, false, "html1 is not visible by default");
+  assert.equal(html2Q.isVisible, false, "html2 is not visible by default");
+  boolQ.value = "True";
+  assert.equal(html1Q.isVisible, true, "True, html1 is visible");
+  assert.equal(html2Q.isVisible, false, "True, html2 is invisible");
+  boolQ.value = "False";
+  assert.equal(boolQ.value, "False", "Value set correctly");
+  assert.equal(survey.getValue("bool"), "False", "Value set correctly in survey");
+  assert.equal(html1Q.isVisible, false, "False, html1 is invisible");
+  assert.equal(html2Q.isVisible, true, "False, html2 is visible");
 });
 
 QUnit.test("Test onValidatedErrorsOnCurrentPage event", function(assert) {

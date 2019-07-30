@@ -61,19 +61,27 @@ QUnit.test("Do not add function with the same instance several times", function(
 QUnit.test("Item value", function(assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
-  assert.equal(value.text, "Item", "get text from value");
+  assert.equal(value.locText.renderedHtml, "Item", "get text from value");
   value.text = "My text";
   assert.equal(value.text, "My text", "get text from text property");
   value.text = null;
-  assert.equal(value.text, "Item", "get text from value");
+  assert.equal(value.locText.renderedHtml, "Item", "get text from value");
   value.value = 5;
-  assert.equal(value.text, "5", "get text from value and convert it to string");
+  assert.equal(
+    value.locText.renderedHtml,
+    "5",
+    "get text from value and convert it to string"
+  );
   value.value = null;
   assert.equal(value.value, null, "value was set to null");
-  assert.equal(value.text, null, "text is null if value is null");
+  assert.equal(value.calculatedText, null, "text is null if value is null");
   value.value = "Item|Text Item";
   assert.equal(value.value, "Item", "use the text separator: value");
-  assert.equal(value.text, "Text Item", "use the text separator: text");
+  assert.equal(
+    value.calculatedText,
+    "Text Item",
+    "use the text separator: text"
+  );
 });
 QUnit.test("ItemValue.setData()", function(assert) {
   var items = new Array<ItemValue>();
@@ -90,7 +98,7 @@ QUnit.test("ItemValue.setData()", function(assert) {
     "set correct value property for the second item"
   );
   assert.equal(
-    items[1].text,
+    items[1].calculatedText,
     "5",
     "set correct text property for the second item"
   );
@@ -100,7 +108,7 @@ QUnit.test("ItemValue.setData()", function(assert) {
     "set correct value property for the third item"
   );
   assert.equal(
-    items[2].text,
+    items[2].calculatedText,
     "item",
     "set correct text property for the third item"
   );
@@ -110,7 +118,7 @@ QUnit.test("ItemValue.setData()", function(assert) {
     "set correct value property for the fourth item"
   );
   assert.equal(
-    items[3].text,
+    items[3].calculatedText,
     "text1",
     "set correct text property for the fourth item"
   );
@@ -138,7 +146,7 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     "set correct value property for the first item"
   );
   assert.equal(
-    items[0].text,
+    items[0].calculatedText,
     "Yes",
     "set correct text property for the first item"
   );
@@ -148,7 +156,7 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
     "set correct value property for the second item"
   );
   assert.equal(
-    items[1].text,
+    items[1].calculatedText,
     "No",
     "set correct text property for the second item"
   );

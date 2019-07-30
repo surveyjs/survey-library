@@ -245,6 +245,10 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     super.locStrsChanged();
     this.locTitle.strChanged();
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.templateQuestion.addUsedLocales(locales);
+  }
   public get index() {
     return this.indexValue;
   }
@@ -290,16 +294,7 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     return this.templateQuestion.locTitle;
   }
   public get fullTitle(): string {
-    return this.getFullTitle(this.locTitle.textOrHtml);
-  }
-  public getFullTitle(str: string): string {
-    if (!str) str = this.name;
-    if (this.isRequired) {
-      var requireText = this.colOwner ? this.colOwner.getRequiredText() : "";
-      if (requireText) requireText += " ";
-      str = requireText + str;
-    }
-    return str;
+    return this.locTitle.textOrHtml;
   }
   public get isRequired(): boolean {
     return this.templateQuestion.isRequired;
@@ -469,9 +464,6 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
     var self = this;
-    this.templateQuestion.locTitle.onGetTextCallback = function(text) {
-      return self.getFullTitle(text);
-    };
     this.templateQuestion.onPropertyChanged.add(function() {
       self.doColumnPropertiesChanged();
     });
@@ -1956,7 +1948,8 @@ export class QuestionMatrixDropdownModelBase
     if (!!this.data && !!this.visibleTotalRow) {
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,
-        this.totalValue
+        this.totalValue,
+        true
       );
     }
   }

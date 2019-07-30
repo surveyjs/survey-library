@@ -147,7 +147,7 @@ export class Const extends Operand {
   public setVariables(variables: Array<string>) {}
   protected getCorrectValue(value: any): any {
     if (!value || typeof value != "string") return value;
-    if (this.isBooleanValue(value)) return value === "true";
+    if (this.isBooleanValue(value)) return value.toLowerCase() === "true";
     if (this.isNumericValue(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
       return parseFloat(value);

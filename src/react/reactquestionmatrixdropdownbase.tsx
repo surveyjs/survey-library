@@ -27,12 +27,19 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   protected setProperties(nextProps: any) {
     if (this.refs.matrixDynamicRef) this.setState({ rowCounter: 0 });
+    this.updateVisibleRowsChangedCallback();
+  }
+  private getState(prevState: any = null) {
+    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
+  }
+  private updateVisibleRowsChangedCallback() {
     this.question.visibleRowsChangedCallback = () => {
       this.setState(this.getState(this.state));
     };
   }
-  private getState(prevState: any = null) {
-    return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
+  componentWillReceiveProps(nextProps: any): void {
+    super.componentWillReceiveProps(nextProps);
+    this.updateVisibleRowsChangedCallback();
   }
   render(): JSX.Element {
     if (!this.question) return null;

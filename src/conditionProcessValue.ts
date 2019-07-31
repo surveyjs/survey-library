@@ -71,7 +71,7 @@ export class ProcessValue {
         if (!curName && text == this.getFirstName(text))
           return { value: obj, text: text };
         obj = this.getObjectValue(obj, curName);
-        if (!obj && obj != 0) return null;
+        if (Helpers.isValueEmpty(obj)) return null;
         text = text.substr(curName.length);
       } else {
         var objInArray = this.getObjInArray(obj, text);

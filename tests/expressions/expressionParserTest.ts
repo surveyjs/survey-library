@@ -374,7 +374,7 @@ QUnit.test("0 is not an empty value", function(assert) {
   var values = { val: 0 };
   assert.equal(runner.run(values), true, "0 = 0");
 });
-QUnit.test("0 is not an empty value (varible with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)", function (assert) {
+QUnit.test("0 is not an empty value (variable with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)", function (assert) {
   var runner = new ConditionRunner("{complexIdentifier} = 0");
   var values = { complexIdentifier: 0 };
   assert.equal(runner.run(values), true, "0 = 0");

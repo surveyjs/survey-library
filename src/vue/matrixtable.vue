@@ -7,17 +7,17 @@
           :key="'header_' + cell.id"
           :style="{ minWidth: cell.minWidth }"
         >
-          <survey-string :locString="cell.locTitle"/>
+          <survey-string :locString="cell.locTitle" />
         </th>
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(row, rowIndex) in table.rows" :key="question.inputId + '_' + rowIndex">
+      <tr v-for="row in table.rows" :key="question.inputId + '_' + row.id">
         <survey-matrixcell
           :cell="cell"
           :question="question"
           v-for="(cell, cellIndex) in row.cells"
-          :key="rowIndex + '_' + cellIndex"
+          :key="row.id + '_' + cellIndex"
         />
       </tr>
     </tbody>

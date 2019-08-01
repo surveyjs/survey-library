@@ -21,10 +21,10 @@ export class LocalizableString {
   private values = {};
   private htmlValues = {};
   private renderedText: string = null;
-  private calculatedText: string = null;
-  public onRenderedHtmlCallback: (html: string) => string;
+  private calculatedTextValue: string = null;
   public onGetTextCallback: (str: string) => string = null;
   public onStrChanged: () => void;
+  public sharedData: LocalizableString;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false
@@ -36,15 +36,22 @@ export class LocalizableString {
   }
   public strChanged() {
     if (this.renderedText === null) return;
-    this.calculatedText = this.calText();
-    if (this.renderedText !== this.calculatedText) {
+    this.calculatedTextValue = this.calText();
+    if (this.renderedText !== this.calculatedTextValue) {
+      this.renderedText = null;
+      this.calculatedTextValue = null;
       this.onChanged();
     }
   }
   public get text(): string {
+    return this.pureText;
+  }
+  public get calculatedText(): string {
     this.renderedText =
-      this.calculatedText !== null ? this.calculatedText : this.calText();
-    this.calculatedText = null;
+      this.calculatedTextValue !== null
+        ? this.calculatedTextValue
+        : this.calText();
+    this.calculatedTextValue = null;
     return this.renderedText;
   }
   private calText(): string {
@@ -63,12 +70,12 @@ export class LocalizableString {
   public get pureText() {
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
-    var res = (<any>this).values[loc];
+    var res = this.getValue(loc);
     if (!res && loc == settings.defaultLocaleName) {
-      res = (<any>this).values[surveyLocalization.defaultLocale];
+      res = this.getValue(surveyLocalization.defaultLocale);
     }
     if (!res && loc !== settings.defaultLocaleName) {
-      res = (<any>this).values[settings.defaultLocaleName];
+      res = this.getValue(settings.defaultLocaleName);
     }
     if (!res) res = "";
     return res;
@@ -81,21 +88,20 @@ export class LocalizableString {
     return this.getHtmlValue();
   }
   public get isEmpty(): boolean {
-    return Object.keys(this.values).length == 0;
+    return this.getValuesKeys().length == 0;
   }
   public get textOrHtml() {
-    return this.hasHtml ? this.getHtmlValue() : this.text;
+    return this.hasHtml ? this.getHtmlValue() : this.calculatedText;
   }
   public get renderedHtml() {
-    var res = this.textOrHtml;
-    return this.onRenderedHtmlCallback ? this.onRenderedHtmlCallback(res) : res;
+    return this.textOrHtml;
   }
   public set text(value: string) {
     this.setLocaleText(this.locale, value);
   }
   public getLocaleText(loc: string): string {
     if (!loc) loc = settings.defaultLocaleName;
-    var res = (<any>this).values[loc];
+    var res = this.getValue(loc);
     return res ? res : "";
   }
   public setLocaleText(loc: string, value: string) {
@@ -104,14 +110,14 @@ export class LocalizableString {
       value &&
       loc &&
       loc != settings.defaultLocaleName &&
-      !(<any>this).values[loc] &&
+      !this.getValue(loc) &&
       value == this.getLocaleText(settings.defaultLocaleName)
     )
       return;
     if (!loc) loc = settings.defaultLocaleName;
     delete (<any>this).htmlValues[loc];
     if (!value) {
-      if ((<any>this).values[loc]) delete (<any>this).values[loc];
+      if (this.getValue(loc)) this.deleteValue(loc);
     } else {
       if (typeof value === "string") {
         if (
@@ -120,7 +126,7 @@ export class LocalizableString {
         ) {
           this.setLocaleText(loc, null);
         } else {
-          (<any>this).values[loc] = value;
+          this.setValue(loc, value);
           if (loc == settings.defaultLocaleName) {
             this.deleteValuesEqualsToDefault(value);
           }
@@ -130,18 +136,28 @@ export class LocalizableString {
     this.strChanged();
   }
   public hasNonDefaultText(): boolean {
-    var keys = Object.keys(this.values);
+    var keys = this.getValuesKeys();
     if (keys.length == 0) return false;
     return keys.length > 1 || keys[0] != settings.defaultLocaleName;
   }
+  public getLocales(): Array<string> {
+    var keys = this.getValuesKeys();
+    if (keys.length == 0) return [];
+    return keys;
+  }
   public getJson(): any {
-    var keys = Object.keys(this.values);
+    if (!!this.sharedData) return this.getJson();
+    var keys = this.getValuesKeys();
     if (keys.length == 0) return null;
     if (keys.length == 1 && keys[0] == settings.defaultLocaleName)
       return (<any>this).values[keys[0]];
     return this.values;
   }
   public setJson(value: any) {
+    if (!!this.sharedData) {
+      this.setJson(value);
+      return;
+    }
     this.values = {};
     this.htmlValues = {};
     if (!value) return;
@@ -154,7 +170,8 @@ export class LocalizableString {
     }
     this.strChanged();
   }
-  public equals(obj: any) {
+  public equals(obj: any): boolean {
+    if (!!this.sharedData) return this.equals(obj);
     if (!obj || !obj.values) return false;
     return Helpers.isTwoValueEquals(this.values, obj.values);
   }
@@ -164,11 +181,11 @@ export class LocalizableString {
   protected onCreating() {}
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
-    var text = this.text;
-    if (!text) return false;
+    var renderedText = this.calculatedText;
+    if (!renderedText) return false;
     var loc = this.locale;
     if (!loc) loc = settings.defaultLocaleName;
-    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(text);
+    (<any>this).htmlValues[loc] = this.owner.getMarkdownHtml(renderedText);
     return (<any>this).htmlValues[loc] ? true : false;
   }
   private getHtmlValue(): string {
@@ -176,13 +193,29 @@ export class LocalizableString {
     if (!loc) loc = settings.defaultLocaleName;
     return (<any>this).htmlValues[loc];
   }
-
   private deleteValuesEqualsToDefault(defaultValue: string) {
-    var keys = Object.keys(this.values);
+    var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == settings.defaultLocaleName) continue;
-      if ((<any>this).values[keys[i]] == defaultValue)
-        delete (<any>this).values[keys[i]];
+      if (this.getValue(keys[i]) == defaultValue) {
+        this.deleteValue(keys[i]);
+      }
     }
+  }
+  private getValue(loc: string): string {
+    if (!!this.sharedData) return this.sharedData.getValue(loc);
+    return (<any>this).values[loc];
+  }
+  private setValue(loc: string, value: string) {
+    if (!!this.sharedData) this.sharedData.setValue(loc, value);
+    else (<any>this).values[loc] = value;
+  }
+  private deleteValue(loc: string) {
+    if (!!this.sharedData) this.sharedData.deleteValue(loc);
+    else delete (<any>this).values[loc];
+  }
+  private getValuesKeys(): string[] {
+    if (!!this.sharedData) return this.sharedData.getValuesKeys();
+    return Object.keys(this.values);
   }
 }

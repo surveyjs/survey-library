@@ -19,7 +19,7 @@ export class PageModel extends PanelModelBase implements IPage {
   constructor(public name: string = "") {
     super(name);
     var self = this;
-    this.locTitle.onRenderedHtmlCallback = function(text) {
+    this.locTitle.onGetTextCallback = function(text) {
       if (self.num > 0) return self.num + ". " + text;
       return text;
     };

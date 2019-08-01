@@ -8,7 +8,7 @@ export interface ValueCore {
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
-  constructor() {}
+  constructor() { }
   public getFirstName(text: string, obj: any = null): string {
     if (!text) return text;
     var res = "";
@@ -71,7 +71,7 @@ export class ProcessValue {
         if (!curName && text == this.getFirstName(text))
           return { value: obj, text: text };
         obj = this.getObjectValue(obj, curName);
-        if (!obj) return null;
+        if (Helpers.isValueEmpty(obj)) return null;
         text = text.substr(curName.length);
       } else {
         var objInArray = this.getObjInArray(obj, text);

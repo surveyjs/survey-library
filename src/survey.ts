@@ -1091,6 +1091,26 @@ export class SurveyModel extends Base
     this.locStrsChanged();
     this.onLocaleChanged();
   }
+  /**
+   * Return the array of locales that used in the current survey
+   */
+  public getUsedLocales(): Array<string> {
+    var locs = new Array<string>();
+    this.addUsedLocales(locs);
+    //Replace the default locale with the real one
+    var index = locs.indexOf("default");
+    if (index > -1) {
+      var defaultLoc = surveyLocalization.defaultLocale;
+      //Remove the defaultLoc
+      var defIndex = locs.indexOf(defaultLoc);
+      if (defIndex > -1) {
+        locs.splice(defIndex, 1);
+      }
+      index = locs.indexOf("default");
+      locs[index] = defaultLoc;
+    }
+    return locs;
+  }
   protected onLocaleChanged() {}
   //ILocalizableOwner
   getLocale() {
@@ -3145,7 +3165,7 @@ export class SurveyModel extends Base
    * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
-  public setValue(name: string, newQuestionValue: any) {
+  public setValue(name: string, newQuestionValue: any, locNotification: boolean = false) {
     var newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
       this.isValueEqual(name, newValue) &&
@@ -3159,6 +3179,7 @@ export class SurveyModel extends Base
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
     this.updateQuestionValue(name, newValue);
+    if (locNotification === true) return;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = newValue;
     this.checkTriggers(triggerKeys, false);

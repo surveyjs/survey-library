@@ -99,7 +99,8 @@ export class ItemValue extends Base {
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
     values: any,
-    properties: any
+    properties: any,
+    useItemExpression: boolean = true
   ): boolean {
     return ItemValue.runConditionsForItemsCore(
       items,
@@ -107,7 +108,8 @@ export class ItemValue extends Base {
       runner,
       values,
       properties,
-      true
+      true,
+      useItemExpression
     );
   }
   public static runEnabledConditionsForItems(
@@ -131,7 +133,8 @@ export class ItemValue extends Base {
     runner: ConditionRunner,
     values: any,
     properties: any,
-    isVisible: boolean
+    isVisible: boolean,
+    useItemExpression: boolean = true
   ): boolean {
     if (!values) {
       values = {};
@@ -143,9 +146,10 @@ export class ItemValue extends Base {
       var item = items[i];
       values["item"] = item.value;
       values["choice"] = item.value;
-      var itemRunner = !!item.getConditionRunner
-        ? item.getConditionRunner(isVisible)
-        : false;
+      var itemRunner =
+        useItemExpression && !!item.getConditionRunner
+          ? item.getConditionRunner(isVisible)
+          : false;
       if (!itemRunner) {
         itemRunner = runner;
       }
@@ -234,10 +238,13 @@ export class ItemValue extends Base {
     return this.locText.pureText ? true : false;
   }
   public get text(): string {
-    return this.locText.text;
+    return this.locText.calculatedText; //TODO: it will be correct to use this.locText.text, however it would require a lot of rewritting in Creator
   }
   public set text(newText: string) {
     this.locText.text = newText;
+  }
+  public get calculatedText() {
+    return this.locText.calculatedText;
   }
   public getData(): any {
     var json = this.toJSON();
@@ -289,6 +296,9 @@ export class ItemValue extends Base {
   }
   public setIsEnabled(val: boolean) {
     this.setPropertyValue("isEnabled", val);
+  }
+  public addUsedLocales(locales: Array<string>) {
+    this.AddLocStringToUsedLocales(this.locTextValue, locales);
   }
   protected getConditionRunner(isVisible: boolean) {
     if (isVisible) return this.getVisibleConditionRunner();

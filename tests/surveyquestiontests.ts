@@ -960,14 +960,22 @@ QUnit.test("SelectBase visibleChoices order", function(assert) {
   question.choices = ["B", "A", "D", "C"];
   assert.equal(question.choicesOrder, "none", "The default value is 'none'");
   assert.equal(
-    question.visibleChoices[0].text,
+    question.visibleChoices[0].calculatedText,
     "B",
     "By default visible choices is not sorted"
   );
   question.choicesOrder = "asc";
-  assert.equal(question.visibleChoices[0].text, "A", "Sorted order is 'asc'");
+  assert.equal(
+    question.visibleChoices[0].calculatedText,
+    "A",
+    "Sorted order is 'asc'"
+  );
   question.choicesOrder = "desc";
-  assert.equal(question.visibleChoices[0].text, "D", "Sorted order is 'desc'");
+  assert.equal(
+    question.visibleChoices[0].calculatedText,
+    "D",
+    "Sorted order is 'desc'"
+  );
 });
 QUnit.test("Question callbacks test", function(assert) {
   var question = new QuestionTextModel("textQuestion");

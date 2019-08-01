@@ -199,6 +199,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.addRowCore();
     this.onEndRowAdding();
   }
+  protected hasRowsAsItems(): boolean {
+    return false;
+  }
   private addRowCore() {
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;

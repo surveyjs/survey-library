@@ -114,6 +114,48 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   }
 }
 
+class QuestionCheckboxModelTester extends QuestionCheckboxModel {
+  oldGetResultCallback: any;
+  constructor(name: string) {
+    super(name);
+    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+    var self = this;
+    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+      self.newGetResultCallback(items);
+    };
+  }
+  public getType(): string {
+    return "dropdownrestfulltester";
+  }
+  public get restFullTest(): ChoicesRestfullTester {
+    return <ChoicesRestfullTester>this.choicesByUrl;
+  }
+  protected createRestfull(): ChoicesRestfull {
+    var res = new ChoicesRestfullTester();
+    res.noCaching = true;
+    return res;
+  }
+  public hasItemsCallbackDelay: boolean = false;
+  private loadedItems: Array<ItemValue>;
+  public doResultsCallback() {
+    if (this.loadedItems) {
+      this.oldGetResultCallback(this.loadedItems);
+    }
+    this.loadedItems = null;
+  }
+  protected newGetResultCallback(items: Array<ItemValue>) {
+    this.loadedItems = items;
+    if (!this.hasItemsCallbackDelay) {
+      this.doResultsCallback();
+    }
+  }
+  processor: ITextProcessor;
+  protected get textProcessor(): ITextProcessor {
+    if (!this.processor) this.processor = new TextProcessorTester();
+    return this.processor;
+  }
+}
+
 Serializer.addClass(
   "dropdownrestfulltester",
   [],
@@ -122,20 +164,6 @@ Serializer.addClass(
   },
   "dropdown"
 );
-
-class QuestionCheckboxModelTester extends QuestionCheckboxModel {
-  constructor(name: string) {
-    super(name);
-  }
-  protected createRestfull(): ChoicesRestfull {
-    return new ChoicesRestfullTester();
-  }
-  processor: ITextProcessor;
-  protected get textProcessor(): ITextProcessor {
-    if (!this.processor) this.processor = new TextProcessorTester();
-    return this.processor;
-  }
-}
 
 class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
   constructor(name: string) {
@@ -305,13 +333,13 @@ QUnit.test("Load from plain text", function(assert) {
   assert.equal(items.length, 5, "there are 5 items");
   assert.equal(items[0].value, "1", "the item is empty");
   assert.equal(
-    items[4].text,
+    items[4].calculatedText,
     "Optimizes Work Processes",
     "the 5th item text is 'Optimizes Work Processes'"
   );
 });
 
-QUnit.test("Load countries, complext valueName property, Issue#459", function(
+QUnit.test("Load countries, complex valueName property, Issue#459", function(
   assert
 ) {
   var test = new ChoicesRestfullTester();
@@ -528,6 +556,61 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2350",
+  function(assert) {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionCheckboxModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFullTest.items = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } }
+    ];
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    question.doResultsCallback();
+    assert.equal(question.choices.length, 0, "choices are empty");
+    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
+    survey.setValue("q1", [{ id: 1023 }]);
+    assert.ok(
+      question.value[0] === question["activeChoices"][2].value,
+      "Choosen exactly choice item value"
+    );
+    survey.doComplete();
+    assert.deepEqual(
+      question.value,
+      [{ id: 1023 }],
+      "Complex value set correctly"
+    );
+  }
+);
+
+QUnit.test("Do not run conditions on resetting the value", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionCheckboxModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFullTest.items = [{ identity: 1 }, { identity: 2 }];
+  survey.pages[0].addQuestion(question);
+  survey.addNewPage("2");
+  survey.pages[1].addNewQuestion("text", "q2");
+  survey.pages[1].questions[0].visibleIf = "{q1} notempty";
+  question.onSurveyLoad();
+  question.value = [1];
+  survey.currentPageNo = 1;
+  assert.equal(survey.currentPageNo, 1, "The current page is second now");
+  question.doResultsCallback();
+  assert.deepEqual(question.value, [1], "Value is still here");
+  assert.equal(survey.currentPageNo, 1, "The current page doesn't chagned");
+});
 
 QUnit.test("Use values and not text, Bug #627", function(assert) {
   var survey = new SurveyModel();

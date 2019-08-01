@@ -9,7 +9,7 @@ import { settings } from "./settings";
 
 export interface ISurveyData {
   getValue(name: string): any;
-  setValue(name: string, newValue: any): any;
+  setValue(name: string, newValue: any, locNotification: boolean): any;
   getComment(name: string): string;
   setComment(name: string, newValue: string): any;
   getAllValues(): any;
@@ -474,6 +474,37 @@ export class Base {
     locStr.text = value;
     this.propertyValueChanged(name, oldValue, value);
   }
+  public addUsedLocales(locales: Array<string>) {
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
+        let item = this.getLocalizableString(key);
+        if (item) this.AddLocStringToUsedLocales(item, locales);
+      }
+    }
+    if (!!this.arraysInfo) {
+      for (let key in this.arraysInfo) {
+        let items = this.getPropertyValue(key);
+        if (!items || !items.length) continue;
+        for (let i = 0; i < items.length; i++) {
+          let item = items[i];
+          if (item && item.addUsedLocales) {
+            item.addUsedLocales(locales);
+          }
+        }
+      }
+    }
+  }
+  protected AddLocStringToUsedLocales(
+    locStr: LocalizableString,
+    locales: Array<string>
+  ) {
+    var locs = locStr.getLocales();
+    for (var i = 0; i < locs.length; i++) {
+      if (locales.indexOf(locs[i]) < 0) {
+        locales.push(locs[i]);
+      }
+    }
+  }
   protected createItemValues(name: string): Array<any> {
     var self = this;
     var result = this.createNewArray(name, function(item: any) {
@@ -578,8 +609,20 @@ export class Base {
     }
     this.notifyArrayChanged(src);
   }
-  protected isTwoValueEquals(x: any, y: any): boolean {
+  protected isTwoValueEquals(
+    x: any,
+    y: any,
+    caseInSensitive: boolean = false
+  ): boolean {
+    if (caseInSensitive) {
+      x = this.getValueInLowCase(x);
+      y = this.getValueInLowCase(y);
+    }
     return Helpers.isTwoValueEquals(x, y);
+  }
+  private getValueInLowCase(val: any): any {
+    if (!!val && typeof val == "string") return val.toLowerCase();
+    return val;
   }
 }
 export class SurveyError {

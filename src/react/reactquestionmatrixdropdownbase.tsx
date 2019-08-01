@@ -27,24 +27,44 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   protected setProperties(nextProps: any) {
     if (this.refs.matrixDynamicRef) this.setState({ rowCounter: 0 });
-    this.question.visibleRowsChangedCallback = () => {
-      this.setState(this.getState(this.state));
-    };
+    this.updateVisibleRowsChangedCallback();
+    this.renderedTableResetCallback();
   }
   private getState(prevState: any = null) {
     return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
   }
+  private updateVisibleRowsChangedCallback() {
+    this.question.visibleRowsChangedCallback = () => {
+      this.updateStateOnCallback();
+    };
+  }
+  private renderedTableResetCallback() {
+    this.question.onRenderedTableResetCallback = () => {
+      this.updateStateOnCallback();
+    };
+  }
+  private updateStateOnCallback() {
+    if (this.isRendering) return;
+    this.setState(this.getState(this.state));
+  }
+  componentWillReceiveProps(nextProps: any): void {
+    super.componentWillReceiveProps(nextProps);
+    this.updateVisibleRowsChangedCallback();
+  }
+  isRendering: boolean = false;
   render(): JSX.Element {
     if (!this.question) return null;
     return this.renderTableDiv();
   }
   renderTableDiv(): JSX.Element {
+    this.isRendering = true;
     var header = this.renderHeader();
     var footers = this.renderFooter();
     var rows = this.renderRows();
     var divStyle = this.question.horizontalScroll
       ? ({ overflowX: "scroll" } as React.CSSProperties)
       : ({} as React.CSSProperties);
+    this.isRendering = false;
     return (
       <div style={divStyle}>
         <table className={this.question.cssClasses.root}>

@@ -374,8 +374,12 @@ QUnit.test("0 is not an empty value", function(assert) {
   var values = { val: 0 };
   assert.equal(runner.run(values), true, "0 = 0");
 });
-
-QUnit.test("Bug with contains, support string.indexof, bug#831", function(
+QUnit.test("0 is not an empty value (variable with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)", function (assert) {
+  var runner = new ConditionRunner("{complexIdentifier} = 0");
+  var values = { complexIdentifier: 0 };
+  assert.equal(runner.run(values), true, "0 = 0");
+});
+QUnit.test("Bug with contains, support string.indexof, bug#831", function (
   assert
 ) {
   var runner = new ConditionRunner("{str} contains '1'");
@@ -755,3 +759,28 @@ QUnit.test("String as numbers", function(assert) {
   var values: any = { a: "2", b: "3", c: "4" };
   assert.equal(runner.run(values), 20, "convert strings to numbers");
 });
+
+QUnit.test(
+  "True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425",
+  function(assert) {
+    var runner = new ConditionRunner("{a} = 'True'");
+    var values: any = { a: "False" };
+    assert.equal(runner.run(values), false, "'True' = 'False'");
+    values.a = "True";
+    assert.equal(runner.run(values), true, "'True' = 'True'");
+    values.a = false;
+    assert.equal(runner.run(values), false, "false = 'True'");
+    values.a = true;
+    assert.equal(runner.run(values), true, "true = 'True'");
+
+    runner = new ConditionRunner("{a} = 'False'");
+    values.a = "False";
+    assert.equal(runner.run(values), true, "'False' = 'False'");
+    values.a = "True";
+    assert.equal(runner.run(values), false, "'True' = 'False'");
+    values.a = false;
+    assert.equal(runner.run(values), true, "'False' = false");
+    values.a = true;
+    assert.equal(runner.run(values), false, "'False'=true");
+  }
+);

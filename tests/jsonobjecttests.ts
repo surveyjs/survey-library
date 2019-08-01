@@ -690,7 +690,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
     "set correct value property for the second item"
   );
   assert.equal(
-    list.items[1].text,
+    list.items[1].calculatedText,
     "5",
     "set correct text property for the second item"
   );
@@ -700,7 +700,7 @@ QUnit.test("ItemValueListOwner deserialization", function(assert) {
     "set correct value property for the fourth item"
   );
   assert.equal(
-    list.items[3].text,
+    list.items[3].calculatedText,
     "text1",
     "set correct text property for the fourth item"
   );
@@ -1928,3 +1928,20 @@ QUnit.test(
     propDefaultValue.defaultValue = oldValue;
   }
 );
+
+QUnit.test("custom property and onSetValue", function(assert) {
+  Serializer.addProperty("car", {
+    name: "onSetValueCheck",
+    onSetValue: function(obj, value) {
+      obj.dummyProperty = value;
+    }
+  });
+  var car = new Car();
+  car["onSetValueCheck"] = "dummy";
+  assert.equal(
+    car["dummyProperty"],
+    "dummy",
+    "onSetValue attribute is working"
+  );
+  Serializer.removeProperty("car", "onSetValueCheck");
+});

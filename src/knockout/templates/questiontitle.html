@@ -1,4 +1,5 @@
 <script type="text/html" id="survey-question-title">
+  <div data-bind="css: koCss().titleContainer">
   <h5 data-bind="css: koCss().title">
       <!-- ko if: no -->
       <span style="position: static;" data-bind="css: koCss().number, text: no"></span>
@@ -6,7 +7,8 @@
       <!-- /ko -->
       <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
   </h5>
-  <div data-bind="visible: !locDescription.isEmpty, css: koCss().description">
+  </div>
+  <div data-bind="css: koCss().description">
       <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
   </div>
 </script>

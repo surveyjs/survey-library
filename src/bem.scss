@@ -1,11 +1,10 @@
-﻿@mixin svg-icon() {
-  content: "";
-  background-repeat: no-repeat;
-  background-position: center;
+﻿.page__sv-window {
 }
+.page__sv-window {
 
-.sv-window {
-
+}
+.sv-window{
+    width: fit-content;
 }
 .sv-window__title {
 
@@ -14,30 +13,46 @@
 .sv-main{
 
 }
+
 .sv-progress{
 }
 .sv-progress__bar {
 }
+
 .sv_body {
  }
+
 .sv-container {
 }
 .sv-main {
 }
 
 .sv-container {
+
 }
-//page_styles
+
 .sv-container__page{
-  
 }
 .sv-page{
 }
+
 .sv-page__title {
+    width: 633px;
+    height: 29px;
+    font-family: Raleway;
+    font-size: 30px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: left;
+    color: #404040;
 }
+
 .sv-page__row{
 }
-//panel styles 
+
 .sv-page__panel{
 
 }
@@ -57,26 +72,74 @@
 
 }
 
-//question styles
-.sv-question{
-
+.sv-page__sv-question{
+    overflow: auto;
+    max-width: 498px;
 }
-.sv-page__question{
-
+.sv-page__sv-question--flow {
+    display: inline-block;
+}
+.sv-question {
+    font-family: "Segoe UI";
+    padding: 0.5em 1em 1.5em 1em;
+    box-sizing: border-box;
+    overflow: auto;
+}
+.sv-question__title-container{
+    width: 100%;
+    padding: 1px;
+    background-color:rgba(26, 179, 148, 0.2);
+    margin: 0.5em 0;
+}
+.sv-question__title-container--error{
+    background-color:rgba(26, 179, 148, 0.2);
 }
 .sv-question__title{
- 
+    font-family: Raleway;
+    font-size: 14px;
+    padding-left: 0.5em;
+    padding-top: 0.2em;
+    padding-bottom: 0.25em;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: left;
+    color: #404040;
+    margin: 0;
 }
 .sv-question__description{
+    
 }
-//radiogroup
-.sv-question{
-
+.sv-question__text {
+    padding-left: 1em;
+    font-size: 1em;
+    font-family: inherit;
+    border: unset;
+    border-bottom:  1px solid #d4d4d4;
+    width: calc(100% - 1em);
+    height: calc(2em + 1px);
+    background-color: #ffffff;
 }
-//boolean
-.sv-boolean{}
 
-//checkbox
-//rating
-//matrix
-//imagepicker
+.sv-footer{
+    padding: 1em 0;
+    // min-height: $base-line-height;
+}
+.sv-btn{
+    // color: $body-background-color;
+    // background-color: $main-color;
+}
+.sv-btn:hover{
+    // background-color: $main-hover-color;
+}
+.sv-footer__sv-btn-complete,
+.sv-footer__sv-btn-next,
+.sv-footer__sv-btn-start
+{
+    float: right;
+}
+.sv-footer__sv-btn-prev{
+    float: left;
+}   

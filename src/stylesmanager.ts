@@ -390,7 +390,86 @@ export class StylesManager {
 
     ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
   };
+  public static bemThemeCss: { [key: string]: string } = {
+    ".sv_default_css": "background-color: $body-container-background-color;",
 
+    ".sv_default_css hr": "border-color: $border-color;",
+
+    ".sv_default_css input[type='button'], .sv_default_css button":
+      "color: $body-background-color; background-color: $main-color;",
+    ".sv_default_css input[type='button']:hover, .sv_default_css button:hover":
+      "background-color: $main-hover-color;",
+
+    ".sv_default_css .sv_header": "color: $header-color;",
+    ".sv_default_css .sv_custom_header":
+      "background-color: $header-background-color;",
+    ".sv_default_css .sv_container": "color: $text-color;",
+    ".sv_default_css .sv_body":
+      "background-color: $body-background-color; border-color: $main-color;",
+    ".sv_default_css .sv_progress": "background-color: $border-color;",
+    ".sv_default_css .sv_progress_bar": "background-color: $main-color;",
+
+    ".sv_default_css .sv_p_root > .sv_row": "border-color: $border-color;",
+    ".sv_default_css .sv_p_root > .sv_row:nth-child(odd)":
+      "background-color: $body-background-color;",
+    ".sv_default_css .sv_p_root > .sv_row:nth-child(even)":
+      "background-color: $body-container-background-color;",
+
+    ".sv_default_css .sv_q_other input":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_text_root":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_dropdown_control":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input[type='text']":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css select":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css textarea":
+      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
+      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
+    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
+      "border: 1px solid $main-color;",
+    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
+      "background-color: $inputs-background-color;",
+    ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
+    ".sv_default_css .sv_q_dropdown_control:focus":
+      "border-color: $main-color;",
+    ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
+    '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
+      "outline: 1px dotted $main-color;",
+    ".sv_default_css select:focus": "border-color: $main-color;",
+    ".sv_default_css textarea:focus": "border-color: $main-color;",
+
+    ".sv_default_css .sv_select_wrapper":
+      "background-color: $body-background-color;",
+    ".sv_default_css .sv_select_wrapper::before":
+      "background-color: $main-color;",
+
+    ".sv_default_css .sv_q_rating_item.active .sv_q_rating_item_text":
+      "background-color: $main-hover-color; border-color: $main-hover-color; color: $body-background-color;",
+    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text":
+      "border-color: $border-color;",
+    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text:hover":
+      "border-color: $main-hover-color;",
+
+    ".sv_default_css table.sv_q_matrix tr": "border-color: $border-color;",
+    ".sv_default_css table.sv_q_matrix_dropdown tr":
+      "border-color: $border-color;",
+    ".sv_default_css table.sv_q_matrix_dynamic tr":
+      "border-color: $border-color;",
+
+    ".sv_default_css .sv_q_m_cell_selected":
+      "color: $body-background-color; background-color: $main-hover-color;",
+
+    ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
+
+    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
+
+    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
+  };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
     ".sv_main .sv_p_description": "padding-left: 1.66em;",
@@ -484,7 +563,7 @@ export class StylesManager {
     themeSelector: string = ".sv_main"
   ) {
     let ThemeCss: any;
-    if (["bootstrap", "bootstrapmaterial"].indexOf(themeName) !== -1) {
+    if (["bootstrap", "bootstrapmaterial", "bem"].indexOf(themeName) !== -1) {
       ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;
     } else {
@@ -543,11 +622,11 @@ export class StylesManager {
       Object.keys(StylesManager.Media).forEach(selector => {
         sheet.insertRule(
           StylesManager.Media[selector].media +
-            " { " +
-            selector +
-            " { " +
-            StylesManager.Media[selector].style +
-            " } }",
+          " { " +
+          selector +
+          " { " +
+          StylesManager.Media[selector].style +
+          " } }",
           0
         );
       });

@@ -996,6 +996,79 @@ QUnit.test(
     );
   }
 );
+QUnit.test(
+  "Matrixdynamic column.visibleIf, hide column if all cells are invisible",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            { name: "col1", choices: [1, 2], visibleIf: "{q2}=1" },
+            { name: "col2", visibleIf: "{row.col1} = 1" }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var rows = matrix.visibleRows;
+    assert.equal(
+      matrix.columns[0].hasVisibleCell,
+      false,
+      "The first column is invisible"
+    );
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      false,
+      "The second column is invisible"
+    );
+    survey.setValue("q2", 1);
+    assert.equal(
+      matrix.columns[0].hasVisibleCell,
+      true,
+      "The first column is visible"
+    );
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      false,
+      "The second column is still invisible"
+    );
+    matrix.visibleRows[0].cells[0].question.value = 1;
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      true,
+      "The second column is visible now"
+    );
+    matrix.visibleRows[1].cells[0].question.value = 1;
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      true,
+      "The second column is visible now, #2"
+    );
+    matrix.visibleRows[0].cells[0].question.value = 2;
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      true,
+      "The second column is visible now, #3"
+    );
+    matrix.visibleRows[1].cells[0].question.value = 2;
+    assert.equal(
+      matrix.columns[1].hasVisibleCell,
+      false,
+      "The second column is invisible now"
+    );
+    survey.setValue("q2", 2);
+    assert.equal(
+      matrix.columns[0].hasVisibleCell,
+      false,
+      "The first column is invisible now"
+    );
+    //assert.equal(matrix.renderedTable.headerRow.cells.length, 0, "There is no cells headers");
+    //assert.equal(matrix.renderedTable.rows[0].cells.length, 0, "There is no cells in rows");
+  }
+);
 
 QUnit.test("MatrixDropdownColumn cell question", function(assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
@@ -2913,3 +2986,42 @@ QUnit.test("matrix.rowsVisibleIf + renderedTable", function(assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.renderedTable.rows.length, 4, "there is no filter");
 });
+QUnit.test(
+  "Matrixdynamic column.visibleIf, hide column if all cells are invisible + rendered table",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 2,
+          columns: [
+            { name: "col1", totalType: "count" },
+            { name: "col2", choices: [1, 2], visibleIf: "{q2}=1" },
+            { name: "col3", visibleIf: "{row.col1} = 1" }
+          ]
+        }
+      ]
+    });
+    var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+    var table = matrix.renderedTable;
+    assert.equal(
+      table.headerRow.cells.length,
+      2,
+      "Header: There is one visible column + Remove button"
+    );
+    assert.equal(
+      table.rows[0].cells.length,
+      2,
+      "Rows: There is one visible column + Remove button"
+    );
+    assert.equal(
+      table.footerRow.cells.length,
+      2,
+      "Footer: There is one visible column + Remove button"
+    );
+    matrix.columnLayout = "vertical";
+    var rows = matrix.renderedTable.rows;
+    assert.equal(rows.length, 2, "Only one column is shown + remove button");
+  }
+);

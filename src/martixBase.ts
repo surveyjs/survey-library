@@ -119,11 +119,18 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected onRowsChanged() {
     this.fireCallback(this.visibleRowsChangedCallback);
   }
+  protected shouldRunColumnExpression(): boolean {
+    return true;
+  }
+  protected hasRowsAsItems(): boolean {
+    return true;
+  }
   protected runItemsCondition(
     values: HashTable<any>,
     properties: HashTable<any>
   ): boolean {
-    var hasChanges = this.runConditionsForRows(values, properties);
+    var hasChanges =
+      this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
     hasChanges = this.runConditionsForColumns(values, properties) || hasChanges;
     if (hasChanges) {
       if (!!this.filteredColumns || !!this.filteredRows) {
@@ -167,7 +174,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       <any>this.filteredColumns,
       runner,
       values,
-      properties
+      properties,
+      this.shouldRunColumnExpression()
     );
     if (this.filteredColumns.length === this.columns.length) {
       this.filteredColumns = null;

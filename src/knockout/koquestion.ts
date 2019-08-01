@@ -101,7 +101,11 @@ export class QuestionImplementor extends ImplementorBase {
     if (el && this.question.customWidget) {
       this.question.customWidget.afterRender(this.question, el);
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        this.question.customWidget.willUnmount(this.question, el);
+        try {
+          this.question.customWidget.willUnmount(this.question, el);
+        } catch {
+          console.warn("Custom widget will unmount failed");
+        }
       });
     }
   }

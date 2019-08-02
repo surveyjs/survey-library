@@ -36,12 +36,6 @@ export var bemCss = {
     indent: 20,
     footer: "sv-question__footer"
   },
-  panel: {
-    root: "sv-panel sv-page__panel",
-    title: "sv-panel__title",
-    description: "sv-panel__description",
-    container: "sv-panel__container"
-  },
   error: {
     root: "sv-erbox",
     icon: "",
@@ -50,25 +44,25 @@ export var bemCss = {
     locationBottom: "sv-erbox_location_bottom"
   },
   checkbox: {
-    root: "sv-base-select sv-checkbox",
-    item: "sv-base-select__item",
-    label: "sv-label",
-    itemControl: "sv-item-control sv-checkbox__sv-item-control",
-    controlLabel: "sv-control-label sv-checkbox__sv-control-label",
+    root: "sv-select-base",
+    item: "sv-item sv-select-base__item",
+    label: "sv-label sv-select-base__label",
+    itemControl: "sv-item__control sv-checkbox",
+    controlLabel: "sv-item__control-label",
     materialDecorator: "",
     other: "",
-    column: "sv-base-select__column"
+    column: "sv-select-base__column"
   },
   radiogroup: {
-    root: "sv-base-select sv-radiogroup",
-    item: "sv-base-select__item",
-    label: "sv-base-select__label",
-    itemControl: "sv-radiogroup-item-control",
-    controlLabel: "sv-radiogrup-control-label",
-    materialDecorator: "circle",
+    root: "sv-select-base",
+    item: "sv-item sv-select-base__item",
+    label: "sv-label sv-select-base__label",
+    itemControl: "sv-item__control sv-radio",
+    controlLabel: "sv-item__control-label",
+    materialDecorator: "",
     other: "",
     clearButton: "",
-    column: "sv_base-select__column"
+    column: "sv_select-base__column"
   },
   text: "sv-question__text",
   window: {

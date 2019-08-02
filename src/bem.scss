@@ -1,4 +1,23 @@
-﻿.page__sv-window {
+﻿$header-background-color: #e7e7e7;
+$body-container-background-color: #f4f4f4;
+
+$main-color: #1ab394;
+$main-hover-color: darken($main-color, 5%);
+$body-background-color: white;
+$inputs-background-color: $body-background-color;
+$text-color: #6d7072;
+$header-color: $text-color;
+$border-color: $header-background-color;
+$item-border-color: #404040;
+$error-color: #ed5565;
+$error-background-color: lighten($error-color, 30%);
+
+$header-height: 74%;
+$font-size: 14px;
+
+$base-line-height: 2em;
+
+.page__sv-window {
 }
 .page__sv-window {
 
@@ -39,7 +58,7 @@
 .sv-page__title {
     width: 633px;
     height: 29px;
-    font-family: Raleway;
+    font-family: Raleway, sans-serif;
     font-size: 30px;
     font-weight: bold;
     font-style: normal;
@@ -74,11 +93,12 @@
 
 .sv-page__sv-question{
     overflow: auto;
-    max-width: 498px;
 }
+
 .sv-page__sv-question--flow {
     display: inline-block;
 }
+
 .sv-question {
     font-family: "Segoe UI";
     padding: 0.5em 1em 1.5em 1em;
@@ -86,21 +106,20 @@
     overflow: auto;
 }
 .sv-question__title-container{
-    width: 100%;
-    padding: 1px;
     background-color:rgba(26, 179, 148, 0.2);
+    max-width: 498px;
+    padding-left: 0.5em;
+    padding-top: 5px;
+    padding-bottom: 5px;
     margin: 0.5em 0;
 }
 .sv-question__title-container--error{
     background-color:rgba(26, 179, 148, 0.2);
 }
 .sv-question__title{
-    font-family: Raleway;
-    font-size: 14px;
-    padding-left: 0.5em;
-    padding-top: 0.2em;
-    padding-bottom: 0.25em;
-    font-weight: bold;
+    font-family: 'Raleway', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
     font-style: normal;
     font-stretch: normal;
     line-height: normal;
@@ -110,9 +129,8 @@
     margin: 0;
 }
 .sv-question__description{
-    
 }
-.sv-question__text {
+.sv-question__textfield {
     padding-left: 1em;
     font-size: 1em;
     font-family: inherit;
@@ -120,20 +138,108 @@
     border-bottom:  1px solid #d4d4d4;
     width: calc(100% - 1em);
     height: calc(2em + 1px);
+    max-width: 498px;
     background-color: #ffffff;
 }
+.sv-select-base {
+    border: unset;
+    line-height: 2em;
+}
+.sv-select-base__item {
+    position: relative;
+    vertical-align: middle;
+}
+.sv-select-base__column{
+    display: inline-block;
+    vertical-align: top;
+    min-width: 10%;
+}
 
+.sv-item__control {
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background-color: transparent;
+    background-clip: padding-box;
+    border: solid 3px rgba(64, 64, 64, 0.5);
+    vertical-align: middle;
+    margin: 0;
+}
+.sv-checkbox {
+    border-radius: 2px;
+}
+.sv-radio {
+    border-radius: 50%;
+}
+.sv-item__control:after {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%); 
+}
+.sv-checkbox:after {
+    content: '\2714';
+    font-size: 14px;
+    color: $body-background-color;
+    background-color: transparent;
+}
+.sv-radio:after {
+    content: '●';
+    font-size: 14px;
+    background-color: transparent;
+}
+.sv-item__control:checked:after,
+.sv-item__control:hover:after {
+    display: initial;
+}
+.sv-checkbox:hover {
+    background-color:rgba(64, 64, 64, 0.5);
+}
+.sv-checkbox:checked {
+    background-color: $main-color;
+    border-color: $main-color;
+}
+.sv-radio:hover {
+    border-color: rgba(64, 64, 64, 0.5);;
+}
+.sv-radio:hover:after{
+    color: rgba(64, 64, 64, 0.5);
+}
+.sv-radio:checked {
+    border-color: rgba(64, 64, 64, 1);
+}
+.sv-radio:checked:after {
+    color: rgba(64, 64, 64, 1);;
+}
+
+.sv-item__control:focus {
+    outline: solid 1px #19ab8d;;
+    outline-offset: 3px;
+}
+.sv-select-base__label{
+    display: inline-block;
+}
+
+.sv-item__control-label {     
+    margin-left: 14px;     
+    vertical-align: middle;           
+} 
 .sv-footer{
     padding: 1em 0;
-    // min-height: $base-line-height;
+    min-height: $base-line-height;
 }
 .sv-btn{
-    // color: $body-background-color;
-    // background-color: $main-color;
+    color: $body-background-color;
+    background-color: $main-color;
 }
 .sv-btn:hover{
-    // background-color: $main-hover-color;
+    background-color: $main-hover-color;
 }
+
 .sv-footer__sv-btn-complete,
 .sv-footer__sv-btn-next,
 .sv-footer__sv-btn-start

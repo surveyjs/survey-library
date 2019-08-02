@@ -15,9 +15,12 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export {
+  bemCss
+} from "../defaultCss/cssbem";
 // styles
 import "../main.scss";
-
+import "../bem.scss";
 // knockout
 export { Survey } from "../knockout/kosurvey";
 export { Survey as Model } from "../knockout/kosurvey";

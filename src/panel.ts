@@ -1222,6 +1222,11 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
+  public delete() {
+    if (!!this.parent) {
+      this.removeSelfFromList(this.parent.elements);
+    }
+  }
   /**
    * Set this property to "collapsed" to render only Panel title and expanded button and to "expanded" to render the collapsed button in the Panel caption
    */

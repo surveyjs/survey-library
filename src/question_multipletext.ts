@@ -483,6 +483,9 @@ export class QuestionMultipleTextModel extends Question
     return "row";
   }
   elementWidthChanged(el: IElement) {}
+  get elements(): Array<IElement> {
+    return [];
+  }
   indexOf(el: IElement): number {
     return -1;
   }

@@ -33,6 +33,11 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isPage() {
     return true;
   }
+  public delete() {
+    if (!!this.survey) {
+      this.removeSelfFromList(this.survey.pages);
+    }
+  }
   public onFirstRendering() {
     if (this.wasShown) return;
     super.onFirstRendering();

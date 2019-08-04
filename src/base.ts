@@ -146,6 +146,7 @@ export interface ISurveyElement {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
+  delete(): any;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -194,6 +195,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
+  elements: Array<IElement>;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
@@ -804,6 +806,14 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public get isPage() {
     return false;
+  }
+  public delete() {}
+  protected removeSelfFromList(list: Array<any>) {
+    if (!list || !Array.isArray(list)) return;
+    var index = list.indexOf(this);
+    if (index > -1) {
+      list.splice(index, 1);
+    }
   }
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;

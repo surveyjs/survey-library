@@ -7548,5 +7548,32 @@ QUnit.test(
     panel2.moveTo(page2, survey.getPanelByName("p3"));
     assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
     assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
-
   });
+  QUnit.test(
+    "Test question/panel/page delete function",function(assert) {
+      var survey = new SurveyModel({
+        pages : [
+          {elements: [
+            {
+              type: "panel", name : "panel1",
+              elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
+            },
+            {type: "text", name: "q3"}
+          ]},
+          {elements: [{type: "text", name: "q4"}, {type: "text", name: "q5"}]}
+        ]
+      });
+      var panel = <PanelModel>survey.getPanelByName("panel1");
+      assert.equal(panel.elements.length, 2, "two questions in panel in the beginning");
+      panel.questions[0].delete();
+      assert.equal(panel.elements.length, 1, "one question in panel now");
+      assert.equal(survey.pages[0].elements.length, 2, "There are two elements in page1");
+      panel.delete();
+      assert.equal(survey.pages[0].elements.length, 1, "There is one element in page1");
+      assert.equal(survey.pages[1].elements.length, 2, "There are two elements in page2");
+      survey.pages[1].questions[0].delete();
+      assert.equal(survey.pages[1].elements.length, 1, "There is one element in page2");
+      assert.equal(survey.pages.length, 2, "There are two pages in survey");
+      survey.pages[0].delete();
+      assert.equal(survey.pages.length, 1, "There is one page in survey");      
+    });  

@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-title">
-  <div data-bind="css: koCss().titleContainer">
+  <div data-bind="css: {'sv-question__title-container': true, 'sv-question__title-container--error': errors.length > 0}">
   <h5 data-bind="css: koCss().title">
       <!-- ko if: no -->
       <span style="position: static;" data-bind="css: koCss().number, text: no"></span>

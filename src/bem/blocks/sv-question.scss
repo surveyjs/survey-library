@@ -5,6 +5,7 @@
 }
 .sv-question__title-container{
     background-color:rgba(26, 179, 148, 0.2);
+    box-sizing: border-box;
     max-width: 498px;
     margin: 0.5em 0;
     padding-left: 0.5em;
@@ -36,12 +37,17 @@
     font-size: 1em;
     font-family: inherit;
     height: calc(2em + 1px);
-    max-width: 498px;
+    width: 100%;
+    max-width: 422px;
     padding-left: 1em;
-    width: calc(100% - 1em);
 }
 .sv-question__text--error {
+    color: $error-color;
     border-color: $error-color;
+}
+.sv-question__text:focus {
+    border-color: $main-color;
+    outline: unset;
 }
 .sv-question__content {
     padding-left: 27px;

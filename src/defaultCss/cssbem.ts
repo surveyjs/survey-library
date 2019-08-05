@@ -47,7 +47,7 @@ export var bemCss = {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: "sv-item__control sv-checkbox",
+    itemControl: " sv-checkbox sv-item__control",
     controlLabel: "sv-item__control-label",
     materialDecorator: "",
     other: "",
@@ -57,12 +57,12 @@ export var bemCss = {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: "sv-item__control sv-radio",
+    itemControl: "sv-radio sv-item__control",
     controlLabel: "sv-item__control-label",
     materialDecorator: "",
     other: "",
     clearButton: "",
-    column: "sv_select-base__column"
+    column: "sv-select-base__column"
   },
   text: "sv-question__text",
   window: {

@@ -1,0 +1,35 @@
+.sv-item__control {
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin: 0;
+    border: 3px solid;
+    border-color: $main-black-color;
+    opacity: 0.5;
+}
+.sv-item__control:checked {
+    opacity: 1;
+}
+.sv-item__control:after {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%); 
+}
+.sv-item__control:checked:after,
+.sv-item__control:hover:after {
+    display: initial;
+}
+.sv-item__control:focus {
+    outline: solid 1px #19ab8d;;
+    outline-offset: 3px;
+}
+.sv-item__control-label {     
+    margin-left: 14px;     
+    vertical-align: middle;           
+}

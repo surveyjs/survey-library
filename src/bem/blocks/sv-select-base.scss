@@ -1,0 +1,16 @@
+.sv-select-base {
+    border: unset;
+    line-height: 2em;
+}
+.sv-select-base__item {
+    position: relative;
+    vertical-align: middle;
+}
+.sv-select-base__column{
+    display: inline-block;
+    vertical-align: top;
+    min-width: 10%;
+}
+.sv-select-base__label{
+    display: inline-block;
+}

@@ -1,0 +1,18 @@
+$header-background-color: #e7e7e7;
+$body-container-background-color: #f4f4f4;
+
+$main-color: #1ab394;
+$main-hover-color: darken($main-color, 5%);
+$body-background-color: white;
+$inputs-background-color: $body-background-color;
+$text-color: #6d7072;
+$header-color: $text-color;
+$border-color: $header-background-color;
+$main-black-color: #404040;
+$error-color: #ed5565;
+$error-background-color: lighten($error-color, 30%);
+
+$header-height: 74%;
+$font-size: 14px;
+
+$base-line-height: 2em;

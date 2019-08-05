@@ -1,0 +1,17 @@
+.sv-checkbox:after {
+    content: '\2714';
+    font-size: 14px;
+    color: #ffffff;
+    background-color: transparent;
+}
+.sv-checkbox {
+    border-radius: 2px;
+    background-color: transparent;
+}
+.sv-checkbox:hover{
+    background-color: $main-black-color;
+}
+.sv-checkbox:checked {
+    background-color: $main-color;
+    border-color: $main-color;
+}

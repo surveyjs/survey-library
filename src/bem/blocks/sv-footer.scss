@@ -1,0 +1,13 @@
+.sv-footer{
+    padding: 1em 0;
+    min-height: $base-line-height;
+}
+.sv-footer__sv-btn-complete,
+.sv-footer__sv-btn-next,
+.sv-footer__sv-btn-start
+{
+    float: right;
+}
+.sv-footer__sv-btn-prev{
+    float: left;
+}

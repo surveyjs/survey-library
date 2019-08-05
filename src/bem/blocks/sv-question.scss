@@ -45,6 +45,9 @@
     color: $error-color;
     border-color: $error-color;
 }
+.sv-question__text--error::placeholder {
+    color: $error-color;
+ }
 .sv-question__text:focus {
     border-color: $main-color;
     outline: unset;

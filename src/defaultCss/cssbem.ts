@@ -1,6 +1,6 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
-  root: "sv-main sv_default_css",
+  root: "sv-main",
   header: "sv-header",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
@@ -8,10 +8,10 @@ export var bemCss = {
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
-    complete: "sv-btn sv-footer__sv-btn-complete",
-    prev: "sv-btn sv-footer__sv-btn-prev",
-    next: "sv-btn sv-footer__sv-btn-next",
-    start: "sv-btn sv-footer__sv-btn-start"
+    complete: "sv-btn sv-footer__btn-complete",
+    prev: "sv-btn sv-footer__btn-prev",
+    next: "sv-btn sv-footer__btn-next",
+    start: "sv-btn sv-footer__btn-start"
   },
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
@@ -20,12 +20,16 @@ export var bemCss = {
     title: "sv-page__title",
     description: "sv-page__description"
   },
+  pageTitle: "sv-page__title",
+  pageDescription: "sv-page__description",
   row: "sv-page__row sv-row",
   question: {
-    mainRoot: "sv-question sv-page__sv-question",
-    flowRoot: "sv-question sv-page__sv-question sv-page__sv-question--flow",
+    mainRoot: "sv-question sv-row__question",
+    flowRoot: "sv-question sv-row__question sv-row__question--flow",
+    content: "sv-question__content",
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",
+    titleOnError: "sv-question__title-container--error",
     title: "sv-question__title",
     number: "sv-question__num",
     description: "sv-question__description",
@@ -64,18 +68,7 @@ export var bemCss = {
     clearButton: "",
     column: "sv-select-base__column"
   },
-  text: "sv-question__text",
-  window: {
-    root: "sv-window",
-    body: "sv-content",
-    header: {
-      root: "sv-window__title",
-      title: "",
-      button: "",
-      buttonExpanded: "",
-      buttonCollapsed: ""
-    }
-  }
+  text: "sv-question__text"
 };
 
 surveyCss["bem"] = bemCss;

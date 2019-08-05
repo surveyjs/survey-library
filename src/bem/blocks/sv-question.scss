@@ -15,6 +15,7 @@
     background-color:rgba(213, 41, 1, 0.2)
 }
 .sv-question__title{
+    color: $main-black-color;
     font-family: 'Raleway', sans-serif;
     font-size: 18px;
     font-weight: 700;
@@ -22,9 +23,8 @@
     font-stretch: normal;
     line-height: normal;
     letter-spacing: normal;
-    text-align: left;
-    color: $main-black-color;
     margin: 0;
+    text-align: left;
 }
 .sv-question__description{
 

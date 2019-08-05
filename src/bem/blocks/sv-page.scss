@@ -1,7 +1,17 @@
-.sv-page__sv-question{
-    overflow: auto;
+.sv-page__title {        
+    color: $main-black-color;
+    font-family: Raleway;
+    font-size: 30px;
+    font-weight: bold;
+    margin: 0;
+    margin-left: 86px; 
+    text-align: left;
 }
 
-.sv-page__sv-question--flow {
-    display: inline-block;
+.sv-page__description {
+    
+}
+.sv-page__row {
+    margin: 0px;
+    margin-left: 78px;
 }

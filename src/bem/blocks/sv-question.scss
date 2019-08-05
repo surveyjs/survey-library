@@ -29,7 +29,7 @@
 .sv-question__description{
 
 }
-.sv-question__textfield {
+.sv-question__text {
     background-color: #ffffff;
     border: unset;
     border-bottom:  1px solid #d4d4d4;
@@ -40,10 +40,23 @@
     padding-left: 1em;
     width: calc(100% - 1em);
 }
+.sv-question__text--error {
+    border-color: $error-color;
+}
 .sv-question__content {
-    padding: 0;
-    padding-left: 5px;
+    padding-left: 27px;
+}
+.sv-question {
+    padding: 0px;
+}
+.sv-question__erbox {
+    color: $error-color;
+    font-weight: bold;
+    font-size: 12px;
 } 
-.sv-question--left {
+.sv-question__erbox--location--top {
     
+}
+.sv-question__erbox--location--bottom {
+
 }

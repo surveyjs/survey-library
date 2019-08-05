@@ -7,7 +7,7 @@
           <!-- /ko -->
       </div>
     
-      <div data-bind="css: {'content-left' : question.hasTitleOnLeft}">
+      <div data-bind="css: {'content-left' : question.hasTitleOnLeft, 'sv-question__content': true}">
           <!-- ko if: question.errorLocation == 'top' -->
               <div data-bind="css: question.koCss().error.locationTop">
                   <!-- ko template: { name: 'survey-question-errors', data: question } -->

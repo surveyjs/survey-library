@@ -41,11 +41,11 @@ export var bemCss = {
     footer: "sv-question__footer"
   },
   error: {
-    root: "sv-erbox",
+    root: "",
     icon: "",
     item: "",
-    locationTop: "sv-erbox_location_top",
-    locationBottom: "sv-erbox_location_bottom"
+    locationTop: "sv-question__erbox sv-erbox--location--top",
+    locationBottom: "sv-question__erbox --location--bottom"
   },
   checkbox: {
     root: "sv-select-base",

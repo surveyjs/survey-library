@@ -1,13 +1,10 @@
-.sv-footer{
+.sv-footer {
     min-height: $base-line-height;
     padding: 1em 0;
 }
-.sv-footer__sv-btn-complete,
-.sv-footer__sv-btn-next,
-.sv-footer__sv-btn-start
-{
+.sv-footer__btn--location--right {
     float: right;
 }
-.sv-footer__sv-btn-prev{
+.sv-footer__btn--location--left {
     float: left;
 }

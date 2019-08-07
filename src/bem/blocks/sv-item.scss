@@ -3,7 +3,7 @@
     -webkit-appearance: none;
     border: 3px solid;
     border-color: $main-black-color;
-    height: 24px;
+    height: 1.71px;
     margin: 0;
     opacity: 0.5;
     position: relative;
@@ -26,10 +26,10 @@
     display: initial;
 }
 .sv-item__control:focus {
-    outline: solid 1px #19ab8d;;
-    outline-offset: 3px;
+    outline: solid 0.07em #19ab8d;;
+    outline-offset: 0.214em;
 }
 .sv-item__control-label {     
-    margin-left: 14px;     
+    margin-left: 1em;     
     vertical-align: middle;           
 }

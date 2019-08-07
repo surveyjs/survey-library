@@ -16,43 +16,13 @@
     background-color:rgba(213, 41, 1, 0.2)
 }
 .sv-question__title{
-    color: $main-black-color;
-    font-family: 'Raleway', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    font-style: normal;
-    font-stretch: normal;
-    line-height: normal;
-    letter-spacing: normal;
-    margin: 0;
-    text-align: left;
-}
-.sv-question__description{
-
-}
-.sv-question__text {
-    background-color: #ffffff;
-    border: unset;
-    border-bottom:  1px solid #d4d4d4;
-    box-sizing: border-box;
-    font-size: 1em;
-    font-family: inherit;
+    margin: 0em;
+   }
+.sv-question__input {
     height: calc(2em + 1px);
-    width: 100%;
     max-width: calc(43% - 17px);
-    padding-left: 1em;
-}
-.sv-question__text--error {
-    color: $error-color;
-    border-color: $error-color;
-}
-.sv-question__text--error::placeholder {
-    color: $error-color;
+    width: 100%;
  }
-.sv-question__text:focus {
-    border-color: $main-color;
-    outline: unset;
-}
 .sv-question__content {
     padding-left: 27px;
 }

@@ -3,8 +3,9 @@
 @import './bem/blocks/sv-page.scss';
 @import './bem/blocks/sv-row.scss';
 @import './bem/blocks/sv-question.scss';
-@import './bem/blocks/sv-select-base.scss';
 @import './bem/blocks/sv-progress.scss';
+@import './bem/blocks/sv-titile.scss';
+@import './bem/blocks/sv-select-base.scss';
 @import './bem/blocks/sv-item.scss';
 @import './bem/blocks/sv-footer.scss';
 @import './bem/blocks/sv-btn.scss';
@@ -12,3 +13,6 @@
 @import './bem/blocks/sv-radio.scss';
 @import './bem/blocks/sv-dropdown.scss';
 @import './bem/blocks/sv-text.scss';
+.sv_container {
+    font-size: 14px;
+}

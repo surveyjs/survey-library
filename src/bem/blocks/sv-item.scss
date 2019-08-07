@@ -1,33 +1,8 @@
 .sv-item__control {
-    appearance: none;
-    -webkit-appearance: none;
-    border: 0.21em solid;
-    border-color: $main-black-color;
     height: 1.71em;
     margin: 0em;
-    opacity: 0.5;
-    position: relative;
     vertical-align: middle;
     width: 1.71em;
-}
-.sv-item__control:checked {
-    opacity: 1;
-}
-.sv-item__control:after {
-    display: none;
-    left: 50%;
-    margin-right: -50%;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%); 
-}
-.sv-item__control:checked:after,
-.sv-item__control:hover:after {
-    display: initial;
-}
-.sv-item__control:focus {
-    outline: solid 0.07em #19ab8d;;
-    outline-offset: 0.214em;
 }
 .sv-item__control-label {     
     margin-left: 1em;     

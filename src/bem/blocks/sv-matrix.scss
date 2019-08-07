@@ -1,0 +1,14 @@
+.sv-matrix__control {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    margin-left: 0.21em; 
+}
+
+.sv-matrix__cell-text {
+    cursor: pointer;
+}
+.sv-matrix__cell-text--selected {
+    color: white;
+    background-color: #179d82;
+}

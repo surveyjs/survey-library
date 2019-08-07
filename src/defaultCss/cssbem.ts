@@ -8,10 +8,10 @@ export var bemCss = {
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
-    complete: "sv-btn sv-footer__btn-complete",
-    prev: "sv-btn sv-footer__btn-prev",
-    next: "sv-btn sv-footer__btn-next",
-    start: "sv-btn sv-footer__btn-start"
+    complete: "sv-btn sv-footer__btn--location--right",
+    prev: "sv-btn sv-footer__btn--location--left",
+    next: "sv-btn sv-footer__btn--location--right",
+    start: "sv-btn sv-footer__btn--location--right"
   },
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
@@ -20,7 +20,7 @@ export var bemCss = {
     title: "sv-page__title",
     description: "sv-page__description"
   },
-  pageTitle: "sv-page__title",
+  pageTitle: "sv-title sv-page__title",
   pageDescription: "sv-page__description",
   row: "sv-page__row sv-row",
   question: {
@@ -30,7 +30,7 @@ export var bemCss = {
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",
     titleOnError: "sv-question__title-container--error",
-    title: "sv-question__title",
+    title: "sv-title sv-question__title",
     number: "sv-question__num",
     description: "sv-question__description",
     comment: "sv-question__comment",
@@ -45,13 +45,13 @@ export var bemCss = {
     icon: "",
     item: "",
     locationTop: "sv-question__erbox sv-erbox--location--top",
-    locationBottom: "sv-question__erbox --location--bottom"
+    locationBottom: "sv-question__erbox sv-question__erbox--location--bottom"
   },
   checkbox: {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: " sv-checkbox sv-item__control",
+    itemControl: "sv-check-item sv-checkbox  sv-item__control",
     controlLabel: "sv-item__control-label",
     materialDecorator: "",
     other: "",
@@ -61,14 +61,28 @@ export var bemCss = {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: "sv-radio sv-item__control",
+    itemControl: "sv-check-item  sv-radio sv-item__control",
     controlLabel: "sv-item__control-label",
     materialDecorator: "",
     other: "",
     clearButton: "",
     column: "sv-select-base__column"
   },
-  text: "sv-question__text"
+  text: "sv-text sv-question__input",
+  dropdown: {
+    root: "",
+    control: "sv-dropdown sv-question__input",
+    selectWrapper: "",
+    other: "sv_q_dd_other"
+  },
+  matrix: {
+    root: "sv-table",
+    cell: "sv-table__cell",
+    headerCell: "sv-table__cell sv-table__cell--header",
+    itemValue: " sv-check-item sv-radio sv-matrix__control",
+    cellText: "sv-matrix__cell-text",
+    cellTextSelected: "sv-matrix__cell-text--selected",
+  }
 };
 
 surveyCss["bem"] = bemCss;

@@ -7,7 +7,7 @@
                 <tr>
                     <td data-bind="visible: question.hasRows"></td>
                     <!-- ko foreach: question.koVisibleColumns -->
-                    <th>
+                    <th data-bind="css: question.koCss().headerCell">
                         <!-- ko template: { name: 'survey-string', data: locText } -->
                         <!-- /ko -->
                     </th>
@@ -18,19 +18,19 @@
           <tbody>
               <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
               <tr data-bind="css: question.koCss().row">
-                  <td data-bind="visible: question.hasRows">
+                  <td data-bind="visible: question.hasRows, css: question.koCss().cell">
                       <!-- ko template: { name: 'survey-string', data: row.locText } -->
                       <!-- /ko -->
                   </td>
                   <!-- ko foreach: question.koVisibleColumns -->
                   <!-- ko if: question.hasCellText -->
-                  <td data-bind="css: question.getItemCss(row, $data), click: function() { if(!question.isReadOnly) {row.koCellClick($data); } }">
+                  <td data-bind="css: question.koCss().cell + ' '+ question.getItemCss(row, $data), click: function() { if(!question.isReadOnly) {row.koCellClick($data); } }">
                       <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
                       <!-- /ko -->
                   </td>
                   <!-- /ko -->
                   <!-- ko if: !question.hasCellText -->
-                  <td data-bind="attr: { headers: $data.locText.renderedHtml }">
+                  <td data-bind="attr: { headers: $data.locText.renderedHtml }, css: question.koCss().cell">
                       <label data-bind="css: question.getItemCss(row, $data)">
                           <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.isReadOnly"
                           />

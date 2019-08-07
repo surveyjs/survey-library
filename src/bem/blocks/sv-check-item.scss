@@ -1,0 +1,27 @@
+.sv-check-item {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0.21em solid;
+    border-color: $main-black-color;
+    opacity: 0.5;
+    position: relative;
+}
+.sv-check-item:checked {
+    opacity: 1;
+}
+.sv-check-item:after {
+    display: none;
+    left: 50%;
+    margin-right: -50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%); 
+}
+.sv-check-item:checked:after,
+.sv-check-item:hover:after {
+    display: initial;
+}
+.sv-check-item:focus {
+    outline: solid 0.07em #19ab8d;;
+    outline-offset: 0.214em;
+}

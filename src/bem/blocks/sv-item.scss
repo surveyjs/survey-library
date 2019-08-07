@@ -1,14 +1,14 @@
 .sv-item__control {
     appearance: none;
     -webkit-appearance: none;
-    border: 3px solid;
+    border: 0.21em solid;
     border-color: $main-black-color;
-    height: 1.71px;
-    margin: 0;
+    height: 1.71em;
+    margin: 0em;
     opacity: 0.5;
     position: relative;
     vertical-align: middle;
-    width: 24px;
+    width: 1.71em;
 }
 .sv-item__control:checked {
     opacity: 1;

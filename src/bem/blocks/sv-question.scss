@@ -9,8 +9,8 @@
     max-width: 43%;
     margin: 0.5em 0;
     padding-left: 0.5em;
-    padding-top: 5px;
-    padding-bottom: 5px;
+    padding-top: 0.36em;
+    padding-bottom: 0.36em;
 }
 .sv-question__title-container--error{
     background-color:rgba(213, 41, 1, 0.2)
@@ -20,15 +20,15 @@
     margin: 0;
    }
 .sv-question__input {
-    height: calc(2em + 1px);
+    height: calc(2em + 0.07em);
     max-width: calc(43% - 17px);
     width: 100%;
  }
 .sv-question__content {
-    padding-left: 27px;
+    padding-left: 1.93em;
 }
 .sv-question {
-    padding: 0px;
+    padding: 0;
 }
 .sv-question__erbox {
     color: $error-color;

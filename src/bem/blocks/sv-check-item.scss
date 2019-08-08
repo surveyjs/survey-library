@@ -21,9 +21,10 @@
 }
 .sv-check-item:checked:after,
 .sv-check-item:hover:after {
-    display: initial;
+    display: inline-block;
 }
 .sv-check-item:focus {
-    outline: solid 0.07em #19ab8d;;
-    outline-offset: 0.214em;
+    box-shadow: 0 0 0 0.21em white, 
+                0 0 0 0.28em#19ab8d;
+    outline: unset;
 }

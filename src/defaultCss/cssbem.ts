@@ -49,10 +49,10 @@ export var bemCss = {
   },
   checkbox: {
     root: "sv-select-base",
-    item: "sv-item sv-select-base__item",
+    item: "sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: "sv-check-item sv-checkbox  sv-item__control",
-    controlLabel: "sv-item__control-label",
+    itemControl: "sv-check-item sv-checkbox  sv-select-base__control",
+    controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
     other: "",
     column: "sv-select-base__column"
@@ -61,8 +61,8 @@ export var bemCss = {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
     label: "sv-label sv-select-base__label",
-    itemControl: "sv-check-item  sv-radio sv-item__control",
-    controlLabel: "sv-item__control-label",
+    itemControl: "sv-check-item  sv-radio sv-select-base__control",
+    controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
     other: "",
     clearButton: "",
@@ -74,6 +74,11 @@ export var bemCss = {
     control: "sv-dropdown sv-question__input",
     selectWrapper: "",
     other: "sv_q_dd_other"
+  },
+  matrixdropdown: {
+    root: "sv-table",
+    cell: "sv-table__cell",
+    headerCell: "sv-table__cell sv-table__cell--header",
   },
   matrix: {
     root: "sv-table",

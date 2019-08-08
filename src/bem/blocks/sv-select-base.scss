@@ -15,3 +15,11 @@
 .sv-select-base__label{
     display: inline-block;
 }
+.sv-select-base__control {
+    margin: 0;
+    vertical-align: middle;
+}
+.sv-select-base__control-label {     
+    margin-left: 1em;     
+    vertical-align: middle;           
+}

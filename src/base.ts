@@ -896,9 +896,8 @@ export class Event<T extends Function, Options> {
     this.callbacks.push(func);
   }
   public remove(func: T) {
-    if (this.callbacks == null) return;
-    var index = this.callbacks.indexOf(func, 0);
-    if (index != undefined) {
+    if (this.hasFunc(func)) {
+      var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
     }
   }

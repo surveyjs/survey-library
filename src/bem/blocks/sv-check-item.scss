@@ -10,19 +10,7 @@
 }
 .sv-check-item:checked {
     opacity: 1;
-}
-.sv-check-item:after {
-    display: none;
-    left: 50%;
-    margin-right: -50%;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%); 
-}
-.sv-check-item:checked:after,
-.sv-check-item:hover:after {
-    display: inline-block;
-}
+}   
 .sv-check-item:focus {
     box-shadow: 0 0 0 0.21em white, 
                 0 0 0 0.28em#19ab8d;

@@ -7,9 +7,6 @@ import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 export class QuestionImagePicker extends QuestionImagePickerModel {
   constructor(public name: string) {
     super(name);
-  }
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
     new QuestionCheckboxBaseImplementor(this);
   }
   getItemClass(item: any) {

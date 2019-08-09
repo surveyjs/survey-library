@@ -50,7 +50,8 @@ export var bemCss = {
   checkbox: {
     root: "sv-select-base",
     item: "sv-select-base__item",
-    label: "sv-label sv-select-base__label",
+    itemInline: "sv-select-base__item--inline",
+    label: "sv-select-base__label",
     itemControl: "sv-check-item sv-checkbox  sv-select-base__control",
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
@@ -60,7 +61,8 @@ export var bemCss = {
   radiogroup: {
     root: "sv-select-base",
     item: "sv-item sv-select-base__item",
-    label: "sv-label sv-select-base__label",
+    itemInline: "sv-select-base__item--inline",
+    label: "sv-select-base__label",
     itemControl: "sv-check-item  sv-radio sv-select-base__control",
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",

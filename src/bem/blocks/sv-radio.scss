@@ -1,3 +1,8 @@
 .sv-radio {
 	border-radius: 50%;
+	background-size: 0.71em 0.71em;
+}
+.sv-radio:hover,
+.sv-radio:checked {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0'%3F%3E%3Csvg viewBox='0 0 120 120' version='1.1' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='60' cy='60' r='50'/%3E%3C/svg%3E");
 }

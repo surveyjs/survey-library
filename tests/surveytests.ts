@@ -3268,6 +3268,22 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "Survey text preprocessing, zero value, issue https://surveyjs.answerdesk.io/ticket/details/t2493",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {type: "text", name: "q1", inputType: "number"},
+        {type: "text", name: "q2", title: "q1={q1}" }
+      ]
+    });
+    var q1 = <Question>survey.getQuestionByName("q1");
+    var q2 = <Question>survey.getQuestionByName("q2");
+    q1.value = 0;
+    assert.equal(q1.getDisplayValue(false), "0", "Return correct display value");
+    assert.equal(q2.locTitle.renderedHtml, "q1=0", "Not is not a null");
+  });
+
 QUnit.test("Survey text preprocessing, matrix, issue #499", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

@@ -77,7 +77,7 @@ QUnit.test("ProcessValue getFirstName witht object", function(assert) {
 });
 QUnit.test("ProcessValue getValue/hasValue, nested values", function(assert) {
   var process = new ProcessValue();
-  var value = { a: 1, b: { d: 2 }, c: { e: { f: 3 } } };
+  var value = { a: 1, b: { d: 2 }, c: { e: { f: 3 } }, g: 0 };
   assert.equal(process.getValue("a", value), 1, "a=1");
   assert.equal(process.getValue("b.d", value), 2, "b.d=2");
   assert.equal(process.getValue("c.e.f", value), 3, "c.e.f=3");
@@ -88,6 +88,8 @@ QUnit.test("ProcessValue getValue/hasValue, nested values", function(assert) {
   assert.equal(process.hasValue("c", value), true);
   assert.equal(process.hasValue("c.e", value), true);
   assert.equal(process.hasValue("c.e.f", value), true);
+  assert.equal(process.hasValue("g", value), true);
+  assert.equal(process.getValue("g", value), 0);
 });
 
 QUnit.test("ProcessValue getValue/hasValue, arrays and nested values", function(

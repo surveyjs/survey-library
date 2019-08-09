@@ -30,7 +30,7 @@ export var bemCss = {
     content: "sv-question__content",
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",
-    titleOnError: "sv-question__title-container--error",
+    titleContainerOnError: "sv-question__title-container--error",
     title: "sv-title sv-question__title",
     number: "sv-question__num",
     description: "sv-question__description",

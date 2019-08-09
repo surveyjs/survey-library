@@ -15,7 +15,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
-          ? " sv_q_radiogroup_inline"
+          ? this.cssClasses().itemInline
           : " sv-q-col-" + this.colCount;
     }
 
@@ -24,7 +24,7 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   }
 }
 
-Serializer.overrideClassCreator("radiogroup", function() {
+Serializer.overrideClassCreator("radiogroup", function () {
   return new QuestionRadiogroup("");
 });
 

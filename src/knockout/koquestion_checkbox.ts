@@ -22,7 +22,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     new QuestionCheckboxImplementor(this);
     this.koAllSelected = ko.observable(this.isAllSelected);
     var self = this;
-    this.koAllSelected.subscribe(function(newValue: any) {
+    this.koAllSelected.subscribe(function (newValue: any) {
       if (self.isAllSelectedUpdating) return;
       if (newValue) self.selectAll();
       else self.clearValue();
@@ -49,7 +49,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
-          ? " sv_q_checkbox_inline"
+          ? this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
 
@@ -59,7 +59,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   }
 }
 
-Serializer.overrideClassCreator("checkbox", function() {
+Serializer.overrideClassCreator("checkbox", function () {
   return new QuestionCheckbox("");
 });
 QuestionFactory.Instance.registerQuestion("checkbox", name => {

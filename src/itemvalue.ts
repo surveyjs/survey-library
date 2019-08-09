@@ -323,14 +323,16 @@ export class ItemValue extends Base {
   }
 }
 
-Base.createItemValue = function(dest: any): any {
+Base.createItemValue = function(source: any, type?: string): any {
   var item = null;
-  if (typeof dest.getType === "function") {
-    item = new ItemValue(null, undefined, dest.getType());
+  if (!!type) {
+    item = JsonObject.metaData.createClass(type, {});
+  } else if (typeof source.getType === "function") {
+    item = new ItemValue(null, undefined, source.getType());
   } else {
     item = new ItemValue(null);
   }
-  item.setData(dest);
+  item.setData(source);
   return item;
 };
 Base.itemValueLocStrChanged = function(arr: Array<any>): void {

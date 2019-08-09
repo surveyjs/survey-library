@@ -210,7 +210,7 @@ export class Base {
   public static set commentPrefix(val: string) {
     settings.commentPrefix = val;
   }
-  public static createItemValue: (item: any) => any;
+  public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
    * A static methods that returns true if a value underfined, null, empty string or empty array.
@@ -585,6 +585,9 @@ export class Base {
 
     return newArray;
   }
+  protected getItemValueType(): string {
+    return undefined;
+  }
   protected setArray(
     src: any[],
     dest: any[],
@@ -602,7 +605,7 @@ export class Base {
       var item = dest[i];
       if (isItemValues) {
         if (!!Base.createItemValue) {
-          item = Base.createItemValue(item);
+          item = Base.createItemValue(item, this.getItemValueType());
         }
       }
       Object.getPrototypeOf(src).push.call(src, item);

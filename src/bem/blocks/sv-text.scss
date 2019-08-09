@@ -1,21 +1,20 @@
 .sv-text {
-    background-color: transparent;
-    border: unset;
-    border-bottom: 0.07em solid #d4d4d4;
-    box-sizing: border-box;
-    font-size: 1em;
-    font-family: inherit;
-    padding-left: 1em;
+	background-color: transparent;
+	border: unset;
+	border-bottom: 0.07em solid #d4d4d4;
+	box-sizing: border-box;
+	font-size: 1em;
+	font-family: inherit;
+	padding-left: 1em;
 }
 .sv-text:focus {
-    border-color: $main-color;
-    outline: unset;
+	border-color: $main-color;
+	outline: unset;
 }
 .sv-text--error {
-    color: $error-color;
-    border-color: $error-color;
+	color: $error-color;
+	border-color: $error-color;
 }
 .sv-text--error::placeholder {
-    color: $error-color;
- }
- 
+	color: $error-color;
+}

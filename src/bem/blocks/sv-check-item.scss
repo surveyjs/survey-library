@@ -1,18 +1,17 @@
 .sv-check-item {
-    appearance: none;
-    -webkit-appearance: none;
-    border: 0.21em solid;
-    border-color: $main-black-color;
-    height: 1.7em;
-    opacity: 0.5;
-    position: relative;
-    width: 1.7em;
+	appearance: none;
+	-webkit-appearance: none;
+	border: 0.21em solid;
+	border-color: $main-black-color;
+	height: 1.7em;
+	opacity: 0.5;
+	position: relative;
+	width: 1.7em;
 }
 .sv-check-item:checked {
-    opacity: 1;
-}   
+	opacity: 1;
+}
 .sv-check-item:focus {
-    box-shadow: 0 0 0 0.21em white, 
-                0 0 0 0.28em#19ab8d;
-    outline: unset;
+	box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+	outline: unset;
 }

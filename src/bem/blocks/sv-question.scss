@@ -25,6 +25,11 @@
 	max-width: calc(43% - 17px);
 	width: 100%;
 }
+.sv-question--cell {
+	.sv-question__input {
+		max-width: unset;
+	}
+}
 .sv-question__content {
 	padding-left: 1.93em;
 }

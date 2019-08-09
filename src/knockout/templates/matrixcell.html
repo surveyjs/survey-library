@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-matrixcell">
-  <td data-bind="css: question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
+  <td data-bind="css: question.koCss().asCell  + ' ' + question.koCss().itemValue + (question.errors.length > 0 ? ' ' + question.koCss().hasError : ''), attr: { headers: question.isVisible ? question.locTitle.renderedHtml : '' }">
       <div data-bind="visible: question.isVisible">
           <!-- ko if: question.survey.questionErrorLocation == 'top' -->
             <div data-bind="css: question.koCss().error.locationTop">

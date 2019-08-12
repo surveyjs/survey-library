@@ -2,11 +2,11 @@
 	box-sizing: border-box;
 	font-family: "Segoe UI";
 	overflow: auto;
+	padding: 0.5em 1em 1.5em 1em;
 }
 .sv-question__title-container {
 	background-color: transparent;
 	box-sizing: border-box;
-	max-width: 43%;
 	margin: 0;
 	margin-bottom: 0.92em;
 	padding-left: 0.5em;
@@ -15,13 +15,13 @@
 }
 .sv-question--has-answer {
 	.sv-question__title-container {
-	background-color: rgba(26, 179, 148, 0.2);
-}
+		background-color: rgba(26, 179, 148, 0.2);
+	}
 }
 .sv-question--has-error {
 	.sv-question__title-container {
-	background-color: rgba(213, 41, 1, 0.2);
-}
+		background-color: rgba(213, 41, 1, 0.2);
+	}
 	.sv-question__input {
 		color: $error-color;
 		border-color: $error-color;
@@ -36,19 +36,11 @@
 }
 .sv-question__input {
 	height: calc(2em + 0.07em);
-	max-width: calc(43% - 17px);
 	width: 100%;
 }
-.sv-question--cell {
-	.sv-question__input {
-		max-width: unset;
-	}
-}
+
 .sv-question__content {
 	padding-left: 1.93em;
-}
-.sv-question {
-	padding: 0;
 }
 .sv-question__erbox {
 	color: $error-color;

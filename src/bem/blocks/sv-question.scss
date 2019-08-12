@@ -13,23 +13,6 @@
 	padding-top: 0.36em;
 	padding-bottom: 0.36em;
 }
-.sv-question--has-answer {
-	.sv-question__title-container {
-		background-color: rgba(26, 179, 148, 0.2);
-	}
-}
-.sv-question--has-error {
-	.sv-question__title-container {
-		background-color: rgba(213, 41, 1, 0.2);
-	}
-	.sv-question__input {
-		color: $error-color;
-		border-color: $error-color;
-	}
-	.sv-question__input::placeholder {
-		color: $error-color;
-	}
-}
 .sv-question__title {
 	font-size: 1.3em;
 	margin: 0;
@@ -50,4 +33,21 @@
 .sv-question__erbox--location--top {
 }
 .sv-question__erbox--location--bottom {
+}
+.sv-question--has-answer {
+	.sv-question__title-container {
+		background-color: rgba(26, 179, 148, 0.2);
+	}
+}
+.sv-question--has-error {
+	.sv-question__title-container {
+		background-color: rgba(213, 41, 1, 0.2);
+	}
+	.sv-question__input {
+		color: $error-color;
+		border-color: $error-color;
+	}
+	.sv-question__input::placeholder {
+		color: $error-color;
+	}
 }

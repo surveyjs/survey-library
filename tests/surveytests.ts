@@ -2552,7 +2552,32 @@ QUnit.test("visibleIf, bug#729", function(assert) {
   q1.value = "false";
   assert.equal(q2.visible, false, "q2 should be invisible again");
 });
-
+QUnit.test("visibleIf, Does not work with 0, bug#1792", function(assert) {
+  var survey = new SurveyModel({
+    "elements": [{
+      "type": "radiogroup",
+      "name": "q1",
+      "choices": ["0", "1", "2"]
+    },{
+      "type": "radiogroup",
+      "name": "q2",
+      "choices": [0, 1, 2]
+    }, {
+      "type": "comment",
+      "name": "q3",
+      "visibleIf": "{q1} notempty"
+    }, {
+      "type": "comment",
+      "name": "q4",
+      "visibleIf": "{q2} notempty"
+    }]
+  });
+  var q3 = <Question>survey.getQuestionByName("q3");
+  var q4 = <Question>survey.getQuestionByName("q4");
+  survey.data = {q1: "0", q2: 0};
+  assert.equal(q3.isVisible, true, "'0' is not empty");
+  assert.equal(q4.isVisible, true, "0 is not empty");
+});
 QUnit.test("visibleIf, allow dot in question name", function(assert) {
   var survey = new SurveyModel({
     questions: [

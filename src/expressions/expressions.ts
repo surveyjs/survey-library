@@ -272,8 +272,7 @@ export class OperandMaker {
 
   static unaryFunctions: HashTable<Function> = {
     empty: function(value: any): boolean {
-      if (value == null) return true;
-      return !value;
+      return Helpers.isValueEmpty(value);
     },
     notempty: function(value: any): boolean {
       return !OperandMaker.unaryFunctions.empty(value);

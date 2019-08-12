@@ -13,11 +13,15 @@
 	padding-top: 0.36em;
 	padding-bottom: 0.36em;
 }
-.sv-question__title-container--answered {
+.sv-question--has-answer {
+	.sv-question__title-container {
 	background-color: rgba(26, 179, 148, 0.2);
 }
-.sv-question__title-container--error {
+}
+.sv-question--has-error {
+	.sv-question__title-container {
 	background-color: rgba(213, 41, 1, 0.2);
+}
 }
 .sv-question__title {
 	font-size: 1.3em;

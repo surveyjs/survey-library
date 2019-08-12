@@ -500,6 +500,9 @@ export class Question extends SurveyElement
     if (!this.isFlowLayout && this.getTitleLocation() == "left") {
       res += " " + classes.titleLeftRoot;
     }
+    if (this.value) {
+      res += " " + classes.hasAnswer;
+    }
     if (this.errors.length > 0) {
       res += " " + classes.hasError;
     }

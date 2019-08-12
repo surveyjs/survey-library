@@ -11,10 +11,3 @@
 	border-color: $main-color;
 	outline: unset;
 }
-.sv-text--error {
-	color: $error-color;
-	border-color: $error-color;
-}
-.sv-text--error::placeholder {
-	color: $error-color;
-}

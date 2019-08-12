@@ -519,6 +519,24 @@ export class PanelModelBase extends SurveyElement
     return null;
   }
   /**
+   * Call it to focus the input on the first question
+   */
+  public focusFirstQuestion() {
+    var q = this.getFirstQuestionToFocus();
+    if (!!q) {
+      q.focus();
+    }
+  }
+  /**
+   * Call it to focus the input of the first question that has an error.
+   */
+  public focusFirstErrorQuestion() {
+    var q = this.getFirstQuestionToFocus(true);
+    if (!!q) {
+      q.focus();
+    }
+  }
+  /**
    * Fill list array with the questions.
    * @param list
    * @param visibleOnly set it to true to get visible questions only

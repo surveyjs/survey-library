@@ -139,24 +139,6 @@ export class PageModel extends PanelModelBase implements IPage {
     this.setPropertyValue("questionsOrder", val);
   }
   /**
-   * Call it to focus the input on the first question
-   */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
-    if (!!q) {
-      q.focus();
-    }
-  }
-  /**
-   * Call it to focus the input of the first question that has an error.
-   */
-  public focusFirstErrorQuestion() {
-    var q = this.getFirstQuestionToFocus(true);
-    if (!!q) {
-      q.focus();
-    }
-  }
-  /**
    * Call it to scroll to the page top.
    */
   public scrollToTop() {

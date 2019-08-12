@@ -6,12 +6,8 @@
 	border: 0.21em solid;
 	border-color: $main-black-color;
 	height: 1.8em;
-	opacity: 0.5;
 	position: relative;
 	width: 1.8em;
-}
-.sv-check-item:checked {
-	opacity: 1;
 }
 .sv-check-item:focus {
 	box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;

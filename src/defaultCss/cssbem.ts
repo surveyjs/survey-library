@@ -1,7 +1,7 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
   root: "sv-main",
-  header: "sv-header",
+  header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-container__sv-footer sv-footer",
@@ -30,6 +30,7 @@ export var bemCss = {
     content: "sv-question__content",
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",
+    titleContainerOnAnswer: "sv-question__title-container--answered",
     titleContainerOnError: "sv-question__title-container--error",
     title: "sv-title sv-question__title",
     number: "sv-question__num",
@@ -39,7 +40,7 @@ export var bemCss = {
     titleRequired: "sv-question__title--required",
     hasError: "sv-question--has-error",
     indent: 20,
-    footer: "sv-question__footer"
+    footer: "sv-question__footer",
   },
   error: {
     root: "",
@@ -64,7 +65,7 @@ export var bemCss = {
     item: "sv-item sv-select-base__item",
     itemInline: "sv-select-base__item--inline",
     label: "sv-select-base__label",
-    itemControl: "sv-check-item  sv-radio sv-select-base__control",
+    itemControl: "sv-check-item sv-radio sv-select-base__control",
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
     other: "",
@@ -79,7 +80,7 @@ export var bemCss = {
     other: "sv_q_dd_other"
   },
   matrixdropdown: {
-    root: "sv-table",
+    root: "sv-table sv-matrix-dropdown",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
   },

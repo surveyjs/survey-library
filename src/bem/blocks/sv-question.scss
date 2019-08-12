@@ -4,7 +4,7 @@
 	overflow: auto;
 }
 .sv-question__title-container {
-	background-color: rgba(26, 179, 148, 0.2);
+	background-color: transparent;
 	box-sizing: border-box;
 	max-width: 43%;
 	margin: 0;
@@ -12,6 +12,9 @@
 	padding-left: 0.5em;
 	padding-top: 0.36em;
 	padding-bottom: 0.36em;
+}
+.sv-question__title-container--answered {
+	background-color: rgba(26, 179, 148, 0.2);
 }
 .sv-question__title-container--error {
 	background-color: rgba(213, 41, 1, 0.2);

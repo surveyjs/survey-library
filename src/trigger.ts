@@ -361,8 +361,8 @@ Serializer.addClass(
   "surveytrigger"
 );
 Serializer.addClass(
-  "runExpressiontrigger",
-  ["setToName", "runExpression"],
+  "runexpressiontrigger",
+  ["setToName", "runExpression:expression"],
   function() {
     return new SurveyTriggerRunExpression();
   },

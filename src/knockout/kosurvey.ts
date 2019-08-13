@@ -179,7 +179,7 @@ export class Survey extends SurveyModel {
     this.render();
   }
   public koEventAfterRender(element: any, survey: any) {
-    survey.onRendered.fire(self, {});
+    survey.onRendered.fire(this, {});
     survey.afterRenderSurvey(element);
   }
   public loadSurveyFromService(

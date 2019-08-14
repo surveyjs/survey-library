@@ -7,7 +7,7 @@ $body-background-color: white;
 $inputs-background-color: $body-background-color;
 $text-color: #404040;
 $header-color: $text-color;
-$border-color: $header-background-color;
+$border-color: $text-color;
 $error-color: #d52901;
 $error-background-color: lighten($error-color, 30%);
 

@@ -18,17 +18,16 @@
 	margin: 0;
 }
 .sv-question__input {
-	height: calc(2em + 0.07em);
+	height: 2.07em;
 	width: 100%;
 }
-
 .sv-question__content {
 	padding-left: 1.93em;
 }
 .sv-question__erbox {
 	color: $error-color;
 	font-weight: bold;
-	font-size: 12px;
+	font-size: 0.85em;
 }
 .sv-question__erbox--location--top {
 }

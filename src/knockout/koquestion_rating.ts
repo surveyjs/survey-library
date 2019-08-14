@@ -24,7 +24,7 @@ class QuestionRatingImplementor extends QuestionImplementor {
     (<any>this.question)["koGetCss"] = (val: any) => {
       var css = self.question.cssClasses.item;
       var selected = self.question.cssClasses.selected;
-      return this.question.value === val.value ? css + " " + selected : css;
+      return this.question.value == val.value ? css + " " + selected : css;
     };
   }
   protected onRateValuesChanged() {

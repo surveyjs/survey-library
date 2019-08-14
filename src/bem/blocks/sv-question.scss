@@ -35,12 +35,12 @@
 }
 .sv-question--has-answer {
 	.sv-question__title-container {
-		background-color: rgba(26, 179, 148, 0.2);
+		background-color: $answer-background-color;
 	}
 }
 .sv-question--has-error {
 	.sv-question__title-container {
-		background-color: rgba(213, 41, 1, 0.2);
+		background-color: $error-background-color;
 	}
 	.sv-question__input {
 		color: $error-color;

@@ -5,8 +5,8 @@
 }
 .sv-checkbox:checked:disabled,
 .sv-checkbox:hover:enabled {
-	background-color: #9f9f9f;
-	border-color: #9f9f9f;
+	background-color: $main-hover-color;
+	border-color: $main-hover-color;
 }
 .sv-checkbox:checked:enabled {
 	background-color: $main-color;

@@ -2,13 +2,13 @@ $header-background-color: #e7e7e7;
 $body-container-background-color: #f4f4f4;
 
 $main-color: #1ab394;
-$main-hover-color: darken($main-color, 5%);
+$main-hover-color: #9f9f9f;
+$main-black-color: #404040;
 $body-background-color: white;
 $inputs-background-color: $body-background-color;
 $text-color: #6d7072;
 $header-color: $text-color;
 $border-color: $header-background-color;
-$main-black-color: #404040;
 $error-color: #d52901;
 $error-background-color: lighten($error-color, 30%);
 

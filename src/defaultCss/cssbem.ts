@@ -82,6 +82,16 @@ export var bemCss = {
     selectWrapper: "",
     other: "sv_q_dd_other"
   },
+  imagepicker: {
+    root: "sv-imagepicker sv-question",
+    item: "sv-imagepicker__item",
+    itemInline: "sv-imagepicker__item--inline",
+    label: "",
+    itemControl: "sv-imagepicker__control",
+    image: "sv-imagepicker__image",
+    itemText: "sv-imagepicker__text",
+    clearButton: ""
+  },
   matrixdropdown: {
     root: "sv-table sv-matrix-dropdown",
     cell: "sv-table__cell",

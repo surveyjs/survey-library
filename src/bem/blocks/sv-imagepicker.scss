@@ -1,0 +1,22 @@
+.sv-imagepicker__item {
+  border: none;
+  padding: 0.28em;
+}
+.sv-imagepicker__item:hover {
+  background-color: $main-hover-color;
+}
+//TODO
+.sv-imagepicker__item.checked {
+  background-color: $main-color;
+}
+.sv-imagepicker__item--inline {
+  display: inline-block;
+}
+.sv-imagepicker__item--inline:not(:last-child) {
+  margin-right: 1.5em;
+}
+.sv-imagepicker__image {
+  display: block;
+}
+.sv-imagepicker__text {
+}

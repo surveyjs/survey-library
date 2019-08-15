@@ -9,7 +9,8 @@ import {
   SurveyTriggerComplete,
   SurveyTriggerSetValue,
   SurveyTriggerCopyValue,
-  SurveyTriggerRunExpression
+  SurveyTriggerRunExpression,
+  SurveyTriggerSkip
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
@@ -1630,6 +1631,16 @@ QUnit.test("RunExpression trigger test", function(assert) {
   trigger.setToName = "";
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), 5, "value is still 5");
+});
+QUnit.test("Skip trigger test", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSkip();
+  survey.triggers.push(trigger);
+  trigger.expression = "{question1} = 'Hello'";
+  trigger.gotoName = "question4";
+  assert.equal(survey.currentPageNo, 0, "the first page is active");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.currentPageNo, 1, "the second page is active now");
 });
 QUnit.test(
   "RunExpression trigger test with custom function, bug#T1734",

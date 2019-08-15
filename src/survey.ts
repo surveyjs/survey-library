@@ -2542,7 +2542,7 @@ export class SurveyModel extends Base
   public getQuestionByName(
     name: string,
     caseInsensitive: boolean = false
-  ): IQuestion {
+  ): Question {
     var hash: HashTable<any> = !!caseInsensitive
       ? this.questionHashes.namesInsensitive
       : this.questionHashes.names;
@@ -3787,6 +3787,13 @@ export class SurveyModel extends Base
     var processor = new ProcessValue();
     var value = processor.getValue(fromName, this.getFilteredValues());
     this.setTriggerValue(name, value, false);
+  }
+  focusQuestion(name: string): boolean {
+    var question = this.getQuestionByName(name, true);
+    if(!question || !question.isVisible || !question.page) return false;
+    this.currentPage = question.page;
+    question.focus();
+    return true;
   }
 }
 

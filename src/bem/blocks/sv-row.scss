@@ -1,4 +1,7 @@
 .sv-row__question {
-	display: inline-block;
-	vertical-align: top;
+  display: inline-block;
+  vertical-align: top;
+}
+.sv-row__question--small:only-child {
+  max-width: 50%;
 }

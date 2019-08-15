@@ -2,9 +2,11 @@
   background-color: rgba(159, 159, 159, 0.1);
 }
 .sv-table__cell {
+  width: 10%;
   padding: 1em;
 }
 .sv-table__cell--header {
   font-family: Raleway;
   font-weight: bold;
+  text-align: left;
 }

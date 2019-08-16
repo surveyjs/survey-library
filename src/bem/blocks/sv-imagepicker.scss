@@ -1,22 +1,23 @@
 .sv-imagepicker__item {
-	border: none;
-	padding: 0.28em;
+  border: none;
+  padding: 0.28em;
 }
 .sv-imagepicker__item:hover {
-	background-color: $main-hover-color;
+  background-color: $main-hover-color;
 }
 //TODO
 .sv-imagepicker__item.checked {
-	background-color: $main-color;
+  background-color: $main-color;
 }
 .sv-imagepicker__item--inline {
-	display: inline-block;
+  display: inline-block;
 }
 .sv-imagepicker__item--inline:not(:last-child) {
-	margin-right: 5%;
+  margin-right: 5%;
 }
 .sv-imagepicker__image {
-	display: block;
+  display: block;
 }
 .sv-imagepicker__text {
+  font-size: 1.14em;
 }

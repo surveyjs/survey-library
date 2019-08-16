@@ -118,7 +118,6 @@ export var bemCss = {
     itemText: "",
     maxText: ""
   },
-  text: "",
   expression: "",
   file: {
     root: "",

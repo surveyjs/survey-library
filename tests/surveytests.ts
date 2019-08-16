@@ -180,10 +180,26 @@ QUnit.test("Do not show errors in display mode", function(assert) {
   survey.mode = "display";
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo,
+    1,
     "Can move into another page"
   );
+});
+
+QUnit.test("Do not show errors if survey.ignoreValidation = true", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  
+  (<Question>survey.pages[0].questions[0]).isRequired = true;
+  (<Question>survey.pages[1].questions[0]).isRequired = true;
+  survey.ignoreValidation = true;
+  survey.nextPage();
+  assert.equal(
+    survey.currentPageNo,
+    1,
+    "Can move into another page"
+  );
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed", "Can complete survey with erros")
 });
 
 QUnit.test("Check pages state on onValueChanged event", function(assert) {

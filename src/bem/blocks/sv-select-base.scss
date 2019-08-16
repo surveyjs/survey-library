@@ -18,6 +18,10 @@
 }
 .sv-select-base__label {
 	display: inline-block;
+	width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .sv-select-base__control {
 	margin: 0;

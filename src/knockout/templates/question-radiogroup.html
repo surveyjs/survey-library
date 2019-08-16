@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-radiogroup">
+<script type="text/html" id="survey-question-radiogroup">
   <fieldset data-bind="css: question.koCss().root">
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
@@ -31,7 +31,7 @@
           />
           <span data-bind="css: question.koCss().materialDecorator"></span>
           <span class="check"></span>
-          <span data-bind="css: question.koCss().controlLabel">
+          <span data-bind="css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
               <!-- ko template: { name: 'survey-string', data: item.locText } -->
               <!-- /ko -->
           </span>

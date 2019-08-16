@@ -13,6 +13,11 @@ export var bemCss = {
     next: "sv-btn sv-footer__btn--location--right",
     start: "sv-btn sv-footer__btn--location--right"
   },
+  panel: {
+    title: "",
+    description: "",
+    container: ""
+  },
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
   page: {
@@ -104,6 +109,41 @@ export var bemCss = {
     itemValue: " sv-check-item sv-radio sv-matrix__control",
     cellText: "sv-matrix__cell-text",
     cellTextSelected: "sv-matrix__cell-text--selected"
+  },
+  rating: {
+    root: "",
+    item: "",
+    selected: "",
+    minText: "",
+    itemText: "",
+    maxText: ""
+  },
+  expression: "",
+  file: {
+    root: "",
+    placeholderInput: "",
+    preview: "",
+    removeButton: "",
+    fileInput: "",
+    removeFile: ""
+  },
+  saveData: {
+    root: "",
+    saving: "",
+    error: "",
+    success: "",
+    saveAgainButton: ""
+  },
+  window: {
+    root: "",
+    body: "",
+    header: {
+      root: "",
+      title: "",
+      button: "",
+      buttonExpanded: "",
+      buttonCollapsed: ""
+    }
   }
 };
 

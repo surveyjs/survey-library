@@ -97,11 +97,6 @@ export var bemCss = {
     itemText: "sv-imagepicker__text",
     clearButton: "sv-btn"
   },
-  matrixdropdown: {
-    root: "sv-table sv-matrix-dropdown",
-    cell: "sv-table__cell",
-    headerCell: "sv-table__cell sv-table__cell--header"
-  },
   matrix: {
     root: "sv-table",
     cell: "sv-table__cell",
@@ -109,6 +104,21 @@ export var bemCss = {
     itemValue: " sv-check-item sv-radio sv-matrix__control",
     cellText: "sv-matrix__cell-text",
     cellTextSelected: "sv-matrix__cell-text--selected"
+  },
+  matrixdropdown: {
+    root: "sv-table sv-matrix-dropdown",
+    cell: "sv-table__cell",
+    headerCell: "sv-table__cell sv-table__cell--header"
+  },
+  matrixdynamic: {
+    root: "sv-table sv-matrixdynamic",
+    cell: "sv-table__cell",
+    headerCell: "sv-table__cell sv-table__cell--header",
+    button: "sv-btn",
+    buttonAdd: "sv-btn sv-matrixdynamic__btn--add",
+    buttonRemove: "sv-btn v-matrixdynamic__btn--remove",
+    iconAdd: "",
+    iconRemove: ""
   },
   rating: {
     root: "",

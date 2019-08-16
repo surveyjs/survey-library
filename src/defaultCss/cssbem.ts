@@ -39,7 +39,7 @@ export var bemCss = {
     hasError: "sv-question--has-error",
     hasAnswer: "sv-question--has-answer",
     indent: 20,
-    footer: "sv-question__footer",
+    footer: "sv-question__footer"
   },
   error: {
     root: "",
@@ -71,17 +71,31 @@ export var bemCss = {
     clearButton: "",
     column: "sv-select-base__column"
   },
-  text: "sv-text sv-question__input",
+  text: {
+    root: "sv-text sv-question__input",
+    small: "sv-row__question--small"
+  },
   dropdown: {
+    small: "sv-row__question--small",
     root: "",
     control: "sv-dropdown sv-question__input",
     selectWrapper: "",
     other: "sv_q_dd_other"
   },
+  imagepicker: {
+    root: "sv-imagepicker sv-question",
+    item: "sv-imagepicker__item",
+    itemInline: "sv-imagepicker__item--inline",
+    label: "",
+    itemControl: "sv-imagepicker__control",
+    image: "sv-imagepicker__image",
+    itemText: "sv-imagepicker__text",
+    clearButton: ""
+  },
   matrixdropdown: {
     root: "sv-table sv-matrix-dropdown",
     cell: "sv-table__cell",
-    headerCell: "sv-table__cell sv-table__cell--header",
+    headerCell: "sv-table__cell sv-table__cell--header"
   },
   matrix: {
     root: "sv-table",
@@ -89,7 +103,7 @@ export var bemCss = {
     headerCell: "sv-table__cell sv-table__cell--header",
     itemValue: " sv-check-item sv-radio sv-matrix__control",
     cellText: "sv-matrix__cell-text",
-    cellTextSelected: "sv-matrix__cell-text--selected",
+    cellTextSelected: "sv-matrix__cell-text--selected"
   }
 };
 

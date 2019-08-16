@@ -1,15 +1,15 @@
 .sv-check-item {
-	appearance: none;
-	-webkit-appearance: none;
-	background-repeat: no-repeat;
-	background-position: center;
-	border: 0.21em solid;
-	border-color: $border-color;
-	height: 1.8em;
-	position: relative;
-	width: 1.8em;
+  appearance: none;
+  -webkit-appearance: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 0.21em solid;
+  border-color: $border-color;
+  height: 1.8em;
+  position: relative;
+  width: 1.8em;
 }
 .sv-check-item:focus {
-	box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
-	outline: none;
+  box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+  outline: none;
 }

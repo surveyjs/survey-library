@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-  <div data-bind="css: question.koRootClass, style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
+  <div data-bind="css: question.koRootClass() + (question.koCss().small ? ' ' + question.koCss().small: ''), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
       <div data-bind="css: {'title-left': question.hasTitleOnLeft}">
           <!-- ko if: question.hasTitleOnLeftTop -->
           <!--ko template: { name: 'survey-question-title', data: question  } -->
@@ -7,7 +7,7 @@
           <!-- /ko -->
       </div>
     
-      <div data-bind="css: 'sv-question__content' + (question.hasTitleOnLeft ? ' ' + 'content-left' : '')">
+      <div data-bind="css: question.koCss().content + (question.hasTitleOnLeft ? ' ' + 'content-left' : '')">
           <!-- ko if: question.errorLocation == 'top' -->
               <div data-bind="css: question.koCss().error.locationTop">
                   <!-- ko template: { name: 'survey-question-errors', data: question } -->

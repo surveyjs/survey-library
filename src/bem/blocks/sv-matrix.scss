@@ -1,12 +1,12 @@
 .sv-matrix__control {
-	margin: 0;
-	margin-left: 0.21em;
+  margin: 0;
+  margin-left: 0.21em;
 }
 
 .sv-matrix__cell-text {
-	cursor: pointer;
+  cursor: pointer;
 }
 .sv-matrix__cell-text--selected {
-	color: #ffffff;
-	background-color: $main-color;
+  color: #ffffff;
+  background-color: $main-color;
 }

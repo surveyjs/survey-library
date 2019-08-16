@@ -66,7 +66,7 @@ export var bemCss = {
   },
   radiogroup: {
     root: "sv-select-base",
-    item: "sv-item sv-select-base__item",
+    item: "sv-select-base__item",
     itemInline: "sv-select-base__item--inline",
     label: "sv-select-base__label",
     itemControl: "sv-check-item sv-radio sv-select-base__control",

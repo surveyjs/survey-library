@@ -73,7 +73,7 @@ export var bemCss = {
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
     other: "",
-    clearButton: "",
+    clearButton: "sv-btn",
     column: "sv-select-base__column"
   },
   text: {
@@ -95,7 +95,7 @@ export var bemCss = {
     itemControl: "sv-imagepicker__control",
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",
-    clearButton: ""
+    clearButton: "sv-btn"
   },
   matrixdropdown: {
     root: "sv-table sv-matrix-dropdown",

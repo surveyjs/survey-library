@@ -179,7 +179,7 @@ export class Survey extends SurveyModel {
     this.render();
   }
   public koEventAfterRender(element: any, survey: any) {
-    survey.onRendered.fire(self, {});
+    survey.onRendered.fire(this, {});
     survey.afterRenderSurvey(element);
   }
   public loadSurveyFromService(
@@ -374,7 +374,10 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
         elem = templateDocument.getElementById(template);
       }
       if (!elem) {
-        ko.nativeTemplateEngine().makeTemplateSourc(template, templateDocument);
+        return new ko.nativeTemplateEngine().makeTemplateSource(
+          template,
+          templateDocument
+        );
       }
       return new ko.templateSources.domElement(elem);
     } else if (template.nodeType === 1 || template.nodeType === 8) {

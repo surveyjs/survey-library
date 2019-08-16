@@ -4,7 +4,7 @@ import "../../main.scss";
 export let Version: string;
 Version = `${process.env.VERSION}`;
 
-export {settings} from "../../settings";
+export { settings } from "../../settings";
 export { Helpers } from "../../helpers";
 export {
   AnswerCountValidator,
@@ -14,6 +14,7 @@ export {
   SurveyValidator,
   TextValidator,
   ValidatorResult,
+  ExpressionValidator,
   ValidatorRunner
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
@@ -29,10 +30,7 @@ export { ILocalizableOwner, LocalizableString } from "../../localizablestring";
 export { HtmlConditionItem } from "../../htmlConditionItem";
 export { ChoicesRestfull } from "../../choicesRestfull";
 export { FunctionFactory } from "../../functionsfactory";
-export {
-  ConditionRunner,
-  ExpressionRunner
-} from "../../conditions";
+export { ConditionRunner, ExpressionRunner } from "../../conditions";
 export { Operand } from "../../expressions/expressions";
 export { ConditionsParser } from "../../conditionsParser";
 export { ProcessValue } from "../../conditionProcessValue";

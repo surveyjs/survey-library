@@ -162,11 +162,11 @@ QUnit.test("ItemValue.setData() boolean", function(assert) {
   );
 });
 QUnit.test("ItemValue.setData() ItemValue with type", function(assert) {
-  Serializer.addClass("imageitemvalue", [], null, "itemvalue");
+  Serializer.addClass("imageitemvalue1", [], null, "itemvalue");
   var items = new Array<ItemValue>();
   var data = [
-    new ItemValue(true, "Yes", "imageitemvalue"),
-    new ItemValue(false, "No", "imageitemvalue")
+    new ItemValue(true, "Yes", "imageitemvalue1"),
+    new ItemValue(false, "No", "imageitemvalue1")
   ];
   ItemValue.setData(items, data);
   assert.equal(items.length, 2, "there are 2 items");

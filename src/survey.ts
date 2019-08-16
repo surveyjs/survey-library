@@ -1942,6 +1942,13 @@ export class SurveyModel extends Base
     document.cookie = this.cookieName + "=;";
   }
   /**
+   * Set it to true, to ignore validation, like requried questions and others, on nextPage and completeLastPage functions.
+   * @see nextPage
+   * @see completeLastPage
+   * @see mode
+   */
+  public ignoreValidation: boolean = false;
+  /**
    * Call it to go to the next page. It returns false, if it is the last page. If there is an error, for example required question is empty, the function returns false as well.
    * @see isCurrentPageHasErrors
    * @see prevPage
@@ -1949,10 +1956,15 @@ export class SurveyModel extends Base
    */
   public nextPage(): boolean {
     if (this.isLastPage) return false;
-    if (this.isEditMode && this.isCurrentPageHasErrors) return false;
+    if (this.hasErrorsOnNavigate()) return false;
     if (this.doServerValidation()) return false;
     this.doNextPage();
     return true;
+  }
+  private hasErrorsOnNavigate(): boolean {
+    return (
+      !this.ignoreValidation && this.isEditMode && this.isCurrentPageHasErrors
+    );
   }
   /**
    * Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.
@@ -2008,7 +2020,7 @@ export class SurveyModel extends Base
    * @see doComplete
    */
   public completeLastPage(): boolean {
-    if (this.isEditMode && this.isCurrentPageHasErrors) return false;
+    if (this.hasErrorsOnNavigate()) return false;
     if (this.doServerValidation()) return false;
     this.doComplete();
     return true;
@@ -2542,7 +2554,7 @@ export class SurveyModel extends Base
   public getQuestionByName(
     name: string,
     caseInsensitive: boolean = false
-  ): IQuestion {
+  ): Question {
     var hash: HashTable<any> = !!caseInsensitive
       ? this.questionHashes.namesInsensitive
       : this.questionHashes.names;
@@ -3165,7 +3177,11 @@ export class SurveyModel extends Base
    * @see Question.visibleIf
    * @see goNextPageAutomatic
    */
-  public setValue(name: string, newQuestionValue: any, locNotification: boolean = false) {
+  public setValue(
+    name: string,
+    newQuestionValue: any,
+    locNotification: boolean = false
+  ) {
     var newValue = this.questionOnValueChanging(name, newQuestionValue);
     if (
       this.isValueEqual(name, newValue) &&
@@ -3787,6 +3803,13 @@ export class SurveyModel extends Base
     var processor = new ProcessValue();
     var value = processor.getValue(fromName, this.getFilteredValues());
     this.setTriggerValue(name, value, false);
+  }
+  focusQuestion(name: string): boolean {
+    var question = this.getQuestionByName(name, true);
+    if (!question || !question.isVisible || !question.page) return false;
+    this.currentPage = question.page;
+    question.focus();
+    return true;
   }
 }
 

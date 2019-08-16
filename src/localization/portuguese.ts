@@ -8,7 +8,7 @@ export var portugueseSurveyStrings = {
   otherItemText: "Outros (descrever)",
   noneItemText: "Nenhum",
   selectAllItemText: "Selecionar Todos",
-  progressText: "Pagina {0} de {1}",
+  progressText: "Página {0} de {1}",
   emptySurvey: "Não há página visível ou pergunta na pesquisa.",
   completingSurvey: "Obrigado por finalizar a pesquisa!",
   completingSurveyBefore:

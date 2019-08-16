@@ -1,6 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
+import { ItemValue } from "./itemvalue";
 
 /**
  * A Model for a select image question.
@@ -17,6 +18,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return true;
   }
 
+  protected getItemValueType() {
+    return "imageitemvalue";
+  }
   /**
    * Multi select option. If set to true, then allows to select multiple images.
    */
@@ -105,7 +109,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 }
 
-Serializer.addClass("imageitemvalue", ["imageLink"], null, "itemvalue");
+Serializer.addClass("imageitemvalue", [], undefined, "itemvalue");
+Serializer.addProperty("imageitemvalue", {
+  name: "imageLink"
+});
 
 Serializer.addClass(
   "imagepicker",

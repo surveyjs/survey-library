@@ -33,6 +33,11 @@ export class PageModel extends PanelModelBase implements IPage {
   public get isPage() {
     return true;
   }
+  public delete() {
+    if (!!this.survey) {
+      this.removeSelfFromList(this.survey.pages);
+    }
+  }
   public onFirstRendering() {
     if (this.wasShown) return;
     super.onFirstRendering();
@@ -132,24 +137,6 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public set questionsOrder(val: string) {
     this.setPropertyValue("questionsOrder", val);
-  }
-  /**
-   * Call it to focus the input on the first question
-   */
-  public focusFirstQuestion() {
-    var q = this.getFirstQuestionToFocus();
-    if (!!q) {
-      q.focus();
-    }
-  }
-  /**
-   * Call it to focus the input of the first question that has an error.
-   */
-  public focusFirstErrorQuestion() {
-    var q = this.getFirstQuestionToFocus(true);
-    if (!!q) {
-      q.focus();
-    }
   }
   /**
    * Call it to scroll to the page top.

@@ -374,12 +374,15 @@ QUnit.test("0 is not an empty value", function(assert) {
   var values = { val: 0 };
   assert.equal(runner.run(values), true, "0 = 0");
 });
-QUnit.test("0 is not an empty value (variable with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)", function (assert) {
-  var runner = new ConditionRunner("{complexIdentifier} = 0");
-  var values = { complexIdentifier: 0 };
-  assert.equal(runner.run(values), true, "0 = 0");
-});
-QUnit.test("Bug with contains, support string.indexof, bug#831", function (
+QUnit.test(
+  "0 is not an empty value (variable with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)",
+  function(assert) {
+    var runner = new ConditionRunner("{complexIdentifier} = 0");
+    var values = { complexIdentifier: 0 };
+    assert.equal(runner.run(values), true, "0 = 0");
+  }
+);
+QUnit.test("Bug with contains, support string.indexof, bug#831", function(
   assert
 ) {
   var runner = new ConditionRunner("{str} contains '1'");
@@ -613,6 +616,16 @@ QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
   assert.equal(runner.run(values), false, "0x1 is not 2");
   values = { val: "0x2" };
   assert.equal(runner.run(values), true, "0x2 is not 2");
+});
+
+QUnit.test("notempty with 0 and false, bug#1792", function(assert) {
+  var runner = new ConditionRunner("{val} notempty");
+  var values: any = { val: 0 };
+  assert.equal(runner.run(values), true, "0 is not empty");
+  values.val = "0";
+  assert.equal(runner.run(values), true, "'0' is not empty");
+  values.val = false;
+  assert.equal(runner.run(values), true, "false is not empty");
 });
 
 QUnit.test("contain and noncontain for null arrays", function(assert) {

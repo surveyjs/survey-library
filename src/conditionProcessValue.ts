@@ -8,7 +8,7 @@ export interface ValueCore {
 export class ProcessValue {
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
-  constructor() { }
+  constructor() {}
   public getFirstName(text: string, obj: any = null): string {
     if (!text) return text;
     var res = "";
@@ -46,7 +46,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     var res: ValueCore = { hasValue: false, value: null };
     var curValue = values;
-    if (!curValue) return res;
+    if (!curValue && curValue !== 0 && curValue !== false) return res;
     if (
       text &&
       text.lastIndexOf(".length") > -1 &&

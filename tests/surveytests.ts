@@ -9,7 +9,8 @@ import {
   SurveyTriggerComplete,
   SurveyTriggerSetValue,
   SurveyTriggerCopyValue,
-  SurveyTriggerRunExpression
+  SurveyTriggerRunExpression,
+  SurveyTriggerSkip
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
 import { EmailValidator, NumericValidator } from "../src/validator";
@@ -179,10 +180,26 @@ QUnit.test("Do not show errors in display mode", function(assert) {
   survey.mode = "display";
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo,
+    1,
     "Can move into another page"
   );
+});
+
+QUnit.test("Do not show errors if survey.ignoreValidation = true", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  
+  (<Question>survey.pages[0].questions[0]).isRequired = true;
+  (<Question>survey.pages[1].questions[0]).isRequired = true;
+  survey.ignoreValidation = true;
+  survey.nextPage();
+  assert.equal(
+    survey.currentPageNo,
+    1,
+    "Can move into another page"
+  );
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed", "Can complete survey with erros")
 });
 
 QUnit.test("Check pages state on onValueChanged event", function(assert) {
@@ -1631,6 +1648,16 @@ QUnit.test("RunExpression trigger test", function(assert) {
   survey.setValue("question1", "Hello");
   assert.equal(survey.getValue("name1"), 5, "value is still 5");
 });
+QUnit.test("Skip trigger test", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSkip();
+  survey.triggers.push(trigger);
+  trigger.expression = "{question1} = 'Hello'";
+  trigger.gotoName = "question4";
+  assert.equal(survey.currentPageNo, 0, "the first page is active");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.currentPageNo, 1, "the second page is active now");
+});
 QUnit.test(
   "RunExpression trigger test with custom function, bug#T1734",
   function(assert) {
@@ -2552,7 +2579,32 @@ QUnit.test("visibleIf, bug#729", function(assert) {
   q1.value = "false";
   assert.equal(q2.visible, false, "q2 should be invisible again");
 });
-
+QUnit.test("visibleIf, Does not work with 0, bug#1792", function(assert) {
+  var survey = new SurveyModel({
+    "elements": [{
+      "type": "radiogroup",
+      "name": "q1",
+      "choices": ["0", "1", "2"]
+    },{
+      "type": "radiogroup",
+      "name": "q2",
+      "choices": [0, 1, 2]
+    }, {
+      "type": "comment",
+      "name": "q3",
+      "visibleIf": "{q1} notempty"
+    }, {
+      "type": "comment",
+      "name": "q4",
+      "visibleIf": "{q2} notempty"
+    }]
+  });
+  var q3 = <Question>survey.getQuestionByName("q3");
+  var q4 = <Question>survey.getQuestionByName("q4");
+  survey.data = {q1: "0", q2: 0};
+  assert.equal(q3.isVisible, true, "'0' is not empty");
+  assert.equal(q4.isVisible, true, "0 is not empty");
+});
 QUnit.test("visibleIf, allow dot in question name", function(assert) {
   var survey = new SurveyModel({
     questions: [
@@ -3267,6 +3319,22 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "Survey text preprocessing, zero value, issue https://surveyjs.answerdesk.io/ticket/details/t2493",
+  function(assert) {
+    var survey = new SurveyModel({
+      questions: [
+        {type: "text", name: "q1", inputType: "number"},
+        {type: "text", name: "q2", title: "q1={q1}" }
+      ]
+    });
+    var q1 = <Question>survey.getQuestionByName("q1");
+    var q2 = <Question>survey.getQuestionByName("q2");
+    q1.value = 0;
+    assert.equal(q1.getDisplayValue(false), "0", "Return correct display value");
+    assert.equal(q2.locTitle.renderedHtml, "q1=0", "Not is not a null");
+  });
 
 QUnit.test("Survey text preprocessing, matrix, issue #499", function(assert) {
   var survey = new SurveyModel();
@@ -7548,5 +7616,32 @@ QUnit.test(
     panel2.moveTo(page2, survey.getPanelByName("p3"));
     assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
     assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
-
   });
+  QUnit.test(
+    "Test question/panel/page delete function",function(assert) {
+      var survey = new SurveyModel({
+        pages : [
+          {elements: [
+            {
+              type: "panel", name : "panel1",
+              elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
+            },
+            {type: "text", name: "q3"}
+          ]},
+          {elements: [{type: "text", name: "q4"}, {type: "text", name: "q5"}]}
+        ]
+      });
+      var panel = <PanelModel>survey.getPanelByName("panel1");
+      assert.equal(panel.elements.length, 2, "two questions in panel in the beginning");
+      panel.questions[0].delete();
+      assert.equal(panel.elements.length, 1, "one question in panel now");
+      assert.equal(survey.pages[0].elements.length, 2, "There are two elements in page1");
+      panel.delete();
+      assert.equal(survey.pages[0].elements.length, 1, "There is one element in page1");
+      assert.equal(survey.pages[1].elements.length, 2, "There are two elements in page2");
+      survey.pages[1].questions[0].delete();
+      assert.equal(survey.pages[1].elements.length, 1, "There is one element in page2");
+      assert.equal(survey.pages.length, 2, "There are two pages in survey");
+      survey.pages[0].delete();
+      assert.equal(survey.pages.length, 1, "There is one page in survey");      
+    });  

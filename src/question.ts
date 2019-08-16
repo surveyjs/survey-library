@@ -156,6 +156,11 @@ export class Question extends SurveyElement
   public getPanel(): IPanel {
     return null;
   }
+  public delete() {
+    if(!!this.parent) {
+      this.removeSelfFromList(this.parent.elements);
+    }
+  }
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
   }

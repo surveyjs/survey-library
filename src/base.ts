@@ -146,6 +146,7 @@ export interface ISurveyElement {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
+  delete(): any;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
@@ -194,6 +195,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
+  elements: Array<IElement>;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStarted: boolean;
@@ -208,7 +210,7 @@ export class Base {
   public static set commentPrefix(val: string) {
     settings.commentPrefix = val;
   }
-  public static createItemValue: (item: any) => any;
+  public static createItemValue: (item: any, type?: string) => any;
   public static itemValueLocStrChanged: (arr: Array<any>) => void;
   /**
    * A static methods that returns true if a value underfined, null, empty string or empty array.
@@ -583,6 +585,9 @@ export class Base {
 
     return newArray;
   }
+  protected getItemValueType(): string {
+    return undefined;
+  }
   protected setArray(
     src: any[],
     dest: any[],
@@ -600,7 +605,7 @@ export class Base {
       var item = dest[i];
       if (isItemValues) {
         if (!!Base.createItemValue) {
-          item = Base.createItemValue(item);
+          item = Base.createItemValue(item, this.getItemValueType());
         }
       }
       Object.getPrototypeOf(src).push.call(src, item);
@@ -805,6 +810,14 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get isPage() {
     return false;
   }
+  public delete() {}
+  protected removeSelfFromList(list: Array<any>) {
+    if (!list || !Array.isArray(list)) return;
+    var index = list.indexOf(this);
+    if (index > -1) {
+      list.splice(index, 1);
+    }
+  }
   protected get textProcessor(): ITextProcessor {
     return this.textProcessorValue;
   }
@@ -886,9 +899,8 @@ export class Event<T extends Function, Options> {
     this.callbacks.push(func);
   }
   public remove(func: T) {
-    if (this.callbacks == null) return;
-    var index = this.callbacks.indexOf(func, 0);
-    if (index != undefined) {
+    if (this.hasFunc(func)) {
+      var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
     }
   }

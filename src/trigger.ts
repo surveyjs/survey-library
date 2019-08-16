@@ -193,6 +193,7 @@ export interface ISurveyTriggerOwner {
   setCompleted(): any;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string): any;
+  focusQuestion(name: string): boolean;
 }
 
 /**
@@ -279,6 +280,22 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   }
 }
 /**
+ * If expression returns true, the survey go to question **gotoName** and focus it.
+ */
+export class SurveyTriggerSkip extends SurveyTrigger {
+  public gotoName: string;
+  constructor() {
+    super();
+  }
+  public getType(): string {
+    return "skiptrigger";
+  }
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+    if (!this.gotoName || !this.owner) return;
+    this.owner.focusQuestion(this.gotoName);
+  }
+}
+/**
  * If expression returns true, the **runExpression** will be run. If **setToName** property is not empty then the result of **runExpression** will be set to it.
  */
 export class SurveyTriggerRunExpression extends SurveyTrigger {
@@ -351,7 +368,6 @@ Serializer.addClass(
   },
   "surveytrigger"
 );
-
 Serializer.addClass(
   "copyvaluetrigger",
   ["!setToName", "!fromName"],
@@ -361,8 +377,16 @@ Serializer.addClass(
   "surveytrigger"
 );
 Serializer.addClass(
-  "runExpressiontrigger",
-  ["setToName", "runExpression"],
+  "skiptrigger",
+  ["!gotoName"],
+  function() {
+    return new SurveyTriggerSkip();
+  },
+  "surveytrigger"
+);
+Serializer.addClass(
+  "runexpressiontrigger",
+  ["setToName", "runExpression:expression"],
   function() {
     return new SurveyTriggerRunExpression();
   },

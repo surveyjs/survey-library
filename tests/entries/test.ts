@@ -22,6 +22,7 @@ export * from "../dragdroptests";
 export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../questionDropdown";
+export * from "../questionImagepicker";
 
 // localization
 import "../../src/localization/russian";

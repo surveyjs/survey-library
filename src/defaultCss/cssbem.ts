@@ -76,6 +76,14 @@ export var bemCss = {
     clearButton: "sv-btn",
     column: "sv-select-base__column"
   },
+  boolean: {
+    root: "sv-select-base",
+    item: "sv-select-base__item",
+    control: "sv-check-item sv-boolean sv-select-base__control",
+    undefined: "sv-boolean--undefined",
+    label: "sv-select-base__control-label",
+    materialDecorator: "checkbox-material"
+  },
   text: {
     root: "sv-text sv-question__input",
     small: "sv-row__question--small"

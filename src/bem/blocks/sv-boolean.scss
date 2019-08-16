@@ -1,0 +1,12 @@
+.sv-boolean {
+  // background-image:
+  border-color: $main-color;
+  border-radius: 0.14em;
+}
+.sv-boolean--undefiened {
+  // background-image: ;
+}
+.sv-boolean:checked {
+  // background-image: ;
+  background-color: $main-color;
+}

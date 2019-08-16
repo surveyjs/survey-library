@@ -115,8 +115,8 @@ export var bemCss = {
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     button: "sv-btn",
-    buttonAdd: "sv-btn sv-matrixdynamic__btn--add",
-    buttonRemove: "sv-btn v-matrixdynamic__btn--remove",
+    buttonAdd: "sv-matrixdynamic__btn--add",
+    buttonRemove: "sv-matrixdynamic__btn--remove",
     iconAdd: "",
     iconRemove: ""
   },

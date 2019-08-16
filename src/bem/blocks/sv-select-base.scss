@@ -1,33 +1,33 @@
 .sv-select-base {
-	padding: 0;
+  padding: 0;
 }
 .sv-select-base__item {
-	position: relative;
-	margin-bottom: 0.5em;
-	vertical-align: middle;
+  position: relative;
+  margin-bottom: 0.5em;
+  vertical-align: middle;
 }
 .sv-select-base__item--inline {
-	display: inline-block;
-	padding-right: 2%;
+  display: inline-block;
+  padding-right: 2%;
 }
 .sv-select-base__column {
-	display: inline-block;
-	width: 19%;
-	vertical-align: top;
+  display: inline-block;
+  width: 19%;
+  vertical-align: top;
 }
 .sv-select-base__label {
-	display: inline-block;
-	width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	padding: 0.3em;
+  display: inline-block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.3em;
 }
 .sv-select-base__control {
-	margin: 0;
-	vertical-align: middle;
+  margin: 0;
+  vertical-align: middle;
 }
 .sv-select-base__control-label {
-	margin-left: 1em;
-	vertical-align: middle;
+  margin-left: 1em;
+  vertical-align: middle;
 }

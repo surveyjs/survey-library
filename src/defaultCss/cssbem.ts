@@ -96,7 +96,7 @@ export var bemCss = {
     other: "sv_q_dd_other"
   },
   imagepicker: {
-    root: "sv-imagepicker sv-question",
+    root: "sv-imagepicker",
     item: "sv-imagepicker__item",
     itemInline: "sv-imagepicker__item--inline",
     label: "",

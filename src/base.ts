@@ -878,7 +878,7 @@ export class SurveyElement extends Base implements ISurveyElement {
 }
 
 export class Event<T extends Function, Options> {
-  private callbacks: Array<T>;
+  protected callbacks: Array<T>;
   public get isEmpty(): boolean {
     return this.callbacks == null || this.callbacks.length == 0;
   }

@@ -16,6 +16,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export { bemCss } from "../defaultCss/cssbem";
 
 import { VueSurveyModel } from "../vue/surveyModel";
 export { VueSurveyModel as Model };

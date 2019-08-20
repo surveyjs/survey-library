@@ -25,6 +25,7 @@ import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
+import { QuestionImagePickerModel } from "../src/question_imagepicker";
 
 export default QUnit.module("Survey_Questions");
 
@@ -2892,5 +2893,62 @@ QUnit.test("Radio group comment without hasOther, Bug #1747", function(assert) {
     survey.data,
     { q1: 3, "q1-Comment": "Next data" },
     "Comment is here"
+  );
+});
+
+QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
+  var question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: true,
+      choices: [1, 2, 3, 4, 5]
+    },
+    question
+  );
+
+  question.value = [1, 3];
+  assert.equal(
+    question.isItemSelected(question.choices[0]),
+    true,
+    "The first time is selected"
+  );
+  assert.equal(
+    question.isItemSelected(question.choices[1]),
+    false,
+    "The second time is not selected"
+  );
+  assert.equal(
+    question.isItemSelected(question.choices[2]),
+    true,
+    "The third time is selected"
+  );
+  question = new QuestionImagePickerModel("q1");
+  new JsonObject().toObject(
+    {
+      type: "imagepicker",
+      name: "question3",
+      multiSelect: false,
+      choices: [1, 2, 3, 4, 5]
+    },
+    question
+  );
+  question.value = 2;
+  assert.equal(question.renderedValue, 2, "The first set correctly");
+  assert.equal(
+    question.isItemSelected(question.choices[0]),
+    false,
+    "The first time is not selected"
+  );
+  assert.equal(
+    question.isItemSelected(question.choices[1]),
+    true,
+    "The second time is selected"
+  );
+  assert.equal(
+    question.isItemSelected(question.choices[2]),
+    false,
+    "The third time is not selected"
   );
 });

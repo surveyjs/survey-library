@@ -16,14 +16,21 @@
   opacity: 0.5;
   width: 1.71em;
 }
-.sv-radio__control:hover + .sv-radio__decorator {
-  fill: $border-color;
+.sv-radio__control:hover {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+  }
 }
-.sv-radio__control:checked + .sv-radio__decorator {
-  fill: $border-color;
-  opacity: 1;
+.sv-radio__control:checked {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+    opacity: 1;
+  }
 }
-.sv-radio__control:focus + .sv-radio__decorator {
-  box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
-  outline: none;
+.sv-radio__control:focus {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+    box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+    outline: none;
+  }
 }

@@ -131,7 +131,8 @@ export var defaultBootstrapMaterialCss = {
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
-    maxText: "sv_q_rating_max_text"
+    maxText: "sv_q_rating_max_text",
+    disabled: ""
   },
   text: "form-control",
   expression: "form-control",

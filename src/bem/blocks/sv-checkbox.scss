@@ -1,22 +1,35 @@
-.sv-checkbox {
-  border-radius: 0.14em;
-  background-size: 1em 0.78em;
-  opacity: 0.5;
+.sv-checkbox__control {
+  -webkit-appearance: none;
+  margin: 0;
 }
-.sv-checkbox:checked:disabled,
-.sv-checkbox:hover:enabled {
+.sv-checkbox__decorator {
+  border: 0.21em solid;
+  border-color: $border-color;
+  border-radius: 0.14em;
+  box-sizing: border-box;
+  display: inline-block;
+  fill: transparent;
+  height: 1.71em;
+  opacity: 0.5;
+  position: relative;
+  width: 1.71em;
+}
+.sv-checkbox__control:checked:disabled + .sv-checkbox__decorator,
+.sv-checkbox__control:hover + .sv-checkbox__decorator {
   background-color: $main-hover-color;
   border-color: $main-hover-color;
+  fill: white;
 }
-.sv-checkbox:checked:enabled {
+.sv-checkbox__control:checked:enabled + .sv-checkbox__decorator {
   background-color: $main-color;
   border-color: $main-color;
+  fill: white;
 }
-.sv-checkbox:hover:enabled,
-.sv-checkbox:checked:enabled {
+.sv-checkbox__control:hover:enabled + .sv-checkbox__decorator,
+.sv-checkbox__control:checked:enabled + .sv-checkbox__decorator {
   opacity: 1;
 }
-.sv-checkbox:checked,
-.sv-checkbox:hover:enabled {
-  background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Слой_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 14 14' style='enable-background:new 0 0 14 14;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23FFFFFF;%7D%0A%3C/style%3E%3Cpath class='st0' d='M0,8l2-2l3,3l7-7l2,2l-9,9L0,8z'/%3E%3C/svg%3E%0A");
+.sv-checkbox__control:focus + .sv-checkbox__decorator {
+  box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+  outline: none;
 }

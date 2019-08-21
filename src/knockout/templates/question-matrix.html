@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-matrix">
+<script type="text/html" id="survey-question-matrix">
   <fieldset>
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <table data-bind="css: question.koCss().root">
@@ -34,6 +34,9 @@
                       <label data-bind="css: question.getItemCss(row, $data)">
                           <input type="radio" data-bind="css: question.koCss().itemValue, attr: {name: row.fullName, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, value: '' + $data.value, id: question.inputId + '_' + row.name + '_' + $index()}, checked: row.koValue, enable: !question.isReadOnly"
                           />
+                          <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
+                                    <circle r="6" cx="0" cy="0">
+                          </svg>
                           <span class="circle"></span>
                           <span class="check"></span>
                           <span style="display: none" data-bind="text: $data.locText.text"></span>

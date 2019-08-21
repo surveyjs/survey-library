@@ -15,6 +15,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export { bemCss } from "../defaultCss/cssbem";
 
 // react
 export { Survey } from "../react/reactSurvey";

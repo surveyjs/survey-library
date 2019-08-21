@@ -1,0 +1,46 @@
+.sv-rating {
+  color: $text-color;
+}
+
+.sv-rating__item {
+}
+
+.sv-rating__item-text {
+  width: 34px;
+  height: 34px;
+  display: inline-block;
+  color: $main-hover-color;
+  border: solid 3px $main-hover-color;
+  text-align: center;
+  font-size: 1.14em;
+  font-weight: bold;
+  line-height: 1.13;
+
+  > span > span {
+    margin-top: 0.5em;
+    display: block;
+  }
+
+  &:hover {
+    background-color: $main-hover-color;
+    color: $body-background-color;
+  }
+}
+
+.sv-rating__item--selected {
+  .sv-rating__item-text {
+    background-color: $main-color;
+    color: $body-background-color;
+    border-color: $main-color;
+  }
+}
+
+.sv-rating__min-text {
+  font-size: 1.14em;
+  margin-right: 1.43em;
+}
+
+.sv-rating__max-text {
+  font-size: 1.14em;
+  margin-left: 1.43em;
+}

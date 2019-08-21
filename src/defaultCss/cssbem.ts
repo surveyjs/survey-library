@@ -132,12 +132,12 @@ export var bemCss = {
     iconRemove: ""
   },
   rating: {
-    root: "",
-    item: "",
-    selected: "",
-    minText: "",
-    itemText: "",
-    maxText: ""
+    root: "sv-rating",
+    item: "sv-rating__item",
+    selected: "sv-rating__item--selected",
+    minText: "sv-rating__min-text",
+    itemText: "sv-rating__item-text",
+    maxText: "sv-rating__max-text"
   },
   expression: "",
   file: {

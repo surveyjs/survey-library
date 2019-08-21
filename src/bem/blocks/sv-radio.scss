@@ -2,6 +2,9 @@
   -webkit-appearance: none;
   margin: 0;
 }
+.sv-radio__control::-ms-check {
+  display: none;
+}
 .sv-radio__decorator {
   border: 0.21em solid;
   border-color: $border-color;

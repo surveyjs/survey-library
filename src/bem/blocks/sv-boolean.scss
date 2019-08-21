@@ -2,6 +2,9 @@
   -webkit-appearance: none;
   margin: 0;
 }
+.sv-boolean__contorol::-ms-check {
+  display: none;
+}
 .sv-boolean__decorator {
   background-color: $main-color;
   border: 0.21em solid;

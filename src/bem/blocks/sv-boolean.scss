@@ -1,12 +1,53 @@
-.sv-boolean {
-  // background-image:
+.sv-boolean__control {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.sv-boolean__decorator {
+  border: 0.21em solid;
   border-color: $main-color;
   border-radius: 0.14em;
+  box-sizing: border-box;
+  display: inline-block;
+  fill: transparent;
+  height: 1.71em;
+  position: relative;
+  width: 1.71em;
+  fill: white;
 }
-.sv-boolean--undefiened {
-  // background-image: ;
+.sv-boolean__yes-mark,
+.sv-boolean__undefined-mark {
+  display: none;
 }
-.sv-boolean:checked {
-  // background-image: ;
+.sv-boolean__decorator {
   background-color: $main-color;
+  fill: color;
+}
+//undefined styles
+.sv-boolean__control--undefined {
+  & + .sv-boolean__decorator {
+    border: unset;
+    background-color: transparent;
+    fill: $main-color;
+    .sv-boolean__undefined-mark {
+      display: initial;
+    }
+  }
+}
+.sv-boolean__control--undefined,
+.sv-boolean__control:checked {
+  & + .sv-boolean__decorator .sv-boolean__no-mark {
+    display: none;
+  }
+}
+//yes styles
+.sv-boolean__control:checked {
+  & + .sv-boolean__decorator .sv-boolean__yes-mark {
+    display: initial;
+  }
+}
+.sv-boolean__control:focus {
+  & + .sv-boolean__decorator {
+    box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+    outline: none;
+  }
 }

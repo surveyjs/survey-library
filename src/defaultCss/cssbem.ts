@@ -81,9 +81,13 @@ export var bemCss = {
   boolean: {
     root: "sv-select-base",
     item: "sv-select-base__item",
-    control: "sv-check-item sv-boolean sv-select-base__control",
-    undefined: "sv-boolean--undefined",
-    label: "sv-select-base__control-label",
+    control: "sv-boolean__control",
+    undefined: "sv-boolean__control--undefined",
+    yesMark: "sv-boolean__yes-mark",
+    noMark: "sv-boolean__no-mark",
+    undefinedMark: "sv-boolean__undefined-mark",
+    itemDecorator: "sv-boolean__decorator sv-select-base__control",
+    label: "sv-boolean sv-select-base__control-label",
     materialDecorator: "checkbox-material"
   },
   text: {

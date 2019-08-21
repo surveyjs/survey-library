@@ -20,6 +20,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.sv-question__description {
+  padding-left: 0.5em;
+  font-size: 1em;
+  margin: 0;
+  margin-top: -0.91em;
+  min-height: 0.91em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .sv-question__input {
   height: 2.07em;
   width: 100%;

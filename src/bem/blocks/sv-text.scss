@@ -11,6 +11,9 @@
   border-color: $main-color;
   outline: none;
 }
+.sv-text:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px white inset;
+}
 .sv-text::placeholder {
   color: $text-color;
 }

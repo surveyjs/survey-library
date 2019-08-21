@@ -1,12 +1,36 @@
-.sv-radio {
+.sv-radio__control {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.sv-radio__control::-ms-check {
+  display: none;
+}
+.sv-radio__decorator {
+  border: 0.21em solid;
+  border-color: $border-color;
   border-radius: 50%;
-  background-size: 0.71em 0.71em;
+  box-sizing: border-box;
+  display: inline-block;
+  fill: transparent;
+  height: 1.71em;
   opacity: 0.5;
+  width: 1.71em;
 }
-.sv-radio:hover,
-.sv-radio:checked {
-  background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Слой_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 9 9' style='enable-background:new 0 0 9 9;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill-rule:evenodd;clip-rule:evenodd;fill:%23404040;%7D%0A%3C/style%3E%3Cpath class='st0' d='M4.5,0C7,0,9,2,9,4.5C9,7,7,9,4.5,9S0,7,0,4.5C0,2,2,0,4.5,0z'/%3E%3C/svg%3E%0A");
+.sv-radio__control:hover {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+  }
 }
-.sv-radio:checked {
-  opacity: 1;
+.sv-radio__control:checked {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+    opacity: 1;
+  }
+}
+.sv-radio__control:focus {
+  & + .sv-radio__decorator {
+    fill: $border-color;
+    box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+    outline: none;
+  }
 }

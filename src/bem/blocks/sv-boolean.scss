@@ -1,12 +1,53 @@
-.sv-boolean {
-  // background-image:
+.sv-boolean__control {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.sv-boolean__contorol::-ms-check {
+  display: none;
+}
+.sv-boolean__decorator {
+  background-color: $main-color;
+  border: 0.21em solid;
   border-color: $main-color;
   border-radius: 0.14em;
+  box-sizing: border-box;
+  display: inline-block;
+  fill: transparent;
+  height: 1.71em;
+  position: relative;
+  width: 1.71em;
+  fill: white;
 }
-.sv-boolean--undefiened {
-  // background-image: ;
+.sv-boolean__yes-mark,
+.sv-boolean__undefined-mark {
+  display: none;
 }
-.sv-boolean:checked {
-  // background-image: ;
-  background-color: $main-color;
+//undefined styles
+.sv-boolean__control:indeterminate {
+  & + .sv-boolean__decorator {
+    border: none;
+    background-color: transparent;
+    fill: $main-color;
+    .sv-boolean__undefined-mark {
+      display: inline-block;
+    }
+  }
+}
+.sv-boolean__control:indeterminate,
+.sv-boolean__control:checked {
+  & + .sv-boolean__decorator .sv-boolean__no-mark {
+    display: none;
+  }
+}
+//yes styles
+.sv-boolean__control:checked {
+  & + .sv-boolean__decorator .sv-boolean__yes-mark {
+    display: inline-block;
+  }
+}
+.sv-boolean__control:focus {
+  & + .sv-boolean__decorator {
+    box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+    outline: none;
+  }
 }

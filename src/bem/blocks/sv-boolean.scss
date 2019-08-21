@@ -3,6 +3,7 @@
   margin: 0;
 }
 .sv-boolean__decorator {
+  background-color: $main-color;
   border: 0.21em solid;
   border-color: $main-color;
   border-radius: 0.14em;
@@ -18,22 +19,18 @@
 .sv-boolean__undefined-mark {
   display: none;
 }
-.sv-boolean__decorator {
-  background-color: $main-color;
-  fill: color;
-}
 //undefined styles
-.sv-boolean__control--undefined {
+.sv-boolean__control:indeterminate {
   & + .sv-boolean__decorator {
-    border: unset;
+    border: none;
     background-color: transparent;
     fill: $main-color;
     .sv-boolean__undefined-mark {
-      display: initial;
+      display: inline-block;
     }
   }
 }
-.sv-boolean__control--undefined,
+.sv-boolean__control:indeterminate,
 .sv-boolean__control:checked {
   & + .sv-boolean__decorator .sv-boolean__no-mark {
     display: none;
@@ -42,7 +39,7 @@
 //yes styles
 .sv-boolean__control:checked {
   & + .sv-boolean__decorator .sv-boolean__yes-mark {
-    display: initial;
+    display: inline-block;
   }
 }
 .sv-boolean__control:focus {

@@ -82,7 +82,6 @@ export var bemCss = {
     root: "sv-select-base",
     item: "sv-select-base__item",
     control: "sv-boolean__control",
-    undefined: "sv-boolean__control--undefined",
     yesMark: "sv-boolean__yes-mark",
     noMark: "sv-boolean__no-mark",
     undefinedMark: "sv-boolean__undefined-mark",

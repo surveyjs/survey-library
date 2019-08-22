@@ -5,7 +5,7 @@
           <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
   </div>
-  <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+  <div  data-bind="css: question.koCss().scroll, style: {overflowX: question.horizontalScroll? 'scroll': ''}">
       <table data-bind="css: question.koCss().root">
           <!-- ko if: question.koTable().showHeader -->
           <thead>
@@ -28,7 +28,7 @@
                     <!-- /ko -->
                     <!-- ko if: $data.hasTitle --><td data-bind="css: question.koCss().cell"><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --></td><!-- /ko -->
                     <!-- ko if: $data.isRemoveRow -->
-                    <td>
+                    <td data-bind="css: question.koCss().cell">
                         <button type="button" data-bind="click:question.koRemoveRowClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove">
                             <span data-bind="text: question.removeRowText"></span>
                             <span data-bind="css: question.koCss().iconRemove"></span>

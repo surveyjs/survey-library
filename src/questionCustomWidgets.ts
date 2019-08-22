@@ -34,6 +34,12 @@ export class QuestionCustomWidget {
   public get isDefaultRender(): boolean {
     return this.widgetJson.isDefaultRender;
   }
+  public get pdfQuestionType(): string {
+    return this.widgetJson.pdfQuestionType;
+  }
+  public get pdfRender() {
+    return this.widgetJson.pdfRender;
+  }
 }
 
 export class CustomWidgetCollection {

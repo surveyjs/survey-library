@@ -115,9 +115,9 @@ export var bemCss = {
     root: "sv-table",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
-    item: "sv-radio",
+    label: "sv-radio sv-matrix__label",
     itemValue: " sv-radio__control",
-    itemDecorator: "sv-radio__decorator sv-matrix__control",
+    itemDecorator: "sv-radio__decorator sv-matrix__control ",
     cellText: "sv-matrix__cell-text",
     cellTextSelected: "sv-matrix__cell-text--selected",
     scroll: "sv-scroll"

@@ -19,7 +19,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   componentDidMount() {
     if (this.question) {
       var self = this;
-      this.question.visibleRowsChangedCallback = function () {
+      this.question.visibleRowsChangedCallback = function() {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
       };
     }
@@ -57,13 +57,14 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         />
       );
     }
-    var header = !this.question.showHeader ? null :
+    var header = !this.question.showHeader ? null : (
       <thead>
         <tr>
           {firstTH}
           {headers}
         </tr>
-      </thead>;
+      </thead>
+    );
     return (
       <fieldset>
         <legend aria-label={this.question.locTitle.renderedHtml} />
@@ -131,7 +132,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           ? (column: any) => () => this.cellClick(row, column)
           : null;
         td = (
-          <td key={key} className={itemClass} onClick={getHandler(column)}>
+          <td
+            key={key}
+            className={itemClass}
+            onClick={getHandler ? getHandler(column) : null}
+          >
             {this.renderLocString(
               this.question.getCellDisplayLocText(row.name, column)
             )}

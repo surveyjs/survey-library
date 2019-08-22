@@ -38,7 +38,7 @@ export var bemCss = {
     title: "sv-title sv-question__title",
     number: "sv-question__num",
     description: "sv-description sv-question__description",
-    comment: "sv-question__comment",
+    comment: "sv-comment",
     required: "sv-question--required",
     titleRequired: "sv-question__title--required",
     hasError: "sv-question--has-error",
@@ -63,7 +63,7 @@ export var bemCss = {
     itemDecorator: "sv-checkbox__decorator sv-select-base__control",
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
-    other: "",
+    other: "sv-comment",
     column: "sv-select-base__column"
   },
   radiogroup: {
@@ -75,7 +75,7 @@ export var bemCss = {
     itemDecorator: "sv-radio__decorator sv-select-base__control",
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
-    other: "",
+    other: "sv-comment",
     clearButton: "sv-btn",
     column: "sv-select-base__column"
   },
@@ -96,10 +96,10 @@ export var bemCss = {
   },
   dropdown: {
     small: "sv-row__question--small",
-    root: "",
+    root: "sv-dropdown",
     control: "sv-dropdown sv-question__input",
     selectWrapper: "",
-    other: "sv_q_dd_other"
+    other: "sv-comment"
   },
   imagepicker: {
     root: "sv-imagepicker",
@@ -146,6 +146,10 @@ export var bemCss = {
     itemText: "sv-rating__item-text",
     maxText: "sv-rating__max-text",
     disabled: "sv-rating--disabled"
+  },
+  comment: {
+    root: "sv-comment",
+    small: "sv-row__question--small"
   },
   expression: "",
   file: {

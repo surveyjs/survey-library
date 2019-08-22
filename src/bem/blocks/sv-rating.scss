@@ -15,6 +15,7 @@
   font-size: 1.14em;
   font-weight: bold;
   line-height: 1.13;
+  cursor: pointer;
 
   > span > span {
     margin-top: 0.5em;
@@ -38,9 +39,37 @@
 .sv-rating__min-text {
   font-size: 1.14em;
   margin-right: 1.43em;
+  cursor: pointer;
 }
 
 .sv-rating__max-text {
   font-size: 1.14em;
   margin-left: 1.43em;
+  cursor: pointer;
+}
+
+.sv-rating--disabled {
+  .sv-rating__item-text {
+    cursor: default;
+    color: $disable-color;
+    border-color: $disable-color;
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .sv-rating__item--selected {
+    .sv-rating__item-text {
+      background-color: $disable-color;
+      color: $body-background-color;
+    }
+  }
+
+  .sv-rating__min-text {
+    cursor: default;
+  }
+
+  .sv-rating__max-text {
+    cursor: default;
+  }
 }

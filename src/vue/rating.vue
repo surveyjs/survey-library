@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="question.cssClasses.root">
+    <div :class="getRootClass(question)">
       <label
         v-for="(item, index) in question.visibleRateValues"
         :key="item.value"
@@ -56,6 +56,11 @@ export class Rating extends QuestionVue<QuestionRatingModel> {
   }
   change(e: any) {
     this.question.value = e.target.value;
+  }
+  getRootClass(question: QuestionRatingModel) {
+    const classes = question.cssClasses;
+    if (question.isReadOnly) return classes.root + " " + classes.disabled;
+    return classes.root;
   }
 }
 Vue.component("survey-rating", Rating);

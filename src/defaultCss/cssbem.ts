@@ -144,7 +144,8 @@ export var bemCss = {
     selected: "sv-rating__item--selected",
     minText: "sv-rating__min-text",
     itemText: "sv-rating__item-text",
-    maxText: "sv-rating__max-text"
+    maxText: "sv-rating__max-text",
+    disabled: "sv-rating--disabled"
   },
   expression: "",
   file: {

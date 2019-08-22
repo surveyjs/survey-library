@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
+import { Helpers } from "./helpers";
 
 /**
  * A Model for a select image question.
@@ -30,7 +31,20 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public set multiSelect(newValue: boolean) {
     this.setPropertyValue("multiSelect", newValue);
   }
-
+  /**
+   * Returns true if item is checked
+   * @param item image picker item value
+   */
+  public isItemSelected(item: ItemValue): boolean {
+    var val = this.renderedValue;
+    if (Helpers.isValueEmpty(val)) return false;
+    if (!this.multiSelect) return Helpers.isTwoValueEquals(val, item.value);
+    if (!Array.isArray(val)) return false;
+    for (var i = 0; i < val.length; i++) {
+      if (Helpers.isTwoValueEquals(val[i], item.value)) return true;
+    }
+    return false;
+  }
   public clearIncorrectValues() {
     if (this.multiSelect) {
       var val = this.value;

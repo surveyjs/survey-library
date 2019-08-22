@@ -26,8 +26,8 @@ export var bemCss = {
     description: "sv-page__description"
   },
   pageTitle: "sv-title sv-page__title",
-  pageDescription: "sv-page__description",
-  row: "sv-page__row sv-row",
+  pageDescription: "sv-page sv-page__description",
+  row: "sv-row",
   question: {
     mainRoot: "sv-question sv-row__question",
     flowRoot: "sv-question sv-row__question sv-row__question--flow",

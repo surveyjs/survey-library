@@ -53,12 +53,14 @@ export var defaultBootstrapMaterialCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
+    itemDecorator: "sv-none-display-item",
     label: "",
     materialDecorator: "checkbox-material"
   },
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
+    itemDecorator: "sv-none-display-item",
     itemControl: "",
     controlLabel: "",
     materialDecorator: "checkbox-material",
@@ -79,7 +81,8 @@ export var defaultBootstrapMaterialCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
-    itemValue: "form-control"
+    itemValue: "form-control",
+    itemDecorator: "sv-none-display-item"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
   matrixdynamic: {
@@ -108,6 +111,7 @@ export var defaultBootstrapMaterialCss = {
   radiogroup: {
     root: "",
     item: "radio",
+    itemDecorator: "sv-none-display-item",
     label: "",
     itemControl: "",
     controlLabel: "sv_q_radiogroup_control_label",

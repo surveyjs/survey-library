@@ -62,6 +62,7 @@ export var defaultStandardCss = {
   boolean: {
     root: "sv_qcbc sv_qbln",
     item: "sv_q_checkbox",
+    itemDecorator: "sv-none-display-item",
     label: "",
     materialDecorator: "checkbox-material"
   },
@@ -70,6 +71,7 @@ export var defaultStandardCss = {
     item: "sv_q_checkbox",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "sv_q_checkbox_control_label",
     materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other",
@@ -86,6 +88,7 @@ export var defaultStandardCss = {
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
+    itemDecorator: "sv-none-display-item",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label"
@@ -117,6 +120,7 @@ export var defaultStandardCss = {
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
+    itemDecorator: "sv-none-display-item",
     label: "sv_q_radiogroup_label",
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",

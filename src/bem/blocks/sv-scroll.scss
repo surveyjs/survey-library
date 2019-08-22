@@ -1,0 +1,10 @@
+.sv-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.sv-scroll::-webkit-scrollbar-track {
+  background-color: $main-hover-color;
+  height: 6px;
+}
+.sv-scroll::-webkit-scrollbar-thumb {
+  background: $main-color;
+}

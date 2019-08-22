@@ -52,6 +52,7 @@ export var defaultBootstrapCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
+    itemDecorator: "sv-none-display-item",
     label: "",
     materialDecorator: "checkbox-material"
   },
@@ -59,6 +60,7 @@ export var defaultBootstrapCss = {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
     itemControl: "",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "",
     materialDecorator: "checkbox-material",
     other: "sv_q_checkbox_other form-control",
@@ -74,6 +76,7 @@ export var defaultBootstrapCss = {
   matrix: {
     root: "table sv_q_matrix",
     label: "sv_q_m_label",
+    itemDecorator: "sv-none-display-item",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label"
@@ -105,6 +108,7 @@ export var defaultBootstrapCss = {
     item: "radio",
     label: "",
     itemControl: "",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "",
     materialDecorator: "circle",
     other: "sv_q_radiogroup_other form-control",

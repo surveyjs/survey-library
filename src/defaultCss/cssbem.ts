@@ -21,13 +21,13 @@ export var bemCss = {
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
   page: {
-    root: "sv-page__root",
+    root: "sv-page sv-body__page",
     title: "sv-page__title",
     description: "sv-page__description"
   },
   pageTitle: "sv-title sv-page__title",
-  pageDescription: "sv-page__description",
-  row: "sv-page__row sv-row",
+  pageDescription: "sv-page sv-page__description",
+  row: "sv-row",
   question: {
     mainRoot: "sv-question sv-row__question",
     flowRoot: "sv-question sv-row__question sv-row__question--flow",
@@ -44,7 +44,8 @@ export var bemCss = {
     hasError: "sv-question--has-error",
     hasAnswer: "sv-question--has-answer",
     indent: 20,
-    footer: "sv-question__footer"
+    footer: "sv-question__footer",
+    scroll: "sv-scroll"
   },
   error: {
     root: "",
@@ -118,7 +119,8 @@ export var bemCss = {
     itemValue: " sv-radio__control",
     itemDecorator: "sv-radio__decorator sv-matrix__control",
     cellText: "sv-matrix__cell-text",
-    cellTextSelected: "sv-matrix__cell-text--selected"
+    cellTextSelected: "sv-matrix__cell-text--selected",
+    scroll: "sv-scroll"
   },
   matrixdropdown: {
     root: "sv-table sv-matrix-dropdown",
@@ -133,7 +135,8 @@ export var bemCss = {
     buttonAdd: "sv-matrixdynamic__btn--add",
     buttonRemove: "sv-matrixdynamic__btn--remove",
     iconAdd: "",
-    iconRemove: ""
+    iconRemove: "",
+    scroll: "sv-scroll"
   },
   rating: {
     root: "sv-rating",

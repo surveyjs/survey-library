@@ -2,3 +2,9 @@
 }
 .sv-body__footer {
 }
+.sv-body__page {
+  margin: 0;
+  @media only screen and (min-width: 768px) {
+    margin-left: 5.57em;
+  }
+}

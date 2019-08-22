@@ -21,7 +21,7 @@ export var bemCss = {
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
   page: {
-    root: "sv-page__root",
+    root: "sv-page sv-body__page",
     title: "sv-page__title",
     description: "sv-page__description"
   },

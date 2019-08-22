@@ -154,11 +154,16 @@ export class SurveyQuestion extends SurveyElementBase {
       delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
     }
     return (
-      <h5 className={cssClasses.title}>
-        {number}
-        {delimiter}
-        {titleText}
-      </h5>
+      <div
+        className={cssClasses.titleContainer}
+        title={this.question.locTitle.renderedHtml}
+      >
+        <h5 className={cssClasses.title}>
+          {number}
+          {delimiter}
+          {titleText}
+        </h5>
+      </div>
     );
   }
   protected renderDescription(cssClasses: any): JSX.Element {

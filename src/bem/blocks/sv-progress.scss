@@ -1,4 +1,17 @@
 .sv-progress {
+  height: 0.3em;
+  background-color: $header-background-color;
 }
-.sv__progress__bar {
+.sv-progress__bar {
+  height: 100%;
+  min-width: 100px;
+  background-color: $main-color;
+  position: relative;
+  margin-top: 2em;
+  > span {
+    position: absolute;
+    top: -1.5em;
+    display: inline-block;
+    white-space: nowrap;
+  }
 }

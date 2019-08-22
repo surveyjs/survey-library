@@ -8,7 +8,7 @@
       >
         <input
           type="radio"
-          style="display: none;"
+          class="sv-visuallyhidden"
           :name="question.name"
           :id="question.name + index"
           :value="item.value"

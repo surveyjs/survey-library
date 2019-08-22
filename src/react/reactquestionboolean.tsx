@@ -51,7 +51,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           <input
             ref="check"
             type="checkbox"
-            value={this.question.checkedValue}
+            value={
+              this.question.checkedValue === null
+                ? ""
+                : this.question.checkedValue
+            }
             id={this.question.inputId}
             disabled={this.isDisplayMode}
             checked={this.question.checkedValue}

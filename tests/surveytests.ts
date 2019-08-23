@@ -6085,8 +6085,8 @@ QUnit.test(
       ],
       question5: { text1: "a", text2: "b" },
       question9: {
-        "Row 1": { "Column 1": 1, "Column 2": "2", "Column 3": 3 },
-        "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 }
+        "Row 1": { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
+        "Row 2": { "Column 1": 4, "Column 2": 5, "Column 3": 4 }
       },
       question10: { "Row 1": "Column 1", "Row 2": "Column 2" },
       question8: [
@@ -6127,8 +6127,8 @@ QUnit.test(
     assert.deepEqual(plainData[8].value, { text1: "a", text2: "b" });
     assert.equal(plainData[8].score, 5);
     assert.deepEqual(plainData[9].value, {
-      "Row 1": { "Column 1": 1, "Column 2": "2", "Column 3": 3 },
-      "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 }
+      "Row 1": { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
+      "Row 2": { "Column 1": 4, "Column 2": 5, "Column 3": 4 }
     });
     assert.equal(plainData[9].score, 9);
 

@@ -1,7 +1,12 @@
 .sv-panel {
-  box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.09);
-  border: solid 1px #d4d4d4;
-  background-color: #ffffff;
+  padding: 0.5em 1em 0em 1em;
 }
 .sv-panel__title {
+  font-size: 1.3em;
+  margin: 0;
+  padding-left: 0.5em;
+}
+.sv-panel--expandable {
+  .sv-panel__title {
+  }
 }

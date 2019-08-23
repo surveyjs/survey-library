@@ -14,19 +14,23 @@ export var bemCss = {
     start: "sv-btn sv-footer__btn--location--right"
   },
   panel: {
-    title: "",
-    description: "",
-    container: ""
+    title: "sv-title sv-panel__title",
+    description: "sv-description sv-panel__description",
+    container: "sv-panel sv-row__panel"
+  },
+  paneldynamic: {
+    navigation: "sv-paneldynamic__navigation",
+    title: "sv-title sv-question__title"
   },
   progress: "sv-progress",
   progressBar: "sv-progress__bar",
   page: {
     root: "sv-page sv-body__page",
     title: "sv-page__title",
-    description: "sv-page__description"
+    description: "sv-description sv-page__description"
   },
   pageTitle: "sv-title sv-page__title",
-  pageDescription: "sv-page sv-page__description",
+  pageDescription: "sv-description sv-page__description",
   row: "sv-row",
   question: {
     mainRoot: "sv-question sv-row__question",

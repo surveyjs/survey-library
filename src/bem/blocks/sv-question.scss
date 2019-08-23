@@ -50,19 +50,23 @@
   padding: 1em 0;
 }
 .sv-question--has-answer {
-  .sv-question__title-container {
-    background-color: $answer-background-color;
+  & > :not(.sv-question__content) {
+    .sv-question__title-container {
+      background-color: $answer-background-color;
+    }
   }
 }
 .sv-question--has-error {
-  .sv-question__title-container {
-    background-color: $error-background-color;
-  }
-  .sv-question__input {
-    color: $error-color;
-    border-color: $error-color;
-  }
-  .sv-question__input::placeholder {
-    color: $error-color;
+  & > :not(.sv-question__content) {
+    .sv-question__title-container {
+      background-color: $error-background-color;
+    }
+    .sv-question__input {
+      color: $error-color;
+      border-color: $error-color;
+    }
+    .sv-question__input::placeholder {
+      color: $error-color;
+    }
   }
 }

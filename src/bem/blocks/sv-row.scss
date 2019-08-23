@@ -1,6 +1,10 @@
+.sv-row {
+  white-space: nowrap;
+}
 .sv-row__question {
   display: inline-block;
   vertical-align: top;
+  white-space: normal;
 }
 .sv-row__question--small:only-child {
   @media only screen and (min-width: 768px) {

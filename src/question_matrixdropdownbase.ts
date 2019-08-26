@@ -841,6 +841,7 @@ export class MatrixDropdownRowModelBase
       }
     }
     this.isSettingValue = false;
+    /*
     for (var i = 0; i < this.cells.length; i++) {
       var cell = this.cells[i];
       if (
@@ -854,6 +855,7 @@ export class MatrixDropdownRowModelBase
         this.setValue(cell.column.name, cell.question.value);
       }
     }
+    */
   }
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
@@ -1600,8 +1602,25 @@ export class QuestionMatrixDropdownModelBase
         var properties = { survey: this.survey };
         this.runCellsCondition(this.data.getAllValues(), properties);
       }
+      this.updateValueOnRowsGeneration(this.generatedVisibleRows);
     }
     return this.generatedVisibleRows;
+  }
+  private updateValueOnRowsGeneration(rows: Array<MatrixDropdownRowModelBase>) {
+    var oldValue = this.createNewValue(true);
+    var newValue = this.createNewValue();
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var rowValue = this.getRowValue(i);
+      var rValue = row.value;
+      if (this.isTwoValueEquals(rowValue, rValue)) continue;
+      newValue = this.getNewValueOnRowChanged(row, "", rValue, false, newValue)
+        .value;
+    }
+    if (this.isTwoValueEquals(oldValue, newValue)) return;
+    this.isRowChanging = true;
+    this.setNewValue(newValue);
+    this.isRowChanging = false;
   }
   public get totalValue(): any {
     if (!this.hasTotal) return {};
@@ -1661,18 +1680,25 @@ export class QuestionMatrixDropdownModelBase
   protected generateTotalRow(): MatrixDropdownRowModelBase {
     return new MatrixDropdownTotalRowModel(this);
   }
-  protected createNewValue(): any {
-    return !this.value ? {} : this.createValueCopy();
+  protected createNewValue(nullOnEmpty: boolean = false): any {
+    var res = !this.value ? {} : this.createValueCopy();
+    if (nullOnEmpty && this.isMatrixValueEmpty(res)) return null;
+    return res;
   }
   protected getRowValueCore(
     row: MatrixDropdownRowModelBase,
     questionValue: any,
     create: boolean = false
   ): any {
-    var result = questionValue[row.rowName] ? questionValue[row.rowName] : null;
+    var result =
+      !!questionValue && !!questionValue[row.rowName]
+        ? questionValue[row.rowName]
+        : null;
     if (!result && create) {
       result = {};
-      questionValue[row.rowName] = result;
+      if (!!questionValue) {
+        questionValue[row.rowName] = result;
+      }
     }
     return result;
   }
@@ -1854,6 +1880,7 @@ export class QuestionMatrixDropdownModelBase
     newValue: any,
     row: MatrixDropdownRowModelBase
   ): any {
+    if (!newValue) return newValue;
     delete newValue[row.rowName];
     return this.isObject(newValue) && Object.keys(newValue).length == 0
       ? null
@@ -1941,11 +1968,30 @@ export class QuestionMatrixDropdownModelBase
     newRowValue: any,
     isDeletingValue: boolean
   ) {
-    var oldValue = this.createNewValue();
-    if (this.isMatrixValueEmpty(oldValue)) oldValue = null;
-    var newValue = this.createNewValue();
+    var oldValue = this.createNewValue(true);
+    var combine = this.getNewValueOnRowChanged(
+      row,
+      columnName,
+      newRowValue,
+      isDeletingValue,
+      this.createNewValue()
+    );
+    if (this.isTwoValueEquals(oldValue, combine.value)) return;
+    this.isRowChanging = true;
+    this.setNewValue(combine.value);
+    this.isRowChanging = false;
+    if (columnName) {
+      this.onCellValueChanged(row, columnName, combine.rowValue);
+    }
+  }
+  private getNewValueOnRowChanged(
+    row: MatrixDropdownRowModelBase,
+    columnName: string,
+    newRowValue: any,
+    isDeletingValue: boolean,
+    newValue: any
+  ): any {
     var rowValue = this.getRowValueCore(row, newValue, true);
-    if (!rowValue) rowValue = {};
     if (isDeletingValue) {
       delete rowValue[columnName];
     }
@@ -1964,13 +2010,7 @@ export class QuestionMatrixDropdownModelBase
     if (this.isObject(rowValue) && Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }
-    if (this.isTwoValueEquals(oldValue, newValue)) return;
-    this.isRowChanging = true;
-    this.setNewValue(newValue);
-    this.isRowChanging = false;
-    if (columnName) {
-      this.onCellValueChanged(row, columnName, rowValue);
-    }
+    return { value: newValue, rowValue: rowValue };
   }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
     return this.visibleRows.indexOf(row);

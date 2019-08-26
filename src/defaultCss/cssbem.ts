@@ -97,15 +97,17 @@ export var bemCss = {
     materialDecorator: "checkbox-material"
   },
   text: {
-    root: "sv-text sv-question__input",
-    small: "sv-row__question--small"
+    root: "sv-text",
+    small: "sv-row__question--small",
+    error: "sv-text--error"
   },
   dropdown: {
-    small: "sv-row__question--small",
     root: "sv-dropdown",
-    control: "sv-dropdown sv-question__input",
+    small: "sv-row__question--small",
+    control: "sv-dropdown",
     selectWrapper: "",
-    other: "sv-comment"
+    other: "sv-comment",
+    error: "sv-dropdown--error"
   },
   imagepicker: {
     root: "sv-imagepicker",

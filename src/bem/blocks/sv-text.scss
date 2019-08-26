@@ -37,3 +37,10 @@
 .sv-text[type="date"]::-webkit-inner-spin-button {
   display: none;
 }
+.sv-text--error {
+  color: $error-color;
+  border-color: $error-color;
+}
+.sv-text--error::placeholder {
+  color: $error-color;
+}

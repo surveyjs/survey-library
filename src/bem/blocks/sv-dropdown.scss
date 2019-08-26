@@ -25,3 +25,10 @@
 .sv-dropdown::-ms-expand {
   display: none;
 }
+.sv-dropdown--error {
+  color: $error-color;
+  border-color: $error-color;
+}
+.sv-dropdown--error::placeholder {
+  color: $error-color;
+}

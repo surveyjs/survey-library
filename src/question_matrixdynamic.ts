@@ -566,10 +566,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     create: boolean = false
   ): any {
     if (!this.generatedVisibleRows) return {};
-    return this.getRowValueByIndex(
+    var res = this.getRowValueByIndex(
       questionValue,
       this.generatedVisibleRows.indexOf(row)
     );
+    if (!res && create) res = {};
+    return res;
   }
 }
 

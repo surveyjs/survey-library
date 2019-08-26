@@ -16,11 +16,19 @@ export var bemCss = {
   panel: {
     title: "sv-title sv-panel__title",
     description: "sv-description sv-panel__description",
-    container: "sv-panel sv-row__panel"
+    container: "sv-panel sv-row__panel",
+    icon: "sv-panel__icon",
+    iconExpanded: "sv-panel__icon--expanded"
   },
   paneldynamic: {
     navigation: "sv-paneldynamic__navigation",
-    title: "sv-title sv-question__title"
+    title: "sv-title sv-question__title",
+    button: "sv-btn sv-paneldynamic__btn",
+    buttonRemove: "sv-paneldynamic__btn--remove",
+    buttonAdd: "sv-paneldynamic__btn--add",
+    progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
+    progressBottom:
+      "sv-paneldynamic__progress sv-paneldynamic__progress--bottom"
   },
   progress: "sv-progress",
   progressBar: "sv-progress__bar",

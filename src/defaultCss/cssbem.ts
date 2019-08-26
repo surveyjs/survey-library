@@ -107,7 +107,7 @@ export var bemCss = {
   text: {
     root: "sv-text",
     small: "sv-row__question--small",
-    error: "sv-text--error"
+    onError: "sv-text--error"
   },
   dropdown: {
     root: "sv-dropdown",
@@ -115,7 +115,7 @@ export var bemCss = {
     control: "sv-dropdown",
     selectWrapper: "",
     other: "sv-comment",
-    error: "sv-dropdown--error"
+    onError: "sv-dropdown--error"
   },
   imagepicker: {
     root: "sv-imagepicker",

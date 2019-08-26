@@ -39,6 +39,8 @@ export var bemCss = {
     content: "sv-question__content",
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",
+    titleContainerAnswer: "sv-question__title-container--answer",
+    titleContainerError: "sv-question__title-container--error",
     title: "sv-title sv-question__title",
     number: "sv-question__num",
     description: "sv-description sv-question__description",

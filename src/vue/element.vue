@@ -1,7 +1,7 @@
 <template>
   <div :class="getQuestionClass(element)">
     <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
-      <div :class="element.cssClasses.titleContainer" title="element.locTitle">
+      <div :class="getTitleClass(element)" title="element.locTitle">
         <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
           <span
             v-if="element.no"
@@ -25,11 +25,7 @@
       </div>
       <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
 
-      <div
-        v-if="element.hasTitleOnBottom"
-        :class="element.cssClasses.titleContainer"
-        title="element.locTitle"
-      >
+      <div v-if="element.hasTitleOnBottom" :class="getTitleClass(element)" title="element.locTitle">
         <h5 :class="element.cssClasses.title">
           <span
             v-if="element.no"
@@ -82,6 +78,21 @@ export class SurveyElementVue extends Vue {
     if (this.survey && !this.element.isPanel) {
       this.survey.afterRenderQuestion(<IQuestion>this.element, this.$el);
     }
+  }
+
+  getTitleClass(element: Question) {
+    var cssClasses = element.cssClasses;
+    var result = cssClasses.titleContainer;
+
+    if (!element.isEmpty()) {
+      result += " " + cssClasses.titleContainerAnswer;
+    }
+
+    if (element.errors.length > 0) {
+      result += " " + cssClasses.titleContainerError;
+    }
+
+    return result;
   }
 }
 Vue.component("survey-element", SurveyElementVue);

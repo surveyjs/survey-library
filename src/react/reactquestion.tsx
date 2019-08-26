@@ -155,7 +155,7 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return (
       <div
-        className={cssClasses.titleContainer}
+        className={this.getTitleClass(this.question)}
         title={this.question.locTitle.renderedHtml}
       >
         <h5 className={cssClasses.title}>
@@ -166,6 +166,22 @@ export class SurveyQuestion extends SurveyElementBase {
       </div>
     );
   }
+
+  private getTitleClass(element: Question) {
+    var cssClasses = element.cssClasses;
+    var result = cssClasses.titleContainer;
+
+    if (!element.isEmpty()) {
+      result += " " + cssClasses.titleContainerAnswer;
+    }
+
+    if (element.errors.length > 0) {
+      result += " " + cssClasses.titleContainerError;
+    }
+
+    return result;
+  }
+
   protected renderDescription(cssClasses: any): JSX.Element {
     if (this.question.locDescription.isEmpty) return null;
     var descriptionText = SurveyElementBase.renderLocString(

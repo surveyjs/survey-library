@@ -8,46 +8,46 @@
   background-color: transparent;
   box-sizing: border-box;
   margin: 0;
-  margin-bottom: 0.92em;
-  padding-left: 0.5em;
-  padding-top: 0.36em;
-  padding-bottom: 0.36em;
+  margin-bottom: 0.8em;
+  padding-left: 0.44em;
+  padding-top: 0.31em;
+  padding-bottom: 0.31em;
 }
 .sv-question__title {
-  font-size: 1.3em;
+  font-size: 1.25em;
   overflow: hidden;
   margin: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sv-question__description {
-  padding-left: 0.5em;
+  padding-left: 0.44em;
   font-size: 1em;
   margin: 0;
-  margin-top: -0.91em;
-  min-height: 0.91em;
+  margin-top: -0.8em;
+  min-height: 0.8em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sv-question__input {
-  height: 2.07em;
+  height: 1.81em;
   width: 100%;
 }
 .sv-question__content {
-  padding-left: 1.93em;
+  padding-left: 1.69em;
 }
 .sv-question__erbox {
   color: $error-color;
   font-weight: bold;
-  font-size: 0.85em;
+  font-size: 0.74em;
 }
 .sv-question__erbox--location--top {
 }
 .sv-question__erbox--location--bottom {
 }
 .sv-question__footer {
-  padding: 1em 0;
+  padding: 0.87em 0;
 }
 .sv-question__title-container--answer {
   background-color: $answer-background-color;

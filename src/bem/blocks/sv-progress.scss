@@ -1,13 +1,13 @@
 .sv-progress {
-  height: 0.3em;
+  height: 0.26em;
   background-color: $header-background-color;
 }
 .sv-progress__bar {
   height: 100%;
-  min-width: 100px;
+  min-width: 87.5em;
   background-color: $main-color;
   position: relative;
-  margin-top: 2em;
+  margin-top: 1.75em;
   > span {
     position: absolute;
     top: -1.5em;

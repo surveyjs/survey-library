@@ -1,14 +1,14 @@
 .sv-checkbox__decorator {
-  border: 0.21em solid;
+  border: 0.18em solid;
   border-color: $border-color;
-  border-radius: 0.14em;
+  border-radius: 0.12em;
   box-sizing: border-box;
   display: inline-block;
   fill: transparent;
-  height: 1.71em;
+  height: 1.5em;
   opacity: 0.5;
   position: relative;
-  width: 1.71em;
+  width: 1.5em;
 }
 .sv-checkbox__control:checked:disabled,
 .sv-checkbox__control:hover {
@@ -32,6 +32,6 @@
   }
 }
 .sv-checkbox__control:focus + .sv-checkbox__decorator {
-  box-shadow: 0 0 0 0.21em white, 0 0 0 0.28em#19ab8d;
+  box-shadow: 0 0 0 0.18em white, 0 0 0 0.24em#19ab8d;
   outline: none;
 }

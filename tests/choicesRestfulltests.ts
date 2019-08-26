@@ -398,6 +398,12 @@ QUnit.test("Use variables", function(assert) {
   );
   stateQuestion.value = "";
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
+  stateQuestion.value = "tx_cities";
+  assert.equal(
+    question.visibleChoices.length,
+    3,
+    "We have three cities again, TX"
+  );
 });
 
 QUnit.test("onLoadItemsFromServer event", function(assert) {

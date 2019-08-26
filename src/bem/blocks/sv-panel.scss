@@ -1,5 +1,6 @@
 .sv-panel {
   padding: 0.44em 0.87em 0 0.87em;
+  box-sizing: border-box;
 }
 .sv-panel__title {
   font-size: 1.25em;
@@ -7,6 +8,7 @@
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   padding-left: 0.44em;
+  padding-right: 1em;
 }
 .sv-panel__title--expandable {
 }

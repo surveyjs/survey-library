@@ -159,6 +159,8 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         ? this.selectAllChanged
         : this.handleOnChange;
 
+    var locText: any = this.item.locText;
+
     return (
       <div className={itemClass}>
         <label className={this.cssClasses.label}>
@@ -172,12 +174,17 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             checked={isChecked}
             onChange={onItemChanged}
             aria-required={this.question.isRequired}
-            aria-label={this.item.locText.renderedHtml}
+            aria-label={locText.renderedHtml}
           />
           <span className={this.cssClasses.materialDecorator}>
             <span className="check" />
           </span>
-          <span className={this.cssClasses.controlLabel}>{text}</span>
+          <span
+            className={this.cssClasses.controlLabel}
+            title={locText["koRenderedHtml"]}
+          >
+            {text}
+          </span>
         </label>
         {otherItem}
       </div>

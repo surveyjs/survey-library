@@ -154,6 +154,8 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
 
     if (this.isChecked) itemClass += " checked";
 
+    var locText: any = this.item.locText;
+
     return (
       <div className={itemClass}>
         <label className={this.cssClasses.label}>
@@ -167,11 +169,16 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
             aria-required={this.question.isRequired}
-            aria-label={this.item.locText.renderedHtml}
+            aria-label={locText.renderedHtml}
           />
           <span className={this.cssClasses.materialDecorator} />
           <span className="check" />
-          <span className={this.cssClasses.controlLabel}>{itemText}</span>
+          <span
+            className={this.cssClasses.controlLabel}
+            title={locText["koRenderedHtml"]}
+          >
+            {itemText}
+          </span>
         </label>
         {otherItem}
       </div>

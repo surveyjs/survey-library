@@ -2627,7 +2627,69 @@ QUnit.test("visibleIf, allow dot in question name", function(assert) {
   q1.value = "false";
   assert.equal(q2.visible, false, "q2 should be invisible again");
 });
-
+QUnit.test("visibleIf, Does not work with many dots", function(assert) {
+  var survey = new SurveyModel({
+    "elements": [{
+      "type": "radiogroup",
+      "name": "a.b.c.d",
+      "choices": [0, 1, 2]
+    },{
+      "type": "text",
+      "name": "q2",
+      "visibleIf": "{a.b.c.d} = 1"
+    }]
+  });
+  var q1 = <Question>survey.getQuestionByName("a.b.c.d");
+  var q2 = <Question>survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is invisible by default");
+  q1.value = 1;
+  assert.equal(q2.isVisible, true, "q2 is visible now");
+});
+QUnit.test("visibleIf, Does not work with many dots (2)", function(assert) {
+  var survey = new SurveyModel({
+    "elements": [{
+      "type": "radiogroup",
+      "name": "a.b",
+      "choices": [0, 1, 2]
+    },{
+      "type": "radiogroup",
+      "name": "a.b.c.d",
+      "choices": [0, 1, 2]
+    },{
+      "type": "text",
+      "name": "q2",
+      "visibleIf": "{a.b.c.d} = 1"
+    }]
+  });
+  var q1 = <Question>survey.getQuestionByName("a.b.c.d");
+  var q2 = <Question>survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is invisible by default");
+  q1.value = 1;
+  assert.equal(q2.isVisible, true, "q2 is visible now");
+});
+QUnit.test("visibleIf, Does not work with many dots (3)", function(assert) {
+  var survey = new SurveyModel({
+    questions: [
+        {
+            name: "application.contactMethod",
+            type: "text"
+        }, {
+            name: "application.contactMethod.Notification.Number",
+            type: "text"
+        }, {
+            name: "q3",
+            type: "text",
+            visibleIf:"{application.contactMethod.Notification.Number}>2",
+        }
+    ]});
+    var q1 = <Question>survey.getQuestionByName("application.contactMethod");
+  var q2 = <Question>survey.getQuestionByName("application.contactMethod.Notification.Number");
+  var q3 = <Question>survey.getQuestionByName("q3");
+  assert.equal(q3.isVisible, false, "q3 is invisible by default");
+    q1.value = 1;
+  q2.value = 3;
+  assert.equal(q3.isVisible, true, "q3 is visible now");
+});
 
 QUnit.test("enableIf for question", function(assert) {
   var survey = new SurveyModel({

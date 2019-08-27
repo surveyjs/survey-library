@@ -171,6 +171,12 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
           />
+          <svg
+            className={this.cssClasses.itemDecorator}
+            viewBox="-12 -12 24 24"
+          >
+            <circle r="6" cx="0" cy="0" />
+          </svg>
           <span className={this.cssClasses.materialDecorator} />
           <span className="check" />
           <span

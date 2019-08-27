@@ -176,6 +176,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             aria-required={this.question.isRequired}
             aria-label={locText.renderedHtml}
           />
+          <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
+            <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z" />
+          </svg>
           <span className={this.cssClasses.materialDecorator}>
             <span className="check" />
           </span>

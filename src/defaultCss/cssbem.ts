@@ -43,7 +43,7 @@ export var bemCss = {
   question: {
     mainRoot: "sv-question sv-row__question",
     flowRoot: "sv-question sv-row__question sv-row__question--flow",
-    asCell: "sv-table__cell sv-question--cell",
+    asCell: "sv-table__cell",
     content: "sv-question__content",
     titleLeftRoot: "",
     titleContainer: "sv-question__title-container",

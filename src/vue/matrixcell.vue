@@ -1,13 +1,13 @@
 <template>
   <td :class="getQuestionClass()" :headers="getHeaders()">
     <div v-if="cell.hasQuestion">
-      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'"/>
+      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component
         v-show="isVisible"
         :is="getWidgetComponentName(cell.question)"
         :question="cell.question"
       />
-      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'"/>
+      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'" />
     </div>
     <button
       v-if="cell.isRemoveRow"
@@ -18,7 +18,7 @@
       <span>{{question.removeRowText}}</span>
       <span :class="question.cssClasses.iconRemove"></span>
     </button>
-    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle"/>
+    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
   </td>
 </template>
 
@@ -63,6 +63,8 @@ export class MatrixCell extends Vue {
     if (!!element.errors && element.errors.length > 0) {
       classes += " " + element.cssClasses.hasError;
     }
+
+    classes += " " + element.cssClasses.asCell;
 
     return classes;
   }

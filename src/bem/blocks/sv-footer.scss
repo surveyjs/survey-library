@@ -2,9 +2,15 @@
   min-height: $base-line-height;
   padding: 0.87em 0;
 }
-.sv-footer__btn--location--right {
+.sv-footer__btn--action--complete {
+  background-color: $main-color;
   float: right;
 }
-.sv-footer__btn--location--left {
+.sv-footer__btn--action--next {
+  background-color: $main-color;
+  float: right;
+}
+.sv-footer__btn--action--prev {
+  background-color: $main-color;
   float: left;
 }

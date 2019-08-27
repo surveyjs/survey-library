@@ -109,6 +109,12 @@ export var bemCss = {
     small: "sv-row__question--small",
     onError: "sv-text--error"
   },
+  multipletext: {
+    root: "sv-multipletext",
+    item: "sv-multipletext__item",
+    itemTitle: "sv-multipletext__item-title",
+    row: "sv-multipletext__row"
+  },
   dropdown: {
     root: "sv-dropdown",
     small: "sv-row__question--small",

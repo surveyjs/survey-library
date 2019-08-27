@@ -61,10 +61,16 @@ export class SurveyElementVue extends Vue {
     return "survey-" + element.getTemplate();
   }
   getQuestionClass(element: Question) {
+    var questionClass = "";
     if (!!element.cssMainRoot) {
-      return element.cssMainRoot;
+      questionClass += element.cssMainRoot;
     }
-    return "";
+
+    if (element.cssClasses.small && !element.width) {
+      questionClass += " " + element.cssClasses.small;
+    }
+
+    return questionClass;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

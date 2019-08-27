@@ -80,6 +80,7 @@ function init() {
         isRequired: true,
         hasNone: true,
         colCount: 4,
+        hasSelectAll: true,
         choices: [
           "Ford",
           "Vauxhall",

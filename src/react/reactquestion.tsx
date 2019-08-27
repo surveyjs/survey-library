@@ -89,20 +89,22 @@ export class SurveyQuestion extends SurveyElementBase {
     var titleBottom = titleLocation === "bottom" ? title : null;
     var titleLeft = titleLocation === "left" ? title : null;
     var titleLeftClass = titleLocation === "left" ? "title-left" : null;
-    var contentLeftClass = titleLocation === "left" ? "content-left" : null;
+    var contentClass = question.cssClasses.content;
     var descriptionLeft = titleLocation === "left" ? description : null;
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
     let questionRootClass = question.cssMainRoot;
+
+    if (titleLocation === "left") {
+      contentClass += " " + "content-left";
+    }
 
     if (question.cssClasses.small && !question.width) {
       questionRootClass += " " + question.cssClasses.small;
     }
 
     var comment =
-      question && question.hasComment
-        ? this.renderComment(cssClasses)
-        : null;
+      question && question.hasComment ? this.renderComment(cssClasses) : null;
     var errorsTop =
       this.creator.questionErrorLocation() === "top"
         ? this.renderErrors(cssClasses, "top")
@@ -112,10 +114,8 @@ export class SurveyQuestion extends SurveyElementBase {
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
-    if (question.renderWidth)
-      rootStyle["width"] = question.renderWidth;
-    if (!!question.paddingLeft)
-      rootStyle["paddingLeft"] = question.paddingLeft;
+    if (question.renderWidth) rootStyle["width"] = question.renderWidth;
+    if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
 
@@ -133,7 +133,7 @@ export class SurveyQuestion extends SurveyElementBase {
           {descriptionLeft}
         </div>
 
-        <div className={contentLeftClass}>
+        <div className={contentClass}>
           {errorsTop}
           {questionRender}
           {comment}

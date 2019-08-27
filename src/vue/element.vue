@@ -1,5 +1,5 @@
 <template>
-  <div :class="getQuestionClass(element)">
+  <div :class="getRootClass(element)">
     <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
       <div :class="getTitleClass(element)" title="element.locTitle">
         <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
@@ -16,7 +16,7 @@
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
-    <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
+    <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment">
@@ -60,17 +60,40 @@ export class SurveyElementVue extends Vue {
     }
     return "survey-" + element.getTemplate();
   }
-  getQuestionClass(element: Question) {
-    var questionClass = "";
+  getRootClass(element: Question) {
+    var rootClass = "";
     if (!!element.cssMainRoot) {
-      questionClass += element.cssMainRoot;
+      rootClass += element.cssMainRoot;
     }
 
     if (element.cssClasses.small && !element.width) {
-      questionClass += " " + element.cssClasses.small;
+      rootClass += " " + element.cssClasses.small;
     }
 
-    return questionClass;
+    return rootClass;
+  }
+  getTitleClass(element: Question) {
+    var cssClasses = element.cssClasses;
+    var titleClass = cssClasses.titleContainer;
+
+    if (!element.isEmpty()) {
+      titleClass += " " + cssClasses.titleContainerAnswer;
+    }
+
+    if (element.errors.length > 0) {
+      titleClass += " " + cssClasses.titleContainerError;
+    }
+
+    return titleClass;
+  }
+  getContentClass(element: Question) {
+    var contentClass = element.cssClasses.content;
+
+    if (element.hasTitleOnLeft) {
+      contentClass += " " + "content-left";
+    }
+
+    return contentClass;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";
@@ -84,21 +107,6 @@ export class SurveyElementVue extends Vue {
     if (this.survey && !this.element.isPanel) {
       this.survey.afterRenderQuestion(<IQuestion>this.element, this.$el);
     }
-  }
-
-  getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var result = cssClasses.titleContainer;
-
-    if (!element.isEmpty()) {
-      result += " " + cssClasses.titleContainerAnswer;
-    }
-
-    if (element.errors.length > 0) {
-      result += " " + cssClasses.titleContainerError;
-    }
-
-    return result;
   }
 }
 Vue.component("survey-element", SurveyElementVue);

@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-dropdown">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.koCss().selectWrapper">
-      <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.renderedValue, valueAllowUnset: true, css: question.koCss().control + (question.errors.length > 0 ? ' ' + question.koCss().error : '')">
+      <select data-bind="attr: {id: question.inputId, 'aria-label': question.locTitle.renderedHtml}, value: question.renderedValue, valueAllowUnset: true, css: question.koCss().control + (question.errors.length > 0 ? ' ' + question.koCss().onError : '')">
         <!-- ko if: question.showOptionsCaption -->
         <option data-bind="text:question.optionsCaption, value: null"></option>
         <!-- /ko -->

@@ -12,7 +12,7 @@
       />
       <!-- /ko -->
       <!-- ko ifnot: question.koIsList()  -->
-      <div data-bind="visible:question.koIsProgressTop">
+      <div data-bind="visible:question.koIsProgressTop, css: question.koCss().progressTop">
           <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
           <!-- /ko -->
       </div>
@@ -22,7 +22,7 @@
       <!-- /ko -->
       <input type="button" style="margin-top:5px" data-bind="visible: question.koCanRemovePanel, click:question.koRemovePanelClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove, value: question.panelRemoveText"
       />
-      <div data-bind="visible:question.koIsProgressBottom">
+      <div data-bind="visible:question.koIsProgressBottom,  css: question.koCss().progressBottom">
           <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
           <!-- /ko -->
       </div>

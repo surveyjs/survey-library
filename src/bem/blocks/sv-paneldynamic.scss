@@ -1,6 +1,3 @@
-.sv-paneldynamic__navigation {
-  height: 2.13em;
-}
 .sv-paneldynamic__btn--prev {
   background-color: $main-color;
 }
@@ -12,4 +9,7 @@
 }
 .sv-paneldynamic__btn--remove {
   background-color: $remove-button-color;
+}
+.sv-paneldynamic__progress {
+  min-height: 2.12em;
 }

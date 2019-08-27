@@ -14,7 +14,7 @@
         >
         <span :class="question.cssClasses.materialDecorator"></span>
         <span class="check"></span>
-        <span :class="question.cssClasses.controlLabel">
+        <span :class="question.cssClasses.controlLabel" :title="item.locText.koRenderedHtml">
           <survey-string :locString="item.locText"/>
         </span>
       </label>

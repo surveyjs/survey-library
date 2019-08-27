@@ -111,9 +111,10 @@ export class ChoicesRestfull extends Base {
     this.processedText(textProcessor);
     if (!this.processedUrl) {
       this.doEmptyResultCallback({});
+      this.lastObjHash = this.objHash;
       return;
     }
-    if (this.lastObjHash == this.objHash) return;
+    if (this.lastObjHash === this.objHash) return;
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) return;

@@ -24,16 +24,13 @@
       <label data-bind="css: question.koCss().label">
           <!-- ko if: item == question.selectAllItem -->
           <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checked: question.koAllSelected, enable: !question.isReadOnly, css: question.koCss().itemControl"/>
-          <svg viewBox="0 0 24 24" data-bind="css:question.koCss().itemDecorator">
-            <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z"/>
-          </svg>
           <!-- /ko -->
           <!-- ko if: item != question.selectAllItem -->
           <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
+          <!-- /ko -->
           <svg viewBox="0 0 24 24" data-bind="css:question.koCss().itemDecorator">
             <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z"/>
           </svg>
-          <!-- /ko -->
           <span data-bind="css: question.koCss().materialDecorator">
               <span class="check"></span>
           </span>

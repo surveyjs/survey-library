@@ -5,7 +5,7 @@
           <span data-bind="css: question.koCss().iconAdd"></span>
       </button>
   </div>
-  <div  data-bind="css: question.koCss().scroll, style: {overflowX: question.horizontalScroll? 'scroll': ''}">
+  <div data-bind="style: {overflowX: question.horizontalScroll? 'scroll': ''}">
       <table data-bind="css: question.koCss().root">
           <!-- ko if: question.koTable().showHeader -->
           <thead>

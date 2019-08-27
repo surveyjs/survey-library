@@ -1,7 +1,7 @@
 <template>
-  <div :class="getQuestionClass(element)">
+  <div :class="getRootClass(element)">
     <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
-      <div :class="element.cssClasses.titleContainer" title="element.locTitle">
+      <div :class="getTitleClass(element)" title="element.locTitle">
         <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
           <span
             v-if="element.no"
@@ -16,7 +16,7 @@
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
-    <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
+    <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment">
@@ -25,11 +25,7 @@
       </div>
       <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
 
-      <div
-        v-if="element.hasTitleOnBottom"
-        :class="element.cssClasses.titleContainer"
-        title="element.locTitle"
-      >
+      <div v-if="element.hasTitleOnBottom" :class="getTitleClass(element)" title="element.locTitle">
         <h5 :class="element.cssClasses.title">
           <span
             v-if="element.no"
@@ -64,11 +60,40 @@ export class SurveyElementVue extends Vue {
     }
     return "survey-" + element.getTemplate();
   }
-  getQuestionClass(element: Question) {
+  getRootClass(element: Question) {
+    var rootClass = "";
     if (!!element.cssMainRoot) {
-      return element.cssMainRoot;
+      rootClass += element.cssMainRoot;
     }
-    return "";
+
+    if (element.cssClasses.small && !element.width) {
+      rootClass += " " + element.cssClasses.small;
+    }
+
+    return rootClass;
+  }
+  getTitleClass(element: Question) {
+    var cssClasses = element.cssClasses;
+    var titleClass = cssClasses.titleContainer;
+
+    if (!element.isEmpty()) {
+      titleClass += " " + cssClasses.titleContainerAnswer;
+    }
+
+    if (element.errors.length > 0) {
+      titleClass += " " + cssClasses.titleContainerError;
+    }
+
+    return titleClass;
+  }
+  getContentClass(element: Question) {
+    var contentClass = element.cssClasses.content;
+
+    if (element.hasTitleOnLeft) {
+      contentClass += " " + "content-left";
+    }
+
+    return contentClass;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

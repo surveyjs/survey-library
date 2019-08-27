@@ -187,9 +187,8 @@ export class Variable extends Const {
   }
 
   public evaluate(processValue?: ProcessValue): any {
-    var variableName = this.variableName.toLowerCase();
-    return processValue.hasValue(variableName)
-      ? this.getCorrectValue(processValue.getValue(variableName))
+    return processValue.hasValue(this.variableName)
+      ? this.getCorrectValue(processValue.getValue(this.variableName))
       : null;
   }
   public setVariables(variables: Array<string>) {

@@ -76,26 +76,35 @@ export class SurveyQuestion extends SurveyElementBase {
     }
   }
   render(): JSX.Element {
-    if (!this.question || !this.creator) return null;
-    if (!this.question.isVisible) return null;
-    var cssClasses = this.question.cssClasses;
+    var question = this.question;
+
+    if (!question || !this.creator) return null;
+    if (!question.isVisible) return null;
+    var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var title = this.question.hasTitle ? this.renderTitle(cssClasses) : null;
+    var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
     var description = this.renderDescription(cssClasses);
-    var titleLocation = this.question ? this.question.getTitleLocation() : "";
+    var titleLocation = question ? question.getTitleLocation() : "";
     var titleTop = titleLocation === "top" ? title : null;
     var titleBottom = titleLocation === "bottom" ? title : null;
     var titleLeft = titleLocation === "left" ? title : null;
     var titleLeftClass = titleLocation === "left" ? "title-left" : null;
-    var contentLeftClass = titleLocation === "left" ? "content-left" : null;
+    var contentClass = question.cssClasses.content;
     var descriptionLeft = titleLocation === "left" ? description : null;
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
-    let questionRootClass = this.question.cssMainRoot;
+    let questionRootClass = question.cssMainRoot;
+
+    if (titleLocation === "left") {
+      contentClass += " " + "content-left";
+    }
+
+    if (question.cssClasses.small && !question.width) {
+      questionRootClass += " " + question.cssClasses.small;
+    }
+
     var comment =
-      this.question && this.question.hasComment
-        ? this.renderComment(cssClasses)
-        : null;
+      question && question.hasComment ? this.renderComment(cssClasses) : null;
     var errorsTop =
       this.creator.questionErrorLocation() === "top"
         ? this.renderErrors(cssClasses, "top")
@@ -105,17 +114,15 @@ export class SurveyQuestion extends SurveyElementBase {
         ? this.renderErrors(cssClasses, "bottom")
         : null;
     let rootStyle: { [index: string]: any } = {};
-    if (this.question.renderWidth)
-      rootStyle["width"] = this.question.renderWidth;
-    if (!!this.question.paddingLeft)
-      rootStyle["paddingLeft"] = this.question.paddingLeft;
-    if (!!this.question.paddingRight)
-      rootStyle["paddingRight"] = this.question.paddingRight;
+    if (question.renderWidth) rootStyle["width"] = question.renderWidth;
+    if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
+    if (!!question.paddingRight)
+      rootStyle["paddingRight"] = question.paddingRight;
 
     return (
       <div
         ref="root"
-        id={this.question.id}
+        id={question.id}
         className={questionRootClass}
         style={rootStyle}
       >
@@ -126,7 +133,7 @@ export class SurveyQuestion extends SurveyElementBase {
           {descriptionLeft}
         </div>
 
-        <div className={contentLeftClass}>
+        <div className={contentClass}>
           {errorsTop}
           {questionRender}
           {comment}
@@ -155,7 +162,7 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return (
       <div
-        className={cssClasses.titleContainer}
+        className={this.getTitleClass(this.question)}
         title={this.question.locTitle.renderedHtml}
       >
         <h5 className={cssClasses.title}>
@@ -166,6 +173,22 @@ export class SurveyQuestion extends SurveyElementBase {
       </div>
     );
   }
+
+  private getTitleClass(element: Question) {
+    var cssClasses = element.cssClasses;
+    var result = cssClasses.titleContainer;
+
+    if (!element.isEmpty()) {
+      result += " " + cssClasses.titleContainerAnswer;
+    }
+
+    if (element.errors.length > 0) {
+      result += " " + cssClasses.titleContainerError;
+    }
+
+    return result;
+  }
+
   protected renderDescription(cssClasses: any): JSX.Element {
     if (this.question.locDescription.isEmpty) return null;
     var descriptionText = SurveyElementBase.renderLocString(

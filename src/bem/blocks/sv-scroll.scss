@@ -1,9 +1,9 @@
-.sv-scroll::-webkit-scrollbar {
+.sv-main ::-webkit-scrollbar {
   height: 6px;
-}
-.sv-scroll::-webkit-scrollbar-track {
+  width: 6px;
   background-color: $main-hover-color;
 }
-.sv-scroll::-webkit-scrollbar-thumb {
+
+.sv-main ::-webkit-scrollbar-thumb {
   background: $main-color;
 }

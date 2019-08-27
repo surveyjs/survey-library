@@ -129,4 +129,10 @@ QUnit.test("Return correct value for array.length", function(assert) {
   );
   //Test for bug: #1243
   assert.equal(process.getValue("region", {}), null, "Return null string");
+  //Test for bug: https://surveyjs.answerdesk.io/ticket/details/t2558
+  assert.equal(
+    process.getValue("a.b.c.D", { "a.b": 1, "a.b.c.D": 2 }),
+    2,
+    "Ignore a.b"
+  );
 });

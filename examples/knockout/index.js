@@ -78,6 +78,7 @@ function init() {
         name: "car",
         title: "Checkbox",
         isRequired: true,
+        hasSelectAll: true,
         hasNone: true,
         colCount: 4,
         choices: [

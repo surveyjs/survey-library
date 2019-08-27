@@ -49,7 +49,12 @@ export class QuestionImplementor extends ImplementorBase {
       return self.question.cssClasses;
     });
     (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
-      return self.question.cssMainRoot;
+      var result = self.question.cssMainRoot;
+
+      if (question.koCss().small && !question.width) {
+        result += " " + question.koCss().small;
+      }
+      return result;
     });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();

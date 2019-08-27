@@ -77,6 +77,7 @@ function init() {
         type: "checkbox",
         name: "car",
         title: "Checkbox",
+        hasSelectAll: true,
         isRequired: true,
         hasNone: true,
         colCount: 4,

@@ -79,6 +79,7 @@ function init() {
         title: "Checkbox",
         isRequired: true,
         hasNone: true,
+        hasSelectAll: true,
         colCount: 4,
         choices: [
           "Ford",

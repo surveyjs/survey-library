@@ -4,14 +4,14 @@ export var bemCss = {
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
-  footer: "sv-container__sv-footer sv-footer",
+  footer: "sv-footer sv-body__footer",
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
-    complete: "sv-btn sv-footer__btn--location--right",
-    prev: "sv-btn sv-footer__btn--location--left",
-    next: "sv-btn sv-footer__btn--location--right",
-    start: "sv-btn sv-footer__btn--location--right"
+    complete: "sv-btn sv-footer__btn sv-footer__btn--action--complete",
+    prev: "sv-btn sv-footer__btn  sv-footer__btn--action--prev",
+    next: "sv-btn sv-footer__btn  sv-footer__btn--action--next",
+    start: "sv-btn sv-footer__btn  sv-footer__btn--action--start"
   },
   panel: {
     title: "sv-title sv-panel__title",
@@ -24,8 +24,8 @@ export var bemCss = {
     navigation: "sv-paneldynamic__navigation",
     title: "sv-title sv-question__title",
     button: "sv-btn sv-paneldynamic__btn",
-    buttonRemove: "sv-paneldynamic__btn--remove",
-    buttonAdd: "sv-paneldynamic__btn--add",
+    buttonRemove: "sv-paneldynamic__btn--action--remove",
+    buttonAdd: "sv-paneldynamic__btn--action--add",
     progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
     progressBottom:
       "sv-paneldynamic__progress sv-paneldynamic__progress--bottom"

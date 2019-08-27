@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-  <div data-bind="css: question.koRootClass() + (question.koCss().small && !question.width ? ' ' + question.koCss().small: '') + ' ' + question.koCss().scroll, style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
+  <div data-bind="css: question.koRootClass() + (question.koCss().small && !question.width ? ' ' + question.koCss().small: ''), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
       <div data-bind="css: {'title-left': question.hasTitleOnLeft}">
           <!-- ko if: question.hasTitleOnLeftTop -->
           <!--ko template: { name: 'survey-question-title', data: question  } -->

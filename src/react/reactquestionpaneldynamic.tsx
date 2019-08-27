@@ -112,10 +112,18 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     var navBottom = this.question.isProgressBottomShowing
       ? this.renderNavigator(cssClasses)
       : null;
+
+    var style: any = {};
+    if (this.question.horizontalScroll) {
+      style["overflowX"] = "scroll";
+    }
+
     return (
       <div className={cssClasses.root}>
         {navTop}
-        {panels}
+        <div style={style}>
+          {panels}
+        </div>
         {navBottom}
         {btnAdd}
       </div>

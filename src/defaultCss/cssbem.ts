@@ -50,8 +50,7 @@ export var bemCss = {
     hasError: "sv-question--has-error",
     hasAnswer: "sv-question--has-answer",
     indent: 20,
-    footer: "sv-question__footer",
-    scroll: "sv-scroll"
+    footer: "sv-question__footer"
   },
   error: {
     root: "",
@@ -127,8 +126,7 @@ export var bemCss = {
     itemValue: "sv-visuallyhidden sv-radio__control",
     itemDecorator: "sv-radio__decorator sv-matrix__control ",
     cellText: "sv-matrix__cell-text",
-    cellTextSelected: "sv-matrix__cell-text--selected",
-    scroll: "sv-scroll"
+    cellTextSelected: "sv-matrix__cell-text--selected"
   },
   matrixdropdown: {
     root: "sv-table sv-matrix-dropdown",
@@ -143,8 +141,7 @@ export var bemCss = {
     buttonAdd: "sv-matrixdynamic__btn--add",
     buttonRemove: "sv-matrixdynamic__btn--remove",
     iconAdd: "",
-    iconRemove: "",
-    scroll: "sv-scroll"
+    iconRemove: ""
   },
   rating: {
     root: "sv-rating",

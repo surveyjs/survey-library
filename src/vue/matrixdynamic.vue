@@ -10,7 +10,9 @@
         <span :class="question.cssClasses.iconAdd"></span>
       </button>
     </div>
-    <survey-matrixtable :question="question"/>
+    <div :style="{overflowX: question.horizontalScroll ? 'scroll': ''}">
+      <survey-matrixtable :question="question" />
+    </div>
     <div v-if="question.isAddRowOnBottom" :class="question.cssClasses.footer">
       <button
         type="button"

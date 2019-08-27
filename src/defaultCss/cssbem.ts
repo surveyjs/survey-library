@@ -30,8 +30,9 @@ export var bemCss = {
     progressBottom:
       "sv-paneldynamic__progress sv-paneldynamic__progress--bottom"
   },
-  progress: "sv-progress",
+  progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
+  progressText: "sv-progress__text",
   page: {
     root: "sv-page sv-body__page",
     title: "sv-page__title",

@@ -491,8 +491,8 @@ QUnit.test("ConditionRunner: 10 % 3", function(assert) {
   var runner = new ExpressionRunner("10 % 3");
   assert.equal(runner.run({}), 1, "10 % 3 is 1");
   var condition = new ConditionRunner("({val1} + {val2}) % 2 = 0");
-  assert.equal(condition.run({val1: 1, val2: 3}), true, "(1+3)%2=0");
-  assert.equal(condition.run({val1: 2, val2: 3}), false, "(2+3)%2=0");
+  assert.equal(condition.run({ val1: 1, val2: 3 }), true, "(1+3)%2=0");
+  assert.equal(condition.run({ val1: 2, val2: 3 }), false, "(2+3)%2=0");
 });
 
 QUnit.test("ExpressionRunner: sumInArray", function(assert) {
@@ -800,3 +800,9 @@ QUnit.test(
     assert.equal(runner.run(values), false, "'False'=true");
   }
 );
+
+QUnit.test("Use dot, '.' in names", function(assert) {
+  var runner = new ConditionRunner("{a.b.c.d} = 1");
+  var values: any = { "a.b.c.d": 1 };
+  assert.equal(runner.run(values), true, "1 = 1");
+});

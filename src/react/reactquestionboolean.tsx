@@ -65,14 +65,14 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
           />
           <svg viewBox="0 0 24 24" className={cssClasses.itemDecorator}>
             <rect
-              className={cssClasses.noMark}
+              className={cssClasses.uncheckedMark}
               x="5"
               y="10"
               width="14"
               height="4"
             />
             <polygon
-              className={cssClasses.yesMark}
+              className={cssClasses.checkedMark}
               points="19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 "
             />
             <path

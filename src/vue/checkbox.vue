@@ -26,7 +26,7 @@ export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
     if(!this.question.hasColumns) {
       itemClass +=
       (this.question.colCount === 0
-        ? " sv_q_checkbox_inline"
+        ? " " + this.question.cssClasses.itemInline
         : " sv-q-col-" + this.question.colCount);
     }
 

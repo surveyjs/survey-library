@@ -27,7 +27,7 @@ export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
     var itemClass =
       this.question.cssClasses.item +
       (this.question.colCount === 0
-        ? " sv_q_imagepicker_inline"
+        ? " " + this.question.cssClasses.itemInline
         : " sv-q-col-" + this.question.colCount);
     if (this.question.multiSelect) {
       if (this.question.value.indexOf(item.value) !== -1) {

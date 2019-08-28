@@ -37,7 +37,7 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
 
     if(!this.question.hasColumns) {
       itemClass += (this.question.colCount === 0
-        ? " sv_q_radiogroup_inline"
+        ? " " + this.question.cssClasses.itemInline
         : " sv-q-col-" + this.question.colCount);
     }
     if (item.value === this.question.renderedValue) itemClass += " checked";

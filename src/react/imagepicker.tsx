@@ -75,7 +75,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     let itemClass =
       cssClasses.item +
       (this.question.colCount === 0
-        ? cssClasses.itemInline
+        ? " " + cssClasses.itemInline
         : " sv-q-col-" + this.question.colCount);
 
     if (isChecked) itemClass += " checked";

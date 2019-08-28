@@ -1956,10 +1956,7 @@ export class SurveyModel extends Base
    */
   public nextPage(): boolean {
     if (this.isLastPage) return false;
-    if (this.hasErrorsOnNavigate()) return false;
-    if (this.doServerValidation()) return false;
-    this.doNextPage();
-    return true;
+    return this.doCurrentPageComplete(false);
   }
   private hasErrorsOnNavigate(): boolean {
     return (
@@ -2020,9 +2017,16 @@ export class SurveyModel extends Base
    * @see doComplete
    */
   public completeLastPage(): boolean {
+    return this.doCurrentPageComplete(true);
+  }
+  protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.hasErrorsOnNavigate()) return false;
     if (this.doServerValidation()) return false;
-    this.doComplete();
+    if (doComplete) {
+      this.doComplete();
+    } else {
+      this.doNextPage();
+    }
     return true;
   }
   /**

@@ -59,6 +59,7 @@ export var defaultBootstrapCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
+    itemInline: "sv_q_checkbox_inline",
     itemControl: "",
     itemDecorator: "sv-none-display-item",
     controlLabel: "",
@@ -106,6 +107,7 @@ export var defaultBootstrapCss = {
   radiogroup: {
     root: "sv_qcbc form-inline",
     item: "radio",
+    itemInline: "sv_q_radiogroup_inline",
     label: "",
     itemControl: "",
     itemDecorator: "sv-none-display-item",
@@ -118,6 +120,7 @@ export var defaultBootstrapCss = {
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",
+    itemInline: "sv_q_imagepicker_inline",
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",
     image: "sv_q_imgsel_image",

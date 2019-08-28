@@ -69,6 +69,7 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
+    itemInline: "sv_q_checkbox_inline",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
     itemDecorator: "sv-none-display-item",
@@ -120,6 +121,7 @@ export var defaultStandardCss = {
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
+    itemInline: "sv_q_radiogroup_inline",
     itemDecorator: "sv-none-display-item",
     label: "sv_q_radiogroup_label",
     itemControl: "sv_q_radiogroup_control_item",

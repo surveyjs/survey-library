@@ -8,10 +8,10 @@ export var bemCss = {
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
-    complete: "sv-btn sv-footer__btn sv-footer__btn--action--complete",
-    prev: "sv-btn sv-footer__btn  sv-footer__btn--action--prev",
-    next: "sv-btn sv-footer__btn  sv-footer__btn--action--next",
-    start: "sv-btn sv-footer__btn  sv-footer__btn--action--start"
+    complete: "sv-btn sv-footer__complete-btn",
+    prev: "sv-btn sv-footer__prev-btn",
+    next: "sv-btn sv-footer__next-btn",
+    start: "sv-btn sv-footer__start-btn"
   },
   panel: {
     title: "sv-title sv-panel__title",
@@ -23,9 +23,9 @@ export var bemCss = {
   paneldynamic: {
     navigation: "sv-paneldynamic__navigation",
     title: "sv-title sv-question__title",
-    button: "sv-btn sv-paneldynamic__btn",
-    buttonRemove: "sv-paneldynamic__btn--action--remove",
-    buttonAdd: "sv-paneldynamic__btn--action--add",
+    button: "sv-btn",
+    buttonRemove: "sv-paneldynamic__remove-btn",
+    buttonAdd: "sv-paneldynamic__add-btn",
     progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
     progressBottom:
       "sv-paneldynamic__progress sv-paneldynamic__progress--bottom"
@@ -153,8 +153,8 @@ export var bemCss = {
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     button: "sv-btn",
-    buttonAdd: "sv-matrixdynamic__btn--add",
-    buttonRemove: "sv-matrixdynamic__btn--remove",
+    buttonAdd: "sv-matrixdynamic__add-btn",
+    buttonRemove: "sv-matrixdynamic__remove-btn",
     iconAdd: "",
     iconRemove: ""
   },
@@ -172,13 +172,18 @@ export var bemCss = {
     small: "sv-row__question--small"
   },
   expression: "",
+
   file: {
-    root: "",
-    placeholderInput: "",
-    preview: "",
-    removeButton: "",
-    fileInput: "",
-    removeFile: ""
+    root: "sv-file",
+    placeholderInput: "sv-visuallyhidden",
+    preview: "sv-file__preview",
+    fileDecorator: "sv-file__decorator",
+    fileInput: "sv-visuallyhidden",
+    noFileChosen: "sv-description sv-file__no-file-chosen",
+    chooseFile: "sv-btn sv-file__choose-btn",
+    disabled: "sv-file__choose-btn--disabled",
+    removeButton: "sv-btn sv-file__clean-btn",
+    removeFile: "sv-file__remove-file"
   },
   saveData: {
     root: "",

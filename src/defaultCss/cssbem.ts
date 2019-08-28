@@ -116,7 +116,7 @@ export var bemCss = {
     row: "sv-multipletext__row"
   },
   dropdown: {
-    root: "sv-dropdown",
+    root: "",
     small: "sv-row__question--small",
     control: "sv-dropdown",
     selectWrapper: "",

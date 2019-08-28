@@ -90,7 +90,7 @@ export var bemCss = {
     controlLabel: "sv-select-base__control-label",
     materialDecorator: "",
     other: "sv-comment",
-    clearButton: "sv-btn",
+    clearButton: "sv-btn sv-select-base__clear-btn",
     column: "sv-select-base__column"
   },
   boolean: {

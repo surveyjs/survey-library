@@ -69,39 +69,39 @@ export var bemCss = {
     locationBottom: "sv-question__erbox sv-question__erbox--location--bottom"
   },
   checkbox: {
-    root: "sv-select-base",
-    item: "sv-checkbox sv-select-base__item",
-    itemInline: "sv-select-base__item--inline",
-    label: "sv-select-base__label",
+    root: "sv-selectbase",
+    item: "sv-checkbox sv-selectbase__item",
+    itemInline: "sv-selectbase__item--inline",
+    label: "sv-selectbase__label",
     itemControl: "sv-visuallyhidden sv-checkbox__control",
-    itemDecorator: "sv-checkbox__decorator sv-select-base__control",
-    controlLabel: "sv-select-base__control-label",
+    itemDecorator: "sv-checkbox__decorator sv-selectbase__control",
+    controlLabel: "sv-selectbase__control-label",
     materialDecorator: "",
     other: "sv-comment",
-    column: "sv-select-base__column"
+    column: "sv-selectbase__column"
   },
   radiogroup: {
-    root: "sv-select-base",
-    item: "sv-radio sv-select-base__item",
-    itemInline: "sv-select-base__item--inline",
-    label: "sv-select-base__label",
+    root: "sv-selectbase",
+    item: "sv-radio sv-selectbase__item",
+    itemInline: "sv-selectbase__item--inline",
+    label: "sv-selectbase__label",
     itemControl: "sv-visuallyhidden sv-radio__control",
-    itemDecorator: "sv-radio__decorator sv-select-base__control",
-    controlLabel: "sv-select-base__control-label",
+    itemDecorator: "sv-radio__decorator sv-selectbase__control",
+    controlLabel: "sv-selectbase__control-label",
     materialDecorator: "",
     other: "sv-comment",
-    clearButton: "sv-btn",
-    column: "sv-select-base__column"
+    clearButton: "sv-btn sv-selectbase__clear-btn",
+    column: "sv-selectbase__column"
   },
   boolean: {
-    root: "sv-select-base",
-    item: "sv-select-base__item",
+    root: "sv-selectbase",
+    item: "sv-selectbase__item",
     control: "sv-visuallyhidden sv-boolean__control",
     checkedMark: "sv-boolean__checked-mark",
     uncheckedMark: "sv-boolean__unchecked-mark",
     undefinedMark: "sv-boolean__undefined-mark",
-    itemDecorator: "sv-boolean__decorator sv-select-base__control",
-    label: "sv-boolean sv-select-base__control-label",
+    itemDecorator: "sv-boolean__decorator sv-selectbase__control",
+    label: "sv-boolean sv-selectbase__control-label",
     materialDecorator: "checkbox-material"
   },
   text: {

@@ -1,21 +1,21 @@
-.sv-select-base {
+.sv-selectbase {
   padding: 0;
 }
-.sv-select-base__item {
+.sv-selectbase__item {
   position: relative;
   margin-bottom: 0.5em;
   vertical-align: middle;
 }
-.sv-select-base__item--inline {
+.sv-selectbase__item--inline {
   display: inline-block;
   padding-right: 2%;
 }
-.sv-select-base__column {
+.sv-selectbase__column {
   display: inline-block;
   width: 19%;
   vertical-align: top;
 }
-.sv-select-base__label {
+.sv-selectbase__label {
   display: inline-block;
   width: 100%;
   overflow: hidden;
@@ -23,11 +23,15 @@
   white-space: nowrap;
   padding: 0.26em;
 }
-.sv-select-base__control {
+.sv-selectbase__control {
   margin: 0;
   vertical-align: middle;
 }
-.sv-select-base__control-label {
+.sv-selectbase__control-label {
   margin-left: 1em;
   vertical-align: middle;
+}
+.sv-selectbase__clear-btn {
+  margin-top: 0.9em;
+  background-color: $add-button-color;
 }

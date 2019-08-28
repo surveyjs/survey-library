@@ -172,13 +172,18 @@ export var bemCss = {
     small: "sv-row__question--small"
   },
   expression: "",
+
   file: {
-    root: "",
-    placeholderInput: "",
-    preview: "",
-    removeButton: "",
-    fileInput: "",
-    removeFile: ""
+    root: "sv-file",
+    placeholderInput: "sv-visuallyhidden",
+    preview: "sv-file__preview",
+    fileDecorator: "sv-file__decorator",
+    fileInput: "sv-visuallyhidden",
+    noFileChosen: "sv-description sv-file__no-file-chosen",
+    chooseFile: "sv-btn sv-file__choose-btn",
+    disabled: "sv-file__choose-btn--disabled",
+    removeButton: "sv-btn sv-file__clean-btn",
+    removeFile: "sv-file__remove-file"
   },
   saveData: {
     root: "",

@@ -17,6 +17,7 @@
 }
 .sv-imagepicker__image {
   display: block;
+  pointer-events: none;
 }
 .sv-imagepicker__text {
   font-size: 1.14em;

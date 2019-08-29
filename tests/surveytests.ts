@@ -1779,6 +1779,61 @@ QUnit.test("Copy value trigger in dynamic panel, Bug# 1574", function(assert) {
     "trigger copy the value correctly"
   );
 });
+QUnit.test("Value trigger with async function", function(assert) {
+  var returnResult1: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+  trigger.expression =  "asyncFunc1({question1}) = 'Hello'";
+  trigger.setToName = "name1";
+  trigger.setValue = "val1";
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), null, "value is not set, waiting for callback");
+  returnResult1(survey.getValue("question1"));
+  assert.equal(survey.getValue("name1"), "val1", "value is set");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+});
+
+QUnit.test("RunExpression trigger test", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  survey.setValue("val1", 3);
+  survey.setValue("val2", 2);
+  var trigger = new SurveyTriggerRunExpression();
+  survey.triggers.push(trigger);
+  trigger.expression = "asyncFunc1({question1}) = 'Hello'";
+  trigger.setToName = "name1";
+  trigger.runExpression = "asyncFunc2({val1} + {val2})";
+
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), null, "value is not set, expression is not completed");
+  returnResult1(survey.getValue("question1"));
+  assert.equal(survey.getValue("name1"), null, "value is not set, runExpression is not completed");
+  returnResult2(survey.getValue("val1") + survey.getValue("val2"));
+  assert.equal(survey.getValue("name1"), 5, "value is set as expression");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
 QUnit.test("Serialize email validator", function(assert) {
   var validator = new EmailValidator();
   var json = new JsonObject().toJsonObject(validator);

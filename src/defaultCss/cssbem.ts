@@ -113,7 +113,8 @@ export var bemCss = {
     root: "sv-multipletext",
     item: "sv-multipletext__item",
     itemTitle: "sv-multipletext__item-title",
-    row: "sv-multipletext__row"
+    row: "sv-multipletext__row",
+    cell: "sv-multipletext__cell"
   },
   dropdown: {
     root: "",

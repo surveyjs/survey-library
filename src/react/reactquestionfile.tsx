@@ -68,14 +68,14 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         >
           {this.question.chooseButtonCaption}
         </label>
-        {this.question.isDisplayMode || !!this.question.value || (
+        {this.question.isDisplayMode || !this.question.isEmpty() || (
           <span className={this.question.cssClasses.noFileChosen}>
             {this.question.noFileChosenCaption}
           </span>
         )}
       </div>
     );
-    if (!!this.question.value && !this.isDisplayMode) {
+    if (!this.question.isEmpty() && !this.isDisplayMode) {
       clearButton = (
         <button
           type="button"

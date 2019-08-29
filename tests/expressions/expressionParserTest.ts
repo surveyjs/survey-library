@@ -899,4 +899,7 @@ QUnit.test("Several async functions in expression", function(assert) {
   );
   returnResult3(1);
   assert.equal(runnerResult, true, "evulate successfull");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+  FunctionFactory.Instance.unregister("asyncFunc3");
 });

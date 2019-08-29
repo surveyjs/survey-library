@@ -26,6 +26,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Survey_Questions");
 
@@ -2952,3 +2953,72 @@ QUnit.test("QuestionImagePicker.isItemSelected function", function(assert) {
     "The third time is not selected"
   );
 });
+
+QUnit.test(
+  "question visibleIf, enableIf and requiredIf with async functions in expression",
+  function(assert) {
+    var returnResult1: (res: any) => void;
+    var returnResult2: (res: any) => void;
+    var returnResult3: (res: any) => void;
+    function asyncFunc1(params: any): any {
+      returnResult1 = this.returnResult;
+      return false;
+    }
+    function asyncFunc2(params: any): any {
+      returnResult2 = this.returnResult;
+      return false;
+    }
+    function asyncFunc3(params: any): any {
+      returnResult3 = this.returnResult;
+      return false;
+    }
+    var returnResult = function(res) {
+      if (!!returnResult1) returnResult1(res);
+      if (!!returnResult2) returnResult2(res);
+      if (!!returnResult3) returnResult3(res);
+    };
+    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+    FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+    FunctionFactory.Instance.register("asyncFunc3", asyncFunc3, true);
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          visibleIf: "asyncFunc1({q2}) = 2",
+          enableIf: "asyncFunc2({q2}) = 4",
+          requiredIf: "asyncFunc3({q2}) = 6"
+        },
+        { type: "text", name: "q2" }
+      ]
+    });
+    returnResult(0);
+    var question = survey.getQuestionByName("q1");
+    survey.setValue("q2", 1);
+    assert.equal(question.isVisible, false, "q1 is invisible by default");
+    returnResult(survey.getValue("q2") * 2);
+    assert.equal(question.isVisible, true, "q1 is visible, q2 = 1");
+    assert.equal(question.isReadOnly, true, "q1 is not enabled, q2 = 1");
+    assert.equal(question.isRequired, false, "q1 is not required, q2 = 1");
+    survey.setValue("q2", 2);
+    assert.equal(question.isReadOnly, true, "q1.isReadOnly is not changed yet");
+    returnResult(survey.getValue("q2") * 2);
+    assert.equal(question.isVisible, false, "q1 is invisible, q2 = 2");
+    assert.equal(question.isReadOnly, false, "q1 is enabled, q2 = 2");
+    assert.equal(question.isRequired, false, "q1 is not required, q2 = 2");
+    survey.setValue("q2", 3);
+    assert.equal(
+      question.isRequired,
+      false,
+      "q1.isRequired is not changed yet"
+    );
+    returnResult(survey.getValue("q2") * 2);
+    assert.equal(question.isVisible, false, "q1 is invisible, q2 = 3");
+    assert.equal(question.isReadOnly, true, "q1 is not enabled, q2 = 3");
+    assert.equal(question.isRequired, true, "q1 is required, q2 = 3");
+
+    FunctionFactory.Instance.unregister("asyncFunc1");
+    FunctionFactory.Instance.unregister("asyncFunc2");
+    FunctionFactory.Instance.unregister("asyncFunc3");
+  }
+);

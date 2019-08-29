@@ -3,16 +3,27 @@ import { HashTable } from "./helpers";
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
   private functionHash: HashTable<(params: any[]) => any> = {};
+  private isAsyncHash: HashTable<boolean> = {};
 
-  public register(name: string, func: (params: any[]) => any) {
+  public register(
+    name: string,
+    func: (params: any[]) => any,
+    isAsync: boolean = false
+  ) {
     this.functionHash[name] = func;
+    if (isAsync) this.isAsyncHash[name] = true;
   }
   public unregister(name: string) {
     delete this.functionHash[name];
+    delete this.isAsyncHash[name];
   }
   public hasFunction(name: string): boolean {
     return !!this.functionHash[name];
   }
+  public isAsyncFunction(name: string): boolean {
+    return !!this.isAsyncHash[name];
+  }
+
   public clear() {
     this.functionHash = {};
   }

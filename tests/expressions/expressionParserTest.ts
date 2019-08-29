@@ -806,3 +806,97 @@ QUnit.test("Use dot, '.' in names", function(assert) {
   var values: any = { "a.b.c.d": 1 };
   assert.equal(runner.run(values), true, "1 = 1");
 });
+
+QUnit.test("Async function", function(assert) {
+  function asyncFunc(params: any): any {
+    this.returnResult(params[0] * 3);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+  var runner = new ConditionRunner("asyncFunc({a}) = 15");
+  var runnerResult = null;
+  runner.onRunComplete = function(result: any) {
+    runnerResult = result;
+  };
+  assert.equal(runner.isAsync, true, "The condition is async");
+  var values = { a: 3 };
+  runner.run(values);
+  assert.equal(runnerResult, false, "3*3 = 15");
+  values.a = 5;
+  runner.run(values);
+  assert.equal(runnerResult, true, "5*3 = 15");
+  FunctionFactory.Instance.unregister("asyncFunc");
+});
+
+QUnit.test("Use onRunComplete for sync functions", function(assert) {
+  function syncFunc(params: any): any {
+    return params[0] * 3;
+  }
+  FunctionFactory.Instance.register("syncFunc", syncFunc);
+
+  var runner = new ConditionRunner("syncFunc({a}) = 15");
+  var runnerResult = null;
+  runner.onRunComplete = function(result: any) {
+    runnerResult = result;
+  };
+  assert.equal(runner.isAsync, false, "The condition is sync");
+  var values = { a: 3 };
+  runner.run(values);
+  assert.equal(runnerResult, false, "3*3 = 15");
+  values.a = 5;
+  runner.run(values);
+  assert.equal(runnerResult, true, "5*3 = 15");
+  FunctionFactory.Instance.unregister("syncFunc");
+});
+
+QUnit.test("Several async functions in expression", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  var returnResult3: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  function asyncFunc3(params: any): any {
+    returnResult3 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  FunctionFactory.Instance.register("asyncFunc3", asyncFunc3, true);
+
+  var runner = new ConditionRunner(
+    "asyncFunc1() + asyncFunc2() + asyncFunc3() = 10"
+  );
+  var runnerResult = null;
+  runner.onRunComplete = function(result: any) {
+    runnerResult = result;
+  };
+  assert.equal(runner.isAsync, true, "The condition is async");
+  var values = { a: 3 };
+  runner.run(values);
+  assert.equal(
+    runnerResult,
+    null,
+    "It is not ready, async functions do not return anything"
+  );
+  returnResult2(2);
+  assert.equal(
+    runnerResult,
+    null,
+    "It is not ready, asyncfunc1 and asyncfunc3 functions do not return anything"
+  );
+  returnResult1(7);
+  assert.equal(
+    runnerResult,
+    null,
+    "It is not ready, asyncfunc3 function doesn't return anything"
+  );
+  returnResult3(1);
+  assert.equal(runnerResult, true, "evulate successfull");
+});

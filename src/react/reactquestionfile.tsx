@@ -41,53 +41,56 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var preview = this.renderPreview();
     var fileInput = null;
+    var fileDecorator = null;
     var clearButton = null;
-    var displayInput = null;
-    if (!this.isDisplayMode) {
-      fileInput = (
-        <input
-          className={this.question.cssClasses.fileInput}
-          id={this.question.inputId}
-          type="file"
-          onChange={this.handleOnChange}
-          aria-required={this.question.isRequired}
-          aria-label={this.question.locTitle.renderedHtml}
-          multiple={this.question.allowMultiple}
-          title={this.question.inputTitle}
-          accept={this.question.acceptedTypes}
-        />
-      );
-      if (!!this.question.value) {
-        clearButton = (
-          <button
-            type="button"
-            onClick={this.handleOnClean}
-            className={this.question.cssClasses.removeButton}
-          >
-            {this.question.cleanButtonCaption}
-          </button>
-        );
-      }
-    } else {
-      displayInput = (
-        <input
-          disabled={true}
-          className={this.question.cssClasses.fileInput}
-          id={this.question.inputId}
-          type="file"
-          aria-required={this.question.isRequired}
-          aria-label={this.question.locTitle.renderedHtml}
-          multiple={this.question.allowMultiple}
-          title={this.question.inputTitle}
-          accept={this.question.acceptedTypes}
-        />
+    fileInput = (
+      <input
+        disabled={this.isDisplayMode}
+        className={this.question.cssClasses.fileInput}
+        id={this.question.inputId}
+        type="file"
+        onChange={!this.isDisplayMode ? this.handleOnChange : null}
+        aria-required={this.question.isRequired}
+        aria-label={this.question.locTitle.renderedHtml}
+        multiple={this.question.allowMultiple}
+        title={this.question.inputTitle}
+        accept={this.question.acceptedTypes}
+      />
+    );
+    fileDecorator = (
+      <div className={this.question.cssClasses.fileDecorator}>
+        <label
+          className={
+            this.question.cssClasses.chooseFile +
+            (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "")
+          }
+          htmlFor={this.question.inputId}
+        >
+          {this.question.chooseButtonCaption}
+        </label>
+        {this.question.isDisplayMode || !!this.question.value || (
+          <span className={this.question.cssClasses.noFileChosen}>
+            {this.question.noFileChosenCaption}
+          </span>
+        )}
+      </div>
+    );
+    if (!!this.question.value && !this.isDisplayMode) {
+      clearButton = (
+        <button
+          type="button"
+          onClick={this.handleOnClean}
+          className={this.question.cssClasses.removeButton}
+        >
+          {this.question.cleanButtonCaption}
+        </button>
       );
     }
     return (
       <div className={this.question.cssClasses.root}>
         {fileInput}
+        {fileDecorator}
         {clearButton}
-        {displayInput}
         {preview}
       </div>
     );

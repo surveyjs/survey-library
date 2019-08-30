@@ -554,6 +554,7 @@ export class QuestionSelectBase extends Question {
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
+    this.isReady = this.choicesByUrl.isEmpty;
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;

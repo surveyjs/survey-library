@@ -1,7 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import {
-  Base,
   SurveyError,
   SurveyElement,
   IElement,
@@ -9,7 +8,8 @@ import {
   IPanel,
   IConditionRunner,
   ISurveyImpl,
-  IPage
+  IPage,
+  Event
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError } from "./error";

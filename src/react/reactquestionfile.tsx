@@ -22,10 +22,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   preventDefaults(event: any) {
     event.preventDefault();
   }
-  unhighlight = () => {
+  private unhighlight = () => {
     this.setState({ rootClass: this.question.cssClasses.root });
   };
-  highlight = () => {
+  private highlight = () => {
     this.setState({
       rootClass:
         this.question.cssClasses.root +
@@ -33,30 +33,30 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         this.question.cssClasses.highlighted
     });
   };
-  handleDragOver = (event: any) => {
+  handleOnDragOver = (event: any) => {
     event.preventDefault();
     this.highlight();
   };
-  handleDragEnter = (event: any) => {
+  handleOnDragEnter = (event: any) => {
     event.preventDefault();
     this.highlight();
   };
-  handleDragLeave = (event: any) => {
+  handleOnDragLeave = (event: any) => {
     event.preventDefault();
     this.unhighlight();
   };
-  handleDrop = (event: any) => {
+  handleOnDrop = (event: any) => {
     event.preventDefault();
     this.unhighlight();
     let src = event.dataTransfer;
-    this.uploadFiles(src);
+    this.onChange(src);
   };
   handleOnChange = (event: any) => {
     var src = event.target || event.srcElement;
     if (!(window as any)["FileReader"]) return;
-    this.uploadFiles(src);
+    this.onChange(src);
   };
-  uploadFiles = (src: any) => {
+  onChange = (src: any) => {
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {
@@ -110,10 +110,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return (
       <div
         className={this.state.rootClass}
-        onDragEnter={this.handleDragEnter}
-        onDragOver={this.handleDragOver}
-        onDragLeave={this.handleDragLeave}
-        onDrop={this.handleDrop}
+        onDragEnter={this.handleOnDragEnter}
+        onDragOver={this.handleOnDragOver}
+        onDragLeave={this.handleOnDragLeave}
+        onDrop={this.handleOnDrop}
       >
         {fileInput}
         {fileDecorator}

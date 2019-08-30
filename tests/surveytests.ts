@@ -67,24 +67,21 @@ QUnit.test("Current Page", function(assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is  current"
   );
   survey.currentPage = null;
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "can't set curent page to null"
   );
   var sPage = createPageWithQuestion("new Page");
   survey.addPage(sPage);
   survey.currentPage = sPage;
-  assert.equal(survey.currentPage, survey.pages[1], "second page is current");
+  assert.equal(survey.currentPageNo, 1, "second page is current");
   survey.pages.pop();
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo,0,
     "the first page is current after removing the current one"
   );
 });
@@ -318,27 +315,27 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function(
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Second page"));
   survey.addPage(createPageWithQuestion("Third page"));
-  assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
+  assert.equal(survey.currentPageNo, 0, "Current Page is  First");
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
   survey.nextPage();
-  assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
+  assert.equal(survey.currentPageNo, 1, "Current Page is  Second");
   assert.equal(survey.isFirstPage, false, "Current Page is  Second");
   assert.equal(survey.isLastPage, false, "Current Page is  Second");
   assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
   survey.nextPage();
-  assert.equal(survey.currentPage, survey.pages[2], "Current Page is  Third");
+  assert.equal(survey.currentPageNo, 2, "Current Page is  Third");
   assert.equal(survey.isFirstPage, false, "Current Page is  Third");
   assert.equal(survey.isLastPage, true, "Current Page is  Third");
   assert.equal(survey.progressText, "Page 3 of 3", "Current Page is  First");
   survey.prevPage();
-  assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
+  assert.equal(survey.currentPageNo, 1, "Current Page is  Second");
   assert.equal(survey.isFirstPage, false, "Current Page is  Second");
   assert.equal(survey.isLastPage, false, "Current Page is  Second");
   assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
   survey.prevPage();
-  assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
+  assert.equal(survey.currentPageNo, 0, "Current Page is  First");
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
@@ -361,23 +358,20 @@ QUnit.test("Next, Prev, Next", function(assert) {
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Page 2"));
   survey.addPage(createPageWithQuestion("Page 3"));
-  assert.equal(survey.currentPage, survey.pages[0], "Initial page is  first");
+  assert.equal(survey.currentPageNo, 0, "Initial page is  first");
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo, 1,
     "After next the current page is  second"
   );
   survey.prevPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "After the prev the current page is again first"
   );
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo, 1,
     "After second next the current page is  second"
   );
 });
@@ -2995,8 +2989,7 @@ QUnit.test("assign customWidgets to questions", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.pages[0].addNewQuestion("checkbox", "question5");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is choosen"
   );
   assert.equal(
@@ -3107,8 +3100,7 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   var survey = twoPageSimplestSurvey();
   var question = survey.pages[0].addNewQuestion("text", "text");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is choosen"
   );
   assert.equal(
@@ -7764,7 +7756,6 @@ QUnit.test(
       assert.equal(survey.pages.length, 1, "There is one page in survey");      
     });  
 
-    /* TODO
     QUnit.test("Expression validators with async functions", function(assert) {
       var returnResult1: (res: any) => void;
       var returnResult2: (res: any) => void;
@@ -7803,4 +7794,3 @@ QUnit.test(
       FunctionFactory.Instance.unregister("asyncFunc1");
       FunctionFactory.Instance.unregister("asyncFunc2");
     });
-    */

@@ -405,6 +405,10 @@ QUnit.test("question with async validators", function(assert) {
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
   assert.equal(question.validators[1].isAsync, true, "The validator is async");
+  var hasErrorsCounter = 0;
+  question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+    if (hasErrors) hasErrorsCounter++;
+  };
   assert.equal(
     question.isRunningValidators,
     false,
@@ -417,9 +421,16 @@ QUnit.test("question with async validators", function(assert) {
     true,
     "func1 and func2 are not completed"
   );
+  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
   returnResult1(11);
   assert.equal(question.isRunningValidators, true, "func2 is not completed");
+  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
   returnResult2(22);
+  assert.equal(
+    hasErrorsCounter,
+    1,
+    "onCompletedAsyncValidators is  called one time"
+  );
   assert.equal(question.errors.length, 3, "There are three errors now");
   assert.equal(
     question.isRunningValidators,

@@ -155,13 +155,12 @@ export class Question extends SurveyElement
   public set isReady(val: boolean) {
     let oldIsReady: boolean = this.isReady;
     this.setPropertyValue("isReady", val);
-    this.onReadyChanged && this.onReadyChanged.fire(
-      this, {
+    this.onReadyChanged &&
+      this.onReadyChanged.fire(this, {
         question: this,
         isReady: val,
         olsIsReady: oldIsReady
-      }
-    );
+      });
   }
   /**
    * Get/set the page where the question is located.
@@ -1126,6 +1125,7 @@ export class Question extends SurveyElement
   }
   private validatorRunner: ValidatorRunner;
   private isRunningValidatorsValue = false;
+  public onCompletedAsyncValidators: (hasErrors: boolean) => void;
   public get isRunningValidators() {
     return this.isRunningValidatorsValue;
   }
@@ -1136,12 +1136,19 @@ export class Question extends SurveyElement
     this.validatorRunner = new ValidatorRunner();
     this.isRunningValidatorsValue = true;
     this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
-      for (var i = 0; i < errors.length; i++) {
-        this.errors.push(errors[i]);
-      }
-      this.isRunningValidatorsValue = false;
+      this.doOnAsyncCompleted(errors);
     };
     return this.validatorRunner.run(this);
+  }
+  private doOnAsyncCompleted(errors: Array<SurveyError>) {
+    for (var i = 0; i < errors.length; i++) {
+      this.errors.push(errors[i]);
+    }
+    this.isRunningValidatorsValue = false;
+    if (!!this.onCompletedAsyncValidators) {
+      this.onCompletedAsyncValidators(this.errors.length > 0);
+      this.onCompletedAsyncValidators = null;
+    }
   }
   private isValueChangedInSurvey = false;
   protected setNewValue(newValue: any) {

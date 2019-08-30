@@ -1955,10 +1955,45 @@ export class SurveyModel extends Base
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
-  private hasErrorsOnNavigate(): boolean {
-    return (
-      !this.ignoreValidation && this.isEditMode && this.isCurrentPageHasErrors
-    );
+  private hasErrorsOnNavigate(doComplete: boolean): boolean {
+    if (this.ignoreValidation || !this.isEditMode) return false;
+    if (this.isCurrentPageHasErrors) return true;
+    return this.checkForAsyncQuestionValidation(doComplete);
+  }
+  private asyncValidationQuesitons: Array<Question>;
+  private checkForAsyncQuestionValidation(doComplete: boolean): boolean {
+    this.clearAsyncValidationQuesitons();
+    var questions: Array<Question> = this.currentPage.questions;
+    for (var i = 0; i < questions.length; i++) {
+      if (questions[i].isRunningValidators) {
+        questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
+          this.onCompletedAsyncQuestionValidators(doComplete, hasErrors);
+        };
+        this.asyncValidationQuesitons.push(questions[i]);
+      }
+    }
+    return this.asyncValidationQuesitons.length > 0;
+  }
+  private clearAsyncValidationQuesitons() {
+    if (!!this.asyncValidationQuesitons) {
+      for (var i = 0; i < this.asyncValidationQuesitons.length; i++) {
+        this.asyncValidationQuesitons[i].onCompletedAsyncValidators = null;
+      }
+    }
+    this.asyncValidationQuesitons = [];
+  }
+  private onCompletedAsyncQuestionValidators(
+    doComplete: boolean,
+    hasErrors: boolean
+  ) {
+    if (hasErrors) {
+      this.clearAsyncValidationQuesitons();
+      return;
+    }
+    for (var i = 0; i < this.asyncValidationQuesitons.length; i++) {
+      if (this.asyncValidationQuesitons[i].isRunningValidators) return;
+    }
+    this.doCurrentPageCompleteCore(doComplete);
   }
   /**
    * Returns true, if there is any error on the current page. For example, the required question is empty or a question validation is failed.
@@ -2017,7 +2052,10 @@ export class SurveyModel extends Base
     return this.doCurrentPageComplete(true);
   }
   protected doCurrentPageComplete(doComplete: boolean): boolean {
-    if (this.hasErrorsOnNavigate()) return false;
+    if (this.hasErrorsOnNavigate(doComplete)) return false;
+    return this.doCurrentPageCompleteCore(doComplete);
+  }
+  private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation()) return false;
     if (doComplete) {
       this.doComplete();

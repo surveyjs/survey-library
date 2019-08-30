@@ -116,17 +116,17 @@ export class ChoicesRestfull extends Base {
       return;
     }
     if (this.lastObjHash === this.objHash) {
-      (<Question>this.owner).isReady = true;
+      this.owner && ((<Question>this.owner).isReady = true);
       return;
     }
     this.lastObjHash = this.objHash;
     this.error = null;
     if (this.useChangedItemsResults()) {
-      (<Question>this.owner).isReady = true;
+      this.owner && ((<Question>this.owner).isReady = true);
       return;
     }
     if (ChoicesRestfull.addSameRequest(this)) {
-      (<Question>this.owner).isReady = true;
+      this.owner && ((<Question>this.owner).isReady = true);
       return;
     }
     this.sendRequest();
@@ -342,7 +342,7 @@ export class ChoicesRestfull extends Base {
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
     ChoicesRestfull.unregisterSameRequests(this, items);
-    (<Question>this.owner).isReady = true;
+    this.owner && ((<Question>this.owner).isReady = true);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();

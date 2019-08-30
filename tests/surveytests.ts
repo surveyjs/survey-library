@@ -13,7 +13,7 @@ import {
   SurveyTriggerSkip
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
-import { EmailValidator, NumericValidator } from "../src/validator";
+import { EmailValidator, NumericValidator, ExpressionValidator } from "../src/validator";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import {
@@ -7734,6 +7734,7 @@ QUnit.test(
     assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
     assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
   });
+
   QUnit.test(
     "Test question/panel/page delete function",function(assert) {
       var survey = new SurveyModel({
@@ -7762,3 +7763,44 @@ QUnit.test(
       survey.pages[0].delete();
       assert.equal(survey.pages.length, 1, "There is one page in survey");      
     });  
+
+    /* TODO
+    QUnit.test("Expression validators with async functions", function(assert) {
+      var returnResult1: (res: any) => void;
+      var returnResult2: (res: any) => void;
+      function asyncFunc1(params: any): any {
+        returnResult1 = this.returnResult;
+        return false;
+      }
+      function asyncFunc2(params: any): any {
+        returnResult2 = this.returnResult;
+        return false;
+      }
+      FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+      FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+      var survey = twoPageSimplestSurvey();
+      var q1 = survey.getQuestionByName("question1");
+      var q2 = survey.getQuestionByName("question2");
+      var validator1 = new ExpressionValidator();
+      validator1.expression = "asyncFunc1() = 1";
+      var validator2 = new ExpressionValidator();
+      validator2.expression = "asyncFunc2() = 2";
+      q1.validators.push(validator1);
+      q2.validators.push(validator2);
+
+      survey.nextPage();
+      assert.equal(survey.currentPageNo, 0, "First page, 1");
+      returnResult1(0);
+      returnResult2(0);
+      assert.equal(survey.currentPageNo, 0, "First page, 2");
+      survey.nextPage();
+      assert.equal(survey.currentPageNo, 0, "First page, 3");
+      returnResult1(1);
+      assert.equal(survey.currentPageNo, 0, "First page, 4");
+      returnResult2(2);
+      assert.equal(survey.currentPageNo, 1, "Second page, async validation is over");
+    
+      FunctionFactory.Instance.unregister("asyncFunc1");
+      FunctionFactory.Instance.unregister("asyncFunc2");
+    });
+    */

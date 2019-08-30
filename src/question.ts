@@ -1099,8 +1099,24 @@ export class Question extends SurveyElement
   protected hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
+  private validatorRunner: ValidatorRunner;
+  private isRunningValidatorsValue = false;
+  public get isRunningValidators() {
+    return this.isRunningValidatorsValue;
+  }
   protected runValidators(): Array<SurveyError> {
-    return new ValidatorRunner().run(this);
+    if (!!this.validatorRunner) {
+      this.validatorRunner.onAsyncCompleted = null;
+    }
+    this.validatorRunner = new ValidatorRunner();
+    this.isRunningValidatorsValue = true;
+    this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
+      for (var i = 0; i < errors.length; i++) {
+        this.errors.push(errors[i]);
+      }
+      this.isRunningValidatorsValue = false;
+    };
+    return this.validatorRunner.run(this);
   }
   private isValueChangedInSurvey = false;
   protected setNewValue(newValue: any) {

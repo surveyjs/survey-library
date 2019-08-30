@@ -7,7 +7,7 @@ import {
   IElement,
   ITextProcessor
 } from "./base";
-import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
+import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";

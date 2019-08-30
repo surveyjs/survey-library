@@ -110,7 +110,7 @@ function calcInArray(
 function sumInArray(params: any[]): any {
   var res = calcInArray(params, function(res: number, val: number): number {
     if (res == undefined) res = 0;
-    return res + val;
+    return +res + +val;
   });
   return res !== undefined ? res : 0;
 }

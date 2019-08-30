@@ -3,19 +3,16 @@ import { JsonObject, JsonError, Serializer } from "./jsonobject";
 import {
   Base,
   ISurvey,
-  SurveyElement,
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
   IQuestion,
   IPanel,
   IElement,
-  IConditionRunner,
   IPage,
   SurveyError,
   Event,
-  ISurveyErrorOwner,
-  ISurveyElement
+  ISurveyErrorOwner
 } from "./base";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
 import { PageModel } from "./page";

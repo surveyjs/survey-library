@@ -7,7 +7,7 @@ import {
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { surveyLocalization } from "./surveyStrings";
-import { Base, SurveyError } from "./base";
+import { SurveyError } from "./base";
 import { LocalizableString } from "./localizablestring";
 import { MinRowCountError, KeyDuplicationError } from "./error";
 import { IConditionObject } from "./question";

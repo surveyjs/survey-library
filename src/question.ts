@@ -1,7 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer } from "./jsonobject";
 import {
-  Base,
   SurveyError,
   SurveyElement,
   IElement,
@@ -9,7 +8,8 @@ import {
   IPanel,
   IConditionRunner,
   ISurveyImpl,
-  IPage
+  IPage,
+  Event
 } from "./base";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError } from "./error";
@@ -56,6 +56,17 @@ export class Question extends SurveyElement
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   private locProcessedTitle: LocalizableString;
+
+  /**
+   * The event is fired when isReady property of question is changed.
+   * <br/> options.question - the question
+   * <br/> options.isReady - current value of isReady
+   * <br/> options.oldIsReady - old value of isReady
+   */
+  public onReadyChanged: Event<
+    (sender: Question, options: any) => any,
+    any
+  > = new Event<(sender: Question, options: any) => any, any>();
 
   constructor(public name: string) {
     super(name);
@@ -136,6 +147,20 @@ export class Question extends SurveyElement
       this,
       oldValue,
       this.valueName ? this.valueName : oldValue
+    );
+  }
+  public get isReady(): boolean {
+    return this.getPropertyValue("isReady", true);
+  }
+  public set isReady(val: boolean) {
+    let oldIsReady: boolean = this.isReady;
+    this.setPropertyValue("isReady", val);
+    this.onReadyChanged && this.onReadyChanged.fire(
+      this, {
+        question: this,
+        isReady: val,
+        olsIsReady: oldIsReady
+      }
     );
   }
   /**

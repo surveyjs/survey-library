@@ -4,7 +4,7 @@
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
           <div :class="question.cssClasses.fileDecorator">
           <label :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')" :for="question.inputId">{{question.chooseButtonCaption}}</label>
-          <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty() && !question.isReadOnly">{{question.noFileChosenCaption}}</span>             
+          <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty()">{{question.noFileChosenCaption}}</span>             
         </div>
         <button type="button" v-if="!question.isReadOnly && !question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <div v-if="!question.isEmpty()">

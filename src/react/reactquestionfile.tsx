@@ -41,7 +41,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var preview = this.renderPreview();
     var fileInput = null;
-    var fileDecorator = null;
+    var fileDecorator = this.renderFileDecorator();
     var clearButton = null;
     fileInput = (
       <input
@@ -56,24 +56,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         title={this.question.inputTitle}
         accept={this.question.acceptedTypes}
       />
-    );
-    fileDecorator = (
-      <div className={this.question.cssClasses.fileDecorator}>
-        <label
-          className={
-            this.question.cssClasses.chooseFile +
-            (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "")
-          }
-          htmlFor={this.question.inputId}
-        >
-          {this.question.chooseButtonCaption}
-        </label>
-        {this.question.isDisplayMode || !this.question.isEmpty() || (
-          <span className={this.question.cssClasses.noFileChosen}>
-            {this.question.noFileChosenCaption}
-          </span>
-        )}
-      </div>
     );
     if (!this.question.isEmpty() && !this.isDisplayMode) {
       clearButton = (
@@ -92,6 +74,31 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         {fileDecorator}
         {clearButton}
         {preview}
+      </div>
+    );
+  }
+  protected renderFileDecorator(): JSX.Element {
+    let noFileChosen = null;
+    let chooseFile = null;
+    let chooseFileCss =
+      this.question.cssClasses.chooseFile +
+      (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "");
+    chooseFile = (
+      <label className={chooseFileCss} htmlFor={this.question.inputId}>
+        {this.question.chooseButtonCaption}
+      </label>
+    );
+    if (this.question.isEmpty()) {
+      noFileChosen = (
+        <span className={this.question.cssClasses.noFileChosen}>
+          {this.question.noFileChosenCaption}
+        </span>
+      );
+    }
+    return (
+      <div className={this.question.cssClasses.fileDecorator}>
+        {chooseFile}
+        {noFileChosen}
       </div>
     );
   }

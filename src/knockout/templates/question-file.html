@@ -8,7 +8,7 @@
       <!-- /ko -->
       <div data-bind="css:question.koCss().fileDecorator">
           <label data-bind="css:question.koCss().chooseFile + (question.isReadOnly ? ' ' + question.koCss().disabled : ''), attr: {for: question.inputId}, text: question.chooseButtonCaption"></label>
-          <span data-bind="css:question.koCss().noFileChosen, visible:!question.koHasValue() && !question.isReadOnly, text: question.noFileChosenCaption"></span>             
+          <span data-bind="css:question.koCss().noFileChosen, visible:!question.koHasValue(), text: question.noFileChosenCaption"></span>             
       </div>
       <!-- ko if: question.koHasValue -->
       <button type="button" data-bind="css: question.cssClasses.removeButton, click: question.doclean, text: question.cleanButtonCaption"></button>

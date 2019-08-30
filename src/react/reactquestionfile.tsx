@@ -6,7 +6,11 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { fileLoaded: 0, state: "empty" };
+    this.state = {
+      fileLoaded: 0,
+      state: "empty",
+      rootClass: this.question.cssClasses.root
+    };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.question.onStateChanged.add((state: any) =>
       this.setState({ fileLoaded: this.state.fileLoaded + 1, state: state })
@@ -15,9 +19,44 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  handleOnChange(event: any) {
+  preventDefaults(event: any) {
+    event.preventDefault();
+  }
+  unhighlight = () => {
+    this.setState({ rootClass: this.question.cssClasses.root });
+  };
+  highlight = () => {
+    this.setState({
+      rootClass:
+        this.question.cssClasses.root +
+        " " +
+        this.question.cssClasses.highlighted
+    });
+  };
+  handleDragOver = (event: any) => {
+    event.preventDefault();
+    this.highlight();
+  };
+  handleDragEnter = (event: any) => {
+    event.preventDefault();
+    this.highlight();
+  };
+  handleDragLeave = (event: any) => {
+    event.preventDefault();
+    this.unhighlight();
+  };
+  handleDrop = (event: any) => {
+    event.preventDefault();
+    this.unhighlight();
+    let src = event.dataTransfer;
+    this.uploadFiles(src);
+  };
+  handleOnChange = (event: any) => {
     var src = event.target || event.srcElement;
     if (!(window as any)["FileReader"]) return;
+    this.uploadFiles(src);
+  };
+  uploadFiles = (src: any) => {
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {
@@ -26,7 +65,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     src.value = "";
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  }
+  };
   handleOnClean = (event: any) => {
     var src = event.target || event.srcElement;
     this.question.clear();
@@ -69,7 +108,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div className={this.question.cssClasses.root}>
+      <div
+        className={this.state.rootClass}
+        onDragEnter={this.handleDragEnter}
+        onDragOver={this.handleDragOver}
+        onDragLeave={this.handleDragLeave}
+        onDrop={this.handleDrop}
+      >
         {fileInput}
         {fileDecorator}
         {clearButton}

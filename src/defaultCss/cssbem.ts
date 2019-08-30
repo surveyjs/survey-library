@@ -178,6 +178,7 @@ export var bemCss = {
     root: "sv-file",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
+    highlighted: "sv-file--highlighted",
     fileDecorator: "sv-file__decorator",
     fileInput: "sv-visuallyhidden",
     noFileChosen: "sv-description sv-file__no-file-chosen",

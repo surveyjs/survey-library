@@ -1126,7 +1126,10 @@ export class Question extends SurveyElement
   private validatorRunner: ValidatorRunner;
   private isRunningValidatorsValue = false;
   public onCompletedAsyncValidators: (hasErrors: boolean) => void;
-  public get isRunningValidators() {
+  public get isRunningValidators(): boolean {
+    return this.getIsRunningValidators();
+  }
+  protected getIsRunningValidators(): boolean {
     return this.isRunningValidatorsValue;
   }
   protected runValidators(): Array<SurveyError> {
@@ -1145,8 +1148,11 @@ export class Question extends SurveyElement
       this.errors.push(errors[i]);
     }
     this.isRunningValidatorsValue = false;
-    if (!!this.onCompletedAsyncValidators) {
-      this.onCompletedAsyncValidators(this.errors.length > 0);
+    this.raiseOnCompletedAsyncValidators();
+  }
+  protected raiseOnCompletedAsyncValidators() {
+    if (!!this.onCompletedAsyncValidators && !this.isRunningValidators) {
+      this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
       this.onCompletedAsyncValidators = null;
     }
   }

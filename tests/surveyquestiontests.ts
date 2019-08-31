@@ -14,7 +14,8 @@ import {
   NumericValidator,
   AnswerCountValidator,
   EmailValidator,
-  RegexValidator
+  RegexValidator,
+  ExpressionValidator
 } from "../src/validator";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
@@ -3020,5 +3021,65 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
     FunctionFactory.Instance.unregister("asyncFunc3");
+  }
+);
+
+QUnit.test(
+  "Multiple text question validation and async functions in expression",
+  function(assert) {
+    var returnResult1: (res: any) => void;
+    var returnResult2: (res: any) => void;
+    function asyncFunc1(params: any): any {
+      returnResult1 = this.returnResult;
+      return false;
+    }
+    function asyncFunc2(params: any): any {
+      returnResult2 = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+    FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+
+    var question = new QuestionMultipleTextModel("q1");
+    var item1 = question.addItem("item1");
+    var item2 = question.addItem("item2");
+    item1.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
+    item2.validators.push(new ExpressionValidator("asyncFunc2() = 1"));
+    question.hasErrors();
+    var onCompletedAsyncValidatorsCounter = 0;
+    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      onCompletedAsyncValidatorsCounter++;
+    };
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have two running validators"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet"
+    );
+    returnResult1(1);
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have one running validator"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet, 2"
+    );
+    returnResult2(1);
+    assert.equal(question.isRunningValidators, false, "We are fine now");
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      1,
+      "onCompletedAsyncValidators is called"
+    );
+
+    FunctionFactory.Instance.unregister("asyncFunc1");
+    FunctionFactory.Instance.unregister("asyncFunc2");
   }
 );

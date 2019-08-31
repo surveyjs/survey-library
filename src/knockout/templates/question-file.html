@@ -1,8 +1,8 @@
 ﻿<script type="text/html" id="survey-question-file">
-  <div data-bind="css: question.cssClasses.root">
+  <div data-bind="css: question.koFileRootClass, event:{dragenter: question.ondragenter, dragleave: question.ondragleave, dragover: question.ondragover, drop: question.ondrop}">
       <!-- ko ifnot: question.isReadOnly -->
       <input type="file" data-bind="css: question.cssClasses.fileInput, attr: {id: question.inputId, 'aria-required': question.isRequired, 'aria-label': question.locTitle.renderedHtml, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: {change: question.dochange}">
-      <!-- /ko -->
+      <!-- /ko -->  
       <!-- ko if: question.isReadOnly -->
       <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
       <!-- /ko -->

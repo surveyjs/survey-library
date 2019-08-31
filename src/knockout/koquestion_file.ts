@@ -15,13 +15,15 @@ export class QuestionFileImplementor extends QuestionImplementor {
     return [];
   });
   koInputTitle = ko.observable<string>();
-
+  koFileRootClass = ko.observable<string>();
   constructor(question: Question) {
     super(question);
     var self = this;
     (<any>this.question)["koData"] = this.koData;
     (<any>this.question)["koHasValue"] = this.koHasValue;
     (<any>this.question)["koInputTitle"] = this.koInputTitle;
+    (<any>this.question)["koFileClass"] = this.koFileRootClass;
+    this.koFileRootClass(this.question.cssClasses.root);
     var updateState = (state: any) => {
       this.koState(state);
       this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
@@ -29,6 +31,25 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<QuestionFileModel>this.question).onStateChanged.add((sender, options) => {
       updateState(options.state);
     });
+    (<any>this.question)["ondrop"] = (data: any, event: any) => {
+      event.preventDefault();
+      this.unhighlight();
+      let src = event.originalEvent.dataTransfer;
+      this.onChange(src);
+    };
+    (<any>this.question)["ondragover"] = (data: any, event: any) => {
+      event.preventDefault();
+      this.highlight();
+    };
+    (<any>this.question)["ondragenter"] = (data: any, event: any) => {
+      event.preventDefault();
+      this.highlight();
+    };
+    (<any>this.question)["ondragleave"] = (data: any, event: any) => {
+      event.preventDefault();
+      this.unhighlight();
+    };
+
     (<any>this.question)["dochange"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
@@ -52,6 +73,14 @@ export class QuestionFileImplementor extends QuestionImplementor {
     }
     src.value = "";
     (<QuestionFileModel>this.question).loadFiles(files);
+  }
+  private highlight() {
+    this.koFileRootClass(
+      this.question.cssClasses.root + " " + this.question.cssClasses.highlighted
+    );
+  }
+  private unhighlight() {
+    this.koFileRootClass(this.question.cssClasses.root);
   }
 }
 

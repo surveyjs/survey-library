@@ -10,7 +10,7 @@ import { ItemValue } from "../src/itemvalue";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { FunctionFactory } from "../src/functionsfactory";
 import { Question } from "../src/question";
-import { AssertionError } from "assert";
+import { ExpressionValidator } from "../src/validator";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -3023,5 +3023,47 @@ QUnit.test(
     matrix.columnLayout = "vertical";
     var rows = matrix.renderedTable.rows;
     assert.equal(rows.length, 2, "Only one column is shown + remove button");
+  }
+);
+
+QUnit.test(
+  "Multiple text question validation and async functions in expression",
+  function(assert) {
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var question = new QuestionMatrixDynamicModel("q1");
+    question.rowCount = 1;
+    var column = question.addColumn("col1");
+    column.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+    var rows = question.visibleRows;
+    question.hasErrors();
+    var onCompletedAsyncValidatorsCounter = 0;
+    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      onCompletedAsyncValidatorsCounter++;
+    };
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have one running validator"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet, 2"
+    );
+    returnResult(1);
+    assert.equal(question.isRunningValidators, false, "We are fine now");
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      1,
+      "onCompletedAsyncValidators is called"
+    );
+
+    FunctionFactory.Instance.unregister("asyncFunc");
   }
 );

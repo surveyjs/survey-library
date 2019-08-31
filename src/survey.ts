@@ -1976,8 +1976,9 @@ export class SurveyModel extends Base
   }
   private clearAsyncValidationQuesitons() {
     if (!!this.asyncValidationQuesitons) {
-      for (var i = 0; i < this.asyncValidationQuesitons.length; i++) {
-        this.asyncValidationQuesitons[i].onCompletedAsyncValidators = null;
+      var asynQuestions = this.asyncValidationQuesitons;
+      for (var i = 0; i < asynQuestions.length; i++) {
+        asynQuestions[i].onCompletedAsyncValidators = null;
       }
     }
     this.asyncValidationQuesitons = [];
@@ -1990,8 +1991,9 @@ export class SurveyModel extends Base
       this.clearAsyncValidationQuesitons();
       return;
     }
-    for (var i = 0; i < this.asyncValidationQuesitons.length; i++) {
-      if (this.asyncValidationQuesitons[i].isRunningValidators) return;
+    var asynQuestions = this.asyncValidationQuesitons;
+    for (var i = 0; i < asynQuestions.length; i++) {
+      if (asynQuestions[i].isRunningValidators) return;
     }
     this.doCurrentPageCompleteCore(doComplete);
   }

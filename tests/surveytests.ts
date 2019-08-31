@@ -1787,6 +1787,12 @@ QUnit.test("Serialize email validator", function(assert) {
   new JsonObject().toObject(json, newValidator);
   assert.ok(newValidator, "Convert from Json Successful");
 });
+QUnit.test("Email validator - https://github.com/surveyjs/survey-library/issues/1807", function(assert) {
+  var validator = new EmailValidator();
+  assert.equal(validator.validate("test=1@email.com", ""), null, "valid email");
+  assert.notEqual(validator.validate("test=1@ema=il.com", ""), null, "invalid email - = in domain name");
+  assert.notEqual(validator.validate("test=1@email.c=om", ""), null, "invalid email - = in domain suffix");
+});
 QUnit.test("pre process title", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.data = { name: "John" };

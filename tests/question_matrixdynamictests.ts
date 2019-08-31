@@ -3027,7 +3027,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "Multiple text question validation and async functions in expression",
+  "Matrix validation in cells and async functions in expression",
   function(assert) {
     var returnResult: (res: any) => void;
     function asyncFunc(params: any): any {
@@ -3054,7 +3054,7 @@ QUnit.test(
     assert.equal(
       onCompletedAsyncValidatorsCounter,
       0,
-      "onCompletedAsyncValidators is not called yet, 2"
+      "onCompletedAsyncValidators is not called yet"
     );
     returnResult(1);
     assert.equal(question.isRunningValidators, false, "We are fine now");

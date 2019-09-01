@@ -54,21 +54,43 @@ export class FunctionFactory {
   }
 }
 
+function getParamsAsArray(value: any, arr: any[]) {
+  if (!value) return;
+  if (Array.isArray(value)) {
+    for (var i = 0; i < value.length; i++) {
+      getParamsAsArray(value[i], arr);
+    }
+  } else {
+    arr.push(value);
+  }
+}
+
 function sum(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
   var res = 0;
-  for (var i = 0; i < params.length; i++) {
-    res += params[i];
+  for (var i = 0; i < arr.length; i++) {
+    res += arr[i];
   }
   return res;
 }
 FunctionFactory.Instance.register("sum", sum);
 
+function count(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
+  return arr.length;
+}
+FunctionFactory.Instance.register("count", count);
+
 function avg(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
   var res = 0;
-  for (var i = 0; i < params.length; i++) {
-    res += params[i];
+  for (var i = 0; i < arr.length; i++) {
+    res += arr[i];
   }
-  return params.length > 0 ? res / params.length : 0;
+  return arr.length > 0 ? res / arr.length : 0;
 }
 FunctionFactory.Instance.register("avg", avg);
 

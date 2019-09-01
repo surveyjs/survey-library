@@ -269,6 +269,12 @@ QUnit.test("Run sum function", function(assert) {
   assert.equal(runner.run(values), 13, "1 + 3 + 4 + 5 == 13");
 });
 
+QUnit.test("Run sum function with arrays, Bug #1808", function(assert) {
+  var runner = new ExpressionRunner("sum({var1},{var2})");
+  var values = { var1: [2, 5], var2: 3 };
+  assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
+});
+
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };

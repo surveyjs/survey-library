@@ -8,6 +8,12 @@
   float: right;
   margin-top: -18px;
 }
+
+.sv-paneldynamic__add-btn--list-mode {
+  float: none;
+  margin-top: 1em;
+}
+
 .sv-paneldynamic__remove-btn {
   background-color: $remove-button-color;
 }
@@ -16,23 +22,20 @@
 .sv-paneldynamic__next-btn {
   box-sizing: border-box;
   display: inline-block;
-  height: 1.5em;
-  width: 1.5em;
   fill: $text-color;
   cursor: pointer;
   width: 0.7em;
+  top: -0.28em;
   position: absolute;
 }
 
 .sv-paneldynamic__prev-btn {
   left: -1.3em;
-  top: -0.63em;
   transform: rotate(90deg);
 }
 
 .sv-paneldynamic__next-btn {
   right: -1.3em;
-  top: -0.63em;
   transform: rotate(270deg);
 }
 

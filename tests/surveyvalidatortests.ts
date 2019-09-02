@@ -13,6 +13,7 @@ import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { Serializer } from "../src/jsonobject";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("Validators");
 
@@ -357,4 +358,86 @@ QUnit.test("Regex number validator, Bug#1775", function(assert) {
   assert.equal(validator.validate(0).error.text, "More then 0", "0 give error");
   assert.equal(validator.validate(2), null, "Parse correctly 2");
   assert.equal(validator.validate(null), null, "Parse correctly null");
+});
+
+QUnit.test("validator.isAsync", function(assert) {
+  function asyncFunc(params: any): any {
+    this.returnResult(params[0] * 3);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+  var regValidator = new RegexValidator("^0*(?:[2-9]|[1-9]dd*)$");
+  assert.equal(regValidator.isAsync, false, "Regex is not async validator");
+  var expValidator = new ExpressionValidator();
+  expValidator.expression = "age({q1}) + {q2}";
+  assert.equal(
+    expValidator.isAsync,
+    false,
+    "There is no async function in expression"
+  );
+  expValidator.expression = "asyncFunc({q1}) + {q2}";
+  assert.equal(
+    expValidator.isAsync,
+    true,
+    "There is an async function in expression"
+  );
+
+  FunctionFactory.Instance.unregister("asyncFunc");
+});
+
+QUnit.test("question with async validators", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+
+  var question = new Question("q1");
+  question.validators.push(new ExpressionValidator("2 = 1)"));
+  question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
+  question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
+  assert.equal(question.validators[1].isAsync, true, "The validator is async");
+  var hasErrorsCounter = 0;
+  question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+    if (hasErrors) hasErrorsCounter++;
+  };
+  assert.equal(
+    question.isRunningValidators,
+    false,
+    "We do not run validators yet"
+  );
+  question.hasErrors();
+  assert.equal(question.errors.length, 1, "There is one error");
+  assert.equal(
+    question.isRunningValidators,
+    true,
+    "func1 and func2 are not completed"
+  );
+  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
+  returnResult1(11);
+  assert.equal(question.isRunningValidators, true, "func2 is not completed");
+  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
+  returnResult2(22);
+  assert.equal(
+    hasErrorsCounter,
+    1,
+    "onCompletedAsyncValidators is  called one time"
+  );
+  assert.equal(question.errors.length, 3, "There are three errors now");
+  assert.equal(
+    question.isRunningValidators,
+    false,
+    "func1 and func2 are completed"
+  );
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
 });

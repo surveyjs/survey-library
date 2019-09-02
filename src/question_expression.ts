@@ -56,13 +56,16 @@ export class QuestionExpressionModel extends Question {
     super.runCondition(values, properties);
     if (!this.expression || this.expressionIsRunning) return;
     this.locCalculation();
-    if (!this.expressionRunner)
+    if (!this.expressionRunner) {
       this.expressionRunner = new ExpressionRunner(this.expression);
-    var newValue = this.expressionRunner.run(values, properties);
-    if (!Helpers.isTwoValueEquals(newValue, this.value)) {
-      this.value = newValue;
     }
-    this.unlocCalculation();
+    this.expressionRunner.onRunComplete = newValue => {
+      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+        this.value = newValue;
+      }
+      this.unlocCalculation();
+    };
+    this.expressionRunner.run(values, properties);
   }
   /**
    * The maximum number of fraction digits to use if displayStyle is not "none". Possible values are from 0 to 20. The default value is -1 and it means that this property is not used.

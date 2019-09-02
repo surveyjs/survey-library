@@ -34,30 +34,26 @@ QUnit.test("Survey.koCurrentPage", function(assert) {
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Page 2"));
   survey.addPage(createPageWithQuestion("Page 3"));
+  assert.equal(survey.currentPageNo, 0, "the first page is current");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
-    "the first page is current"
-  );
-  assert.equal(
-    survey.koCurrentPage(),
-    survey.currentPage,
+    survey.koCurrentPage().name,
+    survey.currentPage.name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), true, "is first page");
   assert.equal(survey.koIsLastPage(), false, "is first page");
   survey.nextPage();
   assert.equal(
-    survey.koCurrentPage(),
-    survey.pages[1],
+    survey.koCurrentPage().name,
+    survey.pages[1].name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), false, "is second page");
   assert.equal(survey.koIsLastPage(), false, "is second page");
   survey.nextPage();
   assert.equal(
-    survey.koCurrentPage(),
-    survey.pages[2],
+    survey.koCurrentPage().name,
+    survey.pages[2].name,
     "ko current page is equal"
   );
   assert.equal(survey.koIsFirstPage(), false, "is last page");

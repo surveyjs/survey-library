@@ -3,6 +3,13 @@ import { Base, ISurveyData } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { Serializer } from "./jsonobject";
 
+/**
+ * The calculated value is a way to define the variable in Survey Creator.
+ * It has two main properties: name and expression. Based on expression the value read-only property is automatically calculated.
+ * The name property should be unique though all calcualted values.
+ * It uses survey.getVariable/seruvey.setVariable functions to get/set its value. The class do not store its value internally.
+ * You may set includeIntoResult property to true to store this calculated value into survey result.
+ */
 export class CalculatedValue extends Base {
   private data: ISurveyData;
   private expressionIsRunning: boolean = false;
@@ -23,23 +30,24 @@ export class CalculatedValue extends Base {
   public getType(): string {
     return "calculatedvalue";
   }
+  /**
+   * The calculated value name. It should be non empty and unique.
+   */
   public get name(): string {
     return this.getPropertyValue("name", "");
   }
   public set name(val: string) {
-    var oldValue = this.name;
     this.setPropertyValue("name", val);
-    if (!this.isLoadingFromJson && !!oldValue) {
-      this.onNameChanged(oldValue);
-    }
   }
+  /**
+   * Set this property to true to include the non-empty calculated value into survey result, survey.data property.
+   */
   public get includeIntoResult(): boolean {
     return this.getPropertyValue("includeIntoResult", false);
   }
   public set includeIntoResult(val: boolean) {
     this.setPropertyValue("includeIntoResult", val);
   }
-  protected onNameChanged(oldValue: string) {}
   /**
    * The Expression that used to calculate the value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
    * <br/>Example: "({quantity} * {price}) * (100 - {discount}) / 100"
@@ -65,7 +73,7 @@ export class CalculatedValue extends Base {
     }
     this.expressionRunner.onRunComplete = newValue => {
       if (!Helpers.isTwoValueEquals(newValue, this.value)) {
-        this.value = newValue;
+        this.setValue(newValue);
       }
       this.unlocCalculation();
     };
@@ -75,7 +83,7 @@ export class CalculatedValue extends Base {
     if (!this.data) return undefined;
     return this.data.getVariable(this.name);
   }
-  public set value(val: any) {
+  protected setValue(val: any) {
     if (!this.data) return;
     this.data.setVariable(this.name, val);
   }

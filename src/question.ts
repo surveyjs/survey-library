@@ -173,7 +173,7 @@ export class Question extends SurveyElement
     return null;
   }
   public delete() {
-    if(!!this.parent) {
+    if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }
   }
@@ -755,7 +755,10 @@ export class Question extends SurveyElement
     if (!this.conditionRunner)
       this.conditionRunner = new ConditionRunner(this.visibleIf);
     this.conditionRunner.expression = this.visibleIf;
-    this.visible = this.conditionRunner.run(values, properties);
+    this.conditionRunner.onRunComplete = (res: boolean) => {
+      this.visible = res;
+    };
+    this.conditionRunner.run(values, properties);
   }
   private runEnableIfCondition(
     values: HashTable<any>,
@@ -765,7 +768,10 @@ export class Question extends SurveyElement
     if (!this.conditionEnabelRunner)
       this.conditionEnabelRunner = new ConditionRunner(this.enableIf);
     this.conditionEnabelRunner.expression = this.enableIf;
-    this.readOnly = !this.conditionEnabelRunner.run(values, properties);
+    this.conditionEnabelRunner.onRunComplete = (res: boolean) => {
+      this.readOnly = !res;
+    };
+    this.conditionEnabelRunner.run(values, properties);
   }
   private runRequiredIfCondition(
     values: HashTable<any>,
@@ -775,7 +781,10 @@ export class Question extends SurveyElement
     if (!this.conditionRequiredRunner)
       this.conditionRequiredRunner = new ConditionRunner(this.requiredIf);
     this.conditionRequiredRunner.expression = this.requiredIf;
-    this.isRequired = this.conditionRequiredRunner.run(values, properties);
+    this.conditionRequiredRunner.onRunComplete = (res: boolean) => {
+      this.isRequired = res;
+    };
+    this.conditionRequiredRunner.run(values, properties);
   }
   /**
    * The property returns the question number. If question is invisible then it returns empty string.
@@ -1106,8 +1115,38 @@ export class Question extends SurveyElement
   protected hasRequiredError(): boolean {
     return this.isRequired && this.isEmpty();
   }
+  private validatorRunner: ValidatorRunner;
+  private isRunningValidatorsValue = false;
+  public onCompletedAsyncValidators: (hasErrors: boolean) => void;
+  public get isRunningValidators(): boolean {
+    return this.getIsRunningValidators();
+  }
+  protected getIsRunningValidators(): boolean {
+    return this.isRunningValidatorsValue;
+  }
   protected runValidators(): Array<SurveyError> {
-    return new ValidatorRunner().run(this);
+    if (!!this.validatorRunner) {
+      this.validatorRunner.onAsyncCompleted = null;
+    }
+    this.validatorRunner = new ValidatorRunner();
+    this.isRunningValidatorsValue = true;
+    this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
+      this.doOnAsyncCompleted(errors);
+    };
+    return this.validatorRunner.run(this);
+  }
+  private doOnAsyncCompleted(errors: Array<SurveyError>) {
+    for (var i = 0; i < errors.length; i++) {
+      this.errors.push(errors[i]);
+    }
+    this.isRunningValidatorsValue = false;
+    this.raiseOnCompletedAsyncValidators();
+  }
+  protected raiseOnCompletedAsyncValidators() {
+    if (!!this.onCompletedAsyncValidators && !this.isRunningValidators) {
+      this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
+      this.onCompletedAsyncValidators = null;
+    }
   }
   private isValueChangedInSurvey = false;
   protected setNewValue(newValue: any) {

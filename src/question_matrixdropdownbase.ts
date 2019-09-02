@@ -1800,6 +1800,20 @@ export class QuestionMatrixDropdownModelBase
     var errosInColumns = this.hasErrorInColumns(fireCallback);
     return super.hasErrors(fireCallback) || errosInColumns;
   }
+  protected getIsRunningValidators(): boolean {
+    if (super.getIsRunningValidators()) return true;
+    if (!this.generatedVisibleRows) return false;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      var cells = this.generatedVisibleRows[i].cells;
+      if (!cells) continue;
+      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+        if (!cells[colIndex]) continue;
+        var question = cells[colIndex].question;
+        if (!!question && question.isRunningValidators) return true;
+      }
+    }
+    return false;
+  }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
     var rows = this.generatedVisibleRows;
@@ -1823,9 +1837,11 @@ export class QuestionMatrixDropdownModelBase
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         if (!cells[colIndex]) continue;
         var question = cells[colIndex].question;
-        res =
-          (question && question.visible && question.hasErrors(fireCallback)) ||
-          res;
+        if (!question || !question.visible) continue;
+        question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+          this.raiseOnCompletedAsyncValidators();
+        };
+        res = question.hasErrors(fireCallback) || res;
       }
     }
     return res;

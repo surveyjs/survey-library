@@ -8,7 +8,8 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { QuestionDropdownModel } from "../src/question_dropdown";
+import { FunctionFactory } from "../src/functionsfactory";
+import { ExpressionValidator } from "../src/validator";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -2673,5 +2674,45 @@ QUnit.test(
       115,
       "visibleChoices is ok"
     );
+  }
+);
+QUnit.test(
+  "Matrix validation in cells and async functions in expression",
+  function(assert) {
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var question = new QuestionPanelDynamicModel("q1");
+    question.panelCount = 1;
+    var textQuestion = question.template.addNewQuestion("text", "q1");
+    textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+    question.hasErrors();
+    var onCompletedAsyncValidatorsCounter = 0;
+    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      onCompletedAsyncValidatorsCounter++;
+    };
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have one running validator"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet"
+    );
+    returnResult(1);
+    assert.equal(question.isRunningValidators, false, "We are fine now");
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      1,
+      "onCompletedAsyncValidators is called"
+    );
+
+    FunctionFactory.Instance.unregister("asyncFunc");
   }
 );

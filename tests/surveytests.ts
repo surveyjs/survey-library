@@ -13,7 +13,7 @@ import {
   SurveyTriggerSkip
 } from "../src/trigger";
 import { surveyLocalization } from "../src/surveyStrings";
-import { EmailValidator, NumericValidator } from "../src/validator";
+import { EmailValidator, NumericValidator, ExpressionValidator } from "../src/validator";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import {
@@ -67,24 +67,21 @@ QUnit.test("Current Page", function(assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is  current"
   );
   survey.currentPage = null;
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "can't set curent page to null"
   );
   var sPage = createPageWithQuestion("new Page");
   survey.addPage(sPage);
   survey.currentPage = sPage;
-  assert.equal(survey.currentPage, survey.pages[1], "second page is current");
+  assert.equal(survey.currentPageNo, 1, "second page is current");
   survey.pages.pop();
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo,0,
     "the first page is current after removing the current one"
   );
 });
@@ -318,27 +315,27 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function(
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Second page"));
   survey.addPage(createPageWithQuestion("Third page"));
-  assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
+  assert.equal(survey.currentPageNo, 0, "Current Page is  First");
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
   survey.nextPage();
-  assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
+  assert.equal(survey.currentPageNo, 1, "Current Page is  Second");
   assert.equal(survey.isFirstPage, false, "Current Page is  Second");
   assert.equal(survey.isLastPage, false, "Current Page is  Second");
   assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
   survey.nextPage();
-  assert.equal(survey.currentPage, survey.pages[2], "Current Page is  Third");
+  assert.equal(survey.currentPageNo, 2, "Current Page is  Third");
   assert.equal(survey.isFirstPage, false, "Current Page is  Third");
   assert.equal(survey.isLastPage, true, "Current Page is  Third");
   assert.equal(survey.progressText, "Page 3 of 3", "Current Page is  First");
   survey.prevPage();
-  assert.equal(survey.currentPage, survey.pages[1], "Current Page is  Second");
+  assert.equal(survey.currentPageNo, 1, "Current Page is  Second");
   assert.equal(survey.isFirstPage, false, "Current Page is  Second");
   assert.equal(survey.isLastPage, false, "Current Page is  Second");
   assert.equal(survey.progressText, "Page 2 of 3", "Current Page is  First");
   survey.prevPage();
-  assert.equal(survey.currentPage, survey.pages[0], "Current Page is  First");
+  assert.equal(survey.currentPageNo, 0, "Current Page is  First");
   assert.equal(survey.isFirstPage, true, "Current Page is  First");
   assert.equal(survey.isLastPage, false, "Current Page is  First");
   assert.equal(survey.progressText, "Page 1 of 3", "Current Page is  First");
@@ -361,23 +358,20 @@ QUnit.test("Next, Prev, Next", function(assert) {
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Page 2"));
   survey.addPage(createPageWithQuestion("Page 3"));
-  assert.equal(survey.currentPage, survey.pages[0], "Initial page is  first");
+  assert.equal(survey.currentPageNo, 0, "Initial page is  first");
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo, 1,
     "After next the current page is  second"
   );
   survey.prevPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "After the prev the current page is again first"
   );
   survey.nextPage();
   assert.equal(
-    survey.currentPage,
-    survey.pages[1],
+    survey.currentPageNo, 1,
     "After second next the current page is  second"
   );
 });
@@ -1779,6 +1773,61 @@ QUnit.test("Copy value trigger in dynamic panel, Bug# 1574", function(assert) {
     "trigger copy the value correctly"
   );
 });
+QUnit.test("Value trigger with async function", function(assert) {
+  var returnResult1: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  var survey = twoPageSimplestSurvey();
+  var trigger = new SurveyTriggerSetValue();
+  survey.triggers.push(trigger);
+  trigger.expression =  "asyncFunc1({question1}) = 'Hello'";
+  trigger.setToName = "name1";
+  trigger.setValue = "val1";
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), null, "value is not set, waiting for callback");
+  returnResult1(survey.getValue("question1"));
+  assert.equal(survey.getValue("name1"), "val1", "value is set");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+});
+
+QUnit.test("RunExpression trigger test", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  survey.setValue("val1", 3);
+  survey.setValue("val2", 2);
+  var trigger = new SurveyTriggerRunExpression();
+  survey.triggers.push(trigger);
+  trigger.expression = "asyncFunc1({question1}) = 'Hello'";
+  trigger.setToName = "name1";
+  trigger.runExpression = "asyncFunc2({val1} + {val2})";
+
+  assert.equal(survey.getValue("name1"), null, "value is not set");
+  survey.setValue("question1", "Hello");
+  assert.equal(survey.getValue("name1"), null, "value is not set, expression is not completed");
+  returnResult1(survey.getValue("question1"));
+  assert.equal(survey.getValue("name1"), null, "value is not set, runExpression is not completed");
+  returnResult2(survey.getValue("val1") + survey.getValue("val2"));
+  assert.equal(survey.getValue("name1"), 5, "value is set as expression");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
 QUnit.test("Serialize email validator", function(assert) {
   var validator = new EmailValidator();
   var json = new JsonObject().toJsonObject(validator);
@@ -1786,6 +1835,12 @@ QUnit.test("Serialize email validator", function(assert) {
   var newValidator = {};
   new JsonObject().toObject(json, newValidator);
   assert.ok(newValidator, "Convert from Json Successful");
+});
+QUnit.test("Email validator - https://github.com/surveyjs/survey-library/issues/1807", function(assert) {
+  var validator = new EmailValidator();
+  assert.equal(validator.validate("test=1@email.com", ""), null, "valid email");
+  assert.notEqual(validator.validate("test=1@ema=il.com", ""), null, "invalid email - = in domain name");
+  assert.notEqual(validator.validate("test=1@email.c=om", ""), null, "invalid email - = in domain suffix");
 });
 QUnit.test("pre process title", function(assert) {
   var survey = twoPageSimplestSurvey();
@@ -2940,8 +2995,7 @@ QUnit.test("assign customWidgets to questions", function(assert) {
   var survey = twoPageSimplestSurvey();
   survey.pages[0].addNewQuestion("checkbox", "question5");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is choosen"
   );
   assert.equal(
@@ -3052,8 +3106,7 @@ QUnit.test("customWidgets support displayValue", function(assert) {
   var survey = twoPageSimplestSurvey();
   var question = survey.pages[0].addNewQuestion("text", "text");
   assert.equal(
-    survey.currentPage,
-    survey.pages[0],
+    survey.currentPageNo, 0,
     "the first page is choosen"
   );
   assert.equal(
@@ -7679,6 +7732,7 @@ QUnit.test(
     assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
     assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
   });
+
   QUnit.test(
     "Test question/panel/page delete function",function(assert) {
       var survey = new SurveyModel({
@@ -7707,3 +7761,42 @@ QUnit.test(
       survey.pages[0].delete();
       assert.equal(survey.pages.length, 1, "There is one page in survey");      
     });  
+
+    QUnit.test("Expression validators with async functions", function(assert) {
+      var returnResult1: (res: any) => void;
+      var returnResult2: (res: any) => void;
+      function asyncFunc1(params: any): any {
+        returnResult1 = this.returnResult;
+        return false;
+      }
+      function asyncFunc2(params: any): any {
+        returnResult2 = this.returnResult;
+        return false;
+      }
+      FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+      FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+      var survey = twoPageSimplestSurvey();
+      var q1 = survey.getQuestionByName("question1");
+      var q2 = survey.getQuestionByName("question2");
+      var validator1 = new ExpressionValidator();
+      validator1.expression = "asyncFunc1() = 1";
+      var validator2 = new ExpressionValidator();
+      validator2.expression = "asyncFunc2() = 2";
+      q1.validators.push(validator1);
+      q2.validators.push(validator2);
+
+      survey.nextPage();
+      assert.equal(survey.currentPageNo, 0, "First page, 1");
+      returnResult1(0);
+      returnResult2(0);
+      assert.equal(survey.currentPageNo, 0, "First page, 2");
+      survey.nextPage();
+      assert.equal(survey.currentPageNo, 0, "First page, 3");
+      returnResult1(1);
+      assert.equal(survey.currentPageNo, 0, "First page, 4");
+      returnResult2(2);
+      assert.equal(survey.currentPageNo, 1, "Second page, async validation is over");
+    
+      FunctionFactory.Instance.unregister("asyncFunc1");
+      FunctionFactory.Instance.unregister("asyncFunc2");
+    });

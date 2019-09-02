@@ -1,5 +1,4 @@
 import { Base, SurveyError, ITextProcessor, IQuestion } from "./base";
-import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
@@ -115,20 +114,11 @@ export class ChoicesRestfull extends Base {
       this.lastObjHash = this.objHash;
       return;
     }
-    if (this.lastObjHash === this.objHash) {
-      this.owner && ((<Question>this.owner).isReady = true);
-      return;
-    }
+    if (this.lastObjHash === this.objHash) return;
     this.lastObjHash = this.objHash;
     this.error = null;
-    if (this.useChangedItemsResults()) {
-      this.owner && ((<Question>this.owner).isReady = true);
-      return;
-    }
-    if (ChoicesRestfull.addSameRequest(this)) {
-      this.owner && ((<Question>this.owner).isReady = true);
-      return;
-    }
+    if (this.useChangedItemsResults()) return;
+    if (ChoicesRestfull.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isRunning() {
@@ -342,7 +332,6 @@ export class ChoicesRestfull extends Base {
     ChoicesRestfull.itemsResult[this.objHash] = items;
     this.getResultCallback(items);
     ChoicesRestfull.unregisterSameRequests(this, items);
-    this.owner && ((<Question>this.owner).isReady = true);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();

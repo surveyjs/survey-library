@@ -22,17 +22,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   preventDefaults(event: any) {
     event.preventDefault();
   }
-  private unhighlight = () => {
-    this.setState({ rootClass: this.question.cssClasses.root });
-  };
-  private highlight = () => {
-    this.setState({
-      rootClass:
-        this.question.cssClasses.root +
-        " " +
-        this.question.cssClasses.highlighted
-    });
-  };
   handleOnDragOver = (event: any) => {
     event.preventDefault();
     this.highlight();
@@ -53,18 +42,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   };
   handleOnChange = (event: any) => {
     var src = event.target || event.srcElement;
-    if (!(window as any)["FileReader"]) return;
     this.onChange(src);
-  };
-  onChange = (src: any) => {
-    if (!src || !src.files || src.files.length < 1) return;
-    let files = [];
-    for (let i = 0; i < src.files.length; i++) {
-      files.push(src.files[i]);
-    }
-    src.value = "";
-    this.question.loadFiles(files);
-    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
   handleOnClean = (event: any) => {
     var src = event.target || event.srcElement;
@@ -75,6 +53,28 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   handleOnRemoveFile = (event: any) => {
     this.question.removeFile(event);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+  };
+  private onChange = (src: any) => {
+    if (!(window as any)["FileReader"]) return;
+    if (!src || !src.files || src.files.length < 1) return;
+    let files = [];
+    for (let i = 0; i < src.files.length; i++) {
+      files.push(src.files[i]);
+    }
+    src.value = "";
+    this.question.loadFiles(files);
+    this.setState({ fileLoaded: this.state.fileLoaded + 1 });
+  };
+  private highlight = () => {
+    this.setState({
+      rootClass:
+        this.question.cssClasses.root +
+        " " +
+        this.question.cssClasses.highlighted
+    });
+  };
+  private unhighlight = () => {
+    this.setState({ rootClass: this.question.cssClasses.root });
   };
   render(): JSX.Element {
     if (!this.question) return null;

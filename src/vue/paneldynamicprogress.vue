@@ -1,24 +1,13 @@
 <template>
   <div style="clear:both;">
     <div :class="question.cssClasses.progressContainer">
-      <svg
-        version="1.1"
-        id="Layer_1"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        x="0px"
-        y="0px"
-        viewBox="0 0 10 10"
-        style="enable-background:new 0 0 10 10;"
-        xml:space="preserve"
-        :class="getButtonPrevCss(question)"
-        @click="prevPanelClick"
-        :title="question.panelPrevText"
-      >
-        <polygon class="st0" points="2,2 0,4 5,9 10,4 8,2 5,5 " />
-      </svg>
+      <div :title="question.panelPrevText">
+        <svg viewBox="0 0 10 10" :class="getButtonPrevCss(question)" @click="prevPanelClick">
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
 
-      <div :class="question.cssClasses.progress">
+      <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
         <div
           :class="question.cssClasses.progressBar"
           :style="{width: progress}"
@@ -28,22 +17,11 @@
         ></div>
       </div>
 
-      <svg
-        version="1.1"
-        id="Layer_1"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        x="0px"
-        y="0px"
-        viewBox="0 0 10 10"
-        style="enable-background:new 0 0 10 10;"
-        xml:space="preserve"
-        @click="nextPanelClick"
-        :class="getButtonNextCss(question)"
-        :title="question.panelNextText"
-      >
-        <polygon class="st0" points="2,2 0,4 5,9 10,4 8,2 5,5 " />
-      </svg>
+      <div :title="question.panelNextText">
+        <svg viewBox="0 0 10 10" @click="nextPanelClick" :class="getButtonNextCss(question)">
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
     </div>
 
     <input
@@ -86,6 +64,8 @@ export class PanelDynamicProgress extends Vue {
   changeRange(event: any) {
     this.question.currentIndex = event.target.value;
   }
+
+  getButtonAddCss(question: Question) {}
 
   getButtonPrevCss(question: Question) {
     var btnClasses = question.cssClasses.buttonPrev;

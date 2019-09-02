@@ -104,7 +104,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     }
     var btnDeleteTD = !this.isDisplayMode ? <td /> : null;
     var btnAdd = this.question.isRenderModeList
-      ? this.renderAddRowButton(cssClasses, { marginTop: "5px" })
+      ? this.renderAddRowButton()
       : null;
     var navTop = this.question.isProgressTopShowing
       ? this.renderNavigator(cssClasses)
@@ -121,79 +121,109 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (
       <div className={cssClasses.root}>
         {navTop}
-        <div style={style}>
-          {panels}
-        </div>
+        <div style={style}>{panels}</div>
         {navBottom}
         {btnAdd}
       </div>
     );
   }
   protected renderNavigator(cssClasses: any): JSX.Element {
-    var style = { float: "left", margin: "5px" };
-    var range = this.question.isRangeShowing ? this.renderRange(style) : null;
-    var btnPrev = this.question.isPrevButtonShowing
-      ? this.renderButton(
-          this.question.panelPrevText,
-          cssClasses,
-          style,
-          this.handleOnPanelPrevClick
-        )
-      : null;
-    var btnNext = this.question.isNextButtonShowing
-      ? this.renderButton(
-          this.question.panelNextText,
-          cssClasses,
-          style,
-          this.handleOnPanelNextClick
-        )
-      : null;
-    var btnAdd = this.renderAddRowButton(cssClasses, style);
+    var range = this.question.isRangeShowing ? this.renderRange() : null;
+    var btnPrev = this.rendrerPrevButton();
+    var btnNext = this.rendrerNextButton();
+    var btnAdd = this.renderAddRowButton();
     return (
-      <div>
-        {range}
-        {btnPrev}
-        {btnNext}
+      <div style={{ clear: "both" }}>
+        <div className={this.question.cssClasses.progressContainer}>
+          {btnPrev}
+          {range}
+          {btnNext}
+        </div>
         {btnAdd}
+        <div>{this.question.progressText}</div>
       </div>
     );
   }
-  protected renderRange(style: any): JSX.Element {
-    var updatedStyle: { [index: string]: any } = { width: "25%" }; //TODO 25%.
-    for (var attr in style) updatedStyle[attr] = style[attr];
+
+  protected rendrerPrevButton() {
+    var getButtonPrevCss = question => {
+      var btnClasses = question.cssClasses.buttonPrev;
+      if (!question.isPrevButtonShowing) {
+        btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
+      }
+      return btnClasses;
+    };
+
     return (
-      <input
-        style={updatedStyle}
-        type="range"
-        onChange={this.handleOnRangeChange}
-        min={0}
-        max={this.question.panelCount - 1}
-        value={this.question.currentIndex}
-      />
+      <div title={this.question.panelPrevText}>
+        <svg
+          viewBox="0 0 10 10"
+          className={getButtonPrevCss(this.question)}
+          onClick={this.handleOnPanelPrevClick}
+        >
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
     );
   }
-  protected renderAddRowButton(cssClasses: any, style: any): JSX.Element {
+  protected rendrerNextButton() {
+    var getButtonNextCss = function(question) {
+      var btnClasses = question.cssClasses.buttonNext;
+      if (!question.isNextButtonShowing) {
+        btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
+      }
+      return btnClasses;
+    };
+
+    return (
+      <div title={this.question.panelNextText}>
+        <svg
+          viewBox="0 0 10 10"
+          className={getButtonNextCss(this.question)}
+          onClick={this.handleOnPanelNextClick}
+        >
+          <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+        </svg>
+      </div>
+    );
+  }
+
+  protected renderRange(): JSX.Element {
+    var getProgress = () => {
+      var rangeMax = this.question.panelCount - 1;
+      return this.question.currentIndex / rangeMax * 100 + "%";
+    };
+
+    return (
+      <div className={this.question.cssClasses.progress}>
+        <div
+          className={this.question.cssClasses.progressBar}
+          style={{ width: getProgress() }}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+        />
+      </div>
+    );
+  }
+  protected renderAddRowButton(): JSX.Element {
     if (!this.question.canAddPanel) return null;
-    return this.renderButton(
-      this.question.panelAddText,
-      cssClasses,
-      style,
-      this.handleOnPanelAddClick
-    );
-  }
-  protected renderButton(
-    text: string,
-    cssClasses: any,
-    style: any,
-    onClick: any
-  ): JSX.Element {
+
+    var classes =
+      this.question.cssClasses.button +
+      " " +
+      this.question.cssClasses.buttonAdd;
+
+    if (this.question.renderMode === "list") {
+      classes += " " + this.question.cssClasses.buttonAdd + "--list-mode";
+    }
+
     return (
       <input
-        className={cssClasses.button + " " + cssClasses.buttonAdd}
-        style={style}
+        className={classes}
         type="button"
-        onClick={onClick}
-        value={text}
+        onClick={this.handleOnPanelAddClick}
+        value={this.question.panelAddText}
       />
     );
   }

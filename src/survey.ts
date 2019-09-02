@@ -15,6 +15,7 @@ import {
   ISurveyErrorOwner
 } from "./base";
 import { ISurveyTriggerOwner, SurveyTrigger } from "./trigger";
+import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
@@ -61,6 +62,7 @@ export class SurveyModel extends Base
 
   private pagesValue: Array<PageModel>;
   private triggersValue: Array<SurveyTrigger>;
+  private calculatedValuesValue: Array<CalculatedValue>;
   private completedHtmlOnConditionValue: Array<HtmlConditionItem>;
   private get currentPageValue(): PageModel {
     return this.getPropertyValue("currentPageValue", null);
@@ -771,6 +773,12 @@ export class SurveyModel extends Base
     this.triggersValue = this.createNewArray("triggers", function(value: any) {
       value.setOwner(self);
     });
+    this.calculatedValuesValue = this.createNewArray(
+      "calculatedValues",
+      function(value: any) {
+        value.setOwner(self);
+      }
+    );
     this.completedHtmlOnConditionValue = this.createNewArray(
       "completedHtmlOnCondition",
       function(value: any) {
@@ -827,6 +835,16 @@ export class SurveyModel extends Base
   }
   public set triggers(val: Array<SurveyTrigger>) {
     this.setPropertyValue("triggers", val);
+  }
+  /**
+   * The list of calculated values in the survey.
+   * @see CalculatedValue
+   */
+  public get calculatedValues(): Array<CalculatedValue> {
+    return this.calculatedValuesValue;
+  }
+  public set calculatedValues(val: Array<CalculatedValue>) {
+    this.setPropertyValue("calculatedValues", val);
   }
   /**
    * Set this property to automatically load survey Json from [dxsurvey.com](http://www.dxsurvey.com) service.
@@ -2883,6 +2901,9 @@ export class SurveyModel extends Base
     var pages = this.pages;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      this.calculatedValues[i].runExpression(values, properties);
+    }
     for (var i = 0; i < pages.length; i++) {
       pages[i].runCondition(values, properties);
     }

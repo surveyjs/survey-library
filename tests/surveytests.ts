@@ -7665,138 +7665,138 @@ QUnit.test(
 QUnit.test(
   "Test element.moveTo function",
   function(assert) {
-    var json = {
-      pages: [{
-        name: "page1",
-      elements: [
-        {
-          name: "q1", type : "text"
-        },
-        {
-          name: "p1", type: "panel",
+  var json = {
+    pages: [{
+      name: "page1",
+    elements: [
+      {
+        name: "q1", type : "text"
+      },
+      {
+        name: "p1", type: "panel",
+        elements: [
+          {name: "p2", type: "panel",
           elements: [
-            {name: "p2", type: "panel",
-            elements: [
-              {name: "q2", type : "text"}
-            ]
-          },
-          {
-            name: "q3", type : "text"
-          },
-  
+            {name: "q2", type : "text"}
           ]
         },
         {
-          name: "q4", type : "text"
-        }
-      ]
-    },
-    {
-      name: "page2",
-      elements: [
-        {
-          name: "q5", type : "text"
+          name: "q3", type : "text"
         },
-        {
-          name: "p3", type: "panel",
-          elements: [
-            {name: "q6", type : "text"}
-          ]
-        },
-          {
-            name: "q7", type : "text"
-          }
-  
-      ]
-    }
-    ]
-    };
-    var survey = new SurveyModel(json);
-    var page2 = survey.pages[1];
-    var panel2 = <PanelModel>survey.getPanelByName("p2");
-    var q1 = <Question>survey.getQuestionByName("q1");
-    assert.equal(q1.parent.name, "page1", "q1.parent = page1");
-    q1.moveTo(page2);
-    assert.equal(q1.parent.name, "page2", "q1.parent = page1");
-    assert.equal(page2.indexOf(q1), 3, "The last element on the page");
-    q1.moveTo(page2, survey.getQuestionByName("q5"));
-    assert.equal(page2.indexOf(q1), 0, "The first element on the page");
-    q1.moveTo(page2, -1);
-    assert.equal(page2.indexOf(q1), 3, "The last element on the page again");
-    q1.moveTo(page2, 1);
-    assert.equal(page2.indexOf(q1), 1, "The second element on the page");
-    q1.moveTo(panel2, survey.getQuestionByName("q2"));
-    assert.equal(q1.parent.name, "p2", "q1.parent = p1");
-    assert.equal(panel2.indexOf(q1), 0, "The first element on panel: p2");
-    panel2.moveTo(page2, survey.getPanelByName("p3"));
-    assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
-    assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
-  });
 
-  QUnit.test(
-    "Test question/panel/page delete function",function(assert) {
-      var survey = new SurveyModel({
-        pages : [
-          {elements: [
-            {
-              type: "panel", name : "panel1",
-              elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
-            },
-            {type: "text", name: "q3"}
-          ]},
-          {elements: [{type: "text", name: "q4"}, {type: "text", name: "q5"}]}
         ]
-      });
-      var panel = <PanelModel>survey.getPanelByName("panel1");
-      assert.equal(panel.elements.length, 2, "two questions in panel in the beginning");
-      panel.questions[0].delete();
-      assert.equal(panel.elements.length, 1, "one question in panel now");
-      assert.equal(survey.pages[0].elements.length, 2, "There are two elements in page1");
-      panel.delete();
-      assert.equal(survey.pages[0].elements.length, 1, "There is one element in page1");
-      assert.equal(survey.pages[1].elements.length, 2, "There are two elements in page2");
-      survey.pages[1].questions[0].delete();
-      assert.equal(survey.pages[1].elements.length, 1, "There is one element in page2");
-      assert.equal(survey.pages.length, 2, "There are two pages in survey");
-      survey.pages[0].delete();
-      assert.equal(survey.pages.length, 1, "There is one page in survey");      
-    });  
-
-    QUnit.test("Expression validators with async functions", function(assert) {
-      var returnResult1: (res: any) => void;
-      var returnResult2: (res: any) => void;
-      function asyncFunc1(params: any): any {
-        returnResult1 = this.returnResult;
-        return false;
+      },
+      {
+        name: "q4", type : "text"
       }
-      function asyncFunc2(params: any): any {
-        returnResult2 = this.returnResult;
-        return false;
-      }
-      FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
-      FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
-      var survey = twoPageSimplestSurvey();
-      var q1 = survey.getQuestionByName("question1");
-      var q2 = survey.getQuestionByName("question2");
-      var validator1 = new ExpressionValidator();
-      validator1.expression = "asyncFunc1() = 1";
-      var validator2 = new ExpressionValidator();
-      validator2.expression = "asyncFunc2() = 2";
-      q1.validators.push(validator1);
-      q2.validators.push(validator2);
+    ]
+  },
+  {
+    name: "page2",
+    elements: [
+      {
+        name: "q5", type : "text"
+      },
+      {
+        name: "p3", type: "panel",
+        elements: [
+          {name: "q6", type : "text"}
+        ]
+      },
+        {
+          name: "q7", type : "text"
+        }
 
-      survey.nextPage();
-      assert.equal(survey.currentPageNo, 0, "First page, 1");
-      returnResult1(0);
-      returnResult2(0);
-      assert.equal(survey.currentPageNo, 0, "First page, 2");
-      survey.nextPage();
-      assert.equal(survey.currentPageNo, 0, "First page, 3");
-      returnResult1(1);
-      assert.equal(survey.currentPageNo, 0, "First page, 4");
-      returnResult2(2);
-      assert.equal(survey.currentPageNo, 1, "Second page, async validation is over");
-    
-      FunctionFactory.Instance.unregister("asyncFunc1");
-      FunctionFactory.Instance.unregister("asyncFunc2");
-    });
+    ]
+  }
+  ]
+  };
+  var survey = new SurveyModel(json);
+  var page2 = survey.pages[1];
+  var panel2 = <PanelModel>survey.getPanelByName("p2");
+  var q1 = <Question>survey.getQuestionByName("q1");
+  assert.equal(q1.parent.name, "page1", "q1.parent = page1");
+  q1.moveTo(page2);
+  assert.equal(q1.parent.name, "page2", "q1.parent = page1");
+  assert.equal(page2.indexOf(q1), 3, "The last element on the page");
+  q1.moveTo(page2, survey.getQuestionByName("q5"));
+  assert.equal(page2.indexOf(q1), 0, "The first element on the page");
+  q1.moveTo(page2, -1);
+  assert.equal(page2.indexOf(q1), 3, "The last element on the page again");
+  q1.moveTo(page2, 1);
+  assert.equal(page2.indexOf(q1), 1, "The second element on the page");
+  q1.moveTo(panel2, survey.getQuestionByName("q2"));
+  assert.equal(q1.parent.name, "p2", "q1.parent = p1");
+  assert.equal(panel2.indexOf(q1), 0, "The first element on panel: p2");
+  panel2.moveTo(page2, survey.getPanelByName("p3"));
+  assert.equal(panel2.parent.name, "page2", "q1.parent = p1");
+  assert.equal(page2.indexOf(panel2), 1, "The second element on page2");
+});
+
+QUnit.test(
+"Test question/panel/page delete function",function(assert) {
+  var survey = new SurveyModel({
+    pages : [
+      {elements: [
+        {
+          type: "panel", name : "panel1",
+          elements: [{type: "text", name: "q1"}, {type: "text", name: "q2"}]
+        },
+        {type: "text", name: "q3"}
+      ]},
+      {elements: [{type: "text", name: "q4"}, {type: "text", name: "q5"}]}
+    ]
+  });
+  var panel = <PanelModel>survey.getPanelByName("panel1");
+  assert.equal(panel.elements.length, 2, "two questions in panel in the beginning");
+  panel.questions[0].delete();
+  assert.equal(panel.elements.length, 1, "one question in panel now");
+  assert.equal(survey.pages[0].elements.length, 2, "There are two elements in page1");
+  panel.delete();
+  assert.equal(survey.pages[0].elements.length, 1, "There is one element in page1");
+  assert.equal(survey.pages[1].elements.length, 2, "There are two elements in page2");
+  survey.pages[1].questions[0].delete();
+  assert.equal(survey.pages[1].elements.length, 1, "There is one element in page2");
+  assert.equal(survey.pages.length, 2, "There are two pages in survey");
+  survey.pages[0].delete();
+  assert.equal(survey.pages.length, 1, "There is one page in survey");      
+});  
+
+QUnit.test("Expression validators with async functions", function(assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  var validator1 = new ExpressionValidator();
+  validator1.expression = "asyncFunc1() = 1";
+  var validator2 = new ExpressionValidator();
+  validator2.expression = "asyncFunc2() = 2";
+  q1.validators.push(validator1);
+  q2.validators.push(validator2);
+
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "First page, 1");
+  returnResult1(0);
+  returnResult2(0);
+  assert.equal(survey.currentPageNo, 0, "First page, 2");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "First page, 3");
+  returnResult1(1);
+  assert.equal(survey.currentPageNo, 0, "First page, 4");
+  returnResult2(2);
+  assert.equal(survey.currentPageNo, 1, "Second page, async validation is over");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});

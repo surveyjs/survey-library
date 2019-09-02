@@ -10,6 +10,8 @@ import { settings } from "./settings";
 export interface ISurveyData {
   getValue(name: string): any;
   setValue(name: string, newValue: any, locNotification: boolean): any;
+  getVariable(name: string): any;
+  setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
   setComment(name: string, newValue: string): any;
   getAllValues(): any;

@@ -207,6 +207,8 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
+  getVariable(name: string): any { return undefined;}
+  setVariable(name: string, newValue: any) {}
   getComment(name: string): string {
     return null;
   }

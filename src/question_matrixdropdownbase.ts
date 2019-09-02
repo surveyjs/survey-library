@@ -747,6 +747,8 @@ export class MatrixDropdownRowModelBase
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
+  getVariable(name: string): any { return undefined;}
+  setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";

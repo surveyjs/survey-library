@@ -62,6 +62,8 @@ export class QuestionPanelDynamicItem
   public setValue(name: string, newValue: any) {
     this.data.setPanelItemData(this, name, newValue);
   }
+  getVariable(name: string): any { return undefined;}
+  setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";

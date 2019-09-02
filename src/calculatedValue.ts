@@ -33,6 +33,12 @@ export class CalculatedValue extends Base {
       this.onNameChanged(oldValue);
     }
   }
+  public get includeIntoResult(): boolean {
+    return this.getPropertyValue("includeIntoResult", false);
+  }
+  public set includeIntoResult(val: boolean) {
+    this.setPropertyValue("includeIntoResult", val);
+  }
   protected onNameChanged(oldValue: string) {}
   /**
    * The Expression that used to calculate the value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
@@ -92,7 +98,7 @@ export class CalculatedValue extends Base {
 
 Serializer.addClass(
   "calculatedvalue",
-  ["!name", "expression:expression"],
+  ["!name", "expression:expression", "includeIntoResult:boolean"],
   function() {
     return new CalculatedValue();
   },

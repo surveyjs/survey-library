@@ -1472,6 +1472,16 @@ export class SurveyModel extends Base
    */
   public get data(): any {
     var result: { [index: string]: any } = {};
+    for (var i = 0; i < this.calculatedValues.length; i++) {
+      var calValue = this.calculatedValues[i];
+      if (
+        calValue.includeIntoResult &&
+        !!calValue.name &&
+        this.getVariable(calValue.name) !== undefined
+      ) {
+        result[calValue.name] = this.getVariable(calValue.name);
+      }
+    }
     for (var key in this.valuesHash) {
       var dataValue = this.getDataValueCore(this.valuesHash, key);
       if (dataValue !== undefined) {

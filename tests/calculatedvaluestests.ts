@@ -54,3 +54,16 @@ QUnit.test("Deserialize/serialize calculated values", function(assert) {
   );
   assert.deepEqual(survey.toJSON(), json, "Serialized correctly");
 });
+QUnit.test("Include into result", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: 1 },
+      { type: "text", name: "q2", defaultValue: 2 }
+    ]
+  });
+  survey.calculatedValues.push(new CalculatedValue("var1", "{q1} + {q2}"));
+  assert.equal(survey.getVariable("var1"), 3, "var1 is calculated");
+  assert.deepEqual(survey.data, { q1: 1, q2: 2 });
+  survey.calculatedValues[0].includeIntoResult = true;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, var1: 3 });
+});

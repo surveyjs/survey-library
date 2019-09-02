@@ -107,10 +107,14 @@ export var defaultStandardCss = {
     root: "sv_panel_dynamic",
     title: "sv_p_title",
     button: "",
-    buttonPrev: "",
-    buttonNext: "",
-    buttonAdd: "",
-    buttonRemove: ""
+    buttonAdd: "sv-paneldynamic__add-btn",
+    buttonRemove: "",
+    buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonNext: "sv-paneldynamic__next-btn",
+    progressContainer: "sv-paneldynamic__progress-container",
+    progress: "sv-progress",
+    progressBar: "sv-progress__bar",
+    progressText: "sv-progress__text"
   },
   multipletext: {
     root: "sv_q_mt",

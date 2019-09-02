@@ -98,10 +98,14 @@ export var defaultBootstrapMaterialCss = {
   paneldynamic: {
     root: "",
     button: "btn btn-primary",
-    buttonPrev: "",
-    buttonNext: "",
-    buttonAdd: "",
-    buttonRemove: ""
+    buttonAdd: "sv-paneldynamic__add-btn",
+    buttonRemove: "",
+    buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonNext: "sv-paneldynamic__next-btn",
+    progressContainer: "sv-paneldynamic__progress-container",
+    progress: "sv-progress",
+    progressBar: "sv-progress__bar",
+    progressText: "sv-progress__text"
   },
   multipletext: {
     root: "table",

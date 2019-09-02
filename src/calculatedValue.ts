@@ -90,6 +90,7 @@ export class CalculatedValue extends Base {
   private get canRunExpression(): boolean {
     return (
       !!this.data &&
+      !this.isLoadingFromJson &&
       !!this.expression &&
       !this.expressionIsRunning &&
       !!this.name

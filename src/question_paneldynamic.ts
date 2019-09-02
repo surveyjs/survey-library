@@ -1434,6 +1434,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     return questionPlainData;
   }
+
+  public get progressText(): string {
+    var rangeMax = this.panelCount - 1;
+    return surveyLocalization
+      .getString("panelDynamicProgressText")
+      ["format"](this.currentIndex, rangeMax);
+  }
 }
 
 Serializer.addClass(

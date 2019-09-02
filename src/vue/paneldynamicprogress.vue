@@ -1,11 +1,6 @@
 <template>
   <div style="clear:both;">
     <div :class="question.cssClasses.progressContainer">
-      <!-- <input
-        type="button"
-        :disabled="!question.isPrevButtonShowing"
-        :class="question.cssClasses.buttonPrev"
-      />-->
       <svg
         version="1.1"
         id="Layer_1"
@@ -30,9 +25,7 @@
           role="progressbar"
           aria-valuemin="0"
           aria-valuemax="100"
-        >
-          <!-- <span>progress text: {{survey.progressText}}</span> -->
-        </div>
+        ></div>
       </div>
 
       <svg
@@ -60,6 +53,8 @@
       :class="question.cssClasses.button  + ' ' + question.cssClasses.buttonAdd"
       @click="addPanelClick"
     />
+
+    <div>{{question.progressText}}</div>
   </div>
 </template>
 

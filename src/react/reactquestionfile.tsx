@@ -6,7 +6,11 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { fileLoaded: 0, state: "empty" };
+    this.state = {
+      fileLoaded: 0,
+      state: "empty",
+      rootClass: this.question.cssClasses.root
+    };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.question.onStateChanged.add((state: any) =>
       this.setState({ fileLoaded: this.state.fileLoaded + 1, state: state })
@@ -15,9 +19,44 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  handleOnChange(event: any) {
+  preventDefaults(event: any) {
+    event.preventDefault();
+  }
+  private unhighlight = () => {
+    this.setState({ rootClass: this.question.cssClasses.root });
+  };
+  private highlight = () => {
+    this.setState({
+      rootClass:
+        this.question.cssClasses.root +
+        " " +
+        this.question.cssClasses.highlighted
+    });
+  };
+  handleOnDragOver = (event: any) => {
+    event.preventDefault();
+    this.highlight();
+  };
+  handleOnDragEnter = (event: any) => {
+    event.preventDefault();
+    this.highlight();
+  };
+  handleOnDragLeave = (event: any) => {
+    event.preventDefault();
+    this.unhighlight();
+  };
+  handleOnDrop = (event: any) => {
+    event.preventDefault();
+    this.unhighlight();
+    let src = event.dataTransfer;
+    this.onChange(src);
+  };
+  handleOnChange = (event: any) => {
     var src = event.target || event.srcElement;
     if (!(window as any)["FileReader"]) return;
+    this.onChange(src);
+  };
+  onChange = (src: any) => {
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     for (let i = 0; i < src.files.length; i++) {
@@ -26,7 +65,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     src.value = "";
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  }
+  };
   handleOnClean = (event: any) => {
     var src = event.target || event.srcElement;
     this.question.clear();
@@ -41,54 +80,70 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!this.question) return null;
     var preview = this.renderPreview();
     var fileInput = null;
+    var fileDecorator = this.renderFileDecorator();
     var clearButton = null;
-    var displayInput = null;
-    if (!this.isDisplayMode) {
-      fileInput = (
-        <input
-          className={this.question.cssClasses.fileInput}
-          id={this.question.inputId}
-          type="file"
-          onChange={this.handleOnChange}
-          aria-required={this.question.isRequired}
-          aria-label={this.question.locTitle.renderedHtml}
-          multiple={this.question.allowMultiple}
-          title={this.question.inputTitle}
-          accept={this.question.acceptedTypes}
-        />
-      );
-      if (!!this.question.value) {
-        clearButton = (
-          <button
-            type="button"
-            onClick={this.handleOnClean}
-            className={this.question.cssClasses.removeButton}
-          >
-            {this.question.cleanButtonCaption}
-          </button>
-        );
-      }
-    } else {
-      displayInput = (
-        <input
-          disabled={true}
-          className={this.question.cssClasses.fileInput}
-          id={this.question.inputId}
-          type="file"
-          aria-required={this.question.isRequired}
-          aria-label={this.question.locTitle.renderedHtml}
-          multiple={this.question.allowMultiple}
-          title={this.question.inputTitle}
-          accept={this.question.acceptedTypes}
-        />
+    fileInput = (
+      <input
+        disabled={this.isDisplayMode}
+        className={this.question.cssClasses.fileInput}
+        id={this.question.inputId}
+        type="file"
+        onChange={!this.isDisplayMode ? this.handleOnChange : null}
+        aria-required={this.question.isRequired}
+        aria-label={this.question.locTitle.renderedHtml}
+        multiple={this.question.allowMultiple}
+        title={this.question.inputTitle}
+        accept={this.question.acceptedTypes}
+      />
+    );
+    if (!this.question.isEmpty() && !this.isDisplayMode) {
+      clearButton = (
+        <button
+          type="button"
+          onClick={this.handleOnClean}
+          className={this.question.cssClasses.removeButton}
+        >
+          {this.question.cleanButtonCaption}
+        </button>
       );
     }
     return (
-      <div className={this.question.cssClasses.root}>
+      <div
+        className={this.state.rootClass}
+        onDragEnter={this.handleOnDragEnter}
+        onDragOver={this.handleOnDragOver}
+        onDragLeave={this.handleOnDragLeave}
+        onDrop={this.handleOnDrop}
+      >
         {fileInput}
+        {fileDecorator}
         {clearButton}
-        {displayInput}
         {preview}
+      </div>
+    );
+  }
+  protected renderFileDecorator(): JSX.Element {
+    let noFileChosen = null;
+    let chooseFile = null;
+    let chooseFileCss =
+      this.question.cssClasses.chooseFile +
+      (this.isDisplayMode ? " " + this.question.cssClasses.disabled : "");
+    chooseFile = (
+      <label className={chooseFileCss} htmlFor={this.question.inputId}>
+        {this.question.chooseButtonCaption}
+      </label>
+    );
+    if (this.question.isEmpty()) {
+      noFileChosen = (
+        <span className={this.question.cssClasses.noFileChosen}>
+          {this.question.noFileChosenCaption}
+        </span>
+      );
+    }
+    return (
+      <div className={this.question.cssClasses.fileDecorator}>
+        {chooseFile}
+        {noFileChosen}
       </div>
     );
   }

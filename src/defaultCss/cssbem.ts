@@ -119,7 +119,8 @@ export var bemCss = {
     root: "sv-multipletext",
     item: "sv-multipletext__item",
     itemTitle: "sv-multipletext__item-title",
-    row: "sv-multipletext__row"
+    row: "sv-multipletext__row",
+    cell: "sv-multipletext__cell"
   },
   dropdown: {
     root: "",
@@ -183,6 +184,7 @@ export var bemCss = {
     root: "sv-file",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
+    highlighted: "sv-file--highlighted",
     fileDecorator: "sv-file__decorator",
     fileInput: "sv-visuallyhidden",
     noFileChosen: "sv-description sv-file__no-file-chosen",

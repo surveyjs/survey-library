@@ -88,17 +88,13 @@ export class SurveyQuestion extends SurveyElementBase {
     var titleTop = titleLocation === "top" ? title : null;
     var titleBottom = titleLocation === "bottom" ? title : null;
     var titleLeft = titleLocation === "left" ? title : null;
-    var titleLeftClass = titleLocation === "left" ? "title-left" : null;
-    var contentClass = question.cssClasses.content;
+    var headerClass = question.cssClasses.header + (titleLocation === "left" ? " " + question.cssClasses.headerLeft : "");
+    var contentClass = question.cssClasses.content + (titleLocation === "left" ? " " + question.cssClasses.contentLeft : "");
     var descriptionLeft = titleLocation === "left" ? description : null;
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
     let questionRootClass = question.cssMainRoot;
-
-    if (titleLocation === "left") {
-      contentClass += " " + "content-left";
-    }
-
+    
     if (question.cssClasses.small && !question.width) {
       questionRootClass += " " + question.cssClasses.small;
     }
@@ -126,7 +122,7 @@ export class SurveyQuestion extends SurveyElementBase {
         className={questionRootClass}
         style={rootStyle}
       >
-        <div className={titleLeftClass}>
+        <div className={headerClass}>
           {titleTop}
           {descriptionTop}
           {titleLeft}

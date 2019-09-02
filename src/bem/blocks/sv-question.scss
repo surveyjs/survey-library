@@ -9,9 +9,7 @@
   box-sizing: border-box;
   margin: 0;
   margin-bottom: 0.8em;
-  padding-left: 0.44em;
-  padding-top: 0.31em;
-  padding-bottom: 0.31em;
+  padding: 0.31em 0.44em; 
 }
 .sv-question__title {
   font-size: 1.25em;
@@ -54,4 +52,12 @@
 }
 .sv-question__title-container--error {
   background-color: $error-background-color;
+}
+.sv-question__header--left {
+  float: left;
+  max-width: 27%;
+}
+.sv-question__content--left {
+  margin-top: 0.31em;
+  overflow: hidden;
 }

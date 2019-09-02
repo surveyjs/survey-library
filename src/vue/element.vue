@@ -1,6 +1,6 @@
 <template>
   <div :class="getRootClass(element)">
-    <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
+    <div :class="getHeaderClass(element)">
       <div :class="getTitleClass(element)" title="element.locTitle">
         <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
           <span
@@ -86,13 +86,18 @@ export class SurveyElementVue extends Vue {
 
     return titleClass;
   }
+  getHeaderClass(element: Question) {
+    var headerClass = element.cssClasses.header;
+    if (element.hasTitleOnLeft) {
+      headerClass += " " + element.cssClasses.headerLeft;
+    }
+    return headerClass;
+  }
   getContentClass(element: Question) {
     var contentClass = element.cssClasses.content;
-
     if (element.hasTitleOnLeft) {
-      contentClass += " " + "content-left";
+      contentClass += " " + element.cssClasses.contentLeft;
     }
-
     return contentClass;
   }
   get hasErrorsOnTop() {

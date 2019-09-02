@@ -21,6 +21,7 @@ export class QuestionSelectBase extends Question {
   private otherItemValue: ItemValue = new ItemValue("other");
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
+  private isChoicesLoaded: boolean = false;
   /**
    * Use this property to fill the choices from a restful service.
    * @see choices
@@ -554,6 +555,7 @@ export class QuestionSelectBase extends Question {
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
+    this.isReadyValue = this.isChoicesLoaded || this.choicesByUrl.isEmpty;
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;
@@ -600,6 +602,7 @@ export class QuestionSelectBase extends Question {
         this.value = newValue.value;
       }
     }
+    this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(
     val: any,
@@ -740,6 +743,18 @@ export class QuestionSelectBase extends Question {
   }
   get hasColumns() {
     return this.colCount > 1;
+  }
+  public choicesLoaded(): void {
+    this.isChoicesLoaded = true;
+    let oldIsReady: boolean = this.isReadyValue;
+    this.isReadyValue = true;
+    this.onReadyChanged && this.onReadyChanged.fire(
+      this, {
+        question: this,
+        isReady: true,
+        olsIsReady: oldIsReady
+      }
+    );
   }
 }
 /**

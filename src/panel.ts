@@ -1022,7 +1022,10 @@ export class PanelModelBase extends SurveyElement
   ) {
     if (!this.visibleIf) return;
     var conditionRunner = new ConditionRunner(this.visibleIf);
-    this.visible = conditionRunner.run(values, properties);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.visible = res;
+    };
+    conditionRunner.run(values, properties);
   }
   private runEnableCondition(
     values: HashTable<any>,
@@ -1030,7 +1033,10 @@ export class PanelModelBase extends SurveyElement
   ) {
     if (!this.enableIf) return;
     var conditionRunner = new ConditionRunner(this.enableIf);
-    this.readOnly = !conditionRunner.run(values, properties);
+    conditionRunner.onRunComplete = (res: boolean) => {
+      this.readOnly = !res;
+    };
+    conditionRunner.run(values, properties);
   }
   onAnyValueChanged(name: string) {
     for (var i = 0; i < this.elements.length; i++) {

@@ -9,6 +9,10 @@ export abstract class Operand {
   public hasFunction(): boolean {
     return false;
   }
+  public hasAsyncFunction() {
+    return false;
+  }
+  public addToAsyncList(list: Array<FunctionOperand>): void {}
 }
 
 export class BinaryOperand extends Operand {
@@ -67,6 +71,16 @@ export class BinaryOperand extends Operand {
       (!!this.left && this.left.hasFunction()) ||
       (!!this.right && this.right.hasFunction())
     );
+  }
+  public hasAsyncFunction(): boolean {
+    return (
+      (!!this.left && this.left.hasAsyncFunction()) ||
+      (!!this.right && this.right.hasAsyncFunction())
+    );
+  }
+  public addToAsyncList(list: Array<FunctionOperand>) {
+    if (!!this.left) this.left.addToAsyncList(list);
+    if (!!this.right) this.right.addToAsyncList(list);
   }
 }
 
@@ -128,6 +142,12 @@ export class ArrayOperand extends Operand {
 
   public hasFunction(): boolean {
     return this.values.some(operand => operand.hasFunction());
+  }
+  public hasAsyncFunction(): boolean {
+    return this.values.some(operand => operand.hasAsyncFunction());
+  }
+  public addToAsyncList(list: Array<FunctionOperand>) {
+    this.values.forEach(operand => operand.addToAsyncList(list));
   }
 }
 
@@ -197,17 +217,34 @@ export class Variable extends Const {
 }
 
 export class FunctionOperand extends Operand {
+  private isReadyValue: boolean;
+  private asynResult: any;
+  public onAsyncReady: () => void;
   constructor(
     private origionalValue: string,
     private parameters: ArrayOperand
   ) {
     super();
+    this.isReadyValue = false;
     if (Array.isArray(parameters) && parameters.length === 0) {
       this.parameters = new ArrayOperand([]);
     }
   }
-
+  public evaluateAsync(processValue: ProcessValue) {
+    this.isReadyValue = false;
+    if (!processValue.properties) processValue.properties = {};
+    processValue.properties.returnResult = (result: any) => {
+      this.asynResult = result;
+      this.isReadyValue = true;
+      this.onAsyncReady();
+    };
+    this.evaluateCore(processValue);
+  }
   public evaluate(processValue?: ProcessValue): any {
+    if (this.isReady) return this.asynResult;
+    return this.evaluateCore(processValue);
+  }
+  private evaluateCore(processValue?: ProcessValue): any {
     return FunctionFactory.Instance.run(
       this.origionalValue,
       this.parameters.evaluate(processValue),
@@ -222,9 +259,19 @@ export class FunctionOperand extends Operand {
   public setVariables(variables: Array<string>) {
     this.parameters.setVariables(variables);
   }
-
+  public get isReady() {
+    return this.isReadyValue;
+  }
   public hasFunction(): boolean {
     return true;
+  }
+  public hasAsyncFunction(): boolean {
+    return FunctionFactory.Instance.isAsyncFunction(this.origionalValue);
+  }
+  public addToAsyncList(list: Array<FunctionOperand>) {
+    if (this.hasAsyncFunction()) {
+      list.push(this);
+    }
   }
 }
 

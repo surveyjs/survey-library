@@ -62,6 +62,8 @@ export class QuestionPanelDynamicItem
   public setValue(name: string, newValue: any) {
     this.data.setPanelItemData(this, name, newValue);
   }
+  getVariable(name: string): any { return undefined;}
+  setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
     return result ? result : "";
@@ -1188,6 +1190,16 @@ export class QuestionPanelDynamicModel extends Question
     }
     super.clearValueIfInvisible();
   }
+  protected getIsRunningValidators(): boolean {
+    if (super.getIsRunningValidators()) return true;
+    for (var i = 0; i < this.panels.length; i++) {
+      var questions = this.panels[i].questions;
+      for (var j = 0; j < questions.length; j++) {
+        if (questions[j].isRunningValidators) return true;
+      }
+    }
+    return false;
+  }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
     for (var i = 0; i < this.panels.length; i++) {
@@ -1236,6 +1248,9 @@ export class QuestionPanelDynamicModel extends Question
     var panels = this.panels;
     var keyValues: Array<any> = [];
     for (var i = 0; i < panels.length; i++) {
+      this.setOnCompleteAsyncInPanel(panels[i]);
+    }
+    for (var i = 0; i < panels.length; i++) {
       var pnlError = panels[i].hasErrors(fireCallback);
       pnlError = this.isValueDuplicated(panels[i], keyValues) || pnlError;
       if (!this.isRenderModeList && pnlError && !res) {
@@ -1244,6 +1259,14 @@ export class QuestionPanelDynamicModel extends Question
       res = pnlError || res;
     }
     return res;
+  }
+  private setOnCompleteAsyncInPanel(panel: PanelModel) {
+    var questions = panel.questions;
+    for (var i = 0; i < questions.length; i++) {
+      questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
+        this.raiseOnCompletedAsyncValidators();
+      };
+    }
   }
   private isValueDuplicated(panel: PanelModel, keyValues: Array<any>): boolean {
     if (!this.keyName) return false;

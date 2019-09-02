@@ -125,8 +125,17 @@ export class Trigger extends Base {
     }
   }
   private perform(values: HashTable<any>, properties: HashTable<any>) {
-    var triggerResult = this.conditionRunner.run(values, properties);
-    if (triggerResult) {
+    this.conditionRunner.onRunComplete = (res: boolean) => {
+      this.triggerResult(res, values, properties);
+    };
+    this.conditionRunner.run(values, properties);
+  }
+  private triggerResult(
+    res: boolean,
+    values: HashTable<any>,
+    properties: HashTable<any>
+  ) {
+    if (res) {
       this.onSuccess(values, properties);
     } else {
       this.onFailure();
@@ -164,7 +173,6 @@ export class Trigger extends Base {
     if (this.hasFunction === true) return true;
     for (var i = 0; i < this.usedNames.length; i++) {
       if (keys.hasOwnProperty(this.usedNames[i])) return true;
-      //if (keys[this.usedNames[i]] != undefined) return true;
     }
     return false;
   }
@@ -309,11 +317,15 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.owner || !this.runExpression) return;
-    var newValue = undefined;
     var expression = new ExpressionRunner(this.runExpression);
     if (expression.canRun) {
-      newValue = expression.run(values, properties);
+      expression.onRunComplete = res => {
+        this.onCompleteRunExpression(res);
+      };
+      expression.run(values, properties);
     }
+  }
+  private onCompleteRunExpression(newValue: any) {
     if (!this.setToName || newValue !== undefined) {
       this.owner.setTriggerValue(this.setToName, newValue, false);
     }

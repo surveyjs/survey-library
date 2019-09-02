@@ -10,6 +10,8 @@ import { settings } from "./settings";
 export interface ISurveyData {
   getValue(name: string): any;
   setValue(name: string, newValue: any, locNotification: boolean): any;
+  getVariable(name: string): any;
+  setVariable(name: string, newValue: any): void;
   getComment(name: string): string;
   setComment(name: string, newValue: string): any;
   getAllValues(): any;
@@ -167,6 +169,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {
+  value: any;
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
@@ -181,7 +184,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   isAnswerCorrect(): boolean;
   updateValueWithDefaults(): any;
   getQuestionFromArray(name: string, index: number): IQuestion;
-  value: any;
+  choicesLoaded(): any;
 }
 export interface IParentElement {
   addElement(element: IElement, index: number): any;

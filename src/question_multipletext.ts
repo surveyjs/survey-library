@@ -7,7 +7,7 @@ import {
   IElement,
   ITextProcessor
 } from "./base";
-import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
+import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
 import { JsonObject, Serializer } from "./jsonobject";
@@ -207,6 +207,8 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
+  getVariable(name: string): any { return undefined;}
+  setVariable(name: string, newValue: any) {}
   getComment(name: string): string {
     return null;
   }
@@ -417,9 +419,21 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
+  protected getIsRunningValidators(): boolean {
+    if (super.getIsRunningValidators()) return true;
+    for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].editor.isRunningValidators) return true;
+    }
+    return false;
+  }
   public hasErrors(fireCallback: boolean = true): boolean {
     var res = super.hasErrors(fireCallback);
     for (var i = 0; i < this.items.length; i++) {
+      this.items[i].editor.onCompletedAsyncValidators = (
+        hasErrors: boolean
+      ) => {
+        this.raiseOnCompletedAsyncValidators();
+      };
       res = this.items[i].editor.hasErrors(fireCallback) || res;
     }
     return res;

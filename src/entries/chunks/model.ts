@@ -20,6 +20,7 @@ export {
 } from "../../validator";
 export { ItemValue } from "../../itemvalue";
 export { Base, Event, SurveyError, ISurvey, SurveyElement } from "../../base";
+export { CalculatedValue } from "../../calculatedValue";
 export {
   CustomError,
   AnswerRequiredError,

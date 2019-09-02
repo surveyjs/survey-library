@@ -94,11 +94,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var descriptionTop = titleLocation === "top" ? description : null;
     var descriptionBottom = titleLocation === "bottom" ? description : null;
     let questionRootClass = question.cssMainRoot;
-
-    if (titleLocation === "left") {
-      contentClass += " " + "content-left";
-    }
-
+    
     if (question.cssClasses.small && !question.width) {
       questionRootClass += " " + question.cssClasses.small;
     }

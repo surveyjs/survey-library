@@ -2,6 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { surveyLocalization } from "./surveyStrings";
+import { ItemValue } from "./itemvalue";
 
 /**
  * A Model for a radiogroup question.
@@ -15,6 +16,10 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
+  }
+  public get selectedItem(): ItemValue {
+    if (this.isEmpty()) return null;
+    return ItemValue.getItemByValue(this.visibleChoices, this.value);
   }
   /**
    * Show "clear button" flag.

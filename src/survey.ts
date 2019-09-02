@@ -3919,6 +3919,10 @@ Serializer.addClass("survey", [
     baseClassName: "surveytrigger",
     classNamePart: "trigger"
   },
+  {
+    name: "calculatedValues:calculatedvalues",
+    className: "calculatedvalue"
+  },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },

@@ -1,12 +1,13 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base, ISurveyData } from "./base";
 import { ExpressionRunner } from "./conditions";
+import { Serializer } from "./jsonobject";
 
 export class CalculatedValue extends Base {
   private data: ISurveyData;
   private expressionIsRunning: boolean = false;
   private expressionRunner: ExpressionRunner;
-  constructor(name: string, expression: string) {
+  constructor(name: string = null, expression: string = null) {
     super();
     if (!!name) {
       this.name = name;
@@ -18,6 +19,9 @@ export class CalculatedValue extends Base {
   public setOwner(data: ISurveyData) {
     this.data = data;
     this.rerunExpression();
+  }
+  public getType(): string {
+    return "calculatedvalue";
   }
   public get name(): string {
     return this.getPropertyValue("name", "");
@@ -85,3 +89,12 @@ export class CalculatedValue extends Base {
     );
   }
 }
+
+Serializer.addClass(
+  "calculatedvalue",
+  ["!name", "expression:expression"],
+  function() {
+    return new CalculatedValue();
+  },
+  "base"
+);

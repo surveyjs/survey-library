@@ -153,6 +153,9 @@ export class Question extends SurveyElement
   public get isReady(): boolean {
     return this.isReadyValue;
   }
+  /**
+   * Get is question ready to use
+   */
   public choicesLoaded(): void  {}
   /**
    * Get/set the page where the question is located.

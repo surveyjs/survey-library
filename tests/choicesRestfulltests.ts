@@ -941,6 +941,21 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  "choicesByUrl + isReady",
+  function(assert) {
+    var question = new QuestionDropdownModelTester("q1");
+    question.value = "Algeria";
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.equal(
+      question.isReady,
+      true,
+      "IsReady should be true after load survey");
+  }
+);
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

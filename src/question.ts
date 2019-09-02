@@ -56,6 +56,7 @@ export class Question extends SurveyElement
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   private locProcessedTitle: LocalizableString;
+  protected isReadyValue: boolean = true;
 
   /**
    * The event is fired when isReady property of question is changed.
@@ -150,18 +151,12 @@ export class Question extends SurveyElement
     );
   }
   public get isReady(): boolean {
-    return this.getPropertyValue("isReady", true);
+    return this.isReadyValue;
   }
-  public set isReady(val: boolean) {
-    let oldIsReady: boolean = this.isReady;
-    this.setPropertyValue("isReady", val);
-    this.onReadyChanged &&
-      this.onReadyChanged.fire(this, {
-        question: this,
-        isReady: val,
-        olsIsReady: oldIsReady
-      });
-  }
+  /**
+   * Get is question ready to use
+   */
+  public choicesLoaded(): void  {}
   /**
    * Get/set the page where the question is located.
    */

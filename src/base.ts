@@ -169,6 +169,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {
+  value: any;
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
@@ -183,7 +184,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   isAnswerCorrect(): boolean;
   updateValueWithDefaults(): any;
   getQuestionFromArray(name: string, index: number): IQuestion;
-  value: any;
+  choicesLoaded(): any;
 }
 export interface IParentElement {
   addElement(element: IElement, index: number): any;

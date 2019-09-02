@@ -35,6 +35,10 @@ export var defaultStandardCss = {
   question: {
     mainRoot: "sv_q sv_qstn",
     flowRoot: "sv_q_flow sv_qstn",
+    header: "",
+    headerLeft: "title-left",
+    content: "",
+    contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
     title: "sv_q_title",
     number: "sv_q_num",

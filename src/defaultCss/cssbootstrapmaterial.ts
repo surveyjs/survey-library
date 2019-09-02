@@ -27,6 +27,10 @@ export var defaultBootstrapMaterialCss = {
   question: {
     mainRoot: "sv_qstn form-group",
     flowRoot: "sv_q_flow form-group",
+    header: "",
+    headerLeft: "title-left",
+    content: "",
+    contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
     title: "",
     number: "sv_q_num",

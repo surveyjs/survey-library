@@ -22,7 +22,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<any>this.question)["koData"] = this.koData;
     (<any>this.question)["koHasValue"] = this.koHasValue;
     (<any>this.question)["koInputTitle"] = this.koInputTitle;
-    (<any>this.question)["koFileClass"] = this.koFileRootClass;
+    (<any>this.question)["koFileRootClass"] = this.koFileRootClass;
     this.koFileRootClass(this.question.cssClasses.root);
     var updateState = (state: any) => {
       this.koState(state);
@@ -34,7 +34,9 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<any>this.question)["ondrop"] = (data: any, event: any) => {
       event.preventDefault();
       this.unhighlight();
-      let src = event.originalEvent.dataTransfer;
+      let src = event.originalEvent
+        ? event.originalEvent.dataTransfer
+        : event.dataTransfer;
       this.onChange(src);
     };
     (<any>this.question)["ondragover"] = (data: any, event: any) => {

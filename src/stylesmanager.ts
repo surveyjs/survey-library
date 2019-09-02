@@ -23,6 +23,9 @@ export class StylesManager {
     ".sv_bootstrap_css .sv_qstn  .sv_q_checkbox_inline, .sv_bootstrap_css .sv_qstn .sv_q_radiogroup_inline":
       "display: inline-block;",
 
+    ".sv_bootstrap_css .sv-paneldynamic__progress-container ":
+      "position: relative; margin-right: 250px; margin-left: 40px; margin-top: 10px;",
+
     ".sv_main.sv_bootstrapmaterial_css .sv_q_radiogroup_control_label":
       "display: inline; position: static;",
     ".sv_main.sv_bootstrapmaterial_css .checkbox":
@@ -622,11 +625,11 @@ export class StylesManager {
       Object.keys(StylesManager.Media).forEach(selector => {
         sheet.insertRule(
           StylesManager.Media[selector].media +
-          " { " +
-          selector +
-          " { " +
-          StylesManager.Media[selector].style +
-          " } }",
+            " { " +
+            selector +
+            " { " +
+            StylesManager.Media[selector].style +
+            " } }",
           0
         );
       });

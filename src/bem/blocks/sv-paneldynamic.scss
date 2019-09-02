@@ -1,9 +1,42 @@
+.sv-paneldynamic__progress-container {
+  position: relative;
+  margin-right: 250px;
+}
+
 .sv-paneldynamic__add-btn {
   background-color: $add-button-color;
+  float: right;
+  margin-top: -18px;
 }
 .sv-paneldynamic__remove-btn {
   background-color: $remove-button-color;
 }
-.sv-paneldynamic__progress {
-  min-height: 2.12em;
+
+.sv-paneldynamic__prev-btn,
+.sv-paneldynamic__next-btn {
+  box-sizing: border-box;
+  display: inline-block;
+  height: 1.5em;
+  width: 1.5em;
+  fill: $text-color;
+  cursor: pointer;
+  width: 0.7em;
+  position: absolute;
+}
+
+.sv-paneldynamic__prev-btn {
+  left: -1.3em;
+  top: -0.63em;
+  transform: rotate(90deg);
+}
+
+.sv-paneldynamic__next-btn {
+  right: -1.3em;
+  top: -0.63em;
+  transform: rotate(270deg);
+}
+
+.sv-paneldynamic__prev-btn--disabled,
+.sv-paneldynamic__next-btn--disabled {
+  fill: $disable-color;
 }

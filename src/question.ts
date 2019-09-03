@@ -156,7 +156,7 @@ export class Question extends SurveyElement
   /**
    * Get is question ready to use
    */
-  public choicesLoaded(): void  {}
+  public choicesLoaded(): void {}
   /**
    * Get/set the page where the question is located.
    */
@@ -958,10 +958,28 @@ export class Question extends SurveyElement
   public set correctAnswer(val: any) {
     this.setPropertyValue("correctAnswer", val);
   }
+  public get quizQuestionCount(): number {
+    if (
+      this.isVisible &&
+      this.hasInput &&
+      !Helpers.isValueEmpty(this.correctAnswer)
+    )
+      return this.getQuizQuestionCount();
+    return 0;
+  }
+  public get correctAnswerCount(): number {
+    if (!this.isEmpty() && !this.isValueEmpty(this.correctAnswer))
+      return this.getCorrectAnswerCount();
+    return 0;
+  }
+  protected getQuizQuestionCount() {
+    return 1;
+  }
+  protected getCorrectAnswerCount(): number {
+    return this.isTwoValueEquals(this.value, this.correctAnswer, true) ? 1 : 0;
+  }
   public isAnswerCorrect(): boolean {
-    if (this.isValueEmpty(this.value) || this.isValueEmpty(this.correctAnswer))
-      return false;
-    return this.isTwoValueEquals(this.value, this.correctAnswer, true);
+    return this.correctAnswerCount == this.quizQuestionCount;
   }
   public updateValueWithDefaults() {
     if (

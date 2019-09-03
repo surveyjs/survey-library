@@ -143,28 +143,26 @@ export class SurveyQuestion extends SurveyElementBase {
       delimiter = <span className={cssClasses.number}>.{"\u00A0"}</span>;
     }
     return (
-      <div
+      <h5
         className={this.getTitleClass(this.question)}
         title={this.question.locTitle.renderedHtml}
       >
-        <h5 className={cssClasses.title}>
-          {number}
-          {delimiter}
-          {titleText}
-        </h5>
-      </div>
+        {number}
+        {delimiter}
+        {titleText}
+      </h5>
     );
   }
   private getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
-    var result = cssClasses.titleContainer;
+    var result = cssClasses.title;
 
     if (!element.isEmpty()) {
-      result += " " + cssClasses.titleContainerAnswer;
+      result += " " + cssClasses.titleOnAnswer;
     }
 
     if (element.errors.length > 0) {
-      result += " " + cssClasses.titleContainerError;
+      result += " " + cssClasses.titleOnError;
     }
 
     return result;

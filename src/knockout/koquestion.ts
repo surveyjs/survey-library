@@ -78,14 +78,18 @@ export class QuestionImplementor extends ImplementorBase {
         (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
       );
     });
-    (<any>this.question)["koTitleContainerClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koTitleClass"] = ko.pureComputed(function() {
       var question = self.question;
       var cssClasses = question.cssClasses;
-      return (
-        cssClasses.titleContainer +
-        (!question.isEmpty() ? " " + cssClasses.titleContainerAnswer : "") +
-        (question.errors.length > 0 ? " " + cssClasses.titleContainerError : "")
-      );
+      var result = cssClasses.title;
+      if (!question.isEmpty()) {
+        result += " " + cssClasses.titleOnAnswer;
+      }
+  
+      if (question.errors.length > 0) {
+        result += " " + cssClasses.titleOnError;
+      }
+      return result;
     });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();

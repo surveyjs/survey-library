@@ -1,7 +1,6 @@
  <template>
  <div :class="getHeaderClass(element)">
-      <div :class="getTitleClass(element)" title="element.locTitle">
-        <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
+      <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
           <span
             v-if="element.no"
             style="position: static;"
@@ -9,8 +8,7 @@
           >{{element.no}}</span>
           <span v-if="element.no" style="position: static;">.&nbsp</span>
           <survey-string :locString="element.locTitle" />
-        </h5>
-      </div>
+      </h5>
       <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description">
         <survey-string :locString="element.locDescription" />
       </div>
@@ -30,14 +28,14 @@ export class ElementHeader extends Vue {
 
   getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
-    var titleClass = cssClasses.titleContainer;
+    var titleClass = cssClasses.title;
 
     if (!element.isPanel && !element.isEmpty()) {
-      titleClass += " " + cssClasses.titleContainerAnswer;
+      titleClass += " " + cssClasses.titleOnAnswer;
     }
 
     if (!element.isPanel && element.errors.length > 0) {
-      titleClass += " " + cssClasses.titleContainerError;
+      titleClass += " " + cssClasses.titleOnError;
     }
     return titleClass;
   }

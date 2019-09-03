@@ -58,10 +58,18 @@ export class QuestionImplementor extends ImplementorBase {
     });
     (<any>this.question)["koHeaderClass"] = ko.pureComputed(function() {
       var question = self.question;
-      return (
-        question.koCss().header +
-        (question.hasTitleOnLeft ? " " + question.koCss().headerLeft : "")
-      );
+      var cssClasses = self.question.cssClasses;
+      var headerClass = cssClasses.header;
+      if (question.hasTitleOnTop) {
+        headerClass += " " + cssClasses.headerTop;
+      }
+      if (question.hasTitleOnLeft) {
+        headerClass += " " + cssClasses.headerLeft;
+      }
+      if (question.hasTitleOnBottom) {
+        headerClass += " " + cssClasses.headerBottom;
+      }
+      return headerClass;
     });
     (<any>this.question)["koContentClass"] = ko.pureComputed(function() {
       var question = self.question;

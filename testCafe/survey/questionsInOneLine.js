@@ -59,9 +59,9 @@ frameworks.forEach(framework => {
     const isOneLine = ClientFunction(
       () =>
         document.querySelectorAll("div > h5:last-of-type")[2].parentNode.parentNode
-          .parentNode.style.width === "50%" &&
+          .parentNode.parentNode.style.width === "50%" &&
         document.querySelectorAll("div > h5:last-of-type")[3].parentNode.parentNode
-          .parentNode.style.width === "50%"
+          .parentNode.parentNode.style.width === "50%"
     );
     const isCountRight = ClientFunction(
       () => document.querySelectorAll("div > h5:last-of-type").length === 6
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
   test(`change title location`, async t => {
     const isInputAboveHeader = ClientFunction(() => {
       var h5 = document.querySelectorAll("h5:last-of-type")[2],
-        input = h5.parentNode.parentNode.querySelector("input");
+        input = h5.parentNode.parentNode.parentNode.querySelector("input");
       return h5.getBoundingClientRect().top > input.getBoundingClientRect().top;
     });
 

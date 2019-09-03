@@ -1,21 +1,6 @@
 <template>
   <div :class="getRootClass(element)">
-    <div v-if="element.hasTitleOnLeftTop" :class="getHeaderClass(element)">
-      <div :class="getTitleClass(element)" title="element.locTitle">
-        <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
-          <span
-            v-if="element.no"
-            style="position: static;"
-            :class="element.cssClasses.number"
-          >{{element.no}}</span>
-          <span v-if="element.no" style="position: static;">.&nbsp</span>
-          <survey-string :locString="element.locTitle" />
-        </h5>
-      </div>
-      <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description">
-        <survey-string :locString="element.locDescription" />
-      </div>
-    </div>
+    <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element"/>
     <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
@@ -24,21 +9,7 @@
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
-
-      <div v-if="element.hasTitleOnBottom" :class="getTitleClass(element)" title="element.locTitle">
-        <h5 :class="element.cssClasses.title">
-          <span
-            v-if="element.no"
-            style="position: static;"
-            :class="element.cssClasses.number"
-          >{{element.no}}</span>
-          <span v-if="element.no" style="position: static;">.&nbsp</span>
-          <survey-string :locString="element.locTitle" />
-        </h5>
-      </div>
-      <div v-if="!element.locDescription.isEmpty" v-show="element.hasTitleOnBottom">
-        <survey-string :locString="element.locDescription" />
-      </div>
+      <survey-element-header v-if="element.hasTitleOnBottom" :element="element"/>
     </div>
   </div>
 </template>
@@ -71,26 +42,6 @@ export class SurveyElementVue extends Vue {
     }
 
     return rootClass;
-  }
-  getTitleClass(element: Question) {
-    var cssClasses = element.cssClasses;
-    var titleClass = cssClasses.titleContainer;
-
-    if (!element.isPanel && !element.isEmpty()) {
-      titleClass += " " + cssClasses.titleContainerAnswer;
-    }
-
-    if (!element.isPanel && element.errors.length > 0) {
-      titleClass += " " + cssClasses.titleContainerError;
-    }
-    return titleClass;
-  }
-  getHeaderClass(element: Question) {
-    var headerClass = element.cssClasses.header;
-    if (element.hasTitleOnLeft) {
-      headerClass += " " + element.cssClasses.headerLeft;
-    }
-    return headerClass;
   }
   getContentClass(element: Question) {
     var contentClass = element.cssClasses.content;

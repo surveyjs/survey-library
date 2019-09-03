@@ -1,3 +1,4 @@
+import * as ko from "knockout";
 import { QuestionTextModel } from "../question_text";
 import { Serializer } from "../jsonobject";
 import { QuestionFactory } from "../questionfactory";

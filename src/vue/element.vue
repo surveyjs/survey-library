@@ -76,14 +76,13 @@ export class SurveyElementVue extends Vue {
     var cssClasses = element.cssClasses;
     var titleClass = cssClasses.titleContainer;
 
-    if (!element.isEmpty()) {
+    if (!element.isPanel && !element.isEmpty()) {
       titleClass += " " + cssClasses.titleContainerAnswer;
     }
 
-    if (element.errors.length > 0) {
+    if (!element.isPanel && element.errors.length > 0) {
       titleClass += " " + cssClasses.titleContainerError;
     }
-
     return titleClass;
   }
   getHeaderClass(element: Question) {

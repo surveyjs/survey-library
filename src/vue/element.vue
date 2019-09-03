@@ -1,6 +1,6 @@
 <template>
   <div :class="getRootClass(element)">
-    <div :class="getHeaderClass(element)">
+    <div v-if="element.hasTitleOnLeftTop" :class="getHeaderClass(element)">
       <div :class="getTitleClass(element)" title="element.locTitle">
         <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
           <span

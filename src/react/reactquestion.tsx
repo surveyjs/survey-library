@@ -82,19 +82,13 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!question.isVisible) return null;
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
-    var description = this.renderDescription(cssClasses);
-    var titleLocation = question ? question.getTitleLocation() : "";
-    var titleTop = titleLocation === "top" ? title : null;
-    var titleBottom = titleLocation === "bottom" ? title : null;
-    var titleLeft = titleLocation === "left" ? title : null;
-    var headerClass = question.cssClasses.header + (titleLocation === "left" ? " " + question.cssClasses.headerLeft : "");
-    var contentClass = question.cssClasses.content + (titleLocation === "left" ? " " + question.cssClasses.contentLeft : "");
-    var descriptionLeft = titleLocation === "left" ? description : null;
-    var descriptionTop = titleLocation === "top" ? description : null;
-    var descriptionBottom = titleLocation === "bottom" ? description : null;
+    var header = this.renderHeader(question);
+    var headerTop = question.hasTitleOnLeftTop ? header : null;
+    var headerBottom = question.hasTitleOnLeftTop ? header : null;
+    var contentClass =
+      question.cssClasses.content +
+      (question.hasTitleOnLeft ? " " + question.cssClasses.contentLeft : "");
     let questionRootClass = question.cssMainRoot;
-    
     if (question.cssClasses.small && !question.width) {
       questionRootClass += " " + question.cssClasses.small;
     }
@@ -114,7 +108,6 @@ export class SurveyQuestion extends SurveyElementBase {
     if (!!question.paddingLeft) rootStyle["paddingLeft"] = question.paddingLeft;
     if (!!question.paddingRight)
       rootStyle["paddingRight"] = question.paddingRight;
-
     return (
       <div
         ref="root"
@@ -122,20 +115,13 @@ export class SurveyQuestion extends SurveyElementBase {
         className={questionRootClass}
         style={rootStyle}
       >
-        <div className={headerClass}>
-          {titleTop}
-          {descriptionTop}
-          {titleLeft}
-          {descriptionLeft}
-        </div>
-
+        {headerTop}
         <div className={contentClass}>
           {errorsTop}
           {questionRender}
           {comment}
           {errorsBottom}
-          {titleBottom}
-          {descriptionBottom}
+          {headerBottom}
         </div>
       </div>
     );
@@ -169,7 +155,6 @@ export class SurveyQuestion extends SurveyElementBase {
       </div>
     );
   }
-
   private getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
     var result = cssClasses.titleContainer;
@@ -205,6 +190,27 @@ export class SurveyQuestion extends SurveyElementBase {
           cssClasses={cssClasses}
           otherCss={cssClasses.other}
         />
+      </div>
+    );
+  }
+  protected renderHeader(question: Question): JSX.Element {
+    var cssClasses = question.cssClasses;
+    var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
+    var description = this.renderDescription(cssClasses);
+    var headerClass = cssClasses.header;
+    if (question.hasTitleOnTop) {
+      headerClass += " " + cssClasses.headerTop;
+    }
+    if (question.hasTitleOnLeft) {
+      headerClass += " " + cssClasses.headerLeft;
+    }
+    if (question.hasTitleOnBottom) {
+      headerClass += " " + cssClasses.headerBottom;
+    }
+    return (
+      <div className={headerClass}>
+        {title}
+        {description}
       </div>
     );
   }
@@ -349,7 +355,7 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
     return (
       <td
         ref="cell"
-        className={this.getCellClass() + ' ' + this.cssClasses.cell}
+        className={this.getCellClass() + " " + this.cssClasses.cell}
         headers={
           this.question.isVisible && !!this["cell"]
             ? this["cell"].column.locTitle.renderedHtml

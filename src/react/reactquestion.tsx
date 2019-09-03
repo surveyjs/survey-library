@@ -84,7 +84,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var questionRender = this.renderQuestion();
     var header = this.renderHeader(question);
     var headerTop = question.hasTitleOnLeftTop ? header : null;
-    var headerBottom = question.hasTitleOnLeftTop ? header : null;
+    var headerBottom = question.hasTitleOnBottom ? header : null;
     var contentClass =
       question.cssClasses.content +
       (question.hasTitleOnLeft ? " " + question.cssClasses.contentLeft : "");

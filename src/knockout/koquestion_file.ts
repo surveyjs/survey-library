@@ -16,6 +16,12 @@ export class QuestionFileImplementor extends QuestionImplementor {
   });
   koInputTitle = ko.observable<string>();
   koFileRootClass = ko.observable<string>();
+  koChooseFileClass = ko.pureComputed(() => {
+    return (
+      this.question.koCss().chooseFile +
+      (this.question.isReadOnly ? " " + this.question.koCss().disabled : "")
+    );
+  });
   constructor(question: Question) {
     super(question);
     var self = this;
@@ -23,6 +29,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<any>this.question)["koHasValue"] = this.koHasValue;
     (<any>this.question)["koInputTitle"] = this.koInputTitle;
     (<any>this.question)["koFileRootClass"] = this.koFileRootClass;
+    (<any>this.question)["koChooseFileClass"] = this.koChooseFileClass;
     this.koFileRootClass(this.question.cssClasses.root);
     var updateState = (state: any) => {
       this.koState(state);

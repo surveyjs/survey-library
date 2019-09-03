@@ -51,10 +51,26 @@ export class QuestionImplementor extends ImplementorBase {
     (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
       var result = self.question.cssMainRoot;
 
-      if (question.koCss().small && !question.width) {
+      if (self.question.koCss().small && !self.question.width) {
         result += " " + question.koCss().small;
       }
       return result;
+    });
+    (<any>this.question)["koHeaderClass"] = ko.pureComputed(function() {
+      return (
+        self.question.koCss().header +
+        (self.question.hasTitleOnLeft
+          ? " " + self.question.koCss().headerLeft
+          : "")
+      );
+    });
+    (<any>this.question)["koContentClass"] = ko.pureComputed(function() {
+      return (
+        self.question.koCss().content +
+        (self.question.hasTitleOnLeft
+          ? " " + self.question.koCss().contentLeft
+          : "")
+      );
     });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {
       self.onVisibleIndexChanged();

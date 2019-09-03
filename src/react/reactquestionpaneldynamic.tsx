@@ -200,8 +200,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           className={this.question.cssClasses.progressBar}
           style={{ width: getProgress() }}
           role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={100}
         />
       </div>
     );

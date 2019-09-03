@@ -12,8 +12,6 @@
           :class="question.cssClasses.progressBar"
           :style="{width: progress}"
           role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
         ></div>
       </div>
 

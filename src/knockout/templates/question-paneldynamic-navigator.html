@@ -1,6 +1,35 @@
 <script type="text/html" id="survey-question-paneldynamic-navigator">
-    <input type="range" min="0" style="width:25%;float:left;margin:5px" data-bind="visible: koIsRange, value: question.koRangeValue, attr: {max: question.koRangeMax}" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsPrevButton, click:question.koPrevPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonPrev, value: question.panelPrevText" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible: question.koIsNextButton, click:question.koNextPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonNext, value: question.panelNextText" />
-    <input type="button" style="float:left;margin:5px" data-bind="visible:question.koCanAddPanel, click:question.koAddPanelClick, css: question.koCss().button + ' ' + question.koCss().buttonAdd, value: question.panelAddText" />
+  <div style="clear:both;">
+        <div data-bind="css: question.koCss().progressContainer">
+          <div data-bind="title: question.panelPrevText, click: question.koNextPanelClick">
+            <svg viewBox="0 0 10 10" data-bind="css: question.koButtonPrevCss, click: question.koPrevPanelClick">
+              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+            </svg>
+          </div>
+
+          <!-- ko if: question.koIsRange -->
+          <div data-bind="css: question.koCss().progress">
+            <div
+              data-bind="css: question.koCss().progressBar, style: 'width: progress'"
+              role="progressbar"
+            ></div>
+          </div>
+          <!-- /ko -->
+
+          <div data-bind="title:question.panelNextText, click: question.koNextPanelClick">
+            <svg viewBox="0 0 10 10" data-bind="css: question.koButtonNextCss">
+              <polygon points="2,2 0,4 5,9 10,4 8,2 5,5 " />
+            </svg>
+          </div>
+        </div>
+
+        <!-- ko if: question.canAddPanel -->
+        <input
+          type="button"
+          data-bind="value: question.panelAddText, class:question.koCss().button  + ' ' + question.koCss().buttonAdd, click:question.koAddPanelClick"
+        />
+        <!-- /ko -->
+
+        <div data-bind="text:question.progressText"></div>
+      </div>
 </script>

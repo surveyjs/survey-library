@@ -49,27 +49,34 @@ export class QuestionImplementor extends ImplementorBase {
       return self.question.cssClasses;
     });
     (<any>this.question)["koRootClass"] = ko.pureComputed(function() {
-      var result = self.question.cssMainRoot;
-
-      if (self.question.koCss().small && !self.question.width) {
+      var question = self.question;
+      var result = question.cssMainRoot;
+      if (question.koCss().small && !question.width) {
         result += " " + question.koCss().small;
       }
       return result;
     });
     (<any>this.question)["koHeaderClass"] = ko.pureComputed(function() {
+      var question = self.question;
       return (
-        self.question.koCss().header +
-        (self.question.hasTitleOnLeft
-          ? " " + self.question.koCss().headerLeft
-          : "")
+        question.koCss().header +
+        (question.hasTitleOnLeft ? " " + question.koCss().headerLeft : "")
       );
     });
     (<any>this.question)["koContentClass"] = ko.pureComputed(function() {
+      var question = self.question;
       return (
-        self.question.koCss().content +
-        (self.question.hasTitleOnLeft
-          ? " " + self.question.koCss().contentLeft
-          : "")
+        question.koCss().content +
+        (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
+      );
+    });
+    (<any>this.question)["koTitleContainerClass"] = ko.pureComputed(function() {
+      var question = self.question;
+      var cssClasses = question.cssClasses;
+      return (
+        cssClasses.titleContainer +
+        (!question.isEmpty() ? " " + cssClasses.titleContainerAnswer : "") +
+        (question.errors.length > 0 ? " " + cssClasses.titleContainerError : "")
       );
     });
     question.registerFunctionOnPropertyValueChanged("visibleIndex", function() {

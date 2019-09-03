@@ -13,6 +13,7 @@ import { ISurveyCreator } from "./reactquestion";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { ReactQuestionFactory } from "./reactquestionfactory";
 import { SurveyModel } from "../survey";
+import { Question } from "../question";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -146,7 +147,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
 
   protected rendrerPrevButton() {
-    var getButtonPrevCss = question => {
+    var getButtonPrevCss = (question: Question) => {
       var btnClasses = question.cssClasses.buttonPrev;
       if (!question.isPrevButtonShowing) {
         btnClasses += " " + question.cssClasses.buttonPrev + "--disabled";
@@ -167,7 +168,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     );
   }
   protected rendrerNextButton() {
-    var getButtonNextCss = function(question) {
+    var getButtonNextCss = function(question: Question) {
       var btnClasses = question.cssClasses.buttonNext;
       if (!question.isNextButtonShowing) {
         btnClasses += " " + question.cssClasses.buttonNext + "--disabled";

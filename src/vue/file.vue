@@ -2,7 +2,7 @@
     <div :class="fileRootClass" @dragenter="onDragEnter" @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop">
         <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
-          <div :class="question.cssClasses.fileDecorator">
+        <div :class="question.cssClasses.fileDecorator">
           <label :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')" :for="question.inputId">{{question.chooseButtonCaption}}</label>
           <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty()">{{question.noFileChosenCaption}}</span>             
         </div>
@@ -57,6 +57,7 @@ export class File extends QuestionVue<QuestionFileModel> {
   };
   doChange(event: any) {
     var src = event.target || event.srcElement;
+    this.onChange(src);
   }
   doClean(event: any) {
     var src = event.target || event.srcElement;

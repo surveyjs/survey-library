@@ -22,6 +22,8 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
   koNextPanelClick: any;
   koCanAddPanel: any;
   koCanRemovePanel: any;
+  koProgressText: any;
+  koProgress: any;
   koPanel: any;
   koIsList: any;
   koIsProgressTop: any;
@@ -97,15 +99,28 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     });
 
     this.koButtonAddCss = ko.pureComputed(function() {
+      self.koRecalc();
       return self.buttonAddCss;
     });
 
     this.koButtonNextCss = ko.pureComputed(function() {
+      self.koRecalc();
       return self.buttonNextCss;
     });
 
     this.koButtonPrevCss = ko.pureComputed(function() {
+      self.koRecalc();
       return self.buttonPrevCss;
+    });
+
+    this.koProgressText = ko.pureComputed(function() {
+      self.koRecalc();
+      return (<QuestionPanelDynamic>self.question).progressText;
+    });
+
+    this.koProgress = ko.pureComputed(function() {
+      self.koRecalc();
+      return self.progress;
     });
 
     (<any>this.question)["koAddPanelClick"] = this.koAddPanelClick;
@@ -114,6 +129,8 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     (<any>this.question)["koNextPanelClick"] = this.koNextPanelClick;
     (<any>this.question)["koCanAddPanel"] = this.koCanAddPanel;
     (<any>this.question)["koCanRemovePanel"] = this.koCanRemovePanel;
+    (<any>this.question)["koProgressText"] = this.koProgressText;
+    (<any>this.question)["koProgress"] = this.koProgress;
     (<any>this.question)["koPanel"] = this.koPanel;
     (<any>this.question)["koIsList"] = this.koIsList;
     (<any>this.question)["koIsProgressTop"] = this.koIsProgressTop;
@@ -197,6 +214,11 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       btnClasses += " " + question.cssClasses.buttonNext + "--disabled";
     }
     return btnClasses;
+  }
+
+  protected get progress() {
+    var rangeMax = this.question.panelCount - 1;
+    return this.question.currentIndex / rangeMax * 100 + "%";
   }
 }
 

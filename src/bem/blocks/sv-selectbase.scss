@@ -16,12 +16,13 @@
   vertical-align: top;
 }
 .sv-selectbase__label {
+  box-sizing: border-box;
   display: inline-block;
-  width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   padding: 0.26em;
+  text-overflow: ellipsis;
+  width: 100%;
+  white-space: nowrap;
 }
 .sv-selectbase__control {
   margin: 0;

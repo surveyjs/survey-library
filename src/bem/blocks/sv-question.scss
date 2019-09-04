@@ -2,7 +2,6 @@
   box-sizing: border-box;
   font-family: "Segoe UI";
   overflow: auto;
-  padding: 0.5em 1em 1.5em 1em;
 }
 .sv-question__title {
   box-sizing: border-box;
@@ -18,8 +17,6 @@
   padding-left: 0.44em;
   font-size: 1em;
   margin: 0;
-  margin-top: -0.8em;
-  min-height: 0.8em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -29,7 +26,7 @@
   width: 100%;
 }
 .sv-question__content {
-  padding-left: 1.69em;
+  margin-left: 1.69em;
 }
 .sv-question__erbox {
   color: $error-color;
@@ -55,6 +52,9 @@
 .sv-question__header--left {
   float: left;
   max-width: 27%;
+}
+.sv-question__header--bottom {
+  margin-top: 0.8em;
 }
 .sv-question__content--left {
   margin-top: 0.31em;

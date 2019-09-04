@@ -54,6 +54,7 @@ export var bemCss = {
     header: "sv-question__header",
     headerLeft: "sv-question__header--left",
     headerTop: "sv-question__header--top",
+    headerBottom: "sv-question__header--bottom",
     content: "sv-question__content",
     contentLeft: "sv-question__content--left",
     titleLeftRoot: "",

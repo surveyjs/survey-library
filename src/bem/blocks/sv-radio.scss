@@ -9,8 +9,8 @@
   opacity: 0.5;
   width: 1.5em;
 }
-.sv-radio__control:hover {
-  & + .sv-radio__decorator {
+.sv-radio:hover {
+  & .sv-radio__decorator {
     fill: $border-color;
   }
 }

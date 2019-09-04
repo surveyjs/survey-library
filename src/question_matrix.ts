@@ -228,6 +228,27 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
+  protected getQuizQuestionCount() {
+    var res = 0;
+    for (var i = 0; i < this.rows.length; i++) {
+      if (!this.isValueEmpty(this.correctAnswer[this.rows[i].value])) res++;
+    }
+    return res;
+  }
+  protected getCorrectAnswerCount(): number {
+    var res = 0;
+    var value = this.value;
+    for (var i = 0; i < this.rows.length; i++) {
+      var row = this.rows[i].value;
+      if (
+        !Helpers.isValueEmpty(value[row]) &&
+        Helpers.isTwoValueEquals(this.correctAnswer[row], value[row])
+      )
+        res++;
+    }
+    return res;
+  }
+
   protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
     var val = this.value;

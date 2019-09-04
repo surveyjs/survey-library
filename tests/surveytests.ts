@@ -4962,6 +4962,23 @@ QUnit.test(
     assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
   }
 );
+QUnit.test(
+  "Quiz, correct, incorrect answers and onIsAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {type: "text", name: "q1", correctAnswer: "val1"},
+        {type: "matrix", name: "q2", columns: ["col1", "col2"], rows: ["row1", "row2", "row3", "row4"], correctAnswer: {row1: "col1", row2: "col2", row3: "col1"}}
+      ]
+    });
+    assert.equal(survey.getCorrectedAnswers(), 0, "There is no correct answers yet");
+    assert.equal(survey.getQuizQuestionCount(), 4, "one text + 3 matrix");
+    survey.setValue("q1", "val1");
+    survey.setValue("q2", {row1: "col1", row2: "col1", row3: "col1"});
+    assert.equal(survey.getCorrectedAnswers(), 3, "1 in text question + 2 in matrix");
+    assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
+  }
+);
 QUnit.test("survey.onGetQuestionTitle event. ", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("page");

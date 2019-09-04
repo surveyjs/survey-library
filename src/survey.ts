@@ -715,6 +715,7 @@ export class SurveyModel extends Base
    * <br/> sender the survey object that fires the event
    * <br/> options.question a question on which you have to decide if the answer is correct or not.
    * <br/> options.result return true, if the answer is correct or false if the answer is not correct. Use questions value and correctAnswer properties to return the correct value.
+   * <br/> options.correctAnswers - you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question.
    * @see Question.value
    * @see Question.correctAnswer
    */
@@ -2736,6 +2737,7 @@ export class SurveyModel extends Base
   }
   /**
    * Returns quiz questions. All visible questions that has input(s) widgets.
+   * @see getQuizQuestionCount
    */
   public getQuizQuestions(): Array<IQuestion> {
     var result = new Array<IQuestion>();
@@ -2745,11 +2747,7 @@ export class SurveyModel extends Base
       var questions = this.pages[i].questions;
       for (var j = 0; j < questions.length; j++) {
         var q = questions[j];
-        if (
-          q.isVisible &&
-          q.hasInput &&
-          !Helpers.isValueEmpty(q.correctAnswer)
-        ) {
+        if (q.quizQuestionCount > 0) {
           result.push(q);
         }
       }
@@ -3145,7 +3143,7 @@ export class SurveyModel extends Base
     }
     if (name === "questioncount") {
       textValue.isExists = true;
-      textValue.value = this.getQuizQuestions().length;
+      textValue.value = this.getQuizQuestionCount();
       return;
     }
     var firstName = new ProcessValue().getFirstName(name, this.data);
@@ -3621,23 +3619,56 @@ export class SurveyModel extends Base
    * Returns the number of corrected answers on quiz
    */
   public getCorrectedAnswerCount(): number {
+    return this.getCorrectedAnswerCountCore(true);
+  }
+  /**
+   * Returns quiz question number. It may be different from getQuizQuestions.length because some widgets like matrix may have several questions. For example by number of rows
+   * @see getQuizQuestions
+   */
+  public getQuizQuestionCount(): number {
     var questions = this.getQuizQuestions();
-    var counter = 0;
-    var options = { question: <IQuestion>null, result: false };
+    var res = 0;
     for (var i = 0; i < questions.length; i++) {
-      options.question = questions[i];
-      options.result = options.question.isAnswerCorrect();
-      this.onIsAnswerCorrect.fire(this, options);
-      if (options.result) counter++;
+      res += (<Question>questions[i]).quizQuestionCount;
     }
-    return counter;
+    return res;
   }
   /**
    * Returns the number of incorrected answers on quiz
    */
   public getInCorrectedAnswerCount(): number {
+    return this.getCorrectedAnswerCountCore(false);
+  }
+  private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
-    return questions.length - this.getCorrectedAnswerCount();
+    var counter = 0;
+    var options = {
+      question: <IQuestion>null,
+      result: false,
+      correctAnswers: 0,
+      incorrectAnswers: 0
+    };
+    for (var i = 0; i < questions.length; i++) {
+      var q = <Question>questions[i];
+      var quizQuestionCount = q.quizQuestionCount;
+      options.question = q;
+      options.correctAnswers = q.correctAnswerCount;
+      options.incorrectAnswers = quizQuestionCount - options.correctAnswers;
+      options.result = options.question.isAnswerCorrect();
+      this.onIsAnswerCorrect.fire(this, options);
+      if (isCorrect) {
+        if (options.result || options.correctAnswers < quizQuestionCount) {
+          var addCount = options.correctAnswers;
+          if (addCount == 0 && options.result) addCount = 1;
+          counter += addCount;
+        }
+      } else {
+        if (!options.result || options.incorrectAnswers < quizQuestionCount) {
+          counter += options.incorrectAnswers;
+        }
+      }
+    }
+    return counter;
   }
   getCorrectedAnswers(): number {
     return this.getCorrectedAnswerCount();

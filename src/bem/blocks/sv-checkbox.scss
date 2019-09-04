@@ -21,7 +21,7 @@
   width: 1.5em;
   @include common(inherit, $border-color, transparent, 0.5);
 }
-.sv-checkbox__control:hover + .sv-checkbox__decorator {
+.sv-checkbox:hover .sv-checkbox__decorator {
   @include common($main-hover-color, $main-hover-color);
 }
 .sv-checkbox__control:checked + .sv-checkbox__decorator {

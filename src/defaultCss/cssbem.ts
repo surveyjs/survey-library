@@ -105,13 +105,13 @@ export var bemCss = {
   },
   boolean: {
     root: "sv-selectbase",
-    item: "sv-selectbase__item",
+    item: "sv-boolean sv-selectbase__label",
     control: "sv-visuallyhidden sv-boolean__control",
     checkedMark: "sv-boolean__checked-mark",
     uncheckedMark: "sv-boolean__unchecked-mark",
     undefinedMark: "sv-boolean__undefined-mark",
     itemDecorator: "sv-boolean__decorator sv-selectbase__control",
-    label: "sv-boolean sv-selectbase__control-label",
+    label: "sv-selectbase__control-label",
     materialDecorator: "checkbox-material"
   },
   text: {

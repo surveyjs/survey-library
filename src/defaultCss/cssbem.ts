@@ -138,7 +138,7 @@ export var bemCss = {
     root: "sv-imagepicker",
     item: "sv-imagepicker__item",
     itemInline: "sv-imagepicker__item--inline",
-    label: "",
+    label: "sv-imagepicker__label",
     itemControl: "sv-imagepicker__control",
     image: "sv-imagepicker__image",
     itemText: "sv-imagepicker__text",

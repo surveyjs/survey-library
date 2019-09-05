@@ -23,9 +23,15 @@
 
 ## Survey Creator / Form Builder
 
-[Create your Survey or Form now](https://surveyjs.io/survey/Builder/)
+[Create your Survey or Form now](https://surveyjs.io/create-survey/)
 
 Survey Creator sources are [here](https://github.com/surveyjs/survey-creator)
+
+## Export Survey to PDF
+
+[Export to pdf overview](https://surveyjs.io/Overview/Survey-Pdf-Export/)
+
+Export to PDF sources are [here](https://github.com/surveyjs/survey-pdf)
 
 ## More info about SurveyJS
 

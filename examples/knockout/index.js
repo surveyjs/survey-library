@@ -710,6 +710,7 @@ function init() {
         type: "panel",
         title: "Panel",
         innerIndent: 1,
+        state: "expanded",
         elements: [
           {
             type: "checkbox",

@@ -1,15 +1,15 @@
 <template>
   <div v-if="question.isVisible" :class="question.cssClasses.panel.container" :style="rootStyle">
     <h4 v-show="hasTitle" :class="getTitleStyle()" v-on:click="changeExpanded">
-      <survey-string :locString="question.locTitle"/>
+      <survey-string :locString="question.locTitle" />
       <span v-show="showIcon" :class="iconCss"></span>
     </h4>
     <div :class="question.cssClasses.panel.description">
-      <survey-string :locString="question.locDescription"/>
+      <survey-string :locString="question.locDescription" />
     </div>
-    <survey-errors :question="question"/>
+    <survey-errors :question="question" />
     <f-panel :style="{ paddingLeft: question.innerPaddingLeft }" v-show="!isCollapsed">
-      <survey-flowpanelelement :node="rootNode" :panel="question" css="css"/>
+      <survey-flowpanelelement :node="rootNode" :panel="question" css="css" />
     </f-panel>
   </div>
 </template>
@@ -107,7 +107,7 @@ export class FlowPanel extends Vue {
   getTitleStyle() {
     var result = this.css.panel.title;
     if (this.question.isCollapsed || this.question.isExpanded) {
-      result += " sv_p_title_expandable";
+      result += " " + this.css.panel.titleExpandable;
     }
     return result;
   }

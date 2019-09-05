@@ -15,6 +15,7 @@ export var bemCss = {
   },
   panel: {
     title: "sv-title sv-panel__title",
+    titleExpandable: "",
     description: "sv-description sv-panel__description",
     container: "sv-panel sv-row__panel",
     icon: "sv-panel__icon",

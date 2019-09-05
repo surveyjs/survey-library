@@ -2,13 +2,6 @@
   border: none;
   padding: 0.24em;
 }
-.sv-imagepicker__item:hover {
-  background-color: $main-hover-color;
-}
-//TODO
-.sv-imagepicker__item.checked {
-  background-color: $main-color;
-}
 .sv-imagepicker__item--inline {
   display: inline-block;
 }
@@ -16,9 +9,23 @@
   margin-right: 5%;
 }
 .sv-imagepicker__image {
+  border: 0.24em solid transparent;
   display: block;
   pointer-events: none;
 }
 .sv-imagepicker__text {
   font-size: 1.14em;
+  padding-left: 0.24em;
+}
+.sv-imagepicker__item:hover {
+  .sv-imagepicker__image {
+    background-color:$main-hover-color;
+    border-color: $main-hover-color;
+  }
+}
+.sv-imagepicker__item.checked {
+  .sv-imagepicker__image {
+    background-color: $main-color;
+    border-color: $main-color;
+  }
 }

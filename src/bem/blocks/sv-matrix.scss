@@ -1,11 +1,15 @@
 .sv-matrix__label {
   display: inline-block;
+  cursor: pointer;
   margin: 0;
   padding: 0.26em;
   height: 1.5em;
 }
 .sv-matrix__control {
   vertical-align: middle;
+}
+.sv-matrix__cell {
+  min-width: 10em ;
 }
 .sv-matrix__cell-text {
   cursor: pointer;

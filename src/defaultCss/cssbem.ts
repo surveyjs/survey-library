@@ -106,13 +106,13 @@ export var bemCss = {
   },
   boolean: {
     root: "sv-selectbase",
-    item: "sv-selectbase__item",
+    item: "sv-boolean sv-selectbase__label",
     control: "sv-visuallyhidden sv-boolean__control",
     checkedMark: "sv-boolean__checked-mark",
     uncheckedMark: "sv-boolean__unchecked-mark",
     undefinedMark: "sv-boolean__undefined-mark",
     itemDecorator: "sv-boolean__decorator sv-selectbase__control",
-    label: "sv-boolean sv-selectbase__control-label",
+    label: "sv-selectbase__control-label",
     materialDecorator: "checkbox-material"
   },
   text: {
@@ -147,7 +147,7 @@ export var bemCss = {
   },
   matrix: {
     root: "sv-table",
-    cell: "sv-table__cell",
+    cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-radio sv-matrix__label",
     itemValue: "sv-visuallyhidden sv-radio__control",

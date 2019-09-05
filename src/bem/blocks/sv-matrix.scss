@@ -7,6 +7,9 @@
 .sv-matrix__control {
   vertical-align: middle;
 }
+.sv-matrix__cell {
+  min-width: 10em ;
+}
 .sv-matrix__cell-text {
   cursor: pointer;
 }

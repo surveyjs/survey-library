@@ -146,7 +146,7 @@ export var bemCss = {
   },
   matrix: {
     root: "sv-table",
-    cell: "sv-table__cell",
+    cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-radio sv-matrix__label",
     itemValue: "sv-visuallyhidden sv-radio__control",

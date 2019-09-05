@@ -8,6 +8,9 @@
 .sv-imagepicker__item--inline:not(:last-child) {
   margin-right: 5%;
 }
+.sv-imagepicker__label {
+  cursor: pointer;
+}
 .sv-imagepicker__image {
   border: 0.24em solid transparent;
   display: block;
@@ -19,7 +22,7 @@
 }
 .sv-imagepicker__item:hover {
   .sv-imagepicker__image {
-    background-color:$main-hover-color;
+    background-color: $main-hover-color;
     border-color: $main-hover-color;
   }
 }

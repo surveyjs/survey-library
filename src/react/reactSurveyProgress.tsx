@@ -25,8 +25,14 @@ export class SurveyProgress extends SurveyNavigationBase {
     };
     return (
       <div className={this.css.progress} style={style}>
-        <div style={progressStyle} className={this.css.progressBar} role="progressbar" aria-valuemin={0} aria-valuemax={100} >
-          <span>{this.progressText}</span>
+        <div
+          style={progressStyle}
+          className={this.css.progressBar}
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <span className={this.css.progressText}>{this.progressText}</span>
         </div>
       </div>
     );

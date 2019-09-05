@@ -67,6 +67,17 @@ QUnit.test("Arithmetic Operand", function(assert) {
   assert.equal(expression.evaluate(), true);
 });
 
+QUnit.test("Concat strings", function(assert) {
+  var expression = parse("'ab' + 'cd'");
+  assert.equal(expression.evaluate(), "abcd");
+  expression = parse("'ab' + ' ' + 'cd'");
+  assert.equal(expression.evaluate(), "ab cd");
+  expression = parse("1 + 'a' + 2");
+  assert.equal(expression.evaluate(), "1a2");
+  expression = parse("1 + ' ' + 2");
+  assert.equal(expression.evaluate(), "1 2");
+});
+
 QUnit.test("Variable Const", function(assert) {
   var varOperand = parse("'Im-Variable'");
   assert.equal(varOperand.toString(), "Im-Variable");

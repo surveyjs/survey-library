@@ -168,7 +168,7 @@ export class Const extends Operand {
   protected getCorrectValue(value: any): any {
     if (!value || typeof value != "string") return value;
     if (this.isBooleanValue(value)) return value.toLowerCase() === "true";
-    if (this.isNumericValue(value)) {
+    if (OperandMaker.isNumeric(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
       return parseFloat(value);
     }
@@ -179,21 +179,6 @@ export class Const extends Operand {
       value &&
       (value.toLowerCase() === "true" || value.toLowerCase() === "false")
     );
-  }
-  private isNumericValue(value: any): boolean {
-    if (
-      value &&
-      (value.indexOf("-") > -1 ||
-        value.indexOf("+") > 1 ||
-        value.indexOf("*") > -1 ||
-        value.indexOf("^") > -1 ||
-        value.indexOf("/") > -1 ||
-        value.indexOf("%") > -1)
-    )
-      return false;
-    var val = Number(value);
-    if (isNaN(val)) return false;
-    return isFinite(val);
   }
 }
 
@@ -293,6 +278,10 @@ export class OperandMaker {
     return value;
   }
 
+  static isSpaceString(str: string): boolean {
+    return !!str && !str.replace(" ", "");
+  }
+
   static isNumeric(value: string): boolean {
     if (
       !!value &&
@@ -304,6 +293,7 @@ export class OperandMaker {
         value.indexOf("%") > -1)
     )
       return false;
+    if (OperandMaker.isSpaceString(value)) return false;
     var val = Number(value);
     if (isNaN(val)) return false;
     return isFinite(val);
@@ -331,8 +321,8 @@ export class OperandMaker {
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
       return function(a: any, b: any): any {
-        if (Helpers.isValueEmpty(a)) a = 0;
-        if (Helpers.isValueEmpty(b)) b = 0;
+        if (Helpers.isValueEmpty(a) && !OperandMaker.isSpaceString(a)) a = 0;
+        if (Helpers.isValueEmpty(b) && !OperandMaker.isSpaceString(b)) b = 0;
 
         let consumer = OperandMaker.binaryFunctions[operatorName];
         return consumer == null ? null : consumer.call(this, a, b);

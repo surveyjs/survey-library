@@ -1,6 +1,6 @@
 .sv-rating {
   color: $text-color;
-
+  padding-bottom: 3px;
   input:focus + .sv-rating__min-text + .sv-rating__item-text,
   input:focus + .sv-rating__item-text {
     outline: 1px solid $main-color;

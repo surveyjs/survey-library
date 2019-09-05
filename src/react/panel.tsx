@@ -66,9 +66,9 @@ export class SurveyPanel extends SurveyPanelBase {
     var expandCollapse = null;
     var titleStyle = this.css.panel.title;
     if (this.panel.isCollapsed || this.panel.isExpanded) {
-      titleStyle += " sv_p_title_expandable";
-      var iconCss = "sv_panel_icon";
-      if (!this.panel.isCollapsed) iconCss += " sv_expanded";
+      titleStyle += " " + this.css.panel.titleExpandable;
+      var iconCss = this.css.panel.icon;
+      if (!this.panel.isCollapsed) iconCss += " " + this.css.panel.iconExpanded;
       var changeExpanded = () => {
         if (this.panel.isCollapsed) {
           this.panel.expand();

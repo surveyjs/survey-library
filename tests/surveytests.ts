@@ -3152,6 +3152,57 @@ QUnit.test("customWidgets camel name", function(assert) {
   CustomWidgetCollection.Instance.clear();
 });
 
+QUnit.test("readOnlyCallback, bug #1818", function(assert) {
+  CustomWidgetCollection.Instance.clear();
+  var readOnlyCounter = 0;
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: question => {
+      var res = question.name == "question1";
+      if(res) {
+        question.readOnlyChangedCallback = () => {
+          readOnlyCounter ++;
+        }
+      }
+      return res;
+    }
+  });
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        enableIf: "{question1} != 1",
+        elements: [
+          {type: "text", name: "question1"}
+        ]
+      }
+    ]
+  });
+  var panel = survey.getPanelByName("panel1");
+  var question = survey.getQuestionByName("question1");
+  assert.equal(question.customWidget.name, "first", "Custom widget is here");
+  assert.equal(readOnlyCounter, 0, "Not called yet");
+  question.readOnly = true;
+  assert.equal(readOnlyCounter, 1, "question.readOnly = true");
+  question.readOnly = false;
+  assert.equal(readOnlyCounter, 2, "question.readOnly = false");
+  assert.equal(panel.isReadOnly, false, "Panel is not readOnly");
+  question.value = 1;
+  assert.equal(panel.isReadOnly, true, "Panel is readOnly");
+  assert.equal(readOnlyCounter, 3, "Panel is readOnly");
+  question.value = 2;
+  assert.equal(panel.isReadOnly, false, "Panel is not readOnly");
+  assert.equal(readOnlyCounter, 4, "Panel is not readOnly");
+  survey.mode = "display";
+  assert.equal(readOnlyCounter, 5, "survey.mode = 'display'");
+  survey.mode = "edit";
+  assert.equal(readOnlyCounter, 6, "survey.mode = 'edit'");
+
+  CustomWidgetCollection.Instance.clear();
+});
+
+
 QUnit.test(
   "Set 0 value for text inputType=number from survey. Bug #267",
   function(assert) {

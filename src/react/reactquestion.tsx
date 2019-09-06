@@ -329,26 +329,17 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   }
   render(): JSX.Element {
     if (!this.question) return null;
-    var errorsTop = (
+    var errorsLocation = this.creator.questionErrorLocation();
+    var errors = this.question.isVisible ? (
       <SurveyElementErrors
         element={this.question}
         cssClasses={this.cssClasses}
         creator={this.creator}
-        location={"top"}
+        location={errorsLocation}
       />
-    );
-    var errorsBottom = (
-      <SurveyElementErrors
-        element={this.question}
-        cssClasses={this.cssClasses}
-        creator={this.creator}
-        location={"bottom"}
-      />
-    );
-    var errorsTop =
-      this.creator.questionErrorLocation() === "top" ? errorsTop : null;
-    var errorsBottom =
-      this.creator.questionErrorLocation() === "bottom" ? errorsBottom : null;
+    ) : null;
+    var errorsTop = errorsLocation === "top" ? errors : null;
+    var errorsBottom = errorsLocation === "bottom" ? errors : null;
     var renderedCell = this.renderQuestion();
     return (
       <td

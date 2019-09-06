@@ -12,6 +12,9 @@
   border-color: $main-color;
   outline: none;
 }
+.sv-text:invalid {
+  box-shadow: none;
+}
 .sv-text:-webkit-autofill {
   -webkit-box-shadow: 0 0 0 30px white inset;
 }

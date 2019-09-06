@@ -1,12 +1,11 @@
 .sv-radio__decorator {
   border: 0.18em solid;
   border-color: $border-color;
-  border-radius: 50%;
+  border-radius: 100%;
   box-sizing: border-box;
   display: inline-block;
   fill: transparent;
   height: 1.5em;
-  opacity: 0.5;
   width: 1.5em;
 }
 .sv-radio:hover {
@@ -16,8 +15,8 @@
 }
 .sv-radio__control:checked {
   & + .sv-radio__decorator {
-    fill: $border-color;
-    opacity: 1;
+    fill: $radio-checked-color;
+    border-color: $radio-checked-color;
   }
 }
 .sv-radio__control:focus {

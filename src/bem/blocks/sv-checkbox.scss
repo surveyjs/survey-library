@@ -2,12 +2,10 @@
   $background-color,
   $border-color,
   $checkmark-color: white,
-  $opacity: 1
 ) {
   background-color: $background-color;
   border-color: $border-color;
   fill: $checkmark-color;
-  opacity: $opacity;
 }
 .sv-checkbox__decorator {
   border: 0.18em solid;
@@ -16,10 +14,9 @@
   box-sizing: border-box;
   display: inline-block;
   height: 1.5em;
-  opacity: 0.5;
   position: relative;
   width: 1.5em;
-  @include common(inherit, $border-color, transparent, 0.5);
+  @include common(inherit, $border-color, transparent);
 }
 .sv-checkbox:hover .sv-checkbox__decorator {
   @include common($main-hover-color, $main-hover-color);

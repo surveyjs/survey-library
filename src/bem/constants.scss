@@ -8,6 +8,8 @@ $inputs-background-color: $body-background-color;
 $text-color: #404040;
 $header-color: $text-color;
 $border-color: $text-color;
+$border-color: rgba($text-color, 0.5);
+$radio-checked-color: $text-color;
 $error-color: #d52901;
 $disable-color: #dbdbdb;
 $error-background-color: rgba($error-color, 0.2);

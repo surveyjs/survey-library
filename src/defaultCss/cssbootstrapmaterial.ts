@@ -58,7 +58,7 @@ export var defaultBootstrapMaterialCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     label: "",
     materialDecorator: "checkbox-material"
   },
@@ -66,7 +66,7 @@ export var defaultBootstrapMaterialCss = {
     root: "sv_qcbx form-inline",
     item: "checkbox",
     itemInline: "sv_q_checkbox_inline",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     itemControl: "",
     controlLabel: "",
     materialDecorator: "checkbox-material",
@@ -88,7 +88,7 @@ export var defaultBootstrapMaterialCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
     itemValue: "form-control",
-    itemDecorator: "sv-none-display-item"
+    itemDecorator: "sv-hidden"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
   matrixdynamic: {
@@ -122,7 +122,7 @@ export var defaultBootstrapMaterialCss = {
     root: "",
     item: "radio",
     itemInline: "sv_q_radiogroup_inline",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     label: "",
     itemControl: "",
     controlLabel: "sv_q_radiogroup_control_label",
@@ -158,7 +158,8 @@ export var defaultBootstrapMaterialCss = {
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
-    removeFile: "sv_q_file_remove"
+    removeFile: "sv_q_file_remove",
+    fileDecorator: "sv-hidden"
   },
   saveData: {
     root: "",

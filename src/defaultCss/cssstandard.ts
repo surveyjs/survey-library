@@ -35,6 +35,10 @@ export var defaultStandardCss = {
   question: {
     mainRoot: "sv_q sv_qstn",
     flowRoot: "sv_q_flow sv_qstn",
+    header: "",
+    headerLeft: "title-left",
+    content: "",
+    contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
     title: "sv_q_title",
     number: "sv_q_num",
@@ -48,6 +52,7 @@ export var defaultStandardCss = {
   },
   panel: {
     title: "sv_p_title",
+    titleExpandable: "sv_p_title_expandable",
     description: "sv_p_description",
     container: "sv_p_container"
   },
@@ -62,14 +67,17 @@ export var defaultStandardCss = {
   boolean: {
     root: "sv_qcbc sv_qbln",
     item: "sv_q_checkbox",
+    itemDecorator: "sv-none-display-item",
     label: "",
     materialDecorator: "checkbox-material"
   },
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
+    itemInline: "sv_q_checkbox_inline",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "sv_q_checkbox_control_label",
     materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other",
@@ -86,6 +94,7 @@ export var defaultStandardCss = {
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
+    itemDecorator: "sv-none-display-item",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label"
@@ -103,10 +112,14 @@ export var defaultStandardCss = {
     root: "sv_panel_dynamic",
     title: "sv_p_title",
     button: "",
-    buttonPrev: "",
-    buttonNext: "",
-    buttonAdd: "",
-    buttonRemove: ""
+    buttonAdd: "sv-paneldynamic__add-btn",
+    buttonRemove: "",
+    buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonNext: "sv-paneldynamic__next-btn",
+    progressContainer: "sv-paneldynamic__progress-container",
+    progress: "sv-progress",
+    progressBar: "sv-progress__bar",
+    progressText: "sv-progress__text"
   },
   multipletext: {
     root: "sv_q_mt",
@@ -117,6 +130,8 @@ export var defaultStandardCss = {
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
+    itemInline: "sv_q_radiogroup_inline",
+    itemDecorator: "sv-none-display-item",
     label: "sv_q_radiogroup_label",
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
@@ -131,6 +146,7 @@ export var defaultStandardCss = {
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",
     image: "sv_q_imgsel_image",
+    itemInline: "sv_q_imagepicker_inline",
     itemText: "sv_q_imgsel_text",
     clearButton: "sv_q_radiogroup_clear"
   },
@@ -140,7 +156,8 @@ export var defaultStandardCss = {
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
-    maxText: "sv_q_rating_max_text"
+    maxText: "sv_q_rating_max_text",
+    disabled: ""
   },
   text: "sv_q_text_root",
   expression: "",

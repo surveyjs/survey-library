@@ -16,6 +16,7 @@ export { defaultBootstrapCss } from "../defaultCss/cssbootstrap";
 export {
   defaultBootstrapMaterialCss
 } from "../defaultCss/cssbootstrapmaterial";
+export { bemCss } from "../defaultCss/cssbem";
 
 import { VueSurveyModel } from "../vue/surveyModel";
 export { VueSurveyModel as Model };
@@ -57,3 +58,4 @@ export { Panel } from "../vue/panel.vue";
 export { FlowPanel } from "../vue/flowpanel.vue";
 export { FlowPanelElement } from "../vue/flowpanelelement.vue";
 export { Row } from "../vue/row.vue";
+export { ElementHeader } from "../vue/elementheader.vue";

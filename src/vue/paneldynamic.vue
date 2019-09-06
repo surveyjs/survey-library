@@ -1,16 +1,28 @@
 <template>
-    <div :class="question.cssClasses.root">
-        <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" />
-        <div v-for="panel in renderedPanels" :key="panel.id">
-            <survey-panel :question="panel" :css="css"/>
-            <div v-if="!question.isReadOnly && !panel.isCollapsed">
-                <input type="button" v-if="question.canRemovePanel" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove" :value="question.panelRemoveText" @click="removePanelClick(panel)" />
-            </div>
-            <hr/>
-        </div>
-        <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" />
-        <input type="button" v-if="question.isRenderModeList && question.canAddPanel" :class="question.cssClasses.button + ' ' + question.cssClasses.buttonAdd" :value="question.panelAddText" @click="addPanelClick"/>
+  <div :class="question.cssClasses.root">
+    <survey-paneldynamicprogress v-if="question.isProgressTopShowing" :question="question" />
+    <div v-for="panel in renderedPanels" :key="panel.id">
+      <survey-panel :question="panel" :css="css" />
+      <div v-if="!question.isReadOnly && !panel.isCollapsed">
+        <input
+          type="button"
+          v-if="question.canRemovePanel"
+          :class="question.cssClasses.button + ' ' + question.cssClasses.buttonRemove"
+          :value="question.panelRemoveText"
+          @click="removePanelClick(panel)"
+        />
+      </div>
+      <hr />
     </div>
+    <survey-paneldynamicprogress v-if="question.isProgressBottomShowing" :question="question" />
+    <input
+      type="button"
+      v-if="question.isRenderModeList && question.canAddPanel"
+      :class="getButtonAddCss(question)"
+      :value="question.panelAddText"
+      @click="addPanelClick"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -18,6 +30,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { PanelModel } from "../panel";
+import { Question } from "../question";
 import { QuestionPanelDynamicModel } from "../question_paneldynamic";
 
 @Component
@@ -35,6 +48,16 @@ export class PanelDynamic extends QuestionVue<QuestionPanelDynamicModel> {
   }
   addPanelClick() {
     this.question.addPanel();
+  }
+  getButtonAddCss(question: Question) {
+    var btnClasses =
+      question.cssClasses.button + " " + question.cssClasses.buttonAdd;
+
+    if (this.question.renderMode === "list") {
+      btnClasses += " " + question.cssClasses.buttonAdd + "--list-mode";
+    }
+
+    return btnClasses;
   }
 }
 Vue.component("survey-paneldynamic", PanelDynamic);

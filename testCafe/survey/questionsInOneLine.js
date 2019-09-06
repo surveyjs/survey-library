@@ -58,9 +58,9 @@ frameworks.forEach(framework => {
   test(`check one line`, async t => {
     const isOneLine = ClientFunction(
       () =>
-        document.querySelectorAll("div > h5:last-of-type")[2].parentNode
+        document.querySelectorAll("div > h5:last-of-type")[2].parentNode.parentNode
           .parentNode.style.width === "50%" &&
-        document.querySelectorAll("div > h5:last-of-type")[3].parentNode
+        document.querySelectorAll("div > h5:last-of-type")[3].parentNode.parentNode
           .parentNode.style.width === "50%"
     );
     const isCountRight = ClientFunction(

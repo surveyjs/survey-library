@@ -149,7 +149,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     if (!this.question.hasColumns) {
       itemClass +=
         this.question.colCount === 0
-          ? " sv_q_checkbox_inline"
+          ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.question.colCount;
     }
 
@@ -158,6 +158,8 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       this.item == this.question.selectAllItem
         ? this.selectAllChanged
         : this.handleOnChange;
+
+    var locText: any = this.item.locText;
 
     return (
       <div className={itemClass}>
@@ -172,12 +174,20 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             checked={isChecked}
             onChange={onItemChanged}
             aria-required={this.question.isRequired}
-            aria-label={this.item.locText.renderedHtml}
+            aria-label={locText.renderedHtml}
           />
+          <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
+            <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z" />
+          </svg>
           <span className={this.cssClasses.materialDecorator}>
             <span className="check" />
           </span>
-          <span className={this.cssClasses.controlLabel}>{text}</span>
+          <span
+            className={this.cssClasses.controlLabel}
+            title={locText["koRenderedHtml"]}
+          >
+            {text}
+          </span>
         </label>
         {otherItem}
       </div>

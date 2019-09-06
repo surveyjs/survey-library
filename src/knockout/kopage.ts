@@ -95,7 +95,7 @@ export class Panel extends PanelModel {
   getTitleStyle() {
     var result = this.cssClasses.panel.title;
     if (this.koIsCollapsed() || this.koIsExpanded()) {
-      result += " sv_p_title_expandable";
+      result += " " + this.cssClasses.panel.titleExpandable;
     }
     return result;
   }

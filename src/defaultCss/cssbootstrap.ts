@@ -27,6 +27,10 @@ export var defaultBootstrapCss = {
   question: {
     mainRoot: "sv_qstn",
     flowRoot: "sv_q_flow sv_qstn",
+    header: "",
+    headerLeft: "title-left",
+    content: "",
+    contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
     title: "",
     number: "sv_q_num",
@@ -39,6 +43,7 @@ export var defaultBootstrapCss = {
   },
   panel: {
     title: "sv_p_title",
+    titleExpandable: "sv_p_title_expandable",
     description: "small sv_p_description",
     container: "sv_p_container"
   },
@@ -52,13 +57,16 @@ export var defaultBootstrapCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
+    itemDecorator: "sv-none-display-item",
     label: "",
     materialDecorator: "checkbox-material"
   },
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
+    itemInline: "sv_q_checkbox_inline",
     itemControl: "",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "",
     materialDecorator: "checkbox-material",
     other: "sv_q_checkbox_other form-control",
@@ -74,6 +82,7 @@ export var defaultBootstrapCss = {
   matrix: {
     root: "table sv_q_matrix",
     label: "sv_q_m_label",
+    itemDecorator: "sv-none-display-item",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label"
@@ -90,10 +99,14 @@ export var defaultBootstrapCss = {
   paneldynamic: {
     root: "",
     button: "button",
-    buttonPrev: "",
-    buttonNext: "",
-    buttonAdd: "",
-    buttonRemove: ""
+    buttonAdd: "sv-paneldynamic__add-btn",
+    buttonRemove: "",
+    buttonPrev: "sv-paneldynamic__prev-btn",
+    buttonNext: "sv-paneldynamic__next-btn",
+    progressContainer: "sv-paneldynamic__progress-container",
+    progress: "sv-progress",
+    progressBar: "sv-progress__bar",
+    progressText: "sv-progress__text"
   },
   multipletext: {
     root: "table",
@@ -103,8 +116,10 @@ export var defaultBootstrapCss = {
   radiogroup: {
     root: "sv_qcbc form-inline",
     item: "radio",
+    itemInline: "sv_q_radiogroup_inline",
     label: "",
     itemControl: "",
+    itemDecorator: "sv-none-display-item",
     controlLabel: "",
     materialDecorator: "circle",
     other: "sv_q_radiogroup_other form-control",
@@ -114,6 +129,7 @@ export var defaultBootstrapCss = {
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",
+    itemInline: "sv_q_imagepicker_inline",
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",
     image: "sv_q_imgsel_image",
@@ -126,7 +142,8 @@ export var defaultBootstrapCss = {
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
-    maxText: "sv_q_rating_max_text"
+    maxText: "sv_q_rating_max_text",
+    disabled: ""
   },
   text: "form-control",
   expression: "form-control",

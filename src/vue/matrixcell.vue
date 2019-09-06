@@ -1,13 +1,13 @@
 <template>
-  <td :class="getQuestionClass()" :headers="getHeaders()">
+  <td :class="getCellClass()" :headers="getHeaders()">
     <div v-if="cell.hasQuestion">
-      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'"/>
+      <survey-errors v-if="hasErrorsOnTop" :question="cell.question" :location="'top'" />
       <component
         v-show="isVisible"
         :is="getWidgetComponentName(cell.question)"
         :question="cell.question"
       />
-      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'"/>
+      <survey-errors v-if="hasErrorsOnBottom" :question="cell.question" :location="'bottom'" />
     </div>
     <button
       v-if="cell.isRemoveRow"
@@ -18,7 +18,7 @@
       <span>{{question.removeRowText}}</span>
       <span :class="question.cssClasses.iconRemove"></span>
     </button>
-    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle"/>
+    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
   </td>
 </template>
 
@@ -55,16 +55,19 @@ export class MatrixCell extends Vue {
     if (!element) return "";
     return element.isVisible ? this.cell.cell.column.locTitle.renderedHtml : "";
   }
-  getQuestionClass() {
+  getCellClass() {
     var element = this.cell.question;
-    if (!element) return "";
-    var classes = element.cssClasses.itemValue;
+    if (!element) return this.question.cssClasses.cell;
+
+    var cellClass = element.cssClasses.itemValue;
 
     if (!!element.errors && element.errors.length > 0) {
-      classes += " " + element.cssClasses.hasError;
+      cellClass += " " + element.cssClasses.hasError;
     }
 
-    return classes;
+    cellClass += " " + element.cssClasses.asCell;
+
+    return cellClass;
   }
   removeRowClick() {
     this.question.removeRowUI(this.cell.row);

@@ -13,7 +13,7 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
     var itemClass =
       this.cssClasses.item +
       (this.colCount === 0
-        ? " sv_q_imagepicker_inline"
+        ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
     if (this.multiSelect) {
       if (!!this.value && this["koValue"]().indexOf(item.value) !== -1) {

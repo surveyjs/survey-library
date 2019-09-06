@@ -12,9 +12,12 @@
           :aria-label="item.locText.renderedHtml"
           :class="question.cssClasses.itemControl"
         >
+        <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
+              <circle r="6" cx="0" cy="0">
+        </svg>
         <span :class="question.cssClasses.materialDecorator"></span>
         <span class="check"></span>
-        <span :class="question.cssClasses.controlLabel">
+        <span :class="question.cssClasses.controlLabel" :title="item.locText.koRenderedHtml">
           <survey-string :locString="item.locText"/>
         </span>
       </label>

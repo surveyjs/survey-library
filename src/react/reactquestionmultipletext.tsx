@@ -41,7 +41,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       var item = items[i];
       var itemTitle = this.renderLocString(item.locTitle);
       tds.push(
-        <td key={"label" + i}>
+        <td key={"label" + i} className = {cssClasses.cell} >
           <span className={cssClasses.itemTitle}>{itemTitle}</span>
         </td>
       );

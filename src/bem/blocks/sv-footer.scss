@@ -1,0 +1,16 @@
+.sv-footer {
+  min-height: $base-line-height;
+  padding: 0.87em 0;
+}
+.sv-footer__complete-btn {
+  background-color: $main-color;
+  float: right;
+}
+.sv-footer__next-btn {
+  background-color: $main-color;
+  float: right;
+}
+.sv-footer__prev-btn {
+  background-color: $main-color;
+  float: left;
+}

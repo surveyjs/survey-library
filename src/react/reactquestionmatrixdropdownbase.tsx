@@ -86,7 +86,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
       var columnStyle = cell.minWidth ? { minWidth: cell.minWidth } : {};
       var columnTitle = this.renderLocString(cell.locTitle);
       headers.push(
-        <th key={key} style={columnStyle}>
+        <th
+          className={this.question.cssClasses.headerCell}
+          key={key}
+          style={columnStyle}
+        >
           {columnTitle}
         </th>
       );
@@ -152,7 +156,11 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if (cell.isRemoveRow) {
       cellContent = this.renderRemoveButton(cell.row);
     }
-    return <td key={key}>{cellContent}</td>;
+    return (
+      <td className={cssClasses.cell} key={key}>
+        {cellContent}
+      </td>
+    );
   }
   renderRemoveButton(row: MatrixDropdownRowModelBase): JSX.Element {
     return null;
@@ -192,11 +200,14 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     }
   }
   protected getCellClass(): any {
-    var cellClass = this.cell.question.cssClasses.itemValue;
     var question = this.cell.question;
+
+    var cellClass = this.cell.question.cssClasses.itemValue;
 
     if (question.errors.length !== 0)
       cellClass += " " + question.cssClasses.hasError;
+
+    cellClass += " " + question.cssClasses.asCell;
 
     return cellClass;
   }

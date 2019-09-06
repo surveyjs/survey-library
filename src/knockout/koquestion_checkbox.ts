@@ -49,7 +49,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
-          ? " sv_q_checkbox_inline"
+          ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
 

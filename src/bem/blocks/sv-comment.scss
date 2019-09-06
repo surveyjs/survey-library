@@ -1,0 +1,11 @@
+.sv-comment {
+  border: 0.06em solid #d4d4d4;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 1em;
+  outline: none;
+  width: 100%;
+}
+.sv-comment:focus {
+  border-color: $main-color;
+}

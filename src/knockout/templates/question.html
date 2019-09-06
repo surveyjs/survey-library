@@ -1,13 +1,10 @@
 ﻿<script type="text/html" id="survey-question">
-  <div data-bind="css: question.koRootClass, style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
-      <div data-bind="css: {'title-left': question.hasTitleOnLeft}">
+  <div data-bind="css: question.koRootClass(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
           <!-- ko if: question.hasTitleOnLeftTop -->
           <!--ko template: { name: 'survey-question-title', data: question  } -->
           <!-- /ko -->
           <!-- /ko -->
-      </div>
-
-      <div data-bind="css: {'content-left': question.hasTitleOnLeft}">
+      <div data-bind="css: question.koContentClass">
           <!-- ko if: question.errorLocation == 'top' -->
               <div data-bind="css: question.koCss().error.locationTop">
                   <!-- ko template: { name: 'survey-question-errors', data: question } -->

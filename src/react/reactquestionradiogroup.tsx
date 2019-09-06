@@ -148,11 +148,13 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     if (!this.question.hasColumns) {
       itemClass +=
         this.question.colCount === 0
-          ? " sv_q_radiogroup_inline"
+          ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.question.colCount;
     }
 
     if (this.isChecked) itemClass += " checked";
+
+    var locText: any = this.item.locText;
 
     return (
       <div className={itemClass}>
@@ -167,11 +169,22 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             disabled={this.isDisplayMode || !this.item.isEnabled}
             onChange={this.handleOnChange}
             aria-required={this.question.isRequired}
-            aria-label={this.item.locText.renderedHtml}
+            aria-label={locText.renderedHtml}
           />
+          <svg
+            className={this.cssClasses.itemDecorator}
+            viewBox="-12 -12 24 24"
+          >
+            <circle r="6" cx="0" cy="0" />
+          </svg>
           <span className={this.cssClasses.materialDecorator} />
           <span className="check" />
-          <span className={this.cssClasses.controlLabel}>{itemText}</span>
+          <span
+            className={this.cssClasses.controlLabel}
+            title={locText["koRenderedHtml"]}
+          >
+            {itemText}
+          </span>
         </label>
         {otherItem}
       </div>

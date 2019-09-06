@@ -1,39 +1,15 @@
 <template>
-  <div :class="getQuestionClass(element)">
-    <div v-if="element.hasTitleOnLeftTop" :class="element.hasTitleOnLeft ? 'title-left' : ''">
-      <h5 v-if="element.hasTitle" :class="element.cssClasses.title">
-        <span
-          v-if="element.no"
-          style="position: static;"
-          :class="element.cssClasses.number"
-        >{{element.no}}</span>
-        <span v-if="element.no" style="position: static;">.&nbsp</span>
-        <survey-string :locString="element.locTitle"/>
-      </h5>
-      <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description">
-        <survey-string :locString="element.locDescription"/>
-      </div>
-    </div>
-    <div :class="element.hasTitleOnLeft ? 'content-left' : ''">
-      <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'"/>
-      <component :is="getWidgetComponentName(element)" :question="element" :css="css"/>
+  <div :class="getRootClass(element)">
+    <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element"/>
+    <div :class="getContentClass(element)">
+      <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
+      <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
       <div v-if="element.hasComment">
         <div>{{element.commentText}}</div>
-        <survey-other-choice :commentClass="css.comment" :question="element"/>
+        <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
-      <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'"/>
-      <h5 v-if="element.hasTitleOnBottom" :class="element.cssClasses.title">
-        <span
-          v-if="element.no"
-          style="position: static;"
-          :class="element.cssClasses.number"
-        >{{element.no}}</span>
-        <span v-if="element.no" style="position: static;">.&nbsp</span>
-        <survey-string :locString="element.locTitle"/>
-      </h5>
-      <div v-if="!element.locDescription.isEmpty" v-show="element.hasTitleOnBottom">
-        <survey-string :locString="element.locDescription"/>
-      </div>
+      <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
+      <survey-element-header v-if="element.hasTitleOnBottom" :element="element"/>
     </div>
   </div>
 </template>
@@ -55,11 +31,24 @@ export class SurveyElementVue extends Vue {
     }
     return "survey-" + element.getTemplate();
   }
-  getQuestionClass(element: Question) {
+  getRootClass(element: Question) {
+    var rootClass = "";
     if (!!element.cssMainRoot) {
-      return element.cssMainRoot;
+      rootClass += element.cssMainRoot;
     }
-    return "";
+
+    if (element.cssClasses.small && !element.width) {
+      rootClass += " " + element.cssClasses.small;
+    }
+
+    return rootClass;
+  }
+  getContentClass(element: Question) {
+    var contentClass = element.cssClasses.content;
+    if (element.hasTitleOnLeft) {
+      contentClass += " " + element.cssClasses.contentLeft;
+    }
+    return contentClass;
   }
   get hasErrorsOnTop() {
     return !this.element.isPanel && this.survey.questionErrorLocation === "top";

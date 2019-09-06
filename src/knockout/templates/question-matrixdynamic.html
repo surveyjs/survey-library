@@ -11,7 +11,7 @@
           <thead>
               <tr>
                   <!-- ko foreach: question.koTable().headerRow.cells -->
-                  <th data-bind="style: { minWidth: $data.minWidth }">
+                  <th data-bind="style: { minWidth: $data.minWidth }, css: question.koCss().headerCell">
                       <!-- ko template: { name: 'survey-string', data: $data.locTitle } -->
                       <!-- /ko -->
                   </th>
@@ -26,9 +26,9 @@
                     <!-- ko if: $data.hasQuestion -->
                         <!-- ko template: { name: 'survey-matrixcell', data: $data.question, as: "question", afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
                     <!-- /ko -->
-                    <!-- ko if: $data.hasTitle --><td><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --></td><!-- /ko -->
+                    <!-- ko if: $data.hasTitle --><td data-bind="css: question.koCss().cell"><!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko --></td><!-- /ko -->
                     <!-- ko if: $data.isRemoveRow -->
-                    <td>
+                    <td data-bind="css: question.koCss().cell">
                         <button type="button" data-bind="click:question.koRemoveRowClick, css: question.koCss().button + ' ' + question.koCss().buttonRemove">
                             <span data-bind="text: question.removeRowText"></span>
                             <span data-bind="css: question.koCss().iconRemove"></span>

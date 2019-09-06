@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-checkbox">
+<script type="text/html" id="survey-question-checkbox">
   <fieldset data-bind="css: question.koCss().root">
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
@@ -28,10 +28,13 @@
           <!-- ko if: item != question.selectAllItem -->
           <input type="checkbox" data-bind="attr: {name: question.name, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml }, checkedValue: item.value, checked: question.koValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"/>
           <!-- /ko -->
+          <svg viewBox="0 0 24 24" data-bind="css:question.koCss().itemDecorator">
+            <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z"/>
+          </svg>
           <span data-bind="css: question.koCss().materialDecorator">
               <span class="check"></span>
           </span>
-          <span data-bind="css: question.koCss().controlLabel">
+          <span data-bind="css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
               <!-- ko template: { name: 'survey-string', data: item.locText } -->
               <!-- /ko -->
           </span>

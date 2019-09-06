@@ -113,6 +113,12 @@ export class QuestionFileModel extends Question {
   /**
    * The clean files value button caption.
    */
+  get noFileChosenCaption(): string {
+    return surveyLocalization.getString("noFileChosen");
+  }
+  get chooseButtonCaption(): string {
+    return surveyLocalization.getString("chooseFileCaption");
+  }
   get cleanButtonCaption(): string {
     return surveyLocalization.getString("cleanCaption");
   }

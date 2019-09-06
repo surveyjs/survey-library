@@ -358,6 +358,13 @@ $base-line-height: 2em;
             .sv_q_title {
               font-weight: normal;
             }
+
+            .sv-paneldynamic__progress-container {
+              position: relative;
+              margin-right: 250px;
+              margin-left: 40px;
+              margin-top: 10px;
+            }
           }
 
           .sv_q_erbox:not([style*="display: none"]):not([style*="display:none"]) {
@@ -703,4 +710,7 @@ $base-line-height: 2em;
       }
     }
   }
+}
+.sv-none-display-item {
+  display: none;
 }

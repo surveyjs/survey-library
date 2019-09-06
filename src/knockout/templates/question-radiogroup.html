@@ -1,4 +1,4 @@
-﻿<script type="text/html" id="survey-question-radiogroup">
+<script type="text/html" id="survey-question-radiogroup">
   <fieldset data-bind="css: question.koCss().root">
       <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"></legend>
       <!-- ko ifnot: question.hasColumns  -->
@@ -29,9 +29,12 @@
       <label data-bind="css: question.koCss().label">
           <input type="radio" data-bind="attr: {name: question.name + '_' + question.id, id: question.inputId + '_' + $index(), 'aria-required': question.isRequired, 'aria-label': item.locText.renderedHtml}, checkedValue: item.value, checked: question.renderedValue, enable: !question.isReadOnly && item.isEnabled, css: question.koCss().itemControl"
           />
+          <svg data-bind="css:question.koCss().itemDecorator" viewBox="-12 -12 24 24">
+              <circle r="6" cx="0" cy="0">
+          </svg>
           <span data-bind="css: question.koCss().materialDecorator"></span>
           <span class="check"></span>
-          <span data-bind="css: question.koCss().controlLabel">
+          <span data-bind="css: question.koCss().controlLabel, attr: { title: item.locText.koRenderedHtml }">
               <!-- ko template: { name: 'survey-string', data: item.locText } -->
               <!-- /ko -->
           </span>

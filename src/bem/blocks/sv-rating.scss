@@ -1,0 +1,82 @@
+.sv-rating {
+  color: $text-color;
+  padding-bottom: 3px;
+  input:focus + .sv-rating__min-text + .sv-rating__item-text,
+  input:focus + .sv-rating__item-text {
+    outline: 1px solid $main-color;
+    outline-offset: 2px;
+  }
+}
+
+.sv-rating__item {
+}
+
+.sv-rating__item-text {
+  width: 34px;
+  height: 34px;
+  display: inline-block;
+  color: $main-hover-color;
+  border: solid 3px $main-hover-color;
+  text-align: center;
+  font-size: 1em;
+  font-weight: bold;
+  line-height: 1.13;
+  cursor: pointer;
+  margin-right: 0.26em;
+
+  span {
+    margin-top: 0.44em;
+    display: block;
+  }
+
+  &:hover {
+    background-color: $main-hover-color;
+    color: $body-background-color;
+  }
+}
+
+.sv-rating__item--selected {
+  .sv-rating__item-text {
+    background-color: $main-color;
+    color: $body-background-color;
+    border-color: $main-color;
+  }
+}
+
+.sv-rating__min-text {
+  font-size: 1.14em;
+  margin-right: 1.43em;
+  cursor: pointer;
+}
+
+.sv-rating__max-text {
+  font-size: 1.14em;
+  margin-left: 1em;
+  cursor: pointer;
+}
+
+.sv-rating--disabled {
+  .sv-rating__item-text {
+    cursor: default;
+    color: $disable-color;
+    border-color: $disable-color;
+    &:hover {
+      background-color: transparent;
+    }
+  }
+
+  .sv-rating__item--selected {
+    .sv-rating__item-text {
+      background-color: $disable-color;
+      color: $body-background-color;
+    }
+  }
+
+  .sv-rating__min-text {
+    cursor: default;
+  }
+
+  .sv-rating__max-text {
+    cursor: default;
+  }
+}

@@ -39,7 +39,11 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       var column = this.question.visibleColumns[i];
       var key = "column" + i;
       var columText = this.renderLocString(column.locText);
-      headers.push(<th key={key}>{columText}</th>);
+      headers.push(
+        <th className={this.question.cssClasses.headerCell} key={key}>
+          {columText}
+        </th>
+      );
     }
     var rows = [];
     var visibleRows = this.question.visibleRows;
@@ -103,7 +107,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     var firstTD = null;
     if (this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
-      firstTD = <td>{rowText}</td>;
+      firstTD = <td className={this.question.cssClasses.cell}>{rowText}</td>;
     }
     var tds = this.generateTds();
     return (
@@ -134,7 +138,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         td = (
           <td
             key={key}
-            className={itemClass}
+            className={itemClass + " " + this.question.cssClasses.cell}
             onClick={getHandler ? getHandler(column) : null}
           >
             {this.renderLocString(
@@ -144,7 +148,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         );
       } else {
         td = (
-          <td key={key} headers={column.locText.renderedHtml}>
+          <td key={key} headers={column.locText.renderedHtml} className={this.question.cssClasses.cell}>
             <label className={itemClass}>
               <input
                 id={inputId}
@@ -158,6 +162,13 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 aria-required={this.question.isRequired}
                 aria-label={this.question.locTitle.renderedHtml}
               />
+              <svg
+                className={this.question.cssClasses.itemDecorator}
+                viewBox="-12 -12 24 24"
+              >
+                <circle r="6" cx="0" cy="0" />s
+              </svg>
+
               <span className="circle" />
               <span className="check" />
               <span style={{ display: "none" }}>

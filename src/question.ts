@@ -524,6 +524,9 @@ export class Question extends SurveyElement
     if (!this.isFlowLayout && this.getTitleLocation() == "left") {
       res += " " + classes.titleLeftRoot;
     }
+    if (!this.isEmpty()) {
+      res += " " + classes.hasAnswer;
+    }
     if (this.errors.length > 0) {
       res += " " + classes.hasError;
     }

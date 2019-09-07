@@ -45,10 +45,12 @@ export class MatrixCell extends Vue {
     return "survey-" + element.getType();
   }
   get hasErrorsOnTop() {
-    return this.cell.question.survey.questionErrorLocation === "top";
+    var q = this.cell.question;
+    return q.isVisible && q.survey.questionErrorLocation === "top";
   }
   get hasErrorsOnBottom() {
-    return this.cell.question.survey.questionErrorLocation === "bottom";
+    var q = this.cell.question;
+    return q.isVisible && q.survey.questionErrorLocation === "bottom";
   }
   getHeaders() {
     var element = this.cell.question;

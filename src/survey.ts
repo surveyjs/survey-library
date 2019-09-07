@@ -801,6 +801,9 @@ export class SurveyModel extends Base
     this.registerFunctionOnPropertyValueChanged("isSinglePage", function() {
       self.onIsSinglePageChanged();
     });
+    this.registerFunctionOnPropertyValueChanged("mode", function() {
+      self.onModeChanged();
+    });
     this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
@@ -1463,6 +1466,12 @@ export class SurveyModel extends Base
     if (value == this.mode) return;
     if (value != "edit" && value != "display") return;
     this.setPropertyValue("mode", value);
+  }
+  private onModeChanged() {
+    for (var i = 0; i < this.pages.length; i++) {
+      var page = this.pages[i];
+      page.setPropertyValue("isReadOnly", page.isReadOnly);
+    }
   }
   /**
    * An object that stores the survey results/data. You may set it directly as { 'question name': questionValue, ... }

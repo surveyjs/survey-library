@@ -42,10 +42,11 @@
                 v-bind:aria-required="question.isRequired"
                 :aria-label="question.locTitle.renderedHtml"
               />
+              <span :class="question.cssClasses.materialDecorator">
               <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
                 <circle r="6" cx="0" cy="0">
               </svg>
-
+              </span>
               <span class="circle"></span>
               <span class="check"></span>
               <span :style="{ 'display': 'none' }">{{question.locTitle.renderedHtml}}</span>

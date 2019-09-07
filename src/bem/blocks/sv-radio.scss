@@ -1,12 +1,10 @@
-.sv-radio__decorator {
-  border: 0.18em solid;
-  border-color: $border-color;
+.sv-radio__material-decorator {
   border-radius: 100%;
-  box-sizing: border-box;
-  display: inline-block;
+}
+.sv-radio__decorator {
+  border: 3px solid $border-color;
+  border-radius: 100%;
   fill: transparent;
-  height: 1.5em;
-  width: 1.5em;
 }
 .sv-radio:hover {
   & .sv-radio__decorator {
@@ -14,14 +12,8 @@
   }
 }
 .sv-radio__control:checked {
-  & + .sv-radio__decorator {
+  & + .sv-radio__material-decorator .sv-radio__decorator {
     fill: $radio-checked-color;
     border-color: $radio-checked-color;
-  }
-}
-.sv-radio__control:focus {
-  & + .sv-radio__decorator {
-    box-shadow: 0 0 0 0.18em white, 0 0 0 0.24em#19ab8d;
-    outline: none;
   }
 }

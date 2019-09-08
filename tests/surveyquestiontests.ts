@@ -2605,7 +2605,6 @@ QUnit.test(
     });
     var question = <QuestionDropdownModel>survey.getQuestionByName("q1");
     assert.equal(question.value, 3, "Value is still 3");
-    assert.equal(question.renderedValue, 3, "renderedValue is 3");
   }
 );
 

@@ -25,11 +25,10 @@
         :aria-label="item.locText.renderedHtml"
         :class="question.cssClasses.itemControl"
       />
-      <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-        <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z" />
-      </svg>
-
       <span :class="question.cssClasses.materialDecorator">
+        <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
+          <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z" />
+        </svg>
         <span class="check"></span>
       </span>
       <span :class="question.cssClasses.controlLabel" :title="item.locText.koRenderedHtml">

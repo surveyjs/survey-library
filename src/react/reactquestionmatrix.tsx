@@ -148,7 +148,11 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         );
       } else {
         td = (
-          <td key={key} headers={column.locText.renderedHtml} className={this.question.cssClasses.cell}>
+          <td
+            key={key}
+            headers={column.locText.renderedHtml}
+            className={this.question.cssClasses.cell}
+          >
             <label className={itemClass}>
               <input
                 id={inputId}
@@ -162,13 +166,14 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 aria-required={this.question.isRequired}
                 aria-label={this.question.locTitle.renderedHtml}
               />
-              <svg
-                className={this.question.cssClasses.itemDecorator}
-                viewBox="-12 -12 24 24"
-              >
-                <circle r="6" cx="0" cy="0" />s
-              </svg>
-
+              <span className={this.question.cssClasses.materialDecorator}>
+                <svg
+                  className={this.question.cssClasses.itemDecorator}
+                  viewBox="-12 -12 24 24"
+                >
+                  <circle r="6" cx="0" cy="0" />s
+                </svg>
+              </span>
               <span className="circle" />
               <span className="check" />
               <span style={{ display: "none" }}>

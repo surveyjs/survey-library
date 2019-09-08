@@ -1,10 +1,5 @@
-.sv-selectbase {
-  padding: 0;
-}
 .sv-selectbase__item {
-  position: relative;
   margin-bottom: 0.5em;
-  vertical-align: middle;
 }
 .sv-selectbase__item--inline {
   display: inline-block;
@@ -20,20 +15,11 @@
   cursor: pointer;
   display: inline-block;
   overflow: hidden;
-  padding: 0.26em;
   text-overflow: ellipsis;
   width: 100%;
   white-space: nowrap;
 }
-.sv-selectbase__control {
-  margin: 0;
-  vertical-align: middle;
-}
-.sv-selectbase__control-label {
-  margin-left: 1em;
-  vertical-align: middle;
-}
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;
-  background-color: $add-button-color;
+  background-color: $clean-button-color;
 }

@@ -1,0 +1,27 @@
+.sv-item__material-decorator {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  position: relative;
+  vertical-align: middle;
+}
+.sv-item__decorator {
+  display: inline-block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  height: 24px;
+  width: 24px;
+}
+.sv-item__control:focus + .sv-item__material-decorator {
+  border: 1px solid $main-color;
+  outline: none;
+}
+.sv-item__control-label {
+  margin-left: 1em;
+  vertical-align: middle;
+}

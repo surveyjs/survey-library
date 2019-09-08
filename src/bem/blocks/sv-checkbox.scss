@@ -2,38 +2,28 @@
   $background-color,
   $border-color,
   $checkmark-color: white,
-  $opacity: 1
 ) {
   background-color: $background-color;
   border-color: $border-color;
   fill: $checkmark-color;
-  opacity: $opacity;
+}
+.sv-checkbox__material-decorator {
+  border-radius: 2px;
 }
 .sv-checkbox__decorator {
-  border: 0.18em solid;
-  border-color: $border-color;
-  border-radius: 0.12em;
-  box-sizing: border-box;
-  display: inline-block;
-  height: 1.5em;
-  opacity: 0.5;
-  position: relative;
-  width: 1.5em;
-  @include common(inherit, $border-color, transparent, 0.5);
-}
-.sv-checkbox:hover .sv-checkbox__decorator {
+  border: 3px solid $border-color;
+  border-radius: 2px;
+  fill: transparent;
+ }
+.sv-checkbox:hover .sv-checkbox__material-decorator .sv-checkbox__decorator {
   @include common($main-hover-color, $main-hover-color);
 }
-.sv-checkbox__control:checked + .sv-checkbox__decorator {
+.sv-checkbox__control:checked + .sv-checkbox__material-decorator .sv-checkbox__decorator {
   @include common($main-color, $main-color);
 }
-.sv-checkbox__control:checked:disabled + .sv-checkbox__decorator {
+.sv-checkbox__control:checked:disabled + .sv-checkbox__material-decorator .sv-checkbox__decorator {
   @include common($disable-color, $disable-color);
 }
 .sv-checkbox__control:disabled {
   @include common(inherit, $disable-color, transparent);
-}
-.sv-checkbox__control:focus + .sv-checkbox__decorator {
-  box-shadow: 0 0 0 0.18em white, 0 0 0 0.24em $main-color;
-  outline: none;
 }

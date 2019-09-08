@@ -67,7 +67,7 @@ export var defaultStandardCss = {
   boolean: {
     root: "sv_qcbc sv_qbln",
     item: "sv_q_checkbox",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     label: "",
     materialDecorator: "checkbox-material"
   },
@@ -77,7 +77,7 @@ export var defaultStandardCss = {
     itemInline: "sv_q_checkbox_inline",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     controlLabel: "sv_q_checkbox_control_label",
     materialDecorator: "checkbox-material",
     other: "sv_q_other sv_q_checkbox_other",
@@ -94,7 +94,7 @@ export var defaultStandardCss = {
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label"
@@ -131,7 +131,7 @@ export var defaultStandardCss = {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
     itemInline: "sv_q_radiogroup_inline",
-    itemDecorator: "sv-none-display-item",
+    itemDecorator: "sv-hidden",
     label: "sv_q_radiogroup_label",
     itemControl: "sv_q_radiogroup_control_item",
     controlLabel: "",
@@ -167,7 +167,8 @@ export var defaultStandardCss = {
     preview: "sv_q_file_preview",
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
-    removeFile: "sv_q_file_remove"
+    removeFile: "sv_q_file_remove",
+    fileDecorator: "sv-hidden"
   },
   saveData: {
     root: "",

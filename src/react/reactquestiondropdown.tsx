@@ -28,11 +28,9 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var comment =
-      this.question.hasOther &&
-      this.question.renderedValue === this.question.otherItem.value
-        ? this.renderOther(cssClasses)
-        : null;
+    var comment = this.question.isOtherSelected
+      ? this.renderOther(cssClasses)
+      : null;
     var select = this.renderSelect(cssClasses);
     return (
       <div className={cssClasses.root}>
@@ -43,8 +41,7 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   }
   protected renderSelect(cssClasses: any): JSX.Element {
     if (this.isDisplayMode) {
-      var isOtherSelected =
-        this.question.renderedValue === this.question.otherItem.value;
+      var isOtherSelected = this.question.isOtherSelected;
       return (
         // @ts-ignore
         <div id={this.question.inputId} className={cssClasses.control} disabled>

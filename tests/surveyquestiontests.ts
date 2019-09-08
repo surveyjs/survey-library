@@ -2590,6 +2590,25 @@ QUnit.test("Test property hideIfChoicesEmpty - load from json", function(
   assert.equal(question.isVisible, false, "It is invisible");
 });
 
+QUnit.test(
+  "Do not change value for readOnly dropdown even if value is not in choices",
+  function(assert) {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdown",
+          name: "q1",
+          readOnly: true,
+          defaultValue: 3
+        }
+      ]
+    });
+    var question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    assert.equal(question.value, 3, "Value is still 3");
+    assert.equal(question.renderedValue, 3, "renderedValue is 3");
+  }
+);
+
 QUnit.test("QuestionHtml + Survey.onProcessHtml event, bug#1294", function(
   assert
 ) {

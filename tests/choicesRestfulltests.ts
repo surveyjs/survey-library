@@ -40,6 +40,7 @@ class ChoicesRestfullTester extends ChoicesRestfull {
     if (this.delaySentRequest) return;
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
+    if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
     if (this.processedUrl.indexOf("countries") > -1)
       this.onLoad(getCountries());
     if (!!this.items) {
@@ -378,6 +379,27 @@ QUnit.test("Test dropdown", function(assert) {
   assert.equal(question.choices.length, 0, "Choices do not used");
   assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
+
+QUnit.test(
+  "Do not show error or change the question value if quesiton is readOnly, Bug #1819",
+  function(assert) {
+    var question = new QuestionDropdownModelTester("q1");
+    question.value = "test";
+    question.readOnly = true;
+
+    assert.equal(
+      question.visibleChoices.length,
+      0,
+      "There is no visible choices by default"
+    );
+    question.choicesByUrl.url = "empty";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    assert.equal(question.visibleChoices.length, 0, "Get no items");
+    assert.equal(question.value, "test", "Value do not changed");
+    assert.equal(question.errors.length, 0, "We do not have any errors");
+  }
+);
 
 QUnit.test("Use variables", function(assert) {
   var survey = new SurveyModel();
@@ -941,20 +963,18 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "choicesByUrl + isReady",
-  function(assert) {
-    var question = new QuestionDropdownModelTester("q1");
-    question.value = "Algeria";
-    question.choicesByUrl.url = "allcountries";
-    question.choicesByUrl.path = "RestResponse;result";
-    question.onSurveyLoad();
-    assert.equal(
-      question.isReady,
-      true,
-      "IsReady should be true after load survey");
-  }
-);
+QUnit.test("choicesByUrl + isReady", function(assert) {
+  var question = new QuestionDropdownModelTester("q1");
+  question.value = "Algeria";
+  question.choicesByUrl.url = "allcountries";
+  question.choicesByUrl.path = "RestResponse;result";
+  question.onSurveyLoad();
+  assert.equal(
+    question.isReady,
+    true,
+    "IsReady should be true after load survey"
+  );
+});
 
 function getCACities() {
   return ["Los Angeles", "San Francisco"];

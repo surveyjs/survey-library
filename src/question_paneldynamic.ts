@@ -341,9 +341,11 @@ export class QuestionPanelDynamicModel extends Question
     return this.currentIndexValue;
   }
   public set currentIndex(val: number) {
-    if (val >= this.panelCount) val = this.panelCount - 1;
-    this.currentIndexValue = val;
-    this.fireCallback(this.currentIndexChangedCallback);
+    if(this.currentIndexValue !== val) {
+      if (val >= this.panelCount) val = this.panelCount - 1;
+      this.currentIndexValue = val;
+      this.fireCallback(this.currentIndexChangedCallback);
+    }
   }
   /**
    * The current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.

@@ -19,7 +19,7 @@ export class ImplementorBase {
       if (hash[key] === undefined) {
         hash[key] = ko.observable();
       }
-      return ko.unwrap(hash[key]);
+      return typeof hash[key] === "function" ? hash[key]() : hash[key];
     };
     element.setPropertyValueCoreHandler = (hash, key, val) =>
       hash[key] !== undefined

@@ -128,7 +128,7 @@ export class StylesManager {
 
     ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
       "margin-left: 0; padding-left: 0; line-height: initial;",
-    ".sv-hidden":"display:none"
+    ".sv-hidden":"display:none;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

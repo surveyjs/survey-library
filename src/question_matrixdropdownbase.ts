@@ -1787,7 +1787,7 @@ export class QuestionMatrixDropdownModelBase
     }
     return true;
   }
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);
     return super.hasErrors(fireCallback) || errosInColumns;
   }

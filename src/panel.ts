@@ -414,14 +414,17 @@ export class PanelModelBase extends SurveyElement
    */
   public hasErrors(
     fireCallback: boolean = true,
-    focuseOnFirstError: boolean = false
+    focuseOnFirstError: boolean = false,
+    rec: any = null
   ): boolean {
-    var rec = {
-      fireCallback: fireCallback,
-      focuseOnFirstError: focuseOnFirstError,
-      firstErrorQuestion: <any>null,
-      result: false
-    };
+    rec = !!rec
+      ? rec
+      : {
+          fireCallback: fireCallback,
+          focuseOnFirstError: focuseOnFirstError,
+          firstErrorQuestion: <any>null,
+          result: false
+        };
     this.hasErrorsCore(rec);
     if (rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
@@ -473,16 +476,10 @@ export class PanelModelBase extends SurveyElement
 
       if (element.isPanel) {
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
-      } else if (element.getType() === "paneldynamic") {
-        (<QuestionPanelDynamic>element).panels.forEach(
-          (panel: PanelModelBase) => {
-            panel.hasErrorsCore(rec);
-          }
-        );
       } else {
         var question = <Question>element;
         if (question.isReadOnly) continue;
-        if (question.hasErrors(rec.fireCallback)) {
+        if (question.hasErrors(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
           }

@@ -1,18 +1,18 @@
-.sv-radio__material-decorator {
+.sv-radio__decorator {
   border-radius: 100%;
 }
-.sv-radio__decorator {
+.sv-radio__svg {
   border: 3px solid $border-color;
   border-radius: 100%;
   fill: transparent;
 }
 .sv-radio:hover {
-  & .sv-radio__decorator {
+  & .sv-radio__svg {
     fill: $border-color;
   }
 }
 .sv-radio__control:checked {
-  & + .sv-radio__material-decorator .sv-radio__decorator {
+  & + .sv-radio__decorator .sv-radio__svg {
     fill: $radio-checked-color;
     border-color: $radio-checked-color;
   }

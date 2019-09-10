@@ -1,37 +1,37 @@
-.sv-boolean__material-decorator {
+.sv-boolean__decorator {
   border-radius: 2px;
 }
-.sv-boolean__decorator {
+.sv-boolean__svg {
   background-color: $main-color;
   border-radius: 2px;
   fill: white;
 }
-.sv-boolean__checked-mark,
-.sv-boolean__undefined-mark {
+.sv-boolean__checked-path,
+.sv-boolean__undefined-path {
   display: none;
 }
 //undefined styles
 .sv-boolean__control:indeterminate {
-  & + .sv-boolean__material-decorator {
-    .sv-boolean__decorator {
+  & + .sv-boolean__decorator {
+    .sv-boolean__svg {
       border: none;
       background-color: transparent;
       fill: $main-color;
     }
-    .sv-boolean__undefined-mark {
+    .sv-boolean__undefined-path {
       display: inline-block;
     }
   }
 }
 .sv-boolean__control:indeterminate,
 .sv-boolean__control:checked {
-  & + .sv-boolean__material-decorator .sv-boolean__unchecked-mark {
+  & + .sv-boolean__decorator .sv-boolean__unchecked-path {
     display: none;
   }
 }
 //checked styles
 .sv-boolean__control:checked {
-  & + .sv-boolean__material-decorator .sv-boolean__checked-mark {
+  & + .sv-boolean__decorator .sv-boolean__checked-path {
     display: inline-block;
   }
 }

@@ -1,3 +1,6 @@
+.sv-item:not(.sv-item--disabled) {
+  cursor: pointer;
+}
 .sv-item__decorator {
   display: inline-block;
   width: 30px;
@@ -24,4 +27,7 @@
 .sv-item__control-label {
   margin-left: 1em;
   vertical-align: middle;
+}
+.sv-item:not(.sv-item--disabled) .sv-item__label {
+  cursor: pointer;
 }

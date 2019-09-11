@@ -3,35 +3,55 @@
 }
 .sv-boolean__svg {
   background-color: $main-color;
+  border: none;
   border-radius: 2px;
   fill: white;
 }
-.sv-boolean__checked-path,
-.sv-boolean__undefined-path {
-  display: none;
-}
-//undefined styles
-.sv-boolean__control:indeterminate {
-  & + .sv-boolean__decorator {
-    .sv-boolean__svg {
-      border: none;
-      background-color: transparent;
-      fill: $main-color;
-    }
-    .sv-boolean__undefined-path {
-      display: inline-block;
-    }
+.sv-boolean--allowhover:hover {
+  .sv-boolean__checked-path {
+    display: inline-block;
   }
-}
-.sv-boolean__control:indeterminate,
-.sv-boolean__control:checked {
-  & + .sv-boolean__decorator .sv-boolean__unchecked-path {
+  .sv-boolean__svg {
+    fill: white;
+    background-color: $main-hover-color;
+  }
+  .sv-boolean__unchecked-path,
+  .sv-boolean__indeterminate-path {
     display: none;
   }
 }
-//checked styles
-.sv-boolean__control:checked {
-  & + .sv-boolean__decorator .sv-boolean__checked-path {
+.sv-boolean__checked-path,
+.sv-boolean__indeterminate-path {
+  display: none;
+}
+.sv-boolean--indeterminate {
+  .sv-boolean__svg {
+    background-color: inherit;
+    fill: $main-color;
+  }
+  .sv-boolean__indeterminate-path {
     display: inline-block;
+  }
+}
+.sv-boolean--indeterminate,
+.sv-boolean--checked {
+  .sv-boolean__unchecked-path {
+    display: none;
+  }
+}
+.sv-boolean--checked {
+  .sv-boolean__checked-path {
+    display: inline-block;
+  }
+}
+.sv-boolean--disabled.sv-boolean--indeterminate {
+  .sv-boolean__svg {
+    fill: $disable-color;
+    background-color: inherit;
+  }
+}
+.sv-boolean--disabled {
+  .sv-boolean__svg {
+    background-color: $disable-color;
   }
 }

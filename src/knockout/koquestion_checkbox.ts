@@ -17,6 +17,7 @@ class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor {
 export class QuestionCheckbox extends QuestionCheckboxModel {
   koAllSelected: any;
   private isAllSelectedUpdating = false;
+  private isHovered = ko.observable<boolean>(false);
   constructor(public name: string) {
     super(name);
     new QuestionCheckboxImplementor(this);
@@ -44,8 +45,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   getItemClass(item: any) {
     var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
+    var isEnabled = !this.isReadOnly && item.isEnabled;
     var itemClass = this.cssClasses.item;
-
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
@@ -53,8 +54,10 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
           : " sv-q-col-" + this.colCount;
     }
 
-    if (isChecked) itemClass += " checked";
-
+    if (!isEnabled)
+      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    if(!isChecked && isEnabled)itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
 }

@@ -6,14 +6,18 @@
   border-radius: 100%;
   fill: transparent;
 }
-.sv-radio:hover {
-  & .sv-radio__svg {
+.sv-radio:hover:not(.sv-radio--disabled) {
+  .sv-radio__svg {
     fill: $border-color;
   }
 }
-.sv-radio__control:checked {
-  & + .sv-radio__decorator .sv-radio__svg {
-    fill: $radio-checked-color;
-    border-color: $radio-checked-color;
-  }
+.sv-radio--checked .sv-radio__svg {
+  fill: $radio-checked-color;
+  border-color: $radio-checked-color;
+}
+.sv-radio--disabled .sv-radio__svg {
+  border-color: $disable-color;
+}
+.sv-radio--disabled.sv-radio--checked .sv-radio__svg {
+  fill: $disable-color;
 }

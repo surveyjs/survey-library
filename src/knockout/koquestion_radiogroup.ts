@@ -11,15 +11,14 @@ export class QuestionRadiogroup extends QuestionRadiogroupModel {
   }
   getItemClass(item: any) {
     var itemClass = this.cssClasses.item;
-
     if (!this.hasColumns) {
       itemClass +=
         this.colCount === 0
           ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
-
-    if (item.value === this.value) itemClass += " checked";
+    if (this.isReadOnly || !item.isEnabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (item.value === this.value) itemClass += " " + this.cssClasses.itemChecked;
     return itemClass;
   }
 }

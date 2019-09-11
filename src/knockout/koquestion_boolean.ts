@@ -18,7 +18,14 @@ export class QuestionBoolean extends QuestionBooleanModel {
   }
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
-    let itemClass = (<any>this)["koCss"]().item + (isChecked ? " checked" : "");
+    let itemClass = this.cssClasses.item;
+    if (this.isReadOnly) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) {
+      itemClass += " " + this.cssClasses.itemChecked;
+    } else if (isChecked === null)
+      itemClass += " " + this.cssClasses.itemIndeterminate;
+    if (!isChecked && !this.isReadOnly)
+      itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
 }

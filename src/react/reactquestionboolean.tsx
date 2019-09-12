@@ -5,6 +5,7 @@ import {
 } from "./reactquestionelement";
 import { QuestionBooleanModel } from "../question_boolean";
 import { ReactQuestionFactory } from "./reactquestionfactory";
+import { OtherEmptyError } from "../error";
 
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -36,15 +37,24 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
       el["indeterminate"] = this.question.isIndeterminate;
     }
   }
-
+  private getItemClass(): string {
+    var cssClasses = this.question.cssClasses;
+    var isChecked = this.question.checkedValue;
+    var isDisabled = this.question.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    else if (isChecked === null)
+      itemClass += " " + cssClasses.itemIndeterminate;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
+    return itemClass;
+  }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
     var text = this.renderLocString(this.question.locDisplayLabel);
-
-    let isChecked = this.question.checkedValue;
-    let itemClass = cssClasses.item + (isChecked ? " checked" : "");
-
+    var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
         <label className={itemClass}>

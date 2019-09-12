@@ -85,6 +85,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         textStyle={this.textStyle}
         index={index}
         isChecked={this.state.value === item.value}
+        isDisabled={this.question.isReadOnly || !item.isEnabled}
       />
     );
   }
@@ -99,6 +100,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   protected textStyle: any;
   protected index: number;
   protected isChecked: boolean;
+  protected isDisabled: boolean;
   constructor(props: any) {
     super(props);
     this.updateProps(props);
@@ -129,10 +131,25 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     this.textStyle = props.textStyle;
     this.index = props.index;
     this.isChecked = props.isChecked;
+    this.isDisabled = props.isDisabled;
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event: any) {
     this.question.renderedValue = this.item.value;
+  }
+  getItemClass(isChecked: boolean, isDisabled: boolean) {
+    var itemClass = this.cssClasses.item;
+    var allowHover = !isDisabled && !isChecked;
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
+    if (!this.question.hasColumns) {
+      itemClass +=
+        this.question.colCount === 0
+          ? " " + this.cssClasses.itemInline
+          : " sv-q-col-" + this.question.colCount;
+    }
+    return itemClass;
   }
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
@@ -144,15 +161,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
     var id = this.question.inputId + "_" + this.index;
     var itemText = this.renderLocString(this.item.locText, this.textStyle);
 
-    let itemClass = this.cssClasses.item;
-    if (!this.question.hasColumns) {
-      itemClass +=
-        this.question.colCount === 0
-          ? " " + this.cssClasses.itemInline
-          : " sv-q-col-" + this.question.colCount;
-    }
-
-    if (this.isChecked) itemClass += " checked";
+    let itemClass = this.getItemClass(this.isChecked, this.isDisabled);
 
     var locText: any = this.item.locText;
 

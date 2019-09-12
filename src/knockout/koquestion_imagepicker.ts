@@ -16,13 +16,13 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
         ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
     var isChecked = this.multiSelect
-      ? (!!this.value && this["koValue"]().indexOf(item.value) !== -1)
-      : (!!item.value && item.value == this["koValue"]());
+      ? !!this.value && this["koValue"]().indexOf(item.value) !== -1
+      : !!item.value && item.value == this["koValue"]();
     var allowHover = !isChecked && !this.isReadOnly;
-    if(isChecked) {
+    if (isChecked) {
       itemClass += " " + this.cssClasses.itemChecked;
     }
-    if (this.isReadOnly) {
+    if (this.isReadOnly || !item.isEnabled) {
       itemClass += " " + this.cssClasses.itemDisabled;
     }
     if (allowHover) {

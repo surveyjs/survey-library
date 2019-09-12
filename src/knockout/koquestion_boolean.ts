@@ -17,14 +17,15 @@ export class QuestionBoolean extends QuestionBooleanModel {
     new QuestionBooleanImplementor(this);
   }
   public getItemCss(row: any, column: any) {
-    let isChecked = this.checkedValue;
+      let isChecked = this.checkedValue;
+    let isDisabled = this.isReadOnly;
+    let allowHover = !isChecked && !isDisabled;
     let itemClass = this.cssClasses.item;
-    if (this.isReadOnly) itemClass += " " + this.cssClasses.itemDisabled;
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
     else if (isChecked === null)
       itemClass += " " + this.cssClasses.itemIndeterminate;
-    if (!isChecked && !this.isReadOnly)
-      itemClass += " " + this.cssClasses.itemHover;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
 }

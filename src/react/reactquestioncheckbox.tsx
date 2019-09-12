@@ -129,31 +129,40 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   render(): JSX.Element {
     if (!this.item || !this.question) return null;
     var isChecked = this.question.isItemSelected(this.item);
+    var isDisabled = this.question.isReadOnly || !this.item.isEnabled;
     var otherItem =
       this.item.value === this.question.otherItem.value && isChecked
         ? this.renderOther()
         : null;
-    return this.renderCheckbox(isChecked, otherItem);
+    return this.renderCheckbox(isChecked, isDisabled, otherItem);
   }
   protected get inputStyle(): any {
     return { marginRight: "3px" };
   }
-  protected renderCheckbox(
-    isChecked: boolean,
-    otherItem: JSX.Element
-  ): JSX.Element {
-    var id = this.question.inputId + "_" + this.index;
-    var text = this.renderLocString(this.item.locText);
-    let itemClass = this.cssClasses.item;
-
+  private getItemClass(isChecked: boolean, isDisabled: boolean): string {
+    var cssClasses = this.question.cssClasses;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
     if (!this.question.hasColumns) {
       itemClass +=
         this.question.colCount === 0
           ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.question.colCount;
     }
+    return itemClass;
+  }
+  protected renderCheckbox(
+    isChecked: boolean,
+    isDisabled: boolean,
+    otherItem: JSX.Element
+  ): JSX.Element {
+    var id = this.question.inputId + "_" + this.index;
+    var text = this.renderLocString(this.item.locText);
+    let itemClass = this.getItemClass(isChecked, isDisabled);
 
-    if (isChecked) itemClass += " checked";
     var onItemChanged =
       this.item == this.question.selectAllItem
         ? this.selectAllChanged

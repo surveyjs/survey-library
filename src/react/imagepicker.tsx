@@ -62,23 +62,44 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     if (this.question.multiSelect) {
       isChecked = this.question.value.indexOf(item.value) !== -1;
     }
-    return this.renderElement(key, item, isChecked, isFirst, cssClasses);
+    var isDisabled = this.question.isReadOnly || !item.isEnabled;
+    return this.renderElement(
+      key,
+      item,
+      isChecked,
+      isDisabled,
+      isFirst,
+      cssClasses
+    );
+  }
+  private getItemClass(isChecked: boolean, isDisabled: boolean) {
+    var cssClasses = this.question.cssClasses;
+    var colCount = this.question.colCount;
+    var itemClass =
+      cssClasses.item +
+      (colCount === 0 ? " " + cssClasses.itemInline : " sv-q-col-" + colCount);
+    var allowHover = !isChecked && !isDisabled;
+    if (isChecked) {
+      itemClass += " " + cssClasses.itemChecked;
+    }
+    if (isDisabled) {
+      itemClass += " " + cssClasses.itemDisabled;
+    }
+    if (allowHover) {
+      itemClass += " " + cssClasses.itemHover;
+    }
+    return itemClass;
   }
   protected renderElement(
     key: string,
     item: ItemValue,
     isChecked: boolean,
+    isDisabled: boolean,
     isFirst: boolean,
     cssClasses: any
   ): JSX.Element {
     var id = isFirst ? this.question.inputId : null;
-    let itemClass =
-      cssClasses.item +
-      (this.question.colCount === 0
-        ? " " + cssClasses.itemInline
-        : " sv-q-col-" + this.question.colCount);
-
-    if (isChecked) itemClass += " checked";
+    let itemClass = this.getItemClass(isChecked, isDisabled);
     var text = null;
     if (this.question.showLabel) {
       text = (

@@ -71,13 +71,27 @@ export class QuestionMatrix extends QuestionMatrixModel {
   }
   public getItemCss(row: any, column: any) {
     var isChecked = row.koValue() == column.value;
+    var isDisabled = this.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = this.hasCellText
+      ? this.cssClasses.cellTextDisabled
+      : this.cssClasses.itemDisabled;
+
     var cellSelectedClass = this.hasCellText
       ? this.cssClasses.cellTextSelected
-      : "checked";
+      : this.cssClasses.itemChecked;
+
+    var itemHoverClass = !this.hasCellText ? this.cssClasses.itemHover : "";
+
     var cellClass = this.hasCellText
       ? (<any>this)["koCss"]().cellText
       : (<any>this)["koCss"]().label;
-    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+
+    let itemClass =
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
     return itemClass;
   }
 }

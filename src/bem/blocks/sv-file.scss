@@ -17,6 +17,7 @@
   display: inline-block;
 }
 .sv-file__choose-btn--disabled {
+  cursor: default;
   background-color: $disable-color;
   display: inline-block;
 }

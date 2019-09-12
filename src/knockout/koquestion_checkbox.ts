@@ -45,7 +45,8 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
   getItemClass(item: any) {
     var val = this.value; //trigger dependencies from koValue for knockout
     var isChecked = this.isItemSelected(item);
-    var isEnabled = !this.isReadOnly && item.isEnabled;
+    var isDisabled = this.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
     var itemClass = this.cssClasses.item;
     if (!this.hasColumns) {
       itemClass +=
@@ -53,11 +54,9 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
           ? " " + this.cssClasses.itemInline
           : " sv-q-col-" + this.colCount;
     }
-
-    if (!isEnabled)
-      itemClass += " " + this.cssClasses.itemDisabled;
+    if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
-    if(!isChecked && isEnabled)itemClass += " " + this.cssClasses.itemHover;
+    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
 }

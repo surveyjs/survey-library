@@ -3,12 +3,18 @@
   margin: 0;
 }
 .sv-matrix__cell {
-  min-width: 10em ;
+  min-width: 10em;
 }
-.sv-matrix__cell-text {
+.sv-matrix__text {
   cursor: pointer;
 }
-.sv-matrix__cell-text--selected {
+.sv-matrix__text--сhecked {
   color: #ffffff;
   background-color: $main-color;
+}
+.sv-matrix__text--disabled {
+  cursor: default;
+  &.sv-matrix__text--сhecked {
+    background-color: $disable-color;
+  }
 }

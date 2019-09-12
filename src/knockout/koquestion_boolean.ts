@@ -20,9 +20,8 @@ export class QuestionBoolean extends QuestionBooleanModel {
     let isChecked = this.checkedValue;
     let itemClass = this.cssClasses.item;
     if (this.isReadOnly) itemClass += " " + this.cssClasses.itemDisabled;
-    if (isChecked) {
-      itemClass += " " + this.cssClasses.itemChecked;
-    } else if (isChecked === null)
+    if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
+    else if (isChecked === null)
       itemClass += " " + this.cssClasses.itemIndeterminate;
     if (!isChecked && !this.isReadOnly)
       itemClass += " " + this.cssClasses.itemHover;

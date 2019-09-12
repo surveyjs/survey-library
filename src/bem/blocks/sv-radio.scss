@@ -6,7 +6,7 @@
   border-radius: 100%;
   fill: transparent;
 }
-.sv-radio:hover:not(.sv-radio--disabled) {
+.sv-radio--allowhover:hover {
   .sv-radio__svg {
     fill: $border-color;
   }

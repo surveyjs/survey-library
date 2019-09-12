@@ -1,4 +1,4 @@
-@mixin common($background-color, $border-color, $checkmark-color: white) {
+@mixin svg($background-color, $border-color, $checkmark-color: white) {
   background-color: $background-color;
   border-color: $border-color;
   fill: $checkmark-color;
@@ -13,15 +13,15 @@
 }
 .sv-checkbox--allowhover:hover {
   .sv-checkbox__svg {
-    @include common($main-hover-color, $main-hover-color);
+    @include svg($main-hover-color, $main-hover-color);
   }
 }
 .sv-checkbox--checked .sv-checkbox__svg {
-  @include common($main-color, $main-color);
+  @include svg($main-color, $main-color);
 }
 .sv-checkbox--checked.sv-checkbox--disabled .sv-checkbox__svg {
-  @include common($disable-color, $disable-color);
+  @include svg($disable-color, $disable-color);
 }
 .sv-checkbox--disabled .sv-checkbox__svg {
-  @include common(inherit, $disable-color, transparent);
+  @include svg(inherit, $disable-color, transparent);
 }

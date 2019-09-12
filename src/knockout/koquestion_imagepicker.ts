@@ -15,14 +15,18 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
       (this.colCount === 0
         ? " " + this.cssClasses.itemInline
         : " sv-q-col-" + this.colCount);
-    if (this.multiSelect) {
-      if (!!this.value && this["koValue"]().indexOf(item.value) !== -1) {
-        itemClass += " checked";
-      }
-    } else {
-      if (!!item.value && item.value == this["koValue"]()) {
-        itemClass += " checked";
-      }
+    var isChecked = this.multiSelect
+      ? (!!this.value && this["koValue"]().indexOf(item.value) !== -1)
+      : (!!item.value && item.value == this["koValue"]());
+    var allowHover = !isChecked && !this.isReadOnly;
+    if(isChecked) {
+      itemClass += " " + this.cssClasses.itemChecked;
+    }
+    if (this.isReadOnly) {
+      itemClass += " " + this.cssClasses.itemDisabled;
+    }
+    if (allowHover) {
+      itemClass += " " + this.cssClasses.itemHover;
     }
     return itemClass;
   }

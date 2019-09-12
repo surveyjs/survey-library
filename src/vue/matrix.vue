@@ -67,15 +67,30 @@ import { QuestionMatrixModel } from "../question_matrix";
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
   getItemClass(row: any, column: any) {
+    var question = this.question;
+    var cssClasses = this.question.cssClasses;
     var isChecked = row.value == column.value;
-    var cellSelectedClass = this.question.hasCellText
-      ? this.question.cssClasses.cellTextSelected
-      : "checked";
-    var cellClass = this.question.hasCellText
-      ? this.question.cssClasses.cellText
-      : this.question.cssClasses.label;
-    let itemClass = cellClass + (isChecked ? " " + cellSelectedClass : "");
+    var isDisabled = question.isReadOnly;
+    var allowHover = !isChecked && !isDisabled;
+    var cellDisabledClass = question.hasCellText
+      ? cssClasses.cellTextDisabled
+      : cssClasses.itemDisabled;
 
+    var cellSelectedClass = question.hasCellText
+      ? cssClasses.cellTextSelected
+      : cssClasses.itemChecked;
+
+    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
+
+    var cellClass = question.hasCellText
+      ? cssClasses.cellText
+      : cssClasses.label;
+
+    let itemClass =
+      cellClass +
+      (isChecked ? " " + cellSelectedClass : "") +
+      (isDisabled ? " " + cellDisabledClass : "") +
+      (allowHover ? " " + itemHoverClass : "");
     return itemClass;
   }
   cellClick(row: any, column: any) {

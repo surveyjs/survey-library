@@ -194,14 +194,14 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     var isDisabled = question.isReadOnly;
     var allowHover = !isChecked && !isDisabled;
     var cellDisabledClass = question.hasCellText
-      ? this.cssClasses.cellTextDisabled
-      : this.cssClasses.itemDisabled;
+      ? cssClasses.cellTextDisabled
+      : cssClasses.itemDisabled;
 
     var cellSelectedClass = question.hasCellText
-      ? this.cssClasses.cellTextSelected
-      : this.cssClasses.itemChecked;
+      ? cssClasses.cellTextSelected
+      : cssClasses.itemChecked;
 
-    var itemHoverClass = !question.hasCellText ? this.cssClasses.itemHover : "";
+    var itemHoverClass = !question.hasCellText ? cssClasses.itemHover : "";
 
     var cellClass = question.hasCellText
       ? cssClasses.cellText

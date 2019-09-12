@@ -24,19 +24,27 @@ import { QuestionImagePickerModel } from "../question_imagepicker";
 @Component
 export class ImagePicker extends QuestionVue<QuestionImagePickerModel> {
   getItemClass(item:any) {
-    var itemClass =
-      this.question.cssClasses.item +
-      (this.question.colCount === 0
-        ? " " + this.question.cssClasses.itemInline
-        : " sv-q-col-" + this.question.colCount);
-    if (this.question.multiSelect) {
-      if (this.question.value.indexOf(item.value) !== -1) {
-        itemClass += " checked";
-      }
-    } else {
-        if (item.value === this.question.value) { 
-            itemClass += " checked";
-        }
+  var question = this.question;
+  var cssClasses = question.cssClasses;
+  var colCount = question.colCount;
+  var itemClass =
+      cssClasses.item +
+      (colCount === 0
+        ? " " + cssClasses.itemInline
+        : " sv-q-col-" + colCount);
+    var isChecked = question.multiSelect
+      ? (question.value.indexOf(item.value) !== -1)
+      : (item.value === this.question.value);
+    var isDisabled = question.isReadOnly || !item.isEnabled; 
+    var allowHover = !isChecked && !isDisabled;
+    if (isChecked) {
+      itemClass += " " + cssClasses.itemChecked;
+    }
+    if (isDisabled) {
+      itemClass += " " + cssClasses.itemDisabled;
+    }
+    if (allowHover) {
+      itemClass += " " + cssClasses.itemHover;
     }
     return itemClass;
   }

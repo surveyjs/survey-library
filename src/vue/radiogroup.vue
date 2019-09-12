@@ -33,14 +33,20 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
     return this.question.visibleChoices.length - 1;
   }
   getItemClass(item: any) {
-    var itemClass = this.question.cssClasses.item
-
-    if(!this.question.hasColumns) {
-      itemClass += (this.question.colCount === 0
-        ? " " + this.question.cssClasses.itemInline
-        : " sv-q-col-" + this.question.colCount);
+    var cssClasses = this.question.cssClasses;
+    var isDisabled = this.question.isReadOnly || !item.isEnabled;
+    var isChecked = item.value === this.question.renderedValue;
+    var allowHover = !this.question.isDisabled && !this.question.isChecked;
+    var itemClass = this.question.cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
+    if (!this.question.hasColumns) {
+      itemClass +=
+        this.question.colCount === 0
+          ? " " + cssClasses.itemInline
+          : " sv-q-col-" + this.question.colCount;
     }
-    if (item.value === this.question.renderedValue) itemClass += " checked";
     return itemClass;
   }
 }

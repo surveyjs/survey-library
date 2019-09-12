@@ -18,11 +18,12 @@ export class QuestionImagePicker extends QuestionImagePickerModel {
     var isChecked = this.multiSelect
       ? !!this.value && this["koValue"]().indexOf(item.value) !== -1
       : !!item.value && item.value == this["koValue"]();
-    var allowHover = !isChecked && !this.isReadOnly;
+    var isDisabled = this.isReadOnly || !item.isEnabled; 
+    var allowHover = !isChecked && !isDisabled;
     if (isChecked) {
       itemClass += " " + this.cssClasses.itemChecked;
     }
-    if (this.isReadOnly || !item.isEnabled) {
+    if (isDisabled) {
       itemClass += " " + this.cssClasses.itemDisabled;
     }
     if (allowHover) {

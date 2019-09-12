@@ -127,7 +127,8 @@ export class StylesManager {
     ".sv_qstn .sv_q_select_column > *:not(.sv_technical)": "display: block;",
 
     ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
-      "margin-left: 0; padding-left: 0; line-height: initial;"
+      "margin-left: 0; padding-left: 0; line-height: initial;",
+    ".sv_main .sv-hidden": "display:none;"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -203,6 +204,11 @@ export class StylesManager {
     ".sv_main .sv_container .sv_header h3 span": {
       style: "font-size: 0.75em;",
       media: "@media (max-width: 700px)"
+    },
+
+    ".sv_main.sv_bootstrap_css .sv-progress__text": {
+      style: "margin-left: 8em;",
+      media: "@media (min-width: 768px)"
     }
   };
 
@@ -311,6 +317,24 @@ export class StylesManager {
 
       "$error-color": "#ed5565",
       "$error-background-color": "#fd6575"
+    },
+    bem: {
+      "$add-button-color": "#1948b3",
+      "$remove-button-color": "#ff1800"
+    },
+    bootstrap: {
+      "$main-color": "#18a689",
+      "$text-color": "#404040;",
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb;",
+      "$header-background-color": "#e7e7e7"
+    },
+    bootstrapmaterial: {
+      "$main-color": "#18a689",
+      "$text-color": "#404040;",
+      "$progress-text-color": "#9d9d9d",
+      "$disable-color": "#dbdbdb;",
+      "$header-background-color": "#e7e7e7"
     }
   };
   public static ThemeCss: { [key: string]: string } = {
@@ -394,84 +418,8 @@ export class StylesManager {
     ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
   };
   public static bemThemeCss: { [key: string]: string } = {
-    ".sv_default_css": "background-color: $body-container-background-color;",
-
-    ".sv_default_css hr": "border-color: $border-color;",
-
-    ".sv_default_css input[type='button'], .sv_default_css button":
-      "color: $body-background-color; background-color: $main-color;",
-    ".sv_default_css input[type='button']:hover, .sv_default_css button:hover":
-      "background-color: $main-hover-color;",
-
-    ".sv_default_css .sv_header": "color: $header-color;",
-    ".sv_default_css .sv_custom_header":
-      "background-color: $header-background-color;",
-    ".sv_default_css .sv_container": "color: $text-color;",
-    ".sv_default_css .sv_body":
-      "background-color: $body-background-color; border-color: $main-color;",
-    ".sv_default_css .sv_progress": "background-color: $border-color;",
-    ".sv_default_css .sv_progress_bar": "background-color: $main-color;",
-
-    ".sv_default_css .sv_p_root > .sv_row": "border-color: $border-color;",
-    ".sv_default_css .sv_p_root > .sv_row:nth-child(odd)":
-      "background-color: $body-background-color;",
-    ".sv_default_css .sv_p_root > .sv_row:nth-child(even)":
-      "background-color: $body-container-background-color;",
-
-    ".sv_default_css .sv_q_other input":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css .sv_q_text_root":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css .sv_q_dropdown_control":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css input[type='text']":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css select":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css textarea":
-      "color: $text-color; border-color: $border-color; background-color: $inputs-background-color;",
-    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio'])":
-      "border: 1px solid $border-color; background-color: $inputs-background-color;color: $text-color;",
-    ".sv_default_css input:not([type='button']):not([type='reset']):not([type='submit']):not([type='image']):not([type='checkbox']):not([type='radio']):focus":
-      "border: 1px solid $main-color;",
-    ".sv_default_css .sv_container .sv_body .sv_p_root .sv_q .sv_select_wrapper .sv_q_dropdown_control ":
-      "background-color: $inputs-background-color;",
-    ".sv_default_css .sv_q_other input:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_q_text_root:focus": "border-color: $main-color;",
-    ".sv_default_css .sv_q_dropdown_control:focus":
-      "border-color: $main-color;",
-    ".sv_default_css input[type='text']:focus": "border-color: $main-color;",
-    '.sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="radio"]:focus, .sv_default_css .sv_container .sv_body .sv_p_root .sv_q input[type="checkbox"]:focus':
-      "outline: 1px dotted $main-color;",
-    ".sv_default_css select:focus": "border-color: $main-color;",
-    ".sv_default_css textarea:focus": "border-color: $main-color;",
-
-    ".sv_default_css .sv_select_wrapper":
-      "background-color: $body-background-color;",
-    ".sv_default_css .sv_select_wrapper::before":
-      "background-color: $main-color;",
-
-    ".sv_default_css .sv_q_rating_item.active .sv_q_rating_item_text":
-      "background-color: $main-hover-color; border-color: $main-hover-color; color: $body-background-color;",
-    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text":
-      "border-color: $border-color;",
-    ".sv_default_css .sv_q_rating_item .sv_q_rating_item_text:hover":
-      "border-color: $main-hover-color;",
-
-    ".sv_default_css table.sv_q_matrix tr": "border-color: $border-color;",
-    ".sv_default_css table.sv_q_matrix_dropdown tr":
-      "border-color: $border-color;",
-    ".sv_default_css table.sv_q_matrix_dynamic tr":
-      "border-color: $border-color;",
-
-    ".sv_default_css .sv_q_m_cell_selected":
-      "color: $body-background-color; background-color: $main-hover-color;",
-
-    ".sv_main .sv_q_file_remove:hover": "color: $main-color;",
-
-    ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
-
-    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
+    ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
+    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;"
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
@@ -481,7 +429,33 @@ export class StylesManager {
     ".sv_main .progress-bar":
       "width: auto; margin-left: 2px; margin-right: 2px;",
     ".sv_main .table>tbody>tr>td": "min-width: 90px;",
-    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;"
+    ".sv_main f-panel .sv_qstn": "padding: 0; vertical-align: middle;",
+
+    // paneldynamic progress
+    ".sv_main .sv-progress":
+      "height: 0.19em; background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar":
+      "background-color: $main-color; height: 100%; position: relative;",
+    ".sv_main  .sv-progress__text":
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; position: absolute;",
+    // EO paneldynamic progress
+
+    // paneldynamic
+    ".sv_main .sv-paneldynamic__progress-container":
+      "position: relative; margin-right: 250px; margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+    ".sv_main .sv-paneldynamic__add-btn--list-mode":
+      "  float: none; margin-top: 1em;",
+    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+    ".sv_main .sv-paneldynamic__prev-btn":
+      "left: -1.3em; transform: rotate(90deg);",
+    ".sv_main .sv-paneldynamic__next-btn ":
+      "right: -1.3em; transform: rotate(270deg);",
+    ".sv_main .sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn--disabled ":
+      "fill: $disable-color;"
+    // EO paneldynamic
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -533,7 +507,33 @@ export class StylesManager {
       "position: relative; opacity: 1;",
     ".sv_main.sv_bootstrapmaterial_css .progress": "width: 60%;",
     ".sv_main.sv_bootstrapmaterial_css .progress-bar":
-      "width: auto; margin-left: 2px; margin-right: 2px;"
+      "width: auto; margin-left: 2px; margin-right: 2px;",
+
+    // paneldynamic progress
+    ".sv_main .sv-progress":
+      "height: 0.19em; background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar":
+      "background-color: $main-color; height: 100%; position: relative;",
+    ".sv_main  .sv-progress__text":
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; position: absolute;",
+    // EO paneldynamic progress
+
+    // paneldynamic
+    ".sv_main .sv-paneldynamic__progress-container":
+      "position: relative; margin-right: 250px; margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+    ".sv_main .sv-paneldynamic__add-btn--list-mode":
+      "  float: none; margin-top: 1em;",
+    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+    ".sv_main .sv-paneldynamic__prev-btn":
+      "left: -1.3em; transform: rotate(90deg);",
+    ".sv_main .sv-paneldynamic__next-btn ":
+      "right: -1.3em; transform: rotate(270deg);",
+    ".sv_main .sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn--disabled ":
+      "fill: $disable-color;"
+    // EO paneldynamic
   };
 
   private sheet: CSSStyleSheet = null;
@@ -566,6 +566,9 @@ export class StylesManager {
     themeSelector: string = ".sv_main"
   ) {
     let ThemeCss: any;
+
+    if (themeName === "bem") themeSelector = ".sv-root-bem ";
+
     if (["bootstrap", "bootstrapmaterial", "bem"].indexOf(themeName) !== -1) {
       ThemeCss = (<any>StylesManager)[themeName + "ThemeCss"];
       surveyCss.currentType = themeName;

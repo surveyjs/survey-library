@@ -1,6 +1,6 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
-  root: "sv-main",
+  root: "sv-root-bem",
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
@@ -87,7 +87,8 @@ export var bemCss = {
     itemControl: "sv-visuallyhidden sv-item__control sv-checkbox__control",
     itemDecorator: "sv-item__decorator sv-checkbox__decorator",
     controlLabel: "sv-item__control-label",
-    materialDecorator: "sv-item__material-decorator sv-checkbox__material-decorator",
+    materialDecorator:
+      "sv-item__material-decorator sv-checkbox__material-decorator",
     other: "sv-comment",
     column: "sv-selectbase__column"
   },
@@ -99,7 +100,8 @@ export var bemCss = {
     itemControl: "sv-visuallyhidden sv-item__control sv-radio__control",
     itemDecorator: "sv-item__decorator sv-radio__decorator",
     controlLabel: "sv-item__control-label",
-    materialDecorator: "sv-item__material-decorator sv-radio__material-decorator",
+    materialDecorator:
+      "sv-item__material-decorator sv-radio__material-decorator",
     other: "sv-comment",
     clearButton: "sv-btn sv-selectbase__clear-btn",
     column: "sv-selectbase__column"
@@ -113,7 +115,8 @@ export var bemCss = {
     undefinedMark: "sv-boolean__undefined-mark",
     itemDecorator: "sv-item__decorator sv-boolean__decorator",
     label: "sv-item__control-label",
-    materialDecorator: "sv-item__material-decorator sv-boolean__material-decorator "
+    materialDecorator:
+      "sv-item__material-decorator sv-boolean__material-decorator "
   },
   text: {
     root: "sv-text",
@@ -151,7 +154,8 @@ export var bemCss = {
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-item sv-radio sv-matrix__label",
     itemValue: "sv-visuallyhidden sv-item__control sv-radio__control",
-    materialDecorator: "sv-item__material-decorator sv-radio__material-decorator",
+    materialDecorator:
+      "sv-item__material-decorator sv-radio__material-decorator",
     itemDecorator: "sv-item__decorator sv-radio__decorator",
     cellText: "sv-matrix__cell-text",
     cellTextSelected: "sv-matrix__cell-text--selected"

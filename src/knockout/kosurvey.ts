@@ -320,7 +320,7 @@ LocalizableString.prototype["onChanged"] = function() {
 
 ko.components.register("survey", {
   viewModel: {
-    createViewModel: function(params, componentInfo) {
+    createViewModel: function(params: any, componentInfo: any) {
       var survey: Survey = ko.unwrap(params.survey);
       survey.render();
       return params.survey;
@@ -330,7 +330,7 @@ ko.components.register("survey", {
 });
 
 ko.bindingHandlers["surveyProp"] = {
-  update: function(element, valueAccessor, allBindingsAccessor) {
+  update: function(element: any, valueAccessor: any, allBindingsAccessor: any) {
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     for (var propName in value) {
       if (typeof propName == "string") {

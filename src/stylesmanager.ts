@@ -128,7 +128,9 @@ export class StylesManager {
 
     ".sv_main .sv_container .sv_body .sv_p_root .sv_qstn .sv_q_select_column textarea":
       "margin-left: 0; padding-left: 0; line-height: initial;",
-    ".sv_main .sv-hidden": "display:none;"
+    ".sv_main .sv-hidden": "display:none;",
+    ".sv_main .sv-visuallyhidden":
+      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);"
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {

@@ -43,9 +43,17 @@ import { QuestionBooleanModel } from "../question_boolean";
 @Component
 export class Boolean extends QuestionVue<QuestionBooleanModel> {
   get itemClass() {
-    let isChecked = this.question.checkedValue;
-    let itemClass =
-      this.question.cssClasses.item + (isChecked ? " checked" : "");
+    var question = this.question;
+    var cssClasses = question.cssClasses;
+    let isChecked = question.checkedValue;
+    let isDisabled = question.isReadOnly;
+    let allowHover = !isChecked && !isDisabled;
+    let itemClass = cssClasses.item;
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    else if (isChecked === null)
+      itemClass += " " + cssClasses.itemIndeterminate;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
   }
 }

@@ -36,7 +36,7 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
     var cssClasses = this.question.cssClasses;
     var isDisabled = this.question.isReadOnly || !item.isEnabled;
     var isChecked = item.value === this.question.renderedValue;
-    var allowHover = !this.question.isDisabled && !this.question.isChecked;
+    var allowHover = !isDisabled && !isChecked;
     var itemClass = this.question.cssClasses.item;
     if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + cssClasses.itemChecked;

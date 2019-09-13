@@ -21,18 +21,21 @@ import { QuestionCheckboxModel } from "../question_checkbox";
 @Component
 export class Checkbox extends QuestionVue<QuestionCheckboxModel> {
   getItemClass(item: any) {
-    var itemClass = this.question.cssClasses.item;
-
-    if(!this.question.hasColumns) {
+    var question = this.question;
+    var cssClasses = question.cssClasses;
+    var isChecked = question.isItemSelected(item);
+    var isDisabled = question.isReadOnly || !item.isEnabled;
+    var allowHover = !isChecked && !isDisabled;
+    var itemClass = cssClasses.item;
+    if (!question.hasColumns) {
       itemClass +=
-      (this.question.colCount === 0
-        ? " " + this.question.cssClasses.itemInline
-        : " sv-q-col-" + this.question.colCount);
+        question.colCount === 0
+          ? " " + cssClasses.itemInline
+          : " sv-q-col-" + question.colCount;
     }
-
-    if (this.question.isItemSelected(item)) {
-      itemClass += " checked";
-    }
+    if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
+    if (isChecked) itemClass += " " + cssClasses.itemChecked;
+    if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
   }
 }

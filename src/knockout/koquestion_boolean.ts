@@ -17,7 +17,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
     new QuestionBooleanImplementor(this);
   }
   public getItemCss(row: any, column: any) {
-      let isChecked = this.checkedValue;
+    let isChecked = this.checkedValue;
     let isDisabled = this.isReadOnly;
     let allowHover = !isChecked && !isDisabled;
     let itemClass = this.cssClasses.item;

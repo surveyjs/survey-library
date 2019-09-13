@@ -1335,17 +1335,11 @@ QUnit.test(
   function(assert) {
     var q = new QuestionImagePicker("question1");
     q.endLoadingFromJson();
-    assert.equal(
-      q.getItemClass({}),
-      "sv_q_imgsel sv_q_imagepicker_inline",
-      "No exception"
-    );
+    var containsStyles = (str: string) =>
+      str.includes("sv_q_imgsel sv_q_imagepicker_inline");
+    assert.equal(containsStyles(q.getItemClass({})), true, "No exception");
     q.multiSelect = true;
-    assert.equal(
-      q.getItemClass({}),
-      "sv_q_imgsel sv_q_imagepicker_inline",
-      "No exception"
-    );
+    assert.equal(containsStyles(q.getItemClass({})), true, "No exception");
   }
 );
 

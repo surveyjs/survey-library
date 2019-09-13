@@ -39,6 +39,8 @@
   cursor: default;
 }
 .sv-imagepicker__item--disabled.sv-imagepicker__item--checked {
-  background-color: $disable-color;
-  border-color: $disable-color;
+  .sv-imagepicker__image {
+    background-color: $disable-color;
+    border-color: $disable-color;
+  }
 }

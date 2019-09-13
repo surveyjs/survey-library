@@ -10,7 +10,8 @@
   overflow: hidden;
   margin: 0;
   text-overflow: ellipsis;
-  padding: 0.31em 0.44em; 
+  padding: 0.25em 0.44em;
+  height: 1.75em;
   white-space: nowrap;
 }
 .sv-question__description {
@@ -46,17 +47,17 @@
 .sv-question__title--error {
   background-color: $error-background-color;
 }
-.sv-question__header--top {
-  margin-bottom: 0.8em;
+.sv-question__header--location--top {
+  margin-bottom: 0.65em;
 }
-.sv-question__header--left {
+.sv-question__header--location--left {
   float: left;
   max-width: 27%;
+  margin-right: 0.875em;
 }
-.sv-question__header--bottom {
+.sv-question__header--location--bottom {
   margin-top: 0.8em;
 }
 .sv-question__content--left {
-  margin-top: 0.31em;
   overflow: hidden;
 }

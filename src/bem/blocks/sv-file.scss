@@ -1,15 +1,11 @@
-.sv-file {
-  padding: 1.68em 33%;
-}
-.sv-file--highlighted {
+.sv-file__decorator--highlighted {
   background-color: #f5f5f5;
 }
 .sv-file__decorator {
-  display: inline-block;
+  padding: 1.68em 33%;
 }
 .sv-file__clean-btn {
   background-color: $remove-button-color;
-  display: inline-block;
   margin-top: 0.5em;
 }
 .sv-file__choose-btn {
@@ -24,17 +20,32 @@
   font-size: 0.87em;
   margin-left: 1em;
 }
+.sv-file__remove-file {
+  display: none;
+}
 .sv-file__preview {
-  border-width: 1px;
-  border-style: solid;
-  border-color: lightgrey;
-  border-image: initial;
   display: inline-block;
-  padding: 5px;
+  padding-right: 23px;
+  padding-bottom: 27px;
+  position: relative;
   margin-top: 10px;
   vertical-align: top;
 }
-.sv-file__remove-file:hover {
+.sv-file__preview:not(:last-child) {
+  margin-right: 31px;
+}
+.sv-file__remove-svg {
+  position: absolute;
+  border-radius: 100%;
+  background-color: #ff1800;
   cursor: pointer;
-  color: $remove-button-color;
+  height: 14px;
+  top: 0;
+  right: 0;
+  width: 14px;
+}
+.sv-file__sign {
+  position: absolute;
+  left: 0;
+  bottom: 0;
 }

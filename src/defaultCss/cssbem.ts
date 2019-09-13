@@ -191,14 +191,16 @@ export var bemCss = {
     root: "sv-file",
     placeholderInput: "sv-visuallyhidden",
     preview: "sv-file__preview",
-    highlighted: "sv-file--highlighted",
+    highlighted: "sv-file__decorator--highlighted",
+    fileSign: "sv-file__sign",
     fileDecorator: "sv-file__decorator",
     fileInput: "sv-visuallyhidden",
     noFileChosen: "sv-description sv-file__no-file-chosen",
     chooseFile: "sv-btn sv-file__choose-btn",
     disabled: "sv-file__choose-btn--disabled",
     removeButton: "sv-btn sv-file__clean-btn",
-    removeFile: "sv-file__remove-file"
+    removeFile: "sv-file__remove-file",
+    removeFileSvg: "sv-file__remove-svg"
   },
   saveData: {
     root: "",

@@ -15,7 +15,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     return [];
   });
   koInputTitle: any = ko.observable<string>();
-  koFileRootClass: any = ko.observable<string>();
+  koFileDecoratorClass: any = ko.observable<string>();
   koChooseFileClass: any = ko.pureComputed(() => {
     return (
       this.question.koCss().chooseFile +
@@ -28,9 +28,9 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<any>this.question)["koData"] = this.koData;
     (<any>this.question)["koHasValue"] = this.koHasValue;
     (<any>this.question)["koInputTitle"] = this.koInputTitle;
-    (<any>this.question)["koFileRootClass"] = this.koFileRootClass;
+    (<any>this.question)["koFileDecoratorClass"] = this.koFileDecoratorClass;
     (<any>this.question)["koChooseFileClass"] = this.koChooseFileClass;
-    this.koFileRootClass(this.question.cssClasses.root);
+    this.koFileDecoratorClass(this.question.cssClasses.fileDecorator);
     var updateState = (state: any) => {
       this.koState(state);
       this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
@@ -84,12 +84,12 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<QuestionFileModel>this.question).loadFiles(files);
   }
   private highlight() {
-    this.koFileRootClass(
-      this.question.cssClasses.root + " " + this.question.cssClasses.highlighted
+    this.koFileDecoratorClass(
+      this.question.cssClasses.fileDecorator + " " + this.question.cssClasses.highlighted
     );
   }
   private unhighlight() {
-    this.koFileRootClass(this.question.cssClasses.root);
+    this.koFileDecoratorClass(this.question.cssClasses.fileDecorator);
   }
 }
 

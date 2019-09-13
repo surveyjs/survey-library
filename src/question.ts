@@ -1063,7 +1063,7 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
       this.errors = errors;

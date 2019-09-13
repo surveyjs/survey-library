@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapCss = {
   root: "sv_main sv_bootstrap_css",
+  container: "",
   header: "panel-heading card-header",
   body: "panel-body card-block mt-4",
   bodyEmpty: "panel-body card-block mt-4 sv_body_empty",
@@ -98,15 +99,20 @@ export var defaultBootstrapCss = {
   },
   paneldynamic: {
     root: "",
+    navigation: "sv-paneldynamic__navigation",
+    progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
+    progressBottom:
+      "sv-paneldynamic__progress sv-paneldynamic__progress--bottom",
+    title: "sv-title sv-question__title",
     button: "button",
-    buttonAdd: "sv-paneldynamic__add-btn",
-    buttonRemove: "",
+    buttonAdd: "button sv-paneldynamic__add-btn",
+    buttonRemove: "button sv-paneldynamic__remove-btn",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "table",

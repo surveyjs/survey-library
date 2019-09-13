@@ -54,6 +54,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   supportGoNextPageAutomatic() {
     return true;
   }
+  private minMaxChoices = <Array<ItemValue>>[];
   protected getChoices(): Array<ItemValue> {
     var items = super.getChoices();
     if (this.choicesMax <= this.choicesMin) return items;
@@ -61,9 +62,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     for (var i = 0; i < items.length; i++) {
       res.push(items[i]);
     }
-    for (var i = this.choicesMin; i <= this.choicesMax; i += this.choicesStep) {
-      res.push(new ItemValue(i));
+    if(this.minMaxChoices.length === 0 || this.minMaxChoices.length !== (this.choicesMax - this.choicesMin) / this.choicesStep + 1) {
+      this.minMaxChoices = [];
+      for (var i = this.choicesMin; i <= this.choicesMax; i += this.choicesStep) {
+        this.minMaxChoices.push(new ItemValue(i));
+      }
     }
+    res = res.concat(this.minMaxChoices);
     return res;
   }
   /**

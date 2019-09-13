@@ -787,6 +787,36 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
     "There is no errors in question inside the panel"
   );
 });
+QUnit.test("PanelDynamic, keyName + hasError, Bug #1820", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        templateTitle: "Information about: {panel.relativeType}",
+        keyName: "relativeType",
+        templateElements: [
+          {
+            name: "relativeType",
+            type: "dropdown",
+            choices: ["father", "mother", "brother", "sister", "son", "dauhter"]
+          }
+        ],
+        panelCount: 2
+      }
+    ]
+  });
+  survey.setValue("relatives", [
+    { relativeType: "father" },
+    { relativeType: "father" }
+  ]);
+  assert.equal(
+    survey.currentPage.hasErrors(true),
+    true,
+    "There are two 'father' in keyName property"
+  );
+});
+
 QUnit.test("assign customWidgets to questions in dynamic panel", function(
   assert
 ) {

@@ -9,6 +9,7 @@ export var surveyCss: any = {
 
 export var defaultStandardCss = {
   root: "sv_main sv_default_css",
+  container: "sv_container",
   header: "sv_header",
   body: "sv_body",
   bodyEmpty: "sv_body sv_body_empty",
@@ -119,7 +120,7 @@ export var defaultStandardCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "sv_q_mt",

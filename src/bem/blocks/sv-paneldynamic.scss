@@ -44,4 +44,13 @@
 .sv-paneldynamic__prev-btn--disabled,
 .sv-paneldynamic__next-btn--disabled {
   fill: $disable-color;
+  cursor: auto;
+}
+
+.sv-paneldynamic__progress-text {
+  color: $progress-text-color;
+  font-weight: bold;
+  font-size: 0.87em;
+  margin-top: 0.69em;
+  margin-left: 1em;
 }

@@ -6,17 +6,17 @@ import { QuestionImplementor } from "./koquestion";
 import { Question } from "../question";
 
 export class QuestionFileImplementor extends QuestionImplementor {
-  koState = ko.observable<string>("empty");
-  koHasValue = ko.computed(() => this.koState() === "loaded");
-  koData = ko.computed(() => {
+  koState: any = ko.observable<string>("empty");
+  koHasValue: any = ko.computed(() => this.koState() === "loaded");
+  koData: any = ko.computed(() => {
     if (this.koHasValue()) {
       return (<QuestionFileModel>this.question).previewValue;
     }
     return [];
   });
-  koInputTitle = ko.observable<string>();
-  koFileRootClass = ko.observable<string>();
-  koChooseFileClass = ko.pureComputed(() => {
+  koInputTitle: any = ko.observable<string>();
+  koFileRootClass: any = ko.observable<string>();
+  koChooseFileClass: any = ko.pureComputed(() => {
     return (
       this.question.koCss().chooseFile +
       (this.question.isReadOnly ? " " + this.question.koCss().disabled : "")

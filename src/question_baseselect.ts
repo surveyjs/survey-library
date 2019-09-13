@@ -560,11 +560,13 @@ export class QuestionSelectBase extends Question {
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    var errors = [];
-    if (this.choicesByUrl && this.choicesByUrl.error) {
-      errors.push(this.choicesByUrl.error);
+    if (!this.isReadOnly) {
+      var errors = [];
+      if (this.choicesByUrl && this.choicesByUrl.error) {
+        errors.push(this.choicesByUrl.error);
+      }
+      this.errors = errors;
     }
-    this.errors = errors;
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
     if (
@@ -595,7 +597,7 @@ export class QuestionSelectBase extends Question {
         cachedValues,
         newChoices
       );
-      if (!!newValue) {
+      if (!!newValue && !this.isReadOnly) {
         this.locNotificationInData = true;
         this.value = undefined;
         this.locNotificationInData = false;
@@ -748,13 +750,12 @@ export class QuestionSelectBase extends Question {
     this.isChoicesLoaded = true;
     let oldIsReady: boolean = this.isReadyValue;
     this.isReadyValue = true;
-    this.onReadyChanged && this.onReadyChanged.fire(
-      this, {
+    this.onReadyChanged &&
+      this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
         olsIsReady: oldIsReady
-      }
-    );
+      });
   }
 }
 /**

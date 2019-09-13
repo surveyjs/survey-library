@@ -4,7 +4,7 @@ const assert = require("assert");
 const title = `customCss`;
 const initSurvey = ClientFunction((framework, json) => {
   Survey.defaultBootstrapCss.navigationButton = "btn btn-primary";
-  Survey.Survey.cssType = "bootstrap";
+  Survey.StylesManager.applyTheme("bootstrap");
 
   var model = new Survey.Model(json);
 

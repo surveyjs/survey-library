@@ -1,6 +1,7 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
-  root: "sv-main",
+  root: "sv-root-bem",
+  container: "sv-container-bem",
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
@@ -35,7 +36,7 @@ export var bemCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",

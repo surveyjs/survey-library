@@ -426,7 +426,7 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var res = super.hasErrors(fireCallback);
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.onCompletedAsyncValidators = (

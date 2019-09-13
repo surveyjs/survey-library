@@ -7,21 +7,21 @@
   border-color: $border-color;
   fill: $checkmark-color;
 }
-.sv-checkbox__material-decorator {
+.sv-checkbox__decorator {
   border-radius: 2px;
 }
-.sv-checkbox__decorator {
+.sv-checkbox__svg {
   border: 3px solid $border-color;
   border-radius: 2px;
   fill: transparent;
  }
-.sv-checkbox:hover .sv-checkbox__material-decorator .sv-checkbox__decorator {
+.sv-checkbox:hover .sv-checkbox__decorator .sv-checkbox__svg {
   @include common($main-hover-color, $main-hover-color);
 }
-.sv-checkbox__control:checked + .sv-checkbox__material-decorator .sv-checkbox__decorator {
+.sv-checkbox__control:checked + .sv-checkbox__decorator .sv-checkbox__svg {
   @include common($main-color, $main-color);
 }
-.sv-checkbox__control:checked:disabled + .sv-checkbox__material-decorator .sv-checkbox__decorator {
+.sv-checkbox__control:checked:disabled + .sv-checkbox__decorator .sv-checkbox__svg {
   @include common($disable-color, $disable-color);
 }
 .sv-checkbox__control:disabled {

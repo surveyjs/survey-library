@@ -1,4 +1,4 @@
-.sv-item__material-decorator {
+.sv-item__decorator {
   display: inline-block;
   width: 30px;
   height: 30px;
@@ -6,7 +6,7 @@
   position: relative;
   vertical-align: middle;
 }
-.sv-item__decorator {
+.sv-item__svg {
   display: inline-block;
   position: absolute;
   top: 50%;
@@ -17,7 +17,7 @@
   height: 24px;
   width: 24px;
 }
-.sv-item__control:focus + .sv-item__material-decorator {
+.sv-item__control:focus + .sv-item__decorator {
   border: 1px solid $main-color;
   outline: none;
 }

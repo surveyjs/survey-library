@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapCss = {
   root: "sv_main sv_bootstrap_css",
+  container: "",
   header: "panel-heading card-header",
   body: "panel-body card-block mt-4",
   bodyEmpty: "panel-body card-block mt-4 sv_body_empty",
@@ -113,7 +114,7 @@ export var defaultBootstrapCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "table",

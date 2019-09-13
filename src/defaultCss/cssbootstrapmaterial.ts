@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapMaterialCss = {
   root: "sv_main sv_bootstrapmaterial_css",
+  container: "",
   header: "panel-heading",
   body: "panel-body",
   bodyEmpty: "panel-body sv_body_empty",
@@ -117,7 +118,7 @@ export var defaultBootstrapMaterialCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "table",

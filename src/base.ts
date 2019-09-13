@@ -73,6 +73,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
 
   questionStartIndex: string;
   questionTitleLocation: string;
+  questionDescriptionLocation: string;
   questionErrorLocation: string;
   storeOthersAsComment: boolean;
 

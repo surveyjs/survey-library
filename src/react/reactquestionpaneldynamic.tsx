@@ -141,7 +141,9 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           {btnNext}
         </div>
         {btnAdd}
-        <div>{this.question.progressText}</div>
+        <div className={this.question.cssClasses.progressText}>
+          {this.question.progressText}
+        </div>
       </div>
     );
   }

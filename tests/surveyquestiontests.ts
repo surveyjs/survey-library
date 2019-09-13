@@ -331,6 +331,53 @@ QUnit.test("Question titleLocation", function(assert) {
     "the second question has visible index 0 now"
   );
 });
+QUnit.test("Question titleDescription", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var question1 = new QuestionTextModel("q1");
+  var question2 = new QuestionTextModel("q1");
+  page.addQuestion(question1);
+  page.addQuestion(question2);
+  question1.description = "description";
+  assert.equal(
+    question1.hasDescriptionUnderTitle,
+    true,
+    "There is the description in question1"
+  );
+  assert.equal(
+    question2.hasDescriptionUnderTitle,
+    false,
+    "There is no description in question2"
+  );
+  assert.equal(
+    question2.hasDescriptionUnderInput,
+    false,
+    "There is no description in question2, #2"
+  );
+  question2.description = "description";
+  question2.descriptionLocation = "underInput";
+  assert.equal(
+    question2.hasDescriptionUnderTitle,
+    false,
+    "question2-underInput"
+  );
+  assert.equal(
+    question2.hasDescriptionUnderInput,
+    true,
+    "question2-underInput"
+  );
+  survey.questionDescriptionLocation = "underInput";
+  assert.equal(
+    question1.hasDescriptionUnderTitle,
+    false,
+    "survey.questionDescriptionLocation = 'underInput'"
+  );
+  assert.equal(
+    question1.hasDescriptionUnderInput,
+    true,
+    "survey.questionDescriptionLocation = 'underInput'"
+  );
+});
 QUnit.skip("Use value of checkbox question as an array", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");

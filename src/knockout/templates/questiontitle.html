@@ -1,14 +1,17 @@
 <script type="text/html" id="survey-question-title">
-  <div data-bind="css: question.koHeaderClass">
-    <h5 data-bind="css: koTitleClass, attr: {title: locTitle.renderedHtml}">
-        <!-- ko if: no -->
-        <span style="position: static;" data-bind="css: koCss().number, text: no"></span>
+  <div data-bind="visible: question.hasDescriptionUnderInput && location == 'bottom', css: question.koCss().descriptionUnderInput">
+    <!-- ko template: { name: 'survey-string', data: question.locDescription } --><!-- /ko -->
+  </div>
+  <div data-bind="visible: question.hasTitleOnLeftTop && location == 'top' || question.hasTitleOnBottom && location == 'bottom', css: question.koHeaderClass">
+    <h5 data-bind="css: question.koTitleClass, attr: {title: question.locTitle.renderedHtml}">
+        <!-- ko if: question.no -->
+        <span style="position: static;" data-bind="css: question.koCss().number, text: question.no"></span>
         <span style="position: static;">.&nbsp</span>
         <!-- /ko -->
-        <!-- ko template: { name: 'survey-string', data: locTitle } --><!-- /ko -->
+        <!-- ko template: { name: 'survey-string', data: question.locTitle } --><!-- /ko -->
     </h5>
-    <div data-bind="css: koCss().description">
-        <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
+    <div data-bind="visible: question.hasDescriptionUnderTitle, css: question.koCss().description">
+      <!-- ko template: { name: 'survey-string', data: question.locDescription } --><!-- /ko -->
     </div>
   </div>
 </script>

@@ -1,9 +1,6 @@
 ﻿<script type="text/html" id="survey-question">
   <div data-bind="css: question.koRootClass(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
-          <!-- ko if: question.hasTitleOnLeftTop -->
-          <!--ko template: { name: 'survey-question-title', data: question  } -->
-          <!-- /ko -->
-          <!-- /ko -->
+      <!--ko template: { name: 'survey-question-title', data: {question: question, location: 'top'}  } --><!-- /ko -->
       <div data-bind="css: question.koContentClass">
           <!-- ko if: question.errorLocation == 'top' -->
               <div data-bind="css: question.koCss().error.locationTop">
@@ -26,10 +23,7 @@
                   <!-- /ko -->
               </div>
           <!-- /ko -->
-          <!-- ko if: question.hasTitleOnBottom -->
-          <!--ko template: { name: 'survey-question-title', data: question  } -->
-          <!-- /ko -->
-          <!-- /ko -->
+          <!--ko template: { name: 'survey-question-title', data: {question: question, location: 'bottom'}  } --><!-- /ko -->
       </div>
   </div>
 </script>

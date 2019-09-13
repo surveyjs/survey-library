@@ -85,6 +85,9 @@ export class SurveyQuestion extends SurveyElementBase {
     var header = this.renderHeader(question);
     var headerTop = question.hasTitleOnLeftTop ? header : null;
     var headerBottom = question.hasTitleOnBottom ? header : null;
+    var descriptionUnderInput = question.hasDescriptionUnderInput
+      ? this.renderDescription(cssClasses, true)
+      : null;
     var contentClass =
       question.cssClasses.content +
       (question.hasTitleOnLeft ? " " + question.cssClasses.contentLeft : "");
@@ -121,6 +124,7 @@ export class SurveyQuestion extends SurveyElementBase {
           {questionRender}
           {comment}
           {errorsBottom}
+          {descriptionUnderInput}
           {headerBottom}
         </div>
       </div>
@@ -168,12 +172,18 @@ export class SurveyQuestion extends SurveyElementBase {
     return result;
   }
 
-  protected renderDescription(cssClasses: any): JSX.Element {
+  protected renderDescription(
+    cssClasses: any,
+    isUnderInput: boolean = false
+  ): JSX.Element {
     if (this.question.locDescription.isEmpty) return null;
     var descriptionText = SurveyElementBase.renderLocString(
       this.question.locDescription
     );
-    return <div className={cssClasses.description}>{descriptionText}</div>;
+    var className = isUnderInput
+      ? cssClasses.descriptionUnderInput
+      : cssClasses.description;
+    return <div className={className}>{descriptionText}</div>;
   }
   protected renderComment(cssClasses: any): JSX.Element {
     // var commentText = SurveyElementBase.renderLocString(
@@ -194,7 +204,9 @@ export class SurveyQuestion extends SurveyElementBase {
   protected renderHeader(question: Question): JSX.Element {
     var cssClasses = question.cssClasses;
     var title = question.hasTitle ? this.renderTitle(cssClasses) : null;
-    var description = this.renderDescription(cssClasses);
+    var description = question.hasDescriptionUnderTitle
+      ? this.renderDescription(cssClasses)
+      : null;
     var headerClass = cssClasses.header;
     if (question.hasTitleOnTop) {
       headerClass += " " + cssClasses.headerTop;

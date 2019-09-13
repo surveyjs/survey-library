@@ -1,6 +1,7 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
   root: "sv-root-bem",
+  container: "sv-container-bem",
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",

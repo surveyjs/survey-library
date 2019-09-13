@@ -5,7 +5,7 @@ export var bemCss = {
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
-  footer: "sv-footer sv-body__footer",
+  footer: "sv-footer sv-body__footer sv-clearfix",
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
@@ -48,7 +48,7 @@ export var bemCss = {
   },
   pageTitle: "sv-title sv-page__title",
   pageDescription: "sv-description sv-page__description",
-  row: "sv-row",
+  row: "sv-row sv-clearfix",
   question: {
     mainRoot: "sv-question sv-row__question",
     flowRoot: "sv-question sv-row__question sv-row__question--flow",

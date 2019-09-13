@@ -130,7 +130,33 @@ export class StylesManager {
       "margin-left: 0; padding-left: 0; line-height: initial;",
     ".sv_main .sv-hidden": "display:none;",
     ".sv_main .sv-visuallyhidden":
-      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);"
+      "position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(1px 1px 1px 1px); clip: rect(1px, 1px, 1px, 1px);",
+
+    // paneldynamic progress
+    ".sv_main .sv-progress":
+      "height: 0.19em; background-color: $header-background-color;",
+    ".sv_main .sv-progress__bar":
+      "background-color: $main-color; height: 100%; position: relative;",
+    // EO paneldynamic progress
+
+    // paneldynamic
+    ".sv_main .sv-paneldynamic__progress-container":
+      "position: relative; margin-right: 250px; margin-top: 20px;",
+    ".sv_main .sv-paneldynamic__add-btn": "float: right; margin-top: -18px;",
+    ".sv_main .sv-paneldynamic__add-btn--list-mode":
+      "  float: none; margin-top: 1em;",
+    ".sv_main .sv-paneldynamic__remove-btn ": "margin-top: 1.25em;",
+    ".sv_main .sv-paneldynamic__prev-btn, .sv_main .sv-paneldynamic__next-btn":
+      "box-sizing: border-box; display: inline-block; fill: $text-color; cursor: pointer; width: 0.7em; top: -0.28em; position: absolute;",
+    ".sv_main .sv-paneldynamic__prev-btn":
+      "left: -1.3em; transform: rotate(90deg);",
+    ".sv_main .sv-paneldynamic__next-btn ":
+      "right: -1.3em; transform: rotate(270deg);",
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
+      "fill: $disable-color; cursor: auto;",
+    ".sv_main .sv-paneldynamic__progress-text":
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
+    // EO paneldynamic
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -438,8 +464,6 @@ export class StylesManager {
       "height: 0.19em; background-color: $header-background-color;",
     ".sv_main .sv-progress__bar":
       "background-color: $main-color; height: 100%; position: relative;",
-    ".sv_main  .sv-progress__text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; position: absolute;",
     // EO paneldynamic progress
 
     // paneldynamic
@@ -455,8 +479,10 @@ export class StylesManager {
       "left: -1.3em; transform: rotate(90deg);",
     ".sv_main .sv-paneldynamic__next-btn ":
       "right: -1.3em; transform: rotate(270deg);",
-    ".sv_main .sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn--disabled ":
-      "fill: $disable-color;"
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
+      "fill: $disable-color; cursor: auto;",
+    ".sv_main .sv-paneldynamic__progress-text":
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
     // EO paneldynamic
   };
 
@@ -516,8 +542,6 @@ export class StylesManager {
       "height: 0.19em; background-color: $header-background-color;",
     ".sv_main .sv-progress__bar":
       "background-color: $main-color; height: 100%; position: relative;",
-    ".sv_main  .sv-progress__text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; position: absolute;",
     // EO paneldynamic progress
 
     // paneldynamic
@@ -533,8 +557,10 @@ export class StylesManager {
       "left: -1.3em; transform: rotate(90deg);",
     ".sv_main .sv-paneldynamic__next-btn ":
       "right: -1.3em; transform: rotate(270deg);",
-    ".sv_main .sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn--disabled ":
-      "fill: $disable-color;"
+    ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
+      "fill: $disable-color; cursor: auto;",
+    ".sv_main .sv-paneldynamic__progress-text":
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
     // EO paneldynamic
   };
 

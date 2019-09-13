@@ -115,7 +115,7 @@ export var defaultBootstrapMaterialCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "table",

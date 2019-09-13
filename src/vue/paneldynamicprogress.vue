@@ -8,11 +8,7 @@
       </div>
 
       <div :class="question.cssClasses.progress" v-if="question.isRangeShowing">
-        <div
-          :class="question.cssClasses.progressBar"
-          :style="{width: progress}"
-          role="progressbar"
-        ></div>
+        <div :class="question.cssClasses.progressBar" :style="{width: progress}" role="progressbar"></div>
       </div>
 
       <div :title="question.panelNextText">
@@ -30,7 +26,7 @@
       @click="addPanelClick"
     />
 
-    <div>{{question.progressText}}</div>
+    <div :class="question.cssClasses.progressText">{{question.progressText}}</div>
   </div>
 </template>
 

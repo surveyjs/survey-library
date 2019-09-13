@@ -39,7 +39,7 @@ export var defaultBootstrapMaterialCss = {
     required: "",
     titleRequired: "",
     hasError: "has-error",
-    indent: 20
+    indent: 20,
   },
   panel: {
     title: "sv_p_title",
@@ -58,6 +58,7 @@ export var defaultBootstrapMaterialCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden",
     label: "",
     materialDecorator: "checkbox-material"
@@ -65,6 +66,7 @@ export var defaultBootstrapMaterialCss = {
   checkbox: {
     root: "sv_qcbx form-inline",
     item: "checkbox",
+    itemChecked: "checked",
     itemInline: "sv_q_checkbox_inline",
     itemDecorator: "sv-hidden",
     itemControl: "",
@@ -88,6 +90,7 @@ export var defaultBootstrapMaterialCss = {
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
     cellLabel: "sv_q_m_cell_label",
     itemValue: "form-control",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden"
   },
   matrixdropdown: { root: "table", itemValue: "form-group" },
@@ -121,6 +124,7 @@ export var defaultBootstrapMaterialCss = {
   radiogroup: {
     root: "",
     item: "radio",
+    itemChecked: "checked",
     itemInline: "sv_q_radiogroup_inline",
     itemDecorator: "sv-hidden",
     label: "",
@@ -134,6 +138,7 @@ export var defaultBootstrapMaterialCss = {
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",
+    itemChecked: "checked",
     itemInline: "sv_q_imagepicker_inline",
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",

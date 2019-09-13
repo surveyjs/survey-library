@@ -67,6 +67,7 @@ export var defaultStandardCss = {
   boolean: {
     root: "sv_qcbc sv_qbln",
     item: "sv_q_checkbox",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden",
     label: "",
     materialDecorator: "checkbox-material"
@@ -74,6 +75,7 @@ export var defaultStandardCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx",
     item: "sv_q_checkbox",
+    itemChecked: "checked",
     itemInline: "sv_q_checkbox_inline",
     label: "sv_q_checkbox_label",
     itemControl: "sv_q_checkbox_control_item",
@@ -94,6 +96,7 @@ export var defaultStandardCss = {
   matrix: {
     root: "sv_q_matrix",
     label: "sv_q_m_label",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
@@ -130,6 +133,7 @@ export var defaultStandardCss = {
   radiogroup: {
     root: "sv_qcbc",
     item: "sv_q_radiogroup",
+    itemChecked: "checked",
     itemInline: "sv_q_radiogroup_inline",
     itemDecorator: "sv-hidden",
     label: "sv_q_radiogroup_label",
@@ -143,6 +147,7 @@ export var defaultStandardCss = {
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",
+    itemChecked: "checked",
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",
     image: "sv_q_imgsel_image",

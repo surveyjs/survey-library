@@ -57,6 +57,7 @@ export var defaultBootstrapCss = {
   boolean: {
     root: "sv_qbln form-inline checkbox",
     item: "",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden",
     label: "",
     materialDecorator: "checkbox-material"
@@ -64,6 +65,7 @@ export var defaultBootstrapCss = {
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
     item: "checkbox",
+    itemChecked: "checked",
     itemInline: "sv_q_checkbox_inline",
     itemControl: "",
     itemDecorator: "sv-hidden",
@@ -82,6 +84,7 @@ export var defaultBootstrapCss = {
   matrix: {
     root: "table sv_q_matrix",
     label: "sv_q_m_label",
+    itemChecked: "checked",
     itemDecorator: "sv-hidden",
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected bg-primary",
@@ -116,6 +119,7 @@ export var defaultBootstrapCss = {
   radiogroup: {
     root: "sv_qcbc form-inline",
     item: "radio",
+    itemChecked: "checked",
     itemInline: "sv_q_radiogroup_inline",
     label: "",
     itemControl: "",
@@ -129,6 +133,7 @@ export var defaultBootstrapCss = {
   imagepicker: {
     root: "sv_imgsel",
     item: "sv_q_imgsel",
+    itemChecked: "checked",
     itemInline: "sv_q_imagepicker_inline",
     label: "sv_q_imgsel_label",
     itemControl: "sv_q_imgsel_control_item",

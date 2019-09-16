@@ -96,6 +96,7 @@ export class ChoicesRestfull extends Base {
   protected processedUrl: string = "";
   protected processedPath: string = "";
   public getResultCallback: (items: Array<ItemValue>) => void;
+  public beforeSendRequestCallback: () => void;
   public updateResultCallback: (
     items: Array<ItemValue>,
     serverResult: any
@@ -200,6 +201,7 @@ export class ChoicesRestfull extends Base {
     if (!!ChoicesRestfull.onBeforeSendRequest) {
       ChoicesRestfull.onBeforeSendRequest(this, options);
     }
+    this.beforeSendRequest();
     options.request.send();
   }
   public getType(): string {
@@ -304,6 +306,11 @@ export class ChoicesRestfull extends Base {
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
       if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
+    }
+  }
+  protected beforeSendRequest() {
+    if (!!this.beforeSendRequestCallback) {
+      this.beforeSendRequestCallback();
     }
   }
   protected onLoad(result: any) {

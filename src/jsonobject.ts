@@ -28,7 +28,8 @@ export class JsonObjectProperty implements IObject {
     "onGetValue",
     "onSetValue",
     "dependedProperties",
-    "visibleIf"
+    "visibleIf",
+    "maxLength"
   ];
   private typeValue: string = null;
   private choicesValue: Array<any> = null;
@@ -49,6 +50,7 @@ export class JsonObjectProperty implements IObject {
   public baseClassName: string = null;
   public defaultValueValue: any = null;
   public serializationProperty: string = null;
+  public maxLength: number = -1;
   public layout: string = null;
   public onGetValue: (obj: any) => any = null;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any = null;
@@ -393,6 +395,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isLightSerializable)) {
         prop.isLightSerializable = propInfo.isLightSerializable;
+      }
+      if (!Helpers.isValueEmpty(propInfo.maxLength)) {
+        prop.maxLength = propInfo.maxLength;
       }
       if (!Helpers.isValueEmpty(propInfo.isDynamicChoices)) {
         prop.isDynamicChoices = propInfo.isDynamicChoices;

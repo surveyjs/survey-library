@@ -55,6 +55,8 @@ export var defaultStandardCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    icon: "sv_panel_icon",
+    iconExpanded: "sv_expanded",
     description: "sv_p_description",
     container: "sv_p_container"
   },

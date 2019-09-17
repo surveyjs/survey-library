@@ -2,6 +2,7 @@ import { surveyCss } from "./cssstandard";
 
 export var defaultBootstrapMaterialCss = {
   root: "sv_main sv_bootstrapmaterial_css",
+  container: "",
   header: "panel-heading",
   body: "panel-body",
   bodyEmpty: "panel-body sv_body_empty",
@@ -44,6 +45,8 @@ export var defaultBootstrapMaterialCss = {
   panel: {
     title: "sv_p_title",
     titleExpandable: "sv_p_title_expandable",
+    icon: "sv_panel_icon",
+    iconExpanded: "sv_expanded",
     description: "small sv_p_description",
     container: "sv_p_container"
   },
@@ -105,15 +108,20 @@ export var defaultBootstrapMaterialCss = {
   },
   paneldynamic: {
     root: "",
-    button: "btn btn-primary",
-    buttonAdd: "sv-paneldynamic__add-btn",
-    buttonRemove: "",
+    navigation: "sv-paneldynamic__navigation",
+    progressTop: "sv-paneldynamic__progress sv-paneldynamic__progress--top",
+    progressBottom:
+      "sv-paneldynamic__progress sv-paneldynamic__progress--bottom",
+    title: "sv-title sv-question__title",
+    button: "button",
+    buttonAdd: "button sv-paneldynamic__add-btn",
+    buttonRemove: "button sv-paneldynamic__remove-btn",
     buttonPrev: "sv-paneldynamic__prev-btn",
     buttonNext: "sv-paneldynamic__next-btn",
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   multipletext: {
     root: "table",

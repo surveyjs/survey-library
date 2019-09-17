@@ -1,18 +1,18 @@
  <template>
- <div :class="getHeaderClass(element)">
-      <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
-          <span
-            v-if="element.no"
-            style="position: static;"
-            :class="element.cssClasses.number"
-          >{{element.no}}</span>
-          <span v-if="element.no" style="position: static;">.&nbsp</span>
-          <survey-string :locString="element.locTitle" />
-      </h5>
-      <div v-if="!element.locDescription.isEmpty" :class="element.cssClasses.description">
-        <survey-string :locString="element.locDescription" />
-      </div>
-</div>
+  <div :class="getHeaderClass(element)">
+    <h5 v-if="element.hasTitle" :class="getTitleClass(element)">
+      <span
+        v-if="element.no"
+        style="position: static;"
+        :class="element.cssClasses.number"
+      >{{element.no}}</span>
+      <span v-if="element.no" style="position: static;">.&nbsp</span>
+      <survey-string :locString="element.locTitle" />
+    </h5>
+    <div v-if="element.hasDescriptionUnderTitle" :class="element.cssClasses.description">
+      <survey-string :locString="element.locDescription" />
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -41,14 +41,14 @@ export class ElementHeader extends Vue {
   }
   getHeaderClass(element: Question) {
     var headerClass = element.cssClasses.header;
-    if(element.hasTitleOnTop) {
-        headerClass += " " + element.cssClasses.headerTop;
+    if (element.hasTitleOnTop) {
+      headerClass += " " + element.cssClasses.headerTop;
     }
     if (element.hasTitleOnLeft) {
       headerClass += " " + element.cssClasses.headerLeft;
     }
-    if(element.hasTitleOnBottom) {
-        headerClass += " " + element.cssClasses.headerBottom;
+    if (element.hasTitleOnBottom) {
+      headerClass += " " + element.cssClasses.headerBottom;
     }
 
     return headerClass;

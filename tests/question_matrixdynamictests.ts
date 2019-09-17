@@ -1799,6 +1799,21 @@ QUnit.test(
             }
           ],
           rowCount: 1
+        },
+        {
+          name: "vatProcents",
+          type: "text",
+          defaultValue: 20
+        },
+        {
+          name: "vatTotal",
+          type: "expression",
+          expression: "{q1-total.total} * {vatProcents} / 100"
+        },
+        {
+          name: "total",
+          type: "expression",
+          expression: "{q1-total.total} + {vatTotal}"
         }
       ]
     };
@@ -1806,6 +1821,7 @@ QUnit.test(
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
 
     var rows = question.visibleRows;
+    var visibleTotalRow = question.visibleTotalRow;
     assert.equal(rows[0].cells[2].question.value, 0, "By default price is 0");
     rows[0].cells[1].question.value = "item1";
     assert.equal(rows[0].cells[2].question.value, 10, "Price is ten now");
@@ -1813,7 +1829,7 @@ QUnit.test(
     assert.equal(
       rows[0].cells[4].question.value,
       10 * 5,
-      "row totals calculated correctely"
+      "row totals calculated correctly"
     );
 
     question.addRow();
@@ -1830,6 +1846,21 @@ QUnit.test(
       20 * 3,
       "row totals calculated correctly for the second row"
     );
+
+    var totalRow = question.renderedTable.footerRow;
+    assert.equal(totalRow.cells[3].question.value, 8, "5 + 3 items");
+    assert.equal(
+      totalRow.cells[4].question.value,
+      10 * 5 + 20 * 3,
+      "total for items"
+    );
+    var totalWihtVatQuestion = survey.getQuestionByName("total");
+    assert.equal(
+      totalWihtVatQuestion.value,
+      (10 * 5 + 20 * 3) * 1.2,
+      "total for items + VAT"
+    );
+
     FunctionFactory.Instance.unregister("getItemPrice");
     Serializer.removeProperty("itemvalue", "price");
   }

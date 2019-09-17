@@ -1456,6 +1456,15 @@ export class SurveyModel extends Base
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
+   * Set this property to 'underInput' to show question description under the question input instead of question title.
+   */
+  public get questionDescriptionLocation(): string {
+    return this.getPropertyValue("questionDescriptionLocation");
+  }
+  public set questionDescriptionLocation(value: string) {
+    this.setPropertyValue("questionDescriptionLocation", value);
+  }
+  /**
    * Set this mode to 'display' to make the survey read-only. The default value is 'edit'.
    */
   public get mode(): string {
@@ -4002,6 +4011,11 @@ Serializer.addClass("survey", [
     name: "questionTitleLocation",
     default: "top",
     choices: ["top", "bottom", "left"]
+  },
+  {
+    name: "questionDescriptionLocation",
+    default: "underTitle",
+    choices: ["underInput", "underTitle"]
   },
   { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
   {

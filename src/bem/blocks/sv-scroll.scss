@@ -1,9 +1,9 @@
-.sv-main ::-webkit-scrollbar {
+.sv-root-bem ::-webkit-scrollbar {
   height: 6px;
   width: 6px;
   background-color: $main-hover-color;
 }
 
-.sv-main ::-webkit-scrollbar-thumb {
+.sv-root-bem ::-webkit-scrollbar-thumb {
   background: $main-color;
 }

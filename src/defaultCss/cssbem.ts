@@ -1,10 +1,11 @@
 import { surveyCss } from "./cssstandard";
 export var bemCss = {
-  root: "sv-main",
+  root: "sv-root-bem",
+  container: "sv-container-bem",
   header: "sv-title sv-container__title",
   body: "sv-body",
   bodyEmpty: "sv-body sv-body--empty",
-  footer: "sv-footer sv-body__footer",
+  footer: "sv-footer sv-body__footer sv-clearfix",
   navigationButton: "",
   completedPage: "sv-completed-page",
   navigation: {
@@ -35,7 +36,7 @@ export var bemCss = {
     progressContainer: "sv-paneldynamic__progress-container",
     progress: "sv-progress",
     progressBar: "sv-progress__bar",
-    progressText: "sv-progress__text"
+    progressText: "sv-paneldynamic__progress-text"
   },
   progress: "sv-progress sv-body__progress",
   progressBar: "sv-progress__bar",
@@ -47,15 +48,15 @@ export var bemCss = {
   },
   pageTitle: "sv-title sv-page__title",
   pageDescription: "sv-description sv-page__description",
-  row: "sv-row",
+  row: "sv-row sv-clearfix",
   question: {
     mainRoot: "sv-question sv-row__question",
     flowRoot: "sv-question sv-row__question sv-row__question--flow",
     asCell: "sv-table__cell",
     header: "sv-question__header",
-    headerLeft: "sv-question__header--left",
-    headerTop: "sv-question__header--top",
-    headerBottom: "sv-question__header--bottom",
+    headerLeft: "sv-question__header--location--left",
+    headerTop: "sv-question__header--location--top",
+    headerBottom: "sv-question__header--location--bottom",
     content: "sv-question__content",
     contentLeft: "sv-question__content--left",
     titleLeftRoot: "",

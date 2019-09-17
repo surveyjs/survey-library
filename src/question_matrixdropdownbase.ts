@@ -747,7 +747,9 @@ export class MatrixDropdownRowModelBase
       this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
     }
   }
-  getVariable(name: string): any { return undefined;}
+  getVariable(name: string): any {
+    return undefined;
+  }
   setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
@@ -843,21 +845,6 @@ export class MatrixDropdownRowModelBase
       }
     }
     this.isSettingValue = false;
-    /*
-    for (var i = 0; i < this.cells.length; i++) {
-      var cell = this.cells[i];
-      if (
-        !cell.question.isEmpty() &&
-        (!value ||
-          !Helpers.isTwoValueEquals(
-            cell.question.value,
-            value[cell.column.name]
-          ))
-      ) {
-        this.setValue(cell.column.name, cell.question.value);
-      }
-    }
-    */
   }
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
@@ -1601,8 +1588,10 @@ export class QuestionMatrixDropdownModelBase
       this.generatedVisibleRows = this.generateRows();
       this.generatedVisibleRows.forEach(row => this.onMatrixRowCreated(row));
       if (this.data) {
-        var properties = { survey: this.survey };
-        this.runCellsCondition(this.data.getAllValues(), properties);
+        this.runCellsCondition(
+          this.data.getFilteredValues(),
+          this.data.getFilteredProperties()
+        );
       }
       this.updateValueOnRowsGeneration(this.generatedVisibleRows);
     }
@@ -1798,7 +1787,7 @@ export class QuestionMatrixDropdownModelBase
     }
     return true;
   }
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);
     return super.hasErrors(fireCallback) || errosInColumns;
   }
@@ -1819,6 +1808,9 @@ export class QuestionMatrixDropdownModelBase
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
     var rows = this.generatedVisibleRows;
+
+    if (rows === null) return result;
+
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       for (var j = 0; j < row.cells.length; j++) {
@@ -1917,6 +1909,10 @@ export class QuestionMatrixDropdownModelBase
     for (var i = 0; i < rows.length; i++) {
       rows[i].onAnyValueChanged(name);
     }
+    var totalRow = this.visibleTotalRow;
+    if (!!totalRow) {
+      totalRow.onAnyValueChanged(name);
+    }
     this.isDoingonAnyValueChanged = false;
   }
   protected isObject(value: any) {
@@ -1960,11 +1956,20 @@ export class QuestionMatrixDropdownModelBase
   ): SurveyError {
     if (!this.survey) return;
     var self = this;
+    var getQuestion = function(colName: any) {
+      for (var i = 0; self.columns.length; i++) {
+        if (self.columns[i].name === colName) {
+          return row.cells[i].question;
+        }
+      }
+      return null;
+    };
     var options = {
       row: row,
       columnName: columnName,
       rowValue: rowValue,
-      value: rowValue[columnName]
+      value: rowValue[columnName],
+      getCellQuestion: getQuestion
     };
     return this.survey.matrixCellValidate(this, options);
   }
@@ -2051,7 +2056,7 @@ export class QuestionMatrixDropdownModelBase
       this.data.setValue(
         this.getValueName() + settings.matrixTotalValuePostFix,
         this.totalValue,
-        true
+        false
       );
     }
   }

@@ -10,7 +10,7 @@ export var englishStrings = {
   noneItemText: "None",
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
-  panelDynamicProgressText: "Panel {0} of {1}",
+  panelDynamicProgressText: "Record {0} of {1}",
   questionsProgressText: "Answered {0}/{1} questions",
   emptySurvey: "There is no visible page or question in the survey.",
   completingSurvey: "Thank you for completing the survey!",

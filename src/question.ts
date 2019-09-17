@@ -391,6 +391,30 @@ export class Question extends SurveyElement
     return this.getLocalizableString("description");
   }
   /**
+   * Question description location. By default, value is "default" and it depends on survey questionDescriptionLocation property
+   * You may change it to "underInput" to render it under question input or "underTitle" to rendered it under title.
+   * @see description
+   * @see Survey.questionDescriptionLocation
+   */
+  public get descriptionLocation(): string {
+    return this.getPropertyValue("descriptionLocation");
+  }
+  public set descriptionLocation(val: string) {
+    this.setPropertyValue("descriptionLocation", val);
+  }
+  get hasDescriptionUnderTitle(): boolean {
+    return !!this.description && this.getDescriptionLocation() == "underTitle";
+  }
+  get hasDescriptionUnderInput(): boolean {
+    return !!this.description && this.getDescriptionLocation() == "underInput";
+  }
+  private getDescriptionLocation() {
+    if (this.descriptionLocation !== "default") return this.descriptionLocation;
+    return !!this.survey
+      ? this.survey.questionDescriptionLocation
+      : "underTitle";
+  }
+  /**
    * The custom text that will be shown on required error. Use this property, if you do not want to show the default text.
    */
   public get requiredErrorText(): string {
@@ -1063,7 +1087,7 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
       this.errors = errors;
@@ -1322,6 +1346,11 @@ Serializer.addClass("question", [
     name: "description:text",
     serializationProperty: "locDescription",
     layout: "row"
+  },
+  {
+    name: "descriptionLocation",
+    default: "default",
+    choices: ["default", "underInput", "underTitle"]
   },
   "valueName",
   "enableIf:condition",

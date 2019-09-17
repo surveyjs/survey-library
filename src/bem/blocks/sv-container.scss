@@ -1,12 +1,17 @@
-.sv_container {
+.sv-container-bem {
   color: $text-color;
   font-size: $font-size;
   font-family: "Segoe UI";
 }
-.sv_container__title {
+.sv-container-bem__title {
   font-size: 1.87em;
 }
-.sv_container fieldset {
+.sv-container-bem fieldset {
   border: none;
   padding: 0;
+}
+.sv-container-bem legend {
+  border: none;
+  padding: 0;
+  margin: 0;
 }

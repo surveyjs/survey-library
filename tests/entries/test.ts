@@ -7,6 +7,7 @@ export * from "../jsonobjecttests";
 export * from "../surveyLocalizationTests";
 export * from "../surveyquestiontests";
 export * from "../question_matrixdynamictests";
+export * from "../question_matrixdropdownbasetests";
 export * from "../surveypaneldynamictests";
 export * from "../surveyserializationtests";
 export * from "../surveytests";

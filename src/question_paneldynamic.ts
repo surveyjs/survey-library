@@ -62,7 +62,9 @@ export class QuestionPanelDynamicItem
   public setValue(name: string, newValue: any) {
     this.data.setPanelItemData(this, name, newValue);
   }
-  getVariable(name: string): any { return undefined;}
+  getVariable(name: string): any {
+    return undefined;
+  }
   setVariable(name: string, newValue: any) {}
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentPrefix);
@@ -341,9 +343,11 @@ export class QuestionPanelDynamicModel extends Question
     return this.currentIndexValue;
   }
   public set currentIndex(val: number) {
-    if (val >= this.panelCount) val = this.panelCount - 1;
-    this.currentIndexValue = val;
-    this.fireCallback(this.currentIndexChangedCallback);
+    if (this.currentIndexValue !== val) {
+      if (val >= this.panelCount) val = this.panelCount - 1;
+      this.currentIndexValue = val;
+      this.fireCallback(this.currentIndexChangedCallback);
+    }
   }
   /**
    * The current active dynamical panel when the renderMode is not "list". If there is no dymamic panel (panelCount = 0) or renderMode equals "list" it returns null.
@@ -1172,12 +1176,12 @@ export class QuestionPanelDynamicModel extends Question
       );
     }
   }
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
     if (!!this.changingValueQuestion) {
-      return this.changingValueQuestion.hasErrors(fireCallback);
+      return this.changingValueQuestion.hasErrors(fireCallback, rec);
     } else {
-      var errosInPanels = this.hasErrorInPanels(fireCallback);
+      var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
       return super.hasErrors(fireCallback) || errosInPanels;
     }
   }
@@ -1243,7 +1247,7 @@ export class QuestionPanelDynamicModel extends Question
     return val;
   }
 
-  private hasErrorInPanels(fireCallback: boolean): boolean {
+  private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
     var panels = this.panels;
     var keyValues: Array<any> = [];
@@ -1251,8 +1255,12 @@ export class QuestionPanelDynamicModel extends Question
       this.setOnCompleteAsyncInPanel(panels[i]);
     }
     for (var i = 0; i < panels.length; i++) {
-      var pnlError = panels[i].hasErrors(fireCallback);
-      pnlError = this.isValueDuplicated(panels[i], keyValues) || pnlError;
+      var pnlError = panels[i].hasErrors(
+        fireCallback,
+        !!rec && rec.focuseOnFirstError,
+        rec
+      );
+      pnlError = this.isValueDuplicated(panels[i], keyValues, rec) || pnlError;
       if (!this.isRenderModeList && pnlError && !res) {
         this.currentIndex = i;
       }
@@ -1268,7 +1276,11 @@ export class QuestionPanelDynamicModel extends Question
       };
     }
   }
-  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>): boolean {
+  private isValueDuplicated(
+    panel: PanelModel,
+    keyValues: Array<any>,
+    rec: any
+  ): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
@@ -1278,6 +1290,9 @@ export class QuestionPanelDynamicModel extends Question
         question.addError(
           new KeyDuplicationError(this.keyDuplicationError, this)
         );
+        if (!!rec && !rec.firstErrorQuestion) {
+          rec.firstErrorQuestion = question;
+        }
         return true;
       }
     }
@@ -1459,10 +1474,10 @@ export class QuestionPanelDynamicModel extends Question
   }
 
   public get progressText(): string {
-    var rangeMax = this.panelCount - 1;
+    var rangeMax = this.panelCount;
     return surveyLocalization
       .getString("panelDynamicProgressText")
-      ["format"](this.currentIndex, rangeMax);
+      ["format"](this.currentIndex + 1, rangeMax);
   }
 }
 

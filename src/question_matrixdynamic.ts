@@ -452,7 +452,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
-  public hasErrors(fireCallback: boolean = true): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var prevValue = super.hasErrors(fireCallback);
     return this.isValueDuplicated() || prevValue;
   }

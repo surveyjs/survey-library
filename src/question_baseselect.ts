@@ -8,6 +8,7 @@ import { OtherEmptyError } from "./error";
 import { ChoicesRestfull } from "./choicesRestfull";
 import { LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
+import { settings } from "./settings";
 
 /**
  * It is a base class for checkbox, dropdown and radiogroup questions.
@@ -22,6 +23,7 @@ export class QuestionSelectBase extends Question {
   private choicesFromUrl: Array<ItemValue> = null;
   private cachedValueForUrlRequests: any = null;
   private isChoicesLoaded: boolean = false;
+  private enableOnLoadingChoices: boolean = false;
   /**
    * Use this property to fill the choices from a restful service.
    * @see choices
@@ -51,6 +53,9 @@ export class QuestionSelectBase extends Question {
     this.otherItemValue.setLocText(locOtherText);
     locOtherText.onGetTextCallback = function(text) {
       return !!text ? text : surveyLocalization.getString("otherItemText");
+    };
+    this.choicesByUrl.beforeSendRequestCallback = function() {
+      self.onBeforeSendRequest();
     };
     this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
       self.onLoadChoicesFromUrl(items);
@@ -559,12 +564,23 @@ export class QuestionSelectBase extends Question {
     this.choicesByUrl.run(processor);
   }
   private isFirstLoadChoicesFromUrl = true;
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    var errors = [];
-    if (this.choicesByUrl && this.choicesByUrl.error) {
-      errors.push(this.choicesByUrl.error);
+  protected onBeforeSendRequest() {
+    if (settings.disableOnGettingChoicesFromWeb === true && !this.isReadOnly) {
+      this.enableOnLoadingChoices = true;
+      this.readOnly = true;
     }
-    this.errors = errors;
+  }
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
+    if (this.enableOnLoadingChoices) {
+      this.readOnly = false;
+    }
+    if (!this.isReadOnly) {
+      var errors = [];
+      if (this.choicesByUrl && this.choicesByUrl.error) {
+        errors.push(this.choicesByUrl.error);
+      }
+      this.errors = errors;
+    }
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
     if (
@@ -595,7 +611,7 @@ export class QuestionSelectBase extends Question {
         cachedValues,
         newChoices
       );
-      if (!!newValue) {
+      if (!!newValue && !this.isReadOnly) {
         this.locNotificationInData = true;
         this.value = undefined;
         this.locNotificationInData = false;
@@ -748,13 +764,12 @@ export class QuestionSelectBase extends Question {
     this.isChoicesLoaded = true;
     let oldIsReady: boolean = this.isReadyValue;
     this.isReadyValue = true;
-    this.onReadyChanged && this.onReadyChanged.fire(
-      this, {
+    this.onReadyChanged &&
+      this.onReadyChanged.fire(this, {
         question: this,
         isReady: true,
         olsIsReady: oldIsReady
-      }
-    );
+      });
   }
 }
 /**

@@ -9,13 +9,8 @@
 .sv-row:not(:last-child) {
   padding-bottom: 1.5em;
 }
-.sv-row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
 .sv-row__question--small:only-child {
-  @media only screen and (min-width: 768px) {
+  @media only screen and (min-width: 1000px) {
     max-width: 50%;
   }
 }

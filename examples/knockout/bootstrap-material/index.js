@@ -18,7 +18,7 @@ function init() {
     "$body-container-background-color"
   ] = bodyContainerBackgroundColor;
 
-  Survey.Survey.cssType = "bootstrapmaterial";
+  //Survey.Survey.cssType = "bootstrapmaterial";
   Survey.StylesManager.applyTheme("bootstrapmaterial");
 
   var json = {

@@ -1956,11 +1956,20 @@ export class QuestionMatrixDropdownModelBase
   ): SurveyError {
     if (!this.survey) return;
     var self = this;
+    var getQuestion = function(colName: any) {
+      for (var i = 0; self.columns.length; i++) {
+        if (self.columns[i].name === colName) {
+          return row.cells[i].question;
+        }
+      }
+      return null;
+    };
     var options = {
       row: row,
       columnName: columnName,
       rowValue: rowValue,
-      value: rowValue[columnName]
+      value: rowValue[columnName],
+      getCellQuestion: getQuestion
     };
     return this.survey.matrixCellValidate(this, options);
   }

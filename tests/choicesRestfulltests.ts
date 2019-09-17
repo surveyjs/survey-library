@@ -38,6 +38,7 @@ class ChoicesRestfullTester extends ChoicesRestfull {
   }
   protected sendRequest() {
     if (this.delaySentRequest) return;
+    this.beforeSendRequest();
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
     if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
@@ -463,6 +464,31 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   assert.equal(question.visibleChoices.length, 0, "It is empty again");
   assert.equal(question.visible, false, "And it is again invisible");
 });
+
+QUnit.test(
+  "disable/enable on loading items, settings.disableOnGettingChoicesFromWeb",
+  function(assert) {
+    settings.disableOnGettingChoicesFromWeb = true;
+    var survey = new SurveyModel();
+    survey.addNewPage("page1");
+    var question = new QuestionDropdownModelTester("q1");
+    var isReadOnly = question.isReadOnly;
+    assert.equal(isReadOnly, false, "It is not readOnly by default");
+    survey.onLoadChoicesFromServer.add(function(survey, options) {
+      isReadOnly = question.isReadOnly;
+    });
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    survey.pages[0].addQuestion(question);
+    assert.equal(isReadOnly, true, "It was readOnly");
+    assert.equal(
+      question.isReadOnly,
+      false,
+      "It is not readOnly after getting choices"
+    );
+    settings.disableOnGettingChoicesFromWeb = false;
+  }
+);
 
 QUnit.test("Set value before loading data, bug #1089", function(assert) {
   var survey = new SurveyModel();

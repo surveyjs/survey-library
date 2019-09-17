@@ -40,7 +40,8 @@ export var defaultBootstrapMaterialCss = {
     required: "",
     titleRequired: "",
     hasError: "has-error",
-    indent: 20
+    indent: 20,
+    formGroup: "form-group"
   },
   panel: {
     title: "sv_p_title",

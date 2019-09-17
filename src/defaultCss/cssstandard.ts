@@ -49,7 +49,8 @@ export var defaultStandardCss = {
     titleRequired: "",
     hasError: "",
     indent: 20,
-    footer: "sv_q_footer"
+    footer: "sv_q_footer",
+    formGroup: "form-group"
   },
   panel: {
     title: "sv_p_title",

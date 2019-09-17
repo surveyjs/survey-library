@@ -71,7 +71,8 @@ export var bemCss = {
     hasError: "sv-question--has-error",
     hasAnswer: "sv-question--has-answer",
     indent: 20,
-    footer: "sv-question__footer"
+    footer: "sv-question__footer",
+    formGroup: "sv-question__form-group"  
   },
   error: {
     root: "",
@@ -89,7 +90,7 @@ export var bemCss = {
     itemDecorator: "sv-item__svg sv-checkbox__svg",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-checkbox__decorator",
-    other: "sv-comment",
+    other: "sv-comment sv-question__other",
     column: "sv-selectbase__column"
   },
   radiogroup: {
@@ -101,7 +102,7 @@ export var bemCss = {
     itemDecorator: "sv-item__svg sv-radio__svg",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-radio__decorator",
-    other: "sv-comment",
+    other: "sv-comment sv-question__other",
     clearButton: "sv-btn sv-selectbase__clear-btn",
     column: "sv-selectbase__column"
   },
@@ -133,7 +134,7 @@ export var bemCss = {
     small: "sv-row__question--small",
     control: "sv-dropdown",
     selectWrapper: "",
-    other: "sv-comment",
+    other: "sv-comment sv-question__other",
     onError: "sv-dropdown--error"
   },
   imagepicker: {
@@ -186,7 +187,6 @@ export var bemCss = {
     small: "sv-row__question--small"
   },
   expression: "",
-
   file: {
     root: "sv-file",
     placeholderInput: "sv-visuallyhidden",

@@ -14,7 +14,7 @@
           <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
           <!-- /ko -->
           <!-- ko if: question.hasComment -->
-          <div class="form-group">
+          <div data-bind="css: question.koCss().formGroup">
             <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
             <!-- /ko -->
             <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>

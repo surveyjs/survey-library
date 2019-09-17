@@ -1,5 +1,5 @@
 <template>
-    <div :class="fileRootClass" @dragenter="onDragEnter" @dragover="onDragOver" @dragleave="onDragLeave" @drop="onDrop">
+    <div :class="question.cssClasses.root" @drop="onDrop" @dragover="onDragOver">
         <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
         <div :class="question.cssClasses.fileDecorator">
@@ -29,29 +29,11 @@ import { QuestionFileModel } from "../question_file";
 
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  private isHighlighted: boolean = false;
-  @Watch("isHightLighted")
-  get fileRootClass(): string {
-    return (
-      this.question.cssClasses.root +
-      (this.isHighlighted ? " " + this.question.cssClasses.highlighted : "")
-    );
-    }
   onDragOver = (event: any) => {
     event.preventDefault();
-    this.highlight();
-  };
-  onDragEnter = (event: any) => {
-    event.preventDefault();
-    this.highlight();
-  };
-  onDragLeave = (event: any) => {
-    event.preventDefault();
-    this.unhighlight();
-  };
+    }; 
   onDrop = (event: any) => {
     event.preventDefault();
-    this.unhighlight();
     let src = event.dataTransfer;
     this.onChange(src);
   };
@@ -79,12 +61,6 @@ export class File extends QuestionVue<QuestionFileModel> {
     }
     src.value = "";
     this.question.loadFiles(files);
-  }
-  private highlight() {
-    this.isHighlighted = true;
-  }
-  private unhighlight() {
-    this.isHighlighted = false;
   }
 }
 Vue.component("survey-file", File);

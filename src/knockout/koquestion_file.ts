@@ -15,7 +15,6 @@ export class QuestionFileImplementor extends QuestionImplementor {
     return [];
   });
   koInputTitle: any = ko.observable<string>();
-  koFileDecoratorClass: any = ko.observable<string>();
   koChooseFileClass: any = ko.pureComputed(() => {
     return (
       this.question.koCss().chooseFile +
@@ -28,9 +27,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     (<any>this.question)["koData"] = this.koData;
     (<any>this.question)["koHasValue"] = this.koHasValue;
     (<any>this.question)["koInputTitle"] = this.koInputTitle;
-    (<any>this.question)["koFileDecoratorClass"] = this.koFileDecoratorClass;
     (<any>this.question)["koChooseFileClass"] = this.koChooseFileClass;
-    this.koFileDecoratorClass(this.question.cssClasses.fileDecorator);
     var updateState = (state: any) => {
       this.koState(state);
       this.koInputTitle((<QuestionFileModel>this.question).inputTitle);
@@ -40,7 +37,6 @@ export class QuestionFileImplementor extends QuestionImplementor {
     });
     (<any>this.question)["ondrop"] = (data: any, event: any) => {
       event.preventDefault();
-      this.unhighlight();
       let src = event.originalEvent
         ? event.originalEvent.dataTransfer
         : event.dataTransfer;
@@ -48,17 +44,7 @@ export class QuestionFileImplementor extends QuestionImplementor {
     };
     (<any>this.question)["ondragover"] = (data: any, event: any) => {
       event.preventDefault();
-      this.highlight();
     };
-    (<any>this.question)["ondragenter"] = (data: any, event: any) => {
-      event.preventDefault();
-      this.highlight();
-    };
-    (<any>this.question)["ondragleave"] = (data: any, event: any) => {
-      event.preventDefault();
-      this.unhighlight();
-    };
-
     (<any>this.question)["dochange"] = (data: any, event: any) => {
       var src = event.target || event.srcElement;
       self.onChange(src);
@@ -82,14 +68,6 @@ export class QuestionFileImplementor extends QuestionImplementor {
     }
     src.value = "";
     (<QuestionFileModel>this.question).loadFiles(files);
-  }
-  private highlight() {
-    this.koFileDecoratorClass(
-      this.question.cssClasses.fileDecorator + " " + this.question.cssClasses.highlighted
-    );
-  }
-  private unhighlight() {
-    this.koFileDecoratorClass(this.question.cssClasses.fileDecorator);
   }
 }
 

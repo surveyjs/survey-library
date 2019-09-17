@@ -6,7 +6,7 @@
       <!-- ko if: question.isReadOnly -->
       <input type="file" disabled data-bind="css: 'form-control ' + question.cssClasses.placeholderInput, attr: { placeholder: question.title }" style="color: transparent;"/>
       <!-- /ko -->
-      <div data-bind="css:question.koFileDecoratorClass, event:{dragenter: question.ondragenter, dragleave: question.ondragleave, dragover: question.ondragover, drop: question.ondrop}">
+      <div data-bind="css:question.koCss().fileDecorator, event:{ dragover: question.ondragover, drop: question.ondrop}">
           <label data-bind="css: question.koChooseFileClass, attr: {for: question.inputId}, text: question.chooseButtonCaption"></label>
           <span data-bind="css: question.koCss().noFileChosen, visible: !question.koHasValue(), text: question.noFileChosenCaption"></span>             
       </div>
@@ -28,10 +28,16 @@
                   <!-- ko ifnot: question.isReadOnly -->
                   <span data-bind="css: question.cssClasses.removeFile, click: question.doremovefile, text: question.removeFileCaption"></span>
                   <svg data-bind="css: question.cssClasses.removeFileSvg, click: question.doremovefile" viewPort="0 0 14 14"></svg>
-              <!-- /ko -->
+                  <!-- /ko -->
+              </div>
+              <div data-bind="css: question.koCss().fileSignBottom">
+                <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
               </div>
               <!-- /ko -->
           </span>
       </div>
+      <!-- ko if: question.koHasValue -->
+      <button type="button" data-bind="css: question.cssClasses.removeButtonBottom, click: question.doclean, text: question.cleanButtonCaption"></button>
+      <!-- /ko -->
   </div>
 </script>

@@ -165,7 +165,9 @@ export var defaultBootstrapMaterialCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
     removeFile: "sv_q_file_remove",
-    fileDecorator: "sv-hidden"
+    fileDecorator: "sv-hidden",
+    fileSignBottom: "sv-hidden",
+    removeFileBottom: "sv-hidden"
   },
   saveData: {
     root: "",

@@ -19,24 +19,11 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  preventDefaults(event: any) {
-    event.preventDefault();
-  }
   handleOnDragOver = (event: any) => {
     event.preventDefault();
-    this.highlight();
-  };
-  handleOnDragEnter = (event: any) => {
-    event.preventDefault();
-    this.highlight();
-  };
-  handleOnDragLeave = (event: any) => {
-    event.preventDefault();
-    this.unhighlight();
   };
   handleOnDrop = (event: any) => {
     event.preventDefault();
-    this.unhighlight();
     let src = event.dataTransfer;
     this.onChange(src);
   };
@@ -64,17 +51,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     src.value = "";
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
-  };
-  private highlight = () => {
-    this.setState({
-      rootClass:
-        this.question.cssClasses.root +
-        " " +
-        this.question.cssClasses.highlighted
-    });
-  };
-  private unhighlight = () => {
-    this.setState({ rootClass: this.question.cssClasses.root });
   };
   render(): JSX.Element {
     if (!this.question) return null;
@@ -108,13 +84,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div
-        className={this.state.rootClass}
-        onDragEnter={this.handleOnDragEnter}
-        onDragOver={this.handleOnDragOver}
-        onDragLeave={this.handleOnDragLeave}
-        onDrop={this.handleOnDrop}
-      >
+      <div className={this.state.rootClass}>
         {fileInput}
         {fileDecorator}
         {clearButton}
@@ -141,7 +111,11 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div className={this.question.cssClasses.fileDecorator}>
+      <div
+        className={this.question.cssClasses.fileDecorator}
+        onDrop={this.handleOnDrop}
+        onDragOver={this.handleOnDragOver}
+      >
         {chooseFile}
         {noFileChosen}
       </div>

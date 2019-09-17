@@ -1,9 +1,17 @@
 .sv-body__page,
 .sv-body__footer {
-  @media only screen and (min-width: 960px) {
+  @media only screen and (min-width: 1000px) {
     margin-right: 4.87em;
     margin-left: 4.87em;
   }
+  @media only screen and (max-width: 1000px) {
+    margin-right: 0.63em;
+    margin-left: 0.63em;
+  }
+}
+.sv-body__page {
+  margin-top: 0.63em;
+  margin-bottom: 0.63em;
 }
 .sv-body__progress {
   margin-bottom: 2em;

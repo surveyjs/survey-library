@@ -1,6 +1,6 @@
 <template>
   <div :class="getRootClass(element)">
-    <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element"/>
+    <survey-element-header v-if="element.hasTitleOnLeftTop" :element="element" />
     <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
@@ -9,7 +9,13 @@
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors v-if="hasErrorsOnBottom" :question="element" :location="'bottom'" />
-      <survey-element-header v-if="element.hasTitleOnBottom" :element="element"/>
+      <div
+        v-if="element.hasDescriptionUnderInput"
+        :class="element.cssClasses.descriptionUnderInput"
+      >
+        <survey-string :locString="element.locDescription" />
+      </div>
+      <survey-element-header v-if="element.hasTitleOnBottom" :element="element" />
     </div>
   </div>
 </template>

@@ -1808,6 +1808,9 @@ export class QuestionMatrixDropdownModelBase
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
     var rows = this.generatedVisibleRows;
+
+    if (rows === null) return result;
+
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       for (var j = 0; j < row.cells.length; j++) {

@@ -408,12 +408,17 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     if (getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("totalCurrency", val);
   }
-
   public get minWidth(): string {
     return this.getPropertyValue("minWidth", "");
   }
   public set minWidth(val: string) {
     this.setPropertyValue("minWidth", val);
+  }
+  public get width(): string {
+    return this.getPropertyValue("width", "");
+  }
+  public set width(val: string) {
+    this.setPropertyValue("width", val);
   }
   public get colCount(): number {
     return this.getPropertyValue("colCount", -1);
@@ -917,6 +922,7 @@ export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
   public minWidth: string = "";
+  public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
   public row: MatrixDropdownRowModelBase;
@@ -1137,6 +1143,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
+    cell.width = column != null ? column.width : "";
     return cell;
   }
   private createRemoveRowCell(
@@ -2103,6 +2110,7 @@ Serializer.addClass(
     "hasOther:boolean",
     "readOnly:boolean",
     "minWidth",
+    "width",
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

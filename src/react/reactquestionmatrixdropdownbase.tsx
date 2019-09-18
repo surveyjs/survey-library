@@ -83,7 +83,13 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     for (var i = 0; i < cells.length; i++) {
       var cell = cells[i];
       var key = "column" + i;
-      var columnStyle = cell.minWidth ? { minWidth: cell.minWidth } : {};
+      var columnStyle: any = {};
+      if (!!cell.width) {
+        columnStyle.width = cell.width;
+      }
+      if (!!cell.minWidth) {
+        columnStyle.minWidth = cell.minWidth;
+      }
       var columnTitle = this.renderLocString(cell.locTitle);
       headers.push(
         <th

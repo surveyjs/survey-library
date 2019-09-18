@@ -10,21 +10,26 @@ If you want to get the most from our library, then we hope that the following ar
 
 You may read this document from the beginning to the end or just navigate to the topic you are interested in.
 
-* [Supported Platforms](#platforms)
-* [Survey Objects](#objects)
-* [Store Survey Results](#storeresults)
-* [Survey States, from running to completed](#states)
-* [Survey Data, modify or view Survey results](#data)
-* [Pages, visibility and navigation](#pages)
-* [Questions and Containers visibility. VisibleIf expressions](#visibility)
-* [Dynamically filter choices, columns and rows](#itemvaluesfiltering)
-* [Fill the choices from a restful service](#choicesByUrl)
-* [Readonly and EnableIf Expression](#readonly)
-* [Text Processing, dynamic titles and html properties](#textprocessing)
-* [Validation, on client and on server](#validation)
-* [Localization and Multilanguage support](#localization)
-* [Extend SurveyJS Elements by adding properties](#addproperties)
-* [Triggers: control the survey logic](#triggers)
+- [Supported Platforms](#platforms)
+- [Survey Objects](#objects)
+  - [Create Simple Survey Model (using JSON or in Code)](#objects-createmodel)
+  - [Load Survey From SurveyJS Service](#objects-loadfromservice)
+- [Store Survey Results](#storeresults)
+  - [Use SurveyJS Service backend](#storeresults-service)
+  - [Store survey results in your own database](#storeresults-owndatabase)
+  - [Modify Survey results](#modifysurveyresults)
+- [Survey States, from running to completed](#states)
+- [Survey Data, modify or view Survey results](#data)
+- [Pages, visibility and navigation](#pages)
+- [Questions and Containers visibility. VisibleIf expressions](#visibility)
+- [Dynamically filter choices, columns and rows](#itemvaluesfiltering)
+- [Fill the choices from a restful service](#choicesByUrl)
+- [Readonly and EnableIf Expression](#readonly)
+- [Text Processing, dynamic titles and html properties](#textprocessing)
+- [Validation, on client and on server](#validation)
+- [Localization and Multilanguage support](#localization)
+- [Extend SurveyJS Elements by adding properties](#addproperties)
+- [Triggers: control the survey logic](#triggers)
 
 <div id="platforms"></div>
 
@@ -130,6 +135,8 @@ After you have built your survey and integrate it into your web site, the next q
 
 Again, there are two ways of doing it. You may store results in our backend or in your own database.
 
+<div id="storeresults-service"></div>
+
 ### Use SurveyJS Service backend
 
 The simplest one is to use our backend [SurveyJS Service](https://surveyjs.io/Service/). We want you to recommend use it while you are learning and playing with our library, since it doesn’t require to write any code and it is currently totally free.
@@ -231,6 +238,8 @@ function modifySurveyResults(survey) {
   return resultData;
 }
 ```
+
+Another option is to use the _survey.getPlainData()_ function. It returns survey result data as an array of plain objects: with question title, name, value and displayValue. 
 
 You may use _modifySurveyResults_ function as _modifySurveyResults(survey)_ instead of _survey.data_ in _survey.onComplete_ event.
 

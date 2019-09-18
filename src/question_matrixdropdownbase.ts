@@ -1789,7 +1789,8 @@ export class QuestionMatrixDropdownModelBase
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);
-    return super.hasErrors(fireCallback) || errosInColumns;
+    this.hasError = super.hasErrors(fireCallback) || errosInColumns;
+    return this.hasError;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;

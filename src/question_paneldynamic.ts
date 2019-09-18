@@ -211,6 +211,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerFunctionOnPropertyValueChanged("panelsState", function() {
       self.setPanelsState();
     });
+    this.allErrors = this.createNewArray("allErrors");
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -1179,11 +1180,12 @@ export class QuestionPanelDynamicModel extends Question
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
     if (!!this.changingValueQuestion) {
-      return this.changingValueQuestion.hasErrors(fireCallback, rec);
+      this.hasError = this.changingValueQuestion.hasErrors(fireCallback, rec);
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
-      return super.hasErrors(fireCallback) || errosInPanels;
+      this.hasError = super.hasErrors(fireCallback) || errosInPanels;
     }
+    return this.hasError;
   }
   public clearValueIfInvisible() {
     for (var i = 0; i < this.panels.length; i++) {

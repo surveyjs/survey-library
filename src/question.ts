@@ -548,13 +548,6 @@ export class Question extends SurveyElement
     if (!this.isFlowLayout && this.getTitleLocation() == "left") {
       res += " " + classes.titleLeftRoot;
     }
-    if (!this.isEmpty()) {
-      res += " " + classes.hasAnswer;
-    }
-    if (this.errors.length > 0) {
-      res += " " + classes.hasError;
-    }
-
     return res;
   }
   protected getRootCss(classes: any) {
@@ -1087,12 +1080,21 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
+
+  public get hasError(): boolean {
+    return this.getPropertyValue("hasError");
+  }
+  public set hasError(val: boolean) {
+    this.setPropertyValue("hasError", val);
+  }
+
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
       this.errors = errors;
     }
-    return errors.length > 0;
+    this.hasError = errors.length > 0;
+    return this.hasError;
   }
   /**
    * Returns the validation errors count.

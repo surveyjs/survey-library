@@ -82,12 +82,10 @@ export class QuestionImplementor extends ImplementorBase {
       var question = self.question;
       var cssClasses = question.cssClasses;
       var result = cssClasses.title;
-      if (!question.isEmpty()) {
-        result += " " + cssClasses.titleOnAnswer;
-      }
-  
-      if (question.errors.length > 0) {
+      if (question.hasError) {
         result += " " + cssClasses.titleOnError;
+      } else if (!question.isEmpty()) {
+        result += " " + cssClasses.titleOnAnswer;
       }
       return result;
     });

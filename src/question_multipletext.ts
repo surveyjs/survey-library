@@ -207,7 +207,9 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
-  getVariable(name: string): any { return undefined;}
+  getVariable(name: string): any {
+    return undefined;
+  }
   setVariable(name: string, newValue: any) {}
   getComment(name: string): string {
     return null;
@@ -436,7 +438,8 @@ export class QuestionMultipleTextModel extends Question
       };
       res = this.items[i].editor.hasErrors(fireCallback) || res;
     }
-    return res;
+    this.hasError = res;
+    return this.hasError;
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();

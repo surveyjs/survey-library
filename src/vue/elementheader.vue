@@ -29,13 +29,10 @@ export class ElementHeader extends Vue {
   getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
     var titleClass = cssClasses.title;
-
-    if (!element.isPanel && !element.isEmpty()) {
-      titleClass += " " + cssClasses.titleOnAnswer;
-    }
-
-    if (!element.isPanel && element.errors.length > 0) {
+    if (!element.isPanel && element.hasError) {
       titleClass += " " + cssClasses.titleOnError;
+    } else if (!element.isPanel && !element.isEmpty()) {
+      titleClass += " " + cssClasses.titleOnAnswer;
     }
     return titleClass;
   }
@@ -50,7 +47,6 @@ export class ElementHeader extends Vue {
     if (element.hasTitleOnBottom) {
       headerClass += " " + element.cssClasses.headerBottom;
     }
-
     return headerClass;
   }
 }

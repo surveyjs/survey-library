@@ -1,23 +1,28 @@
 <template>
-    <div :class="question.cssClasses.root" @drop="onDrop" @dragover="onDragOver">
+    <div :class="question.cssClasses.root">
         <input :class="question.cssClasses.fileInput" v-if="!question.isReadOnly" type="file" :id="question.inputId" @change="doChange" v-bind:aria-required="question.isRequired" :aria-label="question.locTitle.renderedHtml" :multiple="question.allowMultiple ? 'multiple' : undefined" v-bind:title="question.inputTitle" v-bind:accept="question.acceptedTypes" />
         <input v-if="question.isReadOnly" type="file" disabled :class="getPlaceholderClass()" :placeholder="question.title" style="color: transparent;"/>
-        <div :class="question.cssClasses.fileDecorator">
+        <div :class="question.cssClasses.fileDecorator" @drop="onDrop" @dragover="onDragOver">
           <label :class="question.cssClasses.chooseFile + (question.isReadOnly ? ' ' + question.cssClasses.disabled : '')" :for="question.inputId">{{question.chooseButtonCaption}}</label>
           <span :class="question.cssClasses.noFileChosen" v-if="question.isEmpty()">{{question.noFileChosenCaption}}</span>             
         </div>
         <button type="button" v-if="!question.isReadOnly && !question.isEmpty()" :class="question.cssClasses.removeButton" @click="doClean">{{question.cleanButtonCaption}}</button>
         <div v-if="!question.isEmpty()">
             <span v-for="(val, index) in question.previewValue" :key="question.inputId + '_' + index" v-show="val" :class="question.cssClasses.preview">
-                <div v-if="val.name">
+                <div v-if="val.name" :class="question.cssClasses.fileSign">
                   <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
                 </div>
                 <img v-if="question.canPreviewImage(val)" :src="val.content" :height="question.imageHeight" :width="question.imageWidth" alt="File preview">
-                <div v-if="val.name">
-                  <span v-if="!question.isReadOnly" @click="doRemoveFile(val)" :class="question.cssClasses.removeFile">{{question.removeFileCaption}}</span>
+                <div v-if="val.name && !question.isReadOnly">
+                  <span @click="doRemoveFile(val)" :class="question.cssClasses.removeFile">{{question.removeFileCaption}}</span>
+                  <svg  @click="doRemoveFile(val)" :class="question.cssClasses.removeFileSvg" viewBox="0 0 14 14"></svg>                
+                </div>
+                  <div v-if="val.name" :class="question.cssClasses.fileSignBottom">
+                  <a :href="val.content" :title="val.name" :download="val.name" :width="question.imageWidth">{{val.name}}</a>
                 </div>
             </span>
         </div>
+        <button type="button" v-if="!question.isReadOnly && !question.isEmpty()" :class="question.cssClasses.removeButtonBottom" @click="doClean">{{question.cleanButtonCaption}}</button>
     </div>
 </template>
 

@@ -57,7 +57,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var preview = this.renderPreview();
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();
-    var clearButton = null;
+    var clearButton = this.renderClearButton(this.question.cssClasses.removeButton);
+    var clearButtonBottom = this.renderClearButton(this.question.cssClasses.removeButtonBottom);
     fileInput = (
       <input
         disabled={this.isDisplayMode}
@@ -72,23 +73,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         accept={this.question.acceptedTypes}
       />
     );
-    if (!this.question.isEmpty() && !this.isDisplayMode) {
-      clearButton = (
-        <button
-          type="button"
-          onClick={this.handleOnClean}
-          className={this.question.cssClasses.removeButton}
-        >
-          {this.question.cleanButtonCaption}
-        </button>
-      );
-    }
     return (
       <div className={this.state.rootClass}>
         {fileInput}
         {fileDecorator}
         {clearButton}
         {preview}
+        {clearButtonBottom}
       </div>
     );
   }
@@ -121,26 +112,38 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </div>
     );
   }
+  protected renderClearButton(className: string): JSX.Element {
+    return !this.question.isEmpty() && !this.isDisplayMode ? (
+      <button
+        type="button"
+        onClick={this.handleOnClean}
+        className={className}
+      >
+        {this.question.cleanButtonCaption}
+      </button>
+    ) : null;
+  }
   protected renderPreview(): JSX.Element {
     if (!this.question.previewValue) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
+      var fileSign = (
+        <a
+          href={val.content}
+          title={val.name}
+          download={val.name}
+          style={{ width: this.question.imageWidth + "px" }}
+        >
+          {val.name}
+        </a>
+      );
       return (
         <span
           key={this.question.inputId + "_" + index}
           className={this.question.cssClasses.preview}
         >
           {val.name ? (
-            <div>
-              <a
-                href={val.content}
-                title={val.name}
-                download={val.name}
-                style={{ width: this.question.imageWidth + "px" }}
-              >
-                {val.name}
-              </a>
-            </div>
+            <div className={this.question.cssClasses.fileSign}>{fileSign}</div>
           ) : null}
           {this.question.canPreviewImage(val) ? (
             <img
@@ -150,18 +153,24 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
               alt="File preview"
             />
           ) : null}
-          {val.name ? (
+          {val.name && !this.question.isReadOnly ? (
             <div>
-              {!this.question.isReadOnly ? (
-                <span
-                  className={this.question.cssClasses.removeFile}
-                  onClick={event => this.handleOnRemoveFile(val)}
-                >
-                  {this.question.removeFileCaption}
-                </span>
-              ) : null}
+              <span
+                className={this.question.cssClasses.removeFile}
+                onClick={event => this.handleOnRemoveFile(val)}
+              >
+                {this.question.removeFileCaption}
+              </span>
+              <svg
+                className={this.question.cssClasses.removeFileSvg}
+                onClick={event => this.handleOnRemoveFile(val)}
+                viewBox="0 0 14 14"
+              />
             </div>
           ) : null}
+          <div className={this.question.cssClasses.fileSignBottom}>
+            {fileSign}
+          </div>
         </span>
       );
     });

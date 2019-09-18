@@ -24,15 +24,17 @@
               <img data-bind="attr: { src: $data.content, height: question.imageHeight, width: question.imageWidth }" alt="File preview">
               <!-- /ko -->
               <!-- ko if: $data.name -->
+              <!-- ko ifnot: question.isReadOnly -->
               <div>
-                  <!-- ko ifnot: question.isReadOnly -->
                   <span data-bind="css: question.cssClasses.removeFile, click: question.doremovefile, text: question.removeFileCaption"></span>
-                  <svg data-bind="css: question.cssClasses.removeFileSvg, click: question.doremovefile" viewPort="0 0 14 14"></svg>
-                  <!-- /ko -->
+                  <svg data-bind="css: question.cssClasses.removeFileSvg, click: question.doremovefile" viewBox="0 0 14 14"></svg>
               </div>
+              <!-- /ko -->
+              <!-- ko if: $data.name -->
               <div data-bind="css: question.koCss().fileSignBottom">
                 <a data-bind="style: { width: question.imageWidth + 'px' }, text: $data.name, attr: { href: $data.content, title: $data.name, download: $data.name }"></a>
               </div>
+              <!-- /ko -->
               <!-- /ko -->
           </span>
       </div>

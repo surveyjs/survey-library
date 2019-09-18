@@ -1336,7 +1336,7 @@ QUnit.test(
     var q = new QuestionImagePicker("question1");
     q.endLoadingFromJson();
     var containsStyles = (str: string) =>
-      str.includes("sv_q_imgsel sv_q_imagepicker_inline");
+      str.indexOf("sv_q_imgsel sv_q_imagepicker_inline") > -1;
     assert.equal(containsStyles(q.getItemClass({})), true, "No exception");
     q.multiSelect = true;
     assert.equal(containsStyles(q.getItemClass({})), true, "No exception");

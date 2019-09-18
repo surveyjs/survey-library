@@ -1031,6 +1031,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       for (var i = 0; i < rows.length; i++) {
         this.headerRow.cells.push(this.createTextCell(rows[i].locText));
       }
+      if (this.matrix.hasFooter) {
+        this.headerRow.cells.push(
+          this.createTextCell(this.matrix.getFooterText())
+        );
+      }
     }
     if (this.hasRemoveRow) {
       this.headerRow.cells.push(this.createHeaderCell(null));
@@ -1040,7 +1045,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.showFooter) return;
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.hasRowText) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(
+        this.createTextCell(this.matrix.getFooterText())
+      );
     }
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
@@ -1275,6 +1282,9 @@ export class QuestionMatrixDropdownModelBase
   }
   public get hasRowText(): boolean {
     return true;
+  }
+  public getFooterText(): LocalizableString {
+    return null;
   }
   public get canRemoveRow(): boolean {
     return false;

@@ -30,6 +30,7 @@ You may read this document from the beginning to the end or just navigate to the
 - [Fill the choices from a restful service](#choicesByUrl)
 - [Readonly and EnableIf Expression](#readonly)
 - [Text Processing, dynamic titles and html properties](#textprocessing)
+- [Calculated Values](#calculatedvalues)
 - [Validation, on client and on server](#validation)
 - [Localization and Multilanguage support](#localization)
 - [Extend SurveyJS Elements by adding properties](#addproperties)
@@ -564,7 +565,7 @@ If you feel there is a need in a particular function, then [write us](https://gi
 ### Using asynchron functions in expressions
 You may need to make some calculation or return a result from a server. SurveyJS has to make a request to a web service, wait until it gets the result and continue evaluate the expression. Unfortunately, it can’t be done as it is, since calling and getting the result from a web service is an async operation. If there is one async operation in your flow, then all operations that use it should be async too.
 
-The current version of SurveyJS allows to register an async custom functions. Please not, we decided to use callback approach to support es5 (IE). 
+The current version of SurveyJS allows to register an async custom functions. We decided to use callback approach to support es5 (IE). 
 
 Here is the simplest example of async function:
 ```javascript
@@ -745,7 +746,7 @@ Since v1.0.31, we have introduced readOnly and enableIf property into Panel and 
 
 Pages, panels and question titles, question description, survey completedHtml and loadingHtml properties, html property in html question are all support text processing.
 
-It means you may set a question title as: _"{name}, could you please provide us your e-mail?"_, where the name is the question name.
+It means you may set a question title as: _"{name}, could you please provide us your e-mail?"_, where the name is the question name or [calculated value name](#calculatedvalues).
 
 Please note, SurveyJS will set a question display name. Display name may have different for questions like dropdown, for example, where the value can be "UK" and the display name is "United Kingdom".
 
@@ -759,6 +760,14 @@ Finally, the default template for the question title is: "{title} {required}", y
 
 Please review [the following demo](https://surveyjs.io/Examples/Library/?id=survey-processtext) to play with these and other properties.
 
+<div id="calculatedvalues"></div>
+
+## Calculated Values
+
+Since v1.1.10 you may use calculated values in your text processing. Calculated Value item has three writable properties: **name** (it should be unique), **expression** (value read-only property is calculated based on this expression) and **includeIntoResult** (a Boolean property, false by default. Set it to true, to include it into survey.data). It has one read-only property: **value** (calculated automatically based on expression).
+
+Please, review [the following example](https://surveyjs.io/Examples/Library/?id=survey-calculatedvalues) to see how it works.
+
 <div id="validation"></div>
 
 ## Validation, on client and on server
@@ -768,6 +777,8 @@ Before proceeding to the next page or before completing the survey, SurveyJS Lib
 If you want to validate the value and display an error immediately after a user entered the value into the question, then change the survey property **checkErrorsMode** from the default "onNextPage" to "onValueChanged".
 
 `survey.checkErrorsMode = "onValueChanged";`
+
+Since v1.1.10, SurveyJS supports [async expressions](#conditions-asynfunctions). You may add your own async custom functions into the library that your users can use to create surveys.
 
 <div id="validation-standard"></div>
 

@@ -21,7 +21,11 @@ You may read this document from the beginning to the end or just navigate to the
 - [Survey States, from running to completed](#states)
 - [Survey Data, modify or view Survey results](#data)
 - [Pages, visibility and navigation](#pages)
-- [Questions and Containers visibility. VisibleIf expressions](#visibility)
+- [Questions and Containers conditional visibility, read-only and required questions](#conditions)
+  - [Boolean Expressions](#conditions-expressions)
+  - [Using functions in expressions](#conditions-functions)
+  - [Using asynchron functions in expressions](#conditions-asynfunctions)
+  - [Cascading conditions](#conditions-cascading)
 - [Dynamically filter choices, columns and rows](#itemvaluesfiltering)
 - [Fill the choices from a restful service](#choicesByUrl)
 - [Readonly and EnableIf Expression](#readonly)
@@ -367,13 +371,13 @@ You may see this functionality in action by playing with [this example (the real
 
 ### Clear data for invisible Questions
 
-We started to clear the values for invisible questions on completing survey after many requests from developers. However, if for some reason, you want to keep them then set the **clearInvisibleValues** property from "onComplete" into "none". There is another valid value for this property "onHidden", it is useful if you have a cascade condition in **visibleIf** expressions. Please read more about it in [Questions and Containers Visibility Sections](#visibility).
+We started to clear the values for invisible questions on completing survey after many requests from developers. However, if for some reason, you want to keep them then set the **clearInvisibleValues** property from "onComplete" into "none". There is another valid value for this property "onHidden", it is useful if you have a cascade condition in **visibleIf** expressions. Please read more about it in [Questions and Containers Visibility Sections](#conditions).
 
 <div id="data-variables"></div>
 
 ### Using variables
 
-SurveyJS has variable concepts. You may use variables in [expressions](#visibility) and [text processing](#textprocessing). The main difference from values, they are not used by questions and they are not stored in survey data, so they are not in the survey results.
+SurveyJS has variable concepts. You may use variables in [expressions](#conditions) and [text processing](#textprocessing). The main difference from values, they are not used by questions and they are not stored in survey data, so they are not in the survey results.
 
 To create a new value or change its value, call **survey.setVariable("variablename", value)** to get the variable value call **survey.getVariable("variablename")**.
 
@@ -425,7 +429,7 @@ If you are not going to ask your users couple questions, then very likely you wo
 
 Questions and Panels (container) are located on pages. Every survey should have at least one visible page.
 
-The page is visible if: its **visible** property equals to true (the default value), **visibleIf** property (to learn more about visibileIf expression please go to [this section](#visibility)) is empty or its expression returns true and there is at least one visible question on this page. SurveyJS doesn’t show pages where there are no visible questions, it skips them automatically.
+The page is visible if: its **visible** property equals to true (the default value), **visibleIf** property (to learn more about visibileIf expression please go to [this section](#conditions)) is empty or its expression returns true and there is at least one visible question on this page. SurveyJS doesn’t show pages where there are no visible questions, it skips them automatically.
 
 You may use two properties to get the survey pages: **survey.pages** and **survey.visiblePages**. As you can see from their names, the first returns the list of all pages and the second on is the list of visible pages only. Users are navigating through visible pages and this array may be changed while user runs the survey.
 
@@ -468,22 +472,23 @@ Another popular functionality, you may show all questions on one page. It is a p
 One of the most popular request is to skip Page X in the survey. The reason of this request, because some survey engines, including the most popular ones, provides the skip pages functionality. Again, the reason they do it, because they are using the old client-server web technologies and SurveyJS on opposite is open JavaScript Library. You may set the visibility expression on page or panel or question level and if this page expression returns false then the page becomes invisible and user skips it. As well as, all questions on the page are invisible then the page becomes invisible too. Please read the next section to find out more about visibility expressions.
 
 <div id="visibility"></div>
+<div id="conditions"></div>
 
-## Questions and Containers visibility. VisibleIf expressions
+## Questions and Containers conditional visibility, read-only and required questions.
 
-If you have a relative complex survey or form, then you will have to implement some visibility logic. For example, you may want to ask different questions based on age or gender, for loyal or unhappy customers, and so on.
+If you have a relative complex survey or form, then you will have to implement some logic. For example, you may want to ask different questions based on age or gender, for loyal or unhappy customers, and so on. You may make some questions read-only or required based on answers in other questions.
 
-We have created a powerful and flexible expression engine. We do not remember a case that can’t be solved by using it. Let’s talk about it in this section.
+We have created a powerful and flexible expression engine. We are using [PEG.js](https://pegjs.org/) parser generator. We do not remember a case that can’t be solved by using it. Let’s talk about it in this section.
 
-<div id="visibility-expressions"></div>
+<div id="conditions-expressions"></div>
 
-### Basic Expressions
+### Boolean Expressions
 
-Questions, panels and pages has visibleIf property. It is empty by default and it means the element visibility is defined by visible property (true/false). In case of container (panel and page), it becomes invisible if there is no any visible question in it.
+Questions, panels and pages have visibleIf, enableIf and requriedIf properties. They are empty by default and it means the element visibility, read-only and requried are defined by visible/read-only and isRequired properties (true/false). In case of container (panel and page), it becomes invisible if there is no any visible question in it.
 
-Before rendering the first page, SurveyJS parses all visibleIf expressions, creates the expression trees and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns false, the element becomes invisible, if it returns true – visible. The question values should be in braces: _{yourQuestionValueName}_.
+Before rendering the first page, SurveyJS parses all boolean expressions (visibleIf, enableIf and requriedIf), creates the expression trees and run all expressions. Later, SurveyJS runs all expressions after any value change. If the expression returns false, the element becomes invisible (or read-only or non requried), if it returns true – visible (or enabled or required). The question values should be in braces: _{yourQuestionValueName}_.
 
-Here are some examples.
+Here are some examples of boolean expressions.
 
 | Expression | Description |
 | --- | --- |
@@ -510,7 +515,7 @@ Regarding visibility of cells inside matrix dynamic and matrix dropdown. There m
 
 The similar story about panel dynamic. To access questions value on the same panel in the expression, you must use prefix "panel": _{panel.questionName}_
 
-<div id="visibility-functions"></div>
+<div id="conditions-functions"></div>
 
 ### Using functions in expressions
 
@@ -554,7 +559,80 @@ Here is the list of built-in functions:
 
 If you feel there is a need in a particular function, then [write us](https://github.com/surveyjs/surveyjs/issues) about it.
 
-<div id="visibility-cascading"></div>
+<div id="conditions-asynfunctions"></div>
+
+### Using asynchron functions in expressions
+You may need to make some calculation or return a result from a server. SurveyJS has to make a request to a web service, wait until it gets the result and continue evaluate the expression. Unfortunately, it can’t be done as it is, since calling and getting the result from a web service is an async operation. If there is one async operation in your flow, then all operations that use it should be async too.
+
+The current version of SurveyJS allows to register an async custom functions. Please not, we decided to use callback approach to support es5 (IE). 
+
+Here is the simplest example of async function:
+```javascript
+ function asyncFunc(params: any): any {
+   var self = this; //store the context for this.returnResult callback
+   setTimeout(function() {
+       //return the value via callback
+       self.returnResult(yourValue)
+    }, 100);
+    return false; //The value on this return is ignored.
+  }
+  //the third parameters tells that function is async
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+```
+
+Here is the real example, that checks if the entered country name is exists or not. We can use this function in an expression validator.
+```javascript
+async function isCountryExist(params) {
+  if (params.length < 1) {
+    this.returnResult(false);
+      return false;
+  }
+  var countryName = params[0];
+  var self = this;
+  var res = await $.ajax({
+    url: "https://restcountries.eu/rest/v2/all"
+  }).then(function(data) {
+    var found = false;
+    var countries = data;
+    for (var i = 0; i < countries.length; i++) {
+      if (countries[i].name == countryName) {
+        found = true;
+        break;
+      }
+    }
+    self.returnResult(found);
+  });
+  return false;
+}
+Survey.FunctionFactory.Instance.register(
+  "isCountryExist",
+  isCountryExist,
+  true
+);
+
+//Example of using
+var json = {
+  questions: [
+    {
+      type: "text",
+      name: "country",
+      title: "Type a country:",
+      validators: [
+        {
+          type: "expression",
+          expression: "isCountryExist({country}) = true",
+          text: "Please type the country correctly!"
+        }
+      ]
+    }
+  ]
+};
+var survey = new Survey.Survey(json); 
+```
+
+Here is [a live example](https://surveyjs.io/Examples/Library/?id=questiontype-expression-async) on our site of using async expressions.
+
+<div id="conditions-cascading"></div>
 
 ### Cascading conditions
 
@@ -812,7 +890,7 @@ Since this topic is mostly for our Survey Creator users, it is described in [Sur
 
 Initially the triggers concept has been created to control the questions and pages visibility. On changing a value of a question, the trigger that depends on this value executed and make an element visible or invisible depending on options.
 
-Later, after the [visibleIf](#visibility) property has been added, bringing more flexibility into controlling the visibility, the visible trigger becomes obsolete. It is still available and working, but we highly recommend do not use it and use the [visibleIf](#visibility) property instead.
+Later, after the [visibleIf](#conditions) property has been added, bringing more flexibility into controlling the visibility, the visible trigger becomes obsolete. It is still available and working, but we highly recommend do not use it and use the [visibleIf](#conditions) property instead.
 
 However, at that time we have already other triggers available and even continue to introduce new since it helps people to achieve the needed results without need to write JavaScript code.
 
@@ -860,4 +938,4 @@ If the expression is successful, then it runs the expression in the **runExpress
 ---
 **visible**
 
-Obsolete, use the [visibleIf](#visibility) property instead.
+Obsolete, use the [visibleIf](#conditions) property instead.

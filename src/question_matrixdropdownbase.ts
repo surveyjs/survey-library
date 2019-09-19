@@ -970,6 +970,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get showFooter(): boolean {
     return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
   }
+  public get hasFooter(): boolean {
+    return !!this.footerRow;
+  }
   public get hasRemoveRow(): boolean {
     return this.hasRemoveRowValue;
   }

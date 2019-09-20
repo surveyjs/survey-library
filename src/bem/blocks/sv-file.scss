@@ -31,13 +31,12 @@
 }
 .sv-file__remove-svg {
   position: absolute;
-  border-radius: 100%;
-  background-color: #ff1800;
+  fill: #ff1800;
   cursor: pointer;
-  height: 14px;
+  height: 16px;
   top: 0;
   right: 0;
-  width: 14px;
+  width: 16px;
 }
 .sv-file__sign a {
   color: $text-color;

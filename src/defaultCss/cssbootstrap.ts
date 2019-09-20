@@ -40,7 +40,8 @@ export var defaultBootstrapCss = {
     required: "",
     titleRequired: "",
     hasError: "has-error",
-    indent: 20
+    indent: 20,
+    formGroup: "form-group"
   },
   panel: {
     title: "sv_p_title",
@@ -167,7 +168,9 @@ export var defaultBootstrapCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
     removeFile: "sv_q_file_remove",
-    fileDecorator: "sv-hidden"
+    fileDecorator: "sv-hidden",
+    fileSignBottom: "sv-hidden",
+    removeFileBottom: "sv-hidden"
   },
   saveData: {
     root: "",

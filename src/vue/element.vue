@@ -4,7 +4,7 @@
     <div :class="getContentClass(element)">
       <survey-errors v-if="hasErrorsOnTop" :question="element" :location="'top'" />
       <component :is="getWidgetComponentName(element)" :question="element" :css="css" />
-      <div v-if="element.hasComment">
+      <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
         <div>{{element.commentText}}</div>
         <survey-other-choice :commentClass="css.comment" :question="element" />
       </div>

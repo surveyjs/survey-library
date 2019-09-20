@@ -191,7 +191,7 @@ export class SurveyQuestion extends SurveyElementBase {
     // );
     var commentText = this.question.commentText;
     return (
-      <div className="form-group">
+      <div className={this.question.cssClasses.formGroup}>
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}

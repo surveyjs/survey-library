@@ -200,7 +200,7 @@ export var bemCss = {
     disabled: "sv-file__choose-btn--disabled",
     removeButton: "sv-hidden",
     removeButtonBottom: "sv-btn sv-file__clean-btn",
-    removeFile: "sv-file__remove-file",
+    removeFile: "sv-hidden",
     removeFileSvg: "sv-file__remove-svg"
   },
   saveData: {

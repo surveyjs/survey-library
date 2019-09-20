@@ -1248,7 +1248,22 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-
+  public isValid(): boolean {
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      let questions = panels[i].questions;
+      for (var j = 0; j < questions.length; j++) {
+        let question = questions[j];
+        if (
+          question.isVisible &&
+          question.parent.isVisible &&
+          !question.isValid()
+        )
+          return false;
+      }
+    }
+    return true;
+  }
   private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
     var panels = this.panels;

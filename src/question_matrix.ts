@@ -352,6 +352,15 @@ export class QuestionMatrixModel
     }
     return true;
   }
+  public isValid(): boolean {
+    var rows = this.generatedVisibleRows;
+    if (!rows) rows = this.visibleRows;
+    if (!rows || !this.value) return false;
+    for (var i = 0; i < rows.length; i++) {
+      if (!this.value.hasOwnProperty(rows[i].name)) return false;
+    }
+    return true;
+  }
   protected createMatrixRow(
     item: ItemValue,
     fullName: string,

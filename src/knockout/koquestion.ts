@@ -78,13 +78,13 @@ export class QuestionImplementor extends ImplementorBase {
         (question.hasTitleOnLeft ? " " + question.koCss().contentLeft : "")
       );
     });
-    (<any>this.question)["koTitleClass"] = ko.pureComputed(function() {
+    (<any>this.question)["koTitleClass"] = ko.computed(function() {
       var question = self.question;
       var cssClasses = question.cssClasses;
       var result = cssClasses.title;
       if (question.hasError) {
         result += " " + cssClasses.titleOnError;
-      } else if (!question.isEmpty()) {
+      } else if (question.isValid()) {
         result += " " + cssClasses.titleOnAnswer;
       }
       return result;

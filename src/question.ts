@@ -1046,6 +1046,9 @@ export class Question extends SurveyElement
   /**
    * Returns true if the question value is empty
    */
+  public isValid(): boolean {
+    return !this.isEmpty();
+  }
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
   }

@@ -1090,6 +1090,9 @@ export class Question extends SurveyElement
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
+      if(!!this.survey) {
+        this.survey.beforeSettingQuestionErrors(this, errors);
+      }
       this.errors = errors;
     }
     return errors.length > 0;

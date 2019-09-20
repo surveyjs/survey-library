@@ -294,8 +294,20 @@ export class SurveyModel extends Base
    * <br/> options.value the current question value
    * <br/> options.error an error string. It is empty by default.
    * @see onServerValidateQuestions
+   * @see onSettingQuestionErrors
    */
   public onValidateQuestion: Event<
+    (sender: SurveyModel, options: any) => any,
+    any
+  > = new Event<(sender: SurveyModel, options: any) => any, any>();
+  /**
+   * The event is fired before errors are setting into question. You may add/remove/modify errors for a question.
+   * <br/> sender the survey object that fires the event
+   * <br/> options.question a question
+   * <br/> options.errors the list of errors. The list can be empty if by default there is no errors
+   * @see onValidateQuestion
+   */
+  public onSettingQuestionErrors: Event<
     (sender: SurveyModel, options: any) => any,
     any
   > = new Event<(sender: SurveyModel, options: any) => any, any>();
@@ -995,6 +1007,26 @@ export class SurveyModel extends Base
   }
   public set requiredText(val: string) {
     this.setPropertyValue("requiredText", val);
+  }
+  /**
+   * Set this property to true to make all requried errors invisible
+   */
+  public hideRequiredErrors: boolean = false;
+  beforeSettingQuestionErrors(
+    question: IQuestion,
+    errors: Array<SurveyError>
+  ): void {
+    if (this.hideRequiredErrors) {
+      for (var i = 0; i < errors.length; i++) {
+        if (errors[i].getErrorType() == "required") {
+          errors[i].visible = false;
+        }
+      }
+    }
+    this.onSettingQuestionErrors.fire(this, {
+      question: question,
+      errors: errors
+    });
   }
   /**
    * By default the first question index is 1. You may start it from 100 or from 'A', by setting 100 or 'A' to this property.

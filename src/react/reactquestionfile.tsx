@@ -45,7 +45,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!(window as any)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
-    for (let i = 0; i < src.files.length; i++) {
+    let allowCount = this.question.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
       files.push(src.files[i]);
     }
     src.value = "";
@@ -57,8 +58,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var preview = this.renderPreview();
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();
-    var clearButton = this.renderClearButton(this.question.cssClasses.removeButton);
-    var clearButtonBottom = this.renderClearButton(this.question.cssClasses.removeButtonBottom);
+    var clearButton = this.renderClearButton(
+      this.question.cssClasses.removeButton
+    );
+    var clearButtonBottom = this.renderClearButton(
+      this.question.cssClasses.removeButtonBottom
+    );
     fileInput = (
       <input
         disabled={this.isDisplayMode}
@@ -114,11 +119,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderClearButton(className: string): JSX.Element {
     return !this.question.isEmpty() && !this.isDisplayMode ? (
-      <button
-        type="button"
-        onClick={this.handleOnClean}
-        className={className}
-      >
+      <button type="button" onClick={this.handleOnClean} className={className}>
         {this.question.cleanButtonCaption}
       </button>
     ) : null;

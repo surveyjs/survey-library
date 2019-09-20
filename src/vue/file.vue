@@ -61,7 +61,8 @@ export class File extends QuestionVue<QuestionFileModel> {
     if (!(<any>window)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
-    for (let i = 0; i < src.files.length; i++) {
+    let allowCount = this.question.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
       files.push(src.files[i]);
     }
     src.value = "";

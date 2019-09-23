@@ -794,29 +794,13 @@ QUnit.test("Numeric validation and with 0, Bug #462", function(assert) {
   mText.value = 0;
   assert.equal(mText.hasErrors(), true, "0 is less then 1");
 });
-QUnit.test("add Email validator", function(assert) {
+QUnit.test("Use Email validator for inputType = email", function(assert) {
   var mText = new QuestionTextModel("");
   assert.equal(mText.validators.length, 0);
   mText.inputType = "email";
-  assert.equal(mText.validators.length, 1);
-  assert.equal(mText.validators[0].getType(), "emailvalidator");
-
-  var survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "text",
-            name: "question1",
-            inputType: "email"
-          }
-        ]
-      }
-    ]
-  });
-  var q = <QuestionTextModel>survey.getQuestionByName("question1");
-  assert.equal(q.validators.length, 0);
+  mText.value = "1";
+  assert.equal(mText.validators.length, 0, "There is no validators");
+  assert.equal(mText.hasErrors(), true, "Email is wrong");
 });
 
 QUnit.test("Validators for multiple text question", function(assert) {

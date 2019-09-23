@@ -1065,6 +1065,9 @@ export class Question extends SurveyElement
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);
   }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
+  }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
   }
@@ -1090,7 +1093,7 @@ export class Question extends SurveyElement
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
-      if(!!this.survey) {
+      if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
       }
       this.errors = errors;

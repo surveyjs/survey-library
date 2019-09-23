@@ -170,6 +170,9 @@ export class MultipleTextItemModel extends Base
   public set validators(val: Array<SurveyValidator>) {
     this.editor.validators = val;
   }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
+  }
   /**
    * The item value.
    */
@@ -207,7 +210,9 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
-  getVariable(name: string): any { return undefined;}
+  getVariable(name: string): any {
+    return undefined;
+  }
   setVariable(name: string, newValue: any) {}
   getComment(name: string): string {
     return null;

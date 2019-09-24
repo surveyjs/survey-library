@@ -180,7 +180,7 @@ export var defaultStandardCss = {
     removeFileSvg: "sv-hidden",
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
-    removeFileBottom: "sv-hidden"
+    removeButtonBottom: "sv-hidden"
   },
   saveData: {
     root: "",

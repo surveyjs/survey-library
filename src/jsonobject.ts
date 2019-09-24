@@ -897,6 +897,15 @@ export class JsonObject {
     return this.toJsonObjectCore(obj, null, storeDefaults);
   }
   public toObject(jsonObj: any, obj: any) {
+    this.toObjectCore(jsonObj, obj);
+    if (!!obj.getType) {
+      var error = this.getRequiredError(jsonObj, obj.getType());
+      if (!!error) {
+        this.addNewError(error, jsonObj);
+      }
+    }
+  }
+  public toObjectCore(jsonObj: any, obj: any) {
     if (!jsonObj) return;
     var properties = null;
     var objType = undefined;
@@ -1041,7 +1050,7 @@ export class JsonObject {
     }
     var newObj = this.createNewObj(value, property);
     if (newObj.newObj) {
-      this.toObject(value, newObj.newObj);
+      this.toObjectCore(value, newObj.newObj);
       value = newObj.newObj;
     }
     if (!newObj.error) {
@@ -1097,20 +1106,7 @@ export class JsonObject {
   ): JsonError {
     var error = null;
     if (newObj) {
-      var requiredProperties = JsonObject.metaData.getRequiredProperties(
-        className
-      );
-      if (requiredProperties) {
-        for (var i = 0; i < requiredProperties.length; i++) {
-          if (!value[requiredProperties[i]]) {
-            error = new JsonRequiredPropertyError(
-              requiredProperties[i],
-              className
-            );
-            break;
-          }
-        }
-      }
+      error = this.getRequiredError(value, className);
     } else {
       if (property.baseClassName) {
         if (!className) {
@@ -1130,6 +1126,18 @@ export class JsonObject {
       this.addNewError(error, value);
     }
     return error;
+  }
+  private getRequiredError(value: any, className: string): JsonError {
+    var requiredProperties = JsonObject.metaData.getRequiredProperties(
+      className
+    );
+    if (!requiredProperties) return null;
+    for (var i = 0; i < requiredProperties.length; i++) {
+      if (!value[requiredProperties[i]]) {
+        return new JsonRequiredPropertyError(requiredProperties[i], className);
+      }
+    }
+    return null;
   }
   private addNewError(error: JsonError, jsonObj: any) {
     if (jsonObj && jsonObj[JsonObject.positionPropertyName]) {
@@ -1152,7 +1160,7 @@ export class JsonObject {
           newValue.newObj.name = value[i].name;
         }
         obj[key].push(newValue.newObj);
-        this.toObject(value[i], newValue.newObj);
+        this.toObjectCore(value[i], newValue.newObj);
       } else {
         if (!newValue.error) {
           obj[key].push(value[i]);

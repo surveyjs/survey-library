@@ -170,7 +170,9 @@ export var defaultBootstrapCss = {
     removeFile: "sv_q_file_remove",
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
-    removeFileBottom: "sv-hidden"
+    removeFileBottom: "sv-hidden",
+    removeFileSvg: "sv-hidden"
+
   },
   saveData: {
     root: "",

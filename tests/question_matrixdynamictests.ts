@@ -3098,3 +3098,51 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc");
   }
 );
+QUnit.test("Check is answered", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 2,
+        columns: [
+          {
+            name: "col1",
+            cellType: "boolean"
+          }
+        ]
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  question.value = [{ "col1": true }, {}];
+  assert.equal(question.checkIsAnswered(), false);
+  question.value = [{ "col1": true }, { "col1": false }];
+  assert.equal(question.checkIsAnswered(), true);
+  json = {
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "boolean"
+          },
+          {
+            name: "col2",
+            cellType: "boolean"
+          }
+        ]
+      }
+    ]
+  };
+  survey = new SurveyModel(json);
+  question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  question.value = [{ "col1": true , "col2": false }];
+  assert.equal(question.checkIsAnswered(), true);
+  question.value = [{ "col1": true }];
+  assert.equal(question.checkIsAnswered(), false);
+});

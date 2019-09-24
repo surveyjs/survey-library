@@ -222,6 +222,9 @@ export class QuestionMatrixModel
     this.setPropertyValue("rowsOrder", val);
     this.onRowsChanged();
   }
+  protected setNewValue(val: any) {
+    super.setNewValue(val);
+  }
   getRows(): Array<any> {
     return this.rows;
   }
@@ -342,6 +345,9 @@ export class QuestionMatrixModel
     if (!this.isAllRowRequired) return false;
     return !this.hasValuesInAllRows();
   }
+  public checkIsAnswered(): boolean {
+    return this.hasValuesInAllRows();
+  }
   private hasValuesInAllRows(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
@@ -349,15 +355,6 @@ export class QuestionMatrixModel
     for (var i = 0; i < rows.length; i++) {
       var val = rows[i].value;
       if (!val) return false;
-    }
-    return true;
-  }
-  public isValid(): boolean {
-    var rows = this.generatedVisibleRows;
-    if (!rows) rows = this.visibleRows;
-    if (!rows || !this.value) return false;
-    for (var i = 0; i < rows.length; i++) {
-      if (!this.value.hasOwnProperty(rows[i].name)) return false;
     }
     return true;
   }

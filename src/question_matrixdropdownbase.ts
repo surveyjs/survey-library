@@ -1787,6 +1787,20 @@ export class QuestionMatrixDropdownModelBase
     }
     return true;
   }
+  public checkIsAnswered():boolean {
+    var rows = this.generatedVisibleRows;
+    if (!rows) return false;
+    for (var i = 0; i < rows.length; i++) {
+      var cells = rows[i].cells;
+      if (!cells) continue;
+      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+        if (!cells[colIndex]) continue;
+        var question = cells[colIndex].question;
+        if (question && question.isVisible && !question.checkIsAnswered()) return false;
+      }
+    }
+    return true;
+  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);
     this.hasError = super.hasErrors(fireCallback) || errosInColumns;

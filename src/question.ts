@@ -1043,12 +1043,12 @@ export class Question extends SurveyElement
   protected setComment(newValue: string) {
     this.setNewComment(newValue);
   }
+  public checkIsAnswered(): boolean {
+    return !this.isEmpty();
+  }
   /**
    * Returns true if the question value is empty
    */
-  public isValid(): boolean {
-    return !this.isEmpty();
-  }
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
   }
@@ -1083,7 +1083,12 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
-
+  public get isAnswered(): boolean {
+    return this.getPropertyValue("isAnswered");
+  }
+  public set isAnswered(val: boolean) {
+    this.setPropertyValue("isAnswered", val);
+  }
   public get hasError(): boolean {
     return this.getPropertyValue("hasError");
   }
@@ -1205,6 +1210,7 @@ export class Question extends SurveyElement
   protected setNewValue(newValue: any) {
     this.setNewValueInData(newValue);
     this.onValueChanged();
+    this.isAnswered = this.checkIsAnswered();
   }
   protected locNotificationInData = false;
   protected setNewValueInData(newValue: any) {

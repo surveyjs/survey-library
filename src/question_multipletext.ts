@@ -181,6 +181,7 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(this.name, value);
     }
   }
+  public checkIsAnswered() {}
   public isEmpty() {
     return Helpers.isValueEmpty(this.value);
   }
@@ -427,6 +428,13 @@ export class QuestionMultipleTextModel extends Question
       if (this.items[i].editor.isRunningValidators) return true;
     }
     return false;
+  }
+  public checkIsAnswered(): boolean {
+    for (var i = 0; i < this.items.length; i++) {
+      var editor = this.items[i].editor;
+      if (editor.isVisible && !editor.checkIsAnswered()) return false;
+    }
+    return true;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var res = super.hasErrors(fireCallback);

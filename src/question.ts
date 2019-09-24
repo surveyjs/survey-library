@@ -507,12 +507,10 @@ export class Question extends SurveyElement
         this.useDisplayValuesInTitle
       );
     }
-    var requireText = this.requiredText;
-    if (requireText) requireText = " " + requireText;
     if (!text) {
       text = this.name;
     }
-    return text + requireText;
+    return text;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.
@@ -1065,6 +1063,9 @@ export class Question extends SurveyElement
   public set validators(val: Array<SurveyValidator>) {
     this.setPropertyValue("validators", val);
   }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
+  }
   public addConditionNames(names: Array<string>) {
     names.push(this.name);
   }
@@ -1090,6 +1091,9 @@ export class Question extends SurveyElement
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
+      if (!!this.survey) {
+        this.survey.beforeSettingQuestionErrors(this, errors);
+      }
       this.errors = errors;
     }
     return errors.length > 0;

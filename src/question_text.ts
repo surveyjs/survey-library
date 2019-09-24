@@ -3,7 +3,7 @@ import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { Helpers } from "./helpers";
-import { EmailValidator } from "./validator";
+import { EmailValidator, SurveyValidator } from "./validator";
 
 /**
  * A Model for an input text question.
@@ -26,13 +26,16 @@ export class QuestionTextModel extends Question {
     val = val.toLowerCase();
     if (val == "datetime_local") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
+  }
+  public getValidators(): Array<SurveyValidator> {
+    var validators = super.getValidators();
     if (
-      !this.isLoadingFromJson &&
-      val === "email" &&
+      this.inputType === "email" &&
       !this.validators.some(v => v.getType() === "emailvalidator")
     ) {
-      this.validators.push(new EmailValidator());
+      validators.push(new EmailValidator());
     }
+    return validators;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;

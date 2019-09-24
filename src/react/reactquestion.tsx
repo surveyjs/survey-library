@@ -154,6 +154,9 @@ export class SurveyQuestion extends SurveyElementBase {
         {number}
         {delimiter}
         {titleText}
+        <span className={cssClasses.requiredText}>
+          {this.question.requiredText}
+        </span>
       </h5>
     );
   }

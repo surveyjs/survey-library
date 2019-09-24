@@ -959,6 +959,26 @@ QUnit.test("Deserialization - required property error", function(assert) {
     "requiredproperty",
     "The required property error"
   );
+
+  Serializer.addProperty("dealer", "!foo");
+  jsonObj = new JsonObject();
+  jsonObj.toObject({}, dealer);
+  assert.equal(
+    jsonObj.errors.length,
+    1,
+    "dealer: there should be one error about required property"
+  );
+  assert.equal(
+    jsonObj.errors[0].type,
+    "requiredproperty",
+    "dealer: The required property error"
+  );
+  assert.equal(
+    jsonObj.errors[0].message.indexOf("foo") > -1,
+    true,
+    "dealer: show that 'foo' is missing:" + jsonObj.errors[0].message
+  );
+  Serializer.removeProperty("dealer", "foo");
 });
 QUnit.test("Deserialization - required property error", function(assert) {
   var children = Serializer.getChildrenClasses("car");
@@ -1759,6 +1779,7 @@ QUnit.test("Extend ItemValue via inheritance with custom property", function(
   var jsonObject = new JsonObject();
   jsonObject.toObject(
     {
+      name: "q1",
       customArray: [
         { value: 7, text: "Item 1", points: 5 },
         5,

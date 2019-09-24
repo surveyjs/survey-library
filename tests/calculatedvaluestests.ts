@@ -67,3 +67,16 @@ QUnit.test("Include into result", function(assert) {
   survey.calculatedValues[0].includeIntoResult = true;
   assert.deepEqual(survey.data, { q1: 1, q2: 2, var1: 3 });
 });
+
+QUnit.test("Use complex values in variables, Bug#T2705", function(assert) {
+  var survey = new SurveyModel({});
+  survey.setVariable("obj", { state: "CA" });
+  survey.setVariable("arr", [{ state: "CA" }, { state: "TX" }]);
+  assert.equal(survey.getVariable("obj.state"), "CA", "var1 is calculated");
+  assert.equal(
+    survey.getVariable("arr[0].state"),
+    "CA",
+    "get value from array"
+  );
+  assert.equal(survey.getVariable("arr.length"), 2, "get array length");
+});

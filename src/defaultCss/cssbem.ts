@@ -63,6 +63,7 @@ export var bemCss = {
     titleOnAnswer: "sv-question__title--answer",
     titleOnError: "sv-question__title--error",
     title: "sv-title sv-question__title",
+    requiredText: "sv-question__required-text",
     number: "sv-question__num",
     description: "sv-description sv-question__description",
     comment: "sv-comment",

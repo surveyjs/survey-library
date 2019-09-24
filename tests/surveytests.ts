@@ -42,6 +42,7 @@ import { QuestionExpressionModel } from "../src/question_expression";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem } from "../src/htmlConditionItem";
+import { AnswerRequiredError } from "../src/error";
 
 export default QUnit.module("Survey");
 
@@ -958,7 +959,7 @@ QUnit.test("Multiple Text required items", function(assert) {
   var item1 = multiTextQuestion.addItem("item1");
   var item2 = multiTextQuestion.addItem("item2");
   item1.isRequired = true;
-  assert.equal(item1.fullTitle, "item1 *", "Add isRequired Text");
+  assert.equal(item1.fullTitle, "item1", "Add isRequired Text");
   assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
   assert.equal(
     multiTextQuestion.hasErrors(),
@@ -1954,13 +1955,11 @@ QUnit.test("question fullTitle", function(assert) {
   question.title = "My Title";
   assert.equal(question.fullTitle, "My Title");
   question.isRequired = true;
-  assert.equal(question.fullTitle, "My Title *");
+  assert.equal(question.requiredText, "*");
   survey.questionStartIndex = "100";
   assert.equal(question["no"], 101);
-  assert.equal(question.fullTitle, "My Title *");
   survey.questionStartIndex = "A";
   assert.equal(question["no"], "B");
-  assert.equal(question.fullTitle, "My Title *");
   survey.questionTitleTemplate = "{no}) {title} ({require})";
   assert.equal(question.fullTitle, "My Title (*)");
 });
@@ -3659,7 +3658,7 @@ QUnit.test("Survey Markdown - question title", function(assert) {
   );
 });
 
-QUnit.test("Survey Markdown - question title, if title is empty and question is required", function(assert) {
+QUnit.skip("Survey Markdown - question title, if title is empty and question is required", function(assert) {
   var survey = new SurveyModel();
   survey.setValue("q1", "q1-Value");
   var page = survey.addNewPage("Page 1");
@@ -3718,7 +3717,8 @@ QUnit.test(
     q1.title = "title1";
     assert.equal(q1.locTitle.renderedHtml, "title1", "Just title");
     q1.isRequired = true;
-    assert.equal(q1.locTitle.renderedHtml, "title1 *", "title + required");
+    assert.equal(q1.locTitle.renderedHtml, "title1", "title + required");
+    assert.equal(q1.requiredText, "*", "title + required");
     assert.equal(q1.title, "title1", "We do no have required");
     }
 );
@@ -7867,4 +7867,32 @@ QUnit.test("Expression validators with async functions", function(assert) {
 
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
+QUnit.test("Hide required errors", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  q1.isRequired = true;
+  survey.hideRequiredErrors = true;
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, false, "It is invisible");
+});
+QUnit.test("survey.onSettingQuestionErrors", function(assert) {
+  var survey = twoPageSimplestSurvey();
+  var q1 = survey.getQuestionByName("question1");
+  var q2 = survey.getQuestionByName("question2");
+  q1.isRequired = true;
+  survey.onSettingQuestionErrors.add(function(sender, options){
+    if(options.question.name == "question1") {
+      options.errors[0].visible = false;
+    }
+    if(options.question.name == "question2") {
+      options.errors.push(new AnswerRequiredError());
+    }
+  })
+  survey.nextPage();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].visible, false, "It is invisible");
+  assert.equal(q2.errors.length, 1, "Add one error into second question");
 });

@@ -125,8 +125,8 @@ export class SurveyQuestion extends SurveyElementBase {
           {comment}
           {errorsBottom}
           {descriptionUnderInput}
-          {headerBottom}
         </div>
+        {headerBottom}
       </div>
     );
   }

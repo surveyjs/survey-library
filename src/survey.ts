@@ -3257,7 +3257,13 @@ export class SurveyModel extends Base
   public getVariable(name: string): any {
     if (!name) return null;
     name = name.toLowerCase();
-    return this.variablesHash[name];
+    var res = this.variablesHash[name];
+    if (!Helpers.isValueEmpty(res)) return res;
+    if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
+      if (new ProcessValue().hasValue(name, this.variablesHash))
+        return new ProcessValue().getValue(name, this.variablesHash);
+    }
+    return res;
   }
   /**
    * Sets a variable value. Variable, unlike values, are not stored in the survey results.

@@ -13,6 +13,12 @@
   padding: 0.25em 0.44em;
   height: 1.75em;
   white-space: nowrap;
+  position: relative;
+}
+.sv-question__required-text {
+  font-size: 1.4em;
+  position: absolute;
+  top: 0;
 }
 .sv-question__description {
   padding-left: 0.44em;

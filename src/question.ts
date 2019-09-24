@@ -507,12 +507,10 @@ export class Question extends SurveyElement
         this.useDisplayValuesInTitle
       );
     }
-    var requireText = this.requiredText;
-    if (requireText) requireText = " " + requireText;
     if (!text) {
       text = this.name;
     }
-    return text + requireText;
+    return text;
   }
   /**
    * The Question renders on the new line if the property is true. If the property is false, the question tries to render on the same line/row with a previous question/panel.

@@ -1788,6 +1788,7 @@ export class QuestionMatrixDropdownModelBase
     return true;
   }
   public checkIsAnswered():boolean {
+    if(this.isEmpty()) return false;
     var rows = this.generatedVisibleRows;
     if (!rows) return false;
     for (var i = 0; i < rows.length; i++) {

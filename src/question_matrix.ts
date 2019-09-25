@@ -346,7 +346,7 @@ export class QuestionMatrixModel
     return !this.hasValuesInAllRows();
   }
   public checkIsAnswered(): boolean {
-    return this.hasValuesInAllRows();
+    return !this.isEmpty() && this.hasValuesInAllRows();
   }
   private hasValuesInAllRows(): boolean {
     var rows = this.generatedVisibleRows;

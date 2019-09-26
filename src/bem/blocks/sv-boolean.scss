@@ -2,9 +2,9 @@
   border-radius: 2px;
 }
 .sv-boolean__svg {
-  background-color: $main-color;
   border: none;
   border-radius: 2px;
+  background-color: $main-color;
   fill: white;
 }
 .sv-boolean--allowhover:hover {
@@ -12,8 +12,8 @@
     display: inline-block;
   }
   .sv-boolean__svg {
-    fill: white;
     background-color: $main-hover-color;
+    fill: white;
   }
   .sv-boolean__unchecked-path,
   .sv-boolean__indeterminate-path {
@@ -46,8 +46,8 @@
 }
 .sv-boolean--disabled.sv-boolean--indeterminate {
   .sv-boolean__svg {
-    fill: $disable-color;
     background-color: inherit;
+    fill: $disable-color;
   }
 }
 .sv-boolean--disabled {

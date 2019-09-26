@@ -12,8 +12,8 @@
   }
 }
 .sv-radio--checked .sv-radio__svg {
-  fill: $radio-checked-color;
   border-color: $radio-checked-color;
+  fill: $radio-checked-color;
 }
 .sv-radio--disabled .sv-radio__svg {
   border-color: $disable-color;

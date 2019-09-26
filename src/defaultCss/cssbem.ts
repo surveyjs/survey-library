@@ -7,7 +7,7 @@ export var bemCss = {
   bodyEmpty: "sv-body sv-body--empty",
   footer: "sv-footer sv-body__footer sv-clearfix",
   navigationButton: "",
-  completedPage: "sv-completed-page",
+  completedPage: "sv-completedpage",
   navigation: {
     complete: "sv-btn sv-footer__complete-btn",
     prev: "sv-btn sv-footer__prev-btn",

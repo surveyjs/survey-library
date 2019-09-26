@@ -1,48 +1,44 @@
 .sv-question {
+  overflow: auto;
   box-sizing: border-box;
   font-family: "Segoe UI";
-  overflow: auto;
 }
 .sv-question__title {
-  box-sizing: border-box;
-  cursor: default;
-  font-size: 1.25em;
-  overflow: hidden;
-  margin: 0;
-  text-overflow: ellipsis;
-  padding: 0.25em 0.44em;
-  height: 1.75em;
-  white-space: nowrap;
   position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  height: 1.75em;
+  margin: 0;
+  padding: 0.25em 0.44em;
+  cursor: default;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1.25em;
 }
 .sv-question__required-text {
-  font-size: 1.4em;
   position: absolute;
   top: 0;
+  font-size: 1.4em;
 }
 .sv-question__description {
-  padding-left: 0.44em;
-  font-size: 1em;
-  margin: 0;
   overflow: hidden;
-  text-overflow: ellipsis;
+  margin: 0;
+  padding-left: 0.44em;
   white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 1em;
 }
 .sv-question__input {
-  height: 1.81em;
   width: 100%;
+  height: 1.81em;
 }
 .sv-question__content {
   margin-left: 1.69em;
 }
 .sv-question__erbox {
   color: $error-color;
-  font-weight: bold;
   font-size: 0.74em;
-}
-.sv-question__erbox--location--top {
-}
-.sv-question__erbox--location--bottom {
+  font-weight: bold;
 }
 .sv-question__footer {
   padding: 0.87em 0;

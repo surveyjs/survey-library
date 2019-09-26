@@ -1,6 +1,6 @@
 @mixin svg($background-color, $border-color, $checkmark-color: white) {
-  background-color: $background-color;
   border-color: $border-color;
+  background-color: $background-color;
   fill: $checkmark-color;
 }
 .sv-checkbox__decorator {

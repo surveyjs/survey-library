@@ -18,7 +18,6 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
     return this.questionBase as QuestionDropdownModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
@@ -96,20 +95,17 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionOptionItem extends ReactSurveyElement {
-  private item: ItemValue;
   constructor(props: any) {
     super(props);
-    this.item = props.item;
+  }
+  private get item(): ItemValue {
+    return this.props.item;
   }
   componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {
     this.unMakeBaseElementReact(this.item);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.item = nextProps.item;
   }
   render(): JSX.Element {
     if (!this.item) return;

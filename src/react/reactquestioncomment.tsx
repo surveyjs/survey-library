@@ -19,7 +19,6 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     return this.questionBase as QuestionCommentModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
@@ -32,6 +31,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+
     return (
       <textarea
         id={this.question.inputId}

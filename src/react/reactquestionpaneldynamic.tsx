@@ -18,14 +18,13 @@ import { Question } from "../question";
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
+    this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this);
+    this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this);
+    this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this);
+    this.handleOnRangeChange = this.handleOnRangeChange.bind(this);
   }
   protected get question(): QuestionPanelDynamicModel {
     return this.questionBase as QuestionPanelDynamicModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
   }
   componentDidMount() {
     this.setState({ panelCounter: 0 });
@@ -44,12 +43,6 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     this.question.panelCountChangedCallback = null;
     this.question.currentIndexChangedCallback = null;
     this.question.renderModeChangedCallback = null;
-  }
-  private setProperties(nextProps: any) {
-    this.handleOnPanelAddClick = this.handleOnPanelAddClick.bind(this);
-    this.handleOnPanelPrevClick = this.handleOnPanelPrevClick.bind(this);
-    this.handleOnPanelNextClick = this.handleOnPanelNextClick.bind(this);
-    this.handleOnRangeChange = this.handleOnRangeChange.bind(this);
   }
   private updateQuestionRendering() {
     this.setState({
@@ -231,26 +224,21 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
-  private question: QuestionPanelDynamicModel;
-  private index: number;
-  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
-  }
-  private setProperties(nextProps: any) {
-    this.question = nextProps.question;
-    this.index = nextProps.index;
-    this.creator = nextProps.creator;
-    this.survey = !!this.question
-      ? (this.question.survey as SurveyModel)
-      : null;
-    this.css = surveyCss.getCss();
     this.handleOnPanelRemoveClick = this.handleOnPanelRemoveClick.bind(this);
+  }
+  private get question(): QuestionPanelDynamicModel {
+    return this.props.question;
+  }
+  private get index(): number {
+    return this.props.index;
+  }
+  protected getSurvey(): SurveyModel {
+    return !!this.question ? (this.question.survey as SurveyModel) : null;
+  }
+  protected getCss(): any {
+    return surveyCss.getCss();
   }
   handleOnPanelRemoveClick(event: any) {
     this.question.removePanelUI(this.index);

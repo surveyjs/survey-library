@@ -6,19 +6,18 @@ import { ISurveyCreator } from "./reactquestion";
 import { Base } from "../base";
 
 export class SurveyLocString extends React.Component<any, any> {
-  private locStr: LocalizableString;
-  private style: any = null;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
     this.state = { changed: 0 };
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.setProperties(nextProps);
+  private get locStr(): LocalizableString {
+    return this.props.locStr;
   }
-  private setProperties(props: any) {
-    this.locStr = props.locStr;
-    this.style = props.style;
+  private get style(): any {
+    return this.props.style;
+  }
+  componentDidMount() {
+    if (!this.locStr) return;
     var self = this;
     this.locStr.onChanged = function() {
       self.setState({ changed: self.state.changed + 1 });
@@ -41,13 +40,11 @@ export class SurveyElementBase extends React.Component<any, any> {
   ): JSX.Element {
     return <SurveyLocString locStr={locStr} style={style} />;
   }
-  protected isDisplayMode: boolean;
   constructor(props: any) {
     super(props);
-    this.isDisplayMode = props.isDisplayMode || false;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.isDisplayMode = nextProps.isDisplayMode || false;
+  protected get isDisplayMode(): boolean {
+    return this.props.isDisplayMode || false;
   }
   protected renderLocString(
     locStr: LocalizableString,
@@ -98,29 +95,23 @@ export class SurveyElementBase extends React.Component<any, any> {
 }
 
 export class ReactSurveyElement extends SurveyElementBase {
-  protected cssClasses: any;
   constructor(props: any) {
     super(props);
-    this.cssClasses = props.cssClasses;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.cssClasses = nextProps.cssClasses;
+  protected get cssClasses(): any {
+    return this.props.cssClasses;
   }
 }
 
 export class SurveyQuestionElementBase extends SurveyElementBase {
-  protected questionBase: Question;
-  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.questionBase = props.question;
-    this.creator = props.creator;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.questionBase = nextProps.question;
-    this.creator = nextProps.creator;
+  protected get questionBase(): Question {
+    return this.props.question;
+  }
+  protected get creator(): ISurveyCreator {
+    return this.props.creator;
   }
   public shouldComponentUpdate(): boolean {
     return (

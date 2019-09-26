@@ -12,10 +12,6 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected get question(): QuestionImagePickerModel {
     return this.questionBase as QuestionImagePickerModel;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.handleOnChange = this.handleOnChange.bind(this);
-  }
   handleOnChange(event: any) {
     if (this.question.multiSelect) {
       if (event.target.checked) {

@@ -15,8 +15,8 @@
       >
         <survey-string :locString="element.locDescription" />
       </div>
-      <survey-element-header v-if="element.hasTitleOnBottom" :element="element" />
     </div>
+    <survey-element-header v-if="element.hasTitleOnBottom" :element="element" />
   </div>
 </template>
 

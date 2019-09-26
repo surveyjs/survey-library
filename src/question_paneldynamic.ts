@@ -1185,6 +1185,16 @@ export class QuestionPanelDynamicModel extends Question
       return super.hasErrors(fireCallback) || errosInPanels;
     }
   }
+  protected getContainsErrors(): boolean {
+    var res = super.getContainsErrors();
+    if (res) return res;
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      if (panels[i].containsErrors) return true;
+    }
+    return false;
+  }
+
   public clearValueIfInvisible() {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;

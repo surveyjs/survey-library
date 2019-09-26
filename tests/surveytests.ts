@@ -7896,3 +7896,66 @@ QUnit.test("survey.onSettingQuestionErrors", function(assert) {
   assert.equal(q1.errors[0].visible, false, "It is invisible");
   assert.equal(q2.errors.length, 1, "Add one error into second question");
 });
+
+QUnit.test("Check containsError property", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+            isRequired: true
+          }
+        ],
+        panelCount: 2
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+            isRequired: true
+          }
+        ]
+      },
+      {
+        type: "text",
+        name: "question3",
+        isRequired: true
+      },
+      {
+        type: "multipletext",
+        name: "question4",
+        items: [
+          {name: "q1_m1", isRequired: true}
+        ]
+      }      
+    ]
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var panel = <PanelModel>survey.getPanelByName("panel2");
+  var question = survey.getQuestionByName("question3");
+  var questionMultiple = survey.getQuestionByName("question4");
+
+  assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
+  assert.equal(survey.isCurrentPageHasErrors, true, "The page has Errors");
+  assert.equal(panelDynamic.containsErrors, true, "Dynamic panel contains errros");
+  assert.equal(panel.containsErrors, true, "panel contains errors");
+  assert.equal(question.containsErrors, true, "question contains errors");
+  assert.equal(questionMultiple.items[0].editor.containsErrors, true, "question multiple item contains errors");
+  assert.equal(questionMultiple.containsErrors, true, "question multiple contains errors");
+
+  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}};
+  assert.equal(panelDynamic.containsErrors, true, "contains errros is not updated yet");
+  
+  assert.equal(survey.isCurrentPageHasErrors, false, "The page has no errors");
+  assert.equal(panelDynamic.containsErrors, false, "Dynamic panel contains no errros");
+  assert.equal(panel.containsErrors, false, "panel contains no errors");
+  assert.equal(question.containsErrors, false, "question contains no errors");
+  assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
+});

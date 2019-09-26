@@ -488,6 +488,16 @@ export class PanelModelBase extends SurveyElement
       }
     }
     this.hasErrorsInPanels(rec);
+    this.updateContainsErrors();
+  }
+  protected getContainsErrors(): boolean {
+    var res = super.getContainsErrors();
+    if (res) return res;
+    var elements = this.elements;
+    for (var i = 0; i < elements.length; i++) {
+      if (elements[i].containsErrors) return true;
+    }
+    return false;
   }
   updateElementVisibility() {
     for (var i = 0; i < this.elements.length; i++) {

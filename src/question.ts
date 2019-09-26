@@ -1096,6 +1096,7 @@ export class Question extends SurveyElement
       }
       this.errors = errors;
     }
+    this.updateContainsErrors();
     return errors.length > 0;
   }
   /**

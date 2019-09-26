@@ -835,6 +835,26 @@ QUnit.test(
   }
 );
 
+QUnit.test("Use complex variable, bug#T2705", function(assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("1");
+  var dropDown = new QuestionDropdownModelTester("q1");
+  dropDown.choicesByUrl.url = "{obj.state}";
+  page.addQuestion(dropDown);
+
+  assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
+  survey.setVariable("obj", { state: "ca_cities" });
+  assert.equal(dropDown.visibleChoices.length, 2, "We have two cities now, CA");
+  survey.setVariable("obj", { state: "tx_cities" });
+  assert.equal(
+    dropDown.visibleChoices.length,
+    3,
+    "We have three cities now, TX"
+  );
+  survey.setVariable("obj", null);
+  assert.equal(dropDown.visibleChoices.length, 0, "It is empty again");
+});
+
 QUnit.test(
   "Question in panel dynamic where url is depend on value outside panel, bug#1089",
   function(assert) {

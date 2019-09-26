@@ -408,12 +408,17 @@ export class MatrixDropdownColumn extends Base implements ILocalizableOwner {
     if (getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("totalCurrency", val);
   }
-
   public get minWidth(): string {
     return this.getPropertyValue("minWidth", "");
   }
   public set minWidth(val: string) {
     this.setPropertyValue("minWidth", val);
+  }
+  public get width(): string {
+    return this.getPropertyValue("width", "");
+  }
+  public set width(val: string) {
+    this.setPropertyValue("width", val);
   }
   public get colCount(): number {
     return this.getPropertyValue("colCount", -1);
@@ -917,6 +922,7 @@ export class QuestionMatrixDropdownRenderedCell {
   private static counter = 1;
   private idValue: number;
   public minWidth: string = "";
+  public width: string = "";
   public locTitle: LocalizableString;
   public cell: MatrixDropdownCell;
   public row: MatrixDropdownRowModelBase;
@@ -963,6 +969,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   public get showFooter(): boolean {
     return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
+  }
+  public get hasFooter(): boolean {
+    return !!this.footerRow;
   }
   public get hasRemoveRow(): boolean {
     return this.hasRemoveRowValue;
@@ -1025,6 +1034,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       for (var i = 0; i < rows.length; i++) {
         this.headerRow.cells.push(this.createTextCell(rows[i].locText));
       }
+      if (this.matrix.hasFooter) {
+        this.headerRow.cells.push(
+          this.createTextCell(this.matrix.getFooterText())
+        );
+      }
     }
     if (this.hasRemoveRow) {
       this.headerRow.cells.push(this.createHeaderCell(null));
@@ -1034,7 +1048,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.showFooter) return;
     this.footerRowValue = new QuestionMatrixDropdownRenderedRow();
     if (this.matrix.hasRowText) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(
+        this.createTextCell(this.matrix.getFooterText())
+      );
     }
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
@@ -1137,6 +1153,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ): QuestionMatrixDropdownRenderedCell {
     var cell = this.createTextCell(!!column ? column.locTitle : null);
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : "";
+    cell.width = column != null ? column.width : "";
     return cell;
   }
   private createRemoveRowCell(
@@ -1268,6 +1285,9 @@ export class QuestionMatrixDropdownModelBase
   }
   public get hasRowText(): boolean {
     return true;
+  }
+  public getFooterText(): LocalizableString {
+    return null;
   }
   public get canRemoveRow(): boolean {
     return false;
@@ -2119,6 +2139,7 @@ Serializer.addClass(
     "hasOther:boolean",
     "readOnly:boolean",
     "minWidth",
+    "width",
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

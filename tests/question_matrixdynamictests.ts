@@ -2809,6 +2809,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function(assert) {
 
 QUnit.test("matrix dropdown + renderedTable + totals", function(assert) {
   var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.totalText = "ABC:";
   matrix.addColumn("col1");
   matrix.columns[0].cellType = "text";
   matrix.columns[0].totalType = "count";
@@ -2834,6 +2835,11 @@ QUnit.test("matrix dropdown + renderedTable + totals", function(assert) {
     matrix.renderedTable.footerRow,
     "Footer row not exists, columnLayout is vertical"
   );
+  assert.equal(
+    matrix.renderedTable.headerRow.cells[4].locTitle.renderedHtml,
+    "ABC:",
+    "total text"
+  );
   matrix.columnLayout = "horizontal";
   assert.equal(
     matrix.renderedTable.showFooter,
@@ -2845,8 +2851,8 @@ QUnit.test("matrix dropdown + renderedTable + totals", function(assert) {
   var cells = matrix.renderedTable.footerRow.cells;
   assert.equal(cells.length, 3, "rowHeader + 2 columns");
   assert.equal(cells[0].hasTitle, true, "header rows");
-  assert.equal(cells[0].locTitle.renderedHtml, "", "header rows");
-  assert.equal(cells[0].hasQuestion, false, "header rows, no question");
+  assert.equal(cells[0].locTitle.renderedHtml, "ABC:", "footer rows");
+  assert.equal(cells[0].hasQuestion, false, "footer rows, no question");
   assert.equal(cells[1].hasTitle, false, "total, not title");
   assert.equal(
     cells[1].question.getType(),

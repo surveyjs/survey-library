@@ -11,7 +11,7 @@
           <thead>
               <tr>
                   <!-- ko foreach: question.koTable().headerRow.cells -->
-                  <th data-bind="style: { minWidth: $data.minWidth }, css: question.koCss().headerCell">
+                  <th data-bind="style: { minWidth: $data.minWidth, width: $data.width }, css: question.koCss().headerCell">
                       <!-- ko template: { name: 'survey-string', data: $data.locTitle } -->
                       <!-- /ko -->
                   </th>
@@ -39,7 +39,7 @@
               </tr>
               <!-- /ko -->
           </tbody>
-          <!-- ko if:question.koTable().showFooter -->
+          <!-- ko if:question.koTable().hasFooter -->
           <tfoot>
             <tr>
                 <!-- ko foreach: question.koTable().footerRow.cells -->

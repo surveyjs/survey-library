@@ -57,10 +57,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set totalText(val: string) {
     this.setLocalizableStringText("totalText", val);
   }
-  public get locTotalText() {
+  public get locTotalText(): LocalizableString {
     return this.getLocalizableString("totalText");
   }
-
+  public getFooterText(): LocalizableString {
+    return this.locTotalText;
+  }
   protected getDisplayValueCore(keysAsText: boolean): any {
     var values = this.createValueCopy();
     if (!values) return values;

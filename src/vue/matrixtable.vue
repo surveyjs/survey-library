@@ -6,7 +6,7 @@
           :class="question.cssClasses.headerCell"
           v-for="cell in table.headerRow.cells"
           :key="'header_' + cell.id"
-          :style="{ minWidth: cell.minWidth }"
+          :style="{ minWidth: cell.minWidth, width: cell.width }"
         >
           <survey-string :locString="cell.locTitle" />
         </th>

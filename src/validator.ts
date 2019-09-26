@@ -73,7 +73,7 @@ export class SurveyValidator extends Base {
   }
 }
 export interface IValidatorOwner {
-  validators: Array<SurveyValidator>;
+  getValidators(): Array<SurveyValidator>;
   validatedValue: any;
   getValidatorTitle(): string;
   getDataFilteredValues(): any;
@@ -88,8 +88,9 @@ export class ValidatorRunner {
     var properties = null;
     this.prepareAsyncValidators();
     var asyncResults: Array<SurveyError> = [];
-    for (var i = 0; i < owner.validators.length; i++) {
-      var validator = owner.validators[i];
+    var validators = owner.getValidators();
+    for (var i = 0; i < validators.length; i++) {
+      var validator = validators[i];
       if (!values && validator.isValidateAllValues) {
         values = owner.getDataFilteredValues();
         properties = owner.getDataFilteredProperties();
@@ -106,8 +107,9 @@ export class ValidatorRunner {
         };
       }
     }
-    for (var i = 0; i < owner.validators.length; i++) {
-      var validator = owner.validators[i];
+    validators = owner.getValidators();
+    for (var i = 0; i < validators.length; i++) {
+      var validator = validators[i];
 
       var validatorResult = validator.validate(
         owner.validatedValue,

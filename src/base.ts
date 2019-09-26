@@ -68,6 +68,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
 
   requiredText: string;
+  beforeSettingQuestionErrors(question: IQuestion, errors: Array<SurveyError>): void;
   getQuestionTitleTemplate(): string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
 
@@ -635,6 +636,7 @@ export class Base {
 }
 export class SurveyError {
   private locTextValue: LocalizableString;
+  public visible: boolean = true;
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null

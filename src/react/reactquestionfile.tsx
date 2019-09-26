@@ -19,24 +19,11 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
-  preventDefaults(event: any) {
-    event.preventDefault();
-  }
   handleOnDragOver = (event: any) => {
     event.preventDefault();
-    this.highlight();
-  };
-  handleOnDragEnter = (event: any) => {
-    event.preventDefault();
-    this.highlight();
-  };
-  handleOnDragLeave = (event: any) => {
-    event.preventDefault();
-    this.unhighlight();
   };
   handleOnDrop = (event: any) => {
     event.preventDefault();
-    this.unhighlight();
     let src = event.dataTransfer;
     this.onChange(src);
   };
@@ -58,30 +45,25 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     if (!(window as any)["FileReader"]) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
-    for (let i = 0; i < src.files.length; i++) {
+    let allowCount = this.question.allowMultiple ? src.files.length : 1;
+    for (let i = 0; i < allowCount; i++) {
       files.push(src.files[i]);
     }
     src.value = "";
     this.question.loadFiles(files);
     this.setState({ fileLoaded: this.state.fileLoaded + 1 });
   };
-  private highlight = () => {
-    this.setState({
-      rootClass:
-        this.question.cssClasses.root +
-        " " +
-        this.question.cssClasses.highlighted
-    });
-  };
-  private unhighlight = () => {
-    this.setState({ rootClass: this.question.cssClasses.root });
-  };
   render(): JSX.Element {
     if (!this.question) return null;
     var preview = this.renderPreview();
     var fileInput = null;
     var fileDecorator = this.renderFileDecorator();
-    var clearButton = null;
+    var clearButton = this.renderClearButton(
+      this.question.cssClasses.removeButton
+    );
+    var clearButtonBottom = this.renderClearButton(
+      this.question.cssClasses.removeButtonBottom
+    );
     fileInput = (
       <input
         disabled={this.isDisplayMode}
@@ -96,29 +78,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         accept={this.question.acceptedTypes}
       />
     );
-    if (!this.question.isEmpty() && !this.isDisplayMode) {
-      clearButton = (
-        <button
-          type="button"
-          onClick={this.handleOnClean}
-          className={this.question.cssClasses.removeButton}
-        >
-          {this.question.cleanButtonCaption}
-        </button>
-      );
-    }
     return (
-      <div
-        className={this.state.rootClass}
-        onDragEnter={this.handleOnDragEnter}
-        onDragOver={this.handleOnDragOver}
-        onDragLeave={this.handleOnDragLeave}
-        onDrop={this.handleOnDrop}
-      >
+      <div className={this.state.rootClass}>
         {fileInput}
         {fileDecorator}
         {clearButton}
         {preview}
+        {clearButtonBottom}
       </div>
     );
   }
@@ -141,32 +107,44 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div className={this.question.cssClasses.fileDecorator}>
+      <div
+        className={this.question.cssClasses.fileDecorator}
+        onDrop={this.handleOnDrop}
+        onDragOver={this.handleOnDragOver}
+      >
         {chooseFile}
         {noFileChosen}
       </div>
     );
   }
+  protected renderClearButton(className: string): JSX.Element {
+    return !this.question.isEmpty() && !this.isDisplayMode ? (
+      <button type="button" onClick={this.handleOnClean} className={className}>
+        {this.question.cleanButtonCaption}
+      </button>
+    ) : null;
+  }
   protected renderPreview(): JSX.Element {
     if (!this.question.previewValue) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
+      var fileSign = (
+        <a
+          href={val.content}
+          title={val.name}
+          download={val.name}
+          style={{ width: this.question.imageWidth + "px" }}
+        >
+          {val.name}
+        </a>
+      );
       return (
         <span
           key={this.question.inputId + "_" + index}
           className={this.question.cssClasses.preview}
         >
           {val.name ? (
-            <div>
-              <a
-                href={val.content}
-                title={val.name}
-                download={val.name}
-                style={{ width: this.question.imageWidth + "px" }}
-              >
-                {val.name}
-              </a>
-            </div>
+            <div className={this.question.cssClasses.fileSign}>{fileSign}</div>
           ) : null}
           {this.question.canPreviewImage(val) ? (
             <img
@@ -176,18 +154,26 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
               alt="File preview"
             />
           ) : null}
-          {val.name ? (
+          {val.name && !this.question.isReadOnly ? (
             <div>
-              {!this.question.isReadOnly ? (
-                <span
-                  className={this.question.cssClasses.removeFile}
-                  onClick={event => this.handleOnRemoveFile(val)}
-                >
-                  {this.question.removeFileCaption}
-                </span>
-              ) : null}
+              <span
+                className={this.question.cssClasses.removeFile}
+                onClick={event => this.handleOnRemoveFile(val)}
+              >
+                {this.question.removeFileCaption}
+              </span>
+              <svg
+                className={this.question.cssClasses.removeFileSvg}
+                onClick={event => this.handleOnRemoveFile(val)}
+                viewBox="0 0 16 16"
+              >
+                <path d="M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z M11,10l-1,1L8,9l-2,2l-1-1l2-2L5,6l1-1l2,2l2-2l1,1L9,8 L11,10z" />
+              </svg>
             </div>
           ) : null}
+          <div className={this.question.cssClasses.fileSignBottom}>
+            {fileSign}
+          </div>
         </span>
       );
     });

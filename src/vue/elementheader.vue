@@ -8,6 +8,7 @@
       >{{element.no}}</span>
       <span v-if="element.no" style="position: static;">.&nbsp</span>
       <survey-string :locString="element.locTitle" />
+      <span :class="element.cssClasses.requiredText">{{element.requiredText}}</span>
     </h5>
     <div v-if="element.hasDescriptionUnderTitle" :class="element.cssClasses.description">
       <survey-string :locString="element.locDescription" />

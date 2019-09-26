@@ -11,13 +11,13 @@
   vertical-align: top;
 }
 .sv-selectbase__label {
-  box-sizing: border-box;
-  cursor: inherit;
   display: inline-block;
   overflow: hidden;
-  text-overflow: ellipsis;
+  box-sizing: border-box;
   width: 100%;
+  cursor: inherit;
   white-space: nowrap;
+  text-overflow: ellipsis;
 }
 .sv-selectbase__clear-btn {
   margin-top: 0.9em;

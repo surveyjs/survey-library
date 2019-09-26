@@ -125,8 +125,8 @@ export class SurveyQuestion extends SurveyElementBase {
           {comment}
           {errorsBottom}
           {descriptionUnderInput}
-          {headerBottom}
         </div>
+        {headerBottom}
       </div>
     );
   }
@@ -154,6 +154,9 @@ export class SurveyQuestion extends SurveyElementBase {
         {number}
         {delimiter}
         {titleText}
+        <span className={cssClasses.requiredText}>
+          {this.question.requiredText}
+        </span>
       </h5>
     );
   }
@@ -187,7 +190,7 @@ export class SurveyQuestion extends SurveyElementBase {
     // );
     var commentText = this.question.commentText;
     return (
-      <div className="form-group">
+      <div className={this.question.cssClasses.formGroup}>
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}

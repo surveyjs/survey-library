@@ -170,6 +170,9 @@ export class MultipleTextItemModel extends Base
   public set validators(val: Array<SurveyValidator>) {
     this.editor.validators = val;
   }
+  public getValidators(): Array<SurveyValidator> {
+    return this.validators;
+  }
   /**
    * The item value.
    */

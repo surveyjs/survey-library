@@ -113,7 +113,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.render
     );
   }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {

@@ -16,7 +16,7 @@ export class SurveyRow extends SurveyElementBase {
     super(props);
     this.setProperties(props);
   }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.row);
   }
   componentWillUnmount() {

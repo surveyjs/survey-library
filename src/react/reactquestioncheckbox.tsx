@@ -103,7 +103,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     this.question = nextProps.question;
     this.isFirst = nextProps.isFirst;
   }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {

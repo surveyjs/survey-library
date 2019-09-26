@@ -27,10 +27,8 @@ export class SurveyPanelBase extends SurveyElementBase {
   public set panelBase(val: PanelModelBase) {
     this.panelValue = val;
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.panelBase);
-  }
   componentDidMount() {
+    this.makeBaseElementReact(this.panelBase);
     this.doAfterRender();
   }
   componentWillUnmount() {

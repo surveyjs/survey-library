@@ -10,8 +10,8 @@ export class SurveyTimerPanel extends React.Component<any, any> {
   }
   update = () => {
     this.setState({ timeSpent: this.survey.timeSpent });
-  }
-  componentWillMount() {
+  };
+  componentDidMount() {
     this.survey.onTimer.add(this.update);
   }
   componentWillUnmount() {

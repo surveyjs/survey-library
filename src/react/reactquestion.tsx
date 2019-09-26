@@ -40,10 +40,8 @@ export class SurveyQuestion extends SurveyElementBase {
     this.updateProps(nextProps);
     this.makeBaseElementReact(this.question);
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.question);
-  }
   componentDidMount() {
+    this.makeBaseElementReact(this.question);
     if (!!this.question) {
       this.question["react"] = this;
     }
@@ -320,10 +318,8 @@ export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   protected set question(val: Question) {
     this.questionValue = val;
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.question);
-  }
   componentDidMount() {
+    this.makeBaseElementReact(this.question);
     this.doAfterRender();
   }
   componentWillUnmount() {

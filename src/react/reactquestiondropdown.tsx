@@ -101,7 +101,7 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
     super(props);
     this.item = props.item;
   }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {

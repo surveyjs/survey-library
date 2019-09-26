@@ -68,7 +68,10 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
 
   requiredText: string;
-  beforeSettingQuestionErrors(question: IQuestion, errors: Array<SurveyError>): void;
+  beforeSettingQuestionErrors(
+    question: IQuestion,
+    errors: Array<SurveyError>
+  ): void;
   getQuestionTitleTemplate(): string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
 
@@ -144,6 +147,7 @@ export interface ISurveyElement {
   isVisible: boolean;
   isReadOnly: boolean;
   isPage: boolean;
+  containsErrors: boolean;
   setSurveyImpl(value: ISurveyImpl): any;
   onSurveyLoad(): any;
   onFirstRendering(): any;
@@ -789,6 +793,19 @@ export class SurveyElement extends Base implements ISurveyElement {
   }
   public set errors(val: Array<SurveyError>) {
     this.setPropertyValue("errors", val);
+  }
+  /**
+   * Returns true if a question or a container (panel/page) or their chidren have an error.
+   * The value can be out of date. hasErrors function should be called to get the correct value.
+   */
+  public get containsErrors(): boolean {
+    return this.getPropertyValue("containsErrors", false);
+  }
+  protected updateContainsErrors() {
+    this.setPropertyValue("containsErrors", this.getContainsErrors());
+  }
+  protected getContainsErrors(): boolean {
+    return this.errors.length > 0;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];

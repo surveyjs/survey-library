@@ -1105,8 +1105,8 @@ export class Question extends SurveyElement
       }
       this.errors = errors;
     }
-    this.hasError = errors.length > 0;
-    return this.hasError;
+    this.updateContainsErrors();
+    return errors.length > 0;
   }
   /**
    * Returns the validation errors count.

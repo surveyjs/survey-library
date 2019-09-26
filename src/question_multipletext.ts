@@ -440,7 +440,7 @@ export class QuestionMultipleTextModel extends Question
     return true;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var res = super.hasErrors(fireCallback);
+    var res = false;
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.onCompletedAsyncValidators = (
         hasErrors: boolean
@@ -449,8 +449,7 @@ export class QuestionMultipleTextModel extends Question
       };
       res = this.items[i].editor.hasErrors(fireCallback) || res;
     }
-    this.hasError = res;
-    return this.hasError;
+    return super.hasErrors(fireCallback) || res;
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
@@ -467,6 +466,15 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.clearErrors();
     }
+  }
+  protected getContainsErrors(): boolean {
+    var res = super.getContainsErrors();
+    if (res) return res;
+    var items = this.items;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].editor.containsErrors) return true;
+    }
+    return false;
   }
 
   //IMultipleTextData

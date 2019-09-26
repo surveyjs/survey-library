@@ -1807,8 +1807,25 @@ export class QuestionMatrixDropdownModelBase
     }
     return true;
   }
-  public checkIsAnswered():boolean {
-    if(this.isEmpty()) return false;
+  protected getContainsErrors(): boolean {
+    return this.checkForAnswersOrErrors(
+      (question: Question) => question.containsErrors,
+      false
+    );
+  }
+  public checkIsAnswered(): boolean {
+    return (
+      !this.isEmpty() &&
+      this.checkForAnswersOrErrors(
+        (question: Question) => question.checkIsAnswered(),
+        true
+      )
+    );
+  }
+  private checkForAnswersOrErrors(
+    predicate: (question: Question) => boolean,
+    every: boolean = false
+  ) {
     var rows = this.generatedVisibleRows;
     if (!rows) return false;
     for (var i = 0; i < rows.length; i++) {
@@ -1817,15 +1834,19 @@ export class QuestionMatrixDropdownModelBase
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
         if (!cells[colIndex]) continue;
         var question = cells[colIndex].question;
-        if (question && question.isVisible && !question.checkIsAnswered()) return false;
+        if (question && question.isVisible)
+          if (predicate(question)) {
+            if (!every) return true;
+          } else {
+            if (every) return false;
+          }
       }
     }
-    return true;
+    return every ? true : false;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);
-    this.hasError = super.hasErrors(fireCallback) || errosInColumns;
-    return this.hasError;
+    return super.hasErrors(fireCallback) || errosInColumns;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;

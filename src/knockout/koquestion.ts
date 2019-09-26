@@ -82,7 +82,7 @@ export class QuestionImplementor extends ImplementorBase {
       var question = self.question;
       var cssClasses = question.cssClasses;
       var result = cssClasses.title;
-      if (question.hasError) {
+      if (question.containsErrors) {
         result += " " + cssClasses.titleOnError;
       } else if (question.isAnswered) {
         result += " " + cssClasses.titleOnAnswer;

@@ -7934,14 +7934,29 @@ QUnit.test("Check containsError property", function(assert) {
         items: [
           {name: "q1_m1", isRequired: true}
         ]
-      }      
-    ]
+      },
+      {
+        type: "matrixdropdown",
+        name: "question5",
+        columns: [
+         {
+          name: "col1",
+          cellType: "dropdown",
+          isRequired: true
+         }
+        ],
+        choices: [1],
+        rows: ["row1"]
+       }
+      ]     
+    
   });
   var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   var panel = <PanelModel>survey.getPanelByName("panel2");
   var question = survey.getQuestionByName("question3");
   var questionMultiple = survey.getQuestionByName("question4");
-
+  //TODO
+  //var questionMatrixDropdown = survey.getQuestionByName("question5")
   assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
   assert.equal(survey.isCurrentPageHasErrors, true, "The page has Errors");
   assert.equal(panelDynamic.containsErrors, true, "Dynamic panel contains errros");
@@ -7949,13 +7964,15 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(question.containsErrors, true, "question contains errors");
   assert.equal(questionMultiple.items[0].editor.containsErrors, true, "question multiple item contains errors");
   assert.equal(questionMultiple.containsErrors, true, "question multiple contains errors");
-
-  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}};
+  //TODO
+  //assert.equal(questionMatrixDropdown.containsErrors, true, "MatrixDropdown contains errors");
+  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}, question5: {row1: {col1: 1}}};
   assert.equal(panelDynamic.containsErrors, true, "contains errros is not updated yet");
-  
   assert.equal(survey.isCurrentPageHasErrors, false, "The page has no errors");
   assert.equal(panelDynamic.containsErrors, false, "Dynamic panel contains no errros");
   assert.equal(panel.containsErrors, false, "panel contains no errors");
   assert.equal(question.containsErrors, false, "question contains no errors");
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
+  //TODO
+  //assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
 });

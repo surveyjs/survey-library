@@ -1180,12 +1180,11 @@ export class QuestionPanelDynamicModel extends Question
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
     if (!!this.changingValueQuestion) {
-      this.hasError = this.changingValueQuestion.hasErrors(fireCallback, rec);
+      return this.changingValueQuestion.hasErrors(fireCallback, rec);
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
-      this.hasError = super.hasErrors(fireCallback) || errosInPanels;
+      return super.hasErrors(fireCallback) || errosInPanels;
     }
-    return this.hasError;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();

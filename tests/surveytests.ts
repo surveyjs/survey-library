@@ -7955,8 +7955,8 @@ QUnit.test("Check containsError property", function(assert) {
   var panel = <PanelModel>survey.getPanelByName("panel2");
   var question = survey.getQuestionByName("question3");
   var questionMultiple = survey.getQuestionByName("question4");
-  //TODO
-  //var questionMatrixDropdown = survey.getQuestionByName("question5")
+  var questionMatrixDropdown = survey.getQuestionByName("question5");
+  var rows = questionMatrixDropdown.visibleRows;
   assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
   assert.equal(survey.isCurrentPageHasErrors, true, "The page has Errors");
   assert.equal(panelDynamic.containsErrors, true, "Dynamic panel contains errros");
@@ -7964,8 +7964,7 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(question.containsErrors, true, "question contains errors");
   assert.equal(questionMultiple.items[0].editor.containsErrors, true, "question multiple item contains errors");
   assert.equal(questionMultiple.containsErrors, true, "question multiple contains errors");
-  //TODO
-  //assert.equal(questionMatrixDropdown.containsErrors, true, "MatrixDropdown contains errors");
+  assert.equal(questionMatrixDropdown.containsErrors, true, "MatrixDropdown contains errors");
   survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}, question5: {row1: {col1: 1}}};
   assert.equal(panelDynamic.containsErrors, true, "contains errros is not updated yet");
   assert.equal(survey.isCurrentPageHasErrors, false, "The page has no errors");
@@ -7973,6 +7972,5 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(panel.containsErrors, false, "panel contains no errors");
   assert.equal(question.containsErrors, false, "question contains no errors");
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
-  //TODO
-  //assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
+  assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
 });

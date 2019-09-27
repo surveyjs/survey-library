@@ -12,6 +12,7 @@ import {
 import { LocalizableString } from "../localizablestring";
 import { ItemValue } from "../itemvalue";
 import { ImplementorBase } from "./kobase";
+import { StylesManager } from "../stylesmanager";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -30,7 +31,7 @@ export class Survey extends SurveyModel {
     return surveyCss.currentType;
   }
   public static set cssType(value: string) {
-    surveyCss.currentType = value;
+    StylesManager.applyTheme(value);
   }
   private renderedElement: HTMLElement;
   //TODO remove it, since there is onAfterRenderSurvey

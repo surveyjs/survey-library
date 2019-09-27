@@ -156,6 +156,7 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { surveyCss } from "../defaultCss/cssstandard";
 import { VueSurveyModel as SurveyModel } from "./surveyModel";
+import { StylesManager } from "../stylesmanager";
 
 @Component
 export class Survey extends Vue {
@@ -223,7 +224,7 @@ Object.defineProperty(Survey, "cssType", {
     return surveyCss.currentType;
   },
   set: function(newType) {
-    surveyCss.currentType = newType;
+    StylesManager.applyTheme(newType);
   },
   enumerable: true,
   configurable: false

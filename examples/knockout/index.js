@@ -19,6 +19,8 @@ function init() {
   Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
   var json = {
+    showProgressBar: "both",
+    title: "Survey New Design Test",
     questions: [
       {
         name: "name",

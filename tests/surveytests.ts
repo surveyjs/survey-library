@@ -7974,6 +7974,31 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
   assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
 });
+QUnit.test("Check containsError property for panel dynamic with checkErrorsMode: 'onValueChanged'", function(assert) {
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+            isRequired: true
+          }
+        ],
+        panelCount: 1
+      }]
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var question = panelDynamic.panels[0].questions[0];
+  assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
+  question.value = "1";
+  assert.equal(panelDynamic.containsErrors, false, "The panel has no errors");
+  question.value = "";
+  assert.equal(panelDynamic.containsErrors, true, "The panel has errors after value changed to empty");
+});
 QUnit.test("Check checkIsAnswered method", function(assert){
   var survey = new SurveyModel({
     elements: [

@@ -801,7 +801,7 @@ export class SurveyElement extends Base implements ISurveyElement {
   public get containsErrors(): boolean {
     return this.getPropertyValue("containsErrors", false);
   }
-  protected updateContainsErrors() {
+  public updateContainsErrors() {
     this.setPropertyValue("containsErrors", this.getContainsErrors());
   }
   protected getContainsErrors(): boolean {

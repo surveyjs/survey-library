@@ -8,30 +8,26 @@ import { IElement } from "../base";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyRow extends SurveyElementBase {
-  private row: QuestionRowModel;
-  private survey: SurveyModel;
-  private creator: ISurveyCreator;
-  protected css: any;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
   }
-  componentWillMount() {
+  private get row(): QuestionRowModel {
+    return this.props.row;
+  }
+  private get survey(): SurveyModel {
+    return this.props.survey;
+  }
+  private get creator(): ISurveyCreator {
+    return this.props.creator;
+  }
+  protected get css(): any {
+    return this.props.css;
+  }
+  componentDidMount() {
     this.makeBaseElementReact(this.row);
   }
   componentWillUnmount() {
     this.unMakeBaseElementReact(this.row);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.row);
-    this.setProperties(nextProps);
-    this.makeBaseElementReact(this.row);
-  }
-  private setProperties(props: any) {
-    this.row = props.row;
-    this.survey = props.survey;
-    this.creator = props.creator;
-    this.css = props.css;
   }
   render(): JSX.Element {
     if (this.row == null || this.survey == null || this.creator == null)

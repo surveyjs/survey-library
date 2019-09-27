@@ -14,7 +14,6 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
     return this.questionBase as QuestionExpressionModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.question.value });
   }
   render(): JSX.Element {

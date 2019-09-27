@@ -25,25 +25,17 @@ export class SurveyQuestion extends SurveyElementBase {
     }
     return <SurveyCustomWidget creator={creator} question={question} />;
   }
-  protected question: Question;
-  private creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.updateProps(props);
   }
-  private updateProps(props: any) {
-    this.creator = props.creator;
-    this.question = props.element;
+  protected get question(): Question {
+    return this.props.element;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.question);
-    this.updateProps(nextProps);
-    this.makeBaseElementReact(this.question);
-  }
-  componentWillMount() {
-    this.makeBaseElementReact(this.question);
+  private get creator(): ISurveyCreator {
+    return this.props.creator;
   }
   componentDidMount() {
+    this.makeBaseElementReact(this.question);
     if (!!this.question) {
       this.question["react"] = this;
     }
@@ -125,8 +117,8 @@ export class SurveyQuestion extends SurveyElementBase {
           {comment}
           {errorsBottom}
           {descriptionUnderInput}
-          {headerBottom}
         </div>
+        {headerBottom}
       </div>
     );
   }
@@ -154,6 +146,9 @@ export class SurveyQuestion extends SurveyElementBase {
         {number}
         {delimiter}
         {titleText}
+        <span className={cssClasses.requiredText}>
+          {this.question.requiredText}
+        </span>
       </h5>
     );
   }
@@ -191,7 +186,7 @@ export class SurveyQuestion extends SurveyElementBase {
     // );
     var commentText = this.question.commentText;
     return (
-      <div className="form-group">
+      <div className={this.question.cssClasses.formGroup}>
         <div>{commentText}</div>
         <SurveyQuestionCommentItem
           question={this.question}
@@ -241,25 +236,19 @@ ReactElementFactory.Instance.registerElement("question", props => {
 });
 
 export class SurveyElementErrors extends ReactSurveyElement {
-  protected element: SurveyElement;
-  private creator: ISurveyCreator;
-  protected location: String;
-
   constructor(props: any) {
     super(props);
-    this.setElement(props.element);
     this.state = this.getState();
-    this.creator = props.creator;
-    this.location = props.location;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.setElement(nextProps.element);
-    this.setState(this.getState());
-    this.creator = nextProps.creator;
-    this.location = nextProps.location;
+  protected get element(): SurveyElement {
+    var element = this.props.element;
+    return element instanceof SurveyElement ? element : null;
   }
-  private setElement(element: any) {
-    this.element = element instanceof SurveyElement ? element : null;
+  private get creator(): ISurveyCreator {
+    return this.props.creator;
+  }
+  protected get location(): string {
+    return this.props.location;
   }
   private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };
@@ -291,36 +280,20 @@ export class SurveyElementErrors extends ReactSurveyElement {
 
 export class SurveyQuestionAndErrorsCell extends ReactSurveyElement {
   [index: string]: any;
-  private questionValue: Question;
-  protected creator: ISurveyCreator;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
   }
-  componentWillReceiveProps(nextProps: any) {
-    if (this.question) {
-      this.unMakeBaseElementReact(this.question);
-    }
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
-    if (this.question) {
-      this.makeBaseElementReact(this.question);
-    }
+  protected get question(): Question {
+    return this.getQuestion();
   }
-  protected setProperties(nextProps: any) {
-    this.question = nextProps.question;
-    this.creator = nextProps.creator;
+  protected get creator(): ISurveyCreator {
+    return this.props.creator;
   }
-  protected get question() {
-    return this.questionValue;
-  }
-  protected set question(val: Question) {
-    this.questionValue = val;
-  }
-  componentWillMount() {
-    this.makeBaseElementReact(this.question);
+  protected getQuestion(): Question {
+    return this.props.question;
   }
   componentDidMount() {
+    this.makeBaseElementReact(this.question);
     this.doAfterRender();
   }
   componentWillUnmount() {

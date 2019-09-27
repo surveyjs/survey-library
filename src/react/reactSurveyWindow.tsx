@@ -80,8 +80,7 @@ export class SurveyWindow extends Survey {
       self.window.hide();
     };
   }
-  componentWillMount() {
-    super.componentWillMount();
+  componentDidMount() {
     this.makeBaseElementReact(this.window);
   }
   componentWillUnmount() {

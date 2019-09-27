@@ -41,6 +41,7 @@ export var defaultBootstrapMaterialCss = {
     titleRequired: "",
     hasError: "has-error",
     indent: 20,
+    formGroup: "form-group"
   },
   panel: {
     title: "sv_p_title",
@@ -172,7 +173,10 @@ export var defaultBootstrapMaterialCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
     removeFile: "sv_q_file_remove",
-    fileDecorator: "sv-hidden"
+    removeFileSvg: "sv-hidden",
+    fileDecorator: "sv-hidden",
+    fileSignBottom: "sv-hidden",
+    removeButtonBottom: "sv-hidden"
   },
   saveData: {
     root: "",

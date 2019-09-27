@@ -49,7 +49,8 @@ export var defaultStandardCss = {
     titleRequired: "",
     hasError: "",
     indent: 20,
-    footer: "sv_q_footer"
+    footer: "sv_q_footer",
+    formGroup: "form-group"
   },
   panel: {
     title: "sv_p_title",
@@ -176,7 +177,10 @@ export var defaultStandardCss = {
     removeButton: "sv_q_file_remove_button",
     fileInput: "sv_q_file_input",
     removeFile: "sv_q_file_remove",
-    fileDecorator: "sv-hidden"
+    removeFileSvg: "sv-hidden",
+    fileDecorator: "sv-hidden",
+    fileSignBottom: "sv-hidden",
+    removeButtonBottom: "sv-hidden"
   },
   saveData: {
     root: "",

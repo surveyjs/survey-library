@@ -1,9 +1,9 @@
 ﻿<script type="text/html" id="survey-question">
     <div data-bind="css: question.koRootClass(), style: { paddingLeft: question.paddingLeft, paddingRight: question.paddingRight, width: question.renderWidth }, attr: {id: question.id}">
-            <!-- ko if: question.hasTitleOnLeftTop -->
-            <!--ko template: { name: 'survey-question-title', data: question  } -->
-            <!-- /ko -->
-            <!-- /ko -->
+        <!-- ko if: question.hasTitleOnLeftTop -->
+        <!--ko template: { name: 'survey-question-title', data: question  } -->
+        <!-- /ko -->
+        <!-- /ko -->
         <div data-bind="css: question.koContentClass">
             <!-- ko if: question.errorLocation == 'top' -->
                 <div data-bind="css: question.koCss().error.locationTop">
@@ -14,7 +14,7 @@
             <!-- ko template: { name: question.koTemplateName(), data: question, afterRender: question.koQuestionAfterRender } -->
             <!-- /ko -->
             <!-- ko if: question.hasComment -->
-            <div class="form-group">
+            <div data-bind="css: question.koCss().formGroup">
               <!-- ko template: { name: 'survey-string', data: question.locCommentText } -->
               <!-- /ko -->
               <div data-bind="template: { name: 'survey-comment', data: {'question': question, 'visible': true } }"></div>
@@ -29,10 +29,10 @@
             <div data-bind="visible: question.hasDescriptionUnderInput, css: koCss().descriptionUnderInput">
                 <!-- ko template: { name: 'survey-string', data: locDescription } --><!-- /ko -->
             </div>
-            <!-- ko if: question.hasTitleOnBottom -->
-            <!--ko template: { name: 'survey-question-title', data: question  } -->
-            <!-- /ko -->
-            <!-- /ko -->
         </div>
+        <!-- ko if: question.hasTitleOnBottom -->
+        <!--ko template: { name: 'survey-question-title', data: question  } -->
+        <!-- /ko -->
+        <!-- /ko -->
     </div>
   </script>

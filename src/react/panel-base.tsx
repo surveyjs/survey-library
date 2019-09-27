@@ -10,7 +10,7 @@ export class SurveyPanelBase extends SurveyElementBase {
     super(props);
   }
   protected get survey(): SurveyModel {
-    return this.props.survey;
+    return this.getSurvey();
   }
   protected get creator(): ISurveyCreator {
     return this.props.creator;

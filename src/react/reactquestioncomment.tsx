@@ -19,7 +19,6 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
     return this.questionBase as QuestionCommentModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
@@ -32,6 +31,7 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+
     return (
       <textarea
         id={this.question.inputId}
@@ -54,18 +54,13 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ comment: this.props.question.comment || "" });
-  }
-  componentWillMount() {
-    this.setState({ comment: this.props.question.comment || "" });
-  }
   render(): JSX.Element {
     let question = this.props.question;
     if (!question) return null;
-    if (this.isDisplayMode)
-      return <div className={this.cssClasses.comment}>{question.comment}</div>;
+    if (this.isDisplayMode) {
+      let comment = question.comment || "";
+      return <div className={this.cssClasses.comment}>{comment}</div>;
+    }
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
@@ -73,11 +68,14 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let handleOnBlur = (event: any) => {
       question.comment = event.target.value;
     };
-
+    let comment =
+      !!this.state && !!this.state.comment
+        ? this.state.comment
+        : question.comment || "";
     return (
       <textarea
         className={className}
-        value={this.state.comment}
+        value={comment}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}

@@ -11,13 +11,15 @@ import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
+import { StylesManager } from "../stylesmanager";
+
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
   public static get cssType(): string {
     return surveyCss.currentType;
   }
   public static set cssType(value: string) {
-    surveyCss.currentType = value;
+    StylesManager.applyTheme(value);
   }
   protected survey: ReactSurveyModel;
   private isCurrentPageChanged: boolean = false;
@@ -43,10 +45,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
       this.survey.scrollToTopOnPageChange();
     }
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.survey);
-  }
   componentDidMount() {
+    this.makeBaseElementReact(this.survey);
     var el = this.refs["root"];
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     if (this.survey) {

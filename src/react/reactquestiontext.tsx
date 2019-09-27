@@ -16,7 +16,6 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
     return this.questionBase as QuestionTextModel;
   }
   componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
     this.setState({ value: this.getValue(this.question.value) });
   }
   handleOnChange(event: any) {

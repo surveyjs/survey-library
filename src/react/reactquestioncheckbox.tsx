@@ -73,20 +73,25 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 }
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
-  protected question: QuestionCheckboxModel;
-  protected item: ItemValue;
-  protected textStyle: any;
-  protected isFirst: any;
-  protected index: number;
   constructor(props: any) {
     super(props);
-    this.item = props.item;
-    this.question = props.question;
-    this.textStyle = props.textStyle;
-    this.isFirst = props.isFirst;
-    this.index = props.index;
     this.handleOnChange = this.handleOnChange.bind(this);
     this.selectAllChanged = this.selectAllChanged.bind(this);
+  }
+  protected get question(): QuestionCheckboxModel {
+    return this.props.question;
+  }
+  protected get item(): ItemValue {
+    return this.props.item;
+  }
+  protected get textStyle(): any {
+    return this.props.textStyle;
+  }
+  protected get isFirst(): any {
+    return this.props.isFirst;
+  }
+  protected get index(): number {
+    return this.props.index;
   }
   public shouldComponentUpdate(): boolean {
     return (
@@ -96,14 +101,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.render
     );
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.item = nextProps.item;
-    this.textStyle = nextProps.textStyle;
-    this.question = nextProps.question;
-    this.isFirst = nextProps.isFirst;
-  }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {

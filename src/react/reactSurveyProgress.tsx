@@ -3,14 +3,11 @@ import { SurveyModel } from "../survey";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 
 export class SurveyProgress extends SurveyNavigationBase {
-  protected isTop: boolean;
   constructor(props: any) {
     super(props);
-    this.isTop = props.isTop;
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.isTop = nextProps.isTop;
+  protected get isTop(): boolean {
+    return this.props.isTop;
   }
   protected get progress(): number {
     return this.survey.getProgress();

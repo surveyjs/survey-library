@@ -6,31 +6,32 @@ import { SurveyElementBase } from "./reactquestionelement";
 import { SurveyRow } from "./row";
 
 export class SurveyPanelBase extends SurveyElementBase {
-  private panelValue: PanelModelBase;
-  protected survey: SurveyModel;
-  protected creator: ISurveyCreator;
-  protected css: any;
   constructor(props: any) {
     super(props);
-    this.survey = props.survey;
-    this.creator = props.creator;
-    this.css = props.css;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.survey = nextProps.survey;
-    this.creator = nextProps.creator;
-    this.css = nextProps.css;
+  protected get survey(): SurveyModel {
+    return this.props.survey;
+  }
+  protected get creator(): ISurveyCreator {
+    return this.props.creator;
+  }
+  protected get css(): any {
+    return this.getCss();
   }
   public get panelBase(): PanelModelBase {
-    return this.panelValue;
+    return this.getPanelBase();
   }
-  public set panelBase(val: PanelModelBase) {
-    this.panelValue = val;
+  protected getPanelBase(): PanelModelBase {
+    return this.props.element;
   }
-  componentWillMount() {
-    this.makeBaseElementReact(this.panelBase);
+  protected getSurvey(): SurveyModel {
+    return this.props.survey;
+  }
+  protected getCss(): any {
+    return this.props.css;
   }
   componentDidMount() {
+    this.makeBaseElementReact(this.panelBase);
     this.doAfterRender();
   }
   componentWillUnmount() {

@@ -71,7 +71,9 @@ export var englishStrings = {
   cleanCaption: "Clean",
   clearCaption: "Clear",
   chooseFileCaption: "Choose file",
-  removeFileCaption: "Remove this file"
+  removeFileCaption: "Remove this file",
+  booleanCheckedLabel: "Yes",
+  booleanUncheckedLabel: "No"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.

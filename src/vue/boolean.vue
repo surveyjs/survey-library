@@ -13,23 +13,11 @@
         v-bind:aria-required="question.isRequired"
         :aria-label="question.locTitle.renderedHtml"
       />
-      <span :class="question.cssClasses.materialDecorator">
-        <svg viewBox="0 0 24 24" :class="question.cssClasses.itemDecorator">
-          <rect :class="question.cssClasses.uncheckedPath" x="5" y="10" width="14" height="4" />
-          <polygon
-            :class="question.cssClasses.checkedPath"
-            points="19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 "
-          />
-          <path
-            :class="question.cssClasses.indeterminatePath"
-            d="M22,0H2C0.9,0,0,0.9,0,2v20c0,1.1,0.9,2,2,2h20c1.1,0,2-0.9,2-2V2C24,0.9,23.1,0,22,0z M21,18L6,3h15V18z M3,6l15,15H3V6z"
-          />
-        </svg>
-        <span class="check"></span>
-      </span>
-      <span :class="question.cssClasses.label">
-        <survey-string :locString="question.locDisplayLabel" />
-      </span>
+      <span :class="getLabelClass(false)">{{question.uncheckedLabel}}</span>
+      <div :class="question.cssClasses.switch">
+        <span :class="question.cssClasses.slider" />
+      </div>
+      <span :class="getLabelClass(true)">{{question.checkedLabel}}</span>
     </label>
   </div>
 </template>
@@ -47,14 +35,23 @@ export class Boolean extends QuestionVue<QuestionBooleanModel> {
     var cssClasses = question.cssClasses;
     let isChecked = question.checkedValue;
     let isDisabled = question.isReadOnly;
-    let allowHover = !isChecked && !isDisabled;
     let itemClass = cssClasses.item;
     if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + cssClasses.itemChecked;
     else if (isChecked === null)
       itemClass += " " + cssClasses.itemIndeterminate;
-    if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
+  }
+  getLabelClass(checked: boolean): string {
+    var question = this.question;
+    var cssClasses = this.question.cssClasses;
+    return (
+      cssClasses.label +
+      " " +
+      (question.checkedValue === !checked || question.isReadOnly
+        ? question.cssClasses.disabledLabel
+        : "")
+    );
   }
 }
 Vue.component("survey-boolean", Boolean);

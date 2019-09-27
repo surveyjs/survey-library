@@ -7974,3 +7974,67 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
   assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
 });
+QUnit.test("Check checkIsAnswered method", function(assert){
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1"
+          }
+        ],
+        panelCount: 2
+      },
+      {
+        type: "text",
+        name: "question2"
+      },
+      {
+        type: "multipletext",
+        name: "question3",
+        items: [
+          {name: "q1_m1" },
+          {name: "q2_m1"}
+        ]
+      },
+      {
+        type: "matrixdropdown",
+        name: "question4",
+        columns: [
+         {
+          name: "col1",
+          cellType: "dropdown"
+         },
+         {
+          name: "col2",
+          cellType: "dropdown"
+         }
+        ],
+        choices: [1],
+        rows: ["row1"]
+       }
+      ]     
+    
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var question = survey.getQuestionByName("question2");
+  var questionMultiple = survey.getQuestionByName("question3");
+  var questionMatrixDropdown = survey.getQuestionByName("question4");
+  var rows = questionMatrixDropdown.visibleRows;
+  assert.equal(panelDynamic.checkIsAnswered(), false, "Paneldynamic is not answered");
+  assert.equal(questionMultiple.checkIsAnswered(), false, "Multiple text is not answered");
+  assert.equal(question.checkIsAnswered(), false, "Question is not  answered");
+  assert.equal(questionMatrixDropdown.checkIsAnswered(),false, "Paneldynamic is not answered");
+  survey.data = {panel1: [{question1: 1}, {}],  question2: 3, question3: {q1_m1: 1}, question4: {row1: {col1: 1}}};
+  assert.equal(panelDynamic.checkIsAnswered(), false, "Paneldynamic is not fully answered");
+  assert.equal(questionMultiple.checkIsAnswered(), false, "Multiple text is not fully answered");
+  assert.equal(question.checkIsAnswered(), true, "Question is answered");
+  assert.equal(questionMatrixDropdown.checkIsAnswered(),false, "Paneldynamic is not fully answered");
+  survey.data = {panel1: [{question1: 1}, {question1: 2}], question3: {q1_m1: 1, q2_m1:2}, question4: {row1: {col1: 1, col2:2}}};
+  assert.equal(panelDynamic.checkIsAnswered(), true, "Paneldynamic is fully answered");
+  assert.equal(questionMultiple.checkIsAnswered(), true, "Multiple text is fully answered");
+  assert.equal(questionMatrixDropdown.checkIsAnswered(), true, "Paneldynamic is fully answered");
+});

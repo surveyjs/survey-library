@@ -11,13 +11,15 @@ import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
+import { StylesManager } from "../stylesmanager";
+
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
   public static get cssType(): string {
     return surveyCss.currentType;
   }
   public static set cssType(value: string) {
-    surveyCss.currentType = value;
+    StylesManager.applyTheme(value);
   }
   protected survey: ReactSurveyModel;
   private isCurrentPageChanged: boolean = false;

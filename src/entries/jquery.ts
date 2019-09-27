@@ -22,6 +22,7 @@ export { bemCss } from "../defaultCss/cssbem";
 
 import { Survey, SurveyWindow } from "./knockout";
 export { Survey as Model };
+export { Survey };
 
 import { SurveyModel } from "../survey";
 import { registerTemplateEngine } from "../knockout/kosurvey";

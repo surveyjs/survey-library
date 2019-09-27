@@ -8,15 +8,11 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionText extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getValue(this.question.value) };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   protected get question(): QuestionTextModel {
     return this.questionBase as QuestionTextModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ value: this.getValue(this.question.value) });
   }
   handleOnChange(event: any) {
     this.setState({ value: this.getValue(event.target.value) });
@@ -28,13 +24,17 @@ export class SurveyQuestionText extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+    var value =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getValue(this.question.value);
     return (
       <input
         id={this.question.inputId}
         disabled={this.isDisplayMode}
         className={cssClasses.root}
         type={this.question.inputType}
-        value={this.state.value}
+        value={value}
         maxLength={this.question.getMaxLength()}
         size={this.question.size}
         placeholder={this.question.placeHolder}

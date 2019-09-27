@@ -10,11 +10,7 @@ import { OtherEmptyError } from "../error";
 export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.question.checkedValue };
     this.handleOnChange = this.handleOnChange.bind(this);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ value: this.question.checkedValue });
   }
   protected get question(): QuestionBooleanModel {
     return this.questionBase as QuestionBooleanModel;

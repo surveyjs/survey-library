@@ -11,15 +11,11 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionComment extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   protected get question(): QuestionCommentModel {
     return this.questionBase as QuestionCommentModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
     this.setState({ value: event.target.value });
@@ -31,13 +27,17 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+    var commentValue =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getStateValue();
 
     return (
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
         readOnly={this.isDisplayMode}
-        value={this.state.value}
+        value={commentValue}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}
@@ -69,7 +69,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       question.comment = event.target.value;
     };
     let comment =
-      !!this.state && !!this.state.comment
+      !!this.state && this.state.comment !== undefined
         ? this.state.comment
         : question.comment || "";
     return (

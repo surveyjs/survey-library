@@ -28,12 +28,10 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   constructor(props: any) {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
-    this.state = this.getState();
     this.updateSurvey(props, null);
   }
   componentWillReceiveProps(nextProps: any) {
     this.unMakeBaseElementReact(this.survey);
-    this.setState(this.getState());
     this.updateSurvey(nextProps, this.props);
     this.makeBaseElementReact(this.survey);
   }
@@ -277,14 +275,13 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
 
     this.setSurveyEvents(newProps);
   }
-  private getState() {
-    return { pageIndexChange: 0, modelChanged: 0 };
-  }
   protected setSurveyEvents(newProps: any) {
     var self = this;
 
     this.survey.renderCallback = function() {
-      self.setState({ modelChanged: self.state.modelChanged + 1 });
+      var counter =
+        !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
+      self.setState({ modelChanged: counter + 1 });
     };
     this.survey.onPartialSend.add(sender => {
       self.setState(self.state);

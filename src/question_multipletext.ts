@@ -432,10 +432,10 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  public checkIsAnswered(): boolean {
+  public getIsAnswered(): boolean {
     for (var i = 0; i < this.items.length; i++) {
       var editor = this.items[i].editor;
-      if (editor.isVisible && !editor.checkIsAnswered()) return false;
+      if (editor.isVisible && !editor.isAnswered) return false;
     }
     return true;
   }

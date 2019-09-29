@@ -1257,13 +1257,13 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  public checkIsAnswered(): boolean {
+  public getIsAnswered(): boolean {
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
       var visibleQuestions = <Array<any>>[];
       panels[i].addQuestionsToList(visibleQuestions, true);
       for (var j = 0; j < visibleQuestions.length; j++) {
-        if (!visibleQuestions[j].checkIsAnswered()) return false;
+        if (!visibleQuestions[j].isAnswered) return false;
       }
     }
     return true;

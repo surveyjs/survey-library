@@ -1813,11 +1813,11 @@ export class QuestionMatrixDropdownModelBase
       false
     );
   }
-  public checkIsAnswered(): boolean {
+  public getIsAnswered(): boolean {
     return (
       !this.isEmpty() &&
       this.checkForAnswersOrErrors(
-        (question: Question) => question.checkIsAnswered(),
+        (question: Question) => question.isAnswered,
         true
       )
     );

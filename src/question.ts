@@ -1041,14 +1041,23 @@ export class Question extends SurveyElement
   protected setComment(newValue: string) {
     this.setNewComment(newValue);
   }
-  public checkIsAnswered(): boolean {
-    return !this.isEmpty();
-  }
   /**
    * Returns true if the question value is empty
    */
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
+  }
+  public get isAnswered(): boolean {
+    return this.getPropertyValue("isAnswered");
+  }
+  public set isAnswered(val: boolean) {
+    this.setPropertyValue("isAnswered", val);
+  }
+  public updateIsAnswered() {
+    this.setPropertyValue("isAnswered", this.getIsAnswered());
+  }
+  public getIsAnswered(): boolean {
+    return !this.isEmpty();
   }
   /**
    * The list of question validators.
@@ -1084,19 +1093,6 @@ export class Question extends SurveyElement
    * Returns true if there is a validation error(s) in the question.
    * @param fireCallback set it to true to show an error in UI.
    */
-  public get isAnswered(): boolean {
-    return this.getPropertyValue("isAnswered");
-  }
-  public set isAnswered(val: boolean) {
-    this.setPropertyValue("isAnswered", val);
-  }
-  public get hasError(): boolean {
-    return this.getPropertyValue("hasError");
-  }
-  public set hasError(val: boolean) {
-    this.setPropertyValue("hasError", val);
-  }
-
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errors = this.checkForErrors();
     if (fireCallback) {
@@ -1214,7 +1210,6 @@ export class Question extends SurveyElement
   protected setNewValue(newValue: any) {
     this.setNewValueInData(newValue);
     this.onValueChanged();
-    this.isAnswered = this.checkIsAnswered();
   }
   protected locNotificationInData = false;
   protected setNewValueInData(newValue: any) {
@@ -1228,6 +1223,7 @@ export class Question extends SurveyElement
   }
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
+    this.updateIsAnswered();
     if (this.data != null) {
       this.data.setValue(
         this.getValueName(),

@@ -289,6 +289,7 @@ export class QuestionMultipleTextModel extends Question
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);
     }
+    this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -433,6 +434,7 @@ export class QuestionMultipleTextModel extends Question
     return false;
   }
   public getIsAnswered(): boolean {
+    if(this.isEmpty()) return false;
     for (var i = 0; i < this.items.length; i++) {
       var editor = this.items[i].editor;
       if (editor.isVisible && !editor.isAnswered) return false;

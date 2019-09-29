@@ -1223,7 +1223,6 @@ export class Question extends SurveyElement
   }
   protected setValueCore(newValue: any) {
     this.setQuestionValue(newValue);
-    this.updateIsAnswered();
     if (this.data != null) {
       this.data.setValue(
         this.getValueName(),
@@ -1256,6 +1255,7 @@ export class Question extends SurveyElement
   protected setQuestionValue(newValue: any) {
     this.questionValue = newValue;
     this.fireCallback(this.valueChangedCallback);
+    this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;

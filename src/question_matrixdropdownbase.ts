@@ -1788,6 +1788,7 @@ export class QuestionMatrixDropdownModelBase
   protected setQuestionValue(newValue: any) {
     super.setQuestionValue(newValue);
     this.onSetQuestionValue();
+    this.updateIsAnswered();
   }
   supportGoNextPageAutomatic() {
     var rows = this.generatedVisibleRows;

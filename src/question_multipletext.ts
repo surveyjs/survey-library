@@ -284,7 +284,7 @@ export class QuestionMultipleTextModel extends Question
     this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);

@@ -1365,7 +1365,7 @@ export class QuestionPanelDynamicModel extends Question
     this.panelCount = newPanelCount;
   }
   public setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     for (var i = 0; i < this.panels.length; i++) {
       this.panelUpdateValueFromSurvey(this.panels[i]);

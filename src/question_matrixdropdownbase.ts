@@ -1786,7 +1786,7 @@ export class QuestionMatrixDropdownModelBase
     this.isRowChanging = false;
   }
   protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }

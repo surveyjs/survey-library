@@ -208,7 +208,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected clearInvisibleValuesInRows() {
     if (this.isEmpty()) return;
     var newData = Helpers.getUnbindValue(this.value);
-    var visibleRows = this.visibleRows;
     var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
       var key = rows[i].value;

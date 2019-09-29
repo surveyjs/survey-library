@@ -296,17 +296,6 @@ QUnit.test("Has errors", function(assert) {
   question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
   assert.equal(question.hasErrors(), false, "There is no errors now");
 });
-QUnit.test("Check is answered", function(assert){
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  (<Question>question.template.questions[0]).value = "value1";
-  question.value = [{q1: "item1_1"}, {q1: "item2_1"}];
-  assert.equal(question.checkIsAnswered(), true);
-  question.value = [{q1: "item1_1"}, {}];
-  assert.equal(question.checkIsAnswered(), false);
-  (<Question>question.template.questions[0]).visible = false;
-  assert.equal(question.checkIsAnswered(), true);
-})
 QUnit.test("Update panels elements on changing template panel", function(
   assert
 ) {

@@ -20,6 +20,7 @@ import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
+import { Panel } from "./knockout/kopage";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -1180,7 +1181,16 @@ export class QuestionPanelDynamicModel extends Question
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
     if (!!this.changingValueQuestion) {
-      return this.changingValueQuestion.hasErrors(fireCallback, rec);
+      var question = this.changingValueQuestion;
+      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
+      var parent = <Panel>question.parent;
+      while (!!parent)
+      {
+        parent.updateContainsErrors();
+        parent = <Panel>parent.parent;
+      }
+      this.updateContainsErrors();
+      return res;
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
       return super.hasErrors(fireCallback) || errosInPanels;

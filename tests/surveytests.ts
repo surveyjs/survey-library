@@ -43,6 +43,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem } from "../src/htmlConditionItem";
 import { AnswerRequiredError } from "../src/error";
+import { Survey } from "../src/react/reactSurvey";
 
 export default QUnit.module("Survey");
 
@@ -7237,7 +7238,7 @@ QUnit.test("Values from invisible rows should be removed, #1644", function(
         type: "matrix",
         name: "q2",
         columns: ["col1", "col2"],
-        rows: [{ name: "row1", visibleIf: "{q1} = 1" }, "row2"]
+        rows: [{ value: "row1", visibleIf: "{q1} = 1" }, "row2"]
       }
     ]
   };
@@ -7958,4 +7959,49 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(panel.containsErrors, false, "panel contains no errors");
   assert.equal(question.containsErrors, false, "question contains no errors");
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
+});
+
+QUnit.test("Two matrix with same valueName, clear values for invisible rows only, Bug# https://surveyjs.answerdesk.io/ticket/details/T2713", function(assert) {
+  var survey = new SurveyModel({"elements": [{
+    "type": "matrix",
+    "name": "question1",
+    valueName: "a",
+    "columns": [
+      "1",
+      "2",
+      "3"
+    ],
+    "rows": [{
+      "value": "item1",
+      "text": "Item 1"
+    }, {
+      "value": "item2",
+      "text": "Item 2"
+    }]
+  }, {
+    "type": "matrix",
+    "name": "question2",
+    valueName: "a",
+    "columns": [
+      "1",
+      "2",
+      "3"
+    ],
+    "rows": [{
+      "value": "item3",
+      "text": "Item 3"
+    }, {
+      "value": "item4",
+      "text": "Item 4"
+    }]
+  }]});
+  var m1 = <QuestionMatrixModel>survey.getQuestionByName("question1");
+  var m2 = <QuestionMatrixModel>survey.getQuestionByName("question2");
+  m1.visibleRows[0].value = "1";
+  m1.visibleRows[1].value = "2";
+  m2.visibleRows[0].value = "1";
+  m2.visibleRows[1].value = "3";
+  assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
+  survey.doComplete();
+  assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
 });

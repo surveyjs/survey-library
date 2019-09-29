@@ -148,7 +148,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super.clearValueIfInvisible();
     this.clearInvisibleValuesInRows();
   }
-  protected getRowName(row: any) {
+  protected getRowName(row: any): string {
     return row.rowName;
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {

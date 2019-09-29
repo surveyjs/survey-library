@@ -2392,7 +2392,7 @@ QUnit.test("Values from invisible rows should be removed, #1644", function(
         type: "matrixdropdown",
         name: "q2",
         columns: [{ name: "col1" }, { name: "col2" }],
-        rows: [{ name: "row1", visibleIf: "{q1} = 1" }, "row2"]
+        rows: [{ value: "row1", visibleIf: "{q1} = 1" }, "row2"]
       }
     ]
   };

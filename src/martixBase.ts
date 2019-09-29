@@ -207,19 +207,19 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected clearInvisibleValuesInRows() {
     if (this.isEmpty()) return;
-    var oldData = Helpers.getUnbindValue(this.value);
-    var newData = {};
-    var rows = this.visibleRows;
+    var newData = Helpers.getUnbindValue(this.value);
+    var visibleRows = this.visibleRows;
+    var rows = this.rows;
     for (var i = 0; i < rows.length; i++) {
-      var key = this.getRowName(rows[i]);
-      if (!!oldData[key]) {
-        (<any>newData)[key] = oldData[key];
+      var key = rows[i].value;
+      if (!!newData[key] && !rows[i].isVisible) {
+        delete newData[key];
       }
     }
     if (Helpers.isTwoValueEquals(newData, this.value)) return;
     this.value = newData;
   }
-  protected getRowName(row: any) {
+  protected getRowName(row: any): string {
     return row.name;
   }
 }

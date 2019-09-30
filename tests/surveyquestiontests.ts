@@ -344,16 +344,6 @@ QUnit.test("Question titleDescription", function(assert) {
     true,
     "There is the description in question1"
   );
-  assert.equal(
-    question2.hasDescriptionUnderTitle,
-    false,
-    "There is no description in question2"
-  );
-  assert.equal(
-    question2.hasDescriptionUnderInput,
-    false,
-    "There is no description in question2, #2"
-  );
   question2.description = "description";
   question2.descriptionLocation = "underInput";
   assert.equal(

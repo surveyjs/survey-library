@@ -403,10 +403,10 @@ export class Question extends SurveyElement
     this.setPropertyValue("descriptionLocation", val);
   }
   get hasDescriptionUnderTitle(): boolean {
-    return !!this.description && this.getDescriptionLocation() == "underTitle";
+    return this.getDescriptionLocation() == "underTitle";
   }
   get hasDescriptionUnderInput(): boolean {
-    return !!this.description && this.getDescriptionLocation() == "underInput";
+    return this.getDescriptionLocation() == "underInput";
   }
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;

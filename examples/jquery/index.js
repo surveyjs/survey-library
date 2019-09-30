@@ -120,6 +120,8 @@ function init() {
         type: "imagepicker",
         name: "choosepicture",
         title: "Imagepicker",
+        imageHeight: "150px",
+        imageWidth: "225px",
         choices: [
           {
             value: "lion",

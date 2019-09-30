@@ -218,9 +218,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     if (Helpers.isTwoValueEquals(newData, this.value)) return;
     this.value = newData;
   }
-  protected getRowName(row: any): string {
-    return row.name;
-  }
 }
 
 Serializer.addClass(

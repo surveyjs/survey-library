@@ -82,25 +82,19 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionMatrixRow extends ReactSurveyElement {
-  private question: QuestionMatrixModel;
-  private row: MatrixRowModel;
-  private isFirst: boolean;
   constructor(props: any) {
     super(props);
-    this.question = props.question;
-    this.row = props.row;
-    this.isFirst = props.isFirst;
     this.handleOnChange = this.handleOnChange.bind(this);
+  }
+  private get question(): QuestionMatrixModel {
+    return this.props.question;
+  }
+  private get row(): MatrixRowModel {
+    return this.props.row;
   }
   handleOnChange(event: any) {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.question = nextProps.question;
-    this.row = nextProps.row;
-    this.isFirst = nextProps.isFirst;
   }
   render(): JSX.Element {
     if (!this.row) return null;

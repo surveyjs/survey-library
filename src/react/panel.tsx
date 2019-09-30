@@ -10,13 +10,6 @@ export class SurveyPanel extends SurveyPanelBase {
   private hasBeenExpanded: boolean = false;
   constructor(props: any) {
     super(props);
-    this.panelBase = props.element;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.panelBase);
-    super.componentWillReceiveProps(nextProps);
-    this.panelBase = nextProps.element;
-    this.makeBaseElementReact(this.panelBase);
   }
   public get panel(): PanelModel {
     return this.panelBase as PanelModel;

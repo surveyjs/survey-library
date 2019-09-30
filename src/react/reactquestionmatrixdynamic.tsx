@@ -8,17 +8,10 @@ import { SurveyQuestionMatrixDropdownBase } from "./reactquestionmatrixdropdownb
 export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBase {
   constructor(props: any) {
     super(props);
+    this.handleOnRowAddClick = this.handleOnRowAddClick.bind(this);
   }
   protected get matrix(): QuestionMatrixDynamicModel {
     return this.questionBase as QuestionMatrixDynamicModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
-  }
-  protected setProperties(nextProps: any) {
-    super.setProperties(nextProps);
-    this.handleOnRowAddClick = this.handleOnRowAddClick.bind(this);
   }
   handleOnRowAddClick(event: any) {
     this.matrix.addRow();
@@ -69,20 +62,15 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
 }
 
 export class SurveyQuestionMatrixDynamicRemoveButton extends ReactSurveyElement {
-  private question: QuestionMatrixDynamicModel;
-  private row: MatrixDropdownRowModelBase;
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setProperties(nextProps);
-  }
-  private setProperties(nextProps: any) {
-    this.question = nextProps.question;
-    this.row = nextProps.row;
     this.handleOnRowRemoveClick = this.handleOnRowRemoveClick.bind(this);
+  }
+  private get question(): QuestionMatrixDynamicModel {
+    return this.props.question;
+  }
+  private get row(): MatrixDropdownRowModelBase {
+    return this.props.row;
   }
   handleOnRowRemoveClick(event: any) {
     this.question.removeRowUI(this.row);

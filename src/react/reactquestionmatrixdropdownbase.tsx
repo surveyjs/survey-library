@@ -15,20 +15,15 @@ import {
   QuestionMatrixDropdownRenderedRow,
   QuestionMatrixDropdownRenderedCell
 } from "../question_matrixdropdownbase";
+import { Question } from "../question";
 
 export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.setProperties(props);
     this.state = this.getState();
   }
   protected get question(): QuestionMatrixDropdownModelBase {
     return this.questionBase as QuestionMatrixDropdownModelBase;
-  }
-  protected setProperties(nextProps: any) {
-    if (this.refs.matrixDynamicRef) this.setState({ rowCounter: 0 });
-    this.updateVisibleRowsChangedCallback();
-    this.renderedTableResetCallback();
   }
   private getState(prevState: any = null) {
     return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
@@ -47,9 +42,9 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     if (this.isRendering) return;
     this.setState(this.getState(this.state));
   }
-  componentWillReceiveProps(nextProps: any): void {
-    super.componentWillReceiveProps(nextProps);
+  componentDidMount() {
     this.updateVisibleRowsChangedCallback();
+    this.renderedTableResetCallback();
   }
   isRendering: boolean = false;
   render(): JSX.Element {
@@ -174,16 +169,16 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
 }
 
 export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCell {
-  private cell: MatrixDropdownCell;
   constructor(props: any) {
     super(props);
   }
-  protected setProperties(nextProps: any) {
-    super.setProperties(nextProps);
-    this.cell = nextProps.cell;
-    if (!this.question && !!this.cell) {
-      this.question = this.cell.question;
-    }
+  private get cell(): MatrixDropdownCell {
+    return this.props.cell;
+  }
+  protected getQuestion(): Question {
+    var q = super.getQuestion();
+    if (!!q) return q;
+    return !!this.cell ? this.cell.question : null;
   }
   protected doAfterRender() {
     var el: any = this.refs["cell"];

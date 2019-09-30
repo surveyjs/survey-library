@@ -11,13 +11,14 @@ import { SurveyProgress } from "./reactSurveyProgress";
 import { SurveyTimerPanel } from "./reacttimerpanel";
 import { SurveyElementBase, SurveyLocString } from "./reactquestionelement";
 import { PageModel } from "../page";
+import { StylesManager } from "../stylesmanager";
 
 export class Survey extends SurveyElementBase implements ISurveyCreator {
   public static get cssType(): string {
     return surveyCss.currentType;
   }
   public static set cssType(value: string) {
-    surveyCss.currentType = value;
+    StylesManager.applyTheme(value);
   }
   protected survey: ReactSurveyModel;
   private isCurrentPageChanged: boolean = false;
@@ -28,25 +29,20 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   constructor(props: any) {
     super(props);
     this.handleTryAgainClick = this.handleTryAgainClick.bind(this);
-    this.state = this.getState();
-    this.updateSurvey(props, null);
+    this.createSurvey(props);
+    this.updateSurvey(props, {});
+    //set the first page
+    var dummy = this.survey.currentPage;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.survey);
-    this.setState(this.getState());
-    this.updateSurvey(nextProps, this.props);
-    this.makeBaseElementReact(this.survey);
-  }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: any, prevState: any) {
     if (this.isCurrentPageChanged) {
       this.isCurrentPageChanged = false;
       this.survey.scrollToTopOnPageChange();
     }
-  }
-  componentWillMount() {
-    this.makeBaseElementReact(this.survey);
+    this.updateSurvey(this.props, prevProps);
   }
   componentDidMount() {
+    this.makeBaseElementReact(this.survey);
     var el = this.refs["root"];
     if (el && this.survey) this.survey.doAfterRenderSurvey(el);
     if (this.survey) {
@@ -244,8 +240,8 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
   protected renderEmptySurvey(): JSX.Element {
     return <span>{this.survey.emptySurveyText}</span>;
   }
-
-  protected updateSurvey(newProps: any, oldProps: any) {
+  protected createSurvey(newProps: any) {
+    if (!newProps) newProps = {};
     if (newProps) {
       if (newProps.model) {
         this.survey = newProps.model;
@@ -257,40 +253,36 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
     } else {
       this.survey = new ReactSurveyModel();
     }
-    if (newProps) {
-      for (var key in newProps) {
-        if (key == "model" || key == "children") continue;
-        if (key == "css") {
-          this.survey.mergeCss(newProps.css, this.css);
-          continue;
+    if (!!newProps.css) {
+      this.survey.mergeCss(newProps.css, this.css);
+    }
+    this.setSurveyEvents();
+  }
+  protected updateSurvey(newProps: any, oldProps: any) {
+    if (!newProps) return;
+    oldProps = oldProps || {};
+    for (var key in newProps) {
+      if (key == "model" || key == "children" || key == "css" || key == "json")
+        continue;
+      if (newProps[key] === oldProps[key]) continue;
+
+      if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
+        if (!!oldProps[key]) {
+          this.survey[key].remove(oldProps[key]);
         }
-        if (
-          key.indexOf("on") == 0 &&
-          this.survey[key] &&
-          this.survey[key].add
-        ) {
-          if (oldProps) {
-            this.survey[key].remove(oldProps[key]);
-          }
-          this.survey[key].add(newProps[key]);
-        } else {
-          this.survey[key] = newProps[key];
-        }
+        this.survey[key].add(newProps[key]);
+      } else {
+        this.survey[key] = newProps[key];
       }
     }
-    //set the first page
-    var dummy = this.survey.currentPage;
-
-    this.setSurveyEvents(newProps);
   }
-  private getState() {
-    return { pageIndexChange: 0, modelChanged: 0 };
-  }
-  protected setSurveyEvents(newProps: any) {
+  protected setSurveyEvents() {
     var self = this;
 
     this.survey.renderCallback = function() {
-      self.setState({ modelChanged: self.state.modelChanged + 1 });
+      var counter =
+        !!self.state && !!self.state.modelChanged ? self.state.modelChanged : 0;
+      self.setState({ modelChanged: counter + 1 });
     };
     this.survey.onPartialSend.add(sender => {
       self.setState(self.state);

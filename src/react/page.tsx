@@ -1,19 +1,15 @@
 import * as React from "react";
 import { PageModel } from "../page";
 import { SurveyElementBase } from "./reactquestionelement";
-
+import { PanelModelBase } from "../panel";
 import { SurveyPanelBase } from "./panel-base";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
     super(props);
-    this.panelBase = props.page;
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.panelBase);
-    super.componentWillReceiveProps(nextProps);
-    this.panelBase = nextProps.page;
-    this.makeBaseElementReact(this.panelBase);
+  protected getPanelBase(): PanelModelBase {
+    return this.props.page;
   }
   public get page(): PageModel {
     return this.panelBase as PageModel;

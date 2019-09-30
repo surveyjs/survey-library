@@ -73,20 +73,25 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 }
 export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
-  protected question: QuestionCheckboxModel;
-  protected item: ItemValue;
-  protected textStyle: any;
-  protected isFirst: any;
-  protected index: number;
   constructor(props: any) {
     super(props);
-    this.item = props.item;
-    this.question = props.question;
-    this.textStyle = props.textStyle;
-    this.isFirst = props.isFirst;
-    this.index = props.index;
     this.handleOnChange = this.handleOnChange.bind(this);
     this.selectAllChanged = this.selectAllChanged.bind(this);
+  }
+  protected get question(): QuestionCheckboxModel {
+    return this.props.question;
+  }
+  protected get item(): ItemValue {
+    return this.props.item;
+  }
+  protected get textStyle(): any {
+    return this.props.textStyle;
+  }
+  protected get isFirst(): any {
+    return this.props.isFirst;
+  }
+  protected get index(): number {
+    return this.props.index;
   }
   public shouldComponentUpdate(): boolean {
     return (
@@ -96,14 +101,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
       !!this.question.customWidget.widgetJson.render
     );
   }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.item = nextProps.item;
-    this.textStyle = nextProps.textStyle;
-    this.question = nextProps.question;
-    this.isFirst = nextProps.isFirst;
-  }
-  componentWillMount() {
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {
@@ -187,7 +185,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           />
           <span className={this.cssClasses.materialDecorator}>
             <svg viewBox="0 0 24 24" className={this.cssClasses.itemDecorator}>
-              <path d="m5,14.519865l2,-2l3,3l7,-7l2,2l-9,9l-5,-5z" />
+              <path d="M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z" />
             </svg>
             <span className="check" />
           </span>

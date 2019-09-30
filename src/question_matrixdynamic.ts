@@ -206,8 +206,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var prevRowCount = this.rowCount;
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
+    var newValue = null;
     if (!this.isValueEmpty(defaultValue)) {
-      var newValue = this.createNewValue();
+      newValue = this.createNewValue();
       if (newValue.length == this.rowCount) {
         newValue[newValue.length - 1] = defaultValue;
         this.value = newValue;
@@ -218,6 +219,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
+      var row = this.visibleRows[this.rowCount - 1];
+      if (!Helpers.isValueEmpty(row.value)) {
+        if (!newValue) {
+          newValue = this.createNewValue();
+        }
+        if (
+          !Helpers.isTwoValueEquals(newValue[newValue.length - 1], row.value)
+        ) {
+          newValue[newValue.length - 1] = row.value;
+          this.value = newValue;
+        }
+      }
     }
     if (this.survey) {
       if (prevRowCount + 1 == this.rowCount) {
@@ -453,8 +466,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+    var isDuplicated = this.isValueDuplicated();
     var prevValue = super.hasErrors(fireCallback);
-    return this.isValueDuplicated() || prevValue;
+    return isDuplicated || prevValue;
   }
   private hasErrorInRows(): boolean {
     if (this.minRowCount <= 0 || !this.generatedVisibleRows) return false;

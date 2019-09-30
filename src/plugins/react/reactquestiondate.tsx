@@ -3,22 +3,21 @@ import QuestionDateModel from "../question_date";
 import { ReactQuestionFactory } from "../../react/reactquestionfactory";
 
 export default class SurveyQuestionDate extends React.Component<any, any> {
-  private question: QuestionDateModel;
-  protected css: any;
   constructor(props: any) {
     super(props);
-    this.question = props.question;
-    this.css = props.css;
     this.state = { value: this.question.value };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
+  private get question(): QuestionDateModel {
+    return this.props.question;
+  }
+  protected get css(): any {
+    return this.props.css;
+  }
+
   handleOnChange(event: any) {
     this.question.value = event.target.value;
     this.setState({ value: this.question.value });
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.question = nextProps.question;
-    this.css = nextProps.css;
   }
   componentDidMount() {
     var funcText = this.question.getjQueryScript(this.getDateId());

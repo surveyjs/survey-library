@@ -43,6 +43,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem } from "../src/htmlConditionItem";
 import { AnswerRequiredError } from "../src/error";
+import { Survey } from "../src/react/reactSurvey";
 
 export default QUnit.module("Survey");
 
@@ -7237,7 +7238,7 @@ QUnit.test("Values from invisible rows should be removed, #1644", function(
         type: "matrix",
         name: "q2",
         columns: ["col1", "col2"],
-        rows: [{ name: "row1", visibleIf: "{q1} = 1" }, "row2"]
+        rows: [{ value: "row1", visibleIf: "{q1} = 1" }, "row2"]
       }
     ]
   };
@@ -7895,4 +7896,112 @@ QUnit.test("survey.onSettingQuestionErrors", function(assert) {
   assert.equal(q1.errors.length, 1, "There is one error");
   assert.equal(q1.errors[0].visible, false, "It is invisible");
   assert.equal(q2.errors.length, 1, "Add one error into second question");
+});
+
+QUnit.test("Check containsError property", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+            isRequired: true
+          }
+        ],
+        panelCount: 2
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "text",
+            name: "question2",
+            isRequired: true
+          }
+        ]
+      },
+      {
+        type: "text",
+        name: "question3",
+        isRequired: true
+      },
+      {
+        type: "multipletext",
+        name: "question4",
+        items: [
+          {name: "q1_m1", isRequired: true}
+        ]
+      }      
+    ]
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var panel = <PanelModel>survey.getPanelByName("panel2");
+  var question = survey.getQuestionByName("question3");
+  var questionMultiple = survey.getQuestionByName("question4");
+
+  assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
+  assert.equal(survey.isCurrentPageHasErrors, true, "The page has Errors");
+  assert.equal(panelDynamic.containsErrors, true, "Dynamic panel contains errros");
+  assert.equal(panel.containsErrors, true, "panel contains errors");
+  assert.equal(question.containsErrors, true, "question contains errors");
+  assert.equal(questionMultiple.items[0].editor.containsErrors, true, "question multiple item contains errors");
+  assert.equal(questionMultiple.containsErrors, true, "question multiple contains errors");
+
+  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}};
+  assert.equal(panelDynamic.containsErrors, true, "contains errros is not updated yet");
+  
+  assert.equal(survey.isCurrentPageHasErrors, false, "The page has no errors");
+  assert.equal(panelDynamic.containsErrors, false, "Dynamic panel contains no errros");
+  assert.equal(panel.containsErrors, false, "panel contains no errors");
+  assert.equal(question.containsErrors, false, "question contains no errors");
+  assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
+});
+
+QUnit.test("Two matrix with same valueName, clear values for invisible rows only, Bug# https://surveyjs.answerdesk.io/ticket/details/T2713", function(assert) {
+  var survey = new SurveyModel({"elements": [{
+    "type": "matrix",
+    "name": "question1",
+    valueName: "a",
+    "columns": [
+      "1",
+      "2",
+      "3"
+    ],
+    "rows": [{
+      "value": "item1",
+      "text": "Item 1"
+    }, {
+      "value": "item2",
+      "text": "Item 2"
+    }]
+  }, {
+    "type": "matrix",
+    "name": "question2",
+    valueName: "a",
+    "columns": [
+      "1",
+      "2",
+      "3"
+    ],
+    "rows": [{
+      "value": "item3",
+      "text": "Item 3"
+    }, {
+      "value": "item4",
+      "text": "Item 4"
+    }]
+  }]});
+  var m1 = <QuestionMatrixModel>survey.getQuestionByName("question1");
+  var m2 = <QuestionMatrixModel>survey.getQuestionByName("question2");
+  m1.visibleRows[0].value = "1";
+  m1.visibleRows[1].value = "2";
+  m2.visibleRows[0].value = "1";
+  m2.visibleRows[1].value = "3";
+  assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
+  survey.doComplete();
+  assert.deepEqual(survey.data, {a : {item1: "1", item2: "2", item3: "1", item4: "3"}});
 });

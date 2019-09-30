@@ -3,17 +3,17 @@
   background-color: $header-background-color;
 }
 .sv-progress__bar {
-  background-color: $main-color;
-  height: 100%;
   position: relative;
+  height: 100%;
+  background-color: $main-color;
 }
 .sv-progress__text {
-  color: $progress-text-color;
-  font-weight: bold;
-  font-size: 0.87em;
+  position: absolute;
   margin-top: 0.69em;
+  color: $progress-text-color;
+  font-size: 0.87em;
+  font-weight: bold;
   @media only screen and (min-width: 768px) {
     margin-left: 6.55em;
   }
-  position: absolute;
 }

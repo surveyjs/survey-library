@@ -11,16 +11,11 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionComment extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleOnBlur = this.handleOnBlur.bind(this);
   }
   protected get question(): QuestionCommentModel {
     return this.questionBase as QuestionCommentModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
     this.setState({ value: event.target.value });
@@ -32,12 +27,17 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
+    var commentValue =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getStateValue();
+
     return (
       <textarea
         id={this.question.inputId}
         className={cssClasses.root}
         readOnly={this.isDisplayMode}
-        value={this.state.value}
+        value={commentValue}
         maxLength={this.question.getMaxLength()}
         placeholder={this.question.placeHolder}
         onBlur={this.handleOnBlur}
@@ -54,18 +54,13 @@ export class SurveyQuestionComment extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ comment: this.props.question.comment || "" });
-  }
-  componentWillMount() {
-    this.setState({ comment: this.props.question.comment || "" });
-  }
   render(): JSX.Element {
     let question = this.props.question;
     if (!question) return null;
-    if (this.isDisplayMode)
-      return <div className={this.cssClasses.comment}>{question.comment}</div>;
+    if (this.isDisplayMode) {
+      let comment = question.comment || "";
+      return <div className={this.cssClasses.comment}>{comment}</div>;
+    }
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
@@ -73,11 +68,14 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let handleOnBlur = (event: any) => {
       question.comment = event.target.value;
     };
-
+    let comment =
+      !!this.state && this.state.comment !== undefined
+        ? this.state.comment
+        : question.comment || "";
     return (
       <textarea
         className={className}
-        value={this.state.comment}
+        value={comment}
         maxLength={question.getOthersMaxLength()}
         placeholder={question.otherPlaceHolder}
         onChange={handleOnChange}

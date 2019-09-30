@@ -11,15 +11,10 @@ import { ItemValue } from "../itemvalue";
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionDropdownModel {
     return this.questionBase as QuestionDropdownModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
     this.question.renderedValue = event.target.value;
@@ -62,12 +57,17 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       <option value="">{this.question.optionsCaption}</option>
     ) : null;
 
+    var value =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getStateValue();
+
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          value={this.state.value}
+          value={value}
           onChange={this.handleOnChange}
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}
@@ -96,20 +96,17 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
 }
 
 export class SurveyQuestionOptionItem extends ReactSurveyElement {
-  private item: ItemValue;
   constructor(props: any) {
     super(props);
-    this.item = props.item;
   }
-  componentWillMount() {
+  private get item(): ItemValue {
+    return this.props.item;
+  }
+  componentDidMount() {
     this.makeBaseElementReact(this.item);
   }
   componentWillUnmount() {
     this.unMakeBaseElementReact(this.item);
-  }
-  componentWillReceiveProps(nextProps: any) {
-    super.componentWillReceiveProps(nextProps);
-    this.item = nextProps.item;
   }
   render(): JSX.Element {
     if (!this.item) return;

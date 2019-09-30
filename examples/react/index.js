@@ -20,6 +20,7 @@ function init() {
 
   var json = {
     showProgressBar: "both",
+    description: "Survey Description",
     title: "Survey New Design Test",
     questions: [
       {

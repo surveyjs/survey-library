@@ -185,11 +185,15 @@ export class Survey extends SurveyElementBase implements ISurveyCreator {
         className={!currentPage ? this.css.bodyEmpty : this.css.body}
       >
         {topProgress}
+        <div style={{ content: " ", display: "table" }} />
+        {/* https://stackoverflow.com/questions/19718634/how-to-disable-margin-collapsing */}
         {this.renderTimerPanel("top")}
         {this.renderNavigation("top")}
         {currentPage}
         {this.renderTimerPanel("bottom")}
         {bottomProgress}
+        <div style={{ content: " ", display: "table" }} />
+        {/* https://stackoverflow.com/questions/19718634/how-to-disable-margin-collapsing */}
         {this.renderNavigation("bottom")}
       </div>
     );

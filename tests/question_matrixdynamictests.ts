@@ -3104,3 +3104,45 @@ QUnit.test(
     FunctionFactory.Instance.unregister("asyncFunc");
   }
 );
+
+QUnit.test(
+  "onValueChanged doesn't called on adding new row with calculated column, #1845",
+  function(assert) {
+    var rowCount = 0;
+    function newIndexFor(params) {
+      if (!params[0]) {
+        rowCount++;
+      }
+      return params[0] || rowCount;
+    }
+    FunctionFactory.Instance.register("newIndexFor", newIndexFor);
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "matrixdynamic",
+          name: "foo",
+          columns: [
+            {
+              name: "bar",
+              cellType: "text"
+            },
+            {
+              name: "id",
+              cellType: "expression",
+              expression: "newIndexFor({row.id})"
+            }
+          ],
+          rowCount: 1
+        }
+      ]
+    });
+    var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("foo");
+    var visibleRows = question.visibleRows;
+    var counter = 0;
+    survey.onValueChanged.add(function(sender, options) {
+      counter++;
+    });
+    question.addRow();
+    assert.equal(counter, 1, "onValueChanged has been called");
+  }
+);

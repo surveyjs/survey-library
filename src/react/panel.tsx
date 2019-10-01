@@ -41,7 +41,7 @@ export class SurveyPanel extends SurveyPanelBase {
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
     var bottom = this.renderBottom();
     return (
-      <div ref="root" className={this.css.panel.container} style={rootStyle}>
+      <div ref="root" className={this.panelBase.cssClasses.panel.container} style={rootStyle}>
         {title}
         {description}
         {errors}

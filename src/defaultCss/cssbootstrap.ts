@@ -60,11 +60,15 @@ export var defaultBootstrapCss = {
   },
   boolean: {
     root: "sv_qbln form-inline checkbox",
-    item: "",
-    itemChecked: "checked",
-    itemDecorator: "sv-hidden",
-    label: "",
-    materialDecorator: "checkbox-material"
+    item: "sv-boolean sv-selectbase__label",
+    control: "sv-visuallyhidden",
+    itemChecked: "sv-boolean--checked",
+    itemIndeterminate: "sv-boolean--indeterminate",
+    itemDisabled: "sv-boolean--disabled",
+    switch: "sv-boolean__switch",
+    slider: "sv-boolean__slider",
+    label: "sv-boolean__label ",
+    disabledLabel: "sv-boolean__label--disabled"
   },
   checkbox: {
     root: "sv_qcbc sv_qcbx form-inline",
@@ -172,7 +176,6 @@ export var defaultBootstrapCss = {
     fileDecorator: "sv-hidden",
     fileSignBottom: "sv-hidden",
     removeButtonBottom: "sv-hidden"
-
   },
   saveData: {
     root: "",

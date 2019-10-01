@@ -6,9 +6,9 @@
   margin-right: 17px;
   margin-left: 21px;
   padding: 2px 3px;
+  cursor: pointer;
   vertical-align: middle;
   border-radius: 12px;
-  background-color: #1ab394;
 }
 .sv-boolean__slider {
   display: inline-block;
@@ -18,13 +18,9 @@
   transition-property: margin-left;
   border: none;
   border-radius: 100%;
-  background-color: white;
 }
 .sv-boolean__label {
   vertical-align: middle;
-}
-.sv-boolean__label--disabled {
-  color: $disabled-text-color;
 }
 .sv-boolean--indeterminate {
   .sv-boolean__slider {
@@ -34,13 +30,5 @@
 .sv-boolean--checked {
   .sv-boolean__slider {
     margin-left: calc(100% - 20px);
-  }
-}
-.sv-boolean--disabled {
-  .sv-boolean__switch {
-    background-color: #9f9f9f;
-  }
-  .sv-boolean__slider {
-    background-color: #cfcfcf;
   }
 }

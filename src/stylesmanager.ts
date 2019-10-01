@@ -155,8 +155,19 @@ export class StylesManager {
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
       "fill: $disable-color; cursor: auto;",
     ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
     // EO paneldynamic
+    //boolean
+    ".sv_main .sv-boolean__switch":
+      "display: inline-block; box-sizing: border-box; width: 63px; height: 24px; margin-right: 17px; margin-left: 21px; padding: 2px 3px; vertical-align: middle; border-radius: 12px; cursor: pointer;",
+    ".sv_main .sv-boolean__slider":
+      "display: inline-block; width: 20px; height: 20px; transition-duration: .4s; transition-property: margin-left; border: none; border-radius: 100%;",
+    ".sv_main sv-boolean__label": "vertical-align: middle",
+    ".sv_main .sv-boolean--indeterminate  .sv-boolean__slider":
+      "margin-left: calc(50% - 10px);",
+    ".sv_main .sv-boolean--checked  .sv-boolean__slider":
+      "margin-left: calc(100% - 20px);"
+    // EO boolean
   };
 
   public static Media: { [key: string]: { media: string; style: string } } = {
@@ -254,7 +265,12 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+      
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     orange: {
       "$header-background-color": "#4a4a4a",
@@ -269,7 +285,12 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     darkblue: {
       "$header-background-color": "#d9d8dd",
@@ -284,7 +305,12 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     darkrose: {
       "$header-background-color": "#ddd2ce",
@@ -299,7 +325,12 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+    
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     stone: {
       "$header-background-color": "#cdccd2",
@@ -314,7 +345,12 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+    
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     winter: {
       "$header-background-color": "#82b8da",
@@ -329,7 +365,13 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+    
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
+    
     },
     winterstone: {
       "$header-background-color": "#323232",
@@ -344,25 +386,43 @@ export class StylesManager {
       "$border-color": "#e7e7e7",
 
       "$error-color": "#ed5565",
-      "$error-background-color": "#fd6575"
+      "$error-background-color": "#fd6575",
+    
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     bem: {
       "$add-button-color": "#1948b3",
-      "$remove-button-color": "#ff1800"
+      "$remove-button-color": "#ff1800",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     bootstrap: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
       "$disable-color": "#dbdbdb;",
-      "$header-background-color": "#e7e7e7"
+      "$header-background-color": "#e7e7e7",
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     },
     bootstrapmaterial: {
       "$main-color": "#18a689",
       "$text-color": "#404040;",
       "$progress-text-color": "#9d9d9d",
       "$disable-color": "#dbdbdb;",
-      "$header-background-color": "#e7e7e7"
+      "$header-background-color": "#e7e7e7",
+      
+      "$disabled-label-color": "rgba(64, 64, 64, 0.5)",
+      "$slider-color": "white",
+      "$disabled-switch-color": "#9f9f9f",
+      "$disabled-slider-color": "#cfcfcf"
     }
   };
   public static ThemeCss: { [key: string]: string } = {
@@ -443,11 +503,27 @@ export class StylesManager {
 
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
 
-    ".sv_default_css .sv_p_description": "padding-left: 1.29em;"
+    ".sv_default_css .sv_p_description": "padding-left: 1.29em;",
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
   };
   public static bemThemeCss: { [key: string]: string } = {
     ".sv-paneldynamic__add-btn": "background-color: $add-button-color;",
-    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;"
+    ".sv-paneldynamic__remove-btn": "background-color: $remove-button-color;",
+    ".sv-boolean__switch": "background-color: $main-color;",
+    ".sv-boolean__slider": "background-color: $slider-color;",
+    ".sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv-boolean--disabled .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
   };
   public static bootstrapThemeCss: { [key: string]: string } = {
     ".sv_main .sv_q_imgsel.checked label>div": "background-color: $main-color",
@@ -482,8 +558,17 @@ export class StylesManager {
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
       "fill: $disable-color; cursor: auto;",
     ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
     // EO paneldynamic
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
   };
 
   public static bootstrapmaterialThemeCss: { [key: string]: string } = {
@@ -560,8 +645,17 @@ export class StylesManager {
     ".sv_main .sv-paneldynamic__prev-btn.sv-paneldynamic__prev-btn--disabled, .sv_main .sv-paneldynamic__next-btn.sv-paneldynamic__next-btn--disabled ":
       "fill: $disable-color; cursor: auto;",
     ".sv_main .sv-paneldynamic__progress-text":
-      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em"
+      "color: $progress-text-color; font-weight: bold; font-size: 0.87em; margin-top: 0.69em; margin-left: 4em",
     // EO paneldynamic
+    //boolean
+    ".sv_main .sv-boolean__switch": "background-color: $main-color;",
+    ".sv_main .sv-boolean__slider": "background-color: $slider-color;",
+    ".sv_main .sv-boolean__label--disabled": "color: $disabled-label-color;",
+    ".sv_main .sv-boolean--disabled .sv-boolean__switch":
+      "background-color: $disabled-switch-color;",
+    ".sv_main .sv-boolean--disabled  .sv-boolean__slider":
+      "background-color: $disabled-slider-color;"
+    //eo boolean
   };
 
   private sheet: CSSStyleSheet = null;

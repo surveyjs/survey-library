@@ -60,15 +60,15 @@ export class SurveyPanelBase extends SurveyElementBase {
       }
     }
   }
-  protected renderRows(): Array<JSX.Element> {
+  protected renderRows(css: any): Array<JSX.Element> {
     var rows = [];
     var questionRows = this.panelBase.rows;
     for (var i = 0; i < questionRows.length; i++) {
-      rows.push(this.createRow(questionRows[i], i));
+      rows.push(this.createRow(questionRows[i], i, css));
     }
     return rows;
   }
-  protected createRow(row: QuestionRowModel, index: number): JSX.Element {
+  protected createRow(row: QuestionRowModel, index: number, css: any): JSX.Element {
     var rowName = "row" + (index + 1);
     return (
       <SurveyRow
@@ -76,7 +76,7 @@ export class SurveyPanelBase extends SurveyElementBase {
         row={row}
         survey={this.survey}
         creator={this.creator}
-        css={this.css}
+        css={css}
       />
     );
   }

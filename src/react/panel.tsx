@@ -34,7 +34,7 @@ export class SurveyPanel extends SurveyPanelBase {
     var content = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
       this.hasBeenExpanded = true;
-      var rows = this.renderRows();
+      var rows = this.renderRows(this.panelBase.cssClasses);
       content = this.renderContent(style, rows);
     }
     var rootStyle: { [index: string]: any } = {};

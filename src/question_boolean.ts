@@ -64,11 +64,10 @@ export class QuestionBooleanModel extends Question {
       ? this.getValueTrue()
       : this.getValueFalse();
   }
-  public set title(val: string) {
-    this.setLocalizableStringText("title", val);
-  }
   public get locTitle(): LocalizableString {
-    return this.showTitle ? this.getLocalizableString("title") : this.locLabel;
+    return this.showTitle || this.isValueEmpty(this.locLabel.text)
+      ? this.getLocalizableString("title")
+      : this.locLabel;
   }
   /**
    * The checkbox label. If it is empty and showTitle is false then title is rendered

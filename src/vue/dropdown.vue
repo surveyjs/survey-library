@@ -3,7 +3,7 @@
     <div v-if="!question.isReadOnly" :class="question.cssClasses.selectWrapper">
       <select
         :id="question.inputId"
-        v-model="value"
+        v-model="question.renderedValue"
         :class="question.cssClasses.control"
         v-bind:aria-label="question.locTitle.renderedHtml"
       >
@@ -31,13 +31,6 @@ import { QuestionDropdownModel } from "../question_dropdown";
 
 @Component
 export class Dropdown extends QuestionVue<QuestionDropdownModel> {
-  get value() {
-    return !this.question.isEmpty() ? this.question.renderedValue : "";
-  }
-  set value(newVal) {
-    this.question.renderedValue = newVal === "" ? undefined : newVal;
-  }
-
   get isOtherSelected() {
     const question = this.question;
     return question.hasOther && question.isOtherSelected;

@@ -11,13 +11,9 @@ import { ReactQuestionFactory } from "./reactquestionfactory";
 export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
   }
   protected get question(): QuestionRadiogroupModel {
     return this.questionBase as QuestionRadiogroupModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ value: this.getStateValue() });
   }
   render(): JSX.Element {
     if (!this.question) return null;
@@ -46,9 +42,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     );
   }
   protected getColumns(cssClasses: any) {
+    var value = this.getStateValue();
     return this.question.columns.map((column: any, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(item, cssClasses, ii)
+        this.renderItem(item, value, cssClasses, ii)
       );
       return (
         <div key={"column" + ci} className={this.question.getColumnClass()}>
@@ -59,9 +56,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected getItems(cssClasses: any): Array<any> {
     var items = [];
+    var value = this.getStateValue();
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      items.push(this.renderItem(item, cssClasses, i));
+      items.push(this.renderItem(item, value, cssClasses, i));
     }
     return items;
   }
@@ -70,6 +68,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   private renderItem(
     item: ItemValue,
+    value: any,
     cssClasses: any,
     index: number
   ): JSX.Element {
@@ -83,7 +82,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         item={item}
         textStyle={this.textStyle}
         index={index}
-        isChecked={this.state.value === item.value}
+        isChecked={value === item.value}
         isDisabled={this.question.isReadOnly || !item.isEnabled}
       />
     );

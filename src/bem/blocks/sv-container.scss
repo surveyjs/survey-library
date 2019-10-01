@@ -3,12 +3,20 @@
   font-size: $font-size;
   font-family: "Segoe UI";
 }
+
 .sv-container-bem__title {
+  padding-left: 5.625em;
+  padding-top: 5em;
+  padding-bottom: 0.9375em;
+}
+
+.sv-container-bem__title h3 {
   font-size: 1.87em;
 }
 .sv-container-bem fieldset {
   border: none;
   padding: 0;
+  margin: 0;
 }
 .sv-container-bem legend {
   border: none;

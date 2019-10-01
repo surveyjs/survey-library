@@ -91,12 +91,9 @@ export class QuestionTextModel extends Question {
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType == "number" || this.inputType == "range") {
-      return this.isNumber(newValue) ? parseFloat(newValue) : "";
+      return Helpers.isNumber(newValue) ? parseFloat(newValue) : "";
     }
     return newValue;
-  }
-  private isNumber(value: any): boolean {
-    return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }
 

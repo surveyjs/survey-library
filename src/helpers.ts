@@ -106,29 +106,18 @@ export class Helpers {
     if (!!value && value instanceof Object) {
       //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
-      /*
-      if (value instanceof Date) {
-        let res = new Date();
-        res.setTime(value.getTime());
-        return res;
-      }
-      if (value instanceof Array) {
-        let res = [];
-        for (let i = 0, len = value.length; i < len; i++) {
-          res[i] = Helpers.getUnbindValue(value[i]);
-        }
-        return res;
-      }
-      let res = {};
-      for (var attr in value) {
-        if (value.hasOwnProperty(attr)) {
-          (<any>res)[attr] = Helpers.getUnbindValue(value[attr]);
-        }
-      }
-      return res;
-      */
     }
     return value;
+  }
+  public static isNumber(value: any): boolean {
+    if (
+      typeof value == "string" &&
+      !!value &&
+      value.indexOf("0x") == 0 &&
+      value.length > 32
+    )
+      return false;
+    return !isNaN(parseFloat(value)) && isFinite(value);
   }
   public static getMaxLength(maxLength: number, surveyLength: number): any {
     if (maxLength < 0) {

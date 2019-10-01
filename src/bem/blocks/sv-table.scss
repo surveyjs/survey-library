@@ -1,9 +1,10 @@
 .sv-table {
   width: 100%;
   background-color: rgba(159, 159, 159, 0.1);
+  padding: 1.875em;
 }
 .sv-table__cell {
-  padding: 1em;
+  padding: 1.25em 0;
 }
 .sv-table__cell--header {
   font-family: Raleway;

@@ -861,7 +861,7 @@ export class SurveyElement extends Base implements ISurveyElement {
     if (!container) return false;
     parent.removeElement(<IElement>(<any>this));
     var index = -1;
-    if (!isNaN(parseFloat(insertBefore)) && isFinite(insertBefore)) {
+    if (Helpers.isNumber(insertBefore)) {
       index = parseInt(insertBefore);
     }
     if (index == -1 && !!insertBefore && !!insertBefore.getType) {

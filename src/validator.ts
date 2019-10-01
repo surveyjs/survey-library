@@ -151,7 +151,7 @@ export class NumericValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (Helpers.isValueEmpty(value)) return null;
-    if (!this.isNumber(value)) {
+    if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
         new RequreNumericError(null, this.errorOwner)
@@ -184,9 +184,6 @@ export class NumericValidator extends SurveyValidator {
         .getString("numericMax")
         ["format"](vName, this.maxValue);
     }
-  }
-  private isNumber(value: any): boolean {
-    return !isNaN(parseFloat(value)) && isFinite(value);
   }
 }
 /**

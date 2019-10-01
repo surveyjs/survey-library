@@ -19,6 +19,9 @@ function init() {
   Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
   var json = {
+    showProgressBar: "both",
+    title: "Survey New Design Test",
+    description: "Survey Description",
     questions: [
       {
         name: "name",
@@ -118,6 +121,8 @@ function init() {
         type: "imagepicker",
         name: "choosepicture",
         title: "Imagepicker",
+        imageHeight: "150px",
+        imageWidth: "225px",
         choices: [
           {
             value: "lion",

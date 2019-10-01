@@ -11,14 +11,10 @@ import { ItemValue } from "../itemvalue";
 export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
-    this.state = { value: this.getStateValue() };
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   protected get question(): QuestionDropdownModel {
     return this.questionBase as QuestionDropdownModel;
-  }
-  componentWillReceiveProps(nextProps: any) {
-    this.setState({ value: this.getStateValue() });
   }
   handleOnChange(event: any) {
     this.question.renderedValue = event.target.value;
@@ -61,12 +57,17 @@ export class SurveyQuestionDropdown extends SurveyQuestionElementBase {
       <option value="">{this.question.optionsCaption}</option>
     ) : null;
 
+    var value =
+      !!this.state && this.state.value !== undefined
+        ? this.state.value
+        : this.getStateValue();
+
     return (
       <div className={cssClasses.selectWrapper}>
         <select
           id={this.question.inputId}
           className={cssClasses.control}
-          value={this.state.value}
+          value={value}
           onChange={this.handleOnChange}
           onInput={this.handleOnChange}
           aria-label={this.question.locTitle.renderedHtml}

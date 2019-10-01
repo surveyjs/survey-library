@@ -44,7 +44,7 @@
               />
               <span :class="question.cssClasses.materialDecorator">
               <svg :class="question.cssClasses.itemDecorator" viewBox="-12 -12 24 24">
-                <circle r="6" cx="0" cy="0">
+                <circle r="6" cx="0" cy="0"></circle>
               </svg>
               </span>
               <span class="circle"></span>

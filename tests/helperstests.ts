@@ -136,3 +136,15 @@ QUnit.test("Return correct value for array.length", function(assert) {
     "Ignore a.b"
   );
 });
+
+QUnit.test("Helpers.isNumber", function(assert) {
+  assert.equal(Helpers.isNumber("1"), true, "1 is a number");
+  assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
+  assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
+  assert.equal(Helpers.isNumber("abcd"), false, "abcd is not a number");
+  assert.equal(
+    Helpers.isNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8"),
+    false,
+    "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 is not a number"
+  );
+});

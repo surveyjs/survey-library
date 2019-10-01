@@ -9,11 +9,6 @@ export class SurveyWindow extends Survey {
     super(props);
     this.handleOnExpanded = this.handleOnExpanded.bind(this);
   }
-  componentWillReceiveProps(nextProps: any) {
-    this.unMakeBaseElementReact(this.window);
-    this.updateSurvey(nextProps, this.props);
-    this.makeBaseElementReact(this.window);
-  }
   handleOnExpanded(event: any) {
     this.window.isExpanded = !this.window.isExpanded;
   }
@@ -66,15 +61,16 @@ export class SurveyWindow extends Survey {
   protected renderBody(): JSX.Element {
     return <div className={this.css.window.body}>{this.doRender()}</div>;
   }
-  protected updateSurvey(newProps: any, prevProps: any) {
+  protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};
-    super.updateSurvey(newProps, prevProps);
+    super.createSurvey(newProps);
     this.window = new ReactWindowModel(null, this.survey);
     if (newProps.closeOnCompleteTimeout) {
       this.window.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
-    if (newProps.expanded || newProps.isExpanded) this.window.expand();
     this.window.isShowing = true;
+    if (!this.window.isExpanded && (newProps.expanded || newProps.isExpanded))
+      this.window.expand();
     var self = this;
     this.window.closeWindowOnCompleteCallback = function() {
       self.window.hide();

@@ -993,7 +993,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey) this.survey.dynamicPanelRemoved(this, index);
   }
   private getPanelIndex(val: any): number {
-    if (!isNaN(parseFloat(val)) && isFinite(val)) return val;
+    if (Helpers.isNumber(val)) return val;
     var items = this.items;
     for (var i = 0; i < this.panels.length; i++) {
       if (this.panels[i] === val || items[i] === val) return i;

@@ -122,11 +122,7 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("useGrouping", val);
   }
   protected getValueAsStr(val: any): string {
-    if (
-      this.displayStyle != "none" &&
-      !isNaN(parseFloat(val)) &&
-      isFinite(val)
-    ) {
+    if (this.displayStyle != "none" && Helpers.isNumber(val)) {
       var locale = this.getLocale();
       if (!locale) locale = "en";
       var options = {

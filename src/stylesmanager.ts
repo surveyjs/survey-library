@@ -394,6 +394,7 @@ export class StylesManager {
       "$disabled-slider-color": "#cfcfcf"
     },
     bem: {
+      "$main-color": "#1ab394",
       "$add-button-color": "#1948b3",
       "$remove-button-color": "#ff1800",
       "$disabled-label-color": "rgba(64, 64, 64, 0.5)",

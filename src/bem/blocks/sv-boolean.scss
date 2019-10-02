@@ -13,8 +13,9 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  transition-duration: 0.4s;
+  transition-duration: 0.1s;
   transition-property: margin-left;
+  transition-timing-function: linear;
   border: none;
   border-radius: 100%;
 }

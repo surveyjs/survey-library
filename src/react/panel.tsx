@@ -34,14 +34,14 @@ export class SurveyPanel extends SurveyPanelBase {
     var content = null;
     if (!this.panel.isCollapsed || this.hasBeenExpanded) {
       this.hasBeenExpanded = true;
-      var rows = this.renderRows();
+      var rows = this.renderRows(this.panelBase.cssClasses);
       content = this.renderContent(style, rows);
     }
     var rootStyle: { [index: string]: any } = {};
     if (this.panel.renderWidth) rootStyle["width"] = this.panel.renderWidth;
     var bottom = this.renderBottom();
     return (
-      <div ref="root" className={this.css.panel.container} style={rootStyle}>
+      <div ref="root" className={this.panelBase.cssClasses.panel.container} style={rootStyle}>
         {title}
         {description}
         {errors}

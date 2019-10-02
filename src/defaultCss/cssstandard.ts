@@ -70,9 +70,9 @@ export var defaultStandardCss = {
 
   boolean: {
     root: "sv_qcbc sv_qbln",
-    item: "sv-boolean sv-selectbase__label",
+    item: "sv-boolean",
     control: "sv-visuallyhidden",
-    itemChecked: "sv-boolean--checked",
+    itemChecked: "sv-boolean--checked checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-boolean--disabled",
     switch: "sv-boolean__switch",

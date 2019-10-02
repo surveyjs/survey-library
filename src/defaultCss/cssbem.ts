@@ -73,7 +73,7 @@ export var bemCss = {
     hasAnswer: "sv-question--has-answer",
     indent: 20,
     footer: "sv-question__footer",
-    formGroup: "sv-question__form-group"  
+    formGroup: "sv-question__form-group"
   },
   error: {
     root: "",
@@ -114,19 +114,16 @@ export var bemCss = {
     column: "sv-selectbase__column"
   },
   boolean: {
-    root: "sv-selectbase",
-    item: "sv-item sv-boolean sv-selectbase__label",
-    control: "sv-visuallyhidden sv-item__control sv-boolean__control",
-    checkedPath: "sv-boolean__checked-path",
-    uncheckedPath: "sv-boolean__unchecked-path",
-    indeterminatePath: "sv-boolean__indeterminate-path",
+    root: "",
+    item: "sv-boolean sv-item",
+    control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
     itemIndeterminate: "sv-boolean--indeterminate",
     itemDisabled: "sv-item--disabled sv-boolean--disabled",
-    itemDecorator: "sv-item__svg  sv-boolean__svg",
-    itemHover: "sv-boolean--allowhover",
-    label: " sv-item__control-label",
-    materialDecorator: "sv-item__decorator sv-boolean__decorator "
+    switch: "sv-boolean__switch",
+    slider: "sv-boolean__slider",
+    label: "sv-boolean__label ",
+    disabledLabel: "sv-boolean__label--disabled"
   },
   text: {
     root: "sv-text",

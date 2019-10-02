@@ -114,12 +114,12 @@ export var bemCss = {
     column: "sv-selectbase__column"
   },
   boolean: {
-    root: "sv-selectbase",
-    item: "sv-boolean sv-selectbase__label",
+    root: "sv-boolean",
+    item: "sv-item",
     control: "sv-visuallyhidden",
     itemChecked: "sv-boolean--checked",
     itemIndeterminate: "sv-boolean--indeterminate",
-    itemDisabled: "sv-boolean--disabled",
+    itemDisabled: "sv-item--disabled sv-boolean--disabled",
     switch: "sv-boolean__switch",
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",

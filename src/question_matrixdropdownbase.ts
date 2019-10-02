@@ -1814,7 +1814,7 @@ export class QuestionMatrixDropdownModelBase
       false
     );
   }
-  public getIsAnswered(): boolean {
+  protected getIsAnswered(): boolean {
     return (
       !this.isEmpty() &&
       this.checkForAnswersOrErrors(

@@ -222,9 +222,6 @@ export class QuestionMatrixModel
     this.setPropertyValue("rowsOrder", val);
     this.onRowsChanged();
   }
-  protected setNewValue(val: any) {
-    super.setNewValue(val);
-  }
   getRows(): Array<any> {
     return this.rows;
   }
@@ -345,7 +342,7 @@ export class QuestionMatrixModel
     if (!this.isAllRowRequired) return false;
     return !this.hasValuesInAllRows();
   }
-  public getIsAnswered(): boolean {
+  protected getIsAnswered(): boolean {
     return !this.isEmpty() && this.hasValuesInAllRows();
   }
   private hasValuesInAllRows(): boolean {

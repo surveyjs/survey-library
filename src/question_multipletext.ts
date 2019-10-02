@@ -184,7 +184,6 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(this.name, value);
     }
   }
-  public checkIsAnswered() {}
   public isEmpty() {
     return Helpers.isValueEmpty(this.value);
   }
@@ -433,7 +432,7 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  public getIsAnswered(): boolean {
+  protected getIsAnswered(): boolean {
     if(this.isEmpty()) return false;
     for (var i = 0; i < this.items.length; i++) {
       var editor = this.items[i].editor;

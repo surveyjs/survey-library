@@ -7999,7 +7999,7 @@ QUnit.test("Check containsError property for panel dynamic with checkErrorsMode:
   question.value = "";
   assert.equal(panelDynamic.containsErrors, true, "The panel has errors after value changed to empty");
 });
-QUnit.test("Check checkIsAnswered method", function(assert){
+QUnit.test("Check isAnswered property", function(assert){
   var survey = new SurveyModel({
     elements: [
       {

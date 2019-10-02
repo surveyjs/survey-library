@@ -212,7 +212,6 @@ export class QuestionPanelDynamicModel extends Question
     this.registerFunctionOnPropertyValueChanged("panelsState", function() {
       self.setPanelsState();
     });
-    this.allErrors = this.createNewArray("allErrors");
   }
   public setSurveyImpl(value: ISurveyImpl) {
     super.setSurveyImpl(value);
@@ -1267,7 +1266,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  public getIsAnswered(): boolean {
+  protected getIsAnswered(): boolean {
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
       var visibleQuestions = <Array<any>>[];

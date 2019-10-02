@@ -1053,10 +1053,10 @@ export class Question extends SurveyElement
   public set isAnswered(val: boolean) {
     this.setPropertyValue("isAnswered", val);
   }
-  public updateIsAnswered() {
+  protected updateIsAnswered() {
     this.setPropertyValue("isAnswered", this.getIsAnswered());
   }
-  public getIsAnswered(): boolean {
+  protected getIsAnswered(): boolean {
     return !this.isEmpty();
   }
   /**

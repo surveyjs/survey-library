@@ -32,7 +32,7 @@ export class ElementHeader extends Vue {
     var titleClass = cssClasses.title;
     if (!element.isPanel && element.hasError) {
       titleClass += " " + cssClasses.titleOnError;
-    } else if (!element.isPanel && !element.isEmpty()) {
+    } else if (!element.isPanel && element.isAnswered) {
       titleClass += " " + cssClasses.titleOnAnswer;
     }
     return titleClass;

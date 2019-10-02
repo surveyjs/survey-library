@@ -165,7 +165,7 @@ export class SurveyQuestion extends SurveyElementBase {
     var result = cssClasses.title;
     if (element.hasError) {
       result += " " + cssClasses.titleOnError;
-    } else if (!element.isEmpty()) {
+    } else if (element.isAnswered) {
       result += " " + cssClasses.titleOnAnswer;
     }
     return result;

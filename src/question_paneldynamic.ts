@@ -1183,8 +1183,7 @@ export class QuestionPanelDynamicModel extends Question
       var question = this.changingValueQuestion;
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
       var parent = <Panel>question.parent;
-      while (!!parent)
-      {
+      while (!!parent) {
         parent.updateContainsErrors();
         parent = <Panel>parent.parent;
       }
@@ -1204,7 +1203,18 @@ export class QuestionPanelDynamicModel extends Question
     }
     return false;
   }
-
+  protected getIsAnswered(): boolean {
+    if (!super.getIsAnswered()) return false;
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      var visibleQuestions = <Array<any>>[];
+      panels[i].addQuestionsToList(visibleQuestions, true);
+      for (var j = 0; j < visibleQuestions.length; j++) {
+        if (!visibleQuestions[j].isAnswered) return false;
+      }
+    }
+    return true;
+  }
   public clearValueIfInvisible() {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
@@ -1265,17 +1275,6 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     return val;
-  }
-  protected getIsAnswered(): boolean {
-    var panels = this.panels;
-    for (var i = 0; i < panels.length; i++) {
-      var visibleQuestions = <Array<any>>[];
-      panels[i].addQuestionsToList(visibleQuestions, true);
-      for (var j = 0; j < visibleQuestions.length; j++) {
-        if (!visibleQuestions[j].isAnswered) return false;
-      }
-    }
-    return true;
   }
   private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;

@@ -1809,14 +1809,17 @@ export class QuestionMatrixDropdownModelBase
     return true;
   }
   protected getContainsErrors(): boolean {
-    return this.checkForAnswersOrErrors(
-      (question: Question) => question.containsErrors,
-      false
+    return (
+      super.getContainsErrors() ||
+      this.checkForAnswersOrErrors(
+        (question: Question) => question.containsErrors,
+        false
+      )
     );
   }
   protected getIsAnswered(): boolean {
     return (
-      !this.isEmpty() &&
+      super.getIsAnswered() &&
       this.checkForAnswersOrErrors(
         (question: Question) => question.isAnswered,
         true

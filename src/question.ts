@@ -1252,10 +1252,10 @@ export class Question extends SurveyElement
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered:boolean = true) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     this.questionValue = newValue;
     this.fireCallback(this.valueChangedCallback);
-    if(updateIsAnswered) this.updateIsAnswered();
+    if (updateIsAnswered) this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;

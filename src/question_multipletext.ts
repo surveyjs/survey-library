@@ -432,14 +432,6 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  protected getIsAnswered(): boolean {
-    if(this.isEmpty()) return false;
-    for (var i = 0; i < this.items.length; i++) {
-      var editor = this.items[i].editor;
-      if (editor.isVisible && !editor.isAnswered) return false;
-    }
-    return true;
-  }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var res = false;
     for (var i = 0; i < this.items.length; i++) {
@@ -476,6 +468,14 @@ export class QuestionMultipleTextModel extends Question
       if (items[i].editor.containsErrors) return true;
     }
     return false;
+  }
+  protected getIsAnswered(): boolean {
+    if (!super.getIsAnswered()) return false;
+    for (var i = 0; i < this.items.length; i++) {
+      var editor = this.items[i].editor;
+      if (editor.isVisible && !editor.isAnswered) return false;
+    }
+    return true;
   }
 
   //IMultipleTextData

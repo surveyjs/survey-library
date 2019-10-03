@@ -342,9 +342,6 @@ export class QuestionMatrixModel
     if (!this.isAllRowRequired) return false;
     return !this.hasValuesInAllRows();
   }
-  protected getIsAnswered(): boolean {
-    return !this.isEmpty() && this.hasValuesInAllRows();
-  }
   private hasValuesInAllRows(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
@@ -354,6 +351,9 @@ export class QuestionMatrixModel
       if (!val) return false;
     }
     return true;
+  }
+  protected getIsAnswered(): boolean {
+    return super.getIsAnswered() && this.hasValuesInAllRows();
   }
   protected createMatrixRow(
     item: ItemValue,

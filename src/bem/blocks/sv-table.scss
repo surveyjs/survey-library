@@ -6,6 +6,12 @@
 .sv-table__cell {
   padding: 1.25em 0;
 }
+.sv-table__cell:not(:last-child){
+  padding-right: 1em;
+}
+.sv-table__cell:not(:first-child){
+  padding-left: 1em;
+}
 .sv-table__cell--header {
   font-family: Raleway;
   font-weight: bold;

@@ -546,13 +546,6 @@ export class Question extends SurveyElement
     if (!this.isFlowLayout && this.getTitleLocation() == "left") {
       res += " " + classes.titleLeftRoot;
     }
-    if (!this.isEmpty()) {
-      res += " " + classes.hasAnswer;
-    }
-    if (this.errors.length > 0) {
-      res += " " + classes.hasError;
-    }
-
     return res;
   }
   protected getRootCss(classes: any) {
@@ -1054,6 +1047,18 @@ export class Question extends SurveyElement
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value);
   }
+  public get isAnswered(): boolean {
+    return this.getPropertyValue("isAnswered");
+  }
+  public set isAnswered(val: boolean) {
+    this.setPropertyValue("isAnswered", val);
+  }
+  protected updateIsAnswered() {
+    this.setPropertyValue("isAnswered", this.getIsAnswered());
+  }
+  protected getIsAnswered(): boolean {
+    return !this.isEmpty();
+  }
   /**
    * The list of question validators.
    */
@@ -1247,9 +1252,10 @@ export class Question extends SurveyElement
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
-  protected setQuestionValue(newValue: any) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     this.questionValue = newValue;
     this.fireCallback(this.valueChangedCallback);
+    if (updateIsAnswered) this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     if (this.isLoadingFromJson) return;

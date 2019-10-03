@@ -1786,8 +1786,9 @@ export class QuestionMatrixDropdownModelBase
     this.isRowChanging = false;
   }
   protected setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     this.onSetQuestionValue();
+    this.updateIsAnswered();
   }
   supportGoNextPageAutomatic() {
     var rows = this.generatedVisibleRows;
@@ -1806,6 +1807,46 @@ export class QuestionMatrixDropdownModelBase
       }
     }
     return true;
+  }
+  protected getContainsErrors(): boolean {
+    return (
+      super.getContainsErrors() ||
+      this.checkForAnswersOrErrors(
+        (question: Question) => question.containsErrors,
+        false
+      )
+    );
+  }
+  protected getIsAnswered(): boolean {
+    return (
+      super.getIsAnswered() &&
+      this.checkForAnswersOrErrors(
+        (question: Question) => question.isAnswered,
+        true
+      )
+    );
+  }
+  private checkForAnswersOrErrors(
+    predicate: (question: Question) => boolean,
+    every: boolean = false
+  ) {
+    var rows = this.generatedVisibleRows;
+    if (!rows) return false;
+    for (var i = 0; i < rows.length; i++) {
+      var cells = rows[i].cells;
+      if (!cells) continue;
+      for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+        if (!cells[colIndex]) continue;
+        var question = cells[colIndex].question;
+        if (question && question.isVisible)
+          if (predicate(question)) {
+            if (!every) return true;
+          } else {
+            if (every) return false;
+          }
+      }
+    }
+    return every ? true : false;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var errosInColumns = this.hasErrorInColumns(fireCallback);

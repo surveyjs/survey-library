@@ -33,6 +33,7 @@ export var defaultBootstrapMaterialCss = {
     content: "",
     contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
+    requiredText: "sv_q_required_text",
     title: "",
     number: "sv_q_num",
     description: "small",

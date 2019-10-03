@@ -296,7 +296,6 @@ QUnit.test("Has errors", function(assert) {
   question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
   assert.equal(question.hasErrors(), false, "There is no errors now");
 });
-
 QUnit.test("Update panels elements on changing template panel", function(
   assert
 ) {

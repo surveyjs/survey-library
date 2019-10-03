@@ -156,15 +156,11 @@ export class SurveyQuestion extends SurveyElementBase {
   private getTitleClass(element: Question) {
     var cssClasses = element.cssClasses;
     var result = cssClasses.title;
-
-    if (!element.isEmpty()) {
+    if (element.hasError) {
+      result += " " + cssClasses.titleOnError;
+    } else if (element.isAnswered) {
       result += " " + cssClasses.titleOnAnswer;
     }
-
-    if (element.errors.length > 0) {
-      result += " " + cssClasses.titleOnError;
-    }
-
     return result;
   }
 

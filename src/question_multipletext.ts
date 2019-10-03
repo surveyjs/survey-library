@@ -283,11 +283,12 @@ export class QuestionMultipleTextModel extends Question
     this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       if (item.editor) item.editor.updateValueFromSurvey(item.value);
     }
+    this.updateIsAnswered();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -467,6 +468,14 @@ export class QuestionMultipleTextModel extends Question
       if (items[i].editor.containsErrors) return true;
     }
     return false;
+  }
+  protected getIsAnswered(): boolean {
+    if (!super.getIsAnswered()) return false;
+    for (var i = 0; i < this.items.length; i++) {
+      var editor = this.items[i].editor;
+      if (editor.isVisible && !editor.isAnswered) return false;
+    }
+    return true;
   }
 
   //IMultipleTextData

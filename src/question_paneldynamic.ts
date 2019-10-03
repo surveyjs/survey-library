@@ -20,6 +20,7 @@ import { JsonObject, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
+import { Panel } from "./knockout/kopage";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -1179,7 +1180,15 @@ export class QuestionPanelDynamicModel extends Question
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally) return false;
     if (!!this.changingValueQuestion) {
-      return this.changingValueQuestion.hasErrors(fireCallback, rec);
+      var question = this.changingValueQuestion;
+      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
+      var parent = <Panel>question.parent;
+      while (!!parent) {
+        parent.updateContainsErrors();
+        parent = <Panel>parent.parent;
+      }
+      this.updateContainsErrors();
+      return res;
     } else {
       var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
       return super.hasErrors(fireCallback) || errosInPanels;
@@ -1194,7 +1203,18 @@ export class QuestionPanelDynamicModel extends Question
     }
     return false;
   }
-
+  protected getIsAnswered(): boolean {
+    if (!super.getIsAnswered()) return false;
+    var panels = this.panels;
+    for (var i = 0; i < panels.length; i++) {
+      var visibleQuestions = <Array<any>>[];
+      panels[i].addQuestionsToList(visibleQuestions, true);
+      for (var j = 0; j < visibleQuestions.length; j++) {
+        if (!visibleQuestions[j].isAnswered) return false;
+      }
+    }
+    return true;
+  }
   public clearValueIfInvisible() {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
@@ -1256,7 +1276,6 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-
   private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
     var panels = this.panels;
@@ -1344,11 +1363,12 @@ export class QuestionPanelDynamicModel extends Question
     this.panelCount = newPanelCount;
   }
   public setQuestionValue(newValue: any) {
-    super.setQuestionValue(newValue);
+    super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     for (var i = 0; i < this.panels.length; i++) {
       this.panelUpdateValueFromSurvey(this.panels[i]);
     }
+    this.updateIsAnswered();
   }
   public onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);

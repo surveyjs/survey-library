@@ -920,3 +920,28 @@ QUnit.test("Several async functions in expression", function(assert) {
   FunctionFactory.Instance.unregister("asyncFunc2");
   FunctionFactory.Instance.unregister("asyncFunc3");
 });
+
+QUnit.test("isString function", function(assert) {
+  function isString(params: any[]): any {
+    return typeof params[0] == "string";
+  }
+  FunctionFactory.Instance.register("isString", isString);
+
+  var runner = new ConditionRunner("isString({val}) == true");
+  var values: any = { val: "3" };
+  var properties = {};
+  assert.equal(runner.run(values, properties), false, "3 is Numeric");
+  values.val = false;
+  assert.equal(runner.run(values, properties), false, "false is boolean");
+  values.val = "abc";
+  assert.equal(runner.run(values, properties), true, "'abc' is string");
+  values.val = "0x2323";
+  assert.equal(runner.run(values, properties), false, "'0x2323' is number");
+  values.val = "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8";
+  assert.equal(
+    runner.run(values, properties),
+    true,
+    "'0xbe0eb53f46cd790cd13851d5eff43d12404d33e8' is string"
+  );
+  FunctionFactory.Instance.unregister("isString");
+});

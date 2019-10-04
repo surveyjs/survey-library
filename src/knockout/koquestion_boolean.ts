@@ -19,17 +19,28 @@ export class QuestionBoolean extends QuestionBooleanModel {
   public getItemCss(row: any, column: any) {
     let isChecked = this.checkedValue;
     let isDisabled = this.isReadOnly;
-    let allowHover = !isChecked && !isDisabled;
     let itemClass = this.cssClasses.item;
     if (isDisabled) itemClass += " " + this.cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + this.cssClasses.itemChecked;
     else if (isChecked === null)
       itemClass += " " + this.cssClasses.itemIndeterminate;
-    if (allowHover) itemClass += " " + this.cssClasses.itemHover;
     return itemClass;
   }
+  public getCheckedLabelCss(): string {
+    return this.getLabelClass(true);
+  }
+  public getUncheckedLabelCss(): string {
+    return this.getLabelClass(false);
+  }
+  private getLabelClass(checked: boolean): string {
+    return (
+      this.cssClasses.label +
+      (this.checkedValue === !checked || this.isReadOnly
+        ? " " + this.cssClasses.disabledLabel
+        : "")
+    );
+  }
 }
-
 Serializer.overrideClassCreator("boolean", function() {
   return new QuestionBoolean("");
 });

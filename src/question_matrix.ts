@@ -352,6 +352,9 @@ export class QuestionMatrixModel
     }
     return true;
   }
+  protected getIsAnswered(): boolean {
+    return super.getIsAnswered() && this.hasValuesInAllRows();
+  }
   protected createMatrixRow(
     item: ItemValue,
     fullName: string,

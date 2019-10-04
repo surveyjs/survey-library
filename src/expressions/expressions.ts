@@ -294,9 +294,7 @@ export class OperandMaker {
     )
       return false;
     if (OperandMaker.isSpaceString(value)) return false;
-    var val = Number(value);
-    if (isNaN(val)) return false;
-    return isFinite(val);
+    return Helpers.isNumber(value);
   }
 
   static isBooleanValue(value: string): boolean {

@@ -33,6 +33,7 @@ export var defaultBootstrapMaterialCss = {
     content: "",
     contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
+    requiredText: "sv_q_required_text",
     title: "",
     number: "sv_q_num",
     description: "small",
@@ -61,11 +62,15 @@ export var defaultBootstrapMaterialCss = {
 
   boolean: {
     root: "sv_qbln form-inline checkbox",
-    item: "",
-    itemChecked: "checked",
-    itemDecorator: "sv-hidden",
-    label: "",
-    materialDecorator: "checkbox-material"
+    item: "sv-boolean",
+    control: "sv-visuallyhidden",
+    itemChecked: "sv-boolean--checked checked",
+    itemIndeterminate: "sv-boolean--indeterminate",
+    itemDisabled: "sv-boolean--disabled",
+    switch: "sv-boolean__switch",
+    slider: "sv-boolean__slider",
+    label: "sv-boolean__label ",
+    disabledLabel: "sv-boolean__label--disabled"
   },
   checkbox: {
     root: "sv_qcbx form-inline",

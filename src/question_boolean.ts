@@ -2,6 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
+import { surveyLocalization } from "./surveyStrings";
 
 /**
  * A Model for a boolean question.
@@ -24,7 +25,7 @@ export class QuestionBooleanModel extends Question {
     return this.isEmpty();
   }
   public get hasTitle(): boolean {
-    return this.showTitle;
+    return true;
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -63,6 +64,11 @@ export class QuestionBooleanModel extends Question {
       ? this.getValueTrue()
       : this.getValueFalse();
   }
+  public get locTitle(): LocalizableString {
+    return this.showTitle || this.isValueEmpty(this.locLabel.text)
+      ? this.getLocalizableString("title")
+      : this.locLabel;
+  }
   /**
    * The checkbox label. If it is empty and showTitle is false then title is rendered
    * @see showTitle
@@ -89,6 +95,12 @@ export class QuestionBooleanModel extends Question {
   }
   public set showTitle(val: boolean) {
     this.setPropertyValue("showTitle", val);
+  }
+  public get checkedLabel(): string {
+    return surveyLocalization.getString("booleanCheckedLabel");
+  }
+  public get uncheckedLabel(): string {
+    return surveyLocalization.getString("booleanUncheckedLabel");
   }
   /**
    * Set this property, if you want to have a different value from true when check is set.

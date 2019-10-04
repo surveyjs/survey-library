@@ -7935,14 +7935,29 @@ QUnit.test("Check containsError property", function(assert) {
         items: [
           {name: "q1_m1", isRequired: true}
         ]
-      }      
-    ]
+      },
+      {
+        type: "matrixdropdown",
+        name: "question5",
+        columns: [
+         {
+          name: "col1",
+          cellType: "dropdown",
+          isRequired: true
+         }
+        ],
+        choices: [1],
+        rows: ["row1"]
+       }
+      ]     
+    
   });
   var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   var panel = <PanelModel>survey.getPanelByName("panel2");
   var question = survey.getQuestionByName("question3");
   var questionMultiple = survey.getQuestionByName("question4");
-
+  var questionMatrixDropdown = survey.getQuestionByName("question5");
+  var rows = questionMatrixDropdown.visibleRows;
   assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
   assert.equal(survey.isCurrentPageHasErrors, true, "The page has Errors");
   assert.equal(panelDynamic.containsErrors, true, "Dynamic panel contains errros");
@@ -7950,15 +7965,104 @@ QUnit.test("Check containsError property", function(assert) {
   assert.equal(question.containsErrors, true, "question contains errors");
   assert.equal(questionMultiple.items[0].editor.containsErrors, true, "question multiple item contains errors");
   assert.equal(questionMultiple.containsErrors, true, "question multiple contains errors");
-
-  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}};
+  assert.equal(questionMatrixDropdown.containsErrors, true, "MatrixDropdown contains errors");
+  survey.data = {panel1: [{question1: 1}, {question1: 1}], question2: 2, question3: 3, question4: {q1_m1: 1}, question5: {row1: {col1: 1}}};
   assert.equal(panelDynamic.containsErrors, true, "contains errros is not updated yet");
-  
   assert.equal(survey.isCurrentPageHasErrors, false, "The page has no errors");
   assert.equal(panelDynamic.containsErrors, false, "Dynamic panel contains no errros");
   assert.equal(panel.containsErrors, false, "panel contains no errors");
   assert.equal(question.containsErrors, false, "question contains no errors");
   assert.equal(questionMultiple.containsErrors, false, "question multiple contains no errors");
+  assert.equal(questionMatrixDropdown.containsErrors, false, "MatrixDropdown contains no errors");
+});
+QUnit.test("Check containsError property for panel dynamic with checkErrorsMode: 'onValueChanged'", function(assert) {
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1",
+            isRequired: true
+          }
+        ],
+        panelCount: 1
+      }]
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var question = panelDynamic.panels[0].questions[0];
+  assert.equal(panelDynamic.containsErrors, false, "It doesn't contain errors by default");
+  question.value = "1";
+  assert.equal(panelDynamic.containsErrors, false, "The panel has no errors");
+  question.value = "";
+  assert.equal(panelDynamic.containsErrors, true, "The panel has errors after value changed to empty");
+});
+QUnit.test("Check isAnswered property", function(assert){
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "question1"
+          }
+        ],
+        panelCount: 2
+      },
+      {
+        type: "text",
+        name: "question2"
+      },
+      {
+        type: "multipletext",
+        name: "question3",
+        items: [
+          {name: "q1_m1" },
+          {name: "q2_m1"}
+        ]
+      },
+      {
+        type: "matrixdropdown",
+        name: "question4",
+        columns: [
+         {
+          name: "col1",
+          cellType: "dropdown"
+         },
+         {
+          name: "col2",
+          cellType: "dropdown"
+         }
+        ],
+        choices: [1],
+        rows: ["row1"]
+       }
+      ]     
+    
+  });
+  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var question = survey.getQuestionByName("question2");
+  var questionMultiple = survey.getQuestionByName("question3");
+  var questionMatrixDropdown = survey.getQuestionByName("question4");
+  var rows = questionMatrixDropdown.visibleRows;
+  assert.equal(panelDynamic.isAnswered, false, "Paneldynamic is not answered");
+  assert.equal(questionMultiple.isAnswered, false, "Multiple text is not answered");
+  assert.equal(question.isAnswered, false, "Question is not  answered");
+  assert.equal(questionMatrixDropdown.isAnswered,false, "Paneldynamic is not answered");
+  survey.data = {panel1: [{question1: 1}, {}],  question2: 3, question3: {q1_m1: 1}, question4: {row1: {col1: 1}}};
+  assert.equal(panelDynamic.isAnswered, false, "Paneldynamic is not fully answered");
+  assert.equal(questionMultiple.isAnswered, false, "Multiple text is not fully answered");
+  assert.equal(question.isAnswered, true, "Question is answered");
+  assert.equal(questionMatrixDropdown.isAnswered,false, "Paneldynamic is not fully answered");
+  survey.data = {panel1: [{question1: 1}, {question1: 2}], question3: {q1_m1: 1, q2_m1:2}, question4: {row1: {col1: 1, col2:2}}};
+  assert.equal(panelDynamic.isAnswered, true, "Paneldynamic is fully answered");
+  assert.equal(questionMultiple.isAnswered, true, "Multiple text is fully answered");
+  assert.equal(questionMatrixDropdown.isAnswered, true, "Paneldynamic is fully answered");
 });
 
 QUnit.test("Two matrix with same valueName, clear values for invisible rows only, Bug# https://surveyjs.answerdesk.io/ticket/details/T2713", function(assert) {

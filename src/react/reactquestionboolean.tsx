@@ -36,19 +36,27 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var isChecked = this.question.checkedValue;
     var isDisabled = this.question.isReadOnly;
-    var allowHover = !isChecked && !isDisabled;
     var itemClass = cssClasses.item;
     if (isDisabled) itemClass += " " + cssClasses.itemDisabled;
     if (isChecked) itemClass += " " + cssClasses.itemChecked;
     else if (isChecked === null)
       itemClass += " " + cssClasses.itemIndeterminate;
-    if (allowHover) itemClass += " " + cssClasses.itemHover;
     return itemClass;
+  }
+  private getLabelClass(checked: boolean): string {
+    var question = this.question;
+    var cssClasses = this.question.cssClasses;
+    return (
+      cssClasses.label +
+      " " +
+      (question.checkedValue === !checked || question.isReadOnly
+        ? question.cssClasses.disabledLabel
+        : "")
+    );
   }
   render(): JSX.Element {
     if (!this.question) return null;
     var cssClasses = this.question.cssClasses;
-    var text = this.renderLocString(this.question.locDisplayLabel);
     var itemClass = this.getItemClass();
     return (
       <div className={cssClasses.root}>
@@ -68,27 +76,15 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             onChange={this.handleOnChange}
             aria-label={this.question.locTitle.renderedHtml}
           />
-          <span className={cssClasses.materialDecorator}>
-            <svg viewBox="0 0 24 24" className={cssClasses.itemDecorator}>
-              <rect
-                className={cssClasses.uncheckedPath}
-                x="5"
-                y="10"
-                width="14"
-                height="4"
-              />
-              <polygon
-                className={cssClasses.checkedPath}
-                points="19,10 14,10 14,5 10,5 10,10 5,10 5,14 10,14 10,19 14,19 14,14 19,14 "
-              />
-              <path
-                className={cssClasses.indeterminatePath}
-                d="M22,0H2C0.9,0,0,0.9,0,2v20c0,1.1,0.9,2,2,2h20c1.1,0,2-0.9,2-2V2C24,0.9,23.1,0,22,0z M21,18L6,3h15V18z M3,6l15,15H3V6z"
-              />
-            </svg>
-            <span className="check" />
+          <span className={this.getLabelClass(false)}>
+            {this.question.uncheckedLabel}
           </span>
-          <span className={cssClasses.label}>{text}</span>
+          <div className={cssClasses.switch}>
+            <span className={cssClasses.slider} />
+          </div>
+          <span className={this.getLabelClass(true)}>
+            {this.question.checkedLabel}
+          </span>
         </label>
       </div>
     );

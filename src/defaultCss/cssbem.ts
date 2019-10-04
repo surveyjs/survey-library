@@ -50,8 +50,8 @@ export var bemCss = {
   pageDescription: "sv-description sv-page__description",
   row: "sv-row sv-clearfix",
   question: {
-    mainRoot: "sv-question sv-row__question",
-    flowRoot: "sv-question sv-row__question sv-row__question--flow",
+    mainRoot: "sv-question sv-row__question sv_qstn",
+    flowRoot: "sv-question sv-row__question sv-row__question--flow sv_qstn",
     asCell: "sv-table__cell",
     header: "sv-question__header",
     headerLeft: "sv-question__header--location--left",

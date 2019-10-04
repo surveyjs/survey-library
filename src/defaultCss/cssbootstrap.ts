@@ -36,6 +36,7 @@ export var defaultBootstrapCss = {
     title: "",
     number: "sv_q_num",
     description: "small",
+    requiredText: "sv_q_required_text",
     comment: "form-control",
     required: "",
     titleRequired: "",

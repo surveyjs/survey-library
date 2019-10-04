@@ -41,6 +41,7 @@ export var defaultStandardCss = {
     content: "",
     contentLeft: "content-left",
     titleLeftRoot: "sv_qstn_left",
+    requiredText: "sv_q_required_text",
     title: "sv_q_title",
     number: "sv_q_num",
     description: "sv_q_description",

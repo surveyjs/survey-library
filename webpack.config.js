@@ -75,7 +75,7 @@ var platformOptions = {
   angular: {
     externals: {},
     keywords: ["angular", "angular-component"],
-    dependencies: { }
+    dependencies: {}
   },
   vue: {
     externals: {
@@ -101,10 +101,15 @@ module.exports = function(options) {
   options.platformPrefix =
     options.platform == "knockout" ? "ko" : options.platform;
   var packagePath = "./packages/survey-" + options.platform + "/";
-  var extractCSS = new ExtractTextPlugin({
+  var mainThemeExtractCss = new ExtractTextPlugin({
     filename:
       packagePath +
       (options.buildType === "prod" ? "survey.min.css" : "survey.css")
+  });
+
+  var bemThemeExtractCss = new ExtractTextPlugin({
+    filename:
+      packagePath + (options.buildType === "prod" ? "bem.min.css" : "bem.css")
   });
 
   var percentage_handler = function handler(percentage, msg) {
@@ -222,7 +227,31 @@ module.exports = function(options) {
         },
         {
           test: /\.scss$/,
-          use: extractCSS.extract({
+          include: [path.resolve(__dirname, "src/main.scss")],
+          use: mainThemeExtractCss.extract({
+            fallback: "style-loader",
+            use: [
+              {
+                loader: "css-loader",
+                options: {
+                  sourceMap: options.buildType === "dev",
+                  // minimize: options.buildType === "prod",
+                  importLoaders: true
+                }
+              },
+              {
+                loader: "sass-loader",
+                options: {
+                  sourceMap: options.buildType === "dev"
+                }
+              }
+            ]
+          })
+        },
+        {
+          test: /\.scss$/,
+          include: [path.resolve(__dirname, "src/bem.scss")],
+          use: bemThemeExtractCss.extract({
             fallback: "style-loader",
             use: [
               {
@@ -272,7 +301,8 @@ module.exports = function(options) {
       new webpack.BannerPlugin({
         banner: banner
       }),
-      extractCSS
+      mainThemeExtractCss,
+      bemThemeExtractCss
     ],
     devtool: "inline-source-map"
   };

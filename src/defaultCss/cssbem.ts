@@ -90,7 +90,7 @@ export var bemCss = {
     itemHover: "sv-checkbox--allowhover",
     itemInline: "sv-selectbase__item--inline",
     label: "sv-selectbase__label",
-    itemControl: "sv-visuallyhidden sv-item__control sv-checkbox__control",
+    itemControl: "sv-visuallyhidden sv-item__control",
     itemDecorator: "sv-item__svg sv-checkbox__svg",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-checkbox__decorator",
@@ -105,7 +105,7 @@ export var bemCss = {
     itemDisabled: "sv-item--disabled sv-radio--disabled",
     itemChecked: "sv-radio--checked",
     itemHover: "sv-radio--allowhover",
-    itemControl: "sv-visuallyhidden sv-item__control sv-radio__control",
+    itemControl: "sv-visuallyhidden sv-item__control",
     itemDecorator: "sv-item__svg sv-radio__svg",
     controlLabel: "sv-item__control-label",
     materialDecorator: "sv-item__decorator sv-radio__decorator",
@@ -159,7 +159,7 @@ export var bemCss = {
     clearButton: "sv-btn"
   },
   matrix: {
-    root: "sv-table",
+    root: "sv-table sv-matrix",
     cell: "sv-table__cell sv-matrix__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     label: "sv-item sv-radio sv-matrix__label",
@@ -174,7 +174,7 @@ export var bemCss = {
     cellTextDisabled: "sv-matrix__text--disabled"
   },
   matrixdropdown: {
-    root: "sv-table sv-matrix-dropdown",
+    root: "sv-table",
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header"
   },
